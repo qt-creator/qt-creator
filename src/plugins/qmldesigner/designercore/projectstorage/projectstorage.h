@@ -184,6 +184,12 @@ public:
                 &propertyDeclarationId);
     }
 
+    std::vector<Utils::SmallString> signalDeclarationNames(TypeId typeId) const
+    {
+        return selectSignalDeclarationNamesForTypeStatement
+            .template valuesWithTransaction<Utils::SmallString>(32, &typeId);
+    }
+
     Utils::optional<Utils::SmallString> propertyName(PropertyDeclarationId propertyDeclarationId) const
     {
         return selectPropertyNameStatement.template optionalValueWithTransaction<Utils::SmallString>(
@@ -2938,6 +2944,16 @@ public:
         "SELECT typeId, name, propertyTraits, propertyTypeId "
         "FROM propertyDeclarations "
         "WHERE propertyDeclarationId=?1 LIMIT 1",
+        database};
+    mutable ReadStatement<1, 1> selectSignalDeclarationNamesForTypeStatement{
+        "WITH RECURSIVE "
+        "  typeChain(typeId) AS ("
+        "      VALUES(?1)"
+        "    UNION ALL "
+        "      SELECT prototypeId FROM types JOIN typeChain "
+        "        USING(typeId) WHERE prototypeId IS NOT NULL)"
+        "SELECT name FROM typeChain JOIN signalDeclarations "
+        "  USING(typeId) ORDER BY name",
         database};
 };
 extern template class ProjectStorage<Sqlite::Database>;

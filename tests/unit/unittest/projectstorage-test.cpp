@@ -240,6 +240,13 @@ MATCHER(IsSorted, std::string(negation ? "isn't sorted" : "is sorted"))
     return std::is_sorted(begin(arg), end(arg));
 }
 
+MATCHER(StringsAreSorted, std::string(negation ? "isn't sorted" : "is sorted"))
+{
+    return std::is_sorted(begin(arg), end(arg), [](const auto &first, const auto &second) {
+        return Sqlite::compare(first, second) < 0;
+    });
+}
+
 class ProjectStorage : public testing::Test
 {
 protected:
@@ -779,7 +786,9 @@ protected:
                  "children",
                  Storage::Synchronization::ImportedType{"Object"},
                  Storage::PropertyDeclarationTraits::IsList
-                     | Storage::PropertyDeclarationTraits::IsReadOnly}}});
+                     | Storage::PropertyDeclarationTraits::IsReadOnly}},
+            {},
+            {Storage::Synchronization::SignalDeclaration{"valuesChanged", {}}}});
         package.types.push_back(Storage::Synchronization::Type{
             "QObject2",
             Storage::Synchronization::ImportedType{"Object"},
@@ -796,7 +805,9 @@ protected:
                  "children2",
                  Storage::Synchronization::ImportedType{"Object3"},
                  Storage::PropertyDeclarationTraits::IsList
-                     | Storage::PropertyDeclarationTraits::IsReadOnly}}});
+                     | Storage::PropertyDeclarationTraits::IsReadOnly}},
+            {},
+            {Storage::Synchronization::SignalDeclaration{"itemsChanged", {}}}});
         package.types.push_back(Storage::Synchronization::Type{
             "QObject3",
             Storage::Synchronization::ImportedType{"Object2"},
@@ -813,7 +824,9 @@ protected:
                  "children3",
                  Storage::Synchronization::ImportedType{"Object2"},
                  Storage::PropertyDeclarationTraits::IsList
-                     | Storage::PropertyDeclarationTraits::IsReadOnly}}});
+                     | Storage::PropertyDeclarationTraits::IsReadOnly}},
+            {},
+            {Storage::Synchronization::SignalDeclaration{"objectsChanged", {}}}});
 
         package.updatedSourceIds.push_back(sourceId1);
 
@@ -5682,6 +5695,50 @@ TEST_F(ProjectStorage, GetInvalidOptionalPropertyDeclarationForInvalidPropertyDe
     auto property = storage.propertyDeclaration(PropertyDeclarationId{});
 
     ASSERT_THAT(property, Eq(Utils::nullopt));
+}
+
+TEST_F(ProjectStorage, GetSignalDeclarationNames)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject3");
+
+    auto signalNames = storage.signalDeclarationNames(typeId);
+
+    ASSERT_THAT(signalNames, ElementsAre("itemsChanged", "objectsChanged", "valuesChanged"));
+}
+
+TEST_F(ProjectStorage, GetSignalDeclarationNamesAreOrdered)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject3");
+
+    auto signalNames = storage.signalDeclarationNames(typeId);
+
+    ASSERT_THAT(signalNames, StringsAreSorted());
+}
+
+TEST_F(ProjectStorage, GetNoSignalDeclarationNamesForInvalidTypeId)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "WrongObject");
+
+    auto signalNames = storage.signalDeclarationNames(typeId);
+
+    ASSERT_THAT(signalNames, IsEmpty());
+}
+
+TEST_F(ProjectStorage, GetOnlySignalDeclarationNamesFromUpIntoThePrototypeChain)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject2");
+
+    auto signalNames = storage.signalDeclarationNames(typeId);
+
+    ASSERT_THAT(signalNames, ElementsAre("itemsChanged", "valuesChanged"));
 }
 
 } // namespace
