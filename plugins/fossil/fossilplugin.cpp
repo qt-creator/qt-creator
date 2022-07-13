@@ -60,10 +60,10 @@
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
-#include <vcsbase/vcsbasesubmiteditor.h>
+#include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
-#include <vcsbase/vcscommand.h>
+#include <vcsbase/vcsbasesubmiteditor.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QtPlugin>
@@ -1043,7 +1043,7 @@ Utils::ShellCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QSt
     checkoutPath.createDir();
 
     // Setup the wizard page command job
-    auto command = new VcsBase::VcsCommand(checkoutPath, m_client.processEnvironment());
+    auto command = VcsBaseClient::createVcsCommand(checkoutPath, m_client.processEnvironment());
 
     if (!isLocalRepository
         && !cloneRepository.exists()) {

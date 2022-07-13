@@ -31,7 +31,6 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsoutputwindow.h>
-#include <vcsbase/vcscommand.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -39,6 +38,7 @@
 #include <utils/processenums.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/shellcommand.h>
 #include <utils/utilsicons.h>
 
 #include <QSyntaxHighlighter>
@@ -55,6 +55,12 @@ using namespace Utils;
 
 namespace Fossil {
 namespace Internal {
+
+// Disable UNIX terminals to suppress SSH prompting
+const unsigned s_pullFlags = ShellCommand::SshPasswordPrompt
+                           | ShellCommand::ShowStdOut
+                           | ShellCommand::ShowSuccessMessage;
+
 
 // Parameter widget controlling whitespace diff mode, associated with a parameter
 class FossilDiffConfig : public VcsBase::VcsBaseEditorConfig
@@ -739,13 +745,8 @@ bool FossilClient::synchronousPull(const FilePath &workingDir, const QString &sr
     }
 
     args << extraOptions;
-    // Disable UNIX terminals to suppress SSH prompting
-    const unsigned flags =
-            VcsBase::VcsCommand::SshPasswordPrompt
-            | VcsBase::VcsCommand::ShowStdOut
-            | VcsBase::VcsCommand::ShowSuccessMessage;
     QtcProcess proc;
-    vcsSynchronousExec(proc, workingDir, args, flags);
+    vcsSynchronousExec(proc, workingDir, args, s_pullFlags);
     const bool success = (proc.result() == ProcessResult::FinishedWithSuccess);
     if (success)
         emit changed(workingDir.toVariant());
@@ -764,13 +765,8 @@ bool FossilClient::synchronousPush(const FilePath &workingDir, const QString &ds
     }
 
     args << extraOptions;
-    // Disable UNIX terminals to suppress SSH prompting
-    const unsigned flags =
-            VcsBase::VcsCommand::SshPasswordPrompt
-            | VcsBase::VcsCommand::ShowStdOut
-            | VcsBase::VcsCommand::ShowSuccessMessage;
     QtcProcess proc;
-    vcsSynchronousExec(proc, workingDir, args, flags);
+    vcsSynchronousExec(proc, workingDir, args, s_pullFlags);
     return (proc.result() == ProcessResult::FinishedWithSuccess);
 }
 
@@ -817,7 +813,7 @@ VcsBase::VcsBaseEditorWidget *FossilClient::annotate(const FilePath &workingDir,
     if (VcsBase::VcsBaseEditorConfig *editorConfig = fossilEditor->editorConfig())
         effectiveArgs = editorConfig->arguments();
 
-    VcsBase::VcsCommand *cmd = createCommand(workingDir, fossilEditor);
+    ShellCommand *cmd = createCommand(workingDir, fossilEditor);
 
     // here we introduce a "|BLAME|" meta-option to allow both annotate and blame modes
     int pos = effectiveArgs.indexOf("|BLAME|");
@@ -1109,9 +1105,9 @@ void FossilClient::revertFile(const FilePath &workingDir,
     args << extraOptions << file;
 
     // Indicate file list
-    VcsBase::VcsCommand *cmd = createCommand(workingDir);
+    ShellCommand *cmd = createCommand(workingDir);
     cmd->setCookie(QStringList(workingDir.toString() + "/" + file));
-    connect(cmd, &VcsBase::VcsCommand::success, this, &VcsBase::VcsBaseClient::changed, Qt::QueuedConnection);
+    connect(cmd, &ShellCommand::success, this, &VcsBase::VcsBaseClient::changed, Qt::QueuedConnection);
     enqueueJob(cmd, args);
 }
 
@@ -1135,9 +1131,9 @@ void FossilClient::revertAll(const FilePath &workingDir, const QString &revision
     }
 
     // Indicate repository change
-    VcsBase::VcsCommand *cmd = createCommand(workingDir);
+    ShellCommand *cmd = createCommand(workingDir);
     cmd->setCookie(QStringList(workingDir.toString()));
-    connect(cmd, &VcsBase::VcsCommand::success, this, &VcsBase::VcsBaseClient::changed, Qt::QueuedConnection);
+    connect(cmd, &ShellCommand::success, this, &VcsBase::VcsBaseClient::changed, Qt::QueuedConnection);
     enqueueJob(createCommand(workingDir), args);
 }
 
