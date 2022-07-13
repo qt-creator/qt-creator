@@ -67,6 +67,7 @@ void ClangToolRunner::init(const FilePath &outputDirPath, const Environment &env
     QTC_CHECK(!m_outputDirPath.isEmpty());
 
     m_process.setEnvironment(environment);
+    m_process.setUseCtrlCStub(true);
     m_process.setWorkingDirectory(m_outputDirPath); // Current clang-cl puts log file into working dir.
     connect(&m_process, &QtcProcess::done, this, &ClangToolRunner::onProcessDone);
 }
