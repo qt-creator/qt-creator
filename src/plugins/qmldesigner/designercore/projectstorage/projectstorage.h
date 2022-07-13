@@ -151,16 +151,22 @@ public:
             .template valueWithTransaction<TypeId>(&moduleId, exportedTypeName);
     }
 
-    PropertyDeclarationIds propertyIds(TypeId typeId) const
+    PropertyDeclarationIds propertyDeclarationIds(TypeId typeId) const
     {
         return selectPropertyDeclarationIdsForTypeStatement
             .template valuesWithTransaction<PropertyDeclarationId>(32, &typeId);
     }
 
-    PropertyDeclarationIds localPropertyIds(TypeId typeId) const
+    PropertyDeclarationIds localPropertyDeclarationIds(TypeId typeId) const
     {
         return selectLocalPropertyDeclarationIdsForTypeStatement
             .template valuesWithTransaction<PropertyDeclarationId>(16, &typeId);
+    }
+
+    PropertyDeclarationId propertyDeclarationId(TypeId typeId, Utils::SmallStringView propertyName) const
+    {
+        return selectPropertyDeclarationIdForTypeAndPropertyNameStatement
+            .template valueWithTransaction<PropertyDeclarationId>(&typeId, propertyName);
     }
 
     Utils::optional<Utils::SmallString> propertyName(PropertyDeclarationId propertyDeclarationId) const
@@ -2897,6 +2903,16 @@ public:
         "FROM propertyDeclarations "
         "WHERE typeId=? "
         "ORDER BY propertyDeclarationId",
+        database};
+    mutable ReadStatement<1, 2> selectPropertyDeclarationIdForTypeAndPropertyNameStatement{
+        "WITH RECURSIVE "
+        "  typeChain(typeId, level) AS ("
+        "      VALUES(?1, 0)"
+        "    UNION ALL "
+        "      SELECT prototypeId, typeChain.level + 1 FROM types JOIN typeChain "
+        "        USING(typeId) WHERE prototypeId IS NOT NULL)"
+        "SELECT propertyDeclarationId FROM typeChain JOIN propertyDeclarations "
+        "  USING(typeId) WHERE name=?2 ORDER BY level LIMIT 1",
         database};
 };
 extern template class ProjectStorage<Sqlite::Database>;

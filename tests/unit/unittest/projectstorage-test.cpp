@@ -5555,13 +5555,13 @@ TEST_F(ProjectStorage, GetNoTypeIdWithCompleteVersionForWrongMajorVersion)
     ASSERT_FALSE(typeId);
 }
 
-TEST_F(ProjectStorage, GetProperties)
+TEST_F(ProjectStorage, GetPropertyDeclarationIds)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
-    auto itemTypeId = fetchTypeId(sourceId1, "QObject3");
+    auto typeId = fetchTypeId(sourceId1, "QObject3");
 
-    auto propertyIds = storage.propertyIds(itemTypeId);
+    auto propertyIds = storage.propertyDeclarationIds(typeId);
 
     ASSERT_THAT(propertyIds,
                 UnorderedElementsAre(HasName("data"),
@@ -5572,24 +5572,24 @@ TEST_F(ProjectStorage, GetProperties)
                                      HasName("children3")));
 }
 
-TEST_F(ProjectStorage, GetPropertiesAreReturnedSorted)
+TEST_F(ProjectStorage, GetPropertyDeclarationIdsAreReturnedSorted)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
-    auto itemTypeId = fetchTypeId(sourceId1, "QObject3");
+    auto typeId = fetchTypeId(sourceId1, "QObject3");
 
-    auto propertyIds = storage.propertyIds(itemTypeId);
+    auto propertyIds = storage.propertyDeclarationIds(typeId);
 
     ASSERT_THAT(propertyIds, IsSorted());
 }
 
-TEST_F(ProjectStorage, GetNoPropertiesPropertiesFromDerivedTypes)
+TEST_F(ProjectStorage, GetNoPropertyDeclarationIdsPropertiesFromDerivedTypes)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
-    auto itemTypeId = fetchTypeId(sourceId1, "QObject2");
+    auto typeId = fetchTypeId(sourceId1, "QObject2");
 
-    auto propertyIds = storage.propertyIds(itemTypeId);
+    auto propertyIds = storage.propertyDeclarationIds(typeId);
 
     ASSERT_THAT(propertyIds,
                 UnorderedElementsAre(HasName("data"),
@@ -5598,37 +5598,91 @@ TEST_F(ProjectStorage, GetNoPropertiesPropertiesFromDerivedTypes)
                                      HasName("children2")));
 }
 
-TEST_F(ProjectStorage, GetNoPropertiesForWrongTypeId)
+TEST_F(ProjectStorage, GetNoPropertyDeclarationIdsForWrongTypeId)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
-    auto itemTypeId = fetchTypeId(sourceId1, "WrongObject");
+    auto typeId = fetchTypeId(sourceId1, "WrongObject");
 
-    auto propertyIds = storage.propertyIds(itemTypeId);
+    auto propertyIds = storage.propertyDeclarationIds(typeId);
 
     ASSERT_THAT(propertyIds, IsEmpty());
 }
 
-TEST_F(ProjectStorage, GetLocalProperties)
+TEST_F(ProjectStorage, GetLocalPropertyDeclarationIds)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
-    auto itemTypeId = fetchTypeId(sourceId1, "QObject2");
+    auto typeId = fetchTypeId(sourceId1, "QObject2");
 
-    auto propertyIds = storage.localPropertyIds(itemTypeId);
+    auto propertyIds = storage.localPropertyDeclarationIds(typeId);
 
     ASSERT_THAT(propertyIds, UnorderedElementsAre(HasName("data2"), HasName("children2")));
 }
 
-TEST_F(ProjectStorage, GetLocalPropertiesAreReturnedSorted)
+TEST_F(ProjectStorage, GetLocalPropertyDeclarationIdsAreReturnedSorted)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
-    auto itemTypeId = fetchTypeId(sourceId1, "QObject2");
+    auto typeId = fetchTypeId(sourceId1, "QObject2");
 
-    auto propertyIds = storage.localPropertyIds(itemTypeId);
+    auto propertyIds = storage.localPropertyDeclarationIds(typeId);
 
     ASSERT_THAT(propertyIds, IsSorted());
+}
+
+TEST_F(ProjectStorage, GetPropertyDeclarationId)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject3");
+
+    auto propertyId = storage.propertyDeclarationId(typeId, "data");
+
+    ASSERT_THAT(propertyId, HasName("data"));
+}
+
+TEST_F(ProjectStorage, GetLatestPropertyDeclarationId)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject3");
+    auto oldPropertyId = storage.propertyDeclarationId(typeId, "data");
+    auto found = std::find_if(package.types.begin(), package.types.end(), [](const auto &type) {
+        return type.typeName == "QObject3";
+    });
+    found->propertyDeclarations.push_back(Storage::Synchronization::PropertyDeclaration{
+        "data",
+        Storage::Synchronization::ImportedType{"Object"},
+        Storage::Synchronization::PropertyDeclarationTraits::IsList});
+    storage.synchronize(package);
+
+    auto propertyId = storage.propertyDeclarationId(typeId, "data");
+
+    ASSERT_THAT(propertyId, AllOf(Not(oldPropertyId), HasName("data")));
+    ASSERT_THAT(oldPropertyId, HasName("data"));
+}
+
+TEST_F(ProjectStorage, GetInvalidPropertyDeclarationIdForInvalidTypeId)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "WrongObject");
+
+    auto propertyId = storage.propertyDeclarationId(typeId, "data");
+
+    ASSERT_FALSE(propertyId);
+}
+
+TEST_F(ProjectStorage, GetInvalidPropertyDeclarationIdForWrongPropertyName)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "Object3");
+
+    auto propertyId = storage.propertyDeclarationId(typeId, "wrongName");
+
+    ASSERT_FALSE(propertyId);
 }
 
 } // namespace
