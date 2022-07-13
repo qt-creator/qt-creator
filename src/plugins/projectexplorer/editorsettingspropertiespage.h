@@ -25,10 +25,19 @@
 
 #pragma once
 
-#include "ui_editorsettingspropertiespage.h"
 #include <projectexplorer/projectsettingswidget.h>
 
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QGroupBox;
+class QPushButton;
+class QSpinBox;
+QT_END_NAMESPACE
+
+namespace TextEditor { class BehaviorSettingsWidget; }
+
 namespace ProjectExplorer {
+
 class EditorConfiguration;
 class Project;
 
@@ -46,8 +55,14 @@ private:
 
     void settingsToUi(const EditorConfiguration *config);
 
-    Ui::EditorSettingsPropertiesPage m_ui;
     Project *m_project;
+
+    QPushButton *m_restoreButton;
+    QCheckBox *m_showWrapColumn;
+    QSpinBox *m_wrapColumn;
+    QCheckBox *m_useIndenter;
+    QGroupBox *m_displaySettings;
+    TextEditor::BehaviorSettingsWidget *m_behaviorSettings;
 };
 
 } // namespace Internal

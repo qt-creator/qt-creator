@@ -72,7 +72,7 @@ add_qtc_plugin(ProjectExplorer
     devicesupport/sshsettings.cpp devicesupport/sshsettings.h
     devicesupport/sshsettingspage.cpp devicesupport/sshsettingspage.h
     editorconfiguration.cpp editorconfiguration.h
-    editorsettingspropertiespage.cpp editorsettingspropertiespage.h editorsettingspropertiespage.ui
+    editorsettingspropertiespage.cpp editorsettingspropertiespage.h
     environmentaspect.cpp environmentaspect.h
     environmentaspectwidget.cpp environmentaspectwidget.h
     environmentwidget.cpp environmentwidget.h

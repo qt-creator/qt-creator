@@ -62,7 +62,7 @@ Project {
                 "deploymentdataview.h",
                 "desktoprunconfiguration.cpp", "desktoprunconfiguration.h",
                 "editorconfiguration.cpp", "editorconfiguration.h",
-                "editorsettingspropertiespage.cpp", "editorsettingspropertiespage.h", "editorsettingspropertiespage.ui",
+                "editorsettingspropertiespage.cpp", "editorsettingspropertiespage.h",
                 "environmentaspect.cpp", "environmentaspect.h",
                 "environmentaspectwidget.cpp", "environmentaspectwidget.h",
                 "environmentwidget.cpp", "environmentwidget.h",
