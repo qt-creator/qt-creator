@@ -27,8 +27,7 @@ add_qtc_plugin(QtSupport
     qtsupportplugin.cpp qtsupportplugin.h
     qttestparser.cpp qttestparser.h
     qtversionfactory.h
-    qtversioninfo.ui
-    qtversionmanager.cpp qtversionmanager.h qtversionmanager.ui
+    qtversionmanager.cpp qtversionmanager.h
     qtversions.cpp qtversions.h
     translationwizardpage.cpp translationwizardpage.h
     uicgenerator.cpp uicgenerator.h
