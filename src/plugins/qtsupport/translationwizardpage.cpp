@@ -25,9 +25,12 @@
 
 #include "translationwizardpage.h"
 
+#include "qtsupporttr.h"
+
 #include <projectexplorer/jsonwizard/jsonwizard.h>
+
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/macroexpander.h>
 #include <utils/wizardpage.h>
 
@@ -88,14 +91,14 @@ TranslationWizardPage::TranslationWizardPage(const QString &enabledExpr)
 {
     const auto mainLayout = new QVBoxLayout(this);
     const auto descriptionLabel = new QLabel(
-                tr("If you plan to provide translations for your project's "
-                   "user interface via the Qt Linguist tool, please select a language here. "
-                   "A corresponding translation (.ts) file will be generated for you."));
+                Tr::tr("If you plan to provide translations for your project's "
+                       "user interface via the Qt Linguist tool, please select a language here. "
+                       "A corresponding translation (.ts) file will be generated for you."));
     descriptionLabel->setWordWrap(true);
     mainLayout->addWidget(descriptionLabel);
     const auto formLayout = new QFormLayout;
     mainLayout->addLayout(formLayout);
-    m_languageComboBox.addItem(tr("<none>"));
+    m_languageComboBox.addItem(Tr::tr("<none>"));
     QList<QLocale> allLocales = QLocale::matchingLocales(
                 QLocale::AnyLanguage, QLocale::AnyScript, QLocale::AnyCountry);
     allLocales.removeOne(QLocale::C);
@@ -113,12 +116,12 @@ TranslationWizardPage::TranslationWizardPage(const QString &enabledExpr)
                         localeStrings.end());
     for (const LocalePair &lp : qAsConst(localeStrings))
         m_languageComboBox.addItem(lp.first, lp.second);
-    formLayout->addRow(tr("Language:"), &m_languageComboBox);
+    formLayout->addRow(Tr::tr("Language:"), &m_languageComboBox);
     const auto fileNameLayout = new QHBoxLayout;
     m_fileNameLineEdit.setReadOnly(true);
     fileNameLayout->addWidget(&m_fileNameLineEdit);
     fileNameLayout->addStretch(1);
-    formLayout->addRow(tr("Translation file:"), fileNameLayout);
+    formLayout->addRow(Tr::tr("Translation file:"), fileNameLayout);
     connect(&m_languageComboBox, &QComboBox::currentIndexChanged,
             this, &TranslationWizardPage::updateLineEdit);
 }
@@ -154,7 +157,7 @@ void TranslationWizardPage::updateLineEdit()
         m_fileNameLineEdit.setText(projectName + '_' + m_languageComboBox.currentData().toString());
     } else {
         m_fileNameLineEdit.clear();
-        m_fileNameLineEdit.setPlaceholderText(tr("<none>"));
+        m_fileNameLineEdit.setPlaceholderText(Tr::tr("<none>"));
     }
     emit completeChanged();
 }

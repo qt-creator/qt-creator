@@ -9898,7 +9898,7 @@ Dies ist unabhängig vom Wert der Eigenschaft &quot;visible&quot; in QML.</trans
     </message>
 </context>
 <context>
-    <name>QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>No qmake path set</source>
         <translation>Es ist keine qmake-Pfad gesetzt</translation>
@@ -14457,7 +14457,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionInfo</name>
+    <name>QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Name der Version:</translation>
@@ -14472,7 +14472,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionManager</name>
+    <name>QtSupport</name>
     <message>
         <source>Remove</source>
         <translation>Entfernen</translation>
@@ -15526,7 +15526,7 @@ Wollen Sie die Daten vorher speichern?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtOptionsPageWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;Geben Sie einen Namen an&gt;</translation>
@@ -15582,10 +15582,6 @@ Wollen Sie die Daten vorher speichern?</translation>
     <message>
         <source>All</source>
         <translation>Alle</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Keine</translation>
     </message>
     <message>
         <source>Remove Invalid Qt Versions</source>
@@ -15654,10 +15650,6 @@ Wollen Sie die Daten vorher speichern?</translation>
     <message>
         <source>Choose the Qt installation directory, or a directory that contains &quot;%1&quot;.</source>
         <translation>Wählen Sie das Qt-Installationsverzeichnis oder ein Verzeichnis, das &quot;%1&quot; enthält.</translation>
-    </message>
-    <message>
-        <source>Link with Qt</source>
-        <translation>Mit Qt verknüpfen</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -17544,7 +17536,7 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ShowBuildLog</name>
+    <name>QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Erstellungsprotokoll der Ausgabe-Hilfsbibliothek</translation>
@@ -18401,7 +18393,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ExamplesWelcomePage</name>
+    <name>QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>Beispiele</translation>
@@ -20789,7 +20781,7 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtKitConfigWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>%1 (invalid)</source>
         <translation>%1 (ungültig)</translation>
@@ -21584,7 +21576,7 @@ Entfernt: %4</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtSupportPlugin</name>
+    <name>QtSupport</name>
     <message>
         <source>Link with a Qt installation to automatically register Qt versions and kits? To do this later, select Options &gt; Kits &gt; Qt Versions &gt; Link with Qt.</source>
         <translation>Mit einer Qt-Installation verknüpfen, um automatisch Qt-Versionen und Kits zu registrieren? Um dies später zu tun, wählen Sie Einstellungen &gt; Kits &gt; Qt-Versionen &gt; Mit Qt verknüpfen.</translation>
@@ -21603,7 +21595,7 @@ Entfernt: %4</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::QtVersionFactory</name>
+    <name>QtSupport</name>
     <message>
         <source>No factory found for qmake: &quot;%1&quot;</source>
         <translation>Es konnte keine Factory für qmake gefunden werden: &quot;%1&quot;</translation>
@@ -25638,7 +25630,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -28254,7 +28246,7 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::CodeGenSettingsPageWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>Embedding of the UI Class</source>
         <translation>Verwendung der UI-Klasse</translation>
@@ -48885,7 +48877,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>QtSupport::BaseQtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>Device type is not supported by Qt version.</source>
         <translation>Der Gerätetyp wird von der Qt-Version nicht unterstützt.</translation>
@@ -48904,7 +48896,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>QtSupport::QtKitAspect</name>
+    <name>QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Qt-Version</translation>
@@ -49015,7 +49007,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>QtSupport::QtQuickCompilerAspect</name>
+    <name>QtSupport</name>
     <message>
         <source>Qt Quick Compiler:</source>
         <translation>Qt-Quick-Compiler:</translation>
@@ -49026,7 +49018,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::TranslationWizardPage</name>
+    <name>QtSupport</name>
     <message>
         <source>&lt;none&gt;</source>
         <translation>&lt;leer&gt;</translation>
@@ -50340,7 +50332,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>QtSupport::QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>Qt Version</source>
         <translation>Qt-Version</translation>

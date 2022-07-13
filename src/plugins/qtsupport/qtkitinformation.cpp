@@ -25,10 +25,11 @@
 
 #include "qtkitinformation.h"
 
-#include "qtsupportconstants.h"
-#include "qtversionmanager.h"
 #include "qtparser.h"
+#include "qtsupportconstants.h"
+#include "qtsupporttr.h"
 #include "qttestparser.h"
+#include "qtversionmanager.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
@@ -51,13 +52,12 @@ namespace Internal {
 
 class QtKitAspectWidget final : public KitAspectWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(QtSupport::QtKitAspectWidget)
 public:
     QtKitAspectWidget(Kit *k, const KitAspect *ki) : KitAspectWidget(k, ki)
     {
         m_combo = createSubWidget<QComboBox>();
         m_combo->setSizePolicy(QSizePolicy::Ignored, m_combo->sizePolicy().verticalPolicy());
-        m_combo->addItem(tr("None"), -1);
+        m_combo->addItem(Tr::tr("None"), -1);
 
         QList<int> versionIds = Utils::transform(QtVersionManager::versions(), &QtVersion::uniqueId);
         versionsChanged(versionIds, QList<int>(), QList<int>());
@@ -100,7 +100,7 @@ private:
         QTC_ASSERT(v, return QString());
         QString name = v->displayName();
         if (!v->isValid())
-            name = tr("%1 (invalid)").arg(v->displayName());
+            name = Tr::tr("%1 (invalid)").arg(v->displayName());
         return name;
     }
 
@@ -148,10 +148,10 @@ QtKitAspect::QtKitAspect()
 {
     setObjectName(QLatin1String("QtKitAspect"));
     setId(QtKitAspect::id());
-    setDisplayName(tr("Qt version"));
-    setDescription(tr("The Qt library to use for all projects using this kit.<br>"
-                      "A Qt version is required for qmake-based projects "
-                      "and optional when using other build systems."));
+    setDisplayName(Tr::tr("Qt version"));
+    setDescription(Tr::tr("The Qt library to use for all projects using this kit.<br>"
+                          "A Qt version is required for qmake-based projects "
+                          "and optional when using other build systems."));
     setPriority(26000);
 
     connect(KitManager::instance(), &KitManager::kitsLoaded,
@@ -275,7 +275,7 @@ QString QtKitAspect::displayNamePostfix(const Kit *k) const
 KitAspect::ItemList QtKitAspect::toUserOutput(const Kit *k) const
 {
     QtVersion *version = qtVersion(k);
-    return {{tr("Qt version"), version ? version->displayName() : tr("None")}};
+    return {{Tr::tr("Qt version"), version ? version->displayName() : Tr::tr("None")}};
 }
 
 void QtKitAspect::addToBuildEnvironment(const Kit *k, Environment &env) const
@@ -313,12 +313,12 @@ void QtKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
     QTC_ASSERT(kit, return);
     expander->registerSubProvider(QtMacroSubProvider(kit));
 
-    expander->registerVariable("Qt:Name", tr("Name of Qt Version"),
+    expander->registerVariable("Qt:Name", Tr::tr("Name of Qt Version"),
                 [kit]() -> QString {
                    QtVersion *version = qtVersion(kit);
-                   return version ? version->displayName() : tr("unknown");
+                   return version ? version->displayName() : Tr::tr("unknown");
                 });
-    expander->registerVariable("Qt:qmakeExecutable", tr("Path to the qmake executable"),
+    expander->registerVariable("Qt:qmakeExecutable", Tr::tr("Path to the qmake executable"),
                 [kit]() -> QString {
                     QtVersion *version = qtVersion(kit);
                     return version ? version->qmakeFilePath().path() : QString();

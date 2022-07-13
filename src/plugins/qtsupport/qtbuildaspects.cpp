@@ -26,6 +26,7 @@
 #include "qtbuildaspects.h"
 
 #include "baseqtversion.h"
+#include "qtsupporttr.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildpropertiessettings.h>
@@ -47,7 +48,7 @@ QmlDebuggingAspect::QmlDebuggingAspect(BuildConfiguration *buildConfig)
     : m_buildConfig(buildConfig)
 {
     setSettingsKey("EnableQmlDebugging");
-    setDisplayName(tr("QML debugging and profiling:"));
+    setDisplayName(Tr::tr("QML debugging and profiling:"));
     setValue(ProjectExplorerPlugin::buildPropertiesSettings().qmlDebugging.value());
 }
 
@@ -66,8 +67,8 @@ void QmlDebuggingAspect::addToLayout(LayoutBuilder &builder)
         if (!supported) {
             setValue(TriState::Default);
         } else if (value() == TriState::Enabled) {
-            warningText = tr("Might make your application vulnerable.<br/>"
-                             "Only use in a safe environment.");
+            warningText = Tr::tr("Might make your application vulnerable.<br/>"
+                                 "Only use in a safe environment.");
         }
         warningLabel->setText(warningText);
         setVisible(supported);
@@ -84,7 +85,7 @@ QtQuickCompilerAspect::QtQuickCompilerAspect(BuildConfiguration *buildConfig)
     : m_buildConfig(buildConfig)
 {
     setSettingsKey("QtQuickCompiler");
-    setDisplayName(tr("Qt Quick Compiler:"));
+    setDisplayName(Tr::tr("Qt Quick Compiler:"));
     setValue(ProjectExplorerPlugin::buildPropertiesSettings().qtQuickCompiler.value());
 }
 
@@ -106,7 +107,7 @@ void QtQuickCompilerAspect::addToLayout(LayoutBuilder &builder)
         if (value() == TriState::Enabled) {
             if (auto qmlDebuggingAspect = m_buildConfig->aspect<QmlDebuggingAspect>()) {
                 if (qmlDebuggingAspect->value() == TriState::Enabled)
-                    warningText = tr("Disables QML debugging. QML profiling will still work.");
+                    warningText = Tr::tr("Disables QML debugging. QML profiling will still work.");
             }
         }
         warningLabel->setText(warningText);

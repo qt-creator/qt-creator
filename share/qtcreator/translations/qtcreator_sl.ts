@@ -17998,7 +17998,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid
@@ -18011,6 +18011,9 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
 </extracomment>
         <translation>Ukaza qmake »%1« ni bilo moč najti ali pa ni izvedljiv.</translation>
     </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QtVersion</name>
     <message>
         <source>Qmake does not support build directories below the source directory.</source>
         <translation>QMake ne podpira map za gradnjo v mapi z izvorno kodo.</translation>
@@ -18021,7 +18024,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>No qmake path set</source>
         <translation>Nastavljene ni nobene poti do qmake</translation>
@@ -20525,7 +20528,7 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::DebuggingHelper</name>
+    <name>QtSupport</name>
     <message>
         <source>Used to extract QML type information from library-based plugins.</source>
         <translation>Uporabljeno za ugotovitev podatkov o vrsti QML iz vstavkov na osnovi knjižnic.</translation>
@@ -20587,7 +20590,7 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionInfo</name>
+    <name>QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Ime različice:</translation>
@@ -20604,7 +20607,7 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionManager</name>
+    <name>QtSupport</name>
     <message>
         <source>Name</source>
         <translation>Ime</translation>
@@ -27593,7 +27596,7 @@ Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. N
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::GettingStartedWelcomePage</name>
+    <name>QtSupport</name>
     <message>
         <source>Copy Project to writable Location?</source>
         <translation>Ali želite skopirati projekt na zapisljivo mesto?</translation>
@@ -27728,7 +27731,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtOptionsPageWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;vnesite ime&gt;</translation>
@@ -27817,7 +27820,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::QtVersionManager</name>
+    <name>QtSupport</name>
     <message>
         <source>MinGW from %1</source>
         <translation>MinGW iz %1</translation>

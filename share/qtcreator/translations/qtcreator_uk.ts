@@ -20239,7 +20239,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QtSuppport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -20250,6 +20250,9 @@ Reason: %2</source>
         <extracomment>%1: Path to qmake executable</extracomment>
         <translation>Команда qmake &quot;%1&quot; не знайдено або вона не є виконуваним модулем.</translation>
     </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QtVersion</name>
     <message>
         <source>Qmake does not support build directories below the source directory.</source>
         <translation>Qmake не підтримує тек збірки нижче теки з кодом.</translation>
@@ -20444,7 +20447,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::DebuggingHelper</name>
+    <name>QtSupport</name>
     <message>
         <source>Used to extract QML type information from library-based plugins.</source>
         <translation type="vanished">Використовується для отримання інформації про типи QML з додатків-бібліотек.</translation>
@@ -20495,14 +20498,14 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::GettingStartedWelcomePage</name>
+    <name>QtSupport</name>
     <message>
         <source>Getting Started</source>
         <translation type="vanished">Починаючи роботу</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtOptionsPageWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;вкажіть назву&gt;</translation>
@@ -20564,14 +20567,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <translation>Видалити неправильні версії Qt</translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation>Назва</translation>
-    </message>
-    <message>
-        <source>qmake Location</source>
-        <translation>Розташування qmake</translation>
-    </message>
-    <message>
         <source>Type</source>
         <translation>Тип</translation>
     </message>
@@ -20626,7 +20621,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionInfo</name>
+    <name>QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Назва версії:</translation>
@@ -20641,7 +20636,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionManager</name>
+    <name>QtSupport</name>
     <message>
         <source>Name</source>
         <translation type="vanished">Назва</translation>
@@ -20668,7 +20663,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>&lt;unknown&gt;</source>
         <translation>&lt;невідома&gt;</translation>
@@ -20807,30 +20802,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Embedded Linux</source>
         <comment>Qt Version is used for embedded Linux development</comment>
         <translation>Вбудований Linux</translation>
-    </message>
-    <message>
-        <source>Maemo</source>
-        <translation type="vanished">Maemo</translation>
-    </message>
-    <message>
-        <source>Qt Simulator</source>
-        <translation type="vanished">Симулятор Qt</translation>
-    </message>
-    <message>
-        <source>Qt for WinCE</source>
-        <translation type="vanished">Qt для WinCE</translation>
-    </message>
-    <message>
-        <source>Harmattan </source>
-        <translation type="vanished">Harmattan </translation>
-    </message>
-    <message>
-        <source>Embedded Linux</source>
-        <translation type="vanished">Вбудований Linux</translation>
-    </message>
-    <message>
-        <source>Desktop</source>
-        <translation type="vanished">Стаціонарний комп&apos;ютер</translation>
     </message>
 </context>
 <context>
@@ -26080,7 +26051,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ShowBuildLog</name>
+    <name>QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Журнал збирання помічника зневадження</translation>
@@ -28205,7 +28176,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ExamplesWelcomePage</name>
+    <name>QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>Приклади</translation>
@@ -33587,7 +33558,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::CustomExecutableConfigurationWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>Executable:</source>
         <translation>Виконуваний модуль:</translation>
@@ -33613,7 +33584,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::CustomExecutableRunConfiguration</name>
+    <name>QtSupport</name>
     <message>
         <source>No executable.</source>
         <translation>Немає виконуваного модуля.</translation>
@@ -33627,23 +33598,19 @@ cannot be found in the path.</source>
 в стандартних шляхах.</translation>
     </message>
     <message>
-        <source>Custom Executable</source>
-        <translation>Користувацький виконуваний модуль</translation>
-    </message>
-    <message>
         <source>Run %1</source>
         <translation>Запустити %1</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::CustomExecutableRunConfigurationFactory</name>
+    <name>QtSupport</name>
     <message>
         <source>Custom Executable</source>
         <translation>Користувацький виконуваний модуль</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtKitConfigWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
         <translation>Бібліотека Qt, що буде вживатись усіма проектами, що використовують цей комплект.&lt;br&gt;Версія Qt необхідна для проектів на базі qmake та опціональна для інших систем збірки.</translation>
@@ -33651,10 +33618,6 @@ cannot be found in the path.</source>
     <message>
         <source>Manage...</source>
         <translation type="vanished">Управління...</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Немає</translation>
     </message>
     <message>
         <source>Qt version:</source>
@@ -33666,7 +33629,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::QtKitInformation</name>
+    <name>QtSupport</name>
     <message>
         <source>The version string of the current Qt version.</source>
         <translation>Рядок версії поточної Qt.</translation>
@@ -36326,7 +36289,7 @@ Remote: %4</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtSupportPlugin</name>
+    <name>QtSupport</name>
     <message>
         <source>Full path to the host bin directory of the current project&apos;s Qt version.</source>
         <translation>Повний шлях до host-теки bin версії Qt поточного проекту.</translation>
@@ -36341,7 +36304,7 @@ Remote: %4</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::QtVersionFactory</name>
+    <name>QtSupport</name>
     <message>
         <source>No factory found for qmake: &apos;%1&apos;</source>
         <translation type="vanished">Не знайдено фабрику для qmake: &apos;%1&apos;</translation>
@@ -45278,7 +45241,7 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::CodeGenSettingsPageWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
@@ -54041,7 +54004,7 @@ references to elements in other files, loops, and so on.)</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::ProMessageHandler</name>
+    <name>QtSupport</name>
     <message>
         <source>[Inexact] </source>
         <translation>[Неточно] </translation>

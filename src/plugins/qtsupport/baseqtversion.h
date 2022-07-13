@@ -87,8 +87,6 @@ class QtVersionPrivate;
 
 class QTSUPPORT_EXPORT QtVersion
 {
-    Q_DECLARE_TR_FUNCTIONS(QtSupport::QtVersion)
-
 public:
     using Predicate = std::function<bool(const QtVersion *)>;
 

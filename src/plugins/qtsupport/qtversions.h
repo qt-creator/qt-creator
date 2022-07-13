@@ -27,8 +27,7 @@
 
 #include "qtversionfactory.h"
 
-namespace QtSupport {
-namespace Internal {
+namespace QtSupport::Internal {
 
 class DesktopQtVersionFactory : public QtVersionFactory
 {
@@ -42,5 +41,4 @@ public:
     EmbeddedLinuxQtVersionFactory();
 };
 
-} // Internal
-} // QtSupport
+} // QtSupport::Internal

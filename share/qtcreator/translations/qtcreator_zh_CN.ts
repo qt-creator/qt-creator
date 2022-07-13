@@ -25682,7 +25682,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>No qmake path set</source>
         <translation>没有设置qmake路径</translation>
@@ -26742,7 +26742,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -26753,6 +26753,9 @@ with a password, which you can enter below.</source>
         <extracomment>%1: Path to qmake executable</extracomment>
         <translation>qmake命令 &quot;%1&quot; 没有找到或不可执行。</translation>
     </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QtVersion</name>
     <message>
         <source>Qmake does not support build directories below the source directory.</source>
         <translation>Qmake不支持源文件目录下的构建目录。</translation>
@@ -36355,7 +36358,7 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::DebuggingHelper</name>
+    <name>QtSupport</name>
     <message>
         <source>Used to extract QML type information from library-based plugins.</source>
         <translation>用于从基于库的插件解析出QML的类型信息。</translation>
@@ -36414,7 +36417,7 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionInfo</name>
+    <name>QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>版本名称:</translation>
@@ -36429,7 +36432,7 @@ Requires Qt 4.7.4 or newer, and the component set installed for your Qt version.
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionManager</name>
+    <name>QtSupport</name>
     <message>
         <source>Name</source>
         <translation>名称</translation>
@@ -38097,54 +38100,11 @@ Do you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::GettingStartedWelcomePage</name>
-    <message>
-        <source>Demos and Examples</source>
-        <translation type="obsolete">演示和范例</translation>
-    </message>
-    <message>
-        <source>Copy Project to writable Location?</source>
-        <translation type="obsolete">复制项目到可写位置?</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;The project you are about to open is located in the write-protected location:&lt;/p&gt;&lt;blockquote&gt;%1&lt;/blockquote&gt;&lt;p&gt;Please select a writable location below and click &quot;Copy Project and Open&quot; to open a modifiable copy of the project or click &quot;Keep Project and Open&quot; to open the project in location.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; You will not be able to alter or compile your project in the current location.&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;您正在打开的项目处于写入保护状态:&lt;/p&gt;&lt;blockquote&gt;%1&lt;/blockquote&gt;&lt;p&gt;请选择一个可写的位置然后单击&quot;复制项目并且打开&quot; 来打开一个可修改的项目拷贝或者单击 &quot;保留项目然后打开&quot; 就在此处打开项目.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; 在当前位置，您将不能修改或者编译项目.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&amp;Location:</source>
-        <translation type="obsolete">路径(&amp;L):</translation>
-    </message>
-    <message>
-        <source>&amp;Copy Project and Open</source>
-        <translation type="obsolete">复制项目并且打开(&amp;C)</translation>
-    </message>
-    <message>
-        <source>&amp;Keep Project and Open</source>
-        <translation type="obsolete">保留项目并且打开(&amp;K)</translation>
-    </message>
-    <message>
-        <source>Cannot Use Location</source>
-        <translation type="obsolete">无法定位 </translation>
-    </message>
-    <message>
-        <source>The specified location already exists. Please specify a valid location.</source>
-        <translation type="obsolete">指定路径已经存在，请指定有效路径。</translation>
-    </message>
-    <message>
-        <source>Cannot Copy Project</source>
-        <translation type="obsolete">无法复制项目</translation>
-    </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation type="obsolete">打开项目失败</translation>
-    </message>
+    <name>QtSupport</name>
     <message>
         <source>Getting Started</source>
         <translation>入门</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport::Internal::QtOptionsPageWidget</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;指定一个名字&gt;</translation>
@@ -38260,7 +38220,7 @@ Do you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::QtVersionManager</name>
+    <name>QtSupport</name>
     <message>
         <source>MinGW from %1</source>
         <translation type="obsolete">MinGW 从%1</translation>
@@ -43717,7 +43677,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ShowBuildLog</name>
+    <name>QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>调试助手构建日志</translation>
@@ -49184,7 +49144,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::CustomExecutableConfigurationWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>Command:</source>
         <translation>命令:</translation>
@@ -49213,14 +49173,6 @@ references to elements in other files, loops, etc.)</source>
         <source>Clean Environment</source>
         <translation>清理时的环境变量</translation>
     </message>
-    <message>
-        <source>System Environment</source>
-        <translation>系统环境变量</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation>构建时的环境变量</translation>
-    </message>
 </context>
 <context>
     <name>CustomExecutableDialog</name>
@@ -49230,7 +49182,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::CustomExecutableRunConfiguration</name>
+    <name>QtSupport</name>
     <message>
         <source>No executable.</source>
         <translation>无执行档。</translation>
@@ -49244,10 +49196,6 @@ cannot be found in the path.</source>
 在搜索路径中找不到。</translation>
     </message>
     <message>
-        <source>Clean Environment</source>
-        <translation>清除时的环境变量</translation>
-    </message>
-    <message>
         <source>System Environment</source>
         <translation>系统环境变量</translation>
     </message>
@@ -49256,23 +49204,13 @@ cannot be found in the path.</source>
         <translation>构建时的环境变量</translation>
     </message>
     <message>
-        <source>Custom Executable</source>
-        <translation>自定义执行档</translation>
-    </message>
-    <message>
         <source>Run %1</source>
         <translation>运行%1 </translation>
     </message>
-</context>
-<context>
-    <name>QtSupport::CustomExecutableRunConfigurationFactory</name>
     <message>
         <source>Custom Executable</source>
         <translation>自定义执行档</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport::Internal::ExamplesWelcomePage</name>
     <message>
         <source>Examples</source>
         <translation>示例</translation>
@@ -49319,7 +49257,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtKitConfigWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
         <translation>所有使用该构建套件的项目使用的Qt库。&lt;br&gt; 基于qmake的项目必需一个Qt版本，而使用其他构建系统的项目则为可选。</translation>
@@ -49329,16 +49267,12 @@ cannot be found in the path.</source>
         <translation>管理...</translation>
     </message>
     <message>
-        <source>None</source>
-        <translation>无</translation>
-    </message>
-    <message>
         <source>Qt version:</source>
         <translation>Qt 版本:</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::QtKitInformation</name>
+    <name>QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Qt 版本</translation>

@@ -12185,7 +12185,7 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     </message>
 </context>
 <context>
-    <name>QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>No qmake path set</source>
         <translation>Nie ustawiono ścieżki do qmake</translation>
@@ -12595,7 +12595,7 @@ które można ustawić poniżej.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -12606,6 +12606,9 @@ które można ustawić poniżej.</translation>
         <extracomment>%1: Path to qmake executable</extracomment>
         <translation>Komenda qmake &quot;%1&quot; nie została odnaleziona lub nie jest plikiem wykonywalnym.</translation>
     </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QtVersion</name>
     <message>
         <source>The build directory needs to be at the same level as the source directory.</source>
         <translation>Katalog przeznaczony do budowania musi być na tym samym poziomie co katalog ze źródłami.</translation>
@@ -16703,7 +16706,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionInfo</name>
+    <name>QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Nazwa wersji:</translation>
@@ -16718,7 +16721,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionManager</name>
+    <name>QtSupport</name>
     <message>
         <source>Remove</source>
         <translation>Usuń</translation>
@@ -17946,7 +17949,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtOptionsPageWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;Podaj nazwę&gt;</translation>
@@ -20104,7 +20107,7 @@ Przedrostki te, w dodatku do nazwy bieżącego pliku, używane są do przełącz
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ShowBuildLog</name>
+    <name>QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Log kompilacji programów pomocniczych debuggera</translation>
@@ -22820,7 +22823,7 @@ poinstruuje Qt Creatora o URI.</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ExamplesWelcomePage</name>
+    <name>QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>Przykłady</translation>
@@ -24088,14 +24091,10 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtKitConfigWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
         <translation>Biblioteka Qt, która zostanie użyta do budowania wszystkich projektów dla tego zestawu narzędzi.&lt;br&gt;Wersja Qt jest wymagana dla projektów bazujących na qmake i opcjonalna dla innych systemów budowania.</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Brak</translation>
     </message>
     <message>
         <source>Qt version:</source>
@@ -24107,7 +24106,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>QtSupport::QtKitInformation</name>
+    <name>QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Wersja Qt</translation>
@@ -26828,7 +26827,7 @@ Zdalny: %4</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtSupportPlugin</name>
+    <name>QtSupport</name>
     <message>
         <source>Full path to the host bin directory of the current project&apos;s Qt version.</source>
         <translation>Pełna ścieżka do źródłowego podkatalogu &quot;bin&quot; w katalogu instalacji bieżącej wersji Qt.</translation>
@@ -26839,7 +26838,7 @@ Zdalny: %4</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::QtVersionFactory</name>
+    <name>QtSupport</name>
     <message>
         <source>No factory found for qmake: &quot;%1&quot;</source>
         <translation>Brak fabryki dla qmake: &quot;%1&quot;</translation>
@@ -30421,7 +30420,7 @@ Czy kontynuować instalację?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::CodeGenSettingsPageWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -38863,7 +38862,7 @@ Czy nadpisać go?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::ProMessageHandler</name>
+    <name>QtSupport</name>
     <message>
         <source>[Inexact] </source>
         <translation>[niedokładny] </translation>
@@ -43486,7 +43485,7 @@ Termin wygaśnięcia: %3</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ExamplesPageWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>Search in Examples...</source>
         <translation>Szukaj w przykładach...</translation>

@@ -14721,7 +14721,7 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
     </message>
 </context>
 <context>
-    <name>QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>No qmake path set</source>
         <translation>沒有設定 qmake 路徑</translation>
@@ -15173,7 +15173,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -15184,6 +15184,9 @@ with a password, which you can enter below.</source>
         <extracomment>%1: Path to qmake executable</extracomment>
         <translation>找不到 qmake 指令 &quot;%1&quot;，或該指令無法執行。</translation>
     </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QtVersion</name>
     <message>
         <source>Qmake does not support build directories below the source directory.</source>
         <translation>Qmake 不支援在源碼目錄下使用建置目錄。</translation>
@@ -22427,7 +22430,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::DebuggingHelper</name>
+    <name>QtSupport</name>
     <message>
         <source>Used to extract QML type information from library-based plugins.</source>
         <translation>用於從基於函式庫的外掛程式中展開 QML 型態資訊。</translation>
@@ -22482,7 +22485,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionInfo</name>
+    <name>QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>版本名稱：</translation>
@@ -22497,7 +22500,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionManager</name>
+    <name>QtSupport</name>
     <message>
         <source>Name</source>
         <translation>名稱</translation>
@@ -23798,14 +23801,14 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::GettingStartedWelcomePage</name>
+    <name>QtSupport</name>
     <message>
         <source>Getting Started</source>
         <translation>入門</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtOptionsPageWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;指定一個名稱&gt;</translation>
@@ -23921,7 +23924,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::QtVersionManager</name>
+    <name>QtSupport</name>
     <message>
         <source>MinGW from %1</source>
         <translation type="obsolete">MinGW 從 %1</translation>
@@ -27421,7 +27424,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ShowBuildLog</name>
+    <name>QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>除錯小助手建置紀錄</translation>
@@ -29538,7 +29541,7 @@ references to elements in other files, loops, etc.)</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ExamplesWelcomePage</name>
+    <name>QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>範例</translation>
@@ -33653,7 +33656,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::CustomExecutableConfigurationWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>Command:</source>
         <translation type="unfinished">指令：</translation>
@@ -33682,14 +33685,6 @@ Do you want to retry?</source>
         <source>Clean Environment</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="unfinished">系統環境變數</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="unfinished">建置環境變數</translation>
-    </message>
 </context>
 <context>
     <name>CustomExecutableDialog</name>
@@ -33699,21 +33694,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::CustomExecutableRunConfiguration</name>
-    <message>
-        <source>No executable.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The executable
-%1
-cannot be found in the path.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>QtSupport</name>
     <message>
         <source>System Environment</source>
         <translation type="unfinished">系統環境變數</translation>
@@ -33726,20 +33707,6 @@ cannot be found in the path.</source>
         <source>Custom Executable</source>
         <translation type="unfinished">自訂執行檔</translation>
     </message>
-    <message>
-        <source>Run %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::CustomExecutableRunConfigurationFactory</name>
-    <message>
-        <source>Custom Executable</source>
-        <translation type="unfinished">自訂執行檔</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::Internal::QtKitConfigWidget</name>
     <message>
         <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
         <translation type="unfinished"></translation>
@@ -33755,17 +33722,6 @@ cannot be found in the path.</source>
     <message>
         <source>Qt version:</source>
         <translation type="unfinished">Qt 版本：</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::QtKitInformation</name>
-    <message>
-        <source>Qt version</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation type="unfinished">無</translation>
     </message>
 </context>
 <context>

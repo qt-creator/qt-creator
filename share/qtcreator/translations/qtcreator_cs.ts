@@ -28664,7 +28664,7 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -28675,6 +28675,9 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
         <extracomment>%1: Path to qmake executable</extracomment>
         <translation>Příkaz qmake: &quot;%1&quot; se nepodařilo nalézt, nebo není spustitelný.</translation>
     </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QtVersion</name>
     <message>
         <source>Qmake does not support build directories below the source directory.</source>
         <translation>Qmake nepodporuje žádné sestavování v adresářích, které se nacházejí pod zdrojovým adresářem.</translation>
@@ -28685,7 +28688,7 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
     </message>
 </context>
 <context>
-    <name>QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>No qmake path set</source>
         <translation>Není nastavena žádná cesta ke qmake</translation>
@@ -31177,7 +31180,7 @@ Vyžaduje Qt 4.7.4 nebo novější, a soubor součástek nainstalovaný pro tuto
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::DebuggingHelper</name>
+    <name>QtSupport</name>
     <message>
         <source>Used to extract QML type information from library-based plugins.</source>
         <translation>Používá se k určení informace o typu QML pro na knihovně založené přídavné moduly.</translation>
@@ -31240,7 +31243,7 @@ Vyžaduje Qt 4.7.4 nebo novější, a soubor součástek nainstalovaný pro tuto
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionInfo</name>
+    <name>QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Název verze:</translation>
@@ -31255,7 +31258,7 @@ Vyžaduje Qt 4.7.4 nebo novější, a soubor součástek nainstalovaný pro tuto
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionManager</name>
+    <name>QtSupport</name>
     <message>
         <source>Name</source>
         <translation>Název</translation>
@@ -39808,47 +39811,7 @@ Vyžaduje &lt;b&gt;Qt 4.7.0&lt;/b&gt; nebo novější.</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::GettingStartedWelcomePage</name>
-    <message>
-        <source>Demos and Examples</source>
-        <translation type="obsolete">Dema a příklady</translation>
-    </message>
-    <message>
-        <source>Copy Project to writable Location?</source>
-        <translation type="obsolete">Má se projekt zkopírovat do zapisovatelného umístění?</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;The project you are about to open is located in the write-protected location:&lt;/p&gt;&lt;blockquote&gt;%1&lt;/blockquote&gt;&lt;p&gt;Please select a writable location below and click &quot;Copy Project and Open&quot; to open a modifiable copy of the project or click &quot;Keep Project and Open&quot; to open the project in location.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; You will not be able to alter or compile your project in the current location.&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;Projekt, který se chystáte otevřít, je v místě chráněném před zápisem:&lt;/p&gt;&lt;blockquote&gt;%1&lt;/blockquote&gt;&lt;p&gt;Níže vyberte zapisovatelné umístění a klepněte na &quot;Kopírovat projekt a otevřít&quot; abyste otevřeli upravovatelnou kopii projektu, anebo klepněte na &quot;Zachovat projekt a otevřít&quot; abyste otevřeli projektu na místě.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Poznámka:&lt;/b&gt; V současném umístění projekt nelze ani sestavit ani změnit.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&amp;Location:</source>
-        <translation type="obsolete">&amp;Umístění:</translation>
-    </message>
-    <message>
-        <source>&amp;Copy Project and Open</source>
-        <translation type="obsolete">&amp;Kopírovat projekt a otevřít</translation>
-    </message>
-    <message>
-        <source>&amp;Keep Project and Open</source>
-        <translation type="obsolete">&amp;Zachovat projekt a otevřít</translation>
-    </message>
-    <message>
-        <source>Cannot Use Location</source>
-        <translation type="obsolete">Umístění nelze použít</translation>
-    </message>
-    <message>
-        <source>The specified location already exists. Please specify a valid location.</source>
-        <translation type="obsolete">Zadané umístění již existuje. Zadejte, prosím, platné umístění.</translation>
-    </message>
-    <message>
-        <source>Cannot Copy Project</source>
-        <translation type="obsolete">Chyba při kopírování projektu</translation>
-    </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation type="obsolete">Nepodařilo se otevřít projekt</translation>
-    </message>
+    <name>QtSupport</name>
     <message>
         <source>Getting Started</source>
         <translation>Jak začít</translation>
@@ -39963,7 +39926,7 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtOptionsPageWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;Zadejte název&gt;</translation>
@@ -40099,7 +40062,7 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::QtVersionManager</name>
+    <name>QtSupport</name>
     <message>
         <source>MinGW from %1</source>
         <translation type="obsolete">MinGW z %1</translation>
@@ -46425,7 +46388,7 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ShowBuildLog</name>
+    <name>QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Záznam o sestavení pomocného ladicího programu</translation>
@@ -51082,7 +51045,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ExamplesWelcomePage</name>
+    <name>QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>Příklady</translation>
@@ -54291,7 +54254,7 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::CustomExecutableConfigurationWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>Command:</source>
         <translation type="obsolete">Příkaz:</translation>
@@ -54320,18 +54283,6 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
         <source>Base environment for this run configuration:</source>
         <translation type="obsolete">Základní prostředí pro toto nastavení spuštění:</translation>
     </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Smazat prostředí</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Prostředí systému</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Prostředí pro sestavování</translation>
-    </message>
 </context>
 <context>
     <name>CustomExecutableDialog</name>
@@ -54341,7 +54292,7 @@ Chcete, aby jej Qt Creator pro váš projekt vytvořil?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::CustomExecutableRunConfiguration</name>
+    <name>QtSupport</name>
     <message>
         <source>No executable.</source>
         <translation>Žádný spustitelný soubor.</translation>
@@ -54376,14 +54327,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::CustomExecutableRunConfigurationFactory</name>
-    <message>
-        <source>Custom Executable</source>
-        <translation>Uživatelsky stanovený spustitelný soubor</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::Internal::QtKitConfigWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
         <translation>Knihovna Qt k použití pro všechny projekty používající tuto sadu.&lt;br&gt;Je požadována verze Qt pro projekty založené na qmake a jako volitelná při použití jiných sestavovacích systémů.</translation>
@@ -54391,10 +54335,6 @@ nelze najít v cestě.</translation>
     <message>
         <source>Manage...</source>
         <translation>Spravovat...</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Žádný</translation>
     </message>
     <message>
         <source>Qt version:</source>
@@ -54406,7 +54346,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::QtKitInformation</name>
+    <name>QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Verze Qt</translation>
@@ -57480,14 +57420,14 @@ Commit now?</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionsModel</name>
+    <name>QtSupport</name>
     <message>
         <source>All Versions</source>
         <translation>Všechny verze</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtSupportPlugin</name>
+    <name>QtSupport</name>
     <message>
         <source>Full path to the host bin directory of the current project&apos;s Qt version.</source>
         <translation>Úplná cesta k adresáři bin hostitele verze Qt nynějšího projektu.</translation>
@@ -57498,7 +57438,7 @@ Commit now?</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::QtVersionFactory</name>
+    <name>QtSupport</name>
     <message>
         <source>No factory found for qmake: &apos;%1&apos;</source>
         <translation>Pro QMake nebyla nalezena žádná továrna: &apos;%1&apos;</translation>

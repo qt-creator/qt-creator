@@ -27,6 +27,7 @@
 
 #include "codegensettings.h"
 #include "qtsupportconstants.h"
+#include "qtsupporttr.h"
 
 #include <coreplugin/icore.h>
 
@@ -35,15 +36,12 @@
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>
-#include <QCoreApplication>
 #include <QRadioButton>
 
 namespace QtSupport::Internal {
 
 class CodeGenSettingsPageWidget : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(QtSupport::Internal::CodeGenSettingsPage)
-
 public:
     CodeGenSettingsPageWidget();
 
@@ -69,31 +67,31 @@ CodeGenSettingsPageWidget::CodeGenSettingsPageWidget()
 
     using namespace Utils::Layouting;
 
-    m_ptrAggregationRadioButton = new QRadioButton(tr("Aggregation as a pointer member"));
+    m_ptrAggregationRadioButton = new QRadioButton(Tr::tr("Aggregation as a pointer member"));
     m_ptrAggregationRadioButton->setChecked
         (parameters.embedding == CodeGenSettings::PointerAggregatedUiClass);
 
-    m_aggregationButton = new QRadioButton(tr("Aggregation"));
+    m_aggregationButton = new QRadioButton(Tr::tr("Aggregation"));
     m_aggregationButton->setChecked
         (parameters.embedding == CodeGenSettings::AggregatedUiClass);
 
-    m_multipleInheritanceButton = new QRadioButton(tr("Multiple inheritance"));
+    m_multipleInheritanceButton = new QRadioButton(Tr::tr("Multiple inheritance"));
     m_multipleInheritanceButton->setChecked
         (parameters.embedding == CodeGenSettings::InheritedUiClass);
 
-    m_retranslateCheckBox = new QCheckBox(tr("Support for changing languages at runtime"));
+    m_retranslateCheckBox = new QCheckBox(Tr::tr("Support for changing languages at runtime"));
     m_retranslateCheckBox->setChecked(parameters.retranslationSupport);
 
-    m_includeQtModuleCheckBox = new QCheckBox(tr("Use Qt module name in #include-directive"));
+    m_includeQtModuleCheckBox = new QCheckBox(Tr::tr("Use Qt module name in #include-directive"));
     m_includeQtModuleCheckBox->setChecked(parameters.includeQtModule);
 
-    m_addQtVersionCheckBox = new QCheckBox(tr("Add Qt version #ifdef for module names"));
+    m_addQtVersionCheckBox = new QCheckBox(Tr::tr("Add Qt version #ifdef for module names"));
     m_addQtVersionCheckBox->setChecked(parameters.addQtVersionCheck);
     m_addQtVersionCheckBox->setEnabled(false);
 
     Column {
         Group {
-            Title(tr("Embedding of the UI Class")),
+            Title(Tr::tr("Embedding of the UI Class")),
             Column {
                 m_ptrAggregationRadioButton,
                 m_aggregationButton,
@@ -101,7 +99,7 @@ CodeGenSettingsPageWidget::CodeGenSettingsPageWidget()
             }
         },
         Group {
-            Title(tr("Code Generation")),
+            Title(Tr::tr("Code Generation")),
             Column {
                 m_retranslateCheckBox,
                 m_includeQtModuleCheckBox,
@@ -139,7 +137,7 @@ int CodeGenSettingsPageWidget::uiEmbedding() const
 CodeGenSettingsPage::CodeGenSettingsPage()
 {
     setId(Constants::CODEGEN_SETTINGS_PAGE_ID);
-    setDisplayName(QCoreApplication::translate("QtSupport", "Qt Class Generation"));
+    setDisplayName(Tr::tr("Qt Class Generation"));
     setCategory(CppEditor::Constants::CPP_SETTINGS_CATEGORY);
     setDisplayCategory(
         QCoreApplication::translate("CppEditor", CppEditor::Constants::CPP_SETTINGS_NAME));

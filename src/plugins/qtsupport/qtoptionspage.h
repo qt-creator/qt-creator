@@ -27,8 +27,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace QtSupport {
-namespace Internal {
+namespace QtSupport::Internal {
 
 class QtOptionsPage final : public Core::IOptionsPage
 {
@@ -40,5 +39,4 @@ public:
     static void linkWithQt();
 };
 
-} // Internal
-} // QtSupport
+} // QtSupport::Internal

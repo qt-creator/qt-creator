@@ -38662,7 +38662,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -44218,7 +44218,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::BaseQtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>Device type is not supported by Qt version.</source>
         <translation>Устройства этого типа не поддерживается профилем Qt.</translation>
@@ -44237,7 +44237,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::CodeGenSettingsPageWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>Embedding of the UI Class</source>
         <translation>Встраивание класса UI</translation>
@@ -44272,7 +44272,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ExamplesWelcomePage</name>
+    <name>QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>Примеры</translation>
@@ -44323,14 +44323,11 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtKitConfigWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>%1 (invalid)</source>
         <translation>%1 (неверный)</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport::Internal::QtOptionsPageWidget</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;укажите имя&gt;</translation>
@@ -44358,10 +44355,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>All</source>
         <translation>Все</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Ничего</translation>
     </message>
     <message>
         <source>Do you want to remove all invalid Qt Versions?&lt;br&gt;&lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;/ul&gt;&lt;br&gt;will be removed.</source>
@@ -44473,14 +44466,10 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtSupportPlugin</name>
+    <name>QtSupport</name>
     <message>
         <source>Link with a Qt installation to automatically register Qt versions and kits? To do this later, select Options &gt; Kits &gt; Qt Versions &gt; Link with Qt.</source>
         <translation>Связать с Qt для автоматической регистрации профилей Qt и комплектов? Это можно сделать позже в меню Параметры &gt; Комплекты &gt; Профили Qt &gt; Связать с Qt.</translation>
-    </message>
-    <message>
-        <source>Link with Qt</source>
-        <translation>Связать с Qt</translation>
     </message>
     <message>
         <source>Full path to the host bin directory of the current project&apos;s Qt version.</source>
@@ -44492,7 +44481,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionInfo</name>
+    <name>QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Название профиля:</translation>
@@ -44507,7 +44496,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionManager</name>
+    <name>QtSupport</name>
     <message>
         <source>Remove</source>
         <translation>Удалить</translation>
@@ -44524,20 +44513,16 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <source>Register documentation:</source>
         <translation>Регистрация документации:</translation>
     </message>
-    <message>
-        <source>Link with Qt...</source>
-        <translation>Связать с Qt...</translation>
-    </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ShowBuildLog</name>
+    <name>QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Журнал сборки помощника отладчика</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::TranslationWizardPage</name>
+    <name>QtSupport</name>
     <message>
         <source>If you plan to provide translations for your project&apos;s user interface via the Qt Linguist tool, please select a language here. A corresponding translation (.ts) file will be generated for you.</source>
         <translation>Укажите здесь язык, если планируете обеспечить проект переводами интерфейса утилитой Qt Linguist. Будет создан соответствующий файл перевода (.ts).</translation>
@@ -44556,7 +44541,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::QmlDebuggingAspect</name>
+    <name>QtSupport</name>
     <message>
         <source>QML debugging and profiling:</source>
         <translation>Отладка и профилирование QML:</translation>
@@ -44567,7 +44552,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::QtKitAspect</name>
+    <name>QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Профиль Qt</translation>
@@ -44670,14 +44655,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::QtKitAspectWidget</name>
-    <message>
-        <source>None</source>
-        <translation>Нет</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::QtQuickCompilerAspect</name>
+    <name>QtSupport</name>
     <message>
         <source>Qt Quick Compiler:</source>
         <translation>Компилятор Qt Quick:</translation>
@@ -44688,7 +44666,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>Qt Version</source>
         <translation>Профиль Qt</translation>
@@ -44699,7 +44677,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::QtVersionFactory</name>
+    <name>QtSupport</name>
     <message>
         <source>No factory found for qmake: &quot;%1&quot;</source>
         <translation>Не удалось найти фабрику для qmake: «%1»</translation>
@@ -44720,7 +44698,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>No qmake path set</source>
         <translation>Путь к qmake не указан</translation>

@@ -28826,7 +28826,7 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -28837,6 +28837,9 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <extracomment>%1: Path to qmake executable</extracomment>
         <translation>La commande qmake &quot;%1&quot; n&apos;a pas été trouvée ou n&apos;est pas exécutable.</translation>
     </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QtVersion</name>
     <message>
         <source>Qmake does not support build directories below the source directory.</source>
         <translation>Qmake ne permet pas d&apos;avoir des répertoires de compilation à un niveau en-dessous des répertoires sources.</translation>
@@ -28855,7 +28858,7 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>No qmake path set</source>
         <translation>Chemin de qmake non spécifié</translation>
@@ -38824,7 +38827,7 @@ Ils requièrent Qt 4.7.4 ou supérieur et l&apos;ensemble de composants install�
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::DebuggingHelper</name>
+    <name>QtSupport</name>
     <message>
         <source>Used to extract QML type information from library-based plugins.</source>
         <translation>Utilisé pour extraire le type d&apos;information QML pour les bibliothèques basées sur des plug-ins.</translation>
@@ -38887,7 +38890,7 @@ Ils requièrent Qt 4.7.4 ou supérieur et l&apos;ensemble de composants install�
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionInfo</name>
+    <name>QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Nom de version :</translation>
@@ -38902,7 +38905,7 @@ Ils requièrent Qt 4.7.4 ou supérieur et l&apos;ensemble de composants install�
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionManager</name>
+    <name>QtSupport</name>
     <message>
         <source>Name</source>
         <translation>Nom</translation>
@@ -41407,54 +41410,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::GettingStartedWelcomePage</name>
-    <message>
-        <source>Demos and Examples</source>
-        <translation type="obsolete">Démonstrations et exemples</translation>
-    </message>
-    <message>
-        <source>Copy Project to writable Location?</source>
-        <translation type="obsolete">Copier le projet à un emplacement accessible en écriture ?</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;The project you are about to open is located in the write-protected location:&lt;/p&gt;&lt;blockquote&gt;%1&lt;/blockquote&gt;&lt;p&gt;Please select a writable location below and click &quot;Copy Project and Open&quot; to open a modifiable copy of the project or click &quot;Keep Project and Open&quot; to open the project in location.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; You will not be able to alter or compile your project in the current location.&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;Le projet que vous vous apprêtez à ouvrir se trouve dans un emplacement accessible en lecture seule :&lt;/p&gt;&lt;blockquote&gt;%1&lt;/blockquote&gt;&lt;p&gt;Veuillez sélectionner un emplacement accessible en écriture et cliquez sur &quot;Copier projet et ouvrir&quot; pour ouvrir une copie modifiable. Cliquez sur &quot;Conserver l&apos;emplacement et ouvrir&quot; pour ouvrir le projet à l&apos;emplacement courant.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note :&lt;/b&gt; vous ne pourrez pas modifier ou compiler votre projet à l&apos;emplacement courant.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&amp;Location:</source>
-        <translation type="obsolete">&amp;Emplacement :</translation>
-    </message>
-    <message>
-        <source>&amp;Copy Project and Open</source>
-        <translation type="obsolete">&amp;Copier le projet et ouvrir</translation>
-    </message>
-    <message>
-        <source>&amp;Keep Project and Open</source>
-        <translation type="obsolete">&amp;Conserver l&apos;emplacement et ouvrir</translation>
-    </message>
-    <message>
-        <source>Cannot Use Location</source>
-        <translation type="obsolete">Impossible d&apos;utiliser l&apos;emplacement</translation>
-    </message>
-    <message>
-        <source>The specified location already exists. Please specify a valid location.</source>
-        <translation type="obsolete">L&apos;emplacement spécifié existe déjà. Veuillez spécifier un autre emplacement.</translation>
-    </message>
-    <message>
-        <source>Cannot Copy Project</source>
-        <translation type="obsolete">Impossible de copier le projet</translation>
-    </message>
-    <message>
-        <source>Failed to open project</source>
-        <translation type="obsolete">Échec d&apos;ouverture du projet</translation>
-    </message>
-    <message>
-        <source>Getting Started</source>
-        <translation>Commencer</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::Internal::QtOptionsPageWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;spécifier un nom&gt;</translation>
@@ -41590,7 +41546,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>QtSupport::QtVersionManager</name>
+    <name>QtSupport</name>
     <message>
         <source>MinGW from %1</source>
         <translation type="obsolete">MinGW depuis %1</translation>
@@ -45333,7 +45289,7 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ShowBuildLog</name>
+    <name>QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Journal de compilation de l&apos;assistant de debogage</translation>
@@ -47736,7 +47692,7 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ExamplesWelcomePage</name>
+    <name>QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>Exemples</translation>
@@ -52855,7 +52811,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::CustomExecutableConfigurationWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>Command:</source>
         <translation type="obsolete">Commande :</translation>
@@ -52884,18 +52840,6 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
         <source>Base environment for this run configuration:</source>
         <translation type="obsolete">Environnement de base pour cette configuration d&apos;exécution : </translation>
     </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Environnement de nettoyage</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Environnement de compilation</translation>
-    </message>
 </context>
 <context>
     <name>CustomExecutableDialog</name>
@@ -52905,7 +52849,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::CustomExecutableRunConfiguration</name>
+    <name>QtSupport</name>
     <message>
         <source>No executable.</source>
         <translation>Pas d&apos;exécutable.</translation>
@@ -52940,14 +52884,7 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::CustomExecutableRunConfigurationFactory</name>
-    <message>
-        <source>Custom Executable</source>
-        <translation>Exécutable personnalisé</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::Internal::QtKitConfigWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
         <translation>La bibliothèque Qt à utiliser pour tous les projets utilisant ce kit.&lt;br&gt;Une version de Qt est nécesaire pour les projets basés sur qmake et est optionnelle pour les autres systèmes de compilation.</translation>
@@ -52955,10 +52892,6 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
     <message>
         <source>Manage...</source>
         <translation>Gérer...</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Aucune</translation>
     </message>
     <message>
         <source>Qt version:</source>
@@ -52970,7 +52903,7 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::QtKitInformation</name>
+    <name>QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Version de Qt</translation>
@@ -57540,14 +57473,14 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionsModel</name>
+    <name>QtSupport</name>
     <message>
         <source>All Versions</source>
         <translation>Toutes les versions</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtSupportPlugin</name>
+    <name>QtSupport</name>
     <message>
         <source>Full path to the host bin directory of the current project&apos;s Qt version.</source>
         <translation>Chemin complet vers le répertoire bin d&apos;origine de la version Qt actuelle du projet.</translation>
@@ -57558,7 +57491,7 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>QtSupport::QtVersionFactory</name>
+    <name>QtSupport</name>
     <message>
         <source>No factory found for qmake: &apos;%1&apos;</source>
         <translation>Aucune fabrique trouvée pour qmake : &quot;%1&quot;</translation>

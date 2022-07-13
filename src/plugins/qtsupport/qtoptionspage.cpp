@@ -27,6 +27,7 @@
 
 #include "qtconfigwidget.h"
 #include "qtsupportconstants.h"
+#include "qtsupporttr.h"
 #include "qtversionmanager.h"
 #include "qtversionfactory.h"
 
@@ -76,13 +77,10 @@ using namespace Utils;
 
 const char kInstallSettingsKey[] = "Settings/InstallSettings";
 
-namespace QtSupport {
-namespace Internal {
+namespace QtSupport::Internal {
 
 class QtVersionItem : public TreeItem
 {
-    Q_DECLARE_TR_FUNCTIONS(QtSupport::QtVersion)
-
 public:
     explicit QtVersionItem(QtVersion *version)
         : m_version(version)
@@ -134,8 +132,8 @@ public:
             const QString row = "<dt style=\"font-weight:bold\">%1:</dt>"
                                 "<dd>%2</dd>";
             return QString("<dl style=\"white-space:pre\">"
-                         + row.arg(tr("Qt Version"), m_version->qtVersionString())
-                         + row.arg(tr("Location of qmake"), m_version->qmakeFilePath().toUserOutput())
+                         + row.arg(Tr::tr("Qt Version"), m_version->qtVersionString())
+                         + row.arg(Tr::tr("Location of qmake"), m_version->qmakeFilePath().toUserOutput())
                          + "</dl>");
         }
 
@@ -179,8 +177,6 @@ private:
 
 class QtOptionsPageWidget : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(QtSupport::Internal::QtOptionsPageWidget)
-
 public:
     QtOptionsPageWidget();
     ~QtOptionsPageWidget();
@@ -253,7 +249,7 @@ private:
 };
 
 QtOptionsPageWidget::QtOptionsPageWidget()
-    : m_specifyNameString(tr("<specify a name>"))
+    : m_specifyNameString(Tr::tr("<specify a name>"))
     , m_infoBrowser(new QTextBrowser)
     , m_invalidVersionIcon(Utils::Icons::CRITICAL.icon())
     , m_warningVersionIcon(Utils::Icons::WARNING.icon())
@@ -270,10 +266,10 @@ QtOptionsPageWidget::QtOptionsPageWidget()
 
     m_documentationSetting = new QComboBox(this);
 
-    auto addButton = new QPushButton(tr("Add..."));
-    m_delButton = new QPushButton(tr("Remove"));
-    m_linkWithQtButton = new QPushButton(tr("Link with Qt..."));
-    m_cleanUpButton = new QPushButton(tr("Clean Up"));
+    auto addButton = new QPushButton(Tr::tr("Add..."));
+    m_delButton = new QPushButton(Tr::tr("Remove"));
+    m_linkWithQtButton = new QPushButton(Tr::tr("Link with Qt..."));
+    m_cleanUpButton = new QPushButton(Tr::tr("Clean Up"));
 
     m_nameEdit = new QLineEdit;
 
@@ -281,7 +277,7 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     m_qmakePath->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_qmakePath->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse);
 
-    m_editPathPushButton = new QPushButton(tr("Edit"));
+    m_editPathPushButton = new QPushButton(Tr::tr("Edit"));
     m_editPathPushButton->setText(PathChooser::browseButtonLabel());
 
     m_errorLabel = new QLabel;
@@ -289,20 +285,23 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     using namespace Utils::Layouting;
 
     auto versionInfoWidget = new QWidget;
+    // clang-format off
     Form {
-        tr("Name:"), m_nameEdit, br,
-        tr("qmake path:"), Row { m_qmakePath, m_editPathPushButton }, br,
+        Tr::tr("Name:"), m_nameEdit, br,
+        Tr::tr("qmake path:"), Row { m_qmakePath, m_editPathPushButton }, br,
         Span(2, m_errorLabel)
     }.attachTo(versionInfoWidget, false);
+    // clang-format on
 
     m_formLayout = qobject_cast<QFormLayout*>(versionInfoWidget->layout());
 
+    // clang-format off
     Row {
         Column {
             m_qtdirList,
             m_versionInfoWidget,
             m_infoWidget,
-            Row { tr("Register documentation:"), m_documentationSetting, st }
+            Row { Tr::tr("Register documentation:"), m_documentationSetting, st }
         },
 
         Column {
@@ -314,6 +313,7 @@ QtOptionsPageWidget::QtOptionsPageWidget()
             st,
         }
     }.attachTo(this);
+    // clang-format on
 
     setupLinkWithQtButton();
 
@@ -333,7 +333,7 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     m_manualItem = new StaticTreeItem(ProjectExplorer::Constants::msgManual());
 
     m_model = new TreeModel<TreeItem, TreeItem, QtVersionItem>();
-    m_model->setHeader({tr("Name"), tr("qmake Path")});
+    m_model->setHeader({Tr::tr("Name"), Tr::tr("qmake Path")});
     m_model->rootItem()->appendChild(m_autoItem);
     m_model->rootItem()->appendChild(m_manualItem);
 
@@ -353,10 +353,10 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     m_qtdirList->setTextElideMode(Qt::ElideMiddle);
     m_qtdirList->sortByColumn(0, Qt::AscendingOrder);
 
-    m_documentationSetting->addItem(tr("Highest Version Only"),
+    m_documentationSetting->addItem(Tr::tr("Highest Version Only"),
                                         int(QtVersionManager::DocumentationSetting::HighestOnly));
-    m_documentationSetting->addItem(tr("All"), int(QtVersionManager::DocumentationSetting::All));
-    m_documentationSetting->addItem(tr("None"),
+    m_documentationSetting->addItem(Tr::tr("All"), int(QtVersionManager::DocumentationSetting::All));
+    m_documentationSetting->addItem(Tr::tr("None"),
                                         int(QtVersionManager::DocumentationSetting::None));
     const int selectedIndex = m_documentationSetting->findData(
         int(QtVersionManager::documentationSetting()));
@@ -436,10 +436,10 @@ void QtOptionsPageWidget::cleanUpQtVersions()
         return;
 
 
-    if (QMessageBox::warning(nullptr, tr("Remove Invalid Qt Versions"),
-                             tr("Do you want to remove all invalid Qt Versions?<br>"
-                                "<ul><li>%1</li></ul><br>"
-                                "will be removed.").arg(text),
+    if (QMessageBox::warning(nullptr, Tr::tr("Remove Invalid Qt Versions"),
+                             Tr::tr("Do you want to remove all invalid Qt Versions?<br>"
+                                    "<ul><li>%1</li></ul><br>"
+                                    "will be removed.").arg(text),
                              QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
         return;
 
@@ -490,7 +490,7 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Qt
     if (!version)
         return info;
 
-    info.description = tr("Qt version %1 for %2").arg(version->qtVersionString(), version->description());
+    info.description = Tr::tr("Qt version %1 for %2").arg(version->qtVersionString(), version->description());
     if (!version->isValid()) {
         info.icon = m_invalidVersionIcon;
         info.message = version->invalidReason();
@@ -515,20 +515,20 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Qt
     bool useable = true;
     QStringList warnings;
     if (!isNameUnique(version))
-        warnings << tr("Display Name is not unique.");
+        warnings << Tr::tr("Display Name is not unique.");
 
     if (!missingToolChains.isEmpty()) {
         if (missingToolChains.count() == qtAbis.size()) {
             // Yes, this Qt version can't be used at all!
             info.message =
-                tr("No compiler can produce code for this Qt version."
-                   " Please define one or more compilers for: %1").arg(formatAbiHtmlList(qtAbis));
+                Tr::tr("No compiler can produce code for this Qt version."
+                       " Please define one or more compilers for: %1").arg(formatAbiHtmlList(qtAbis));
             info.icon = m_invalidVersionIcon;
             useable = false;
         } else {
             // Yes, some ABIs are unsupported
-            warnings << tr("Not all possible target environments can be supported due to missing compilers.");
-            info.toolTip = tr("The following ABIs are currently not supported: %1")
+            warnings << Tr::tr("Not all possible target environments can be supported due to missing compilers.");
+            info.toolTip = Tr::tr("The following ABIs are currently not supported: %1")
                     .arg(formatAbiHtmlList(missingToolChains));
             info.icon = m_warningVersionIcon;
         }
@@ -637,7 +637,7 @@ void QtOptionsPageWidget::addQtDir()
 {
     FilePath qtVersion
         = FileUtils::getOpenFilePath(this,
-                                     tr("Select a qmake Executable"),
+                                     Tr::tr("Select a qmake Executable"),
                                      {},
                                      BuildableHelperLibrary::filterForQmakeFileDialog(),
                                      nullptr,
@@ -669,8 +669,8 @@ void QtOptionsPageWidget::addQtDir()
 
     if (alreadyExists) {
         // Already exist
-        QMessageBox::warning(this, tr("Qt Version Already Known"),
-                             tr("This Qt version was already registered as \"%1\".")
+        QMessageBox::warning(this, Tr::tr("Qt Version Already Known"),
+                             Tr::tr("This Qt version was already registered as \"%1\".")
                              .arg(otherName));
         return;
     }
@@ -686,8 +686,8 @@ void QtOptionsPageWidget::addQtDir()
         m_nameEdit->setFocus();
         m_nameEdit->selectAll();
     } else {
-        QMessageBox::warning(this, tr("Qmake Not Executable"),
-                             tr("The qmake executable %1 could not be added: %2").arg(qtVersion.toUserOutput()).arg(error));
+        QMessageBox::warning(this, Tr::tr("Qmake Not Executable"),
+                             Tr::tr("The qmake executable %1 could not be added: %2").arg(qtVersion.toUserOutput()).arg(error));
         return;
     }
     updateCleanUpButton();
@@ -709,7 +709,7 @@ void QtOptionsPageWidget::editPath()
     QtVersion *current = currentVersion();
     FilePath qtVersion =
             FileUtils::getOpenFilePath(this,
-                                       tr("Select a qmake Executable"),
+                                       Tr::tr("Select a qmake Executable"),
                                        current->qmakeFilePath().absolutePath(),
                                        BuildableHelperLibrary::filterForQmakeFileDialog(),
                                        nullptr,
@@ -722,8 +722,8 @@ void QtOptionsPageWidget::editPath()
     // Same type? then replace!
     if (current->type() != version->type()) {
         // not the same type, error out
-        QMessageBox::critical(this, tr("Incompatible Qt Versions"),
-                              tr("The Qt version selected must match the device type."),
+        QMessageBox::critical(this, Tr::tr("Incompatible Qt Versions"),
+                              Tr::tr("The Qt version selected must match the device type."),
                               QMessageBox::Ok);
         delete version;
         return;
@@ -853,7 +853,7 @@ static Utils::optional<FilePath> currentlyLinkedQtDir(bool *hasInstallSettings)
 
 static QString linkingPurposeText()
 {
-    return QtOptionsPageWidget::tr(
+    return Tr::tr(
         "Linking with a Qt installation automatically registers Qt versions and kits, and other "
         "tools that were installed with that Qt installer, in this Qt Creator installation. Other "
         "Qt Creator installations are not affected.");
@@ -869,7 +869,7 @@ static bool canLinkWithQt(QString *toolTip)
     tip << linkingPurposeText();
     if (!Core::ICore::resourcePath().isWritableDir()) {
         canLink = false;
-        tip << QtOptionsPageWidget::tr("%1's resource directory is not writable.")
+        tip << Tr::tr("%1's resource directory is not writable.")
                    .arg(Core::Constants::IDE_DISPLAY_NAME);
     }
     // guard against redirecting Qt Creator that is part of a Qt installations
@@ -877,12 +877,12 @@ static bool canLinkWithQt(QString *toolTip)
     // TODO this will fail when make Qt Creator non-required in the Qt installers
     if (installSettingsExist && !installSettingsValue) {
         canLink = false;
-        tip << QtOptionsPageWidget::tr("%1 is part of a Qt installation.")
+        tip << Tr::tr("%1 is part of a Qt installation.")
                    .arg(Core::Constants::IDE_DISPLAY_NAME);
     }
     const FilePath link = installSettingsValue ? *installSettingsValue : FilePath();
     if (!link.isEmpty())
-        tip << QtOptionsPageWidget::tr("%1 is currently linked to \"%2\".")
+        tip << Tr::tr("%1 is currently linked to \"%2\".")
                    .arg(QString(Core::Constants::IDE_DISPLAY_NAME), link.toUserOutput());
     if (toolTip)
         *toolTip = tip.join("\n\n");
@@ -970,7 +970,7 @@ static bool validateQtInstallDir(FancyLineEdit *input, QString *errorString)
     if (!settingsDirForQtDir(qtDir)) {
         if (errorString) {
             const QStringList filesToCheck = settingsFilesToCheck() + qtversionFilesToCheck();
-            *errorString = "<html><body>" + QtOptionsPageWidget::tr(
+            *errorString = "<html><body>" + Tr::tr(
                                "Qt installation information was not found in \"%1\". "
                                "Choose a directory that contains one of the files %2")
                                .arg(qtDir, "<pre>" + filesToCheck.join('\n') + "</pre>");
@@ -989,8 +989,8 @@ static FilePath defaultQtInstallationPath()
 
 void QtOptionsPageWidget::linkWithQt()
 {
-    const QString title = tr("Choose Qt Installation");
-    const QString restartText = tr("The change will take effect after restart.");
+    const QString title = Tr::tr("Choose Qt Installation");
+    const QString restartText = Tr::tr("The change will take effect after restart.");
     bool askForRestart = false;
     QDialog dialog(Core::ICore::dialogParent());
     dialog.setWindowTitle(title);
@@ -1001,9 +1001,9 @@ void QtOptionsPageWidget::linkWithQt()
     layout->addWidget(tipLabel);
     auto pathLayout = new QHBoxLayout;
     layout->addLayout(pathLayout);
-    auto pathLabel = new QLabel(tr("Qt installation path:"));
+    auto pathLabel = new QLabel(Tr::tr("Qt installation path:"));
     pathLabel->setToolTip(
-        tr("Choose the Qt installation directory, or a directory that contains \"%1\".")
+        Tr::tr("Choose the Qt installation directory, or a directory that contains \"%1\".")
             .arg(settingsFile("")));
     pathLayout->addWidget(pathLabel);
     auto pathInput = new PathChooser;
@@ -1023,11 +1023,11 @@ void QtOptionsPageWidget::linkWithQt()
     auto buttons = new QDialogButtonBox;
     layout->addStretch(10);
     layout->addWidget(buttons);
-    auto linkButton = buttons->addButton(tr("Link with Qt"), QDialogButtonBox::AcceptRole);
+    auto linkButton = buttons->addButton(Tr::tr("Link with Qt"), QDialogButtonBox::AcceptRole);
     connect(linkButton, &QPushButton::clicked, &dialog, &QDialog::accept);
-    auto cancelButton = buttons->addButton(tr("Cancel"), QDialogButtonBox::RejectRole);
+    auto cancelButton = buttons->addButton(Tr::tr("Cancel"), QDialogButtonBox::RejectRole);
     connect(cancelButton, &QPushButton::clicked, &dialog, &QDialog::reject);
-    auto unlinkButton = buttons->addButton(tr("Remove Link"), QDialogButtonBox::DestructiveRole);
+    auto unlinkButton = buttons->addButton(Tr::tr("Remove Link"), QDialogButtonBox::DestructiveRole);
     unlinkButton->setEnabled(currentLink.has_value());
     connect(unlinkButton, &QPushButton::clicked, &dialog, [&dialog, &askForRestart] {
         bool removeSettingsFile = false;
@@ -1066,7 +1066,7 @@ void QtOptionsPageWidget::linkWithQt()
 QtOptionsPage::QtOptionsPage()
 {
     setId(Constants::QTVERSION_SETTINGS_PAGE_ID);
-    setDisplayName(QCoreApplication::translate("QtSupport", "Qt Versions"));
+    setDisplayName(Tr::tr("Qt Versions"));
     setCategory(ProjectExplorer::Constants::KITS_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new QtOptionsPageWidget; });
 }
@@ -1086,5 +1086,4 @@ void QtOptionsPage::linkWithQt()
     QtOptionsPageWidget::linkWithQt();
 }
 
-} // namespace Internal
-} // namespace QtSupport
+} // QtSupport::Internal

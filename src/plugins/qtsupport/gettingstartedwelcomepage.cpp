@@ -26,6 +26,7 @@
 #include "gettingstartedwelcomepage.h"
 
 #include "exampleslistmodel.h"
+#include "qtsupporttr.h"
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -73,7 +74,7 @@ ExamplesWelcomePage::ExamplesWelcomePage(bool showExamples)
 
 QString ExamplesWelcomePage::title() const
 {
-    return m_showExamples ? tr("Examples") : tr("Tutorials");
+    return m_showExamples ? Tr::tr("Examples") : Tr::tr("Tutorials");
 }
 
 int ExamplesWelcomePage::priority() const
@@ -92,22 +93,22 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     QDialog d(ICore::dialogParent());
     auto lay = new QGridLayout(&d);
     auto descrLbl = new QLabel;
-    d.setWindowTitle(tr("Copy Project to writable Location?"));
+    d.setWindowTitle(Tr::tr("Copy Project to writable Location?"));
     descrLbl->setTextFormat(Qt::RichText);
     descrLbl->setWordWrap(false);
     const QString nativeProjectDir = QDir::toNativeSeparators(projectDir);
     descrLbl->setText(QString::fromLatin1("<blockquote>%1</blockquote>").arg(nativeProjectDir));
     descrLbl->setMinimumWidth(descrLbl->sizeHint().width());
     descrLbl->setWordWrap(true);
-    descrLbl->setText(tr("<p>The project you are about to open is located in the "
-                         "write-protected location:</p><blockquote>%1</blockquote>"
-                         "<p>Please select a writable location below and click \"Copy Project and Open\" "
-                         "to open a modifiable copy of the project or click \"Keep Project and Open\" "
-                         "to open the project in location.</p><p><b>Note:</b> You will not "
-                         "be able to alter or compile your project in the current location.</p>")
+    descrLbl->setText(Tr::tr("<p>The project you are about to open is located in the "
+                             "write-protected location:</p><blockquote>%1</blockquote>"
+                             "<p>Please select a writable location below and click \"Copy Project and Open\" "
+                             "to open a modifiable copy of the project or click \"Keep Project and Open\" "
+                             "to open the project in location.</p><p><b>Note:</b> You will not "
+                             "be able to alter or compile your project in the current location.</p>")
                       .arg(nativeProjectDir));
     lay->addWidget(descrLbl, 0, 0, 1, 2);
-    auto txt = new QLabel(tr("&Location:"));
+    auto txt = new QLabel(Tr::tr("&Location:"));
     auto chooser = new PathChooser;
     txt->setBuddy(chooser);
     chooser->setExpectedKind(PathChooser::ExistingDirectory);
@@ -119,10 +120,10 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
     lay->addWidget(chooser, 1, 1);
     enum { Copy = QDialog::Accepted + 1, Keep = QDialog::Accepted + 2 };
     auto bb = new QDialogButtonBox;
-    QPushButton *copyBtn = bb->addButton(tr("&Copy Project and Open"), QDialogButtonBox::AcceptRole);
+    QPushButton *copyBtn = bb->addButton(Tr::tr("&Copy Project and Open"), QDialogButtonBox::AcceptRole);
     connect(copyBtn, &QAbstractButton::released, &d, [&d] { d.done(Copy); });
     copyBtn->setDefault(true);
-    QPushButton *keepBtn = bb->addButton(tr("&Keep Project and Open"), QDialogButtonBox::RejectRole);
+    QPushButton *keepBtn = bb->addButton(Tr::tr("&Keep Project and Open"), QDialogButtonBox::RejectRole);
     connect(keepBtn, &QAbstractButton::released, &d, [&d] { d.done(Keep); });
     lay->addWidget(bb, 2, 0, 1, 2);
     connect(chooser, &PathChooser::validChanged, copyBtn, &QWidget::setEnabled);
@@ -135,9 +136,9 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
         if (toDirWithExamplesDir.cd(exampleDirName)) {
             toDirWithExamplesDir.cdUp(); // step out, just to not be in the way
             QMessageBox::warning(ICore::dialogParent(),
-                                 tr("Cannot Use Location"),
-                                 tr("The specified location already exists. "
-                                    "Please specify a valid location."),
+                                 Tr::tr("Cannot Use Location"),
+                                 Tr::tr("The specified location already exists. "
+                                        "Please specify a valid location."),
                                  QMessageBox::Ok,
                                  QMessageBox::NoButton);
             return QString();
@@ -157,7 +158,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
                     if (!FileUtils::copyRecursively(FilePath::fromString(dependency), targetFile,
                             &error)) {
                         QMessageBox::warning(ICore::dialogParent(),
-                                             tr("Cannot Copy Project"),
+                                             Tr::tr("Cannot Copy Project"),
                                              error);
                         // do not fail, just warn;
                     }
@@ -166,7 +167,7 @@ QString ExamplesWelcomePage::copyToAlternativeLocation(const QFileInfo& proFileI
 
                 return targetDir + QLatin1Char('/') + proFileInfo.fileName();
             } else {
-                QMessageBox::warning(ICore::dialogParent(), tr("Cannot Copy Project"), error);
+                QMessageBox::warning(ICore::dialogParent(), Tr::tr("Cannot Copy Project"), error);
             }
 
         }
@@ -295,7 +296,7 @@ public:
         auto hbox = new QHBoxLayout(searchBar);
         hbox->setContentsMargins(0, 0, 0, 0);
         if (m_isExamples) {
-            m_searcher->setPlaceholderText(ExamplesWelcomePage::tr("Search in Examples..."));
+            m_searcher->setPlaceholderText(Tr::tr("Search in Examples..."));
 
             auto exampleSetSelector = new QComboBox(this);
             QPalette pal = exampleSetSelector->palette();
@@ -315,7 +316,7 @@ public:
             hbox->setSpacing(Core::WelcomePageHelpers::HSpacing);
             hbox->addWidget(exampleSetSelector);
         } else {
-            m_searcher->setPlaceholderText(ExamplesWelcomePage::tr("Search in Tutorials..."));
+            m_searcher->setPlaceholderText(Tr::tr("Search in Tutorials..."));
         }
         hbox->addWidget(searchBox);
         grid->addWidget(WelcomePageHelpers::panelBar(this), 0, 0);

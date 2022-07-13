@@ -33,7 +33,7 @@
 #include "qtkitinformation.h"
 #include "qtoptionspage.h"
 #include "qtoutputformatter.h"
-#include "qtsupportconstants.h"
+#include "qtsupporttr.h"
 #include "qtversionmanager.h"
 #include "qtversions.h"
 #include "translationwizardpage.h"
@@ -117,11 +117,11 @@ static void askAboutQtInstallation()
 
     Utils::InfoBarEntry info(
         kLinkWithQtInstallationSetting,
-        QtSupportPlugin::tr(
+        Tr::tr(
             "Link with a Qt installation to automatically register Qt versions and kits? To do "
             "this later, select Edit > Preferences > Kits > Qt Versions > Link with Qt."),
         Utils::InfoBarEntry::GlobalSuppression::Enabled);
-    info.addCustomButton(QtSupportPlugin::tr("Link with Qt"), [] {
+    info.addCustomButton(Tr::tr("Link with Qt"), [] {
         ICore::infoBar()->removeInfo(kLinkWithQtInstallationSetting);
         QTimer::singleShot(0, ICore::dialogParent(), &QtOptionsPage::linkWithQt);
     });
@@ -141,8 +141,8 @@ void QtSupportPlugin::extensionsInitialized()
     static const char kCurrentHostBins[] = "CurrentDocument:Project:QT_HOST_BINS";
     expander->registerVariable(
         kCurrentHostBins,
-        tr("Full path to the host bin directory of the Qt version in the active kit "
-           "of the project containing the current document."),
+        Tr::tr("Full path to the host bin directory of the Qt version in the active kit "
+               "of the project containing the current document."),
         []() {
             const QtVersion * const qt = currentQtVersion();
             return qt ? qt->hostBinPath().toUserOutput() : QString();
@@ -150,8 +150,8 @@ void QtSupportPlugin::extensionsInitialized()
 
     expander->registerVariable(
         "CurrentDocument:Project:QT_INSTALL_BINS",
-        tr("Full path to the target bin directory of the Qt version in the active kit "
-           "of the project containing the current document.<br>You probably want %1 instead.")
+        Tr::tr("Full path to the target bin directory of the Qt version in the active kit "
+               "of the project containing the current document.<br>You probably want %1 instead.")
             .arg(QString::fromLatin1(kCurrentHostBins)),
         []() {
             const QtVersion * const qt = currentQtVersion();
@@ -160,8 +160,8 @@ void QtSupportPlugin::extensionsInitialized()
 
     expander->registerVariable(
         "CurrentDocument:Project:QT_HOST_LIBEXECS",
-        tr("Full path to the host libexec directory of the Qt version in the active kit "
-           "of the project containing the current document."),
+        Tr::tr("Full path to the host libexec directory of the Qt version in the active kit "
+               "of the project containing the current document."),
         []() {
             const QtVersion *const qt = currentQtVersion();
             return qt ? qt->hostLibexecPath().toUserOutput() : QString();
@@ -176,8 +176,8 @@ void QtSupportPlugin::extensionsInitialized()
     static const char kActiveHostBins[] = "ActiveProject:QT_HOST_BINS";
     expander->registerVariable(
         kActiveHostBins,
-        tr("Full path to the host bin directory of the Qt version in the active kit "
-           "of the active project."),
+        Tr::tr("Full path to the host bin directory of the Qt version in the active kit "
+               "of the active project."),
         []() {
             const QtVersion * const qt = activeQtVersion();
             return qt ? qt->hostBinPath().toUserOutput() : QString();
@@ -185,8 +185,8 @@ void QtSupportPlugin::extensionsInitialized()
 
     expander->registerVariable(
         "ActiveProject:QT_INSTALL_BINS",
-        tr("Full path to the target bin directory of the Qt version in the active kit "
-           "of the active project.<br>You probably want %1 instead.")
+        Tr::tr("Full path to the target bin directory of the Qt version in the active kit "
+               "of the active project.<br>You probably want %1 instead.")
             .arg(QString::fromLatin1(kActiveHostBins)),
         []() {
             const QtVersion * const qt = activeQtVersion();
@@ -195,8 +195,8 @@ void QtSupportPlugin::extensionsInitialized()
 
     expander->registerVariable(
         "ActiveProject::QT_HOST_LIBEXECS",
-        tr("Full path to the libexec bin directory of the Qt version in the active kit "
-           "of the active project."),
+        Tr::tr("Full path to the libexec bin directory of the Qt version in the active kit "
+               "of the active project."),
         []() {
             const QtVersion *const qt = activeQtVersion();
             return qt ? qt->hostLibexecPath().toUserOutput() : QString();

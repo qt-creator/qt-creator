@@ -7956,7 +7956,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::CodeGenSettingsPageWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>Embedding of the UI Class</source>
         <translation>Ugrađivanje klasa korisničkog sučelja</translation>
@@ -7991,7 +7991,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionInfo</name>
+    <name>QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Naziv verzije:</translation>
@@ -8006,7 +8006,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionManager</name>
+    <name>QtSupport</name>
     <message>
         <source>Add...</source>
         <translation>Dodaj …</translation>
@@ -8021,7 +8021,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ShowBuildLog</name>
+    <name>QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Zapis gradnje pomoćnika za uklanjanje grešaka</translation>
@@ -33733,6 +33733,9 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>The build directory needs to be at the same level as the source directory.</source>
         <translation type="unfinished"></translation>
     </message>
+</context>
+<context>
+    <name>QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -37260,7 +37263,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>&lt;unknown&gt;</source>
         <translation>&lt;nepoznato&gt;</translation>
@@ -37408,188 +37411,15 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::QtKitInformation</name>
-    <message>
-        <source>Qt version</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The version string of the current Qt version.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The type of the current Qt version.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The mkspec of the current Qt version.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The installation prefix of the current Qt version.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s data.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s header files.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s library files.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s documentation files.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s executable files.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s plugins.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s QML files.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s imports.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s translation files.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s examples.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s demos.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The current Qt version&apos;s default mkspecs (Qt 4).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The current Qt version&apos;s default mkspec (Qt 5; host system).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The current Qt version&apos;s default mkspec (Qt 5; target system).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The current Qt&apos;s qmake version.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>Bez</translation>
-    </message>
-    <message>
-        <source>Name of Qt Version</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>QtSupport</name>
     <message>
         <source>unknown</source>
         <translation>nepoznato</translation>
     </message>
     <message>
-        <source>Path to the qmake executable</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::Internal::ExamplesWelcomePage</name>
-    <message>
-        <source>Examples</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tutorials</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Copy Project to writable Location?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;The project you are about to open is located in the write-protected location:&lt;/p&gt;&lt;blockquote&gt;%1&lt;/blockquote&gt;&lt;p&gt;Please select a writable location below and click &quot;Copy Project and Open&quot; to open a modifiable copy of the project or click &quot;Keep Project and Open&quot; to open the project in location.&lt;/p&gt;&lt;p&gt;&lt;b&gt;Note:&lt;/b&gt; You will not be able to alter or compile your project in the current location.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Location:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Copy Project and Open</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Keep Project and Open</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot Use Location</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The specified location already exists. Please specify a valid location.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cannot Copy Project</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Tags:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Search in Examples...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Search in Tutorials...</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::ProMessageHandler</name>
-    <message>
-        <source>[Inexact] </source>
-        <extracomment>Prefix used for output from the cumulative evaluation of project files.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::Internal::QtKitConfigWidget</name>
-    <message>
         <source>None</source>
         <translation>Bez</translation>
     </message>
-    <message>
-        <source>Qt version</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 (invalid)</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::Internal::QtOptionsPageWidget</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;odredi naziv&gt;</translation>
@@ -37609,95 +37439,6 @@ Saving failed.</source>
     <message>
         <source>qmake Location</source>
         <translation>qmake mjesto</translation>
-    </message>
-    <message>
-        <source>Remove Invalid Qt Versions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Do you want to remove all invalid Qt Versions?&lt;br&gt;&lt;ul&gt;&lt;li&gt;%1&lt;/li&gt;&lt;/ul&gt;&lt;br&gt;will be removed.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Qt version %1 for %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display Name is not unique.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No compiler can produce code for this Qt version. Please define one or more compilers for: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Not all possible target environments can be supported due to missing compilers.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The following ABIs are currently not supported: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Debugging Helper Build Log for &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select a qmake Executable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Qt Version Already Known</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>This Qt version was already registered as &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Qmake Not Executable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The qmake executable %1 could not be added: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Incompatible Qt Versions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>The Qt version selected must match the device type.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport</name>
-    <message>
-        <source>Qt Versions</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Qt Class Generation</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::Internal::QtSupportPlugin</name>
-    <message>
-        <source>Full path to the host bin directory of the current project&apos;s Qt version.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Full path to the target bin directory of the current project&apos;s Qt version.&lt;br&gt;You probably want %1 instead.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::QtVersionFactory</name>
-    <message>
-        <source>No factory found for qmake: &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

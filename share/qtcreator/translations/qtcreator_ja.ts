@@ -6065,7 +6065,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionInfo</name>
+    <name>QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>バージョン名:</translation>
@@ -6080,7 +6080,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionManager</name>
+    <name>QtSupport</name>
     <message>
         <source>Add...</source>
         <translation>追加...</translation>
@@ -6103,7 +6103,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ShowBuildLog</name>
+    <name>QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>デバッグヘルパのビルドログ</translation>
@@ -30909,7 +30909,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>&lt;unknown&gt;</source>
         <translation>&lt;不明&gt;</translation>
@@ -31071,7 +31071,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -31082,6 +31082,9 @@ Do you want to save the data first?</source>
         <extracomment>%1: Path to qmake executable</extracomment>
         <translation>qmake コマンド &quot;%1&quot; が見つからないか実行可能ではありません。</translation>
     </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QtVersion</name>
     <message>
         <source>The build directory needs to be at the same level as the source directory.</source>
         <translation>ビルドディレクトリはソースディレクトリと同じ階層にある必要があります。</translation>
@@ -31140,7 +31143,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ExamplesWelcomePage</name>
+    <name>QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>サンプル</translation>
@@ -31191,18 +31194,10 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtKitConfigWidget</name>
-    <message>
-        <source>None</source>
-        <translation>なし</translation>
-    </message>
+    <name>QtSupport</name>
     <message>
         <source>Qt version:</source>
         <translation>Qt バージョン:</translation>
-    </message>
-    <message>
-        <source>The Qt library to use for all projects using this kit.&lt;br&gt;A Qt version is required for qmake-based projects and optional when using other build systems.</source>
-        <translation>このキットを用いるすべてのプロジェクトで使用する Qt ライブラリです。&lt;br&gt;Qt には qmake ベースのプロジェクトが必要ですが、オプションとしてその他のビルドシステムも使用できます。</translation>
     </message>
     <message>
         <source>%1 (invalid)</source>
@@ -31210,102 +31205,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::QtKitInformation</name>
-    <message>
-        <source>Qt version</source>
-        <translation>Qt バージョン</translation>
-    </message>
-    <message>
-        <source>The version string of the current Qt version.</source>
-        <translation>現在の Qt のバージョンを表す文字列です。</translation>
-    </message>
-    <message>
-        <source>The type of the current Qt version.</source>
-        <translation>現在の Qt の種類です。</translation>
-    </message>
-    <message>
-        <source>The mkspec of the current Qt version.</source>
-        <translation>現在の Qt の mkspec です。</translation>
-    </message>
-    <message>
-        <source>The installation prefix of the current Qt version.</source>
-        <translation>現在の Qt のインストールプレフィックスです。</translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s data.</source>
-        <translation>現在の Qt のデータのインストールパスです。</translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s header files.</source>
-        <translation>現在の Qt のヘッダーファイルのインストールパスです。</translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s library files.</source>
-        <translation>現在の Qt のライブラリのインストールパスです。</translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s documentation files.</source>
-        <translation>現在の Qt のドキュメントのインストールパスです。</translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s executable files.</source>
-        <translation>現在の Qt の実行ファイルのインストールパスです。</translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s plugins.</source>
-        <translation>現在の Qt のプラグインのインストールパスです。</translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s imports.</source>
-        <translation>現在の Qt の QML モジュールのインストールパスです。</translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s translation files.</source>
-        <translation>現在の Qt の翻訳ファイルのインストールパスです。</translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s examples.</source>
-        <translation>現在の Qt のサンプルのインストールパスです。</translation>
-    </message>
-    <message>
-        <source>The installation location of the current Qt version&apos;s demos.</source>
-        <translation>現在の Qt のデモのインストールパスです。</translation>
-    </message>
-    <message>
-        <source>The current Qt version&apos;s default mkspecs (Qt 4).</source>
-        <translation>現在の Qt の既定の mkspec (Qt 4) です。</translation>
-    </message>
-    <message>
-        <source>The current Qt version&apos;s default mkspec (Qt 5; host system)</source>
-        <translation>現在の Qt の既定の mkspec (Qt 5、ホストシステム) です。</translation>
-    </message>
-    <message>
-        <source>The current Qt version&apos;s default mkspec (Qt 5; target system).</source>
-        <translation>現在の Qt の既定の mkspec (Qt 5、ターゲットシステム) です。</translation>
-    </message>
-    <message>
-        <source>The current Qt&apos;s qmake version.</source>
-        <translation>現在の Qt の qmake のバージョンです。</translation>
-    </message>
-    <message>
-        <source>None</source>
-        <translation>なし</translation>
-    </message>
-    <message>
-        <source>Name of Qt Version</source>
-        <translation>Qt バージョン名</translation>
-    </message>
-    <message>
-        <source>unknown</source>
-        <translation>不明</translation>
-    </message>
-    <message>
-        <source>Path to the qmake executable</source>
-        <translation>qmake 実行ファイルのパス</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::Internal::QtOptionsPageWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;名前を入力&gt;</translation>
@@ -31416,7 +31316,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtSupportPlugin</name>
+    <name>QtSupport</name>
     <message>
         <source>Full path to the host bin directory of the current project&apos;s Qt version.</source>
         <translation>現在のプロジェクトの Qt のホスト上の bin ディレクトリのフルパスです。</translation>
@@ -31427,7 +31327,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::QtVersionFactory</name>
+    <name>QtSupport</name>
     <message>
         <source>No factory found for qmake: &quot;%1&quot;</source>
         <translation>qmake 用ファクトリが見つかりません: &quot;%1&quot;</translation>
@@ -38022,7 +37922,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::CodeGenSettingsPageWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -45423,7 +45323,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>QtSupport::ProMessageHandler</name>
+    <name>QtSupport</name>
     <message>
         <source>[Inexact] </source>
         <translation>[不完全] </translation>
@@ -55820,7 +55720,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QtSupport::BaseQtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>Device type is not supported by Qt version.</source>
         <translation>Qt がサポートしていないデバイスの種類です。</translation>
@@ -55835,7 +55735,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QtSupport::QtKitAspect</name>
+    <name>QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Qt バージョン</translation>
@@ -55934,21 +55834,11 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QtSupport::QtQuickCompilerAspect</name>
+    <name>QtSupport</name>
     <message>
         <source>Disables QML debugging. QML profiling will still work.</source>
         <translation>QML デバッグを無効化します。QML プロファイラは利用可能です。</translation>
     </message>
-</context>
-<context>
-    <name>QtSupport::QtKitAspectWidget</name>
-    <message>
-        <source>%1 (invalid)</source>
-        <translation>%1 (無効)</translation>
-    </message>
-</context>
-<context>
-    <name>QtSupport::Internal::TranslationWizardPage</name>
     <message>
         <source>Language:</source>
         <translation>言語:</translation>

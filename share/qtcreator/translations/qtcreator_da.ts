@@ -30505,7 +30505,7 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
         <extracomment>%1: Reason for being invalid</extracomment>
@@ -30516,6 +30516,9 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <extracomment>%1: Path to qmake executable</extracomment>
         <translation>Qmake-kommandoen &quot;%1&quot; blev ikke fundet eller er ikke eksekverbar.</translation>
     </message>
+</context>
+<context>
+    <name>QmakeProjectManager::QtVersion</name>
     <message>
         <source>The build directory needs to be at the same level as the source directory.</source>
         <translation>Bygmappen skal være på samme niveau som kildemappen.</translation>
@@ -34534,7 +34537,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::CodeGenSettingsPageWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>Embedding of the UI Class</source>
         <translation>Indlejring af brugerflade-klassen</translation>
@@ -34569,7 +34572,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ExamplesWelcomePage</name>
+    <name>QtSupport</name>
     <message>
         <source>Examples</source>
         <translation>Eksempler</translation>
@@ -34624,11 +34627,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtKitConfigWidget</name>
-    <message>
-        <source>None</source>
-        <translation>Ingen</translation>
-    </message>
+    <name>QtSupport</name>
     <message>
         <source>Qt version:</source>
         <translation>Qt version:</translation>
@@ -34643,7 +34642,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtOptionsPageWidget</name>
+    <name>QtSupport</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation>&lt;angiv et navn&gt;</translation>
@@ -34726,7 +34725,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtSupportPlugin</name>
+    <name>QtSupport</name>
     <message>
         <source>Full path to the host bin directory of the current project&apos;s Qt version.</source>
         <translation>Fuld sti til værtens bin-mappe af det aktuelle projekts Qt version.</translation>
@@ -34737,7 +34736,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionInfo</name>
+    <name>QtSupport</name>
     <message>
         <source>Version name:</source>
         <translation>Versionsnavn:</translation>
@@ -34752,7 +34751,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::QtVersionManager</name>
+    <name>QtSupport</name>
     <message>
         <source>Add...</source>
         <translation>Tilføj...</translation>
@@ -34767,21 +34766,21 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::Internal::ShowBuildLog</name>
+    <name>QtSupport</name>
     <message>
         <source>Debugging Helper Build Log</source>
         <translation>Fejlretningshjælper byglog</translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::ProMessageHandler</name>
+    <name>QtSupport</name>
     <message>
         <source>[Inexact] </source>
         <translation>[ineksakt] </translation>
     </message>
 </context>
 <context>
-    <name>QtSupport::QtKitInformation</name>
+    <name>QtSupport</name>
     <message>
         <source>Qt version</source>
         <translation>Qt version</translation>
@@ -34880,7 +34879,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtSupport::QtVersionFactory</name>
+    <name>QtSupport</name>
     <message>
         <source>No factory found for qmake: &quot;%1&quot;</source>
         <translation>Ingen fabrik fundet for qmake: &quot;%1&quot;</translation>
@@ -34901,7 +34900,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>QtVersion</name>
+    <name>QtSupport</name>
     <message>
         <source>&lt;unknown&gt;</source>
         <translation>&lt;ukendt&gt;</translation>

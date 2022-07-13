@@ -27,6 +27,7 @@
 
 #include "baseqtversion.h"
 #include "qtsupportconstants.h"
+#include "qtsupporttr.h"
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -39,11 +40,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
-#include <QFileInfo>
-
-namespace QtSupport {
-namespace Internal {
+namespace QtSupport::Internal {
 
 class DesktopQtVersion : public QtVersion
 {
@@ -63,14 +60,14 @@ QStringList DesktopQtVersion::warningReason() const
     QStringList ret = QtVersion::warningReason();
     if (qtVersion() >= QtVersionNumber(5, 0, 0)) {
         if (qmlRuntimeFilePath().isEmpty())
-            ret << QCoreApplication::translate("QtVersion", "No QML utility installed.");
+            ret << Tr::tr("No QML utility installed.");
     }
     return ret;
 }
 
 QString DesktopQtVersion::description() const
 {
-    return QCoreApplication::translate("QtVersion", "Desktop", "Qt Version is meant for the desktop");
+    return Tr::tr("Desktop", "Qt Version is meant for the desktop");
 }
 
 QSet<Utils::Id> DesktopQtVersion::availableFeatures() const
@@ -111,8 +108,7 @@ public:
 
     QString description() const override
     {
-        return QCoreApplication::translate("QtVersion", "Embedded Linux",
-                                           "Qt Version is used for embedded Linux development");
+        return Tr::tr("Embedded Linux", "Qt Version is used for embedded Linux development");
     }
 
     QSet<Utils::Id> targetDeviceTypes() const override
@@ -130,5 +126,4 @@ EmbeddedLinuxQtVersionFactory::EmbeddedLinuxQtVersionFactory()
     setRestrictionChecker([](const SetupData &) { return false; });
 }
 
-} // Internal
-} // QtSupport
+} // QtSupport::Internal
