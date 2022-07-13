@@ -30,8 +30,7 @@
 
 #include <QObject>
 
-namespace Docker {
-namespace Internal {
+namespace Docker::Internal {
 
 class KitDetector : public QObject
 {
@@ -52,5 +51,4 @@ private:
     class KitDetectorPrivate *d = nullptr;
 };
 
-} // Internal
-} // Docker
+} // Docker::Internal

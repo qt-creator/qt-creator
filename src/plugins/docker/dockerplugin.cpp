@@ -37,8 +37,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Docker {
-namespace Internal {
+namespace Docker::Internal {
 
 class DockerPluginPrivate
 {
@@ -82,5 +81,4 @@ bool DockerPlugin::initialize(const QStringList &arguments, QString *errorString
     return true;
 }
 
-} // namespace Internal
-} // namespace Docker
+} // Docker::Interanl

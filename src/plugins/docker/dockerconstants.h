@@ -23,18 +23,13 @@
 **
 ****************************************************************************/
 
-#ifndef DOCKERCONSTANTS_H
-#define DOCKERCONSTANTS_H
+#pragma once
 
-namespace Docker {
-namespace Constants {
+namespace Docker::Constants {
 
 const char DOCKER[] = "docker";
 
 const char DOCKER_SETTINGS_ID[] = "Docker.Settings";
 const char DOCKER_DEVICE_TYPE[] = "DockerDeviceType";
 
-} // namespace Constants
-} // namespace Docker
-
-#endif // DOCKERCONSTANTS_H
+} // Docker::Constants

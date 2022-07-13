@@ -25,6 +25,10 @@
 
 #include "dockerdevicewidget.h"
 
+#include "dockerapi.h"
+#include "dockerdevice.h"
+#include "dockertr.h"
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -32,17 +36,16 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-#include <QCoreApplication>
-#include <QToolButton>
-#include <QTextBrowser>
-#include <QPushButton>
+#include <QCheckBox>
 #include <QComboBox>
+#include <QPushButton>
+#include <QTextBrowser>
+#include <QToolButton>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Docker {
-namespace Internal {
+namespace Docker::Internal {
 
 DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     : IDeviceWidget(device), m_kitItemDetector(device)
@@ -52,24 +55,24 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
     DockerDeviceData &data = dockerDevice->data();
 
-    auto repoLabel = new QLabel(tr("Repository:"));
+    auto repoLabel = new QLabel(Tr::tr("Repository:"));
     m_repoLineEdit = new QLineEdit;
     m_repoLineEdit->setText(data.repo);
     m_repoLineEdit->setEnabled(false);
 
-    auto tagLabel = new QLabel(tr("Tag:"));
+    auto tagLabel = new QLabel(Tr::tr("Tag:"));
     m_tagLineEdit = new QLineEdit;
     m_tagLineEdit->setText(data.tag);
     m_tagLineEdit->setEnabled(false);
 
-    auto idLabel = new QLabel(tr("Image ID:"));
+    auto idLabel = new QLabel(Tr::tr("Image ID:"));
     m_idLineEdit = new QLineEdit;
     m_idLineEdit->setText(data.imageId);
     m_idLineEdit->setEnabled(false);
 
-    auto daemonStateLabel = new QLabel(tr("Daemon state:"));
+    auto daemonStateLabel = new QLabel(Tr::tr("Daemon state:"));
     m_daemonReset = new QToolButton;
-    m_daemonReset->setToolTip(tr("Clears detected daemon state. "
+    m_daemonReset->setToolTip(Tr::tr("Clears detected daemon state. "
         "It will be automatically re-evaluated next time access is needed."));
 
     m_daemonState = new QLabel;
@@ -84,9 +87,9 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         DockerApi::recheckDockerDaemon();
     });
 
-    m_runAsOutsideUser = new QCheckBox(tr("Run as outside user"));
-    m_runAsOutsideUser->setToolTip(tr("Uses user ID and group ID of the user running Qt Creator "
-                                      "in the docker container."));
+    m_runAsOutsideUser = new QCheckBox(Tr::tr("Run as outside user"));
+    m_runAsOutsideUser->setToolTip(Tr::tr("Uses user ID and group ID of the user running Qt Creator "
+                                          "in the docker container."));
     m_runAsOutsideUser->setChecked(data.useLocalUidGid);
     m_runAsOutsideUser->setEnabled(HostOsInfo::isLinuxHost());
 
@@ -94,13 +97,13 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         data.useLocalUidGid = on;
     });
 
-    auto pathListLabel = new InfoLabel(tr("Paths to mount:"));
-    pathListLabel->setAdditionalToolTip(tr("Source directory list should not be empty."));
+    auto pathListLabel = new InfoLabel(Tr::tr("Paths to mount:"));
+    pathListLabel->setAdditionalToolTip(Tr::tr("Source directory list should not be empty."));
 
     m_pathsListEdit = new PathListEditor;
-    m_pathsListEdit->setPlaceholderText(tr("Host directories to mount into the container"));
-    m_pathsListEdit->setToolTip(tr("Maps paths in this list one-to-one to the "
-                                   "docker container."));
+    m_pathsListEdit->setPlaceholderText(Tr::tr("Host directories to mount into the container"));
+    m_pathsListEdit->setToolTip(Tr::tr("Maps paths in this list one-to-one to the "
+                                       "docker container."));
     m_pathsListEdit->setPathList(data.mounts);
 
     auto markupMounts = [this, pathListLabel] {
@@ -118,19 +121,19 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     connect(&m_kitItemDetector, &KitDetector::logOutput,
             logView, &QTextBrowser::append);
 
-    auto autoDetectButton = new QPushButton(tr("Auto-detect Kit Items"));
-    auto undoAutoDetectButton = new QPushButton(tr("Remove Auto-Detected Kit Items"));
-    auto listAutoDetectedButton = new QPushButton(tr("List Auto-Detected Kit Items"));
+    auto autoDetectButton = new QPushButton(Tr::tr("Auto-detect Kit Items"));
+    auto undoAutoDetectButton = new QPushButton(Tr::tr("Remove Auto-Detected Kit Items"));
+    auto listAutoDetectedButton = new QPushButton(Tr::tr("List Auto-Detected Kit Items"));
 
     auto searchDirsComboBox = new QComboBox;
-    searchDirsComboBox->addItem(tr("Search in PATH"));
-    searchDirsComboBox->addItem(tr("Search in Selected Directories"));
+    searchDirsComboBox->addItem(Tr::tr("Search in PATH"));
+    searchDirsComboBox->addItem(Tr::tr("Search in Selected Directories"));
 
     auto searchDirsLineEdit = new FancyLineEdit;
 
-    searchDirsLineEdit->setPlaceholderText(tr("Semicolon-separated list of directories"));
+    searchDirsLineEdit->setPlaceholderText(Tr::tr("Semicolon-separated list of directories"));
     searchDirsLineEdit->setToolTip(
-        tr("Select the paths in the docker image that should be scanned for kit entries."));
+        Tr::tr("Select the paths in the docker image that should be scanned for kit entries."));
     searchDirsLineEdit->setHistoryCompleter("DockerMounts", true);
 
     auto searchPaths = [searchDirsComboBox, searchDirsLineEdit, dockerDevice] {
@@ -155,9 +158,9 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         m_kitItemDetector.autoDetect(dockerDevice->id().toString(), searchPaths());
 
         if (DockerApi::instance()->dockerDaemonAvailable().value_or(false) == false)
-            logView->append(tr("Docker daemon appears to be not running."));
+            logView->append(Tr::tr("Docker daemon appears to be not running."));
         else
-            logView->append(tr("Docker daemon appears to be running."));
+            logView->append(Tr::tr("Docker daemon appears to be running."));
         updateDaemonStateTexts();
     });
 
@@ -195,7 +198,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                 listAutoDetectedButton,
                 Stretch(),
             },
-            new QLabel(tr("Detection log:")),
+            new QLabel(Tr::tr("Detection log:")),
             logView
         }
     }.attachTo(this);
@@ -215,15 +218,14 @@ void DockerDeviceWidget::updateDaemonStateTexts()
     Utils::optional<bool> daemonState = DockerApi::instance()->dockerDaemonAvailable();
     if (!daemonState.has_value()) {
         m_daemonReset->setIcon(Icons::INFO.icon());
-        m_daemonState->setText(tr("Daemon state not evaluated."));
+        m_daemonState->setText(Tr::tr("Daemon state not evaluated."));
     } else if (daemonState.value()) {
         m_daemonReset->setIcon(Icons::OK.icon());
-        m_daemonState->setText(tr("Docker daemon running."));
+        m_daemonState->setText(Tr::tr("Docker daemon running."));
     } else {
         m_daemonReset->setIcon(Icons::CRITICAL.icon());
-        m_daemonState->setText(tr("Docker daemon not running."));
+        m_daemonState->setText(Tr::tr("Docker daemon not running."));
     }
 }
 
-} // Internal
-} // Docker
+} // Docker::Internal

@@ -25,23 +25,24 @@
 
 #pragma once
 
-#include "dockerplugin.h"
-#include "dockerdevice.h"
 #include "kitdetector.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
 
 #include <utils/pathlisteditor.h>
 
-#include <QCheckBox>
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QLabel;
+class QLineEdit;
+class QToolButton;
+QT_END_NAMESPACE
 
-namespace Docker {
-namespace Internal {
+namespace Docker::Internal {
 
 class DockerDeviceWidget final : public ProjectExplorer::IDeviceWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Docker::Internal::DockerDevice)
-
 public:
     explicit DockerDeviceWidget(const ProjectExplorer::IDevice::Ptr &device);
 
@@ -59,5 +60,4 @@ private:
     KitDetector m_kitItemDetector;
 };
 
-} // Internal
-} // Docker
+} // Docker::Internal

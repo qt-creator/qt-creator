@@ -26,6 +26,7 @@
 #include "dockersettings.h"
 
 #include "dockerconstants.h"
+#include "dockertr.h"
 
 #include <coreplugin/icore.h>
 
@@ -36,8 +37,7 @@
 
 using namespace Utils;
 
-namespace Docker {
-namespace Internal {
+namespace Docker::Internal {
 
 DockerSettings::DockerSettings()
 {
@@ -48,9 +48,9 @@ DockerSettings::DockerSettings()
     dockerBinaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     dockerBinaryPath.setExpectedKind(PathChooser::ExistingCommand);
     dockerBinaryPath.setDefaultFilePath(FilePath::fromString("docker").searchInPath({"/usr/local/bin"}));
-    dockerBinaryPath.setDisplayName(tr("Docker CLI"));
+    dockerBinaryPath.setDisplayName(Tr::tr("Docker CLI"));
     dockerBinaryPath.setHistoryCompleter("Docker.Command.History");
-    dockerBinaryPath.setLabelText(tr("Command:"));
+    dockerBinaryPath.setLabelText(Tr::tr("Command:"));
     dockerBinaryPath.setSettingsKey("cli");
 
     readSettings(Core::ICore::settings());
@@ -61,7 +61,7 @@ DockerSettings::DockerSettings()
 DockerSettingsPage::DockerSettingsPage(DockerSettings *settings)
 {
     setId(Docker::Constants::DOCKER_SETTINGS_ID);
-    setDisplayName(DockerSettings::tr("Docker"));
+    setDisplayName(Tr::tr("Docker"));
     setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
     setSettings(settings);
 
@@ -72,7 +72,7 @@ DockerSettingsPage::DockerSettingsPage(DockerSettings *settings)
         // clang-format off
         Column {
             Group {
-                Title(DockerSettings::tr("Configuration")),
+                Title(Tr::tr("Configuration")),
                 Row { s.dockerBinaryPath }
             },
             Stretch()
@@ -81,5 +81,4 @@ DockerSettingsPage::DockerSettingsPage(DockerSettings *settings)
     });
 }
 
-} // namespace Internal
-} // namespace Docker
+} // Docker::Internal

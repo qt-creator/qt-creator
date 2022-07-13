@@ -25,16 +25,14 @@
 
 #pragma once
 
-#include "coreplugin/dialogs/ioptionspage.h"
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/aspects.h>
 
-namespace Docker {
-namespace Internal {
+namespace Docker::Internal {
 
 class DockerSettings final : public Utils::AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(Docker::Internal::DockerSettings)
-
 public:
     DockerSettings();
 
@@ -47,5 +45,4 @@ public:
     explicit DockerSettingsPage(DockerSettings *settings);
 };
 
-} // namespace Internal
-} // namespace Docker
+} // Docker::Internal

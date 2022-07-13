@@ -31,8 +31,7 @@
 
 #include <utils/optional.h>
 
-namespace Docker {
-namespace Internal {
+namespace Docker::Internal {
 
 class DockerPlugin final : public ExtensionSystem::IPlugin
 {
@@ -52,5 +51,4 @@ private:
     class DockerPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace Docker
+} // Docker::Internal

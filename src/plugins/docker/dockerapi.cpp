@@ -25,6 +25,8 @@
 
 #include "dockerapi.h"
 
+#include "dockertr.h"
+
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -36,10 +38,9 @@
 
 Q_LOGGING_CATEGORY(dockerApiLog, "qtc.docker.api", QtDebugMsg);
 
-namespace Docker {
-namespace Internal {
-
 using namespace Utils;
+
+namespace Docker::Internal {
 
 DockerApi *s_instance{nullptr};
 
@@ -91,7 +92,7 @@ void DockerApi::checkCanConnect(bool async)
             emit dockerDaemonAvailableChanged();
         });
 
-        Core::ProgressManager::addTask(future, tr("Checking docker daemon"), "DockerPlugin");
+        Core::ProgressManager::addTask(future, Tr::tr("Checking docker daemon"), "DockerPlugin");
         return;
     }
 
@@ -127,5 +128,4 @@ FilePath DockerApi::dockerClient()
     return FilePath::fromString(m_settings->dockerBinaryPath.value());
 }
 
-} // namespace Internal
-} // namespace Docker
+} // Docker::Internal

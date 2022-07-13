@@ -30,6 +30,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 
@@ -48,13 +49,10 @@ using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
 
-namespace Docker {
-namespace Internal {
+namespace Docker::Internal {
 
 class KitDetectorPrivate
 {
-    Q_DECLARE_TR_FUNCTIONS(ProjectExplorer::KitItemDetector)
-
 public:
     KitDetectorPrivate(KitDetector *parent, const IDevice::ConstPtr &device)
         : q(parent)
@@ -110,29 +108,29 @@ void KitDetector::listAutoDetected(const QString &sharedId) const
 
 void KitDetectorPrivate::undoAutoDetect() const
 {
-    emit q->logOutput(tr("Start removing auto-detected items associated with this docker image."));
+    emit q->logOutput(ProjectExplorer::Tr::tr("Start removing auto-detected items associated with this docker image."));
 
-    emit q->logOutput('\n' + tr("Removing kits..."));
+    emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Removing kits..."));
     for (Kit *kit : KitManager::kits()) {
         if (kit->autoDetectionSource() == m_sharedId) {
-            emit q->logOutput(tr("Removed \"%1\"").arg(kit->displayName()));
+            emit q->logOutput(ProjectExplorer::Tr::tr("Removed \"%1\"").arg(kit->displayName()));
             KitManager::deregisterKit(kit);
         }
     };
 
-    emit q->logOutput('\n' + tr("Removing Qt version entries..."));
+    emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Removing Qt version entries..."));
     for (QtVersion *qtVersion : QtVersionManager::versions()) {
         if (qtVersion->detectionSource() == m_sharedId) {
-            emit q->logOutput(tr("Removed \"%1\"").arg(qtVersion->displayName()));
+            emit q->logOutput(ProjectExplorer::Tr::tr("Removed \"%1\"").arg(qtVersion->displayName()));
             QtVersionManager::removeVersion(qtVersion);
         }
     };
 
-    emit q->logOutput('\n' + tr("Removing toolchain entries..."));
+    emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Removing toolchain entries..."));
     const Toolchains toolchains = ToolChainManager::toolchains();
     for (ToolChain *toolChain : toolchains) {
         if (toolChain && toolChain->detectionSource() == m_sharedId) {
-            emit q->logOutput(tr("Removed \"%1\"").arg(toolChain->displayName()));
+            emit q->logOutput(ProjectExplorer::Tr::tr("Removed \"%1\"").arg(toolChain->displayName()));
             ToolChainManager::deregisterToolChain(toolChain);
         }
     };
@@ -157,26 +155,26 @@ void KitDetectorPrivate::undoAutoDetect() const
         emit q->logOutput('\n' + logMessage);
     }
 
-    emit q->logOutput('\n' + tr("Removal of previously auto-detected kit items finished.") + "\n\n");
+    emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Removal of previously auto-detected kit items finished.") + "\n\n");
 }
 
 void KitDetectorPrivate::listAutoDetected() const
 {
-    emit q->logOutput(tr("Start listing auto-detected items associated with this docker image."));
+    emit q->logOutput(ProjectExplorer::Tr::tr("Start listing auto-detected items associated with this docker image."));
 
-    emit q->logOutput('\n' + tr("Kits:"));
+    emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Kits:"));
     for (Kit *kit : KitManager::kits()) {
         if (kit->autoDetectionSource() == m_sharedId)
             emit q->logOutput(kit->displayName());
     }
 
-    emit q->logOutput('\n' + tr("Qt versions:"));
+    emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Qt versions:"));
     for (QtVersion *qtVersion : QtVersionManager::versions()) {
         if (qtVersion->detectionSource() == m_sharedId)
             emit q->logOutput(qtVersion->displayName());
     }
 
-    emit q->logOutput('\n' + tr("Toolchains:"));
+    emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Toolchains:"));
     for (ToolChain *toolChain : ToolChainManager::toolchains()) {
         if (toolChain->detectionSource() == m_sharedId)
             emit q->logOutput(toolChain->displayName());
@@ -204,7 +202,7 @@ void KitDetectorPrivate::listAutoDetected() const
         emit q->logOutput('\n' + logMessage);
     }
 
-    emit q->logOutput('\n' + tr("Listing of previously auto-detected kit items finished.") + "\n\n");
+    emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Listing of previously auto-detected kit items finished.") + "\n\n");
 }
 
 QtVersions KitDetectorPrivate::autoDetectQtVersions() const
@@ -227,14 +225,14 @@ QtVersions KitDetectorPrivate::autoDetectQtVersions() const
                     qtVersions.append(qtVersion);
                     QtVersionManager::addVersion(qtVersion);
                     emit q->logOutput(
-                        tr("Found \"%1\"").arg(qtVersion->qmakeFilePath().toUserOutput()));
+                        ProjectExplorer::Tr::tr("Found \"%1\"").arg(qtVersion->qmakeFilePath().toUserOutput()));
                 }
             }
         }
         return true;
     };
 
-    emit q->logOutput(tr("Searching for qmake executables..."));
+    emit q->logOutput(ProjectExplorer::Tr::tr("Searching for qmake executables..."));
 
     const QStringList candidates = {"qmake-qt6", "qmake-qt5", "qmake"};
     for (const FilePath &searchPath : m_searchPaths) {
@@ -245,9 +243,9 @@ QtVersions KitDetectorPrivate::autoDetectQtVersions() const
     }
 
     if (!error.isEmpty())
-        emit q->logOutput(tr("Error: %1.").arg(error));
+        emit q->logOutput(ProjectExplorer::Tr::tr("Error: %1.").arg(error));
     if (qtVersions.isEmpty())
-        emit q->logOutput(tr("No Qt installation found."));
+        emit q->logOutput(ProjectExplorer::Tr::tr("No Qt installation found."));
     return qtVersions;
 }
 
@@ -258,20 +256,20 @@ Toolchains KitDetectorPrivate::autoDetectToolChains()
     Toolchains alreadyKnown = ToolChainManager::toolchains();
     Toolchains allNewToolChains;
     QApplication::processEvents();
-    emit q->logOutput('\n' + tr("Searching toolchains..."));
+    emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Searching toolchains..."));
     for (ToolChainFactory *factory : factories) {
-        emit q->logOutput(tr("Searching toolchains of type %1").arg(factory->displayName()));
+        emit q->logOutput(ProjectExplorer::Tr::tr("Searching toolchains of type %1").arg(factory->displayName()));
         const ToolchainDetector detector(alreadyKnown, m_device, m_searchPaths);
         const Toolchains newToolChains = factory->autoDetect(detector);
         for (ToolChain *toolChain : newToolChains) {
-            emit q->logOutput(tr("Found \"%1\"").arg(toolChain->compilerCommand().toUserOutput()));
+            emit q->logOutput(ProjectExplorer::Tr::tr("Found \"%1\"").arg(toolChain->compilerCommand().toUserOutput()));
             toolChain->setDetectionSource(m_sharedId);
             ToolChainManager::registerToolChain(toolChain);
             alreadyKnown.append(toolChain);
         }
         allNewToolChains.append(newToolChains);
     }
-    emit q->logOutput(tr("%1 new toolchains found.").arg(allNewToolChains.size()));
+    emit q->logOutput(ProjectExplorer::Tr::tr("%1 new toolchains found.").arg(allNewToolChains.size()));
 
     return allNewToolChains;
 }
@@ -318,7 +316,7 @@ void KitDetectorPrivate::autoDetect()
 
     undoAutoDetect();
 
-    emit q->logOutput(tr("Starting auto-detection. This will take a while..."));
+    emit q->logOutput(ProjectExplorer::Tr::tr("Starting auto-detection. This will take a while..."));
 
     const Toolchains toolchains = autoDetectToolChains();
     const QtVersions qtVersions = autoDetectQtVersions();
@@ -363,10 +361,9 @@ void KitDetectorPrivate::autoDetect()
     };
 
     Kit *kit = KitManager::registerKit(initializeKit);
-    emit q->logOutput('\n' + tr("Registered kit %1").arg(kit->displayName()));
+    emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Registered kit %1").arg(kit->displayName()));
 
     QApplication::restoreOverrideCursor();
 }
 
-} // namespace Internal
-} // namespace Docker
+} // Docker::Internal

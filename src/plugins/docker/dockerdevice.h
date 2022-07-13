@@ -35,8 +35,7 @@
 
 #include <QMutex>
 
-namespace Docker {
-namespace Internal {
+namespace Docker::Internal {
 
 class DockerDeviceData
 {
@@ -54,8 +53,6 @@ public:
 
 class DockerDevice : public ProjectExplorer::IDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(Docker::Internal::DockerDevice)
-
 public:
     using Ptr = QSharedPointer<DockerDevice>;
     using ConstPtr = QSharedPointer<const DockerDevice>;
@@ -148,7 +145,6 @@ private:
     std::vector<QWeakPointer<DockerDevice> > m_existingDevices;
 };
 
-} // Internal
-} // Docker
+} // Docker::Internal
 
 Q_DECLARE_METATYPE(Docker::Internal::DockerDeviceData)

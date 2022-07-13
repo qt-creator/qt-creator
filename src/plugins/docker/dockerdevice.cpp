@@ -25,8 +25,10 @@
 
 #include "dockerdevice.h"
 
+#include "dockerapi.h"
 #include "dockerconstants.h"
 #include "dockerdevicewidget.h"
+#include "dockertr.h"
 #include "kitdetector.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -95,8 +97,7 @@ using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
 
-namespace Docker {
-namespace Internal {
+namespace Docker::Internal {
 
 const QString s_pidMarker = "__qtc$$qtc__";
 
@@ -125,8 +126,6 @@ private:
 
 class DockerDevicePrivate : public QObject
 {
-    Q_DECLARE_TR_FUNCTIONS(Docker::Internal::DockerDevice)
-
 public:
     DockerDevicePrivate(DockerDevice *parent, DockerSettings *settings)
         : q(parent)
@@ -298,8 +297,8 @@ Tasks DockerDevice::validate() const
     Tasks result;
     if (d->m_data.mounts.isEmpty()) {
         result << Task(Task::Error,
-                       tr("The docker device has not set up shared directories."
-                          "This will not work for building."),
+                       Tr::tr("The docker device has not set up shared directories."
+                              "This will not work for building."),
                        {}, -1, {});
     }
     return result;
@@ -325,17 +324,17 @@ DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &dat
 {
     d->m_data = data;
 
-    setDisplayType(tr("Docker"));
+    setDisplayType(Tr::tr("Docker"));
     setOsType(OsTypeOtherUnix);
-    setDefaultDisplayName(tr("Docker Image"));;
-    setDisplayName(tr("Docker Image \"%1\" (%2)").arg(data.repoAndTag()).arg(data.imageId));
+    setDefaultDisplayName(Tr::tr("Docker Image"));;
+    setDisplayName(Tr::tr("Docker Image \"%1\" (%2)").arg(data.repoAndTag()).arg(data.imageId));
     setAllowEmptyCommand(true);
 
     setOpenTerminal([this, settings](const Environment &env, const FilePath &workingDir) {
         Q_UNUSED(env); // TODO: That's the runnable's environment in general. Use it via -e below.
         updateContainerAccess();
         if (d->m_container.isEmpty()) {
-            MessageManager::writeDisrupting(tr("Error starting remote shell. No container."));
+            MessageManager::writeDisrupting(Tr::tr("Error starting remote shell. No container."));
             return;
         }
 
@@ -344,7 +343,7 @@ DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &dat
 
         QObject::connect(proc, &QtcProcess::done, [proc] {
             if (proc->error() != QProcess::UnknownError && MessageManager::instance())
-                MessageManager::writeDisrupting(tr("Error starting remote shell."));
+                MessageManager::writeDisrupting(Tr::tr("Error starting remote shell."));
             proc->deleteLater();
         });
 
@@ -354,7 +353,7 @@ DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &dat
         proc->start();
     });
 
-    addDeviceAction({tr("Open Shell in Container"), [](const IDevice::Ptr &device, QWidget *) {
+    addDeviceAction({Tr::tr("Open Shell in Container"), [](const IDevice::Ptr &device, QWidget *) {
                          device->openTerminal(device->systemEnvironment(), FilePath());
     }});
 }
@@ -472,10 +471,10 @@ void DockerDevicePrivate::startContainer()
         m_shell.reset();
 
         DockerApi::recheckDockerDaemon();
-        MessageManager::writeFlashing(tr("Docker daemon appears to be not running. "
-                                         "Verify daemon is up and running and reset the "
-                                         "docker daemon on the docker device settings page "
-                                         "or restart Qt Creator."));
+        MessageManager::writeFlashing(Tr::tr("Docker daemon appears to be not running. "
+                                             "Verify daemon is up and running and reset the "
+                                             "docker daemon on the docker device settings page "
+                                             "or restart Qt Creator."));
     });
 
     if (!m_shell->start()) {
@@ -1085,7 +1084,7 @@ public:
         : QDialog(ICore::dialogParent())
         , m_settings(settings)
     {
-        setWindowTitle(DockerDevice::tr("Docker Image Selection"));
+        setWindowTitle(Tr::tr("Docker Image Selection"));
         resize(800, 600);
 
         m_model.setHeader({"Repository", "Tag", "Image", "Size"});
@@ -1120,7 +1119,7 @@ public:
         m_buttons->button(QDialogButtonBox::Ok)->setEnabled(false);
 
         CommandLine cmd{m_settings->dockerBinaryPath.filePath(), {"images", "--format", "{{.ID}}\\t{{.Repository}}\\t{{.Tag}}\\t{{.Size}}"}};
-        m_log->append(DockerDevice::tr("Running \"%1\"\n").arg(cmd.toUserOutput()));
+        m_log->append(Tr::tr("Running \"%1\"\n").arg(cmd.toUserOutput()));
 
         m_process = new QtcProcess(this);
         m_process->setCommand(cmd);
@@ -1131,7 +1130,7 @@ public:
             for (const QString &line : out.split('\n')) {
                 const QStringList parts = line.trimmed().split('\t');
                 if (parts.size() != 4) {
-                    m_log->append(DockerDevice::tr("Unexpected result: %1").arg(line) + '\n');
+                    m_log->append(Tr::tr("Unexpected result: %1").arg(line) + '\n');
                     continue;
                 }
                 auto item = new DockerImageItem;
@@ -1141,12 +1140,12 @@ public:
                 item->size = parts.at(3);
                 m_model.rootItem()->appendChild(item);
             }
-            m_log->append(DockerDevice::tr("Done."));
+            m_log->append(Tr::tr("Done."));
         });
 
         connect(m_process, &Utils::QtcProcess::readyReadStandardError, this, [this] {
-            const QString out = DockerDevice::tr("Error: %1").arg(m_process->cleanedStdErr());
-            m_log->append(DockerDevice::tr("Error: %1").arg(out));
+            const QString out = Tr::tr("Error: %1").arg(m_process->cleanedStdErr());
+            m_log->append(Tr::tr("Error: %1").arg(out));
         });
 
         connect(m_process, &QtcProcess::done, errorLabel, [errorLabel, this] {
@@ -1193,7 +1192,7 @@ public:
 DockerDeviceFactory::DockerDeviceFactory(DockerSettings *settings)
     : IDeviceFactory(Constants::DOCKER_DEVICE_TYPE)
 {
-    setDisplayName(DockerDevice::tr("Docker Device"));
+    setDisplayName(Tr::tr("Docker Device"));
     setIcon(QIcon());
     setCreator([settings] {
         DockerDeviceSetupWizard wizard(settings);
@@ -1218,5 +1217,4 @@ void DockerDeviceFactory::shutdownExistingDevices()
     }
 }
 
-} // Internal
-} // Docker
+} // Docker::Internal

@@ -27,15 +27,14 @@
 
 #include "dockersettings.h"
 
-#include <QMutex>
-#include <QObject>
-
 #include <utils/filepath.h>
 #include <utils/guard.h>
 #include <utils/optional.h>
 
-namespace Docker {
-namespace Internal {
+#include <QMutex>
+#include <QObject>
+
+namespace Docker::Internal {
 
 class DockerApi : public QObject
 {
@@ -60,11 +59,9 @@ public:
 private:
     Utils::FilePath dockerClient();
 
-private:
     Utils::optional<bool> m_dockerDaemonAvailable;
     QMutex m_daemonCheckGuard;
     DockerSettings *m_settings;
 };
 
-} // namespace Internal
-} // namespace Docker
+} // Docker::Internal
