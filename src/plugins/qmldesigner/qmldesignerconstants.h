@@ -132,6 +132,7 @@ const char EVENT_TRANSLATIONVIEW_TIME[] = "translationView";
 const char EVENT_NAVIGATORVIEW_TIME[] = "navigatorView";
 const char EVENT_DESIGNMODE_TIME[] = "designMode";
 const char EVENT_MATERIALEDITOR_TIME[] = "materialEditor";
+const char EVENT_MATERIALBROWSER_TIME[] = "materialBrowser";
 
 
 const char PROPERTY_EDITOR_CLASSNAME_PROPERTY[] = "__classNamePrivateInternal";
