@@ -212,7 +212,7 @@ void OptionsDialog::apply()
 
 TodoOptionsPage::TodoOptionsPage(Settings *settings, const std::function<void ()> &onApply)
 {
-    setId("TodoSettings");
+    setId(Constants::TODO_SETTINGS);
     setDisplayName(OptionsDialog::tr("To-Do"));
     setCategory("To-Do");
     setDisplayCategory(OptionsDialog::tr("To-Do"));

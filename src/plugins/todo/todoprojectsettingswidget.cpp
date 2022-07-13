@@ -44,6 +44,7 @@ TodoProjectSettingsWidget::TodoProjectSettingsWidget(ProjectExplorer::Project *p
     ui->setupUi(this);
 
     setExcludedPatternsButtonsEnabled();
+    setGlobalSettingsId(Constants::TODO_SETTINGS);
     connect(ui->addExcludedPatternButton, &QPushButton::clicked,
             this, &TodoProjectSettingsWidget::addExcludedPatternButtonClicked);
     connect(ui->removeExcludedPatternButton, &QPushButton::clicked,
