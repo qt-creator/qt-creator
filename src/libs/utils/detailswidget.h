@@ -96,7 +96,7 @@ private:
 
 protected:
     void paintEvent(QPaintEvent *paintEvent) override;
-    void enterEvent(EnterEvent *event) override;
+    void enterEvent(QEnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
 
 private:

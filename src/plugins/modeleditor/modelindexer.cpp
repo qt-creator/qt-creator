@@ -62,7 +62,7 @@ namespace Internal {
 
 class ModelIndexer::QueuedFile
 {
-    friend Utils::QHashValueType qHash(const ModelIndexer::QueuedFile &queuedFile);
+    friend size_t qHash(const ModelIndexer::QueuedFile &queuedFile);
     friend bool operator==(const ModelIndexer::QueuedFile &lhs,
                            const ModelIndexer::QueuedFile &rhs);
 
@@ -99,7 +99,7 @@ bool operator==(const ModelIndexer::QueuedFile &lhs, const ModelIndexer::QueuedF
     return lhs.m_file == rhs.m_file && lhs.m_project == rhs.m_project;
 }
 
-Utils::QHashValueType qHash(const ModelIndexer::QueuedFile &queuedFile)
+size_t qHash(const ModelIndexer::QueuedFile &queuedFile)
 {
     return qHash(queuedFile.m_project) + qHash(queuedFile.m_project);
 }

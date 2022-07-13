@@ -152,7 +152,7 @@ public:
     void clear();
     bool isEmpty() const;
 
-    QHashValueType hash(uint seed) const;
+    size_t hash(uint seed) const;
 
     [[nodiscard]] FilePath resolvePath(const FilePath &tail) const;
     [[nodiscard]] FilePath resolvePath(const QString &tail) const;
@@ -224,7 +224,7 @@ private:
 
 using FilePaths = QList<FilePath>;
 
-inline QHashValueType qHash(const Utils::FilePath &a, uint seed = 0)
+inline size_t qHash(const Utils::FilePath &a, uint seed = 0)
 {
     return a.hash(seed);
 }

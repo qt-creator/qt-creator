@@ -156,7 +156,7 @@ namespace ExtensionSystem {
     \fn uint ExtensionSystem::qHash(const ExtensionSystem::PluginDependency &value)
     \internal
 */
-Utils::QHashValueType qHash(const PluginDependency &value)
+size_t qHash(const PluginDependency &value)
 {
     return qHash(value.name);
 }

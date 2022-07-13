@@ -27,8 +27,6 @@
 
 #include "extensionsystem_global.h"
 
-#include <utils/porting.h>
-
 #include <QHash>
 #include <QStaticPlugin>
 #include <QString>
@@ -61,7 +59,7 @@ struct EXTENSIONSYSTEM_EXPORT PluginDependency
 
     PluginDependency() : type(Required) {}
 
-    friend Utils::QHashValueType qHash(const PluginDependency &value);
+    friend size_t qHash(const PluginDependency &value);
 
     QString name;
     QString version;

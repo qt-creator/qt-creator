@@ -50,7 +50,7 @@ public:
     int lineNumber = 0;
 };
 
-Utils::QHashValueType qHash(const Diagnostic &diagnostic);
+size_t qHash(const Diagnostic &diagnostic);
 
 } // namespace Internal
 } // namespace Cppcheck

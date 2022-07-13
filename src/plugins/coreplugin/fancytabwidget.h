@@ -88,7 +88,7 @@ public:
     void paintTab(QPainter *painter, int tabIndex) const;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
-    void enterEvent(Utils::EnterEvent *event) override;
+    void enterEvent(QEnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
     bool validIndex(int index) const { return index >= 0 && index < m_tabs.count(); }
 

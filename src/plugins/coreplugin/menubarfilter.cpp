@@ -41,7 +41,7 @@
 #include <QRegularExpression>
 
 QT_BEGIN_NAMESPACE
-Utils::QHashValueType qHash(const QPointer<QAction> &p, Utils::QHashValueType seed)
+size_t qHash(const QPointer<QAction> &p, size_t seed)
 {
     return qHash(p.data(), seed);
 }

@@ -48,7 +48,7 @@ public:
     bool isQtcRunnable = true;
     bool usesTerminal = false;
 
-    Utils::QHashValueType runEnvModifierHash = 0; // Make sure to update this when runEnvModifier changes!
+    size_t runEnvModifierHash = 0; // Make sure to update this when runEnvModifier changes!
 
     std::function<void(Utils::Environment &, bool)> runEnvModifier;
 

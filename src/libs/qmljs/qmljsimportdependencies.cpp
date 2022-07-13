@@ -502,9 +502,9 @@ QString ImportKey::toString() const
     return res;
 }
 
-Utils::QHashValueType qHash(const ImportKey &info)
+size_t qHash(const ImportKey &info)
 {
-    Utils::QHashValueType res = ::qHash(info.type) ^
+    size_t res = ::qHash(info.type) ^
             ::qHash(info.majorVersion) ^ ::qHash(info.minorVersion);
     foreach (const QString &s, info.splitPath)
         res = res ^ ::qHash(s);

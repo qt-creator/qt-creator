@@ -52,7 +52,7 @@ class ModelIndexer :
     class DiagramsCollectorVisitor;
     class ModelIndexerPrivate;
 
-    friend Utils::QHashValueType qHash(const ModelIndexer::QueuedFile &queuedFile);
+    friend size_t qHash(const ModelIndexer::QueuedFile &queuedFile);
     friend bool operator==(const ModelIndexer::QueuedFile &lhs,
                            const ModelIndexer::QueuedFile &rhs);
 

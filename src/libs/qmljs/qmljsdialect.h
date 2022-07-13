@@ -74,7 +74,7 @@ private:
     Enum m_dialect;
 };
 
-QMLJS_EXPORT Utils::QHashValueType qHash(const Dialect &o);
+QMLJS_EXPORT size_t qHash(const Dialect &o);
 
 QMLJS_EXPORT QDebug operator << (QDebug &dbg, const Dialect &dialect);
 

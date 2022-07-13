@@ -55,7 +55,7 @@ public:
     {}
 
 private:
-    friend Utils::QHashValueType qHash(const ImportCacheKey &);
+    friend size_t qHash(const ImportCacheKey &);
     friend bool operator==(const ImportCacheKey &, const ImportCacheKey &);
 
     int m_type;
@@ -64,7 +64,7 @@ private:
     int m_minorVersion;
 };
 
-Utils::QHashValueType qHash(const ImportCacheKey &info)
+size_t qHash(const ImportCacheKey &info)
 {
     return ::qHash(info.m_type) ^ ::qHash(info.m_path) ^
             ::qHash(info.m_majorVersion) ^ ::qHash(info.m_minorVersion);

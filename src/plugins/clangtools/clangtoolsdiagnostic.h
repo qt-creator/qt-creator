@@ -58,7 +58,7 @@ public:
     QIcon icon() const;
 
     friend bool operator==(const Diagnostic &lhs, const Diagnostic &rhs);
-    friend Utils::QHashValueType qHash(const Diagnostic &diagnostic);
+    friend size_t qHash(const Diagnostic &diagnostic);
 
     QString name;
     QString description;

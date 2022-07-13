@@ -690,6 +690,6 @@ private:
 
 QT_BEGIN_NAMESPACE
 
-Utils::QHashValueType qHash(const QColor &color);
+size_t qHash(const QColor &color);
 
 QT_END_NAMESPACE

@@ -159,12 +159,12 @@ bool XcodePlatform::operator==(const XcodePlatform &other) const
     return developerPath == other.developerPath;
 }
 
-Utils::QHashValueType qHash(const XcodePlatform &platform)
+size_t qHash(const XcodePlatform &platform)
 {
     return qHash(platform.developerPath);
 }
 
-Utils::QHashValueType qHash(const XcodePlatform::ToolchainTarget &target)
+size_t qHash(const XcodePlatform::ToolchainTarget &target)
 {
     return qHash(target.name);
 }

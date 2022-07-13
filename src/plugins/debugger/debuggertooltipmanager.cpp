@@ -456,7 +456,7 @@ public:
 
     void closeEvent(QCloseEvent *) override { DEBUG("CLOSE DEBUGGERTOOLTIP WIDGET"); }
 
-    void enterEvent(EnterEvent *) override { DEBUG("ENTER DEBUGGERTOOLTIP WIDGET"); }
+    void enterEvent(QEnterEvent *) override { DEBUG("ENTER DEBUGGERTOOLTIP WIDGET"); }
 
     void leaveEvent(QEvent *) override
     {

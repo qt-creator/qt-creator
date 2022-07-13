@@ -76,7 +76,7 @@ private:
     QStringList m_importPathList;
 };
 
-QMLDESIGNERCORE_EXPORT Utils::QHashValueType qHash(const Import &import);
+QMLDESIGNERCORE_EXPORT size_t qHash(const Import &import);
 
 } // namespace QmlDesigner
 

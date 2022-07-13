@@ -190,13 +190,13 @@ private:
     enum Element { QtCreatorElement, DataElement, VariableElement,
                    SimpleValueElement, ListValueElement, MapValueElement, UnknownElement };
 
-    Element element(const StringView &r) const;
+    Element element(const QStringView &r) const;
     static inline bool isValueElement(Element e)
         { return e == SimpleValueElement || e == ListValueElement || e == MapValueElement; }
     QVariant readSimpleValue(QXmlStreamReader &r, const QXmlStreamAttributes &attributes) const;
 
     bool handleStartElement(QXmlStreamReader &r);
-    bool handleEndElement(const StringView &name);
+    bool handleEndElement(const QStringView &name);
 
     static QString formatWarning(const QXmlStreamReader &r, const QString &message);
 
@@ -235,7 +235,7 @@ QVariantMap ParseContext::parse(const FilePath &file)
 
 bool ParseContext::handleStartElement(QXmlStreamReader &r)
 {
-    const StringView name = r.name();
+    const QStringView name = r.name();
     const Element e = element(name);
     if (e == VariableElement) {
         m_currentVariableName = r.readElementText();
@@ -270,7 +270,7 @@ bool ParseContext::handleStartElement(QXmlStreamReader &r)
     return false;
 }
 
-bool ParseContext::handleEndElement(const StringView &name)
+bool ParseContext::handleEndElement(const QStringView &name)
 {
     const Element e = element(name);
     if (ParseContext::isValueElement(e)) {
@@ -299,7 +299,7 @@ QString ParseContext::formatWarning(const QXmlStreamReader &r, const QString &me
     return result;
 }
 
-ParseContext::Element ParseContext::element(const StringView &r) const
+ParseContext::Element ParseContext::element(const QStringView &r) const
 {
     if (r == valueElement)
         return SimpleValueElement;
@@ -319,7 +319,7 @@ ParseContext::Element ParseContext::element(const StringView &r) const
 QVariant ParseContext::readSimpleValue(QXmlStreamReader &r, const QXmlStreamAttributes &attributes) const
 {
     // Simple value
-    const StringView type = attributes.value(typeAttribute);
+    const QStringView type = attributes.value(typeAttribute);
     const QString text = r.readElementText();
     if (type == QLatin1String("QChar")) { // Workaround: QTBUG-12345
         QTC_ASSERT(text.size() == 1, return QVariant());

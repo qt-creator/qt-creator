@@ -76,7 +76,7 @@ public:
     int targetColumn;
 };
 
-QTCREATOR_UTILS_EXPORT QHashValueType qHash(const Link &l);
+QTCREATOR_UTILS_EXPORT size_t qHash(const Link &l);
 
 using LinkHandler = std::function<void(const Link &)>;
 using Links = QList<Link>;

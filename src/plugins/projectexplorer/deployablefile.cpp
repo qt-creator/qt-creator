@@ -53,7 +53,7 @@ bool DeployableFile::isExecutable() const
     return m_type == TypeExecutable;
 }
 
-Utils::QHashValueType qHash(const DeployableFile &d)
+size_t qHash(const DeployableFile &d)
 {
     return qHash(qMakePair(d.localFilePath().toString(), d.remoteDirectory()));
 }

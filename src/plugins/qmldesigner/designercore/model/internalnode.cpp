@@ -159,7 +159,7 @@ bool InternalNode::hasId() const
 }
 
 
-Utils::QHashValueType qHash(const InternalNodePointer& node)
+size_t qHash(const InternalNodePointer& node)
 {
     if (node.isNull())
         return ::qHash(-1);

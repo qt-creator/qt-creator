@@ -86,7 +86,7 @@ signals:
 protected:
     void setupWidgets();
     void leaveEvent(QEvent *) override;
-    void enterEvent(Utils::EnterEvent *) override;
+    void enterEvent(QEnterEvent *) override;
 
 private:
     QFrame *m_beforeColorWidget;

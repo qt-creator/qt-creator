@@ -171,7 +171,7 @@ bool operator<(const Task &a, const Task &b)
 }
 
 
-Utils::QHashValueType qHash(const Task &task)
+size_t qHash(const Task &task)
 {
     return task.taskId;
 }

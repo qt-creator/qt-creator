@@ -83,7 +83,7 @@ public:
     ~WelcomePageButton() override;
 
     void mousePressEvent(QMouseEvent *) override;
-    void enterEvent(Utils::EnterEvent *) override;
+    void enterEvent(QEnterEvent *) override;
     void leaveEvent(QEvent *) override;
 
     void setText(const QString &text);

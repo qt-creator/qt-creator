@@ -74,7 +74,7 @@ public:
     DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable = false);
 
     bool eventFilter(QObject *, QEvent *event) override;
-    void enterEvent(EnterEvent *event) override;
+    void enterEvent(QEnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
     void handleMouseTimeout();
     void handleToplevelChanged(bool floating);
@@ -114,7 +114,7 @@ public:
 
     QSize minimumSizeHint() const override { return sizeHint(); }
 
-    void enterEvent(EnterEvent *event) override
+    void enterEvent(QEnterEvent *event) override
     {
         if (isEnabled())
             update();
@@ -193,7 +193,7 @@ public:
         setProperty("managed_titlebar", 1);
     }
 
-    void enterEvent(EnterEvent *event) override
+    void enterEvent(QEnterEvent *event) override
     {
         setActive(true);
         QWidget::enterEvent(event);
@@ -303,7 +303,7 @@ bool DockWidget::eventFilter(QObject *, QEvent *event)
     return false;
 }
 
-void DockWidget::enterEvent(EnterEvent *event)
+void DockWidget::enterEvent(QEnterEvent *event)
 {
     if (!m_immutable)
         QApplication::instance()->installEventFilter(this);

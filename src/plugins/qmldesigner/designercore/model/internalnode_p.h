@@ -153,7 +153,7 @@ private:
     int m_nodeSourceType = 0;
 };
 
-Utils::QHashValueType qHash(const InternalNodePointer& node);
+size_t qHash(const InternalNodePointer& node);
 bool operator <(const InternalNodePointer &firstNode, const InternalNodePointer &secondNode);
 } // Internal
 } // QtQmlDesigner

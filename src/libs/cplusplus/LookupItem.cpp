@@ -33,10 +33,10 @@
 
 using namespace CPlusPlus;
 
-Utils::QHashValueType CPlusPlus::qHash(const LookupItem &key)
+size_t CPlusPlus::qHash(const LookupItem &key)
 {
-    const Utils::QHashValueType h1 = QT_PREPEND_NAMESPACE(qHash)(key.type().type());
-    const Utils::QHashValueType h2 = QT_PREPEND_NAMESPACE(qHash)(key.scope());
+    const size_t h1 = QT_PREPEND_NAMESPACE(qHash)(key.type().type());
+    const size_t h2 = QT_PREPEND_NAMESPACE(qHash)(key.scope());
     return ((h1 << 16) | (h1 >> 16)) ^ h2;
 }
 

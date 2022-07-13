@@ -109,7 +109,7 @@ int Import::majorFromVersion(const QString &version)
     return version.split('.').first().toInt();
 }
 
-Utils::QHashValueType qHash(const Import &import)
+size_t qHash(const Import &import)
 {
     return ::qHash(import.url()) ^ ::qHash(import.file()) ^ ::qHash(import.version()) ^ ::qHash(import.alias());
 }

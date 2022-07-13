@@ -476,7 +476,7 @@ void tst_ProFileWriter::adds()
 
     QMakeVfs vfs;
     QMakeParser parser(0, &vfs, &parseHandler);
-    ProFile *proFile = parser.parsedProBlock(Utils::make_stringview(input),
+    ProFile *proFile = parser.parsedProBlock(QStringView(input),
                                              0,
                                              QLatin1String(BASE_DIR "/test.pro"),
                                              1);
@@ -650,7 +650,7 @@ void tst_ProFileWriter::removes()
 
     QMakeVfs vfs;
     QMakeParser parser(0, &vfs, &parseHandler);
-    ProFile *proFile = parser.parsedProBlock(Utils::make_stringview(input),
+    ProFile *proFile = parser.parsedProBlock(QStringView(input),
                                              0,
                                              QLatin1String(BASE_DIR "/test.pro"),
                                              1);
@@ -682,7 +682,7 @@ void tst_ProFileWriter::multiVar()
 
     QMakeVfs vfs;
     QMakeParser parser(0, &vfs, &parseHandler);
-    ProFile *proFile = parser.parsedProBlock(Utils::make_stringview(input),
+    ProFile *proFile = parser.parsedProBlock(QStringView(input),
                                              0,
                                              QLatin1String(BASE_DIR "/test.pro"),
                                              1);
@@ -705,7 +705,7 @@ void tst_ProFileWriter::addFiles()
 
         QMakeVfs vfs;
         QMakeParser parser(0, &vfs, &parseHandler);
-        ProFile *proFile = parser.parsedProBlock(Utils::make_stringview(input),
+        ProFile *proFile = parser.parsedProBlock(QStringView(input),
                                                  0,
                                                  BASE_DIR "/test.pro",
                                                  1);
@@ -731,7 +731,7 @@ void tst_ProFileWriter::removeFiles()
 
     QMakeVfs vfs;
     QMakeParser parser(0, &vfs, &parseHandler);
-    ProFile *proFile = parser.parsedProBlock(Utils::make_stringview(input),
+    ProFile *proFile = parser.parsedProBlock(QStringView(input),
                                              0,
                                              QLatin1String(BASE_DIR "/test.pro"),
                                              1);

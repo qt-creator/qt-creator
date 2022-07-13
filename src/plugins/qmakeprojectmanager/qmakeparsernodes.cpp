@@ -69,8 +69,8 @@ namespace QmakeProjectManager {
 
 static Q_LOGGING_CATEGORY(qmakeParse, "qtc.qmake.parsing", QtWarningMsg);
 
-Utils::QHashValueType qHash(Variable key, uint seed) { return ::qHash(static_cast<int>(key), seed); }
-Utils::QHashValueType qHash(FileOrigin fo) { return ::qHash(int(fo)); }
+size_t qHash(Variable key, uint seed) { return ::qHash(static_cast<int>(key), seed); }
+size_t qHash(FileOrigin fo) { return ::qHash(int(fo)); }
 
 namespace Internal {
 
@@ -781,7 +781,7 @@ QPair<ProFile *, QStringList> QmakePriFile::readProFile()
         QMakeVfs vfs;
         QtSupport::ProMessageHandler handler;
         QMakeParser parser(nullptr, &vfs, &handler);
-        includeFile = parser.parsedProBlock(Utils::make_stringview(contents),
+        includeFile = parser.parsedProBlock(QStringView(contents),
                                             0,
                                             filePath().toString(),
                                             1);
@@ -828,7 +828,7 @@ bool QmakePriFile::renameFile(const FilePath &oldFilePath, const FilePath &newFi
 
         // Reparse necessary due to changed contents.
         QMakeParser parser(nullptr, nullptr, nullptr);
-        ProFile *const proFile = parser.parsedProBlock(Utils::make_stringview(currentContents),
+        ProFile *const proFile = parser.parsedProBlock(QStringView(currentContents),
                                                        0,
                                                        filePath().toString(),
                                                        1,

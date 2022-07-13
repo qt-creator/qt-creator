@@ -45,7 +45,7 @@ public:
     inline const QString &fileName() const { return m_fileName; }
     inline int line() const { return m_line; }
     inline int column() const { return m_column; }
-    inline Utils::QHashValueType hash() const { return m_hash; }
+    inline size_t hash() const { return m_hash; }
     inline bool operator==(const SymbolLocation &other) const
     {
         return hash() == other.hash() && line() == other.line() && column() == other.column()
@@ -56,11 +56,11 @@ private:
     const QString m_fileName;
     const int m_line;
     const int m_column;
-    const Utils::QHashValueType m_hash; // precalculated hash value - to speed up qHash
+    const size_t m_hash; // precalculated hash value - to speed up qHash
 };
 
 //! qHash overload for QHash/QSet
-inline Utils::QHashValueType qHash(const ClassView::Internal::SymbolLocation &location)
+inline size_t qHash(const ClassView::Internal::SymbolLocation &location)
 {
     return location.hash();
 }

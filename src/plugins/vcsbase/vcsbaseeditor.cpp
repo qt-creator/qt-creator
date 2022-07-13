@@ -1576,7 +1576,7 @@ QSet<QString> VcsBaseEditorWidget::annotationChanges() const
 {
     QSet<QString> changes;
     const QString text = toPlainText();
-    StringView txt = make_stringview(text);
+    QStringView txt = QStringView(text);
     if (txt.isEmpty())
         return changes;
     if (!d->m_annotationSeparatorPattern.pattern().isEmpty()) {

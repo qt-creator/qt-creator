@@ -48,7 +48,7 @@ public:
     QString displayName;
 };
 
-Utils::QHashValueType qHash(const ExpandData &data);
+size_t qHash(const ExpandData &data);
 
 } // namespace Internal
 } // namespace ProjectExplorer

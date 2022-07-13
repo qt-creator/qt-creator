@@ -273,23 +273,23 @@ void tst_MapReduce::map()
 
     // blocking map = mapped
     {
-        const QSet<Utils::QtSizeType> sizes = Utils::mapped<QSet>(
+        const QSet<qsizetype> sizes = Utils::mapped<QSet>(
             QStringList({QLatin1String("foo"), QLatin1String("bar"), QLatin1String("blah")}),
             [](const QString &s) { return s.size(); });
-        QList<Utils::QtSizeType> vals = sizes.values();
+        QList<qsizetype> vals = sizes.values();
         Utils::sort(vals);
-        QCOMPARE(vals, QList<Utils::QtSizeType>({3, 4}));
+        QCOMPARE(vals, QList<qsizetype>({3, 4}));
     }
     {
         const QStringList list({QLatin1String("foo"), QLatin1String("bar"), QLatin1String("blah")});
-        const QSet<Utils::QtSizeType> sizes = Utils::mapped<QSet>(list.cbegin(),
+        const QSet<qsizetype> sizes = Utils::mapped<QSet>(list.cbegin(),
                                                                   list.cend(),
                                                                   [](const QString &s) {
                                                                       return s.size();
                                                                   });
-        QList<Utils::QtSizeType> vals = sizes.values();
+        QList<qsizetype> vals = sizes.values();
         Utils::sort(vals);
-        QCOMPARE(vals, QList<Utils::QtSizeType>({3, 4}));
+        QCOMPARE(vals, QList<qsizetype>({3, 4}));
     }
 }
 

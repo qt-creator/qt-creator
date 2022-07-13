@@ -885,7 +885,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
                             ret += ProString(stream.readLine());
                         } else {
                             const QString &line = stream.readLine();
-                            ret += split_value_list(Utils::make_stringview(line).trimmed());
+                            ret += split_value_list(QStringView(line).trimmed());
                             if (!singleLine)
                                 ret += ProString("\n");
                         }
@@ -972,7 +972,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
                         output.replace(QLatin1Char('\t'), QLatin1Char(' '));
                         if (singleLine)
                             output.replace(QLatin1Char('\n'), QLatin1Char(' '));
-                        ret += split_value_list(Utils::make_stringview(output));
+                        ret += split_value_list(QStringView(output));
                     }
                 }
             }
@@ -1145,7 +1145,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
                     evalError(fL1S("Unexpected EOF."));
                     return ReturnError;
                 }
-                ret = split_value_list(Utils::make_stringview(line));
+                ret = split_value_list(QStringView(line));
             }
         }
         break; }
@@ -1503,7 +1503,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
     case T_EVAL: {
             VisitReturn ret = ReturnFalse;
             QString contents = args.join(statics.field_sep);
-            ProFile *pro = m_parser->parsedProBlock(Utils::make_stringview(contents),
+            ProFile *pro = m_parser->parsedProBlock(QStringView(contents),
                                                     0, m_current.pro->fileName(), m_current.line);
             if (m_cumulative || pro->isOk()) {
                 m_locationStack.push(m_current);

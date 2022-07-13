@@ -482,7 +482,7 @@ bool CMakeConfigItem::operator==(const CMakeConfigItem &o) const
     return o.key == key && o.value == value && o.isUnset == isUnset && o.isInitial == isInitial;
 }
 
-Utils::QHashValueType qHash(const CMakeConfigItem &it)
+size_t qHash(const CMakeConfigItem &it)
 {
     return ::qHash(it.key) ^ ::qHash(it.value) ^ ::qHash(it.isUnset) ^ ::qHash(it.isInitial);
 }

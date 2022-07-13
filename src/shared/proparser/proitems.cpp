@@ -72,7 +72,7 @@ ProString::ProString(const QString &str) :
 {
 }
 
-ProString::ProString(Utils::StringView str) :
+ProString::ProString(QStringView str) :
     m_string(str.toString()), m_offset(0), m_length(str.size()), m_file(0), m_hash(0x80000000)
 {
 }
@@ -114,7 +114,7 @@ uint ProString::updatedHash() const
      return (m_hash = hash(m_string.constData() + m_offset, m_length));
 }
 
-Utils::QHashValueType qHash(const ProString &str)
+size_t qHash(const ProString &str)
 {
     if (!(str.m_hash & 0x80000000))
         return str.m_hash;
@@ -449,7 +449,7 @@ bool ProStringList::contains(const ProString &str, Qt::CaseSensitivity cs) const
     return false;
 }
 
-bool ProStringList::contains(Utils::StringView str, Qt::CaseSensitivity cs) const
+bool ProStringList::contains(QStringView str, Qt::CaseSensitivity cs) const
 {
     for (int i = 0; i < size(); i++)
         if (!at(i).toStringView().compare(str, cs))

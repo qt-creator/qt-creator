@@ -149,7 +149,7 @@ void DragWidget::leaveEvent(QEvent *)
         unsetCursor();
 }
 
-void DragWidget::enterEvent(EnterEvent *)
+void DragWidget::enterEvent(QEnterEvent *)
 {
     if (HostOsInfo::isMacHost())
         setCursor(Qt::ArrowCursor);

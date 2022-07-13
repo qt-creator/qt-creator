@@ -64,8 +64,8 @@ public:
     bool operator==(const XcodePlatform &other) const;
 };
 
-Utils::QHashValueType qHash(const XcodePlatform &platform);
-Utils::QHashValueType qHash(const XcodePlatform::ToolchainTarget &target);
+size_t qHash(const XcodePlatform &platform);
+size_t qHash(const XcodePlatform::ToolchainTarget &target);
 
 class XcodeProbe
 {

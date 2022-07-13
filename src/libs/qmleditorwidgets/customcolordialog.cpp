@@ -186,7 +186,7 @@ void CustomColorDialog::leaveEvent(QEvent *)
         unsetCursor();
 }
 
-void CustomColorDialog::enterEvent(EnterEvent *)
+void CustomColorDialog::enterEvent(QEnterEvent *)
 {
     if (HostOsInfo::isMacHost())
         setCursor(Qt::ArrowCursor);

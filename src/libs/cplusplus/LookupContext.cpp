@@ -151,9 +151,9 @@ bool operator==(const FullyQualifiedName &left, const FullyQualifiedName &right)
     return compareFullyQualifiedName(left.fqn, right.fqn);
 }
 
-Utils::QHashValueType qHash(const FullyQualifiedName &fullyQualifiedName)
+size_t qHash(const FullyQualifiedName &fullyQualifiedName)
 {
-    Utils::QHashValueType h = 0;
+    size_t h = 0;
     for (int i = 0; i < fullyQualifiedName.fqn.size(); ++i) {
         if (const Name *n = fullyQualifiedName.fqn.at(i)) {
             if (const Identifier *id = n->identifier()) {

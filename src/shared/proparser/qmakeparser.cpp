@@ -282,7 +282,7 @@ ProFile *QMakeParser::parsedProFile(const QString &fileName, ParseFlags flags)
 #endif
             QString contents;
             if (readFile(id, flags, &contents)) {
-                pro = parsedProBlock(Utils::make_stringview(contents), id, fileName, 1, FullGrammar);
+                pro = parsedProBlock(QStringView(contents), id, fileName, 1, FullGrammar);
                 pro->itemsRef()->squeeze();
                 pro->ref();
             } else {
@@ -309,7 +309,7 @@ ProFile *QMakeParser::parsedProFile(const QString &fileName, ParseFlags flags)
     } else {
         QString contents;
         if (readFile(id, flags, &contents))
-            pro = parsedProBlock(Utils::make_stringview(contents), id, fileName, 1, FullGrammar);
+            pro = parsedProBlock(QStringView(contents), id, fileName, 1, FullGrammar);
         else
             pro = 0;
     }
@@ -317,7 +317,7 @@ ProFile *QMakeParser::parsedProFile(const QString &fileName, ParseFlags flags)
 }
 
 ProFile *QMakeParser::parsedProBlock(
-    Utils::StringView contents, int id, const QString &name, int line, SubGrammar grammar)
+    QStringView contents, int id, const QString &name, int line, SubGrammar grammar)
 {
     ProFile *pro = new ProFile(id, name);
     read(pro, contents, line, grammar);
@@ -381,7 +381,7 @@ void QMakeParser::finalizeHashStr(ushort *buf, uint len)
     buf[-2] = (ushort)(hash >> 16);
 }
 
-void QMakeParser::read(ProFile *pro, Utils::StringView in, int line, SubGrammar grammar)
+void QMakeParser::read(ProFile *pro, QStringView in, int line, SubGrammar grammar)
 {
     m_proFile = pro;
     m_lineNo = line;
@@ -1331,7 +1331,7 @@ void QMakeParser::finalizeCall(ushort *&tokPtr, ushort *uc, ushort *ptr, int arg
 bool QMakeParser::resolveVariable(ushort *xprPtr, int tlen, int needSep, ushort **ptr,
                                   ushort **buf, QString *xprBuff,
                                   ushort **tokPtr, QString *tokBuff,
-                                  const ushort *cur, Utils::StringView in)
+                                  const ushort *cur, QStringView in)
 {
     QString out;
     m_tmp.setRawData((const QChar *)xprPtr, tlen);

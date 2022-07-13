@@ -59,7 +59,7 @@ public:
 
 private:
     const int m_iconType;
-    const Utils::QHashValueType m_hash; // precalculated hash value - to speed up qHash
+    const size_t m_hash; // precalculated hash value - to speed up qHash
     const QString m_name;               // symbol name (e.g. SymbolInformation)
     const QString m_type;               // symbol type (e.g. (int char))
 };

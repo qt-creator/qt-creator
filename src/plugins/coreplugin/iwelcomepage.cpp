@@ -165,7 +165,7 @@ void WelcomePageButton::mousePressEvent(QMouseEvent *)
         d->onClicked();
 }
 
-void WelcomePageButton::enterEvent(EnterEvent *)
+void WelcomePageButton::enterEvent(QEnterEvent *)
 {
     d->doUpdate(true);
 }

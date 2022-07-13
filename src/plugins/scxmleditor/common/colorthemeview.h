@@ -55,7 +55,7 @@ signals:
 
 protected:
     void paintEvent(QPaintEvent *e) override;
-    void enterEvent(Utils::EnterEvent *e) override;
+    void enterEvent(QEnterEvent *e) override;
     void leaveEvent(QEvent *e) override;
     void mousePressEvent(QMouseEvent *e) override;
 

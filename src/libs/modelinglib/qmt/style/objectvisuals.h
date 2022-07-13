@@ -62,6 +62,6 @@ private:
 };
 
 bool operator==(const ObjectVisuals &lhs, const ObjectVisuals &rhs);
-Utils::QHashValueType qHash(const ObjectVisuals &objectVisuals);
+size_t qHash(const ObjectVisuals &objectVisuals);
 
 } // namespace qmt

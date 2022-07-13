@@ -79,7 +79,7 @@ public:
 
     friend PROJECTEXPLORER_EXPORT bool operator==(const Task &t1, const Task &t2);
     friend PROJECTEXPLORER_EXPORT bool operator<(const Task &a, const Task &b);
-    friend PROJECTEXPLORER_EXPORT Utils::QHashValueType qHash(const Task &task);
+    friend PROJECTEXPLORER_EXPORT size_t qHash(const Task &task);
 
     unsigned int taskId = 0;
     TaskType type = Unknown;

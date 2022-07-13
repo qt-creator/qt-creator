@@ -294,7 +294,7 @@ QString SideDiffEditorWidget::plainTextFromSelection(const QTextCursor &cursor) 
                 if (textInserted)
                     text += '\n';
                 if (block == endBlock)
-                    text += make_stringview(block.text()).left(endPosition - block.position());
+                    text += QStringView(block.text()).left(endPosition - block.position());
                 else
                     text += block.text();
             }

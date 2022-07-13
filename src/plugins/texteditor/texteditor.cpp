@@ -8622,7 +8622,7 @@ IEditor *BaseTextEditor::duplicate()
 
 QT_BEGIN_NAMESPACE
 
-Utils::QHashValueType qHash(const QColor &color)
+size_t qHash(const QColor &color)
 {
     return color.rgba();
 }

@@ -110,7 +110,7 @@ enum class Variable {
     QmakeCc,
     QmakeCxx
 };
-Utils::QHashValueType qHash(Variable key, uint seed = 0);
+size_t qHash(Variable key, uint seed = 0);
 
 namespace Internal {
 Q_DECLARE_LOGGING_CATEGORY(qmakeNodesLog)
@@ -123,7 +123,7 @@ class QmakePriFileEvalResult;
 class InstallsList;
 
 enum class FileOrigin { ExactParse, CumulativeParse };
-Utils::QHashValueType qHash(FileOrigin fo);
+size_t qHash(FileOrigin fo);
 using SourceFile = QPair<Utils::FilePath, FileOrigin>;
 using SourceFiles = QSet<SourceFile>;
 

@@ -83,7 +83,7 @@ public:
     ObjectVisuals m_objectVisuals;
 };
 
-Utils::QHashValueType qHash(const ObjectStyleKey &styleKey)
+size_t qHash(const ObjectStyleKey &styleKey)
 {
     return ::qHash(styleKey.m_elementType) ^ qHash(styleKey.m_objectVisuals);
 }
@@ -107,7 +107,7 @@ public:
     DObject::VisualPrimaryRole m_visualPrimaryRole = DObject::PrimaryRoleNormal;
 };
 
-Utils::QHashValueType qHash(const RelationStyleKey &styleKey)
+size_t qHash(const RelationStyleKey &styleKey)
 {
     return ::qHash(styleKey.m_elementType) ^ ::qHash(styleKey.m_visualPrimaryRole);
 }
@@ -128,7 +128,7 @@ public:
     DAnnotation::VisualRole m_visualRole = DAnnotation::RoleNormal;
 };
 
-Utils::QHashValueType qHash(const AnnotationStyleKey &styleKey)
+size_t qHash(const AnnotationStyleKey &styleKey)
 {
     return ::qHash(styleKey.m_visualRole);
 }
@@ -143,7 +143,7 @@ class BoundaryStyleKey
 {
 };
 
-Utils::QHashValueType qHash(const BoundaryStyleKey &styleKey)
+size_t qHash(const BoundaryStyleKey &styleKey)
 {
     Q_UNUSED(styleKey)
 
@@ -163,7 +163,7 @@ class SwimlaneStyleKey
 {
 };
 
-Utils::QHashValueType qHash(const SwimlaneStyleKey &styleKey)
+size_t qHash(const SwimlaneStyleKey &styleKey)
 {
     Q_UNUSED(styleKey)
 

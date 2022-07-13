@@ -104,7 +104,7 @@ QMakeBaseKey::QMakeBaseKey(const QString &_root, const QString &_stash, bool _ho
 {
 }
 
-Utils::QHashValueType qHash(const QMakeBaseKey &key)
+size_t qHash(const QMakeBaseKey &key)
 {
     return qHash(key.root) ^ qHash(key.stash) ^ (uint)key.hostBuild;
 }
@@ -269,7 +269,7 @@ void QMakeEvaluator::skipHashStr(const ushort *&tokPtr)
 
 // FIXME: this should not build new strings for direct sections.
 // Note that the E_SPRINTF and E_LIST implementations rely on the deep copy.
-ProStringList QMakeEvaluator::split_value_list(Utils::StringView vals, int source)
+ProStringList QMakeEvaluator::split_value_list(QStringView vals, int source)
 {
     QString build;
     ProStringList ret;
@@ -1310,7 +1310,7 @@ void QMakeEvaluator::setupProject()
 void QMakeEvaluator::evaluateCommand(const QString &cmds, const QString &where)
 {
     if (!cmds.isEmpty()) {
-        ProFile *pro = m_parser->parsedProBlock(Utils::make_stringview(cmds), 0, where, -1);
+        ProFile *pro = m_parser->parsedProBlock(QStringView(cmds), 0, where, -1);
         if (pro->isOk()) {
             m_locationStack.push(m_current);
             visitProBlock(pro, pro->tokPtr());
@@ -1618,7 +1618,7 @@ QString QMakeEvaluator::currentDirectory() const
     return QString();
 }
 
-bool QMakeEvaluator::isActiveConfig(Utils::StringView config, bool regex)
+bool QMakeEvaluator::isActiveConfig(QStringView config, bool regex)
 {
     // magic types for easy flipping
     if (config == statics.strtrue)
@@ -1812,7 +1812,7 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateExpandFunction(
 }
 
 QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateConditional(
-    Utils::StringView cond, const QString &where, int line)
+    QStringView cond, const QString &where, int line)
 {
     VisitReturn ret = ReturnFalse;
     ProFile *pro = m_parser->parsedProBlock(cond, 0, where, line, QMakeParser::TestGrammar);

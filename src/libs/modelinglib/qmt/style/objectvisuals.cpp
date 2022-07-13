@@ -82,7 +82,7 @@ bool operator==(const ObjectVisuals &lhs, const ObjectVisuals &rhs)
             && lhs.depth() == rhs.depth();
 }
 
-Utils::QHashValueType qHash(const ObjectVisuals &objectVisuals)
+size_t qHash(const ObjectVisuals &objectVisuals)
 {
     return ::qHash(static_cast<int>(objectVisuals.visualPrimaryRole()))
             ^ ::qHash(static_cast<int>(objectVisuals.visualSecondaryRole()))

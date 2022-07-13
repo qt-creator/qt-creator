@@ -71,6 +71,6 @@ private:
     ClassOrNamespace *_binding;
 };
 
-Utils::QHashValueType qHash(const CPlusPlus::LookupItem &result);
+size_t qHash(const CPlusPlus::LookupItem &result);
 
 } // namespace CPlusPlus

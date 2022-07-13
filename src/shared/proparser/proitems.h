@@ -31,8 +31,6 @@
 #include <qvector.h>
 #include <qhash.h>
 
-#include <utils/porting.h>
-
 QT_BEGIN_NAMESPACE
 
 class QTextStream;
@@ -70,7 +68,7 @@ public:
     ProString &operator=(const QStringBuilder<A, B> &str)
     { return *this = QString(str); }
     ProString(const QString &str);
-    PROITEM_EXPLICIT ProString(Utils::StringView str);
+    PROITEM_EXPLICIT ProString(QStringView str);
     PROITEM_EXPLICIT ProString(const char *str);
     template<typename A, typename B>
     ProString(const QStringBuilder<A, B> &str)
@@ -105,7 +103,7 @@ public:
 
     bool operator==(const ProString &other) const { return toStringView() == other.toStringView(); }
     bool operator==(const QString &other) const { return toStringView() == other; }
-    bool operator==(Utils::StringView other) const { return toStringView() == other; }
+    bool operator==(QStringView other) const { return toStringView() == other; }
     bool operator==(QLatin1String other) const  { return toStringView() == other; }
     bool operator==(const char *other) const { return toStringView() == QLatin1String(other); }
     bool operator!=(const ProString &other) const { return !(*this == other); }
@@ -154,7 +152,7 @@ public:
     uint hash() const { return m_hash; }
     static uint hash(const QChar *p, int n);
 
-    ALWAYS_INLINE Utils::StringView toStringView() const { return Utils::make_stringview(m_string).mid(m_offset, m_length); }
+    ALWAYS_INLINE QStringView toStringView() const { return QStringView(m_string).mid(m_offset, m_length); }
 
     ALWAYS_INLINE ProKey &toKey() { return *(ProKey *)this; }
     ALWAYS_INLINE const ProKey &toKey() const { return *(const ProKey *)this; }
@@ -184,7 +182,7 @@ private:
     int m_file;
     mutable uint m_hash;
     uint updatedHash() const;
-    friend Utils::QHashValueType qHash(const ProString &str);
+    friend size_t qHash(const ProString &str);
     friend QString operator+(const ProString &one, const ProString &two);
     friend class ProKey;
 };
@@ -255,7 +253,7 @@ template <> struct QConcatenable<ProKey> : private QAbstractConcatenable
 };
 
 
-Utils::QHashValueType qHash(const ProString &str);
+size_t qHash(const ProString &str);
 
 inline QString &operator+=(QString &that, const ProString &other)
     { return that += other.toStringView(); }
@@ -340,7 +338,7 @@ public:
     void removeDuplicates();
 
     bool contains(const ProString &str, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
-    bool contains(Utils::StringView str, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+    bool contains(QStringView str, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
     bool contains(const QString &str, Qt::CaseSensitivity cs = Qt::CaseSensitive) const
         { return contains(ProString(str), cs); }
     bool contains(const char *str, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;

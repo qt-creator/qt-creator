@@ -215,7 +215,7 @@ ProFileEvaluator::TemplateType ProFileEvaluator::templateType() const
         if (!t.compare(QLatin1String("app"), Qt::CaseInsensitive))
             return TT_Application;
         if (!t.compare(QLatin1String("lib"), Qt::CaseInsensitive))
-            return d->isActiveConfig(Utils::make_stringview(str_staticlib)) ? TT_StaticLibrary : TT_SharedLibrary;
+            return d->isActiveConfig(QStringView(str_staticlib)) ? TT_StaticLibrary : TT_SharedLibrary;
         if (!t.compare(QLatin1String("script"), Qt::CaseInsensitive))
             return TT_Script;
         if (!t.compare(QLatin1String("aux"), Qt::CaseInsensitive))
@@ -249,7 +249,7 @@ bool ProFileEvaluator::accept(ProFile *pro, QMakeEvaluator::LoadFlags flags)
 
         ProStringList &incpath = d->valuesRef(ProKey("INCLUDEPATH"));
         incpath += d->values(ProKey("QMAKE_INCDIR"));
-        if (!d->isActiveConfig(Utils::make_stringview(str_no_include_pwd))) {
+        if (!d->isActiveConfig(QStringView(str_no_include_pwd))) {
             incpath.prepend(ProString(pro->directoryName()));
             // It's pretty stupid that this is appended - it should be the second entry.
             if (pro->directoryName() != d->m_outputDir)
@@ -266,8 +266,8 @@ bool ProFileEvaluator::accept(ProFile *pro, QMakeEvaluator::LoadFlags flags)
             break;
         case TT_SharedLibrary:
             {
-                bool plugin = d->isActiveConfig(Utils::make_stringview(str_plugin));
-                if (!plugin || !d->isActiveConfig(Utils::make_stringview(str_plugin_no_share_shlib_cflags)))
+                bool plugin = d->isActiveConfig(QStringView(str_plugin));
+                if (!plugin || !d->isActiveConfig(QStringView(str_plugin_no_share_shlib_cflags)))
                     cxxflags += d->values(ProKey("QMAKE_CXXFLAGS_SHLIB"));
                 if (plugin)
                     cxxflags += d->values(ProKey("QMAKE_CXXFLAGS_PLUGIN"));

@@ -175,7 +175,7 @@ bool FakeMetaObjectWithOrigin::operator ==(const FakeMetaObjectWithOrigin &o) co
     return fakeMetaObject == o.fakeMetaObject;
 }
 
-Utils::QHashValueType qHash(const FakeMetaObjectWithOrigin &fmoo)
+size_t qHash(const FakeMetaObjectWithOrigin &fmoo)
 {
     return qHash(fmoo.fakeMetaObject);
 }

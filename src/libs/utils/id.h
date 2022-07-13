@@ -75,7 +75,7 @@ public:
     static QSet<Id> fromStringList(const QStringList &list);
     static QStringList toStringList(const QSet<Id> &ids);
 
-    friend QHashValueType qHash(Id id) { return static_cast<QHashValueType>(id.uniqueIdentifier()); }
+    friend size_t qHash(Id id) { return static_cast<size_t>(id.uniqueIdentifier()); }
     friend QTCREATOR_UTILS_EXPORT QDataStream &operator<<(QDataStream &ds, Id id);
     friend QTCREATOR_UTILS_EXPORT QDataStream &operator>>(QDataStream &ds, Id &id);
     friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const Id &id);
