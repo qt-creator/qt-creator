@@ -31,18 +31,17 @@
 #include "materialeditortransaction.h"
 #include "assetslibrarywidget.h"
 
-#include <qmldesignerconstants.h>
-#include <qmltimeline.h>
+#include <bindingproperty.h>
+#include <metainfo.h>
+#include <nodeinstanceview.h>
+#include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
-#include <nodelistproperty.h>
-#include <nodeinstanceview.h>
-#include <metainfo.h>
-
 #include <rewritingexception.h>
 #include <variantproperty.h>
-
-#include <bindingproperty.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
+#include <qmltimeline.h>
 
 #include <theme.h>
 
@@ -86,6 +85,7 @@ MaterialEditorView::MaterialEditorView(QWidget *parent)
     m_stackedWidget->setStyleSheet(Theme::replaceCssColors(
         QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
     m_stackedWidget->setMinimumWidth(250);
+    QmlDesignerPlugin::trackWidgetFocusTime(m_stackedWidget, Constants::EVENT_MATERIALEDITOR_TIME);
 }
 
 MaterialEditorView::~MaterialEditorView()
