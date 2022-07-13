@@ -29,7 +29,6 @@
 
 #include <utils/environment.h>
 #include <utils/filepath.h>
-#include <utils/porting.h>
 
 #include <QList>
 

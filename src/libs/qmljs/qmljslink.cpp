@@ -34,7 +34,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
-#include <utils/porting.h>
 #include <utils/qrcparser.h>
 
 #include <QDir>

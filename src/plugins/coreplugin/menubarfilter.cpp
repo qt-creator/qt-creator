@@ -32,7 +32,6 @@
 #include "locator/locatormanager.h"
 
 #include <utils/algorithm.h>
-#include <utils/porting.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 

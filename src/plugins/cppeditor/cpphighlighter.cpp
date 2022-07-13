@@ -34,8 +34,6 @@
 #include <cplusplus/SimpleLexer.h>
 #include <cplusplus/Lexer.h>
 
-#include <utils/porting.h>
-
 #include <QTextDocument>
 
 using namespace CppEditor;
@@ -160,9 +158,9 @@ void CppHighlighter::highlightBlock(const QString &text)
                           formatForCategory(C_PREPROCESSOR));
             expectPreprocessorKeyword = true;
         } else if (highlightCurrentWordAsPreprocessor && (tk.isKeyword() || tk.is(T_IDENTIFIER))
-                   && isPPKeyword(Utils::midView(text, tk.utf16charsBegin(), tk.utf16chars()))) {
+                   && isPPKeyword(QStringView(text).mid(tk.utf16charsBegin(), tk.utf16chars()))) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_PREPROCESSOR));
-            const QStringView ppKeyword = Utils::midView(text, tk.utf16charsBegin(), tk.utf16chars());
+            const QStringView ppKeyword = QStringView(text).mid(tk.utf16charsBegin(), tk.utf16chars());
             if (ppKeyword == QLatin1String("error")
                     || ppKeyword == QLatin1String("warning")
                     || ppKeyword == QLatin1String("pragma")) {
@@ -221,7 +219,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         } else if (i == 0 && tokens.size() > 1 && tk.is(T_IDENTIFIER) && tokens.at(1).is(T_COLON)) {
             setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_LABEL));
         } else if (tk.is(T_IDENTIFIER)) {
-            highlightWord(Utils::midView(text, tk.utf16charsBegin(), tk.utf16chars()),
+            highlightWord(QStringView(text).mid(tk.utf16charsBegin(), tk.utf16chars()),
                           tk.utf16charsBegin(),
                           tk.utf16chars());
         }

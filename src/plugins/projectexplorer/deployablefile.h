@@ -27,8 +27,7 @@
 
 #include "projectexplorer_export.h"
 
-#include <utils/fileutils.h>
-#include <utils/porting.h>
+#include <utils/filepath.h>
 
 #include <QString>
 

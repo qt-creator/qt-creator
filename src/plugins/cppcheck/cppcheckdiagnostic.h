@@ -26,7 +26,6 @@
 #pragma once
 
 #include <utils/fileutils.h>
-#include <utils/porting.h>
 
 namespace Cppcheck {
 namespace Internal {

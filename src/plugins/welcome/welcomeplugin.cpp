@@ -46,7 +46,6 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
-#include <utils/porting.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 #include <utils/theme/theme.h>

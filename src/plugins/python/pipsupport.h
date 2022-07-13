@@ -30,6 +30,7 @@
 
 #include <QFutureWatcher>
 #include <QTimer>
+#include <QUrl>
 
 namespace Python {
 namespace Internal {

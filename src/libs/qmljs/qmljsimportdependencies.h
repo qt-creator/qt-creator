@@ -29,7 +29,6 @@
 #include "qmljsdialect.h"
 
 #include <languageutils/componentversion.h>
-#include <utils/porting.h>
 
 #include <QObject>
 #include <QString>

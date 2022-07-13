@@ -26,8 +26,6 @@
 #include "qmljscompletioncontextfinder.h"
 #include "qmljsscanner.h"
 
-#include <utils/porting.h>
-
 #include <QTextDocument>
 #include <QStringList>
 
@@ -163,7 +161,7 @@ void CompletionContextFinder::checkBinding()
             break;
 
         case Token::Identifier: {
-            const QStringView tokenString = Utils::midView(*yyLine, token.begin(), token.length);
+            const QStringView tokenString = QStringView(*yyLine).mid(token.begin(), token.length);
             dotExpected = false;
             if (identifierExpected) {
                 m_bindingPropertyName.prepend(tokenString.toString());
@@ -233,7 +231,7 @@ void CompletionContextFinder::checkImport()
 
         switch (token.kind) {
         case Token::Identifier: {
-            const QStringView tokenString = Utils::midView(*yyLine, token.begin(), token.length);
+            const QStringView tokenString = QStringView(*yyLine).mid(token.begin(), token.length);
             if (tokenString == QLatin1String("as")) {
                 isInLibVersionImport = 0;
                 if (state == Unknown) {

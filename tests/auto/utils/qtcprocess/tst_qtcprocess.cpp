@@ -30,7 +30,6 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/launcherinterface.h>
-#include <utils/porting.h>
 #include <utils/processinfo.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>

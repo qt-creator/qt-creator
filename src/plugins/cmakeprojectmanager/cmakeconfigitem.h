@@ -28,7 +28,6 @@
 #include "cmake_global.h"
 
 #include <utils/optional.h>
-#include <utils/porting.h>
 
 #include <QByteArray>
 #include <QStringList>

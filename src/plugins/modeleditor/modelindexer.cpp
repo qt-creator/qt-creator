@@ -44,7 +44,6 @@
 #include <projectexplorer/projectnodes.h>
 
 #include <utils/mimeutils.h>
-#include <utils/porting.h>
 #include <utils/qtcassert.h>
 
 #include <QQueue>

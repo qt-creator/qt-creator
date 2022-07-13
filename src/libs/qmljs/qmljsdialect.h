@@ -27,8 +27,7 @@
 
 #include "qmljs_global.h"
 
-#include <utils/fileutils.h>
-#include <utils/porting.h>
+#include <utils/filepath.h>
 
 #include <QDebug>
 #include <QString>

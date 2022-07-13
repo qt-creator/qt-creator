@@ -27,9 +27,6 @@
 
 #include "utils_global.h"
 
-#ifdef QT_GUI_LIB
-#include <QEnterEvent>
-#endif
 #include <QString>
 
 namespace Utils {

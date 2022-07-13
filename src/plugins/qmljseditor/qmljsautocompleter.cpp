@@ -27,10 +27,6 @@
 
 #include <qmljs/qmljsscanner.h>
 
-#include <utils/porting.h>
-
-#include <QChar>
-#include <QLatin1Char>
 #include <QTextDocument>
 #include <QTextCursor>
 #include <QTextBlock>
@@ -175,7 +171,7 @@ bool AutoCompleter::contextAllowsAutoBrackets(const QTextCursor &cursor,
 
     case Token::String: {
         const QString blockText = cursor.block().text();
-        const QStringView tokenText = Utils::midView(blockText, token.offset, token.length);
+        const QStringView tokenText = QStringView(blockText).mid(token.offset, token.length);
         QChar quote = tokenText.at(0);
         // if a string literal doesn't start with a quote, it must be multiline
         if (quote != QLatin1Char('"') && quote != QLatin1Char('\'')) {
@@ -219,7 +215,7 @@ bool AutoCompleter::contextAllowsAutoQuotes(const QTextCursor &cursor,
 
     case Token::String: {
         const QString blockText = cursor.block().text();
-        const QStringView tokenText = Utils::midView(blockText, token.offset, token.length);
+        const QStringView tokenText = QStringView(blockText).mid(token.offset, token.length);
         QChar quote = tokenText.at(0);
         // if a string literal doesn't start with a quote, it must be multiline
         if (quote != QLatin1Char('"') && quote != QLatin1Char('\'')) {

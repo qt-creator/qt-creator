@@ -27,8 +27,6 @@
 
 #include "qmleditorwidgets_global.h"
 
-#include <utils/porting.h>
-
 #include <QFrame>
 
 QT_BEGIN_NAMESPACE

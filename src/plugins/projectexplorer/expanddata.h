@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include <utils/porting.h>
-
 #include <QString>
 #include <QHash>
 #include <QDebug>

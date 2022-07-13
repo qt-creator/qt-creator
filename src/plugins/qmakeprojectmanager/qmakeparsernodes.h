@@ -31,7 +31,6 @@
 
 #include <coreplugin/idocument.h>
 #include <cppeditor/generatedcodemodelsupport.h>
-#include <utils/porting.h>
 #include <utils/textfileformat.h>
 
 #include <QFutureWatcher>

@@ -27,8 +27,6 @@
 
 #include <debugger/analyzer/diagnosticlocation.h>
 
-#include <utils/porting.h>
-
 #include <QMetaType>
 #include <QString>
 #include <QVector>

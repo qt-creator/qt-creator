@@ -47,8 +47,6 @@
 #include <unistd.h>
 #include <sys/prctl.h>
 
-#include <utils/porting.h>
-
 // Enable compilation with older header that doesn't contain this constant
 // for running on newer libraries that do support it
 #ifndef PR_SET_PTRACER

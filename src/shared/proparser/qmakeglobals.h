@@ -27,7 +27,6 @@
 
 #include "qmake_global.h"
 #include "proitems.h"
-#include <utils/porting.h>
 
 #ifdef QT_BUILD_QMAKE
 #  include <property.h>

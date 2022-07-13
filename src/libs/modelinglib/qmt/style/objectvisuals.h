@@ -27,8 +27,6 @@
 
 #include "qmt/diagram/dobject.h"
 
-#include <utils/porting.h>
-
 #include <QColor>
 
 namespace qmt {

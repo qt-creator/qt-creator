@@ -31,7 +31,6 @@
 #include <qmljs/parser/qmljsastfwd_p.h>
 
 #include <languageutils/fakemetaobject.h>
-#include <utils/porting.h>
 
 #include <QFileInfoList>
 #include <QHash>

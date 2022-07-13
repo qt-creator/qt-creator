@@ -25,7 +25,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/mapreduce.h>
-#include <utils/porting.h>
 
 #include <QThreadPool>
 #include <QtTest>

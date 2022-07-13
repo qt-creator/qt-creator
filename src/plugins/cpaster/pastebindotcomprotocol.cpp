@@ -25,7 +25,6 @@
 
 #include "pastebindotcomprotocol.h"
 
-#include <utils/porting.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>

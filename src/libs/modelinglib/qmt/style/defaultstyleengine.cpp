@@ -38,7 +38,6 @@
 #include "qmt/infrastructure/qmtassert.h"
 
 #include <utils/algorithm.h>
-#include <utils/porting.h>
 
 #include <QSet>
 

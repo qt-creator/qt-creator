@@ -29,7 +29,6 @@
 
 #include <utils/id.h>
 #include <utils/fileutils.h>
-#include <utils/porting.h>
 
 #include <QIcon>
 #include <QMetaType>

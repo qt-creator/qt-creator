@@ -45,7 +45,6 @@
 #include <coreplugin/find/highlightscrollbarcontroller.h>
 #include <coreplugin/minisplitter.h>
 
-#include <utils/porting.h>
 #include <utils/tooltip/tooltip.h>
 
 using namespace Core;

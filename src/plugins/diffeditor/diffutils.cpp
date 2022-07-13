@@ -27,7 +27,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/differ.h>
-#include <utils/porting.h>
 
 #include <QFutureInterfaceBase>
 #include <QRegularExpression>

@@ -38,8 +38,6 @@
 #include "internalnodeproperty.h"
 #include "internalnodeabstractproperty.h"
 
-#include <utils/porting.h>
-
 namespace QmlDesigner {
 
 namespace Internal {

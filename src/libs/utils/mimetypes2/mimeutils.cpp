@@ -42,9 +42,10 @@
 #include "mimedatabase.h"
 #include "mimedatabase_p.h"
 #include "mimemagicrule_p.h"
-#include "mimeprovider_p.h"
 
 #include "filepath.h"
+
+#include <QUrl>
 
 namespace Utils {
 

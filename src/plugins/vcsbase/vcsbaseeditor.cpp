@@ -45,7 +45,6 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <utils/algorithm.h>
-#include <utils/porting.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 #include <utils/shellcommand.h>

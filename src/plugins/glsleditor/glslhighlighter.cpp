@@ -31,8 +31,6 @@
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/textdocument.h>
 
-#include <utils/porting.h>
-
 #include <QDebug>
 
 using namespace TextEditor;
@@ -155,7 +153,7 @@ void GlslHighlighter::highlightBlock(const QString &text)
             highlightAsPreprocessor = true;
 
         } else if (highlightCurrentWordAsPreprocessor
-                   && isPPKeyword(Utils::midView(text, tk.begin(), tk.length))) {
+                   && isPPKeyword(QStringView(text).mid(tk.begin(), tk.length))) {
             setFormat(tk.begin(), tk.length, formatForCategory(C_PREPROCESSOR));
 
         } else if (tk.is(GLSL::Parser::T_NUMBER)) {

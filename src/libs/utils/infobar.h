@@ -31,6 +31,7 @@
 
 #include <QObject>
 #include <QSet>
+#include <QVariant>
 
 #include <functional>
 

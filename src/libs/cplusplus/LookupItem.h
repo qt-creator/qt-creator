@@ -26,7 +26,6 @@
 #pragma once
 
 #include <cplusplus/FullySpecifiedType.h>
-#include <utils/porting.h>
 
 #include <QHash>
 

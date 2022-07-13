@@ -50,7 +50,6 @@
 #include <cplusplus/Overview.h>
 #include <cplusplus/SimpleLexer.h>
 #include <utils/algorithm.h>
-#include <utils/porting.h>
 #include <utils/textutils.h>
 #include <utils/qtcassert.h>
 
@@ -321,8 +320,8 @@ bool isInCommentOrString(const TextEditor::AssistInterface *interface,
             && tokens.at(1).kind() == T_IDENTIFIER) {
         const QString &line = tc.block().text();
         const Token &idToken = tokens.at(1);
-        QStringView identifier = Utils::midView(line, idToken.utf16charsBegin(),
-                                                idToken.utf16chars());
+        QStringView identifier = QStringView(line).mid(idToken.utf16charsBegin(),
+                                                       idToken.utf16chars());
         if (identifier == QLatin1String("include")
                 || identifier == QLatin1String("include_next")
                 || (features.objCEnabled && identifier == QLatin1String("import"))) {

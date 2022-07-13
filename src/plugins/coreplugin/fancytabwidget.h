@@ -26,7 +26,6 @@
 #pragma once
 
 #include <utils/infobar.h>
-#include <utils/porting.h>
 
 #include <QIcon>
 #include <QWidget>

@@ -64,8 +64,6 @@
 #include <qmljs/qmljslineinfo.h>
 #include <qmljs/qmljsscanner.h>
 
-#include <utils/porting.h>
-
 using namespace QmlJS;
 
 /*
@@ -281,7 +279,7 @@ Token LineInfo::lastToken() const
 
 QStringView LineInfo::tokenText(const Token &token) const
 {
-    return Utils::midView(yyLinizerState.line, token.offset, token.length);
+    return QStringView(yyLinizerState.line).mid(token.offset, token.length);
 }
 
 /*

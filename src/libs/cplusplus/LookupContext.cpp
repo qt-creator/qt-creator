@@ -25,7 +25,6 @@
 
 #include "LookupContext.h"
 
-#include "ResolveExpression.h"
 #include "Overview.h"
 #include "DeprecatedGenTemplateInstance.h"
 #include "CppRewriter.h"
@@ -38,7 +37,6 @@
 #include <cplusplus/Control.h>
 
 #include <utils/algorithm.h>
-#include <utils/porting.h>
 
 #include <QStack>
 #include <QHash>

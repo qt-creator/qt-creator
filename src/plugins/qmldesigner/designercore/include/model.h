@@ -29,6 +29,7 @@
 
 #include <documentmessage.h>
 
+#include <QMimeData>
 #include <QObject>
 #include <QPair>
 

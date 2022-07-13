@@ -1010,7 +1010,7 @@ void CdbEngine::runCommand(const DebuggerCommand &dbgCmd)
                 QList<QStringView> splittedArguments;
                 int maxArgumentSize = maxCommandLength - prefix.length() - maxTokenLength;
                 while (argumentSplitPos < arguments.size()) {
-                    splittedArguments << midView(arguments, argumentSplitPos, maxArgumentSize);
+                    splittedArguments << QStringView(arguments).mid(argumentSplitPos, maxArgumentSize);
                     argumentSplitPos += splittedArguments.last().length();
                 }
                 QTC_CHECK(argumentSplitPos == arguments.size());

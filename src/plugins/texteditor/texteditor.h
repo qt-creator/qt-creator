@@ -41,7 +41,6 @@
 #include <utils/elidinglabel.h>
 #include <utils/link.h>
 #include <utils/multitextcursor.h>
-#include <utils/porting.h>
 #include <utils/uncommentselection.h>
 
 #include <QPlainTextEdit>

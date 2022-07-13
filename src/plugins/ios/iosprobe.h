@@ -25,13 +25,12 @@
 
 #pragma once
 
-#include <utils/porting.h>
+#include <utils/filepath.h>
 
 #include <QSettings>
 #include <QSharedPointer>
 #include <QString>
 #include <QStringList>
-#include <utils/fileutils.h>
 
 namespace Ios {
 
