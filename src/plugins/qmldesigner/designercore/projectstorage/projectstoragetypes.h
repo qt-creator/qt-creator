@@ -43,30 +43,15 @@ constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumerat
     return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
 }
 
-using TypeNameString = Utils::BasicSmallString<63>;
-
 } // namespace QmlDesigner
 
-namespace QmlDesigner::Storage::Synchronization {
-
-enum class TypeAccessSemantics : int { None, Reference, Value, Sequence, IsEnum = 1 << 8 };
-
-constexpr TypeAccessSemantics operator|(TypeAccessSemantics first, TypeAccessSemantics second)
-{
-    return static_cast<TypeAccessSemantics>(static_cast<int>(first) | static_cast<int>(second));
-}
-
+namespace QmlDesigner::Storage {
 enum class PropertyDeclarationTraits : int {
     None = 0,
     IsReadOnly = 1 << 0,
     IsPointer = 1 << 1,
     IsList = 1 << 2
 };
-
-enum class TypeNameKind { Exported = 1, QualifiedExported = 2 };
-
-enum class FileType : char { QmlTypes, QmlDocument };
-
 constexpr PropertyDeclarationTraits operator|(PropertyDeclarationTraits first,
                                               PropertyDeclarationTraits second)
 {
@@ -77,6 +62,23 @@ constexpr bool operator&(PropertyDeclarationTraits first, PropertyDeclarationTra
 {
     return static_cast<int>(first) & static_cast<int>(second);
 }
+
+using TypeNameString = Utils::BasicSmallString<63>;
+
+} // namespace QmlDesigner::Storage
+
+namespace QmlDesigner::Storage::Synchronization {
+
+enum class TypeAccessSemantics : int { None, Reference, Value, Sequence, IsEnum = 1 << 8 };
+
+constexpr TypeAccessSemantics operator|(TypeAccessSemantics first, TypeAccessSemantics second)
+{
+    return static_cast<TypeAccessSemantics>(static_cast<int>(first) | static_cast<int>(second));
+}
+
+enum class TypeNameKind { Exported = 1, QualifiedExported = 2 };
+
+enum class FileType : char { QmlTypes, QmlDocument };
 
 class VersionNumber
 {

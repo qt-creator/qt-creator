@@ -170,22 +170,22 @@ bool isListProperty(const QStringView rawtypeName)
 struct TypeNameViewAndTraits
 {
     QStringView typeName;
-    Storage::Synchronization::PropertyDeclarationTraits traits;
+    Storage::PropertyDeclarationTraits traits;
 };
 
 TypeNameViewAndTraits filteredListTypeName(const QStringView rawtypeName)
 {
     if (!isListProperty(rawtypeName))
-        return {rawtypeName, Storage::Synchronization::PropertyDeclarationTraits::None};
+        return {rawtypeName, Storage::PropertyDeclarationTraits::None};
 
     return {rawtypeName.mid(5, rawtypeName.size() - 6),
-            Storage::Synchronization::PropertyDeclarationTraits::IsList};
+            Storage::PropertyDeclarationTraits::IsList};
 };
 
 struct TypeNameAndTraits
 {
     Storage::Synchronization::ImportedTypeName importedTypeName;
-    Storage::Synchronization::PropertyDeclarationTraits traits;
+    Storage::PropertyDeclarationTraits traits;
 };
 
 TypeNameAndTraits createImportedTypeNameAndTypeTraits(const QStringView rawtypeName,

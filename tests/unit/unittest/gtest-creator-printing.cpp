@@ -525,6 +525,29 @@ std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext)
 }
 } // namespace Cache
 
+namespace Storage {
+std::ostream &operator<<(std::ostream &out, PropertyDeclarationTraits traits)
+{
+    const char *padding = "";
+
+    out << "(";
+    if (traits & PropertyDeclarationTraits::IsReadOnly) {
+        out << "readonly";
+        padding = ", ";
+    }
+
+    if (traits & PropertyDeclarationTraits::IsPointer) {
+        out << padding << "pointer";
+        padding = ", ";
+    }
+
+    if (traits & PropertyDeclarationTraits::IsList)
+        out << padding << "list";
+
+    return out << ")";
+}
+} // namespace Storage
+
 namespace Storage::Synchronization {
 
 namespace {
@@ -712,27 +735,6 @@ std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyD
                << ", " << propertyDeclaration.typeId << ", " << propertyDeclaration.traits << ", "
                << propertyDeclaration.propertyTypeId << ", \""
                << propertyDeclaration.aliasPropertyName << "\")";
-}
-
-std::ostream &operator<<(std::ostream &out, PropertyDeclarationTraits traits)
-{
-    const char *padding = "";
-
-    out << "(";
-    if (traits & PropertyDeclarationTraits::IsReadOnly) {
-        out << "readonly";
-        padding = ", ";
-    }
-
-    if (traits & PropertyDeclarationTraits::IsPointer) {
-        out << padding << "pointer";
-        padding = ", ";
-    }
-
-    if (traits & PropertyDeclarationTraits::IsList)
-        out << padding << "list";
-
-    return out << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const FunctionDeclaration &functionDeclaration)

@@ -174,19 +174,19 @@ Storage::Synchronization::ExportedTypes createCppEnumerationExports(
     return exportedTypes;
 }
 
-Storage::Synchronization::PropertyDeclarationTraits createPropertyDeclarationTraits(
+Storage::PropertyDeclarationTraits createPropertyDeclarationTraits(
     const QQmlJSMetaProperty &qmlProperty)
 {
-    Storage::Synchronization::PropertyDeclarationTraits traits{};
+    Storage::PropertyDeclarationTraits traits{};
 
     if (qmlProperty.isList())
-        traits = traits | Storage::Synchronization::PropertyDeclarationTraits::IsList;
+        traits = traits | Storage::PropertyDeclarationTraits::IsList;
 
     if (qmlProperty.isPointer())
-        traits = traits | Storage::Synchronization::PropertyDeclarationTraits::IsPointer;
+        traits = traits | Storage::PropertyDeclarationTraits::IsPointer;
 
     if (!qmlProperty.isWritable())
-        traits = traits | Storage::Synchronization::PropertyDeclarationTraits::IsReadOnly;
+        traits = traits | Storage::PropertyDeclarationTraits::IsReadOnly;
 
     return traits;
 }
