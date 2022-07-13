@@ -159,6 +159,11 @@ enum class PropertyDeclarationTraits : int;
 std::ostream &operator<<(std::ostream &out, PropertyDeclarationTraits traits);
 } // namespace Storage
 
+namespace Storage::Info {
+class ProjectDeclaration;
+std::ostream &operator<<(std::ostream &out, const ProjectDeclaration &declaration);
+} // namespace Storage::Info
+
 namespace Storage::Synchronization {
 class Type;
 class ExportedType;

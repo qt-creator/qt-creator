@@ -926,3 +926,36 @@ public:
 };
 
 } // namespace QmlDesigner::Storage::Synchronization
+
+namespace QmlDesigner::Storage::Info {
+
+class PropertyDeclaration
+{
+public:
+    PropertyDeclaration(long long typeId,
+                        Utils::SmallStringView name,
+                        long long traits,
+                        long long propertyTypeId)
+        : typeId{typeId}
+        , name{name}
+        , traits{static_cast<PropertyDeclarationTraits>(traits)}
+        , propertyTypeId{propertyTypeId}
+    {}
+
+    PropertyDeclaration(TypeId typeId,
+                        Utils::SmallStringView name,
+                        PropertyDeclarationTraits traits,
+                        TypeId propertyTypeId)
+        : typeId{typeId}
+        , name{name}
+        , traits{traits}
+        , propertyTypeId{propertyTypeId}
+    {}
+
+    TypeId typeId;
+    Utils::SmallString name;
+    PropertyDeclarationTraits traits;
+    TypeId propertyTypeId;
+};
+
+} // namespace QmlDesigner::Storage::Info

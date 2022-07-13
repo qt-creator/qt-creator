@@ -176,6 +176,14 @@ public:
             .template valueWithTransaction<PropertyDeclarationId>(&typeId, propertyName);
     }
 
+    Utils::optional<Storage::Info::PropertyDeclaration> propertyDeclaration(
+        PropertyDeclarationId propertyDeclarationId) const
+    {
+        return selectPropertyDeclarationForPropertyDeclarationIdStatement
+            .template optionalValueWithTransaction<Storage::Info::PropertyDeclaration>(
+                &propertyDeclarationId);
+    }
+
     Utils::optional<Utils::SmallString> propertyName(PropertyDeclarationId propertyDeclarationId) const
     {
         return selectPropertyNameStatement.template optionalValueWithTransaction<Utils::SmallString>(
@@ -2925,6 +2933,11 @@ public:
         "SELECT propertyDeclarationId "
         "FROM propertyDeclarations "
         "WHERE typeId=?1 AND name=?2 LIMIT 1",
+        database};
+    mutable ReadStatement<4, 1> selectPropertyDeclarationForPropertyDeclarationIdStatement{
+        "SELECT typeId, name, propertyTraits, propertyTypeId "
+        "FROM propertyDeclarations "
+        "WHERE propertyDeclarationId=?1 LIMIT 1",
         database};
 };
 extern template class ProjectStorage<Sqlite::Database>;

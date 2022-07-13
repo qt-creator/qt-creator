@@ -548,6 +548,16 @@ std::ostream &operator<<(std::ostream &out, PropertyDeclarationTraits traits)
 }
 } // namespace Storage
 
+namespace Storage::Info {
+std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyDeclaration)
+{
+    using Utils::operator<<;
+    return out << "(\"" << propertyDeclaration.typeId << "\", " << propertyDeclaration.name << ", "
+               << propertyDeclaration.typeId << ", " << propertyDeclaration.traits << ", "
+               << propertyDeclaration.propertyTypeId << "\")";
+}
+} // namespace Storage::Info
+
 namespace Storage::Synchronization {
 
 namespace {

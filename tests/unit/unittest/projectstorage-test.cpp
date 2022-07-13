@@ -180,6 +180,21 @@ MATCHER_P4(IsPropertyDeclaration,
            && propertyDeclaration.traits == traits;
 }
 
+MATCHER_P4(IsInfoPropertyDeclaration,
+           typeId,
+           name,
+           traits,
+           propertyTypeId,
+           std::string(negation ? "isn't " : "is ")
+               + PrintToString(Storage::Info::PropertyDeclaration{typeId, name, traits, propertyTypeId}))
+{
+    const Storage::Info::PropertyDeclaration &propertyDeclaration = arg;
+
+    return propertyDeclaration.typeId == typeId && propertyDeclaration.name == name
+           && propertyDeclaration.propertyTypeId == propertyTypeId
+           && propertyDeclaration.traits == traits;
+}
+
 class HasNameMatcher
 {
 public:
@@ -5642,6 +5657,31 @@ TEST_F(ProjectStorage, GetInvalidLocalPropertyDeclarationIdForWrongPropertyName)
     auto propertyId = storage.localPropertyDeclarationId(typeId, "wrongName");
 
     ASSERT_FALSE(propertyId);
+}
+
+TEST_F(ProjectStorage, GetPropertyDeclaration)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId2 = fetchTypeId(sourceId1, "QObject2");
+    auto typeId3 = fetchTypeId(sourceId1, "QObject3");
+    auto propertyId = storage.propertyDeclarationId(typeId3, "data2");
+
+    auto property = storage.propertyDeclaration(propertyId);
+
+    ASSERT_THAT(property,
+                Optional(IsInfoPropertyDeclaration(
+                    typeId2, "data2", Storage::PropertyDeclarationTraits::IsReadOnly, typeId3)));
+}
+
+TEST_F(ProjectStorage, GetInvalidOptionalPropertyDeclarationForInvalidPropertyDeclarationId)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+
+    auto property = storage.propertyDeclaration(PropertyDeclarationId{});
+
+    ASSERT_THAT(property, Eq(Utils::nullopt));
 }
 
 } // namespace
