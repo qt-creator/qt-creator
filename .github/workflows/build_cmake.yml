@@ -121,7 +121,10 @@ jobs:
             COMMAND sudo apt update
           )
           execute_process(
-            COMMAND sudo apt install libgl1-mesa-dev libvulkan-dev libxcb-xinput-dev libxcb-xinerama0-dev libxkbcommon-dev libxkbcommon-x11-dev
+            COMMAND
+              sudo apt install libgl1-mesa-dev libvulkan-dev libxcb-xinput-dev libxcb-xinerama0-dev libxkbcommon-dev libxkbcommon-x11-dev
+                               libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xkb1 libxcb-randr0 libxcb-icccm4
+                               xvfb
             RESULT_VARIABLE result
           )
           if (NOT result EQUAL 0)
@@ -605,14 +608,16 @@ jobs:
         set(ENV{CTEST_OUTPUT_ON_FAILURE} "ON")
 
         if ("${{ runner.os }}" STREQUAL "Linux")
-          set(ENV{QT_QPA_PLATFORM} "offscreen")
+          set(ENV{DISPLAY} ":1")
+          set(ENV{LIBGL_ALWAYS_SOFTWARE} "1")
+          set(ctest_launcher xvfb-run --auto-servernum --server-num=1)
         elseif ("${{ runner.os }}" STREQUAL "Windows")
           set(ENV{QT_OPENGL} "software")
           set(ENV{QT_ASSUME_STDERR_HAS_CONSOLE} "1")
         endif()
 
         execute_process(
-          COMMAND ctest -j ${N} --timeout 60 --label-exclude exclude_from_precheck --exclude-regex tst_perfdata
+          COMMAND ${ctest_launcher} ctest -j ${N} --timeout 60 --label-exclude exclude_from_precheck --exclude-regex tst_perfdata
           WORKING_DIRECTORY build/build
           RESULT_VARIABLE result
           OUTPUT_VARIABLE output
