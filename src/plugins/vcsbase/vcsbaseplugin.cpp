@@ -734,12 +734,8 @@ QString source(IDocument *document)
     return document->property(SOURCE_PROPERTY).toString();
 }
 
-void setProcessEnvironment(Environment *e, bool forceCLocale)
+void setProcessEnvironment(Environment *e)
 {
-    if (forceCLocale) {
-        e->set("LANG", "C");
-        e->set("LANGUAGE", "C");
-    }
     const QString prompt = Internal::VcsPlugin::instance()->settings().sshPasswordPrompt.value();
     if (!prompt.isEmpty())
         e->set("SSH_ASKPASS", prompt);

@@ -149,7 +149,7 @@ signals:
     void appendMessage(const QString &text);
 
 protected:
-    virtual Environment environment() const;
+    void setEnvironment(const Environment &env);
     void setDisableUnixTerminal();
     int timeoutS() const;
 

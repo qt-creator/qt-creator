@@ -48,6 +48,10 @@ VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &envi
     ShellCommand(workingDirectory, environment),
     m_preventRepositoryChanged(false)
 {
+    Environment env = environment;
+    VcsBase::setProcessEnvironment(&env);
+    setEnvironment(env);
+
     connect(ICore::instance(), &ICore::coreAboutToClose, this, [this] {
         m_preventRepositoryChanged = true;
         abort();
@@ -73,13 +77,6 @@ VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &envi
     connect(this, &ShellCommand::appendError, outputWindow, &VcsOutputWindow::appendError);
     connect(this, &ShellCommand::appendCommand, outputWindow, &VcsOutputWindow::appendCommand);
     connect(this, &ShellCommand::appendMessage, outputWindow, &VcsOutputWindow::appendMessage);
-}
-
-Environment VcsCommand::environment() const
-{
-    Environment env = ShellCommand::environment();
-    VcsBase::setProcessEnvironment(&env, flags() & ForceCLocale);
-    return env;
 }
 
 void VcsCommand::addTask(QFuture<void> &future)

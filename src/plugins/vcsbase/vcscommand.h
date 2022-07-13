@@ -36,9 +36,6 @@ class VcsCommand : public Utils::ShellCommand
 {
     Q_OBJECT
 
-protected:
-    Utils::Environment environment() const override;
-
 private:
     VcsCommand(const Utils::FilePath &defaultWorkingDirectory,
                const Utils::Environment &environment);

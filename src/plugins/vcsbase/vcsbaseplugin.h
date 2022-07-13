@@ -130,8 +130,7 @@ VCSBASE_EXPORT Utils::FilePath findRepositoryForFile(const Utils::FilePath &file
 // Sets up SSH graphical password prompting (note that the latter
 // requires a terminal-less process) and sets LANG to 'C' to force English
 // (suppress LOCALE warnings/parse commands output) if desired.
-VCSBASE_EXPORT void setProcessEnvironment(Utils::Environment *e,
-                                          bool forceCLocale);
+VCSBASE_EXPORT void setProcessEnvironment(Utils::Environment *e);
 // Sets the source of editor contents, can be directory or file.
 VCSBASE_EXPORT void setSource(Core::IDocument *document, const QString &source);
 // Returns the source of editor contents.

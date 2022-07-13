@@ -79,9 +79,19 @@ public:
 
     ~ShellCommandPrivate() { delete m_progressParser; }
 
+    Environment environment()
+    {
+        if (!(m_flags & ShellCommand::ForceCLocale))
+            return m_environment;
+
+        m_environment.set("LANG", "C");
+        m_environment.set("LANGUAGE", "C");
+        return m_environment;
+    }
+
     QString m_displayName;
     const FilePath m_defaultWorkingDirectory;
-    const Environment m_environment;
+    Environment m_environment;
     QVariant m_cookie;
     QTextCodec *m_codec = nullptr;
     ProgressParser *m_progressParser = nullptr;
@@ -152,9 +162,9 @@ const FilePath &ShellCommand::defaultWorkingDirectory() const
     return d->m_defaultWorkingDirectory;
 }
 
-Environment ShellCommand::environment() const
+void ShellCommand::setEnvironment(const Environment &env)
 {
-    return d->m_environment;
+    d->m_environment = env;
 }
 
 int ShellCommand::defaultTimeoutS() const
@@ -310,7 +320,7 @@ void ShellCommand::runCommand(QtcProcess &proc,
     proc.setCommand(command);
     if (d->m_disableUnixTerminal)
         proc.setDisableUnixTerminal();
-    proc.setEnvironment(environment());
+    proc.setEnvironment(d->environment());
     if (d->m_flags & MergeOutputChannels)
         proc.setProcessChannelMode(QProcess::MergedChannels);
     if (d->m_codec)

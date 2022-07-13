@@ -134,7 +134,7 @@ void VcsBaseClientImpl::enqueueJob(ShellCommand *cmd, const QStringList &args,
 Environment VcsBaseClientImpl::processEnvironment() const
 {
     Environment environment = Environment::systemEnvironment();
-    VcsBase::setProcessEnvironment(&environment, false);
+    VcsBase::setProcessEnvironment(&environment);
     return environment;
 }
 
