@@ -201,7 +201,6 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
                              tr("Variables in the build configuration's environment"),
                              [this](const QString &var) { return environment().expandedValueForKey(var); });
 
-    updateCacheAndEmitEnvironmentChanged();
     connect(Core::ICore::instance(), &Core::ICore::systemEnvironmentChanged,
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
     connect(target, &Target::kitChanged,
@@ -292,6 +291,8 @@ void BuildConfiguration::addConfigWidgets(const std::function<void(NamedWidget *
 
 void BuildConfiguration::doInitialize(const BuildInfo &info)
 {
+    updateCacheAndEmitEnvironmentChanged();
+
     setDisplayName(info.displayName);
     setDefaultDisplayName(info.displayName);
     setBuildDirectory(info.buildDirectory);
