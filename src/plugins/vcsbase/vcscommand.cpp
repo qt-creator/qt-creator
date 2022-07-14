@@ -43,18 +43,12 @@ using namespace Utils;
 
 namespace VcsBase {
 
-VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &environment) :
-    ShellCommand(workingDirectory, environment),
-    m_preventRepositoryChanged(false)
+VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &environment)
+    : ShellCommand(workingDirectory, environment)
 {
     Environment env = environment;
     VcsBase::setProcessEnvironment(&env);
     setEnvironment(env);
-
-    connect(ICore::instance(), &ICore::coreAboutToClose, this, [this] {
-        m_preventRepositoryChanged = true;
-        abort();
-    });
 
     VcsOutputWindow::setRepository(workingDirectory.toString());
     setDisableUnixTerminal();
@@ -78,7 +72,13 @@ VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &envi
     connect(this, &ShellCommand::appendMessage, outputWindow, &VcsOutputWindow::appendMessage);
 
     connect(this, &ShellCommand::executedAsync, this, &VcsCommand::addTask);
-    connect(this, &ShellCommand::runCommandFinished, this, &VcsCommand::postRunCommand);
+    const auto connection = connect(this, &ShellCommand::runCommandFinished,
+                                    this, &VcsCommand::postRunCommand);
+
+    connect(ICore::instance(), &ICore::coreAboutToClose, this, [this, connection] {
+        disconnect(connection);
+        abort();
+    });
 }
 
 void VcsCommand::addTask(const QFuture<void> &future)
@@ -110,7 +110,7 @@ void VcsCommand::addTask(const QFuture<void> &future)
 
 void VcsCommand::postRunCommand(const FilePath &workingDirectory)
 {
-    if (m_preventRepositoryChanged || !(flags() & ShellCommand::ExpectRepoChanges))
+    if (!(flags() & ShellCommand::ExpectRepoChanges))
         return;
     // TODO tell the document manager that the directory now received all expected changes
     // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);

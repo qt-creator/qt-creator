@@ -40,8 +40,6 @@ private:
     void addTask(const QFuture<void> &future);
     void postRunCommand(const Utils::FilePath &workDirectory);
 
-    bool m_preventRepositoryChanged;
-
     friend class VcsBaseClientImpl;
 };
 
