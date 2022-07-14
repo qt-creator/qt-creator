@@ -24,16 +24,22 @@
 ****************************************************************************/
 
 #include "sshkeycreationdialog.h"
-#include "ui_sshkeycreationdialog.h"
 
 #include <projectexplorer/devicesupport/sshsettings.h>
 
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 
 #include <QApplication>
+#include <QComboBox>
+#include <QDialog>
+#include <QGroupBox>
+#include <QLabel>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QRadioButton>
 #include <QStandardPaths>
 
 using namespace ProjectExplorer;
@@ -42,40 +48,73 @@ using namespace Utils;
 namespace RemoteLinux {
 
 SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
-    : QDialog(parent), m_ui(new Ui::SshKeyCreationDialog)
+    : QDialog(parent)
 {
-    m_ui->setupUi(this);
-    m_ui->privateKeyFileButton->setText(Utils::PathChooser::browseButtonLabel());
+    setWindowTitle(tr("SSH Key Configuration"));
+    resize(385, 231);
+
+    m_rsa = new QRadioButton(tr("&RSA"));
+    m_rsa->setChecked(true);
+
+    m_ecdsa = new QRadioButton(tr("ECDSA"));
+
+    m_comboBox = new QComboBox;
+
+    m_privateKeyFileValueLabel = new QLabel;
+
+    m_publicKeyFileLabel = new QLabel;
+
+    auto privateKeyFileButton = new QPushButton(PathChooser::browseButtonLabel());
+    m_generateButton = new QPushButton(tr("&Generate And Save Key Pair"));
+    auto closeButton = new QPushButton(tr("&Cancel"));
+
+    using namespace Layouting;
+    const Break nl;
+    const Stretch st;
+
+    Column {
+        Group {
+            Title(tr("Options")),
+            Form {
+                tr("Key algorithm:"), m_rsa, m_ecdsa, st, nl,
+                tr("Key &size:"), m_comboBox, st, nl,
+                tr("Private key file:"), m_privateKeyFileValueLabel, privateKeyFileButton, st, nl,
+                tr("Public key file:"), m_publicKeyFileLabel
+            }
+        },
+        Stretch(),
+        Row { m_generateButton, closeButton, st }
+    }.attachTo(this);
+
     const QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
         + QLatin1String("/.ssh/qtc_id");
     setPrivateKeyFile(FilePath::fromString(defaultPath));
 
-    connect(m_ui->rsa, &QRadioButton::toggled,
+    connect(closeButton, &QPushButton::clicked,
+            this, &QDialog::close);
+    connect(m_rsa, &QRadioButton::toggled,
             this, &SshKeyCreationDialog::keyTypeChanged);
-    connect(m_ui->privateKeyFileButton, &QPushButton::clicked,
+    connect(privateKeyFileButton, &QPushButton::clicked,
             this, &SshKeyCreationDialog::handleBrowseButtonClicked);
-    connect(m_ui->generateButton, &QPushButton::clicked,
+    connect(m_generateButton, &QPushButton::clicked,
             this, &SshKeyCreationDialog::generateKeys);
     keyTypeChanged();
 }
 
-SshKeyCreationDialog::~SshKeyCreationDialog()
-{
-    delete m_ui;
-}
+SshKeyCreationDialog::~SshKeyCreationDialog() = default;
 
 void SshKeyCreationDialog::keyTypeChanged()
 {
-    m_ui->comboBox->clear();
+    m_comboBox->clear();
     QStringList keySizes;
-    if (m_ui->rsa->isChecked())
+    if (m_rsa->isChecked())
         keySizes << QLatin1String("1024") << QLatin1String("2048") << QLatin1String("4096");
-    else if (m_ui->ecdsa->isChecked())
+    else if (m_ecdsa->isChecked())
         keySizes << QLatin1String("256") << QLatin1String("384") << QLatin1String("521");
-    m_ui->comboBox->addItems(keySizes);
+    m_comboBox->addItems(keySizes);
     if (!keySizes.isEmpty())
-        m_ui->comboBox->setCurrentIndex(0);
-    m_ui->comboBox->setEnabled(!keySizes.isEmpty());
+        m_comboBox->setCurrentIndex(0);
+    m_comboBox->setEnabled(!keySizes.isEmpty());
 }
 
 void SshKeyCreationDialog::generateKeys()
@@ -89,10 +128,10 @@ void SshKeyCreationDialog::generateKeys()
                   .arg(privateKeyFilePath().toUserOutput()));
         return;
     }
-    const QString keyTypeString = QLatin1String(m_ui->rsa->isChecked() ? "rsa": "ecdsa");
+    const QString keyTypeString = QLatin1String(m_rsa->isChecked() ? "rsa": "ecdsa");
     QApplication::setOverrideCursor(Qt::BusyCursor);
     QtcProcess keygen;
-    const QStringList args{"-t", keyTypeString, "-b", m_ui->comboBox->currentText(),
+    const QStringList args{"-t", keyTypeString, "-b", m_comboBox->currentText(),
                 "-N", QString(), "-f", privateKeyFilePath().path()};
     QString errorMsg;
     keygen.setCommand({SshSettings::keygenFilePath(), args});
@@ -118,9 +157,9 @@ void SshKeyCreationDialog::handleBrowseButtonClicked()
 
 void SshKeyCreationDialog::setPrivateKeyFile(const FilePath &filePath)
 {
-    m_ui->privateKeyFileValueLabel->setText(filePath.toUserOutput());
-    m_ui->generateButton->setEnabled(!privateKeyFilePath().isEmpty());
-    m_ui->publicKeyFileLabel->setText(filePath.toUserOutput() + ".pub");
+    m_privateKeyFileValueLabel->setText(filePath.toUserOutput());
+    m_generateButton->setEnabled(!privateKeyFilePath().isEmpty());
+    m_publicKeyFileLabel->setText(filePath.toUserOutput() + ".pub");
 }
 
 void SshKeyCreationDialog::showError(const QString &details)
@@ -130,12 +169,12 @@ void SshKeyCreationDialog::showError(const QString &details)
 
 FilePath SshKeyCreationDialog::privateKeyFilePath() const
 {
-    return FilePath::fromUserInput(m_ui->privateKeyFileValueLabel->text());
+    return FilePath::fromUserInput(m_privateKeyFileValueLabel->text());
 }
 
 FilePath SshKeyCreationDialog::publicKeyFilePath() const
 {
-    return FilePath::fromUserInput(m_ui->publicKeyFileLabel->text());
+    return FilePath::fromUserInput(m_publicKeyFileLabel->text());
 }
 
 } // namespace RemoteLinux

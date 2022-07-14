@@ -27,11 +27,16 @@
 
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QLabel;
+class QPushButton;
+class QRadioButton;
+QT_END_NAMESPACE
+
 namespace Utils { class FilePath; }
 
 namespace RemoteLinux {
-
-namespace Ui { class SshKeyCreationDialog; }
 
 class SshKeyCreationDialog : public QDialog
 {
@@ -51,7 +56,12 @@ private:
     void showError(const QString &details);
 
 private:
-    Ui::SshKeyCreationDialog *m_ui;
+    QComboBox *m_comboBox;
+    QLabel *m_privateKeyFileValueLabel;
+    QLabel *m_publicKeyFileLabel;
+    QPushButton *m_generateButton;
+    QRadioButton *m_rsa;
+    QRadioButton *m_ecdsa;
 };
 
 } // namespace RemoteLinux

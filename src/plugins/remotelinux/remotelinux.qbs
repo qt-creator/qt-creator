@@ -69,7 +69,6 @@ Project {
             "rsyncdeploystep.h",
             "sshkeycreationdialog.cpp",
             "sshkeycreationdialog.h",
-            "sshkeycreationdialog.ui",
             "sshprocessinterface.h",
             "tarpackagecreationstep.cpp",
             "tarpackagecreationstep.h",
