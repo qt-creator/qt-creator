@@ -8,7 +8,7 @@ add_qtc_plugin(RemoteLinux
     deploymenttimeinfo.cpp deploymenttimeinfo.h
     genericdirectuploadservice.cpp genericdirectuploadservice.h
     genericdirectuploadstep.cpp genericdirectuploadstep.h
-    genericlinuxdeviceconfigurationwidget.cpp genericlinuxdeviceconfigurationwidget.h genericlinuxdeviceconfigurationwidget.ui
+    genericlinuxdeviceconfigurationwidget.cpp genericlinuxdeviceconfigurationwidget.h
     genericlinuxdeviceconfigurationwizard.cpp genericlinuxdeviceconfigurationwizard.h
     genericlinuxdeviceconfigurationwizardpages.cpp genericlinuxdeviceconfigurationwizardpages.h
     killappstep.cpp killappstep.h

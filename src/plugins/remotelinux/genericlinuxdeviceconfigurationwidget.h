@@ -25,24 +25,30 @@
 
 #pragma once
 
-#include "remotelinux_export.h"
-
 #include <projectexplorer/devicesupport/idevicewidget.h>
 
-namespace Utils { class FilePath; }
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QLabel;
+class QLineEdit;
+class QRadioButton;
+class QSpinBox;
+QT_END_NAMESPACE
 
-namespace RemoteLinux {
+namespace Utils {
+class FilePath;
+class PathChooser;
+} // Utils
 
-namespace Ui { class GenericLinuxDeviceConfigurationWidget; }
+namespace RemoteLinux::Internal {
 
-class REMOTELINUX_EXPORT GenericLinuxDeviceConfigurationWidget
+class GenericLinuxDeviceConfigurationWidget
         : public ProjectExplorer::IDeviceWidget
 {
     Q_OBJECT
 
 public:
-    explicit GenericLinuxDeviceConfigurationWidget(
-        const ProjectExplorer::IDevicePtr &deviceConfig);
+    explicit GenericLinuxDeviceConfigurationWidget(const ProjectExplorer::IDevicePtr &device);
     ~GenericLinuxDeviceConfigurationWidget() override;
 
 private:
@@ -62,7 +68,19 @@ private:
     void updatePortsWarningLabel();
     void initGui();
 
-    Ui::GenericLinuxDeviceConfigurationWidget *m_ui;
+    QRadioButton *m_defaultAuthButton;
+    QLabel *m_keyLabel;
+    QRadioButton *m_keyButton;
+    QLineEdit *m_hostLineEdit;
+    QSpinBox *m_sshPortSpinBox;
+    QCheckBox *m_hostKeyCheckBox;
+    QLineEdit *m_portsLineEdit;
+    QLabel *m_portsWarningLabel;
+    QLineEdit *m_userLineEdit;
+    QSpinBox *m_timeoutSpinBox;
+    Utils::PathChooser *m_keyFileLineEdit;
+    QLabel *m_machineTypeValueLabel;
+    QLineEdit *m_gdbServerLineEdit;
 };
 
-} // namespace RemoteLinux
+} // RemoteLinux::Internal

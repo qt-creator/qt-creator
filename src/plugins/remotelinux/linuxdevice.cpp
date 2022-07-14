@@ -969,7 +969,7 @@ LinuxDevice::~LinuxDevice()
 
 IDeviceWidget *LinuxDevice::createWidget()
 {
-    return new GenericLinuxDeviceConfigurationWidget(sharedFromThis());
+    return new Internal::GenericLinuxDeviceConfigurationWidget(sharedFromThis());
 }
 
 bool LinuxDevice::canAutoDetectPorts() const

@@ -27,7 +27,6 @@ Project {
             "genericdirectuploadstep.h",
             "genericlinuxdeviceconfigurationwidget.cpp",
             "genericlinuxdeviceconfigurationwidget.h",
-            "genericlinuxdeviceconfigurationwidget.ui",
             "genericlinuxdeviceconfigurationwizard.cpp",
             "genericlinuxdeviceconfigurationwizard.h",
             "genericlinuxdeviceconfigurationwizardpages.cpp",
