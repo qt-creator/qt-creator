@@ -25,7 +25,6 @@ add_qtc_plugin(VcsBase
     vcsbaseeditorconfig.cpp vcsbaseeditorconfig.h
     vcsbaseplugin.cpp vcsbaseplugin.h
     vcsbasesubmiteditor.cpp vcsbasesubmiteditor.h
-    vcscommand.cpp vcscommand.h
     vcsoutputformatter.cpp vcsoutputformatter.h
     vcsoutputwindow.cpp vcsoutputwindow.h
     vcsplugin.cpp vcsplugin.h

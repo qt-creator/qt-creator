@@ -24,19 +24,22 @@
 ****************************************************************************/
 
 #include "vcsbaseclient.h"
-#include "vcscommand.h"
 #include "vcsbaseclientsettings.h"
 #include "vcsbaseeditorconfig.h"
+#include "vcsplugin.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <utils/environment.h>
+#include <utils/globalfilechangeblocker.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/shellcommand.h>
 
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsoutputwindow.h>
@@ -44,10 +47,12 @@
 
 #include <QDebug>
 #include <QFileInfo>
+#include <QFutureWatcher>
 #include <QStringList>
 #include <QTextCodec>
 #include <QVariant>
 
+using namespace Core;
 using namespace Utils;
 
 /*!
@@ -61,22 +66,107 @@ using namespace Utils;
     \sa VcsBase::VcsJobRunner
 */
 
-static Core::IEditor *locateEditor(const char *property, const QString &entry)
+static IEditor *locateEditor(const char *property, const QString &entry)
 {
-    const QList<Core::IDocument *> documents = Core::DocumentModel::openedDocuments();
-    for (Core::IDocument *document : documents)
+    const QList<IDocument *> documents = DocumentModel::openedDocuments();
+    for (IDocument *document : documents)
         if (document->property(property).toString() == entry)
-            return Core::DocumentModel::editorsForDocument(document).constFirst();
+            return DocumentModel::editorsForDocument(document).constFirst();
     return nullptr;
 }
 
 namespace VcsBase {
 
+class VcsCommand : public ShellCommand
+{
+public:
+    VcsCommand(const FilePath &defaultWorkingDirectory, const Environment &environment);
+
+private:
+    void addTask(const QFuture<void> &future);
+    void postRunCommand(const Utils::FilePath &workDirectory);
+};
+
+VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &environment)
+    : ShellCommand(workingDirectory, environment)
+{
+    Environment env = environment;
+    VcsBase::setProcessEnvironment(&env);
+    setEnvironment(env);
+
+    VcsOutputWindow::setRepository(workingDirectory.toString());
+    setDisableUnixTerminal();
+
+    connect(this, &ShellCommand::started, this, [this] {
+        if (flags() & ExpectRepoChanges)
+            GlobalFileChangeBlocker::instance()->forceBlocked(true);
+    });
+    connect(this, &ShellCommand::finished, this, [this] {
+        if (flags() & ExpectRepoChanges)
+            GlobalFileChangeBlocker::instance()->forceBlocked(false);
+    });
+
+    VcsOutputWindow *outputWindow = VcsOutputWindow::instance();
+    connect(this, &ShellCommand::append, outputWindow, [outputWindow](const QString &t) {
+        outputWindow->append(t);
+    });
+    connect(this, &ShellCommand::appendSilently, outputWindow, &VcsOutputWindow::appendSilently);
+    connect(this, &ShellCommand::appendError, outputWindow, &VcsOutputWindow::appendError);
+    connect(this, &ShellCommand::appendCommand, outputWindow, &VcsOutputWindow::appendCommand);
+    connect(this, &ShellCommand::appendMessage, outputWindow, &VcsOutputWindow::appendMessage);
+
+    connect(this, &ShellCommand::executedAsync, this, &VcsCommand::addTask);
+    const auto connection = connect(this, &ShellCommand::runCommandFinished,
+                                    this, &VcsCommand::postRunCommand);
+
+    connect(ICore::instance(), &ICore::coreAboutToClose, this, [this, connection] {
+        disconnect(connection);
+        abort();
+    });
+}
+
+void VcsCommand::addTask(const QFuture<void> &future)
+{
+    if ((flags() & SuppressCommandLogging))
+        return;
+
+    const QString name = displayName();
+    const auto id = Id::fromString(name + QLatin1String(".action"));
+    if (hasProgressParser()) {
+        ProgressManager::addTask(future, name, id);
+    } else {
+        // add a timed tasked based on timeout
+        // we cannot access the future interface directly, so we need to create a new one
+        // with the same lifetime
+        auto fi = new QFutureInterface<void>();
+        auto watcher = new QFutureWatcher<void>();
+        connect(watcher, &QFutureWatcherBase::finished, [fi, watcher] {
+            fi->reportFinished();
+            delete fi;
+            watcher->deleteLater();
+        });
+        watcher->setFuture(future);
+        ProgressManager::addTimedTask(*fi, name, id, qMax(2, timeoutS() / 5)/*itsmagic*/);
+    }
+
+    Internal::VcsPlugin::addFuture(future);
+}
+
+void VcsCommand::postRunCommand(const FilePath &workingDirectory)
+{
+    if (!(flags() & ShellCommand::ExpectRepoChanges))
+        return;
+    // TODO tell the document manager that the directory now received all expected changes
+    // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
+    VcsManager::emitRepositoryChanged(workingDirectory);
+}
+
+
 VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseSettings *baseSettings)
     : m_baseSettings(baseSettings)
 {
-    m_baseSettings->readSettings(Core::ICore::settings());
-    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
+    m_baseSettings->readSettings(ICore::settings());
+    connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &VcsBaseClientImpl::saveSettings);
 }
 
@@ -177,7 +267,7 @@ void VcsBaseClientImpl::vcsFullySynchronousExec(QtcProcess &proc,
 
 void VcsBaseClientImpl::resetCachedVcsInfo(const FilePath &workingDir)
 {
-    Core::VcsManager::resetVersionControlForDirectory(workingDir);
+    VcsManager::resetVersionControlForDirectory(workingDir);
 }
 
 void VcsBaseClientImpl::annotateRevisionRequested(const FilePath &workingDirectory,
@@ -239,16 +329,16 @@ VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Id kind, QString title,
                                                         const QString &dynamicPropertyValue) const
 {
     VcsBaseEditorWidget *baseEditor = nullptr;
-    Core::IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
+    IEditor *outputEditor = locateEditor(registerDynamicProperty, dynamicPropertyValue);
     const QString progressMsg = tr("Working...");
     if (outputEditor) {
         // Exists already
         outputEditor->document()->setContents(progressMsg.toUtf8());
         baseEditor = VcsBaseEditor::getVcsBaseEditor(outputEditor);
         QTC_ASSERT(baseEditor, return nullptr);
-        Core::EditorManager::activateEditor(outputEditor);
+        EditorManager::activateEditor(outputEditor);
     } else {
-        outputEditor = Core::EditorManager::openEditorWithContents(kind, &title, progressMsg.toUtf8());
+        outputEditor = EditorManager::openEditorWithContents(kind, &title, progressMsg.toUtf8());
         outputEditor->document()->setProperty(registerDynamicProperty, dynamicPropertyValue);
         baseEditor = VcsBaseEditor::getVcsBaseEditor(outputEditor);
         QTC_ASSERT(baseEditor, return nullptr);
@@ -265,7 +355,7 @@ VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Id kind, QString title,
 
 void VcsBaseClientImpl::saveSettings()
 {
-    m_baseSettings->writeSettings(Core::ICore::settings());
+    m_baseSettings->writeSettings(ICore::settings());
 }
 
 VcsBaseClient::VcsBaseClient(VcsBaseSettings *baseSettings)
