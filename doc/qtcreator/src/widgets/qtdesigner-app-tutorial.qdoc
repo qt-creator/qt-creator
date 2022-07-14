@@ -345,7 +345,7 @@
     the resource file as a source file in the \e CMakeLists.txt file that the
     wizard created for you:
 
-    \quotefromfile TextFinder/CMakeLists.txt
+    \quotefromfile textfinder/CMakeLists.txt
     \skipto set(PROJECT_SOURCES
     \printuntil )
 
