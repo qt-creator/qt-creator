@@ -763,25 +763,6 @@ bool FileUtils::isRelativePath(const QString &path)
     return isRelativePathHelper(path, HostOsInfo::hostOs());
 }
 
-// Cleans part after optional :// scheme separator, similar to QDir::cleanPath()
-//  - directory separators normalized (that is, platform-native
-//    separators converted to "/") and redundant ones removed, and "."s and ".."s
-//    resolved (as far as possible).
-//   Symbolic links are kept. This function does not return the
-//    canonical path, but rather the simplest version of the input.
-//    For example, "./local" becomes "local", "local/../bin" becomes
-//    "bin" and "/local/usr/../bin" becomes "/local/bin".
-
-// FIXME: This should not use the host-platform dependent QDir::cleanPath()
-
-QString doCleanPath(const QString &input)
-{
-    const int pos = input.indexOf("://");
-    if (pos == -1)
-        return QDir::cleanPath(input);
-    return input.left(pos + 3) + QDir::cleanPath(input.mid(pos + 3));
-}
-
 FilePath FileUtils::commonPath(const FilePath &oldCommonPath, const FilePath &filePath)
 {
     FilePath newCommonPath = oldCommonPath;

@@ -205,16 +205,16 @@ public:
 
     [[nodiscard]] bool ensureReachable(const FilePath &other) const;
 
-    QString toFSPathString() const;
+    [[nodiscard]] QString toFSPathString() const;
+
+    [[nodiscard]] static int rootLength(const QStringView path); // Assumes no scheme and host
+    [[nodiscard]] static int schemeAndHostLength(const QStringView path);
 
 private:
     friend class ::tst_fileutils;
     static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);
     void setPath(QStringView path);
     void setFromString(const QString &filepath);
-
-    static int rootLength(const QStringView path);
-    static int schemeAndHostLength(const QStringView path);
 
     [[nodiscard]] QString mapToDevicePath() const;
     [[nodiscard]] QString encodedHost() const;

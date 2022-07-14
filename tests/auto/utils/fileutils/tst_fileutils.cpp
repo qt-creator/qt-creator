@@ -29,37 +29,53 @@ signals:
 
 private slots:
     void initTestCase();
+
     void parentDir_data();
     void parentDir();
+
     void isChildOf_data();
     void isChildOf();
+
     void fileName_data();
     void fileName();
+
     void calcRelativePath_data();
     void calcRelativePath();
+
     void relativePath_specials();
     void relativePath_data();
     void relativePath();
+
     void fromToString_data();
     void fromToString();
+
     void fromString_data();
     void fromString();
+
     void toString_data();
     void toString();
+
     void toFSPathString_data();
     void toFSPathString();
+
     void comparison_data();
     void comparison();
+
     void linkFromString_data();
     void linkFromString();
+
     void pathAppended_data();
     void pathAppended();
+
     void commonPath_data();
     void commonPath();
+
     void resolvePath_data();
     void resolvePath();
+
     void relativeChildPath_data();
     void relativeChildPath();
+
     void bytesAvailableFromDF_data();
     void bytesAvailableFromDF();
     void rootLength_data();
@@ -70,12 +86,17 @@ private slots:
     void asyncLocalCopy();
     void startsWithDriveLetter();
     void startsWithDriveLetter_data();
-    void onDevice();
+
     void onDevice_data();
+    void onDevice();
+
     void plus();
     void plus_data();
     void url();
     void url_data();
+
+    void cleanPath_data();
+    void cleanPath();
 
 private:
     QTemporaryDir tempDir;
@@ -127,18 +148,16 @@ void tst_fileutils::parentDir_data()
     QTest::newRow("relativepath") << "relativepath" << "." << "";
 
     // Windows stuff:
-#ifdef Q_OS_WIN
     QTest::newRow("C:/data") << "C:/data" << "C:/" << "";
     QTest::newRow("C:/") << "C:/" << "" << "";
-    QTest::newRow("//./com1") << "//./com1" << "//." << "";
+    QTest::newRow("//./com1") << "//./com1" << "//./" << "";
     QTest::newRow("//?/path") << "//?/path" << "/" << "Qt 4 cannot handle this path.";
     QTest::newRow("/Global?\?/UNC/host") << "/Global?\?/UNC/host" << "/Global?\?/UNC/host"
                                         << "Qt 4 cannot handle this path.";
     QTest::newRow("//server/directory/file")
             << "//server/directory/file" << "//server/directory" << "";
-    QTest::newRow("//server/directory") << "//server/directory" << "//server" << "";
+    QTest::newRow("//server/directory") << "//server/directory" << "//server/" << "";
     QTest::newRow("//server") << "//server" << "" << "";
-#endif
 }
 
 void tst_fileutils::parentDir()
@@ -974,5 +993,74 @@ void tst_fileutils::bytesAvailableFromDF()
     QCOMPARE(result, expected);
 }
 
+void tst_fileutils::cleanPath_data()
+{
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("data0") << "/Users/sam/troll/qt4.0//.." << "/Users/sam/troll";
+    QTest::newRow("data1") << "/Users/sam////troll/qt4.0//.." << "/Users/sam/troll";
+    QTest::newRow("data2") << "/" << "/";
+    QTest::newRow("data2-up") << "/path/.." << "/";
+    QTest::newRow("data2-above-root") << "/.." << "/..";
+    QTest::newRow("data3") << QDir::cleanPath("../.") << "..";
+    QTest::newRow("data4") << QDir::cleanPath("../..") << "../..";
+    QTest::newRow("data5") << "d:\\a\\bc\\def\\.." << "d:/a/bc"; // QDir/Linux had:  "d:\\a\\bc\\def\\.."
+    QTest::newRow("data6") << "d:\\a\\bc\\def\\../../.." << "d:/"; // QDir/Linux had: ".."
+    QTest::newRow("data7") << ".//file1.txt" << "file1.txt";
+    QTest::newRow("data8") << "/foo/bar/..//file1.txt" << "/foo/file1.txt";
+    QTest::newRow("data9") << "//" << "//";  // QDir had: "/"
+    QTest::newRow("data10w") << "c:\\" << "c:/";
+    QTest::newRow("data10l") << "/:/" << "/:";
+    QTest::newRow("data11") << "//foo//bar" << "//foo/bar";  // QDir/Win had: "//foo/bar"
+    QTest::newRow("data12") << "ab/a/" << "ab/a"; // Path item with length of 2
+    QTest::newRow("data13w") << "c:/" << "c:/";
+    QTest::newRow("data13w2") << "c:\\" << "c:/";
+    //QTest::newRow("data13l") << "c://" << "c:";
+
+//   QTest::newRow("data14") << "c://foo" << "c:/foo";
+    QTest::newRow("data15") << "//c:/foo" << "//c:/foo"; // QDir/Lin had: "/c:/foo";
+    QTest::newRow("drive-up") << "A:/path/.." << "A:/";
+    QTest::newRow("drive-above-root") << "A:/.." << "A:/..";
+    QTest::newRow("unc-server-up") << "//server/path/.." << "//server/";
+    QTest::newRow("unc-server-above-root") << "//server/.." << "//server/..";
+
+    QTest::newRow("longpath") << "\\\\?\\d:\\" << "d:/";
+    QTest::newRow("longpath-slash") << "//?/d:/" << "d:/";
+    QTest::newRow("longpath-mixed-slashes") << "//?/d:\\" << "d:/";
+    QTest::newRow("longpath-mixed-slashes-2") << "\\\\?\\d:/" << "d:/";
+
+    QTest::newRow("unc-network-share") << "\\\\?\\UNC\\localhost\\c$\\tmp.txt"
+        << "//localhost/c$/tmp.txt";
+    QTest::newRow("unc-network-share-slash") << "//?/UNC/localhost/c$/tmp.txt"
+        << "//localhost/c$/tmp.txt";
+    QTest::newRow("unc-network-share-mixed-slashes") << "//?/UNC/localhost\\c$\\tmp.txt"
+        << "//localhost/c$/tmp.txt";
+    QTest::newRow("unc-network-share-mixed-slashes-2") << "\\\\?\\UNC\\localhost/c$/tmp.txt"
+        << "//localhost/c$/tmp.txt";
+
+    QTest::newRow("QTBUG-23892_0") << "foo/.." << ".";
+    QTest::newRow("QTBUG-23892_1") << "foo/../" << ".";
+
+    QTest::newRow("QTBUG-3472_0") << "/foo/./bar" << "/foo/bar";
+    QTest::newRow("QTBUG-3472_1") << "./foo/.." << ".";
+    QTest::newRow("QTBUG-3472_2") << "./foo/../" << ".";
+
+    QTest::newRow("resource0") << ":/prefix/foo.bar" << ":/prefix/foo.bar";
+    QTest::newRow("resource1") << ":/prefix/..//prefix/foo.bar" << ":/prefix/foo.bar";
+
+    QTest::newRow("ssh") << "ssh://host/prefix/../foo.bar" << "ssh://host/foo.bar";
+    QTest::newRow("ssh2") << "ssh://host/../foo.bar" << "ssh://host/../foo.bar";
+}
+
+void tst_fileutils::cleanPath()
+{
+    QFETCH(QString, path);
+    QFETCH(QString, expected);
+    QString cleaned = doCleanPath(path);
+    QCOMPARE(cleaned, expected);
+}
+
 QTEST_GUILESS_MAIN(tst_fileutils)
+
 #include "tst_fileutils.moc"
