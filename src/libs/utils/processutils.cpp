@@ -110,6 +110,14 @@ BOOL CALLBACK sendInterruptMessageToAllWindowsOfProcess_enumWnd(HWND hwnd, LPARA
 }
 #endif
 
+ProcessHelper::ProcessHelper(QObject *parent)
+    : QProcess(parent), m_processStartHandler(this)
+{
+#if defined(Q_OS_UNIX)
+    setChildProcessModifier([this] { setupChildProcess_impl(); });
+#endif
+}
+
 void ProcessHelper::setUseCtrlCStub(bool enabled)
 {
     m_useCtrlCStub = enabled;

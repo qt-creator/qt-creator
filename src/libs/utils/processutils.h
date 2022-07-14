@@ -32,7 +32,8 @@
 
 namespace Utils {
 
-class ProcessStartHandler {
+class ProcessStartHandler
+{
 public:
     ProcessStartHandler(QProcess *process) : m_process(process) {}
 
@@ -55,16 +56,7 @@ class ProcessHelper : public QProcess
     Q_OBJECT
 
 public:
-    ProcessHelper(QObject *parent) : QProcess(parent), m_processStartHandler(this)
-    {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0) && defined(Q_OS_UNIX)
-        setChildProcessModifier([this] { setupChildProcess_impl(); });
-#endif
-    }
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    void setupChildProcess() override { setupChildProcess_impl(); }
-#endif
+    explicit ProcessHelper(QObject *parent);
 
     ProcessStartHandler *processStartHandler() { return &m_processStartHandler; }
 
