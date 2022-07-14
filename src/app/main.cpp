@@ -287,15 +287,9 @@ static void setHighDpiEnvironmentVariable()
             && !qEnvironmentVariableIsSet("QT_AUTO_SCREEN_SCALE_FACTOR")
             && !qEnvironmentVariableIsSet("QT_SCALE_FACTOR")
             && !qEnvironmentVariableIsSet("QT_SCREEN_SCALE_FACTORS")) {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
     } else {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-        /* AA_DisableHighDpiScaling is deprecated */
         QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
             Qt::HighDpiScaleFactorRoundingPolicy::Floor);
-#endif
     }
 }
 
@@ -478,14 +472,9 @@ int main(int argc, char **argv)
         }
     }
 
-#if defined(Q_OS_WIN) && QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    if (!qEnvironmentVariableIsSet("QT_OPENGL"))
-        QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
-#else
     qputenv("QSG_RHI_BACKEND", "opengl");
     QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
                 Qt::HighDpiScaleFactorRoundingPolicy::Round);
-#endif
 
     if (qEnvironmentVariableIsSet("QTCREATOR_DISABLE_NATIVE_MENUBAR")
             || qgetenv("XDG_CURRENT_DESKTOP").startsWith("Unity")) {
@@ -594,11 +583,6 @@ int main(int argc, char **argv)
 #ifdef ENABLE_CRASHPAD
     bool crashReportingEnabled = settings->value("CrashReportingEnabled", false).toBool();
     startCrashpad(libexecPath, crashReportingEnabled);
-#endif
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    app.setAttribute(Qt::AA_UseHighDpiPixmaps);
-    app.setAttribute(Qt::AA_DisableWindowContextHelpButton);
 #endif
 
     PluginManager pluginManager;
