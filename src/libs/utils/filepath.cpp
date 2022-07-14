@@ -137,7 +137,7 @@ static QString doCleanPath(const QString &input)
     const int pos = input.indexOf("://");
     if (pos == -1)
         return QDir::cleanPath(input);
-    return input.left(pos + 3) + QDir::cleanPath(input.right(pos + 3));
+    return input.left(pos + 3) + QDir::cleanPath(input.mid(pos + 3));
 }
 
 /*!
