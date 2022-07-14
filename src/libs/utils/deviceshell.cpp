@@ -62,8 +62,11 @@ finalOutput() {
     local fileInputBuffer
     while read fileInputBuffer
     do
+        if test -f "$fileInputBuffer.err"; then
+            cat $fileInputBuffer.err
+        fi
         cat $fileInputBuffer
-        rm $fileInputBuffer
+        rm -f $fileInputBuffer.err $fileInputBuffer
     done
 }
 
@@ -117,7 +120,7 @@ executeAndMark()
 
     # Mark the app's output streams
     readAndMark $PID 'O' < "$stdoutenc" >> $TMPFILE &
-    readAndMark $PID 'E' < "$stderrenc" >> $TMPFILE &
+    readAndMark $PID 'E' < "$stderrenc" >> $TMPFILE.err &
 
     # Start the app ...
     if [ -z "$INDATA" ]
