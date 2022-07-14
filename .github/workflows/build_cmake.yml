@@ -155,6 +155,12 @@ jobs:
           execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./toolchain.7z)
         endif()
 
+        # For tests update the docker image
+        find_program(docker_executable docker)
+        if (docker_executable)
+          execute_process(COMMAND ${docker_executable} pull alpine:latest COMMAND_ECHO STDOUT)
+        endif()
+
     - name: Download Qt
       id: qt
       shell: cmake -P {0}
@@ -617,7 +623,7 @@ jobs:
         endif()
 
         execute_process(
-          COMMAND ${ctest_launcher} ctest -j ${N} --timeout 60 --label-exclude exclude_from_precheck --exclude-regex tst_perfdata
+          COMMAND ${ctest_launcher} ctest -j ${N} --timeout 300 --label-exclude exclude_from_precheck --exclude-regex tst_perfdata
           WORKING_DIRECTORY build/build
           RESULT_VARIABLE result
           OUTPUT_VARIABLE output
