@@ -153,9 +153,7 @@ void HelpManager::registerDocumentationNow(QFutureInterface<bool> &futureInterfa
     futureInterface.setProgressValue(0);
 
     QHelpEngineCore helpEngine(collectionFilePath());
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     helpEngine.setReadOnly(false);
-#endif
     helpEngine.setupData();
     bool docsChanged = false;
     QStringList nameSpaces = helpEngine.registeredDocumentations();
@@ -315,9 +313,7 @@ void HelpManager::setupHelpManager()
 
     // create the help engine
     d->m_helpEngine = new QHelpEngineCore(collectionFilePath(), m_instance);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     d->m_helpEngine->setReadOnly(false);
-#endif
     d->m_helpEngine->setUsesFilterEngine(true);
     d->m_helpEngine->setupData();
 
