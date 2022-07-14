@@ -117,7 +117,8 @@
 
         \li  When debugging executables created by the GNU Compiler version 4.5.0
             (all platforms), some data types will not be displayed in the
-            \uicontrol{Locals and Expressions} view due to missing debug information.
+            \uicontrol Locals and \uicontrol Expressions views due to missing
+            debug information.
 
         \li  GDB on Windows may not work if the 'Embassy \reg Security Center'
             software by 'Wave \reg Systems' is installed and active (causing
@@ -131,7 +132,7 @@
 
         \li  Setting breakpoints in files that do not have unique absolute
             paths may fail. For example, remounting parts of a file system
-            using the --bind mount option.
+            using the \c {--bind mount} option.
 
         \li  Setting breakpoints in files will fail when using LLDB if the file path
             contains symbolic links.
