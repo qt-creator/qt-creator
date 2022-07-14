@@ -162,6 +162,11 @@ const FilePath &ShellCommand::defaultWorkingDirectory() const
     return d->m_defaultWorkingDirectory;
 }
 
+Environment ShellCommand::environment() const
+{
+    return d->m_environment;
+}
+
 void ShellCommand::setEnvironment(const Environment &env)
 {
     d->m_environment = env;

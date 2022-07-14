@@ -77,62 +77,60 @@ static IEditor *locateEditor(const char *property, const QString &entry)
 
 namespace VcsBase {
 
-class VcsCommand : public ShellCommand
+class VcsCommandDecorator : public QObject
 {
 public:
-    VcsCommand(const FilePath &defaultWorkingDirectory, const Environment &environment);
+    VcsCommandDecorator(ShellCommand *command);
 
 private:
     void addTask(const QFuture<void> &future);
-    void postRunCommand(const Utils::FilePath &workDirectory);
+    void postRunCommand(const FilePath &workingDirectory);
+
+    ShellCommand *m_command;
 };
 
-VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &environment)
-    : ShellCommand(workingDirectory, environment)
+VcsCommandDecorator::VcsCommandDecorator(ShellCommand *command)
+    : QObject(command)
+    , m_command(command)
 {
-    Environment env = environment;
+    Environment env = m_command->environment();
     VcsBase::setProcessEnvironment(&env);
-    setEnvironment(env);
+    m_command->setEnvironment(env);
 
-    VcsOutputWindow::setRepository(workingDirectory.toString());
-    setDisableUnixTerminal();
-
-    connect(this, &ShellCommand::started, this, [this] {
-        if (flags() & ExpectRepoChanges)
+    VcsOutputWindow::setRepository(m_command->defaultWorkingDirectory().toString());
+    m_command->setDisableUnixTerminal();
+    connect(m_command, &ShellCommand::started, this, [this] {
+        if (m_command->flags() & ShellCommand::ExpectRepoChanges)
             GlobalFileChangeBlocker::instance()->forceBlocked(true);
     });
-    connect(this, &ShellCommand::finished, this, [this] {
-        if (flags() & ExpectRepoChanges)
+    connect(m_command, &ShellCommand::finished, this, [this] {
+        if (m_command->flags() & ShellCommand::ExpectRepoChanges)
             GlobalFileChangeBlocker::instance()->forceBlocked(false);
     });
-
     VcsOutputWindow *outputWindow = VcsOutputWindow::instance();
-    connect(this, &ShellCommand::append, outputWindow, [outputWindow](const QString &t) {
+    connect(m_command, &ShellCommand::append, outputWindow, [outputWindow](const QString &t) {
         outputWindow->append(t);
     });
-    connect(this, &ShellCommand::appendSilently, outputWindow, &VcsOutputWindow::appendSilently);
-    connect(this, &ShellCommand::appendError, outputWindow, &VcsOutputWindow::appendError);
-    connect(this, &ShellCommand::appendCommand, outputWindow, &VcsOutputWindow::appendCommand);
-    connect(this, &ShellCommand::appendMessage, outputWindow, &VcsOutputWindow::appendMessage);
-
-    connect(this, &ShellCommand::executedAsync, this, &VcsCommand::addTask);
-    const auto connection = connect(this, &ShellCommand::runCommandFinished,
-                                    this, &VcsCommand::postRunCommand);
-
-    connect(ICore::instance(), &ICore::coreAboutToClose, this, [this, connection] {
+    connect(m_command, &ShellCommand::appendSilently, outputWindow, &VcsOutputWindow::appendSilently);
+    connect(m_command, &ShellCommand::appendError, outputWindow, &VcsOutputWindow::appendError);
+    connect(m_command, &ShellCommand::appendCommand, outputWindow, &VcsOutputWindow::appendCommand);
+    connect(m_command, &ShellCommand::appendMessage, outputWindow, &VcsOutputWindow::appendMessage);
+    connect(m_command, &ShellCommand::executedAsync, this, &VcsCommandDecorator::addTask);
+    const auto connection = connect(m_command, &ShellCommand::runCommandFinished,
+                                    this, &VcsCommandDecorator::postRunCommand);
+    connect(ICore::instance(), &ICore::coreAboutToClose, this, [connection] {
         disconnect(connection);
         abort();
-    });
-}
+    });}
 
-void VcsCommand::addTask(const QFuture<void> &future)
+void VcsCommandDecorator::addTask(const QFuture<void> &future)
 {
-    if ((flags() & SuppressCommandLogging))
+    if ((m_command->flags() & ShellCommand::SuppressCommandLogging))
         return;
 
-    const QString name = displayName();
+    const QString name = m_command->displayName();
     const auto id = Id::fromString(name + QLatin1String(".action"));
-    if (hasProgressParser()) {
+    if (m_command->hasProgressParser()) {
         ProgressManager::addTask(future, name, id);
     } else {
         // add a timed tasked based on timeout
@@ -146,21 +144,20 @@ void VcsCommand::addTask(const QFuture<void> &future)
             watcher->deleteLater();
         });
         watcher->setFuture(future);
-        ProgressManager::addTimedTask(*fi, name, id, qMax(2, timeoutS() / 5)/*itsmagic*/);
+        ProgressManager::addTimedTask(*fi, name, id, qMax(2, m_command->timeoutS() / 5));
     }
 
     Internal::VcsPlugin::addFuture(future);
 }
 
-void VcsCommand::postRunCommand(const FilePath &workingDirectory)
+void VcsCommandDecorator::postRunCommand(const FilePath &workingDirectory)
 {
-    if (!(flags() & ShellCommand::ExpectRepoChanges))
+    if (!(m_command->flags() & ShellCommand::ExpectRepoChanges))
         return;
     // TODO tell the document manager that the directory now received all expected changes
     // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
     VcsManager::emitRepositoryChanged(workingDirectory);
 }
-
 
 VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseSettings *baseSettings)
     : m_baseSettings(baseSettings)
@@ -257,7 +254,8 @@ void VcsBaseClientImpl::vcsFullySynchronousExec(QtcProcess &proc,
                                                 const FilePath &workingDir, const CommandLine &cmdLine,
                                                 unsigned flags, int timeoutS, QTextCodec *codec) const
 {
-    VcsCommand command(workingDir, processEnvironment());
+    ShellCommand command(workingDir, processEnvironment());
+    new VcsCommandDecorator(&command);
     command.addFlags(flags);
     if (codec)
         command.setCodec(codec);
@@ -305,7 +303,8 @@ void VcsBaseClientImpl::vcsSynchronousExec(QtcProcess &proc,
                                            QTextCodec *outputCodec) const
 {
     Environment env = processEnvironment();
-    VcsCommand command(workingDir, env.isValid() ? env : Environment::systemEnvironment());
+    ShellCommand command(workingDir, env.isValid() ? env : Environment::systemEnvironment());
+    new VcsCommandDecorator(&command);
     proc.setTimeoutS(vcsTimeoutS());
     command.addFlags(flags);
     command.setCodec(outputCodec);
@@ -320,7 +319,9 @@ int VcsBaseClientImpl::vcsTimeoutS() const
 ShellCommand *VcsBaseClientImpl::createVcsCommand(const FilePath &defaultWorkingDir,
                                                   const Environment &environment)
 {
-    return new VcsCommand(defaultWorkingDir, environment);
+    ShellCommand *command = new ShellCommand(defaultWorkingDir, environment);
+    new VcsCommandDecorator(command);
+    return command;
 }
 
 VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Id kind, QString title,

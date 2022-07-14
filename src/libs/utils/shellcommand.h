@@ -68,7 +68,7 @@ private:
     friend class ShellCommand;
 };
 
-class QTCREATOR_UTILS_EXPORT ShellCommand : public QObject
+class QTCREATOR_UTILS_EXPORT ShellCommand final : public QObject
 {
     Q_OBJECT
 
@@ -98,6 +98,11 @@ public:
     QString displayName() const;
     void setDisplayName(const QString &name);
 
+    const FilePath &defaultWorkingDirectory() const;
+
+    Environment environment() const;
+    void setEnvironment(const Environment &env);
+
     void addJob(const CommandLine &command,
                 const FilePath &workingDirectory = {},
                 const ExitCodeInterpreter &interpreter = {});
@@ -106,8 +111,6 @@ public:
                 const ExitCodeInterpreter &interpreter = {});
     void execute(); // Execute tasks asynchronously!
     void abort();
-
-    const FilePath &defaultWorkingDirectory() const;
 
     int defaultTimeoutS() const;
     void setDefaultTimeoutS(int timeout);
@@ -133,6 +136,9 @@ public:
 
     void cancel();
 
+    void setDisableUnixTerminal();
+    int timeoutS() const;
+
 signals:
     void stdOutText(const QString &);
     void stdErrText(const QString &);
@@ -150,11 +156,6 @@ signals:
 
     void executedAsync(const QFuture<void> &future);
     void runCommandFinished(const Utils::FilePath &workingDirectory);
-
-protected:
-    void setEnvironment(const Environment &env);
-    void setDisableUnixTerminal();
-    int timeoutS() const;
 
 private:
     FilePath workDirectory(const FilePath &wd) const;
