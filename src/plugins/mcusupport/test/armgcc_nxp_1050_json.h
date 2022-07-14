@@ -81,7 +81,7 @@ constexpr auto armgcc_nxp_1050_json = R"({
         "label": "CMake Toolchain File",
         "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
         "type": "file",
-        "defaultValue": "/opt/qtformcu/2.2/lib/cmake/Qul/toolchain/armgcc.cmake",
+        "defaultValue": "$Qul_ROOT//lib/cmake/Qul/toolchain/armgcc.cmake",
         "visible": false,
         "optional": false
       }
@@ -109,6 +109,7 @@ constexpr auto armgcc_nxp_1050_json = R"({
         "id": "NXP_FREERTOS_DIR",
         "label": "FreeRTOS SDK for MIMXRT1050-EVK",
         "cmakeVar": "FREERTOS_DIR",
+        "envVar": "IMXRT1050_FREERTOS_DIR",
         "defaultValue": "$QUL_BOARD_SDK_DIR/rtos/freertos/freertos_kernel",
         "type": "path",
         "optional": false

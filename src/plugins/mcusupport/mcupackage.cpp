@@ -75,7 +75,11 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
     , m_downloadUrl(downloadUrl)
     , m_addToSystemPath(addToSystemPath)
 {
-    m_path = this->settingsHandler->getPath(settingsKey, QSettings::UserScope, m_defaultPath);
+    m_path = FilePath::fromString(
+        qEnvironmentVariable(m_environmentVariableName.toStdString().c_str()));
+    if (!m_path.exists()) {
+        m_path = this->settingsHandler->getPath(settingsKey, QSettings::UserScope, m_defaultPath);
+    }
 }
 
 QString McuPackage::label() const
@@ -125,7 +129,7 @@ FilePath McuPackage::path() const
 
 FilePath McuPackage::defaultPath() const
 {
-    return m_defaultPath;
+    return m_defaultPath.cleanPath();
 }
 
 FilePath McuPackage::detectionPath() const
