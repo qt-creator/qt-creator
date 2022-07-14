@@ -144,6 +144,22 @@ static void setMargins(bool on, QLayout *layout)
     layout->setContentsMargins(d, d, d, d);
 }
 
+static QWidget *widgetForItem(QLayoutItem *item)
+{
+    if (QWidget *w = item->widget())
+        return w;
+    if (item->spacerItem())
+        return nullptr;
+    QLayout *l = item->layout();
+    if (!l)
+        return nullptr;
+    for (int i = 0, n = l->count(); i < n; ++i) {
+        if (QWidget *w = widgetForItem(l->itemAt(i)))
+            return w;
+    }
+    return nullptr;
+}
+
 static void flushPendingFormItems(QFormLayout *formLayout,
                                   LayoutBuilder::LayoutItems &pendingFormItems)
 {
@@ -188,6 +204,17 @@ static void flushPendingFormItems(QFormLayout *formLayout,
         }
     } else {
         QTC_CHECK(false);
+    }
+
+    // Set up label as buddy if possible.
+    const int lastRow = formLayout->rowCount() - 1;
+    QLayoutItem *l = formLayout->itemAt(lastRow, QFormLayout::LabelRole);
+    QLayoutItem *f = formLayout->itemAt(lastRow, QFormLayout::FieldRole);
+    if (l && f) {
+        if (QLabel *label = qobject_cast<QLabel *>(l->widget())) {
+            if (QWidget *widget = widgetForItem(f))
+                label->setBuddy(widget);
+        }
     }
 
     pendingFormItems.clear();
