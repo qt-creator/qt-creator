@@ -26,6 +26,7 @@
 #include "webenginehelpviewer.h"
 
 #include "helpconstants.h"
+#include "helptr.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 
