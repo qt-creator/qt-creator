@@ -642,6 +642,10 @@ private:
             }
         }
 
+        std::sort(types.begin(), types.end(), [](const auto &first, const auto &second) {
+            return first.typeId < second.typeId;
+        });
+
         unique(exportedSourceIds);
 
         SourceIds sourceIdsWithoutType = filterSourceIdsWithoutType(updatedSourceIds,
@@ -657,11 +661,13 @@ private:
                                  relinkablePrototypes);
 
         syncPrototypes(types, relinkablePrototypes);
+        resetDefaultPropertiesIfChanged(types);
         resetRemovedAliasPropertyDeclarationsToNull(types, relinkableAliasPropertyDeclarations);
         syncDeclarations(types,
                          insertedAliasPropertyDeclarations,
                          updatedAliasPropertyDeclarations,
                          relinkablePropertyDeclarations);
+        syncDefaultProperties(types);
     }
 
     void synchronizeProjectDatas(Storage::Synchronization::ProjectDatas &projectDatas,
@@ -1330,6 +1336,7 @@ private:
                     .write(&nextPropertyDeclarationId, &view.id);
             }
 
+            updateDefaultPropertyIdToNullStatement.write(&view.id);
             deletePropertyDeclarationStatement.write(&view.id);
             propertyDeclarationIds.push_back(view.id);
         };
@@ -1793,6 +1800,88 @@ private:
                                 PropertyCompare<PropertyDeclaration>{});
     }
 
+    class TypeWithDefaultPropertyView
+    {
+    public:
+        TypeWithDefaultPropertyView(long long typeId, long long defaultPropertyId)
+            : typeId{typeId}
+            , defaultPropertyId{defaultPropertyId}
+        {}
+
+        TypeId typeId;
+        PropertyDeclarationId defaultPropertyId;
+    };
+
+    void syncDefaultProperties(Storage::Synchronization::Types &types)
+    {
+        auto range = selectTypesWithDefaultPropertyStatement.template range<TypeWithDefaultPropertyView>();
+
+        auto compareKey = [](const TypeWithDefaultPropertyView &view,
+                             const Storage::Synchronization::Type &value) {
+            return &view.typeId - &value.typeId;
+        };
+
+        auto insert = [&](const Storage::Synchronization::Type &) {
+
+        };
+
+        auto update = [&](const TypeWithDefaultPropertyView &view,
+                          const Storage::Synchronization::Type &value) {
+            PropertyDeclarationId valueDefaultPropertyId;
+            if (value.defaultPropertyName.size())
+                valueDefaultPropertyId = fetchPropertyDeclarationByTypeIdAndNameUngarded(
+                                             value.typeId, value.defaultPropertyName)
+                                             .propertyDeclarationId;
+
+            if (&valueDefaultPropertyId == &view.defaultPropertyId)
+                return Sqlite::UpdateChange::No;
+
+            updateDefaultPropertyIdStatement.write(&value.typeId, &valueDefaultPropertyId);
+
+            return Sqlite::UpdateChange::Update;
+        };
+
+        auto remove = [&](const TypeWithDefaultPropertyView &) {};
+
+        Sqlite::insertUpdateDelete(range, types, compareKey, insert, update, remove);
+    }
+
+    void resetDefaultPropertiesIfChanged(Storage::Synchronization::Types &types)
+    {
+        auto range = selectTypesWithDefaultPropertyStatement.template range<TypeWithDefaultPropertyView>();
+
+        auto compareKey = [](const TypeWithDefaultPropertyView &view,
+                             const Storage::Synchronization::Type &value) {
+            return &view.typeId - &value.typeId;
+        };
+
+        auto insert = [&](const Storage::Synchronization::Type &) {
+
+        };
+
+        auto update = [&](const TypeWithDefaultPropertyView &view,
+                          const Storage::Synchronization::Type &value) {
+            PropertyDeclarationId valueDefaultPropertyId;
+            if (value.defaultPropertyName.size()) {
+                auto optionalValueDefaultPropertyId = fetchOptionalPropertyDeclarationByTypeIdAndNameUngarded(
+                    value.typeId, value.defaultPropertyName);
+                if (optionalValueDefaultPropertyId)
+                    valueDefaultPropertyId = optionalValueDefaultPropertyId->propertyDeclarationId;
+            }
+
+            if (&valueDefaultPropertyId == &view.defaultPropertyId)
+                return Sqlite::UpdateChange::No;
+
+            updateDefaultPropertyIdStatement.write(&value.typeId, Sqlite::NullValue{});
+
+            return Sqlite::UpdateChange::Update;
+        };
+
+        auto remove = [&](const TypeWithDefaultPropertyView &) {};
+
+        Sqlite::insertUpdateDelete(range, types, compareKey, insert, update, remove);
+    }
+
     void checkForPrototypeChainCycle(TypeId typeId) const
     {
         auto callback = [=](long long currentTypeId) {
@@ -1948,12 +2037,18 @@ private:
         long long propertyTraits;
     };
 
+    auto fetchOptionalPropertyDeclarationByTypeIdAndNameUngarded(TypeId typeId,
+                                                                 Utils::SmallStringView name)
+    {
+        return selectPropertyDeclarationByTypeIdAndNameStatement
+            .template optionalValue<FetchPropertyDeclarationResult>(&typeId, name);
+    }
+
     FetchPropertyDeclarationResult fetchPropertyDeclarationByTypeIdAndNameUngarded(
         TypeId typeId, Utils::SmallStringView name)
     {
-        auto propertyDeclaration = selectPropertyDeclarationByTypeIdAndNameStatement
-                                       .template optionalValue<FetchPropertyDeclarationResult>(&typeId,
-                                                                                               name);
+        auto propertyDeclaration = fetchOptionalPropertyDeclarationByTypeIdAndNameUngarded(typeId,
+                                                                                           name);
 
         if (propertyDeclaration)
             return *propertyDeclaration;
@@ -2092,6 +2187,7 @@ private:
 
                 database.walCheckpointFull();
             }
+            database.setIsInitialized(true);
         }
 
         void createSourceContextsTable(Database &database)
@@ -2142,8 +2238,10 @@ private:
                                            Sqlite::ForeignKeyAction::NoAction,
                                            Sqlite::ForeignKeyAction::Restrict);
             typesTable.addColumn("prototypeNameId");
+            auto &defaultPropertyIdColumn = typesTable.addColumn("defaultPropertyId");
 
             typesTable.addUniqueIndex({sourceIdColumn, typesNameColumn});
+            typesTable.addIndex({defaultPropertyIdColumn});
 
             typesTable.initialize(database);
 
@@ -2496,8 +2594,10 @@ public:
         "SELECT moduleId, name, ifnull(majorVersion, -1), ifnull(minorVersion, -1) FROM "
         "exportedTypeNames WHERE typeId=?",
         database};
-    mutable ReadStatement<5> selectTypesStatement{
-        "SELECT sourceId, name, typeId, ifnull(prototypeId, -1), accessSemantics FROM types",
+    mutable ReadStatement<6> selectTypesStatement{
+        "SELECT sourceId, t.name, t.typeId, ifnull(prototypeId, -1), accessSemantics, pd.name "
+        "FROM types AS t LEFT JOIN propertyDeclarations AS pd "
+        "  ON defaultPropertyId=propertyDeclarationId",
         database};
     ReadStatement<1, 2> selectNotUpdatedTypesInSourcesStatement{
         "SELECT DISTINCT typeId FROM types WHERE (sourceId IN carray(?1) AND typeId NOT IN "
@@ -2971,6 +3071,12 @@ public:
         "SELECT name FROM typeChain JOIN functionDeclarations "
         "  USING(typeId) ORDER BY name",
         database};
+    mutable ReadStatement<2> selectTypesWithDefaultPropertyStatement{
+        "SELECT typeId, ifnull(defaultPropertyId, -1) FROM types ORDER BY typeId", database};
+    WriteStatement<2> updateDefaultPropertyIdStatement{
+        "UPDATE types SET defaultPropertyId=nullif(?2, -1) WHERE typeId=?1", database};
+    WriteStatement<1> updateDefaultPropertyIdToNullStatement{
+        "UPDATE types SET defaultPropertyId=NULL WHERE defaultPropertyId=?1", database};
 };
 extern template class ProjectStorage<Sqlite::Database>;
 } // namespace QmlDesigner

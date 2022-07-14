@@ -905,6 +905,45 @@ protected:
         return storage.fetchTypeIdByName(sourceId, name);
     }
 
+    static auto &findType(Storage::Synchronization::SynchronizationPackage &package,
+                          Utils::SmallStringView name)
+    {
+        auto &types = package.types;
+
+        return *std::find_if(types.begin(), types.end(), [=](const auto &type) {
+            return type.typeName == name;
+        });
+    }
+
+    static auto &findProperty(Storage::Synchronization::SynchronizationPackage &package,
+                              Utils::SmallStringView typeName,
+                              Utils::SmallStringView propertyName)
+    {
+        auto &type = findType(package, typeName);
+
+        auto &properties = type.propertyDeclarations;
+
+        return *std::find_if(properties.begin(), properties.end(), [=](const auto &property) {
+            return property.name == propertyName;
+        });
+    }
+
+    static void removeProperty(Storage::Synchronization::SynchronizationPackage &package,
+                               Utils::SmallStringView typeName,
+                               Utils::SmallStringView propertyName)
+    {
+        auto &type = findType(package, typeName);
+
+        auto &properties = type.propertyDeclarations;
+
+        properties.erase(std::remove_if(properties.begin(),
+                                        properties.end(),
+                                        [=](const auto &property) {
+                                            return property.name == propertyName;
+                                        }),
+                         properties.end());
+    }
+
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     //Sqlite::Database database{TESTDATA_DIR "/aaaaa.db", Sqlite::JournalMode::Wal};
@@ -5590,10 +5629,8 @@ TEST_F(ProjectStorage, GetLatestPropertyDeclarationId)
     storage.synchronize(package);
     auto typeId = fetchTypeId(sourceId1, "QObject3");
     auto oldPropertyId = storage.propertyDeclarationId(typeId, "data");
-    auto found = std::find_if(package.types.begin(), package.types.end(), [](const auto &type) {
-        return type.typeName == "QObject3";
-    });
-    found->propertyDeclarations.push_back(
+    auto &type = findType(package, "QObject3");
+    type.propertyDeclarations.push_back(
         Storage::Synchronization::PropertyDeclaration{"data",
                                                       Storage::Synchronization::ImportedType{
                                                           "Object"},
@@ -5783,6 +5820,134 @@ TEST_F(ProjectStorage, GetOnlyFunctionDeclarationNamesFromUpIntoThePrototypeChai
     auto functionNames = storage.functionDeclarationNames(typeId);
 
     ASSERT_THAT(functionNames, ElementsAre("items", "values"));
+}
+
+TEST_F(ProjectStorage, SynchronizeDefaultProperty)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types.front().defaultPropertyName = "children";
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypes(),
+                ElementsAre(Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("children")),
+                            _));
+}
+
+TEST_F(ProjectStorage, SynchronizeDefaultPropertyToADifferentName)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types.front().defaultPropertyName = "children";
+    storage.synchronize(package);
+    package.types.front().defaultPropertyName = "data";
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypes(),
+                ElementsAre(Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("data")),
+                            _));
+}
+
+TEST_F(ProjectStorage, SynchronizeToRemovedDefaultProperty)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types.front().defaultPropertyName = "children";
+    storage.synchronize(package);
+    package.types.front().defaultPropertyName = {};
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypes(),
+                ElementsAre(Field(&Storage::Synchronization::Type::defaultPropertyName, IsEmpty()), _));
+}
+
+TEST_F(ProjectStorage, SynchronizeDefaultPropertyThrowsForMissingDefaultProperty)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types.front().defaultPropertyName = "child";
+
+    ASSERT_THROW(storage.synchronize(package), QmlDesigner::PropertyNameDoesNotExists);
+}
+
+TEST_F(ProjectStorage,
+       SynchronizeDefaultPropertyThrowsForRemovingPropertyWithoutChangingDefaultProperty)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types.front().defaultPropertyName = "children";
+    storage.synchronize(package);
+    removeProperty(package, "QQuickItem", "children");
+
+    ASSERT_THROW(storage.synchronize(package), QmlDesigner::PropertyNameDoesNotExists);
+}
+
+TEST_F(ProjectStorage, SynchronizeChangesDefaultPropertyAndRemovesOldDefaultProperty)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    auto &type = findType(package, "QQuickItem");
+    type.defaultPropertyName = "children";
+    storage.synchronize(package);
+    removeProperty(package, "QQuickItem", "children");
+    type.defaultPropertyName = "data";
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypes(),
+                ElementsAre(Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("data")),
+                            _));
+}
+
+TEST_F(ProjectStorage, SynchronizeAddNewDefaultPropertyAndRemovesOldDefaultProperty)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    auto &type = findType(package, "QQuickItem");
+    type.defaultPropertyName = "children";
+    storage.synchronize(package);
+    removeProperty(package, "QQuickItem", "children");
+    type.defaultPropertyName = "data2";
+    type.propertyDeclarations.push_back(
+        Storage::Synchronization::PropertyDeclaration{"data2",
+                                                      Storage::Synchronization::ImportedType{
+                                                          "QObject"},
+                                                      Storage::PropertyDeclarationTraits::IsList});
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypes(),
+                ElementsAre(Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("data2")),
+                            _));
+}
+
+TEST_F(ProjectStorage, SynchronizeDefaultPropertyToThePrototypeProperty)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types.front().defaultPropertyName = "children";
+    removeProperty(package, "QQuickItem", "children");
+    auto &type = findType(package, "QObject");
+    type.propertyDeclarations.push_back(Storage::Synchronization::PropertyDeclaration{
+        "children", Storage::Synchronization::ImportedType{"Object"}, {}});
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypes(),
+                ElementsAre(Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("children")),
+                            _));
+}
+
+TEST_F(ProjectStorage, SynchronizeMoveTheDefaultPropertyToThePrototypeProperty)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types.front().defaultPropertyName = "children";
+    storage.synchronize(package);
+    removeProperty(package, "QQuickItem", "children");
+    auto &type = findType(package, "QObject");
+    type.propertyDeclarations.push_back(Storage::Synchronization::PropertyDeclaration{
+        "children", Storage::Synchronization::ImportedType{"Object"}, {}});
+
+    storage.synchronize(package);
+
+    ASSERT_THAT(storage.fetchTypes(),
+                ElementsAre(Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("children")),
+                            _));
 }
 
 } // namespace

@@ -735,7 +735,7 @@ std::ostream &operator<<(std::ostream &out, const Type &type)
                << ", exports: " << type.exportedTypes << ", properties: " << type.propertyDeclarations
                << ", functions: " << type.functionDeclarations
                << ", signals: " << type.signalDeclarations << ", changeLevel: " << type.changeLevel
-               << ")";
+               << ", default: " << type.defaultPropertyName << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyDeclaration)

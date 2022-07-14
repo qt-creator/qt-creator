@@ -754,8 +754,10 @@ public:
                   FunctionDeclarations functionDeclarations = {},
                   SignalDeclarations signalDeclarations = {},
                   EnumerationDeclarations enumerationDeclarations = {},
-                  ChangeLevel changeLevel = ChangeLevel::Full)
+                  ChangeLevel changeLevel = ChangeLevel::Full,
+                  Utils::SmallStringView defaultPropertyName = {})
         : typeName{typeName}
+        , defaultPropertyName{defaultPropertyName}
         , prototype{std::move(prototype)}
         , exportedTypes{std::move(exportedTypes)}
         , propertyDeclarations{std::move(propertyDeclarations)}
@@ -804,8 +806,10 @@ public:
                   Utils::SmallStringView typeName,
                   long long typeId,
                   long long prototypeId,
-                  int accessSemantics)
+                  int accessSemantics,
+                  Utils::SmallStringView defaultPropertyName)
         : typeName{typeName}
+        , defaultPropertyName{defaultPropertyName}
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
         , sourceId{sourceId}
         , typeId{typeId}
@@ -814,8 +818,9 @@ public:
 
     friend bool operator==(const Type &first, const Type &second) noexcept
     {
-        return first.typeName == second.typeName && first.prototype == second.prototype
-               && first.exportedTypes == second.exportedTypes
+        return first.typeName == second.typeName
+               && first.defaultPropertyName == second.defaultPropertyName
+               && first.prototype == second.prototype && first.exportedTypes == second.exportedTypes
                && first.propertyDeclarations == second.propertyDeclarations
                && first.functionDeclarations == second.functionDeclarations
                && first.signalDeclarations == second.signalDeclarations
@@ -824,6 +829,7 @@ public:
 
 public:
     TypeNameString typeName;
+    Utils::SmallString defaultPropertyName;
     ImportedTypeName prototype;
     ExportedTypes exportedTypes;
     PropertyDeclarations propertyDeclarations;
