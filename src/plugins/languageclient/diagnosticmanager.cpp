@@ -28,18 +28,20 @@
 #include "client.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
+
 #include <projectexplorer/project.h>
+
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textmark.h>
 #include <texteditor/textstyles.h>
+
+#include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
-#include <QApplication>
-#include <QClipboard>
 
 using namespace LanguageServerProtocol;
 using namespace Utils;
@@ -147,7 +149,7 @@ TextEditor::TextMark *DiagnosticManager::createTextMark(const FilePath &filePath
     action->setIcon(icon);
     action->setToolTip(tooltip);
     QObject::connect(action, &QAction::triggered, [text = diagnostic.message()]() {
-        QApplication::clipboard()->setText(text);
+        setClipboardAndSelection(text);
     });
     auto mark = new TextMark(filePath, diagnostic, m_client->id());
     mark->setActions({action});

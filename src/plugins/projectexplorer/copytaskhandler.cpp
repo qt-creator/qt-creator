@@ -27,12 +27,11 @@
 
 #include <coreplugin/coreconstants.h>
 
-#include <QAction>
-#include <QApplication>
-#include <QClipboard>
+#include <utils/stringutils.h>
 
-using namespace ProjectExplorer;
-using namespace ProjectExplorer::Internal;
+#include <QAction>
+
+namespace ProjectExplorer::Internal {
 
 void CopyTaskHandler::handle(const Tasks &tasks)
 {
@@ -54,7 +53,7 @@ void CopyTaskHandler::handle(const Tasks &tasks)
         lines << task.file.toUserOutput() + ':' + QString::number(task.line)
                  + ": " + type + task.description();
     }
-    QApplication::clipboard()->setText(lines.join('\n'));
+    Utils::setClipboardAndSelection(lines.join('\n'));
 }
 
 Utils::Id CopyTaskHandler::actionManagerId() const
@@ -66,3 +65,5 @@ QAction *CopyTaskHandler::createAction(QObject *parent) const
 {
     return new QAction(parent);
 }
+
+} // ProjectExplorer::Internal

@@ -36,37 +36,41 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/patchtool.h>
 #include <coreplugin/vcsmanager.h>
+
 #include <cpaster/codepasterservice.h>
+
 #include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
+
 #include <utils/algorithm.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 #include <utils/shellcommand.h>
+#include <utils/stringutils.h>
 
-#include <QDebug>
-#include <QFileInfo>
-#include <QFile>
-#include <QRegularExpression>
-#include <QSet>
-#include <QTextCodec>
-#include <QUrl>
-#include <QTextBlock>
-#include <QDesktopServices>
 #include <QAction>
+#include <QComboBox>
+#include <QDebug>
+#include <QDesktopServices>
+#include <QFile>
+#include <QFileInfo>
 #include <QKeyEvent>
 #include <QMenu>
+#include <QMessageBox>
+#include <QRegularExpression>
+#include <QSet>
+#include <QTextBlock>
+#include <QTextCodec>
 #include <QTextCursor>
 #include <QTextEdit>
-#include <QComboBox>
-#include <QClipboard>
-#include <QApplication>
-#include <QMessageBox>
+#include <QUrl>
 
 /*!
     \enum VcsBase::EditorContentType
@@ -337,7 +341,7 @@ void ChangeTextCursorHandler::slotDescribe()
 
 void ChangeTextCursorHandler::slotCopyRevision()
 {
-    QApplication::clipboard()->setText(m_currentChange);
+    setClipboardAndSelection(m_currentChange);
 }
 
 void ChangeTextCursorHandler::addDescribeAction(QMenu *menu, const QString &change) const
@@ -486,7 +490,7 @@ void UrlTextCursorHandler::setUrlPattern(const QString &pattern)
 
 void UrlTextCursorHandler::slotCopyUrl()
 {
-    QApplication::clipboard()->setText(m_urlData.url);
+    setClipboardAndSelection(m_urlData.url);
 }
 
 void UrlTextCursorHandler::slotOpenUrl()

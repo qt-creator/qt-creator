@@ -48,7 +48,8 @@
 #include <QHelpEngine>
 
 using namespace Core;
-using namespace Help::Internal;
+
+namespace Help::Internal {
 
 // -- OpenPagesManager
 
@@ -252,5 +253,7 @@ void OpenPagesManager::openPagesContextMenu(const QPoint &point)
     QMenu menu;
     menu.addAction(Tr::tr("Copy Full Path to Clipboard"));
     if (menu.exec(m_comboBox->mapToGlobal(point)))
-        QApplication::clipboard()->setText(fileName);
+        Utils::setClipboardAndSelection(fileName);
 }
+
+} // Help::Internal

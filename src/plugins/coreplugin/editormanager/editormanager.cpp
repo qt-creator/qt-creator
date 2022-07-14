@@ -2426,7 +2426,7 @@ void EditorManagerPrivate::copyFilePathFromContextMenu()
 {
     if (!d->m_contextMenuEntry)
         return;
-    QApplication::clipboard()->setText(d->m_contextMenuEntry->fileName().toUserOutput());
+    setClipboardAndSelection(d->m_contextMenuEntry->fileName().toUserOutput());
 }
 
 void EditorManagerPrivate::copyLocationFromContextMenu()

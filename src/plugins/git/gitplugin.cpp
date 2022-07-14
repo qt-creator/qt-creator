@@ -35,7 +35,6 @@
 #include "remotedialog.h"
 #include "stashdialog.h"
 #include "logchangedialog.h"
-#include "mergetool.h"
 #include "gitutils.h"
 #include "gitgrep.h"
 
@@ -86,7 +85,6 @@
 
 #include <QAction>
 #include <QApplication>
-#include <QClipboard>
 #include <QFileDialog>
 #include <QMenu>
 #include <QTimer>
@@ -267,7 +265,7 @@ public:
                              const QString &reference) final
     {
         menu->addAction(tr("&Copy \"%1\"").arg(reference),
-                        [reference] { QApplication::clipboard()->setText(reference); });
+                        [reference] { setClipboardAndSelection(reference); });
         QAction *action = menu->addAction(tr("&Describe Change %1").arg(reference),
                                           [=] { vcsDescribe(workingDirectory, reference); });
         menu->setDefaultAction(action);

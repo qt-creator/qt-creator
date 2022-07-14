@@ -26,6 +26,7 @@
 #include "helpplugin.h"
 
 #include "bookmarkmanager.h"
+#include "contentwindow.h"
 #include "docsettingspage.h"
 #include "filtersettingspage.h"
 #include "generalsettingspage.h"
@@ -38,23 +39,21 @@
 #include "helptr.h"
 #include "helpviewer.h"
 #include "helpwidget.h"
+#include "indexwindow.h"
 #include "localhelpmanager.h"
 #include "openpagesmanager.h"
 #include "searchtaskhandler.h"
-#include "searchwidget.h"
 #include "topicchooser.h"
 
-#include <bookmarkmanager.h>
-#include <contentwindow.h>
-#include <indexwindow.h>
-
 #include <app/app_version.h>
-#include <coreplugin/actionmanager/actionmanager.h>
+
 #include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
+#include <coreplugin/find/findplugin.h>
 #include <coreplugin/findplaceholder.h>
 #include <coreplugin/helpitem.h>
 #include <coreplugin/icore.h>
@@ -62,17 +61,19 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/rightpane.h>
 #include <coreplugin/sidebar.h>
+
 #include <extensionsystem/pluginmanager.h>
-#include <coreplugin/find/findplugin.h>
+
 #include <texteditor/texteditorconstants.h>
+
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
+#include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 #include <utils/tooltip/tooltip.h>
 
-#include <QClipboard>
 #include <QDialog>
 #include <QDir>
 #include <QFileInfo>
@@ -644,8 +645,7 @@ void HelpPluginPrivate::slotSystemInformation()
     connect(buttonBox, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
     layout->addWidget(buttonBox);
     connect(dialog, &QDialog::accepted, info, [info]() {
-        if (QApplication::clipboard())
-            QApplication::clipboard()->setText(info->toPlainText());
+        setClipboardAndSelection(info->toPlainText());
     });
     connect(dialog, &QDialog::rejected, dialog, [dialog]{ dialog->close(); });
     dialog->resize(700, 400);

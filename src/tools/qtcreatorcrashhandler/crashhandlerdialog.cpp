@@ -24,12 +24,15 @@
 ****************************************************************************/
 
 #include "crashhandlerdialog.h"
+
 #include "crashhandler.h"
 #include "ui_crashhandlerdialog.h"
 #include "utils.h"
 
 #include <app/app_version.h>
+
 #include <utils/checkablemessagebox.h>
+#include <utils/stringutils.h>
 
 #include <QClipboard>
 #include <QIcon>
@@ -250,7 +253,7 @@ void CrashHandlerDialog::selectLineWithContents(const QString &text)
 
 void CrashHandlerDialog::copyToClipboardClicked()
 {
-    QApplication::clipboard()->setText(m_ui->debugInfoEdit->toPlainText());
+    Utils::setClipboardAndSelection(m_ui->debugInfoEdit->toPlainText());
 }
 
 void CrashHandlerDialog::close()

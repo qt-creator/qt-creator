@@ -39,16 +39,13 @@
 #include <utils/fadingindicator.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
+#include <QAction>
+#include <QApplication>
 #include <QByteArrayMatcher>
 #include <QDebug>
 #include <QFile>
-#include <QTemporaryFile>
-#include <QVariant>
-
-#include <QApplication>
-#include <QAction>
-#include <QClipboard>
 #include <QFontMetrics>
 #include <QHelpEvent>
 #include <QMenu>
@@ -56,7 +53,9 @@
 #include <QPainter>
 #include <QPointer>
 #include <QScrollBar>
+#include <QTemporaryFile>
 #include <QToolTip>
+#include <QVariant>
 #include <QWheelEvent>
 
 using namespace Core;
@@ -1488,7 +1487,7 @@ void BinEditorWidget::copy(bool raw)
     QByteArray data = dataMid(selStart, selectionLength);
     if (raw) {
         data.replace(0, ' ');
-        QApplication::clipboard()->setText(QString::fromLatin1(data));
+        setClipboardAndSelection(QString::fromLatin1(data));
         return;
     }
     QString hexString;
@@ -1499,7 +1498,7 @@ void BinEditorWidget::copy(bool raw)
         hexString.append(QLatin1Char(hex[val >> 4])).append(QLatin1Char(hex[val & 0xf])).append(QLatin1Char(' '));
     }
     hexString.chop(1);
-    QApplication::clipboard()->setText(hexString);
+    setClipboardAndSelection(hexString);
 }
 
 void BinEditorWidget::highlightSearchResults(const QByteArray &pattern, QTextDocument::FindFlags findFlags)
@@ -1646,9 +1645,9 @@ void BinEditorWidget::contextMenuEvent(QContextMenuEvent *event)
     else if (action == copyHexAction)
         copy(false);
     else if (action == copyBeValue)
-        QApplication::clipboard()->setText("0x" + QString::number(beAddress, 16));
+        setClipboardAndSelection("0x" + QString::number(beAddress, 16));
     else if (action == copyLeValue)
-        QApplication::clipboard()->setText("0x" + QString::number(leAddress, 16));
+        setClipboardAndSelection("0x" + QString::number(leAddress, 16));
     else if (action == jumpToBeAddressHereAction)
         jumpToAddress(beAddress);
     else if (action == jumpToLeAddressHereAction)

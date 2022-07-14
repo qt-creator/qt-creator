@@ -30,11 +30,11 @@
 #include "localhelpmanager.h"
 
 #include <coreplugin/find/findplugin.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
-#include <QApplication>
-#include <QClipboard>
 #include <QContextMenuEvent>
 #include <QKeyEvent>
 #include <QMenu>
@@ -43,8 +43,7 @@
 #include <QToolTip>
 #include <QVBoxLayout>
 
-using namespace Help;
-using namespace Help::Internal;
+namespace Help::Internal {
 
 // -- HelpViewer
 
@@ -342,7 +341,7 @@ void TextBrowserHelpWidget::contextMenuEvent(QContextMenuEvent *event)
     }
 
     if (copyAnchorAction == menu.exec(event->globalPos()))
-        QApplication::clipboard()->setText(link.toString());
+        Utils::setClipboardAndSelection(link.toString());
 }
 
 bool TextBrowserHelpWidget::eventFilter(QObject *obj, QEvent *event)
@@ -409,3 +408,5 @@ void TextBrowserHelpWidget::resizeEvent(QResizeEvent *e)
     QTextBrowser::resizeEvent(e);
     scrollToTextPosition(topTextPosition);
 }
+
+} // Help::Internal

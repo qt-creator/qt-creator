@@ -77,10 +77,8 @@
 #include <utils/stringutils.h>
 #include <utils/variablechooser.h>
 
-#include <QApplication>
 #include <QBoxLayout>
 #include <QCheckBox>
-#include <QClipboard>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QDir>
@@ -1055,7 +1053,7 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
                                                : m_buildSystem->buildConfiguration()->macroExpander());
               });
 
-        QApplication::clipboard()->setText(variableList.join('\n'), QClipboard::Clipboard);
+        setClipboardAndSelection(variableList.join('\n'));
     });
 
     menu->move(e->globalPos());

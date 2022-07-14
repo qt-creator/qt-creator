@@ -24,11 +24,10 @@
 ****************************************************************************/
 
 #include "searchwidget.h"
+
 #include "helpconstants.h"
-#include "helpplugin.h"
 #include "helptr.h"
 #include "localhelpmanager.h"
-#include "openpagesmanager.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -40,7 +39,6 @@
 #include <utils/utilsicons.h>
 
 #include <QApplication>
-#include <QClipboard>
 #include <QHelpEngine>
 #include <QHelpSearchEngine>
 #include <QHelpSearchQueryWidget>
@@ -56,7 +54,7 @@
 #include <QTextBrowser>
 #include <QToolButton>
 
-using namespace Help::Internal;
+namespace Help::Internal {
 
 SearchWidget::SearchWidget() = default;
 
@@ -264,7 +262,7 @@ void SearchWidget::contextMenuEvent(QContextMenuEvent *contextMenuEvent)
     else if (usedAction == openLinkInNewTab)
         emit linkActivated(link, currentSearchTerms(), true/*newPage*/);
     else if (usedAction == copyAnchorAction)
-        QApplication::clipboard()->setText(link.toString());
+        Utils::setClipboardAndSelection(link.toString());
 }
 
 QStringList SearchWidget::currentSearchTerms() const
@@ -291,3 +289,5 @@ QList<QToolButton *> SearchSideBarItem::createToolBarWidgets()
             static_cast<SearchWidget *>(widget()), &SearchWidget::reindexDocumentation);
     return {reindexButton};
 }
+
+} // Help::Internal

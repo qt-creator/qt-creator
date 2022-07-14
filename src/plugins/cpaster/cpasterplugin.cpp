@@ -45,6 +45,7 @@
 #include <utils/fileutils.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
 
 #include <texteditor/texteditor.h>
@@ -325,7 +326,8 @@ void CodePasterPluginPrivate::fetch()
 void CodePasterPluginPrivate::finishPost(const QString &link)
 {
     if (m_settings.copyToClipboard.value())
-        QApplication::clipboard()->setText(link);
+        Utils::setClipboardAndSelection(link);
+
     if (m_settings.displayOutput.value())
         MessageManager::writeDisrupting(link);
     else

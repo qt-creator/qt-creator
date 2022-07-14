@@ -37,6 +37,7 @@
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 
 #include <QApplication>
 #include <QClipboard>
@@ -575,7 +576,7 @@ void ObjectsMapEditorWidget::onPasteSymbolicNameTriggered()
 void ObjectsMapEditorWidget::onCopyRealNameTriggered()
 {
     if (ObjectsMapTreeItem *item = selectedObjectItem())
-        QApplication::clipboard()->setText(QLatin1String(item->propertiesToByteArray()));
+        Utils::setClipboardAndSelection(QLatin1String(item->propertiesToByteArray()));
 }
 
 void ObjectsMapEditorWidget::onCutSymbolicNameTriggered()

@@ -27,11 +27,10 @@
 #include "cppcheckdiagnostic.h"
 #include "cppchecktextmark.h"
 
+#include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
-#include <QApplication>
-#include <QClipboard>
 #include <QMap>
 
 namespace Cppcheck {
@@ -90,7 +89,7 @@ CppcheckTextMark::CppcheckTextMark (const Diagnostic &diagnostic)
                 .arg(diagnostic.fileName.toUserOutput())
                 .arg(diagnostic.lineNumber)
                 .arg(diagnostic.message);
-        QApplication::clipboard()->setText(text);
+        Utils::setClipboardAndSelection(text);
     });
     setActions({action});
 }

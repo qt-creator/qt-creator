@@ -37,6 +37,7 @@
 #include "testtreemodel.h"
 
 #include <aggregation/aggregate.h>
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -44,19 +45,21 @@
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
+
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
+
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
-#include <QApplication>
-#include <QClipboard>
 #include <QDebug>
 #include <QFileDialog>
 #include <QHBoxLayout>
@@ -703,12 +706,12 @@ const TestResult *TestResultsPane::getTestResult(const QModelIndex &idx)
 void TestResultsPane::onCopyItemTriggered(const TestResult *result)
 {
     QTC_ASSERT(result, return);
-    QApplication::clipboard()->setText(result->outputString(true));
+    setClipboardAndSelection(result->outputString(true));
 }
 
 void TestResultsPane::onCopyWholeTriggered()
 {
-    QApplication::clipboard()->setText(getWholeOutput());
+    setClipboardAndSelection(getWholeOutput());
 }
 
 void TestResultsPane::onSaveWholeTriggered()

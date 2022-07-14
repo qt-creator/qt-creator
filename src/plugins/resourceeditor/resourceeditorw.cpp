@@ -24,27 +24,25 @@
 ****************************************************************************/
 
 #include "resourceeditorw.h"
-#include "resourceeditorplugin.h"
+
 #include "resourceeditorconstants.h"
+#include "resourceeditorplugin.h"
 
-#include <resourceeditor/qrceditor/resourcefile_p.h>
 #include <resourceeditor/qrceditor/qrceditor.h>
+#include <resourceeditor/qrceditor/resourcefile_p.h>
 
-#include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/commandbutton.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <utils/reloadpromptutils.h>
-#include <utils/fileutils.h>
+#include <coreplugin/icore.h>
 
-#include <QFileInfo>
-#include <QDir>
-#include <qdebug.h>
-#include <QHBoxLayout>
+#include <utils/filepath.h>
+#include <utils/reloadpromptutils.h>
+#include <utils/stringutils.h>
+
+#include <QDebug>
 #include <QMenu>
 #include <QToolBar>
-#include <QInputDialog>
-#include <QClipboard>
 
 using namespace Utils;
 
@@ -319,7 +317,7 @@ void ResourceEditorW::renameCurrentFile()
 
 void ResourceEditorW::copyCurrentResourcePath()
 {
-    QApplication::clipboard()->setText(m_resourceEditor->currentResourcePath());
+    setClipboardAndSelection(m_resourceEditor->currentResourcePath());
 }
 
 void ResourceEditorW::orderList()

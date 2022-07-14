@@ -36,28 +36,29 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/editormanager/editormanager.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
+
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/threadutils.h>
 
-#include <QCoreApplication>
 #include <QAction>
+#include <QCoreApplication>
 #include <QDebug>
+#include <QDialogButtonBox>
+#include <QFormLayout>
 #include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
-#include <QFormLayout>
-#include <QDialogButtonBox>
-#include <QClipboard>
-#include <QApplication>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -356,14 +357,14 @@ void ResourceEditorPluginPrivate::copyPathContextMenu()
 {
     auto node = dynamic_cast<ResourceFileNode *>(ProjectTree::currentNode());
     QTC_ASSERT(node, return);
-    QApplication::clipboard()->setText(QLatin1String(resourcePrefix) + node->qrcPath());
+    setClipboardAndSelection(QLatin1String(resourcePrefix) + node->qrcPath());
 }
 
 void ResourceEditorPluginPrivate::copyUrlContextMenu()
 {
     auto node = dynamic_cast<ResourceFileNode *>(ProjectTree::currentNode());
     QTC_ASSERT(node, return);
-    QApplication::clipboard()->setText(QLatin1String(urlPrefix) + node->qrcPath());
+    setClipboardAndSelection(QLatin1String(urlPrefix) + node->qrcPath());
 }
 
 void ResourceEditorPluginPrivate::renamePrefixContextMenu()
