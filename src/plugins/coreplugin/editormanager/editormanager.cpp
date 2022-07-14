@@ -2436,14 +2436,14 @@ void EditorManagerPrivate::copyLocationFromContextMenu()
         return;
     const QString text = d->m_contextMenuEntry->fileName().toUserOutput()
             + QLatin1Char(':') + action->data().toString();
-    QApplication::clipboard()->setText(text);
+    setClipboardAndSelection(text);
 }
 
 void EditorManagerPrivate::copyFileNameFromContextMenu()
 {
     if (!d->m_contextMenuEntry)
         return;
-    QApplication::clipboard()->setText(d->m_contextMenuEntry->fileName().fileName());
+    setClipboardAndSelection(d->m_contextMenuEntry->fileName().fileName());
 }
 
 void EditorManagerPrivate::saveDocumentFromContextMenu()
