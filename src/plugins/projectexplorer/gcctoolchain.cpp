@@ -449,18 +449,14 @@ static QStringList filteredFlags(const QStringList &allFlags, bool considerSysro
                    || a == "-gcc-toolchain" || a == "-target" || a == "-mllvm" || a == "-isystem") {
             if (++i < allFlags.length())
                 filtered << a << allFlags.at(i);
-        } else if (a.startsWith("-m") || a == "-Os" || a == "-O0" || a == "-O1" || a == "-O2"
-                   || a == "-O3" || a == "-ffinite-math-only" || a == "-fshort-double"
-                   || a == "-fshort-wchar" || a == "-fsignaling-nans" || a == "-fno-inline"
-                   || a == "-fno-exceptions" || a == "-fstack-protector"
-                   || a == "-fstack-protector-all" || a == "-fsanitize=address"
-                   || a == "-fno-rtti" || a.startsWith("-std=") || a.startsWith("-stdlib=")
+        } else if (a.startsWith("-m") || a.startsWith("-f") || a.startsWith("-O")
+                   || a.startsWith("-std=") || a.startsWith("-stdlib=")
                    || a.startsWith("-specs=") || a == "-ansi" || a == "-undef"
-                   || a.startsWith("-D") || a.startsWith("-U") || a == "-fopenmp"
-                   || a == "-Wno-deprecated" || a == "-fPIC" || a == "-fpic" || a == "-fPIE"
-                   || a == "-fpie" || a.startsWith("-stdlib=") || a.startsWith("-B")
+                   || a.startsWith("-D") || a.startsWith("-U")
+                   || a.startsWith("-stdlib=") || a.startsWith("-B")
                    || a.startsWith("--target=")
                    || (a.startsWith("-isystem") && a.length() > 8)
+                   || a == "-Wno-deprecated"
                    || a == "-nostdinc" || a == "-nostdinc++") {
             filtered << a;
         }
