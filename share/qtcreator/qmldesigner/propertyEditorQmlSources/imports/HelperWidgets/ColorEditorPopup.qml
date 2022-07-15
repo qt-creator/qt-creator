@@ -84,7 +84,7 @@ T.Popup {
     function determineActiveColorMode() {
         if (colorEditor.supportGradient && gradientLine.hasGradient) {
             if (colorEditor.shapeGradients) {
-                switch (gradientLine.gradientTypeName) {
+                switch (gradientModel.gradientTypeName) {
                 case "LinearGradient":
                     ceMode.currentIndex = ceMode.indexOfValue("LinearGradient")
                     break
@@ -107,6 +107,76 @@ T.Popup {
         }
 
         colorEditor.originalColor = colorEditor.color
+    }
+
+    function updateThumbnail() {
+        if (!cePopup.gradientLine.hasGradient)
+            return
+
+        if (!colorEditor.shapeGradients) {
+            var gradientString = "import QtQuick 2.15; Gradient {"
+            var orientation = cePopup.gradientOrientation.currentValue
+                    === Gradient.Horizontal ? "Gradient.Horizontal" : "Gradient.Vertical"
+            gradientString += "orientation: " + orientation + ";"
+
+            for (var i = 0; i < cePopup.gradientLine.model.count; i++)
+                gradientString += "GradientStop {}"
+
+            gradientString += "}"
+
+            var gradientObject = Qt.createQmlObject(
+                        gradientString, colorEditor.gradientThumbnail,
+                        "dynamicGradient")
+
+            for (i = 0; i < cePopup.gradientLine.model.count; i++) {
+                gradientObject.stops[i].color = cePopup.gradientLine.model.getColor(
+                            i)
+                gradientObject.stops[i].position = cePopup.gradientLine.model.getPosition(
+                            i)
+            }
+
+            colorEditor.gradientThumbnail.gradient = gradientObject
+        } else {
+            var gradientStr = "import QtQuick 2.15; import QtQuick.Shapes 1.15; "
+                    + gradientModel.gradientTypeName + " {"
+
+            if (gradientModel.gradientTypeName === "LinearGradient") {
+                gradientStr += "x1: 0" + ";x2: " + shape.width + ";y1: 0"
+                        + ";y2: " + shape.height + ";"
+            } else if (gradientModel.gradientTypeName === "RadialGradient") {
+                gradientStr += "centerX: " + shape.width * 0.5 + ";centerY: "
+                        + shape.height * 0.5 + ";focalX: " + shape.width * 0.5 + ";focalY: "
+                        + shape.height * 0.5 + ";centerRadius: " + Math.min(
+                            shape.width, shape.height) * 0.5 + ";focalRadius: 0" + ";"
+            } else if (gradientModel.gradientTypeName === "ConicalGradient") {
+                gradientStr += "centerX: " + shape.width * 0.5 + ";centerY: "
+                        + shape.height * 0.5 + ";angle: 0" + ";"
+            }
+
+            for (var j = 0; j < gradientModel.count; j++)
+                gradientStr += "GradientStop {}"
+
+            gradientStr += "}"
+
+            var gradientObj = Qt.createQmlObject(
+                        gradientStr, colorEditor.shapeGradientThumbnail,
+                        "dynamicShapeGradient")
+
+            for (j = 0; j < cePopup.gradientLine.model.count; j++) {
+                gradientObj.stops[j].color = cePopup.gradientLine.model.getColor(
+                            j)
+                gradientObj.stops[j].position = cePopup.gradientLine.model.getPosition(
+                            j)
+            }
+
+            colorEditor.shapeGradientThumbnail.fillGradient = gradientObj
+        }
+    }
+
+    GradientModel {
+        id: gradientModel
+        anchorBackendProperty: anchorBackend
+        gradientPropertyName: "gradient"
     }
 
     WheelHandler {
@@ -214,9 +284,9 @@ T.Popup {
                             colorEditor.resetShapeColor()
 
                             if (colorEditor.shapeGradients)
-                                gradientLine.gradientTypeName = "LinearGradient"
+                                gradientModel.gradientTypeName = "LinearGradient"
                             else
-                                gradientLine.gradientTypeName = "Gradient"
+                                gradientModel.gradientTypeName = "Gradient"
 
                             if (gradientLine.hasGradient)
                                 gradientLine.updateGradient()
@@ -227,7 +297,7 @@ T.Popup {
                             break
                         case "RadialGradient":
                             colorEditor.resetShapeColor()
-                            gradientLine.gradientTypeName = "RadialGradient"
+                            gradientModel.gradientTypeName = "RadialGradient"
 
                             if (gradientLine.hasGradient)
                                 gradientLine.updateGradient()
@@ -238,7 +308,7 @@ T.Popup {
                             break
                         case "ConicalGradient":
                             colorEditor.resetShapeColor()
-                            gradientLine.gradientTypeName = "ConicalGradient"
+                            gradientModel.gradientTypeName = "ConicalGradient"
 
                             if (gradientLine.hasGradient)
                                 gradientLine.updateGradient()
@@ -250,7 +320,7 @@ T.Popup {
                         default:
                             console.log("Unknown item selected in color mode ComboBox.")
                         }
-                        colorEditor.updateThumbnail()
+                        cePopup.updateThumbnail()
                     }
 
                     ToolTipArea {
@@ -290,9 +360,9 @@ T.Popup {
                         function applyPreset() {
                             if (!gradientLine.hasGradient) {
                                 if (colorEditor.shapeGradients)
-                                    gradientLine.gradientTypeName = "LinearGradient"
+                                    gradientModel.gradientTypeName = "LinearGradient"
                                 else
-                                    gradientLine.gradientTypeName = "Gradient"
+                                    gradientModel.gradientTypeName = "Gradient"
                             }
 
                             if (presetList.gradientData.presetType == 0) {
@@ -354,6 +424,8 @@ T.Popup {
                 width: parent.width
                 visible: !cePopup.isNotInGradientMode()
 
+                model: gradientModel
+
                 onCurrentColorChanged: {
                     if (colorEditor.supportGradient && gradientLine.hasGradient) {
                         colorEditor.color = gradientLine.currentColor
@@ -373,7 +445,7 @@ T.Popup {
                         colorEditor.originalColor = gradientLine.currentColor
                 }
 
-                onInvalidated: colorEditor.updateThumbnail()
+                onInvalidated: cePopup.updateThumbnail()
 
                 Connections {
                     target: modelNodeBackend
@@ -948,7 +1020,7 @@ T.Popup {
 
                             onActivated: {
                                 gradientLine.model.setGradientOrientation(gradientOrientation.currentValue)
-                                colorEditor.updateThumbnail()
+                                cePopup.updateThumbnail()
                             }
 
                             Component.onCompleted: {
