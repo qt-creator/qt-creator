@@ -31,8 +31,11 @@
 #include "gitlabprojectsettings.h"
 
 #include <projectexplorer/session.h>
+
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
+
+#include <utils/layoutbuilder.h>
 #include <utils/listmodel.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -44,28 +47,134 @@
 #include <QRegularExpression>
 #include <QSyntaxHighlighter>
 
+#include <QAbstractButton>
+#include <QApplication>
+#include <QComboBox>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QSpacerItem>
+#include <QToolButton>
+#include <QTreeView>
+#include <QVBoxLayout>
+
+using namespace Utils;
+
 namespace GitLab {
 
 GitLabDialog::GitLabDialog(QWidget *parent)
     : QDialog(parent)
     , m_lastTreeViewQuery(Query::NoQuery)
 {
-    m_ui.setupUi(this);
+    setWindowTitle(tr("GitLab"));
+    resize(665, 530);
+
+    m_mainLabel = new QLabel;
+    m_detailsLabel = new QLabel;
+
+    m_remoteComboBox = new QComboBox(this);
+    m_remoteComboBox->setMinimumSize(QSize(200, 0));
+
+    m_treeViewTitle = new QLabel;
+
+    m_searchLineEdit = new QLineEdit(this);
+    m_searchLineEdit->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    m_searchLineEdit->setPlaceholderText(tr("Search"));
+
+    auto searchPB = new QPushButton(tr("Search"));
+    searchPB->setDefault(true);
+
+    m_treeView = new QTreeView(this);
+    m_treeView->setRootIsDecorated(false);
+    m_treeView->setUniformRowHeights(true);
+    m_treeView->setItemsExpandable(false);
+    m_treeView->setExpandsOnDoubleClick(false);
+    m_treeView->header()->setVisible(false);
+
+    m_firstToolButton = new QToolButton(this);
+    m_firstToolButton->setText(QString::fromUtf8("|<"));
+
+    m_previousToolButton = new QToolButton(this);
+    m_previousToolButton->setText(tr("..."));
+
+    m_currentPageLabel = new QLabel(this);
+    m_currentPageLabel->setText(tr("0"));
+
+    m_nextToolButton = new QToolButton(this);
+    m_nextToolButton->setText(tr("..."));
+
+    m_lastToolButton = new QToolButton(this);
+    m_lastToolButton->setText(QString::fromUtf8(">|"));
+
     m_clonePB = new QPushButton(Utils::Icons::DOWNLOAD.icon(), tr("Clone..."), this);
-    m_ui.buttonBox->addButton(m_clonePB, QDialogButtonBox::ActionRole);
     m_clonePB->setEnabled(false);
+
+    auto buttonBox = new QDialogButtonBox(this);
+    buttonBox->setStandardButtons(QDialogButtonBox::Close);
+    buttonBox->addButton(m_clonePB, QDialogButtonBox::ActionRole);
+
+    using namespace Layouting;
+    const Stretch st;
+
+    Column {
+        Column {
+            Row {
+                Column {
+                    m_mainLabel,
+                    m_detailsLabel
+                },
+                st,
+                tr("Remote:"),
+                m_remoteComboBox
+            },
+            Column {
+                Column {
+                    Space(40),
+                    Column {
+                        Row {
+                            m_treeViewTitle,
+                            st,
+                            m_searchLineEdit,
+                            searchPB
+                        },
+                        Column {
+                            m_treeView,
+                        }
+                    }
+                }
+            }
+        },
+        Row {
+            st,
+            Row {
+                m_firstToolButton,
+                m_previousToolButton,
+                m_currentPageLabel,
+                m_nextToolButton,
+                m_lastToolButton
+            },
+            st,
+        },
+        buttonBox
+    }.attachTo(this);
 
     updateRemotes();
 
-    connect(m_ui.remoteCB, &QComboBox::currentIndexChanged,
+    connect(m_remoteComboBox, &QComboBox::currentIndexChanged,
             this, &GitLabDialog::requestMainViewUpdate);
-    connect(m_ui.searchLE, &QLineEdit::returnPressed, this, &GitLabDialog::querySearch);
-    connect(m_ui.searchPB, &QPushButton::clicked, this, &GitLabDialog::querySearch);
+    connect(m_searchLineEdit, &QLineEdit::returnPressed, this, &GitLabDialog::querySearch);
+    connect(searchPB, &QPushButton::clicked, this, &GitLabDialog::querySearch);
     connect(m_clonePB, &QPushButton::clicked, this, &GitLabDialog::cloneSelected);
-    connect(m_ui.firstTB, &QToolButton::clicked, this, &GitLabDialog::queryFirstPage);
-    connect(m_ui.previousTB, &QToolButton::clicked, this, &GitLabDialog::queryPreviousPage);
-    connect(m_ui.nextTB, &QToolButton::clicked, this, &GitLabDialog::queryNextPage);
-    connect(m_ui.lastTB, &QToolButton::clicked, this, &GitLabDialog::queryLastPage);
+    connect(m_firstToolButton, &QToolButton::clicked, this, &GitLabDialog::queryFirstPage);
+    connect(m_previousToolButton, &QToolButton::clicked, this, &GitLabDialog::queryPreviousPage);
+    connect(m_nextToolButton, &QToolButton::clicked, this, &GitLabDialog::queryNextPage);
+    connect(m_lastToolButton, &QToolButton::clicked, this, &GitLabDialog::queryLastPage);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
     requestMainViewUpdate();
 }
 
@@ -85,12 +194,12 @@ void GitLabDialog::resetTreeView(QTreeView *treeView, QAbstractItemModel *model)
 
 void GitLabDialog::updateRemotes()
 {
-    m_ui.remoteCB->clear();
+    m_remoteComboBox->clear();
     const GitLabParameters *global = GitLabPlugin::globalParameters();
     for (const GitLabServer &server : qAsConst(global->gitLabServers))
-        m_ui.remoteCB->addItem(server.displayString(), QVariant::fromValue(server));
+        m_remoteComboBox->addItem(server.displayString(), QVariant::fromValue(server));
 
-    m_ui.remoteCB->setCurrentIndex(m_ui.remoteCB->findData(
+    m_remoteComboBox->setCurrentIndex(m_remoteComboBox->findData(
                                        QVariant::fromValue(global->currentDefaultServer())));
 }
 
@@ -106,15 +215,15 @@ void GitLabDialog::requestMainViewUpdate()
     m_lastPageInformation = PageInformation();
     m_lastTreeViewQuery = Query(Query::NoQuery);
 
-    m_ui.mainLabel->setText({});
-    m_ui.detailsLabel->setText({});
-    m_ui.treeViewTitle->setText({});
-    m_ui.searchLE->setText({});
-    resetTreeView(m_ui.treeView, nullptr);
+    m_mainLabel->setText({});
+    m_detailsLabel->setText({});
+    m_treeViewTitle->setText({});
+    m_searchLineEdit->setText({});
+    resetTreeView(m_treeView, nullptr);
     updatePageButtons();
 
     bool linked = false;
-    m_currentServerId = Utils::Id();
+    m_currentServerId = Id();
     if (auto project = ProjectExplorer::SessionManager::startupProject()) {
         GitLabProjectSettings *projSettings = GitLabPlugin::projectSettings(project);
         if (projSettings->isLinked()) {
@@ -123,13 +232,13 @@ void GitLabDialog::requestMainViewUpdate()
         }
     }
     if (!m_currentServerId.isValid())
-        m_currentServerId = m_ui.remoteCB->currentData().value<GitLabServer>().id;
+        m_currentServerId = m_remoteComboBox->currentData().value<GitLabServer>().id;
     if (m_currentServerId.isValid()) {
         const GitLabParameters *global = GitLabPlugin::globalParameters();
         const GitLabServer server = global->serverForId(m_currentServerId);
-        m_ui.remoteCB->setCurrentIndex(m_ui.remoteCB->findData(QVariant::fromValue(server)));
+        m_remoteComboBox->setCurrentIndex(m_remoteComboBox->findData(QVariant::fromValue(server)));
     }
-    m_ui.remoteCB->setEnabled(!linked);
+    m_remoteComboBox->setEnabled(!linked);
 
     if (!m_currentServerId.isValid())
         return;
@@ -146,32 +255,32 @@ void GitLabDialog::requestMainViewUpdate()
 void GitLabDialog::updatePageButtons()
 {
     if (m_lastPageInformation.currentPage == -1) {
-        m_ui.currentPage->setVisible(false);
-        m_ui.firstTB->setVisible(false);
-        m_ui.lastTB->setVisible(false);
-        m_ui.previousTB->setVisible(false);
-        m_ui.nextTB->setVisible(false);
+        m_currentPageLabel->setVisible(false);
+        m_firstToolButton->setVisible(false);
+        m_lastToolButton->setVisible(false);
+        m_previousToolButton->setVisible(false);
+        m_nextToolButton->setVisible(false);
     } else {
-        m_ui.currentPage->setText(QString::number(m_lastPageInformation.currentPage));
-        m_ui.currentPage->setVisible(true);
-        m_ui.firstTB->setVisible(true);
-        m_ui.lastTB->setVisible(true);
+        m_currentPageLabel->setText(QString::number(m_lastPageInformation.currentPage));
+        m_currentPageLabel->setVisible(true);
+        m_firstToolButton->setVisible(true);
+        m_lastToolButton->setVisible(true);
     }
     if (m_lastPageInformation.currentPage > 1) {
-        m_ui.firstTB->setEnabled(true);
-        m_ui.previousTB->setText(QString::number(m_lastPageInformation.currentPage - 1));
-        m_ui.previousTB->setVisible(true);
+        m_firstToolButton->setEnabled(true);
+        m_previousToolButton->setText(QString::number(m_lastPageInformation.currentPage - 1));
+        m_previousToolButton->setVisible(true);
     } else {
-        m_ui.firstTB->setEnabled(false);
-        m_ui.previousTB->setVisible(false);
+        m_firstToolButton->setEnabled(false);
+        m_previousToolButton->setVisible(false);
     }
     if (m_lastPageInformation.currentPage < m_lastPageInformation.totalPages) {
-        m_ui.lastTB->setEnabled(true);
-        m_ui.nextTB->setText(QString::number(m_lastPageInformation.currentPage + 1));
-        m_ui.nextTB->setVisible(true);
+        m_lastToolButton->setEnabled(true);
+        m_nextToolButton->setText(QString::number(m_lastPageInformation.currentPage + 1));
+        m_nextToolButton->setVisible(true);
     } else {
-        m_ui.lastTB->setEnabled(false);
-        m_ui.nextTB->setVisible(false);
+        m_lastToolButton->setEnabled(false);
+        m_nextToolButton->setVisible(false);
     }
 }
 
@@ -211,7 +320,7 @@ void GitLabDialog::querySearch()
 {
     QTC_ASSERT(m_lastTreeViewQuery.type() != Query::NoQuery, return);
     m_lastTreeViewQuery.setPageParameter(-1);
-    m_lastTreeViewQuery.setAdditionalParameters({"search=" + m_ui.searchLE->text()});
+    m_lastTreeViewQuery.setAdditionalParameters({"search=" + m_searchLineEdit->text()});
     fetchProjects();
 }
 
@@ -221,36 +330,36 @@ void GitLabDialog::handleUser(const User &user)
     m_currentUserId = user.id;
 
     if (!user.error.message.isEmpty()) {
-        m_ui.mainLabel->setText(tr("Not logged in."));
+        m_mainLabel->setText(tr("Not logged in."));
         if (user.error.code == 1) {
-            m_ui.detailsLabel->setText(tr("Insufficient access token."));
-            m_ui.detailsLabel->setToolTip(user.error.message + QLatin1Char('\n')
+            m_detailsLabel->setText(tr("Insufficient access token."));
+            m_detailsLabel->setToolTip(user.error.message + QLatin1Char('\n')
                                           + tr("Permission scope read_api or api needed."));
         } else if (user.error.code >= 300 && user.error.code < 400) {
-            m_ui.detailsLabel->setText(tr("Check settings for misconfiguration."));
-            m_ui.detailsLabel->setToolTip(user.error.message);
+            m_detailsLabel->setText(tr("Check settings for misconfiguration."));
+            m_detailsLabel->setToolTip(user.error.message);
         } else {
-            m_ui.detailsLabel->setText({});
-            m_ui.detailsLabel->setToolTip({});
+            m_detailsLabel->setText({});
+            m_detailsLabel->setToolTip({});
         }
         updatePageButtons();
-        m_ui.treeViewTitle->setText(tr("Projects (%1)").arg(0));
+        m_treeViewTitle->setText(tr("Projects (%1)").arg(0));
         return;
     }
 
     if (user.id != -1) {
         if (user.bot) {
-            m_ui.mainLabel->setText(tr("Using project access token."));
-            m_ui.detailsLabel->setText({});
+            m_mainLabel->setText(tr("Using project access token."));
+            m_detailsLabel->setText({});
         } else {
-            m_ui.mainLabel->setText(tr("Logged in as %1").arg(user.name));
-            m_ui.detailsLabel->setText(tr("Id: %1 (%2)").arg(user.id).arg(user.email));
+            m_mainLabel->setText(tr("Logged in as %1").arg(user.name));
+            m_detailsLabel->setText(tr("Id: %1 (%2)").arg(user.id).arg(user.email));
         }
-        m_ui.detailsLabel->setToolTip({});
+        m_detailsLabel->setToolTip({});
     } else {
-        m_ui.mainLabel->setText(tr("Not logged in."));
-        m_ui.detailsLabel->setText({});
-        m_ui.detailsLabel->setToolTip({});
+        m_mainLabel->setText(tr("Not logged in."));
+        m_detailsLabel->setText({});
+        m_detailsLabel->setToolTip({});
     }
     m_lastTreeViewQuery = Query(Query::Projects);
     fetchProjects();
@@ -258,7 +367,7 @@ void GitLabDialog::handleUser(const User &user)
 
 void GitLabDialog::handleProjects(const Projects &projects)
 {
-    Utils::ListModel<Project *> *listModel = new Utils::ListModel<Project *>(this);
+    auto listModel = new ListModel<Project *>(this);
     for (const Project &project : projects.projects)
         listModel->appendItem(new Project(project));
 
@@ -270,9 +379,9 @@ void GitLabDialog::handleProjects(const Projects &projects)
             return QVariant::fromValue(*data);
         return QVariant();
     });
-    resetTreeView(m_ui.treeView, listModel);
+    resetTreeView(m_treeView, listModel);
     int count = projects.error.message.isEmpty() ? projects.pageInfo.total : 0;
-    m_ui.treeViewTitle->setText(tr("Projects (%1)").arg(count));
+    m_treeViewTitle->setText(tr("Projects (%1)").arg(count));
 
     m_lastPageInformation = projects.pageInfo;
     updatePageButtons();
@@ -290,7 +399,7 @@ void GitLabDialog::fetchProjects()
 
 void GitLabDialog::cloneSelected()
 {
-    const QModelIndexList indexes = m_ui.treeView->selectionModel()->selectedIndexes();
+    const QModelIndexList indexes = m_treeView->selectionModel()->selectedIndexes();
     QTC_ASSERT(indexes.size() == 1, return);
     const Project project = indexes.first().data(Qt::UserRole).value<Project>();
     QTC_ASSERT(!project.sshUrl.isEmpty() && !project.httpUrl.isEmpty(), return);

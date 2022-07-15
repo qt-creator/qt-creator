@@ -4,7 +4,7 @@ add_qtc_plugin(GitLab
   DEPENDS Utils
   SOURCES
     gitlabclonedialog.cpp gitlabclonedialog.h
-    gitlabdialog.cpp gitlabdialog.h gitlabdialog.ui
+    gitlabdialog.cpp gitlabdialog.h
     gitlaboptionspage.cpp gitlaboptionspage.h
     gitlabparameters.cpp gitlabparameters.h
     gitlabplugin.cpp gitlabplugin.h

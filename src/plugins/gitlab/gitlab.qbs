@@ -14,7 +14,6 @@ QtcPlugin {
         "gitlabclonedialog.h",
         "gitlabdialog.cpp",
         "gitlabdialog.h",
-        "gitlabdialog.ui",
         "gitlaboptionspage.cpp",
         "gitlaboptionspage.h",
         "gitlabparameters.cpp",

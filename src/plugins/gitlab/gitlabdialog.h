@@ -24,8 +24,6 @@
 ****************************************************************************/
 #pragma once
 
-#include "ui_gitlabdialog.h"
-
 #include "queryrunner.h"
 #include "resultparser.h"
 
@@ -35,7 +33,13 @@
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
+class QAbstractItemModel;
+class QComboBox;
+class QLabel;
+class QLineEdit;
 class QPushButton;
+class QToolButton;
+class QTreeView;
 QT_END_NAMESPACE
 
 namespace GitLab {
@@ -70,12 +74,23 @@ private:
 
     void cloneSelected();
 
-    Ui::GitLabDialog m_ui;
     QPushButton *m_clonePB = nullptr;
     Utils::Id m_currentServerId;
     Query m_lastTreeViewQuery;
     PageInformation m_lastPageInformation;
     int m_currentUserId = -1;
+
+    QLabel *m_mainLabel;
+    QLabel *m_detailsLabel;
+    QComboBox *m_remoteComboBox;
+    QLabel *m_treeViewTitle;
+    QLineEdit *m_searchLineEdit;
+    QTreeView *m_treeView;
+    QToolButton *m_firstToolButton;
+    QToolButton *m_previousToolButton;
+    QLabel *m_currentPageLabel;
+    QToolButton *m_nextToolButton;
+    QToolButton *m_lastToolButton;
 };
 
 } // namespace GitLab
