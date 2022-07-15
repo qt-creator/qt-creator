@@ -11,7 +11,6 @@ add_qtc_plugin(RemoteLinux
     genericlinuxdeviceconfigurationwidget.cpp genericlinuxdeviceconfigurationwidget.h genericlinuxdeviceconfigurationwidget.ui
     genericlinuxdeviceconfigurationwizard.cpp genericlinuxdeviceconfigurationwizard.h
     genericlinuxdeviceconfigurationwizardpages.cpp genericlinuxdeviceconfigurationwizardpages.h
-    genericlinuxdeviceconfigurationwizardsetuppage.ui
     killappstep.cpp killappstep.h
     linuxdevice.cpp linuxdevice.h
     linuxdevicetester.cpp linuxdevicetester.h
