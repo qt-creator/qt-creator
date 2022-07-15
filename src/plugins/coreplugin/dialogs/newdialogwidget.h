@@ -34,18 +34,21 @@
 #include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
+class QComboBox;
+class QLabel;
+class QListView;
 class QModelIndex;
-class QSortFilterProxyModel;
 class QPushButton;
+class QSortFilterProxyModel;
 class QStandardItem;
 class QStandardItemModel;
+class QTextBrowser;
+class QTreeView;
 QT_END_NAMESPACE
 
 namespace Core {
 
 namespace Internal {
-
-namespace Ui { class NewDialog; }
 
 class NewDialogWidget : public QDialog, public NewDialog
 {
@@ -82,9 +85,13 @@ private:
     void addItem(QStandardItem *topLevelCategoryItem, IWizardFactory *factory);
     void saveState();
 
-    Ui::NewDialog *m_ui;
     QStandardItemModel *m_model;
     QSortFilterProxyModel *m_filterProxyModel;
+    QComboBox *m_comboBox;
+    QTreeView *m_templateCategoryView;
+    QListView *m_templatesView;
+    QLabel *m_imageLabel;
+    QTextBrowser *m_templateDescription;
     QPushButton *m_okButton = nullptr;
     QList<QStandardItem *> m_categoryItems;
     Utils::FilePath m_defaultLocation;

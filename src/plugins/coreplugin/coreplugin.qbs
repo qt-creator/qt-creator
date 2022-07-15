@@ -208,7 +208,7 @@ Project {
                 "externaltoolconfig.cpp", "externaltoolconfig.h", "externaltoolconfig.ui",
                 "filepropertiesdialog.cpp", "filepropertiesdialog.h", "filepropertiesdialog.ui",
                 "ioptionspage.cpp", "ioptionspage.h",
-                "newdialog.cpp", "newdialog.h", "newdialog.ui",
+                "newdialog.cpp", "newdialog.h",
                 "newdialogwidget.cpp", "newdialogwidget.h",
                 "openwithdialog.cpp", "openwithdialog.h", "openwithdialog.ui",
                 "promptoverwritedialog.cpp", "promptoverwritedialog.h",

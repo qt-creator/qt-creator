@@ -29,7 +29,7 @@ add_qtc_plugin(Core
     dialogs/externaltoolconfig.cpp dialogs/externaltoolconfig.h dialogs/externaltoolconfig.ui
     dialogs/filepropertiesdialog.cpp dialogs/filepropertiesdialog.h dialogs/filepropertiesdialog.ui
     dialogs/ioptionspage.cpp dialogs/ioptionspage.h
-    dialogs/newdialog.cpp dialogs/newdialog.h dialogs/newdialog.ui
+    dialogs/newdialog.cpp dialogs/newdialog.h
     dialogs/newdialogwidget.cpp dialogs/newdialogwidget.h
     dialogs/openwithdialog.cpp dialogs/openwithdialog.h dialogs/openwithdialog.ui
     dialogs/promptoverwritedialog.cpp dialogs/promptoverwritedialog.h
