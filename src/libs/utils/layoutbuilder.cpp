@@ -140,8 +140,8 @@ QLayout *LayoutBuilder::createLayout() const
 
 static void setMargins(bool on, QLayout *layout)
 {
-    const int d = on ? 9 : 0;
-    layout->setContentsMargins(d, d, d, d);
+    if (!on)
+        layout->setContentsMargins(0, 0, 0, 0);
 }
 
 static QWidget *widgetForItem(QLayoutItem *item)
@@ -188,7 +188,7 @@ static void flushPendingFormItems(QFormLayout *formLayout,
     // If there are more than two items, we cram the last ones in one hbox.
     if (pendingFormItems.size() > 2) {
         auto hbox = new QHBoxLayout;
-        setMargins(false, hbox);
+        hbox->setContentsMargins(0, 0, 0, 0);
         for (int i = 1; i < pendingFormItems.size(); ++i)
             addItemToBoxLayout(hbox, pendingFormItems.at(i));
         while (pendingFormItems.size() >= 2)
