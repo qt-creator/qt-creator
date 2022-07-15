@@ -28,8 +28,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 class PySideUicExtraCompiler;
 
@@ -62,5 +61,4 @@ public:
     PythonOutputFormatterFactory();
 };
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

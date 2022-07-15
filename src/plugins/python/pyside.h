@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "pipsupport.h"
-
 #include <utils/filepath.h>
 
 #include <QCoreApplication>
@@ -35,8 +33,7 @@
 namespace TextEditor { class TextDocument; }
 namespace ProjectExplorer { class RunConfiguration; }
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 class PySideInstaller : public QObject
 {
@@ -46,7 +43,6 @@ public:
     static PySideInstaller *instance();
     static void checkPySideInstallation(const Utils::FilePath &python,
                                         TextEditor::TextDocument *document);
-
 
 signals:
     void pySideInstalled(const Utils::FilePath &python, const QString &pySide);
@@ -70,5 +66,4 @@ private:
     QHash<Utils::FilePath, QList<TextEditor::TextDocument *>> m_infoBarEntries;
 };
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

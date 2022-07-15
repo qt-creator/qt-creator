@@ -27,8 +27,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 class PythonPlugin final : public ExtensionSystem::IPlugin
 {
@@ -48,5 +47,4 @@ private:
     class PythonPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

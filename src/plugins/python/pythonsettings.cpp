@@ -27,15 +27,20 @@
 
 #include "pythonconstants.h"
 #include "pythonplugin.h"
+#include "pythontr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
+
 #include <extensionsystem/pluginmanager.h>
+
 #include <languageclient/languageclient_global.h>
 #include <languageclient/languageclientsettings.h>
 #include <languageclient/languageclientmanager.h>
+
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/detailswidget.h>
@@ -65,8 +70,7 @@ using namespace ProjectExplorer;
 using namespace Utils;
 using namespace Layouting;
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 static Interpreter createInterpreter(const FilePath &python,
                                      const QString &defaultName,
@@ -108,8 +112,8 @@ public:
         connect(m_executable, &PathChooser::filePathChanged, this, &InterpreterDetailsWidget::changed);
 
         Form {
-            PythonSettings::tr("Name:"), m_name, Break(),
-            PythonSettings::tr("Executable"), m_executable
+            Tr::tr("Name:"), m_name, Break(),
+            Tr::tr("Executable"), m_executable
         }.attachTo(this, false);
     }
 
@@ -138,7 +142,6 @@ signals:
 
 class InterpreterOptionsWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Python::Internal::InterpreterOptionsWidget)
 public:
     InterpreterOptionsWidget(const QList<Interpreter> &interpreters,
                              const QString &defaultInterpreter);
@@ -178,11 +181,11 @@ InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &int
         }
         case Qt::ToolTipRole:
             if (interpreter.command.isEmpty())
-                return tr("Executable is empty.");
+                return Tr::tr("Executable is empty.");
             if (!interpreter.command.exists())
-                return tr("%1 does not exist.").arg(interpreter.command.toUserOutput());
+                return Tr::tr("%1 does not exist.").arg(interpreter.command.toUserOutput());
             if (!interpreter.command.isExecutableFile())
-                return tr("%1 is not an executable file.").arg(interpreter.command.toUserOutput());
+                return Tr::tr("%1 is not an executable file.").arg(interpreter.command.toUserOutput());
             break;
         case Qt::DecorationRole:
             if (column == 0 && !interpreter.command.isExecutableFile())
@@ -199,34 +202,19 @@ InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &int
     m_view.setHeaderHidden(true);
     m_view.setSelectionMode(QAbstractItemView::SingleSelection);
     m_view.setSelectionBehavior(QAbstractItemView::SelectItems);
-    connect(m_view.selectionModel(),
-            &QItemSelectionModel::currentChanged,
-            this,
-            &InterpreterOptionsWidget::currentChanged);
+    auto addButton = new QPushButton(Tr::tr("&Add"));
 
-    auto addButton = new QPushButton(PythonSettings::tr("&Add"));
-    connect(addButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::addItem);
-
-    m_deleteButton = new QPushButton(PythonSettings::tr("&Delete"));
+    m_deleteButton = new QPushButton(Tr::tr("&Delete"));
     m_deleteButton->setEnabled(false);
-    connect(m_deleteButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::deleteItem);
-
-    m_makeDefaultButton = new QPushButton(PythonSettings::tr("&Make Default"));
+    m_makeDefaultButton = new QPushButton(Tr::tr("&Make Default"));
     m_makeDefaultButton->setEnabled(false);
-    connect(m_makeDefaultButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::makeDefault);
 
-    m_cleanButton = new QPushButton(PythonSettings::tr("&Clean Up"));
-    connect(m_cleanButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::cleanUp);
-    m_cleanButton->setToolTip(
-        PythonSettings::tr("Remove all Python interpreters without a valid executable."));
+    m_cleanButton = new QPushButton(Tr::tr("&Clean Up"));
+    m_cleanButton->setToolTip(Tr::tr("Remove all Python interpreters without a valid executable."));
 
     updateCleanButton();
 
     m_detailsWidget->hide();
-    connect(m_detailsWidget,
-            &InterpreterDetailsWidget::changed,
-            this,
-            &InterpreterOptionsWidget::detailsChanged);
 
     Column buttons {
         addButton,
@@ -240,6 +228,16 @@ InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &int
         Row { &m_view, buttons },
         m_detailsWidget
     }.attachTo(this);
+
+    connect(addButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::addItem);
+    connect(m_deleteButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::deleteItem);
+    connect(m_makeDefaultButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::makeDefault);
+    connect(m_cleanButton, &QPushButton::pressed, this, &InterpreterOptionsWidget::cleanUp);
+
+    connect(m_detailsWidget, &InterpreterDetailsWidget::changed,
+            this, &InterpreterOptionsWidget::detailsChanged);
+    connect(m_view.selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &InterpreterOptionsWidget::currentChanged);
 }
 
 void InterpreterOptionsWidget::apply()
@@ -327,9 +325,9 @@ private:
 InterpreterOptionsPage::InterpreterOptionsPage()
 {
     setId(Constants::C_PYTHONOPTIONS_PAGE_ID);
-    setDisplayName(PythonSettings::tr("Interpreters"));
+    setDisplayName(Tr::tr("Interpreters"));
     setCategory(Constants::C_PYTHON_SETTINGS_CATEGORY);
-    setDisplayCategory(PythonSettings::tr("Python"));
+    setDisplayCategory(Tr::tr("Python"));
     setCategoryIconPath(":/python/images/settingscategory_python.png");
 }
 
@@ -400,8 +398,8 @@ public:
     PyLSConfigureWidget()
         : m_editor(LanguageClient::jsonEditor())
         , m_advancedLabel(new QLabel)
-        , m_pluginsGroup(new QGroupBox(PythonSettings::tr("Plugins:")))
-        , m_mainGroup(new QGroupBox(PythonSettings::tr("Use Python Language Server")))
+        , m_pluginsGroup(new QGroupBox(Tr::tr("Plugins:")))
+        , m_mainGroup(new QGroupBox(Tr::tr("Use Python Language Server")))
 
     {
         m_mainGroup->setCheckable(true);
@@ -422,7 +420,7 @@ public:
 
         mainGroupLayout->addWidget(m_pluginsGroup);
 
-        const QString labelText = PythonSettings::tr(
+        const QString labelText = Tr::tr(
             "For a complete list of available options, consult the <a "
             "href=\"https://github.com/python-lsp/python-lsp-server/blob/develop/"
             "CONFIGURATION.md\">Python LSP Server configuration documentation</a>.");
@@ -436,7 +434,7 @@ public:
 
         mainGroupLayout->addStretch();
 
-        auto advanced = new QCheckBox(PythonSettings::tr("Advanced"));
+        auto advanced = new QCheckBox(Tr::tr("Advanced"));
         advanced->setChecked(false);
 
         connect(advanced,
@@ -546,7 +544,7 @@ private:
 PyLSOptionsPage::PyLSOptionsPage()
 {
     setId(Constants::C_PYLSCONFIGURATION_PAGE_ID);
-    setDisplayName(PythonSettings::tr("Language Server Configuration"));
+    setDisplayName(Tr::tr("Language Server Configuration"));
     setCategory(Constants::C_PYTHON_SETTINGS_CATEGORY);
 }
 
@@ -758,7 +756,7 @@ static void addPythonsFromRegistry(QList<Interpreter> &pythons)
             const FilePath &executable = FilePath::fromUserInput(regVal.toString());
             if (executable.exists() && !alreadyRegistered(pythons, executable)) {
                 pythons << Interpreter{QUuid::createUuid().toString(),
-                                       name + PythonSettings::tr(" (Windowed)"),
+                                       name + Tr::tr(" (Windowed)"),
                                        FilePath::fromUserInput(regVal.toString())};
             }
         }
@@ -962,7 +960,6 @@ Interpreter PythonSettings::interpreter(const QString &interpreterId)
     return Utils::findOrDefault(interpreters, Utils::equal(&Interpreter::id, interpreterId));
 }
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal
 
 #include "pythonsettings.moc"

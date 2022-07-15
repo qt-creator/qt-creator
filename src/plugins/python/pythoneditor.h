@@ -27,8 +27,7 @@
 
 #include <texteditor/texteditor.h>
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 class PythonEditorFactory : public TextEditor::TextEditorFactory
 {
@@ -36,5 +35,4 @@ public:
     PythonEditorFactory();
 };
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

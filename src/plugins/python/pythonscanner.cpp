@@ -25,11 +25,9 @@
 
 #include "pythonscanner.h"
 
-#include "pythonconstants.h"
-#include "pythonplugin.h"
+#include <QSet>
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 Scanner::Scanner(const QChar *text, const int length)
     : m_text(text), m_textLength(length), m_state(0)
@@ -399,5 +397,4 @@ void Scanner::parseState(State &state, QChar &savedData) const
     savedData = static_cast<ushort>(m_state);
 }
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

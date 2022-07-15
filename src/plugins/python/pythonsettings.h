@@ -27,17 +27,14 @@
 
 #include <projectexplorer/runconfigurationaspects.h>
 
-#include <utils/fileutils.h>
-#include <utils/optional.h>
+#include <utils/filepath.h>
 
-#include <QUuid>
-
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 class PythonSettings : public QObject
 {
     Q_OBJECT
+
 public:
     static void init();
 
@@ -67,5 +64,4 @@ private:
     static void saveSettings();
 };
 
-} // namespace Internal
-} // namespace PythonEditor
+} // PythonEditor::Internal

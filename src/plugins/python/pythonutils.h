@@ -27,8 +27,7 @@
 
 #include <utils/filepath.h>
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 enum class ReplType { Unmodified, Import, ImportToplevel };
 void openPythonRepl(QObject *parent, const Utils::FilePath &file, ReplType type);
@@ -38,5 +37,4 @@ QString pythonName(const Utils::FilePath &pythonPath);
 class PythonProject;
 PythonProject *pythonProjectForFile(const Utils::FilePath &pythonFile);
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

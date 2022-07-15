@@ -25,11 +25,12 @@
 
 #include "pyside.h"
 
+#include "pipsupport.h"
 #include "pythonconstants.h"
 #include "pythonplugin.h"
 #include "pythonproject.h"
-#include "pythonrunconfiguration.h"
 #include "pythonsettings.h"
+#include "pythontr.h"
 #include "pythonutils.h"
 
 #include <coreplugin/icore.h>
@@ -41,6 +42,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/infobar.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 
 #include <QRegularExpression>
@@ -49,14 +51,13 @@
 using namespace Utils;
 using namespace ProjectExplorer;
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
-static constexpr char installPySideInfoBarId[] = "Python::InstallPySide";
+const char installPySideInfoBarId[] = "Python::InstallPySide";
 
 PySideInstaller *PySideInstaller::instance()
 {
-    static PySideInstaller *instance = new PySideInstaller;
+    static PySideInstaller *instance = new PySideInstaller; // FIXME: Leaks.
     return instance;
 }
 
@@ -98,7 +99,7 @@ PySideInstaller::PySideInstaller()
     : QObject(PythonPlugin::instance())
 {}
 
-void PySideInstaller::installPyside(const Utils::FilePath &python,
+void PySideInstaller::installPyside(const FilePath &python,
                                     const QString &pySide,
                                     TextEditor::TextDocument *document)
 {
@@ -129,13 +130,13 @@ void PySideInstaller::handlePySideMissing(const FilePath &python,
 {
     if (!document || !document->infoBar()->canInfoBeAdded(installPySideInfoBarId))
         return;
-    const QString message = tr("%1 installation missing for %2 (%3)")
+    const QString message = Tr::tr("%1 installation missing for %2 (%3)")
                                 .arg(pySide, pythonName(python), python.toUserOutput());
     InfoBarEntry info(installPySideInfoBarId, message, InfoBarEntry::GlobalSuppression::Enabled);
     auto installCallback = [=]() { installPyside(python, pySide, document); };
-    const QString installTooltip = tr("Install %1 for %2 using pip package installer.")
+    const QString installTooltip = Tr::tr("Install %1 for %2 using pip package installer.")
                                        .arg(pySide, python.toUserOutput());
-    info.addCustomButton(tr("Install"), installCallback, installTooltip);
+    info.addCustomButton(Tr::tr("Install"), installCallback, installTooltip);
 
     if (PythonProject *project = pythonProjectForFile(document->filePath())) {
         if (ProjectExplorer::Target *target = project->activeTarget()) {
@@ -156,7 +157,7 @@ void PySideInstaller::handlePySideMissing(const FilePath &python,
                 const QString id = interpreterAspect->currentInterpreter().id;
                 const auto isCurrentInterpreter = Utils::equal(&InfoBarEntry::ComboInfo::data,
                                                                QVariant(id));
-                const QString switchTooltip = tr("Switch the Python interpreter for %1")
+                const QString switchTooltip = Tr::tr("Switch the Python interpreter for %1")
                                                   .arg(runConfiguration->displayName());
                 info.setComboInfo(interpreters,
                                   interpreterChangeCallback,
@@ -168,7 +169,7 @@ void PySideInstaller::handlePySideMissing(const FilePath &python,
     document->infoBar()->addInfo(info);
 }
 
-void PySideInstaller::runPySideChecker(const Utils::FilePath &python,
+void PySideInstaller::runPySideChecker(const FilePath &python,
                                        const QString &pySide,
                                        TextEditor::TextDocument *document)
 {
@@ -195,5 +196,4 @@ void PySideInstaller::runPySideChecker(const Utils::FilePath &python,
         Utils::runAsync(&missingPySideInstallation, python, pySide));
 }
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

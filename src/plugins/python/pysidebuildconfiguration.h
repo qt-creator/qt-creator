@@ -29,8 +29,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildstep.h>
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 class PySideBuildConfiguration : public ProjectExplorer::BuildConfiguration
 {
@@ -40,7 +39,6 @@ public:
 
 class PySideBuildConfigurationFactory : public ProjectExplorer::BuildConfigurationFactory
 {
-    Q_DECLARE_TR_FUNCTIONS(Python::Internal::PySideBuildConfigurationFactory)
 public:
     PySideBuildConfigurationFactory();
 };
@@ -61,10 +59,8 @@ private:
 
 class PySideBuildStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_DECLARE_TR_FUNCTIONS(Python::Internal::PySideBuildStepFactory)
 public:
     PySideBuildStepFactory();
 };
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

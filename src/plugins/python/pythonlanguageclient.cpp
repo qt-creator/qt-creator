@@ -32,20 +32,25 @@
 #include "pythonproject.h"
 #include "pythonrunconfiguration.h"
 #include "pythonsettings.h"
+#include "pythontr.h"
 #include "pythonutils.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
 #include <languageserverprotocol/textsynchronization.h>
 #include <languageserverprotocol/workspace.h>
+
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+
 #include <utils/infobar.h>
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
@@ -66,8 +71,7 @@ using namespace LanguageServerProtocol;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 static constexpr char installPylsInfoBarId[] = "Python::InstallPyls";
 
@@ -178,7 +182,7 @@ PyLSClient *clientForPython(const FilePath &python)
     auto interface = new PyLSInterface;
     interface->setCommandLine(CommandLine(python, {"-m", "pylsp"}));
     auto client = new PyLSClient(interface);
-    client->setName(PyLSClient::tr("Python Language Server (%1)").arg(python.toUserOutput()));
+    client->setName(Tr::tr("Python Language Server (%1)").arg(python.toUserOutput()));
     client->setActivateDocumentAutomatically(true);
     client->updateConfiguration();
     LanguageFilter filter;
@@ -374,13 +378,13 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
     Utils::InfoBar *infoBar = document->infoBar();
     if (state.state == PythonLanguageServerState::CanBeInstalled
         && infoBar->canInfoBeAdded(installPylsInfoBarId)) {
-        auto message = tr("Install Python language server (PyLS) for %1 (%2). "
-                          "The language server provides Python specific completion and annotation.")
+        auto message = Tr::tr("Install Python language server (PyLS) for %1 (%2). "
+                              "The language server provides Python specific completion and annotation.")
                            .arg(pythonName(python), python.toUserOutput());
         Utils::InfoBarEntry info(installPylsInfoBarId,
                                  message,
                                  Utils::InfoBarEntry::GlobalSuppression::Enabled);
-        info.addCustomButton(tr("Install"),
+        info.addCustomButton(Tr::tr("Install"),
                              [=]() { installPythonLanguageServer(python, document); });
         infoBar->addInfo(info);
         m_infoBarEntries[python] << document;
@@ -420,5 +424,4 @@ PyLSConfigureAssistant::PyLSConfigureAssistant(QObject *parent)
             });
 }
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

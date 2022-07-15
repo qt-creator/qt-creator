@@ -25,11 +25,9 @@
 
 #include "pysidebuildconfiguration.h"
 
-#include "pipsupport.h"
 #include "pythonconstants.h"
 #include "pythonproject.h"
-#include "pythonrunconfiguration.h"
-#include "pythonsettings.h"
+#include "pythontr.h"
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
@@ -37,15 +35,15 @@
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
+
 #include <utils/commandline.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
-constexpr char pySideBuildStep[] = "Python.PysideBuildStep";
+const char pySideBuildStep[] = "Python.PysideBuildStep";
 
 PySideBuildConfigurationFactory::PySideBuildConfigurationFactory()
 {
@@ -65,7 +63,7 @@ PySideBuildStepFactory::PySideBuildStepFactory()
 {
     registerStep<PySideBuildStep>(pySideBuildStep);
     setSupportedProjectType(PythonProjectId);
-    setDisplayName(tr("Run PySide6 project tool"));
+    setDisplayName(Tr::tr("Run PySide6 project tool"));
     setFlags(BuildStepInfo::UniqueStep);
 }
 
@@ -74,8 +72,8 @@ PySideBuildStep::PySideBuildStep(BuildStepList *bsl, Id id)
 {
     m_pysideProject = addAspect<StringAspect>();
     m_pysideProject->setSettingsKey("Python.PySideProjectTool");
-    m_pysideProject->setLabelText(tr("PySide project tool:"));
-    m_pysideProject->setToolTip(tr("Enter location of PySide project tool."));
+    m_pysideProject->setLabelText(Tr::tr("PySide project tool:"));
+    m_pysideProject->setToolTip(Tr::tr("Enter location of PySide project tool."));
     m_pysideProject->setDisplayStyle(StringAspect::PathChooserDisplay);
     m_pysideProject->setExpectedKind(PathChooser::Command);
     m_pysideProject->setHistoryCompleter("Python.PySideProjectTool.History");
@@ -108,7 +106,7 @@ void PySideBuildStep::doRun()
 PySideBuildConfiguration::PySideBuildConfiguration(Target *target, Id id)
     : BuildConfiguration(target, id)
 {
-    setConfigWidgetDisplayName(PySideBuildConfigurationFactory::tr("General"));
+    setConfigWidgetDisplayName(Tr::tr("General"));
 
     setInitializer([this](const BuildInfo &) {
         buildSteps()->appendStep(pySideBuildStep);
@@ -118,5 +116,4 @@ PySideBuildConfiguration::PySideBuildConfiguration(Target *target, Id id)
     updateCacheAndEmitEnvironmentChanged();
 }
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

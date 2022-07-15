@@ -26,6 +26,7 @@
 #include "pythonproject.h"
 
 #include "pythonconstants.h"
+#include "pythontr.h"
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
@@ -56,8 +57,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 class PythonBuildSystem : public BuildSystem
 {
@@ -65,12 +65,12 @@ public:
     explicit PythonBuildSystem(Target *target);
 
     bool supportsAction(Node *context, ProjectAction action, const Node *node) const override;
-    bool addFiles(Node *, const Utils::FilePaths &filePaths, Utils::FilePaths *) override;
-    RemovedFilesFromProject removeFiles(Node *, const Utils::FilePaths &filePaths, Utils::FilePaths *) override;
-    bool deleteFiles(Node *, const Utils::FilePaths &) override;
+    bool addFiles(Node *, const FilePaths &filePaths, FilePaths *) override;
+    RemovedFilesFromProject removeFiles(Node *, const FilePaths &filePaths, FilePaths *) override;
+    bool deleteFiles(Node *, const FilePaths &) override;
     bool renameFile(Node *,
-                    const Utils::FilePath &oldFilePath,
-                    const Utils::FilePath &newFilePath) override;
+                    const FilePath &oldFilePath,
+                    const FilePath &newFilePath) override;
     QString name() const override { return QLatin1String("python"); }
 
     bool saveRawFileList(const QStringList &rawFileList);
@@ -114,7 +114,7 @@ static QJsonObject readObjJson(const FilePath &projectFile, QString *errorMessag
 {
     QFile file(projectFile.toString());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        *errorMessage = PythonProject::tr("Unable to open \"%1\" for reading: %2")
+        *errorMessage = Tr::tr("Unable to open \"%1\" for reading: %2")
                             .arg(projectFile.toUserOutput(), file.errorString());
         return QJsonObject();
     }
@@ -124,7 +124,7 @@ static QJsonObject readObjJson(const FilePath &projectFile, QString *errorMessag
     // This assumes the project file is formed with only one field called
     // 'files' that has a list associated of the files to include in the project.
     if (content.isEmpty()) {
-        *errorMessage = PythonProject::tr("Unable to read \"%1\": The file is empty.")
+        *errorMessage = Tr::tr("Unable to read \"%1\": The file is empty.")
                             .arg(projectFile.toUserOutput());
         return QJsonObject();
     }
@@ -133,7 +133,7 @@ static QJsonObject readObjJson(const FilePath &projectFile, QString *errorMessag
     const QJsonDocument doc = QJsonDocument::fromJson(content, &error);
     if (doc.isNull()) {
         const int line = content.left(error.offset).count('\n') + 1;
-        *errorMessage = PythonProject::tr("Unable to parse \"%1\":%2: %3")
+        *errorMessage = Tr::tr("Unable to parse \"%1\":%2: %3")
                             .arg(projectFile.toUserOutput()).arg(line)
                             .arg(error.errorString());
         return QJsonObject();
@@ -207,7 +207,7 @@ static QStringList readImportPathsJson(const FilePath &projectFile, QString *err
 class PythonProjectNode : public ProjectNode
 {
 public:
-    PythonProjectNode(const Utils::FilePath &path)
+    PythonProjectNode(const FilePath &path)
         : ProjectNode(path)
     {
         setDisplayName(path.completeBaseName());
@@ -275,7 +275,7 @@ void PythonBuildSystem::triggerParsing()
         auto projectInfo = modelManager->defaultProjectInfoForProject(project());
 
         for (const QString &importPath : qAsConst(m_qmlImportPaths)) {
-            const Utils::FilePath filePath = Utils::FilePath::fromString(importPath);
+            const FilePath filePath = FilePath::fromString(importPath);
             projectInfo.importPaths.maybeInsert(filePath, QmlJS::Dialect::Qml);
         }
 
@@ -331,7 +331,7 @@ bool PythonBuildSystem::writePyProjectFile(const QString &fileName, QString &con
 {
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        *errorMessage = PythonProject::tr("Unable to open \"%1\" for reading: %2")
+        *errorMessage = Tr::tr("Unable to open \"%1\" for reading: %2")
                         .arg(fileName, file.errorString());
         return false;
     }
@@ -455,7 +455,7 @@ static void expandEnvironmentVariables(const QProcessEnvironment &env, QString &
  * absolute paths back to their original \a paths.
  */
 QStringList PythonBuildSystem::processEntries(const QStringList &paths,
-                                          QHash<QString, QString> *map) const
+                                              QHash<QString, QString> *map) const
 {
     const QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
     const QDir projectDir(projectDirectory().toString());
@@ -515,5 +515,4 @@ bool PythonBuildSystem::supportsAction(Node *context, ProjectAction action, cons
     return BuildSystem::supportsAction(context, action, node);
 }
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

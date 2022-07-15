@@ -28,38 +28,37 @@
 #include <utils/qtcprocess.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
-PySideUicExtraCompiler::PySideUicExtraCompiler(const Utils::FilePath &pySideUic,
+PySideUicExtraCompiler::PySideUicExtraCompiler(const FilePath &pySideUic,
                                                const Project *project,
-                                               const Utils::FilePath &source,
-                                               const Utils::FilePaths &targets,
+                                               const FilePath &source,
+                                               const FilePaths &targets,
                                                QObject *parent)
     : ProcessExtraCompiler(project, source, targets, parent)
     , m_pySideUic(pySideUic)
 {
 }
 
-Utils::FilePath PySideUicExtraCompiler::pySideUicPath() const
+FilePath PySideUicExtraCompiler::pySideUicPath() const
 {
     return m_pySideUic;
 }
 
-Utils::FilePath PySideUicExtraCompiler::command() const
+FilePath PySideUicExtraCompiler::command() const
 {
     return m_pySideUic;
 }
 
-FileNameToContentsHash PySideUicExtraCompiler::handleProcessFinished(
-    Utils::QtcProcess *process)
+FileNameToContentsHash PySideUicExtraCompiler::handleProcessFinished(QtcProcess *process)
 {
     FileNameToContentsHash result;
     if (process->exitStatus() != QProcess::NormalExit && process->exitCode() != 0)
         return result;
 
-    const Utils::FilePaths targetList = targets();
+    const FilePaths targetList = targets();
     if (targetList.size() != 1)
         return result;
     // As far as I can discover in the UIC sources, it writes out local 8-bit encoding. The
@@ -68,5 +67,4 @@ FileNameToContentsHash PySideUicExtraCompiler::handleProcessFinished(
     return result;
 }
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

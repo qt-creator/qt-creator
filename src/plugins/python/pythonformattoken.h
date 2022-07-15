@@ -25,8 +25,7 @@
 
 #pragma once
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 enum Format {
     Format_Number = 0,
@@ -69,5 +68,4 @@ private:
     int m_length = -1;
 };
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

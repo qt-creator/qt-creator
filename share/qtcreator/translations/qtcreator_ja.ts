@@ -44590,7 +44590,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>PythonEditor::Internal::PythonRunConfiguration</name>
+    <name>Python</name>
     <message>
         <source>Run %1</source>
         <translation>%1 を実行</translation>
@@ -44605,7 +44605,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>PythonEditor::Internal::PythonRunConfigurationWidget</name>
+    <name>Python</name>
     <message>
         <source>Interpreter: </source>
         <translation>インタプリタ: </translation>
@@ -44616,14 +44616,14 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>PythonEditor::Internal::PythonProjectManager</name>
+    <name>Python</name>
     <message>
         <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
         <translation>プロジェクト &quot;%1&quot; が開けません: プロジェクトがファイルではありません。</translation>
     </message>
 </context>
 <context>
-    <name>PythonEditor::Internal::PythonRunControl</name>
+    <name>Python</name>
     <message>
         <source>No Python interpreter specified.</source>
         <translation>Python のインタプリタが指定されていません。</translation>
@@ -54307,21 +54307,21 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Python::Internal::InterpreterAspect</name>
+    <name>Python</name>
     <message>
         <source>Manage...</source>
         <translation>管理...</translation>
     </message>
 </context>
 <context>
-    <name>Python::Internal::PythonRunConfiguration</name>
+    <name>Python</name>
     <message>
         <source>Run %1</source>
         <translation>%1 を実行</translation>
     </message>
 </context>
 <context>
-    <name>Python::Internal::PythonSettings</name>
+    <name>Python</name>
     <message>
         <source>Name:</source>
         <translation>名前:</translation>
@@ -54336,7 +54336,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>Python::Internal::PyLSConfigureAssistant</name>
+    <name>Python</name>
     <message>
         <source>Install</source>
         <translation>インストールする</translation>

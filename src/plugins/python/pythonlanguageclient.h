@@ -35,8 +35,7 @@ namespace Core { class IDocument; }
 namespace ProjectExplorer { class ExtraCompiler; }
 namespace TextEditor { class TextDocument; }
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 class PySideUicExtraCompiler;
 class PythonLanguageServerState;
@@ -94,5 +93,4 @@ private:
     QHash<Utils::FilePath, QList<TextEditor::TextDocument *>> m_infoBarEntries;
 };
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

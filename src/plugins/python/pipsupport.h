@@ -32,8 +32,7 @@
 #include <QTimer>
 #include <QUrl>
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 class PipPackageInfo;
 
@@ -97,5 +96,4 @@ private:
     QTimer m_killTimer;
 };
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

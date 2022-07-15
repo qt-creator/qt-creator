@@ -27,8 +27,7 @@
 
 #include <projectexplorer/extracompiler.h>
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 class PySideUicExtraCompiler : public ProjectExplorer::ProcessExtraCompiler
 {
@@ -49,5 +48,4 @@ private:
     Utils::FilePath m_pySideUic;
 };
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

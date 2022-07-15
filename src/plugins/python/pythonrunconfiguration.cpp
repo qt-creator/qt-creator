@@ -25,6 +25,7 @@
 
 #include "pythonrunconfiguration.h"
 
+#include "pipsupport.h"
 #include "pyside.h"
 #include "pysidebuildconfiguration.h"
 #include "pysideuicextracompiler.h"
@@ -32,6 +33,7 @@
 #include "pythonlanguageclient.h"
 #include "pythonproject.h"
 #include "pythonsettings.h"
+#include "pythontr.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -62,8 +64,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 class PythonOutputLineParser : public OutputLineParser
 {
@@ -86,7 +87,7 @@ private:
             return Status::NotHandled;
         }
 
-        const Utils::Id category(PythonErrorTaskCategory);
+        const Id category(PythonErrorTaskCategory);
         const QRegularExpressionMatch match = filePattern.match(text);
         if (match.hasMatch()) {
             const LinkSpec link(match.capturedStart(2), match.capturedLength(2), match.captured(2));
@@ -162,13 +163,13 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
 
     auto bufferedAspect = addAspect<BoolAspect>();
     bufferedAspect->setSettingsKey("PythonEditor.RunConfiguation.Buffered");
-    bufferedAspect->setLabel(tr("Buffered output"), BoolAspect::LabelPlacement::AtCheckBox);
-    bufferedAspect->setToolTip(tr("Enabling improves output performance, "
+    bufferedAspect->setLabel(Tr::tr("Buffered output"), BoolAspect::LabelPlacement::AtCheckBox);
+    bufferedAspect->setToolTip(Tr::tr("Enabling improves output performance, "
                                   "but results in delayed output."));
 
     auto scriptAspect = addAspect<MainScriptAspect>();
     scriptAspect->setSettingsKey("PythonEditor.RunConfiguation.Script");
-    scriptAspect->setLabelText(tr("Script:"));
+    scriptAspect->setLabelText(Tr::tr("Script:"));
     scriptAspect->setDisplayStyle(StringAspect::LabelDisplay);
 
     addAspect<LocalEnvironmentAspect>(target);
@@ -190,7 +191,7 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
     setUpdater([this, scriptAspect] {
         const BuildTargetInfo bti = buildTargetInfo();
         const QString script = bti.targetFilePath.toUserOutput();
-        setDefaultDisplayName(tr("Run %1").arg(script));
+        setDefaultDisplayName(Tr::tr("Run %1").arg(script));
         scriptAspect->setValue(script);
         aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.targetFilePath.parentDir());
     });
@@ -219,7 +220,7 @@ void PythonRunConfiguration::checkForPySide(const FilePath &python)
 {
     BuildStepList *buildSteps = target()->activeBuildConfiguration()->buildSteps();
 
-    Utils::FilePath pySideProjectPath;
+    FilePath pySideProjectPath;
     m_pySideUicPath.clear();
     const PipPackage pySide6Package("PySide6");
     const PipPackageInfo info = pySide6Package.info(python);
@@ -296,12 +297,12 @@ void PythonRunConfiguration::updateExtraCompilers()
         };
         const FilePaths uiFiles = project()->files(uiMatcher);
         for (const FilePath &uiFile : uiFiles) {
-            Utils::FilePath generated = uiFile.parentDir();
+            FilePath generated = uiFile.parentDir();
             generated = generated.pathAppended("/ui_" + uiFile.baseName() + ".py");
             int index = Utils::indexOf(oldCompilers, [&](PySideUicExtraCompiler *oldCompiler) {
                 return oldCompiler->pySideUicPath() == m_pySideUicPath
                        && oldCompiler->project() == project() && oldCompiler->source() == uiFile
-                       && oldCompiler->targets() == Utils::FilePaths{generated};
+                       && oldCompiler->targets() == FilePaths{generated};
             });
             if (index < 0) {
                 m_extraCompilers << new PySideUicExtraCompiler(m_pySideUicPath,
@@ -335,5 +336,4 @@ PythonOutputFormatterFactory::PythonOutputFormatterFactory()
     });
 }
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

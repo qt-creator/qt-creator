@@ -25,9 +25,7 @@
 
 #include "pipsupport.h"
 
-#include "pythonproject.h"
-#include "pythonrunconfiguration.h"
-#include "pythonsettings.h"
+#include "pythontr.h"
 
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -42,10 +40,9 @@
 
 using namespace Utils;
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
-static constexpr char pipInstallTaskId[] = "Python::pipInstallTask";
+const char pipInstallTaskId[] = "Python::pipInstallTask";
 
 PipInstallTask::PipInstallTask(const FilePath &python)
     : m_python(python)
@@ -69,7 +66,7 @@ void PipInstallTask::run()
         emit finished(false);
         return;
     }
-    const QString taskTitle = tr("Install %1").arg(m_package.displayName);
+    const QString taskTitle = Tr::tr("Install %1").arg(m_package.displayName);
     Core::ProgressManager::addTask(m_future.future(), taskTitle, pipInstallTaskId);
     QString package = m_package.packageName;
     if (!m_package.version.isEmpty())
@@ -84,7 +81,7 @@ void PipInstallTask::run()
     m_process.start();
 
     Core::MessageManager::writeDisrupting(
-        tr("Running \"%1\" to install %2.")
+        Tr::tr("Running \"%1\" to install %2.")
             .arg(m_process.commandLine().toUserOutput(), m_package.displayName));
 
     m_killTimer.setSingleShot(true);
@@ -96,8 +93,8 @@ void PipInstallTask::cancel()
     m_process.stop();
     m_process.waitForFinished();
     Core::MessageManager::writeFlashing(
-        tr("The %1 installation was canceled by %2.")
-            .arg(m_package.displayName, m_killTimer.isActive() ? tr("user") : tr("time out")));
+        Tr::tr("The %1 installation was canceled by %2.")
+            .arg(m_package.displayName, m_killTimer.isActive() ? Tr::tr("user") : Tr::tr("time out")));
 }
 
 void PipInstallTask::handleDone()
@@ -105,7 +102,7 @@ void PipInstallTask::handleDone()
     m_future.reportFinished();
     const bool success = m_process.result() == ProcessResult::FinishedWithSuccess;
     if (!success) {
-        Core::MessageManager::writeFlashing(tr("Installing the %1 failed with exit code %2")
+        Core::MessageManager::writeFlashing(Tr::tr("Installing the %1 failed with exit code %2")
                 .arg(m_package.displayName).arg(m_process.exitCode()));
     }
     emit finished(success);
@@ -187,5 +184,4 @@ void PipPackageInfo::parseField(const QString &field, const QStringList &data)
     }
 }
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

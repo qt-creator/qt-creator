@@ -29,8 +29,7 @@
 
 #include <QString>
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 /**
  * @brief The Scanner class - scans source code for highlighting only
@@ -95,5 +94,4 @@ private:
     int m_state;
 };
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

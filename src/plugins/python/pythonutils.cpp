@@ -26,8 +26,8 @@
 #include "pythonutils.h"
 
 #include "pythonproject.h"
-#include "pythonrunconfiguration.h"
 #include "pythonsettings.h"
+#include "pythontr.h"
 
 #include <coreplugin/messagemanager.h>
 
@@ -42,8 +42,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 FilePath detectPython(const FilePath &documentPath)
 {
@@ -131,7 +130,7 @@ void openPythonRepl(QObject *parent, const FilePath &file, ReplType type)
     const QString commandLine = process->commandLine().toUserOutput();
     QObject::connect(process, &QtcProcess::done, process, [process, commandLine] {
         if (process->error() != QProcess::UnknownError) {
-            Core::MessageManager::writeDisrupting(QCoreApplication::translate("Python",
+            Core::MessageManager::writeDisrupting(Tr::tr(
                   (process->error() == QProcess::FailedToStart)
                       ? "Failed to run Python (%1): \"%2\"."
                       : "Error while running Python (%1): \"%2\".")
@@ -172,5 +171,4 @@ PythonProject *pythonProjectForFile(const FilePath &pythonFile)
     return nullptr;
 }
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

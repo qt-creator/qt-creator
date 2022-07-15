@@ -31,6 +31,7 @@
 #include "pythonindenter.h"
 #include "pythonlanguageclient.h"
 #include "pythonsettings.h"
+#include "pythontr.h"
 #include "pythonutils.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -42,33 +43,31 @@
 #include <QAction>
 #include <QMenu>
 
-namespace Python {
-namespace Internal {
+using namespace Utils;
+
+namespace Python::Internal {
 
 static QAction *createAction(QObject *parent, ReplType type)
 {
     QAction *action = new QAction(parent);
     switch (type) {
     case ReplType::Unmodified:
-        action->setText(QCoreApplication::translate("Python", "REPL"));
-        action->setToolTip(QCoreApplication::translate("Python", "Open interactive Python."));
+        action->setText(Tr::tr("REPL"));
+        action->setToolTip(Tr::tr("Open interactive Python."));
         break;
     case ReplType::Import:
-        action->setText(QCoreApplication::translate("Python", "REPL Import File"));
-        action->setToolTip(
-            QCoreApplication::translate("Python", "Open interactive Python and import file."));
+        action->setText(Tr::tr("REPL Import File"));
+        action->setToolTip(Tr::tr("Open interactive Python and import file."));
         break;
     case ReplType::ImportToplevel:
-        action->setText(QCoreApplication::translate("Python", "REPL Import *"));
-        action->setToolTip(
-            QCoreApplication::translate("Python",
-                                        "Open interactive Python and import * from file."));
+        action->setText(Tr::tr("REPL Import *"));
+        action->setToolTip(Tr::tr("Open interactive Python and import * from file."));
         break;
     }
 
     QObject::connect(action, &QAction::triggered, parent, [type, parent] {
         Core::IDocument *doc = Core::EditorManager::currentDocument();
-        openPythonRepl(parent, doc ? doc->filePath() : Utils::FilePath(), type);
+        openPythonRepl(parent, doc ? doc->filePath() : FilePath(), type);
     });
     return action;
 }
@@ -88,12 +87,10 @@ static QWidget *createEditorWidget()
     auto widget = new TextEditor::TextEditorWidget;
     auto replButton = new QToolButton(widget);
     replButton->setProperty("noArrow", true);
-    replButton->setText(QCoreApplication::translate("Python", "REPL"));
+    replButton->setText(Tr::tr("REPL"));
     replButton->setPopupMode(QToolButton::InstantPopup);
-    replButton->setToolTip(QCoreApplication::translate(
-        "Python",
-        "Open interactive Python. Either importing nothing, importing the current file, or "
-        "importing everything (*) from the current file."));
+    replButton->setToolTip(Tr::tr("Open interactive Python. Either importing nothing, "
+          "importing the current file, or importing everything (*) from the current file."));
     auto menu = new QMenu(replButton);
     replButton->setMenu(menu);
     menu->addAction(Core::ActionManager::command(Constants::PYTHON_OPEN_REPL)->action());
@@ -116,17 +113,17 @@ public:
                 [this](const bool enabled) {
                     if (!enabled)
                         return;
-                    const Utils::FilePath &python = detectPython(filePath());
+                    const FilePath &python = detectPython(filePath());
                     if (python.exists())
                         PyLSConfigureAssistant::openDocumentWithPython(python, this);
                 });
     }
 
-    void setFilePath(const Utils::FilePath &filePath) override
+    void setFilePath(const FilePath &filePath) override
     {
         TextEditor::TextDocument::setFilePath(filePath);
 
-        const Utils::FilePath &python = detectPython(filePath);
+        const FilePath &python = detectPython(filePath);
         if (!python.exists())
             return;
 
@@ -153,10 +150,9 @@ PythonEditorFactory::PythonEditorFactory()
     setEditorWidgetCreator(createEditorWidget);
     setIndenterCreator([](QTextDocument *doc) { return new PythonIndenter(doc); });
     setSyntaxHighlighterCreator([] { return new PythonHighlighter; });
-    setCommentDefinition(Utils::CommentDefinition::HashStyle);
+    setCommentDefinition(CommentDefinition::HashStyle);
     setParenthesesMatchingEnabled(true);
     setCodeFoldingSupported(true);
 }
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

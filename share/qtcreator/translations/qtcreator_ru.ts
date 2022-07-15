@@ -36644,7 +36644,7 @@ App ID: %2
     </message>
 </context>
 <context>
-    <name>Python::Internal::InterpreterAspect</name>
+    <name>Python</name>
     <message>
         <source>Manage...</source>
         <translation>Управление...</translation>
@@ -36655,7 +36655,7 @@ App ID: %2
     </message>
 </context>
 <context>
-    <name>Python::Internal::PyLSConfigureAssistant</name>
+    <name>Python</name>
     <message>
         <source>Python Language Server (%1)</source>
         <translation>Сервер языка Python (%1)</translation>
@@ -36686,7 +36686,7 @@ App ID: %2
     </message>
 </context>
 <context>
-    <name>Python::Internal::PythonLSInstallHelper</name>
+    <name>Python</name>
     <message>
         <source>Running &quot;%1 %2&quot; to install Python language server</source>
         <translation>Выполнение «%1 %2» для установки сервера языка Python</translation>
@@ -36709,7 +36709,7 @@ App ID: %2
     </message>
 </context>
 <context>
-    <name>Python::Internal::PythonProject</name>
+    <name>Python</name>
     <message>
         <source>Unable to open &quot;%1&quot; for reading: %2</source>
         <translation>Не удалось открыть «%1» для чтения: %2</translation>
@@ -36724,7 +36724,7 @@ App ID: %2
     </message>
 </context>
 <context>
-    <name>Python::Internal::PythonRunConfiguration</name>
+    <name>Python</name>
     <message>
         <source>Buffered output</source>
         <translation>Буферизованный вывод</translation>
@@ -36743,7 +36743,7 @@ App ID: %2
     </message>
 </context>
 <context>
-    <name>Python::Internal::PythonSettings</name>
+    <name>Python</name>
     <message>
         <source>Name:</source>
         <translation>Имя:</translation>

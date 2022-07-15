@@ -27,8 +27,7 @@
 
 #include <projectexplorer/project.h>
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 const char PythonMimeType[] = "text/x-python-project"; // ### FIXME
 const char PythonProjectId[] = "PythonProject";
@@ -41,9 +40,9 @@ public:
     explicit PythonProject(const Utils::FilePath &filename);
 
     bool needsConfiguration() const final { return false; }
+
 private:
     RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
 };
 
-} // namespace Internal
-} // namespace Python
+} // Python::Internal

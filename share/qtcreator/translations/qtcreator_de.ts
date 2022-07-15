@@ -48588,7 +48588,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Python::Internal::PythonProject</name>
+    <name>Python</name>
     <message>
         <source>Unable to open &quot;%1&quot; for reading: %2</source>
         <translation>&quot;%1&quot; konnte nicht zum Lesen geöffnet werden: %2</translation>
@@ -48603,7 +48603,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Python::Internal::InterpreterAspect</name>
+    <name>Python</name>
     <message>
         <source>Manage...</source>
         <translation>Verwalten...</translation>
@@ -48614,7 +48614,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Python::Internal::PythonRunConfiguration</name>
+    <name>Python</name>
     <message>
         <source>Script:</source>
         <translation>Skript:</translation>
@@ -48625,7 +48625,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Python::Internal::PythonSettings</name>
+    <name>Python</name>
     <message>
         <source>Name:</source>
         <translation>Name:</translation>
@@ -48656,7 +48656,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Python::Internal::PyLSConfigureAssistant</name>
+    <name>Python</name>
     <message>
         <source>Install</source>
         <translation>Installieren</translation>
