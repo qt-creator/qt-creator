@@ -37,12 +37,18 @@ T.Popup {
 
     property alias gradientLine: gradientLine
     property alias popupHexTextField: popupHexTextField
-    property alias gradientPropertyName: cePopup.gradientLine.gradientPropertyName
+    property alias gradientPropertyName: cePopup.gradientModel.gradientPropertyName
     property alias gradientOrientation: gradientOrientation
 
     property alias gradientModel: gradientModel
 
     property bool isInValidState: false
+
+    function commitGradientColor() {
+        var hexColor = convertColorToString(colorEditor.color)
+        cePopup.popupHexTextField.text = hexColor
+        cePopup.gradientLine.currentColor = colorEditor.color
+    }
 
     function isNotInGradientMode() {
         return ceMode.currentValue === "Solid"
@@ -123,7 +129,7 @@ T.Popup {
                     === Gradient.Horizontal ? "Gradient.Horizontal" : "Gradient.Vertical"
             gradientString += "orientation: " + orientation + ";"
 
-            for (var i = 0; i < cePopup.gradientLine.model.count; i++)
+            for (var i = 0; i < gradientModel.count; i++)
                 gradientString += "GradientStop {}"
 
             gradientString += "}"
@@ -132,10 +138,10 @@ T.Popup {
                         gradientString, colorEditor.gradientThumbnail,
                         "dynamicGradient")
 
-            for (i = 0; i < cePopup.gradientLine.model.count; i++) {
-                gradientObject.stops[i].color = cePopup.gradientLine.model.getColor(
+            for (i = 0; i < gradientModel.count; i++) {
+                gradientObject.stops[i].color = gradientModel.getColor(
                             i)
-                gradientObject.stops[i].position = cePopup.gradientLine.model.getPosition(
+                gradientObject.stops[i].position = gradientModel.getPosition(
                             i)
             }
 
@@ -166,10 +172,10 @@ T.Popup {
                         gradientStr, colorEditor.shapeGradientThumbnail,
                         "dynamicShapeGradient")
 
-            for (j = 0; j < cePopup.gradientLine.model.count; j++) {
-                gradientObj.stops[j].color = cePopup.gradientLine.model.getColor(
+            for (j = 0; j < gradientModel.count; j++) {
+                gradientObj.stops[j].color = gradientModel.getColor(
                             j)
-                gradientObj.stops[j].position = cePopup.gradientLine.model.getPosition(
+                gradientObj.stops[j].position = gradientModel.getPosition(
                             j)
             }
 
