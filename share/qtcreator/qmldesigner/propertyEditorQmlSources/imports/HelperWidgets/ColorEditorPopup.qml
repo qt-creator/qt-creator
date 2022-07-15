@@ -40,6 +40,10 @@ T.Popup {
     property alias gradientPropertyName: cePopup.gradientLine.gradientPropertyName
     property alias gradientOrientation: gradientOrientation
 
+    property alias gradientModel: gradientModel
+
+    property bool isInValidState: false
+
     function isNotInGradientMode() {
         return ceMode.currentValue === "Solid"
     }
@@ -60,29 +64,29 @@ T.Popup {
         // Build the color editor combobox model
         ceMode.items.clear()
         ceMode.items.append({
-            value: "Solid",
-            text: qsTr("Solid"),
-            enabled: true
-        })
+                                value: "Solid",
+                                text: qsTr("Solid"),
+                                enabled: true
+                            })
         ceMode.items.append({
-            value: "LinearGradient",
-            text: qsTr("Linear"),
-            enabled: colorEditor.supportGradient
-        })
+                                value: "LinearGradient",
+                                text: qsTr("Linear"),
+                                enabled: colorEditor.supportGradient
+                            })
         ceMode.items.append({
-            value: "RadialGradient",
-            text: qsTr("Radial"),
-            enabled: colorEditor.supportGradient && colorEditor.shapeGradients
-        })
+                                value: "RadialGradient",
+                                text: qsTr("Radial"),
+                                enabled: colorEditor.supportGradient && colorEditor.shapeGradients
+                            })
         ceMode.items.append({
-            value: "ConicalGradient",
-            text: qsTr("Conical"),
-            enabled: colorEditor.supportGradient && colorEditor.shapeGradients
-        })
+                                value: "ConicalGradient",
+                                text: qsTr("Conical"),
+                                enabled: colorEditor.supportGradient && colorEditor.shapeGradients
+                            })
     }
 
     function determineActiveColorMode() {
-        if (colorEditor.supportGradient && gradientLine.hasGradient) {
+        if (colorEditor.supportGradient && gradientModel.hasGradient) {
             if (colorEditor.shapeGradients) {
                 switch (gradientModel.gradientTypeName) {
                 case "LinearGradient":
@@ -110,7 +114,7 @@ T.Popup {
     }
 
     function updateThumbnail() {
-        if (!cePopup.gradientLine.hasGradient)
+        if (!gradientModel.hasGradient)
             return
 
         if (!colorEditor.shapeGradients) {
@@ -288,7 +292,7 @@ T.Popup {
                             else
                                 gradientModel.gradientTypeName = "Gradient"
 
-                            if (gradientLine.hasGradient)
+                            if (gradientModel.hasGradient)
                                 gradientLine.updateGradient()
                             else {
                                 gradientLine.deleteGradient()
@@ -310,7 +314,7 @@ T.Popup {
                             colorEditor.resetShapeColor()
                             gradientModel.gradientTypeName = "ConicalGradient"
 
-                            if (gradientLine.hasGradient)
+                            if (gradientModel.hasGradient)
                                 gradientLine.updateGradient()
                             else {
                                 gradientLine.deleteGradient()
@@ -358,7 +362,7 @@ T.Popup {
                         visible: false
 
                         function applyPreset() {
-                            if (!gradientLine.hasGradient) {
+                            if (!gradientModel.hasGradient) {
                                 if (colorEditor.shapeGradients)
                                     gradientModel.gradientTypeName = "LinearGradient"
                                 else
@@ -420,14 +424,14 @@ T.Popup {
 
             GradientLine {
                 id: gradientLine
-                property bool isInValidState: false
+
                 width: parent.width
                 visible: !cePopup.isNotInGradientMode()
 
                 model: gradientModel
 
                 onCurrentColorChanged: {
-                    if (colorEditor.supportGradient && gradientLine.hasGradient) {
+                    if (colorEditor.supportGradient && gradientModel.hasGradient) {
                         colorEditor.color = gradientLine.currentColor
                         colorPicker.color = colorEditor.color
                     }
@@ -441,7 +445,7 @@ T.Popup {
                 }
 
                 onSelectedNodeChanged: {
-                    if (colorEditor.supportGradient && gradientLine.hasGradient)
+                    if (colorEditor.supportGradient && gradientModel.hasGradient)
                         colorEditor.originalColor = gradientLine.currentColor
                 }
 
@@ -451,7 +455,7 @@ T.Popup {
                     target: modelNodeBackend
                     function onSelectionToBeChanged() {
                         colorEditorTimer.stop()
-                        gradientLine.isInValidState = false
+                        cePopup.isInValidState = false
 
                         var hexOriginalColor = convertColorToString(colorEditor.originalColor)
                         var hexColor = convertColorToString(colorEditor.color)
@@ -469,14 +473,14 @@ T.Popup {
                 Connections {
                     target: modelNodeBackend
                     function onSelectionChanged() {
-                        if (colorEditor.supportGradient && gradientLine.hasGradient) {
+                        if (colorEditor.supportGradient && gradientModel.hasGradient) {
                             colorEditor.color = gradientLine.currentColor
                             gradientLine.currentColor = colorEditor.color
                             hexTextField.text = colorEditor.color
                             popupHexTextField.text = colorEditor.color
                         }
 
-                        gradientLine.isInValidState = true
+                        cePopup.isInValidState = true
                         colorEditor.originalColor = colorEditor.color
                         colorPalette.selectedColor = colorEditor.color
                         colorPicker.color = colorEditor.color
@@ -1149,8 +1153,10 @@ T.Popup {
                     }
                 }
             }
+
+
         }
-    }
+    } //content
 
     background: Rectangle {
         color: StudioTheme.Values.themeControlBackground

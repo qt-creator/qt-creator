@@ -103,19 +103,20 @@ SecondColumnLayout {
     }
 
     onColorChanged: {
-        if (!cePopup.gradientLine.isInValidState)
+        if (!cePopup.isInValidState)
             return
 
-        if (colorEditor.supportGradient && cePopup.gradientLine.hasGradient) {
+        if (colorEditor.supportGradient && cePopup.gradientModel.hasGradient) {
             var hexColor = convertColorToString(colorEditor.color)
             hexTextField.text = hexColor
             cePopup.popupHexTextField.text = hexColor
             cePopup.gradientLine.currentColor = colorEditor.color
         }
 
+        // Delay setting the color to keep ui responsive
         if (cePopup.isNotInGradientMode())
             colorEditorTimer.restart(
-                        ) // Delay setting the color to keep ui responsive
+                        )
     }
 
     Spacer {
