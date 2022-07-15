@@ -12638,748 +12638,6 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>Madde::Internal::AbstractMaemoDeployByMountService</name>
-    <message>
-        <source>Missing target.</source>
-        <translation type="vanished">Відсутня ціль.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoInstallPackageToSysrootStep</name>
-    <message>
-        <source>Cannot install package to sysroot without packaging step.</source>
-        <translation type="vanished">Неможливо встановити пакунок до sysroot без кроку пакування.</translation>
-    </message>
-    <message>
-        <source>Cannot install package to sysroot without a Qt version.</source>
-        <translation type="vanished">Неможливо встановити пакунок до sysroot без версії Qt.</translation>
-    </message>
-    <message>
-        <source>Installing package to sysroot...</source>
-        <translation type="vanished">Встановлення пакунка до sysroot...</translation>
-    </message>
-    <message>
-        <source>Installation to sysroot failed, continuing anyway.</source>
-        <translation type="vanished">Збій встановлення до sysroot, все одно продовжуємо.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoInstallPackageToSysrootWidget</name>
-    <message>
-        <source>Cannot deploy to sysroot: No packaging step found.</source>
-        <translation type="vanished">Неможливо розгорнути до sysroot: Немає кроку пакування.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoPackageCreationStep</name>
-    <message>
-        <source>Package up to date.</source>
-        <translation type="vanished">Пакунок актуальний.</translation>
-    </message>
-    <message>
-        <source>Package created.</source>
-        <translation type="vanished">Пакунок створено.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: No Qt version.</source>
-        <translation type="vanished">Збій пакування: Немає версії Qt.</translation>
-    </message>
-    <message>
-        <source>No Qt build configuration</source>
-        <translation type="vanished">Немає конфігурації збірки Qt</translation>
-    </message>
-    <message>
-        <source>Creating package file...</source>
-        <translation type="vanished">Створення файлу пакунка...</translation>
-    </message>
-    <message>
-        <source>Package Creation: Running command &apos;%1&apos;.</source>
-        <translation type="vanished">Створення пакунка: Виконання команди &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not start command &apos;%1&apos;. Reason: %2</source>
-        <translation type="vanished">Збій пакування: Не вдалось запустити команду &apos;%1&apos;. Причина: %2</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1&apos; failed.</source>
-        <translation type="vanished">Помилка пакування: Збій команди &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source> Reason: %1</source>
-        <translation type="vanished"> Причина: %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation type="vanished">Код завершення: %1</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaddeDeviceTester</name>
-    <message>
-        <source>Checking for Qt libraries...</source>
-        <translation type="vanished">Перевірка бібліотек Qt...</translation>
-    </message>
-    <message>
-        <source>SSH connection error: %1
-</source>
-        <translation type="vanished">Помилка з&apos;єднання SSH: %1
-</translation>
-    </message>
-    <message>
-        <source>Error checking for Qt libraries: %1
-</source>
-        <translation type="vanished">Помилка перевірки бібліотек Qt: %1</translation>
-    </message>
-    <message>
-        <source>Error checking for Qt libraries.
-</source>
-        <translation type="vanished">Помилка перевірки бібліотек Qt.</translation>
-    </message>
-    <message>
-        <source>Checking for connectivity support...</source>
-        <translation type="vanished">Перевірка підтримки connectivity...</translation>
-    </message>
-    <message>
-        <source>Error checking for connectivity tool: %1
-</source>
-        <translation type="vanished">Помилка перевірки засобу connectivity: %1</translation>
-    </message>
-    <message>
-        <source>Error checking for connectivity tool.
-</source>
-        <translation type="vanished">Помилка перевірки засобу connectivity.</translation>
-    </message>
-    <message>
-        <source>Connectivity tool not installed on device. Deployment currently not possible.</source>
-        <translation type="vanished">На пристрої не встановлено засіб connectivity. Розгортання наразі неможливе.</translation>
-    </message>
-    <message>
-        <source>Please switch the device to developer mode via Settings -&gt; Security.</source>
-        <translation type="vanished">Будь ласка, переключіть пристрій в режим розробника в Settings -&gt; Security.</translation>
-    </message>
-    <message>
-        <source>Connectivity tool present.
-</source>
-        <translation type="vanished">Засіб connectivity присутній.
-</translation>
-    </message>
-    <message>
-        <source>Checking for QML tooling support...</source>
-        <translation type="vanished">Перевірка підтримки інструментарію QML...</translation>
-    </message>
-    <message>
-        <source>Error checking for QML tooling support: %1
-</source>
-        <translation type="vanished">Помилка перевірки інструментарію QML: %1</translation>
-    </message>
-    <message>
-        <source>Error checking for QML tooling support.
-</source>
-        <translation type="vanished">Помилка перевірки інструментарію QML.</translation>
-    </message>
-    <message>
-        <source>Missing directory &apos;%1&apos;. You will not be able to do QML debugging on this device.
-</source>
-        <translation type="vanished">Відсутня тека &apos;%1&apos;. Ви не зможете здійснювати зневадження QML на цьому пристрої.
-</translation>
-    </message>
-    <message>
-        <source>QML tooling support present.
-</source>
-        <translation type="vanished">Підтримка інструментарію QML присутня.
-</translation>
-    </message>
-    <message>
-        <source>No Qt packages installed.</source>
-        <translation type="vanished">Пакунки Qt не встановлено.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoCopyFilesViaMountStep</name>
-    <message>
-        <source>Deploy files via UTFS mount</source>
-        <translation type="vanished">Розгорнути файли через монтування UTFS</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoCopyToSysrootStep</name>
-    <message>
-        <source>Cannot copy to sysroot without build configuration.</source>
-        <translation type="vanished">Неможливо скопіювати до sysroot без конфігурації збірки.</translation>
-    </message>
-    <message>
-        <source>Cannot copy to sysroot without valid Qt version.</source>
-        <translation type="vanished">Неможливо скопіювати до sysroot без правильної версії Qt.</translation>
-    </message>
-    <message>
-        <source>Copying files to sysroot...</source>
-        <translation type="vanished">Копіювання файлів до sysroot...</translation>
-    </message>
-    <message>
-        <source>Sysroot installation failed: %1
- Continuing anyway.</source>
-        <translation type="vanished">Збій встановлення до sysroot: %1
- Все одно продовжуємо.</translation>
-    </message>
-    <message>
-        <source>Copy files to sysroot</source>
-        <translation type="vanished">Копіювати файли до sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDebianPackageCreationStep</name>
-    <message>
-        <source>Create Debian Package</source>
-        <translation type="vanished">Створити пакунок Debian</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not get package name.</source>
-        <translation type="vanished">Збій пакування: не вдалось отримати назву пакунка.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not move package files from &apos;%1&apos; to &apos;%2&apos;.</source>
-        <translation type="vanished">Збій пакування: Не вдалось перенести файли з &apos;%1&apos; до &apos;%2&apos;.</translation>
-    </message>
-    <message>
-        <source>Your project name contains characters not allowed in Debian packages.
-They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
-We will try to work around that, but you may experience problems.</source>
-        <translation type="vanished">Назва вашого проекту містить символи, що не дозволені для пакунків Debian.
-Дозволяються лише літери в нижньому регістрі, цифри, &apos;-&apos;, &apos;+&apos; та &apos;.&apos;
-Ми спробуємо обійти це, однак ви можете зіткнутись з проблемами.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Foreign debian directory detected. You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
-        <translation type="vanished">Збій пакування: знайдено сторонню теку debian. Ви не використовуєте тіньову збірка, а в корені вашого проекту присутня тека debian (&apos;%1&apos;). Qt Creator не буде перезаписувати цю теку. Будь ласка, видаліть її або використайте тіньову збірку.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not remove directory &apos;%1&apos;: %2</source>
-        <translation type="vanished">Збій пакування: Не вдалось видалити теку &apos;%1&apos;: %2</translation>
-    </message>
-    <message>
-        <source>Could not create Debian directory &apos;%1&apos;.</source>
-        <translation type="vanished">Не вдалось створити теку Debian &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Could not read manifest file &apos;%1&apos;: %2.</source>
-        <translation type="vanished">Не вдалось прочитати файл маніфесту &apos;%1&apos;: %2.</translation>
-    </message>
-    <message>
-        <source>Could not write manifest file &apos;%1&apos;: %2.</source>
-        <translation type="vanished">Не вдалось записати файл маніфесту &apos;%1&apos;: %2.</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;.</source>
-        <translation type="vanished">Не вдалось скопіювати файл &apos;%1&apos; до &apos;%2&apos;.</translation>
-    </message>
-    <message>
-        <source>Error: Could not create file &apos;%1&apos;.</source>
-        <translation type="vanished">Помилка: не вдалось створити файл &apos;%1&apos;.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDebianPackageInstaller</name>
-    <message>
-        <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
-        <translation type="vanished">Збій встановлення: Ви намагались встановити пакунок нижчої версії, що не дозволено.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeploymentMounter</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="vanished">Збій з&apos;єднання: %1</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizard</name>
-    <message>
-        <source>New Device Configuration Setup</source>
-        <translation type="vanished">Налаштування нової конфігурації пристрою</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardFinalPage</name>
-    <message>
-        <source>The new device configuration will now be created.</source>
-        <translation type="vanished">Зараз буде створено нову конфігурацію пристрою.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
-    <message>
-        <source>Key Creation</source>
-        <translation type="vanished">Створення ключа</translation>
-    </message>
-    <message>
-        <source>Cannot Create Keys</source>
-        <translation type="vanished">Неможливо створити ключі</translation>
-    </message>
-    <message>
-        <source>The path you have entered is not a directory.</source>
-        <translation type="vanished">Шлях, що ви ввели, не є текою.</translation>
-    </message>
-    <message>
-        <source>The directory you have entered does not exist and cannot be created.</source>
-        <translation type="vanished">Шлях, що ви ввели, не існує і не може бути створений.</translation>
-    </message>
-    <message>
-        <source>Creating keys...</source>
-        <translation type="vanished">Створення ключів...</translation>
-    </message>
-    <message>
-        <source>Key creation failed: %1</source>
-        <translation type="vanished">Збій створення ключа: %1</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation type="vanished">Готово.</translation>
-    </message>
-    <message>
-        <source>Could Not Save Key File</source>
-        <translation type="vanished">Не вдалось зберегти файл ключа</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Сторінка майстра</translation>
-    </message>
-    <message>
-        <source>Qt Creator will now generate a new pair of keys. Please enter the directory to save the key files in and then press &quot;Create Keys&quot;.</source>
-        <translation type="vanished">Qt Creator зараз згенерую пару нових ключів. Будь ласка, введіть теку для збереження файлів ключів, а потім натисніть &quot;Створити ключі&quot;.</translation>
-    </message>
-    <message>
-        <source>Directory:</source>
-        <translation type="vanished">Тека:</translation>
-    </message>
-    <message>
-        <source>Create Keys</source>
-        <translation type="vanished">Створити ключі</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
-    <message>
-        <source>Key Deployment</source>
-        <translation type="vanished">Розгортання ключа</translation>
-    </message>
-    <message>
-        <source>Deploying...</source>
-        <translation type="vanished">Розгортання...</translation>
-    </message>
-    <message>
-        <source>Key Deployment Failure</source>
-        <translation type="vanished">Збій розгортання ключа</translation>
-    </message>
-    <message>
-        <source>Key Deployment Success</source>
-        <translation type="vanished">Ключ успішно розгорнуто</translation>
-    </message>
-    <message>
-        <source>The key was successfully deployed. You may now close the &quot;%1&quot; application and continue.</source>
-        <translation type="vanished">Ключ було успішно розгорнуто. Ви зараз можете закрити програму &quot;%1&quot; та продовжувати.</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation type="vanished">Готово.</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Сторінка майстра</translation>
-    </message>
-    <message>
-        <source>To deploy the public key to your device, please execute the following steps:
-&lt;ul&gt;
-&lt;li&gt;Connect the device to your computer (unless you plan to connect via WLAN).&lt;/li&gt;
-&lt;li&gt;On the device, start the &quot;%%%maddev%%%&quot; application.&lt;/li&gt;
-&lt;li&gt;In &quot;%%%maddev%%%&quot;, configure the device&apos;s IP address to the one shown below (or edit the field below to match the address you have configured).&lt;/li&gt;
-&lt;li&gt;In &quot;%%%maddev%%%&quot;, press &quot;Developer Password&quot; and enter it in the field below.&lt;/li&gt;
-&lt;li&gt;Click &quot;Deploy Key&quot;&lt;/li&gt;
-</source>
-        <translation type="vanished">Будь ласка, виконайте наступні кроки, щоб розгорнути публічний ключ на ваш пристрій:
-&lt;ul&gt;
-&lt;li&gt;Підключіть пристрій до вашого комп&apos;ютера (якщо ви не плануєте підключатись через WLAN).&lt;/li&gt;
-&lt;li&gt;На пристрої запустіть програму &quot;%%%maddev%%%&quot;.&lt;/li&gt;
-&lt;li&gt;В &quot;%%%maddev%%%&quot;, встановіть IP-адресу пристрою на вказану нижче (або відредагуйте поле нижче, щоб адреси збігались).&lt;/li&gt;
-&lt;li&gt;В &quot;%%%maddev%%%&quot;, натисніть &quot;Developer Password&quot; та введіть його до поля нижче.&lt;/li&gt;
-&lt;li&gt;Натисніть &quot;Розгорнути ключ&quot;&lt;/li&gt;
-</translation>
-    </message>
-    <message>
-        <source>Device address:</source>
-        <translation type="vanished">Адреса пристрою:</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation type="vanished">Пароль:</translation>
-    </message>
-    <message>
-        <source>Deploy Key</source>
-        <translation type="vanished">Розгорнути ключ</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
-    <message>
-        <source>Device Status Check</source>
-        <translation type="vanished">Перевірка стану пристрою</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
-    <message>
-        <source>Existing Keys Check</source>
-        <translation type="vanished">Перевірка існуючих ключів</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Сторінка майстра</translation>
-    </message>
-    <message>
-        <source>Do you want to re-use an existing pair of keys or should a new one be created?</source>
-        <translation type="vanished">Бажаєте використати існуючу пару ключів чи створити нову?</translation>
-    </message>
-    <message>
-        <source>Re-use existing keys</source>
-        <translation type="vanished">Використати існуючі ключі</translation>
-    </message>
-    <message>
-        <source>File containing the public key:</source>
-        <translation type="vanished">Файл, що містить публічний ключ:</translation>
-    </message>
-    <message>
-        <source>File containing the private key:</source>
-        <translation type="vanished">Файл, що містить приватний ключ:</translation>
-    </message>
-    <message>
-        <source>Create new keys</source>
-        <translation type="vanished">Створити нові ключі</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoMountAndCopyFilesService</name>
-    <message>
-        <source>All files copied.</source>
-        <translation type="vanished">Всі файли скопійовано.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoMountAndInstallPackageService</name>
-    <message>
-        <source>Package installed.</source>
-        <translation type="vanished">Пакунок встановлено.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
-        <translation type="vanished">Публікація до сховища &quot;Extras-devel/free&quot; для Fremantle</translation>
-    </message>
-    <message>
-        <source>Upload options</source>
-        <translation type="vanished">Опції завантаження</translation>
-    </message>
-    <message>
-        <source>Choose a Private Key File</source>
-        <translation type="vanished">Оберіть файл приватного ключа</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation type="vanished">Сторінка майстра</translation>
-    </message>
-    <message>
-        <source>Upload Settings</source>
-        <translation type="vanished">Налаштування завантаження</translation>
-    </message>
-    <message>
-        <source>Garage account name:</source>
-        <translation type="vanished">Назва облікового запису Garage:</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Get an account&lt;/a&gt;</source>
-        <translation type="vanished">&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Отримати обліковий запис&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;https://garage.maemo.org/extras-assistant/index.php&quot;&gt;Request upload rights&lt;/a&gt;</source>
-        <translation type="vanished">&lt;a href=&quot;https://garage.maemo.org/extras-assistant/index.php&quot;&gt;Запит прав на завантаження&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation type="vanished">Файл приватного ключа:</translation>
-    </message>
-    <message>
-        <source>Server address:</source>
-        <translation type="vanished">Адреса сервера:</translation>
-    </message>
-    <message>
-        <source>Target directory on server:</source>
-        <translation type="vanished">Цільова тека на сервері:</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
-    <message>
-        <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
-        <translation type="vanished">Публікація до сховища &quot;Fremantle Extras-devel free&quot;</translation>
-    </message>
-    <message>
-        <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
-        <translation type="vanished">Цей майстер створить архів з кодом та відправить його (факультативно) на сервер збірки, де проект буде скомпільовано, запаковано та перенесено до сховища  &quot;Extras-devel free&quot;. Користувачі зможуть встановити його звідти на свої пристрої N900. Для завантаження необхідний обліковий запис на garage.maemo.org.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingWizardFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
-        <translation type="vanished">Публікація до сховища &quot;Extras-devel/free&quot; для Fremantle</translation>
-    </message>
-    <message>
-        <source>Build Settings</source>
-        <translation type="vanished">Налаштування збірки</translation>
-    </message>
-    <message>
-        <source>Upload Settings</source>
-        <translation type="vanished">Налаштування завантаження</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation type="vanished">Результат</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuCrashDialog</name>
-    <message>
-        <source>Qemu error</source>
-        <translation type="vanished">Помилка Qemu</translation>
-    </message>
-    <message>
-        <source>Qemu crashed.</source>
-        <translation type="vanished">Qemu завершився аварійно.</translation>
-    </message>
-    <message>
-        <source>Click here to change the OpenGL mode.</source>
-        <translation type="vanished">Клацніть тут, щоб змінити режим OpenGL.</translation>
-    </message>
-    <message>
-        <source>You have configured Qemu to use OpenGL hardware acceleration, which might not be supported by your system. You could try using software rendering instead.</source>
-        <translation type="vanished">Ви налаштували Qemu використовувати апаратне прискорення OpenGL, що може не підтримуватись вашою системою. Ви можете спробувати використати програмне відтворення.</translation>
-    </message>
-    <message>
-        <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
-        <translation type="vanished">Ви налаштували Qemu на автоматичне визначення режиму OpenGL, що може не спрацьовувати в деяких випадках. Ви можете спробувати використати програмне відтворення.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuManager</name>
-    <message>
-        <source>MeeGo Emulator</source>
-        <translation type="vanished">Емулятор MeeGo</translation>
-    </message>
-    <message>
-        <source>Start MeeGo Emulator</source>
-        <translation type="vanished">Запустити емулятор MeeGo</translation>
-    </message>
-    <message>
-        <source>Qemu has been shut down, because you removed the corresponding Qt version.</source>
-        <translation type="vanished">Qemu був завершений, оскільки ви видалили відповідну версію Qt.</translation>
-    </message>
-    <message>
-        <source>Qemu finished with error: Exit code was %1.</source>
-        <translation type="vanished">Qemu завершився з помилкою: код завершення %1.</translation>
-    </message>
-    <message>
-        <source>Qemu error</source>
-        <translation type="vanished">Помилка Qemu</translation>
-    </message>
-    <message>
-        <source>Qemu failed to start: %1</source>
-        <translation type="vanished">Збій запуску Qemu: %1</translation>
-    </message>
-    <message>
-        <source>Stop MeeGo Emulator</source>
-        <translation type="vanished">Зупинити емулятор MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuSettingsPage</name>
-    <message>
-        <source>MeeGo Qemu Settings</source>
-        <translation type="vanished">Налаштування Qemu для MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRemoteCopyFacility</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="vanished">Збій з&apos;єднання: %1</translation>
-    </message>
-    <message>
-        <source>Error: Copy command failed.</source>
-        <translation type="vanished">Помилка: збій команди копіювання.</translation>
-    </message>
-    <message>
-        <source>Copying file &apos;%1&apos; to directory &apos;%2&apos; on the device...</source>
-        <translation type="vanished">Копіювання файлу &apos;%1&apos; до теки &apos;%2&apos; на пристрої...</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRemoteMounter</name>
-    <message>
-        <source>No directories to mount</source>
-        <translation type="vanished">Немає тек для монтування</translation>
-    </message>
-    <message>
-        <source>No directories to unmount</source>
-        <translation type="vanished">Немає тек для відмонтування</translation>
-    </message>
-    <message>
-        <source>Could not execute unmount request.</source>
-        <translation type="vanished">Не вдалось виконати запит на відмонтування.</translation>
-    </message>
-    <message>
-        <source>Failure unmounting: %1</source>
-        <translation type="vanished">Збій відмонтування: %1</translation>
-    </message>
-    <message>
-        <source>Finished unmounting.</source>
-        <translation type="vanished">Відмонтування завершено.</translation>
-    </message>
-    <message>
-        <source>
-stderr was: &apos;%1&apos;</source>
-        <translation type="vanished">
-stderr був: &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>Error: Not enough free ports on device to fulfill all mount requests.</source>
-        <translation type="vanished">Помилка: недостатньо вільних портів в пристрої, щоб виконати усі запити на монтування.</translation>
-    </message>
-    <message>
-        <source>Starting remote UTFS clients...</source>
-        <translation type="vanished">Запуск віддалених клієнтів UTFS...</translation>
-    </message>
-    <message>
-        <source>Mount operation succeeded.</source>
-        <translation type="vanished">Операція монтування вдалась.</translation>
-    </message>
-    <message>
-        <source>Failure running UTFS client: %1</source>
-        <translation type="vanished">Збій запуску клієнта UTFS: %1</translation>
-    </message>
-    <message>
-        <source>Starting UTFS servers...</source>
-        <translation type="vanished">Запуск серверів UTFS...</translation>
-    </message>
-    <message>
-        <source>
-stderr was: %1</source>
-        <translation type="vanished">
-stderr був: %1</translation>
-    </message>
-    <message>
-        <source>Error running UTFS server: %1</source>
-        <translation type="vanished">Помилка запуску сервера UTFS: %1</translation>
-    </message>
-    <message>
-        <source>Timeout waiting for UTFS servers to connect.</source>
-        <translation type="vanished">Перевищено час очікування підключення сервера UTFS.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRemoteMountsModel</name>
-    <message>
-        <source>Local directory</source>
-        <translation type="vanished">Локальна тека</translation>
-    </message>
-    <message>
-        <source>Remote mount point</source>
-        <translation type="vanished">Віддалена точка монтування</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRunConfiguration</name>
-    <message>
-        <source>Not enough free ports on the device.</source>
-        <translation type="vanished">Недостатньо вільних портів в пристрої.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRunConfigurationWidget</name>
-    <message>
-        <source>Choose directory to mount</source>
-        <translation type="vanished">Оберіть теку для монтування</translation>
-    </message>
-    <message>
-        <source>No local directories to be mounted on the device.</source>
-        <translation type="vanished">Немає локальних тек до монтування на пристрої.</translation>
-    </message>
-    <message>
-        <source>One local directory to be mounted on the device.</source>
-        <translation type="vanished">Одна локальна тека до монтування на пристрої.</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n local directories to be mounted on the device.</source>
-        <translation type="vanished">
-            <numerusform>%n локальна тека до монтування на пристрої.</numerusform>
-            <numerusform>%n локальні теки до монтування на пристрої.</numerusform>
-            <numerusform>%n локальних тек до монтування на пристрої.</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>WARNING: You want to mount %1 directories, but your device has only %n free ports.&lt;br&gt;You will not be able to run this configuration.</source>
-        <translation type="vanished">
-            <numerusform>ПОПЕРЕДЖЕННЯ: Ви хочете змонтувати %1 тек, але ваш пристрій має лише %n вільний порт.&lt;br&gt;Ви не зможете запустити цю конфігурацію.</numerusform>
-            <numerusform>ПОПЕРЕДЖЕННЯ: Ви хочете змонтувати %1 тек, але ваш пристрій має лише %n вільних порти.&lt;br&gt;Ви не зможете запустити цю конфігурацію.</numerusform>
-            <numerusform>ПОПЕРЕДЖЕННЯ: Ви хочете змонтувати %1 тек, але ваш пристрій має лише %n вільних портів.&lt;br&gt;Ви не зможете запустити цю конфігурацію.</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>WARNING: You want to mount %1 directories, but only %n ports on the device will be available in debug mode. &lt;br&gt;You will not be able to debug your application with this configuration.</source>
-        <translation type="vanished">
-            <numerusform>ПОПЕРЕДЖЕННЯ: Ви хочете змонтувати %1 тек, але лише %n порт на пристрої буде доступний в режимі зневадження.&lt;br&gt;Ви не зможете зневаджувати вашу програму з цією конфігурацією.</numerusform>
-            <numerusform>ПОПЕРЕДЖЕННЯ: Ви хочете змонтувати %1 тек, але лише %n порти на пристрої будуть доступні в режимі зневадження.&lt;br&gt;Ви не зможете зневаджувати вашу програму з цією конфігурацією.</numerusform>
-            <numerusform>ПОПЕРЕДЖЕННЯ: Ви хочете змонтувати %1 тек, але лише %n портів на пристрої будуть доступні в режимі зневадження.&lt;br&gt;Ви не зможете зневаджувати вашу програму з цією конфігурацією.</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRunControlFactory</name>
-    <message>
-        <source>Cannot debug: Kit has no device.</source>
-        <translation type="vanished">Неможливо зневадити: комплект немає пристрою.</translation>
-    </message>
-    <message>
-        <source>Cannot debug: Not enough free ports available.</source>
-        <translation type="vanished">Неможливо зневадити: недостатньо вільних портів.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoUploadAndInstallPackageStep</name>
-    <message>
-        <source>No Debian package creation step found.</source>
-        <translation type="vanished">Відсутній крок для створення пакунка Debian.</translation>
-    </message>
-    <message>
-        <source>Deploy Debian package via SFTP upload</source>
-        <translation type="vanished">Розгорнути пакунок Debian через завантаження по SFTP</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::Qt4MaemoDeployConfigurationFactory</name>
-    <message>
-        <source>Copy Files to Maemo5 Device</source>
-        <translation type="vanished">Копіювання файлів до пристрою Maemo5</translation>
-    </message>
-    <message>
-        <source>Build Debian Package and Install to Maemo5 Device</source>
-        <translation type="vanished">Збірка пакунка Debian та встановлення на пристрій Maemo5</translation>
-    </message>
-    <message>
-        <source>Build Debian Package and Install to Harmattan Device</source>
-        <translation type="vanished">Збірка пакунка Debian та встановлення на пристрій Harmattan</translation>
-    </message>
-</context>
-<context>
     <name>MainView</name>
     <message>
         <source>Memory Usage</source>
@@ -20407,24 +19665,6 @@ Adds the library and include paths to the .pro file.</source>
         <translation type="vanished">Стаціонарний комп&apos;ютер</translation>
     </message>
     <message>
-        <source>Maemo Emulator</source>
-        <comment>Qt4 Maemo Emulator target display name</comment>
-        <translation type="vanished">Емулятор Maemo</translation>
-    </message>
-    <message>
-        <source>Maemo Device</source>
-        <comment>Qt4 Maemo Device target display name</comment>
-        <translation type="vanished">Пристрій Maemo</translation>
-    </message>
-    <message>
-        <source>Maemo Device</source>
-        <translation type="vanished">Пристрій Maemo</translation>
-    </message>
-    <message>
-        <source>Maemo Emulator</source>
-        <translation type="vanished">Емулятор Maemo</translation>
-    </message>
-    <message>
         <source>Desktop</source>
         <translation type="vanished">Стаціонарний комп&apos;ютер</translation>
     </message>
@@ -21531,21 +20771,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
         <translation>Стаціонарний комп&apos;ютер</translation>
     </message>
     <message>
-        <source>Maemo</source>
-        <comment>Qt Version is meant for Maemo5</comment>
-        <translation type="vanished">Maemo</translation>
-    </message>
-    <message>
-        <source>Harmattan </source>
-        <comment>Qt Version is meant for Harmattan</comment>
-        <translation type="vanished">Harmattan </translation>
-    </message>
-    <message>
-        <source>Qt Simulator</source>
-        <comment>Qt Version is meant for Qt Simulator</comment>
-        <translation type="vanished">Симулятор Qt</translation>
-    </message>
-    <message>
         <source>Cannot determine the installation path for Qt version &apos;%1&apos;.</source>
         <translation type="vanished">Неможливо визначити шлях встановлення Qt версії &apos;%1&apos;.</translation>
     </message>
@@ -21657,7 +20882,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxDeployService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>Жодної дії для розгортання не потрібно. Пропускаємо.</translation>
@@ -21700,7 +20925,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>Неможливо розгорнути: %1</translation>
@@ -21719,7 +20944,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxPackageInstaller</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Збій з&apos;єднання: %1</translation>
@@ -21730,7 +20955,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractUploadAndInstallPackageService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Успішно завантажено файл пакунка.</translation>
@@ -21745,7 +20970,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::CreateTarStepWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Ignore missing files</source>
         <translation>Ігнорувати відсутні файли</translation>
@@ -21760,7 +20985,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericDirectUploadService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>Збій ініціалізації SFTP: %1</translation>
@@ -21823,28 +21048,21 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericDirectUploadStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Upload files via SFTP</source>
         <translation>Завантажити файли через SFTP</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationFactory</name>
-    <message>
-        <source>Generic Linux Device</source>
-        <translation>Звичайний Linux-пристрій</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizard</name>
+    <name>RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Налаштування нової конфігурації звичайного Linux-пристрою</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardFinalPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Setup Finished</source>
         <translation type="vanished">Налаштування завершено</translation>
@@ -21861,7 +21079,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection Data</source>
         <translation type="vanished">Дані підключення</translation>
@@ -21880,7 +21098,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceTester</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>Підключення до вузла...</translation>
@@ -21953,21 +21171,17 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericRemoteLinuxCustomCommandDeploymentStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>Виконати віддалену користувацьку команду</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::ConfigWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>Інкрементальне розгортання</translation>
-    </message>
-    <message>
-        <source>Ignore missing files</source>
-        <translation>Ігнорувати відсутні файли</translation>
     </message>
     <message>
         <source>Command line:</source>
@@ -21975,25 +21189,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoGlobal</name>
-    <message>
-        <source>SDK Connectivity</source>
-        <translation type="vanished">SDK Connectivity</translation>
-    </message>
-    <message>
-        <source>Mad Developer</source>
-        <translation type="vanished">Mad Developer</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPackageCreationFactory</name>
-    <message>
-        <source>Create Debian Package</source>
-        <translation type="vanished">Створити пакунок Debian</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::PackageUploader</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Підготовка підключення SFTP...</translation>
@@ -22020,11 +21216,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxEnvironmentReader</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="vanished">Помилка з&apos;єднання: %1</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Error running remote process: %1</source>
         <translation type="vanished">Помилка запуску віддаленого процесу: %1</translation>
@@ -22057,18 +21249,11 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxRunConfigurationFactory</name>
-    <message>
-        <source> (on Remote Generic Linux Host)</source>
-        <translation type="vanished"> (на віддаленому звичайному вузлі Linux)</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>(on Remote Generic Linux Host)</source>
         <translation>(на віддаленому звичайному вузлі Linux)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::RemoteLinuxRunControlFactory</name>
     <message>
         <source>Cannot debug: Kit has no device.</source>
         <translation>Неможливо зневадити: комплект немає пристрою.</translation>
@@ -22087,11 +21272,7 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::LinuxDeviceTestDialog</name>
-    <message>
-        <source>Close</source>
-        <translation type="vanished">Закрити</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Device test finished successfully.</source>
         <translation type="vanished">Тест пристрою завершено вдало.</translation>
@@ -22100,9 +21281,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <source>Device test failed.</source>
         <translation type="vanished">Збій тесту пристрою.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::PublicKeyDeploymentDialog</name>
     <message>
         <source>Choose Public Key File</source>
         <translation>Оберіть файл публічного ключа</translation>
@@ -22125,7 +21303,7 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCustomCommandDeployService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>Командний рядок не задано.</translation>
@@ -22156,7 +21334,7 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxRunConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Don&apos;t know what to run.</source>
         <translation type="vanished">Не знаю, що запускати.</translation>
@@ -22172,7 +21350,7 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxRunConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Executable on host:</source>
         <translation>Виконуваний модуль на вузлі:</translation>
@@ -22211,14 +21389,10 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::SshKeyDeployer</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>Помилка публічного ключа: %1</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Збій з&apos;єднання: %1</translation>
     </message>
     <message>
         <source>Key deployment failed: %1.</source>
@@ -22226,7 +21400,7 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::TarPackageCreationStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>Створення пакунка завершено вдало.</translation>
@@ -22301,7 +21475,7 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::UploadAndInstallTarPackageStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>Відсутній крок для створення архіву tar.</translation>
@@ -26913,18 +26087,10 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Authentication type:</source>
         <translation>Спосіб авторизації:</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>Пароль</translation>
     </message>
     <message>
         <source>&amp;Key</source>
@@ -27012,11 +26178,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::GenericLinuxDeviceConfigurationWizardSetupPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>Сторінка майстра</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>The name to identify this configuration:</source>
         <translation>Назва для цієї конфігурації:</translation>
@@ -27055,14 +26217,14 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDeviceTestDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Device Test</source>
         <translation type="vanished">Тест пристрою</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxDeployConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Form</source>
         <translation type="vanished">Форма</translation>
@@ -33441,7 +32603,7 @@ were not verified among remotes in %3. Select different folder?</source>
     </message>
 </context>
 <context>
-    <name>Madde::Internal::DebianManager</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Error Creating Debian Project Templates</source>
         <translation type="vanished">Помилка створення шаблонів проекту Debian</translation>
@@ -33496,18 +32658,7 @@ were not verified among remotes in %3. Select different folder?</source>
     </message>
 </context>
 <context>
-    <name>Madde::Internal::MaddeDevice</name>
-    <message>
-        <source>Maemo5/Fremantle</source>
-        <translation type="vanished">Maemo5/Fremantle</translation>
-    </message>
-    <message>
-        <source>MeeGo 1.2 Harmattan</source>
-        <translation type="vanished">MeeGo 1.2 Harmattan</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaddeQemuStartService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Checking whether to start Qemu...</source>
         <translation type="vanished">Перевірка чи потрібно запустити Qemu...</translation>
@@ -33530,14 +32681,14 @@ were not verified among remotes in %3. Select different folder?</source>
     </message>
 </context>
 <context>
-    <name>Madde::Internal::MaddeQemuStartStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Start Qemu, if necessary</source>
         <translation type="vanished">Запуск Qemu, якщо необхідно</translation>
     </message>
 </context>
 <context>
-    <name>Madde::Internal::Qt4MaemoDeployConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Add Packaging Files to Project</source>
         <translation type="vanished">Додати файли пакування до проекту</translation>
@@ -34602,7 +33753,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDevice</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation>Звичайний Linux</translation>
@@ -34617,11 +33768,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceService</name>
-    <message>
-        <source>Remote process failed to start.</source>
-        <translation>Збій запуску віддаленого процесу.</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Remote process crashed.</source>
         <translation>Віддалений процес завершився аварійно.</translation>
@@ -34660,30 +33807,20 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxCheckForFreeDiskSpaceStepWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>MB</source>
         <translation>Мб</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Check for free disk space</source>
         <translation>Перевірити вільний простір на диску</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::LinuxDeviceDebugSupport</name>
-    <message>
-        <source>Checking available ports...
-</source>
-        <translation type="vanished">Перевірка доступних портів...</translation>
-    </message>
-    <message>
-        <source>Checking available ports...</source>
-        <translation>Перевірка доступних портів...</translation>
-    </message>
     <message>
         <source>Debugging failed.</source>
         <translation>Збій зневадження.</translation>
@@ -34694,7 +33831,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::TypeSpecificDeviceConfigurationListModel</name>
+    <name>RemoteLinux</name>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (типово)</translation>
@@ -37215,7 +36352,7 @@ Remote: %4</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxDeploymentDataModel</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Local File Path</source>
         <translation type="vanished">Локальний шлях до файлу</translation>
@@ -38535,14 +37672,14 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxRunSupport</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Not enough free ports on device for debugging.</source>
         <translation>Недостатньо вільних портів для зневадження в пристрої.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxAnalyzeSupport</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Checking available ports...
 </source>
@@ -38562,7 +37699,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxEnvironmentAspect</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Clean Environment</source>
         <translation>Чисте середовище</translation>
@@ -38573,7 +37710,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxEnvironmentAspectWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>Отримати середовище пристрою</translation>
@@ -41140,24 +40277,6 @@ Please close all running instances of your application before starting a build.<
         <translation>Стаціонарний комп&apos;ютер</translation>
     </message>
     <message>
-        <source>Maemo Emulator</source>
-        <comment>Qt4 Maemo Emulator target display name</comment>
-        <translation>Емулятор Maemo</translation>
-    </message>
-    <message>
-        <source>Maemo Device</source>
-        <comment>Qt4 Maemo Device target display name</comment>
-        <translation>Пристрій Maemo</translation>
-    </message>
-    <message>
-        <source>Maemo Device</source>
-        <translation type="vanished">Пристрій Maemo</translation>
-    </message>
-    <message>
-        <source>Maemo Emulator</source>
-        <translation type="vanished">Емулятор Maemo</translation>
-    </message>
-    <message>
         <source>Desktop</source>
         <translation type="vanished">Стаціонарний комп&apos;ютер</translation>
     </message>
@@ -41778,7 +40897,7 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxSignalOperation</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Exit code is %1. stderr:</source>
         <translation>Код завершення %1. stderr:</translation>
@@ -44294,11 +43413,7 @@ Are you sure you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxCustomRunConfigurationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Local executable:</source>
         <translation>Локальний виконуваний модуль:</translation>
@@ -44306,14 +43421,6 @@ Are you sure you want to continue?</source>
     <message>
         <source>Remote executable:</source>
         <translation>Віддалений виконуваний модуль:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Аргументи:</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation>Робоча тека:</translation>
     </message>
 </context>
 <context>
@@ -44329,21 +43436,6 @@ Are you sure you want to continue?</source>
     <message>
         <source>Transparent</source>
         <translation>Прозорий</translation>
-    </message>
-</context>
-<context>
-    <name>StatesList</name>
-    <message>
-        <source>Collapse</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Expand</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add a new state.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -45324,7 +44416,7 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxCustomRunConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>The remote executable must be set in order to run a custom remote run configuration.</source>
         <translation>Має бути заданий віддалений виконуваний модуль, щоб виконати користувацьку віддалену конфігурацію запуску.</translation>

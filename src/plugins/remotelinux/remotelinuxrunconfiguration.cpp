@@ -27,6 +27,7 @@
 
 #include "remotelinux_constants.h"
 #include "remotelinuxenvironmentaspect.h"
+#include "remotelinuxtr.h"
 #include "x11forwardingaspect.h"
 
 #include <projectexplorer/buildsystem.h>
@@ -43,13 +44,10 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux {
-namespace Internal {
+namespace RemoteLinux::Internal {
 
 class RemoteLinuxRunConfiguration final : public RunConfiguration
 {
-    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::RemoteLinuxRunConfiguration)
-
 public:
     RemoteLinuxRunConfiguration(Target *target, Id id);
 };
@@ -60,14 +58,14 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
     auto envAspect = addAspect<RemoteLinuxEnvironmentAspect>(target);
 
     auto exeAspect = addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
-    exeAspect->setLabelText(tr("Executable on device:"));
-    exeAspect->setPlaceHolderText(tr("Remote path not set"));
+    exeAspect->setLabelText(Tr::tr("Executable on device:"));
+    exeAspect->setPlaceHolderText(Tr::tr("Remote path not set"));
     exeAspect->makeOverridable("RemoteLinux.RunConfig.AlternateRemoteExecutable",
                                "RemoteLinux.RunConfig.UseAlternateRemoteExecutable");
     exeAspect->setHistoryCompleter("RemoteLinux.AlternateExecutable.History");
 
     auto symbolsAspect = addAspect<SymbolFileAspect>();
-    symbolsAspect->setLabelText(tr("Executable on host:"));
+    symbolsAspect->setLabelText(Tr::tr("Executable on host:"));
     symbolsAspect->setDisplayStyle(SymbolFileAspect::LabelDisplay);
 
     addAspect<ArgumentsAspect>(macroExpander());
@@ -105,5 +103,4 @@ RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory()
     addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
 }
 
-} // namespace Internal
-} // namespace RemoteLinux
+} // RemoteLinux::Internal

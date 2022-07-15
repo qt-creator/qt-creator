@@ -27,6 +27,7 @@
 
 #include "genericdirectuploadservice.h"
 #include "remotelinux_constants.h"
+#include "remotelinuxtr.h"
 
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/target.h>
@@ -47,7 +48,7 @@ GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Utils::Id i
     if (offerIncrementalDeployment) {
         incremental = addAspect<BoolAspect>();
         incremental->setSettingsKey("RemoteLinux.GenericDirectUploadStep.Incremental");
-        incremental->setLabel(tr("Incremental deployment"),
+        incremental->setLabel(Tr::tr("Incremental deployment"),
                               BoolAspect::LabelPlacement::AtCheckBox);
         incremental->setValue(true);
         incremental->setDefaultValue(true);
@@ -55,7 +56,7 @@ GenericDirectUploadStep::GenericDirectUploadStep(BuildStepList *bsl, Utils::Id i
 
     auto ignoreMissingFiles = addAspect<BoolAspect>();
     ignoreMissingFiles->setSettingsKey("RemoteLinux.GenericDirectUploadStep.IgnoreMissingFiles");
-    ignoreMissingFiles->setLabel(tr("Ignore missing files"),
+    ignoreMissingFiles->setLabel(Tr::tr("Ignore missing files"),
                                  BoolAspect::LabelPlacement::AtCheckBox);
     ignoreMissingFiles->setValue(false);
 
@@ -84,7 +85,7 @@ Utils::Id GenericDirectUploadStep::stepId()
 
 QString GenericDirectUploadStep::displayName()
 {
-    return tr("Upload files via SFTP");
+    return Tr::tr("Upload files via SFTP");
 }
 
 } //namespace RemoteLinux

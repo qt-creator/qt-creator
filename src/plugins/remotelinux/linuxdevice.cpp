@@ -31,8 +31,9 @@
 #include "linuxprocessinterface.h"
 #include "publickeydeploymentdialog.h"
 #include "remotelinux_constants.h"
-#include "remotelinuxsignaloperation.h"
 #include "remotelinuxenvironmentreader.h"
+#include "remotelinuxsignaloperation.h"
+#include "remotelinuxtr.h"
 #include "sshprocessinterface.h"
 
 #include <coreplugin/icore.h>
@@ -169,15 +170,16 @@ void SshSharedConnection::connectToHost()
 
     const FilePath sshBinary = SshSettings::sshFilePath();
     if (!sshBinary.exists()) {
-        emitError(QProcess::FailedToStart, tr("Cannot establish SSH connection: ssh binary "
+        emitError(QProcess::FailedToStart, Tr::tr("Cannot establish SSH connection: ssh binary "
                   "\"%1\" does not exist.").arg(sshBinary.toUserOutput()));
         return;
     }
 
     m_masterSocketDir.reset(new QTemporaryDir);
     if (!m_masterSocketDir->isValid()) {
-        emitError(QProcess::FailedToStart, tr("Cannot establish SSH connection: Failed to create temporary "
-                     "directory for control socket: %1")
+        emitError(QProcess::FailedToStart,
+                    Tr::tr("Cannot establish SSH connection: Failed to create temporary "
+                           "directory for control socket: %1")
                   .arg(m_masterSocketDir->errorString()));
         m_masterSocketDir.reset();
         return;
@@ -199,8 +201,8 @@ void SshSharedConnection::connectToHost()
         const ProcessResult result = m_masterProcess->result();
         const ProcessResultData resultData = m_masterProcess->resultData();
         if (result == ProcessResult::StartFailed) {
-            emitError(QProcess::FailedToStart, tr("Cannot establish SSH connection.\n"
-                                                  "Control process failed to start."));
+            emitError(QProcess::FailedToStart, Tr::tr("Cannot establish SSH connection.\n"
+                                                      "Control process failed to start."));
             return;
         } else if (result == ProcessResult::FinishedWithError) {
             emitError(resultData.m_error, fullProcessError());
@@ -263,7 +265,7 @@ QString SshSharedConnection::fullProcessError() const
             ? m_masterProcess->errorString() : QString();
     const QString standardError = m_masterProcess->cleanedStdErr();
     const QString errorPrefix = errorString.isEmpty() && standardError.isEmpty()
-            ? tr("SSH connection failure.") : tr("SSH connection failure:");
+            ? Tr::tr("SSH connection failure.") : Tr::tr("SSH connection failure:");
     QStringList allErrors {errorPrefix, errorString, standardError};
     allErrors.removeAll({});
     return allErrors.join('\n');
@@ -920,11 +922,11 @@ private:
 LinuxDevice::LinuxDevice()
     : d(new LinuxDevicePrivate(this))
 {
-    setDisplayType(tr("Remote Linux"));
-    setDefaultDisplayName(tr("Remote Linux Device"));
+    setDisplayType(Tr::tr("Remote Linux"));
+    setDefaultDisplayName(Tr::tr("Remote Linux Device"));
     setOsType(OsTypeLinux);
 
-    addDeviceAction({tr("Deploy Public Key..."), [](const IDevice::Ptr &device, QWidget *parent) {
+    addDeviceAction({Tr::tr("Deploy Public Key..."), [](const IDevice::Ptr &device, QWidget *parent) {
         if (auto d = PublicKeyDeploymentDialog::createDialog(device, parent)) {
             d->exec();
             delete d;
@@ -939,11 +941,11 @@ LinuxDevice::LinuxDevice()
                 const QString errorString = proc->errorString();
                 QString message;
                 if (proc->error() == QProcess::FailedToStart)
-                    message = tr("Error starting remote shell.");
+                    message = Tr::tr("Error starting remote shell.");
                 else if (errorString.isEmpty())
-                    message = tr("Error running remote shell.");
+                    message = Tr::tr("Error running remote shell.");
                 else
-                    message = tr("Error running remote shell: %1").arg(errorString);
+                    message = Tr::tr("Error running remote shell: %1").arg(errorString);
                 Core::MessageManager::writeDisrupting(message);
             }
             proc->deleteLater();
@@ -957,7 +959,7 @@ LinuxDevice::LinuxDevice()
         proc->start();
     });
 
-    addDeviceAction({tr("Open Remote Shell"), [](const IDevice::Ptr &device, QWidget *) {
+    addDeviceAction({Tr::tr("Open Remote Shell"), [](const IDevice::Ptr &device, QWidget *) {
                          device->openTerminal(Environment(), FilePath());
                      }});
 }
@@ -1399,10 +1401,10 @@ protected:
     {
         ProcessResultData resultData = m_process.resultData();
         if (resultData.m_error == QProcess::FailedToStart) {
-            resultData.m_errorString = tr("\"%1\" failed to start: %2")
+            resultData.m_errorString = Tr::tr("\"%1\" failed to start: %2")
                     .arg(FileTransfer::transferMethodName(m_setup.m_method), resultData.m_errorString);
         } else if (resultData.m_exitStatus != QProcess::NormalExit) {
-            resultData.m_errorString = tr("\"%1\" crashed.")
+            resultData.m_errorString = Tr::tr("\"%1\" crashed.")
                     .arg(FileTransfer::transferMethodName(m_setup.m_method));
         } else if (resultData.m_exitCode != 0) {
             resultData.m_errorString = QString::fromLocal8Bit(m_process.readAllStandardError());
@@ -1499,14 +1501,14 @@ private:
     {
         const FilePath sftpBinary = SshSettings::sftpFilePath();
         if (!sftpBinary.exists()) {
-            startFailed(SshTransferInterface::tr("\"sftp\" binary \"%1\" does not exist.")
+            startFailed(Tr::tr("\"sftp\" binary \"%1\" does not exist.")
                             .arg(sftpBinary.toUserOutput()));
             return;
         }
 
         m_batchFile.reset(new QTemporaryFile(this));
         if (!m_batchFile->isOpen() && !m_batchFile->open()) {
-            startFailed(SshTransferInterface::tr("Could not create temporary file: %1")
+            startFailed(Tr::tr("Could not create temporary file: %1")
                             .arg(m_batchFile->errorString()));
             return;
         }
@@ -1518,7 +1520,7 @@ private:
                                 + '\n');
             } else if (direction() == FileTransferDirection::Download) {
                 if (!QDir::root().mkpath(dir.path())) {
-                    startFailed(SshTransferInterface::tr("Failed to create local directory \"%1\".")
+                    startFailed(Tr::tr("Failed to create local directory \"%1\".")
                                     .arg(QDir::toNativeSeparators(dir.path())));
                     return;
                 }
@@ -1662,7 +1664,7 @@ namespace Internal {
 LinuxDeviceFactory::LinuxDeviceFactory()
     : IDeviceFactory(Constants::GenericLinuxOsType)
 {
-    setDisplayName(LinuxDevice::tr("Remote Linux Device"));
+    setDisplayName(Tr::tr("Remote Linux Device"));
     setIcon(QIcon());
     setConstructionFunction(&LinuxDevice::create);
     setCreator([] {

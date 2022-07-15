@@ -26,6 +26,7 @@
 #include "makeinstallstep.h"
 
 #include "remotelinux_constants.h"
+#include "remotelinuxtr.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
@@ -88,7 +89,7 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
     makeAspect->setId(MakeAspectId);
     makeAspect->setSettingsKey(MakeAspectId);
     makeAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
-    makeAspect->setLabelText(tr("Command:"));
+    makeAspect->setLabelText(Tr::tr("Command:"));
     connect(makeAspect, &ExecutableAspect::changed,
             this, &MakeInstallStep::updateCommandFromAspect);
 
@@ -97,7 +98,7 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
     installRootAspect->setSettingsKey(InstallRootAspectId);
     installRootAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
     installRootAspect->setExpectedKind(PathChooser::Directory);
-    installRootAspect->setLabelText(tr("Install root:"));
+    installRootAspect->setLabelText(Tr::tr("Install root:"));
     installRootAspect->setFilePath(rootPath);
     connect(installRootAspect, &StringAspect::changed,
             this, &MakeInstallStep::updateArgsFromAspect);
@@ -105,22 +106,22 @@ MakeInstallStep::MakeInstallStep(BuildStepList *parent, Id id) : MakeStep(parent
     const auto cleanInstallRootAspect = addAspect<BoolAspect>();
     cleanInstallRootAspect->setId(CleanInstallRootAspectId);
     cleanInstallRootAspect->setSettingsKey(CleanInstallRootAspectId);
-    cleanInstallRootAspect->setLabel(tr("Clean install root first:"),
+    cleanInstallRootAspect->setLabel(Tr::tr("Clean install root first:"),
                                      BoolAspect::LabelPlacement::InExtraLabel);
     cleanInstallRootAspect->setValue(true);
 
     const auto commandLineAspect = addAspect<StringAspect>();
     commandLineAspect->setId(FullCommandLineAspectId);
     commandLineAspect->setDisplayStyle(StringAspect::LabelDisplay);
-    commandLineAspect->setLabelText(tr("Full command line:"));
+    commandLineAspect->setLabelText(Tr::tr("Full command line:"));
 
     const auto customCommandLineAspect = addAspect<StringAspect>();
     customCommandLineAspect->setId(CustomCommandLineAspectId);
     customCommandLineAspect->setSettingsKey(CustomCommandLineAspectId);
     customCommandLineAspect->setDisplayStyle(StringAspect::LineEditDisplay);
-    customCommandLineAspect->setLabelText(tr("Custom command line:"));
+    customCommandLineAspect->setLabelText(Tr::tr("Custom command line:"));
     customCommandLineAspect->makeCheckable(StringAspect::CheckBoxPlacement::Top,
-                                           tr("Use custom command line instead:"),
+                                           Tr::tr("Use custom command line instead:"),
                                            "RemoteLinux.MakeInstall.EnableCustomCommandLine");
     const auto updateCommand = [this] {
         updateCommandFromAspect();
@@ -146,7 +147,7 @@ Utils::Id MakeInstallStep::stepId()
 
 QString MakeInstallStep::displayName()
 {
-    return tr("Install into temporary host directory");
+    return Tr::tr("Install into temporary host directory");
 }
 
 QWidget *MakeInstallStep::createConfigWidget()
@@ -162,24 +163,24 @@ bool MakeInstallStep::init()
 
     const FilePath rootDir = installRoot().onDevice(makeCommand());
     if (rootDir.isEmpty()) {
-        emit addTask(BuildSystemTask(Task::Error, tr("You must provide an install root.")));
+        emit addTask(BuildSystemTask(Task::Error, Tr::tr("You must provide an install root.")));
         return false;
     }
     if (cleanInstallRoot() && !rootDir.removeRecursively()) {
         emit addTask(BuildSystemTask(Task::Error,
-                                        tr("The install root \"%1\" could not be cleaned.")
+                                        Tr::tr("The install root \"%1\" could not be cleaned.")
                                             .arg(rootDir.displayName())));
         return false;
     }
     if (!rootDir.exists() && !rootDir.createDir()) {
         emit addTask(BuildSystemTask(Task::Error,
-                                        tr("The install root \"%1\" could not be created.")
+                                        Tr::tr("The install root \"%1\" could not be created.")
                                             .arg(rootDir.displayName())));
         return false;
     }
     if (this == deployConfiguration()->stepList()->steps().last()) {
         emit addTask(BuildSystemTask(Task::Warning,
-                                        tr("The \"make install\" step should probably not be "
+                                        Tr::tr("The \"make install\" step should probably not be "
                                             "last in the list of deploy steps. "
                                             "Consider moving it up.")));
     }
@@ -241,7 +242,7 @@ void MakeInstallStep::finish(bool success)
 
         buildSystem()->setDeploymentData(m_deploymentData);
     } else if (m_noInstallTarget && m_isCmakeProject) {
-        emit addTask(DeploymentTask(Task::Warning, tr("You need to add an install statement "
+        emit addTask(DeploymentTask(Task::Warning, Tr::tr("You need to add an install statement "
                    "to your CMakeLists.txt file for deployment to work.")));
     }
     MakeStep::finish(success);

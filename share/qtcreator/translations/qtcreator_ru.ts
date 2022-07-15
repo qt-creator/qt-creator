@@ -44922,7 +44922,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxDeployService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>Нет необходимости в развёртывании. Пропущено.</translation>
@@ -44953,7 +44953,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>Невозможно развернуть: %1</translation>
@@ -44972,7 +44972,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxPackageInstaller</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Ошибка подключения: %1</translation>
@@ -44983,7 +44983,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractUploadAndInstallPackageService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Успешно отправлен файл пакета.</translation>
@@ -44998,7 +44998,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericDirectUploadService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Failed to retrieve remote timestamp for file &quot;%1&quot;. Incremental deployment will not work. Error message was: %2</source>
         <translation>Не удалось получить временную метку внешнего файла «%1». Инкрементальное развёртывание не будет работать. Ошибка: %2</translation>
@@ -45033,14 +45033,10 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericDirectUploadStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>Инкрементальное развёртывание</translation>
-    </message>
-    <message>
-        <source>Ignore missing files</source>
-        <translation>Игнорировать отсутствующие файлы</translation>
     </message>
     <message>
         <source>Upload files via SFTP</source>
@@ -45048,7 +45044,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Authentication type:</source>
         <translation>Тип авторизации:</translation>
@@ -45080,10 +45076,6 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     <message>
         <source>&amp;Username:</source>
         <translation>&amp;Пользователь:</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation>Файл секретного ключа:</translation>
     </message>
     <message>
         <source>Physical Device</source>
@@ -45131,14 +45123,14 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizard</name>
+    <name>RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Настройка новой конфигурации устройства на базе Linux</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardFinalPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Summary</source>
         <translation>Итог</translation>
@@ -45151,7 +45143,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardKeyDeploymentPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Key Deployment</source>
         <translation>Установка ключа</translation>
@@ -45184,14 +45176,14 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection</source>
         <translation>Подключение</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceTester</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>Подключение к узлу...</translation>
@@ -45282,7 +45274,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation></translation>
@@ -45301,7 +45293,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDevice</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation>Обычный Linux</translation>
@@ -45328,7 +45320,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::PackageUploader</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Подготовка подключения SFTP...</translation>
@@ -45347,7 +45339,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxCustomRunConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Remote executable:</source>
         <translation>Внешняя программа:</translation>
@@ -45371,7 +45363,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxEnvironmentReader</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Error: No device</source>
         <translation>Ошибка: Нет устройства</translation>
@@ -45394,7 +45386,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxRunConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Executable on device:</source>
         <translation>Программа на устройстве:</translation>
@@ -45409,7 +45401,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RsyncDeployService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Failed to create remote directories: %1</source>
         <translation>Не удалось создать внешние каталоги: %1</translation>
@@ -45428,14 +45420,14 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::TypeSpecificDeviceConfigurationListModel</name>
+    <name>RemoteLinux</name>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (по умолчанию)</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::MakeInstallStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Command:</source>
         <translation>Команда:</translation>
@@ -45486,7 +45478,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::PublicKeyDeploymentDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Choose Public Key File</source>
         <translation>Выбор файла открытого ключа</translation>
@@ -45509,7 +45501,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Unexpected output from remote process: &quot;%1&quot;</source>
         <translation>Неожиданный вывод удалённого процесса: «%1»</translation>
@@ -45526,10 +45518,6 @@ If you do not have a private key yet, you can also create one here.</source>
             <numerusform>Внешняя файловая система имеет только %n мегабайтов свободного пространства, а необходимо %1.</numerusform>
         </translation>
     </message>
-    <message>
-        <source>Remote process failed: %1</source>
-        <translation>Ошибка внешнего процесса: %1</translation>
-    </message>
     <message numerus="yes">
         <source>The remote file system has %n megabytes of free space, going ahead.</source>
         <translation>
@@ -45540,7 +45528,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Remote path to check for free space:</source>
         <translation>Внешний путь для проверки свободного места:</translation>
@@ -45559,7 +45547,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCustomCommandDeployService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>Командная строка не задана.</translation>
@@ -45582,7 +45570,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCustomCommandDeploymentStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Command line:</source>
         <translation>Командная строка:</translation>
@@ -45593,7 +45581,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxEnvironmentAspect</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Clean Environment</source>
         <translation>Чистая среда</translation>
@@ -45604,7 +45592,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxEnvironmentAspectWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>Загрузить среду устройства</translation>
@@ -45631,7 +45619,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Tr</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Trying to kill &quot;%1&quot; on remote device...</source>
         <translation>Попытка уничтожить «%1» на внешнем устройстве...</translation>
@@ -45650,21 +45638,17 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxSignalOperation</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Exit code is %1. stderr:</source>
         <translation>Код завершения %1. stderr:</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RsyncDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Flags:</source>
         <translation>Флаги:</translation>
-    </message>
-    <message>
-        <source>Ignore missing files:</source>
-        <translation>Игнорировать отсутствующие файлы:</translation>
     </message>
     <message>
         <source>Deploy files via rsync</source>
@@ -45672,14 +45656,10 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::SshKeyDeployer</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>Ошибка открытого ключа: %1</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Ошибка подключения: %1</translation>
     </message>
     <message>
         <source>Key deployment failed: %1.</source>
@@ -45687,7 +45667,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::TarPackageCreationStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>Пакет успешно создан.</translation>
@@ -45754,7 +45734,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::UploadAndInstallTarPackageStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>Не найден этап сборки тарбола.</translation>
@@ -45765,7 +45745,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::X11ForwardingAspect</name>
+    <name>RemoteLinux</name>
     <message>
         <source>X11 Forwarding</source>
         <translation>Проброска портов X11</translation>

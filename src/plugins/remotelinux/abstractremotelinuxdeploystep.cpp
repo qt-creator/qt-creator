@@ -26,6 +26,7 @@
 #include "abstractremotelinuxdeploystep.h"
 
 #include "abstractremotelinuxdeployservice.h"
+#include "remotelinuxtr.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/kitinformation.h>
@@ -98,7 +99,7 @@ bool AbstractRemoteLinuxDeployStep::init()
     QTC_ASSERT(d->internalInit, return false);
     const CheckResult canDeploy = d->internalInit();
     if (!canDeploy) {
-        emit addOutput(tr("Cannot deploy: %1").arg(canDeploy.errorMessage()),
+        emit addOutput(Tr::tr("Cannot deploy: %1").arg(canDeploy.errorMessage()),
                        OutputFormat::ErrorMessage);
     }
     return canDeploy;
@@ -131,7 +132,7 @@ void AbstractRemoteLinuxDeployStep::doCancel()
     if (d->hasError)
         return;
 
-    emit addOutput(tr("User requests deployment to stop; cleaning up."),
+    emit addOutput(Tr::tr("User requests deployment to stop; cleaning up."),
                    OutputFormat::NormalMessage);
     d->hasError = true;
     d->deployService->stop();
@@ -158,9 +159,9 @@ void AbstractRemoteLinuxDeployStep::handleWarningMessage(const QString &message)
 void AbstractRemoteLinuxDeployStep::handleFinished()
 {
     if (d->hasError)
-        emit addOutput(tr("Deploy step failed."), OutputFormat::ErrorMessage);
+        emit addOutput(Tr::tr("Deploy step failed."), OutputFormat::ErrorMessage);
     else
-        emit addOutput(tr("Deploy step finished."), OutputFormat::NormalMessage);
+        emit addOutput(Tr::tr("Deploy step finished."), OutputFormat::NormalMessage);
     disconnect(d->deployService, nullptr, this, nullptr);
     emit finished(!d->hasError);
 }

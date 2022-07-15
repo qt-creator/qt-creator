@@ -25,9 +25,12 @@
 
 #include "genericdirectuploadservice.h"
 
+#include "remotelinuxtr.h"
+
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/idevice.h>
+
 #include <utils/hostosinfo.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
@@ -141,23 +144,23 @@ QDateTime GenericDirectUploadService::timestampFromStat(const DeployableFile &fi
     bool succeeded = false;
     QString error;
     if (statProc->error() == QProcess::FailedToStart) {
-        error = tr("Failed to start \"stat\": %1").arg(statProc->errorString());
+        error = Tr::tr("Failed to start \"stat\": %1").arg(statProc->errorString());
     } else if (statProc->exitStatus() == QProcess::CrashExit) {
-        error = tr("\"stat\" crashed.");
+        error = Tr::tr("\"stat\" crashed.");
     } else if (statProc->exitCode() != 0) {
-        error = tr("\"stat\" failed with exit code %1: %2")
+        error = Tr::tr("\"stat\" failed with exit code %1: %2")
                 .arg(statProc->exitCode()).arg(statProc->cleanedStdErr());
     } else {
         succeeded = true;
     }
     if (!succeeded) {
-        emit warningMessage(tr("Failed to retrieve remote timestamp for file \"%1\". "
+        emit warningMessage(Tr::tr("Failed to retrieve remote timestamp for file \"%1\". "
                                "Incremental deployment will not work. Error message was: %2")
                             .arg(file.remoteFilePath(), error));
         return QDateTime();
     }
     const QByteArray output = statProc->readAllStandardOutput().trimmed();
-    const QString warningString(tr("Unexpected stat output for remote file \"%1\": %2")
+    const QString warningString(Tr::tr("Unexpected stat output for remote file \"%1\": %2")
                                 .arg(file.remoteFilePath()).arg(QString::fromUtf8(output)));
     if (!output.startsWith(file.remoteFilePath().toUtf8())) {
         emit warningMessage(warningString);
@@ -188,7 +191,7 @@ void GenericDirectUploadService::checkForStateChangeOnRemoteProcFinished()
         return;
     }
     QTC_ASSERT(d->state == PostProcessing, return);
-    emit progressMessage(tr("All files successfully deployed."));
+    emit progressMessage(Tr::tr("All files successfully deployed."));
     setFinished();
     handleDeploymentDone();
 }
@@ -290,16 +293,16 @@ void GenericDirectUploadService::uploadFiles()
     QTC_ASSERT(d->state == PreChecking, return);
     d->state = Uploading;
     if (d->filesToUpload.empty()) {
-        emit progressMessage(tr("No files need to be uploaded."));
+        emit progressMessage(Tr::tr("No files need to be uploaded."));
         setFinished();
         handleDeploymentDone();
         return;
     }
-    emit progressMessage(tr("%n file(s) need to be uploaded.", "", d->filesToUpload.size()));
+    emit progressMessage(Tr::tr("%n file(s) need to be uploaded.", "", d->filesToUpload.size()));
     FilesToTransfer files;
     for (const DeployableFile &file : qAsConst(d->filesToUpload)) {
         if (!file.localFilePath().exists()) {
-            const QString message = tr("Local file \"%1\" does not exist.")
+            const QString message = Tr::tr("Local file \"%1\" does not exist.")
                     .arg(file.localFilePath().toUserOutput());
             if (d->ignoreMissingFiles) {
                 emit warningMessage(message);
@@ -336,10 +339,10 @@ void GenericDirectUploadService::chmod()
             QTC_ASSERT(file.isValid(), return);
             const QString error = chmodProc->errorString();
             if (!error.isEmpty()) {
-                emit warningMessage(tr("Remote chmod failed for file \"%1\": %2")
+                emit warningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
                                     .arg(file.remoteFilePath(), error));
             } else if (chmodProc->exitCode() != 0) {
-                emit warningMessage(tr("Remote chmod failed for file \"%1\": %2")
+                emit warningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
                                     .arg(file.remoteFilePath(),
                                          QString::fromUtf8(chmodProc->readAllStandardError())));
             }

@@ -17755,19 +17755,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DevicesPreferencePane</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">界面</translation>
-    </message>
-    <message>
-        <source>Installed S60 SDKs:</source>
-        <translation type="obsolete">已安装的 S60 SDKs:</translation>
-    </message>
-    <message>
-        <source>SDK Location</source>
-        <translation type="obsolete">SDK 路径</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Qt Location</source>
         <translation type="obsolete">Qt 路径</translation>
@@ -19281,7 +19269,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>QtS60DeviceRunConfiguration</source>
         <translation type="obsolete">Qt S60 设备运行配置</translation>
@@ -19298,18 +19286,10 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Device:</source>
         <translation type="obsolete">设备:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">名称:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">参数:</translation>
     </message>
     <message>
         <source>Debugger:</source>
@@ -19336,24 +19316,8 @@ Reason: %2</source>
         <translation type="obsolete">查询设备信息</translation>
     </message>
     <message>
-        <source>Self-signed certificate</source>
-        <translation type="obsolete">自己签名的证书</translation>
-    </message>
-    <message>
-        <source>Choose certificate file (.cer)</source>
-        <translation type="obsolete">选择证书文件(.cer)</translation>
-    </message>
-    <message>
-        <source>Custom certificate:</source>
-        <translation type="obsolete">自定义证书:</translation>
-    </message>
-    <message>
         <source>Choose key file (.key / .pem)</source>
         <translation type="obsolete">选择密钥文件(.key / .pem)</translation>
-    </message>
-    <message>
-        <source>Key file:</source>
-        <translation type="obsolete">密钥文件:</translation>
     </message>
     <message>
         <source>&lt;No Device&gt;</source>
@@ -19378,29 +19342,10 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationFactory</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <translation type="obsolete">Symbian 设备上的 %1</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunControlBase</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Deploying</source>
         <translation type="obsolete">部署中</translation>
-    </message>
-    <message>
-        <source>There is no device plugged in.</source>
-        <translation type="obsolete">没有插入设备.</translation>
-    </message>
-    <message>
-        <source>Executable file: %1</source>
-        <translation type="obsolete">可执行文件:%1</translation>
-    </message>
-    <message>
-        <source>Debugger for Symbian Platform</source>
-        <translation type="obsolete">塞班平台的调试器</translation>
     </message>
     <message>
         <source>%1 %2</source>
@@ -19487,16 +19432,8 @@ Check if the phone is connected and App TRK is running.</source>
         <translation type="obsolete">无法从安装包%1 安装到设备: %2</translation>
     </message>
     <message>
-        <source>Waiting for App TRK</source>
-        <translation type="obsolete">等待 App TRK</translation>
-    </message>
-    <message>
         <source>Please start App TRK on %1.</source>
         <translation type="obsolete">请在%1上启动 App TRK.</translation>
-    </message>
-    <message>
-        <source>Canceled.</source>
-        <translation type="obsolete">已取消.</translation>
     </message>
     <message>
         <source>%1 has unexpectedly finished.</source>
@@ -19508,11 +19445,7 @@ Check if the phone is connected and App TRK is running.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunControl</name>
-    <message>
-        <source>Launching</source>
-        <translation type="obsolete">正在启动</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>There is no device plugged in.</source>
         <translation type="obsolete">没有插入设备.</translation>
@@ -19522,34 +19455,8 @@ Check if the phone is connected and App TRK is running.</source>
         <translation type="obsolete">可执行文件:%1</translation>
     </message>
     <message>
-        <source>Debugger for Symbian Platform</source>
-        <translation type="obsolete">塞班平台的调试器</translation>
-    </message>
-    <message>
-        <source>Could not connect to phone on port &apos;%1&apos;: %2
-Check if the phone is connected and App TRK is running.</source>
-        <translation type="obsolete">无法从端口 &apos;%1&apos; 连接到电话: %2
-检查电话是否连接 并且 App TRK 已经运行.</translation>
-    </message>
-    <message>
-        <source>Could not connect to App TRK on device: %1. Restarting App TRK might help.</source>
-        <translation type="obsolete">无法在设备上连接App TRK: %1. 重新启动App TRK也许会有帮助.</translation>
-    </message>
-    <message>
         <source>Waiting for App TRK</source>
         <translation type="obsolete">等待 App TRK</translation>
-    </message>
-    <message>
-        <source>Canceled.</source>
-        <translation type="obsolete">已取消.</translation>
-    </message>
-    <message>
-        <source>The device &apos;%1&apos; has been disconnected</source>
-        <translation type="obsolete">设备 &apos;%1&apos; 的连接已经被断开</translation>
-    </message>
-    <message>
-        <source>Finished.</source>
-        <translation type="obsolete">完成.</translation>
     </message>
     <message>
         <source>Starting application...</source>
@@ -19563,9 +19470,6 @@ Check if the phone is connected and App TRK is running.</source>
         <source>Could not start application: %1</source>
         <translation type="obsolete">无法启动应用: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceDebugRunControl</name>
     <message>
         <source>Warning: Cannot locate the symbol file belonging to %1.</source>
         <translation type="obsolete">警告：无法打开属于%1的符号文件.</translation>
@@ -19582,14 +19486,6 @@ Check if the phone is connected and App TRK is running.</source>
 </translation>
     </message>
     <message>
-        <source>Debugger for Symbian Platform</source>
-        <translation type="obsolete">Symbian平台的调试器</translation>
-    </message>
-    <message>
-        <source>Debug on Device</source>
-        <translation type="obsolete">在设备上调试</translation>
-    </message>
-    <message>
         <source>Debugging</source>
         <translation type="obsolete">调试</translation>
     </message>
@@ -19603,17 +19499,10 @@ Check if the phone is connected and App TRK is running.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DevicesWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No Qt installed</source>
         <translation type="obsolete">没有安装Qt </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">名称:</translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -19621,7 +19510,7 @@ Check if the phone is connected and App TRK is running.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>%1 in Symbian Emulator</source>
         <extracomment>S60 emulator run configuration default display name, %1 is base pro-File name
@@ -19640,14 +19529,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationFactory</name>
-    <message>
-        <source>%1 in Symbian Emulator</source>
-        <translation type="obsolete">%1 在塞班模拟器上</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunControl</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Starting %1...</source>
         <translation type="obsolete">启动%1 ...</translation>
@@ -19674,7 +19556,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60Manager</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Run in Emulator</source>
         <translation type="obsolete">在模拟器中执行</translation>
@@ -20174,7 +20056,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60Devices::Device</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Id:</source>
         <translation type="obsolete">ID:</translation>
@@ -22045,10 +21927,6 @@ You can choose between stashing the changes or discarding them.</source>
         <translation type="obsolete">创建SSH密钥...</translation>
     </message>
     <message>
-        <source>Deploy Public Key ...</source>
-        <translation type="obsolete">部署公钥...</translation>
-    </message>
-    <message>
         <source>Remote device</source>
         <translation type="obsolete">远程设备</translation>
     </message>
@@ -22165,11 +22043,7 @@ You can choose between stashing the changes or discarding them.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageStepWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">界面</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Self-signed certificate</source>
         <translation type="obsolete">自签名证书</translation>
@@ -25244,12 +25118,6 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
         <translation type="obsolete">测试设置.这将需要一点时间.</translation>
     </message>
     <message>
-        <source>
-Did you start Qemu?</source>
-        <translation type="obsolete">
-启动Qemu了吗？</translation>
-    </message>
-    <message>
         <source>Remote process failed: %1</source>
         <translation type="obsolete">远端进程失败:%1</translation>
     </message>
@@ -25651,22 +25519,7 @@ Did you start Qemu?</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageStep</name>
-    <message>
-        <source>Create sis Package</source>
-        <comment>Create sis package build step name</comment>
-        <translation type="obsolete">创建sis包</translation>
-    </message>
-    <message>
-        <source>Create SIS Package</source>
-        <comment>Create SIS package build step name</comment>
-        <translation type="obsolete">创建SIS包</translation>
-    </message>
-    <message>
-        <source>Create SIS Package</source>
-        <extracomment>default create SIS package build step display name</extracomment>
-        <translation type="obsolete">创建SIS包</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Could not find make command &apos;%1&apos; in the build environment</source>
         <translation type="obsolete">在构建环境中找不到&apos;%1&apos;命令</translation>
@@ -25726,18 +25579,7 @@ Did you start Qemu?</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageStepFactory</name>
-    <message>
-        <source>Create sis Package</source>
-        <translation type="obsolete">创建sis包</translation>
-    </message>
-    <message>
-        <source>Create SIS Package</source>
-        <translation type="obsolete">创建SIS包</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageStepConfigWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>self-signed</source>
         <translation type="obsolete">自签名</translation>
@@ -25747,37 +25589,6 @@ Did you start Qemu?</source>
         <translation type="obsolete">签名使用证书 %1 和密钥 %2</translation>
     </message>
     <message>
-        <source>Reset Passphrases</source>
-        <translation type="obsolete">重置口令</translation>
-    </message>
-    <message>
-        <source>signed with the certificate &quot;%1&quot; using the key &quot;%2&quot;</source>
-        <translation type="obsolete">使用验证登录&quot;%1&quot; 密钥文件&quot;%2&quot;</translation>
-    </message>
-    <message>
-        <source>signed with a certificate and a key that need to be specified</source>
-        <translation type="obsolete">使用验证登录需要指定密钥</translation>
-    </message>
-    <message>
-        <source>not signed</source>
-        <translation type="obsolete">未签名</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create SIS Package:&lt;/b&gt; %1, using Smart Installer</source>
-        <translation type="obsolete">&lt;b&gt;创建SIS包:&lt;/b&gt; %1, 使用智能安装</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create SIS Package:&lt;/b&gt; %1</source>
-        <translation type="obsolete">&lt;b&gt;创建 SIS 包:&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create sis Package:&lt;/b&gt; %1</source>
-        <translation type="obsolete">&lt;b&gt;创建 sis 包:&lt;/b&gt; %1</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DevicesBaseWidget</name>
-    <message>
         <source>Default</source>
         <translation type="obsolete">默认</translation>
     </message>
@@ -25786,23 +25597,9 @@ Did you start Qemu?</source>
         <translation type="obsolete">SDK 路径</translation>
     </message>
     <message>
-        <source>Qt Location</source>
-        <translation type="obsolete">Qt 路径</translation>
-    </message>
-    <message>
         <source>Choose Qt folder</source>
         <translation type="obsolete">选择Qt文件夹</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DevicesModel</name>
-    <message>
-        <source>No Qt installed</source>
-        <translation type="obsolete">没有安装Qt </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GnuPocS60DevicesWidget</name>
     <message>
         <source>Step 1 of 2: Choose GnuPoc folder</source>
         <translation type="obsolete">步骤1／2：选择GnuPoc文件夹</translation>
@@ -26427,11 +26224,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>MaemoPackageCreationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">界面</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Package contents:</source>
         <translation type="obsolete">软件包内容:</translation>
@@ -26459,10 +26252,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
     <message>
         <source>Patch:</source>
         <translation type="obsolete">补丁:</translation>
-    </message>
-    <message>
-        <source>Files to deploy:</source>
-        <translation type="obsolete">部署文件:</translation>
     </message>
     <message>
         <source>Add File to Package</source>
@@ -26926,7 +26715,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>ProjectExplorer::Internal::S60ProjectChecker</name>
+    <name>RemoteLinux</name>
     <message>
         <source>The Symbian SDK and the project sources must reside on the same drive.</source>
         <translation type="obsolete">塞班SDK和项目源文件必须在同一分区上。</translation>
@@ -30392,634 +30181,6 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::MaemoDebugSupport</name>
-    <message>
-        <source>No device configuration set for run configuration.</source>
-        <translation type="obsolete">没有在运行配置中设置任何设备配置.</translation>
-    </message>
-    <message>
-        <source>Preparing remote side ...</source>
-        <translation type="obsolete">正在准备远程站点...</translation>
-    </message>
-    <message>
-        <source>SSH connection error: %1</source>
-        <translation type="obsolete">SSH连接错误:%1</translation>
-    </message>
-    <message>
-        <source>Upload failed: Could not open file &apos;%1&apos;</source>
-        <translation type="obsolete">上传失败.无法打开文件&apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>Started uploading debugging helpers (&apos;%1&apos;).</source>
-        <translation type="obsolete">开始上传调试助手(&apos;%1&apos;).</translation>
-    </message>
-    <message>
-        <source>Could not upload debugging helpers: %1.</source>
-        <translation type="obsolete">无法上传调试助手(&apos;%1&apos;).</translation>
-    </message>
-    <message>
-        <source>Finished uploading debugging helpers.</source>
-        <translation type="obsolete">上传调试助手完毕.</translation>
-    </message>
-    <message>
-        <source>The gdbserver process closed unexpectedly.</source>
-        <translation type="obsolete">gdbserver进程异常终止.</translation>
-    </message>
-    <message>
-        <source>Initial setup failed: %1</source>
-        <translation type="obsolete">安装初始化失败:%1</translation>
-    </message>
-    <message>
-        <source>Not enough free ports on device for debugging.</source>
-        <translation type="obsolete">设备上可用于调试的空闲端口不够.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoDeployableListModel</name>
-    <message>
-        <source>File already in list.</source>
-        <translation type="obsolete">文件已在列表中.</translation>
-    </message>
-    <message>
-        <source>Failed to update .pro file.</source>
-        <translation type="obsolete">更新.pro文件失败.</translation>
-    </message>
-    <message>
-        <source>Could not update .pro file.</source>
-        <translation type="obsolete">无法更新.pro文件.</translation>
-    </message>
-    <message>
-        <source>&lt;no target path set&gt;</source>
-        <translation type="obsolete">&lt;没有设置目标路径&gt;</translation>
-    </message>
-    <message>
-        <source>Local File Path</source>
-        <translation type="obsolete">本地文件路径</translation>
-    </message>
-    <message>
-        <source>Remote Directory</source>
-        <translation type="obsolete">远程目录</translation>
-    </message>
-    <message>
-        <source>Failed to open &apos;%1&apos;: %2</source>
-        <translation type="obsolete">无法打开&apos;%1&apos;: %2</translation>
-    </message>
-    <message>
-        <source>Could not write &apos;%1&apos;: %2</source>
-        <translation type="obsolete">无法写入&apos;%1&apos;: %2</translation>
-    </message>
-    <message>
-        <source>Error writing project file.</source>
-        <translation type="obsolete">写入项目文件错误。</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoProFilesUpdateDialog</name>
-    <message>
-        <source>Updateable Project Files</source>
-        <translation type="obsolete">可更新的项目文件</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoQemuManager</name>
-    <message>
-        <source>Start Maemo Emulator</source>
-        <translation type="obsolete">启动Maemo模拟器</translation>
-    </message>
-    <message>
-        <source>Qemu finished with error: Exit code was %1.</source>
-        <translation type="obsolete">Qemu 在有错误的情况下结束: 退出代码 %1.</translation>
-    </message>
-    <message>
-        <source>Qemu failed to start: %1</source>
-        <translation type="obsolete">Qemu 启动失败:%1</translation>
-    </message>
-    <message>
-        <source>Qemu crashed</source>
-        <translation type="obsolete">Qemu崩溃了</translation>
-    </message>
-    <message>
-        <source>Qemu error</source>
-        <translation type="obsolete">Qemu 错误</translation>
-    </message>
-    <message>
-        <source>Stop Maemo Emulator</source>
-        <translation type="obsolete">停止Maemo模拟器</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRemoteMounter</name>
-    <message>
-        <source>No directories to mount</source>
-        <translation type="obsolete">没有目录将被挂载</translation>
-    </message>
-    <message>
-        <source>No directories to unmount</source>
-        <translation type="obsolete">没有目录将被卸载</translation>
-    </message>
-    <message>
-        <source>Could not execute unmount request.</source>
-        <translation type="obsolete">无法生成卸载请求.</translation>
-    </message>
-    <message>
-        <source>Failure unmounting: %1</source>
-        <translation type="obsolete">卸载%1失败</translation>
-    </message>
-    <message>
-        <source>Finished unmounting.</source>
-        <translation type="obsolete">卸载完成.</translation>
-    </message>
-    <message>
-        <source>
-stderr was: &apos;%1&apos;</source>
-        <translation type="obsolete">stderr为&apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>Setting up SFTP connection...</source>
-        <translation type="obsolete">正在创建SFTP连接...</translation>
-    </message>
-    <message>
-        <source>Failed to establish SFTP connection: %1</source>
-        <translation type="obsolete">建立SFTP连接%1失败</translation>
-    </message>
-    <message>
-        <source>Uploading UTFS client...</source>
-        <translation type="obsolete">正在上传UTFS客户端...</translation>
-    </message>
-    <message>
-        <source>Could not upload UTFS client (%1).</source>
-        <translation type="obsolete">无法上传UTFS客户端(%1).</translation>
-    </message>
-    <message>
-        <source>Could not upload UTFS client (%1), continuing anyway.</source>
-        <translation type="obsolete">无法上传UTFS客户端(%1),仍然继续.</translation>
-    </message>
-    <message>
-        <source>Error: Not enough free ports on device to fulfill all mount requests.</source>
-        <translation type="obsolete">错误: 没有足够的空闲端口来让设备完成所有的接入请求.</translation>
-    </message>
-    <message>
-        <source>Starting remote UTFS clients...</source>
-        <translation type="obsolete">正在启动远程UTFS客户端...</translation>
-    </message>
-    <message>
-        <source>Mount operation succeeded.</source>
-        <translation type="obsolete">挂载操作成功.</translation>
-    </message>
-    <message>
-        <source>Failure running UTFS client: %1</source>
-        <translation type="obsolete">运行UTFS客户端:%1失败</translation>
-    </message>
-    <message>
-        <source>Starting UTFS servers...</source>
-        <translation type="obsolete">正在启动UTFS服务器...</translation>
-    </message>
-    <message>
-        <source>
-stderr was: %1</source>
-        <translation type="obsolete">stderr为:%1</translation>
-    </message>
-    <message>
-        <source>Error running UTFS server: %1</source>
-        <translation type="obsolete">运行UTFS服务器%1时出错</translation>
-    </message>
-    <message>
-        <source>Timeout waiting for UTFS servers to connect.</source>
-        <translation type="obsolete">等待UTFS服务器连接超时.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRemoteMountsModel</name>
-    <message>
-        <source>Local directory</source>
-        <translation type="obsolete">本地目录</translation>
-    </message>
-    <message>
-        <source>Remote mount point</source>
-        <translation type="obsolete">远程挂载点</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRunControl</name>
-    <message>
-        <source>No device configuration set for run configuration.</source>
-        <translation type="obsolete">没有在运行配置中设置任何设备配置.</translation>
-    </message>
-    <message>
-        <source>Starting remote process ...</source>
-        <translation type="obsolete">启动远端进程...</translation>
-    </message>
-    <message>
-        <source>Finished running remote process. Exit code was %1.</source>
-        <translation type="obsolete">远程进程运行结束.返回值%1.</translation>
-    </message>
-    <message>
-        <source>Remote Execution Failure</source>
-        <translation type="obsolete">远程执行失败</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoTemplatesManager</name>
-    <message>
-        <source>Error creating Maemo packaging directory &apos;%1&apos;.</source>
-        <translation type="obsolete">创建Maemo包目录&apos;%1&apos;时出错.</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: dh_make failed (%1)</source>
-        <translation type="obsolete">无法创建Debian模板:dh_make失败(%1)</translation>
-    </message>
-    <message>
-        <source>Unable to create debian templates: dh_make failed (%1)</source>
-        <translation type="obsolete">无法创建Debian模板:dh_make失败(%1)</translation>
-    </message>
-    <message>
-        <source>Unable to move new debian directory to &apos;%1&apos;.</source>
-        <translation type="obsolete">无法将新Debian目录移动到&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Cannot open file &apos;%1&apos;.</source>
-        <translation type="obsolete">打包错误:无法打开文件&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Cannot write file &apos;%1&apos;.</source>
-        <translation type="obsolete">打包错误:无法写入文件&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
-        <translation type="obsolete">Debian修改日志文件&apos;%1&apos;格式未知.</translation>
-    </message>
-    <message>
-        <source>Error writing Debian changelog file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">写Debian修改日志文件&apos;%1&apos;:%2时遇到错误</translation>
-    </message>
-    <message>
-        <source>Invalid icon data in Debian control file.</source>
-        <translation type="obsolete">Debian 控制文件中的图标数据无效.</translation>
-    </message>
-    <message>
-        <source>Could not read image file &apos;%1&apos;.</source>
-        <translation type="obsolete">无法读取镜像文件&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Could not export image file &apos;%1&apos;.</source>
-        <translation type="obsolete">无法导出镜像文件&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Error writing file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">写文件&apos;%1&apos;:&apos;%2&apos;时出错</translation>
-    </message>
-    <message>
-        <source>Error creating Maemo templates</source>
-        <translation type="obsolete">创建Maemo模板出错</translation>
-    </message>
-    <message>
-        <source>File &apos;%1&apos; does not exist</source>
-        <translation type="obsolete">文件&apos;%1&apos;不存在</translation>
-    </message>
-    <message>
-        <source>Cannot open file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">文法打开文件&apos;%1&apos;:&apos;%2&apos;</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::PassphraseForKeyDialog</name>
-    <message>
-        <source>Passphrase:</source>
-        <translation type="obsolete">口令:</translation>
-    </message>
-    <message>
-        <source>Save passphrase</source>
-        <translation type="obsolete">保存口令</translation>
-    </message>
-    <message>
-        <source>This is an insecure option. The password will be saved as plain text.</source>
-        <translation type="obsolete">这是一个不安全的选项.密码会以明文的形式保存.</translation>
-    </message>
-    <message>
-        <source>This is an insecure option. The password will be saved as a plain text.</source>
-        <translation type="obsolete">这是一个不安全的选项.密码会以明文的形式保存.</translation>
-    </message>
-    <message>
-        <source>Passphrase for %1</source>
-        <translation type="obsolete">%1的口令</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeployConfigurationWidget</name>
-    <message>
-        <source>Device:</source>
-        <translation type="obsolete">设备:</translation>
-    </message>
-    <message>
-        <source>Silent installation</source>
-        <translation type="obsolete">静默安装</translation>
-    </message>
-    <message>
-        <source>Serial:</source>
-        <translation type="obsolete">串行:</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-developing-symbian.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-developing-symbian.html&quot;&gt;先决条件是什么?&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Installation file:</source>
-        <translation type="obsolete">安装文件:</translation>
-    </message>
-    <message>
-        <source>Silent installation is an installation mode that does not require user&apos;s intervention. In case it fails the non silent installation is launched.</source>
-        <translation type="obsolete">静默安装是一种无需用户干预的安装模式.为防止安装失败,默认情况下不进行静默安装.</translation>
-    </message>
-    <message>
-        <source>Installation drive:</source>
-        <translation type="obsolete">安装驱动器:</translation>
-    </message>
-    <message>
-        <source>Device Agent</source>
-        <translation type="obsolete">设备代理</translation>
-    </message>
-    <message>
-        <source>Serial port:</source>
-        <translation type="obsolete">串行端口:</translation>
-    </message>
-    <message>
-        <source>Communication Channel</source>
-        <translation type="obsolete">通信频道</translation>
-    </message>
-    <message>
-        <source>Address:</source>
-        <translation type="obsolete">地址:</translation>
-    </message>
-    <message>
-        <source>Connecting</source>
-        <translation type="obsolete">连接中</translation>
-    </message>
-    <message>
-        <source>Unable to create CODA connection. Please try again.</source>
-        <translation type="obsolete">无法创建CODA 连接. 请再试一次.</translation>
-    </message>
-    <message>
-        <source>Currently there is no information about the device for this connection type.</source>
-        <translation type="obsolete">目前设备的连接类型没有任何相关信息。</translation>
-    </message>
-    <message>
-        <source>No device information available</source>
-        <translation type="obsolete">没有可用的设备信息</translation>
-    </message>
-    <message>
-        <source>Qt version: </source>
-        <translation type="obsolete">Qt 版本:</translation>
-    </message>
-    <message>
-        <source>Not installed on device</source>
-        <translation type="obsolete">没有安装到设备上</translation>
-    </message>
-    <message>
-        <source>Qt version:</source>
-        <translation type="obsolete">Qt 版本:</translation>
-    </message>
-    <message>
-        <source>Unrecognised Symbian version 0x%1</source>
-        <translation type="obsolete">未知的Symbian 版本0x%1</translation>
-    </message>
-    <message>
-        <source>Unrecognised S60 version 0x%1</source>
-        <translation type="obsolete">未知的S60 版本0x%1</translation>
-    </message>
-    <message>
-        <source>OS version:</source>
-        <translation type="obsolete">OS 版本:</translation>
-    </message>
-    <message>
-        <source>unknown</source>
-        <translation type="obsolete">未知</translation>
-    </message>
-    <message>
-        <source>ROM version:</source>
-        <translation type="obsolete">ROM 版本:</translation>
-    </message>
-    <message>
-        <source>Release:</source>
-        <translation type="obsolete">发布:</translation>
-    </message>
-    <message>
-        <source>CODA version: </source>
-        <translation type="obsolete">CODA 版本: </translation>
-    </message>
-    <message>
-        <source>Error reading CODA version</source>
-        <translation type="obsolete">读取CODA 版本错误</translation>
-    </message>
-    <message>
-        <source>Qt Mobility version: </source>
-        <translation type="obsolete">Qt Mobility 版本: </translation>
-    </message>
-    <message>
-        <source>Error reading Qt Mobility version</source>
-        <translation type="obsolete">读取QtMobility 版本错误</translation>
-    </message>
-    <message>
-        <source>Qt Quick components version: </source>
-        <translation type="obsolete">Qt Quick 组件版本: </translation>
-    </message>
-    <message>
-        <source>Not installed</source>
-        <translation type="obsolete">未安装</translation>
-    </message>
-    <message>
-        <source>QML Viewer version: </source>
-        <translation type="obsolete">QML 查看器版本:</translation>
-    </message>
-    <message>
-        <source>QtMobility version: </source>
-        <translation type="obsolete">QtMobility 版本: </translation>
-    </message>
-    <message>
-        <source>Error reading QtMobility version</source>
-        <translation type="obsolete">读取QtMobility 版本错误</translation>
-    </message>
-    <message>
-        <source>Screen size:</source>
-        <translation type="obsolete">屏幕尺寸:</translation>
-    </message>
-    <message>
-        <source>Device on serial port:</source>
-        <translation type="obsolete">在串口上的设备:</translation>
-    </message>
-    <message>
-        <source>Queries the device for information</source>
-        <translation type="obsolete">查询设备信息</translation>
-    </message>
-    <message>
-        <source>Connecting...</source>
-        <translation type="obsolete">正在连接...</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeployStep</name>
-    <message>
-        <source>Unable to remove existing file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">现存文件 &apos;%1&apos; 无法被删除: %2</translation>
-    </message>
-    <message>
-        <source>Unable to rename file &apos;%1&apos; to &apos;%2&apos;: %3</source>
-        <translation type="obsolete">无法重命名文件 &apos;%1&apos; 到 &apos;%2&apos;: %3</translation>
-    </message>
-    <message>
-        <source>Deploy</source>
-        <extracomment>Qt4 Deploystep display name</extracomment>
-        <translation type="obsolete">部署</translation>
-    </message>
-    <message>
-        <source>Renaming new package &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation type="obsolete">正在重命名新软件包 &apos;%1&apos; 为 &apos;%2‘</translation>
-    </message>
-    <message>
-        <source>Removing old package &apos;%1&apos;</source>
-        <translation type="obsolete">正在删除旧软件包 &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>&apos;%1&apos;: Package file not found</source>
-        <translation type="obsolete">包文件%1未找到</translation>
-    </message>
-    <message>
-        <source>There is no device plugged in.</source>
-        <translation type="obsolete">没有插入设备.</translation>
-    </message>
-    <message>
-        <source>Failed to find package %1</source>
-        <translation type="obsolete">查找包:%1失败</translation>
-    </message>
-    <message>
-        <source>Could not connect to phone on port &apos;%1&apos;: %2
-Check if the phone is connected and App TRK is running.</source>
-        <translation type="obsolete">无法从端口 &apos;%1&apos; 连接到电话: %2
-检查电话是否连接 并且 App TRK 已经运行.</translation>
-    </message>
-    <message>
-        <source>Canceled.</source>
-        <translation type="obsolete">已取消.</translation>
-    </message>
-    <message>
-        <source>Could not create file %1 on device: %2</source>
-        <translation type="obsolete">无法在设备%2上创建文件 %1</translation>
-    </message>
-    <message>
-        <source>Could not write to file %1 on device: %2</source>
-        <translation type="obsolete">无法在设备%2上写入文件 %1</translation>
-    </message>
-    <message>
-        <source>Could not close file %1 on device: %2. It will be closed when App TRK is closed.</source>
-        <translation type="obsolete">无法在设备上关闭文件 %1 :  %2 , 它将随App TRK关闭而关闭.</translation>
-    </message>
-    <message>
-        <source>Could not connect to App TRK on device: %1. Restarting App TRK might help.</source>
-        <translation type="obsolete">无法在设备上连接App TRK: %1. 重新启动App TRK也许会有帮助.</translation>
-    </message>
-    <message>
-        <source>Copying &quot;%1&quot;...</source>
-        <translation type="obsolete">正在拷贝&quot;%1&quot;...</translation>
-    </message>
-    <message>
-        <source>No device is connected. Please connect a device and try again.</source>
-        <translation type="obsolete">没有设备连接。请连接设备后再试。</translation>
-    </message>
-    <message>
-        <source>No address for a device has been defined. Please define an address and try again.</source>
-        <translation type="obsolete">没有为设备定义过地址。请定义一个地址然后再试。</translation>
-    </message>
-    <message>
-        <source>No device is connected. Connect a device and try again.</source>
-        <translation type="obsolete">没有设备连接。请连接设备后再试。</translation>
-    </message>
-    <message>
-        <source>No address for a device has been defined. Define an address and try again.</source>
-        <translation type="obsolete">没有为设备定义过地址。请定义一个地址然后再试。</translation>
-    </message>
-    <message>
-        <source>No such port</source>
-        <translation type="obsolete">没有这个端口</translation>
-    </message>
-    <message>
-        <source>Could not open serial device: %1</source>
-        <translation type="obsolete">无法连续打开设备: %1</translation>
-    </message>
-    <message>
-        <source>Connecting to %1:%2...</source>
-        <translation type="obsolete">正在连接到%1:%2...</translation>
-    </message>
-    <message>
-        <source>Error: %1</source>
-        <translation type="obsolete">错误: %1</translation>
-    </message>
-    <message>
-        <source>Installing package &quot;%1&quot; on drive %2:...</source>
-        <translation type="obsolete">正在驱动器%2上安装包&quot;%1&quot;...</translation>
-    </message>
-    <message>
-        <source>A timeout while deploying has occurred. CODA might not be responding. Try reconnecting the device.</source>
-        <translation type="obsolete">部署时发生超时.CODA无响应.请尝试重新连接设备.</translation>
-    </message>
-    <message>
-        <source>Could not open remote file: %1</source>
-        <translation type="obsolete">无法打开远程文件: %1</translation>
-    </message>
-    <message>
-        <source>Internal error: No filehandle obtained</source>
-        <translation type="obsolete">内部错误:没有句柄获得</translation>
-    </message>
-    <message>
-        <source>Could not open local file %1: %2</source>
-        <translation type="obsolete">无法打开本地文件 &apos;%1&apos;:%2</translation>
-    </message>
-    <message>
-        <source>Installation has finished</source>
-        <translation type="obsolete">安装完毕</translation>
-    </message>
-    <message>
-        <source>Installation failed: %1; see %2 for descriptions of the error codes</source>
-        <translation type="obsolete">安装失败: %1; 查看%2 错误代码的解释</translation>
-    </message>
-    <message>
-        <source>Failed to close the remote file: %1</source>
-        <translation type="obsolete">无法关闭远程文件: %1</translation>
-    </message>
-    <message>
-        <source>Installation</source>
-        <translation type="obsolete">安装</translation>
-    </message>
-    <message>
-        <source>Could not install from package %1 on device: %2</source>
-        <translation type="obsolete">无法从安装包%1 安装到设备: %2</translation>
-    </message>
-    <message>
-        <source>Deployment has been cancelled.</source>
-        <translation type="obsolete">部署被取消。</translation>
-    </message>
-    <message>
-        <source>The device &apos;%1&apos; has been disconnected</source>
-        <translation type="obsolete">设备 &apos;%1&apos; 的连接已经被断开</translation>
-    </message>
-    <message>
-        <source>Copy progress: %1%</source>
-        <translation type="obsolete">复制进程: %1%</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeployStepWidget</name>
-    <message>
-        <source>Deploy SIS Package</source>
-        <translation type="obsolete">部署SIS包</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeployStepFactory</name>
-    <message>
-        <source>Deploy SIS Package</source>
-        <translation type="obsolete">部署SIS包</translation>
-    </message>
-</context>
-<context>
     <name>QmakeProjectManager::SbsV2Parser</name>
     <message>
         <source>SBSv2 build log</source>
@@ -32379,30 +31540,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>MaemoQemuSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">界面</translation>
-    </message>
-    <message>
-        <source>OpenGL Mode</source>
-        <translation type="obsolete">OpenGL 模式</translation>
-    </message>
-    <message>
-        <source>&amp;Hardware acceleration</source>
-        <translation type="obsolete">硬件加速(&amp;H)</translation>
-    </message>
-    <message>
-        <source>&amp;Software rendering</source>
-        <translation type="obsolete">软件渲染(&amp;S)</translation>
-    </message>
-    <message>
-        <source>&amp;Auto-detect</source>
-        <translation type="obsolete">自动检测(&amp;A)</translation>
-    </message>
-</context>
-<context>
-    <name>MaemoRemoteProcessesDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>List of Remote Processes</source>
         <translation type="obsolete">远程进程列表</translation>
@@ -32448,17 +31586,10 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>S60CertificateDetailsDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Details of Certificate</source>
         <translation type="obsolete">验证详情</translation>
-    </message>
-</context>
-<context>
-    <name>S60PublishingBuildSettingsPageOvi</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">界面</translation>
     </message>
     <message>
         <source>Choose a build configuration:</source>
@@ -32476,18 +31607,7 @@ Previous Qt versions have limitations in building suitable SIS files.</source>
     </message>
 </context>
 <context>
-    <name>S60PublishingResultsPageOvi</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">界面</translation>
-    </message>
-</context>
-<context>
-    <name>S60PublishingSisSettingsPageOvi</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">界面</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Global vendor name:</source>
         <translation type="obsolete">全局供应商名称:</translation>
@@ -35814,10 +34934,6 @@ Reason: %2</source>
         <translation type="obsolete">密钥创建失败: %1</translation>
     </message>
     <message>
-        <source>Done.</source>
-        <translation type="obsolete">完成。</translation>
-    </message>
-    <message>
         <source>Could Not Save File</source>
         <translation type="obsolete">无法保存文件</translation>
     </message>
@@ -35875,12 +34991,6 @@ Reason: %2</source>
     <name>QmakeProjectManager::Internal::MaemoGlobal</name>
     <message>
         <source>
-Did you start Qemu?</source>
-        <translation type="obsolete">
-启动Qemu了吗？</translation>
-    </message>
-    <message>
-        <source>
 Is the device connected and set up for network access?</source>
         <translation type="obsolete">
 设备已经被设置成能联网的了么?</translation>
@@ -35915,625 +35025,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::MaemoKeyDeployer</name>
-    <message>
-        <source>Could not read public key file &apos;%1&apos;.</source>
-        <translation type="obsolete">无法读取公钥文件 &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="obsolete">连接失败:%1</translation>
-    </message>
-    <message>
-        <source>Key deployment failed: %1.</source>
-        <translation type="obsolete">部署密钥失败:%1.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPerTargetDeviceConfigurationListModel</name>
-    <message>
-        <source>(default)</source>
-        <translation type="obsolete">(默认)</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPublishedProjectModel</name>
-    <message>
-        <source>Include in package</source>
-        <translation type="obsolete">包含到包</translation>
-    </message>
-    <message>
-        <source>Include</source>
-        <translation type="obsolete">包含</translation>
-    </message>
-    <message>
-        <source>Do not include</source>
-        <translation type="obsolete">不要包含</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPublisherFremantleFree</name>
-    <message>
-        <source>Canceled.</source>
-        <translation type="obsolete">已取消.</translation>
-    </message>
-    <message>
-        <source>Publishing canceled by user.</source>
-        <translation type="obsolete">发布被用户取消。</translation>
-    </message>
-    <message>
-        <source>The project is missing some information important to publishing:</source>
-        <translation type="obsolete">项目丢失了一些发布需要的重要信息:</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Missing project information.</source>
-        <translation type="obsolete">发布失败:丢失项目信息。</translation>
-    </message>
-    <message>
-        <source>Removing left-over temporary directory ...</source>
-        <translation type="obsolete">移除留下的临时文件夹...</translation>
-    </message>
-    <message>
-        <source>Error removing temporary directory: %1</source>
-        <translation type="obsolete">移除临时文件夹出错: %1</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create source package.</source>
-        <translation type="obsolete">发布失败:无法生成源文件包。</translation>
-    </message>
-    <message>
-        <source>Setting up temporary directory ...</source>
-        <translation type="obsolete">设置临时文件夹...</translation>
-    </message>
-    <message>
-        <source>Error: Could not create temporary directory.</source>
-        <translation type="obsolete">错误:无法创建临时文件夹.</translation>
-    </message>
-    <message>
-        <source>Error: Could not copy project directory</source>
-        <translation type="obsolete">错误:无法复制项目文件夹</translation>
-    </message>
-    <message>
-        <source>Error: Could not fix newlines</source>
-        <translation type="obsolete">错误:无法修复新行</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create package.</source>
-        <translation type="obsolete">发布失败:无法创建包.</translation>
-    </message>
-    <message>
-        <source>Cleaning up temporary directory ...</source>
-        <translation type="obsolete">清理临时文件夹...</translation>
-    </message>
-    <message>
-        <source>Failed to create directory &apos;%1&apos;.</source>
-        <translation type="obsolete">无法创建文件夹&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;.</source>
-        <translation type="obsolete">无法复制文件&apos;%1&apos;到&apos;%2&apos;.</translation>
-    </message>
-    <message>
-        <source>Error: Cannot open file &apos;%1&apos;.</source>
-        <translation type="obsolete">错误: 无法打开文件&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Error: Failed to start dpkg-buildpackage.</source>
-        <translation type="obsolete">错误: 无法开始 dpkg-buildpackage.</translation>
-    </message>
-    <message>
-        <source>Error: dpkg-buildpackage did not succeed.</source>
-        <translation type="obsolete">错误: dpkg-buildpackage 没有成功.</translation>
-    </message>
-    <message>
-        <source>Package creation failed.</source>
-        <translation type="obsolete">包创建失败。</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation type="obsolete">完成。</translation>
-    </message>
-    <message>
-        <source>Packaging finished successfully. The following files were created:
-</source>
-        <translation type="obsolete">打包成功完成。如下文件被创建:
-</translation>
-    </message>
-    <message>
-        <source>Building source package...</source>
-        <translation type="obsolete">构建源程序包...</translation>
-    </message>
-    <message>
-        <source>Starting scp ...</source>
-        <translation type="obsolete">启动scp ...</translation>
-    </message>
-    <message>
-        <source>SSH error: %1</source>
-        <translation type="obsolete">SSH 错误: %1</translation>
-    </message>
-    <message>
-        <source>Upload failed.</source>
-        <translation type="obsolete">上传失败。</translation>
-    </message>
-    <message>
-        <source>Error uploading file: %1</source>
-        <translation type="obsolete">上传文件错误: %1</translation>
-    </message>
-    <message>
-        <source>Error uploading file.</source>
-        <translation type="obsolete">上传文件错误。</translation>
-    </message>
-    <message>
-        <source>All files uploaded.</source>
-        <translation type="obsolete">所有文件已上传。</translation>
-    </message>
-    <message>
-        <source>Uploading file %1 ...</source>
-        <translation type="obsolete">上传文件中%1 ...</translation>
-    </message>
-    <message>
-        <source>Cannot open file for reading: %1</source>
-        <translation type="obsolete">无法打开并读取文件: %1</translation>
-    </message>
-    <message>
-        <source>Cannot read file: %1</source>
-        <translation type="obsolete">无法读取文件: %1</translation>
-    </message>
-    <message>
-        <source>Failed to adapt desktop file &apos;%1&apos;.</source>
-        <translation type="obsolete">无法加入桌面文件&apos;%1&apos;.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
-        <translation type="obsolete">发布到Fremantle&apos;s &quot;Extras-devel/free&quot;仓库</translation>
-    </message>
-    <message>
-        <source>Upload options</source>
-        <translation type="obsolete">上传选项</translation>
-    </message>
-    <message>
-        <source>Choose a private key file</source>
-        <translation type="obsolete">选择一个私钥文件</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
-    <message>
-        <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
-        <translation type="obsolete">发布到&quot;Fremantle Extras-devel free&quot; 仓库</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPublishingWizardFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
-        <translation type="obsolete">发布到Fremantle的&quot;Extras-devel free&quot; 仓库</translation>
-    </message>
-    <message>
-        <source>Build Settings</source>
-        <translation type="obsolete">构建设置</translation>
-    </message>
-    <message>
-        <source>Upload Settings</source>
-        <translation type="obsolete">上传设置</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation type="obsolete">结果</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRemoteProcessesDialog</name>
-    <message>
-        <source>Remote Error</source>
-        <translation type="obsolete">远程错误</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRemoteProcessList</name>
-    <message>
-        <source>Connection failure: %1</source>
-        <translation type="obsolete">连接失败: %1</translation>
-    </message>
-    <message>
-        <source>Error: Remote process failed to start: %1</source>
-        <translation type="obsolete">错误:远程进程启动失败: %1</translation>
-    </message>
-    <message>
-        <source>Error: Remote process crashed: %1</source>
-        <translation type="obsolete">错误:远程进程崩溃: %1</translation>
-    </message>
-    <message>
-        <source>Remote process failed.</source>
-        <translation type="obsolete">远端进程失败。</translation>
-    </message>
-    <message>
-        <source>
-Remote stderr was: %1</source>
-        <translation type="obsolete">
-远程stderr 是: %1</translation>
-    </message>
-    <message>
-        <source>Command Line</source>
-        <translation type="obsolete">命令行</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoDeviceConfigurationsSettingsPage</name>
-    <message>
-        <source>Maemo Device Configurations</source>
-        <translation type="obsolete">Maemo设备配置</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoQemuSettingsPage</name>
-    <message>
-        <source>Qemu Settings</source>
-        <translation type="obsolete">Qemu 设置</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoQemuCrashDialog</name>
-    <message>
-        <source>Qemu error</source>
-        <translation type="obsolete">Qemu 错误</translation>
-    </message>
-    <message>
-        <source>Qemu crashed.</source>
-        <translation type="obsolete">Qemu崩溃了。</translation>
-    </message>
-    <message>
-        <source>Click here to change the OpenGL mode.</source>
-        <translation type="obsolete">点击这里来改变OpenGL 模式.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoToolChainFactory</name>
-    <message>
-        <source>Maemo GCC</source>
-        <translation type="obsolete">Maemo GCC</translation>
-    </message>
-    <message>
-        <source>Maemo GCC for %1</source>
-        <translation type="obsolete">Maemo GCC 为 %1</translation>
-    </message>
-    <message>
-        <source>%1 GCC (%2)</source>
-        <translation type="obsolete">%1 GCC (%2)</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoToolChainConfigWidget</name>
-    <message>
-        <source>MADDE Root: %1&lt;br&gt;Target Root: %2</source>
-        <translation type="obsolete">MADDE Root: %1&lt;br&gt;目标 Root: %2</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt; MADDE路径:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt; MADDE 路径目标:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;调试器:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoUsedPortsGatherer</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">连接错误:%1</translation>
-    </message>
-    <message>
-        <source>Could not start remote process: %1</source>
-        <translation type="obsolete">不能启动远程 进程: %1</translation>
-    </message>
-    <message>
-        <source>Remote process crashed: %1</source>
-        <translation type="obsolete">远端进程崩溃:%1</translation>
-    </message>
-    <message>
-        <source>Remote process failed: %1</source>
-        <translation type="obsolete">远端进程失败:%1</translation>
-    </message>
-    <message>
-        <source>
-Remote error output was: %1</source>
-        <translation type="obsolete">
-远程错误输出: %1</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeMaemoDeployConfigurationFactory</name>
-    <message>
-        <source>Deploy to Maemo5 device</source>
-        <translation type="obsolete">部署到Maemo5 设备</translation>
-    </message>
-    <message>
-        <source>Deploy to Harmattan device</source>
-        <translation type="obsolete">部署到Harmattan 设备</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::AbstractQmakeMaemoTarget</name>
-    <message>
-        <source>File &apos;%1&apos; does not exist</source>
-        <translation type="obsolete">文件&apos;%1&apos;不存在</translation>
-    </message>
-    <message>
-        <source>Cannot open file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">文法打开文件&apos;%1&apos;:&apos;%2&apos;</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="obsolete">Qt Creator</translation>
-    </message>
-    <message>
-        <source>Error creating Maemo packaging directory &apos;%1&apos;.</source>
-        <translation type="obsolete">创建Maemo包目录&apos;%1&apos;时出错.</translation>
-    </message>
-    <message>
-        <source>Add Packaging Files to Project</source>
-        <translation type="obsolete">添加包到项目中</translation>
-    </message>
-    <message>
-        <source>Qt Creator has set up the following files to enable packaging:
-   %1
-Do you want to add them to the project?</source>
-        <translation type="obsolete">Qt Creator 被设置成以下文件打开打包功能:
-   %1
-您想添加他们到项目中吗？</translation>
-    </message>
-    <message>
-        <source>Error creating Maemo templates</source>
-        <translation type="obsolete">创建Maemo模板出错</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::AbstractDebBasedQmakeMaemoTarget</name>
-    <message>
-        <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
-        <translation type="obsolete">Debian修改日志文件&apos;%1&apos;格式未知.</translation>
-    </message>
-    <message>
-        <source>Error writing Debian changelog file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">写Debian修改日志文件&apos;%1&apos;:%2时遇到错误</translation>
-    </message>
-    <message>
-        <source>Invalid icon data in Debian control file.</source>
-        <translation type="obsolete">Debian 控制文件中的图标数据无效.</translation>
-    </message>
-    <message>
-        <source>Could not read image file &apos;%1&apos;.</source>
-        <translation type="obsolete">无法读取镜像文件&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Could not export image file &apos;%1&apos;.</source>
-        <translation type="obsolete">无法导出镜像文件&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Error writing file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">写文件&apos;%1&apos;:&apos;%2&apos;时出错</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: dh_make failed (%1)</source>
-        <translation type="obsolete">无法创建Debian模板:dh_make失败(%1)</translation>
-    </message>
-    <message>
-        <source>Unable to create debian templates: dh_make failed (%1)</source>
-        <translation type="obsolete">无法创建Debian模板:dh_make失败(%1)</translation>
-    </message>
-    <message>
-        <source>Unable to move new debian directory to &apos;%1&apos;.</source>
-        <translation type="obsolete">无法将新Debian目录移动到&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Cannot open file &apos;%1&apos;.</source>
-        <translation type="obsolete">打包错误:无法打开文件&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Cannot write file &apos;%1&apos;.</source>
-        <translation type="obsolete">打包错误:无法写入文件&apos;%1&apos;.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CodaRunControl</name>
-    <message>
-        <source>No device is connected. Please connect a device and try again.</source>
-        <translation type="obsolete">没有设备连接。请连接设备后再试。</translation>
-    </message>
-    <message>
-        <source>Executable file: %1</source>
-        <translation type="obsolete">可执行文件:%1</translation>
-    </message>
-    <message>
-        <source>Connecting to &apos;%1&apos;...</source>
-        <translation type="obsolete">连接到&apos;%1&apos;...</translation>
-    </message>
-    <message>
-        <source>Unable to create CODA connection. Please try again.</source>
-        <translation type="obsolete">无法创建CODA 连接. 请再试一次.</translation>
-    </message>
-    <message>
-        <source>Could not open serial device: %1</source>
-        <translation type="obsolete">无法连续打开设备: %1</translation>
-    </message>
-    <message>
-        <source>Connecting to %1:%2...</source>
-        <translation type="obsolete">正在连接到%1:%2...</translation>
-    </message>
-    <message>
-        <source>Error: %1</source>
-        <translation type="obsolete">错误: %1</translation>
-    </message>
-    <message>
-        <source>Connected.</source>
-        <translation type="obsolete">已连接.</translation>
-    </message>
-    <message>
-        <source>Process has finished.</source>
-        <translation type="obsolete">进程完成了.</translation>
-    </message>
-    <message>
-        <source>Thread has crashed: %1</source>
-        <translation type="obsolete">线程崩溃了: %1</translation>
-    </message>
-    <message>
-        <source>The process is already running on the device. Please first close it.</source>
-        <translation type="obsolete">进程已经在设备上运行。请先关闭。</translation>
-    </message>
-    <message>
-        <source>Launching: %1</source>
-        <translation type="obsolete">启动中: %1</translation>
-    </message>
-    <message>
-        <source>Launched.</source>
-        <translation type="obsolete">启动了。</translation>
-    </message>
-    <message>
-        <source>Launch failed: %1</source>
-        <translation type="obsolete">启动失败: %1</translation>
-    </message>
-    <message>
-        <source>Waiting for CODA</source>
-        <translation type="obsolete">等待CODA</translation>
-    </message>
-    <message>
-        <source>Canceled.</source>
-        <translation type="obsolete">已取消.</translation>
-    </message>
-    <message>
-        <source>The device &apos;%1&apos; has been disconnected</source>
-        <translation type="obsolete">设备 &apos;%1&apos; 的连接已经被断开</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GcceToolChainFactory</name>
-    <message>
-        <source>GCCE</source>
-        <translation type="obsolete">GCCE</translation>
-    </message>
-    <message>
-        <source>GCCE from Qt version</source>
-        <translation type="obsolete"> Qt version中的GCCE </translation>
-    </message>
-    <message>
-        <source>GCCE (%1)</source>
-        <translation type="obsolete">GCCE (%1)</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeSymbianTarget</name>
-    <message>
-        <source>&lt;b&gt;Device:&lt;/b&gt; Not connected</source>
-        <translation type="obsolete">&lt;b&gt;设备:&lt;/b&gt; 没有连接</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Device:&lt;/b&gt; %1</source>
-        <translation type="obsolete">&lt;b&gt;设备:&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Device:&lt;/b&gt; %1, %2</source>
-        <translation type="obsolete">&lt;b&gt;设备:&lt;/b&gt; %1, %2</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;IP address:&lt;/b&gt; %1:%2</source>
-        <translation type="obsolete">&lt;b&gt;IP 地址:&lt;/b&gt; %1:%2</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::RvctToolChainFactory</name>
-    <message>
-        <source>ARMv5</source>
-        <translation type="obsolete">ARMv5</translation>
-    </message>
-    <message>
-        <source>ARMv6</source>
-        <translation type="obsolete">ARMv6</translation>
-    </message>
-    <message>
-        <source>RVCT</source>
-        <translation type="obsolete">RVCT</translation>
-    </message>
-    <message>
-        <source>RVCT (%1 %2.%3 Build %4)</source>
-        <extracomment>%1 arm version, %2 major version, %3 minor version, %4 build number</extracomment>
-        <translation type="obsolete">RVCT (%1 %2.%3 Build %4)</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CertificateInfo</name>
-    <message>
-        <source>The certificate &quot;%1&quot; has already expired and cannot be used.
-Expiration date: %2.</source>
-        <translation type="obsolete">验证&quot;%1&quot; 已经过期无法被使用.
-过期日期: %2.</translation>
-    </message>
-    <message>
-        <source>The certificate &quot;%1&quot; is not yet valid.
-Valid from: %2.</source>
-        <translation type="obsolete">验证&quot;%1&quot; 还未通过.
-通过日期: %2.</translation>
-    </message>
-    <message>
-        <source>The certificate &quot;%1&quot; is not a valid X.509 certificate.</source>
-        <translation type="obsolete">验证&quot;%1&quot; 不是一个有效的X.509验证.</translation>
-    </message>
-    <message>
-        <source>Type: </source>
-        <translation type="obsolete">类型:</translation>
-    </message>
-    <message>
-        <source>Developer certificate</source>
-        <translation type="obsolete">开发验证</translation>
-    </message>
-    <message>
-        <source>Self signed certificate</source>
-        <translation type="obsolete">自签名验证</translation>
-    </message>
-    <message>
-        <source>Issued by: </source>
-        <translation type="obsolete">颁发自:</translation>
-    </message>
-    <message>
-        <source>Issued to: </source>
-        <translation type="obsolete">颁发给:</translation>
-    </message>
-    <message>
-        <source>Valid from: </source>
-        <translation type="obsolete">有效期开始:</translation>
-    </message>
-    <message>
-        <source>Valid to: </source>
-        <translation type="obsolete">有效期结束:</translation>
-    </message>
-    <message>
-        <source>Capabilities: </source>
-        <translation type="obsolete">能力:</translation>
-    </message>
-    <message numerus="yes">
-        <source>Supporting %n device(s): </source>
-        <translation type="obsolete">
-            <numerusform>支持%n 设备(s): </numerusform>
-        </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageParser</name>
-    <message>
-        <source>The binary package &apos;%1&apos; was patched to be installable after being self-signed.
-%2
-Use a developer certificate or any other signing option to prevent this patching from happening.</source>
-        <extracomment>%1 package name, %2 will be replaced by a list of patching lines.</extracomment>
-        <translation type="obsolete">二进制包&apos;%1&apos;在签名候将可被安装.
-%2
-使用开发验证或者其他签名选项来让此项发生.</translation>
-    </message>
-    <message>
-        <source>Cannot create Smart Installer package as the Smart Installer&apos;s base file is missing. Please ensure that it is located in the SDK.</source>
-        <translation type="obsolete">无法创建自动安装包因为自动安装器文件丢失。请检查文件存在于SDK下。</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublisherOvi</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Error while reading .pro file %1: %2</source>
         <translation type="obsolete">打开 .pro 文件 %1 出错: %2</translation>
@@ -36620,14 +35112,14 @@ Use a developer certificate or any other signing option to prevent this patching
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60PublishingWizardFactoryOvi</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Publish Qt Symbian Applications to Ovi Store</source>
         <translation type="obsolete">发布Qt Symbian 应用到Ovi 商店</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60PublishingWizardOvi</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Publishing to Ovi Store</source>
         <translation type="obsolete">发布到Ovi 商店</translation>
@@ -36646,7 +35138,7 @@ Use a developer certificate or any other signing option to prevent this patching
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60RunControlBase</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Launching</source>
         <translation type="obsolete">正在启动</translation>
@@ -36658,10 +35150,6 @@ Use a developer certificate or any other signing option to prevent this patching
     <message>
         <source>Force Quit</source>
         <translation type="obsolete">强行关闭</translation>
-    </message>
-    <message>
-        <source>Keep Running</source>
-        <translation type="obsolete">保持运行</translation>
     </message>
     <message>
         <source>Finished.</source>
@@ -36685,20 +35173,12 @@ Check if the phone is connected and App TRK is running.</source>
 检查电话是否连接 并且 App TRK 已经运行.</translation>
     </message>
     <message>
-        <source>Could not connect to App TRK on device: %1. Restarting App TRK might help.</source>
-        <translation type="obsolete">无法在设备上连接App TRK: %1. 重新启动App TRK也许会有帮助.</translation>
-    </message>
-    <message>
         <source>Waiting for App TRK</source>
         <translation type="obsolete">等待 App TRK</translation>
     </message>
     <message>
         <source>Canceled.</source>
         <translation type="obsolete">已取消.</translation>
-    </message>
-    <message>
-        <source>The device &apos;%1&apos; has been disconnected</source>
-        <translation type="obsolete">设备 &apos;%1&apos; 的连接已经被断开</translation>
     </message>
     <message>
         <source>Starting application...</source>
@@ -39502,52 +37982,14 @@ Do you want to continue?</source>
         <translation type="obsolete">等待CODA</translation>
     </message>
     <message>
-        <source>Qt Creator is waiting for the CODA application to connect.&lt;br&gt;Please make sure the application is running on your mobile phone and the right IP address and/or port are configured in the project settings.</source>
-        <translation type="obsolete">Qt Creator 正在等待 CODA 应用连接.&lt;br&gt;请您确保手机上应用正在运行并且IP 地址或端口已经设置正确.</translation>
-    </message>
-    <message>
-        <source>Canceled.
-</source>
-        <translation type="obsolete">已取消.
-</translation>
-    </message>
-    <message>
-        <source>The device &apos;%1&apos; has been disconnected.
-</source>
-        <translation type="obsolete">设备 &apos;%1&apos; 的连接已经被断开.
-</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::S60DeviceRunConfiguration</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <extracomment>S60 device runconfiguration default display name, %1 is base pro-File name</extracomment>
-        <translation type="obsolete">Symbian 设备上的 %1</translation>
-    </message>
-    <message>
-        <source>Run on Symbian device</source>
-        <extracomment>S60 device runconfiguration default display name (no profile set)</extracomment>
-        <translation type="obsolete">在Symbian设备上运行</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::S60DeviceRunConfigurationFactory</name>
-    <message>
         <source>%1 on Symbian Device</source>
         <translation type="obsolete">Symbian 设备上的 %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CommandPublishStep</name>
     <message>
         <source>Running %1</source>
         <extracomment>%1 is a name of the Publish Step i.e. Clean Step</extracomment>
         <translation type="obsolete">正在运行%1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublishingBuildSettingsPageOvi</name>
     <message>
         <source>No valid Qt version has been detected.&lt;br&gt;Define a correct Qt version in &quot;Options &gt; Qt4&quot;</source>
         <translation type="obsolete">没有检测到有效的Qt版本.&lt;br&gt;请定义一个有效的Qt 版本在&quot;选项&gt; Qt4&quot;</translation>
@@ -39555,17 +37997,6 @@ Do you want to continue?</source>
     <message>
         <source>No valid tool chain has been detected.&lt;br&gt;Define a correct tool chain in &quot;Options &gt; Tool Chains&quot;</source>
         <translation type="obsolete">没有检测到有效的工具链.&lt;br&gt;请定义一个正确的工具链在&quot;选项&gt; 工具链&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::S60RunControlBase</name>
-    <message>
-        <source>Launching</source>
-        <translation type="obsolete">正在启动</translation>
-    </message>
-    <message>
-        <source>Force Quit</source>
-        <translation type="obsolete">强行关闭</translation>
     </message>
     <message>
         <source>Keep Running</source>
@@ -39843,7 +38274,7 @@ Do you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::DeployableFilesPerProFile</name>
+    <name>RemoteLinux</name>
     <message>
         <source>&lt;no target path set&gt;</source>
         <translation type="obsolete">&lt;没有设置目标路径&gt;</translation>
@@ -39858,15 +38289,7 @@ Do you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::GenericLinuxDeviceConfigurationFactory</name>
-    <message>
-        <source>Generic Linux Device</source>
-        <translation type="obsolete">通用Linux设备</translation>
-    </message>
-    <message>
-        <source>Generic Linux</source>
-        <translation type="obsolete">通用Linux</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Test</source>
         <translation type="obsolete">测试</translation>
@@ -39881,25 +38304,21 @@ Do you want to continue?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizard</name>
+    <name>RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>设置新的通用型Linux设备</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection Data</source>
         <translation>连接数据</translation>
     </message>
-    <message>
-        <source>Generic Linux Device</source>
-        <translation>通用Linux设备</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardFinalPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Setup Finished</source>
         <translation>设置完成</translation>
@@ -39912,21 +38331,21 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDeviceConfigurations</name>
+    <name>RemoteLinux</name>
     <message>
         <source>(default for %1)</source>
         <translation type="obsolete">(默认 %1)</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDeviceFactorySelectionDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Start Wizard</source>
         <translation type="obsolete">开启向导</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaddeDeviceConfigurationFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
         <translation type="obsolete">设备拥有MADDE支持(例如:Fremantle, Harmattan, MeeGo)</translation>
@@ -39937,7 +38356,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoConfigTestDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Testing configuration. This may take a while.</source>
         <translation type="obsolete">测试设置.这将需要一点时间.</translation>
@@ -39949,16 +38368,6 @@ In addition, device connectivity will be tested.</source>
     <message>
         <source>Stop Test</source>
         <translation type="obsolete">停止测试</translation>
-    </message>
-    <message>
-        <source>
-Did you start Qemu?</source>
-        <translation type="obsolete">
-启动Qemu了吗？</translation>
-    </message>
-    <message>
-        <source>Remote process failed: %1</source>
-        <translation type="obsolete">远端进程失败:%1</translation>
     </message>
     <message>
         <source>Qt version mismatch!  Expected Qt on device: 4.6.2 or later.</source>
@@ -40012,14 +38421,10 @@ Did you start Qemu?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoMountAndInstallDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No matching packaging step found.</source>
         <translation type="obsolete">没有找到符合条件的打包步骤.</translation>
-    </message>
-    <message>
-        <source>Package installed.</source>
-        <translation type="obsolete">包安装成功.</translation>
     </message>
     <message>
         <source>Deploy package via UTFS mount</source>
@@ -40027,7 +38432,7 @@ Did you start Qemu?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoMountAndCopyDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>All files copied.</source>
         <translation type="obsolete">所有文件拷贝结束.</translation>
@@ -40038,7 +38443,7 @@ Did you start Qemu?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeployConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
         <translation type="obsolete">选择图标(如果需要会缩放到%1x%1 像素 )</translation>
@@ -40061,57 +38466,28 @@ Did you start Qemu?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeploymentMounter</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="obsolete">连接失败:%1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeployStepBaseWidget</name>
-    <message>
-        <source>Cannot deploy: %1</source>
-        <translation type="obsolete">无法部署%1</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
-        <translation type="obsolete">&lt;b&gt;%1 使用设备&lt;/b&gt;: %2</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigurationsSettingsWidget</name>
-    <message>
-        <source>Physical Device</source>
-        <translation type="obsolete">物理设备</translation>
-    </message>
-    <message>
-        <source>Emulator</source>
-        <translation type="obsolete">模拟器</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardStartPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>General Information</source>
         <translation type="obsolete">概要</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Device Status Check</source>
         <translation type="obsolete">检测设备状态</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Existing Keys Check</source>
         <translation type="obsolete">现有密钥检测</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Key Creation</source>
         <translation type="obsolete">密钥创建</translation>
@@ -40138,7 +38514,7 @@ Did you start Qemu?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Key Deployment</source>
         <translation type="obsolete">公钥部署</translation>
@@ -40155,43 +38531,23 @@ Did you start Qemu?</source>
         <source>Key Deployment Success</source>
         <translation type="obsolete">密钥部署成功</translation>
     </message>
-    <message>
-        <source>Done.</source>
-        <translation type="obsolete">完成。</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardFinalPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>The new device configuration will now be created.</source>
         <translation type="obsolete">新设备配置将会被创建。</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizard</name>
+    <name>RemoteLinux</name>
     <message>
         <source>New Device Configuration Setup</source>
         <translation type="obsolete">新设备配置设置</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceEnvReader</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">连接错误:%1</translation>
-    </message>
-    <message>
-        <source>Error running remote process: %1</source>
-        <translation type="obsolete">运行远程程序发生错误:%1</translation>
-    </message>
-    <message>
-        <source>
-Remote stderr was: &apos;%1&apos;</source>
-        <translation type="obsolete">远程stderr为&apos;%1&apos;</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDirectDeviceUploadStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation type="obsolete">SFTP 初始化失败: %1</translation>
@@ -40222,18 +38578,12 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoGlobal</name>
+    <name>RemoteLinux</name>
     <message>
         <source>
 Did you start Qemu?</source>
         <translation type="obsolete">
 启动Qemu了吗？</translation>
-    </message>
-    <message>
-        <source>
-Is the device connected and set up for network access?</source>
-        <translation type="obsolete">
-设备已经被设置成能联网的了么?</translation>
     </message>
     <message>
         <source>(No device)</source>
@@ -40253,14 +38603,14 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoInstallPackageToSysrootWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot deploy to sysroot: No packaging step found.</source>
         <translation type="obsolete">无法部署到sysroot.没有找到打包的步骤.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoInstallPackageToSysrootStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot install to sysroot without build configuration.</source>
         <translation type="obsolete">在没哟构建配置的状况下,无法安装到sysroot.</translation>
@@ -40275,21 +38625,21 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoInstallDebianPackageToSysrootStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Install Debian package to sysroot</source>
         <translation type="obsolete">安装Debian包到sysroot</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoInstallRpmPackageToSysrootStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Install RPM package to sysroot</source>
         <translation type="obsolete">安装RPM包到sysroot</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoCopyToSysrootStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot copy to sysroot without build configuration.</source>
         <translation type="obsolete">无法在没有构建配置的情况下复制到sysroot.</translation>
@@ -40308,50 +38658,20 @@ Is the device connected and set up for network access?</source>
         <translation type="obsolete">Sysroot 安装失败: %1
  仍然继续.</translation>
     </message>
+</context>
+<context>
+    <name>RemoteLinux</name>
     <message>
         <source>Copy files to sysroot</source>
         <translation type="obsolete">复制文件到sysroot</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoMakeInstallToSysrootStep</name>
-    <message>
-        <source>Copy files to sysroot</source>
-        <translation type="obsolete">复制文件到sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoKeyDeployer</name>
-    <message>
-        <source>Public key error: %1</source>
-        <translation type="obsolete">公钥错误: %1</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="obsolete">连接失败:%1</translation>
-    </message>
-    <message>
-        <source>Key deployment failed: %1.</source>
-        <translation type="obsolete">部署密钥失败:%1.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPackageCreationFactory</name>
-    <message>
-        <source>Create Debian Package</source>
-        <translation>创建Debian包</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Create RPM Package</source>
         <translation type="obsolete">创建 RPM 包</translation>
     </message>
-    <message>
-        <source>Create tarball</source>
-        <translation type="obsolete">创建归档文件</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::AbstractMaemoPackageCreationStep</name>
     <message>
         <source>Package up to date.</source>
         <translation type="obsolete">包已更新.</translation>
@@ -40363,10 +38683,6 @@ Is the device connected and set up for network access?</source>
     <message>
         <source>Package created.</source>
         <translation type="obsolete">打包完成.</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="obsolete">打包失败.</translation>
     </message>
     <message>
         <source>Package Creation: Running command &apos;%1&apos;.</source>
@@ -40390,14 +38706,10 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDebianPackageCreationStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Create Debian Package</source>
         <translation type="obsolete">创建Deb包</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="obsolete">打包失败.</translation>
     </message>
     <message>
         <source>Could not move package files from %1 to %2.</source>
@@ -40425,18 +38737,14 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRpmPackageCreationStep</name>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="obsolete">打包失败.</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Could not move package file from %1 to %2.</source>
         <translation type="obsolete">无法移动包文件从%1 到%2.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPackageCreationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Size should be %1x%2 pixels</source>
         <translation type="obsolete">尺寸应当是 %1x%2 像素</translation>
@@ -40487,7 +38795,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoPackageInstaller</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation type="obsolete">连接失败: %1</translation>
@@ -40498,44 +38806,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPackageUploader</name>
-    <message>
-        <source>Preparing SFTP connection...</source>
-        <translation type="obsolete">准备创建SFTP连接...</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="obsolete">连接失败:%1</translation>
-    </message>
-    <message>
-        <source>SFTP error: %1</source>
-        <translation type="obsolete">SFTP 错误: %1</translation>
-    </message>
-    <message>
-        <source>Package upload failed: Could not open file.</source>
-        <translation type="obsolete">包上传失败.无法打开文件.</translation>
-    </message>
-    <message>
-        <source>Failed to upload package: %2</source>
-        <translation type="obsolete">上传包失败: %2</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPerTargetDeviceConfigurationListModel</name>
-    <message>
-        <source>(default)</source>
-        <translation type="obsolete">(默认)</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoProFilesUpdateDialog</name>
-    <message>
-        <source>Updateable Project Files</source>
-        <translation type="obsolete">可更新的项目文件</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPublishedProjectModel</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Include in package</source>
         <translation type="obsolete">包含到包</translation>
@@ -40550,7 +38821,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPublisherFremantleFree</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Canceled.</source>
         <translation type="obsolete">已取消.</translation>
@@ -40624,10 +38895,6 @@ Is the device connected and set up for network access?</source>
         <translation type="obsolete">包创建失败。</translation>
     </message>
     <message>
-        <source>Done.</source>
-        <translation type="obsolete">完成。</translation>
-    </message>
-    <message>
         <source>Packaging finished successfully. The following files were created:
 </source>
         <translation type="obsolete">打包成功完成。如下文件被创建:
@@ -40679,7 +38946,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
         <translation type="obsolete">发布到Fremantle&apos;s &quot;Extras-devel/free&quot;仓库</translation>
@@ -40694,14 +38961,14 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
         <translation type="obsolete">发布到&quot;Fremantle Extras-devel free&quot; 仓库</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPublishingWizardFremantleFree</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
         <translation type="obsolete">发布到Fremantle的&quot;Extras-devel free&quot; 仓库</translation>
@@ -40720,7 +38987,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoQemuManager</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Start Maemo Emulator</source>
         <translation type="obsolete">启动Maemo模拟器</translation>
@@ -40739,18 +39006,14 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRemoteCopyFacility</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="obsolete">连接失败:%1</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Error: Copy command failed.</source>
         <translation type="obsolete">错误: 复制命令失败.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRemoteMounter</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No directories to mount</source>
         <translation type="obsolete">没有目录将被挂载</translation>
@@ -40811,7 +39074,7 @@ stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRemoteMountsModel</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Local directory</source>
         <translation type="obsolete">本地目录</translation>
@@ -40822,50 +39085,14 @@ stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRemoteProcessesDialog</name>
-    <message>
-        <source>Remote Error</source>
-        <translation type="obsolete">远程错误</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRemoteProcessList</name>
-    <message>
-        <source>Connection failure: %1</source>
-        <translation type="obsolete">连接失败: %1</translation>
-    </message>
-    <message>
-        <source>Error: Remote process failed to start: %1</source>
-        <translation type="obsolete">错误:远程进程启动失败: %1</translation>
-    </message>
-    <message>
-        <source>Error: Remote process crashed: %1</source>
-        <translation type="obsolete">错误:远程进程崩溃: %1</translation>
-    </message>
-    <message>
-        <source>Remote process failed.</source>
-        <translation type="obsolete">远端进程失败。</translation>
-    </message>
-    <message>
-        <source>
-Remote stderr was: %1</source>
-        <translation type="obsolete">
-远程stderr 是: %1</translation>
-    </message>
-    <message>
-        <source>Command Line</source>
-        <translation type="obsolete">命令行</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRunConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Not enough free ports on the device.</source>
         <translation type="obsolete">设备上没有足够的开放端口.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRunConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Choose directory to mount</source>
         <translation type="obsolete">选择挂载的目录</translation>
@@ -40887,14 +39114,14 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRunControlFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Run on device</source>
         <translation type="obsolete">在设备上运行</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoQemuCrashDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Qemu error</source>
         <translation type="obsolete">Qemu 错误</translation>
@@ -40909,14 +39136,14 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigurationsSettingsPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Device Configurations</source>
         <translation type="obsolete">设备配置</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoSshConfigDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Save Public Key File</source>
         <translation type="obsolete">保存公钥文件</translation>
@@ -40927,7 +39154,7 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoSshRunner</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Mounting host directories...</source>
         <translation type="obsolete">正在挂载主机目录...</translation>
@@ -40942,90 +39169,7 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoToolChainFactory</name>
-    <message>
-        <source>Maemo GCC</source>
-        <translation type="obsolete">Maemo GCC</translation>
-    </message>
-    <message>
-        <source>Maemo GCC for %1</source>
-        <translation type="obsolete">Maemo GCC 为 %1</translation>
-    </message>
-    <message>
-        <source>%1 GCC (%2)</source>
-        <translation type="obsolete">%1 GCC (%2)</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoToolChainConfigWidget</name>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt; MADDE路径:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt; MADDE 路径目标:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;调试器:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::AbstractMaemoUploadAndInstallStep</name>
-    <message>
-        <source>No matching packaging step found.</source>
-        <translation type="obsolete">没有找到符合条件的打包步骤.</translation>
-    </message>
-    <message>
-        <source>Successfully uploaded package file.</source>
-        <translation type="obsolete">上传包文件成功.</translation>
-    </message>
-    <message>
-        <source>Package installed.</source>
-        <translation type="obsolete">包安装成功.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoUploadAndInstallDpkgPackageStep</name>
-    <message>
-        <source>Deploy Debian package via SFTP upload</source>
-        <translation type="obsolete">通过SFTP来部署Debian的包</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoUploadAndInstallRpmPackageStep</name>
-    <message>
-        <source>Deploy RPM package via SFTP upload</source>
-        <translation type="obsolete">通过SFTP来部署RPM包</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoUploadAndInstallTarPackageStep</name>
-    <message>
-        <source>Deploy tarball via SFTP upload</source>
-        <translation type="obsolete">通过SFTP来部署压缩包</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoUsedPortsGatherer</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">连接错误:%1</translation>
-    </message>
-    <message>
-        <source>Could not start remote process: %1</source>
-        <translation type="obsolete">不能启动远程 进程: %1</translation>
-    </message>
-    <message>
-        <source>Remote process crashed: %1</source>
-        <translation type="obsolete">远端进程崩溃:%1</translation>
-    </message>
-    <message>
-        <source>Remote process failed: %1</source>
-        <translation type="obsolete">远端进程失败:%1</translation>
-    </message>
-    <message>
-        <source>
-Remote error output was: %1</source>
-        <translation type="obsolete">
-远程错误输出: %1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::PublicKeyDeploymentDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Waiting for file name...</source>
         <translation type="obsolete">等待文件名称...</translation>
@@ -41046,121 +39190,9 @@ Remote error output was: %1</source>
         <source>Deployment finished successfully.</source>
         <translation>部署成功完成。</translation>
     </message>
-    <message>
-        <source>Close</source>
-        <translation>关闭</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::Qt4MaemoDeployConfigurationFactory</name>
-    <message>
-        <source>Copy Files to Maemo5 Device</source>
-        <translation type="obsolete">复制文件到Maemo5 设备</translation>
-    </message>
-    <message>
-        <source>Build Debian Package and Install to Maemo5 Device</source>
-        <translation type="obsolete">构建 Debian 包然后安装到 Maemo5 设备上</translation>
-    </message>
-    <message>
-        <source>Build Debian Package and Install to Harmattan Device</source>
-        <translation type="obsolete">构建Debian 包然后安装到 Harmattan 设备上</translation>
-    </message>
-    <message>
-        <source>Build RPM Package and Install to MeeGo Device</source>
-        <translation type="obsolete">构建 RPM 包然后安装到 MeeGo 设备上</translation>
-    </message>
-    <message>
-        <source>Build Tarball and Install to Linux Host</source>
-        <translation type="obsolete">构建 压缩 包然后安装到 Linux 主机上</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::AbstractQt4MaemoTarget</name>
-    <message>
-        <source>Cannot open file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">文法打开文件&apos;%1&apos;:&apos;%2&apos;</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="obsolete">Qt Creator</translation>
-    </message>
-    <message>
-        <source>Error creating packaging directory &apos;%1&apos;.</source>
-        <translation type="obsolete">创建打包目录发生错误&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Error creating MeeGo templates</source>
-        <translation type="obsolete">创建MeeGo模板出错</translation>
-    </message>
-    <message>
-        <source>Error creating Maemo packaging directory &apos;%1&apos;.</source>
-        <translation type="obsolete">创建Maemo包目录&apos;%1&apos;时出错.</translation>
-    </message>
-    <message>
-        <source>Add Packaging Files to Project</source>
-        <translation type="obsolete">添加包到项目中</translation>
-    </message>
-    <message>
-        <source>Error creating Maemo templates</source>
-        <translation type="obsolete">创建Maemo模板出错</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::AbstractDebBasedQt4MaemoTarget</name>
-    <message>
-        <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
-        <translation type="obsolete">Debian修改日志文件&apos;%1&apos;格式未知.</translation>
-    </message>
-    <message>
-        <source>Invalid icon data in Debian control file.</source>
-        <translation type="obsolete">Debian 控制文件中的图标数据无效.</translation>
-    </message>
-    <message>
-        <source>Could not read image file &apos;%1&apos;.</source>
-        <translation type="obsolete">无法读取镜像文件&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Could not export image file &apos;%1&apos;.</source>
-        <translation type="obsolete">无法导出镜像文件&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: No Qt version set</source>
-        <translation type="obsolete">无法创建Debian模板:没有设置Qt版本</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: dh_make failed (%1)</source>
-        <translation type="obsolete">无法创建Debian模板:dh_make失败(%1)</translation>
-    </message>
-    <message>
-        <source>Unable to create debian templates: dh_make failed (%1)</source>
-        <translation type="obsolete">无法创建Debian模板:dh_make失败(%1)</translation>
-    </message>
-    <message>
-        <source>Unable to move new debian directory to &apos;%1&apos;.</source>
-        <translation type="obsolete">无法将新Debian目录移动到&apos;%1&apos;.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxApplicationRunner</name>
-    <message>
-        <source>Cannot run: %1</source>
-        <translation type="obsolete">无法运行: %1</translation>
-    </message>
-    <message>
-        <source>Connecting to device...</source>
-        <translation type="obsolete">正在连接设备...</translation>
-    </message>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">连接错误:%1</translation>
-    </message>
-    <message>
-        <source>Killing remote process(es)...</source>
-        <translation type="obsolete">正在结束远程进程...</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::AbstractRemoteLinuxDebugSupport</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Preparing remote side ...
 </source>
@@ -41175,21 +39207,9 @@ Remote error output was: %1</source>
         <source>The gdbserver process closed unexpectedly.</source>
         <translation type="obsolete">gdbserver进程异常终止.</translation>
     </message>
-    <message>
-        <source>Initial setup failed: %1</source>
-        <translation type="obsolete">安装初始化失败:%1</translation>
-    </message>
-    <message>
-        <source>Not enough free ports on device for debugging.</source>
-        <translation type="obsolete">设备上可用于调试的空闲端口不够.</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxRunConfiguration</name>
-    <message>
-        <source>No device configuration set.</source>
-        <translation type="obsolete">没有设备设置.</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>The .pro file &apos;%1&apos; is being parsed.</source>
         <translation>.pro文件&apos;%1&apos;正在被解析。</translation>
@@ -41217,24 +39237,16 @@ Remote error output was: %1</source>
         <extracomment>Remote Linux run configuration default display name</extracomment>
         <translation type="obsolete">在远程设备上运行</translation>
     </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation>清理时的环境变量</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation>系统环境变量</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxRunConfigurationFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source> (on Remote Generic Linux Host)</source>
         <translation>(在远程通用Linux主机)</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxRunConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>获取设备环境</translation>
@@ -41325,7 +39337,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxRunControl</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Starting remote process ...
 </source>
@@ -41344,7 +39356,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxRunControlFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Run on remote Linux device</source>
         <translation>在远程Linux设备上运行</translation>
@@ -41988,7 +40000,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoQemuSettingsPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>MeeGo Qemu Settings</source>
         <translation type="obsolete">MeeGo Qemu 设置</translation>
@@ -42602,100 +40614,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractMaemoPackageCreationStep</name>
-    <message>
-        <source>Package up to date.</source>
-        <translation type="obsolete">包已更新.</translation>
-    </message>
-    <message>
-        <source>Creating package file ...</source>
-        <translation type="obsolete">创建包文件...</translation>
-    </message>
-    <message>
-        <source>Package created.</source>
-        <translation type="obsolete">打包完成.</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="obsolete">打包失败.</translation>
-    </message>
-    <message>
-        <source>Packaging error: No Qt version.</source>
-        <translation type="obsolete">打包错误:没有Qt版本.</translation>
-    </message>
-    <message>
-        <source>Package Creation: Running command &apos;%1&apos;.</source>
-        <translation type="obsolete">生成包:运行命令&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging error: Could not start command &apos;%1&apos;. Reason: %2</source>
-        <translation type="obsolete">打包错误:无法执行命令&apos;%1&apos; 原因&apos;%2&apos;</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1&apos; failed.</source>
-        <translation type="obsolete">打包错误:命令%1&apos;失败.</translation>
-    </message>
-    <message>
-        <source> Reason: %1</source>
-        <translation type="obsolete">原因 %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation type="obsolete">退出代码: %1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::MaemoDebianPackageCreationStep</name>
-    <message>
-        <source>Create Debian Package</source>
-        <translation type="obsolete">创建Deb包</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="obsolete">打包失败.</translation>
-    </message>
-    <message>
-        <source>Could not move package files from %1 to %2.</source>
-        <translation type="obsolete">无法将包文件从%1移动到%2.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Foreign debian directory detected.</source>
-        <translation type="obsolete">打包失败:检测到外部debian目录.</translation>
-    </message>
-    <message>
-        <source>Could not remove directory &apos;%1&apos;: %2</source>
-        <translation type="obsolete">无法删除目录&apos;%1&apos;: %2</translation>
-    </message>
-    <message>
-        <source>Could not create Debian directory &apos;%1&apos;.</source>
-        <translation type="obsolete">无法创建Debian目录&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation type="obsolete">无法拷贝文件‘%1’到&apos;%2&apos;</translation>
-    </message>
-    <message>
-        <source>Error: Could not create file &apos;%1&apos;.</source>
-        <translation type="obsolete">错误:无法创建文件&apos;%1&apos;.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::MaemoRpmPackageCreationStep</name>
-    <message>
-        <source>Create RPM Package</source>
-        <translation type="obsolete">创建 RPM 包</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="obsolete">打包失败.</translation>
-    </message>
-    <message>
-        <source>Could not move package file from %1 to %2.</source>
-        <translation type="obsolete">无法移动包文件从%1 到%2.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::CreateTarStepWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Tarball creation not possible.</source>
         <translation>不可能创建tarball。</translation>
@@ -42703,33 +40622,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     <message>
         <source>Create tarball:</source>
         <translation>创建tarball:</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::MaemoTarPackageCreationStep</name>
-    <message>
-        <source>Create tarball</source>
-        <translation type="obsolete">创建归档文件</translation>
-    </message>
-    <message>
-        <source>Error: tar file %1 cannot be opened (%2).</source>
-        <translation type="obsolete">错误: tar 文件%1 无法被打开(%2).</translation>
-    </message>
-    <message>
-        <source>Error writing tar file &apos;%1&apos;: %2.</source>
-        <translation type="obsolete">写入tar 文件 &apos;%1&apos;发生错误: %2.</translation>
-    </message>
-    <message>
-        <source>Error reading file &apos;%1&apos;: %2.</source>
-        <translation type="obsolete">读取文件&apos;%1&apos;错误: %2.</translation>
-    </message>
-    <message>
-        <source>Cannot add file &apos;%1&apos; to tar-archive: path too long.</source>
-        <translation type="obsolete">无法添加文件&apos;%1&apos; 到压缩包: 路径太长.</translation>
-    </message>
-    <message>
-        <source>Error writing tar file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">写入tar 文件 &apos;%1&apos;发生错误: %2</translation>
     </message>
 </context>
 <context>
@@ -43475,1223 +41367,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Madde::Internal::MaddeDeviceConfigurationFactory</name>
-    <message>
-        <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
-        <translation type="obsolete">设备拥有MADDE支持(例如:Fremantle, Harmattan, MeeGo)</translation>
-    </message>
-    <message>
-        <source>Other MeeGo OS</source>
-        <translation type="obsolete">其他MeeGo 操作系统</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation type="obsolete">测试</translation>
-    </message>
-    <message>
-        <source>Remote Processes...</source>
-        <translation type="obsolete">远程进程...</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key...</source>
-        <translation type="obsolete">部署公钥...</translation>
-    </message>
-    <message>
-        <source>Remote Processes</source>
-        <translation type="obsolete">远程进程</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key</source>
-        <translation type="obsolete">部署公钥</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaddeDeviceTester</name>
-    <message>
-        <source>Checking for Qt libraries...</source>
-        <translation>检查 Qt 库...</translation>
-    </message>
-    <message>
-        <source>SSH connection error: %1
-</source>
-        <translation>SSH连接错误:%1
-</translation>
-    </message>
-    <message>
-        <source>Error checking for Qt libraries: %1
-</source>
-        <translation>检查 Qt 库发生错误: %1
-</translation>
-    </message>
-    <message>
-        <source>Error checking for Qt libraries.
-</source>
-        <translation>检查 Qt 库发生错误。
-</translation>
-    </message>
-    <message>
-        <source>Checking for connectivity support...</source>
-        <translation>检查连接性支持...</translation>
-    </message>
-    <message>
-        <source>Error checking for connectivity tool: %1
-</source>
-        <translation>检查连接工具失败: %1
-</translation>
-    </message>
-    <message>
-        <source>Error checking for connectivity tool.
-</source>
-        <translation>检查连接工具失败。
-</translation>
-    </message>
-    <message>
-        <source>Connectivity tool not installed on device. Deployment currently not possible.</source>
-        <translation>连接工具没有安装到设备上，现在无法部署。</translation>
-    </message>
-    <message>
-        <source>Please switch the device to developer mode via Settings -&gt; Security.</source>
-        <translation>请通过 设置-&gt; 安全  选项来切换设备到开发模式。</translation>
-    </message>
-    <message>
-        <source>Connectivity tool present.
-</source>
-        <translation>存在连接性工具。
-</translation>
-    </message>
-    <message>
-        <source>Checking for QML tooling support...</source>
-        <translation>检查QML工具支持...</translation>
-    </message>
-    <message>
-        <source>Error checking for QML tooling support: %1
-</source>
-        <translation>检查QML工具支持发生错误: %1
-</translation>
-    </message>
-    <message>
-        <source>Error checking for QML tooling support.
-</source>
-        <translation>检查QML工具支持发生错误.
-</translation>
-    </message>
-    <message>
-        <source>Missing directory &apos;%1&apos;. You will not be able to do QML debugging on this device.
-</source>
-        <translation>目录&apos;%1&apos; 缺失，您将不被允许在这台设备上调试QML 。
-</translation>
-    </message>
-    <message>
-        <source>QML tooling support present.
-</source>
-        <translation>存在QML工具支持。
-</translation>
-    </message>
-    <message>
-        <source>No Qt packages installed.</source>
-        <translation>没有安装Qt包。</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoUploadAndInstallPackageStep</name>
-    <message>
-        <source>No Debian package creation step found.</source>
-        <translation>没有找到Debian包的生成步骤。</translation>
-    </message>
-    <message>
-        <source>Deploy Debian package via SFTP upload</source>
-        <translation>通过SFTP上载来部署Debian的包</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MeegoUploadAndInstallPackageStep</name>
-    <message>
-        <source>No RPM package creation step found.</source>
-        <translation type="obsolete">没有找到生成 RPM 包所需的步骤.</translation>
-    </message>
-    <message>
-        <source>Deploy RPM package via SFTP upload</source>
-        <translation type="obsolete">通过SFTP来部署RPM包</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoDeployByMountService</name>
-    <message>
-        <source>Missing build configuration.</source>
-        <translation>构建配置缺失。</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoMountAndInstallPackageService</name>
-    <message>
-        <source>Package installed.</source>
-        <translation>包已经安装。</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoMountAndCopyFilesService</name>
-    <message>
-        <source>All files copied.</source>
-        <translation>所有文件拷贝结束。</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoInstallPackageViaMountStep</name>
-    <message>
-        <source>No Debian package creation step found.</source>
-        <translation>没有找到Debian包的生成步骤。</translation>
-    </message>
-    <message>
-        <source>Deploy package via UTFS mount</source>
-        <translation>通过挂载UTFS来部署包</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoCopyFilesViaMountStep</name>
-    <message>
-        <source>Deploy files via UTFS mount</source>
-        <translation>通过挂载UTFS来部署文件</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeployConfigurationWidget</name>
-    <message>
-        <source>Project File Update Failed</source>
-        <translation>项目文件更新失败</translation>
-    </message>
-    <message>
-        <source>Could not update the project file.</source>
-        <translation>无法更新项目文件。</translation>
-    </message>
-    <message>
-        <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
-        <translation>选择图标(如果需要会缩放到%1x%1 像素 )</translation>
-    </message>
-    <message>
-        <source>Invalid Icon</source>
-        <translation>无效图标</translation>
-    </message>
-    <message>
-        <source>Unable to read image</source>
-        <translation>无法读取图片</translation>
-    </message>
-    <message>
-        <source>Failed to Save Icon</source>
-        <translation>无法保存图标</translation>
-    </message>
-    <message>
-        <source>Could not save icon to &apos;%1&apos;.</source>
-        <translation>无法保存图标到&apos;%1&apos;。</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <translation>界面</translation>
-    </message>
-    <message>
-        <source>Add Desktop File</source>
-        <translation>添加桌面文件</translation>
-    </message>
-    <message>
-        <source>Add Launcher Icon...</source>
-        <translation>添加一个启动图标 ...</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeploymentMounter</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>连接失败:%1</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardStartPage</name>
-    <message>
-        <source>General Information</source>
-        <translation>概要信息</translation>
-    </message>
-    <message>
-        <source>MeeGo Device</source>
-        <translation>MeeGo 设备</translation>
-    </message>
-    <message>
-        <source>%1 Device</source>
-        <translation>%1 设备</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation>向导页面</translation>
-    </message>
-    <message>
-        <source>The name to identify this configuration:</source>
-        <translation>标识配置的名称:</translation>
-    </message>
-    <message>
-        <source>The kind of device:</source>
-        <translation>设备类型:</translation>
-    </message>
-    <message>
-        <source>Emulator</source>
-        <translation>模拟器</translation>
-    </message>
-    <message>
-        <source>Hardware Device</source>
-        <translation>硬件设备</translation>
-    </message>
-    <message>
-        <source>The device&apos;s host name or IP address:</source>
-        <translation>设备的主机名或者IP地址:</translation>
-    </message>
-    <message>
-        <source>The SSH server port:</source>
-        <translation>SSH 服务器端口:</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
-    <message>
-        <source>Device Status Check</source>
-        <translation>设备状态检查</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
-    <message>
-        <source>Existing Keys Check</source>
-        <translation>现有密钥检测</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation>向导页面</translation>
-    </message>
-    <message>
-        <source>Do you want to re-use an existing pair of keys or should a new one be created?</source>
-        <translation>您想要使用现有的密钥对还是创建一对新的?</translation>
-    </message>
-    <message>
-        <source>Re-use existing keys</source>
-        <translation>重复使用现有密钥</translation>
-    </message>
-    <message>
-        <source>File containing the public key:</source>
-        <translation>包含公钥的文件:</translation>
-    </message>
-    <message>
-        <source>File containing the private key:</source>
-        <translation>包含私钥的文件:</translation>
-    </message>
-    <message>
-        <source>Create new keys</source>
-        <translation>创建新密钥</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
-    <message>
-        <source>Key Creation</source>
-        <translation>密钥创建</translation>
-    </message>
-    <message>
-        <source>Cannot Create Keys</source>
-        <translation>无法创建密钥</translation>
-    </message>
-    <message>
-        <source>The path you have entered is not a directory.</source>
-        <translation>您输入的路径不是一个目录。</translation>
-    </message>
-    <message>
-        <source>The directory you have entered does not exist and cannot be created.</source>
-        <translation>您输入的目录不存在也不可以被创建。</translation>
-    </message>
-    <message>
-        <source>Creating keys...</source>
-        <translation>创建密钥...</translation>
-    </message>
-    <message>
-        <source>Creating keys ... </source>
-        <translation type="obsolete">创建密钥...</translation>
-    </message>
-    <message>
-        <source>Key creation failed: %1</source>
-        <translation>密钥创建失败: %1</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation>完成。</translation>
-    </message>
-    <message>
-        <source>Could Not Save Key File</source>
-        <translation>无法保存密钥文件</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation>向导页面</translation>
-    </message>
-    <message>
-        <source>Qt Creator will now generate a new pair of keys. Please enter the directory to save the key files in and then press &quot;Create Keys&quot;.</source>
-        <translation>Qt Creator 将会生成一对新的密钥。请输入密钥文件存放的目录然后点击&quot;创建密钥&quot;。</translation>
-    </message>
-    <message>
-        <source>Directory:</source>
-        <translation>目录:</translation>
-    </message>
-    <message>
-        <source>Create Keys</source>
-        <translation>创建密钥</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
-    <message>
-        <source>Key Deployment</source>
-        <translation>密钥部署</translation>
-    </message>
-    <message>
-        <source>Deploying... </source>
-        <translation type="obsolete">部署中...</translation>
-    </message>
-    <message>
-        <source>Deploying...</source>
-        <translation>部署中...</translation>
-    </message>
-    <message>
-        <source>Key Deployment Failure</source>
-        <translation>密钥部署失败</translation>
-    </message>
-    <message>
-        <source>Key Deployment Success</source>
-        <translation>密钥部署成功</translation>
-    </message>
-    <message>
-        <source>The key was successfully deployed. You may now close the &quot;%1&quot; application and continue.</source>
-        <translation>密钥被成功部署。您现在可以关闭 &quot;%1&quot;应用然后继续。</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation>完成。</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation>向导页面</translation>
-    </message>
-    <message>
-        <source>To deploy the public key to your device, please execute the following steps:
-&lt;ul&gt;
-&lt;li&gt;Connect the device to your computer (unless you plan to connect via WLAN).&lt;/li&gt;
-&lt;li&gt;On the device, start the &quot;%%%maddev%%%&quot; application.&lt;/li&gt;
-&lt;li&gt;In &quot;%%%maddev%%%&quot;, configure the device&apos;s IP address to the one shown below (or edit the field below to match the address you have configured).&lt;/li&gt;
-&lt;li&gt;In &quot;%%%maddev%%%&quot;, press &quot;Developer Password&quot; and enter it in the field below.&lt;/li&gt;
-&lt;li&gt;Click &quot;Deploy Key&quot;&lt;/li&gt;
-</source>
-        <translation>部署公钥到您的设备需要执行以下几步:
-&lt;ul&gt;
-&lt;li&gt;连接设备到电脑(除非您想通过WLAN连接)。&lt;/li&gt;
-&lt;li&gt;在设备上启动 &quot;%%%maddev%%%&quot; 应用。&lt;/li&gt;
-&lt;li&gt;在&quot;%%%maddev%%%&quot;, 设置设备的IP 地址为如下显示(或者将下面的地址设置为您的设备上设置的地址)。&lt;/li&gt;
-&lt;li&gt;在&quot;%%%maddev%%%&quot;, 点击&quot;开发者密码&quot; 然后在下面的字段中输入。&lt;/li&gt;
-&lt;li&gt;点击 &quot;部署密钥&quot;&lt;/li&gt;
-</translation>
-    </message>
-    <message>
-        <source>Device address:</source>
-        <translation>设备地址:</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation>密码:</translation>
-    </message>
-    <message>
-        <source>Deploy Key</source>
-        <translation>部署密钥</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardFinalPage</name>
-    <message>
-        <source>The new device configuration will now be created.</source>
-        <translation>新设备配置将会被创建。</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizard</name>
-    <message>
-        <source>New Device Configuration Setup</source>
-        <translation>新设备配置设置</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoInstallPackageToSysrootWidget</name>
-    <message>
-        <source>Cannot deploy to sysroot: No packaging step found.</source>
-        <translation>无法部署到sysroot。没有找到打包的步骤。</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoInstallPackageToSysrootStep</name>
-    <message>
-        <source>Cannot install to sysroot without build configuration.</source>
-        <translation type="obsolete">在没哟构建配置的状况下,无法安装到sysroot.</translation>
-    </message>
-    <message>
-        <source>Cannot install package to sysroot without packaging step.</source>
-        <translation>在没有打包步骤的情况下,无法安装包到sysroot。</translation>
-    </message>
-    <message>
-        <source>Cannot install package to sysroot without a Qt version.</source>
-        <translation>在没有设置Qt版本的情况下,无法安装包到sysroot。</translation>
-    </message>
-    <message>
-        <source>Installing package to sysroot...</source>
-        <translation>正在安装包到sysroot...</translation>
-    </message>
-    <message>
-        <source>Installation to sysroot failed, continuing anyway.</source>
-        <translation>安装到sysroot失败，依然继续。</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoInstallDebianPackageToSysrootStep</name>
-    <message>
-        <source>Install Debian package to sysroot</source>
-        <translation>安装Debian包到sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoInstallRpmPackageToSysrootStep</name>
-    <message>
-        <source>Install RPM package to sysroot</source>
-        <translation type="obsolete">安装RPM包到sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoCopyToSysrootStep</name>
-    <message>
-        <source>Cannot copy to sysroot without build configuration.</source>
-        <translation>无法在没有构建配置的情况下复制到sysroot。</translation>
-    </message>
-    <message>
-        <source>Cannot copy to sysroot without valid Qt version.</source>
-        <translation>无法在没有有效的QT版本的情况下复制到sysroot。</translation>
-    </message>
-    <message>
-        <source>Copying files to sysroot...</source>
-        <translation>正在拷贝文件到sysroot...</translation>
-    </message>
-    <message>
-        <source>Copying files to sysroot ...</source>
-        <translation type="obsolete">正在拷贝文件到sysroot...</translation>
-    </message>
-    <message>
-        <source>Sysroot installation failed: %1
- Continuing anyway.</source>
-        <translation>Sysroot 安装失败: %1
- 仍然继续。</translation>
-    </message>
-    <message>
-        <source>Copy files to sysroot</source>
-        <translation>复制文件到sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoMakeInstallToSysrootStep</name>
-    <message>
-        <source>Copy files to sysroot</source>
-        <translation>复制文件到sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoPackageCreationStep</name>
-    <message>
-        <source>Package up to date.</source>
-        <translation>包已更新。</translation>
-    </message>
-    <message>
-        <source>Creating package file ...</source>
-        <translation type="obsolete">创建包文件...</translation>
-    </message>
-    <message>
-        <source>Package created.</source>
-        <translation>打包完成。</translation>
-    </message>
-    <message>
-        <source>Packaging failed: No Qt version.</source>
-        <translation>打包失败:没有Qt版本。</translation>
-    </message>
-    <message>
-        <source>No Qt4 build configuration</source>
-        <translation>没有Qt4的构建配置</translation>
-    </message>
-    <message>
-        <source>Creating package file...</source>
-        <translation>创建包文件...</translation>
-    </message>
-    <message>
-        <source>Package Creation: Running command &apos;%1&apos;.</source>
-        <translation>生成包:运行命令&apos;%1&apos;。</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not start command &apos;%1&apos;. Reason: %2</source>
-        <translation>打包失败: 无法启动命令&apos;%1&apos;:原因: %2</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1&apos; failed.</source>
-        <translation>打包错误:命令%1&apos;失败。</translation>
-    </message>
-    <message>
-        <source> Reason: %1</source>
-        <translation>原因 %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation>退出代码: %1</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDebianPackageCreationStep</name>
-    <message>
-        <source>Create Debian Package</source>
-        <translation>创建Debian包</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not get package name.</source>
-        <translation>打包失败: 无法取得包的名称。</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not move package files from &apos;%1&apos; to &apos;%2&apos;.</source>
-        <translation>打包失败: 无法将包文件从 %1移动到 %2。</translation>
-    </message>
-    <message>
-        <source>Your project name contains characters not allowed in Debian packages.
-They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
-We will try to work around that, but you may experience problems.</source>
-        <translation>您的项目可能包含有Debian包不允许的字符。必须仅使用小写字母、数字、&apos;-&apos;或者&apos;.&apos;。
-将尝试绕过，但您可能遇到问题。</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Foreign debian directory detected. You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
-        <translation>打包失败: 检测到外部 debian目录。您没有使用shadow build并且在您的项目根目录(&apos;%1&apos;)下有个debian的目录。Qt Creator不会覆盖那个目录，请您删除它或者使用shadow build功能。</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not remove directory &apos;%1&apos;: %2</source>
-        <translation>打包失败: 无法删除目录&apos;%1&apos;: %2</translation>
-    </message>
-    <message>
-        <source>Could not create Debian directory &apos;%1&apos;.</source>
-        <translation>无法创建Debian目录&apos;%1&apos;。</translation>
-    </message>
-    <message>
-        <source>Could not read manifest file &apos;%1&apos;: %2.</source>
-        <translation>无法读取manifest文件&apos;%1&apos;: %2。</translation>
-    </message>
-    <message>
-        <source>Could not write manifest file &apos;%1&apos;: %2.</source>
-        <translation>无法写入manifest文件&apos;%1&apos;: %2。</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;.</source>
-        <translation>无法复制文件&apos;%1&apos;到&apos;%2&apos;。</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation type="obsolete">无法拷贝文件‘%1’到&apos;%2&apos;</translation>
-    </message>
-    <message>
-        <source>Error: Could not create file &apos;%1&apos;.</source>
-        <translation>错误:无法创建文件&apos;%1&apos;。</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRpmPackageCreationStep</name>
-    <message>
-        <source>Create RPM Package</source>
-        <translation type="obsolete">创建 RPM 包</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not move package file from %1 to %2.</source>
-        <translation type="obsolete">打包失败: 无法移动包文件从  %1 到 %2.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPackageCreationWidget</name>
-    <message>
-        <source>Size should be %1x%2 pixels</source>
-        <translation>尺寸应当是 %1x%2 像素</translation>
-    </message>
-    <message>
-        <source>No Version Available.</source>
-        <translation>没有版本。</translation>
-    </message>
-    <message>
-        <source>Could not read icon</source>
-        <translation>无法读取图标</translation>
-    </message>
-    <message>
-        <source>Images</source>
-        <translation>图片</translation>
-    </message>
-    <message>
-        <source>Choose Image (will be scaled to 48x48 pixels if necessary)</source>
-        <translation type="obsolete">选择图像(会缩放到  48x48 像素, 如果需要)</translation>
-    </message>
-    <message>
-        <source>Choose Image (will be scaled to %1x%2 pixels if necessary)</source>
-        <translation>选择图像(如果需要的话将被缩放到%1 x %2像素)</translation>
-    </message>
-    <message>
-        <source>Could Not Set New Icon</source>
-        <translation>无法设置新图标</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>文件错误</translation>
-    </message>
-    <message>
-        <source>Could not set project name.</source>
-        <translation>无法设置项目名称。</translation>
-    </message>
-    <message>
-        <source>Could not set package name for project manager.</source>
-        <translation>无法为项目管理器设置包的名称。</translation>
-    </message>
-    <message>
-        <source>Could not set project description.</source>
-        <translation>无法设置项目描述。</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create Package:&lt;/b&gt; </source>
-        <translation>&lt;b&gt;创建包:&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Could Not Set Version Number</source>
-        <translation>无法设置版本号</translation>
-    </message>
-    <message>
-        <source>Package name:</source>
-        <translation>包名称:</translation>
-    </message>
-    <message>
-        <source>Package version:</source>
-        <translation>包版本:</translation>
-    </message>
-    <message>
-        <source>Major:</source>
-        <translation>主版本:</translation>
-    </message>
-    <message>
-        <source>Minor:</source>
-        <translation>副版本:</translation>
-    </message>
-    <message>
-        <source>Patch:</source>
-        <translation>补丁:</translation>
-    </message>
-    <message>
-        <source>Short package description:</source>
-        <translation>包的简短介绍:</translation>
-    </message>
-    <message>
-        <source>Name to be displayed in Package Manager:</source>
-        <translation>在包管理器里显示的名称:</translation>
-    </message>
-    <message>
-        <source>Icon to be displayed in Package Manager:</source>
-        <translation>在包管理器里显示的图标:</translation>
-    </message>
-    <message>
-        <source>Adapt Debian file:</source>
-        <translation>改写 Debian 文件:</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>编辑...</translation>
-    </message>
-    <message>
-        <source>Edit spec file</source>
-        <translation>编辑spec文件</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDebianPackageInstaller</name>
-    <message>
-        <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
-        <translation>安装失败:您尝试降级包，这不允许。</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishedProjectModel</name>
-    <message>
-        <source>Include in package</source>
-        <translation>包括在包中</translation>
-    </message>
-    <message>
-        <source>Include</source>
-        <translation>包含</translation>
-    </message>
-    <message>
-        <source>Do not include</source>
-        <translation>不要包含</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublisherFremantleFree</name>
-    <message>
-        <source>Canceled.</source>
-        <translation>已取消。</translation>
-    </message>
-    <message>
-        <source>Publishing canceled by user.</source>
-        <translation>发布被用户取消。</translation>
-    </message>
-    <message>
-        <source>The project is missing some information important to publishing:</source>
-        <translation>项目缺少一些发布需要的重要信息:</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Missing project information.</source>
-        <translation>发布失败:缺少项目信息。</translation>
-    </message>
-    <message>
-        <source>Removing left-over temporary directory ...</source>
-        <translation type="obsolete">移除留下的临时文件夹...</translation>
-    </message>
-    <message>
-        <source>Error removing temporary directory: %1</source>
-        <translation>移除临时目录出错: %1</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create source package.</source>
-        <translation>发布失败:无法创建源码包。</translation>
-    </message>
-    <message>
-        <source>Setting up temporary directory ...</source>
-        <translation type="obsolete">设置临时文件夹...</translation>
-    </message>
-    <message>
-        <source>Error: Could not create temporary directory.</source>
-        <translation>错误:无法创建临时目录。</translation>
-    </message>
-    <message>
-        <source>Error: Could not copy project directory.</source>
-        <translation>错误:无法复制项目目录。</translation>
-    </message>
-    <message>
-        <source>Error: Could not fix newlines.</source>
-        <translation>错误:无法修复新行。</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create package.</source>
-        <translation>发布失败:无法创建包。</translation>
-    </message>
-    <message>
-        <source>Cleaning up temporary directory ...</source>
-        <translation type="obsolete">清理临时文件夹...</translation>
-    </message>
-    <message>
-        <source>Removing left-over temporary directory...</source>
-        <translation>删除遗留的临时目录...</translation>
-    </message>
-    <message>
-        <source>Setting up temporary directory...</source>
-        <translation>正在设置临时目录...</translation>
-    </message>
-    <message>
-        <source>Cleaning up temporary directory...</source>
-        <translation>正在清理临时目录...</translation>
-    </message>
-    <message>
-        <source>Failed to create directory &apos;%1&apos;.</source>
-        <translation>无法创建目录&apos;%1&apos;。</translation>
-    </message>
-    <message>
-        <source>Could not set execute permissions for rules file: %1</source>
-        <translation>无法为规则文件设定执行权限: %1</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;: %3.</source>
-        <translation>无法复制文件&apos;%1&apos; 到 &apos;%2&apos;: %3。</translation>
-    </message>
-    <message>
-        <source>Make distclean failed: %1</source>
-        <translation>Make distclean 失败: %1</translation>
-    </message>
-    <message>
-        <source>Error: Failed to start dpkg-buildpackage.</source>
-        <translation>错误: 无法开始 dpkg-buildpackage。</translation>
-    </message>
-    <message>
-        <source>Error: dpkg-buildpackage did not succeed.</source>
-        <translation>错误: dpkg-buildpackage 没有成功。</translation>
-    </message>
-    <message>
-        <source>Package creation failed.</source>
-        <translation>包创建失败。</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation>完成。</translation>
-    </message>
-    <message>
-        <source>Packaging finished successfully. The following files were created:
-</source>
-        <translation>打包成功完成。如下文件被创建:
-</translation>
-    </message>
-    <message>
-        <source>No Qt version set.</source>
-        <translation>没有设置Qt 版本。</translation>
-    </message>
-    <message>
-        <source>Building source package...</source>
-        <translation>构建源码包...</translation>
-    </message>
-    <message>
-        <source>Starting scp...</source>
-        <translation>正在开始scp...</translation>
-    </message>
-    <message>
-        <source>Uploading file %1...</source>
-        <translation>正在上传文件 %1...</translation>
-    </message>
-    <message>
-        <source>Starting scp ...</source>
-        <translation type="obsolete">启动scp ...</translation>
-    </message>
-    <message>
-        <source>SSH error: %1</source>
-        <translation>SSH 错误: %1</translation>
-    </message>
-    <message>
-        <source>Upload failed.</source>
-        <translation>上传失败。</translation>
-    </message>
-    <message>
-        <source>Error uploading file: %1.</source>
-        <translation>上传文件错误: %1。</translation>
-    </message>
-    <message>
-        <source>Error uploading file.</source>
-        <translation>上传文件错误。</translation>
-    </message>
-    <message>
-        <source>All files uploaded.</source>
-        <translation>所有文件已上传。</translation>
-    </message>
-    <message>
-        <source>Upload succeeded. You should shortly receive an email informing you about the outcome of the build process.</source>
-        <translation>上传成功。您将很快收到一封关于构建进程的结果的电子邮件。</translation>
-    </message>
-    <message>
-        <source>Uploading file %1 ...</source>
-        <translation type="obsolete">上传文件中%1 ...</translation>
-    </message>
-    <message>
-        <source>Cannot open file for reading: %1.</source>
-        <translation>无法打开并读取文件: %1。</translation>
-    </message>
-    <message>
-        <source>Cannot read file: %1</source>
-        <translation>无法读取文件: %1</translation>
-    </message>
-    <message>
-        <source>The package description is empty. You must set one in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>包描述为空。您必须在设置 &quot;项目-&gt; 运行-&gt; 创建包-&gt; 详细&quot;中设置。</translation>
-    </message>
-    <message>
-        <source>The package description is &apos;%1&apos;, which is probably not what you want. Please change it in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>包的描述是&apos;%1&apos;, 很可能不是您想要的。请在 &quot;项目-&gt; 运行-&gt; 创建包-&gt; 详细&quot; 里修改。</translation>
-    </message>
-    <message>
-        <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>您还没有为包管理器设置图标，请到 &quot;项目-&gt; 运行-&gt; 创建包-&gt; 详细&quot;里设置。</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
-        <translation>发布到Fremantle的 &quot;Extras-devel/free&quot;仓库</translation>
-    </message>
-    <message>
-        <source>Upload options</source>
-        <translation>上传选项</translation>
-    </message>
-    <message>
-        <source>Choose a private key file</source>
-        <translation>选择一个私钥文件</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation>向导页面</translation>
-    </message>
-    <message>
-        <source>Upload Settings</source>
-        <translation>上传设置</translation>
-    </message>
-    <message>
-        <source>Garage account name:</source>
-        <translation>车库账户名:</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Get an account&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;取得帐号&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;https://garage.maemo.org/extras-assistant/index.php&quot;&gt;Request upload rights&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;https://garage.maemo.org/extras-assistant/index.php&quot;&gt;请求获得上传权限&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation>私钥文件:</translation>
-    </message>
-    <message>
-        <source>Server address:</source>
-        <translation>服务器地址:</translation>
-    </message>
-    <message>
-        <source>Target directory on server:</source>
-        <translation>在服务器上的目标目录:</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
-    <message>
-        <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
-        <translation>发布到&quot;Fremantle Extras-devel free&quot; 仓库</translation>
-    </message>
-    <message>
-        <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
-        <translation>本向导将创建一个源文件归档包并且选择是否上传到构建服务器, 在那里项目将被编译和打包然后移动到&quot;Extras-devel free&quot; 代码仓库, 用户可以安装它到N900 设备上。如果需要上传, 那么您需要一个garage.maemo.org 的帐号。</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingWizardFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
-        <translation>发布到Fremantle的&quot;Extras-devel free&quot; 仓库</translation>
-    </message>
-    <message>
-        <source>Build Settings</source>
-        <translation>构建设置</translation>
-    </message>
-    <message>
-        <source>Upload Settings</source>
-        <translation>上传设置</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>结果</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuManager</name>
-    <message>
-        <source>Start MeeGo Emulator</source>
-        <translation>启动Maemo模拟器</translation>
-    </message>
-    <message>
-        <source>Qemu has been shut down, because you removed the corresponding Qt version.</source>
-        <translation>Qemu 已经被关闭, 因为您移除了相应的 Qt 版本。</translation>
-    </message>
-    <message>
-        <source>Qemu finished with error: Exit code was %1.</source>
-        <translation>Qemu 在有错误的情况下结束: 退出代码 %1。</translation>
-    </message>
-    <message>
-        <source>Qemu error</source>
-        <translation>Qemu 错误</translation>
-    </message>
-    <message>
-        <source>Qemu failed to start: %1</source>
-        <translation>Qemu 启动失败:%1</translation>
-    </message>
-    <message>
-        <source>Stop MeeGo Emulator</source>
-        <translation>停止Maemo模拟器</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRemoteCopyFacility</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>连接失败:%1</translation>
-    </message>
-    <message>
-        <source>Error: Copy command failed.</source>
-        <translation>错误: 拷贝命令失败。</translation>
-    </message>
-    <message>
-        <source>Copying file &apos;%1&apos; to directory &apos;%2&apos; on the device...</source>
-        <translation>正在拷贝文件&apos;%1&apos;到设备上的目录&apos;%2&apos;...</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRemoteMounter</name>
-    <message>
-        <source>No directories to mount</source>
-        <translation>没有挂载的目录</translation>
-    </message>
-    <message>
-        <source>No directories to unmount</source>
-        <translation>没有卸载的目录</translation>
-    </message>
-    <message>
-        <source>Could not execute unmount request.</source>
-        <translation>无法执行卸载请求。</translation>
-    </message>
-    <message>
-        <source>Failure unmounting: %1</source>
-        <translation>卸载失败:%1</translation>
-    </message>
-    <message>
-        <source>Finished unmounting.</source>
-        <translation>卸载完成。</translation>
-    </message>
-    <message>
-        <source>
-stderr was: &apos;%1&apos;</source>
-        <translation>
-stderr为&apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>Error: Not enough free ports on device to fulfill all mount requests.</source>
-        <translation>错误: 设备上没有足够的空闲端口来完成所有的挂载请求。</translation>
-    </message>
-    <message>
-        <source>Starting remote UTFS clients...</source>
-        <translation>正在启动远程UTFS客户端...</translation>
-    </message>
-    <message>
-        <source>Mount operation succeeded.</source>
-        <translation>挂载操作成功。</translation>
-    </message>
-    <message>
-        <source>Failure running UTFS client: %1</source>
-        <translation>运行UTFS客户端失败:%1</translation>
-    </message>
-    <message>
-        <source>Starting UTFS servers...</source>
-        <translation>正在启动UTFS服务器...</translation>
-    </message>
-    <message>
-        <source>
-stderr was: %1</source>
-        <translation>
-stderr为:%1</translation>
-    </message>
-    <message>
-        <source>Error running UTFS server: %1</source>
-        <translation>运行UTFS服务器时出错: %1</translation>
-    </message>
-    <message>
-        <source>Timeout waiting for UTFS servers to connect.</source>
-        <translation>等待UTFS服务器连接超时。</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRemoteMountsModel</name>
-    <message>
-        <source>Local directory</source>
-        <translation>本地目录</translation>
-    </message>
-    <message>
-        <source>Remote mount point</source>
-        <translation>远程挂载点</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRunConfiguration</name>
-    <message>
-        <source>Not enough free ports on the device.</source>
-        <translation>设备上没有足够的空闲端口。</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRunConfigurationWidget</name>
-    <message>
-        <source>Choose directory to mount</source>
-        <translation>选择挂载的目录</translation>
-    </message>
-    <message>
-        <source>No local directories to be mounted on the device.</source>
-        <translation>没有本地目录将被挂载到设备。</translation>
-    </message>
-    <message>
-        <source>One local directory to be mounted on the device.</source>
-        <translation>一个本地目录将被挂载到设备。</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n local directories to be mounted on the device.</source>
-        <extracomment>Note: Only mountCount&gt;1 will occur here as 0, 1 are handled above.</extracomment>
-        <translation>
-            <numerusform>%n个本地目录将被挂载到设备上。</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>WARNING: You want to mount %1 directories, but your device has only %n free ports.&lt;br&gt;You will not be able to run this configuration.</source>
-        <translation>
-            <numerusform>警告:您想要挂载%1个目录，但是您的设备只有%n个空闲端口。&lt;br&gt;因此无法运行此配置。</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>WARNING: You want to mount %1 directories, but only %n ports on the device will be available in debug mode. &lt;br&gt;You will not be able to debug your application with this configuration.</source>
-        <translation>
-            <numerusform>警告:您想挂载%1个目录，但是在调试模式下设备上只有%n个端口是可用的。您将无法用此配置调试您的程序。</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRunControlFactory</name>
-    <message>
-        <source>Run on device</source>
-        <translation>在设备上运行</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuCrashDialog</name>
-    <message>
-        <source>Qemu error</source>
-        <translation>Qemu 错误</translation>
-    </message>
-    <message>
-        <source>Qemu crashed.</source>
-        <translation>Qemu崩溃了。</translation>
-    </message>
-    <message>
-        <source>Click here to change the OpenGL mode.</source>
-        <translation>点击这里来改变OpenGL 模式。</translation>
-    </message>
-    <message>
-        <source>You have configured Qemu to use OpenGL hardware acceleration, which might not be supported by your system. You could try using software rendering instead.</source>
-        <translation>您已经配置了Qemu 去使用OpenGL 硬件加速, 但是您的系统可能不支持。您可以尝试用软件渲染来代替。</translation>
-    </message>
-    <message>
-        <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
-        <translation>Qemu 当前被设置为自动检测OpenGL模式, 有些情况下不会工作。您可以使用软件渲染来代替。</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuSettingsPage</name>
-    <message>
-        <source>MeeGo Qemu Settings</source>
-        <translation>MeeGo Qemu 设置</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoSshRunner</name>
-    <message>
-        <source>Mounting host directories...</source>
-        <translation type="obsolete">正在挂载主机目录...</translation>
-    </message>
-    <message>
-        <source>Potentially unmounting left-over host directory mounts...</source>
-        <translation type="obsolete">静默卸载剩余挂载的主机目录...</translation>
-    </message>
-    <message>
-        <source>Unmounting host directories...</source>
-        <translation type="obsolete">卸载主机目录...</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoToolChainFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Maemo GCC</source>
         <translation type="obsolete">Maemo GCC</translation>
@@ -44706,14 +41382,14 @@ stderr为:%1</translation>
     </message>
 </context>
 <context>
-    <name>Madde::Internal::MaemoToolChainConfigWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt; MADDE路径:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt; MADDE 路径目标:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;调试器:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>Madde::Internal::Qt4MaemoDeployConfigurationFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Copy Files to Maemo5 Device</source>
         <translation>复制文件到Maemo5 设备</translation>
@@ -44732,14 +41408,10 @@ stderr为:%1</translation>
     </message>
 </context>
 <context>
-    <name>Madde::Internal::AbstractQt4MaemoTarget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot open file &apos;%1&apos;: %2</source>
         <translation type="obsolete">文法打开文件&apos;%1&apos;:&apos;%2&apos;</translation>
-    </message>
-    <message>
-        <source>Add Packaging Files to Project</source>
-        <translation type="obsolete">添加包到项目中</translation>
     </message>
     <message>
         <source>Qt Creator</source>
@@ -44752,49 +41424,6 @@ stderr为:%1</translation>
     <message>
         <source>Error creating MeeGo templates</source>
         <translation type="obsolete">创建MeeGo模板出错</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractDebBasedQt4MaemoTarget</name>
-    <message>
-        <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
-        <translation type="obsolete">Debian修改日志文件&apos;%1&apos;格式未知.</translation>
-    </message>
-    <message>
-        <source>Refusing to update changelog file: Already contains version &apos;%1&apos;.</source>
-        <translation type="obsolete">拒绝更新日志文件. 已经存在版本&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Cannot update changelog: Invalid format (no maintainer entry found).</source>
-        <translation type="obsolete">无法更新日志文件. 无效格式(没有找到维护者的条目).</translation>
-    </message>
-    <message>
-        <source>Invalid icon data in Debian control file.</source>
-        <translation type="obsolete">Debian 控制文件中的图标数据无效.</translation>
-    </message>
-    <message>
-        <source>Could not read image file &apos;%1&apos;.</source>
-        <translation type="obsolete">无法读取镜像文件&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Could not export image file &apos;%1&apos;.</source>
-        <translation type="obsolete">无法导出镜像文件&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: No Qt version set</source>
-        <translation type="obsolete">无法创建Debian模板:没有设置Qt版本</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: dh_make failed (%1)</source>
-        <translation type="obsolete">无法创建Debian模板:dh_make失败(%1)</translation>
-    </message>
-    <message>
-        <source>Unable to create debian templates: dh_make failed (%1)</source>
-        <translation type="obsolete">无法创建Debian模板:dh_make失败(%1)</translation>
-    </message>
-    <message>
-        <source>Unable to move new debian directory to &apos;%1&apos;.</source>
-        <translation type="obsolete">无法将新Debian目录移动到&apos;%1&apos;.</translation>
     </message>
 </context>
 <context>
@@ -44999,7 +41628,7 @@ Qt Creator 知道一个相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxDeployService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>不必要执行部署，跳过。</translation>
@@ -45028,13 +41657,9 @@ Is the device connected and set up for network access?</source>
         <translation>
 设备已经连接并设置为可以访问网络了吗？</translation>
     </message>
-    <message>
-        <source>Connection error: %1</source>
-        <translation>连接错误:%1</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Deployment failed: %1</source>
         <translation type="obsolete">部署失败:%1</translation>
@@ -45057,7 +41682,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractUploadAndInstallPackageService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>上传包文件成功。</translation>
@@ -45072,15 +41697,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericDirectUploadService</name>
-    <message>
-        <source>SFTP initialization failed: %1</source>
-        <translation>SFTP 初始化失败: %1</translation>
-    </message>
-    <message>
-        <source>Upload of file &apos;%1&apos; failed: %2</source>
-        <translation type="obsolete">上传文件&apos;%1&apos; 失败: %2</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Upload of file &apos;%1&apos; failed. The server said: &apos;%2&apos;.</source>
         <translation>上传文件&apos;%1&apos;。服务器回应: &apos;%2&apos;。</translation>
@@ -45090,32 +41707,13 @@ Is the device connected and set up for network access?</source>
         <translation>如果 &apos;%1&apos;正在远程主机上运行，您可能需要先停止它。</translation>
     </message>
     <message>
-        <source>Failed to upload file &apos;%1&apos;.</source>
-        <translation>上传文件&apos;%1&apos;失败。</translation>
-    </message>
-    <message>
         <source>Failed to set executable flag.</source>
         <translation>设置可运行标志失败。</translation>
-    </message>
-    <message>
-        <source>Failed to upload file &apos;%1&apos;: Could not open for reading.</source>
-        <translation>无法上传文件&apos;%1&apos;: 无法打开并读取。</translation>
-    </message>
-    <message>
-        <source>All files successfully deployed.</source>
-        <translation>所有文件部署成功。</translation>
     </message>
     <message>
         <source>Warning: No remote path set for local file &apos;%1&apos;. Skipping upload.</source>
         <translation>警告:没有为本地文件&apos;%1&apos;设置远程路径，跳过上传。</translation>
     </message>
-    <message>
-        <source>Uploading file &apos;%1&apos;...</source>
-        <translation>正在上传文件%1 ...</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::ConfigWidget</name>
     <message>
         <source>Incremental deployment</source>
         <translation>增量部署</translation>
@@ -45123,69 +41721,6 @@ Is the device connected and set up for network access?</source>
     <message>
         <source>Command line:</source>
         <translation>命令行:</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::GenericDirectUploadStep</name>
-    <message>
-        <source>Upload files via SFTP</source>
-        <translation>通过SFTP上传文件</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationFactory</name>
-    <message>
-        <source>Generic Linux Device</source>
-        <translation>通用Linux设备</translation>
-    </message>
-    <message>
-        <source>Generic Linux</source>
-        <translation type="obsolete">通用Linux</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation type="obsolete">测试</translation>
-    </message>
-    <message>
-        <source>Remote Processes...</source>
-        <translation type="obsolete">远程进程...</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key...</source>
-        <translation type="obsolete">部署公钥...</translation>
-    </message>
-    <message>
-        <source>Remote Processes</source>
-        <translation type="obsolete">远程进程</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key</source>
-        <translation type="obsolete">部署公钥</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::LinuxDeviceConfigurations</name>
-    <message>
-        <source>(default for %1)</source>
-        <translation type="obsolete">(默认 %1)</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</name>
-    <message>
-        <source>Physical Device</source>
-        <translation type="obsolete">物理设备</translation>
-    </message>
-    <message>
-        <source>Emulator</source>
-        <translation type="obsolete">模拟器</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::LinuxDeviceTestDialog</name>
-    <message>
-        <source>Close</source>
-        <translation>关闭</translation>
     </message>
     <message>
         <source>Device test finished successfully.</source>
@@ -45197,7 +41732,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceTester</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>连接到主机...</translation>
@@ -45238,7 +41773,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::PackageUploader</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>准备SFTP连接...</translation>
@@ -45261,7 +41796,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::ProFilesUpdateDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Updateable Project Files</source>
         <translation>可更新的项目文件</translation>
@@ -45284,37 +41819,25 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxApplicationRunner</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot run: %1</source>
         <translation type="obsolete">无法运行: %1</translation>
     </message>
     <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">连接错误:%1</translation>
-    </message>
-    <message>
         <source>Killing remote process(es)...</source>
         <translation type="obsolete">正在结束远程进程...</translation>
     </message>
-    <message>
-        <source>Connecting to device...</source>
-        <translation type="obsolete">正在连接设备...</translation>
-    </message>
-    <message>
-        <source>Error running remote process: %1</source>
-        <translation type="obsolete">运行远程程序发生错误:%1</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericRemoteLinuxCustomCommandDeploymentStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>执行自定义的远程命令</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCustomCommandDeployService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>没有给定命令行。</translation>
@@ -45350,24 +41873,16 @@ Is the device connected and set up for network access?</source>
         <source>Linux Devices</source>
         <translation type="obsolete">Linux 设备</translation>
     </message>
-    <message>
-        <source>Unknown OS</source>
-        <translation type="obsolete">未知系统</translation>
-    </message>
-    <message>
-        <source>(No device)</source>
-        <translation type="obsolete">(没有设备)</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxDeployStepWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
         <translation type="obsolete">&lt;b&gt;%1 使用设备&lt;/b&gt;: %2</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxEnvironmentReader</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection error: %1</source>
         <translation>连接错误:%1</translation>
@@ -45384,18 +41899,7 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxPackageInstaller</name>
-    <message>
-        <source>Connection failure: %1</source>
-        <translation>连接失败: %1</translation>
-    </message>
-    <message>
-        <source>Installing package failed.</source>
-        <translation>包安装失败。</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::RemoteLinuxPlugin</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Start Remote Debug Server...</source>
         <translation type="obsolete">启动远程调试服务...</translation>
@@ -45406,21 +41910,17 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxProcessesDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Remote Error</source>
         <translation type="obsolete">远程错误</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxProcessList</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Command Line</source>
         <translation type="obsolete">命令行</translation>
-    </message>
-    <message>
-        <source>Connection failure: %1</source>
-        <translation type="obsolete">连接失败: %1</translation>
     </message>
     <message>
         <source>Error: Remote process failed to start: %1</source>
@@ -45442,57 +41942,10 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsPage</name>
-    <message>
-        <source>Device Configurations</source>
-        <translation type="obsolete">设备配置</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxUsedPortsGatherer</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">连接错误:%1</translation>
-    </message>
-    <message>
-        <source>Could not start remote process: %1</source>
-        <translation type="obsolete">不能启动远程 进程: %1</translation>
-    </message>
-    <message>
-        <source>Remote process crashed: %1</source>
-        <translation type="obsolete">远端进程崩溃:%1</translation>
-    </message>
-    <message>
-        <source>Remote process failed; exit code was %1.</source>
-        <translation type="obsolete">远端进程失败, 退出代码&apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>
-Remote error output was: %1</source>
-        <translation type="obsolete">
-远程错误输出: %1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::SshKeyCreationDialog</name>
-    <message>
-        <source>Save Public Key File</source>
-        <translation type="obsolete">保存公钥文件</translation>
-    </message>
-    <message>
-        <source>Save Private Key File</source>
-        <translation type="obsolete">保存私钥文件</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::SshKeyDeployer</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>公钥错误: %1</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>连接失败:%1</translation>
     </message>
     <message>
         <source>Key deployment failed: %1.</source>
@@ -45500,18 +41953,10 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::StartGdbServerDialog</name>
-    <message>
-        <source>Remote Error</source>
-        <translation type="obsolete">远程错误</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Could not retrieve list of free ports:</source>
         <translation type="obsolete">无法获取可用端口列表:</translation>
-    </message>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">连接错误:%1</translation>
     </message>
     <message>
         <source>Starting gdbserver...</source>
@@ -45527,7 +41972,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::TarPackageCreationStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>打包顺利完成。</translation>
@@ -45578,7 +42023,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::TypeSpecificDeviceConfigurationListModel</name>
+    <name>RemoteLinux</name>
     <message>
         <source>(default)</source>
         <translation type="obsolete">(默认)</translation>
@@ -45589,7 +42034,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::UploadAndInstallTarPackageStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>没有找到生成tarball所需的步骤。</translation>
@@ -46772,11 +43217,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardCheckPreviousKeySetupPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>向导页面</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Has a passwordless (key-based) login already been set up for this device?</source>
         <translation>这个设备已经设置了不需要密码(密钥验证)登录吗？</translation>
@@ -46791,11 +43232,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Madde::Internal::MaemoPublishingWizardPageFremantleFree</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>向导页面</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Choose build configuration:</source>
         <translation>选择构建配置:</translation>
@@ -46806,7 +43243,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Madde::Internal::MaemoPublishingFileSelectionDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Choose Package Contents</source>
         <translation>选择软件包内容</translation>
@@ -46817,23 +43254,9 @@ p, li { white-space: pre-wrap; }
         <translation>&lt;b&gt;请选择您想包含到源码包当中去的文件。&lt;/b&gt;
 </translation>
     </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingResultPageFremantleFree</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>向导页面</translation>
-    </message>
     <message>
         <source>Progress</source>
         <translation>进度</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>界面</translation>
     </message>
     <message>
         <source>OpenGL Mode</source>
@@ -47301,18 +43724,10 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>界面</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Authentication type:</source>
         <translation>验证类型:</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>密码</translation>
     </message>
     <message>
         <source>&amp;Key</source>
@@ -47384,7 +43799,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>向导页面</translation>
@@ -47406,10 +43821,6 @@ p, li { white-space: pre-wrap; }
         <translation>验证类型:</translation>
     </message>
     <message>
-        <source>Password</source>
-        <translation>密码</translation>
-    </message>
-    <message>
         <source>Key</source>
         <translation>密钥</translation>
     </message>
@@ -47423,7 +43834,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDeviceTestDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Device Test</source>
         <translation>设备测试</translation>
@@ -47445,7 +43856,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxDeployConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Form</source>
         <translation>界面</translation>
@@ -51464,7 +47875,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>Madde::Internal::DebianManager</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Error Creating Debian Project Templates</source>
         <translation>创建Debian项目模板出错</translation>
@@ -51519,11 +47930,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>Madde::Internal::MaddeDevice</name>
-    <message>
-        <source>Test</source>
-        <translation>测试</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Deploy Public Key...</source>
         <translation>部署公钥...</translation>
@@ -51538,7 +47945,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>Madde::Internal::MaddeQemuStartService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Checking whether to start Qemu...</source>
         <translation>检查是否需要启动Qemu...</translation>
@@ -51561,14 +47968,14 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>Madde::Internal::MaddeQemuStartStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Start Qemu, if necessary</source>
         <translation>必要时启动Qemu</translation>
     </message>
 </context>
 <context>
-    <name>Madde::Internal::Qt4MaemoDeployConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Add Packaging Files to Project</source>
         <translation>添加包文件到项目中</translation>
@@ -52969,26 +49376,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDevice</name>
-    <message>
-        <source>Generic Linux</source>
-        <translation>通用Linux</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation>测试</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key...</source>
-        <translation>部署公钥...</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceService</name>
-    <message>
-        <source>Remote process failed to start.</source>
-        <translation>远端进程启动失败。</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Remote process crashed.</source>
         <translation>远端进程崩溃。</translation>
@@ -53015,21 +49403,21 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxCheckForFreeDiskSpaceStepWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>MB</source>
         <translation>MB</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Check for free disk space</source>
         <translation>检测剩余的磁盘空间</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::LinuxDeviceDebugSupport</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Checking available ports...
 </source>
@@ -53047,17 +49435,6 @@ cannot be found in the path.</source>
     <message>
         <source>Not enough free ports on device for debugging.</source>
         <translation>设备上可用于调试的空闲端口不够。</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxDeploymentDataModel</name>
-    <message>
-        <source>Local File Path</source>
-        <translation type="obsolete">本地文件路径</translation>
-    </message>
-    <message>
-        <source>Remote Directory</source>
-        <translation type="obsolete">远程目录</translation>
     </message>
 </context>
 <context>
@@ -53280,7 +49657,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxDeployConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Double-click to edit the project file</source>
         <translation>双击编辑项目文件</translation>

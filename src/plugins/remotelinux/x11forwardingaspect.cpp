@@ -25,6 +25,8 @@
 
 #include "x11forwardingaspect.h"
 
+#include "remotelinuxtr.h"
+
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
@@ -37,11 +39,11 @@ static QString defaultDisplay() { return qEnvironmentVariable("DISPLAY"); }
 X11ForwardingAspect::X11ForwardingAspect(const MacroExpander *expander)
     : m_macroExpander(expander)
 {
-    setLabelText(tr("X11 Forwarding:"));
+    setLabelText(Tr::tr("X11 Forwarding:"));
     setDisplayStyle(LineEditDisplay);
     setId("X11ForwardingAspect");
     setSettingsKey("RunConfiguration.X11Forwarding");
-    makeCheckable(CheckBoxPlacement::Right, tr("Forward to local display"),
+    makeCheckable(CheckBoxPlacement::Right, Tr::tr("Forward to local display"),
                   "RunConfiguration.UseX11Forwarding");
     setValue(defaultDisplay());
 

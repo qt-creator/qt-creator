@@ -26,6 +26,8 @@
 #include "remotelinuxenvironmentaspect.h"
 
 #include "remotelinuxenvironmentaspectwidget.h"
+#include "remotelinuxtr.h"
+
 #include <utils/algorithm.h>
 
 namespace RemoteLinux {
@@ -43,8 +45,8 @@ static bool displayAlreadySet(const Utils::EnvironmentItems &changes)
 
 RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(ProjectExplorer::Target *target)
 {
-    addSupportedBaseEnvironment(tr("Clean Environment"), {});
-    addPreferredBaseEnvironment(tr("System Environment"), [this] { return m_remoteEnvironment; });
+    addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
+    addPreferredBaseEnvironment(Tr::tr("System Environment"), [this] { return m_remoteEnvironment; });
 
     setConfigWidgetCreator([this, target] {
         return new RemoteLinuxEnvironmentAspectWidget(this, target);

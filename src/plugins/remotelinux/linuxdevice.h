@@ -34,8 +34,6 @@ namespace RemoteLinux {
 
 class REMOTELINUX_EXPORT LinuxDevice : public ProjectExplorer::IDevice
 {
-    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::LinuxDevice)
-
 public:
     using Ptr = QSharedPointer<LinuxDevice>;
     using ConstPtr = QSharedPointer<const LinuxDevice>;

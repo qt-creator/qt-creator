@@ -18029,7 +18029,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxRunConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>%1 (on Remote Device)</source>
         <translation>%1 (na zdalnym urządzeniu)</translation>
@@ -18331,14 +18331,14 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizard</name>
+    <name>RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Nowa konfiguracja ogólnego urządzenia linuksowego</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection</source>
         <translation>Połączenie</translation>
@@ -18347,13 +18347,9 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
         <source>Choose a Private Key File</source>
         <translation>Wybierz plik z kluczem prywatnym</translation>
     </message>
-    <message>
-        <source>Generic Linux Device</source>
-        <translation>Ogólne urządzenie linuksowe</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardFinalPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Summary</source>
         <translation>Podsumowanie</translation>
@@ -18366,7 +18362,7 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::PublicKeyDeploymentDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Choose Public Key File</source>
         <translation>Wybierz plik z kluczem publicznym</translation>
@@ -18389,7 +18385,7 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxRunConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Executable on host:</source>
         <translation>Plik wykonywalny na hoście:</translation>
@@ -18428,11 +18424,7 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::CreateTarStepWidget</name>
-    <message>
-        <source>Ignore missing files</source>
-        <translation>Ignoruj brakujące pliki</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Package modified files only</source>
         <translation>Upakuj tylko zmodyfikowane pliki</translation>
@@ -18447,7 +18439,7 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxRunConfigurationFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>(on Remote Generic Linux Host)</source>
         <translation>(na zdalnym hoście linuksowym)</translation>
@@ -18738,7 +18730,7 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxDeployService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>Instalacja nie jest wymagana. Zostanie pominięta.</translation>
@@ -18769,7 +18761,7 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>Nie można zainstalować: %1</translation>
@@ -18788,7 +18780,7 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractUploadAndInstallPackageService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Przesłano poprawnie plik pakietu.</translation>
@@ -18803,7 +18795,7 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericDirectUploadService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>Błąd inicjalizacji SFTP: %1</translation>
@@ -18842,7 +18834,7 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::ConfigWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>Instalacja przyrostowa</translation>
@@ -18857,21 +18849,21 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericDirectUploadStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Upload files via SFTP</source>
         <translation>Prześlij pliki przez SFTP</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Generic Linux Device</source>
         <translation>Ogólne urządzenie linuksowe</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceTester</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>Łączenie z hostem...</translation>
@@ -18910,14 +18902,10 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::PackageUploader</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Przygotowywanie połączenia SFTP...</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Błąd połączenia: %1</translation>
     </message>
     <message>
         <source>SFTP error: %1</source>
@@ -18937,14 +18925,14 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericRemoteLinuxCustomCommandDeploymentStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>Uruchom własną zdalną komendę</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCustomCommandDeployService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>Nie podano linii komendy.</translation>
@@ -18978,7 +18966,7 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxEnvironmentReader</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Error: No device</source>
         <translation>Błąd: brak urządzenia</translation>
@@ -19001,7 +18989,7 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxPackageInstaller</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Błąd połączenia: %1</translation>
@@ -19012,7 +19000,7 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::SshKeyDeployer</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>Błąd klucza publicznego: %1</translation>
@@ -19027,7 +19015,7 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::TarPackageCreationStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>Pakowanie poprawnie zakończone.</translation>
@@ -19078,14 +19066,14 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::TypeSpecificDeviceConfigurationListModel</name>
+    <name>RemoteLinux</name>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (domyślnie)</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::UploadAndInstallTarPackageStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>Brak kroku tworzenia tarballa.</translation>
@@ -20123,7 +20111,7 @@ Przedrostki te, w dodatku do nazwy bieżącego pliku, używane są do przełącz
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -20131,10 +20119,6 @@ Przedrostki te, w dodatku do nazwy bieżącego pliku, używane są do przełącz
     <message>
         <source>Authentication type:</source>
         <translation>Typ autoryzacji:</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>Hasło</translation>
     </message>
     <message>
         <source>&amp;Key</source>
@@ -20222,7 +20206,7 @@ Przedrostki te, w dodatku do nazwy bieżącego pliku, używane są do przełącz
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>StronaKreatora</translation>
@@ -22894,7 +22878,7 @@ poinstruuje Qt Creatora o URI.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDevice</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation>Linuksowy</translation>
@@ -22905,11 +22889,7 @@ poinstruuje Qt Creatora o URI.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceService</name>
-    <message>
-        <source>Remote process failed to start.</source>
-        <translation>Błąd uruchamiania zdalnego procesu.</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Remote process crashed.</source>
         <translation>Zdalny proces przerwał pracę.</translation>
@@ -22940,21 +22920,21 @@ poinstruuje Qt Creatora o URI.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxCheckForFreeDiskSpaceStepWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>MB</source>
         <translation>MB</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Check for free disk space</source>
         <translation>Sprawdź ilość wolnego miejsca na dysku</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::LinuxDeviceDebugSupport</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot debug: Local executable is not set.</source>
         <translation>Nie można debugować: brak ustawionego lokalnego pliku wykonywalnego.</translation>
@@ -26866,7 +26846,7 @@ Zdalny: %4</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxEnvironmentAspect</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Clean Environment</source>
         <translation>Czyste środowisko</translation>
@@ -26877,7 +26857,7 @@ Zdalny: %4</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxEnvironmentAspectWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>Pobierz środowisko urządzenia</translation>
@@ -28688,7 +28668,7 @@ Proszę zamknąć wszystkie instancje tej aplikacji przed uruchomieniem budowani
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxSignalOperation</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Exit code is %1. stderr:</source>
         <translation>Kod wyjściowy: %1. stderr:</translation>
@@ -30480,11 +30460,7 @@ Czy kontynuować instalację?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxCustomRunConfigurationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Local executable:</source>
         <translation>Lokalny plik wykonywalny:</translation>
@@ -30492,14 +30468,6 @@ Czy kontynuować instalację?</translation>
     <message>
         <source>Remote executable:</source>
         <translation>Zdalny plik wykonywalny:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenty:</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation>Katalog roboczy:</translation>
     </message>
 </context>
 <context>
@@ -33944,7 +33912,7 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxCustomRunConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>The remote executable must be set in order to run a custom remote run configuration.</source>
         <translation>W celu uruchomienia własnej, zdalnej konfiguracji uruchamiania, należy ustawić zdalny plik wykonywalny.</translation>
@@ -44069,7 +44037,7 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::FifoGatherer</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Creating remote socket...</source>
         <translation>Tworzenie zdalnych gniazd...</translation>
@@ -44080,7 +44048,7 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxPerfSupport</name>
+    <name>RemoteLinux</name>
     <message>
         <source>FIFO for profiling data could not be created.</source>
         <translation>Nie można utworzyć FIFO dla danych profilowania.</translation>

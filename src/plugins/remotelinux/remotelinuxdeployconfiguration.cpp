@@ -27,25 +27,22 @@
 
 #include "makeinstallstep.h"
 #include "remotelinux_constants.h"
+#include "remotelinuxtr.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
-#include <QCoreApplication>
-
 using namespace ProjectExplorer;
 
-namespace RemoteLinux {
-namespace Internal {
+namespace RemoteLinux::Internal {
 
 RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
 {
     setConfigBaseId(RemoteLinux::Constants::DeployToGenericLinux);
     addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
-    setDefaultDisplayName(QCoreApplication::translate("RemoteLinux",
-                                                      "Deploy to Remote Linux Host"));
+    setDefaultDisplayName(Tr::tr("Deploy to Remote Linux Host"));
     setUseDeploymentDataView();
 
     const auto needsMakeInstall = [](Target *target)
@@ -74,5 +71,4 @@ RemoteLinuxDeployConfigurationFactory::RemoteLinuxDeployConfigurationFactory()
     });
 }
 
-} // namespace Internal
-} // namespace RemoteLinux
+} // RemoteLinux::Internal

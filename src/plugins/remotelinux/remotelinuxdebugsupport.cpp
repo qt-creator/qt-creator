@@ -30,8 +30,7 @@
 using namespace Debugger;
 using namespace ProjectExplorer;
 
-namespace RemoteLinux {
-namespace Internal {
+namespace RemoteLinux::Internal {
 
 LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
     : DebuggerRunTool(runControl, DebuggerRunTool::DoNotAllowTerminal)
@@ -52,5 +51,4 @@ LinuxDeviceDebugSupport::LinuxDeviceDebugSupport(RunControl *runControl)
     setLldbPlatform("remote-linux");
 }
 
-} // namespace Internal
-} // namespace RemoteLinux
+} // Internal::Internal

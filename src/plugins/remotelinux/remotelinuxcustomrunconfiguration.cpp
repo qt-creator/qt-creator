@@ -26,6 +26,7 @@
 #include "remotelinuxcustomrunconfiguration.h"
 
 #include "remotelinux_constants.h"
+#include "remotelinuxtr.h"
 #include "remotelinuxenvironmentaspect.h"
 #include "x11forwardingaspect.h"
 
@@ -38,13 +39,10 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux {
-namespace Internal {
+namespace RemoteLinux::Internal {
 
 class RemoteLinuxCustomRunConfiguration : public RunConfiguration
 {
-    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::RemoteLinuxCustomRunConfiguration)
-
 public:
     RemoteLinuxCustomRunConfiguration(Target *target, Id id);
 
@@ -61,14 +59,14 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
 
     auto exeAspect = addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
     exeAspect->setSettingsKey("RemoteLinux.CustomRunConfig.RemoteExecutable");
-    exeAspect->setLabelText(tr("Remote executable:"));
+    exeAspect->setLabelText(Tr::tr("Remote executable:"));
     exeAspect->setDisplayStyle(StringAspect::LineEditDisplay);
     exeAspect->setHistoryCompleter("RemoteLinux.CustomExecutable.History");
     exeAspect->setExpectedKind(PathChooser::Any);
 
     auto symbolsAspect = addAspect<SymbolFileAspect>();
     symbolsAspect->setSettingsKey("RemoteLinux.CustomRunConfig.LocalExecutable");
-    symbolsAspect->setLabelText(tr("Local executable:"));
+    symbolsAspect->setLabelText(Tr::tr("Local executable:"));
     symbolsAspect->setDisplayStyle(SymbolFileAspect::PathChooserDisplay);
 
     addAspect<ArgumentsAspect>(macroExpander());
@@ -90,7 +88,7 @@ QString RemoteLinuxCustomRunConfiguration::runConfigDefaultDisplayName()
 {
     QString remoteExecutable = aspect<ExecutableAspect>()->executable().toString();
     QString display = remoteExecutable.isEmpty()
-            ? tr("Custom Executable") : tr("Run \"%1\"").arg(remoteExecutable);
+            ? Tr::tr("Custom Executable") : Tr::tr("Run \"%1\"").arg(remoteExecutable);
     return  RunConfigurationFactory::decoratedTargetName(display, target());
 }
 
@@ -98,8 +96,8 @@ Tasks RemoteLinuxCustomRunConfiguration::checkForIssues() const
 {
     Tasks tasks;
     if (aspect<ExecutableAspect>()->executable().isEmpty()) {
-        tasks << createConfigurationIssue(tr("The remote executable must be set in order to run "
-                                             "a custom remote run configuration."));
+        tasks << createConfigurationIssue(Tr::tr("The remote executable must be set in order to run "
+                                                 "a custom remote run configuration."));
     }
     return tasks;
 }
@@ -107,11 +105,10 @@ Tasks RemoteLinuxCustomRunConfiguration::checkForIssues() const
 // RemoteLinuxCustomRunConfigurationFactory
 
 RemoteLinuxCustomRunConfigurationFactory::RemoteLinuxCustomRunConfigurationFactory()
-    : FixedRunConfigurationFactory(RemoteLinuxCustomRunConfiguration::tr("Custom Executable"), true)
+    : FixedRunConfigurationFactory(Tr::tr("Custom Executable"), true)
 {
     registerRunConfiguration<RemoteLinuxCustomRunConfiguration>("RemoteLinux.CustomRunConfig");
     addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
 }
 
-} // namespace Internal
-} // namespace RemoteLinux
+} // RemoteLinux::Internal

@@ -25,14 +25,17 @@
 
 #include "remotelinuxsignaloperation.h"
 
+#include "remotelinuxtr.h"
+
 #include <utils/commandline.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-using namespace RemoteLinux;
 using namespace ProjectExplorer;
 using namespace Utils;
+
+namespace RemoteLinux {
 
 RemoteLinuxSignalOperation::RemoteLinuxSignalOperation(
         const IDeviceConstPtr &device)
@@ -106,10 +109,12 @@ void RemoteLinuxSignalOperation::runnerDone()
     if (m_process->exitStatus() != QProcess::NormalExit) {
         m_errorMessage = m_process->errorString();
     } else if (m_process->exitCode() != 0) {
-        m_errorMessage = tr("Exit code is %1. stderr:").arg(m_process->exitCode())
+        m_errorMessage = Tr::tr("Exit code is %1. stderr:").arg(m_process->exitCode())
                 + QLatin1Char(' ')
                 + QString::fromLatin1(m_process->readAllStandardError());
     }
     m_process.release()->deleteLater();
     emit finished(m_errorMessage);
 }
+
+} // RemoteLinux

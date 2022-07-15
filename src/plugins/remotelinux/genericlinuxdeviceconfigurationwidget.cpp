@@ -25,6 +25,7 @@
 
 #include "genericlinuxdeviceconfigurationwidget.h"
 
+#include "remotelinuxtr.h"
 #include "sshkeycreationdialog.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
@@ -55,22 +56,22 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
 {
     resize(556, 309);
 
-    m_defaultAuthButton = new QRadioButton(tr("Default"), this);
+    m_defaultAuthButton = new QRadioButton(Tr::tr("Default"), this);
 
-    m_keyButton = new QRadioButton(tr("Specific &key"));
+    m_keyButton = new QRadioButton(Tr::tr("Specific &key"));
 
     m_hostLineEdit = new QLineEdit(this);
-    m_hostLineEdit->setPlaceholderText(tr("IP or host name of the device"));
+    m_hostLineEdit->setPlaceholderText(Tr::tr("IP or host name of the device"));
 
     m_sshPortSpinBox = new QSpinBox(this);
     m_sshPortSpinBox->setMinimum(0);
     m_sshPortSpinBox->setMaximum(65535);
     m_sshPortSpinBox->setValue(22);
 
-    m_hostKeyCheckBox = new QCheckBox(tr("&Check host key"));
+    m_hostKeyCheckBox = new QCheckBox(Tr::tr("&Check host key"));
 
     m_portsLineEdit = new QLineEdit(this);
-    m_portsLineEdit->setToolTip(tr("You can enter lists and ranges like this: '1024,1026-1028,1030'."));
+    m_portsLineEdit->setToolTip(Tr::tr("You can enter lists and ranges like this: '1024,1026-1028,1030'."));
 
     m_portsWarningLabel = new QLabel(this);
 
@@ -78,22 +79,22 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
     m_timeoutSpinBox->setMaximum(10000);
     m_timeoutSpinBox->setSingleStep(10);
     m_timeoutSpinBox->setValue(1000);
-    m_timeoutSpinBox->setSuffix(tr("s"));
+    m_timeoutSpinBox->setSuffix(Tr::tr("s"));
 
     m_userLineEdit = new QLineEdit(this);
 
-    m_keyLabel = new QLabel(tr("Private key file:"));
+    m_keyLabel = new QLabel(Tr::tr("Private key file:"));
 
     m_keyFileLineEdit = new Utils::PathChooser(this);
 
-    auto createKeyButton = new QPushButton(tr("Create New..."));
+    auto createKeyButton = new QPushButton(Tr::tr("Create New..."));
 
     m_machineTypeValueLabel = new QLabel(this);
 
     m_gdbServerLineEdit = new QLineEdit(this);
-    m_gdbServerLineEdit->setPlaceholderText(tr("Leave empty to look up executable in $PATH"));
+    m_gdbServerLineEdit->setPlaceholderText(Tr::tr("Leave empty to look up executable in $PATH"));
 
-    auto sshPortLabel = new QLabel(tr("&SSH port:"));
+    auto sshPortLabel = new QLabel(Tr::tr("&SSH port:"));
     sshPortLabel->setBuddy(m_sshPortSpinBox);
 
     using namespace Layouting;
@@ -101,13 +102,13 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
     const Stretch st;
 
     Form {
-        tr("Machine type:"), m_machineTypeValueLabel, st, nl,
-        tr("Authentication type:"), m_defaultAuthButton, m_keyButton, st, nl,
-        tr("&Host name:"), m_hostLineEdit, sshPortLabel, m_sshPortSpinBox, m_hostKeyCheckBox, st, nl,
-        tr("Free ports:"), m_portsLineEdit, m_portsWarningLabel, tr("Timeout:"), m_timeoutSpinBox, st, nl,
-        tr("&Username:"), m_userLineEdit, st, nl,
+        Tr::tr("Machine type:"), m_machineTypeValueLabel, st, nl,
+        Tr::tr("Authentication type:"), m_defaultAuthButton, m_keyButton, st, nl,
+        Tr::tr("&Host name:"), m_hostLineEdit, sshPortLabel, m_sshPortSpinBox, m_hostKeyCheckBox, st, nl,
+        Tr::tr("Free ports:"), m_portsLineEdit, m_portsWarningLabel, Tr::tr("Timeout:"), m_timeoutSpinBox, st, nl,
+        Tr::tr("&Username:"), m_userLineEdit, st, nl,
         m_keyLabel, m_keyFileLineEdit, createKeyButton, st, nl,
-        tr("GDB server executable:"), m_gdbServerLineEdit, st, nl
+        Tr::tr("GDB server executable:"), m_gdbServerLineEdit, st, nl
     }.attachTo(this);
 
     connect(m_hostLineEdit, &QLineEdit::editingFinished,
@@ -241,12 +242,12 @@ void GenericLinuxDeviceConfigurationWidget::updatePortsWarningLabel()
 void GenericLinuxDeviceConfigurationWidget::initGui()
 {
     if (device()->machineType() == IDevice::Hardware)
-        m_machineTypeValueLabel->setText(tr("Physical Device"));
+        m_machineTypeValueLabel->setText(Tr::tr("Physical Device"));
     else
-        m_machineTypeValueLabel->setText(tr("Emulator"));
+        m_machineTypeValueLabel->setText(Tr::tr("Emulator"));
     m_portsWarningLabel->setPixmap(Utils::Icons::CRITICAL.pixmap());
     m_portsWarningLabel->setToolTip(QLatin1String("<font color=\"red\">")
-        + tr("You will need at least one port.") + QLatin1String("</font>"));
+        + Tr::tr("You will need at least one port.") + QLatin1String("</font>"));
     m_keyFileLineEdit->setExpectedKind(PathChooser::File);
     m_keyFileLineEdit->setHistoryCompleter(QLatin1String("Ssh.KeyFile.History"));
     m_keyFileLineEdit->lineEdit()->setMinimumWidth(0);

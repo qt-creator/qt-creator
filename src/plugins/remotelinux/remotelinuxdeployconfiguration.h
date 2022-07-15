@@ -27,8 +27,7 @@
 
 #include <projectexplorer/deployconfiguration.h>
 
-namespace RemoteLinux {
-namespace Internal {
+namespace RemoteLinux::Internal {
 
 class RemoteLinuxDeployConfigurationFactory : public ProjectExplorer::DeployConfigurationFactory
 {
@@ -36,5 +35,4 @@ public:
     RemoteLinuxDeployConfigurationFactory();
 };
 
-} // namespace Internal
-} // namespace RemoteLinux
+} // RemoteLinux::Internal

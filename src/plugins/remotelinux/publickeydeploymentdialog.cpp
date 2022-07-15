@@ -25,10 +25,13 @@
 
 #include "publickeydeploymentdialog.h"
 
+#include "remotelinuxtr.h"
+
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/devicesupport/sshsettings.h>
-#include <utils/fileutils.h>
+
+#include <utils/filepath.h>
 #include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
 
@@ -53,8 +56,8 @@ PublicKeyDeploymentDialog *PublicKeyDeploymentDialog::createDialog(
 {
     const FilePath dir = deviceConfig->sshParameters().privateKeyFile.parentDir();
     const FilePath publicKeyFileName = FileUtils::getOpenFilePath(nullptr,
-        tr("Choose Public Key File"), dir,
-        tr("Public Key Files (*.pub);;All Files (*)"));
+        Tr::tr("Choose Public Key File"), dir,
+        Tr::tr("Public Key Files (*.pub);;All Files (*)"));
     if (publicKeyFileName.isEmpty())
         return nullptr;
     return new PublicKeyDeploymentDialog(deviceConfig, publicKeyFileName, parent);
@@ -70,7 +73,7 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &de
     setMaximum(1);
 
     d->m_done = false;
-    setLabelText(tr("Deploying..."));
+    setLabelText(Tr::tr("Deploying..."));
     setValue(0);
     connect(this, &PublicKeyDeploymentDialog::canceled, this,
             [this] { d->m_done ? accept() : reject(); });
@@ -83,7 +86,7 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &de
                 errorMessage = d->m_process.cleanedStdErr();
             if (errorMessage.endsWith('\n'))
                 errorMessage.chop(1);
-            finalMessage = tr("Key deployment failed.");
+            finalMessage = Tr::tr("Key deployment failed.");
             if (!errorMessage.isEmpty())
                 finalMessage += '\n' + errorMessage;
         }
@@ -92,7 +95,7 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &de
 
     FileReader reader;
     if (!reader.fetch(publicKeyFileName)) {
-        handleDeploymentDone(false, tr("Public key error: %1").arg(reader.errorString()));
+        handleDeploymentDone(false, Tr::tr("Public key error: %1").arg(reader.errorString()));
         return;
     }
 
@@ -136,12 +139,12 @@ PublicKeyDeploymentDialog::~PublicKeyDeploymentDialog()
 
 void PublicKeyDeploymentDialog::handleDeploymentDone(bool succeeded, const QString &errorMessage)
 {
-    QString buttonText = succeeded ? tr("Deployment finished successfully.") : errorMessage;
+    QString buttonText = succeeded ? Tr::tr("Deployment finished successfully.") : errorMessage;
     const QString textColor = creatorTheme()->color(
                 succeeded ? Theme::TextColorNormal : Theme::TextColorError).name();
     setLabelText(QString::fromLatin1("<font color=\"%1\">%2</font>")
             .arg(textColor, buttonText.replace("\n", "<br/>")));
-    setCancelButtonText(tr("Close"));
+    setCancelButtonText(Tr::tr("Close"));
 
     if (!succeeded)
         return;

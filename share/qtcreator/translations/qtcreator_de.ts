@@ -16025,21 +16025,21 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizard</name>
+    <name>RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Einrichtung einer neuen Gerätekonfiguration für generisches Linux</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection</source>
         <translation>Verbindung</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::PublicKeyDeploymentDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Choose Public Key File</source>
         <translation>Datei mit öffentlichem Schlüssel auswählen</translation>
@@ -16062,7 +16062,7 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardFinalPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Summary</source>
         <translation>Zusammenfassung</translation>
@@ -16617,7 +16617,7 @@ Wenn falsch, wird das Zielobjekt sofort zur aktuellen Mouseposition bewegt.</tra
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxDeployService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>Alle Dateien sind auf dem aktuellen Stand, es ist keine Installation erforderlich.</translation>
@@ -16648,7 +16648,7 @@ Wenn falsch, wird das Zielobjekt sofort zur aktuellen Mouseposition bewegt.</tra
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>Fehlschlag beim Deployment von %1</translation>
@@ -16667,7 +16667,7 @@ Wenn falsch, wird das Zielobjekt sofort zur aktuellen Mouseposition bewegt.</tra
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractUploadAndInstallPackageService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Die Paketdatei wurde hochgeladen.</translation>
@@ -16682,7 +16682,7 @@ Wenn falsch, wird das Zielobjekt sofort zur aktuellen Mouseposition bewegt.</tra
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericDirectUploadService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Failed to retrieve remote timestamp for file &quot;%1&quot;. Incremental deployment will not work. Error message was: %2</source>
         <translation>Der Zeitstempel der Datei &quot;%1&quot; konnte nicht gelesen werden. Inkrementelles Deployment wird daher nicht funktionieren. Die Fehlermeldung war: %2</translation>
@@ -16716,14 +16716,10 @@ Wenn falsch, wird das Zielobjekt sofort zur aktuellen Mouseposition bewegt.</tra
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericDirectUploadStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>Inkrementelles Deployment</translation>
-    </message>
-    <message>
-        <source>Ignore missing files</source>
-        <translation>Fehlende Dateien ignorieren</translation>
     </message>
     <message>
         <source>Upload files via SFTP</source>
@@ -16731,7 +16727,7 @@ Wenn falsch, wird das Zielobjekt sofort zur aktuellen Mouseposition bewegt.</tra
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceTester</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>Verbinde zu Host...</translation>
@@ -16822,7 +16818,7 @@ Wenn falsch, wird das Zielobjekt sofort zur aktuellen Mouseposition bewegt.</tra
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::PackageUploader</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Bereite SFTP-Verbindung vor...</translation>
@@ -16848,7 +16844,7 @@ Wenn falsch, wird das Zielobjekt sofort zur aktuellen Mouseposition bewegt.</tra
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxEnvironmentReader</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Error: No device</source>
         <translation>Fehler: Kein Gerät</translation>
@@ -16871,7 +16867,7 @@ Wenn falsch, wird das Zielobjekt sofort zur aktuellen Mouseposition bewegt.</tra
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxPackageInstaller</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Fehler beim Herstellen der Verbindung: %1</translation>
@@ -16880,16 +16876,9 @@ Wenn falsch, wird das Zielobjekt sofort zur aktuellen Mouseposition bewegt.</tra
         <source>Installing package failed.</source>
         <translation>Die Installation des Pakets schlug fehl.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::SshKeyDeployer</name>
     <message>
         <source>Public key error: %1</source>
         <translation>Fehler im öffentlich Schlüssel: %1</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Fehler beim Herstellen der Verbindung: %1</translation>
     </message>
     <message>
         <source>Key deployment failed: %1.</source>
@@ -16897,7 +16886,7 @@ Wenn falsch, wird das Zielobjekt sofort zur aktuellen Mouseposition bewegt.</tra
     </message>
 </context>
 <context>
-    <name>RemoteLinux::TarPackageCreationStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>Paketierung erfolgreich abgeschlossen.</translation>
@@ -16909,10 +16898,6 @@ Wenn falsch, wird das Zielobjekt sofort zur aktuellen Mouseposition bewegt.</tra
     <message>
         <source>Creating tarball...</source>
         <translation>Tarball erzeugen...</translation>
-    </message>
-    <message>
-        <source>Ignore missing files</source>
-        <translation>Fehlende Dateien ignorieren</translation>
     </message>
     <message>
         <source>Package modified files only</source>
@@ -16964,14 +16949,14 @@ Wenn falsch, wird das Zielobjekt sofort zur aktuellen Mouseposition bewegt.</tra
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::TypeSpecificDeviceConfigurationListModel</name>
+    <name>RemoteLinux</name>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (Vorgabe)</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::UploadAndInstallTarPackageStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>Es konnte kein passender Schritt zur Erzeugung eines Tarballs gefunden werden.</translation>
@@ -17125,7 +17110,7 @@ Außer: %3
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCustomCommandDeployService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>Keine Kommandozeile angegeben.</translation>
@@ -17133,10 +17118,6 @@ Außer: %3
     <message>
         <source>Starting remote command &quot;%1&quot;...</source>
         <translation>Starte entferntes Kommando &quot;%1&quot;...</translation>
-    </message>
-    <message>
-        <source>Remote process failed: %1</source>
-        <translation>Der entfernte Prozess schlug fehl: %1</translation>
     </message>
     <message>
         <source>Remote process finished with exit code %1.</source>
@@ -17570,7 +17551,7 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -18563,7 +18544,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Authentication type:</source>
         <translation>Art der Authentifizierung:</translation>
@@ -18595,10 +18576,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>&amp;Username:</source>
         <translation>&amp;Nutzername:</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation>Private Schlüsseldatei:</translation>
     </message>
     <message>
         <source>Physical Device</source>
@@ -19954,7 +19931,7 @@ gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?<
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Unexpected output from remote process: &quot;%1&quot;</source>
         <translation>Unerwartete Ausgabe des entfernten Prozesses: &quot;%1&quot;</translation>
@@ -19983,7 +19960,7 @@ gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?<
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Remote path to check for free space:</source>
         <translation>Zu überprüfender Pfad:</translation>
@@ -20248,7 +20225,7 @@ hinzufügen, um dem QML-Editor den wahrscheinlichen URI mitzuteilen.</translatio
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDevice</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation>Generisches Linux</translation>
@@ -22966,7 +22943,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxEnvironmentAspect</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Clean Environment</source>
         <translation>Saubere Umgebung</translation>
@@ -22977,7 +22954,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxEnvironmentAspectWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>Umgebung vom Mobilgerät abfragen</translation>
@@ -25783,7 +25760,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxSignalOperation</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Exit code is %1. stderr:</source>
         <translation>Rückgabewert %1. Fehlerausgabe:</translation>
@@ -28108,7 +28085,7 @@ Bitte installieren Sie ein Android-SDK der API-Version %1 oder neuer.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxCustomRunConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Remote executable:</source>
         <translation>Entfernte ausführbare Datei:</translation>
@@ -41564,7 +41541,7 @@ Breche ausstehende Operationen ab...
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Tr</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Trying to kill &quot;%1&quot; on remote device...</source>
         <translation>Versuche &quot;%1&quot; auf anderem Gerät zu beenden...</translation>
@@ -43395,7 +43372,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCustomCommandDeploymentStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Command line:</source>
         <translation>Kommandozeile:</translation>
@@ -44651,7 +44628,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardKeyDeploymentPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Key Deployment</source>
         <translation>Schlüssel-Deployment</translation>
@@ -44684,7 +44661,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>RemoteLinux::X11ForwardingAspect</name>
+    <name>RemoteLinux</name>
     <message>
         <source>X11 Forwarding</source>
         <translation>X11-Weiterleitung</translation>
@@ -44695,7 +44672,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RsyncDeployService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Failed to create remote directories: %1</source>
         <translation>Entfernte Verzeichnisse konnten nicht erstellt werden: %1</translation>
@@ -44714,7 +44691,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RsyncDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Flags:</source>
         <translation>Optionen:</translation>
@@ -49064,14 +49041,14 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>RemoteLinux::MakeInstallStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Install root:</source>
         <translation>Install-Root:</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxRunConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Executable on device:</source>
         <translation>Ausführbare Datei auf Mobilgerät:</translation>

@@ -26,6 +26,7 @@
 #include "genericlinuxdeviceconfigurationwizardpages.h"
 
 #include "publickeydeploymentdialog.h"
+#include "remotelinuxtr.h"
 #include "sshkeycreationdialog.h"
 
 #include <projectexplorer/devicesupport/sshparameters.h>
@@ -68,8 +69,8 @@ GenericLinuxDeviceConfigurationWizardSetupPage::GenericLinuxDeviceConfigurationW
         QWidget *parent) :
     QWizardPage(parent), d(new Internal::GenericLinuxDeviceConfigurationWizardSetupPagePrivate)
 {
-    setTitle(tr("Connection"));
-    setWindowTitle(tr("WizardPage"));
+    setTitle(Tr::tr("Connection"));
+    setWindowTitle(Tr::tr("WizardPage"));
 
     d->nameLineEdit = new QLineEdit(this);
     d->hostNameLineEdit = new QLineEdit(this);
@@ -80,9 +81,9 @@ GenericLinuxDeviceConfigurationWizardSetupPage::GenericLinuxDeviceConfigurationW
     const Stretch st;
 
     Form {
-        tr("The name to identify this configuration:"), d->nameLineEdit, nl,
-        tr("The device's host name or IP address:"), d->hostNameLineEdit, st, nl,
-        tr("The username to log into the device:"), d->userNameLineEdit, st, nl
+        Tr::tr("The name to identify this configuration:"), d->nameLineEdit, nl,
+        Tr::tr("The device's host name or IP address:"), d->hostNameLineEdit, st, nl,
+        Tr::tr("The username to log into the device:"), d->userNameLineEdit, st, nl
     }.attachTo(this);
 
     setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
@@ -142,7 +143,7 @@ GenericLinuxDeviceConfigurationWizardFinalPage::GenericLinuxDeviceConfigurationW
         QWidget *parent)
     : QWizardPage(parent), d(new Internal::GenericLinuxDeviceConfigurationWizardFinalPagePrivate)
 {
-    setTitle(tr("Summary"));
+    setTitle(Tr::tr("Summary"));
     setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
     d->infoLabel.setWordWrap(true);
     auto const layout = new QVBoxLayout(this);
@@ -161,8 +162,8 @@ void GenericLinuxDeviceConfigurationWizardFinalPage::initializePage()
 
 QString GenericLinuxDeviceConfigurationWizardFinalPage::infoText() const
 {
-    return tr("The new device configuration will now be created.\n"
-              "In addition, device connectivity will be tested.");
+    return Tr::tr("The new device configuration will now be created.\n"
+                  "In addition, device connectivity will be tested.");
 }
 
 struct GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::Private
@@ -181,30 +182,30 @@ struct GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::Private
 GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::GenericLinuxDeviceConfigurationWizardKeyDeploymentPage(QWidget *parent)
     : QWizardPage(parent), d(new Private)
 {
-    setTitle(tr("Key Deployment"));
+    setTitle(Tr::tr("Key Deployment"));
     setSubTitle(" ");
-    const QString info = tr("We recommend that you log into your device using public key "
-                            "authentication.\n"
-                            "If your device is already set up for this, you do not have to do "
-                            "anything here.\n"
-                            "Otherwise, please deploy the public key for the private key "
-                            "with which to connect in the future.\n"
-                            "If you do not have a private key yet, you can also "
-                            "create one here.");
+    const QString info = Tr::tr("We recommend that you log into your device using public key "
+                                "authentication.\n"
+                                "If your device is already set up for this, you do not have to do "
+                                "anything here.\n"
+                                "Otherwise, please deploy the public key for the private key "
+                                "with which to connect in the future.\n"
+                                "If you do not have a private key yet, you can also "
+                                "create one here.");
     d->keyFileChooser.setExpectedKind(PathChooser::File);
     d->keyFileChooser.setHistoryCompleter("Ssh.KeyFile.History");
-    d->keyFileChooser.setPromptDialogTitle(tr("Choose a Private Key File"));
-    auto const deployButton = new QPushButton(tr("Deploy Public Key"), this);
+    d->keyFileChooser.setPromptDialogTitle(Tr::tr("Choose a Private Key File"));
+    auto const deployButton = new QPushButton(Tr::tr("Deploy Public Key"), this);
     connect(deployButton, &QPushButton::clicked,
             this, &GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::deployKey);
-    auto const createButton = new QPushButton(tr("Create New Key Pair"), this);
+    auto const createButton = new QPushButton(Tr::tr("Create New Key Pair"), this);
     connect(createButton, &QPushButton::clicked,
             this, &GenericLinuxDeviceConfigurationWizardKeyDeploymentPage::createKey);
     auto const mainLayout = new QVBoxLayout(this);
     auto const keyLayout = new QHBoxLayout;
     auto const deployLayout = new QHBoxLayout;
     mainLayout->addWidget(new QLabel(info));
-    keyLayout->addWidget(new QLabel(tr("Private key file:")));
+    keyLayout->addWidget(new QLabel(Tr::tr("Private key file:")));
     keyLayout->addWidget(&d->keyFileChooser);
     keyLayout->addWidget(createButton);
     keyLayout->addStretch();

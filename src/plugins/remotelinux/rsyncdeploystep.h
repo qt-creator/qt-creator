@@ -43,4 +43,4 @@ public:
     static QString displayName();
 };
 
-} // namespace RemoteLinux
+} // RemoteLinux

@@ -35083,7 +35083,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxDeployService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>Ingen udsendelseshandling nødvendig. Springer over.</translation>
@@ -35114,7 +35114,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>Kan ikke udsende: %1</translation>
@@ -35133,7 +35133,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxPackageInstaller</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Oprettelse af forbindelse mislykkedes: %1</translation>
@@ -35144,7 +35144,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractUploadAndInstallPackageService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Uploadede pakkefil med succes.</translation>
@@ -35159,11 +35159,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux::CreateTarStepWidget</name>
-    <message>
-        <source>Ignore missing files</source>
-        <translation>Ignorer manglende filer</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Package modified files only</source>
         <translation>Pak kun ændrede filer</translation>
@@ -35178,7 +35174,7 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericDirectUploadService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>SFTP-initialisering mislykkedes: %1</translation>
@@ -35217,28 +35213,14 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericDirectUploadStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Upload files via SFTP</source>
         <translation>Upload filer via SFTP</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationFactory</name>
-    <message>
-        <source>Generic Linux Device</source>
-        <translation>Generisk Linux-enhed</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWidget</name>
     <message>
         <source>Authentication type:</source>
         <translation>Autentifikationstype:</translation>
-    </message>
-    <message>
-        <source>Password</source>
-        <translation>Adgangskode</translation>
     </message>
     <message>
         <source>&amp;Key</source>
@@ -35326,14 +35308,14 @@ For flere detaljer, se /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizard</name>
+    <name>RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Ny generisk Linux-enhed konfigurationsopsætning</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardFinalPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Summary</source>
         <translation>Opsummering</translation>
@@ -35346,7 +35328,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection</source>
         <translation>Forbindelse</translation>
@@ -35361,7 +35343,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceTester</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>Opretter forbindelse til vært...</translation>
@@ -35400,14 +35382,14 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericRemoteLinuxCustomCommandDeploymentStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>Kør brugerdefineret fjern-kommando</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::ConfigWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>Trinvis udsendelse</translation>
@@ -35422,7 +35404,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>Assistent side</translation>
@@ -35465,7 +35447,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDevice</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation>Generisk Linux</translation>
@@ -35476,14 +35458,10 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::PackageUploader</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Forbereder SFTP-forbindelse...</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Forbindelse mislykkedes: %1</translation>
     </message>
     <message>
         <source>SFTP error: %1</source>
@@ -35503,14 +35481,14 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxCheckForFreeDiskSpaceStepWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>MB</source>
         <translation>MB</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxCustomRunConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Remote executable:</source>
         <translation>Fjern-eksekverbar:</translation>
@@ -35533,7 +35511,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxEnvironmentReader</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Error: No device</source>
         <translation>Fejl: ingen enhed</translation>
@@ -35556,14 +35534,14 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::TypeSpecificDeviceConfigurationListModel</name>
+    <name>RemoteLinux</name>
     <message>
         <source>%1 (default)</source>
         <translation>%1 (standard)</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::PublicKeyDeploymentDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Choose Public Key File</source>
         <translation>Vælg offentlig nøgle-fil</translation>
@@ -35586,11 +35564,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceService</name>
-    <message>
-        <source>Remote process failed to start.</source>
-        <translation>Fjern-proces kunne ikke starte.</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Remote process crashed.</source>
         <translation>Fjern-proces holdt op med at virke.</translation>
@@ -35619,14 +35593,14 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Check for free disk space</source>
         <translation>Tjek for ledig diskplads</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCustomCommandDeployService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>Ingen kommandolinje givet.</translation>
@@ -35653,7 +35627,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxEnvironmentAspect</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Clean Environment</source>
         <translation>Rensmiljø</translation>
@@ -35664,7 +35638,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxEnvironmentAspectWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>Hent enhedsmiljø</translation>
@@ -35683,7 +35657,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxRunConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Executable on device:</source>
         <translation>Eksekverbar på enhed:</translation>
@@ -35698,14 +35672,14 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxSignalOperation</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Exit code is %1. stderr:</source>
         <translation>Afslutningskode er %1. stderr:</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::SshKeyDeployer</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>Fejl ved offentlig nøgle: %1</translation>
@@ -35720,7 +35694,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::TarPackageCreationStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>Pakning afsluttede med succes.</translation>
@@ -35771,7 +35745,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::UploadAndInstallTarPackageStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>Intet tarball oprettelsestrin fundet.</translation>
@@ -45131,7 +45105,7 @@ Gemning mislykkedes.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Tr</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Trying to kill &quot;%1&quot; on remote device...</source>
         <translation>Prøver at dræbe &quot;%1&quot; på fjern-enhed...</translation>

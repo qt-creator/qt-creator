@@ -27,8 +27,7 @@
 
 #include <debugger/debuggerruncontrol.h>
 
-namespace RemoteLinux {
-namespace Internal {
+namespace RemoteLinux::Internal {
 
 class LinuxDeviceDebugSupport : public Debugger::DebuggerRunTool
 {
@@ -36,5 +35,4 @@ public:
     LinuxDeviceDebugSupport(ProjectExplorer::RunControl *runControl);
 };
 
-} // namespace Internal
-} // namespace RemoteLinux
+} // RemoteLinux::Internal

@@ -26,6 +26,7 @@
 #include "abstractremotelinuxdeployservice.h"
 
 #include "deploymenttimeinfo.h"
+#include "remotelinuxtr.h"
 
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/devicesupport/idevice.h>
@@ -127,7 +128,7 @@ void AbstractRemoteLinuxDeployService::start()
     }
 
     if (!isDeploymentNecessary()) {
-        emit progressMessage(tr("No deployment action necessary. Skipping."));
+        emit progressMessage(Tr::tr("No deployment action necessary. Skipping."));
         emit finished();
         return;
     }
@@ -150,7 +151,7 @@ void AbstractRemoteLinuxDeployService::stop()
 CheckResult AbstractRemoteLinuxDeployService::isDeploymentPossible() const
 {
     if (!deviceConfiguration())
-        return CheckResult::failure(tr("No device configuration set."));
+        return CheckResult::failure(Tr::tr("No device configuration set."));
     return CheckResult::success();
 }
 

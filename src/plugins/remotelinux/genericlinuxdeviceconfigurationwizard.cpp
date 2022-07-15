@@ -28,9 +28,11 @@
 #include "genericlinuxdeviceconfigurationwizardpages.h"
 #include "linuxdevice.h"
 #include "remotelinux_constants.h"
+#include "remotelinuxtr.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
+
 #include <utils/portlist.h>
 #include <utils/fileutils.h>
 
@@ -59,7 +61,7 @@ GenericLinuxDeviceConfigurationWizard::GenericLinuxDeviceConfigurationWizard(QWi
     : Utils::Wizard(parent),
       d(new Internal::GenericLinuxDeviceConfigurationWizardPrivate(this))
 {
-    setWindowTitle(tr("New Remote Linux Device Configuration Setup"));
+    setWindowTitle(Tr::tr("New Remote Linux Device Configuration Setup"));
     setPage(Internal::SetupPageId, &d->setupPage);
     setPage(Internal::KeyDeploymentPageId, &d->keyDeploymentPage);
     setPage(Internal::FinalPageId, &d->finalPage);

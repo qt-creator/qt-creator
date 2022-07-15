@@ -28674,816 +28674,6 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::MaemoConfigTestDialog</name>
-    <message>
-        <source>Testing configuration...</source>
-        <translation type="obsolete">Test de la configuration...</translation>
-    </message>
-    <message>
-        <source>Stop Test</source>
-        <translation type="obsolete">Arrêter le test</translation>
-    </message>
-    <message>
-        <source>Device configuration test failed:
-%1</source>
-        <translation type="obsolete">Échec du test de la configuration du périphérique :\n%1</translation>
-    </message>
-    <message>
-        <source>Testing configuration. This may take a while.</source>
-        <translation type="obsolete">Test de la configuration. Cela peut prendre du temps. </translation>
-    </message>
-    <message>
-        <source>Could not connect to host: %1</source>
-        <translation type="obsolete">Impossible de se connecter à l&apos;hôte : %1</translation>
-    </message>
-    <message>
-        <source>
-Did you start Qemu?</source>
-        <translation type="obsolete">Voulez-vous démarrer Qemu ?</translation>
-    </message>
-    <message>
-        <source>Remote process failed: %1</source>
-        <translation type="obsolete">Échec du processus distant : %1</translation>
-    </message>
-    <message>
-        <source>Qt version mismatch!  Expected Qt on device: 4.6.2 or later.</source>
-        <translation type="obsolete">Conflit de version de Qt ! Version de Qt attendue sur le périphérique : 4.6.2 ou supérieure.</translation>
-    </message>
-    <message>
-        <source>Mad Developer is not installed.&lt;br&gt;You will not be able to deploy to this device.</source>
-        <translation type="obsolete">Mad Developer n&apos;est pas installé. &lt;br&gt; Vous ne pourrez pas déployer sur ce périphérique.</translation>
-    </message>
-    <message>
-        <source>%1 is not installed.&lt;br&gt;You will not be able to deploy to this device.</source>
-        <translation type="obsolete">%1 n&apos;est pas installé. &lt;br&gt; Vous ne pourrez pas déployer sur ce périphérique. </translation>
-    </message>
-    <message>
-        <source>Please switch the device to developer mode via Settings -&gt; Security.</source>
-        <translation type="obsolete">Veuillez mettre le périphérique en mode développeur par Paramètres &gt; Sécurité.</translation>
-    </message>
-    <message>
-        <source>Error retrieving list of used ports: %1</source>
-        <translation type="obsolete">Erreur lors de la récupération des ports utilisés : %1</translation>
-    </message>
-    <message>
-        <source>All specified ports are available.</source>
-        <translation type="obsolete">Tous les ports spécifiés sont disponibles. </translation>
-    </message>
-    <message>
-        <source>The following supposedly free ports are being used on the device:</source>
-        <translation type="obsolete">Ces ports supposamment libres sont actuellement utilisés sur le périphérique : </translation>
-    </message>
-    <message>
-        <source>Device configuration okay.</source>
-        <translation type="obsolete">Configurationd du périphérique correcte.</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Fermer</translation>
-    </message>
-    <message>
-        <source>Device configuration test failed: Unexpected output:
-%1</source>
-        <translation type="obsolete">Échec du test de la configuration du périphérique : Sortie inattendue :\n%1</translation>
-    </message>
-    <message>
-        <source>Hardware architecture: %1
-</source>
-        <translation type="obsolete">Architecture matériel : %1\n</translation>
-    </message>
-    <message>
-        <source>Kernel version: %1
-</source>
-        <translation type="obsolete">Version du noyau : %1\n</translation>
-    </message>
-    <message>
-        <source>Device configuration successful.
-</source>
-        <translation type="obsolete">Configuration du périphérique réussit.</translation>
-    </message>
-    <message>
-        <source>No Qt packages installed.</source>
-        <translation type="obsolete">Aucun paquet Qt installé.</translation>
-    </message>
-    <message>
-        <source>List of installed Qt packages:</source>
-        <translation type="obsolete">Liste des paquets Qt installés :</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPackageContents</name>
-    <message>
-        <source>Local File Path</source>
-        <translation type="obsolete">Chemin du fichier local</translation>
-    </message>
-    <message>
-        <source>Remote File Path</source>
-        <translation type="obsolete">Chemin du fichier distant</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPackageCreationStep</name>
-    <message>
-        <source>Creating package file ...</source>
-        <translation type="obsolete">Créer un fichier de paquet...</translation>
-    </message>
-    <message>
-        <source>Cannot open MADDE config file &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir le fichier de configuration &quot;%1&quot; de MADDE.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Cannot open file &apos;%1&apos;.</source>
-        <translation type="obsolete">Erreur lors de la création du paquet : ne peut pas &apos;ouvrir le fichier &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Cannot write file &apos;%1&apos;.</source>
-        <translation type="obsolete">Erreur lors de la création du paquet : ne peut pas écrire le fichier &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Could not create directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Erreur lors de la création du paquet : ne peut pas créer le répertoire &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Could not replace file &apos;%1&apos;.</source>
-        <translation type="obsolete">Erreur lors de la création du paquet : ne peut pas remplacer le fichier &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Could not copy &apos;%1&apos; to &apos;%2&apos;.</source>
-        <translation type="obsolete">Erreur lors de la création du paquet : ne peut pas copier &apos;%1&apos; vers &quot;%2&quot;.</translation>
-    </message>
-    <message>
-        <source>Package created.</source>
-        <translation type="obsolete">Paquet créé.</translation>
-    </message>
-    <message>
-        <source>Package Creation: Running command &apos;%1&apos;.</source>
-        <translation type="obsolete">Création du paquet : exécuter la commande &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="obsolete">Échec lors de la création du paquet.</translation>
-    </message>
-    <message>
-        <source>Packaging for Maemo</source>
-        <translation type="obsolete">Création du paquet pour Maemo</translation>
-    </message>
-    <message>
-        <source>Package up to date.</source>
-        <translation type="obsolete">Paquet à jour.</translation>
-    </message>
-    <message>
-        <source>Could not move package files from %1 to %2.</source>
-        <translation type="obsolete">Impossible de déplacer les fichiers du paquet de %1 à %2.</translation>
-    </message>
-    <message>
-        <source>Could not remove directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible de supprimer le dossier &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Could not create Debian directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible de créer le répertoire Debian &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation type="obsolete">Impossible de copier le fichier &apos;%1&apos; vers &quot;%2&quot;</translation>
-    </message>
-    <message>
-        <source>Packaging error: Could not start command &apos;%1&apos;. Reason: %2</source>
-        <translation type="obsolete">Erreur lors de la création du paquet : ne peut pas exécuter la commande &quot;%1&quot;. Raison : %2</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation type="obsolete">Code de sortie : %1</translation>
-    </message>
-    <message>
-        <source>Could not move package file from %1 to %2.</source>
-        <translation type="obsolete">Impossible de déplacer les fichiers du paquet de %1 à %2.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Foreign debian directory detected.</source>
-        <translation type="obsolete">Échec du packaging : binaire Debian distant détecté. </translation>
-    </message>
-    <message>
-        <source>You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
-        <translation type="obsolete">Vous n&apos;étes pas en train d&apos;utiliser un shadow build et il y a un répertoire debian à la racine de votre projet (&quot;%1&apos;). Qt Creator n&apos;écrasera pas se répertoire. Merci de le supprimer ou d&quot;utiliser la fonctionnalité de shadow build.</translation>
-    </message>
-    <message>
-        <source>Could not remove directory &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible de supprimer le dossier &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Error: Could not create file &apos;%1&apos;.</source>
-        <translation type="obsolete">Erreur : impossible de créer le fichier &quot;%1&quot;. </translation>
-    </message>
-    <message>
-        <source>Your project name contains characters not allowed in Debian packages.
-They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
-We will try to work around that, but you may experience problems.</source>
-        <translation type="obsolete">Votre nom de projet contient des caractères non autorisés dans les paquets Debian.
-Ils doivent seulement utiliser des lettres minuscules, chiffres, &apos;-&apos;, &apos;+&apos; et &apos;.&apos;.
-Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des problèmes.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1&apos; timed out.</source>
-        <translation type="obsolete">Erreur lors de la création du paquet : délai d&apos;attente dépassé pour la commande &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1&apos; failed.</source>
-        <translation type="obsolete">Erreur lors de la création du paquet : échec de la commande &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source> Reason: %1</source>
-        <translation type="obsolete">Raison : %1</translation>
-    </message>
-    <message>
-        <source>Output was: </source>
-        <translation type="obsolete">La sortie était : </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPackageCreationWidget</name>
-    <message>
-        <source>No Version Available.</source>
-        <translation type="obsolete">Aucune version disponible.</translation>
-    </message>
-    <message>
-        <source>Could not read icon</source>
-        <translation type="obsolete">Impossible de lire l&apos;icône</translation>
-    </message>
-    <message>
-        <source>Images</source>
-        <translation type="obsolete">Images</translation>
-    </message>
-    <message>
-        <source>Choose Image</source>
-        <translation type="obsolete">Sélectionner une image</translation>
-    </message>
-    <message>
-        <source>Choose Image (will be scaled to 48x48 pixels if necessary)</source>
-        <translation type="obsolete">Choisir une image (sera redimensionnée à 48x48 pixels si nécessaire)</translation>
-    </message>
-    <message>
-        <source>Could Not Set New Icon</source>
-        <translation type="obsolete">Impossible de définir une nouvelle icône</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="obsolete">Erreur de fichier</translation>
-    </message>
-    <message>
-        <source>Could not set project name.</source>
-        <translation type="obsolete">Impossible de définir le nom du projet. </translation>
-    </message>
-    <message>
-        <source>Could not set package name for project manager.</source>
-        <translation type="obsolete">Impossible de définir le nom du paquet pour le gestionnaire de paquets. </translation>
-    </message>
-    <message>
-        <source>Could not set project description.</source>
-        <translation type="obsolete">Impossible de définir la description du projet. </translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create Package:&lt;/b&gt; </source>
-        <translation type="obsolete">&lt;b&gt;Créer le paquet :&lt;/b&gt; </translation>
-    </message>
-    <message>
-        <source>(Packaging disabled)</source>
-        <translation type="obsolete">(création de paquet désactivée)</translation>
-    </message>
-    <message>
-        <source>Could Not Set Version Number</source>
-        <translation type="obsolete">Impossible de définir le numéro de la version</translation>
-    </message>
-    <message>
-        <source>Choose a local file</source>
-        <translation type="obsolete">Choisir un fichier local</translation>
-    </message>
-    <message>
-        <source>File already in package</source>
-        <translation type="obsolete">Le fichier est déjà dans le paquet</translation>
-    </message>
-    <message>
-        <source>You have already added this file.</source>
-        <translation type="obsolete">Vous avez déjà ajouté ce fichier.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRunConfiguration</name>
-    <message>
-        <source>New Maemo Run Configuration</source>
-        <translation type="obsolete">Nouvelle configuration d&apos;exécution pour Maemo</translation>
-    </message>
-    <message>
-        <source>Run on Maemo device</source>
-        <extracomment>Maemo run configuration default display name</extracomment>
-        <translation type="obsolete">Exécuter sur le périphérique Maemo</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Nettoyer l&apos;environnement</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRunConfigurationWidget</name>
-    <message>
-        <source>Run configuration name:</source>
-        <translation type="obsolete">Exécuter la configuration nommée :</translation>
-    </message>
-    <message>
-        <source>Fetch Device Environment</source>
-        <translation type="obsolete">Récupérer l&apos;environnement du périphérique</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;%1&quot;&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;%1&quot;&gt;Gérer les configurations des périphériques&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;%1&quot;&gt;Set Debugger&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;%1&quot;&gt;Définir le débogeur&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Device configuration:</source>
-        <translation type="obsolete">Configuration du périphérique :</translation>
-    </message>
-    <message>
-        <source>Executable on host:</source>
-        <translation type="obsolete">Exécutable sur l&apos;hôte :</translation>
-    </message>
-    <message>
-        <source>Executable on device:</source>
-        <translation type="obsolete">Exécutable sur le périphérique : </translation>
-    </message>
-    <message>
-        <source>C++ only</source>
-        <translation type="obsolete">C++ seulement</translation>
-    </message>
-    <message>
-        <source>QML only</source>
-        <translation type="obsolete">QML seulement</translation>
-    </message>
-    <message>
-        <source>C++ and QML</source>
-        <translation type="obsolete">C++ et QML</translation>
-    </message>
-    <message>
-        <source>Debugging type:</source>
-        <translation type="obsolete">Type de débogage :</translation>
-    </message>
-    <message>
-        <source>Use remote GDB</source>
-        <translation type="obsolete">Utiliser le GDB distant</translation>
-    </message>
-    <message>
-        <source>Use remote GDB server</source>
-        <translation type="obsolete">Utiliser le serveur GDB distant</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Debugging details:&lt;/b&gt; Use GDB</source>
-        <translation type="obsolete">&lt;b&gt;Détails de débogage&lt;/b&gt; : utiliser GDB</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Debugging details:&lt;/b&gt; Use GDB server</source>
-        <translation type="obsolete">&lt;b&gt;Détails de débogage&lt;/b&gt; : utiliser le serveur GDB</translation>
-    </message>
-    <message>
-        <source>Use remote gdb</source>
-        <translation type="obsolete">Utiliser gdb distant</translation>
-    </message>
-    <message>
-        <source>Use remote gdbserver</source>
-        <translation type="obsolete">Utiliser gdbserver distant</translation>
-    </message>
-    <message>
-        <source>Base environment for this run configuration:</source>
-        <translation type="obsolete">Environnement de base pour cette configuration d&apos;exécution : </translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Environnement vierge</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
-    <message>
-        <source>Choose directory to mount</source>
-        <translation type="obsolete">Sélectionner un répertoire à monter</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Debugging details:&lt;/b&gt; Use gdb</source>
-        <translation type="obsolete">&lt;b&gt;Détails de débogage :&lt;/b&gt; utiliser gdb</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Debugging details:&lt;/b&gt; Use gdbserver</source>
-        <translation type="obsolete">&lt;b&gt;Détails de débogage :&lt;/b&gt; utiliser gdbserver</translation>
-    </message>
-    <message>
-        <source>Cancel Fetch Operation</source>
-        <translation type="obsolete">Annuler la récupération</translation>
-    </message>
-    <message>
-        <source>Device error</source>
-        <translation type="obsolete">Erreur du périphérique</translation>
-    </message>
-    <message>
-        <source>Fetching environment failed: %1</source>
-        <translation type="obsolete">Échec lors de la récupération de l&apos;environnement : %1</translation>
-    </message>
-    <message>
-        <source>No local directories to be mounted on the device.</source>
-        <translation type="obsolete">Aucun répertoire local à monter sur le périphérique.</translation>
-    </message>
-    <message>
-        <source>One local directory to be mounted on the device.</source>
-        <translation type="obsolete">Un répertoire local à monter sur le périphérique.</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n local directories to be mounted on the device.</source>
-        <extracomment>Note: Only mountCount&gt;1 will occur here as 0, 1 are handled above.</extracomment>
-        <translation type="obsolete">
-            <numerusform>%n répertoire local à monter sur le périphérique.</numerusform>
-            <numerusform>%n répertoires locaux à monter sur le périphérique.</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>WARNING: You want to mount %1 directories, but your device has only %n free ports.&lt;br&gt;You will not be able to run this configuration.</source>
-        <translation type="obsolete">
-            <numerusform>AVERTISSEMENT : vous voulez monter %1 répertoires mais votre périphérique a uniquement %n port de libre. &lt;br&gt;Vous n&apos;êtes pas en mesure d&apos;exécuter cette configuration.</numerusform>
-            <numerusform>AVERTISSEMENT : vous voulez monter %1 répertoires mais votre périphérique a uniquement %n ports de libre. &lt;br&gt;Vous n&apos;êtes pas en mesure d&apos;exécuter cette configuration.</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>WARNING: You want to mount %1 directories, but only %n ports on the device will be available in debug mode. &lt;br&gt;You will not be able to debug your application with this configuration.</source>
-        <translation type="obsolete">
-            <numerusform>AVERTISSEMENT : vous voulez monter %1 répertoires mais uniquement %n port sera disponible en mode debug. &lt;br&gt;Vous n&apos;êtes pas en mesure de déboguervotre application avec cette configuration.</numerusform>
-            <numerusform>AVERTISSEMENT : vous voulez monter %1 répertoires mais uniquement %n ports seront disponibles en mode debug. &lt;br&gt;Vous n&apos;êtes pas en mesure de déboguervotre application avec cette configuration.</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation type="obsolete">Exécutable :</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">Arguments :</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::AbstractMaemoRunControl</name>
-    <message>
-        <source>No device configuration set for run configuration.</source>
-        <translation type="obsolete">Aucune configuration de périphérique définie pour exécuter la configuration.</translation>
-    </message>
-    <message>
-        <source>Cleaning up remote leftovers first ...</source>
-        <translation type="obsolete">Nettoyer les éléments à distance restant en premier...</translation>
-    </message>
-    <message>
-        <source>Initial cleanup canceled by user.</source>
-        <translation type="obsolete">Nettoyage initial annulé par l&apos;utilisateur.</translation>
-    </message>
-    <message>
-        <source>Error running initial cleanup: %1.</source>
-        <translation type="obsolete">Erreur lors du nettoyage initial : %1.</translation>
-    </message>
-    <message>
-        <source>Initial cleanup done.</source>
-        <translation type="obsolete">Nettoyage initial fini.</translation>
-    </message>
-    <message>
-        <source>Deploying</source>
-        <translation type="obsolete">Déployer</translation>
-    </message>
-    <message>
-        <source>Files to deploy: %1.</source>
-        <translation type="obsolete">Fichiers à déployer : %1.</translation>
-    </message>
-    <message>
-        <source>Starting remote application.</source>
-        <translation type="obsolete">Démarrer l&apos;application à distance.</translation>
-    </message>
-    <message>
-        <source>Deployment canceled by user.</source>
-        <translation type="obsolete">Déployement annulé par l&apos;utilisateur.</translation>
-    </message>
-    <message>
-        <source>Deployment failed: %1</source>
-        <translation type="obsolete">Échec du déploiement : %1</translation>
-    </message>
-    <message>
-        <source>Deployment finished.</source>
-        <translation type="obsolete">Déploiement fini.</translation>
-    </message>
-    <message>
-        <source>Remote execution canceled due to user request.</source>
-        <translation type="obsolete">Exécution à distance annulée par une demande de l&apos;utilisateur.</translation>
-    </message>
-    <message>
-        <source>Error running remote process: %1</source>
-        <translation type="obsolete">Erreur lors de l&apos;exécution du processus à distance : %1</translation>
-    </message>
-    <message>
-        <source>Finished running remote process.</source>
-        <translation type="obsolete">Exécution du processus à distance terminée.</translation>
-    </message>
-    <message>
-        <source>Remote Execution Failure</source>
-        <translation type="obsolete">Échec lors de l&apos;exécution à distance</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRunConfigurationFactory</name>
-    <message>
-        <source>New Maemo Run Configuration</source>
-        <translation type="obsolete">Nouvelle configuration d&apos;exécution pour Maemo</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRunControlFactory</name>
-    <message>
-        <source>Run on device</source>
-        <translation type="obsolete">Exécuter sur le périphérique</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoSettingsPage</name>
-    <message>
-        <source>Maemo Device Configurations</source>
-        <translation type="obsolete">Configurations du périphérique Maemo</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoSettingsWidget</name>
-    <message>
-        <source>New Device Configuration %1</source>
-        <comment>Standard Configuration name with number</comment>
-        <translation type="obsolete">Nouvelle configuration pour le périphérique %1</translation>
-    </message>
-    <message>
-        <source>Choose Public Key File</source>
-        <translation type="obsolete">Choisir le fichier de clé publique</translation>
-    </message>
-    <message>
-        <source>Public Key Files(*.pub);;All Files (*)</source>
-        <translation type="obsolete">Fichier de clé publique (*.pub);;Tous les fichiers (*)</translation>
-    </message>
-    <message>
-        <source>Deployment Failed</source>
-        <translation type="obsolete">Échec lors du déploiement</translation>
-    </message>
-    <message>
-        <source>Could not read public key file &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible de lire le fichier de clé publique &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Could not connect to host: %1</source>
-        <translation type="obsolete">Impossible de se connecter à l&apos;hôte : %1</translation>
-    </message>
-    <message>
-        <source>You will need at least one port.</source>
-        <translation type="obsolete">Vous avez besoin d&apos;au moins un port.</translation>
-    </message>
-    <message>
-        <source>Stop Deploying</source>
-        <translation type="obsolete">Arrêter le déploiement</translation>
-    </message>
-    <message>
-        <source>Key deployment failed: %1</source>
-        <translation type="obsolete">Échec lors du déploiement de la clé : &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Deployment Succeeded</source>
-        <translation type="obsolete">Déploiement réussi</translation>
-    </message>
-    <message>
-        <source>Key was successfully deployed.</source>
-        <translation type="obsolete">La clé a été déployé avec succès.</translation>
-    </message>
-    <message>
-        <source>Key deployment failed: %1.</source>
-        <translation type="obsolete">Échec lors du déploiement de la clé : %1.</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key ...</source>
-        <translation type="obsolete">Déployer la clé publique...</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoSshConfigDialog</name>
-    <message>
-        <source>Save Public Key File</source>
-        <translation type="obsolete">Enregistrer le fichier de clé publique</translation>
-    </message>
-    <message>
-        <source>Save Private Key File</source>
-        <translation type="obsolete">Enregistrer le fichier de clé privée</translation>
-    </message>
-    <message>
-        <source>Error writing file</source>
-        <translation type="obsolete">Erreur lors de l&apos;enregistrement du fichier</translation>
-    </message>
-    <message>
-        <source>Could not write file &apos;%1&apos;:
- %2</source>
-        <translation type="obsolete">Impossible d&apos;enregistrer le fichier : &apos;%1&apos; :
-%2</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QemuRuntimeManager</name>
-    <message>
-        <source>Start Maemo Emulator</source>
-        <translation type="obsolete">Démarrer l&apos;émulateur Maemo</translation>
-    </message>
-    <message>
-        <source>Qemu has been shut down, because you removed the corresponding Qt version.</source>
-        <translation type="obsolete">Qemu a été arrêté parce que vous avez supprimer la version de Qt correspondante.</translation>
-    </message>
-    <message>
-        <source>Qemu finished with error: Exit code was %1.</source>
-        <translation type="obsolete">Qemu s&apos;est terminé avec une erreur : le code d&apos;erreur était %1.</translation>
-    </message>
-    <message>
-        <source>Qemu failed to start: %1</source>
-        <translation type="obsolete">Qemu n&apos;a pas pu démarrer : %1</translation>
-    </message>
-    <message>
-        <source>Qemu crashed</source>
-        <translation type="obsolete">Qemd a planté</translation>
-    </message>
-    <message>
-        <source>Qemu error</source>
-        <translation type="obsolete">Erreur de Qemu</translation>
-    </message>
-    <message>
-        <source>Stop Maemo Emulator</source>
-        <translation type="obsolete">Arrêter l&apos;émulateur Maemo</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageStep</name>
-    <message>
-        <source>Create SIS Package</source>
-        <comment>Create SIS package build step name</comment>
-        <translation type="obsolete">Créer le paquet SIS</translation>
-    </message>
-    <message>
-        <source>Create SIS Package</source>
-        <extracomment>default create SIS package build step display name</extracomment>
-        <translation type="obsolete">Créer le paquet SIS</translation>
-    </message>
-    <message>
-        <source>Could not find make command &apos;%1&apos; in the build environment</source>
-        <translation type="obsolete">Impossible de trouver la commande make &quot;%1&apos; dans l&quot;environnement de compilation</translation>
-    </message>
-    <message>
-        <source>Package Modified</source>
-        <translation type="obsolete">Paquet modifié</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;Qt modified your package &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;Qt a modifié votre paquet &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Packages Modified</source>
-        <translation type="obsolete">Paquets modifiés</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;Qt modified some of your packages.&lt;/p&gt;</source>
-        <translation type="obsolete">&lt;p&gt;Qt a modifé certains de vos paquets.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>%1&lt;p&gt;&lt;em&gt;These changes were not part of your build system&lt;/em&gt; but are required to make sure the &lt;em&gt;self-signed&lt;/em&gt; package can be installed successfully on a device.&lt;/p&gt;&lt;p&gt;Check the Build Issues pane for more details on the modifications made.&lt;/p&gt;&lt;p&gt;Please see the &lt;a href=&quot;%2&quot;&gt;documentation&lt;/a&gt; for other signing options which remove the need for this patching.&lt;/p&gt;</source>
-        <translation type="obsolete">%1&lt;p&gt;&lt;em&gt;Ces changements ne faisaient pas partie de votre système de compilation&lt;/em&gt; mais sont nécessaire pour être sur que le paquet &lt;em&gt;auto-signé&lt;/em&gt;peut être installé correctement sur un periphérique.&lt;/p&gt;&lt;p&gt;Vérifiez l&apos;onglet des problèmes connus pour plus de détails sur les modifications faites.&lt;/p&gt;&lt;p&gt;Merci de regarder la &lt;a href=&quot;%2&quot;&gt;documentation&lt;/a&gt; pour toutes autres options de signature qui supprime la necessité de ce patch.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Ignore patching for this packaging step.</source>
-        <translation type="obsolete">Ignorer le patch pour l&apos;étape de cette mise en paquet.</translation>
-    </message>
-    <message>
-        <source>No certificate file specified. Please specify one in the project settings.</source>
-        <translation type="obsolete">Aucun fichier de certificat spécifié. Merci d&apos;en spécifier un dans les paramètres du projet.</translation>
-    </message>
-    <message>
-        <source>Certificate file &quot;%1&quot; does not exist. Please specify an existing certificate file in the project settings.</source>
-        <translation type="obsolete">Le fichier de certificat &quot;%1&quot; n&apos;existe pas. Merci de spécifier un fichier de certificat existant dans les paramètres du projet.</translation>
-    </message>
-    <message>
-        <source>No key file specified. Please specify one in the project settings.</source>
-        <translation type="obsolete">Aucun fichier clé specifié. Merci d&apos;en spécifier un dans les paramètres du projet.</translation>
-    </message>
-    <message>
-        <source>Key file &quot;%1&quot; does not exist. Please specify an existing key file in the project settings.</source>
-        <translation type="obsolete">Le fichier clé &quot;%1&quot; n&apos;existe pas. Merci de spécifier un fichier clé existant dans les paramètres du projet.</translation>
-    </message>
-    <message>
-        <source>The package created will not install on a device as some of the defined capabilities are not supported by the certificate: %1</source>
-        <translation type="obsolete">Le paquet créé ne sera pas installé sur un periphérique puisque certaines capacités ne sont pas supportées par le certificat : %1</translation>
-    </message>
-    <message>
-        <source>The process &quot;%1&quot; exited normally.</source>
-        <translation type="obsolete">Le processus &quot;%1&quot; s&apos;est terminé normalement.</translation>
-    </message>
-    <message>
-        <source>The process &quot;%1&quot; exited with code %2.</source>
-        <translation type="obsolete">Le processus &quot;%1&quot; s&apos;est terminé avec le code %2.</translation>
-    </message>
-    <message>
-        <source>The process &quot;%1&quot; crashed.</source>
-        <translation type="obsolete">Le processus &quot;%1&quot; a crashé.</translation>
-    </message>
-    <message>
-        <source>Could not start process &quot;%1&quot; in %2</source>
-        <translation type="obsolete">Impossible de démarrer le processus &quot;%1&quot; dans %2</translation>
-    </message>
-    <message>
-        <source>%1&lt;p&gt;&lt;em&gt;These changes were not part of your build system&lt;/em&gt; but are required to make sure the &lt;em&gt;self-signed&lt;/em&gt; package can be installed successfully on a device.&lt;/p&gt;&lt;p&gt;Check the Issues pane for more details on the modifications made.&lt;/p&gt;&lt;p&gt;Please see the &lt;a href=&quot;%2&quot;&gt;documentation&lt;/a&gt; for other signing options which remove the need for this patching.&lt;/p&gt;</source>
-        <translation type="obsolete">%1&lt;p&gt;&lt;em&gt; Ces changements ne faisaient pas partie de votre système de compilation&lt;/em&gt; mais sont nécessaires pour être sûr que le paquet &lt;em&gt;auto-signé&lt;/em&gt; peut être installé correctement sur un périphérique.&lt;/p&gt;&lt;p&gt;Vérifiez l&apos;onglet des problèmes connus pour plus de détails sur les modifications effectuées.&lt;/p&gt;&lt;p&gt;Merci de regarder la &lt;a href=&quot;%2&quot;&gt;documentation&lt;/a&gt; pour toutes autres options de signature qui permettent de s&apos;affranchir de cette étape.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>Starting: &quot;%1&quot; %2 in %3
-</source>
-        <translation type="obsolete">Commence : &quot;%1&quot; %2 dans %3
-</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageStepFactory</name>
-    <message>
-        <source>Create SIS Package</source>
-        <translation type="obsolete">Créer le paquet SIS</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageStepConfigWidget</name>
-    <message>
-        <source>self-signed</source>
-        <translation type="obsolete">auto-signé</translation>
-    </message>
-    <message>
-        <source>signed with certificate %1 and key file %2</source>
-        <translation type="obsolete">signé avec le certificat %1 et le fichier de clé %2</translation>
-    </message>
-    <message>
-        <source>Reset Passphrases</source>
-        <translation type="obsolete">Réinitialiser les mots de passe</translation>
-    </message>
-    <message>
-        <source>Do you want to reset all passphrases saved for keys used?</source>
-        <translation type="obsolete">Souhaitez-vous réinitialiser toutes les mots de passes pour les clés utilisées ?</translation>
-    </message>
-    <message>
-        <source>signed with the certificate &quot;%1&quot; using the key &quot;%2&quot;</source>
-        <translation type="obsolete">signé avec le certificat &quot;%1&quot; en utilisant la clé &quot;%2&quot;</translation>
-    </message>
-    <message>
-        <source>signed with a certificate and a key that need to be specified</source>
-        <translation type="obsolete">signé avec un certificat et une clé qui doivent être spécifiés</translation>
-    </message>
-    <message>
-        <source>not signed</source>
-        <translation type="obsolete">non signé</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create SIS Package:&lt;/b&gt; %1, using Smart Installer</source>
-        <translation type="obsolete">&lt;b&gt;Créer le paquet SIS :&lt;/b&gt; %1 en utilisant le Smart Installer</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create SIS Package:&lt;/b&gt; %1</source>
-        <translation type="obsolete">&lt;b&gt;Créer le paquet SIS :&lt;/b&gt; %1</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DevicesBaseWidget</name>
-    <message>
-        <source>Default</source>
-        <translation type="obsolete">Défaut</translation>
-    </message>
-    <message>
-        <source>SDK Location</source>
-        <translation type="obsolete">Emplacement du SDK</translation>
-    </message>
-    <message>
-        <source>Qt Location</source>
-        <translation type="obsolete">Emplacement de Qt</translation>
-    </message>
-    <message>
-        <source>Choose Qt folder</source>
-        <translation type="obsolete">Choisir le répertoire Qt</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DevicesModel</name>
-    <message>
-        <source>No Qt installed</source>
-        <translation type="obsolete">Qt non installé</translation>
-    </message>
-</context>
-<context>
     <name>QmakeProjectManager::Internal::GnuPocS60DevicesWidget</name>
     <message>
         <source>Step 1 of 2: Choose GnuPoc folder</source>
@@ -32578,579 +31768,6 @@ Reason: %2</source>
 - %1
 
 Raison : %2</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoDebugSupport</name>
-    <message>
-        <source>No device configuration set for run configuration.</source>
-        <translation type="obsolete">Aucune configuration de périphérique définie pour exécuter la configuration.</translation>
-    </message>
-    <message>
-        <source>Preparing remote side ...</source>
-        <translation type="obsolete">Préparation de la partie distante...</translation>
-    </message>
-    <message>
-        <source>SSH connection error: %1</source>
-        <translation type="obsolete">Erreur de connexion SSH : %1</translation>
-    </message>
-    <message>
-        <source>Upload failed: Could not open file &apos;%1&apos;</source>
-        <translation type="obsolete">Échec lors de l&apos;envoi : impossible d&apos;ouvrir le fichier &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Started uploading debugging helpers (&apos;%1&apos;).</source>
-        <translation type="obsolete">Démarrage de l&apos;envoi des assistants de débogage (&quot;%1&quot;).</translation>
-    </message>
-    <message>
-        <source>Could not upload debugging helpers: %1.</source>
-        <translation type="obsolete">Impossible d&apos;envoyer les assistants de débogage : %1.</translation>
-    </message>
-    <message>
-        <source>Finished uploading debugging helpers.</source>
-        <translation type="obsolete">Envoi des assistants de débogage terminé.</translation>
-    </message>
-    <message>
-        <source>The gdbserver process closed unexpectedly.</source>
-        <translation type="obsolete">Le processus gdbserver s&apos;est fermé de façon inattendue.</translation>
-    </message>
-    <message>
-        <source>Initial setup failed: %1</source>
-        <translation type="obsolete">Échec lors de la configuration initiale: %1</translation>
-    </message>
-    <message>
-        <source>Not enough free ports on device for debugging.</source>
-        <translation type="obsolete">Pas assez de ports disponibles sur le périphérique pour le débogage. </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoDeployableListModel</name>
-    <message>
-        <source>File already in list.</source>
-        <translation type="obsolete">Le fichier est déjà dans la liste.</translation>
-    </message>
-    <message>
-        <source>Failed to update .pro file.</source>
-        <translation type="obsolete">Échec lors de la mise à jour du fichier .pro.</translation>
-    </message>
-    <message>
-        <source>Could not update .pro file.</source>
-        <translation type="obsolete">Impossible de mettre à jour le fichier .pro.</translation>
-    </message>
-    <message>
-        <source>&lt;no target path set&gt;</source>
-        <translation type="obsolete">&lt;pas de chemin cible défini&gt;</translation>
-    </message>
-    <message>
-        <source>Local File Path</source>
-        <translation type="obsolete">Chemin du fichier local</translation>
-    </message>
-    <message>
-        <source>Remote Directory</source>
-        <translation type="obsolete">Répertoire distant</translation>
-    </message>
-    <message>
-        <source>Failed to open &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Could not write &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible d&apos;écrire &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Error writing project file.</source>
-        <translation type="obsolete">Erreur lors de l&apos;écriture du fichier de projet. </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoDeployStep</name>
-    <message>
-        <source>Deploy to Maemo device</source>
-        <extracomment>MaemoDeployStep default display name</extracomment>
-        <translation type="obsolete">Deploiement vers le périphérique Maemo</translation>
-    </message>
-    <message>
-        <source>Cannot start deployment, as the clean-up from the last time has not finished yet.</source>
-        <translation type="obsolete">Impossible de démarrer le déploiement, le dernier nettoyage n&apos;est pas encore terminé.</translation>
-    </message>
-    <message>
-        <source>Deployment failed: No valid device set.</source>
-        <translation type="obsolete">Échec lors du déploiement : aucun périphérique valide défini.</translation>
-    </message>
-    <message>
-        <source>All files up to date, no installation necessary.</source>
-        <translation type="obsolete">Tous les fichiers sont à jour, aucune installation n&apos;est nécessaire.</translation>
-    </message>
-    <message>
-        <source>Could not connect to host: %1</source>
-        <translation type="obsolete">Impossible de se connecter à l&apos;hôte : %1</translation>
-    </message>
-    <message>
-        <source>Deploy to Maemo5 device</source>
-        <extracomment>MaemoDeployStep default display name</extracomment>
-        <translation type="obsolete">Déployer sur un périphérique Maemo 5</translation>
-    </message>
-    <message>
-        <source>Deploy to Harmattan device</source>
-        <translation type="obsolete">Déployer sur un périphérique Harmattan</translation>
-    </message>
-    <message>
-        <source>Deploy to Meego device</source>
-        <translation type="obsolete">Déployer sur un périphérique MeeGo</translation>
-    </message>
-    <message>
-        <source>Cannot deploy: Still cleaning up from last time.</source>
-        <translation type="obsolete">Impossible de déployer : le dernier nettoyage n&apos;est pas encore terminé.</translation>
-    </message>
-    <message>
-        <source>Deployment failed: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready.</source>
-        <translation type="obsolete">Échec du déploiement : Qemu n&apos;était pas lancé. Il a maintenant été lancé, mais il pourrait prendre un peu de temps avant d&apos;être prêt. </translation>
-    </message>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Erreur de connexion : %1</translation>
-    </message>
-    <message>
-        <source>Upload failed: Could not open file &apos;%1&apos;</source>
-        <translation type="obsolete">Échec lors de l&apos;envoi du fichier : impossible d&apos;ouvrir le fichier &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Started uploading file &apos;%1&apos;.</source>
-        <translation type="obsolete">Début de l&apos;envoi du fichier &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Could not set up SFTP connection: %1</source>
-        <translation type="obsolete">Impossible d&apos;établir une connexion SFTP: %1</translation>
-    </message>
-    <message>
-        <source>Failed to upload file %1: %2</source>
-        <translation type="obsolete">Échec lors de l&apos;envoi du fichier %1 : %2</translation>
-    </message>
-    <message>
-        <source>Successfully uploaded file &apos;%1&apos;.</source>
-        <translation type="obsolete">Le fichier &quot;%1&quot; a été envoyé avec succès.</translation>
-    </message>
-    <message>
-        <source>Deployment failed.</source>
-        <translation type="obsolete">Échec lors du déploiement.</translation>
-    </message>
-    <message>
-        <source>Deployment finished.</source>
-        <translation type="obsolete">Déploiement fini.</translation>
-    </message>
-    <message>
-        <source>Installing package to sysroot ...</source>
-        <translation type="obsolete">Installation du paquet vers la racine système...</translation>
-    </message>
-    <message>
-        <source>Installation to sysroot failed, continuing anyway.</source>
-        <translatorcomment>dourouc : garder sysroot ? ça a peut-être un sens dans maemo</translatorcomment>
-        <translation type="obsolete">Échec lors de l&apos;installation vers sysroot, l&apos;installation continue néanmoins.</translation>
-    </message>
-    <message>
-        <source>Copying files to sysroot ...</source>
-        <translation type="obsolete">Copie des fichiers vers la racine système en cours...</translation>
-    </message>
-    <message>
-        <source>Sysroot installation failed: Could not copy &apos;%1&apos; to &apos;%2&apos;. Continuing anyway.</source>
-        <translation type="obsolete">Échec de l&apos;installation vers la racine système : impossible de copier &apos;%1&apos; vers &quot;%2&quot;. L&quot;installation continue néamoins.</translation>
-    </message>
-    <message>
-        <source>Connecting to device...</source>
-        <translation type="obsolete">Connextion au périphérique...</translation>
-    </message>
-    <message>
-        <source>Installing package to device...</source>
-        <translation type="obsolete">Installation du paquet sur le périphérique en cours...</translation>
-    </message>
-    <message>
-        <source>Copying file &apos;%1&apos; to path &apos;%2&apos; on the device...</source>
-        <translation type="obsolete">Copie du fichier &apos;%1&apos; vers le chemin &quot;%2&quot; sur le périphérique en cours...</translation>
-    </message>
-    <message>
-        <source>Device has not enough free ports for deployment.</source>
-        <translation type="obsolete">Le périphérique n&apos;a pas assez de ports libres pour le déploiement.</translation>
-    </message>
-    <message>
-        <source>Copying file &apos;%1&apos; failed.</source>
-        <translation type="obsolete">Échec lors de la copie du fichier &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Successfully copied file &apos;%1&apos;.</source>
-        <translation type="obsolete">Le fichier &quot;%1&quot; a été copié avec succès.</translation>
-    </message>
-    <message>
-        <source>All files copied.</source>
-        <translation type="obsolete">Tous les fichiers ont été copiés.</translation>
-    </message>
-    <message>
-        <source>Installing package failed.</source>
-        <translation type="obsolete">Échec lors de l&apos;installation du paquet.</translation>
-    </message>
-    <message>
-        <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
-        <translation type="obsolete">Échec de l&apos;installation. Vous avez essayé d&apos;installer une version plus ancienne d&apos;un paquet, ce qui n&apos;est pas permis.</translation>
-    </message>
-    <message>
-        <source>Package installed.</source>
-        <translation type="obsolete">Paquet installé.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoDeployStepFactory</name>
-    <message>
-        <source>Deploy to device</source>
-        <translation type="obsolete">Déployer sur le périphérique</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoDeployStepWidget</name>
-    <message>
-        <source>&lt;b&gt;Deploy to device&lt;/b&gt;: %1</source>
-        <translation type="obsolete">&lt;b&gt;Déployer sur le périphérique&lt;/b&gt; : %1</translation>
-    </message>
-    <message>
-        <source>Could not create desktop file</source>
-        <translation type="obsolete">Impossible de créer un fichier desktop</translation>
-    </message>
-    <message>
-        <source>Error creating desktop file: %1</source>
-        <translation type="obsolete">Erreur lors de la création d&apos;un ficher desktop : %1</translation>
-    </message>
-    <message>
-        <source>Choose Icon (will be scaled to 64x64 pixels, if necessary)</source>
-        <translation type="obsolete">Choisir une icône (sera redimensionnée à 64x64 pixels, si nécessaire)</translation>
-    </message>
-    <message>
-        <source>Invalid Icon</source>
-        <translation type="obsolete">Icône invalide</translation>
-    </message>
-    <message>
-        <source>Unable to read image</source>
-        <translation type="obsolete">Impossible de lire l&apos;image</translation>
-    </message>
-    <message>
-        <source>Failed to Save Icon</source>
-        <translation type="obsolete">Échec de la sauvegarde de l&apos;icône</translation>
-    </message>
-    <message>
-        <source>Could not save icon to &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible d&apos;enregistrer l&apos;icône dans &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Could Not Add Icon</source>
-        <translation type="obsolete">Impossible d&apos;ajouter l&apos;icône</translation>
-    </message>
-    <message>
-        <source>Error adding icon: %1</source>
-        <translation type="obsolete">Erreur lors de l&apos;ajour de l&apos;icône : %1</translation>
-    </message>
-</context>
-<context>
-    <name>MaemoDeviceConfig</name>
-    <message>
-        <source>(Invalid device)</source>
-        <translation type="obsolete">(Périphérique invalide)</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoDeviceEnvReader</name>
-    <message>
-        <source>Could not connect to host: %1</source>
-        <translation type="obsolete">Impossible de se connecter à l&apos;hôte : %1</translation>
-    </message>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Erreur de connexion : %1</translation>
-    </message>
-    <message>
-        <source>Error running remote process: %1</source>
-        <translation type="obsolete">Erreur lors de l&apos;exécution du processus à distance : %1</translation>
-    </message>
-    <message>
-        <source>
-Remote stderr was: &apos;%1&apos;</source>
-        <translation type="obsolete">Le stderr distant était : &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPackageCreationFactory</name>
-    <message>
-        <source>Create Debian Package</source>
-        <translation type="obsolete">Créer un paquet Debian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoProFilesUpdateDialog</name>
-    <message>
-        <source>Updateable Project Files</source>
-        <translation type="obsolete">Fichiers de projet possiblement à mettre à jour</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoQemuManager</name>
-    <message>
-        <source>Start Maemo Emulator</source>
-        <translation type="obsolete">Démarrer l&apos;émulateur Maemo</translation>
-    </message>
-    <message>
-        <source>Qemu has been shut down, because you removed the corresponding Qt version.</source>
-        <translation type="obsolete">Qemu a été arrêté parce que vous avez supprimer la version de Qt correspondante.</translation>
-    </message>
-    <message>
-        <source>Qemu finished with error: Exit code was %1.</source>
-        <translation type="obsolete">Qemu s&apos;est terminé avec une erreur : le code d&apos;erreur était %1.</translation>
-    </message>
-    <message>
-        <source>Qemu failed to start: %1</source>
-        <translation type="obsolete">Qemu n&apos;a pas pu démarrer : %1</translation>
-    </message>
-    <message>
-        <source>Qemu crashed</source>
-        <translation type="obsolete">Qemd a planté</translation>
-    </message>
-    <message>
-        <source>Qemu error</source>
-        <translation type="obsolete">Erreur de Qemu</translation>
-    </message>
-    <message>
-        <source>Stop Maemo Emulator</source>
-        <translation type="obsolete">Arrêter l&apos;émulateur Maemo</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRemoteMounter</name>
-    <message>
-        <source>No directories to mount</source>
-        <translation type="obsolete">Pas de répertoire à monter</translation>
-    </message>
-    <message>
-        <source>No directories to unmount</source>
-        <translation type="obsolete">Pas de répertoire à démonter</translation>
-    </message>
-    <message>
-        <source>Could not execute unmount request.</source>
-        <translation type="obsolete">Impossible d&apos;exécuter la requête de démontage.</translation>
-    </message>
-    <message>
-        <source>Failure unmounting: %1</source>
-        <translation type="obsolete">Echec au démontage : %1</translation>
-    </message>
-    <message>
-        <source>Finished unmounting.</source>
-        <translation type="obsolete">Démontage terminé.</translation>
-    </message>
-    <message>
-        <source>
-stderr was: &apos;%1&apos;</source>
-        <translation type="obsolete">stderr était : &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Setting up SFTP connection...</source>
-        <translation type="obsolete">Établissement de la connexion SFTP...</translation>
-    </message>
-    <message>
-        <source>Failed to establish SFTP connection: %1</source>
-        <translation type="obsolete">Echec de l&apos;établissement d&apos;une connexion SFTP : %1</translation>
-    </message>
-    <message>
-        <source>Uploading UTFS client...</source>
-        <translation type="obsolete">Uploading du client UTFS...</translation>
-    </message>
-    <message>
-        <source>Could not upload UTFS client (%1).</source>
-        <translation type="obsolete">Impossible d&apos;upload le client UTFS (%1). </translation>
-    </message>
-    <message>
-        <source>Could not upload UTFS client (%1), continuing anyway.</source>
-        <translation type="obsolete">Impossible d&apos;upload le client UTFS (%1), continue cependant. </translation>
-    </message>
-    <message>
-        <source>Error: Not enough free ports on device to fulfill all mount requests.</source>
-        <translation type="obsolete">Erreur : pas assez de ports libres sur le périphérique pour remplir toutes les requêtes. </translation>
-    </message>
-    <message>
-        <source>Starting remote UTFS clients...</source>
-        <translation type="obsolete">Démarrage des clients distants UTFS...</translation>
-    </message>
-    <message>
-        <source>Mount operation succeeded.</source>
-        <translation type="obsolete">L&apos;opération de montage a réussi.</translation>
-    </message>
-    <message>
-        <source>Failure running UTFS client: %1</source>
-        <translation type="obsolete">Echec au lancement du client UTFS : %1</translation>
-    </message>
-    <message>
-        <source>Starting UTFS servers...</source>
-        <translation type="obsolete">Démarrage des serveurs UTFS...</translation>
-    </message>
-    <message>
-        <source>
-stderr was: %1</source>
-        <translation type="obsolete">
-stderr était : %1</translation>
-    </message>
-    <message>
-        <source>Error running UTFS server: %1</source>
-        <translation type="obsolete">Erreur au lancement du serveur UTFS : %1</translation>
-    </message>
-    <message>
-        <source>Timeout waiting for UTFS servers to connect.</source>
-        <translatorcomment>dourouc : traduire timeout par &quot;dépassement du temps alloué&quot; ou qqch du genre mais moins lourd ? </translatorcomment>
-        <translation type="obsolete">Temps limite dépassé lors de l&apos; attente des serveurs UTF pour la connexion.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRemoteMountsModel</name>
-    <message>
-        <source>Local directory</source>
-        <translation type="obsolete">Répertoire local</translation>
-    </message>
-    <message>
-        <source>Remote mount point</source>
-        <translation type="obsolete">Point de montage distant</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRunControl</name>
-    <message>
-        <source>No device configuration set for run configuration.</source>
-        <translation type="obsolete">Aucune configuration de périphérique définie pour exécuter la configuration.</translation>
-    </message>
-    <message>
-        <source>Starting remote process ...</source>
-        <translation type="obsolete">Démarrer le processus à distance...</translation>
-    </message>
-    <message>
-        <source>Finished running remote process. Exit code was %1.</source>
-        <translation type="obsolete">Exécution du processus à distance terminée. Le code de sortie était %1.</translation>
-    </message>
-    <message>
-        <source>Remote Execution Failure</source>
-        <translation type="obsolete">Échec lors de l&apos;exécution à distance</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoSshRunner</name>
-    <message>
-        <source>Connecting to device...</source>
-        <translation type="obsolete">Connexion au périphérique...</translation>
-    </message>
-    <message>
-        <source>Could not connect to host: %1</source>
-        <translation type="obsolete">Impossible de se connecter à l&apos;hôte : %1</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="obsolete">Échec de la connexion : %1</translation>
-    </message>
-    <message>
-        <source>Killing remote process(es)...</source>
-        <translation type="obsolete">Destruction du/des processus distant(s)...</translation>
-    </message>
-    <message>
-        <source>Initial cleanup failed: %1</source>
-        <translation type="obsolete">Échec du nettoyage initial : %1</translation>
-    </message>
-    <message>
-        <source>Error running remote process: %1</source>
-        <translation type="obsolete">Erreur lors de l&apos;exécution du processus à distance : %1</translation>
-    </message>
-    <message>
-        <source>Cannot run: No remote executable set.</source>
-        <translation type="obsolete">Impossible d&apos;exécuter : aucun exécutable n&apos;est spécifié.</translation>
-    </message>
-    <message>
-        <source>The device does not have enough free ports for this run configuration.</source>
-        <translation type="obsolete">Le périphérique n&apos;a pas assez de ports libres pour cette configuration d&apos;exécution.</translation>
-    </message>
-    <message>
-        <source>Cannot run: No device configuration set.</source>
-        <translation type="obsolete">Impossible de lancer : pas de configuration de périphérique définie. </translation>
-    </message>
-    <message>
-        <source>Cannot run: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready.</source>
-        <translation type="obsolete">Impossible de lancer : Qemu n&apos;était pas lancé. Il a maintenant été lancé, mais il pourrait prendre un certain temps avant d&apos;être prêt. </translation>
-    </message>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Erreur de connexion : %1</translation>
-    </message>
-    <message>
-        <source>Mounting host directories...</source>
-        <translation type="obsolete">Montage du répertoire hôte...</translation>
-    </message>
-    <message>
-        <source>Unmounting left-over host directory mounts...</source>
-        <translation type="obsolete">Démontage des répertoires hôtes montés restants...</translation>
-    </message>
-    <message>
-        <source>Potentially unmounting left-over host directory mounts...</source>
-        <translation type="obsolete">Démontage potentiel des répertoires hôtes montés restants...</translation>
-    </message>
-    <message>
-        <source>Unmounting host directories...</source>
-        <translation type="obsolete">Démontage des répertoires hôtes...</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoTemplatesManager</name>
-    <message>
-        <source>Unable to create Debian templates: dh_make failed (%1)</source>
-        <translatorcomment>dourouc : idem précédent. </translatorcomment>
-        <translation type="obsolete">Impossible de créer des modèles Debian : échec de dh_make (%1)</translation>
-    </message>
-    <message>
-        <source>Unable to create debian templates: dh_make failed (%1)</source>
-        <translatorcomment>dourouc : pourquoi avoir gardé &quot;dh_make failed&quot; ? un oubli ? idem pour template. </translatorcomment>
-        <translation type="obsolete">Impossible de créer des modèles Debian : échec de dh_make (%1)</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Cannot open file &apos;%1&apos;.</source>
-        <translation type="obsolete">Erreur lors de la création du paquet : ne peut pas &apos;ouvrir le fichier &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Cannot write file &apos;%1&apos;.</source>
-        <translation type="obsolete">Erreur lors de la création du paquet : ne peut pas écrire le fichier &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
-        <translatorcomment>C&apos;est peut être un peu lourd comme expression... dourouc : pas vraiment amha. </translatorcomment>
-        <translation type="obsolete">Le fichier de journal des changements Debian &quot;%1&quot; a un format inattendu.</translation>
-    </message>
-    <message>
-        <source>Error writing Debian changelog file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Erreur pendant l&apos;écriture du fichier dejournal des changements Debian &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Invalid icon data in Debian control file.</source>
-        <translation type="obsolete">Données de l&apos;icône invalides dans le contrôle de fichier Debian.</translation>
-    </message>
-    <message>
-        <source>Could not read image file &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible de lire le fichier image &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Could not export image file &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible d&apos;exporter le fichier image &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Error writing file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Erreur lors de l&apos;enregistrement du fichier &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Error creating Maemo templates</source>
-        <translatorcomment>dourouc : template -&gt; modèle ? à voir avec le contexte, il me semble. pour un paquet, ça risque de l&apos;être. </translatorcomment>
-        <translation type="obsolete">Erreur lors de la création de modèles Maemo</translation>
-    </message>
-    <message>
-        <source>File &apos;%1&apos; does not exist</source>
-        <translation type="obsolete">Le fichier &quot;%1&apos; n&quot;existe pas</translation>
-    </message>
-    <message>
-        <source>Cannot open file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir le fichier &quot;%1&quot; : %2</translation>
     </message>
 </context>
 <context>
@@ -38638,732 +37255,6 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::MaemoDeviceConfigurations</name>
-    <message>
-        <source>(default for %1)</source>
-        <translation type="obsolete">(paramètre par défaut pour %1)</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoDeviceConfigurationsSettingsWidget</name>
-    <message>
-        <source>Physical Device</source>
-        <translation type="obsolete">Périphérique physique</translation>
-    </message>
-    <message>
-        <source>Emulator (Qemu)</source>
-        <translation type="obsolete">Émulateur Qemu</translation>
-    </message>
-    <message>
-        <source>Choose Public Key File</source>
-        <translation type="obsolete">Choisir le fichier de clé publique</translation>
-    </message>
-    <message>
-        <source>Public Key Files(*.pub);;All Files (*)</source>
-        <translation type="obsolete">Fichier de clé publique (*.pub);;Tous les fichiers (*)</translation>
-    </message>
-    <message>
-        <source>Stop Deploying</source>
-        <translation type="obsolete">Arrêter le déploiement</translation>
-    </message>
-    <message>
-        <source>Deployment Failed</source>
-        <translation type="obsolete">Échec lors du déploiement</translation>
-    </message>
-    <message>
-        <source>Deployment Succeeded</source>
-        <translation type="obsolete">Déploiement réussi</translation>
-    </message>
-    <message>
-        <source>Key was successfully deployed.</source>
-        <translation type="obsolete">La clé a été déployé avec succès.</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key ...</source>
-        <translation type="obsolete">Déployer la clé publique...</translation>
-    </message>
-    <message>
-        <source>You will need at least one port.</source>
-        <translation type="obsolete">Vous avez besoin d&apos;au moins un port.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoDeviceConfigWizardStartPage</name>
-    <message>
-        <source>General Information</source>
-        <translation type="obsolete">Informations générales</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
-    <message>
-        <source>Device Status Check</source>
-        <translation type="obsolete">Vérification de l&apos;état du périphérique</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
-    <message>
-        <source>Existing Keys Check</source>
-        <translation type="obsolete">Vérification des clés existantes</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
-    <message>
-        <source>Key Creation</source>
-        <translation type="obsolete">Création de clé</translation>
-    </message>
-    <message>
-        <source>Cannot Create Keys</source>
-        <translation type="obsolete">Impossible de créer des clés</translation>
-    </message>
-    <message>
-        <source>The path you have entered is not a directory.</source>
-        <translation type="obsolete">Le chemin entré n&apos;est pas un répertoire. </translation>
-    </message>
-    <message>
-        <source>The directory you have entered does not exist and cannot be created.</source>
-        <translation type="obsolete">Le répertoire entré n&apos;existe pas et ne peut pas être créé. </translation>
-    </message>
-    <message>
-        <source>Creating keys ... </source>
-        <translation type="obsolete">Création des clés... </translation>
-    </message>
-    <message>
-        <source>Key creation failed: %1</source>
-        <translation type="obsolete">Échec lors de la création des clés : %1</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation type="obsolete">Fait. </translation>
-    </message>
-    <message>
-        <source>Could Not Save File</source>
-        <translation type="obsolete">Impossible d&apos;enregistrer le fichier</translation>
-    </message>
-    <message>
-        <source>Failed to save key file %1: %2</source>
-        <translation type="obsolete">Impossible d&apos;enregistrer le fichier de clé %1 : %2</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
-    <message>
-        <source>Key Deployment</source>
-        <translation type="obsolete">Déploiement de la clé</translation>
-    </message>
-    <message>
-        <source>Deploying... </source>
-        <translation type="obsolete">Déploiement...</translation>
-    </message>
-    <message>
-        <source>Key Deployment Failure</source>
-        <translation type="obsolete">Échec lors du déploiement de la clé</translation>
-    </message>
-    <message>
-        <source>Key Deployment Success</source>
-        <translation type="obsolete">Déploiement de la clé réussi</translation>
-    </message>
-    <message>
-        <source>The key was successfully deployed. You may now close the &quot;%1&quot; application and continue.</source>
-        <translation type="obsolete">La clé a été déployée avec succès. Vous pouvez maintenant fermer l&apos;application &quot;%1&quot; et continuer. </translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation type="obsolete">Fait. </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoDeviceConfigWizardFinalPage</name>
-    <message>
-        <source>Setup Finished</source>
-        <translation type="obsolete">Fin de l&apos;installation</translation>
-    </message>
-    <message>
-        <source>The new device configuration will now be created and a test procedure will be run to check whether Qt Creator can connect to the device and to provide some information about its features.</source>
-        <translation type="obsolete">La configuration du nouveau périphérique va maintenant être créée et une procédure de test sera lancée pour vérifier que Qt Creator peut se créer au périphérique et fournir quelques informations sur ses fonctionnalités. </translation>
-    </message>
-    <message>
-        <source>The new device configuration will now be created.</source>
-        <translation type="obsolete">La configuration du nouveau périphérique va maintenant être créée. </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoDeviceConfigWizard</name>
-    <message>
-        <source>New Device Configuration Setup</source>
-        <translation type="obsolete">Configuration du nouveau périphérique</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoGlobal</name>
-    <message>
-        <source>Could not connect to host: %1</source>
-        <translation type="obsolete">Impossible de se connecter à l&apos;hôte : %1</translation>
-    </message>
-    <message>
-        <source>
-Did you start Qemu?</source>
-        <translation type="obsolete">
-Avez-vous démarré Qemu ?</translation>
-    </message>
-    <message>
-        <source>
-Is the device connected and set up for network access?</source>
-        <translation type="obsolete">Est-ce que le périphérique est connecté et configuré pour l&apos;accès réseau ? </translation>
-    </message>
-    <message>
-        <source>(No device)</source>
-        <translation type="obsolete">(Pas de périphérique)</translation>
-    </message>
-    <message>
-        <source>SDK Connectivity</source>
-        <translation type="obsolete">Connectivité du SDK</translation>
-    </message>
-    <message>
-        <source>Mad Developer</source>
-        <translation type="obsolete">Développeur fou</translation>
-    </message>
-    <message>
-        <source>Failed to remove directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible de supprimer le dossier &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Failed to remove file &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible de supprimer le fichier &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Failed to create directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible de créer le dossier &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;.</source>
-        <translation type="obsolete">Impossible de copier le fichier &apos;%1&apos; à &quot;%2&quot;. </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoKeyDeployer</name>
-    <message>
-        <source>Could not read public key file &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible de lire le fichier de clé publique &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="obsolete">Échec de la connexion : %1</translation>
-    </message>
-    <message>
-        <source>Key deployment failed: %1.</source>
-        <translation type="obsolete">Échec lors du déploiement de la clé : %1.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPerTargetDeviceConfigurationListModel</name>
-    <message>
-        <source>(default)</source>
-        <translation type="obsolete">(par défaut)</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPublishedProjectModel</name>
-    <message>
-        <source>Include in package</source>
-        <translation type="obsolete">Inclure dans le paquet</translation>
-    </message>
-    <message>
-        <source>Include</source>
-        <translation type="obsolete">Inclure</translation>
-    </message>
-    <message>
-        <source>Do not include</source>
-        <translation type="obsolete">Ne pas inclure</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPublisherFremantleFree</name>
-    <message>
-        <source>Canceled.</source>
-        <translation type="obsolete">Annulé.</translation>
-    </message>
-    <message>
-        <source>Publishing canceled by user.</source>
-        <translation type="obsolete">Publication annulée par l&apos;utilisateur. </translation>
-    </message>
-    <message>
-        <source>The project is missing some information important to publishing:</source>
-        <translation type="obsolete">Quelques informations manquent au projet pour la publication : </translation>
-    </message>
-    <message>
-        <source>Publishing failed: Missing project information.</source>
-        <translation type="obsolete">La publication a échoué : des informations sur le projet manquaient. </translation>
-    </message>
-    <message>
-        <source>Removing left-over temporary directory ...</source>
-        <translation type="obsolete">Supprimer le répertoire temporaire laissé...</translation>
-    </message>
-    <message>
-        <source>Error removing temporary directory: %1</source>
-        <translation type="obsolete">Erruer lors de la suppression du répertoire temporaire : %1</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create source package.</source>
-        <translation type="obsolete">Échec de la publication : impossible de créer le paquet de sources. </translation>
-    </message>
-    <message>
-        <source>Setting up temporary directory ...</source>
-        <translation type="obsolete">Préparation du répertoire temporaire... </translation>
-    </message>
-    <message>
-        <source>Error: Could not create temporary directory.</source>
-        <translation type="obsolete">Erreur : impossible de créer le dossier temporaire. </translation>
-    </message>
-    <message>
-        <source>Error: Could not copy project directory</source>
-        <translation type="obsolete">Erreur : impossible de copier le répertoire du projet</translation>
-    </message>
-    <message>
-        <source>Error: Could not fix newlines</source>
-        <translation type="obsolete">Erreur : impossible de fixer les lignes</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create package.</source>
-        <translation type="obsolete">Échec de la publication : impossible de créer un paquet. </translation>
-    </message>
-    <message>
-        <source>Cleaning up temporary directory ...</source>
-        <translation type="obsolete">Nettoyage du répertoire temporaire... </translation>
-    </message>
-    <message>
-        <source>Failed to create directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible de créer le répertoire &quot;%1&quot;. </translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;.</source>
-        <translation type="obsolete">Impossible de copier le fichier &apos;%1&apos; vers &quot;%2&quot;. </translation>
-    </message>
-    <message>
-        <source>Error: Cannot open file &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir le fichier &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Error: Failed to start dpkg-buildpackage.</source>
-        <translation type="obsolete">Erreur : impossible de démarrer dpkg-buildpackage.</translation>
-    </message>
-    <message>
-        <source>Error: dpkg-buildpackage did not succeed.</source>
-        <translation type="obsolete">Erreur : dpkg-buildpackage n&apos;a pas réussi. </translation>
-    </message>
-    <message>
-        <source>Package creation failed.</source>
-        <translation type="obsolete">La création du paquet a échoué. </translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation type="obsolete">Fait. </translation>
-    </message>
-    <message>
-        <source>Packaging finished successfully. The following files were created:
-</source>
-        <translation type="obsolete">Le packaging s&apos;est déroulé avec succès. Les fichiers suivants ont été créés : </translation>
-    </message>
-    <message>
-        <source>Building source package...</source>
-        <translation type="obsolete">Compilation du paquet de sources... </translation>
-    </message>
-    <message>
-        <source>Starting scp ...</source>
-        <translation type="obsolete">Lancement de scp...</translation>
-    </message>
-    <message>
-        <source>SSH error: %1</source>
-        <translation type="obsolete">Erreur SSH : %1</translation>
-    </message>
-    <message>
-        <source>Upload failed.</source>
-        <translation type="obsolete">Échec de l&apos;envoi. </translation>
-    </message>
-    <message>
-        <source>Error uploading file: %1</source>
-        <translation type="obsolete">Erreur lors de l&apos;envoi du fichier : %1</translation>
-    </message>
-    <message>
-        <source>Error uploading file.</source>
-        <translation type="obsolete">Erreur lors de l&apos;envoi du fichier. </translation>
-    </message>
-    <message>
-        <source>All files uploaded.</source>
-        <translation type="obsolete">Tous les fichiers ont été envoyés. </translation>
-    </message>
-    <message>
-        <source>Upload succeeded. You should shortly receive an email informing you about the outcome of the build process.</source>
-        <translation type="obsolete">Envoyé avec succès. Vous devriez bientôt recevoir un email vous informant du processus de compilation. </translation>
-    </message>
-    <message>
-        <source>Uploading file %1 ...</source>
-        <translation type="obsolete">Envoi du fichier %1...</translation>
-    </message>
-    <message>
-        <source>Cannot open file for reading: %1</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir le fichier en lecture : %1</translation>
-    </message>
-    <message>
-        <source>Cannot read file: %1</source>
-        <translation type="obsolete">Impossible de lire le fichier : %1</translation>
-    </message>
-    <message>
-        <source>Failed to adapt desktop file &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible d&apos;adapter le fichier desktop &quot;%1&quot;. </translation>
-    </message>
-    <message>
-        <source>The package description is empty. You must set one in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation type="obsolete">La description du paquet est vide. Vous devez en définir une dans Projets &gt; Lancer &gt; Créer un paquet &gt;Détails. </translation>
-    </message>
-    <message>
-        <source>The package description is &apos;%1&apos;, which is probably not what you want. Please change it in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation type="obsolete">La description du paquest est &quot;%1&apos;, ce qui n&quot;est probablement pas ce que vous voulez. Veuillez la changer dans Projets &gt; Lancer &gt; Créer un paquet &gt;Détails. </translation>
-    </message>
-    <message>
-        <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation type="obsolete">Vous n&apos;avez pas défini d&apos;icône pour le gestionnaire de paquets. Elle doit être définie dans Projets &gt; Lancer &gt; Créer un paquet &gt;Détails. </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
-        <translation type="obsolete">Publication sur le dépôt &quot;extras-devel/free&quot; de Fremantle</translation>
-    </message>
-    <message>
-        <source>Upload options</source>
-        <translation type="obsolete">Options d&apos;envoi</translation>
-    </message>
-    <message>
-        <source>Choose a private key file</source>
-        <translation type="obsolete">Choisir un fichier de clé privée</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
-    <message>
-        <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
-        <translation type="obsolete">Publication sur le dépôt &quot;extras-devel/free&quot; de Fremantle</translation>
-    </message>
-    <message>
-        <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
-        <translation type="obsolete">Cet assistant va créer une archive de sources et optionnellement l&apos;envoyer à un serveur de compilation, où le projet sera compilé, packagé puis déplacé dans le dépôt &quot;extras-devel-free&quot;, d&apos;où les utilisateurs peuvent l&apos;installer sur leurs périphériques N900. Pour la fonction d&apos;upload, un compte sur garage.maemo.org est requis. </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPublishingWizardFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
-        <translation type="obsolete">Publier sur le dépôt &quot;extras-devel-free&quot; de Fremantle</translation>
-    </message>
-    <message>
-        <source>Build Settings</source>
-        <translation type="obsolete">Paramètres de compilation</translation>
-    </message>
-    <message>
-        <source>Upload Settings</source>
-        <translation type="obsolete">Préférences d&apos;envoi</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation type="obsolete">Résultat</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRemoteProcessesDialog</name>
-    <message>
-        <source>Remote Error</source>
-        <translation type="obsolete">Erreur distante</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRemoteProcessList</name>
-    <message>
-        <source>Connection failure: %1</source>
-        <translation type="obsolete">Échec de la connexion : %1</translation>
-    </message>
-    <message>
-        <source>Error: Remote process failed to start: %1</source>
-        <translation type="obsolete">Erreur : le processus distant n&apos;a pas pu démarrer : %1</translation>
-    </message>
-    <message>
-        <source>Error: Remote process crashed: %1</source>
-        <translation type="obsolete">Erreur : le processus distant a crashé : %1</translation>
-    </message>
-    <message>
-        <source>Remote process failed.</source>
-        <translation type="obsolete">Le processus distant a échoué. </translation>
-    </message>
-    <message>
-        <source>
-Remote stderr was: %1</source>
-        <translation type="obsolete">Le stderr distant était : %1</translation>
-    </message>
-    <message>
-        <source>PID</source>
-        <translation type="obsolete">PID</translation>
-    </message>
-    <message>
-        <source>Command Line</source>
-        <translation type="obsolete">Ligne de commande</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoDeviceConfigurationsSettingsPage</name>
-    <message>
-        <source>Maemo Device Configurations</source>
-        <translation type="obsolete">Configurations du périphérique Maemo</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoQemuSettingsPage</name>
-    <message>
-        <source>Qemu Settings</source>
-        <translation type="obsolete">Paramètres Qemu</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoQemuCrashDialog</name>
-    <message>
-        <source>Qemu error</source>
-        <translation type="obsolete">Erreur de Qemu</translation>
-    </message>
-    <message>
-        <source>Qemu crashed.</source>
-        <translation type="obsolete">Qemd a planté.</translation>
-    </message>
-    <message>
-        <source>Click here to change the OpenGL mode.</source>
-        <translation type="obsolete">Cliquez ici pour changer le mode OpenGL. </translation>
-    </message>
-    <message>
-        <source>You have configured Qemu to use OpenGL hardware acceleration, which might not be supported by your system. You could try using software rendering instead.</source>
-        <translation type="obsolete">Vous avec configuré Qemu pour qu&apos;il utilise l&apos;accélération matérielle, ce qui pourrait ne pas être supporté par votre système. Vous pouvez essayer le rendu logiciel à la place. </translation>
-    </message>
-    <message>
-        <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
-        <translation type="obsolete">Qemu est actuellement configuré pour autodétecter le mode OpenGL, qui est connu pour ne pas toujours fonctionner. Vous pourrize vouloir utiliser le rendu logiciel à la place. </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoToolChainFactory</name>
-    <message>
-        <source>Maemo GCC</source>
-        <translation type="obsolete">GCC pour Maemo</translation>
-    </message>
-    <message>
-        <source>Maemo GCC for %1</source>
-        <translation type="obsolete">GCC pour Maemo pour %1</translation>
-    </message>
-    <message>
-        <source>%1 GCC (%2)</source>
-        <translation type="obsolete">%1 GCC (%2)</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoUsedPortsGatherer</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Erreur de connexion : %1</translation>
-    </message>
-    <message>
-        <source>Could not start remote process: %1</source>
-        <translation type="obsolete">Impossible de démarrer le processus distant : %1</translation>
-    </message>
-    <message>
-        <source>Remote process crashed: %1</source>
-        <translation type="obsolete">Processus distant crashé : %1</translation>
-    </message>
-    <message>
-        <source>Remote process failed: %1</source>
-        <translation type="obsolete">Échec du processus distant : %1</translation>
-    </message>
-    <message>
-        <source>
-Remote error output was: %1</source>
-        <translation type="obsolete">La sortie du processus distant était : %1</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeMaemoDeployConfigurationFactory</name>
-    <message>
-        <source>Deploy to Maemo5 device</source>
-        <translation type="obsolete">Déployer sur un périphérique Maemo 5</translation>
-    </message>
-    <message>
-        <source>Deploy to Harmattan device</source>
-        <translation type="obsolete">Déployer sur un périphérique Harmattan</translation>
-    </message>
-    <message>
-        <source>Deploy to Meego device</source>
-        <translation type="obsolete">Déployer sur un périphérique MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::AbstractQmakeMaemoTarget</name>
-    <message>
-        <source>File &apos;%1&apos; does not exist</source>
-        <translation type="obsolete">Le fichier &quot;%1&apos; n&quot;existe pas</translation>
-    </message>
-    <message>
-        <source>Cannot open file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir le fichier &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="obsolete">Qt Creator</translation>
-    </message>
-    <message>
-        <source>Do you want to remove the packaging file(s) associated with the target &apos;%1&apos;?</source>
-        <translation type="obsolete">Voulez-voussupprimer les fichiers de packaging associés avec la cible &quot;%1&quot; ? </translation>
-    </message>
-    <message>
-        <source>Error creating Maemo packaging directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Error lors de la création du répertoire de packaging pour Maemo : &quot;%1&quot;. </translation>
-    </message>
-    <message>
-        <source>Add Packaging Files to Project</source>
-        <translation type="obsolete">Ajouter les fichiers de packaging au projet</translation>
-    </message>
-    <message>
-        <source>Qt Creator has set up the following files to enable packaging:
-   %1
-Do you want to add them to the project?</source>
-        <translation type="obsolete">Qt Creator a préparé les fichiers suivants pour permettre le packaging : 
-   %1
-Voulez-vous les ajouter au projet ? </translation>
-    </message>
-    <message>
-        <source>Error creating Maemo templates</source>
-        <translation type="obsolete">Erreur lors de la création de modèles Maemo</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::AbstractDebBasedQmakeMaemoTarget</name>
-    <message>
-        <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
-        <translation type="obsolete">Le fichier de journal des changements Debian &quot;%1&quot; a un format inattendu.</translation>
-    </message>
-    <message>
-        <source>Error writing Debian changelog file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Erreur pendant l&apos;écriture du fichier dejournal des changements Debian &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Invalid icon data in Debian control file.</source>
-        <translation type="obsolete">Données de l&apos;icône invalides dans le contrôle de fichier Debian.</translation>
-    </message>
-    <message>
-        <source>Could not read image file &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible de lire le fichier image &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Could not export image file &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible d&apos;exporter le fichier image &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Error writing file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Erreur lors de l&apos;enregistrement du fichier &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: dh_make failed (%1)</source>
-        <translation type="obsolete">Impossible de créer des modèles Debian : échec de dh_make (%1)</translation>
-    </message>
-    <message>
-        <source>Unable to create debian templates: dh_make failed (%1)</source>
-        <translation type="obsolete">Impossible de créer des modèles Debian : échec de dh_make (%1)</translation>
-    </message>
-    <message>
-        <source>Unable to move new debian directory to &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible de déplacer le nouveau répertoire Debian dans &quot;%1&quot;. </translation>
-    </message>
-    <message>
-        <source>Packaging Error: Cannot open file &apos;%1&apos;.</source>
-        <translation type="obsolete">Erreur lors de la création du paquet : ne peut pas &apos;ouvrir le fichier &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Cannot write file &apos;%1&apos;.</source>
-        <translation type="obsolete">Erreur lors de la création du paquet : ne peut pas écrire le fichier &quot;%1&quot;.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CodaRunControl</name>
-    <message>
-        <source>No device is connected. Please connect a device and try again.</source>
-        <translation type="obsolete">Pas de périphérique connecté. Veuillez en connecter un et réessayer. </translation>
-    </message>
-    <message>
-        <source>Executable file: %1</source>
-        <translation type="obsolete">Fichier exécutable : %1</translation>
-    </message>
-    <message>
-        <source>Connecting to &apos;%1&apos;...</source>
-        <translation type="obsolete">Connexion à &quot;%1&quot;...</translation>
-    </message>
-    <message>
-        <source>Unable to create CODA connection. Please try again.</source>
-        <translation type="obsolete">Impossible de créer la connexion CODA. Veuilllez réessayer. </translation>
-    </message>
-    <message>
-        <source>Could not open serial device: %1</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir le périphérique série : %1</translation>
-    </message>
-    <message>
-        <source>Connecting to %1:%2...</source>
-        <translation type="obsolete">Connexion à %1:%2...</translation>
-    </message>
-    <message>
-        <source>Error: %1</source>
-        <translation type="obsolete">Erreur : %1</translation>
-    </message>
-    <message>
-        <source>Connected.</source>
-        <translation type="obsolete">Connecté. </translation>
-    </message>
-    <message>
-        <source>Process has finished.</source>
-        <translation type="obsolete">Processus fini. </translation>
-    </message>
-    <message>
-        <source>Thread has crashed: %1</source>
-        <translation type="obsolete">Thread crashé : %1</translation>
-    </message>
-    <message>
-        <source>The process is already running on the device. Please first close it.</source>
-        <translation type="obsolete">Le processus est déjà lancé sur le périphérique. Veuillez d&apos;abord le fermer. </translation>
-    </message>
-    <message>
-        <source>Launching: %1</source>
-        <translation type="obsolete">Lancement : %1</translation>
-    </message>
-    <message>
-        <source>Launched.</source>
-        <translation type="obsolete">Lancé. </translation>
-    </message>
-    <message>
-        <source>Launch failed: %1</source>
-        <translation type="obsolete">Le lancement a échoué : %1</translation>
-    </message>
-    <message>
-        <source>Waiting for CODA</source>
-        <translation type="obsolete">Attente de CODA</translation>
-    </message>
-    <message>
-        <source>Qt Creator is waiting for the CODA application to connect.&lt;br&gt;Please make sure the application is running on your mobile phone and the right IP address and/or port are configured in the project settings.</source>
-        <translation type="obsolete">Qt Creator attend que l&apos;application CODA se connecte.&lt;br&gt;Veuillez vous assurer que l&apos;application est lancée sur le téléphone mobile et que la bonne adresse IP et/ou port sont configurés dans les paramètres du projet. </translation>
-    </message>
-    <message>
-        <source>Canceled.</source>
-        <translation type="obsolete">Annulé.</translation>
-    </message>
-    <message>
-        <source>The device &apos;%1&apos; has been disconnected</source>
-        <translation type="obsolete">L&apos;appareil mobile &quot;%1&quot; a été déconnecté</translation>
-    </message>
-</context>
-<context>
     <name>QmakeProjectManager::Internal::GcceToolChainFactory</name>
     <message>
         <source>GCCE</source>
@@ -39563,291 +37454,6 @@ Utilisez un certificat développeur ou une autre option de signature pour évite
         <source>Created %1.
 </source>
         <translation type="obsolete">%1 créé.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublishingResultsPageOvi</name>
-    <message>
-        <source>Open Containing Folder</source>
-        <translation type="obsolete">Ouvrir le dossier contenant</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Fermer</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublishingSisSettingsPageOvi</name>
-    <message>
-        <source>%1 is a default vendor name used for testing and development. &lt;br&gt;The Vendor_Name field cannot contain the name &apos;Nokia&apos;. &lt;br&gt;You are advised against using the default names &apos;Vendor&apos; and &apos;Vendor-EN&apos;. &lt;br&gt;You should also not leave the entry blank. &lt;br&gt;see &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt; for guidelines.&lt;br&gt;</source>
-        <translation type="obsolete">%1 est un nom de vendeur par défaut utilisé pour les tests et le développement. &lt;br&gt;Le champ Vendor_Name ne peut contenir le nom &apos;Nokia&apos;. &lt;br&gt;Il est conseillé de ne pas utiliser les noms par défaut &apos;Vendor&apos; et &apos;Vendor-EN&apos;. &lt;br&gt;Vous devez également ne pas laisser l&apos;entrée vide. &lt;br&gt;Voir &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;mise en paquet et signaure&lt;/a&gt; comme guides.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>This should be application&apos;s display name. &lt;br&gt;It cannot be empty.&lt;br&gt;</source>
-        <translation type="obsolete">Ceci devrait être le nom d&apos;affichage de l&apos;application. &lt;br/&gt; Il ne peut pas être vide. &lt;br/&gt;</translation>
-    </message>
-    <message>
-        <source>The display name is quite long.&lt;br&gt;It might not be fully visible in the phone&apos;s menu.&lt;br&gt;</source>
-        <translation type="obsolete">Le nom d&apos;affichage est assez long. &lt;br/&gt; Il pourrait ne pas être visible complètement dans le menu du téléphone. &lt;br/&gt;</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; is a default vendor name used for testing and development. &lt;br&gt;The Vendor_Name field cannot contain the name &apos;Nokia&apos;. &lt;br&gt;You are advised against using the default names &apos;Vendor&apos; and &apos;Vendor-EN&apos;. &lt;br&gt;You should also not leave the entry blank. &lt;br&gt;see &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt; for guidelines.&lt;br&gt;</source>
-        <translation type="obsolete">%1 est un nom de vendeur par défaut utilisé pour les tests et le développement. &lt;br&gt;Le champ Vendor_Name ne peut contenir le nom &quot;Nokia&quot;. &lt;br&gt;Il est conseillé de ne pas utiliser les noms par défaut &quot;Vendor&quot; et &quot;Vendor-EN&quot;. &lt;br&gt;Vous devez également ne pas laisser l&apos;entrée vide. &lt;br&gt;Voir &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;mise en paquet et signature&lt;/a&gt; comme guide.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>%1 is a default vendor name used for testing and development.</source>
-        <translation type="obsolete">%1 est un nom de vendeur par défaut utilisé pour les tests et le développement.</translation>
-    </message>
-    <message>
-        <source>%1 are default vendor names used for testing and development.</source>
-        <translation type="obsolete">%1 sont des noms de vendeur par défaut utilisés pour les tests et le développement.</translation>
-    </message>
-    <message>
-        <source>%1 &lt;br&gt;The Vendor_Name field cannot contain the name &apos;Nokia&apos;. &lt;br&gt;You are advised against using the default names &apos;Vendor&apos; and &apos;Vendor-EN&apos;. &lt;br&gt;You should also not leave the entry blank. &lt;br&gt;See &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt; for guidelines.&lt;br&gt;</source>
-        <translation type="obsolete">%1 &lt;br&gt;Le champ Vendor_Name ne peut contenir le nom &apos;Nokia&apos;. &lt;br&gt;Il est conseillé de ne pas utiliser les noms par défaut &apos;Vendor&apos; et &apos;Vendor-EN&apos;. &lt;br&gt;Vous devez également ne pas laisser l&apos;entrée vide. &lt;br&gt;Voir &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;mise en paquet et signaure&lt;/a&gt; comme guides.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The application UID %1 is only for testing and development.&lt;br&gt;SIS packages built with it cannot be distributed via the Ovi Store.&lt;br&gt;</source>
-        <translation type="obsolete">L&apos;UID %1 de l&apos;application est seulement pour les tests et le développement.&lt;br&gt;Les paquets SIS construit avec lui ne peuvent être distribués sur l&apos;Ovi Store.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The application UID %1 is a symbiansigned.com UID. &lt;br&gt;Applications with this UID will be rejected by Application Signing Services for Ovi Store.&lt;br&gt;If you want to continue with a symbiansigned.com UID, sign your application on symbiansigned.com and upload the signed application to Publish to Ovi.&lt;br&gt;</source>
-        <translation type="obsolete">L&apos;UID %1 de l&apos;application est un UID symbiansigned.com. &lt;br&gt;Les applications avec cet UID seront rejetées par le service de signature d&apos;application de l&apos;Ovi Store.&lt;br&gt;Si vous voulez continuer avec un UID symbiansigned.com, signez votre application sur symbiansigned.com et enoyé l&apos;application signée pour publication à Ovi.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The application UID %1 is not an acceptable UID.&lt;br&gt;SIS packages built with it cannot be signed by Application Signing Services for Ovi Store.&lt;br&gt;</source>
-        <translation type="obsolete">L&apos;UID %1 de l&apos;application n&apos;est pas un UID acceptable.&lt;br&gt;Les paquets SIS construit avec lui ne peuvent être signés par le service de signature d&apos;application de l&apos;Ovi Store.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; is a default vendor name used for testing and development. &lt;br&gt;The Vendor_Name field cannot contain the name &apos;Nokia&apos;. &lt;br&gt;You are advised against using the default names &apos;Vendor&apos; and &apos;Vendor-EN&apos;. &lt;br&gt;You should also not leave the entry blank. &lt;br&gt;see &lt;a href=&quot;http://www.developer.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt; for guidelines.&lt;br&gt;</source>
-        <translation type="obsolete">&quot;%1&quot; est un nom de vendeur par défaut utilisé pour les tests et le développement. &lt;br&gt;Le champ Vendor_Name ne peut contenir le nom &quot;Nokia&quot;. &lt;br&gt;Il est conseillé de ne pas utiliser les noms par défaut &quot;Vendor&quot; et &quot;Vendor-EN&quot;. &lt;br&gt;Vous devez également ne pas laisser l&apos;entrée vide. &lt;br&gt;Voir &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;mise en paquet et signature&lt;/a&gt; comme guide.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>%1 &lt;br&gt;The Vendor_Name field cannot contain the name &apos;Nokia&apos;. &lt;br&gt;You are advised against using the default names &apos;Vendor&apos; and &apos;Vendor-EN&apos;. &lt;br&gt;You should also not leave the entry blank. &lt;br&gt;See &lt;a href=&quot;http://www.developer.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt; for guidelines.&lt;br&gt;</source>
-        <translation type="obsolete">%1 &lt;br&gt;Le champ Vendor_Name ne peut contenir le nom &apos;Nokia&apos;. &lt;br&gt;Il est conseillé de ne pas utiliser les noms par défaut &apos;Vendor&apos; et &apos;Vendor-EN&apos;. &lt;br&gt;Vous devez également ne pas laisser l&apos;entrée vide. &lt;br&gt;Voir &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;mise en paquet et signaure&lt;/a&gt; comme guides.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The application UID %1 is only for testing and development.&lt;br&gt;SIS packages built with it cannot be distributed via the Nokia Store.&lt;br&gt;</source>
-        <translation type="obsolete">L&apos;UID %1 de l&apos;application est seulement pour les tests et le développement.&lt;br&gt;Les paquets SIS construit avec lui ne peuvent être distribués sur le Nokia Store.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The application UID %1 is a symbiansigned.com UID. &lt;br&gt;Applications with this UID will be rejected by Application Signing Services for Nokia Store.&lt;br&gt;If you want to continue with a symbiansigned.com UID, sign your application on symbiansigned.com and upload the signed application to Nokia Publish.&lt;br&gt;</source>
-        <translation type="obsolete">L&apos;UID %1 de l&apos;application est un UID pour symbiansigned.com. &lt;br&gt;Les applications avec cet UID seront rejetées par le service de signature d&apos;application du Nokia Store.&lt;br&gt;Si vous voulez continuer avec un UID pour symbiansigned.com, signez votre application sur symbiansigned.com et envoyez l&apos;application signée pour publication à Nokia.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The application UID %1 is not an acceptable UID.&lt;br&gt;SIS packages built with it cannot be signed by Application Signing Services for Nokia Store.&lt;br&gt;</source>
-        <translation type="obsolete">L&apos;UID %1 de l&apos;application n&apos;est pas un UID acceptable.&lt;br&gt;Les paquets SIS construit avec lui ne peuvent être signés par le service de signature d&apos;application du Nokia Store.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The application UID is a global unique indentifier of the SIS package.&lt;br&gt;</source>
-        <translation type="obsolete">L&apos;UID de l&apos;application est un identifiant unique global du paquet SIS. &lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>To get a unique application UID for your package file,&lt;br&gt;please register at &lt;a href=&quot;http://info.publish.ovi.com/&quot;&gt;publish.ovi.com&lt;/a&gt;</source>
-        <translation type="obsolete">Pour obtenir un UID d&apos;application unique pour votre fichier paquet, &lt;br&gt; merci de vous enregistrer sur &lt;a href=&quot;http://info.publish.ovi.com/&quot;&gt;publish.ovi.com&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>If this UID is from symbiansigned.com, It will be rejected by Application Signing Services for Nokia Store.&lt;br&gt;If you want to continue with a symbiansigned.com UID, sign your application on symbiansigned.com and upload the signed application to Nokia Publish.&lt;br&gt;It is, however, recommended that you obtain a UID from &lt;a href=&quot;http://info.publish.ovi.com/&quot;&gt;publish.ovi.com&lt;/a&gt;</source>
-        <translation type="obsolete">Si cet UID provient de symbiansigned.com, il sera rejeté par le service de signature d&apos;application du Nokia Store.&lt;br&gt; Si vous souhaitez continuer avec un UID pour symbiansigned.com, signez votre application sur symbiansigned.com et envoyez l&apos;application signée pour publication à Nokia.&lt;br&gt;Toutefois, il est recommandé d&apos;obtenir un UID sur &lt;a href=&quot;http://info.publish.ovi.com/&quot;&gt;publish.ovi.com&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>%1 need(s) to be certified signed. Please go to &lt;a href=&quot;symbiansigned.com&quot;&gt;symbiansigned.com&lt;/a&gt; for guidance.</source>
-        <translation type="obsolete">%1 doit être certifiés signé. Merci de vous rendre sur &lt;a href=&quot;symbiansigned.com&quot;&gt;symbiansigned.com&lt;/a&gt; pour tout aide.</translation>
-    </message>
-    <message>
-        <source>&lt;br&gt;%1 need(s) manufacturer approval.&lt;br&gt;</source>
-        <translation type="obsolete">&lt;br&gt;%1 nécessite une approbation du fabricant.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>Some capabilities might require a special kind of signing or approval from the manufacturer.&lt;br&gt;</source>
-        <translation type="obsolete">Certaines fonctionnalités peuvent nécessiter un type particulier de signature ou une approbation du fabricant.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>Please verify that you have a released version of Qt. &lt;br&gt;&lt;a href=&quot;http://www.developer.nokia.com/Community/Wiki/Nokia_Smart_Installer_for_Symbian&quot;&gt;Qt Packages Distributed by Smart Installer&lt;/a&gt; has a list of released Qt versions.</source>
-        <translation type="obsolete">Veuillez vérifier que vous avez une version publiée de Qt. &lt;br&gt;&lt;a href=&quot;http://www.developer.nokia.com/Community/Wiki/Nokia_Smart_Installer_for_Symbian&quot;&gt;Paquets Qt distribués par l&apos;installateur intelligent&lt;/a&gt; possède une liste des versions Qt publiées.</translation>
-    </message>
-    <message>
-        <source>Please verify that you have a released version of Qt. &lt;br&gt;&lt;a href=&quot;http://wiki.forum.nokia.com/index.php/Nokia_Smart_Installer_for_Symbian&quot;&gt;Qt Packages Distributed by Smart Installer&lt;/a&gt; has a list of released Qt versions.</source>
-        <translation type="obsolete">Merci de vérifier que vous avez une version sorie de Qt. &lt;br&gt;&lt;a href=&quot;http://wiki.forum.nokia.com/index.php/Nokia_Smart_Installer_for_Symbian&quot;&gt;Paquets Qt distribués par Smart Installer&lt;/a&gt; a une liste des versions de Qt sorties.</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Localised Vendor Names</source>
-        <translation type="obsolete">Noms de vendeur localisés</translation>
-    </message>
-    <message>
-        <source>Current Global Vendor Name</source>
-        <translation type="obsolete">Nom global de vendeur actuel</translation>
-    </message>
-    <message>
-        <source>Display name:</source>
-        <translation type="obsolete">Nom d&apos;affichage :</translation>
-    </message>
-    <message>
-        <source>Localised vendor names:</source>
-        <translation type="obsolete">Noms de vendeur localisés : </translation>
-    </message>
-    <message>
-        <source>Capabilities:</source>
-        <translation type="obsolete">Capacités : </translation>
-    </message>
-    <message>
-        <source>Current UID3</source>
-        <translation type="obsolete">UID3 actuel</translation>
-    </message>
-    <message>
-        <source>Application UID:</source>
-        <translation type="obsolete">UID de l&apos;application : </translation>
-    </message>
-    <message>
-        <source>Current Qt Version</source>
-        <translation type="obsolete">Version de Qt courante</translation>
-    </message>
-    <message>
-        <source>Qt version used in builds:</source>
-        <translation type="obsolete">Version de Qt utilisée pour la compilation : </translation>
-    </message>
-    <message>
-        <source>Current set of capabilities</source>
-        <translation type="obsolete">Ensemble actuel des capacités</translation>
-    </message>
-    <message>
-        <source>Global vendor name:</source>
-        <translation type="obsolete">Nom du vendeur global : </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublishingWizardFactoryOvi</name>
-    <message>
-        <source>Publish Qt Symbian Applications to Ovi Store</source>
-        <translation type="obsolete">Publier l&apos;application Qt Symbian sur l&apos;Ovi Store</translation>
-    </message>
-    <message>
-        <source>This wizard checks your project file to make sure it complies with Ovi Store submission criteria.
-
-The wizard creates SIS files that can be submitted to Publish to Ovi.
-
-You cannot use it if you use application UIDs from Symbian Signed.
-
-You cannot use it for the Certified Signed and Manufacturer level capabilities:
-NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB.
-
-Your application will also be rejected by Ovi QA if you choose an unreleased Qt version on the next page.</source>
-        <translation type="obsolete">L&apos;assistant vérifie votre fichier de pojet pour s&apos;assurer qu&apos;il respecte les critéres de soumission de l&apos;Ovi Store.
-
-L&apos;assistant crée les fichiers SIS qui peuvent être soumis à la publication sur Ovi.
-
-Vous ne pouvez pas l&apos;utiliser si vous utilisez des UID d&apos;application de Symbian Signed.
-
-Vous ne pouvez pas l&apos;utiliser pour les certifiés signés et les niveaux de capacités du fabricant :
-NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM et TCB.
-
-Votre application sera également rejetée de l&apos;Ovi QA si vous choisissez une version de Qt non sortie sur la prochaîne page.</translation>
-    </message>
-    <message>
-        <source>Publish Qt Symbian Applications to Nokia Store</source>
-        <translation type="obsolete">Publier les applications Qt Symbian sur le Nokia Store</translation>
-    </message>
-    <message>
-        <source>This wizard checks your project file to make sure it complies with Nokia Store submission criteria.
-
-The wizard creates SIS files that can be submitted to Nokia Publish.
-
-You cannot use it if you use application UIDs from Symbian Signed.
-
-You cannot use it for the Certified Signed and Manufacturer level capabilities:
-NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB.
-
-Your application will also be rejected by Nokia Store QA if you choose an unreleased Qt version on the next page.</source>
-        <translation type="obsolete">Cet assistant vérifie les fichiers du projet afin d&apos;être certain qu&apos;il est conforme au critère de soumission du Nokia Store.
-
-L&apos;assistant créer les fichiers SIS qui peuvent être envoyés à Nokia Publish.
-
-Vous ne pouvez pas l&apos;utiliser si vous utilisez des UID d&apos;application de Symbian Signed.
-
-Vous ne pouvez pas l&apos;utiliser pour les fonctionnalités certifiées signées et le niveau constructeur :
-NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM et TCB.
-
-Votre application peut aussi être rejeté par l&apos;assurance qualité du Nokia Store si vous choisissez une version Qt non publiée sur la page suivante.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublishingWizardOvi</name>
-    <message>
-        <source>Publishing to Ovi Store</source>
-        <translation type="obsolete">Publication sur l&apos;Ovi Store</translation>
-    </message>
-    <message>
-        <source>Publishing to Nokia Store</source>
-        <translation type="obsolete">Publication sur le Nokia Store</translation>
-    </message>
-    <message>
-        <source>Build Configuration</source>
-        <translation type="obsolete">Configuration de compilation</translation>
-    </message>
-    <message>
-        <source>Project File Checks</source>
-        <translation type="obsolete">Vérification des fichiers du projet</translation>
-    </message>
-    <message>
-        <source>Creating an Uploadable SIS File</source>
-        <translation type="obsolete">Créer un fichier SIS téléversable</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TrkRunControl</name>
-    <message>
-        <source>No device is connected. Please connect a device and try again.</source>
-        <translation type="obsolete">Aucun périphérique n&apos;est connecté. Veuillez connecter un périphérique et réessayer. </translation>
-    </message>
-    <message>
-        <source>Executable file: %1</source>
-        <translation type="obsolete">Fichier exécutable : %1</translation>
-    </message>
-    <message>
-        <source>Could not connect to phone on port &apos;%1&apos;: %2
-Check if the phone is connected and App TRK is running.</source>
-        <translation type="obsolete">Impossible de connecter le téléphone sur le port &apos;%1&apos; : %2
-Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</translation>
-    </message>
-    <message>
-        <source>Could not connect to App TRK on device: %1. Restarting App TRK might help.</source>
-        <translation type="obsolete">Impossible de se connecter à App TRK sur l&apos;appareil mobile : %1. Redémarrer App TRK pourrait résoudre le problème.</translation>
-    </message>
-    <message>
-        <source>Waiting for App TRK</source>
-        <translation type="obsolete">En attente d&apos;App TRK</translation>
-    </message>
-    <message>
-        <source>Qt Creator is waiting for the TRK application to connect on %1.&lt;br&gt;Please make sure the application is running on your mobile phone and the right port is configured in the project settings.</source>
-        <translation type="obsolete">Qt Creator attend que l&apos;application TRK se connecte sur %1. &lt;br&gt;Veuillez vous assurer que l&apos;application est lancée sur votre téléphone mobile et que le bon port est configuré dans les paramètres du projet. </translation>
-    </message>
-    <message>
-        <source>Canceled.</source>
-        <translation type="obsolete">Annulé.</translation>
-    </message>
-    <message>
-        <source>The device &apos;%1&apos; has been disconnected</source>
-        <translation type="obsolete">L&apos;appareil mobile &quot;%1&quot; a été déconnecté</translation>
-    </message>
-    <message>
-        <source>Starting application...</source>
-        <translation type="obsolete">Démarrage de l&apos;application...</translation>
-    </message>
-    <message>
-        <source>Application running with pid %1.</source>
-        <translation type="obsolete">Application en cours d&apos;éxecution avec le pid %1.</translation>
-    </message>
-    <message>
-        <source>Could not start application: %1</source>
-        <translation type="obsolete">Impossible de démarrer l&apos;application : %1</translation>
     </message>
 </context>
 <context>
@@ -41370,41 +38976,6 @@ Ils requièrent Qt 4.7.4 ou supérieur et l&apos;ensemble de composants install�
     <message>
         <source>Available device types:</source>
         <translation type="obsolete">Types de périphérique disponibles : </translation>
-    </message>
-</context>
-<context>
-    <name>MaemoDeployConfigurationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Device configuration:</source>
-        <translation type="obsolete">Configuration du périphérique :</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;irrelevant&quot;&gt;Gérer les configurations du périphérique&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>These show the INSTALLS settings from the project file(s).</source>
-        <translation type="obsolete">Affiches les paramètres INSTALLS du/des fichier(s) de projet.</translation>
-    </message>
-    <message>
-        <source>Files to install for subproject:</source>
-        <translation type="obsolete">Fichiers à installer pour le sous-projet :</translation>
-    </message>
-    <message>
-        <source>Edit the project file to add or remove entries.</source>
-        <translation type="obsolete">Éditer le fichier de projet pour ajouter ou supprimer des entrées. </translation>
-    </message>
-    <message>
-        <source>Add Desktop File</source>
-        <translation type="obsolete">Ajouter un fichier desktop</translation>
-    </message>
-    <message>
-        <source>Add Launcher Icon...</source>
-        <translation type="obsolete">Ajouter une icône de lancement...</translation>
     </message>
 </context>
 <context>
@@ -44033,7 +41604,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Operation canceled by user, cleaning up...</source>
         <translation type="obsolete">Opération annulée par l&apos;utilisateur, nettoyage... </translation>
@@ -44055,10 +41626,6 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <translation type="obsolete">Tous les fichiers sont à jour, aucune installation n&apos;est nécessaire.</translation>
     </message>
     <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Erreur de connexion : %1</translation>
-    </message>
-    <message>
         <source>Connecting to device...</source>
         <translation type="obsolete">Connexion au périphérique... </translation>
     </message>
@@ -44072,52 +41639,14 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>RemoteLinux::DeployableFilesPerProFile</name>
-    <message>
-        <source>&lt;no target path set&gt;</source>
-        <translation type="obsolete">Z&lt;pas de chemin cible défini&gt;</translation>
-    </message>
-    <message>
-        <source>Local File Path</source>
-        <translation type="obsolete">Chemin du fichier local</translation>
-    </message>
-    <message>
-        <source>Remote Directory</source>
-        <translation type="obsolete">Répertoire distant</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::GenericLinuxDeviceConfigurationFactory</name>
-    <message>
-        <source>Generic Linux Device</source>
-        <translation type="obsolete">Périphérique Linux générique</translation>
-    </message>
-    <message>
-        <source>Generic Linux</source>
-        <translation type="obsolete">Linux générique</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation type="obsolete">Test</translation>
-    </message>
-    <message>
-        <source>Remote Processes</source>
-        <translation type="obsolete">Processus distants</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key</source>
-        <translation type="obsolete">Déployer la clé publique</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizard</name>
+    <name>RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Configuration d&apos;un nouveau périphérique Linux générique</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection Data</source>
         <translation>Données de connexion</translation>
@@ -44136,7 +41665,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardFinalPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Setup Finished</source>
         <translation>Fin de l&apos;installation</translation>
@@ -44152,14 +41681,14 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDeviceConfigurations</name>
+    <name>RemoteLinux</name>
     <message>
         <source>(default for %1)</source>
         <translation type="obsolete">(paramètre par défaut pour %1)</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDeviceFactorySelectionDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Start Wizard</source>
         <translation type="obsolete">Démarrer l&apos;assistant</translation>
@@ -44174,136 +41703,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaddeDeviceConfigurationFactory</name>
-    <message>
-        <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
-        <translation type="obsolete">Périphérique avec support de MADDE (Fremantle, Harmattan, MeeGo)</translation>
-    </message>
-    <message>
-        <source>Maemo5/Fremantle</source>
-        <translation type="obsolete">Maemo5/Fremantle</translation>
-    </message>
-    <message>
-        <source>MeeGo 1.2 Harmattan</source>
-        <translation type="obsolete">MeeGo 1.2 Harmattan</translation>
-    </message>
-    <message>
-        <source>Other MeeGo OS</source>
-        <translation type="obsolete">Autre OS MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoConfigTestDialog</name>
-    <message>
-        <source>Testing configuration. This may take a while.</source>
-        <translation type="obsolete">Test de la configuration. Cela peut prendre du temps. </translation>
-    </message>
-    <message>
-        <source>Testing configuration...</source>
-        <translation type="obsolete">Test de la configuration...</translation>
-    </message>
-    <message>
-        <source>Stop Test</source>
-        <translation type="obsolete">Arrêter le test</translation>
-    </message>
-    <message>
-        <source>Could not connect to host: %1</source>
-        <translation type="obsolete">Impossible de se connecter à l&apos;hôte : %1</translation>
-    </message>
-    <message>
-        <source>
-Did you start Qemu?</source>
-        <translation type="obsolete">Avez-vous lancé Qemu ?</translation>
-    </message>
-    <message>
-        <source>Remote process failed: %1</source>
-        <translation type="obsolete">Échec du processus distant : %1</translation>
-    </message>
-    <message>
-        <source>Qt version mismatch!  Expected Qt on device: 4.6.2 or later.</source>
-        <translation type="obsolete">Conflit de versions de Qt ! Version de Qt attendue sur le périphérique : 4.6.2 ou supérieure.</translation>
-    </message>
-    <message>
-        <source>%1 is not installed.&lt;br&gt;You will not be able to deploy to this device.</source>
-        <translation type="obsolete">%1 n&apos;est pas installé. &lt;br&gt; Vous ne pourrez pas déployer sur ce périphérique. </translation>
-    </message>
-    <message>
-        <source>Please switch the device to developer mode via Settings -&gt; Security.</source>
-        <translation type="obsolete">Veuillez mettre le périphérique en mode Développeur dans Paramètres &gt; Sécurité.</translation>
-    </message>
-    <message>
-        <source>Missing directory &apos;%1&apos;. You will not be able to do QML debugging on this device.</source>
-        <translation type="obsolete">Répertoire &quot;%1&quot; manquant. Vous ne pourrez pas déboguer du QML sur ce périphérique. </translation>
-    </message>
-    <message>
-        <source>Error retrieving list of used ports: %1</source>
-        <translation type="obsolete">Erreur lors de la récupération des ports utilisés : %1</translation>
-    </message>
-    <message>
-        <source>All specified ports are available.</source>
-        <translation type="obsolete">Tous les ports spécifiés sont disponibles. </translation>
-    </message>
-    <message>
-        <source>The following supposedly free ports are being used on the device:</source>
-        <translation type="obsolete">Ces ports supposamment libres sont actuellement utilisés sur le périphérique : </translation>
-    </message>
-    <message>
-        <source>Device configuration okay.</source>
-        <translation type="obsolete">Configuration du périphérique correcte.</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Fermer</translation>
-    </message>
-    <message>
-        <source>Device configuration test failed: Unexpected output:
-%1</source>
-        <translation type="obsolete">Échec du test de la configuration du périphérique, sortie inattendue : 
-%1</translation>
-    </message>
-    <message>
-        <source>Hardware architecture: %1
-</source>
-        <translation type="obsolete">Architecture matérielle : %1\n</translation>
-    </message>
-    <message>
-        <source>Kernel version: %1
-</source>
-        <translation type="obsolete">Version du noyau : %1\n</translation>
-    </message>
-    <message>
-        <source>No Qt packages installed.</source>
-        <translation type="obsolete">Aucun paquet Qt installé.</translation>
-    </message>
-    <message>
-        <source>List of installed Qt packages:</source>
-        <translation type="obsolete">Liste des paquets Qt installés :</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::AbstractMaemoDeployByMountStep</name>
-    <message>
-        <source>Installing package to device...</source>
-        <translation type="obsolete">Installation du paquet sur le périphérique en cours...</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoMountAndInstallDeployStep</name>
-    <message>
-        <source>No matching packaging step found.</source>
-        <translation type="obsolete">Pas d&apos;étape de paquetage correspondante trouvée. </translation>
-    </message>
-    <message>
-        <source>Package installed.</source>
-        <translation type="obsolete">Paquet installé.</translation>
-    </message>
-    <message>
-        <source>Deploy package via UTFS mount</source>
-        <translation type="obsolete">Déployer le paquet par montage UTFS</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoMountAndCopyDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>All files copied.</source>
         <translation type="obsolete">Tous les fichiers ont été copiés.</translation>
@@ -44314,7 +41714,7 @@ Did you start Qemu?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeployConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
         <translation type="obsolete">Choisir une icône (elle sera remise à l&apos;échelle à %1x%1 pixels si nécessaire)</translation>
@@ -44337,61 +41737,25 @@ Did you start Qemu?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeploymentMounter</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="obsolete">Échec de la connexion : %1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeployStepBaseWidget</name>
-    <message>
-        <source>Cannot deploy: %1</source>
-        <translation type="obsolete">Impossible de déployer : %1</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
-        <translation type="obsolete">&lt;b&gt;%1 utilisant le périphérique&lt;/b&gt; : %2</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigurationsSettingsWidget</name>
-    <message>
-        <source>Physical Device</source>
-        <translation type="obsolete">Périphérique physique</translation>
-    </message>
-    <message>
-        <source>Emulator</source>
-        <translation type="obsolete">Émulateur</translation>
-    </message>
-    <message>
-        <source>You will need at least one port.</source>
-        <translation type="obsolete">Vous avez besoin d&apos;au moins un port.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardStartPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>General Information</source>
         <translation type="obsolete">Informations générales</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
     <message>
         <source>Device Status Check</source>
         <translation type="obsolete">Vérification de l&apos;état du périphérique</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Existing Keys Check</source>
         <translation type="obsolete">Vérification des clés existantes</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Key Creation</source>
         <translation type="obsolete">Création de clé</translation>
@@ -44417,16 +41781,12 @@ Did you start Qemu?</source>
         <translation type="obsolete">Échec lors de la création des clés : %1</translation>
     </message>
     <message>
-        <source>Done.</source>
-        <translation type="obsolete">Fait. </translation>
-    </message>
-    <message>
         <source>Could Not Save Key File</source>
         <translation type="obsolete">Impossible de sauver le fichier de la clé</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Key Deployment</source>
         <translation type="obsolete">Déploiement de la clé</translation>
@@ -44453,108 +41813,28 @@ Did you start Qemu?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardFinalPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>The new device configuration will now be created.</source>
         <translation type="obsolete">La configuration du nouveau périphérique va maintenant être créée. </translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizard</name>
+    <name>RemoteLinux</name>
     <message>
         <source>New Device Configuration Setup</source>
         <translation type="obsolete">Configuration du nouveau périphérique</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceEnvReader</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Erreur de connexion : %1</translation>
-    </message>
-    <message>
-        <source>Error running remote process: %1</source>
-        <translation type="obsolete">Erreur lors de l&apos;exécution du processus à distance : %1</translation>
-    </message>
-    <message>
-        <source>
-Remote stderr was: &apos;%1&apos;</source>
-        <translation type="obsolete">Le stderr distant était : &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDirectDeviceUploadStep</name>
-    <message>
-        <source>SFTP initialization failed: %1</source>
-        <translation type="obsolete">Échec de l&apos;initialisation de SFTP : %1</translation>
-    </message>
-    <message>
-        <source>All files successfully deployed.</source>
-        <translation type="obsolete">Tous les fichiers ont été déployés avec succès. </translation>
-    </message>
-    <message>
-        <source>Uploading file &apos;%1&apos;...</source>
-        <translation type="obsolete">Envoi du fichier %1...</translation>
-    </message>
-    <message>
-        <source>Failed to upload file &apos;%1&apos;.</source>
-        <translation type="obsolete">Échec lors de l&apos;envoi du fichier &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Failed to upload file &apos;%1&apos;: Could not open for reading.</source>
-        <translation type="obsolete">Échec lors de l&apos;envoi du fichier &quot;%1&quot; : impossible de l&apos;ouvrir en lecture. </translation>
-    </message>
-    <message>
-        <source>Upload of file &apos;%1&apos; failed: %2</source>
-        <translation type="obsolete">Échec lors de l&apos;envoi du fichier &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Upload files via SFTP</source>
-        <translation type="obsolete">Envoi de fichiers par SFTP</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoGlobal</name>
-    <message>
-        <source>Could not connect to host: %1</source>
-        <translation type="obsolete">Impossible de se connecter à l&apos;hôte : %1</translation>
-    </message>
-    <message>
-        <source>
-Did you start Qemu?</source>
-        <translation type="obsolete">Avez-vous lancé Qemu ?</translation>
-    </message>
-    <message>
-        <source>
-Is the device connected and set up for network access?</source>
-        <translation type="obsolete">Est-ce que le périphérique est connecté et configuré pour l&apos;accès réseau ? </translation>
-    </message>
-    <message>
-        <source>(No device)</source>
-        <translation type="obsolete">(Pas de périphérique)</translation>
-    </message>
-    <message>
-        <source>SDK Connectivity</source>
-        <translation>Connectivité du SDK</translation>
-    </message>
-    <message>
-        <source>Mad Developer</source>
-        <translation>Développeur fou</translation>
-    </message>
-    <message>
-        <source>Unknown OS</source>
-        <translation type="obsolete">OS inconnu</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::AbstractMaemoInstallPackageToSysrootWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot deploy to sysroot: No packaging step found.</source>
         <translation type="obsolete">Impossible de déployer à la racine système : pas d&apos;étape de paquetage trouvée. </translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoInstallPackageToSysrootStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot install to sysroot without build configuration.</source>
         <translation type="obsolete">Impossible d&apos;installer à la racine système sans configuration de la compilation. </translation>
@@ -44577,21 +41857,21 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoInstallDebianPackageToSysrootStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Install Debian package to sysroot</source>
         <translation type="obsolete">Installer le paquet Debian à la racine système</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoInstallRpmPackageToSysrootStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Install RPM package to sysroot</source>
         <translation type="obsolete">Installer le paquet RMP à la racine système</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoCopyToSysrootStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot copy to sysroot without build configuration.</source>
         <translation type="obsolete">Impossible de copier les fichiers à la racine système sans configuration de la compilation. </translation>
@@ -44615,21 +41895,10 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoMakeInstallToSysrootStep</name>
-    <message>
-        <source>Copy files to sysroot</source>
-        <translation type="obsolete">Copier les fichiers à la racine système</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoKeyDeployer</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation type="obsolete">Erreur de clé publique : %1</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="obsolete">Échec de la connexion : %1</translation>
     </message>
     <message>
         <source>Key deployment failed: %1.</source>
@@ -44637,7 +41906,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPackageCreationFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Create Debian Package</source>
         <translation>Créer un paquet Debian</translation>
@@ -44646,13 +41915,9 @@ Is the device connected and set up for network access?</source>
         <source>Create RPM Package</source>
         <translation type="obsolete">Créer un paquet RPM</translation>
     </message>
-    <message>
-        <source>Create tarball</source>
-        <translation type="obsolete">Créer un tarball</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoPackageCreationStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Package up to date.</source>
         <translation type="obsolete">Paquet à jour.</translation>
@@ -44664,10 +41929,6 @@ Is the device connected and set up for network access?</source>
     <message>
         <source>Package created.</source>
         <translation type="obsolete">Paquet créé.</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="obsolete">Échec lors de la création du paquet.</translation>
     </message>
     <message>
         <source>Packaging error: No Qt version.</source>
@@ -44695,83 +41956,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDebianPackageCreationStep</name>
-    <message>
-        <source>Create Debian Package</source>
-        <translation type="obsolete">Créer un paquet Debian</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="obsolete">Échec lors de la création du paquet.</translation>
-    </message>
-    <message>
-        <source>Could not move package files from %1 to %2.</source>
-        <translation type="obsolete">Impossible de déplacer les fichiers du paquet de %1 à %2.</translation>
-    </message>
-    <message>
-        <source>Your project name contains characters not allowed in Debian packages.
-They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
-We will try to work around that, but you may experience problems.</source>
-        <translation type="obsolete">Votre nom de projet contient des caractères non autorisés dans les paquets Debian.
-Ils doivent seulement utiliser des lettres minuscules, chiffres, &quot;-&quot;, &quot;+&quot; et &quot;.&quot;.
-On va essayer avec ce nom, mais vous pourrez rencontrer des problèmes.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Foreign debian directory detected.</source>
-        <translation type="obsolete">Échec du packaging : binaire Debian distant détecté. </translation>
-    </message>
-    <message>
-        <source>You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
-        <translation type="obsolete">Vous n&apos;utilisez pas un shadow build et il y a un répertoire Debian à la racine de votre projet (&quot;%1&quot;). Qt Creator n&apos;écrasera pas ce répertoire. Merci de le supprimer ou d&apos;utiliser la fonctionnalité de shadow build.</translation>
-    </message>
-    <message>
-        <source>Could not remove directory &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible de supprimer le dossier &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Could not create Debian directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible de créer le répertoire Debian &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation type="obsolete">Impossible de copier le fichier &quot;%1&quot; vers &quot;%2&quot;</translation>
-    </message>
-    <message>
-        <source>Error: Could not create file &apos;%1&apos;.</source>
-        <translation type="obsolete">Erreur : impossible de créer le fichier &quot;%1&quot;. </translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRpmPackageCreationStep</name>
-    <message>
-        <source>Create RPM Package</source>
-        <translation type="obsolete">Créer un paquet RPM</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="obsolete">Échec lors de la création du paquet.</translation>
-    </message>
-    <message>
-        <source>Could not move package file from %1 to %2.</source>
-        <translation type="obsolete">Impossible de déplacer les fichiers du paquet de %1 à %2.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::CreateTarStepWidget</name>
-    <message>
-        <source>Create tarball:</source>
-        <translation type="obsolete">Créer un tarball :</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoTarPackageCreationStep</name>
-    <message>
-        <source>Create tarball</source>
-        <translation type="obsolete">Créer un tarball</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPackageCreationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Size should be %1x%2 pixels</source>
         <translation type="obsolete">La taille devrait être de %1x%2 pixels</translation>
@@ -44822,7 +42007,7 @@ On va essayer avec ce nom, mais vous pourrez rencontrer des problèmes.</transla
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoPackageInstaller</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation type="obsolete">Échec de la connexion : %1</translation>
@@ -44833,416 +42018,14 @@ On va essayer avec ce nom, mais vous pourrez rencontrer des problèmes.</transla
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDebianPackageInstaller</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
         <translation type="obsolete">Échec de l&apos;installation. Vous avez essayé d&apos;installer une version plus ancienne d&apos;un paquet, ce qui n&apos;est pas permis.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPackageUploader</name>
-    <message>
-        <source>Preparing SFTP connection...</source>
-        <translation type="obsolete">Préparation de la connexion SFTP...</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="obsolete">Échec de la connexion : %1</translation>
-    </message>
-    <message>
-        <source>SFTP error: %1</source>
-        <translation type="obsolete">Erreur SFTP : %1</translation>
-    </message>
-    <message>
-        <source>Package upload failed: Could not open file.</source>
-        <translation type="obsolete">Échec de l&apos;envoi du paquet : impossible d&apos;ouvrir le fichier. </translation>
-    </message>
-    <message>
-        <source>Failed to upload package: %2</source>
-        <translation type="obsolete">Échec de l&apos;envoi du paquet : %2</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPerTargetDeviceConfigurationListModel</name>
-    <message>
-        <source>(default)</source>
-        <translation type="obsolete">(par défaut)</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoProFilesUpdateDialog</name>
-    <message>
-        <source>Updateable Project Files</source>
-        <translation type="obsolete">Fichiers de projet possiblement à mettre à jour</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPublishedProjectModel</name>
-    <message>
-        <source>Include in package</source>
-        <translation type="obsolete">Inclure dans le paquet</translation>
-    </message>
-    <message>
-        <source>Include</source>
-        <translation type="obsolete">Inclure</translation>
-    </message>
-    <message>
-        <source>Do not include</source>
-        <translation type="obsolete">Ne pas inclure</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPublisherFremantleFree</name>
-    <message>
-        <source>Canceled.</source>
-        <translation type="obsolete">Annulé.</translation>
-    </message>
-    <message>
-        <source>Publishing canceled by user.</source>
-        <translation type="obsolete">Publication annulée par l&apos;utilisateur. </translation>
-    </message>
-    <message>
-        <source>The project is missing some information important to publishing:</source>
-        <translation type="obsolete">Quelques informations manquent au projet pour la publication : </translation>
-    </message>
-    <message>
-        <source>Publishing failed: Missing project information.</source>
-        <translation type="obsolete">La publication a échoué : des informations sur le projet manquaient. </translation>
-    </message>
-    <message>
-        <source>Removing left-over temporary directory ...</source>
-        <translation type="obsolete">Supprimer le répertoire temporaire laissé...</translation>
-    </message>
-    <message>
-        <source>Error removing temporary directory: %1</source>
-        <translation type="obsolete">Erreur lors de la suppression du répertoire temporaire : %1</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create source package.</source>
-        <translation type="obsolete">Échec de la publication : impossible de créer le paquet de sources. </translation>
-    </message>
-    <message>
-        <source>Setting up temporary directory ...</source>
-        <translation type="obsolete">Préparation du répertoire temporaire... </translation>
-    </message>
-    <message>
-        <source>Error: Could not create temporary directory.</source>
-        <translation type="obsolete">Erreur : impossible de créer le dossier temporaire. </translation>
-    </message>
-    <message>
-        <source>Error: Could not copy project directory.</source>
-        <translation type="obsolete">Erreur : impossible de copier le répertoire du projet. </translation>
-    </message>
-    <message>
-        <source>Error: Could not fix newlines.</source>
-        <translation type="obsolete">Erreur : impossible de fixer les lignes. </translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create package.</source>
-        <translation type="obsolete">Échec de la publication : impossible de créer un paquet. </translation>
-    </message>
-    <message>
-        <source>Cleaning up temporary directory ...</source>
-        <translation type="obsolete">Nettoyage du répertoire temporaire... </translation>
-    </message>
-    <message>
-        <source>Failed to create directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Échec de la création du répertoire &quot;%1&quot;. </translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;: %3.</source>
-        <translation type="obsolete">Impossible de copier le fichier &quot;%1&quot; à &quot;%2&quot; : %3. </translation>
-    </message>
-    <message>
-        <source>Error: Failed to start dpkg-buildpackage.</source>
-        <translation type="obsolete">Erreur : impossible de démarrer dpkg-buildpackage.</translation>
-    </message>
-    <message>
-        <source>Error: dpkg-buildpackage did not succeed.</source>
-        <translation type="obsolete">Erreur : dpkg-buildpackage n&apos;a pas réussi. </translation>
-    </message>
-    <message>
-        <source>Package creation failed.</source>
-        <translation type="obsolete">La création du paquet a échoué. </translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation type="obsolete">Fait. </translation>
-    </message>
-    <message>
-        <source>Packaging finished successfully. The following files were created:
-</source>
-        <translation type="obsolete">La création du paquet s&apos;est déroulé avec succès. Les fichiers suivants ont été créés : </translation>
-    </message>
-    <message>
-        <source>No Qt version set.</source>
-        <translation type="obsolete">Pas de version de Qt définie. </translation>
-    </message>
-    <message>
-        <source>Building source package...</source>
-        <translation type="obsolete">Compilation du paquet de sources... </translation>
-    </message>
-    <message>
-        <source>Starting scp ...</source>
-        <translation type="obsolete">Lancement de scp...</translation>
-    </message>
-    <message>
-        <source>SSH error: %1</source>
-        <translation type="obsolete">Erreur SSH : %1</translation>
-    </message>
-    <message>
-        <source>Upload failed.</source>
-        <translation type="obsolete">Échec de l&apos;envoi. </translation>
-    </message>
-    <message>
-        <source>Error uploading file: %1.</source>
-        <translation type="obsolete">Erreur lors de l&apos;envoi du fichier : %1.</translation>
-    </message>
-    <message>
-        <source>Error uploading file.</source>
-        <translation type="obsolete">Erreur lors de l&apos;envoi du fichier. </translation>
-    </message>
-    <message>
-        <source>All files uploaded.</source>
-        <translation type="obsolete">Tous les fichiers ont été envoyés. </translation>
-    </message>
-    <message>
-        <source>Upload succeeded. You should shortly receive an email informing you about the outcome of the build process.</source>
-        <translation type="obsolete">Envoyé avec succès. Vous devriez bientôt recevoir un email vous informant du processus de compilation. </translation>
-    </message>
-    <message>
-        <source>Uploading file %1 ...</source>
-        <translation type="obsolete">Envoi du fichier %1...</translation>
-    </message>
-    <message>
-        <source>Cannot open file for reading: %1.</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir le fichier en lecture : %1.</translation>
-    </message>
-    <message>
-        <source>Cannot read file: %1</source>
-        <translation type="obsolete">Impossible de lire le fichier : %1</translation>
-    </message>
-    <message>
-        <source>The package description is empty. You must set one in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation type="obsolete">La description du paquet est vide. Vous devez en définir une dans Projets &gt; Lancer &gt; Créer un paquet &gt;Détails. </translation>
-    </message>
-    <message>
-        <source>The package description is &apos;%1&apos;, which is probably not what you want. Please change it in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation type="obsolete">La description du paquest est &quot;%1&quot;, ce qui n&apos;est probablement pas ce que vous voulez. Veuillez la changer dans Projets &gt; Lancer &gt; Créer un paquet &gt;Détails. </translation>
-    </message>
-    <message>
-        <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation type="obsolete">Vous n&apos;avez pas défini d&apos;icône pour le gestionnaire de paquets. Elle doit être définie dans Projets &gt; Lancer &gt; Créer un paquet &gt;Détails. </translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
-        <translation type="obsolete">Publication sur le dépôt &quot;extras-devel/free&quot; de Fremantle</translation>
-    </message>
-    <message>
-        <source>Upload options</source>
-        <translation type="obsolete">Options d&apos;envoi</translation>
-    </message>
-    <message>
-        <source>Choose a private key file</source>
-        <translation type="obsolete">Choisir un fichier de clé privée</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
-    <message>
-        <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
-        <translation type="obsolete">Publication sur le dépôt &quot;extras-devel/free&quot; de Fremantle</translation>
-    </message>
-    <message>
-        <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
-        <translation type="obsolete">Cet assistant va créer une archive de sources et optionnellement l&apos;envoyer à un serveur de compilation, où le projet sera compilé, packagé puis déplacé dans le dépôt &quot;extras-devel-free&quot;, d&apos;où les utilisateurs peuvent l&apos;installer sur leurs périphériques N900. Pour la fonction d&apos;envoi, un compte sur garage.maemo.org est requis. </translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPublishingWizardFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
-        <translation type="obsolete">Publier sur le dépôt &quot;extras-devel-free&quot; de Fremantle</translation>
-    </message>
-    <message>
-        <source>Build Settings</source>
-        <translation type="obsolete">Paramètres de compilation</translation>
-    </message>
-    <message>
-        <source>Upload Settings</source>
-        <translation type="obsolete">Préférences d&apos;envoi</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation type="obsolete">Résultat</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoQemuManager</name>
-    <message>
-        <source>Start MeeGo Emulator</source>
-        <translation type="obsolete">Lancer l&apos;émulateur MeeGo</translation>
-    </message>
-    <message>
-        <source>Qemu has been shut down, because you removed the corresponding Qt version.</source>
-        <translation type="obsolete">Qemu a été arrêté parce que vous avez supprimé la version de Qt correspondante.</translation>
-    </message>
-    <message>
-        <source>Qemu finished with error: Exit code was %1.</source>
-        <translation type="obsolete">Qemu s&apos;est terminé avec une erreur : le code d&apos;erreur était %1.</translation>
-    </message>
-    <message>
-        <source>Qemu error</source>
-        <translation type="obsolete">Erreur de Qemu</translation>
-    </message>
-    <message>
-        <source>Qemu failed to start: %1</source>
-        <translation type="obsolete">Qemu n&apos;a pas pu démarrer : %1</translation>
-    </message>
-    <message>
-        <source>Stop MeeGo Emulator</source>
-        <translation type="obsolete">Arrêter m&apos;émulateur MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRemoteCopyFacility</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="obsolete">Échec de la connexion : %1</translation>
-    </message>
-    <message>
-        <source>Error: Copy command failed.</source>
-        <translation type="obsolete">Erreur : échec de la commande de copie. </translation>
-    </message>
-    <message>
-        <source>Copying file &apos;%1&apos; to directory &apos;%2&apos; on the device...</source>
-        <translation type="obsolete">Copie du fichier &quot;%1&quot; dans le répertoire &quot;%2&quot; sur le périphérique... </translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRemoteMounter</name>
-    <message>
-        <source>No directories to mount</source>
-        <translation type="obsolete">Pas de répertoire à monter</translation>
-    </message>
-    <message>
-        <source>No directories to unmount</source>
-        <translation type="obsolete">Pas de répertoire à démonter</translation>
-    </message>
-    <message>
-        <source>Could not execute unmount request.</source>
-        <translation type="obsolete">Impossible d&apos;exécuter la requête de démontage.</translation>
-    </message>
-    <message>
-        <source>Failure unmounting: %1</source>
-        <translation type="obsolete">Échec au démontage : %1</translation>
-    </message>
-    <message>
-        <source>Finished unmounting.</source>
-        <translation type="obsolete">Démontage terminé.</translation>
-    </message>
-    <message>
-        <source>
-stderr was: &apos;%1&apos;</source>
-        <translation type="obsolete">stderr était : &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Error: Not enough free ports on device to fulfill all mount requests.</source>
-        <translation type="obsolete">Erreur : pas assez de ports libres sur le périphérique pour remplir toutes les requêtes. </translation>
-    </message>
-    <message>
-        <source>Starting remote UTFS clients...</source>
-        <translation type="obsolete">Démarrage des clients distants UTFS...</translation>
-    </message>
-    <message>
-        <source>Mount operation succeeded.</source>
-        <translation type="obsolete">L&apos;opération de montage a réussi.</translation>
-    </message>
-    <message>
-        <source>Failure running UTFS client: %1</source>
-        <translation type="obsolete">Échec au lancement du client UTFS : %1</translation>
-    </message>
-    <message>
-        <source>Starting UTFS servers...</source>
-        <translation type="obsolete">Démarrage des serveurs UTFS...</translation>
-    </message>
-    <message>
-        <source>
-stderr was: %1</source>
-        <translation type="obsolete">
-stderr était : %1</translation>
-    </message>
-    <message>
-        <source>Error running UTFS server: %1</source>
-        <translation type="obsolete">Erreur au lancement du serveur UTFS : %1</translation>
-    </message>
-    <message>
-        <source>Timeout waiting for UTFS servers to connect.</source>
-        <translation type="obsolete">Temps limite dépassé lors de l&apos; attente des serveurs UTF pour la connexion.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRemoteMountsModel</name>
-    <message>
-        <source>Local directory</source>
-        <translation type="obsolete">Répertoire local</translation>
-    </message>
-    <message>
-        <source>Remote mount point</source>
-        <translation type="obsolete">Point de montage distant</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRemoteProcessesDialog</name>
-    <message>
-        <source>Remote Error</source>
-        <translation type="obsolete">Erreur distante</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRemoteProcessList</name>
-    <message>
-        <source>Connection failure: %1</source>
-        <translation type="obsolete">Échec de la connexion : %1</translation>
-    </message>
-    <message>
-        <source>Error: Remote process failed to start: %1</source>
-        <translation type="obsolete">Erreur : le processus distant n&apos;a pas pu démarrer : %1</translation>
-    </message>
-    <message>
-        <source>Error: Remote process crashed: %1</source>
-        <translation type="obsolete">Erreur : le processus distant a crashé : %1</translation>
-    </message>
-    <message>
-        <source>Remote process failed.</source>
-        <translation type="obsolete">Le processus distant a échoué. </translation>
-    </message>
-    <message>
-        <source>
-Remote stderr was: %1</source>
-        <translation type="obsolete">Le stderr distant était : %1</translation>
-    </message>
-    <message>
-        <source>PID</source>
-        <translation type="obsolete">PID</translation>
-    </message>
-    <message>
-        <source>Command Line</source>
-        <translation type="obsolete">Ligne de commande</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRunConfiguration</name>
-    <message>
-        <source>Not enough free ports on the device.</source>
-        <translation type="obsolete">Pas assez de ports disponibles sur le périphérique. </translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRunConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Choose directory to mount</source>
         <translation type="obsolete">Sélectionner un répertoire à monter</translation>
@@ -45279,14 +42062,14 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRunControlFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Run on device</source>
         <translation type="obsolete">Exécuter sur le périphérique</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoQemuCrashDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Qemu error</source>
         <translation type="obsolete">Erreur de Qemu</translation>
@@ -45309,21 +42092,21 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigurationsSettingsPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Device Configurations</source>
         <translation type="obsolete">Configurations de périphériques</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoQemuSettingsPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>MeeGo Qemu Settings</source>
         <translation type="obsolete">Paramètres de Qemu pour MeeGo</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoSshConfigDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Save Public Key File</source>
         <translation type="obsolete">Enregistrer le fichier de clé publique</translation>
@@ -45334,7 +42117,7 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoSshRunner</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
         <translation type="obsolete">Qemu n&apos;était pas en cours d&apos;exécution. Il a maintenant été lancé mais pourrait prendre un peu de temps avant d&apos;être prêt. Veuillez réessayer alors. </translation>
@@ -45357,7 +42140,7 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoToolChainFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Maemo GCC</source>
         <translation type="obsolete">GCC pour Maemo</translation>
@@ -45372,58 +42155,35 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoToolChainConfigWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Chemin de MADDE :&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Chemin de la cible MADDE :&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Débogueur :&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoUploadAndInstallStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No matching packaging step found.</source>
         <translation type="obsolete">Pas d&apos;étape de paquetage correspondante trouvée. </translation>
     </message>
-    <message>
-        <source>Successfully uploaded package file.</source>
-        <translation type="obsolete">Fichier de paquet envoyé avec succès. </translation>
-    </message>
-    <message>
-        <source>Installing package to device...</source>
-        <translation type="obsolete">Installation du paquet sur le périphérique en cours...</translation>
-    </message>
-    <message>
-        <source>Package installed.</source>
-        <translation type="obsolete">Paquet installé.</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoUploadAndInstallDpkgPackageStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Deploy Debian package via SFTP upload</source>
         <translation type="obsolete">Déployer le paquet Debian par SFTP</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoUploadAndInstallRpmPackageStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Deploy RPM package via SFTP upload</source>
         <translation type="obsolete">Déployer le paquet RPM par SFTP</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoUploadAndInstallTarPackageStep</name>
-    <message>
-        <source>Deploy tarball via SFTP upload</source>
-        <translation type="obsolete">Déployer l&apos;archive par SFTP</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoUsedPortsGatherer</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Erreur de connexion : %1</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Could not start remote process: %1</source>
         <translation type="obsolete">Impossible de démarrer le processus distant : %1</translation>
@@ -45443,7 +42203,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::PublicKeyDeploymentDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Waiting for file name...</source>
         <translation type="obsolete">Attente du nom de fichier... </translation>
@@ -45464,71 +42224,9 @@ Remote error output was: %1</source>
         <source>Deployment finished successfully.</source>
         <translation>Le déploiement s&apos;est déroulé avec succès. </translation>
     </message>
-    <message>
-        <source>Close</source>
-        <translation>Fermer</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::Qt4MaemoDeployConfigurationFactory</name>
-    <message>
-        <source>Copy Files to Maemo5 Device</source>
-        <translation type="obsolete">Copie des fichiers sur le périphérique Maemo5</translation>
-    </message>
-    <message>
-        <source>Build Debian Package and Install to Maemo5 Device</source>
-        <translation type="obsolete">Compilation du paquet Debian et installation sur le périphérique Maemo5</translation>
-    </message>
-    <message>
-        <source>Build Debian Package and Install to Harmattan Device</source>
-        <translation type="obsolete">Compilation du paquet Debian et installation sur le périphérique Harmattan</translation>
-    </message>
-    <message>
-        <source>Build RPM Package and Install to MeeGo Device</source>
-        <translation type="obsolete">Compilation du paquet RPM et installation sur le périphérique Meego</translation>
-    </message>
-    <message>
-        <source>Build Tarball and Install to Linux Host</source>
-        <translation type="obsolete">Compilation de l&apos;archive et installation sur l&apos;hôte Linux</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::AbstractQt4MaemoTarget</name>
-    <message>
-        <source>Cannot open file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir le fichier &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="obsolete">Qt Creator</translation>
-    </message>
-    <message>
-        <source>Do you want to remove the packaging file(s) associated with the target &apos;%1&apos;?</source>
-        <translation type="obsolete">Voulez-vous supprimer les fichiers de paquetage associés avec la cible &quot;%1&quot; ? </translation>
-    </message>
-    <message>
-        <source>Error creating packaging directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Erreur lors de la création du répertoire de paquetage &quot;%1&quot;. </translation>
-    </message>
-    <message>
-        <source>Add Packaging Files to Project</source>
-        <translation type="obsolete">Ajouter les fichiers de paquetage au projet</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;Qt Creator has set up the following files to enable packaging:
-   %1
-Do you want to add them to the project?&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;Qt Creator a configuré les fichiers suivants pour permettre l&apos;empaquetage : 
-%1
-Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Error creating MeeGo templates</source>
-        <translation type="obsolete">Erreur lors de la création des templates MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::AbstractDebBasedQt4MaemoTarget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
         <translation type="obsolete">Le fichier de journal des changements Debian &quot;%1&quot; a un format inattendu.</translation>
@@ -45563,95 +42261,7 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxApplicationRunner</name>
-    <message>
-        <source>Cannot run: %1</source>
-        <translation type="obsolete">Impossible de lancer : %1</translation>
-    </message>
-    <message>
-        <source>Connecting to device...</source>
-        <translation type="obsolete">Connexion au périphérique...</translation>
-    </message>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Erreur de connexion : %1</translation>
-    </message>
-    <message>
-        <source>Killing remote process(es)...</source>
-        <translation type="obsolete">Destruction du/des processus distant(s)...</translation>
-    </message>
-    <message>
-        <source>Initial cleanup failed: %1</source>
-        <translation type="obsolete">Échec du nettoyage initial : %1</translation>
-    </message>
-    <message>
-        <source>Remote process started.</source>
-        <translation type="obsolete">Le processus distant a échoué. </translation>
-    </message>
-    <message>
-        <source>No remote executable set.</source>
-        <translation type="obsolete">Pas d&apos;exécutable distant spécifié. </translation>
-    </message>
-    <message>
-        <source>No device configuration set.</source>
-        <translation type="obsolete">Pas de configuration de périphérique définie. </translation>
-    </message>
-    <message>
-        <source>Error running remote process: %1</source>
-        <translation type="obsolete">Erreur lors de l&apos;exécution du processus à distance : %1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::AbstractRemoteLinuxDebugSupport</name>
-    <message>
-        <source>Preparing remote side ...
-</source>
-        <translation type="obsolete">Préparation du côté distant... </translation>
-    </message>
-    <message>
-        <source>Preparing remote side...
-</source>
-        <translation type="obsolete">Préparation de la partie distante...</translation>
-    </message>
-    <message>
-        <source>Remote application failed with exit code %1.</source>
-        <translation type="obsolete">L&apos;application distante a échoué avec le code de retour %1. </translation>
-    </message>
-    <message>
-        <source>The gdbserver process closed unexpectedly.</source>
-        <translation type="obsolete">Le processus gdbserver s&apos;est fermé de façon inattendue.</translation>
-    </message>
-    <message>
-        <source>Initial setup failed: %1</source>
-        <translation type="obsolete">Échec lors de la configuration initiale : %1</translation>
-    </message>
-    <message>
-        <source>Not enough free ports on device for debugging.</source>
-        <translation type="obsolete">Pas assez de ports disponibles sur le périphérique pour le débogage. </translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxRunConfiguration</name>
-    <message>
-        <source>The .pro file is being parsed.</source>
-        <translation type="obsolete">Le fichier .pro est en cours d&apos;analyse. </translation>
-    </message>
-    <message>
-        <source>The .pro file could not be parsed.</source>
-        <translation type="obsolete">Le fichier .pro n&apos;a pas pu être analysé. </translation>
-    </message>
-    <message>
-        <source>No device configuration set.</source>
-        <translation type="obsolete">Pas de périphérique configuré. </translation>
-    </message>
-    <message>
-        <source>The .pro file &apos;%1&apos; is being parsed.</source>
-        <translation type="obsolete">Le fichier .pro &quot;%1&quot; est en cours d&apos;analyse.</translation>
-    </message>
-    <message>
-        <source>No active build configuration.</source>
-        <translation type="obsolete">Pas de configuration de compilation active. </translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Don&apos;t know what to run.</source>
         <translatorcomment>bancal... </translatorcomment>
@@ -45671,18 +42281,9 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
         <extracomment>Remote Linux run configuration default display name</extracomment>
         <translation type="obsolete">Lancer sur un périphérique distant</translation>
     </message>
-    <message>
-        <source>Clean Environment</source>
-        <translatorcomment>ou Environnement propre/vierge ? Contexte, messieurs les développeurs !</translatorcomment>
-        <translation type="obsolete">Nettoyer l&apos;environnement</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxRunConfigurationFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source> (on Remote Generic Linux Host)</source>
         <translation>(sur hôte distant Linux générique)</translation>
@@ -45693,11 +42294,7 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxRunConfigurationWidget</name>
-    <message>
-        <source>Fetch Device Environment</source>
-        <translation type="obsolete">Récupérer l&apos;environnement du périphérique</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>&lt;a href=&quot;%1&quot;&gt;Manage device configurations&lt;/a&gt;</source>
         <translation type="obsolete">&lt;a href=&quot;%1&quot;&gt;Gérer les configurations des périphériques&lt;/a&gt;</translation>
@@ -45705,10 +42302,6 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     <message>
         <source>&lt;a href=&quot;%1&quot;&gt;Set Debugger&lt;/a&gt;</source>
         <translation type="obsolete">&lt;a href=&quot;%1&quot;&gt;Définir le débogeur&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Device configuration:</source>
-        <translation type="obsolete">Configuration du périphérique :</translation>
     </message>
     <message>
         <source>Executable on host:</source>
@@ -45747,59 +42340,9 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
         <source>Remote path not set</source>
         <translation>Chemin distant indéfini</translation>
     </message>
-    <message>
-        <source>C++ only</source>
-        <translation type="obsolete">C++ seulement</translation>
-    </message>
-    <message>
-        <source>QML only</source>
-        <translation type="obsolete">QML seulement</translation>
-    </message>
-    <message>
-        <source>C++ and QML</source>
-        <translation type="obsolete">C++ et QML</translation>
-    </message>
-    <message>
-        <source>Debugging type:</source>
-        <translation type="obsolete">Type de débogage :</translation>
-    </message>
-    <message>
-        <source>Base environment for this run configuration:</source>
-        <translation type="obsolete">Environnement de base pour cette configuration d&apos;exécution : </translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translatorcomment>idem ! nom ou verbe ? </translatorcomment>
-        <translation type="obsolete">Environnement vierge</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
-    <message>
-        <source>Cancel Fetch Operation</source>
-        <translation type="obsolete">Annuler la récupération</translation>
-    </message>
-    <message>
-        <source>Device Error</source>
-        <translation type="obsolete">Erreur du périphérique</translation>
-    </message>
-    <message>
-        <source>Device error</source>
-        <translation type="obsolete">Erreur du périphérique</translation>
-    </message>
-    <message>
-        <source>Fetching environment failed: %1</source>
-        <translation type="obsolete">Échec lors de la récupération de l&apos;environnement : %1</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxRunControl</name>
-    <message>
-        <source>Starting remote process ...
-</source>
-        <translation type="obsolete">Lancement du processus distant... </translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Starting remote process...
 </source>
@@ -45816,7 +42359,7 @@ Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxRunControlFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Run on remote Linux device</source>
         <translation type="obsolete">Exécuter sur périphérique Linux distant</translation>
@@ -46527,112 +43070,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractMaemoPackageCreationStep</name>
-    <message>
-        <source>Package up to date.</source>
-        <translation type="obsolete">Paquet à jour.</translation>
-    </message>
-    <message>
-        <source>Creating package file ...</source>
-        <translation type="obsolete">Créer un fichier de paquet...</translation>
-    </message>
-    <message>
-        <source>Package created.</source>
-        <translation type="obsolete">Paquet créé.</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="obsolete">Échec lors de la création du paquet.</translation>
-    </message>
-    <message>
-        <source>Packaging error: No Qt version.</source>
-        <translation type="obsolete">Erreur lors de la création du paquet : pas de version de Qt. </translation>
-    </message>
-    <message>
-        <source>Package Creation: Running command &apos;%1&apos;.</source>
-        <translation type="obsolete">Création du paquet : commande &quot;%1&quot; lancée. </translation>
-    </message>
-    <message>
-        <source>Packaging error: Could not start command &apos;%1&apos;. Reason: %2</source>
-        <translation type="obsolete">Erreur de paquetage : impossible de lancer la commande &quot;%1&quot;. Raison : %2</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1&apos; failed.</source>
-        <translation type="obsolete">Erreur de paquetage : la commande &quot;%1&quot; a échoué. </translation>
-    </message>
-    <message>
-        <source> Reason: %1</source>
-        <translation type="obsolete">Raison : %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation type="obsolete">Code de sortie : %1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::MaemoDebianPackageCreationStep</name>
-    <message>
-        <source>Create Debian Package</source>
-        <translation type="obsolete">Créer un paquet Debian</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="obsolete">Échec lors de la création du paquet.</translation>
-    </message>
-    <message>
-        <source>Could not move package files from %1 to %2.</source>
-        <translation type="obsolete">Impossible de déplacer les fichiers du paquet de %1 à %2.</translation>
-    </message>
-    <message>
-        <source>Your project name contains characters not allowed in Debian packages.
-They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
-We will try to work around that, but you may experience problems.</source>
-        <translation type="obsolete">Votre nom de projet contient des caractères non autorisés dans les paquets Debian.
-Ils doivent seulement utiliser des lettres minuscules, chiffres, &quot;-&quot;, &quot;+&quot; et &quot;.&quot;.
-Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des problèmes.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Foreign debian directory detected.</source>
-        <translation type="obsolete">Échec du paquetage : binaire Debian distant détecté. </translation>
-    </message>
-    <message>
-        <source>You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
-        <translation type="obsolete">Vous n&apos;utilisez pas un shadow build et il y a un répertoire Debian à la racine de votre projet (&quot;%1&quot;). Qt Creator n&apos;écrasera pas ce répertoire. Merci de le supprimer ou d&apos;utiliser la fonctionnalité de shadow build.</translation>
-    </message>
-    <message>
-        <source>Could not remove directory &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible de supprimer le dossier &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Could not create Debian directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible de créer le répertoire Debian &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation type="obsolete">Impossible de copier le fichier &quot;%1&quot; vers &quot;%2&quot;</translation>
-    </message>
-    <message>
-        <source>Error: Could not create file &apos;%1&apos;.</source>
-        <translation type="obsolete">Erreur : impossible de créer le fichier &quot;%1&quot;. </translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::MaemoRpmPackageCreationStep</name>
-    <message>
-        <source>Create RPM Package</source>
-        <translation type="obsolete">Créer un paquet RPM</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="obsolete">Échec lors de la création du paquet.</translation>
-    </message>
-    <message>
-        <source>Could not move package file from %1 to %2.</source>
-        <translation type="obsolete">Impossible de déplacer les fichiers du paquet de %1 à %2.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::CreateTarStepWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Ignore missing files</source>
         <translation>Ignorer les fichiers manquants</translation>
@@ -46644,33 +43082,6 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     <message>
         <source>Create tarball:</source>
         <translation>Créer un tarball :</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::MaemoTarPackageCreationStep</name>
-    <message>
-        <source>Create tarball</source>
-        <translation type="obsolete">Créer un tarball</translation>
-    </message>
-    <message>
-        <source>Error: tar file %1 cannot be opened (%2).</source>
-        <translation type="obsolete">Erreur : le fichier %1 n&apos;a pas pu être ouvert (%2). </translation>
-    </message>
-    <message>
-        <source>Error writing tar file &apos;%1&apos;: %2.</source>
-        <translation type="obsolete">Erreur lors de l&apos;écriture du fichier &quot;%1&quot; : %2. </translation>
-    </message>
-    <message>
-        <source>Error reading file &apos;%1&apos;: %2.</source>
-        <translation type="obsolete">Erreur lors de la lecture du fichier &quot;%1&quot; : %2. </translation>
-    </message>
-    <message>
-        <source>Cannot add file &apos;%1&apos; to tar-archive: path too long.</source>
-        <translation type="obsolete">Impossible d&apos;ajouter le fichier &quot;%1&quot; à l&apos;archive : chemin trop long. </translation>
-    </message>
-    <message>
-        <source>Error writing tar file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Erreur lors de l&apos;écriture du fichier &quot;%1&quot; : %2</translation>
     </message>
 </context>
 <context>
@@ -46782,52 +43193,6 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     <message>
         <source>&amp;Uncheck All</source>
         <translation type="obsolete">Décocher to&amp;ut</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinuxDeployConfigurationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Device configuration:</source>
-        <translation type="obsolete">Configuration du périphérique :</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;irrelevant&quot;&gt;Gérer les configurations du périphérique&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>These show the INSTALLS settings from the project file(s).</source>
-        <translation type="obsolete">Affiches les paramètres INSTALLS du/des fichier(s) de projet.</translation>
-    </message>
-    <message>
-        <source>Files to install for subproject:</source>
-        <translation type="obsolete">Fichiers à installer pour le sous-projet :</translation>
-    </message>
-    <message>
-        <source>Edit the project file to add or remove entries.</source>
-        <translation type="obsolete">Éditer le fichier de projet pour ajouter ou supprimer des entrées. </translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinuxProcessesDialog</name>
-    <message>
-        <source>List of Remote Processes</source>
-        <translation type="obsolete">Liste des processus distants</translation>
-    </message>
-    <message>
-        <source>&amp;Filter by process name:</source>
-        <translation type="obsolete">&amp;Filtrer par nom de processus : </translation>
-    </message>
-    <message>
-        <source>&amp;Update List</source>
-        <translation type="obsolete">Mettre à jo&amp;ur la liste </translation>
-    </message>
-    <message>
-        <source>&amp;Kill Selected Process</source>
-        <translation type="obsolete">Tuer les processus sélectionnés (&amp;K)</translation>
     </message>
 </context>
 <context>
@@ -47395,1437 +43760,6 @@ Nous allons essayer de travailler avec cela mais vous pourrez rencontrer des pro
     </message>
 </context>
 <context>
-    <name>Madde::Internal::MaddeDeviceConfigurationFactory</name>
-    <message>
-        <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
-        <translation type="obsolete">Périphérique avec support de MADDE (Fremantle, Harmattan, MeeGo)</translation>
-    </message>
-    <message>
-        <source>Maemo5/Fremantle</source>
-        <translation type="obsolete">Maemo5/Fremantle</translation>
-    </message>
-    <message>
-        <source>MeeGo 1.2 Harmattan</source>
-        <translation type="obsolete">MeeGo 1.2 Harmattan</translation>
-    </message>
-    <message>
-        <source>Other MeeGo OS</source>
-        <translation type="obsolete">Autre OS MeeGo</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation type="obsolete">Test</translation>
-    </message>
-    <message>
-        <source>Remote Processes...</source>
-        <translation type="obsolete">Processus distants...</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key...</source>
-        <translation type="obsolete">Déployer la clé publique...</translation>
-    </message>
-    <message>
-        <source>Remote Processes</source>
-        <translation type="obsolete">Processus distants</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key</source>
-        <translation type="obsolete">Déployer la clé publique</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaddeDeviceTester</name>
-    <message>
-        <source>Checking for Qt libraries...</source>
-        <translation>Vérification des bibliothèques Qt...</translation>
-    </message>
-    <message>
-        <source>SSH connection error: %1
-</source>
-        <translation>Erreur de connexion SSH : %1
-</translation>
-    </message>
-    <message>
-        <source>Error checking for Qt libraries: %1
-</source>
-        <translation>Erreur durant la vérification des bibliothèques Qt: %1
-</translation>
-    </message>
-    <message>
-        <source>Error checking for Qt libraries.
-</source>
-        <translation>Erreur pendant la vérification des bibliothèques Qt.
-</translation>
-    </message>
-    <message>
-        <source>Checking for connectivity support...</source>
-        <translation>Vérification du support de la connectivité...</translation>
-    </message>
-    <message>
-        <source>Error checking for connectivity tool: %1
-</source>
-        <translation>Erreur dans l&apos;outil de connectivité : %1
-</translation>
-    </message>
-    <message>
-        <source>Error checking for connectivity tool.
-</source>
-        <translation>Erreur dans l&apos;outil de connectivité.
-</translation>
-    </message>
-    <message>
-        <source>Connectivity tool not installed on device. Deployment currently not possible.</source>
-        <translation>L&apos;outil de connectivité n&apos;est pas installé sur le périphérique. Le déploiement est actuellement impossible.</translation>
-    </message>
-    <message>
-        <source>Please switch the device to developer mode via Settings -&gt; Security.</source>
-        <translatorcomment>Do we need to translate Paramètres / Security</translatorcomment>
-        <translation>Veuillez définir votre périphérique dans le mode développeur via Paramètres -&gt; Securité.</translation>
-    </message>
-    <message>
-        <source>Connectivity tool present.
-</source>
-        <translation>Outil de connectivité présent.
-</translation>
-    </message>
-    <message>
-        <source>Checking for QML tooling support...</source>
-        <translation>Vérification du support d&apos;outil QML...</translation>
-    </message>
-    <message>
-        <source>Error checking for QML tooling support: %1
-</source>
-        <translation>Erreur durant la vérification du support d&apos;outils QML: %1
-</translation>
-    </message>
-    <message>
-        <source>Error checking for QML tooling support.
-</source>
-        <translation>Erreur durant la vérification du support d&apos;outils QML.</translation>
-    </message>
-    <message>
-        <source>Missing directory &apos;%1&apos;. You will not be able to do QML debugging on this device.
-</source>
-        <translation>Répertoire %1 manquant. Vous n&apos;allez pas pouvoir effectuer du débogage QML sur ce périphérique.
-</translation>
-    </message>
-    <message>
-        <source>QML tooling support present.
-</source>
-        <translation>Support d&apos;outils QML présent.
-</translation>
-    </message>
-    <message>
-        <source>No Qt packages installed.</source>
-        <translation>Aucun paquet Qt installé.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaddeUploadAndInstallPackageAction</name>
-    <message>
-        <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
-        <translation type="obsolete">Impossible de déployer : Qemu n&apos;était pas lancé. Il a maintenant été démarré, mais il prendra un peu de temps avant d&apos;être prêt. Veuillez réessayer alors. </translation>
-    </message>
-    <message>
-        <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
-        <translation type="obsolete">Impossible de déployer : vous voulez déployer sur Qemu, mais il n&apos;est pas activé pour cette version de Qt. </translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoUploadAndInstallPackageStep</name>
-    <message>
-        <source>No Debian package creation step found.</source>
-        <translation>Aucune étape de création de paquet Debian trouvée.</translation>
-    </message>
-    <message>
-        <source>Deploy Debian package via SFTP upload</source>
-        <translation>Déployer le paquet Debian par SFTP</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MeegoUploadAndInstallPackageStep</name>
-    <message>
-        <source>No RPM package creation step found.</source>
-        <translation type="obsolete">Aucune étape de création de paquet RPM trouvée.</translation>
-    </message>
-    <message>
-        <source>Deploy RPM package via SFTP upload</source>
-        <translation type="obsolete">Déployer le paquet RPM par SFTP</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoDeployByMountService</name>
-    <message>
-        <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
-        <translation type="obsolete">Impossible de déployer : Qemu n&apos;était pas lancé. Il a maintenant été démarré, mais il prendra un peu de temps avant d&apos;être prêt. Veuillez réessayer alors. </translation>
-    </message>
-    <message>
-        <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
-        <translation type="obsolete">Impossible de déployer : vous voulez déployer sur Qemu, mais il n&apos;est pas activé pour cette version de Qt. </translation>
-    </message>
-    <message>
-        <source>Missing build configuration.</source>
-        <translation type="obsolete">Configuration de compilation manquante.</translation>
-    </message>
-    <message>
-        <source>Missing target.</source>
-        <translation>Cible manquante.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoMountAndInstallPackageService</name>
-    <message>
-        <source>Package installed.</source>
-        <translation>Paquet installé.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoMountAndCopyFilesService</name>
-    <message>
-        <source>All files copied.</source>
-        <translation>Tous les fichiers ont été copiés.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoInstallPackageViaMountStep</name>
-    <message>
-        <source>No Debian package creation step found.</source>
-        <translation>Aucune étape de création de paquet Debian trouvée.</translation>
-    </message>
-    <message>
-        <source>Deploy package via UTFS mount</source>
-        <translation>Déployer le paquet par montage UTFS</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoCopyFilesViaMountStep</name>
-    <message>
-        <source>Deploy files via UTFS mount</source>
-        <translation>Déployer les fichiers par montage UTFS</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeployConfigurationWidget</name>
-    <message>
-        <source>Project File Update Failed</source>
-        <translation type="obsolete">Échec de la Mise à jour du fichier de projet</translation>
-    </message>
-    <message>
-        <source>Could not update the project file.</source>
-        <translation type="obsolete">Impossible de mettre à jour le fichier de projet.</translation>
-    </message>
-    <message>
-        <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
-        <translation type="obsolete">Choisir une icône (elle sera remise à l&apos;échelle à %1x%1 pixels si nécessaire)</translation>
-    </message>
-    <message>
-        <source>Invalid Icon</source>
-        <translation type="obsolete">Icône invalide</translation>
-    </message>
-    <message>
-        <source>Unable to read image</source>
-        <translation type="obsolete">Impossible de lire l&apos;image</translation>
-    </message>
-    <message>
-        <source>Failed to Save Icon</source>
-        <translation type="obsolete">Échec de la sauvegarde de l&apos;icône</translation>
-    </message>
-    <message>
-        <source>Could not save icon to &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible d&apos;enregistrer l&apos;icône dans &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Add Desktop File</source>
-        <translation type="obsolete">Ajouter un fichier desktop</translation>
-    </message>
-    <message>
-        <source>Add Launcher Icon...</source>
-        <translation type="obsolete">Ajouter une icône de lancement...</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeploymentMounter</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Échec de la connexion : %1</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardStartPage</name>
-    <message>
-        <source>General Information</source>
-        <translation>Informations générales</translation>
-    </message>
-    <message>
-        <source>MeeGo Device</source>
-        <translation>Périphérique MeeGo</translation>
-    </message>
-    <message>
-        <source>%1 Device</source>
-        <translation>Périphérique %1</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>The name to identify this configuration:</source>
-        <translation>Le nom pour identifier cette configuration : </translation>
-    </message>
-    <message>
-        <source>The system running on the device:</source>
-        <translation type="obsolete">Le système exécuté sur ce périphérique : </translation>
-    </message>
-    <message>
-        <source>The kind of device:</source>
-        <translation>Le type de périphérique : </translation>
-    </message>
-    <message>
-        <source>Emulator</source>
-        <translation>Émulateur</translation>
-    </message>
-    <message>
-        <source>Hardware Device</source>
-        <translation>Périphérique matériel</translation>
-    </message>
-    <message>
-        <source>The device&apos;s host name or IP address:</source>
-        <translation>Le nom d&apos;hôte du périphérique ou son adresse IP : </translation>
-    </message>
-    <message>
-        <source>The SSH server port:</source>
-        <translation>Port du serveur SSH :</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
-    <message>
-        <source>Device Status Check</source>
-        <translation>Vérification de l&apos;état du périphérique</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
-    <message>
-        <source>Existing Keys Check</source>
-        <translation>Vérification des clés existantes</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>Do you want to re-use an existing pair of keys or should a new one be created?</source>
-        <translation>Voulez-vous réutiliser une paire de clés existante ou en créer une nouvelle ?</translation>
-    </message>
-    <message>
-        <source>Re-use existing keys</source>
-        <translation>Réutiliser les clés exitantes</translation>
-    </message>
-    <message>
-        <source>File containing the public key:</source>
-        <translation>Fichier contenant la clé publique : </translation>
-    </message>
-    <message>
-        <source>File containing the private key:</source>
-        <translation>Fichier contenant la clé privée : </translation>
-    </message>
-    <message>
-        <source>Create new keys</source>
-        <translation>Créer de nouvelles clés</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
-    <message>
-        <source>Key Creation</source>
-        <translation>Création d&apos;une clé</translation>
-    </message>
-    <message>
-        <source>Cannot Create Keys</source>
-        <translation>Impossible de créer des clés</translation>
-    </message>
-    <message>
-        <source>The path you have entered is not a directory.</source>
-        <translation>Le chemin entré n&apos;est pas un répertoire. </translation>
-    </message>
-    <message>
-        <source>The directory you have entered does not exist and cannot be created.</source>
-        <translation>Le répertoire entré n&apos;existe pas et ne peut pas être créé. </translation>
-    </message>
-    <message>
-        <source>Creating keys...</source>
-        <translation>Créations des clés...</translation>
-    </message>
-    <message>
-        <source>Creating keys... </source>
-        <translation type="obsolete">Création des clés... </translation>
-    </message>
-    <message>
-        <source>Creating keys ... </source>
-        <translation type="obsolete">Création des clés... </translation>
-    </message>
-    <message>
-        <source>Key creation failed: %1</source>
-        <translation>Échec lors de la création des clés : %1</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation>Fait. </translation>
-    </message>
-    <message>
-        <source>Could Not Save Key File</source>
-        <translation>Impossible de sauver le fichier de la clé</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>Qt Creator will now generate a new pair of keys. Please enter the directory to save the key files in and then press &quot;Create Keys&quot;.</source>
-        <translation>Qt Creator va maintenant générer une nouvelle paire de clés. Merci d&apos;entrer le répertoire de sauvegarde des fichier clés et d&apos;appuyer sur &quot;Créer les clés&quot;.</translation>
-    </message>
-    <message>
-        <source>Directory:</source>
-        <translation>Répertoire :</translation>
-    </message>
-    <message>
-        <source>Create Keys</source>
-        <translation>Créer les clés</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
-    <message>
-        <source>Key Deployment</source>
-        <translation>Déploiement de la clé</translation>
-    </message>
-    <message>
-        <source>Deploying... </source>
-        <translation type="obsolete">Déploiement...</translation>
-    </message>
-    <message>
-        <source>Deploying...</source>
-        <translation>Déploiement... </translation>
-    </message>
-    <message>
-        <source>Key Deployment Failure</source>
-        <translation>Échec lors du déploiement de la clé</translation>
-    </message>
-    <message>
-        <source>Key Deployment Success</source>
-        <translation>Déploiement de la clé réussi</translation>
-    </message>
-    <message>
-        <source>The key was successfully deployed. You may now close the &quot;%1&quot; application and continue.</source>
-        <translation>La clé a été déployée avec succès. Vous pouvez maintenant fermer l&apos;application &quot;%1&quot; et continuer. </translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation>Fait. </translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>To deploy the public key to your device, please execute the following steps:
-&lt;ul&gt;
-&lt;li&gt;Connect the device to your computer (unless you plan to connect via WLAN).&lt;/li&gt;
-&lt;li&gt;On the device, start the &quot;%%%maddev%%%&quot; application.&lt;/li&gt;
-&lt;li&gt;In &quot;%%%maddev%%%&quot;, configure the device&apos;s IP address to the one shown below (or edit the field below to match the address you have configured).&lt;/li&gt;
-&lt;li&gt;In &quot;%%%maddev%%%&quot;, press &quot;Developer Password&quot; and enter it in the field below.&lt;/li&gt;
-&lt;li&gt;Click &quot;Deploy Key&quot;&lt;/li&gt;
-</source>
-        <translation>Pour deployer la clé publique sur votre periphérique, merci d&apos;exécuter les étapes suivantes :
-&lt;ul&gt;
-&lt;li&gt;Connectez le periphérique sur votre ordinateur (à moins que vous comptiez le connecté par WLAN).&lt;/li&gt;
-&lt;li&gt;Sur le periphérique, démarrez l&apos;application &quot;%%%maddev%%%&quot;.&lt;/li&gt;
-&lt;li&gt;Dans &quot;%%%maddev%%%&quot;, configurez l&apos;adresse IP du periphérique par celle affichée ci-dessous (ou éditez le champ dessous pour faire correspondre avec l&apos;adresse que vous avez configuré).&lt;/li&gt;
-&lt;li&gt;Dans &quot;%%%maddev%%%&quot;, cliquez sur &quot;Mot de passe développeur&quot; et entrer le dans le champ ci-dessous.&lt;/li&gt;
-&lt;li&gt;Cliquez &quot;Déployer la clé&quot;&lt;/li&gt;</translation>
-    </message>
-    <message>
-        <source>Device address:</source>
-        <translation>Adresse du périphérique : </translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation>Mot de passe :</translation>
-    </message>
-    <message>
-        <source>Deploy Key</source>
-        <translation>Déployer la clé</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardFinalPage</name>
-    <message>
-        <source>The new device configuration will now be created.</source>
-        <translation>La configuration du nouveau périphérique va maintenant être créée. </translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizard</name>
-    <message>
-        <source>New Device Configuration Setup</source>
-        <translation>Configuration du nouveau périphérique</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoInstallPackageToSysrootWidget</name>
-    <message>
-        <source>Cannot deploy to sysroot: No packaging step found.</source>
-        <translation>Impossible de déployer à la racine système : pas d&apos;étape de paquetage trouvée. </translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoInstallPackageToSysrootStep</name>
-    <message>
-        <source>Cannot install to sysroot without build configuration.</source>
-        <translation type="obsolete">Impossible d&apos;installer à la racine système sans configuration de la compilation. </translation>
-    </message>
-    <message>
-        <source>Cannot install package to sysroot without packaging step.</source>
-        <translation>Impossible d&apos;installer le paquet à la racine système sans une étape de paquetage. </translation>
-    </message>
-    <message>
-        <source>Cannot install package to sysroot without a Qt version.</source>
-        <translation>Impossible d&apos;installer le paquet à la racine système sans une version de Qt. </translation>
-    </message>
-    <message>
-        <source>Installing package to sysroot...</source>
-        <translation>Installation du paquet vers la racine système...</translation>
-    </message>
-    <message>
-        <source>Installing package to sysroot ...</source>
-        <translation type="obsolete">Installation du paquet vers la racine système ...</translation>
-    </message>
-    <message>
-        <source>Installation to sysroot failed, continuing anyway.</source>
-        <translation>Installation vers la racine système échouée, continuation.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoInstallDebianPackageToSysrootStep</name>
-    <message>
-        <source>Install Debian package to sysroot</source>
-        <translation>Installer le paquet Debian à la racine système</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoInstallRpmPackageToSysrootStep</name>
-    <message>
-        <source>Install RPM package to sysroot</source>
-        <translation type="obsolete">Installer le paquet RMP à la racine système</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoCopyToSysrootStep</name>
-    <message>
-        <source>Cannot copy to sysroot without build configuration.</source>
-        <translation>Impossible de copier les fichiers à la racine système sans configuration de la compilation. </translation>
-    </message>
-    <message>
-        <source>Cannot copy to sysroot without valid Qt version.</source>
-        <translation>Impossible de copier les fichiers à la racine système sans version de Qt valide. </translation>
-    </message>
-    <message>
-        <source>Copying files to sysroot...</source>
-        <translation>Copie des fichiers vers la racine système en cours...</translation>
-    </message>
-    <message>
-        <source>Copying files to sysroot ...</source>
-        <translation type="obsolete">Copie des fichiers vers la racine système en cours...</translation>
-    </message>
-    <message>
-        <source>Sysroot installation failed: %1
- Continuing anyway.</source>
-        <translation>L&apos;installation à la racine système a échoué : %1. L&apos;installation continue néanmoins. </translation>
-    </message>
-    <message>
-        <source>Copy files to sysroot</source>
-        <translation>Copier les fichiers à la racine système</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoMakeInstallToSysrootStep</name>
-    <message>
-        <source>Cannot deploy: No active build dconfiguration.</source>
-        <translation type="obsolete">Déploiement impossible : aucune configuration de compilation active.</translation>
-    </message>
-    <message>
-        <source>Cannot deploy: No active build configuration.</source>
-        <translation>Déploiement impossible : aucune configuration de compilation active.</translation>
-    </message>
-    <message>
-        <source>Cannot deploy: Unusable build configuration.</source>
-        <translation>Déploiement impossible : configuration de compilation inutilisable.</translation>
-    </message>
-    <message>
-        <source>Copy files to sysroot</source>
-        <translation>Copier les fichiers à la racine système</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoPackageCreationStep</name>
-    <message>
-        <source>Package up to date.</source>
-        <translation>Paquet à jour.</translation>
-    </message>
-    <message>
-        <source>Creating package file ...</source>
-        <translation type="obsolete">Créer un fichier de paquet...</translation>
-    </message>
-    <message>
-        <source>Package created.</source>
-        <translation>Paquet créé.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: No Qt version.</source>
-        <translation>Échec de paquetage : Aucune version de Qt.</translation>
-    </message>
-    <message>
-        <source>No Qt4 build configuration</source>
-        <translation type="obsolete">Aucune configuration de compilation Qt4</translation>
-    </message>
-    <message>
-        <source>No Qt build configuration</source>
-        <translation>Aucune configuration de compilation Qt</translation>
-    </message>
-    <message>
-        <source>Creating package file...</source>
-        <translation>Créer un fichier de paquet...</translation>
-    </message>
-    <message>
-        <source>Package Creation: Running command &apos;%1&apos;.</source>
-        <translation>Création du paquetage : Exécution de la commande &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not start command &apos;%1&apos;. Reason: %2</source>
-        <translation>Échec de paquetage : Impossible de démarre la commande &apos;%1&apos;. Raison : %2</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1&apos; failed.</source>
-        <translation>Erreur de paquetage : Commande &apos;%1&apos; échouée.</translation>
-    </message>
-    <message>
-        <source> Reason: %1</source>
-        <translation>Raison : %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation>Code de sortie : %1</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDebianPackageCreationStep</name>
-    <message>
-        <source>Create Debian Package</source>
-        <translation>Créer un paquet Debian</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not get package name.</source>
-        <translation>Erreur lors de la création du paquet : Impossible de récupérer le nom du paquet.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not move package files from &apos;%1&apos; to &apos;%2&apos;.</source>
-        <translation>Erreur lors de la création du paquet : Impossible de déplacer les fichiers du paquet de &apos;%1&apos; vers &apos;%2&apos;.</translation>
-    </message>
-    <message>
-        <source>Your project name contains characters not allowed in Debian packages.
-They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
-We will try to work around that, but you may experience problems.</source>
-        <translation>Le nom de votre projet contient des caractères non permis pour les paquets Debian.
-Ceux-ci doivent seulement être composées de lettres miniscules, nombres , &apos;-&apos;, &apos;+&apos; et &apos;.&apos;.
-Nous essayerons de contourner cela, mais vous pouvez rencontrer quelques problèmes.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Foreign debian directory detected. You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
-        <translation>Erreur lors de la création du paquet : Dossier Debian étranger détecté. Vous n&apos;utilisez pas un shadow build et il y a un dossier Debug dans votre racine de projet (&apos;%1&apos;). Qt Créator n&apos;écrasera pas ce dossier. Veuillez le retirer ou l&apos;utiliser dans la fonctionnalité de shadow build.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not remove directory &apos;%1&apos;: %2</source>
-        <translation>Erreur lors de la création du paquet : Impossible de supprimer le dossier &apos;%1&apos;: %2</translation>
-    </message>
-    <message>
-        <source>Could not create Debian directory &apos;%1&apos;.</source>
-        <translation>Impossible de créer le répertoire Debian &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Could not read manifest file &apos;%1&apos;: %2.</source>
-        <translation>Impossible de lire le fichier manifeste &apos;%1&apos; : %2.</translation>
-    </message>
-    <message>
-        <source>Could not write manifest file &apos;%1&apos;: %2.</source>
-        <translation>Impossible d&apos;écrire le fichier manifest &apos;%1&apos; : %2.</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;.</source>
-        <translation>Impossible de copier le fichier &apos;%1&apos; vers &apos;%2&apos;.</translation>
-    </message>
-    <message>
-        <source>Error: Could not create file &apos;%1&apos;.</source>
-        <translation>Erreur : impossible de créer le fichier &quot;%1&quot;. </translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRpmPackageCreationStep</name>
-    <message>
-        <source>Create RPM Package</source>
-        <translation type="obsolete">Créer un paquet RPM</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not move package file from %1 to %2.</source>
-        <translation type="obsolete">Erreur lors de la création du paquet : Impossible de déplacer les fichiers du paquet de &apos;%1&apos; vers &apos;%2&apos;.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPackageCreationWidget</name>
-    <message>
-        <source>Size should be %1x%2 pixels</source>
-        <translation>La taille devrait être de %1x%2 pixels</translation>
-    </message>
-    <message>
-        <source>No Version Available.</source>
-        <translation>Aucune version disponible.</translation>
-    </message>
-    <message>
-        <source>Could not read icon</source>
-        <translation>Impossible de lire l&apos;icône</translation>
-    </message>
-    <message>
-        <source>Images</source>
-        <translation>Images</translation>
-    </message>
-    <message>
-        <source>Choose Image (will be scaled to 48x48 pixels if necessary)</source>
-        <translation type="obsolete">Choisir une image (sera redimensionnée à 48x48 pixels si nécessaire)</translation>
-    </message>
-    <message>
-        <source>Choose Image (will be scaled to %1x%2 pixels if necessary)</source>
-        <translation>Choisir une image (elle sera remise à l&apos;échelle à %1x%2 pixels si nécessaire)</translation>
-    </message>
-    <message>
-        <source>Could Not Set New Icon</source>
-        <translation>Impossible de définir une nouvelle icône</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Erreur de fichier</translation>
-    </message>
-    <message>
-        <source>Could not set project name.</source>
-        <translation>Impossible de définir le nom du projet. </translation>
-    </message>
-    <message>
-        <source>Could not set package name for project manager.</source>
-        <translation>Impossible de définir le nom du paquet pour le gestionnaire de paquets. </translation>
-    </message>
-    <message>
-        <source>Could not set project description.</source>
-        <translation>Impossible de définir la description du projet. </translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create Package:&lt;/b&gt; </source>
-        <translation>&lt;b&gt;Créer le paquet :&lt;/b&gt; </translation>
-    </message>
-    <message>
-        <source>Could Not Set Version Number</source>
-        <translation>Impossible de définir le numéro de la version</translation>
-    </message>
-    <message>
-        <source>Package name:</source>
-        <translation>Nom du paquet : </translation>
-    </message>
-    <message>
-        <source>Package version:</source>
-        <translation>Version du paquet : </translation>
-    </message>
-    <message>
-        <source>Major:</source>
-        <translation>Majeur :</translation>
-    </message>
-    <message>
-        <source>Minor:</source>
-        <translation>Mineur :</translation>
-    </message>
-    <message>
-        <source>Patch:</source>
-        <translation>Patch :</translation>
-    </message>
-    <message>
-        <source>Short package description:</source>
-        <translation>Description couret du paquet : </translation>
-    </message>
-    <message>
-        <source>Name to be displayed in Package Manager:</source>
-        <translation>Nom à afficher dans le gestionnaire de paquets : </translation>
-    </message>
-    <message>
-        <source>Icon to be displayed in Package Manager:</source>
-        <translation>Icône à afficher dans le gestionnaire de paquets : </translation>
-    </message>
-    <message>
-        <source>Adapt Debian file:</source>
-        <translation>Adapter le fichier Debian : </translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Modifier...</translation>
-    </message>
-    <message>
-        <source>Edit spec file</source>
-        <translation>Éditer le fichier de spécifications</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDebianPackageInstaller</name>
-    <message>
-        <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
-        <translation>Échec de l&apos;installation. Vous avez essayé d&apos;installer une version plus ancienne d&apos;un paquet, ce qui n&apos;est pas permis.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishedProjectModel</name>
-    <message>
-        <source>Include in package</source>
-        <translation>Inclure dans le paquet</translation>
-    </message>
-    <message>
-        <source>Include</source>
-        <translation>Inclure</translation>
-    </message>
-    <message>
-        <source>Do not include</source>
-        <translation>Ne pas inclure</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublisherFremantleFree</name>
-    <message>
-        <source>Canceled.</source>
-        <translation>Annulé.</translation>
-    </message>
-    <message>
-        <source>Publishing canceled by user.</source>
-        <translation>Publication annulée par l&apos;utilisateur. </translation>
-    </message>
-    <message>
-        <source>The project is missing some information important to publishing:</source>
-        <translation>Quelques informations manquent au projet pour la publication : </translation>
-    </message>
-    <message>
-        <source>Publishing failed: Missing project information.</source>
-        <translation>La publication a échoué : des informations sur le projet manquaient. </translation>
-    </message>
-    <message>
-        <source>Removing left-over temporary directory ...</source>
-        <translation type="obsolete">Supprimer le répertoire temporaire laissé...</translation>
-    </message>
-    <message>
-        <source>Error removing temporary directory: %1</source>
-        <translation>Erreur lors de la suppression du répertoire temporaire : %1</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create source package.</source>
-        <translation>Échec de la publication : impossible de créer le paquet de sources. </translation>
-    </message>
-    <message>
-        <source>Setting up temporary directory ...</source>
-        <translation type="obsolete">Préparation du répertoire temporaire... </translation>
-    </message>
-    <message>
-        <source>Error: Could not create temporary directory.</source>
-        <translation>Erreur : impossible de créer le répertoire temporaire. </translation>
-    </message>
-    <message>
-        <source>Error: Could not copy project directory.</source>
-        <translation>Erreur : impossible de copier le répertoire du projet. </translation>
-    </message>
-    <message>
-        <source>Error: Could not fix newlines.</source>
-        <translation>Erreur : impossible de corriger les nouvelle lignes.</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create package.</source>
-        <translation>Échec de la publication : impossible de créer un paquet. </translation>
-    </message>
-    <message>
-        <source>Cleaning up temporary directory ...</source>
-        <translation type="obsolete">Nettoyage du répertoire temporaire... </translation>
-    </message>
-    <message>
-        <source>Removing left-over temporary directory...</source>
-        <translation>Supprimer le répertoire temporaire laissé...</translation>
-    </message>
-    <message>
-        <source>Setting up temporary directory...</source>
-        <translation>Préparation du répertoire temporaire...</translation>
-    </message>
-    <message>
-        <source>Cleaning up temporary directory...</source>
-        <translation>Nettoyage du répertoire temporaire...</translation>
-    </message>
-    <message>
-        <source>Failed to create directory &apos;%1&apos;.</source>
-        <translation>Échec à la création du répertoire &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Could not set execute permissions for rules file: %1</source>
-        <translation>Impossible de définir les règles de permission pour le fichier : %1</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;: %3.</source>
-        <translation>Impossible de copier le fichier &quot;%1&quot; à &quot;%2&quot; : %3. </translation>
-    </message>
-    <message>
-        <source>Make distclean failed: %1</source>
-        <translation>Échec de &quot;make disclean&quot; : %1</translation>
-    </message>
-    <message>
-        <source>Error: Failed to start dpkg-buildpackage.</source>
-        <translation>Erreur : impossible de démarrer dpkg-buildpackage.</translation>
-    </message>
-    <message>
-        <source>Error: dpkg-buildpackage did not succeed.</source>
-        <translation>Erreur : dpkg-buildpackage n&apos;a pas réussi. </translation>
-    </message>
-    <message>
-        <source>Package creation failed.</source>
-        <translation>La création du paquet a échoué. </translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation>Fait. </translation>
-    </message>
-    <message>
-        <source>Packaging finished successfully. The following files were created:
-</source>
-        <translation>Création du paquet terminée avec succès. Les fichiers suivants ont été crées: 
-</translation>
-    </message>
-    <message>
-        <source>No Qt version set.</source>
-        <translation>Pas de version de Qt définie. </translation>
-    </message>
-    <message>
-        <source>Building source package...</source>
-        <translation>Compilation du paquet de sources... </translation>
-    </message>
-    <message>
-        <source>Starting scp...</source>
-        <translation>Lancement de scp...</translation>
-    </message>
-    <message>
-        <source>Uploading file %1...</source>
-        <translation>Envoi du fichier %1...</translation>
-    </message>
-    <message>
-        <source>Starting scp ...</source>
-        <translation type="obsolete">Lancement de scp...</translation>
-    </message>
-    <message>
-        <source>SSH error: %1</source>
-        <translation>Erreur SSH : %1</translation>
-    </message>
-    <message>
-        <source>Upload failed.</source>
-        <translation>Échec de l&apos;envoi. </translation>
-    </message>
-    <message>
-        <source>Error uploading file: %1.</source>
-        <translation>Erreur lors de l&apos;envoi du fichier : %1.</translation>
-    </message>
-    <message>
-        <source>Error uploading file.</source>
-        <translation>Erreur lors de l&apos;envoi du fichier. </translation>
-    </message>
-    <message>
-        <source>All files uploaded.</source>
-        <translation>Tous les fichiers ont été envoyés. </translation>
-    </message>
-    <message>
-        <source>Upload succeeded. You should shortly receive an email informing you about the outcome of the build process.</source>
-        <translation>Envoyé avec succès. Vous devriez bientôt recevoir un email vous informant du processus de compilation. </translation>
-    </message>
-    <message>
-        <source>Uploading file %1 ...</source>
-        <translation type="obsolete">Envoi du fichier %1...</translation>
-    </message>
-    <message>
-        <source>Cannot open file for reading: %1.</source>
-        <translation>Impossible d&apos;ouvrir le fichier en lecture : %1.</translation>
-    </message>
-    <message>
-        <source>Cannot read file: %1</source>
-        <translation>Impossible de lire le fichier : %1</translation>
-    </message>
-    <message>
-        <source>The package description is empty. You must set one in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>La description du paquet est vide. Vous devez en définir une dans Projets &gt; Lancer &gt; Créer un paquet &gt;Détails. </translation>
-    </message>
-    <message>
-        <source>The package description is &apos;%1&apos;, which is probably not what you want. Please change it in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>La descriptions du paquet est &apos;%1&apos;, qui n&apos;est certainement pas celle que vous souhaitez. Veuillez la changer dans Projet -&gt; Exécution -&gt; Création de paquets -&gt; Détails.</translation>
-    </message>
-    <message>
-        <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>Vous n&apos;avez pas défini d&apos;icône pour le gestionnaire de paquets. Elle doit être définie dans Projets &gt; Lancer &gt; Créer un paquet &gt;Détails. </translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
-        <translation>Publication sur le dépôt &quot;extras-devel/free&quot; de Fremantle</translation>
-    </message>
-    <message>
-        <source>Upload options</source>
-        <translation>Options d&apos;envoi</translation>
-    </message>
-    <message>
-        <source>Choose a Private Key File</source>
-        <translation>Choisir un fichier de clé privée</translation>
-    </message>
-    <message>
-        <source>Choose a private key file</source>
-        <translation type="obsolete">Choisir un fichier de clé privée</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>Upload Settings</source>
-        <translation>Préférences d&apos;envoi</translation>
-    </message>
-    <message>
-        <source>Garage account name:</source>
-        <translation>Nom de compte Garage : </translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Get an account&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Créer un compte&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;https://garage.maemo.org/extras-assistant/index.php&quot;&gt;Request upload rights&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;https://garage.maemo.org/extras-assistant/index.php&quot;&gt;Demander les droits d&apos;envoi&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation>Fichier de clé privée :</translation>
-    </message>
-    <message>
-        <source>Server address:</source>
-        <translation>Adresse du serveur : </translation>
-    </message>
-    <message>
-        <source>Target directory on server:</source>
-        <translation>Répertoire cible sur le serveur : </translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
-    <message>
-        <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
-        <translation>Publication sur le dépôt &quot;extras-devel/free&quot; de Fremantle</translation>
-    </message>
-    <message>
-        <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
-        <translation>Le gestionaire créera une archive source et optionnellement l&apos;enverra au serveur de compilation, où le projet sera compilé et mis en paquet ouis déplacé dans le répertoire &quot;Extras-devel free&quot;, à partir duquel les utilisateurs pourront l&apos;installer sur leurs périphériques N900. Pour les fonctionnalités de l&apos;envoie, un compte sur garage.maemo.org est requis.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingWizardFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
-        <translation>Publier sur le dépôt &quot;extras-devel-free&quot; de Fremantle</translation>
-    </message>
-    <message>
-        <source>Build Settings</source>
-        <translation>Paramètres de compilation</translation>
-    </message>
-    <message>
-        <source>Upload Settings</source>
-        <translation>Préférences d&apos;envoi</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Résultat</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuManager</name>
-    <message>
-        <source>MeeGo Emulator</source>
-        <translation>Émulateur MeeGo</translation>
-    </message>
-    <message>
-        <source>Start MeeGo Emulator</source>
-        <translation>Lancer l&apos;émulateur MeeGo</translation>
-    </message>
-    <message>
-        <source>Qemu has been shut down, because you removed the corresponding Qt version.</source>
-        <translation>QEmu a été arrêté, du à la suppression de la version Qt correspondante.</translation>
-    </message>
-    <message>
-        <source>Qemu finished with error: Exit code was %1.</source>
-        <translation>Qemu s&apos;est terminé avec une erreur : le code d&apos;erreur était %1.</translation>
-    </message>
-    <message>
-        <source>Qemu error</source>
-        <translation>Erreur de Qemu</translation>
-    </message>
-    <message>
-        <source>Qemu failed to start: %1</source>
-        <translation>Qemu n&apos;a pas pu démarrer : %1</translation>
-    </message>
-    <message>
-        <source>Stop MeeGo Emulator</source>
-        <translation>Arrêter m&apos;émulateur MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRemoteCopyFacility</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Échec de la connexion : %1</translation>
-    </message>
-    <message>
-        <source>Error: Copy command failed.</source>
-        <translation>Erreur : échec de la commande de copie. </translation>
-    </message>
-    <message>
-        <source>Copying file &apos;%1&apos; to directory &apos;%2&apos; on the device...</source>
-        <translation>Copie du fichier &quot;%1&quot; dans le répertoire &quot;%2&quot; sur le périphérique... </translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRemoteMounter</name>
-    <message>
-        <source>No directories to mount</source>
-        <translation>Pas de répertoire à monter</translation>
-    </message>
-    <message>
-        <source>No directories to unmount</source>
-        <translation>Pas de répertoire à démonter</translation>
-    </message>
-    <message>
-        <source>Could not execute unmount request.</source>
-        <translation>Impossible d&apos;exécuter la requête de démontage.</translation>
-    </message>
-    <message>
-        <source>Failure unmounting: %1</source>
-        <translation>Échec dans le démontage de : %1</translation>
-    </message>
-    <message>
-        <source>Finished unmounting.</source>
-        <translation>Démontage terminé.</translation>
-    </message>
-    <message>
-        <source>
-stderr was: &apos;%1&apos;</source>
-        <translation>stderr était : &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Error: Not enough free ports on device to fulfill all mount requests.</source>
-        <translation>Erreur : pas assez de ports libres sur le périphérique pour remplir toutes les requêtes. </translation>
-    </message>
-    <message>
-        <source>Starting remote UTFS clients...</source>
-        <translation>Démarrage des clients distants UTFS...</translation>
-    </message>
-    <message>
-        <source>Mount operation succeeded.</source>
-        <translation>L&apos;opération de montage a réussi.</translation>
-    </message>
-    <message>
-        <source>Failure running UTFS client: %1</source>
-        <translation>Échec du lancement du client UTFS: %1</translation>
-    </message>
-    <message>
-        <source>Starting UTFS servers...</source>
-        <translation>Démarrage des serveurs UTFS...</translation>
-    </message>
-    <message>
-        <source>
-stderr was: %1</source>
-        <translation>
-stderr était : %1</translation>
-    </message>
-    <message>
-        <source>Error running UTFS server: %1</source>
-        <translation>Erreur au lancement du serveur UTFS : %1</translation>
-    </message>
-    <message>
-        <source>Timeout waiting for UTFS servers to connect.</source>
-        <translation>Temps limite dépassé lors de l&apos; attente des serveurs UTF pour la connexion.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRemoteMountsModel</name>
-    <message>
-        <source>Local directory</source>
-        <translation>Répertoire local</translation>
-    </message>
-    <message>
-        <source>Remote mount point</source>
-        <translation>Point de montage distant</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRunConfiguration</name>
-    <message>
-        <source>Not enough free ports on the device.</source>
-        <translation>Pas assez de ports disponibles sur le périphérique. </translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRunConfigurationWidget</name>
-    <message>
-        <source>Choose directory to mount</source>
-        <translation>Sélectionner un répertoire à monter</translation>
-    </message>
-    <message>
-        <source>No local directories to be mounted on the device.</source>
-        <translation>Aucun répertoire local à monter sur le périphérique.</translation>
-    </message>
-    <message>
-        <source>One local directory to be mounted on the device.</source>
-        <translation>Un répertoire local à monter sur le périphérique.</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n local directories to be mounted on the device.</source>
-        <extracomment>Note: Only mountCount&gt;1 will occur here as 0, 1 are handled above.</extracomment>
-        <translation>
-            <numerusform>%n répertoire local à monter sur le périphérique.</numerusform>
-            <numerusform>%n répertoires locaux à monter sur le périphérique.</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>WARNING: You want to mount %1 directories, but your device has only %n free ports.&lt;br&gt;You will not be able to run this configuration.</source>
-        <translation>
-            <numerusform>ATTENTION: vous souhaitez monter %1 repertoires, mais votre périphérique n&apos;à que %n port de libre. &lt;br&gt; Vous n&apos;allez pas pouvoir exécuter cette configuration.</numerusform>
-            <numerusform>ATTENTION: vous souhaitez monter %1 repertoires, mais votre périphérique n&apos;à que %n ports de libre. &lt;br&gt; Vous n&apos;allez pas pouvoir exécuter cette configuration.</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>WARNING: You want to mount %1 directories, but only %n ports on the device will be available in debug mode. &lt;br&gt;You will not be able to debug your application with this configuration.</source>
-        <translation>
-            <numerusform>ATTENTION: vous souhaitez monter %1 repertoires, mais votre périphérique n&apos;à que %n port de libre en mode débogage. &lt;br&gt; Vous n&apos;allez pas pouvoir exécuter cette configuration.</numerusform>
-            <numerusform>ATTENTION: vous souhaitez monter %1 repertoires, mais votre périphérique n&apos;à que %n ports de libre en mode débogage. &lt;br&gt; Vous n&apos;allez pas pouvoir exécuter cette configuration.</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRunControlFactory</name>
-    <message>
-        <source>Run on device</source>
-        <translation type="obsolete">Exécuter sur le périphérique</translation>
-    </message>
-    <message>
-        <source>Cannot debug: Kit has no device.</source>
-        <translation>Impossible de déboguer : le kit n&apos;a pas de périphérique.</translation>
-    </message>
-    <message>
-        <source>Cannot debug: Not enough free ports available.</source>
-        <translation>Impossible de déboguer : pas assez de ports libres disponibles.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuCrashDialog</name>
-    <message>
-        <source>Qemu error</source>
-        <translation>Erreur de Qemu</translation>
-    </message>
-    <message>
-        <source>Qemu crashed.</source>
-        <translation>QEmu a crashé.</translation>
-    </message>
-    <message>
-        <source>Click here to change the OpenGL mode.</source>
-        <translation>Cliquez ici pour changer le mode OpenGL. </translation>
-    </message>
-    <message>
-        <source>You have configured Qemu to use OpenGL hardware acceleration, which might not be supported by your system. You could try using software rendering instead.</source>
-        <translation>Vous avec configuré Qemu pour qu&apos;il utilise l&apos;accélération matérielle, ce qui pourrait ne pas être supporté par votre système. Vous pouvez essayer le rendu logiciel à la place. </translation>
-    </message>
-    <message>
-        <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
-        <translation>Qemu est actuellement configuré pour autodétecter le mode OpenGL, qui est connu pour ne pas toujours fonctionner. Vous pourrize vouloir utiliser le rendu logiciel à la place. </translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuSettingsPage</name>
-    <message>
-        <source>MeeGo Qemu Settings</source>
-        <translation>Paramètres de Qemu pour MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoSshRunner</name>
-    <message>
-        <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
-        <translation type="obsolete">Qemu n&apos;était pas en cours d&apos;exécution. Il a maintenant été lancé mais pourrait prendre un peu de temps avant d&apos;être prêt. Veuillez réessayer alors. </translation>
-    </message>
-    <message>
-        <source>You want to run on Qemu, but it is not enabled for this Qt version.</source>
-        <translation type="obsolete">Vous voulez lancer l&apos;application sur Qemu, mais il n&apos;est pas activé pour cette version de Qt. </translation>
-    </message>
-    <message>
-        <source>Mounting host directories...</source>
-        <translation type="obsolete">Montage du répertoire hôte...</translation>
-    </message>
-    <message>
-        <source>Potentially unmounting left-over host directory mounts...</source>
-        <translation type="obsolete">Démontage potentiel des répertoires hôtes montés restants...</translation>
-    </message>
-    <message>
-        <source>Unmounting host directories...</source>
-        <translation type="obsolete">Démontage des répertoires hôtes...</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoToolChainFactory</name>
-    <message>
-        <source>Maemo GCC</source>
-        <translation type="obsolete">GCC pour Maemo</translation>
-    </message>
-    <message>
-        <source>Maemo GCC for %1</source>
-        <translation type="obsolete">GCC pour Maemo pour %1</translation>
-    </message>
-    <message>
-        <source>%1 GCC (%2)</source>
-        <translation type="obsolete">%1 GCC (%2)</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoToolChainConfigWidget</name>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Chemin de MADDE :&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Chemin de la cible MADDE :&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Débogueur :&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::Qt4MaemoDeployConfigurationFactory</name>
-    <message>
-        <source>Copy Files to Maemo5 Device</source>
-        <translation>Copie des fichiers sur le périphérique Maemo5</translation>
-    </message>
-    <message>
-        <source>Build Debian Package and Install to Maemo5 Device</source>
-        <translation>Compilation du paquet Debian et installation sur le périphérique Maemo5</translation>
-    </message>
-    <message>
-        <source>Build Debian Package and Install to Harmattan Device</source>
-        <translation>Compilation du paquet Debian et installation sur le périphérique Harmattan</translation>
-    </message>
-    <message>
-        <source>Build RPM Package and Install to MeeGo Device</source>
-        <translation type="obsolete">Compilation du paquet RPM et installation sur le périphérique Meego</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractQt4MaemoTarget</name>
-    <message>
-        <source>Cannot open file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir le fichier &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Add Packaging Files to Project</source>
-        <translation type="obsolete">Ajouter des fichiers de maquetage au projet</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;Qt Creator has set up the following files to enable packaging:
-   %1
-Do you want to add them to the project?&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;Qt Creator a configuré les fichiers suivants pour permettre l&apos;empaquetage : 
-%1
-Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="obsolete">Qt Creator</translation>
-    </message>
-    <message>
-        <source>Do you want to remove the packaging files associated with the target &apos;%1&apos;?</source>
-        <translation type="obsolete">Voulez-vous supprimer les fichiers de packaging associés avec la cible &apos;%1&apos; ?</translation>
-    </message>
-    <message>
-        <source>Do you want to remove the packaging file(s) associated with the target &apos;%1&apos;?</source>
-        <translation type="obsolete">Souhaitez vous supprimer les fichiers de paquetage associés à la cible &apos;%1&apos; ?</translation>
-    </message>
-    <message>
-        <source>Error creating packaging directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Erreur lors de la création du répertoire de paquetage &quot;%1&quot;. </translation>
-    </message>
-    <message>
-        <source>Error creating MeeGo templates</source>
-        <translation type="obsolete">Erreur lors de la création des templates MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractDebBasedQt4MaemoTarget</name>
-    <message>
-        <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
-        <translation type="obsolete">Le fichier de journal des changements Debian &quot;%1&quot; a un format inattendu.</translation>
-    </message>
-    <message>
-        <source>Refusing to update changelog file: Already contains version &apos;%1&apos;.</source>
-        <translation type="obsolete">Refus de mise à jour du journal des changements : Il contient déjà la version &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Cannot update changelog: Invalid format (no maintainer entry found).</source>
-        <translation type="obsolete">Refus de mise à jour du journal des changements : Format invalide (aucune entrée de mainteneur trouvée).</translation>
-    </message>
-    <message>
-        <source>Invalid icon data in Debian control file.</source>
-        <translation type="obsolete">Données de l&apos;icône invalides dans le contrôle de fichier Debian.</translation>
-    </message>
-    <message>
-        <source>Could not read image file &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible de lire le fichier image &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Could not export image file &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible d&apos;exporter le fichier image &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: No Qt version set.</source>
-        <translation type="obsolete">Impossible de créer des modèles Debian : pas de version de Qt définie.</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: dh_make failed (%1).</source>
-        <translation type="obsolete">Impossible de créer des modèles Debian : échec de dh_make (%1).</translation>
-    </message>
-    <message>
-        <source>Unable to create debian templates: dh_make failed (%1).</source>
-        <translation type="obsolete">Impossible de créer des modèles Debian : échec de dh_make (%1).</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: No Qt version set</source>
-        <translation type="obsolete">Impossible de créer des modèles Debian : pas de version de Qt définie</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: dh_make failed (%1)</source>
-        <translation type="obsolete">Impossible de créer des modèles Debian : échec de dh_make (%1)</translation>
-    </message>
-    <message>
-        <source>Unable to create debian templates: dh_make failed (%1)</source>
-        <translation type="obsolete">Impossible de créer des modèles Debian : échec de dh_make (%1)</translation>
-    </message>
-    <message>
-        <source>Unable to move new debian directory to &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible de déplacer le nouveau répertoire Debian dans &quot;%1&quot;. </translation>
-    </message>
-</context>
-<context>
     <name>ProjectExplorer::SettingsAccessor</name>
     <message>
         <source>Using Old Project Settings File</source>
@@ -49009,7 +43943,7 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxDeployService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>Aucune action de déploiement nécessaire. Continuation.</translation>
@@ -49019,30 +43953,12 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <translation>Aucune configuration du périphérique définie.</translation>
     </message>
     <message>
-        <source>Connecting to device...</source>
-        <translation>Connexion au périphérique...</translation>
-    </message>
-    <message>
-        <source>Could not connect to host: %1</source>
-        <translation>Impossible de se connecter à l&apos;hôte : %1</translation>
-    </message>
-    <message>
-        <source>
-Did the emulator fail to start?</source>
-        <translation>Est ce que l&apos;émulateur n&apos;a pas pu démarrer ?</translation>
-    </message>
-    <message>
-        <source>
-Is the device connected and set up for network access?</source>
-        <translation>Est-ce que le périphérique est connecté et configuré pour l&apos;accès réseau ? </translation>
-    </message>
-    <message>
         <source>Connection error: %1</source>
         <translation>Erreur de connexion : %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Deployment failed: %1</source>
         <translation type="obsolete">Échec du déploiement : %1</translation>
@@ -49065,7 +43981,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractUploadAndInstallPackageService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Fichier de paquet envoyé avec succès. </translation>
@@ -49080,7 +43996,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericDirectUploadService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>Échec de l&apos;initialisation de SFTP : %1</translation>
@@ -49117,20 +44033,12 @@ Is the device connected and set up for network access?</source>
         <source>Warning: No remote path set for local file &apos;%1&apos;. Skipping upload.</source>
         <translation>Attention: Aucun chemin distant de défini pour le fichier local &apos;%1&apos;. Continuation de l&apos;envoie.</translation>
     </message>
-    <message>
-        <source>Uploading file &apos;%1&apos;...</source>
-        <translation>Envoi du fichier %1...</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::ConfigWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>Déploiement incrémental</translation>
-    </message>
-    <message>
-        <source>Ignore missing files</source>
-        <translation>Ignorer les fichiers manquants</translation>
     </message>
     <message>
         <source>Command line:</source>
@@ -49138,18 +44046,14 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericDirectUploadStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Upload files via SFTP</source>
         <translation>Envoi de fichiers par SFTP</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationFactory</name>
-    <message>
-        <source>Generic Linux Device</source>
-        <translation>Périphérique Linux générique</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation type="obsolete">Linux générique</translation>
@@ -49176,26 +44080,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::LinuxDeviceConfigurations</name>
-    <message>
-        <source>(default for %1)</source>
-        <translation type="obsolete">(paramètre par défaut pour %1)</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</name>
-    <message>
-        <source>You will need at least one port.</source>
-        <translation type="obsolete">Vous avez besoin d&apos;au moins un port.</translation>
-    </message>
-    <message>
-        <source>Physical Device</source>
-        <translation type="obsolete">Périphérique physique</translation>
-    </message>
-    <message>
-        <source>Emulator</source>
-        <translation type="obsolete">Émulateur</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Linux Device Configurations</source>
         <translation type="obsolete">Configurations des périphériques Linux</translation>
@@ -49242,7 +44127,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::LinuxDeviceTestDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Close</source>
         <translation>Fermer</translation>
@@ -49257,7 +44142,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceTester</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connecting to host...</source>
         <translation>Connexion à l&apos;hôte...</translation>
@@ -49331,14 +44216,10 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::PackageUploader</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Préparation de la connexion SFTP...</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Échec de la connexion : %1</translation>
     </message>
     <message>
         <source>SFTP error: %1</source>
@@ -49358,7 +44239,7 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::ProFilesUpdateDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Updateable Project Files</source>
         <translation type="obsolete">Fichiers de projet pouvant être mis à jour</translation>
@@ -49381,63 +44262,14 @@ Is the device connected and set up for network access?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxApplicationRunner</name>
-    <message>
-        <source>Cannot run: %1</source>
-        <translation type="obsolete">Impossible de lancer : %1</translation>
-    </message>
-    <message>
-        <source>Could not connect to host: %1</source>
-        <translation type="obsolete">Impossible de se connecter à l&apos;hôte : %1</translation>
-    </message>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Erreur de connexion : %1</translation>
-    </message>
-    <message>
-        <source>Killing remote process(es)...</source>
-        <translation type="obsolete">Destruction du/des processus distant(s)...</translation>
-    </message>
-    <message>
-        <source>Initial cleanup failed: %1</source>
-        <translation type="obsolete">Échec du nettoyage initial : %1</translation>
-    </message>
-    <message>
-        <source>Remote process started.</source>
-        <translation type="obsolete">Le processus distant a échoué. </translation>
-    </message>
-    <message>
-        <source>Gathering ports failed: %1
-Continuing anyway.</source>
-        <translation type="obsolete">La récupération des ports a échoué : %1
-Continuation.</translation>
-    </message>
-    <message>
-        <source>No remote executable set.</source>
-        <translation type="obsolete">Pas d&apos;exécutable distant spécifié. </translation>
-    </message>
-    <message>
-        <source>No device configuration set.</source>
-        <translation type="obsolete">Aucune configuration du périphérique définie.</translation>
-    </message>
-    <message>
-        <source>Connecting to device...</source>
-        <translation type="obsolete">Connexion au périphérique...</translation>
-    </message>
-    <message>
-        <source>Error running remote process: %1</source>
-        <translation type="obsolete">Erreur lors de l&apos;exécution du processus à distance : %1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::GenericRemoteLinuxCustomCommandDeploymentStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>Exécuter une commande distante personnalisée</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCustomCommandDeployService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No command line given.</source>
         <translation>Aucune ligne de commande donnée.</translation>
@@ -49483,18 +44315,14 @@ Continuation.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxDeployStepWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
         <translation type="obsolete">&lt;b&gt;%1 utilisant le périphérique&lt;/b&gt; : %2</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxEnvironmentReader</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation>Erreur de connexion : %1</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Error running remote process: %1</source>
         <translation>Erreur lors de l&apos;exécution du processus à distance : %1</translation>
@@ -49518,177 +44346,7 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxPackageInstaller</name>
-    <message>
-        <source>Connection failure: %1</source>
-        <translation>Échec de la connexion : %1</translation>
-    </message>
-    <message>
-        <source>Installing package failed.</source>
-        <translation>Échec lors de l&apos;installation du paquet.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::RemoteLinuxPlugin</name>
-    <message>
-        <source>Start Remote Debug Server...</source>
-        <translation type="obsolete">Démarrer le serveur de débogage distant...</translation>
-    </message>
-    <message>
-        <source>Start Gdbserver</source>
-        <translation type="obsolete">Démarrer Gbdserver</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxProcessesDialog</name>
-    <message>
-        <source>Remote Error</source>
-        <translation type="obsolete">Erreur distante</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::AbstractRemoteLinuxProcessList</name>
-    <message>
-        <source>PID</source>
-        <translation type="obsolete">PID</translation>
-    </message>
-    <message>
-        <source>Command Line</source>
-        <translation type="obsolete">Ligne de commande</translation>
-    </message>
-    <message>
-        <source>Connection failure: %1</source>
-        <translation type="obsolete">Échec de la connexion : %1</translation>
-    </message>
-    <message>
-        <source>Error: Remote process failed to start: %1</source>
-        <translation type="obsolete">Erreur : le processus distant n&apos;a pas pu démarrer : %1</translation>
-    </message>
-    <message>
-        <source>Error: Remote process crashed: %1</source>
-        <translation type="obsolete">Erreur : le processus distant a crashé : %1</translation>
-    </message>
-    <message>
-        <source>Remote process failed.</source>
-        <translation type="obsolete">Le processus distant a échoué. </translation>
-    </message>
-    <message>
-        <source>
-Remote stderr was: %1</source>
-        <translation type="obsolete">Le stderr distant était : %1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsPage</name>
-    <message>
-        <source>Device Configurations</source>
-        <translation type="obsolete">Configurations de périphériques</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxUsedPortsGatherer</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Erreur de connexion : %1</translation>
-    </message>
-    <message>
-        <source>Could not start remote process: %1</source>
-        <translation type="obsolete">Impossible de démarrer le processus distant : %1</translation>
-    </message>
-    <message>
-        <source>Remote process crashed: %1</source>
-        <translation type="obsolete">Processus distant crashé : %1</translation>
-    </message>
-    <message>
-        <source>Remote process failed; exit code was %1.</source>
-        <translation type="obsolete">Processus distant échouée; le code de sortie était %1.</translation>
-    </message>
-    <message>
-        <source>
-Remote error output was: %1</source>
-        <translation type="obsolete">La sortie du processus distant était : %1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::SshKeyCreationDialog</name>
-    <message>
-        <source>Save Public Key File</source>
-        <translation type="obsolete">Enregistrer le fichier de clé publique</translation>
-    </message>
-    <message>
-        <source>Save Private Key File</source>
-        <translation type="obsolete">Enregistrer le fichier de clé privée</translation>
-    </message>
-    <message>
-        <source>SSH Key Configuration</source>
-        <translation type="obsolete">Configuration de la slé SSH</translation>
-    </message>
-    <message>
-        <source>Options</source>
-        <translation type="obsolete">Options</translation>
-    </message>
-    <message>
-        <source>Key algorithm:</source>
-        <translation type="obsolete">Algorithme de la clé :</translation>
-    </message>
-    <message>
-        <source>&amp;RSA</source>
-        <translation type="obsolete">&amp;RSA</translation>
-    </message>
-    <message>
-        <source>&amp;DSA</source>
-        <translation type="obsolete">&amp;DSA</translation>
-    </message>
-    <message>
-        <source>Key &amp;size:</source>
-        <translation type="obsolete">Taille de la clé (&amp;S) : </translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation type="obsolete">Fichier de clé privée :</translation>
-    </message>
-    <message>
-        <source>Public key file:</source>
-        <translation type="obsolete">Fichier de clé publique :</translation>
-    </message>
-    <message>
-        <source>&amp;Generate And Save Key Pair</source>
-        <translation type="obsolete">&amp;Générer et sauvegarder la paire de clés</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation type="obsolete">&amp;Annuler</translation>
-    </message>
-    <message>
-        <source>Key Generation Failed</source>
-        <translation type="obsolete">La génération de la clé échouée</translation>
-    </message>
-    <message>
-        <source>Failure To Save Key File</source>
-        <translation type="obsolete">Impossible de sauvegarder le fichier de clé</translation>
-    </message>
-    <message>
-        <source>Failed to create directory: &apos;%1&apos;.</source>
-        <translation type="obsolete">Impossible de créer le dossier : &apos;%1&apos;.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::SshKeyDeployer</name>
-    <message>
-        <source>Public key error: %1</source>
-        <translation>Erreur de clé publique : %1</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Échec de la connexion : %1</translation>
-    </message>
-    <message>
-        <source>Key deployment failed: %1.</source>
-        <translation>Échec lors du déploiement de la clé : %1.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::StartGdbServerDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Select Sysroot</source>
         <translation type="obsolete">Sélectionner la racine système</translation>
@@ -49696,10 +44354,6 @@ Remote error output was: %1</source>
     <message>
         <source>&amp;Attach to Selected Process</source>
         <translation type="obsolete">&amp;Attacher au processus sélectionné</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Fermer</translation>
     </message>
     <message>
         <source>Device:</source>
@@ -49730,10 +44384,6 @@ Remote error output was: %1</source>
         <translation type="obsolete">Impossible de récupérer la liste des ports disponibles : </translation>
     </message>
     <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Erreur de connexion : %1</translation>
-    </message>
-    <message>
         <source>Starting gdbserver...</source>
         <translation type="obsolete">Démarrage de gbdserver...</translation>
     </message>
@@ -49756,7 +44406,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::TarPackageCreationStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>Paquetage terminé avec succès.</translation>
@@ -49807,7 +44457,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::TypeSpecificDeviceConfigurationListModel</name>
+    <name>RemoteLinux</name>
     <message>
         <source>(default)</source>
         <translation type="obsolete">(par défaut)</translation>
@@ -49818,7 +44468,7 @@ Remote error output was: %1</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::UploadAndInstallTarPackageStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>Aucune étape de création d&apos;archive tarball trouvée.</translation>
@@ -50397,11 +45047,7 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardCheckPreviousKeySetupPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Has a passwordless (key-based) login already been set up for this device?</source>
         <translation>Posséde déjà un de mot de passe (basé sur des clés) de connexion pour cet appareil ?</translation>
@@ -50414,13 +45060,6 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
         <source>No</source>
         <translation>Non</translation>
     </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingWizardPageFremantleFree</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
     <message>
         <source>Choose build configuration:</source>
         <translation>Choisir la configuration de compilation :</translation>
@@ -50429,9 +45068,6 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
         <source>Only create source package, do not upload</source>
         <translation>Ne créer que le paquet de sources, ne pas téléverser</translation>
     </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingFileSelectionDialog</name>
     <message>
         <source>Choose Package Contents</source>
         <translation>Choisir le contenu du paquet</translation>
@@ -50441,23 +45077,9 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
 </source>
         <translation>&lt;b&gt;Veuillez sélectionner les fichiers que vous voulez inclure dans le tarball des sources. &lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingResultPageFremantleFree</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
     <message>
         <source>Progress</source>
         <translation>Avancement</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
     </message>
     <message>
         <source>OpenGL Mode</source>
@@ -50718,7 +45340,7 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -50813,7 +45435,7 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -50835,10 +45457,6 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
         <translation>Le type d&apos;authentification : </translation>
     </message>
     <message>
-        <source>Password</source>
-        <translation>Mot de passe</translation>
-    </message>
-    <message>
         <source>Key</source>
         <translation>Clé</translation>
     </message>
@@ -50852,18 +45470,14 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDeviceTestDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Device Test</source>
         <translation>Test de périphérique</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxDeployConfigurationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Device configuration:</source>
         <translation type="obsolete">Configuration du périphérique :</translation>
@@ -50883,25 +45497,6 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     <message>
         <source>Files to deploy:</source>
         <translation>Fichiers à déployer :</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::RemoteLinuxProcessesDialog</name>
-    <message>
-        <source>List of Remote Processes</source>
-        <translation type="obsolete">Liste des processus distants</translation>
-    </message>
-    <message>
-        <source>&amp;Filter by process name:</source>
-        <translation type="obsolete">&amp;Filtrer par nom de processus : </translation>
-    </message>
-    <message>
-        <source>&amp;Update List</source>
-        <translation type="obsolete">Mettre à jo&amp;ur la liste </translation>
-    </message>
-    <message>
-        <source>&amp;Kill Selected Process</source>
-        <translation type="obsolete">Tuer les processus sélectionnés (&amp;K)</translation>
     </message>
 </context>
 <context>
@@ -53228,25 +47823,14 @@ Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;un
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::EmbeddedLinuxTargetFactory</name>
-    <message>
-        <source>embedded</source>
-        <translation type="obsolete">embarqué</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Embedded Linux</source>
         <translation type="obsolete">Linux embarqué</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::GenericEmbeddedLinuxTarget</name>
-    <message>
-        <source>Embedded Linux</source>
-        <translation type="obsolete">Linux embarqué</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxDeployConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Double-click to edit the project file</source>
         <translation type="obsolete">Double-cliquez pour modifier le fichier de projet</translation>
@@ -57206,125 +51790,6 @@ were not verified among remotes in %3. Select different folder?</source>
     </message>
 </context>
 <context>
-    <name>Madde::Internal::DebianManager</name>
-    <message>
-        <source>Error Creating Debian Project Templates</source>
-        <translation>Erreur lors de la création de modèles Debian</translation>
-    </message>
-    <message>
-        <source>Failed to open debian changelog &quot;%1&quot; file for reading.</source>
-        <translation>Échec de l&apos;ouverture pour lecture du fichier de changements Debian &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
-        <translation>Le fichier de journal des changements Debian &quot;%1&quot; a un format inattendu.</translation>
-    </message>
-    <message>
-        <source>Refusing to update changelog file: Already contains version &apos;%1&apos;.</source>
-        <translation>Refus de mise à jour du journal des changements : il contient déjà la version &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Cannot update changelog: Invalid format (no maintainer entry found).</source>
-        <translation>Refus de mise à jour du journal des changements : format invalide (aucune entrée de mainteneur trouvée).</translation>
-    </message>
-    <message>
-        <source>Invalid icon data in Debian control file.</source>
-        <translation>Données de l&apos;icône invalides dans le contrôle de fichier Debian.</translation>
-    </message>
-    <message>
-        <source>Could not read image file &apos;%1&apos;.</source>
-        <translation>Impossible de lire le fichier image &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Could not export image file &apos;%1&apos;.</source>
-        <translation>Impossible d&apos;exporter le fichier image &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Failed to create directory &quot;%1&quot;.</source>
-        <translation>Impossible de créer le dossier &quot;%1&quot;.</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: No Qt version set.</source>
-        <translation>Impossible de créer des modèles Debian : pas de version de Qt définie.</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: dh_make failed (%1).</source>
-        <translation>Impossible de créer des modèles Debian : échec de dh_make (%1).</translation>
-    </message>
-    <message>
-        <source>Unable to create debian templates: dh_make failed (%1).</source>
-        <translation>Impossible de créer des modèles Debian : échec de dh_make (%1).</translation>
-    </message>
-    <message>
-        <source>Unable to move new debian directory to &apos;%1&apos;.</source>
-        <translation>Impossible de déplacer le nouveau répertoire Debian dans &quot;%1&quot;. </translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaddeDevice</name>
-    <message>
-        <source>Test</source>
-        <translation type="obsolete">Test</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key...</source>
-        <translation type="obsolete">Déployer la clé publique...</translation>
-    </message>
-    <message>
-        <source>Maemo5/Fremantle</source>
-        <translation>Maemo5/Fremantle</translation>
-    </message>
-    <message>
-        <source>MeeGo 1.2 Harmattan</source>
-        <translation>MeeGo 1.2 Harmattan</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaddeQemuStartService</name>
-    <message>
-        <source>Checking whether to start Qemu...</source>
-        <translation>Vérification de la nécessité de démarrer Qemu...</translation>
-    </message>
-    <message>
-        <source>Target device is not an emulator. Nothing to do.</source>
-        <translation>Le périphérique cible n&apos;est pas un émulateur. Rien à faire.</translation>
-    </message>
-    <message>
-        <source>Qemu is already running. Nothing to do.</source>
-        <translation>Qemu est en cours d&apos;exécution. Rien à faire.</translation>
-    </message>
-    <message>
-        <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
-        <translation>Impossible de déployer : Qemu n&apos;était pas lancé. Il a maintenant été démarré, mais il prendra un peu de temps avant d&apos;être prêt. Veuillez réessayer à ce moment. </translation>
-    </message>
-    <message>
-        <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
-        <translation>Impossible de déployer : vous voulez déployer sur Qemu, mais il n&apos;est pas activé pour cette version de Qt. </translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaddeQemuStartStep</name>
-    <message>
-        <source>Start Qemu, if necessary</source>
-        <translation>Démarre Qemu, si nécessaire</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::Qt4MaemoDeployConfiguration</name>
-    <message>
-        <source>Add Packaging Files to Project</source>
-        <translation>Ajouter des fichiers de paquetage au projet</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;Qt Creator has set up the following files to enable packaging:
-   %1
-Do you want to add them to the project?&lt;/html&gt;</source>
-        <translation>&lt;html&gt;Qt Creator a configuré les fichiers suivants pour permettre l&apos;empaquetage : 
-%1
-Voulez-vous les ajouter au projet ?&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
     <name>Perforce::Internal::PerforceVersionControl</name>
     <message>
         <source>&amp;Edit (%1)</source>
@@ -58516,26 +52981,7 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDevice</name>
-    <message>
-        <source>Generic Linux</source>
-        <translation>Linux générique</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation>Test</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key...</source>
-        <translation>Déployer la clé publique...</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceService</name>
-    <message>
-        <source>Remote process failed to start.</source>
-        <translation>Échec de démarage du processus distant.</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Remote process crashed.</source>
         <translation>Le processus distant a crashé.</translation>
@@ -58565,41 +53011,24 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxCheckForFreeDiskSpaceStepWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>MB</source>
         <translation>Mo</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Check for free disk space</source>
         <translation>Vérification de l&apos;espace disque disponible</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::LinuxDeviceDebugSupport</name>
-    <message>
-        <source>Checking available ports...
-</source>
-        <translation>Vérification des ports disponibles...</translation>
-    </message>
-    <message>
-        <source>Checking available ports...</source>
-        <translation>Vérification des ports disponibles...</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Debugging failed.</source>
         <translation>Le débogage a échoué.</translation>
-    </message>
-    <message>
-        <source>Initial setup failed: %1</source>
-        <translation>Échec lors de la configuration initiale : %1</translation>
-    </message>
-    <message>
-        <source>Not enough free ports on device for debugging.</source>
-        <translation type="obsolete">Pas assez de ports disponibles sur le périphérique pour le débogage. </translation>
     </message>
 </context>
 <context>
@@ -63136,14 +57565,14 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxRunSupport</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Not enough free ports on device for debugging.</source>
         <translation>Pas assez de ports disponibles sur le périphérique pour le débogage.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxAnalyzeSupport</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Checking available ports...
 </source>
@@ -63164,7 +57593,7 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxDeploymentDataModel</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Local File Path</source>
         <translation>Chemin du fichier local</translation>
@@ -63175,7 +57604,7 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxEnvironmentAspect</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Clean Environment</source>
         <translation>Environnement vierge</translation>
@@ -63186,7 +57615,7 @@ Cet assistant vous guidera à travers les étapes essentielles pour déployez un
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxEnvironmentAspectWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>Récupérer l&apos;environnement du périphérique</translation>
@@ -65781,7 +60210,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxSignalOperation</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Exit code is %1. stderr:</source>
         <translation>Le code de sortie %1. stderr :</translation>

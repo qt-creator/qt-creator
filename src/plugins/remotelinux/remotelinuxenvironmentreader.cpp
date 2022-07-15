@@ -25,6 +25,8 @@
 
 #include "remotelinuxenvironmentreader.h"
 
+#include "remotelinuxtr.h"
+
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runcontrol.h>
 
@@ -48,7 +50,7 @@ RemoteLinuxEnvironmentReader::RemoteLinuxEnvironmentReader(const IDevice::ConstP
 void RemoteLinuxEnvironmentReader::start()
 {
     if (!m_device) {
-        emit error(tr("Error: No device"));
+        emit error(Tr::tr("Error: No device"));
         setFinished();
         return;
     }
@@ -77,7 +79,7 @@ void RemoteLinuxEnvironmentReader::handleCurrentDeviceConfigChanged()
 void RemoteLinuxEnvironmentReader::handleDone()
 {
     if (m_deviceProcess->result() != ProcessResult::FinishedWithSuccess) {
-        emit error(tr("Error: %1").arg(m_deviceProcess->errorString()));
+        emit error(Tr::tr("Error: %1").arg(m_deviceProcess->errorString()));
         setFinished();
         return;
     }
@@ -87,16 +89,16 @@ void RemoteLinuxEnvironmentReader::handleDone()
     if (m_deviceProcess->exitStatus() != QProcess::NormalExit) {
         errorMessage = m_deviceProcess->errorString();
     } else if (m_deviceProcess->exitCode() != 0) {
-        errorMessage = tr("Process exited with code %1.")
+        errorMessage = Tr::tr("Process exited with code %1.")
                 .arg(m_deviceProcess->exitCode());
     }
 
     if (!errorMessage.isEmpty()) {
-        errorMessage = tr("Error running 'env': %1").arg(errorMessage);
+        errorMessage = Tr::tr("Error running 'env': %1").arg(errorMessage);
         const QString remoteStderr
                 = QString::fromUtf8(m_deviceProcess->readAllStandardError()).trimmed();
         if (!remoteStderr.isEmpty())
-            errorMessage += QLatin1Char('\n') + tr("Remote stderr was: \"%1\"").arg(remoteStderr);
+            errorMessage += QLatin1Char('\n') + Tr::tr("Remote stderr was: \"%1\"").arg(remoteStderr);
         emit error(errorMessage);
     } else {
         const QString remoteOutput = QString::fromUtf8(m_deviceProcess->readAllStandardOutput());

@@ -27,12 +27,14 @@
 
 #include "abstractremotelinuxdeployservice.h"
 #include "remotelinux_constants.h"
+#include "remotelinuxtr.h"
 
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
+
 #include <utils/algorithm.h>
 #include <utils/processinterface.h>
 #include <utils/qtcprocess.h>
@@ -45,7 +47,6 @@ namespace Internal {
 
 class RsyncDeployService : public AbstractRemoteLinuxDeployService
 {
-    Q_OBJECT
 public:
     RsyncDeployService(QObject *parent = nullptr) : AbstractRemoteLinuxDeployService(parent)
     {
@@ -58,7 +59,7 @@ public:
                         finalMessage += '\n';
                     finalMessage += stdErr;
                 }
-                emit errorMessage(tr("Deploy via rsync: failed to create remote directories:")
+                emit errorMessage(Tr::tr("Deploy via rsync: failed to create remote directories:")
                                   + '\n' + finalMessage);
                 setFinished();
                 return;
@@ -76,11 +77,11 @@ public:
                 setFinished();
             };
             if (result.m_error == QProcess::FailedToStart)
-                notifyError(tr("rsync failed to start: %1").arg(result.m_errorString));
+                notifyError(Tr::tr("rsync failed to start: %1").arg(result.m_errorString));
             else if (result.m_exitStatus == QProcess::CrashExit)
-                notifyError(tr("rsync crashed."));
+                notifyError(Tr::tr("rsync crashed."));
             else if (result.m_exitCode != 0)
-                notifyError(tr("rsync failed with exit code %1.").arg(result.m_exitCode));
+                notifyError(Tr::tr("rsync failed with exit code %1.").arg(result.m_exitCode));
             else
                 setFinished();
         });
@@ -170,12 +171,12 @@ RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Utils::Id id)
     auto flags = addAspect<StringAspect>();
     flags->setDisplayStyle(StringAspect::LineEditDisplay);
     flags->setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
-    flags->setLabelText(tr("Flags:"));
+    flags->setLabelText(Tr::tr("Flags:"));
     flags->setValue(FileTransferSetupData::defaultRsyncFlags());
 
     auto ignoreMissingFiles = addAspect<BoolAspect>();
     ignoreMissingFiles->setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");
-    ignoreMissingFiles->setLabel(tr("Ignore missing files:"),
+    ignoreMissingFiles->setLabel(Tr::tr("Ignore missing files:"),
                                  BoolAspect::LabelPlacement::InExtraLabel);
     ignoreMissingFiles->setValue(false);
 
@@ -199,9 +200,7 @@ Utils::Id RsyncDeployStep::stepId()
 
 QString RsyncDeployStep::displayName()
 {
-    return tr("Deploy files via rsync");
+    return Tr::tr("Deploy files via rsync");
 }
 
-} //namespace RemoteLinux
-
-#include <rsyncdeploystep.moc>
+} // RemoteLinux

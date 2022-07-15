@@ -27,8 +27,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-namespace RemoteLinux {
-namespace Internal {
+namespace RemoteLinux::Internal {
 
 class RemoteLinuxCustomRunConfigurationFactory
         : public ProjectExplorer::FixedRunConfigurationFactory
@@ -37,5 +36,4 @@ public:
     RemoteLinuxCustomRunConfigurationFactory();
 };
 
-} // namespace Internal
-} // namespace RemoteLinux
+} // RemoteLinux::Internal

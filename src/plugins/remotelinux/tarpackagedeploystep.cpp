@@ -28,6 +28,7 @@
 #include "abstractremotelinuxdeployservice.h"
 #include "abstractremotelinuxdeploystep.h"
 #include "remotelinux_constants.h"
+#include "remotelinuxtr.h"
 #include "tarpackagecreationstep.h"
 
 #include <projectexplorer/deployconfiguration.h>
@@ -79,7 +80,7 @@ TarPackageInstaller::TarPackageInstaller()
     });
     connect(&m_installer, &QtcProcess::done, this, [this] {
         const QString errorMessage = m_installer.result() == ProcessResult::FinishedWithSuccess
-                ? QString() : tr("Installing package failed.") + m_installer.errorString();
+                ? QString() : Tr::tr("Installing package failed.") + m_installer.errorString();
         emit finished(errorMessage);
     });
 }
@@ -198,10 +199,10 @@ void TarPackageDeployService::handleUploadFinished(const ProcessResultData &resu
         return;
     }
 
-    emit progressMessage(tr("Successfully uploaded package file."));
+    emit progressMessage(Tr::tr("Successfully uploaded package file."));
     const QString remoteFilePath = uploadDir() + '/' + m_packageFilePath.fileName();
     m_state = Installing;
-    emit progressMessage(tr("Installing package to device..."));
+    emit progressMessage(Tr::tr("Installing package to device..."));
     connect(&m_installer, &TarPackageInstaller::stdoutData,
             this, &AbstractRemoteLinuxDeployService::stdOutData);
     connect(&m_installer, &TarPackageInstaller::stderrData,
@@ -217,7 +218,7 @@ void TarPackageDeployService::handleInstallationFinished(const QString &errorMsg
 
     if (errorMsg.isEmpty()) {
         saveDeploymentTimeStamp(DeployableFile(m_packageFilePath, {}), {});
-        emit progressMessage(tr("Package installed."));
+        emit progressMessage(Tr::tr("Package installed."));
     } else {
         emit errorMessage(errorMsg);
     }
@@ -236,8 +237,6 @@ void TarPackageDeployService::setFinished()
 
 class TarPackageDeployStep : public AbstractRemoteLinuxDeployStep
 {
-    Q_DECLARE_TR_FUNCTIONS(RemoteLinux::Internal::TarPackageDeployStep)
-
 public:
     TarPackageDeployStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
@@ -256,7 +255,7 @@ public:
                     break;
             }
             if (!pStep)
-                return CheckResult::failure(tr("No tarball creation step found."));
+                return CheckResult::failure(Tr::tr("No tarball creation step found."));
 
             service->setPackageFilePath(pStep->packageFilePath());
             return service->isDeploymentPossible();
@@ -270,7 +269,7 @@ public:
 TarPackageDeployStepFactory::TarPackageDeployStepFactory()
 {
     registerStep<TarPackageDeployStep>(Constants::TarPackageDeployStepId);
-    setDisplayName(TarPackageDeployStep::tr("Deploy tarball via SFTP upload"));
+    setDisplayName(Tr::tr("Deploy tarball via SFTP upload"));
     setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
 }

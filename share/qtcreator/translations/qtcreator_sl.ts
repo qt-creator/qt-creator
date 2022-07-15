@@ -13461,7 +13461,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DeviceDebugRunControl</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Warning: Cannot locate the symbol file belonging to %1.
 </source>
@@ -13475,14 +13475,6 @@ Razlog: %2</translation>
 </translation>
     </message>
     <message>
-        <source>Debugger for Symbian Platform</source>
-        <translation>Razhroščevalnik za platformo Symbian</translation>
-    </message>
-    <message>
-        <source>Debug on Device</source>
-        <translation>Razhroščuj na napravi</translation>
-    </message>
-    <message>
         <source>Warning: Cannot locate the symbol file belonging to %1.</source>
         <translation type="obsolete">Opozorilo: ni moč najti datoteke s simboli, ki pripada %1.</translation>
     </message>
@@ -13494,24 +13486,9 @@ Razlog: %2</translation>
         <source>Debugging finished.</source>
         <translation type="obsolete">Razhroščevanje je zaključeno.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenti:</translation>
-    </message>
     <message>
         <source>Debugger:</source>
         <translation>Razhroščevalnik:</translation>
-    </message>
-    <message>
-        <source>Device:</source>
-        <translation type="obsolete">Naprava:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Ime:</translation>
     </message>
     <message>
         <source>Installation file:</source>
@@ -13522,29 +13499,8 @@ Razlog: %2</translation>
         <translation type="obsolete">Naprava na zaporednih vratih:</translation>
     </message>
     <message>
-        <source>Queries the device for information</source>
-        <translation type="obsolete">Pri napravi poizve o podatkih</translation>
-    </message>
-    <message>
         <source>Connecting...</source>
         <translation type="obsolete">Povezovanje …</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfiguration</name>
-    <message>
-        <source>%1 in Symbian Emulator</source>
-        <extracomment>S60 emulator run configuration default display name, %1 is base pro-File name
-----------
-S60 emulator run configuration default display name, %1 is base pro-File name
-</extracomment>
-        <translation>%1 v posnemovalniku Symbian</translation>
-    </message>
-    <message>
-        <source>Run on Symbian Emulator</source>
-        <extracomment>S60 emulator run configuration default display name (no pro-file name)
-</extracomment>
-        <translation>Zaženi v posnemovalniku Symbian-a</translation>
     </message>
     <message>
         <source>The .pro file is currently being parsed.</source>
@@ -13554,13 +13510,9 @@ S60 emulator run configuration default display name, %1 is base pro-File name
         <source>The .pro file could not be parsed.</source>
         <translation>Datoteke *.pro ni bilo moč razčleniti.</translation>
     </message>
-    <message>
-        <source>Qt Symbian Emulator RunConfiguration</source>
-        <translation type="obsolete">Nastavitve za zagon posnemovalnika Qt Symbian</translation>
-    </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Executable:</source>
         <translation>Izvršljiva datoteka:</translation>
@@ -13568,22 +13520,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name
     <message>
         <source>Name:</source>
         <translation type="obsolete">Ime:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationFactory</name>
-    <message>
-        <source>%1 in Symbian Emulator</source>
-        <translation>%1 v posnemovalniku Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunControl</name>
-    <message>
-        <source>Starting %1...
-</source>
-        <translation>Zaganjanje %1 ...
-</translation>
     </message>
     <message>
         <source>[Qt Message]</source>
@@ -13605,7 +13541,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60Manager</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Run in Emulator</source>
         <translation>Zaženi v posnemovalniku</translation>
@@ -14513,7 +14449,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>MaemoSshConfigDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>SSH Key Configuration</source>
         <translation>Nastavitev ključa SSH</translation>
@@ -14592,13 +14528,6 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <source>Save Private Key...</source>
         <translation type="obsolete">Shrani zasebni ključ …</translation>
     </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Zapri</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageStepWidget</name>
     <message>
         <source>Self-signed certificate</source>
         <translation>Samo-podpisano potrdilo</translation>
@@ -17946,13 +17875,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageStep</name>
-    <message>
-        <source>Create SIS Package</source>
-        <extracomment>default create SIS package build step display name
-</extracomment>
-        <translation>Ustvari paket SIS</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Could not find make command &apos;%1&apos; in the build environment</source>
         <translation>V okolju za gradnjo ni bilo moč najti ukaza make »%1«</translation>
@@ -18024,25 +17947,6 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
         <translation>Proces »%1« se je sesul.</translation>
     </message>
     <message>
-        <source>Create SIS Package</source>
-        <comment>Create SIS package build step name</comment>
-        <translation type="obsolete">Ustvari paket SIS</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageStepFactory</name>
-    <message>
-        <source>Create SIS Package</source>
-        <translation>Ustvari paket SIS</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageStepConfigWidget</name>
-    <message>
-        <source>Reset Passphrases</source>
-        <translation>Ponastavi šifrirne fraze</translation>
-    </message>
-    <message>
         <source>Do you want to reset all passphrases saved for keys used?</source>
         <translation>Ali želite ponastaviti vse šifrirne fraze, shranjene za uporabljene ključe?</translation>
     </message>
@@ -18061,45 +17965,6 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     <message>
         <source>self-signed</source>
         <translation>samo-podpisan</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create SIS Package:&lt;/b&gt; %1, using Smart Installer</source>
-        <translation>&lt;b&gt;Ustvari paket SIS:&lt;/b&gt; %1 z uporabo Smart Installer</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create SIS Package:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Ustvari paket SIS:&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>signed with certificate %1 and key file %2</source>
-        <translation type="obsolete">podpisan s potrdilom %1 in ključem %2</translation>
-    </message>
-</context>
-<context>
-    <name>ProjectExplorer::Internal::S60ProjectChecker</name>
-    <message>
-        <source>The Symbian SDK and the project sources must reside on the same drive.</source>
-        <translation>Symbian SDK in izvorna koda projekta se morata nahajati na istem pogonu.</translation>
-    </message>
-    <message>
-        <source>The Symbian tool chain does not handle spaces in the project path &apos;%1&apos;.</source>
-        <translation>Zaporedje orodij za Symbian s presledki v poti projekta (%1) ne zna rokovati.</translation>
-    </message>
-    <message>
-        <source>The Symbian tool chain does not handle special characters in the project name &apos;%1&apos; well.</source>
-        <translation>Zaporedje orodij za Symbian s posebnimi znaki v imenu projekta (%1) ne zna rokovati najbolje.</translation>
-    </message>
-    <message>
-        <source>The Symbian SDK was not found for Qt version %1.</source>
-        <translation type="obsolete">Symbian SDK za Qt različice %1 ni bil najden.</translation>
-    </message>
-    <message>
-        <source>The &quot;Open C/C++ plugin&quot; is not installed in the Symbian SDK or the Symbian SDK path is misconfigured for Qt version %1.</source>
-        <translation type="obsolete">Vstavek »Open C/C++« ni nameščen v Symbian SDK ali pa pot do Symbian SDK-ja za Qt različice %1 ni pravilno nastavljena.</translation>
-    </message>
-    <message>
-        <source>The Symbian toolchain does not handle special characters in a project path well.</source>
-        <translation type="obsolete">Veriga orodij za Symbian s posebnimi znaki v poti projekta ne zna rokovati najbolje.</translation>
     </message>
 </context>
 <context>
@@ -20374,18 +20239,14 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>S60CertificateDetailsDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Details of Certificate</source>
         <translation>Podrobnosti potrdila</translation>
     </message>
 </context>
 <context>
-    <name>S60PublishingBuildSettingsPageOvi</name>
-    <message>
-        <source>Form</source>
-        <translation>Obrazec</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <location/>
         <source>Choose a build configuration:</source>
@@ -20405,18 +20266,7 @@ Starejše različice so pri gradnji ustreznih datotek SIS omejene.</translation>
     </message>
 </context>
 <context>
-    <name>S60PublishingResultsPageOvi</name>
-    <message>
-        <source>Form</source>
-        <translation>Obrazec</translation>
-    </message>
-</context>
-<context>
-    <name>S60PublishingSisSettingsPageOvi</name>
-    <message>
-        <source>Form</source>
-        <translation>Obrazec</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <location/>
         <source>Localised Vendor Names</source>
@@ -26862,7 +26712,7 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60CertificateInfo</name>
+    <name>RemoteLinux</name>
     <message>
         <source>The certificate &quot;%1&quot; has already expired and cannot be used.
 Expiration date: %2.</source>
@@ -26922,7 +26772,7 @@ Veljavno od: %2.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageParser</name>
+    <name>RemoteLinux</name>
     <message>
         <source>The binary package &apos;%1&apos; was patched to be installable after being self-signed.
 %2
@@ -26939,7 +26789,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::S60DeployConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Deploy %1 to Symbian device</source>
         <translation>Razmesti %1 na napravo Symbian</translation>
@@ -26950,18 +26800,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::S60DeployConfigurationFactory</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <translation>%1 na napravi Symbian</translation>
-    </message>
-    <message>
-        <source>Deploy to Symbian device</source>
-        <translation>Razmesti na napravo Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeployConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Device:</source>
         <translation>Naprava:</translation>
@@ -26977,10 +26816,6 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     <message>
         <source>WLAN:</source>
         <translation>Brezžično omrežje:</translation>
-    </message>
-    <message>
-        <source>Installation file:</source>
-        <translation>Namestitvena datoteka:</translation>
     </message>
     <message>
         <source>Silent installation is an installation mode that does not require user&apos;s intervention. In case it fails the non silent installation is launched.</source>
@@ -27088,7 +26923,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Unable to remove existing file &apos;%1&apos;: %2</source>
         <translation>Obstoječe datoteke »%1« ni moč odstraniti: %2</translation>
@@ -27213,51 +27048,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DeployStepWidget</name>
-    <message>
-        <source>Deploy SIS Package</source>
-        <translation>Razmesti paket SIS</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeployStepFactory</name>
-    <message>
-        <source>Deploy SIS Package</source>
-        <translation>Razmesti paket SIS</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::S60DeviceRunConfiguration</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <extracomment>S60 device runconfiguration default display name, %1 is base pro-File name
-</extracomment>
-        <translation>%1 na napravi Symbian</translation>
-    </message>
-    <message>
-        <source>Run on Symbian device</source>
-        <extracomment>S60 device runconfiguration default display name (no profile set)
-</extracomment>
-        <translation>Zaženi na napravi Symbian</translation>
-    </message>
-    <message>
-        <source>The .pro file is currently being parsed.</source>
-        <translation>Datoteko *.pro se trenutno razčlenjuje.</translation>
-    </message>
-    <message>
-        <source>The .pro file could not be parsed.</source>
-        <translation>Datoteke *.pro ni bilo moč razčleniti.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::S60DeviceRunConfigurationFactory</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <translation>%1 na napravi Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublisherOvi</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Clean</source>
         <translation>Čiščenje</translation>
@@ -27310,7 +27101,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60CommandPublishStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Running %1</source>
         <extracomment>%1 is a name of the Publish Step i.e. Clean Step
@@ -27319,7 +27110,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60PublishingBuildSettingsPageOvi</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No valid Qt version has been detected.&lt;br&gt;Define a correct Qt version in &quot;Options &gt; Qt4&quot;</source>
         <translation>Zaznane ni bilo nobene veljavne različice Qt.&lt;br&gt; Različico Qt lahko določite v Orodja → Možnosti → Qt 4.</translation>
@@ -27330,128 +27121,11 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60PublishingResultsPageOvi</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Open Containing Folder</source>
         <translation>Odpri vsebujočo mapo</translation>
     </message>
-    <message>
-        <source>Close</source>
-        <translation>Zapri</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublishingSisSettingsPageOvi</name>
-    <message>
-        <source>This should be application&apos;s display name. &lt;br&gt;It cannot be empty.&lt;br&gt;</source>
-        <translation>To je prikazano ime za program.&lt;br&gt;Ne sme biti prazno.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The display name is quite long.&lt;br&gt;It might not be fully visible in the phone&apos;s menu.&lt;br&gt;</source>
-        <translation>Ime za prikaz je precej dolgo.&lt;br&gt;Na meniju telefona morda ne bo vidno v celoti.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; is a default vendor name used for testing and development. &lt;br&gt;The Vendor_Name field cannot contain the name &apos;Nokia&apos;. &lt;br&gt;You are advised against using the default names &apos;Vendor&apos; and &apos;Vendor-EN&apos;. &lt;br&gt;You should also not leave the entry blank. &lt;br&gt;see &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt; for guidelines.&lt;br&gt;</source>
-        <translation>»%1« je privzeto ime za preizkušanje in razvoj.&lt;br&gt;Polje Vendor_Name ne sme vsebovati imena »Nokia«.&lt;br&gt;Odsvetujemo uporabo privzetih imen »Vendor« in »Vendor-EN«.&lt;br&gt;Polja tudi ni dobro pustiti praznega.&lt;br&gt;Za navodila si oglejte spletno stran &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt;.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>%1 is a default vendor name used for testing and development.</source>
-        <translation>%1 je privzeto ime za preizkušanje in razvoj.</translation>
-    </message>
-    <message>
-        <source>%1 are default vendor names used for testing and development.</source>
-        <translation>%1 sta privzeti imeni za preizkušanje in razvoj.</translation>
-    </message>
-    <message>
-        <source>%1 &lt;br&gt;The Vendor_Name field cannot contain the name &apos;Nokia&apos;. &lt;br&gt;You are advised against using the default names &apos;Vendor&apos; and &apos;Vendor-EN&apos;. &lt;br&gt;You should also not leave the entry blank. &lt;br&gt;See &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt; for guidelines.&lt;br&gt;</source>
-        <translation>%1&lt;br&gt;Polje Vendor_Name ne sme vsebovati imena »Nokia«.&lt;br&gt;Odsvetujemo uporabo privzetih imen »Vendor« in »Vendor-EN«.&lt;br&gt;Polja tudi ni dobro pustiti praznega.&lt;br&gt;Za navodila si oglejte spletno stran &lt;a href=&quot;http://www.forum.nokia.com/Distribute/Packaging_and_signing.xhtml&quot;&gt;Packaging and Signing&lt;/a&gt;.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The application UID %1 is only for testing and development.&lt;br&gt;SIS packages built with it cannot be distributed via the Ovi Store.&lt;br&gt;</source>
-        <translation>UID %1 je samo za preizkušanje in razvoj.&lt;br&gt;Paketov SIS, ki so z njim zgrajeni, ni moč distribuirati prek Ovi Store.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The application UID %1 is a symbiansigned.com UID. &lt;br&gt;Applications with this UID will be rejected by Application Signing Services for Ovi Store.&lt;br&gt;If you want to continue with a symbiansigned.com UID, sign your application on symbiansigned.com and upload the signed application to Publish to Ovi.&lt;br&gt;</source>
-        <translation>UID %1 izviro s symbiansigned.com.&lt;br&gt;Programe s tem UID-jem bodo storitve za podpisovanje programov za Ovi Store zavrnile.&lt;br&gt;Če želite nadaljevati s tem UID-jem, podpišite program na symbiansigned.com in podpisan program pošljite prek Objavi na Ovi.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The application UID %1 is not an acceptable UID.&lt;br&gt;SIS packages built with it cannot be signed by Application Signing Services for Ovi Store.&lt;br&gt;</source>
-        <translation>UID %1 ni sprejemljiv.&lt;br&gt;Paketov SIS, ki so zgrajeni z njim, ni mogoče podpisati z uporabo storitev za podpisovanje programov za Ovi Store.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>The application UID is a global unique indentifier of the SIS package.&lt;br&gt;</source>
-        <translation>UID je globalen edinstven identifikator paketa SIS.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>To get a unique application UID for your package file,&lt;br&gt;please register at &lt;a href=&quot;http://info.publish.ovi.com/&quot;&gt;publish.ovi.com&lt;/a&gt;</source>
-        <translation>Da pridobite edinstven UID za paket s programom, se registrirajte&lt;br&gt;na spletni strani &lt;a href=&quot;http://info.publish.ovi.com/&quot;&gt;publish.ovi.com&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>%1 need(s) to be certified signed. Please go to &lt;a href=&quot;symbiansigned.com&quot;&gt;symbiansigned.com&lt;/a&gt; for guidance.</source>
-        <translation>%1 mora(jo) biti podpisane prek Certified Signed. Za navodila obiščite spletno stran &lt;a href=&quot;symbiansigned.com&quot;&gt;symbiansigned.com&lt;/a&gt;.</translation>
-    </message>
-    <message>
-        <source>&lt;br&gt;%1 need(s) manufacturer approval.&lt;br&gt;</source>
-        <translation>&lt;br&gt;za %1 je potrebna odobritev proizvajalca naprave.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>Some capabilities might require a special kind of signing or approval from the manufacturer.&lt;br&gt;</source>
-        <translation>Za nekatere zmožnosti je potreben poseben podpis ali pa odobritev s strani proizvajalca naprave.&lt;br&gt;</translation>
-    </message>
-    <message>
-        <source>Please verify that you have a released version of Qt. &lt;br&gt;&lt;a href=&quot;http://wiki.forum.nokia.com/index.php/Nokia_Smart_Installer_for_Symbian&quot;&gt;Qt Packages Distributed by Smart Installer&lt;/a&gt; has a list of released Qt versions.</source>
-        <translation>Prepričajte se, da imate že izdano različico Qt.&lt;br&gt;Seznam izdanih različic Qt najdete na spletni strani &lt;a href=&quot;http://wiki.forum.nokia.com/index.php/Nokia_Smart_Installer_for_Symbian&quot;&gt;Qt Packages Distributed by Smart Installer&lt;/a&gt;.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublishingWizardFactoryOvi</name>
-    <message>
-        <source>Publish Qt Symbian Applications to Ovi Store</source>
-        <translation>Objavite programe Qt za Symbian v Ovi Store</translation>
-    </message>
-    <message>
-        <source>This wizard checks your project file to make sure it complies with Ovi Store submission criteria.
-
-The wizard creates SIS files that can be submitted to Publish to Ovi.
-
-You cannot use it if you use application UIDs from Symbian Signed.
-
-You cannot use it for the Certified Signed and Manufacturer level capabilities:
-NetworkControl, MultimediaDD, CommDD, DiskAdmin, AllFiles, DRM and TCB.
-
-Your application will also be rejected by Ovi QA if you choose an unreleased Qt version on the next page.</source>
-        <translation>Ta čarovnik preveri datoteko projekta in tako zagotovi, da ustreza pogojem za objavo v Ovi Store.
-
-Čarovnik ustvari datoteke SIS, ki jih lahko pošljete za objavo v Ovi.
-
-Ne morete ga uporabiti, če za programe uporabljate UID-je s Symbian Signed.
-
-Ne morete ga uporabiti za zmožnosti Certified Signed in zmožnosti, ki jih odobri izdelovalec naprave.
-
-Oddelek za zagotavljanje kakovosti v Ovi bo zavrnil program, če na naslednji strani izberete različico Qt, ki še ni izšla.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublishingWizardOvi</name>
-    <message>
-        <source>Publishing to Ovi Store</source>
-        <translation>Objavljanje v Ovi Store</translation>
-    </message>
-    <message>
-        <source>Build Configuration</source>
-        <translation>Nastavitev za gradnjo</translation>
-    </message>
-    <message>
-        <source>Project File Checks</source>
-        <translation>Preverjanja datoteke projekta</translation>
-    </message>
-    <message>
-        <source>Creating an Uploadable SIS File</source>
-        <translation>Ustvarjanje datoteke SIS za pošiljanje</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::S60RunControlBase</name>
     <message>
         <source>Launching</source>
         <translation>Zaganjanje</translation>
@@ -28157,7 +27831,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Operation canceled by user, cleaning up...</source>
         <translation>Uporabnik je preklical postopek, čiščenje ...</translation>
@@ -28179,10 +27853,6 @@ Razlog: %2</translation>
         <translation>Vse datoteke so ažurne, namestitev ni potrebna.</translation>
     </message>
     <message>
-        <source>Connection error: %1</source>
-        <translation>Napaka pri povezavi: %1</translation>
-    </message>
-    <message>
         <source>Connecting to device...</source>
         <translation>Povezovanje z napravo ...</translation>
     </message>
@@ -28196,7 +27866,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::DeployableFilesPerProFile</name>
+    <name>RemoteLinux</name>
     <message>
         <source>&lt;no target path set&gt;</source>
         <translation>&lt;ciljna pot ni nastavljena&gt;</translation>
@@ -28211,7 +27881,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::GenericLinuxDeviceConfigurationFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Generic Linux Device</source>
         <translation>Naprava z običajnim Linux-om</translation>
@@ -28234,21 +27904,21 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizard</name>
+    <name>RemoteLinux</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Nastavitev nove naprave z običajnim Linux-om</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection Data</source>
         <translation>Podatki o povezavi</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardFinalPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Setup Finished</source>
         <translation>Nastavitev zaključena</translation>
@@ -28261,21 +27931,21 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDeviceConfigurations</name>
+    <name>RemoteLinux</name>
     <message>
         <source>(default for %1)</source>
         <translation>(privzeto za %1)</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDeviceFactorySelectionDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Start Wizard</source>
         <translation>Zaženi čarovnika</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaddeDeviceConfigurationFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
         <translation>Naprava s podporo za MADDE (Fremantle, Harmattan, MeeGo)</translation>
@@ -28294,7 +27964,7 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoConfigTestDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Testing configuration. This may take a while.</source>
         <translation>Preizkušanje nastavitve. To lahko traja dalj časa.</translation>
@@ -28306,20 +27976,6 @@ Poleg tega bo preizkušena povezljivost z napravo.</translation>
     <message>
         <source>Stop Test</source>
         <translation>Ustavi preizkus</translation>
-    </message>
-    <message>
-        <source>Could not connect to host: %1</source>
-        <translation>Ni se bilo moč povezati z gostiteljem: %1</translation>
-    </message>
-    <message>
-        <source>
-Did you start Qemu?</source>
-        <translation>
-Ali ste zagnali Qemu?</translation>
-    </message>
-    <message>
-        <source>Remote process failed: %1</source>
-        <translation>Oddaljeni proces ni uspel: %1</translation>
     </message>
     <message>
         <source>Qt version mismatch!  Expected Qt on device: 4.6.2 or later.</source>
@@ -28385,14 +28041,14 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoDeployByMountStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Installing package to device...</source>
         <translation>Nameščanje paketa na napravo ...</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoMountAndInstallDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No matching packaging step found.</source>
         <translation>Najdenega ni bilo nobenega ustreznega koraka za pakiranje.</translation>
@@ -28407,7 +28063,7 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoMountAndCopyDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>All files copied.</source>
         <translation>Vse datoteke so bile skopirane.</translation>
@@ -28418,7 +28074,7 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeployConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
         <translation>Izberite ikono (po potrebi bo velikost prilagojena na %1 ⨯ %1 pik)</translation>
@@ -28441,14 +28097,7 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeploymentMounter</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Povezava ni uspela: %1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeployStepBaseWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot deploy: %1</source>
         <translation>Ni moč razmestiti: %1</translation>
@@ -28459,7 +28108,7 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigurationsSettingsWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Physical Device</source>
         <translation>Fizična naprava</translation>
@@ -28474,28 +28123,28 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardStartPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>General Information</source>
         <translation>Splošni podatki</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Device Status Check</source>
         <translation>Preverjanje stanja naprave</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Existing Keys Check</source>
         <translation>Preverjanje obstoječih ključev</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Key Creation</source>
         <translation>Ustvarjanje ključev</translation>
@@ -28521,16 +28170,9 @@ Ali ste zagnali Qemu?</translation>
         <translation>Ustvarjanje ključev ni uspelo: %1</translation>
     </message>
     <message>
-        <source>Done.</source>
-        <translation>Opravljeno.</translation>
-    </message>
-    <message>
         <source>Could Not Save Key File</source>
         <translation>Datoteke s ključem ni bilo moč shraniti</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
     <message>
         <source>Key Deployment</source>
         <translation>Razmeščanje ključa</translation>
@@ -28557,38 +28199,22 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardFinalPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>The new device configuration will now be created.</source>
         <translation>Sedaj bo ustvarjena nova nastavitev naprave.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizard</name>
+    <name>RemoteLinux</name>
     <message>
         <source>New Device Configuration Setup</source>
         <translation>Nova nastavitev naprave </translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceEnvReader</name>
     <message>
         <source>Connection error: %1</source>
         <translation>Napaka pri povezavi: %1</translation>
     </message>
-    <message>
-        <source>Error running remote process: %1</source>
-        <translation>Napaka pri zagonu oddaljenega procesa: %1</translation>
-    </message>
-    <message>
-        <source>
-Remote stderr was: &apos;%1&apos;</source>
-        <translation>
-Oddaljeni standardni izhod za napake je bil: »%1«</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDirectDeviceUploadStep</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>Inicializacija SFTP ni uspela: %1</translation>
@@ -28619,7 +28245,7 @@ Oddaljeni standardni izhod za napake je bil: »%1«</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoGlobal</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Could not connect to host: %1</source>
         <translation>Ni se bilo moč povezati z gostiteljem: %1</translation>
@@ -28654,14 +28280,14 @@ Ali je naprava priklopljena in nastavljena za omrežni dostop?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoInstallPackageToSysrootWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot deploy to sysroot: No packaging step found.</source>
         <translation>Ni moč razmestiti v vrhnjo mapo sistema: najdenega ni nobenega koraka pakiranja.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoInstallPackageToSysrootStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot install to sysroot without build configuration.</source>
         <translation>Brez nastavitve gradnje ni moč nameščati v vrhnjo mapo sistema.</translation>
@@ -28684,21 +28310,21 @@ Ali je naprava priklopljena in nastavljena za omrežni dostop?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoInstallDebianPackageToSysrootStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Install Debian package to sysroot</source>
         <translation>Paket Debian namesti v vrhnjo mapo sistema</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoInstallRpmPackageToSysrootStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Install RPM package to sysroot</source>
         <translation>Paket RPM namesti v vrhnjo mapo sistema</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoCopyToSysrootStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot copy to sysroot without build configuration.</source>
         <translation>Brez nastavitve gradnje ni moč kopirati v vrhnjo mapo sistema.</translation>
@@ -28721,16 +28347,6 @@ Kljub temu nadaljujem.</translation>
         <source>Copy files to sysroot</source>
         <translation>Skopiraj datoteke v vrhnjo mapo sistema</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoMakeInstallToSysrootStep</name>
-    <message>
-        <source>Copy files to sysroot</source>
-        <translation>Skopiraj datoteke v vrhnjo mapo sistema</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoKeyDeployer</name>
     <message>
         <source>Public key error: %1</source>
         <translation>Napaka glede javnega ključa: %1</translation>
@@ -28743,24 +28359,10 @@ Kljub temu nadaljujem.</translation>
         <source>Key deployment failed: %1.</source>
         <translation>Razmeščanje ključa ni uspelo: %1</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPackageCreationFactory</name>
     <message>
         <source>Create Debian Package</source>
         <translation>Ustvari paket Debian</translation>
     </message>
-    <message>
-        <source>Create RPM Package</source>
-        <translation>Ustvari paket RPM</translation>
-    </message>
-    <message>
-        <source>Create tarball</source>
-        <translation>Ustvari arhiv tar</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::AbstractMaemoPackageCreationStep</name>
     <message>
         <source>Package up to date.</source>
         <translation>Paket je ažuren.</translation>
@@ -28801,17 +28403,6 @@ Kljub temu nadaljujem.</translation>
         <source>Exit code: %1</source>
         <translation>Izhodna koda. %1</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDebianPackageCreationStep</name>
-    <message>
-        <source>Create Debian Package</source>
-        <translation>Ustvari paket Debian</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation>Ustvarjanje paketa ni uspelo.</translation>
-    </message>
     <message>
         <source>Could not move package files from %1 to %2.</source>
         <translation>Datotek paketa ni bilo moč premakniti iz %1 v %2.</translation>
@@ -28850,30 +28441,18 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRpmPackageCreationStep</name>
-    <message>
-        <source>Create RPM Package</source>
-        <translation>Ustvari paket RPM</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation>Ustvarjanje paketa ni uspelo.</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Could not move package file from %1 to %2.</source>
         <translation>Datoteke paketa ni bilo moč premakniti iz %1 v %2.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::CreateTarStepWidget</name>
     <message>
-        <location line="+37"/>
         <source>Create tarball:</source>
         <translation>Ustvari arhiv tar:</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoTarPackageCreationStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Create tarball</source>
         <translation>Ustvari arhiv tar</translation>
@@ -28900,7 +28479,7 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPackageCreationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No Version Available.</source>
         <translation>Na voljo ni nobene različice.</translation>
@@ -28947,32 +28526,24 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoPackageInstaller</name>
-    <message>
-        <source>Connection failure: %1</source>
-        <translation>Napaka povezave: %1</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Installing package failed.</source>
         <translation>Nameščanje paketa ni uspelo.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDebianPackageInstaller</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
         <translation>Nameščanje ni uspelo: paket ste poskušali nadomestiti s starejšo različico, kar ni dovoljeno.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPackageUploader</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Pripravljanje povezave SFTP ...</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Povezava ni uspela: %1</translation>
     </message>
     <message>
         <source>SFTP error: %1</source>
@@ -28988,21 +28559,21 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPerTargetDeviceConfigurationListModel</name>
+    <name>RemoteLinux</name>
     <message>
         <source>(default)</source>
         <translation>(privzeto)</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoProFilesUpdateDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Updateable Project Files</source>
         <translation>Posodobljive datoteke projekta</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPublishedProjectModel</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Include in package</source>
         <translation>Vključi v paket</translation>
@@ -29017,7 +28588,7 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPublisherFremantleFree</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Canceled.</source>
         <translation>Preklicano.</translation>
@@ -29091,10 +28662,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <translation>Ustvarjanje paketa ni uspelo.</translation>
     </message>
     <message>
-        <source>Done.</source>
-        <translation>Opravljeno.</translation>
-    </message>
-    <message>
         <source>Packaging finished successfully. The following files were created:
 </source>
         <translation>Pakiranje se je uspešno zaključilo. Ustvarjene so bile naslednje datoteke:
@@ -29162,7 +28729,7 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
         <translation>Objavljanje v Fremantlovo skladišče »Extras-devel/free«</translation>
@@ -29177,7 +28744,7 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
         <translation>Objavi v skladišče »Fremantle Extras-devel free«</translation>
@@ -29188,7 +28755,7 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPublishingWizardFremantleFree</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
         <translation>Objavljanje v Fremantlovo skladišče »Extras-devel free«</translation>
@@ -29207,7 +28774,7 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoQemuManager</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Start MeeGo Emulator</source>
         <translation>Zaženi posnemovalnika za MeeGo</translation>
@@ -29221,23 +28788,12 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <translation>Qemu je končal z napako: izhodna koda je bila %1</translation>
     </message>
     <message>
-        <source>Qemu error</source>
-        <translation>Napaka Qemu</translation>
-    </message>
-    <message>
         <source>Qemu failed to start: %1</source>
         <translation>Qemu se ni mogel zagnati: %1</translation>
     </message>
     <message>
         <source>Stop MeeGo Emulator</source>
         <translation>Ustavi posnemovalnika za MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRemoteCopyFacility</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Povezava ni uspela: %1</translation>
     </message>
     <message>
         <source>Error: Copy command failed.</source>
@@ -29247,9 +28803,6 @@ Omejitev se bo poskušalo zaobiti, a še vedno lahko pride do težav.</translati
         <source>Copying file &apos;%1&apos; to directory &apos;%2&apos; on the device...</source>
         <translation>Kopiranje datoteke »%1« v mapo »%2« na napravi ...</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRemoteMounter</name>
     <message>
         <source>No directories to mount</source>
         <translation>Za priklopiti ni nobene mape.</translation>
@@ -29312,7 +28865,7 @@ Standardni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRemoteMountsModel</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Local directory</source>
         <translation>Krajevna mapa</translation>
@@ -29323,14 +28876,14 @@ Standardni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRemoteProcessesDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Remote Error</source>
         <translation>Oddaljena napaka</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRemoteProcessList</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Napaka povezave: %1</translation>
@@ -29342,10 +28895,6 @@ Standardni izhod za napake je bil: %1</translation>
     <message>
         <source>Error: Remote process crashed: %1</source>
         <translation>Napaka: oddaljeni proces se je sesul: %1</translation>
-    </message>
-    <message>
-        <source>Remote process failed.</source>
-        <translation>Oddaljeni proces ni uspel.</translation>
     </message>
     <message>
         <source>
@@ -29363,14 +28912,14 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRunConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Not enough free ports on the device.</source>
         <translation>Na napravi ni dovolj prostih vrat.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRunConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Choose directory to mount</source>
         <translation>Izberite mapo za priklop.</translation>
@@ -29414,14 +28963,14 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRunControlFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Run on device</source>
         <translation>Zaženi na napravi</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoQemuCrashDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Qemu error</source>
         <translation>Napaka Qemu</translation>
@@ -29444,21 +28993,21 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigurationsSettingsPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Device Configurations</source>
         <translation>Nastavitve naprav</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoQemuSettingsPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>MeeGo Qemu Settings</source>
         <translation>Nastavitve Qemu za MeeGo</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoSshConfigDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Save Public Key File</source>
         <translation>Shrani datoteko z javnim ključem</translation>
@@ -29469,7 +29018,7 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoSshRunner</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
         <translation>Qemu ni tekel. Bil je zagnan, a bo potrebno nekaj časa, da bo pripravljen. Poskusite znova malce kasneje.</translation>
@@ -29492,7 +29041,7 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoToolChainFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Maemo GCC</source>
         <translation>Maemo GCC</translation>
@@ -29507,57 +29056,29 @@ Oddaljeni standardni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoToolChainConfigWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Pot do MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Pot do cilja MADDE:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Razhroščevalnik:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoUploadAndInstallStep</name>
-    <message>
-        <source>No matching packaging step found.</source>
-        <translation>Najdenega ni bilo nobenega ustreznega koraka za pakiranje.</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation>Datoteka paketa je bila uspešno poslana.</translation>
     </message>
     <message>
-        <source>Installing package to device...</source>
-        <translation>Nameščanje paketa na napravo ...</translation>
-    </message>
-    <message>
-        <source>Package installed.</source>
-        <translation>Paket je bil nameščen.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoUploadAndInstallDpkgPackageStep</name>
-    <message>
         <source>Deploy Debian package via SFTP upload</source>
         <translation>Razmesti paket Debian s pošiljanjem prek SFTP</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoUploadAndInstallRpmPackageStep</name>
     <message>
         <source>Deploy RPM package via SFTP upload</source>
         <translation>Razmesti paket RPM s pošiljanjem prek SFTP</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoUploadAndInstallTarPackageStep</name>
     <message>
         <source>Deploy tarball via SFTP upload</source>
         <translation>Razmesti arhiv s pošiljanjem prek SFTP</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoUsedPortsGatherer</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation>Napaka pri povezavi: %1</translation>
     </message>
     <message>
         <source>Could not start remote process: %1</source>
@@ -29577,9 +29098,6 @@ Remote error output was: %1</source>
         <translation>
 Oddaljeni izhod za napake je bil: %1</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::PublicKeyDeploymentDialog</name>
     <message>
         <source>Waiting for file name...</source>
         <translation>Čakanje na ime datoteke ...</translation>
@@ -29600,13 +29118,9 @@ Oddaljeni izhod za napake je bil: %1</translation>
         <source>Deployment finished successfully.</source>
         <translation>Razmestitev se je uspešno zaključila.</translation>
     </message>
-    <message>
-        <source>Close</source>
-        <translation>Zapri</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::Qt4MaemoDeployConfigurationFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Copy Files to Maemo5 Device</source>
         <translation>Skopiraj datoteke na napravo z Maemo-m 5</translation>
@@ -29629,7 +29143,7 @@ Oddaljeni izhod za napake je bil: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractQt4MaemoTarget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot open file &apos;%1&apos;: %2</source>
         <translation>Ni moč odpreti datoteke »%1«: %2</translation>
@@ -29664,7 +29178,7 @@ Ali jih želite dodati v projekt?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractDebBasedQt4MaemoTarget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
         <translation>Datoteka »%1« z dnevnikom sprememb za Debian ima nepričakovan format.</translation>
@@ -29697,20 +29211,9 @@ Ali jih želite dodati v projekt?</translation>
         <source>Unable to move new debian directory to &apos;%1&apos;.</source>
         <translation>Nove mape debian ni moč premakniti v »%1«.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxApplicationRunner</name>
     <message>
         <source>Cannot run: %1</source>
         <translation>Ni moč zagnati: %1</translation>
-    </message>
-    <message>
-        <source>Connecting to device...</source>
-        <translation>Povezovanje z napravo ...</translation>
-    </message>
-    <message>
-        <source>Connection error: %1</source>
-        <translation>Napaka pri povezavi: %1</translation>
     </message>
     <message>
         <source>Killing remote process(es)...</source>
@@ -29729,16 +29232,12 @@ Ali jih želite dodati v projekt?</translation>
         <translation>Nastavljene ni nobene oddaljene izvršljive datoteke.</translation>
     </message>
     <message>
-        <source>No device configuration set.</source>
-        <translation>Nastavljene ni nobene nastavitve naprave.</translation>
-    </message>
-    <message>
         <source>Error running remote process: %1</source>
         <translation>Napaka pri zagonu oddaljenega procesa: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxDebugSupport</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Preparing remote side ...
 </source>
@@ -29763,14 +29262,10 @@ Ali jih želite dodati v projekt?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxRunConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>The .pro file is being parsed.</source>
         <translation>Datoteko *.pro se razčlenjuje.</translation>
-    </message>
-    <message>
-        <source>The .pro file could not be parsed.</source>
-        <translation>Datoteke *.pro ni bilo moč razčleniti.</translation>
     </message>
     <message>
         <source>No device configuration set.</source>
@@ -29791,23 +29286,9 @@ Ali jih želite dodati v projekt?</translation>
         <translation>Zaženi na oddaljeni napravi</translation>
     </message>
     <message>
-        <source>Clean Environment</source>
-        <translation>Čisto okolje</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation>Sistemsko okolje</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::RemoteLinuxRunConfigurationFactory</name>
-    <message>
         <source> (on Remote Generic Linux Host)</source>
         <translation> (na oddaljenem gostitelju z običajnim Linux-om)</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxRunConfigurationWidget</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation>Pridobi okolje naprave</translation>
@@ -29831,10 +29312,6 @@ Ali jih želite dodati v projekt?</translation>
     <message>
         <source>Executable on device:</source>
         <translation>Izvršljiva datoteka na napravi:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenti:</translation>
     </message>
     <message>
         <source>C++ only</source>
@@ -29878,7 +29355,7 @@ Ali jih želite dodati v projekt?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxRunControl</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Starting remote process ...
 </source>
@@ -29897,7 +29374,7 @@ Ali jih želite dodati v projekt?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxRunControlFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Run on remote Linux device</source>
         <translation>Zaženi na oddaljeni napravi z Linux-om</translation>
@@ -32521,21 +31998,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfiguration</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <translation type="obsolete">%1 na napravi Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationFactory</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <translation type="obsolete">%1 na napravi Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunControlBase</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Executable file: %1</source>
         <translation type="obsolete">Izvršljiva datoteka: %1</translation>
@@ -32551,28 +32014,12 @@ Deploying application to &apos;%2&apos;...</source>
 Razmeščanje programa na »%2« …</translation>
     </message>
     <message>
-        <source>Unable to remove existing file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Obstoječe datoteke »%1« ni moč odstraniti.: %2</translation>
-    </message>
-    <message>
-        <source>Unable to rename file &apos;%1&apos; to &apos;%2&apos;: %3</source>
-        <translation type="obsolete">Datoteke »%1« ni moč preimenovati v »%2«: %3</translation>
-    </message>
-    <message>
         <source>Deploying</source>
         <translation type="obsolete">Razmeščanje</translation>
     </message>
     <message>
         <source>There is no device plugged in.</source>
         <translation type="obsolete">Priključene ni nobene naprave.</translation>
-    </message>
-    <message>
-        <source>Renaming new package &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation type="obsolete">Preimenovanje novega paketa »%1« v »%2«</translation>
-    </message>
-    <message>
-        <source>Removing old package &apos;%1&apos;</source>
-        <translation type="obsolete">Odstranjevanje starega paketa »%1«</translation>
     </message>
     <message>
         <source>Package file not found</source>
@@ -32593,36 +32040,12 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
         <translation type="obsolete">Ni bilo moč ustvariti datoteke %1 na napravi: %2</translation>
     </message>
     <message>
-        <source>Could not write to file %1 on device: %2</source>
-        <translation type="obsolete">Ni bilo moč pisati v datoteko %1 na napravi: %2</translation>
-    </message>
-    <message>
         <source>Could not close file %1 on device: %2. It will be closed when App TRK is closed.</source>
         <translation type="obsolete">Ni bilo moč zapreti datoteke %1 na napravi: %2. Zaprta bo, ko bo zaprt program TRK.</translation>
     </message>
     <message>
-        <source>Could not connect to App TRK on device: %1. Restarting App TRK might help.</source>
-        <translation type="obsolete">Ni se bilo moč povezati s programom TRK na napravi: %1. Morda bi pomagal ponovni zagon TRK.</translation>
-    </message>
-    <message>
         <source>Copying installation file...</source>
         <translation type="obsolete">Kopiranje namestitvene datoteke …</translation>
-    </message>
-    <message>
-        <source>Waiting for App TRK</source>
-        <translation type="obsolete">Čakanje na App TRK</translation>
-    </message>
-    <message>
-        <source>Please start App TRK on %1.</source>
-        <translation type="obsolete">Zaženite App TRK na %1.</translation>
-    </message>
-    <message>
-        <source>Canceled.</source>
-        <translation type="obsolete">Preklicano.</translation>
-    </message>
-    <message>
-        <source>The device &apos;%1&apos; has been disconnected</source>
-        <translation type="obsolete">Naprava »%1« je bila izključena</translation>
     </message>
     <message>
         <source>Installing application...</source>
@@ -32634,7 +32057,7 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunControl</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Finished.</source>
         <translation type="obsolete">Zaključeno.</translation>
@@ -32653,14 +32076,10 @@ Preverite, ali je telefon priključen in ali App TRK teče.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60Devices::Device</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Id:</source>
         <translation type="obsolete">ID:</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Ime:</translation>
     </message>
     <message>
         <source>EPOC:</source>
@@ -34260,12 +33679,6 @@ Preverite nastavitve projekta.</translation>
 %1</translation>
     </message>
     <message>
-        <source>
-Did you start Qemu?</source>
-        <translation type="obsolete">
-Ali ste zagnali Qemu?</translation>
-    </message>
-    <message>
         <source>Qt version mismatch!  Expected Qt on device: 4.6.2 or later.</source>
         <translation type="obsolete">Neujemanje različic Qt. Pričakovana različica na napravi: 4.6.2 ali novejša.</translation>
     </message>
@@ -34480,102 +33893,12 @@ Ali ste zagnali Qemu?</translation>
         <translation type="obsolete">Uporabnik je preklical oddaljeno izvajanje.</translation>
     </message>
     <message>
-        <source>Error running remote process: %1</source>
-        <translation type="obsolete">Napaka pri zagonu oddaljenega procesa: %1</translation>
-    </message>
-    <message>
         <source>Finished running remote process.</source>
         <translation type="obsolete">Poganjanje oddaljenega procesa se je zaključilo.</translation>
     </message>
     <message>
         <source>Remote Execution Failure</source>
         <translation type="obsolete">Napaka pri oddaljeni izvedbi</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRunConfigurationFactory</name>
-    <message>
-        <source>New Maemo Run Configuration</source>
-        <translation type="obsolete">Nove nastavitve za zagon za Maemo</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRunControlFactory</name>
-    <message>
-        <source>Run on device</source>
-        <translation type="obsolete">Zaženi na napravi</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoSettingsPage</name>
-    <message>
-        <source>Maemo Device Configurations</source>
-        <translation type="obsolete">Nastavitve naprave Maemo</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoSettingsWidget</name>
-    <message>
-        <source>New Device Configuration %1</source>
-        <comment>Standard Configuration name with number</comment>
-        <translation type="obsolete">Nove nastavitve naprave %1</translation>
-    </message>
-    <message>
-        <source>Choose Public Key File</source>
-        <translation type="obsolete">Izberite datoteko z javnim ključem</translation>
-    </message>
-    <message>
-        <source>Public Key Files(*.pub);;All Files (*)</source>
-        <translation type="obsolete">Datoteke z javnim ključem (*.pub);;Vse datoteke (*)</translation>
-    </message>
-    <message>
-        <source>Deployment Failed</source>
-        <translation type="obsolete">Razmestitev ni uspela</translation>
-    </message>
-    <message>
-        <source>Could not read public key file &apos;%1&apos;.</source>
-        <translation type="obsolete">Ni bilo moč prebrati datoteke z javnim ključem »%1«.</translation>
-    </message>
-    <message>
-        <source>Stop Deploying</source>
-        <translation type="obsolete">Ustavi razmeščanje</translation>
-    </message>
-    <message>
-        <source>Key deployment failed: %1</source>
-        <translation type="obsolete">Razmeščanje ključa ni uspelo: %1</translation>
-    </message>
-    <message>
-        <source>Deployment Succeeded</source>
-        <translation type="obsolete">Razmeščanje je uspelo</translation>
-    </message>
-    <message>
-        <source>Key was successfully deployed.</source>
-        <translation type="obsolete">Ključ je bil uspešno razmeščen.</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key ...</source>
-        <translation type="obsolete">Razmesti javni ključ …</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoSshConfigDialog</name>
-    <message>
-        <source>Save Public Key File</source>
-        <translation type="obsolete">Shrani datoteko z javnim ključem</translation>
-    </message>
-    <message>
-        <source>Save Private Key File</source>
-        <translation type="obsolete">Shrani datoteko z zasebnim ključem</translation>
-    </message>
-    <message>
-        <source>Error writing file</source>
-        <translation type="obsolete">Napaka pri pisanju v datoteko</translation>
-    </message>
-    <message>
-        <source>Could not write file &apos;%1&apos;:
- %2</source>
-        <translation type="obsolete">Ni moč pisati v datoteko »%1«:
-%2</translation>
     </message>
 </context>
 <context>
@@ -34610,7 +33933,7 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DevicesBaseWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Default</source>
         <translation type="obsolete">Privzeto</translation>
@@ -34629,14 +33952,14 @@ Ali ste zagnali Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DevicesModel</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No Qt installed</source>
         <translation type="obsolete">Nameščen ni noben Qt</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::GnuPocS60DevicesWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Step 1 of 2: Choose GnuPoc folder</source>
         <translation type="obsolete">Korak 1 od 2: izberite mapo z GnuPoc</translation>

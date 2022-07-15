@@ -28336,349 +28336,6 @@ Projekty Qt Quick UI není potřeba je sestavovat a lze je spouštět přímo v 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::MaemoConfigTestDialog</name>
-    <message>
-        <source>Testing configuration...</source>
-        <translation type="obsolete">Zkouška nastavení...</translation>
-    </message>
-    <message>
-        <source>Stop Test</source>
-        <translation type="obsolete">Zastavit zkoušku</translation>
-    </message>
-    <message>
-        <source>Device configuration test failed:
-%1</source>
-        <translation type="obsolete">Zkouška nastavení zařízení se nezdařila:
-%1</translation>
-    </message>
-    <message>
-        <source>
-Did you start Qemu?</source>
-        <translation type="obsolete">
-Spustil jste Qemu?</translation>
-    </message>
-    <message>
-        <source>Qt version mismatch!  Expected Qt on device: 4.6.2 or later.</source>
-        <translation type="obsolete">Přezkoušení verze Qt se nezdařilo! Na zařízení musí být nainstalována verze Qt 4.6.2 nebo novější.</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Zavřít</translation>
-    </message>
-    <message>
-        <source>Device configuration test failed: Unexpected output:
-%1</source>
-        <translation type="obsolete">Zkouška nastavení zařízení se nezdařila: Neočekávaný výstup:
-%1</translation>
-    </message>
-    <message>
-        <source>Hardware architecture: %1
-</source>
-        <translation type="obsolete">Architektura technického vybavení počítače: %1
-</translation>
-    </message>
-    <message>
-        <source>Kernel version: %1
-</source>
-        <translation type="obsolete">Verze jádra: %1
-</translation>
-    </message>
-    <message>
-        <source>Device configuration successful.
-</source>
-        <translation type="obsolete">Zkouška nastavení zařízení proběhla úspěšně.
-</translation>
-    </message>
-    <message>
-        <source>No Qt packages installed.</source>
-        <translation type="obsolete">Nenainstalovány žádné balíčky Qt.</translation>
-    </message>
-    <message>
-        <source>List of installed Qt packages:</source>
-        <translation type="obsolete">Seznam nainstalových balíčků Qt:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPackageContents</name>
-    <message>
-        <source>Local File Path</source>
-        <translation type="obsolete">Místní souborová cesta</translation>
-    </message>
-    <message>
-        <source>Remote File Path</source>
-        <translation type="obsolete">Vzdálená souborová cesta</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPackageCreationStep</name>
-    <message>
-        <source>Creating package file ...</source>
-        <translation type="obsolete">Vytváří se soubor s balíčkem...</translation>
-    </message>
-    <message>
-        <source>Cannot open MADDE config file &apos;%1&apos;.</source>
-        <translation type="obsolete">Soubor s nastavením MADDE &apos;%1&apos; nelze otevřít.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Cannot open file &apos;%1&apos;.</source>
-        <translation type="obsolete">Chyba při vytváření balíčku: Nelze otevřít soubor &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Cannot write file &apos;%1&apos;.</source>
-        <translation type="obsolete">Chyba při vytváření balíčku: Nelze zapsat soubor &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Could not create directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Chyba při vytváření balíčku: Nepodařilo se vytvořit adresář &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Could not replace file &apos;%1&apos;.</source>
-        <translation type="obsolete">Chyba při vytváření balíčku: Nepodařilo se nahradit soubor &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Could not copy &apos;%1&apos; to &apos;%2&apos;.</source>
-        <translation type="obsolete">Chyba při vytváření balíčku: Soubor &apos;%1&apos; se nepodařilo zkopírovat do &apos;%2&apos;.</translation>
-    </message>
-    <message>
-        <source>Package created.</source>
-        <translation type="obsolete">Soubor s balíčkem byl vytvořen.</translation>
-    </message>
-    <message>
-        <source>Package Creation: Running command &apos;%1&apos;.</source>
-        <translation type="obsolete">Vytvoření balíčku: Provádí se příkaz &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="obsolete">Vytvoření balíčku se nezdařilo.</translation>
-    </message>
-    <message>
-        <source>Packaging error: Could not start command &apos;%1&apos;. Reason: %2</source>
-        <translation type="obsolete">Chyba při vytváření balíčku: Nepodařilo se spustit příkaz &apos;%1&apos;: Důvod %2</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation type="obsolete">Kód ukončení: %1</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1&apos; timed out.</source>
-        <translation type="obsolete">Chyba při vytváření balíčku: Překročení času u příkazu &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1&apos; failed.</source>
-        <translation type="obsolete">Chyba při vytváření balíčku: Příkaz &apos;%1&apos; se nepodařilo provést.</translation>
-    </message>
-    <message>
-        <source> Reason: %1</source>
-        <translation type="obsolete">Důvod: %1</translation>
-    </message>
-    <message>
-        <source>Output was: </source>
-        <translation type="obsolete">Výstup byl:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPackageCreationWidget</name>
-    <message>
-        <source>&lt;b&gt;Create Package:&lt;/b&gt; </source>
-        <translation type="obsolete">&lt;b&gt;Vytvořit soubor s balíčkem:&lt;/b&gt; </translation>
-    </message>
-    <message>
-        <source>Choose a local file</source>
-        <translation type="obsolete">Vyberte místní soubor</translation>
-    </message>
-    <message>
-        <source>File already in package</source>
-        <translation type="obsolete">Soubor je již v balíčku obsažen</translation>
-    </message>
-    <message>
-        <source>You have already added this file.</source>
-        <translation type="obsolete">Tento soubor jste již přidal.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRunConfiguration</name>
-    <message>
-        <source>New Maemo Run Configuration</source>
-        <translation type="obsolete">Nové nastavení spouštění Maemo</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRunConfigurationWidget</name>
-    <message>
-        <source>Run configuration name:</source>
-        <translation type="obsolete">Název nastavení spuštění:</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;%1&quot;&gt;Manage device configurations&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;%1&quot;&gt;Spravovat nastavení zařízení&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;%1&quot;&gt;Set Debugger&lt;/a&gt;</source>
-        <translation type="obsolete">&lt;a href=&quot;%1&quot;&gt;Nastavit ladicí program&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Device configuration:</source>
-        <translation type="obsolete">Nastavení zařízení:</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation type="obsolete">Spustitelný soubor:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">Argumenty:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::AbstractMaemoRunControl</name>
-    <message>
-        <source>No device configuration set for run configuration.</source>
-        <translation type="obsolete">Pro nastavení spuštění není nastaveno žádné nastavení zařízení.</translation>
-    </message>
-    <message>
-        <source>Cleaning up remote leftovers first ...</source>
-        <translation type="obsolete">Mažou se nejprve zbylé soubory z předcházejících spuštění...</translation>
-    </message>
-    <message>
-        <source>Initial cleanup canceled by user.</source>
-        <translation type="obsolete">Mazání zrušeno uživatelem.</translation>
-    </message>
-    <message>
-        <source>Error running initial cleanup: %1.</source>
-        <translation type="obsolete">Chyba při mazání: %1.</translation>
-    </message>
-    <message>
-        <source>Initial cleanup done.</source>
-        <translation type="obsolete">Mazání hotovo.</translation>
-    </message>
-    <message>
-        <source>Deploying</source>
-        <translation type="obsolete">Nasazení</translation>
-    </message>
-    <message>
-        <source>Files to deploy: %1.</source>
-        <translation type="obsolete">Soubory pro nasazení: %1.</translation>
-    </message>
-    <message>
-        <source>Starting remote application.</source>
-        <translation type="obsolete">Spouští se vzdálený program.</translation>
-    </message>
-    <message>
-        <source>Deployment canceled by user.</source>
-        <translation type="obsolete">Nasazení zrušeno uživatelem.</translation>
-    </message>
-    <message>
-        <source>Deployment failed: %1</source>
-        <translation type="obsolete">Nasazení se nezdařilo: %1</translation>
-    </message>
-    <message>
-        <source>Deployment finished.</source>
-        <translation type="obsolete">Nasazení hotovo.</translation>
-    </message>
-    <message>
-        <source>Remote execution canceled due to user request.</source>
-        <translation type="obsolete">Vzdálené spuštění zrušeno na základě požadavku uživatele.</translation>
-    </message>
-    <message>
-        <source>Error running remote process: %1</source>
-        <translation type="obsolete">Chyba při spouštění vzdáleného procesu na zařízení: %1</translation>
-    </message>
-    <message>
-        <source>Finished running remote process.</source>
-        <translation type="obsolete">Spouštění vzdáleného procesu na zařízení ukončeno.</translation>
-    </message>
-    <message>
-        <source>Remote Execution Failure</source>
-        <translation type="obsolete">Chyba při spouštění na zařízení</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRunConfigurationFactory</name>
-    <message>
-        <source>New Maemo Run Configuration</source>
-        <translation type="obsolete">Nové nastavení spouštění Maemo</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRunControlFactory</name>
-    <message>
-        <source>Run on device</source>
-        <translation type="obsolete">Spustit na zařízení</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoSettingsPage</name>
-    <message>
-        <source>Maemo Device Configurations</source>
-        <translation type="obsolete">Nastavení zařízení Maemo</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoSettingsWidget</name>
-    <message>
-        <source>New Device Configuration %1</source>
-        <comment>Standard Configuration name with number</comment>
-        <translation type="obsolete">Nové nastavení zařízení %1</translation>
-    </message>
-    <message>
-        <source>Choose Public Key File</source>
-        <translation type="obsolete">Vyberte soubor s veřejným klíčem</translation>
-    </message>
-    <message>
-        <source>Public Key Files(*.pub);;All Files (*)</source>
-        <translation type="obsolete">Soubory s veřejným klíčem (*.pub);;Všechny soubory (*)</translation>
-    </message>
-    <message>
-        <source>Deployment Failed</source>
-        <translation type="obsolete">Nasazení se nezdařilo</translation>
-    </message>
-    <message>
-        <source>Could not read public key file &apos;%1&apos;.</source>
-        <translation type="obsolete">Soubor s veřejným klíčem %1&apos; se nepodařilo přečíst.</translation>
-    </message>
-    <message>
-        <source>Stop Deploying</source>
-        <translation type="obsolete">Zastavit nasazení</translation>
-    </message>
-    <message>
-        <source>Key deployment failed: %1</source>
-        <translation type="obsolete">Nasazení klíče se nezdařilo: %1</translation>
-    </message>
-    <message>
-        <source>Deployment Succeeded</source>
-        <translation type="obsolete">Nasazení se podařilo</translation>
-    </message>
-    <message>
-        <source>Key was successfully deployed.</source>
-        <translation type="obsolete">Klíč byl úspěšně nasazen.</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key ...</source>
-        <translation type="obsolete">Poslat veřejný klíč...</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoSshConfigDialog</name>
-    <message>
-        <source>Save Public Key File</source>
-        <translation type="obsolete">Uložit soubor s veřejným klíčem</translation>
-    </message>
-    <message>
-        <source>Save Private Key File</source>
-        <translation type="obsolete">Uložit soubor se soukromým klíčem</translation>
-    </message>
-    <message>
-        <source>Error writing file</source>
-        <translation type="obsolete">Chyba při zápisu souboru</translation>
-    </message>
-    <message>
-        <source>Could not write file &apos;%1&apos;:
- %2</source>
-        <translation type="obsolete">Soubor &apos;%1&apos; se nepodařilo zapsat:
- %2</translation>
-    </message>
-</context>
-<context>
     <name>QmakeProjectManager::Internal::QemuRuntimeManager</name>
     <message>
         <source>Start Maemo Emulator</source>
@@ -40456,7 +40113,7 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Operation canceled by user, cleaning up...</source>
         <translation type="obsolete">Operace zrušena uživatelem, uklízí se...</translation>
@@ -40466,24 +40123,8 @@ Důvod: %2</translation>
         <translation type="obsolete">Nelze provést žádné nasazení, neboť úklid od posledně ještě stále běží.</translation>
     </message>
     <message>
-        <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
-        <translation type="obsolete">Nasazení se nezdařilo, neboť Qemu neběželo. Bylo nyní spuštěno, ale bude ještě potřebovat nějaký čas, než bude připraveno. Pak to, prosím, zkuste znovu.</translation>
-    </message>
-    <message>
-        <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
-        <translation type="obsolete">Nasazení Qemu se nezdařilo, neboť Qemu není pro tuto verzi Qt dostupné.</translation>
-    </message>
-    <message>
         <source>All files up to date, no installation necessary.</source>
         <translation type="obsolete">Všechny soubory jsou nejnovější, není nutná žádná instalace.</translation>
-    </message>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Chyba ve spojení: %1</translation>
-    </message>
-    <message>
-        <source>Connecting to device...</source>
-        <translation type="obsolete">Připojuje se k zařízení...</translation>
     </message>
     <message>
         <source>Deployment failed.</source>
@@ -40493,9 +40134,6 @@ Důvod: %2</translation>
         <source>Deployment finished.</source>
         <translation type="obsolete">Nasazení hotovo.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::DeployableFilesPerProFile</name>
     <message>
         <source>&lt;no target path set&gt;</source>
         <translation type="obsolete">&lt;Není nastavena žádná cílová cesta&gt;</translation>
@@ -40508,21 +40146,6 @@ Důvod: %2</translation>
         <source>Remote Directory</source>
         <translation type="obsolete">Vzdálený adresář</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::GenericLinuxDeviceConfigurationFactory</name>
-    <message>
-        <source>Generic Linux Device</source>
-        <translation type="obsolete">Obecné linuxové zařízení</translation>
-    </message>
-    <message>
-        <source>Generic Linux</source>
-        <translation type="obsolete">Obecný Linux</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation type="obsolete">Zkouška</translation>
-    </message>
     <message>
         <source>Remote Processes</source>
         <translation type="obsolete">Procesy na zařízení</translation>
@@ -40531,16 +40154,13 @@ Důvod: %2</translation>
         <source>Deploy Public Key</source>
         <translation type="obsolete">Poslat veřejný klíč</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizard</name>
     <message>
         <source>New Generic Linux Device Configuration Setup</source>
         <translation>Zřízení nového nastavení zařízení pro obecný Linux</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection Data</source>
         <translation>Data připojení</translation>
@@ -40559,7 +40179,7 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWizardFinalPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Setup Finished</source>
         <translation>Nastavení dokončeno</translation>
@@ -40576,14 +40196,14 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDeviceConfigurations</name>
+    <name>RemoteLinux</name>
     <message>
         <source>(default for %1)</source>
         <translation type="obsolete">(výchozí pro %1)</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDeviceFactorySelectionDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Start Wizard</source>
         <translation type="obsolete">Spustit průvodce</translation>
@@ -40598,7 +40218,7 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaddeDeviceConfigurationFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
         <translation type="obsolete">Zařízení s podporou pro MADDE-(Fremantle, Harmattan, MeeGo)</translation>
@@ -40617,7 +40237,7 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoConfigTestDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Testing configuration. This may take a while.</source>
         <translation type="obsolete">Zkouší se nastavení. Může to nějakou dobu trvat.</translation>
@@ -40629,20 +40249,6 @@ Dodatečně bude vyzkoušeno spojení se zařízením.</translation>
     <message>
         <source>Stop Test</source>
         <translation type="obsolete">Zastavit zkoušku</translation>
-    </message>
-    <message>
-        <source>Could not connect to host: %1</source>
-        <translation type="obsolete">Nepodařilo se spojit s hostitelským počítačem: %1</translation>
-    </message>
-    <message>
-        <source>
-Did you start Qemu?</source>
-        <translation type="obsolete">
-Spustil jste Qemu?</translation>
-    </message>
-    <message>
-        <source>Remote process failed: %1</source>
-        <translation type="obsolete">Proces se na zařízení nepodařilo spustit: %1</translation>
     </message>
     <message>
         <source>Qt version mismatch!  Expected Qt on device: 4.6.2 or later.</source>
@@ -40665,20 +40271,12 @@ Spustil jste Qemu?</translation>
         <translation type="obsolete">Chyba při určování používaných přípojek: %1</translation>
     </message>
     <message>
-        <source>All specified ports are available.</source>
-        <translation type="obsolete">Všechny zadané přípojky jsou dostupné.</translation>
-    </message>
-    <message>
         <source>The following supposedly free ports are being used on the device:</source>
         <translation type="obsolete">Následující údajně volné přípojky se na zařízení používají:</translation>
     </message>
     <message>
         <source>Device configuration okay.</source>
         <translation type="obsolete">Nastavení zařízení v pořádku.</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Zavřít</translation>
     </message>
     <message>
         <source>Device configuration test failed: Unexpected output:
@@ -40708,14 +40306,14 @@ Spustil jste Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoDeployByMountStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Installing package to device...</source>
         <translation type="obsolete">Instaluje se balíček na zařízení...</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoMountAndInstallDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No matching packaging step found.</source>
         <translation type="obsolete">Nepodařilo se najít žádný odpovídající krok balíčkování.</translation>
@@ -40730,7 +40328,7 @@ Spustil jste Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoMountAndCopyDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>All files copied.</source>
         <translation type="obsolete">Všechny soubory zkopírovány.</translation>
@@ -40741,7 +40339,7 @@ Spustil jste Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeployConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
         <translation type="obsolete">Vyberte ikonu (její velikost bude změněna na %1x%1 pixelů, pokud to bude potřeba)</translation>
@@ -40764,61 +40362,25 @@ Spustil jste Qemu?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeploymentMounter</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="obsolete">Chyba při vytváření spojení: %1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeployStepBaseWidget</name>
-    <message>
-        <source>Cannot deploy: %1</source>
-        <translation type="obsolete">Nasazení nelze provést: %1</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
-        <translation type="obsolete">&lt;b&gt;%1 za použití zařízení&lt;/b&gt;: %2</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigurationsSettingsWidget</name>
-    <message>
-        <source>Physical Device</source>
-        <translation type="obsolete">Fyzické zařízení</translation>
-    </message>
-    <message>
-        <source>Emulator</source>
-        <translation type="obsolete">Emulátor</translation>
-    </message>
-    <message>
-        <source>You will need at least one port.</source>
-        <translation type="obsolete">Potřebujete alespoň jednu volnou přípojku.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardStartPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>General Information</source>
         <translation type="obsolete">Obecné informace</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
     <message>
         <source>Device Status Check</source>
         <translation type="obsolete">Přezkoušení stavu zařízení</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Existing Keys Check</source>
         <translation type="obsolete">Přezkoušení již existujících klíčů</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Key Creation</source>
         <translation type="obsolete">Vytvoření klíče</translation>
@@ -40844,16 +40406,12 @@ Spustil jste Qemu?</translation>
         <translation type="obsolete">Při vytváření klíče se vyskytla chyba: %1</translation>
     </message>
     <message>
-        <source>Done.</source>
-        <translation type="obsolete">Hotovo.</translation>
-    </message>
-    <message>
         <source>Could Not Save Key File</source>
         <translation type="obsolete">Chyba při ukládání souboru s klíčem</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Key Deployment</source>
         <translation type="obsolete">Nasazení klíče</translation>
@@ -40874,64 +40432,23 @@ Spustil jste Qemu?</translation>
         <source>The key was successfully deployed. You may now close the &quot;%1&quot; application and continue.</source>
         <translation type="obsolete">Klíč byl úspěšně poslán. Nyní můžete program &quot;%1&quot; zavřít a pokračovat.</translation>
     </message>
-    <message>
-        <source>Done.</source>
-        <translation type="obsolete">Hotovo.</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizardFinalPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>The new device configuration will now be created.</source>
         <translation type="obsolete">Nyní bude vytvořeno nové nastavení zařízení.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigWizard</name>
+    <name>RemoteLinux</name>
     <message>
         <source>New Device Configuration Setup</source>
         <translation type="obsolete">Zřízení nového nastavení zařízení</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceEnvReader</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Chyba ve spojení: %1</translation>
-    </message>
-    <message>
-        <source>Error running remote process: %1</source>
-        <translation type="obsolete">Chyba při spouštění vzdáleného procesu na zařízení: %1</translation>
-    </message>
-    <message>
-        <source>
-Remote stderr was: &apos;%1&apos;</source>
-        <translation type="obsolete">
-Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoGlobal</name>
-    <message>
-        <source>Could not connect to host: %1</source>
-        <translation type="obsolete">Nepodařilo se spojit s hostitelským počítačem: %1</translation>
-    </message>
-    <message>
-        <source>
-Did you start Qemu?</source>
-        <translation type="obsolete">
-Spustil jste Qemu?</translation>
-    </message>
-    <message>
-        <source>
-Is the device connected and set up for network access?</source>
-        <translation type="obsolete">
-Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
-    </message>
-    <message>
-        <source>(No device)</source>
-        <translation type="obsolete">(Žádné zařízení)</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>SDK Connectivity</source>
         <translation>Propojitelnost SDK</translation>
@@ -40946,14 +40463,14 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoInstallPackageToSysrootWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot deploy to sysroot: No packaging step found.</source>
         <translation type="obsolete">Nelze provést žádné nasazení do sysroot: Nenalezen žádný balíčkovací krok.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoInstallPackageToSysrootStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot install to sysroot without build configuration.</source>
         <translation type="obsolete">Bez nastavení sestavování nelze provést žádnou instalaci na sysroot.</translation>
@@ -40976,21 +40493,21 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoInstallDebianPackageToSysrootStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Install Debian package to sysroot</source>
         <translation type="obsolete">Instalovat balíček Debian na sysroot</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoInstallRpmPackageToSysrootStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Install RPM package to sysroot</source>
         <translation type="obsolete">Instalovat balíček RPM na sysroot</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoCopyToSysrootStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot copy to sysroot without build configuration.</source>
         <translation type="obsolete">Bez nastavení sestavování nelze na sysroot kopírovat.</translation>
@@ -41015,44 +40532,7 @@ ale přesto se pokračuje dál.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoMakeInstallToSysrootStep</name>
-    <message>
-        <source>Copy files to sysroot</source>
-        <translation type="obsolete">Kopírovat soubory na sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoKeyDeployer</name>
-    <message>
-        <source>Public key error: %1</source>
-        <translation type="obsolete">Chyba ve veřejném klíči: %1</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="obsolete">Chyba při vytváření spojení: %1</translation>
-    </message>
-    <message>
-        <source>Key deployment failed: %1.</source>
-        <translation type="obsolete">Nasazení klíče se nezdařilo: %1.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPackageCreationFactory</name>
-    <message>
-        <source>Create Debian Package</source>
-        <translation>Vytvořit soubor balíčku Debian</translation>
-    </message>
-    <message>
-        <source>Create RPM Package</source>
-        <translation type="obsolete">Vytvořit soubor balíčku RPM</translation>
-    </message>
-    <message>
-        <source>Create tarball</source>
-        <translation type="obsolete">Vytvořit Tarovu kouli (tarball)</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::AbstractMaemoPackageCreationStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Package up to date.</source>
         <translation type="obsolete">Balíček je nejnovější.</translation>
@@ -41064,10 +40544,6 @@ ale přesto se pokračuje dál.</translation>
     <message>
         <source>Package created.</source>
         <translation type="obsolete">Soubor s balíčkem byl vytvořen.</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="obsolete">Vytvoření balíčku se nezdařilo.</translation>
     </message>
     <message>
         <source>Packaging error: No Qt version.</source>
@@ -41095,14 +40571,10 @@ ale přesto se pokračuje dál.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::MaemoDebianPackageCreationStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Create Debian Package</source>
         <translation type="obsolete">Vytvořit soubor balíčku Debian</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="obsolete">Vytvoření balíčku se nezdařilo.</translation>
     </message>
     <message>
         <source>Could not move package files from %1 to %2.</source>
@@ -41142,14 +40614,10 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
     </message>
 </context>
 <context>
-    <name>RemoteLinux::MaemoRpmPackageCreationStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Create RPM Package</source>
         <translation type="obsolete">Vytvořit soubor balíčku RPM</translation>
-    </message>
-    <message>
-        <source>Packaging failed.</source>
-        <translation type="obsolete">Vytvoření balíčku se nezdařilo.</translation>
     </message>
     <message>
         <source>Could not move package file from %1 to %2.</source>
@@ -41157,7 +40625,7 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
     </message>
 </context>
 <context>
-    <name>RemoteLinux::CreateTarStepWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Ignore missing files</source>
         <translation>Nevšímat si chybějících souborů</translation>
@@ -41172,35 +40640,7 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
     </message>
 </context>
 <context>
-    <name>RemoteLinux::MaemoTarPackageCreationStep</name>
-    <message>
-        <source>Create tarball</source>
-        <translation type="obsolete">Vytvořit Tarovu kouli (tarball)</translation>
-    </message>
-    <message>
-        <source>Error: tar file %1 cannot be opened (%2).</source>
-        <translation type="obsolete">Chyba: Soubor tar %1 se nepodařilo otevřít (%2).</translation>
-    </message>
-    <message>
-        <source>Error writing tar file &apos;%1&apos;: %2.</source>
-        <translation type="obsolete">Chyba při zápisu souboru tar %1: %2.</translation>
-    </message>
-    <message>
-        <source>Error reading file &apos;%1&apos;: %2.</source>
-        <translation type="obsolete">Chyba při čtení souboru %1: %2.</translation>
-    </message>
-    <message>
-        <source>Cannot add file &apos;%1&apos; to tar-archive: path too long.</source>
-        <translation type="obsolete">Soubor &apos;%1&apos; nelze do archivu tar přidat: Cesta je příliš dlouhá.
-</translation>
-    </message>
-    <message>
-        <source>Error writing tar file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Chyba při zápisu souboru tar &apos;%1&apos;: %2</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPackageCreationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Size should be %1x%2 pixels</source>
         <translation type="obsolete">Požadovaná velikost: %1x%2 pixelů</translation>
@@ -41251,77 +40691,7 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoPackageInstaller</name>
-    <message>
-        <source>Connection failure: %1</source>
-        <translation type="obsolete">Chyba při vytváření spojení: %1</translation>
-    </message>
-    <message>
-        <source>Installing package failed.</source>
-        <translation type="obsolete">Instalace balíčku se nezdařila.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoDebianPackageInstaller</name>
-    <message>
-        <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
-        <translation type="obsolete">Instalace se nezdařila: Byl učiněn pokus o instalaci starší verze, což není dovoleno.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPackageUploader</name>
-    <message>
-        <source>Preparing SFTP connection...</source>
-        <translation type="obsolete">Připojuje se spojení SFTP...</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="obsolete">Chyba při vytváření spojení: %1</translation>
-    </message>
-    <message>
-        <source>SFTP error: %1</source>
-        <translation type="obsolete">Chyba SFTP: %1</translation>
-    </message>
-    <message>
-        <source>Package upload failed: Could not open file.</source>
-        <translation type="obsolete">Chyba při nahrávání balíčku: Soubor se nepodařilo otevřít.</translation>
-    </message>
-    <message>
-        <source>Failed to upload package: %2</source>
-        <translation type="obsolete">Chyba při nahrávání balíčku: %2</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPerTargetDeviceConfigurationListModel</name>
-    <message>
-        <source>(default)</source>
-        <translation type="obsolete">(výchozí)</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoProFilesUpdateDialog</name>
-    <message>
-        <source>Updateable Project Files</source>
-        <translation type="obsolete">Aktualizovatelné projektové soubory</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPublishedProjectModel</name>
-    <message>
-        <source>Include in package</source>
-        <translation type="obsolete">Zahrnout do balíčku</translation>
-    </message>
-    <message>
-        <source>Include</source>
-        <translation type="obsolete">Zahrnout</translation>
-    </message>
-    <message>
-        <source>Do not include</source>
-        <translation type="obsolete">Nezahrnovat</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoPublisherFremantleFree</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Canceled.</source>
         <translation type="obsolete">Zrušeno.</translation>
@@ -41466,7 +40836,7 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
         <translation type="obsolete">Zveřejnění ve skladišti Fremantle &quot;Extras-devel/free&quot;</translation>
@@ -41481,7 +40851,7 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
         <translation type="obsolete">Zveřejnění ve skladišti Fremantle &quot;Extras-devel/free&quot;</translation>
@@ -41492,7 +40862,7 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoPublishingWizardFremantleFree</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
         <translation type="obsolete">Zveřejnění ve skladišti Fremantle &quot;Extras-devel/free&quot;</translation>
@@ -41511,38 +40881,7 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoQemuManager</name>
-    <message>
-        <source>Start MeeGo Emulator</source>
-        <translation type="obsolete">Spustit emulátor Maemo</translation>
-    </message>
-    <message>
-        <source>Qemu has been shut down, because you removed the corresponding Qt version.</source>
-        <translation type="obsolete">Qemu bylo zastaveno, protože jste odstranil odpovídající verzi Qt.</translation>
-    </message>
-    <message>
-        <source>Qemu finished with error: Exit code was %1.</source>
-        <translation type="obsolete">Qemu skončilo s chybou. Kód ukončení byl %1.</translation>
-    </message>
-    <message>
-        <source>Qemu error</source>
-        <translation type="obsolete">Chyba v Qemu</translation>
-    </message>
-    <message>
-        <source>Qemu failed to start: %1</source>
-        <translation type="obsolete">Qemu se nepodařilo spustit: %1</translation>
-    </message>
-    <message>
-        <source>Stop MeeGo Emulator</source>
-        <translation type="obsolete">Zastavit emulátor MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRemoteCopyFacility</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation type="obsolete">Chyba při vytváření spojení: %1</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Error: Copy command failed.</source>
         <translation type="obsolete">Chyba: Příkaz ke kopírování selhal.</translation>
@@ -41553,7 +40892,7 @@ Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</trans
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRemoteMounter</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No directories to mount</source>
         <translation type="obsolete">Žádné adresáře k připojení</translation>
@@ -41616,7 +40955,7 @@ Chybový výstup byl: &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRemoteMountsModel</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Local directory</source>
         <translation type="obsolete">Místní adresář</translation>
@@ -41627,54 +40966,14 @@ Chybový výstup byl: &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRemoteProcessesDialog</name>
-    <message>
-        <source>Remote Error</source>
-        <translation type="obsolete">Vzdálená chyba</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRemoteProcessList</name>
-    <message>
-        <source>Connection failure: %1</source>
-        <translation type="obsolete">Chyba při vytváření spojení: %1</translation>
-    </message>
-    <message>
-        <source>Error: Remote process failed to start: %1</source>
-        <translation type="obsolete">Chyba: Vzdálený proces se nepodařilo spustit: %1</translation>
-    </message>
-    <message>
-        <source>Error: Remote process crashed: %1</source>
-        <translation type="obsolete">Chyba: Vzdálený proces spadl: %1</translation>
-    </message>
-    <message>
-        <source>Remote process failed.</source>
-        <translation type="obsolete">Vzdálený proces se nezdařil.</translation>
-    </message>
-    <message>
-        <source>
-Remote stderr was: %1</source>
-        <translation type="obsolete">
-Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>PID</source>
-        <translation type="obsolete">PID</translation>
-    </message>
-    <message>
-        <source>Command Line</source>
-        <translation type="obsolete">Příkazový řádek</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoRunConfiguration</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Not enough free ports on the device.</source>
         <translation type="obsolete">Na zařízení není dostatek volných přípojek.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRunConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Choose directory to mount</source>
         <translation type="obsolete">Vyberte, prosím, adresář, který se má připojit</translation>
@@ -41714,14 +41013,14 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoRunControlFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Run on device</source>
         <translation type="obsolete">Spustit na zařízení</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoQemuCrashDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Qemu error</source>
         <translation type="obsolete">Chyba v Qemu</translation>
@@ -41744,21 +41043,21 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoDeviceConfigurationsSettingsPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Device Configurations</source>
         <translation type="obsolete">Nastavení zařízení</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoQemuSettingsPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>MeeGo Qemu Settings</source>
         <translation type="obsolete">Nastavení Meego QEmu</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoSshConfigDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Save Public Key File</source>
         <translation type="obsolete">Uložit soubor s veřejným klíčem</translation>
@@ -41769,7 +41068,7 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoSshRunner</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
         <translation type="obsolete">Nasazení se nezdařilo, neboť Qemu neběželo. Bylo nyní spuštěno, ale bude ještě potřebovat nějaký čas, než bude připraveno. Pak to, prosím, zkuste znovu.</translation>
@@ -41792,7 +41091,7 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoToolChainFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Maemo GCC</source>
         <translation type="obsolete">Maemo GCC</translation>
@@ -41807,79 +41106,35 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoToolChainConfigWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Cesta k MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Cesta k cíli MADDE:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Ladič:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractMaemoUploadAndInstallStep</name>
-    <message>
-        <source>No matching packaging step found.</source>
-        <translation type="obsolete">Nepodařilo se najít žádný odpovídající krok balíčkování.</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Successfully uploaded package file.</source>
         <translation type="obsolete">Soubor s balíčkem byl nahrán.</translation>
     </message>
-    <message>
-        <source>Installing package to device...</source>
-        <translation type="obsolete">Instaluje se balíček na zařízení...</translation>
-    </message>
-    <message>
-        <source>Package installed.</source>
-        <translation type="obsolete">Balíček nainstalován.</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoUploadAndInstallDpkgPackageStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Deploy Debian package via SFTP upload</source>
         <translation type="obsolete">Nasazení balíčku Debian prostřednictvím nahrání SFTS</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoUploadAndInstallRpmPackageStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Deploy RPM package via SFTP upload</source>
         <translation type="obsolete">Nasazení balíčku RPM prostřednictvím nahrání SFTS</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::MaemoUploadAndInstallTarPackageStep</name>
-    <message>
-        <source>Deploy tarball via SFTP upload</source>
-        <translation type="obsolete">Nasazení balíčku tar prostřednictvím nahrání SFTS</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::MaemoUsedPortsGatherer</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Chyba ve spojení: %1</translation>
-    </message>
-    <message>
-        <source>Could not start remote process: %1</source>
-        <translation type="obsolete">Vzdálený proces se nepodařilo spustit: %1</translation>
-    </message>
-    <message>
-        <source>Remote process crashed: %1</source>
-        <translation type="obsolete">Vzdálený proces spadl: %1</translation>
-    </message>
-    <message>
-        <source>Remote process failed: %1</source>
-        <translation type="obsolete">Proces se na zařízení nepodařilo spustit: %1</translation>
-    </message>
-    <message>
-        <source>
-Remote error output was: %1</source>
-        <translation type="obsolete">
-Vzdálený chybový výstup byl: %1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::PublicKeyDeploymentDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Waiting for file name...</source>
         <translation type="obsolete">Čeká se na název souboru...</translation>
@@ -41906,7 +41161,7 @@ Vzdálený chybový výstup byl: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::Qt4MaemoDeployConfigurationFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Copy Files to Maemo5 Device</source>
         <translation type="obsolete">Kopírovat soubory na zařízení Maemo5</translation>
@@ -41929,7 +41184,7 @@ Vzdálený chybový výstup byl: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractQt4MaemoTarget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Cannot open file &apos;%1&apos;: %2</source>
         <translation type="obsolete">Soubor &apos;%1&apos; nelze otevřít: %2</translation>
@@ -41964,31 +41219,7 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::AbstractDebBasedQt4MaemoTarget</name>
-    <message>
-        <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
-        <translation type="obsolete">Soubor se zápisem změn Debian &apos;%1&apos; je v nějakém neznámém formátu.</translation>
-    </message>
-    <message>
-        <source>Refusing to update changelog file: Already contains version &apos;%1&apos;.</source>
-        <translation type="obsolete">Odmítnutí aktualizace souboru se zápisem změn: Již obsahuje verzi &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Cannot update changelog: Invalid format (no maintainer entry found).</source>
-        <translation type="obsolete">Soubor se zápisem změn nelze aktualizovat: Neplatný formát (nenalezen žádný záznam o údržbáři).</translation>
-    </message>
-    <message>
-        <source>Invalid icon data in Debian control file.</source>
-        <translation type="obsolete">Kontrolní soubor pro Debian obsahuje neplatná data k ikoně.</translation>
-    </message>
-    <message>
-        <source>Could not read image file &apos;%1&apos;.</source>
-        <translation type="obsolete">Soubor s obrázkem &apos;%1&apos; se nepodařilo přečíst.</translation>
-    </message>
-    <message>
-        <source>Could not export image file &apos;%1&apos;.</source>
-        <translation type="obsolete">Soubor s obrázkem &apos;%1&apos; se nepodařilo vyvést.</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Unable to create Debian templates: No Qt version set</source>
         <translation type="obsolete">Nepodařilo se vytvořit žádné předlohy pro Debian. Není nastavena žádná verze Qt</translation>
@@ -42001,95 +41232,9 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <source>Unable to create debian templates: dh_make failed (%1)</source>
         <translation type="obsolete">Nepodařilo se vytvořit žádné soubory předloh pro Debian: dh_make selhal (%1)</translation>
     </message>
-    <message>
-        <source>Unable to move new debian directory to &apos;%1&apos;.</source>
-        <translation type="obsolete">Nový adresář pro Debian se nepodařilo přesunout do %1.</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxApplicationRunner</name>
-    <message>
-        <source>Cannot run: %1</source>
-        <translation type="obsolete">Chyba při spuštění: %1</translation>
-    </message>
-    <message>
-        <source>Connecting to device...</source>
-        <translation type="obsolete">Připojuje se k zařízení...</translation>
-    </message>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Chyba ve spojení: %1</translation>
-    </message>
-    <message>
-        <source>Killing remote process(es)...</source>
-        <translation type="obsolete">Zastavuje se vzdálený proces...</translation>
-    </message>
-    <message>
-        <source>Initial cleanup failed: %1</source>
-        <translation type="obsolete">Počáteční úklid se nezdařil: %1</translation>
-    </message>
-    <message>
-        <source>Remote process started.</source>
-        <translation type="obsolete">Vzdálený proces byl spuštěn.</translation>
-    </message>
-    <message>
-        <source>No remote executable set.</source>
-        <translation type="obsolete">Nebyl zadán žádný spustitelný soubor.</translation>
-    </message>
-    <message>
-        <source>No device configuration set.</source>
-        <translation type="obsolete">Nebylo zadáno žádné nastavení zařízení.</translation>
-    </message>
-    <message>
-        <source>Error running remote process: %1</source>
-        <translation type="obsolete">Chyba při spouštění vzdáleného procesu na zařízení: %1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::AbstractRemoteLinuxDebugSupport</name>
-    <message>
-        <source>Preparing remote side ...
-</source>
-        <translation type="obsolete">Připravuje se vzdálená strana...
-</translation>
-    </message>
-    <message>
-        <source>Preparing remote side...
-</source>
-        <translation type="obsolete">Připravuje se vzdálená strana...
-</translation>
-    </message>
-    <message>
-        <source>Remote application failed with exit code %1.</source>
-        <translation type="obsolete">Vzdálený program byl ukončen. Vrácená hodnota %1.</translation>
-    </message>
-    <message>
-        <source>The gdbserver process closed unexpectedly.</source>
-        <translation type="obsolete">Proces Gdb serveru byl neočekávaně ukončen.</translation>
-    </message>
-    <message>
-        <source>Initial setup failed: %1</source>
-        <translation type="obsolete">Počáteční nastavení se nezdařilo: %1</translation>
-    </message>
-    <message>
-        <source>Not enough free ports on device for debugging.</source>
-        <translation type="obsolete">Na zařízení není dostatek volných přípojek pro ladění.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxRunConfiguration</name>
-    <message>
-        <source>The .pro file is being parsed.</source>
-        <translation type="obsolete">Soubor .pro je právě vyhodnocován.</translation>
-    </message>
-    <message>
-        <source>The .pro file could not be parsed.</source>
-        <translation type="obsolete">Soubor .pro se nepodařilo vyhodnotit.</translation>
-    </message>
-    <message>
-        <source>No device configuration set.</source>
-        <translation type="obsolete">Nebylo zadáno žádné nastavení zařízení.</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>The .pro file &apos;%1&apos; is being parsed.</source>
         <translation type="obsolete">Soubor .pro &apos;%1&apos; se právě zpracovává.</translation>
@@ -42116,17 +41261,9 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
         <extracomment>Remote Linux run configuration default display name</extracomment>
         <translation type="obsolete">Spustit na vzdáleném zařízení</translation>
     </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Smazat prostředí</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Prostředí systému</translation>
-    </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxRunConfigurationFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source> (on Remote Generic Linux Host)</source>
         <translation> (na vzdáleném, obecném linuxovém zařízení)</translation>
@@ -42137,7 +41274,7 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxRunConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Fetch Device Environment</source>
         <translation type="obsolete">Natáhnout prostředí zařízení</translation>
@@ -42236,7 +41373,7 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxRunControl</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Starting remote process ...
 </source>
@@ -42257,7 +41394,7 @@ Chcete je přidat do projektu?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxRunControlFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Run on remote Linux device</source>
         <translation type="obsolete">Spustit na vzdáleném linuxovém zařízení</translation>
@@ -43814,25 +42951,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinuxProcessesDialog</name>
-    <message>
-        <source>List of Remote Processes</source>
-        <translation type="obsolete">Seznam vzdálených procesů</translation>
-    </message>
-    <message>
-        <source>&amp;Filter by process name:</source>
-        <translation type="obsolete">&amp;Filtrovat podle názvu procesu:</translation>
-    </message>
-    <message>
-        <source>&amp;Update List</source>
-        <translation type="obsolete">&amp;Obnovit seznam</translation>
-    </message>
-    <message>
-        <source>&amp;Kill Selected Process</source>
-        <translation type="obsolete">&amp;Ukončit vybraný proces</translation>
-    </message>
-</context>
-<context>
     <name>SshKeyCreationDialog</name>
     <message>
         <source>SSH Key Configuration</source>
@@ -44378,1429 +43496,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Madde::Internal::MaddeDeviceConfigurationFactory</name>
-    <message>
-        <source>Device with MADDE support (Fremantle, Harmattan, MeeGo)</source>
-        <translation type="obsolete">Zařízení s podporou pro MADDE-(Fremantle, Harmattan, MeeGo)</translation>
-    </message>
-    <message>
-        <source>Maemo5/Fremantle</source>
-        <translation type="obsolete">Maemo 5/Fremantle</translation>
-    </message>
-    <message>
-        <source>MeeGo 1.2 Harmattan</source>
-        <translation type="obsolete">MeeGo 1.2 Harmattan</translation>
-    </message>
-    <message>
-        <source>Other MeeGo OS</source>
-        <translation type="obsolete">Jiné MeeGo OS</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation type="obsolete">Zkouška</translation>
-    </message>
-    <message>
-        <source>Remote Processes...</source>
-        <translation type="obsolete">Procesy na zařízení...</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key...</source>
-        <translation type="obsolete">Poslat veřejný klíč...</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaddeDeviceTester</name>
-    <message>
-        <source>Checking for Qt libraries...</source>
-        <translation>Ověřují se knihovny Qt...</translation>
-    </message>
-    <message>
-        <source>SSH connection error: %1
-</source>
-        <translation>Chyba ve spojení SSH: %1
-</translation>
-    </message>
-    <message>
-        <source>Error checking for Qt libraries: %1
-</source>
-        <translation>Chyba při ověřování knihoven Qt: %1</translation>
-    </message>
-    <message>
-        <source>Error checking for Qt libraries.
-</source>
-        <translation>Chyba při ověřování knihoven Qt.</translation>
-    </message>
-    <message>
-        <source>Checking for connectivity support...</source>
-        <translation>Ověřuje se podpora propojitelnosti...</translation>
-    </message>
-    <message>
-        <source>Error checking for connectivity tool: %1
-</source>
-        <translation>Chyba při ověřování nástroje na propojitelnost: %1
-</translation>
-    </message>
-    <message>
-        <source>Error checking for connectivity tool.
-</source>
-        <translation>Chyba při ověřování nástroje na propojitelnost.
-</translation>
-    </message>
-    <message>
-        <source>Connectivity tool not installed on device. Deployment currently not possible.</source>
-        <translation>Nástroj na propojitelnost na zařízení nenainstalován. Z toho důvodu nyní není nasazení možné.</translation>
-    </message>
-    <message>
-        <source>Please switch the device to developer mode via Settings -&gt; Security.</source>
-        <translation>Přepněte, prosím, zařízení do vývojářského režimu přes Nastavení -&gt; Bezpečnost.</translation>
-    </message>
-    <message>
-        <source>Connectivity tool present.
-</source>
-        <translation>Nástroje na propojitelnost byl nalezen.
-</translation>
-    </message>
-    <message>
-        <source>Checking for QML tooling support...</source>
-        <translation>Ověřuje se podpora vybavení nástroji QML...</translation>
-    </message>
-    <message>
-        <source>Error checking for QML tooling support: %1
-</source>
-        <translation>Chyba při ověřování podpory vybavení nástroji QML: %1
-</translation>
-    </message>
-    <message>
-        <source>Error checking for QML tooling support.
-</source>
-        <translation>Chyba při ověřování podpory vybavení nástroji QML.
-</translation>
-    </message>
-    <message>
-        <source>Missing directory &apos;%1&apos;. You will not be able to do QML debugging on this device.
-</source>
-        <translation>Chybí adresář &apos;%1&apos;. Ladění QML na tomto zařízení není možné.
-</translation>
-    </message>
-    <message>
-        <source>QML tooling support present.
-</source>
-        <translation>Podpora vybavení nástroji QML je přítomna.
-</translation>
-    </message>
-    <message>
-        <source>No Qt packages installed.</source>
-        <translation>Nenainstalovány žádné balíčky Qt.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaddeUploadAndInstallPackageAction</name>
-    <message>
-        <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
-        <translation type="obsolete">Nasazení se nezdařilo, neboť Qemu neběželo. Bylo nyní spuštěno, ale bude ještě potřebovat nějaký čas, než bude připraveno. Pak to, prosím, zkuste znovu.</translation>
-    </message>
-    <message>
-        <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
-        <translation type="obsolete">Nasazení Qemu se nezdařilo, neboť Qemu není pro tuto verzi Qt dostupné.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoUploadAndInstallPackageStep</name>
-    <message>
-        <source>No Debian package creation step found.</source>
-        <translation>Nepodařilo se najít žádný odpovídající krok vytvoření balíčku Debian.</translation>
-    </message>
-    <message>
-        <source>Deploy Debian package via SFTP upload</source>
-        <translation>Nasazení balíčku Debian prostřednictvím nahrání SFTP</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MeegoUploadAndInstallPackageStep</name>
-    <message>
-        <source>No RPM package creation step found.</source>
-        <translation type="obsolete">Nepodařilo se najít žádný odpovídající krok vytvoření balíčku RPM.</translation>
-    </message>
-    <message>
-        <source>Deploy RPM package via SFTP upload</source>
-        <translation type="obsolete">Nasazení balíčku RPM prostřednictvím nahrání SFTP</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoDeployByMountService</name>
-    <message>
-        <source>Cannot deploy: Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
-        <translation type="obsolete">Nasazení se nezdařilo, neboť Qemu neběželo. Bylo nyní spuštěno, ale bude ještě potřebovat nějaký čas, než bude připraveno. Pak to, prosím, zkuste znovu.</translation>
-    </message>
-    <message>
-        <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
-        <translation type="obsolete">Nasazení Qemu se nezdařilo, neboť Qemu není pro tuto verzi Qt dostupné.</translation>
-    </message>
-    <message>
-        <source>Missing build configuration.</source>
-        <translation type="obsolete">Chybí nastavení sestavování.</translation>
-    </message>
-    <message>
-        <source>Missing target.</source>
-        <translation>Chybí cíl.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoMountAndInstallPackageService</name>
-    <message>
-        <source>Package installed.</source>
-        <translation>Balíček nainstalován.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoMountAndCopyFilesService</name>
-    <message>
-        <source>All files copied.</source>
-        <translation>Všechny soubory zkopírovány.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoInstallPackageViaMountStep</name>
-    <message>
-        <source>No Debian package creation step found.</source>
-        <translation>Nepodařilo se najít žádný odpovídající krok vytvoření balíčku Debian.</translation>
-    </message>
-    <message>
-        <source>Deploy package via UTFS mount</source>
-        <translation>Nasazení prostřednictvím UTFS mount</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoCopyFilesViaMountStep</name>
-    <message>
-        <source>Deploy files via UTFS mount</source>
-        <translation>Nasazení souborů prostřednictvím UTFS mount</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeployConfigurationWidget</name>
-    <message>
-        <source>Project File Update Failed</source>
-        <translation type="obsolete">Chyba při aktualizaci projektového souboru</translation>
-    </message>
-    <message>
-        <source>Could not update the project file.</source>
-        <translation type="obsolete">Projektový soubor se nepodařilo zaktualizovat.</translation>
-    </message>
-    <message>
-        <source>Choose Icon (will be scaled to %1x%1 pixels, if necessary)</source>
-        <translation type="obsolete">Vyberte ikonu (její velikost bude změněna na %1x%1 pixelů, pokud to bude potřeba)</translation>
-    </message>
-    <message>
-        <source>Invalid Icon</source>
-        <translation type="obsolete">Neplatná ikona</translation>
-    </message>
-    <message>
-        <source>Unable to read image</source>
-        <translation type="obsolete">Soubor s obrázkem se nepodařilo přečíst</translation>
-    </message>
-    <message>
-        <source>Failed to Save Icon</source>
-        <translation type="obsolete">Ikonu se nepodařilo uložit</translation>
-    </message>
-    <message>
-        <source>Could not save icon to &apos;%1&apos;.</source>
-        <translation type="obsolete">Ikonu se nepodařilo uložit pod &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>Add Desktop File</source>
-        <translation type="obsolete">Přidat soubor pro desktop</translation>
-    </message>
-    <message>
-        <source>Add Launcher Icon...</source>
-        <translation type="obsolete">Přidat ikonu spouštěče...</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeploymentMounter</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Chyba při vytváření spojení: %1</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardStartPage</name>
-    <message>
-        <source>General Information</source>
-        <translation>Obecné informace</translation>
-    </message>
-    <message>
-        <source>MeeGo Device</source>
-        <translation>Zařízení MeeGo</translation>
-    </message>
-    <message>
-        <source>%1 Device</source>
-        <translation>Zařízení %1</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>The name to identify this configuration:</source>
-        <translation>Název nastavení:</translation>
-    </message>
-    <message>
-        <source>The system running on the device:</source>
-        <translation type="obsolete">Na mobilním zařízení běžící systém:</translation>
-    </message>
-    <message>
-        <source>The kind of device:</source>
-        <translation>Typ zařízení:</translation>
-    </message>
-    <message>
-        <source>Emulator</source>
-        <translation>Emulátor</translation>
-    </message>
-    <message>
-        <source>Hardware Device</source>
-        <translation>Mobilní zařízení</translation>
-    </message>
-    <message>
-        <source>The device&apos;s host name or IP address:</source>
-        <translation>Název hostitelského počítače nebo IP adresa zařízení:</translation>
-    </message>
-    <message>
-        <source>The SSH server port:</source>
-        <translation>Port SSH serveru:</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardPreviousKeySetupCheckPage</name>
-    <message>
-        <source>Device Status Check</source>
-        <translation>Ověření stavu zařízení</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardReuseKeysCheckPage</name>
-    <message>
-        <source>Existing Keys Check</source>
-        <translation>Přezkoušení již existujících klíčů</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>Do you want to re-use an existing pair of keys or should a new one be created?</source>
-        <translation>Chcete znovu použít existující dvojici klíčů, nebo se má vytvořit nová?</translation>
-    </message>
-    <message>
-        <source>Re-use existing keys</source>
-        <translation>Použít existující klíče znovu</translation>
-    </message>
-    <message>
-        <source>File containing the public key:</source>
-        <translation>Soubor obsahující veřejný klíč:</translation>
-    </message>
-    <message>
-        <source>File containing the private key:</source>
-        <translation>Soubor obsahující soukromý klíč:</translation>
-    </message>
-    <message>
-        <source>Create new keys</source>
-        <translation>Vytvořit nové klíče</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardKeyCreationPage</name>
-    <message>
-        <source>Key Creation</source>
-        <translation>Vytvoření klíče</translation>
-    </message>
-    <message>
-        <source>Cannot Create Keys</source>
-        <translation>Chyba při vytváření klíčů</translation>
-    </message>
-    <message>
-        <source>The path you have entered is not a directory.</source>
-        <translation>Zadaná cesta není adresář.</translation>
-    </message>
-    <message>
-        <source>The directory you have entered does not exist and cannot be created.</source>
-        <translation>Zadaný adresář buď neexistuje nebo jej nelze vytvořit.</translation>
-    </message>
-    <message>
-        <source>Creating keys...</source>
-        <translation>Vytváří se klíče...</translation>
-    </message>
-    <message>
-        <source>Creating keys... </source>
-        <translation type="obsolete">Vytváří se klíče...</translation>
-    </message>
-    <message>
-        <source>Creating keys ... </source>
-        <translation type="obsolete">Vytváří se klíče...</translation>
-    </message>
-    <message>
-        <source>Key creation failed: %1</source>
-        <translation>Při vytváření klíče se vyskytla chyba: %1</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation>Hotovo.</translation>
-    </message>
-    <message>
-        <source>Could Not Save Key File</source>
-        <translation>Chyba při ukládání souboru s klíčem</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>Qt Creator will now generate a new pair of keys. Please enter the directory to save the key files in and then press &quot;Create Keys&quot;.</source>
-        <translation>Qt Creator nyní vytvoří dvojici klíčů. Zadejte, prosím, adresář, do kterého se klíče mají uložit a potom potvrďte &quot;Vytvořit klíče&quot;.</translation>
-    </message>
-    <message>
-        <source>Directory:</source>
-        <translation>Adresář:</translation>
-    </message>
-    <message>
-        <source>Create Keys</source>
-        <translation>Vytvořit klíče</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardKeyDeploymentPage</name>
-    <message>
-        <source>Key Deployment</source>
-        <translation>Nasazení klíče</translation>
-    </message>
-    <message>
-        <source>Deploying... </source>
-        <translation type="obsolete">Posílá se klíč...</translation>
-    </message>
-    <message>
-        <source>Deploying...</source>
-        <translation>Posílá se klíč...</translation>
-    </message>
-    <message>
-        <source>Key Deployment Failure</source>
-        <translation>Chyba při poslání klíče</translation>
-    </message>
-    <message>
-        <source>Key Deployment Success</source>
-        <translation>Klíč poslán. Nasazení klíče proběhlo úspěšně</translation>
-    </message>
-    <message>
-        <source>The key was successfully deployed. You may now close the &quot;%1&quot; application and continue.</source>
-        <translation>Klíč byl úspěšně poslán. Nyní můžete program &quot;%1&quot; zavřít a pokračovat.</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation>Hotovo.</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>To deploy the public key to your device, please execute the following steps:
-&lt;ul&gt;
-&lt;li&gt;Connect the device to your computer (unless you plan to connect via WLAN).&lt;/li&gt;
-&lt;li&gt;On the device, start the &quot;%%%maddev%%%&quot; application.&lt;/li&gt;
-&lt;li&gt;In &quot;%%%maddev%%%&quot;, configure the device&apos;s IP address to the one shown below (or edit the field below to match the address you have configured).&lt;/li&gt;
-&lt;li&gt;In &quot;%%%maddev%%%&quot;, press &quot;Developer Password&quot; and enter it in the field below.&lt;/li&gt;
-&lt;li&gt;Click &quot;Deploy Key&quot;&lt;/li&gt;
-</source>
-        <translation>Abyste klíč poslal do mobilního zařízení, proveďte, prosím, následující kroky:
-&lt;ul&gt;
-&lt;li&gt;Spojte mobilní zařízení s počítačem (pokud se nepoužívá žádné WLAN).&lt;/li&gt;
-&lt;li&gt;Spusťte program &quot;%%%maddev%%%&quot; na mobilním zařízení.&lt;/li&gt;
-&lt;li&gt;nastavte dole zobrazenou adresu IP v programu &quot;%%%maddev%%%&quot; (nebo upravte pole níže, aby odpovídalo adrese, kterou jste nastavil).&lt;/li&gt;
-&lt;li&gt;Potvrďte &quot;heslo vývojáře&quot; v programu &quot;%%%maddev%%%&quot; a zadejte je v dole zobrazeném poli &quot;Heslo&quot;.&lt;/li&gt;
-&lt;li&gt;Potvrďte &quot;Poslat klíč&quot;.&lt;/li&gt;
-</translation>
-    </message>
-    <message>
-        <source>Device address:</source>
-        <translation>Adresa zařízení:</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation>Heslo:</translation>
-    </message>
-    <message>
-        <source>Deploy Key</source>
-        <translation>Poslat klíč</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardFinalPage</name>
-    <message>
-        <source>The new device configuration will now be created.</source>
-        <translation>Nyní bude vytvořeno nové nastavení zařízení.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDeviceConfigWizard</name>
-    <message>
-        <source>New Device Configuration Setup</source>
-        <translation>Zřízení nového nastavení zařízení</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoInstallPackageToSysrootWidget</name>
-    <message>
-        <source>Cannot deploy to sysroot: No packaging step found.</source>
-        <translation>Nelze provést žádné nasazení do sysroot: Nenalezen žádný balíčkovací krok.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoInstallPackageToSysrootStep</name>
-    <message>
-        <source>Cannot install to sysroot without build configuration.</source>
-        <translation type="obsolete">Bez nastavení sestavování nelze provést žádnou instalaci na sysroot.</translation>
-    </message>
-    <message>
-        <source>Cannot install package to sysroot without packaging step.</source>
-        <translation>Bez balíčkovacího kroku nelze provést žádnou instalaci balíčku na sysroot.</translation>
-    </message>
-    <message>
-        <source>Cannot install package to sysroot without a Qt version.</source>
-        <translation>Bez verze Qt nelze provést žádnou instalaci balíčku na sysroot.</translation>
-    </message>
-    <message>
-        <source>Installing package to sysroot...</source>
-        <translation>Instaluje se balíček na sysroot...</translation>
-    </message>
-    <message>
-        <source>Installing package to sysroot ...</source>
-        <translation type="obsolete">Instaluje se balíček na sysroot...</translation>
-    </message>
-    <message>
-        <source>Installation to sysroot failed, continuing anyway.</source>
-        <translation>Instalace balíčku na sysroot se nezdařila, ale pokračuje se.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoInstallDebianPackageToSysrootStep</name>
-    <message>
-        <source>Install Debian package to sysroot</source>
-        <translation>Instalovat balíček Debian na sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoInstallRpmPackageToSysrootStep</name>
-    <message>
-        <source>Install RPM package to sysroot</source>
-        <translation type="obsolete">Instalovat balíček RPM na sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoCopyToSysrootStep</name>
-    <message>
-        <source>Cannot copy to sysroot without build configuration.</source>
-        <translation>Bez nastavení sestavování nelze na sysroot kopírovat.</translation>
-    </message>
-    <message>
-        <source>Cannot copy to sysroot without valid Qt version.</source>
-        <translation>Bez platné verze Qt nelze na sysroot kopírovat.</translation>
-    </message>
-    <message>
-        <source>Copying files to sysroot...</source>
-        <translation>Kopírují se soubory na sysroot...</translation>
-    </message>
-    <message>
-        <source>Copying files to sysroot ...</source>
-        <translation type="obsolete">Kopírují se soubory na sysroot...</translation>
-    </message>
-    <message>
-        <source>Sysroot installation failed: %1
- Continuing anyway.</source>
-        <translation>Instalace na sysroot se nezdařila: %1,
-ale přesto se pokračuje dál.</translation>
-    </message>
-    <message>
-        <source>Copy files to sysroot</source>
-        <translation>Kopírovat soubory na sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoMakeInstallToSysrootStep</name>
-    <message>
-        <source>Cannot deploy: No active build configuration.</source>
-        <translation>Nelze nasadit. Není žádné činné nastavení sestavování.</translation>
-    </message>
-    <message>
-        <source>Cannot deploy: Unusable build configuration.</source>
-        <translation>Nelze nasadit. Nepoužitelné nastavení sestavování.</translation>
-    </message>
-    <message>
-        <source>Copy files to sysroot</source>
-        <translation>Kopírovat soubory na sysroot</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractMaemoPackageCreationStep</name>
-    <message>
-        <source>Package up to date.</source>
-        <translation>Balíček je v současném stavu.</translation>
-    </message>
-    <message>
-        <source>Creating package file ...</source>
-        <translation type="obsolete">Vytváří se soubor s balíčkem...</translation>
-    </message>
-    <message>
-        <source>Package created.</source>
-        <translation>Soubor s balíčkem byl vytvořen.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: No Qt version.</source>
-        <translation>Chyba při vytváření balíčku: Žádná verze Qt.</translation>
-    </message>
-    <message>
-        <source>No Qt4 build configuration</source>
-        <translation type="obsolete">Žádné nastavení sestavování Qt4</translation>
-    </message>
-    <message>
-        <source>No Qt build configuration</source>
-        <translation>Žádné nastavení sestavování Qt</translation>
-    </message>
-    <message>
-        <source>Creating package file...</source>
-        <translation>Vytváří se soubor s balíčkem...</translation>
-    </message>
-    <message>
-        <source>Package Creation: Running command &apos;%1&apos;.</source>
-        <translation>Vytvoření balíčku: Provádí se příkaz &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not start command &apos;%1&apos;. Reason: %2</source>
-        <translation>Chyba při vytváření balíčku: Nepodařilo se spustit příkaz &apos;%1&apos;: Důvod %2</translation>
-    </message>
-    <message>
-        <source>Packaging Error: Command &apos;%1&apos; failed.</source>
-        <translation>Chyba při vytváření balíčku: Příkaz &apos;%1&apos; se nepodařilo provést.</translation>
-    </message>
-    <message>
-        <source> Reason: %1</source>
-        <translation>Důvod: %1</translation>
-    </message>
-    <message>
-        <source>Exit code: %1</source>
-        <translation>Kód ukončení: %1</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDebianPackageCreationStep</name>
-    <message>
-        <source>Create Debian Package</source>
-        <translation>Vytvořit soubor balíčku Debian</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not get package name.</source>
-        <translation>Chyba při vytváření balíčku: Nepodařilo se určit název balíčku.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not move package files from &apos;%1&apos; to &apos;%2&apos;.</source>
-        <translation>Chyba při vytváření balíčku: Soubory s balíčky se nepodařilo přesunout z &apos;%1&apos; do &apos;%2&apos;.</translation>
-    </message>
-    <message>
-        <source>Your project name contains characters not allowed in Debian packages.
-They must only use lower-case letters, numbers, &apos;-&apos;, &apos;+&apos; and &apos;.&apos;.
-We will try to work around that, but you may experience problems.</source>
-        <translation>Název projektu obsahuje znaky nepřípustné pro soubory s balíčky Debian.
-Smí se používat jen malá písmena, čísla, jakož i &apos;-&apos;, &apos;+&apos; a &apos;.&apos;.
-Dojde k pokusu o vytvoření balíčku, mohou se ale vyskytnout potíže.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Foreign debian directory detected. You are not using a shadow build and there is a debian directory in your project root (&apos;%1&apos;). Qt Creator will not overwrite that directory. Please remove it or use the shadow build feature.</source>
-        <translation>Chyba při vytváření balíčku: Byl zjištěn cizí debianí adresář. Nepoužívát žádné stínové sestavování a v kořenovém adresáři vašeho projektu (&apos;%1&apos;) se nachází debianí adresář. Qt Creator ten adresář nepřepíše. Odstraňte jej, prosím, nebo použijte funkci stínového sestavování.</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not remove directory &apos;%1&apos;: %2</source>
-        <translation>Chyba při vytváření balíčku: Nepodařilo se odstranit adresář &apos;%1&apos;: %2</translation>
-    </message>
-    <message>
-        <source>Could not create Debian directory &apos;%1&apos;.</source>
-        <translation>Adresář pro Debian &apos;%1&apos; se nepodařilo vytvořit.</translation>
-    </message>
-    <message>
-        <source>Could not read manifest file &apos;%1&apos;: %2.</source>
-        <translation>Soubor s manifestem se nepodařilo přečíst &apos;%1&apos;: %2.</translation>
-    </message>
-    <message>
-        <source>Could not write manifest file &apos;%1&apos;: %2.</source>
-        <translation>Soubor s manifestem se nepodařilo zapsat &apos;%1&apos;: %2.</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;.</source>
-        <translation>Soubor &apos;%1&apos; se nepodařilo zkopírovat do &apos;%2&apos;.</translation>
-    </message>
-    <message>
-        <source>Error: Could not create file &apos;%1&apos;.</source>
-        <translation>Chyba: Soubor &apos;%1&apos; se nepodařilo vytvořit.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRpmPackageCreationStep</name>
-    <message>
-        <source>Create RPM Package</source>
-        <translation type="obsolete">Vytvořit soubor balíčku RPM</translation>
-    </message>
-    <message>
-        <source>Packaging failed: Could not move package file from %1 to %2.</source>
-        <translation type="obsolete">Chyba při vytváření balíčku: Soubor s balíčkem se nepodařilo přesunout z %1 do %2.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPackageCreationWidget</name>
-    <message>
-        <source>Size should be %1x%2 pixels</source>
-        <translation>Požadovaná velikost: %1x%2 pixelů</translation>
-    </message>
-    <message>
-        <source>No Version Available.</source>
-        <translation>Není dostupná žádná verze.</translation>
-    </message>
-    <message>
-        <source>Could not read icon</source>
-        <translation>Soubor ikony se nepodařilo přečíst</translation>
-    </message>
-    <message>
-        <source>Images</source>
-        <translation>Obrázky</translation>
-    </message>
-    <message>
-        <source>Choose Image (will be scaled to 48x48 pixels if necessary)</source>
-        <translation type="obsolete">Vyberte ikonu (její velikost bude změněna na 48x48 pixelů, pokud to bude potřeba)</translation>
-    </message>
-    <message>
-        <source>Choose Image (will be scaled to %1x%2 pixels if necessary)</source>
-        <translation>Vyberte obrázek (v případě potřeby bude jeho velikost změněna na %1x%2 pixelů)</translation>
-    </message>
-    <message>
-        <source>Could Not Set New Icon</source>
-        <translation>Nepodařilo se nastavit novou ikonu</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Chyba souboru</translation>
-    </message>
-    <message>
-        <source>Could not set project name.</source>
-        <translation>Nepodařilo se nastavit název projektu.</translation>
-    </message>
-    <message>
-        <source>Could not set package name for project manager.</source>
-        <translation>Nepodařilo se nastavit název balíčku pro správce projektu.</translation>
-    </message>
-    <message>
-        <source>Could not set project description.</source>
-        <translation>Nepodařilo se nastavit popis projektu.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create Package:&lt;/b&gt; </source>
-        <translation>&lt;b&gt;Vytvořit soubor s balíčkem:&lt;/b&gt; </translation>
-    </message>
-    <message>
-        <source>Could Not Set Version Number</source>
-        <translation>Nepodařilo se nastavit číslo verze</translation>
-    </message>
-    <message>
-        <source>Package name:</source>
-        <translation>Název balíčku:</translation>
-    </message>
-    <message>
-        <source>Package version:</source>
-        <translation>Verze balíčku:</translation>
-    </message>
-    <message>
-        <source>Major:</source>
-        <translation>Větší:</translation>
-    </message>
-    <message>
-        <source>Minor:</source>
-        <translation>Menší:</translation>
-    </message>
-    <message>
-        <source>Patch:</source>
-        <translation>Záplata:</translation>
-    </message>
-    <message>
-        <source>Short package description:</source>
-        <translation>Krátký popis balíčku:</translation>
-    </message>
-    <message>
-        <source>Name to be displayed in Package Manager:</source>
-        <translation>Název k zobrazení ve správci balíčků:</translation>
-    </message>
-    <message>
-        <source>Icon to be displayed in Package Manager:</source>
-        <translation>Ikona k zobrazení ve správci balíčků:</translation>
-    </message>
-    <message>
-        <source>Adapt Debian file:</source>
-        <translation>Upravit soubor Debianu:</translation>
-    </message>
-    <message>
-        <source>Edit...</source>
-        <translation>Upravit...</translation>
-    </message>
-    <message>
-        <source>Edit spec file</source>
-        <translation>Upravit soubor spec</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoDebianPackageInstaller</name>
-    <message>
-        <source>Installation failed: You tried to downgrade a package, which is not allowed.</source>
-        <translation>Instalace se nezdařila: Byl učiněn pokus o instalaci starší verze, což není dovoleno.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishedProjectModel</name>
-    <message>
-        <source>Include in package</source>
-        <translation>Zahrnout do balíčku</translation>
-    </message>
-    <message>
-        <source>Include</source>
-        <translation>Zahrnout</translation>
-    </message>
-    <message>
-        <source>Do not include</source>
-        <translation>Nezahrnovat</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublisherFremantleFree</name>
-    <message>
-        <source>Canceled.</source>
-        <translation>Zrušeno.</translation>
-    </message>
-    <message>
-        <source>Publishing canceled by user.</source>
-        <translation>Zveřejnění zrušeno uživatelem.</translation>
-    </message>
-    <message>
-        <source>The project is missing some information important to publishing:</source>
-        <translation>Projekt postrádá některé informace, které jsou důležité pro zveřejnění:</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Missing project information.</source>
-        <translation>Zveřejnění se nepodařilo: Chybí informace o projektu.</translation>
-    </message>
-    <message>
-        <source>Removing left-over temporary directory ...</source>
-        <translation type="obsolete">Maže se zbývající dočasný adresář...</translation>
-    </message>
-    <message>
-        <source>Error removing temporary directory: %1</source>
-        <translation>Chyba při mazání adresáře: %1</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create source package.</source>
-        <translation>Zveřejnění se nepodařilo: Nepodařilo se vytvořit zdrojový balíček.</translation>
-    </message>
-    <message>
-        <source>Setting up temporary directory ...</source>
-        <translation type="obsolete">Vytváří se dočasný adresář...</translation>
-    </message>
-    <message>
-        <source>Error: Could not create temporary directory.</source>
-        <translation>Chyba:Nepodařilo se vytvořit dočasný adresář.</translation>
-    </message>
-    <message>
-        <source>Error: Could not copy project directory.</source>
-        <translation>Chyba:Nepodařilo se zkopírovat projektový adresář.</translation>
-    </message>
-    <message>
-        <source>Error: Could not fix newlines.</source>
-        <translation>Chyba: Znaky na koncích řádků se nepodařilo opravit.</translation>
-    </message>
-    <message>
-        <source>Publishing failed: Could not create package.</source>
-        <translation>Zveřejnění se nepodařilo: Nepodařilo se vytvořit žádný balíček.</translation>
-    </message>
-    <message>
-        <source>Cleaning up temporary directory ...</source>
-        <translation type="obsolete">Uklízí se dočasný adresář...</translation>
-    </message>
-    <message>
-        <source>Removing left-over temporary directory...</source>
-        <translation>Maže se zbývající dočasný adresář...</translation>
-    </message>
-    <message>
-        <source>Setting up temporary directory...</source>
-        <translation>Vytváří se dočasný adresář...</translation>
-    </message>
-    <message>
-        <source>Cleaning up temporary directory...</source>
-        <translation>Uklízí se dočasný adresář...</translation>
-    </message>
-    <message>
-        <source>Failed to create directory &apos;%1&apos;.</source>
-        <translation>Adresář &apos;%1&apos; se nepodařilo vytvořit.</translation>
-    </message>
-    <message>
-        <source>Could not set execute permissions for rules file: %1</source>
-        <translation>Nepodařilo se nastavit práva ke spuštění pro soubor s pravidly: %1</translation>
-    </message>
-    <message>
-        <source>Could not copy file &apos;%1&apos; to &apos;%2&apos;: %3.</source>
-        <translation>Soubor &apos;%1&apos; se nepodařilo zkopírovat do &apos;%2&apos;: %3.</translation>
-    </message>
-    <message>
-        <source>Make distclean failed: %1</source>
-        <translation>Make distclean se nezdařilo: %1</translation>
-    </message>
-    <message>
-        <source>Error: Failed to start dpkg-buildpackage.</source>
-        <translation>Chyba: dpkg-buildpackage se nepodařilo spustit.</translation>
-    </message>
-    <message>
-        <source>Error: dpkg-buildpackage did not succeed.</source>
-        <translation>Chyba: dpkg-buildpackage se nezdařil.</translation>
-    </message>
-    <message>
-        <source>Package creation failed.</source>
-        <translation>Vytvoření balíčku se nezdařilo.</translation>
-    </message>
-    <message>
-        <source>Done.</source>
-        <translation>Hotovo.</translation>
-    </message>
-    <message>
-        <source>Packaging finished successfully. The following files were created:
-</source>
-        <translation>Vytvoření balíčku skončilo úspěšně. Byly vytvořeny následující balíčky:
-</translation>
-    </message>
-    <message>
-        <source>No Qt version set.</source>
-        <translation>Nenastavena žádná verze Qt.</translation>
-    </message>
-    <message>
-        <source>Building source package...</source>
-        <translation>Vytváří se soubor s balíčkem...</translation>
-    </message>
-    <message>
-        <source>Starting scp...</source>
-        <translation>Spouští se scp...</translation>
-    </message>
-    <message>
-        <source>Uploading file %1...</source>
-        <translation>Nahrává se soubor %1...</translation>
-    </message>
-    <message>
-        <source>Starting scp ...</source>
-        <translation type="obsolete">Spouští se scp...</translation>
-    </message>
-    <message>
-        <source>SSH error: %1</source>
-        <translation>Chyba SSH: %1</translation>
-    </message>
-    <message>
-        <source>Upload failed.</source>
-        <translation>Nahrání se nezdařilo.</translation>
-    </message>
-    <message>
-        <source>Error uploading file: %1.</source>
-        <translation>Chyba při nahrávání souboru: %1.</translation>
-    </message>
-    <message>
-        <source>Error uploading file.</source>
-        <translation>Chyba při nahrávání souboru.</translation>
-    </message>
-    <message>
-        <source>All files uploaded.</source>
-        <translation>Všechny soubory nahrány.</translation>
-    </message>
-    <message>
-        <source>Upload succeeded. You should shortly receive an email informing you about the outcome of the build process.</source>
-        <translation>Nahrávání bylo úspěšně dokončeno. zakrátko byste měl obdržet elektronický dopis s informacemi o výstupu procesu sestavování.</translation>
-    </message>
-    <message>
-        <source>Uploading file %1 ...</source>
-        <translation type="obsolete">Nahrává se soubor %1...</translation>
-    </message>
-    <message>
-        <source>Cannot open file for reading: %1.</source>
-        <translation>Soubor nelze otevřít pro čtení: %1.</translation>
-    </message>
-    <message>
-        <source>Cannot read file: %1</source>
-        <translation>Nelze přečíst soubor: %1</translation>
-    </message>
-    <message>
-        <source>The package description is empty. You must set one in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>Popis balíčku je prázdný. Musíte jeden zadat v Projekty -&gt; Spuštění -&gt; Vytvoření balíčku -&gt; Podrobnosti.</translation>
-    </message>
-    <message>
-        <source>The package description is &apos;%1&apos;, which is probably not what you want. Please change it in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>Popis balíčku je nyní &apos;%1&apos;, což pravděpodobně není to, co chcete. Změňte jej, prosím, v Projekty -&gt; Spuštění -&gt; Vytvoření balíčku -&gt; Podrobnosti.</translation>
-    </message>
-    <message>
-        <source>You have not set an icon for the package manager. The icon must be set in Projects -&gt; Run -&gt; Create Package -&gt; Details.</source>
-        <translation>Nezadal jste ikonu pro správce balíčků. Je potřeba ji nastavit v Projekty -&gt; Spuštění -&gt; Vytvoření balíčku -&gt; Podrobnosti.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingUploadSettingsPageFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel/free&quot; Repository</source>
-        <translation>Zveřejnění ve skladišti Fremantle &quot;Extras-devel/free&quot;</translation>
-    </message>
-    <message>
-        <source>Upload options</source>
-        <translation>Nahrát nastavení</translation>
-    </message>
-    <message>
-        <source>Choose a Private Key File</source>
-        <translation>Vyberte soubor se soukromým klíčem</translation>
-    </message>
-    <message>
-        <source>Choose a private key file</source>
-        <translation type="obsolete">Vyberte soubor se soukromým klíčem</translation>
-    </message>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>Upload Settings</source>
-        <translation>Nahrát nastavení</translation>
-    </message>
-    <message>
-        <source>Garage account name:</source>
-        <translation>Název účtu Garage:</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Get an account&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Vytvořit účet&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;a href=&quot;https://garage.maemo.org/extras-assistant/index.php&quot;&gt;Request upload rights&lt;/a&gt;</source>
-        <translation>&lt;a href=&quot;https://garage.maemo.org/account/register.php&quot;&gt;Požádat o práva k nahrání&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation>Soubor se soukromým klíčem:</translation>
-    </message>
-    <message>
-        <source>Server address:</source>
-        <translation>Adresa serveru:</translation>
-    </message>
-    <message>
-        <source>Target directory on server:</source>
-        <translation>Cílový adresář na serveru:</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingWizardFactoryFremantleFree</name>
-    <message>
-        <source>Publish for &quot;Fremantle Extras-devel free&quot; repository</source>
-        <translation>Zveřejnění ve skladišti Fremantle &quot;Extras-devel/free&quot;</translation>
-    </message>
-    <message>
-        <source>This wizard will create a source archive and optionally upload it to a build server, where the project will be compiled and packaged and then moved to the &quot;Extras-devel free&quot; repository, from where users can install it onto their N900 devices. For the upload functionality, an account at garage.maemo.org is required.</source>
-        <translation>Tento průvodce vytvoří zdrojový archiv a volitelně jej nahraje na sestavovací server, kde bude projekt sestaven, zabalen a potom přesunut do skladiště &quot;Extras-devel free&quot;, odkud jej mohou uživatelé instalovat na svá zařízení N900. Pro funkci nahrávání je potřeba přihlášení k garage.maemo.org.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingWizardFremantleFree</name>
-    <message>
-        <source>Publishing to Fremantle&apos;s &quot;Extras-devel free&quot; Repository</source>
-        <translation>Zveřejnění ve skladišti Fremantle &quot;Extras-devel/free&quot;</translation>
-    </message>
-    <message>
-        <source>Build Settings</source>
-        <translation>Nastavení sestavování</translation>
-    </message>
-    <message>
-        <source>Upload Settings</source>
-        <translation>Nahrát nastavení</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Výsledek</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuManager</name>
-    <message>
-        <source>MeeGo Emulator</source>
-        <translation>Emulátor MeeGo</translation>
-    </message>
-    <message>
-        <source>Start MeeGo Emulator</source>
-        <translation>Spustit emulátor Maemo</translation>
-    </message>
-    <message>
-        <source>Qemu has been shut down, because you removed the corresponding Qt version.</source>
-        <translation>Qemu bylo zastaveno, protože jste odstranil odpovídající verzi Qt.</translation>
-    </message>
-    <message>
-        <source>Qemu finished with error: Exit code was %1.</source>
-        <translation>Qemu skončilo s chybou. Kód ukončení byl %1.</translation>
-    </message>
-    <message>
-        <source>Qemu error</source>
-        <translation>Chyba v Qemu</translation>
-    </message>
-    <message>
-        <source>Qemu failed to start: %1</source>
-        <translation>Qemu se nepodařilo spustit: %1</translation>
-    </message>
-    <message>
-        <source>Stop MeeGo Emulator</source>
-        <translation>Zastavit emulátor MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRemoteCopyFacility</name>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Chyba při vytváření spojení: %1</translation>
-    </message>
-    <message>
-        <source>Error: Copy command failed.</source>
-        <translation>Chyba: Příkaz ke kopírování selhal.</translation>
-    </message>
-    <message>
-        <source>Copying file &apos;%1&apos; to directory &apos;%2&apos; on the device...</source>
-        <translation>Kopíruje se soubor &apos;%1&apos; do adresáře &apos;%2&apos; na zařízení...</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRemoteMounter</name>
-    <message>
-        <source>No directories to mount</source>
-        <translation>Žádné adresáře k připojení</translation>
-    </message>
-    <message>
-        <source>No directories to unmount</source>
-        <translation>Žádné adresáře k odpojení</translation>
-    </message>
-    <message>
-        <source>Could not execute unmount request.</source>
-        <translation>Nepodařilo se provést požadavek na odpojení.</translation>
-    </message>
-    <message>
-        <source>Failure unmounting: %1</source>
-        <translation>Chyba při odpojování: %1</translation>
-    </message>
-    <message>
-        <source>Finished unmounting.</source>
-        <translation>Odpojení dokončeno.</translation>
-    </message>
-    <message>
-        <source>
-stderr was: &apos;%1&apos;</source>
-        <translation>
-Chybový výstup byl: &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>Error: Not enough free ports on device to fulfill all mount requests.</source>
-        <translation>Chyba: Na zařízení není dostatek volných portů pro splnění všech požadavků na připojení.</translation>
-    </message>
-    <message>
-        <source>Starting remote UTFS clients...</source>
-        <translation>Spouští se vzdálení klienti UTFS...</translation>
-    </message>
-    <message>
-        <source>Mount operation succeeded.</source>
-        <translation>Operace připojení uspěla.</translation>
-    </message>
-    <message>
-        <source>Failure running UTFS client: %1</source>
-        <translation>Chyba při spuštění klienta UTFS: %1</translation>
-    </message>
-    <message>
-        <source>Starting UTFS servers...</source>
-        <translation>Spouští se server UTFS...</translation>
-    </message>
-    <message>
-        <source>
-stderr was: %1</source>
-        <translation>
-Chybový výstup byl: &apos;%1&apos;</translation>
-    </message>
-    <message>
-        <source>Error running UTFS server: %1</source>
-        <translation>Chyba při spuštění serveru UTFS: %1</translation>
-    </message>
-    <message>
-        <source>Timeout waiting for UTFS servers to connect.</source>
-        <translation>Překročení časového omezení při čekání na spojení se serverem UTFS.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRemoteMountsModel</name>
-    <message>
-        <source>Local directory</source>
-        <translation>Místní adresář</translation>
-    </message>
-    <message>
-        <source>Remote mount point</source>
-        <translation>Vzdálený přípojný bod</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRunConfiguration</name>
-    <message>
-        <source>Not enough free ports on the device.</source>
-        <translation>Na zařízení není dostatek volných portů.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRunConfigurationWidget</name>
-    <message>
-        <source>Choose directory to mount</source>
-        <translation>Vyberte, prosím, adresář, který se má připojit</translation>
-    </message>
-    <message>
-        <source>No local directories to be mounted on the device.</source>
-        <translation>Nejsou žádné místní adresáře, které by na zařízení bylo možné připojit (mount).</translation>
-    </message>
-    <message>
-        <source>One local directory to be mounted on the device.</source>
-        <translation>Je jeden místní adresář, který by na zařízení bylo možné připojit (mount).</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n local directories to be mounted on the device.</source>
-        <extracomment>Note: Only mountCount&gt;1 will occur here as 0, 1 are handled above.</extracomment>
-        <translation>
-            <numerusform>Je jeden místní adresář, který by na zařízení bylo možné připojit (mount).</numerusform>
-            <numerusform>Jsou %n místní adresáře, které by na zařízení bylo možné připojit (mount).</numerusform>
-            <numerusform>Je %n místních adresářů, které by na zařízení bylo možné připojit (mount).</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>WARNING: You want to mount %1 directories, but your device has only %n free ports.&lt;br&gt;You will not be able to run this configuration.</source>
-        <translation>
-            <numerusform>Varování: Chcete připojit %1 adresář, ale vaše zařízení má jen jeden volný port.&lt;br&gt;Toto nastavení nebudete moci provést.</numerusform>
-            <numerusform>Varování: Chcete připojit %1 adresáře, ale vaše zařízení má jen %n volné porty.&lt;br&gt;Toto nastavení nebudete moci provést.</numerusform>
-            <numerusform>Varování: Chcete připojit %1 adresářů, ale vaše zařízení má jen %n volných portů.&lt;br&gt;Toto nastavení nebudete moci provést.</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>WARNING: You want to mount %1 directories, but only %n ports on the device will be available in debug mode. &lt;br&gt;You will not be able to debug your application with this configuration.</source>
-        <translation>
-            <numerusform>Varování: Chcete připojit %1 adresář, ale vaše zařízení má v režimu ladění dostupnou jen jeden port.&lt;br&gt;S tímto nastavením nebudete moci provést ladění vašeho programu.</numerusform>
-            <numerusform>Varování: Chcete připojit %1 adresáře, ale vaše zařízení má v režimu ladění dostupné jen %n porty.&lt;br&gt;S tímto nastavením nebudete moci provést ladění vašeho programu.</numerusform>
-            <numerusform>Varování: Chcete připojit %1 adresářů, ale vaše zařízení má v režimu ladění dostupných jen %n portů.&lt;br&gt;S tímto nastavením nebudete moci provést ladění vašeho programu.</numerusform>
-        </translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoRunControlFactory</name>
-    <message>
-        <source>Run on device</source>
-        <translation type="obsolete">Spustit na zařízení</translation>
-    </message>
-    <message>
-        <source>Cannot debug: Kit has no device.</source>
-        <translation>Nelze ladit: Kit nemá žádné zařízení.</translation>
-    </message>
-    <message>
-        <source>Cannot debug: Not enough free ports available.</source>
-        <translation>Nelze ladit: Není dostatek volných portů.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuCrashDialog</name>
-    <message>
-        <source>Qemu error</source>
-        <translation>Chyba v Qemu</translation>
-    </message>
-    <message>
-        <source>Qemu crashed.</source>
-        <translation>Qemu spadlo.</translation>
-    </message>
-    <message>
-        <source>Click here to change the OpenGL mode.</source>
-        <translation>Klepněte zde pro změnu režimu OpenGL.</translation>
-    </message>
-    <message>
-        <source>You have configured Qemu to use OpenGL hardware acceleration, which might not be supported by your system. You could try using software rendering instead.</source>
-        <translation>V Qemu OpenGL je nastaveno hardwarové zrychlení, což nemusí být podporováno vaším systémem. Místo toho byste mohl použít softwarový rendering.</translation>
-    </message>
-    <message>
-        <source>Qemu is currently configured to auto-detect the OpenGL mode, which is known to not work in some cases. You might want to use software rendering instead.</source>
-        <translation>V současnosti je Qemu nastaveno tak, aby byl režim OpenGL určen automaticky, což, jak je známo, ne vždy pracuje. Místo toho byste mohl použít softwarový rendering.</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuSettingsPage</name>
-    <message>
-        <source>MeeGo Qemu Settings</source>
-        <translation>Nastavení Meego QEmu</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoSshRunner</name>
-    <message>
-        <source>Qemu was not running. It has now been started up for you, but it will take a bit of time until it is ready. Please try again then.</source>
-        <translation type="obsolete">Nasazení se nezdařilo, neboť Qemu neběželo. Bylo nyní spuštěno, ale bude ještě potřebovat nějaký čas, než bude připraveno. Pak to, prosím, zkuste znovu.</translation>
-    </message>
-    <message>
-        <source>You want to run on Qemu, but it is not enabled for this Qt version.</source>
-        <translation type="obsolete">Nasazení Qemu se nezdařilo, neboť Qemu není pro tuto verzi Qt dostupné.</translation>
-    </message>
-    <message>
-        <source>Mounting host directories...</source>
-        <translation type="obsolete">Připojují se hostitelské adresáře...</translation>
-    </message>
-    <message>
-        <source>Potentially unmounting left-over host directory mounts...</source>
-        <translation type="obsolete">Odpojuje se zbývající hostitelský adresář...</translation>
-    </message>
-    <message>
-        <source>Unmounting host directories...</source>
-        <translation type="obsolete">Odpojují se hostitelské adresáře...</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoToolChainFactory</name>
-    <message>
-        <source>Maemo GCC</source>
-        <translation type="obsolete">Maemo GCC</translation>
-    </message>
-    <message>
-        <source>Maemo GCC for %1</source>
-        <translation type="obsolete">Maemo GCC pro %1</translation>
-    </message>
-    <message>
-        <source>%1 GCC (%2)</source>
-        <translation type="obsolete">%1 GCC (%2)</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoToolChainConfigWidget</name>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Cesta k MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Cesta k cíli MADDE:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Ladič:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::Qt4MaemoDeployConfigurationFactory</name>
-    <message>
-        <source>Copy Files to Maemo5 Device</source>
-        <translation>Kopírovat soubory na zařízení Maemo5</translation>
-    </message>
-    <message>
-        <source>Build Debian Package and Install to Maemo5 Device</source>
-        <translation>Vytvořit balíček Debian a nainstalovat na zařízení Maemo5</translation>
-    </message>
-    <message>
-        <source>Build Debian Package and Install to Harmattan Device</source>
-        <translation>Vytvořit balíček Debian a nainstalovat na zařízení Harmattan</translation>
-    </message>
-    <message>
-        <source>Build RPM Package and Install to MeeGo Device</source>
-        <translation type="obsolete">Vytvořit balíček RPM a nainstalovat na zařízení Meego</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractQt4MaemoTarget</name>
-    <message>
-        <source>Cannot open file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Soubor &apos;%1&apos; nelze otevřít: %2</translation>
-    </message>
-    <message>
-        <source>Add Packaging Files to Project</source>
-        <translation type="obsolete">Přidat soubory s balíčky do projektu</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;Qt Creator has set up the following files to enable packaging:
-   %1
-Do you want to add them to the project?&lt;/html&gt;</source>
-        <translation type="obsolete">&lt;html&gt;Qt Creator přiložil následující soubory k umožnění balíčkování:
-   %1
-Chcete je přidat do projektu?&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="obsolete">Qt Creator</translation>
-    </message>
-    <message>
-        <source>Do you want to remove the packaging files associated with the target &apos;%1&apos;?</source>
-        <translation type="obsolete">Chcete smazat soubory s balíčky, které patří k cíli &apos;%1&apos;?</translation>
-    </message>
-    <message>
-        <source>Do you want to remove the packaging file(s) associated with the target &apos;%1&apos;?</source>
-        <translation type="obsolete">Chcete smazat soubory s balíčky, které patří k cíli &apos;%1&apos;?</translation>
-    </message>
-    <message>
-        <source>Error creating packaging directory &apos;%1&apos;.</source>
-        <translation type="obsolete">Chyba při vytváření adresáře s balíčky &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Error creating MeeGo templates</source>
-        <translation type="obsolete">Chyba při vytváření předloh MeeGo</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::AbstractDebBasedQt4MaemoTarget</name>
-    <message>
-        <source>Debian changelog file &apos;%1&apos; has unexpected format.</source>
-        <translation type="obsolete">Soubor se záznamem změn Debian &apos;%1&apos; je v nějakém neznámém formátu.</translation>
-    </message>
-    <message>
-        <source>Refusing to update changelog file: Already contains version &apos;%1&apos;.</source>
-        <translation type="obsolete">Odmítnutí aktualizace souboru se záznamem změn: Již obsahuje verzi &apos;%1&apos;.</translation>
-    </message>
-    <message>
-        <source>Cannot update changelog: Invalid format (no maintainer entry found).</source>
-        <translation type="obsolete">Soubor se záznamem změn nelze aktualizovat: Neplatný formát (nenalezen žádný záznam o údržbáři).</translation>
-    </message>
-    <message>
-        <source>Invalid icon data in Debian control file.</source>
-        <translation type="obsolete">Kontrolní soubor pro Debian obsahuje neplatná data k ikoně.</translation>
-    </message>
-    <message>
-        <source>Could not read image file &apos;%1&apos;.</source>
-        <translation type="obsolete">Soubor s obrázkem &apos;%1&apos; se nepodařilo přečíst.</translation>
-    </message>
-    <message>
-        <source>Could not export image file &apos;%1&apos;.</source>
-        <translation type="obsolete">Soubor s obrázkem &apos;%1&apos; se nepodařilo vyvést.</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: No Qt version set.</source>
-        <translation type="obsolete">Nepodařilo se vytvořit žádné předlohy pro Debian. Není nastavena žádná verze Qt.</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: dh_make failed (%1).</source>
-        <translation type="obsolete">Nepodařilo se vytvořit žádné soubory předloh pro Debian: dh_make selhal (%1).</translation>
-    </message>
-    <message>
-        <source>Unable to create debian templates: dh_make failed (%1).</source>
-        <translation type="obsolete">Nepodařilo se vytvořit žádné soubory předloh pro Debian: dh_make selhal (%1).</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: No Qt version set</source>
-        <translation type="obsolete">Nepodařilo se vytvořit žádné předlohy pro Debian. Není nastavena žádná verze Qt</translation>
-    </message>
-    <message>
-        <source>Unable to create Debian templates: dh_make failed (%1)</source>
-        <translation type="obsolete">Nepodařilo se vytvořit žádné soubory předloh pro Debian: dh_make selhal (%1)</translation>
-    </message>
-    <message>
-        <source>Unable to create debian templates: dh_make failed (%1)</source>
-        <translation type="obsolete">Nepodařilo se vytvořit žádné soubory předloh pro Debian: dh_make selhal (%1)</translation>
-    </message>
-    <message>
-        <source>Unable to move new debian directory to &apos;%1&apos;.</source>
-        <translation type="obsolete">Nový adresář pro Debian se nepodařilo přesunout do %1.</translation>
-    </message>
-</context>
-<context>
     <name>ProjectExplorer::SettingsAccessor</name>
     <message>
         <source>Using Old Project Settings File</source>
@@ -45966,7 +43661,7 @@ o pravděpodobném URI.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxDeployService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No deployment action necessary. Skipping.</source>
         <translation>Všechny soubory jsou v aktuálním stavu. Není potřeba žádná instalace.</translation>
@@ -46009,7 +43704,7 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxDeployStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Deployment failed: %1</source>
         <translation type="obsolete">Nasazení se nezdařilo: %1</translation>
@@ -46032,22 +43727,7 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractUploadAndInstallPackageService</name>
-    <message>
-        <source>Successfully uploaded package file.</source>
-        <translation>Soubor s balíčkem byl nahrán.</translation>
-    </message>
-    <message>
-        <source>Installing package to device...</source>
-        <translation>Instaluje se balíček na zařízení...</translation>
-    </message>
-    <message>
-        <source>Package installed.</source>
-        <translation>Balíček nainstalován.</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::GenericDirectUploadService</name>
+    <name>RemoteLinux</name>
     <message>
         <source>SFTP initialization failed: %1</source>
         <translation>Spuštění SFTP se nezdařilo: %1</translation>
@@ -46090,125 +43770,22 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::ConfigWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Incremental deployment</source>
         <translation>Přírůstkové nasazení</translation>
     </message>
     <message>
-        <source>Ignore missing files</source>
-        <translation>Nevšímat si chybějících souborů</translation>
-    </message>
-    <message>
         <source>Command line:</source>
         <translation>Příkazový řádek:</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::GenericDirectUploadStep</name>
     <message>
         <source>Upload files via SFTP</source>
         <translation>Nahrát soubory prostřednictvím SFTP</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationFactory</name>
-    <message>
-        <source>Generic Linux Device</source>
-        <translation>Obecné linuxové zařízení</translation>
-    </message>
-    <message>
-        <source>Generic Linux</source>
-        <translation type="obsolete">Obecný Linux</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation type="obsolete">Zkouška</translation>
-    </message>
     <message>
         <source>Remote Processes...</source>
         <translation type="obsolete">Procesy na zařízení...</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key...</source>
-        <translation type="obsolete">Poslat veřejný klíč...</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::LinuxDeviceConfigurations</name>
-    <message>
-        <source>(default for %1)</source>
-        <translation type="obsolete">(výchozí pro %1)</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsWidget</name>
-    <message>
-        <source>You will need at least one port.</source>
-        <translation type="obsolete">Potřebujete alespoň jednu volnou přípojku.</translation>
-    </message>
-    <message>
-        <source>Physical Device</source>
-        <translation type="obsolete">Fyzické zařízení</translation>
-    </message>
-    <message>
-        <source>Emulator</source>
-        <translation type="obsolete">Emulátor</translation>
-    </message>
-    <message>
-        <source>Linux Device Configurations</source>
-        <translation type="obsolete">Nastavení linuxového zařízení</translation>
-    </message>
-    <message>
-        <source>&amp;Configuration:</source>
-        <translation type="obsolete">&amp;Nastavení:</translation>
-    </message>
-    <message>
-        <source>General</source>
-        <translation type="obsolete">Obecné</translation>
-    </message>
-    <message>
-        <source>&amp;Name:</source>
-        <translation type="obsolete">&amp;Název:</translation>
-    </message>
-    <message>
-        <source>OS type:</source>
-        <translation type="obsolete">Typ operačního systému:</translation>
-    </message>
-    <message>
-        <source>Device type:</source>
-        <translation type="obsolete">Typ zařízení:</translation>
-    </message>
-    <message>
-        <source>OS Type Specific</source>
-        <translation type="obsolete">Zvláštní pro typ operačního systému</translation>
-    </message>
-    <message>
-        <source>&amp;Add...</source>
-        <translation type="obsolete">&amp;Přidat...</translation>
-    </message>
-    <message>
-        <source>&amp;Remove</source>
-        <translation type="obsolete">&amp;Odstranit</translation>
-    </message>
-    <message>
-        <source>Set As Default</source>
-        <translation type="obsolete">Nastavit jako výchozí</translation>
-    </message>
-    <message>
-        <source>Click here if you do not have an SSH key yet.</source>
-        <translation type="obsolete">Klepněte sem, pokud ještě nemáte nějaký klíč SSH.</translation>
-    </message>
-    <message>
-        <source>&amp;Generate SSH Key...</source>
-        <translation type="obsolete">&amp;Vytvořit klíč SSH...</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::LinuxDeviceTestDialog</name>
-    <message>
-        <source>Close</source>
-        <translation>Zavřít</translation>
     </message>
     <message>
         <source>Device test finished successfully.</source>
@@ -46218,9 +43795,6 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
         <source>Device test failed.</source>
         <translation>Zkouška zařízení se nezdařila.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::GenericLinuxDeviceTester</name>
     <message>
         <source>Connecting to host...</source>
         <translation>Připojuje se k hostitelskému počítači...</translation>
@@ -46293,7 +43867,7 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::PackageUploader</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Preparing SFTP connection...</source>
         <translation>Připravuje se spojení SFTP...</translation>
@@ -46320,7 +43894,7 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::ProFilesUpdateDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Updateable Project Files</source>
         <translation type="obsolete">Aktualizovatelné projektové soubory</translation>
@@ -46343,63 +43917,11 @@ Je zařízení připojeno a nastaveno pro síťový přístup?</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxApplicationRunner</name>
-    <message>
-        <source>Cannot run: %1</source>
-        <translation type="obsolete">Chyba při spuštění: %1</translation>
-    </message>
-    <message>
-        <source>Could not connect to host: %1</source>
-        <translation type="obsolete">Nepodařilo se spojit s hostitelským počítačem: %1</translation>
-    </message>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Chyba ve spojení: %1</translation>
-    </message>
-    <message>
-        <source>Killing remote process(es)...</source>
-        <translation type="obsolete">Zastavuje se vzdálený proces...</translation>
-    </message>
-    <message>
-        <source>Initial cleanup failed: %1</source>
-        <translation type="obsolete">Počáteční úklid se nezdařil: %1</translation>
-    </message>
-    <message>
-        <source>Remote process started.</source>
-        <translation type="obsolete">Vzdálený proces byl spuštěn.</translation>
-    </message>
-    <message>
-        <source>Gathering ports failed: %1
-Continuing anyway.</source>
-        <translation type="obsolete">Chyba při ověřování přípojek: %1
-Každopádně se pokračuje.</translation>
-    </message>
-    <message>
-        <source>No remote executable set.</source>
-        <translation type="obsolete">Nebyl zadán žádný spustitelný soubor.</translation>
-    </message>
-    <message>
-        <source>No device configuration set.</source>
-        <translation type="obsolete">Nebylo zadáno žádné nastavení zařízení.</translation>
-    </message>
-    <message>
-        <source>Connecting to device...</source>
-        <translation type="obsolete">Připojuje se k zařízení...</translation>
-    </message>
-    <message>
-        <source>Error running remote process: %1</source>
-        <translation type="obsolete">Chyba při spouštění vzdáleného procesu na zařízení: %1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::GenericRemoteLinuxCustomCommandDeploymentStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Run custom remote command</source>
         <translation>Spustit uživatelskystanovený vzdálený příkaz</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxCustomCommandDeployService</name>
     <message>
         <source>No command line given.</source>
         <translation>Nezadán žádný příkazový řádek.</translation>
@@ -46436,27 +43958,19 @@ Každopádně se pokračuje.</translation>
         <translation type="obsolete">Linuxová zařízení</translation>
     </message>
     <message>
-        <source>Unknown OS</source>
-        <translation type="obsolete">Neznámý operační systém</translation>
-    </message>
-    <message>
         <source>(No device)</source>
         <translation type="obsolete">(Žádné zařízení)</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxDeployStepWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>&lt;b&gt;%1 using device&lt;/b&gt;: %2</source>
         <translation type="obsolete">&lt;b&gt;%1 za použití zařízení&lt;/b&gt;: %2</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxEnvironmentReader</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation>Chyba ve spojení: %1</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Error running remote process: %1</source>
         <translation>Chyba při spouštění vzdáleného procesu na zařízení: %1</translation>
@@ -46485,7 +43999,7 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxPackageInstaller</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Connection failure: %1</source>
         <translation>Chyba při vytváření spojení: %1</translation>
@@ -46494,9 +44008,6 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>Installing package failed.</source>
         <translation>Instalace balíčku se nezdařila.</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::Internal::RemoteLinuxPlugin</name>
     <message>
         <source>Start Remote Debug Server...</source>
         <translation type="obsolete">Spustit vzdálený ladicí server...</translation>
@@ -46505,16 +44016,6 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
         <source>Start Gdbserver</source>
         <translation type="obsolete">Spustit gdbserver</translation>
     </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxProcessesDialog</name>
-    <message>
-        <source>Remote Error</source>
-        <translation type="obsolete">Vzdálená chyba</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::AbstractRemoteLinuxProcessList</name>
     <message>
         <source>PID</source>
         <translation type="obsolete">PID</translation>
@@ -46522,10 +44023,6 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
     <message>
         <source>Command Line</source>
         <translation type="obsolete">Příkazový řádek</translation>
-    </message>
-    <message>
-        <source>Connection failure: %1</source>
-        <translation type="obsolete">Chyba při vytváření spojení: %1</translation>
     </message>
     <message>
         <source>Error: Remote process failed to start: %1</source>
@@ -46547,25 +44044,10 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDeviceConfigurationsSettingsPage</name>
-    <message>
-        <source>Device Configurations</source>
-        <translation type="obsolete">Nastavení zařízení</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxUsedPortsGatherer</name>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Chyba ve spojení: %1</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Could not start remote process: %1</source>
         <translation type="obsolete">Vzdálený proces se nepodařilo spustit: %1</translation>
-    </message>
-    <message>
-        <source>Remote process crashed: %1</source>
-        <translation type="obsolete">Vzdálený proces spadl: %1</translation>
     </message>
     <message>
         <source>Remote process failed; exit code was %1.</source>
@@ -46579,15 +44061,7 @@ Vzdálený chybový výstup byl: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::SshKeyCreationDialog</name>
-    <message>
-        <source>Save Public Key File</source>
-        <translation type="obsolete">Uložit soubor s veřejným klíčem</translation>
-    </message>
-    <message>
-        <source>Save Private Key File</source>
-        <translation type="obsolete">Uložit soubor se soukromým klíčem</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>SSH Key Configuration</source>
         <translation type="obsolete">Nastavení klíče SSH</translation>
@@ -46611,10 +44085,6 @@ Vzdálený chybový výstup byl: %1</translation>
     <message>
         <source>Key &amp;size:</source>
         <translation type="obsolete">&amp;Velikost klíče:</translation>
-    </message>
-    <message>
-        <source>Private key file:</source>
-        <translation type="obsolete">Soubor se soukromým klíčem:</translation>
     </message>
     <message>
         <source>Public key file:</source>
@@ -46642,14 +44112,10 @@ Vzdálený chybový výstup byl: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::SshKeyDeployer</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Public key error: %1</source>
         <translation>Chyba ve veřejném klíči: %1</translation>
-    </message>
-    <message>
-        <source>Connection failed: %1</source>
-        <translation>Chyba při vytváření spojení: %1</translation>
     </message>
     <message>
         <source>Key deployment failed: %1.</source>
@@ -46657,7 +44123,7 @@ Vzdálený chybový výstup byl: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::StartGdbServerDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Select Sysroot</source>
         <translation type="obsolete">Vybrat Sysroot</translation>
@@ -46667,28 +44133,12 @@ Vzdálený chybový výstup byl: %1</translation>
         <translation type="obsolete">&amp;Připojit vybranému procesu</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation type="obsolete">Zavřít</translation>
-    </message>
-    <message>
         <source>Device:</source>
         <translation type="obsolete">Zařízení:</translation>
     </message>
     <message>
         <source>Sysroot:</source>
         <translation type="obsolete">Sysroot:</translation>
-    </message>
-    <message>
-        <source>&amp;Filter entries:</source>
-        <translation type="obsolete">&amp;Filtrovat záznamy:</translation>
-    </message>
-    <message>
-        <source>&amp;Filter by process name:</source>
-        <translation type="obsolete">&amp;Filtrovat podle názvu procesu:</translation>
-    </message>
-    <message>
-        <source>List of Remote Processes</source>
-        <translation type="obsolete">Seznam vzdálených procesů</translation>
     </message>
     <message>
         <source>Remote Error</source>
@@ -46701,10 +44151,6 @@ Vzdálený chybový výstup byl: %1</translation>
     <message>
         <source>Could not retrieve list of free ports:</source>
         <translation type="obsolete">Nepodařilo se určit seznam volných přípojek:</translation>
-    </message>
-    <message>
-        <source>Connection error: %1</source>
-        <translation type="obsolete">Chyba ve spojení: %1</translation>
     </message>
     <message>
         <source>Starting gdbserver...</source>
@@ -46728,7 +44174,7 @@ Vzdálený chybový výstup byl: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::TarPackageCreationStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Packaging finished successfully.</source>
         <translation>Vytvoření balíčku úspěšně dokončeno.</translation>
@@ -46780,7 +44226,7 @@ Vzdálený chybový výstup byl: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::TypeSpecificDeviceConfigurationListModel</name>
+    <name>RemoteLinux</name>
     <message>
         <source>(default)</source>
         <translation type="obsolete">(výchozí)</translation>
@@ -46791,7 +44237,7 @@ Vzdálený chybový výstup byl: %1</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::UploadAndInstallTarPackageStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>No tarball creation step found.</source>
         <translation>Nepodařilo se najít žádný odpovídající krok k vytvoření archivu tar.</translation>
@@ -48644,87 +46090,6 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>Madde::Internal::MaemoDeviceConfigWizardCheckPreviousKeySetupPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>Has a passwordless (key-based) login already been set up for this device?</source>
-        <translation>Bylo již pro toto mobilní zařízení nastaveno přihlášení bez hesla?</translation>
-    </message>
-    <message>
-        <source>Yes, and the private key is located at</source>
-        <translation>Ano, a soukromý klíč se nachází v</translation>
-    </message>
-    <message>
-        <source>No</source>
-        <translation>Ne</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingWizardPageFremantleFree</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>Choose build configuration:</source>
-        <translation>Vybrat nastavení sestavování:</translation>
-    </message>
-    <message>
-        <source>Only create source package, do not upload</source>
-        <translation>Pouze vytvořit zdrojový balíček, nenahrávat</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingFileSelectionDialog</name>
-    <message>
-        <source>Choose Package Contents</source>
-        <translation>Vybrat obsah balíčku</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Please select the files you want to be included in the source tarball.&lt;/b&gt;
-</source>
-        <translation>&lt;b&gt;Vyberte, prosím, soubory, které mají být zahrnuty do tarballu se zdroji.&lt;/b&gt;
-</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoPublishingResultPageFremantleFree</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>Progress</source>
-        <translation>Průběh</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaemoQemuSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
-    <message>
-        <source>OpenGL Mode</source>
-        <translation>Režim OpenGL</translation>
-    </message>
-    <message>
-        <source>&amp;Hardware acceleration</source>
-        <translation>&amp;Hardwarové zrychlení</translation>
-    </message>
-    <message>
-        <source>&amp;Software rendering</source>
-        <translation>&amp;Softwarové vykreslování</translation>
-    </message>
-    <message>
-        <source>&amp;Auto-detect</source>
-        <translation>Určit &amp;automaticky</translation>
-    </message>
-</context>
-<context>
     <name>ProjectExplorer::Internal::CodeStyleSettingsPropertiesPage</name>
     <message>
         <source>Form</source>
@@ -49067,11 +46432,7 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>RemoteLinux::GenericLinuxDeviceConfigurationWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Authentication type:</source>
         <translation>Druh ověření pravosti:</translation>
@@ -49166,7 +46527,7 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::GenericLinuxDeviceConfigurationWizardSetupPage</name>
+    <name>RemoteLinux</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -49188,10 +46549,6 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
         <translation>Druh ověření pravosti:</translation>
     </message>
     <message>
-        <source>Password</source>
-        <translation>Heslo</translation>
-    </message>
-    <message>
         <source>Key</source>
         <translation>Klíč</translation>
     </message>
@@ -49205,21 +46562,17 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDeviceTestDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Device Test</source>
         <translation>Zkouška zařízení</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxDeployConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
-    </message>
-    <message>
-        <source>Device configuration:</source>
-        <translation type="obsolete">Nastavení zařízení:</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;irrelevant&quot;&gt;Manage device configurations&lt;/a&gt;</source>
@@ -49239,7 +46592,7 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxProcessesDialog</name>
+    <name>RemoteLinux</name>
     <message>
         <source>List of Remote Processes</source>
         <translation type="obsolete">Seznam vzdálených procesů</translation>
@@ -52964,33 +50317,6 @@ Chcete jej ukončit?</translation>
     </message>
 </context>
 <context>
-    <name>MaddeDevice</name>
-    <message>
-        <source>Test</source>
-        <translation type="obsolete">Zkouška</translation>
-    </message>
-    <message>
-        <source>Remote Processes...</source>
-        <translation type="obsolete">Procesy na zařízení...</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key...</source>
-        <translation type="obsolete">Poslat veřejný klíč...</translation>
-    </message>
-    <message>
-        <source>Maemo5/Fremantle</source>
-        <translation type="obsolete">Maemo 5/Fremantle</translation>
-    </message>
-    <message>
-        <source>MeeGo 1.2 Harmattan</source>
-        <translation type="obsolete">MeeGo 1.2 Harmattan</translation>
-    </message>
-    <message>
-        <source>Other MeeGo OS</source>
-        <translation type="obsolete">Jiné MeeGo OS</translation>
-    </message>
-</context>
-<context>
     <name>ProjectExplorer::DesktopDevice</name>
     <message>
         <source>Local PC</source>
@@ -53807,7 +51133,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::EmbeddedLinuxTargetFactory</name>
+    <name>RemoteLinux</name>
     <message>
         <source>embedded</source>
         <translation type="obsolete">Vloženo</translation>
@@ -53818,33 +51144,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::GenericEmbeddedLinuxTarget</name>
-    <message>
-        <source>Embedded Linux</source>
-        <translation type="obsolete">Vložený Linux</translation>
-    </message>
-</context>
-<context>
-    <name>LinuxDeviceConfiguration</name>
-    <message>
-        <source>Generic Linux</source>
-        <translation type="obsolete">Obecný Linux</translation>
-    </message>
-    <message>
-        <source>Test</source>
-        <translation type="obsolete">Zkouška</translation>
-    </message>
-    <message>
-        <source>Remote Processes...</source>
-        <translation type="obsolete">Procesy na zařízení...</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key...</source>
-        <translation type="obsolete">Poslat veřejný klíč...</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxDeployConfigurationWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Double-click to edit the project file</source>
         <translation type="obsolete">Dvojité klepnutí pro úpravu souboru s projektem</translation>
@@ -55907,7 +53207,7 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
     </message>
 </context>
 <context>
-    <name>Madde::Internal::DebianManager</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Error Creating Debian Project Templates</source>
         <translation>Chyba při vytváření předloh pro projekt Debian</translation>
@@ -55960,28 +53260,6 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
         <source>Unable to move new debian directory to &apos;%1&apos;.</source>
         <translation>Nový adresář pro Debian se nepodařilo přesunout do %1.</translation>
     </message>
-</context>
-<context>
-    <name>Madde::Internal::MaddeDevice</name>
-    <message>
-        <source>Test</source>
-        <translation type="obsolete">Zkouška</translation>
-    </message>
-    <message>
-        <source>Deploy Public Key...</source>
-        <translation type="obsolete">Poslat veřejný klíč...</translation>
-    </message>
-    <message>
-        <source>Maemo5/Fremantle</source>
-        <translation>Maemo 5/Fremantle</translation>
-    </message>
-    <message>
-        <source>MeeGo 1.2 Harmattan</source>
-        <translation>MeeGo 1.2 Harmattan</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::MaddeQemuStartService</name>
     <message>
         <source>Checking whether to start Qemu...</source>
         <translation>Ověřuje se, zda spustit Qemu...</translation>
@@ -56002,27 +53280,9 @@ Zasáhnutí do modulu nebo nastavení bodů přerušení podle souboru, a oček�
         <source>Cannot deploy: You want to deploy to Qemu, but it is not enabled for this Qt version.</source>
         <translation>Nasazení Qemu se nezdařilo, neboť Qemu není pro tuto verzi Qt dostupné.</translation>
     </message>
-</context>
-<context>
-    <name>Madde::Internal::MaddeQemuStartStep</name>
     <message>
         <source>Start Qemu, if necessary</source>
         <translation>Spustit Qemu, je-li to nutné</translation>
-    </message>
-</context>
-<context>
-    <name>Madde::Internal::Qt4MaemoDeployConfiguration</name>
-    <message>
-        <source>Add Packaging Files to Project</source>
-        <translation>Přidat soubory s balíčky do projektu</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;Qt Creator has set up the following files to enable packaging:
-   %1
-Do you want to add them to the project?&lt;/html&gt;</source>
-        <translation>&lt;html&gt;Qt Creator přiložil následující soubory k umožnění balíčkování:
-   %1
-Chcete je přidat do projektu?&lt;/html&gt;</translation>
     </message>
 </context>
 <context>
@@ -57157,7 +54417,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::LinuxDevice</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Generic Linux</source>
         <translation>Obecný Linux</translation>
@@ -57172,11 +54432,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceService</name>
-    <message>
-        <source>Remote process failed to start.</source>
-        <translation>Vzdálený proces se nepodařilo spustit.</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Remote process crashed.</source>
         <translation>Vzdálený proces spadl.</translation>
@@ -57207,30 +54463,21 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::Internal::RemoteLinuxCheckForFreeDiskSpaceStepWidget</name>
+    <name>RemoteLinux</name>
     <message>
         <source>MB</source>
         <translation>MiB</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxCheckForFreeDiskSpaceStep</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Check for free disk space</source>
         <translation>Ověřit volné místo na disku</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::LinuxDeviceDebugSupport</name>
-    <message>
-        <source>Checking available ports...
-</source>
-        <translation>Ověřují se dostupné porty...</translation>
-    </message>
-    <message>
-        <source>Checking available ports...</source>
-        <translation>Ověřují se dostupné porty...</translation>
-    </message>
+    <name>RemoteLinux</name>
     <message>
         <source>Debugging failed.</source>
         <translation>Ladění se nezdařilo.</translation>
@@ -57238,10 +54485,6 @@ nelze najít v cestě.</translation>
     <message>
         <source>Initial setup failed: %1</source>
         <translation>Počáteční nastavení se nezdařilo: %1</translation>
-    </message>
-    <message>
-        <source>Not enough free ports on device for debugging.</source>
-        <translation type="obsolete">Na zařízení není dostatek volných portů pro ladění.</translation>
     </message>
 </context>
 <context>
@@ -60262,17 +57505,6 @@ Commit now?</source>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxDeploymentDataModel</name>
-    <message>
-        <source>Local File Path</source>
-        <translation>Místní souborová cesta</translation>
-    </message>
-    <message>
-        <source>Remote Directory</source>
-        <translation>Vzdálený adresář</translation>
-    </message>
-</context>
-<context>
     <name>TextEditor::BehaviorSettingsWidget</name>
     <message>
         <source>Display context-sensitive help or type information on mouseover.</source>
@@ -62213,14 +59445,14 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>RemoteLinux::AbstractRemoteLinuxRunSupport</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Not enough free ports on device for debugging.</source>
         <translation>Na zařízení není dostatek volných portů pro ladění.</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxAnalyzeSupport</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Checking available ports...
 </source>
@@ -62233,40 +59465,6 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     <message>
         <source>Failure running remote process.</source>
         <translation>Selhání při spouštění vzdáleného procesu.</translation>
-    </message>
-    <message>
-        <source>Initial setup failed: %1</source>
-        <translation>Počáteční nastavení se nezdařilo: %1</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxEnvironmentAspect</name>
-    <message>
-        <source>Clean Environment</source>
-        <translation>Smazat prostředí</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation>Prostředí systému</translation>
-    </message>
-</context>
-<context>
-    <name>RemoteLinux::RemoteLinuxEnvironmentAspectWidget</name>
-    <message>
-        <source>Fetch Device Environment</source>
-        <translation>Natáhnout prostředí zařízení</translation>
-    </message>
-    <message>
-        <source>Cancel Fetch Operation</source>
-        <translation>Zrušit operaci natažení prostředí</translation>
-    </message>
-    <message>
-        <source>Device Error</source>
-        <translation>Chyba zařízení</translation>
-    </message>
-    <message>
-        <source>Fetching environment failed: %1</source>
-        <translation>Natažení prostředí se nezdařilo: %1</translation>
     </message>
 </context>
 <context>
@@ -65007,7 +62205,7 @@ se vyskytla chyba</translation>
     </message>
 </context>
 <context>
-    <name>RemoteLinux::RemoteLinuxSignalOperation</name>
+    <name>RemoteLinux</name>
     <message>
         <source>Exit code is %1. stderr:</source>
         <translation>Vrácená hodnota je %1. stderr:</translation>

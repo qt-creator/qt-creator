@@ -27,8 +27,7 @@
 
 #include <projectexplorer/buildstep.h>
 
-namespace RemoteLinux {
-namespace Internal {
+namespace RemoteLinux::Internal {
 
 class CustomCommandDeployStepFactory : public ProjectExplorer::BuildStepFactory
 {
@@ -36,5 +35,4 @@ public:
     CustomCommandDeployStepFactory();
 };
 
-} // Internal
-} // RemoteLinux
+} // RemoteLinux::Internal

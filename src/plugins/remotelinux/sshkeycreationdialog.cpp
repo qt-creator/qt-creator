@@ -25,6 +25,8 @@
 
 #include "sshkeycreationdialog.h"
 
+#include "remotelinuxtr.h"
+
 #include <projectexplorer/devicesupport/sshsettings.h>
 
 #include <utils/fileutils.h>
@@ -50,13 +52,13 @@ namespace RemoteLinux {
 SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("SSH Key Configuration"));
+    setWindowTitle(Tr::tr("SSH Key Configuration"));
     resize(385, 231);
 
-    m_rsa = new QRadioButton(tr("&RSA"));
+    m_rsa = new QRadioButton(Tr::tr("&RSA"));
     m_rsa->setChecked(true);
 
-    m_ecdsa = new QRadioButton(tr("ECDSA"));
+    m_ecdsa = new QRadioButton(Tr::tr("ECDSA"));
 
     m_comboBox = new QComboBox;
 
@@ -65,8 +67,8 @@ SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
     m_publicKeyFileLabel = new QLabel;
 
     auto privateKeyFileButton = new QPushButton(PathChooser::browseButtonLabel());
-    m_generateButton = new QPushButton(tr("&Generate And Save Key Pair"));
-    auto closeButton = new QPushButton(tr("&Cancel"));
+    m_generateButton = new QPushButton(Tr::tr("&Generate And Save Key Pair"));
+    auto closeButton = new QPushButton(Tr::tr("&Cancel"));
 
     using namespace Layouting;
     const Break nl;
@@ -74,12 +76,12 @@ SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
 
     Column {
         Group {
-            Title(tr("Options")),
+            Title(Tr::tr("Options")),
             Form {
-                tr("Key algorithm:"), m_rsa, m_ecdsa, st, nl,
-                tr("Key &size:"), m_comboBox, st, nl,
-                tr("Private key file:"), m_privateKeyFileValueLabel, privateKeyFileButton, st, nl,
-                tr("Public key file:"), m_publicKeyFileLabel
+                Tr::tr("Key algorithm:"), m_rsa, m_ecdsa, st, nl,
+                Tr::tr("Key &size:"), m_comboBox, st, nl,
+                Tr::tr("Private key file:"), m_privateKeyFileValueLabel, privateKeyFileButton, st, nl,
+                Tr::tr("Public key file:"), m_publicKeyFileLabel
             }
         },
         Stretch(),
@@ -120,11 +122,11 @@ void SshKeyCreationDialog::keyTypeChanged()
 void SshKeyCreationDialog::generateKeys()
 {
     if (SshSettings::keygenFilePath().isEmpty()) {
-        showError(tr("The ssh-keygen tool was not found."));
+        showError(Tr::tr("The ssh-keygen tool was not found."));
         return;
     }
     if (privateKeyFilePath().exists()) {
-        showError(tr("Refusing to overwrite existing private key file \"%1\".")
+        showError(Tr::tr("Refusing to overwrite existing private key file \"%1\".")
                   .arg(privateKeyFilePath().toUserOutput()));
         return;
     }
@@ -141,7 +143,7 @@ void SshKeyCreationDialog::generateKeys()
     else if (keygen.exitCode() != 0)
         errorMsg = QString::fromLocal8Bit(keygen.readAllStandardError());
     if (!errorMsg.isEmpty()) {
-        showError(tr("The ssh-keygen tool at \"%1\" failed: %2")
+        showError(Tr::tr("The ssh-keygen tool at \"%1\" failed: %2")
                   .arg(SshSettings::keygenFilePath().toUserOutput(), errorMsg));
     }
     QApplication::restoreOverrideCursor();
@@ -150,7 +152,7 @@ void SshKeyCreationDialog::generateKeys()
 
 void SshKeyCreationDialog::handleBrowseButtonClicked()
 {
-    const FilePath filePath = FileUtils::getSaveFilePath(this, tr("Choose Private Key File Name"));
+    const FilePath filePath = FileUtils::getSaveFilePath(this, Tr::tr("Choose Private Key File Name"));
     if (!filePath.isEmpty())
         setPrivateKeyFile(filePath);
 }
@@ -164,7 +166,7 @@ void SshKeyCreationDialog::setPrivateKeyFile(const FilePath &filePath)
 
 void SshKeyCreationDialog::showError(const QString &details)
 {
-    QMessageBox::critical(this, tr("Key Generation Failed"), details);
+    QMessageBox::critical(this, Tr::tr("Key Generation Failed"), details);
 }
 
 FilePath SshKeyCreationDialog::privateKeyFilePath() const

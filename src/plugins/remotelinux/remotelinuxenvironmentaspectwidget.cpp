@@ -28,11 +28,14 @@
 #include "linuxdevice.h"
 #include "remotelinuxenvironmentaspect.h"
 #include "remotelinuxenvironmentreader.h"
+#include "remotelinuxtr.h"
 
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/target.h>
+
 #include <utils/qtcassert.h>
 
 #include <QCoreApplication>
@@ -43,13 +46,9 @@ using namespace ProjectExplorer;
 using namespace RemoteLinux::Internal;
 using namespace Utils;
 
-namespace {
-const QString FetchEnvButtonText
-    = QCoreApplication::translate("RemoteLinux::RemoteLinuxEnvironmentAspectWidget",
-                                  "Fetch Device Environment");
-} // anonymous namespace
-
 namespace RemoteLinux {
+
+const QString FetchEnvButtonText = Tr::tr("Fetch Device Environment");
 
 RemoteLinuxEnvironmentAspectWidget::RemoteLinuxEnvironmentAspectWidget
         (RemoteLinuxEnvironmentAspect *aspect, Target *target)
@@ -71,12 +70,12 @@ RemoteLinuxEnvironmentAspectWidget::RemoteLinuxEnvironmentAspectWidget
             this, &RemoteLinuxEnvironmentAspectWidget::fetchEnvironmentError);
 
     const EnvironmentWidget::OpenTerminalFunc openTerminalFunc
-            = [target](const Utils::Environment &env) {
+            = [target](const Environment &env) {
         IDevice::ConstPtr device = DeviceKitAspect::device(target->kit());
         if (!device) {
             QMessageBox::critical(Core::ICore::dialogParent(),
-                                  tr("Cannot Open Terminal"),
-                                  tr("Cannot open remote terminal: Current kit has no device."));
+                                  Tr::tr("Cannot Open Terminal"),
+                                  Tr::tr("Cannot open remote terminal: Current kit has no device."));
             return;
         }
         const auto linuxDevice = device.dynamicCast<const LinuxDevice>();
@@ -92,7 +91,7 @@ void RemoteLinuxEnvironmentAspectWidget::fetchEnvironment()
                this, &RemoteLinuxEnvironmentAspectWidget::fetchEnvironment);
     connect(m_fetchButton, &QPushButton::clicked,
             this, &RemoteLinuxEnvironmentAspectWidget::stopFetchEnvironment);
-    m_fetchButton->setText(tr("Cancel Fetch Operation"));
+    m_fetchButton->setText(Tr::tr("Cancel Fetch Operation"));
     m_deviceEnvReader->start();
 }
 
@@ -109,8 +108,8 @@ void RemoteLinuxEnvironmentAspectWidget::fetchEnvironmentFinished()
 
 void RemoteLinuxEnvironmentAspectWidget::fetchEnvironmentError(const QString &error)
 {
-    QMessageBox::warning(this, tr("Device Error"),
-        tr("Fetching environment failed: %1").arg(error));
+    QMessageBox::warning(this, Tr::tr("Device Error"),
+        Tr::tr("Fetching environment failed: %1").arg(error));
 }
 
 void RemoteLinuxEnvironmentAspectWidget::stopFetchEnvironment()
@@ -119,8 +118,4 @@ void RemoteLinuxEnvironmentAspectWidget::stopFetchEnvironment()
     fetchEnvironmentFinished();
 }
 
-// --------------------------------------------------------------------
-// RemoteLinuxEnvironmentAspectWidget:
-// --------------------------------------------------------------------
-
-} // namespace RemoteLinux
+} // RemoteLinux
