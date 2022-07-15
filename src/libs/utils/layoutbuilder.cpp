@@ -160,6 +160,23 @@ static QWidget *widgetForItem(QLayoutItem *item)
     return nullptr;
 }
 
+static void addItemToBoxLayout(QBoxLayout *layout, const LayoutBuilder::LayoutItem &item)
+{
+    if (QWidget *w = item.widget) {
+        layout->addWidget(w);
+    } else if (QLayout *l = item.layout) {
+        layout->addLayout(l);
+    } else if (item.specialType == LayoutBuilder::SpecialType::Stretch) {
+        layout->addStretch(item.specialValue.toInt());
+    } else if (item.specialType == LayoutBuilder::SpecialType::Space) {
+        layout->addSpacing(item.specialValue.toInt());
+    } else if (!item.text.isEmpty()) {
+        layout->addWidget(new QLabel(item.text));
+    } else {
+        QTC_CHECK(false);
+    }
+}
+
 static void flushPendingFormItems(QFormLayout *formLayout,
                                   LayoutBuilder::LayoutItems &pendingFormItems)
 {
@@ -172,14 +189,8 @@ static void flushPendingFormItems(QFormLayout *formLayout,
     if (pendingFormItems.size() > 2) {
         auto hbox = new QHBoxLayout;
         setMargins(false, hbox);
-        for (int i = 1; i < pendingFormItems.size(); ++i) {
-            if (QWidget *w = pendingFormItems.at(i).widget)
-                hbox->addWidget(w);
-            else if (QLayout *l = pendingFormItems.at(i).layout)
-                hbox->addLayout(l);
-            else
-                QTC_CHECK(false);
-        }
+        for (int i = 1; i < pendingFormItems.size(); ++i)
+            addItemToBoxLayout(hbox, pendingFormItems.at(i));
         while (pendingFormItems.size() >= 2)
             pendingFormItems.pop_back();
         pendingFormItems.append(LayoutBuilder::LayoutItem(hbox));
@@ -256,15 +267,7 @@ static void doLayoutHelper(QLayout *layout,
                 gridLayout->addLayout(item.layout, currentGridRow, currentGridColumn, 1, item.span, align);
             currentGridColumn += item.span;
         } else if (boxLayout) {
-            if (widget) {
-                boxLayout->addWidget(widget);
-            } else if (item.layout) {
-                boxLayout->addLayout(item.layout);
-            } else if (item.specialType == LayoutBuilder::SpecialType::Stretch) {
-                boxLayout->addStretch(item.specialValue.toInt());
-            } else if (item.specialType == LayoutBuilder::SpecialType::Space) {
-                boxLayout->addSpacing(item.specialValue.toInt());
-            }
+            addItemToBoxLayout(boxLayout, item);
         } else {
             pendingFormItems.append(item);
         }
