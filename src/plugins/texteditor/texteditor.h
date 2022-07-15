@@ -384,6 +384,7 @@ public:
     void selectLineEnding(int index);
     void updateTextLineEndingLabel();
     void addSelectionNextFindMatch();
+    void addCursorsToLineEnds();
 
     void gotoBlockStart();
     void gotoBlockEnd();

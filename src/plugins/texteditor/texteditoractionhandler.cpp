@@ -329,6 +329,10 @@ void TextEditorActionHandlerPrivate::createActions()
             [] (TextEditorWidget *w) { w->copyLine(); }, false, tr("Copy &Line"),
             QKeySequence(tr("Ctrl+Ins")),
             G_EDIT_TEXT, advancedEditMenu);
+    registerAction(ADD_CURSORS_TO_LINE_ENDS,
+            [] (TextEditorWidget *w) { w->addCursorsToLineEnds(); }, false, tr("Create Cursors at Selected Line Ends"),
+            QKeySequence(tr("Alt+Shift+I")),
+            G_EDIT_TEXT, advancedEditMenu);
     registerAction(ADD_SELECT_NEXT_FIND_MATCH,
             [] (TextEditorWidget *w) { w->addSelectionNextFindMatch(); }, false, tr("Add Next Occurrence to Selection"),
             QKeySequence(tr("Ctrl+D")),

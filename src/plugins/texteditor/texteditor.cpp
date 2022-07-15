@@ -530,6 +530,7 @@ public:
     void moveLineUpDown(bool up);
     void copyLineUpDown(bool up);
     void addSelectionNextFindMatch();
+    void addCursorsToLineEnds();
     void saveCurrentCursorPositionForNavigation();
     void updateHighlights();
     void updateCurrentLineInScrollbar();
@@ -6822,6 +6823,42 @@ void TextEditorWidget::copyLine()
     copy();
 }
 
+void TextEditorWidgetPrivate::addCursorsToLineEnds()
+{
+    MultiTextCursor multiCursor = q->multiTextCursor();
+    MultiTextCursor newMultiCursor;
+    const QList<QTextCursor> cursors = multiCursor.cursors();
+
+    if (multiCursor.cursorCount() == 0)
+        return;
+
+    QTextDocument *document = q->document();
+
+    for (const QTextCursor &cursor : cursors) {
+        if (!cursor.hasSelection())
+            continue;
+
+        QTextBlock block = document->findBlock(cursor.selectionStart());
+
+        while (block.isValid()) {
+            int blockEnd = block.position() + block.length() - 1;
+            if (blockEnd >= cursor.selectionEnd()) {
+                break;
+            }
+
+            QTextCursor newCursor(document);
+            newCursor.setPosition(blockEnd);
+            newMultiCursor.addCursor(newCursor);
+
+            block = block.next();
+        }
+    }
+
+    if (!newMultiCursor.isNull()) {
+        q->setMultiTextCursor(newMultiCursor);
+    }
+}
+
 void TextEditorWidgetPrivate::addSelectionNextFindMatch()
 {
     MultiTextCursor cursor = q->multiTextCursor();
@@ -6900,6 +6937,11 @@ void TextEditorWidgetPrivate::duplicateSelection(bool comment)
 void TextEditorWidget::duplicateSelection()
 {
     d->duplicateSelection(false);
+}
+
+void TextEditorWidget::addCursorsToLineEnds()
+{
+    d->addCursorsToLineEnds();
 }
 
 void TextEditorWidget::addSelectionNextFindMatch()
