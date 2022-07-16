@@ -99,8 +99,6 @@ public:
 
 } // Debugger::Internal
 
-Q_DECLARE_METATYPE(Debugger::Internal::StartApplicationParameters)
-
 namespace Debugger::Internal {
 
 ///////////////////////////////////////////////////////////////////////
@@ -943,3 +941,5 @@ void TypeFormatsDialog::addTypeFormats(const QString &type0,
 }
 
 } // Debugger::Internal
+
+Q_DECLARE_METATYPE(Debugger::Internal::StartApplicationParameters)
