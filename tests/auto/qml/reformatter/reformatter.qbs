@@ -3,6 +3,7 @@ import qbs
 QtcAutotest {
     name: "QML reformatter autotest"
     Depends { name: "QmlJS" }
+    Depends { name: "Utils" }
     Depends { name: "Qt.widgets" }
     files: "tst_reformatter.cpp"
     cpp.defines: base.concat([
