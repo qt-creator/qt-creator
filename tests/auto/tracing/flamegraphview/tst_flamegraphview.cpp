@@ -99,7 +99,8 @@ void tst_FlameGraphView::initTestCase()
 void tst_FlameGraphView::testZoom()
 {
     auto selectedTypeId = [&]() {
-        return widget.rootObject()->property("selectedTypeId").toInt();
+        const QQuickItem *item = widget.rootObject();
+        return item ? item->property("selectedTypeId").toInt() : -1;
     };
 
     QWindow *window = widget.windowHandle();
