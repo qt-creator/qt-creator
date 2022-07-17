@@ -94,16 +94,6 @@ void tst_TimelineRenderer::testMouseEvents(DummyRenderer *renderer, int x, int y
 
     QHoverEvent hover(QMouseEvent::HoverMove, QPointF(x, y), QPointF(x - 1, y));
     renderer->hoverMoveEvent(&hover);
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    event = QMouseEvent(QMouseEvent::MouseButtonPress, QPointF(x, y), Qt::LeftButton,
-                        Qt::LeftButton, Qt::NoModifier);
-    renderer->mousePressEvent(&event);
-
-    event = QMouseEvent(QMouseEvent::MouseButtonRelease, QPointF(x, y), Qt::LeftButton,
-                        Qt::LeftButton, Qt::NoModifier);
-    renderer->mouseReleaseEvent(&event);
-#endif // < Qt 6
 }
 
 void tst_TimelineRenderer::mouseEvents()

@@ -30,26 +30,12 @@
 #include <QOpenGLContext>
 #include <QOffscreenSurface>
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-#include <QSGEngine>
-#include <QSGAbstractRenderer>
-#endif // < Qt 6
-
 namespace Timeline {
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-static void renderMessageHandler(QtMsgType type, const QMessageLogContext &context,
-                                 const QString &message)
-{
-    if (type > QtDebugMsg)
-        QTest::qFail(message.toLatin1().constData(), context.file, context.line);
-    else
-        QTest::qWarn(message.toLatin1().constData(), context.file, context.line);
-}
-#endif // < Qt 6
 
 void runSceneGraphTest(QSGNode *node)
 {
+    Q_UNUSED(node)
+
     QSurfaceFormat format;
     format.setStencilBufferSize(8);
     format.setDepthBufferSize(24);
@@ -63,26 +49,6 @@ void runSceneGraphTest(QSGNode *node)
     surface.create();
 
     QVERIFY(context.makeCurrent(&surface));
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QSGEngine engine;
-    QSGRootNode root;
-    root.appendChildNode(node);
-    engine.initialize(&context);
-
-    QSGAbstractRenderer *renderer = engine.createRenderer();
-    QVERIFY(renderer != 0);
-    renderer->setRootNode(&root);
-    QtMessageHandler originalHandler = qInstallMessageHandler(renderMessageHandler);
-    renderer->renderScene();
-    qInstallMessageHandler(originalHandler);
-    delete renderer;
-
-    // Unfortunately we cannot check the results of the rendering. But at least we know the shaders
-    // have not crashed here.
-#else
-    Q_UNUSED(node)
-#endif // < Qt 6
 
     context.doneCurrent();
 }

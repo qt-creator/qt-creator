@@ -40,9 +40,10 @@ Project {
         }
 
         Group {
-            name: "QML"
-            prefix: "qml/"
-            files: ["tracing.qrc"]
+            name: "Qml Files"
+            Qt.core.resourcePrefix: "QtCreator/Tracing/"
+            fileTags: "qt.core.resource_data"
+            files: "qml/**"
         }
 
         Group {

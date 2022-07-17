@@ -41,11 +41,7 @@ class NotesMaterial : public QSGMaterial
 {
 public:
     QSGMaterialType *type() const final;
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QSGMaterialShader *createShader() const final;
-#else // < Qt 6
     QSGMaterialShader *createShader(QSGRendererInterface::RenderMode) const final;
-#endif // < Qt 6
 };
 
 struct NotesGeometry
@@ -180,9 +176,9 @@ TimelineNotesRenderPassState::TimelineNotesRenderPassState(int numExpandedRows) 
     m_material.setFlag(QSGMaterial::Blending, true);
 #if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0)
     m_material.setFlag(QSGMaterial::NoBatching, true);
-#elif QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+#else
     m_material.setFlag(QSGMaterial::CustomCompileStep, true);
-#endif // >= Qt 6.3/6.0
+#endif // >= Qt 6.3
     m_expandedRows.reserve(numExpandedRows);
     for (int i = 0; i < numExpandedRows; ++i)
         m_expandedRows << createNode();
@@ -234,34 +230,14 @@ class NotesMaterialShader : public QSGMaterialShader
 public:
     NotesMaterialShader();
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    void updateState(const RenderState &state, QSGMaterial *newEffect,
-                     QSGMaterial *oldEffect) override;
-    char const *const *attributeNames() const override;
-#else // < Qt 6
     bool updateUniformData(RenderState &state, QSGMaterial *, QSGMaterial *) override;
-#endif // < Qt 6
-
-private:
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    void initialize() override;
-
-    int m_matrix_id;
-    int m_z_range_id;
-    int m_color_id;
-#endif // < Qt 6
 };
 
 NotesMaterialShader::NotesMaterialShader()
     : QSGMaterialShader()
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    setShaderSourceFile(QOpenGLShader::Vertex, QStringLiteral(":/QtCreator/Tracing/notes.vert"));
-    setShaderSourceFile(QOpenGLShader::Fragment, QStringLiteral(":/QtCreator/Tracing/notes.frag"));
-#else // < Qt 6
     setShaderFileName(VertexStage, ":/QtCreator/Tracing/notes_qt6.vert.qsb");
     setShaderFileName(FragmentStage, ":/QtCreator/Tracing/notes_qt6.frag.qsb");
-#endif // < Qt 6
 }
 
 static QColor notesColor()
@@ -271,16 +247,6 @@ static QColor notesColor()
             : QColor(255, 165, 0);
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-void NotesMaterialShader::updateState(const RenderState &state, QSGMaterial *, QSGMaterial *)
-{
-    if (state.isMatrixDirty()) {
-        program()->setUniformValue(m_matrix_id, state.combinedMatrix());
-        program()->setUniformValue(m_z_range_id, GLfloat(1.0));
-        program()->setUniformValue(m_color_id, notesColor());
-    }
-}
-#else // < Qt 6
 bool NotesMaterialShader::updateUniformData(RenderState &state, QSGMaterial *, QSGMaterial *)
 {
     QByteArray *buf = state.uniformData();
@@ -298,22 +264,6 @@ bool NotesMaterialShader::updateUniformData(RenderState &state, QSGMaterial *, Q
 
     return true;
 }
-#endif // < Qt 6
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-char const *const *NotesMaterialShader::attributeNames() const
-{
-    static const char *const attr[] = {"vertexCoord", "distanceFromTop", nullptr};
-    return attr;
-}
-
-void NotesMaterialShader::initialize()
-{
-    m_matrix_id = program()->uniformLocation("matrix");
-    m_z_range_id = program()->uniformLocation("_qt_zRange");
-    m_color_id = program()->uniformLocation("notesColor");
-}
-#endif // < Qt 6
 
 QSGMaterialType *NotesMaterial::type() const
 {
@@ -321,11 +271,7 @@ QSGMaterialType *NotesMaterial::type() const
     return &type;
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-QSGMaterialShader *NotesMaterial::createShader() const
-#else // < Qt 6
 QSGMaterialShader *NotesMaterial::createShader(QSGRendererInterface::RenderMode) const
-#endif // < Qt 6
 {
     return new NotesMaterialShader;
 }

@@ -39,40 +39,29 @@ set(PERFPROFILER_CPP_SOURCES
   perftracepointdialog.cpp perftracepointdialog.h perftracepointdialog.ui
 )
 
-if(${Qt5_VERSION} VERSION_LESS "6.2.0")
-  add_qtc_plugin(PerfProfiler
-    DEPENDS Tracing Qt5::QuickWidgets
-    PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport
-    SOURCES
-      ${TEST_SOURCES}
-      ${PERFPROFILER_CPP_SOURCES}
-      perfprofiler.qrc
-  )
-else() # < Qt 6.2
-  add_qtc_plugin(PerfProfiler
-    CONDITION TARGET Tracing
-    DEPENDS Tracing Qt5::QuickWidgets
-    PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport
-    SOURCES
-      ${TEST_SOURCES}
-  )
+add_qtc_plugin(PerfProfiler
+  CONDITION TARGET Tracing
+  DEPENDS Tracing Qt5::QuickWidgets
+  PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport
+  SOURCES
+    ${TEST_SOURCES}
+)
 
-  if (NOT TARGET PerfProfiler)
-    return()
-  endif()
+if (NOT TARGET PerfProfiler)
+  return()
+endif()
 
-  qt_add_resources(PerfProfiler perfprofiler
-    PREFIX "/perfprofiler"
-    tracepoints.sh
-  )
+qt_add_resources(PerfProfiler perfprofiler
+  PREFIX "/perfprofiler"
+  tracepoints.sh
+)
 
-  qt_add_qml_module(PerfProfiler
-    URI "QtCreator.PerfProfiler"
-    VERSION "1.0"
-    NO_PLUGIN
-    QML_FILES
-      PerfProfilerFlameGraphView.qml
-    SOURCES
-      ${PERFPROFILER_CPP_SOURCES}
-  )
-endif() # < Qt 6.2
+qt_add_qml_module(PerfProfiler
+  URI "QtCreator.PerfProfiler"
+  VERSION "1.0"
+  NO_PLUGIN
+  QML_FILES
+    PerfProfilerFlameGraphView.qml
+  SOURCES
+    ${PERFPROFILER_CPP_SOURCES}
+)

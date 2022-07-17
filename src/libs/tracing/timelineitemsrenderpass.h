@@ -45,11 +45,7 @@ public:
     void setSelectionColor(QColor selectionColor);
 
     QSGMaterialType *type() const override;
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QSGMaterialShader *createShader() const override;
-#else
     QSGMaterialShader *createShader(QSGRendererInterface::RenderMode) const override;
-#endif // < Qt 6
 
 private:
     QVector2D m_scale;

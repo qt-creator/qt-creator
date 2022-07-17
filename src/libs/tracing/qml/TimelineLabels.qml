@@ -23,9 +23,9 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
-import QtQml.Models 2.1
-import QtCreator.Tracing 1.0
+import QtQuick
+import QtQml.Models
+import QtCreator.Tracing
 
 Flickable {
     id: categories

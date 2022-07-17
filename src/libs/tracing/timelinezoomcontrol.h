@@ -56,9 +56,7 @@ class TRACING_EXPORT TimelineZoomControl : public QObject {
     Q_PROPERTY(qint64 maximumZoomFactor READ maximumZoomFactor CONSTANT)
     Q_PROPERTY(qint64 minimumRangeLength READ minimumRangeLength CONSTANT)
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
     QML_ANONYMOUS
-#endif // Qt >= 6.2
 
 public:
     qint64 maximumZoomFactor() const { return 1 << 10; }

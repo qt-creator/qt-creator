@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-import QtCreator.QmlProfiler 1.0
+import QtCreator.QmlProfiler
 import "../Tracing" // TODO: Turn into module import when possible
 
 FlameGraphView {

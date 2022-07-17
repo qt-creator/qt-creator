@@ -45,13 +45,6 @@ PerfProfilerFlameGraphView::PerfProfilerFlameGraphView(QWidget *parent, PerfProf
     PerfProfilerTraceManager *manager = tool->traceManager();
     m_model = new PerfProfilerFlameGraphModel(manager);
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
-    qmlRegisterType<FlameGraph::FlameGraph>("QtCreator.Tracing", 1, 0, "FlameGraph");
-    qmlRegisterUncreatableType<PerfProfilerFlameGraphModel>(
-                "QtCreator.PerfProfiler", 1, 0, "PerfProfilerFlameGraphModel",
-                QLatin1String("use the context property"));
-#endif // Qt < 6.2
-
     Timeline::TimelineTheme::setupTheme(engine());
 
     rootContext()->setContextProperty(QStringLiteral("flameGraphModel"), m_model);

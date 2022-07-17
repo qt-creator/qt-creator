@@ -23,11 +23,11 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.3
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
-import QtCreator.Tracing 1.0
+import QtCreator.Tracing
 
 ToolBar {
     id: buttons

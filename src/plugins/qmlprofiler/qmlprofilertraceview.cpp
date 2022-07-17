@@ -123,15 +123,6 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
     groupLayout->setContentsMargins(0, 0, 0, 0);
     groupLayout->setSpacing(0);
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
-    qmlRegisterType<Timeline::TimelineRenderer>("QtCreator.Tracing", 1, 0, "TimelineRenderer");
-    qmlRegisterType<Timeline::TimelineOverviewRenderer>("QtCreator.Tracing", 1, 0,
-                                                        "TimelineOverviewRenderer");
-    qmlRegisterAnonymousType<Timeline::TimelineZoomControl>("QtCreator.Tracing", 1);
-    qmlRegisterAnonymousType<Timeline::TimelineModel>("QtCreator.Tracing", 1);
-    qmlRegisterAnonymousType<Timeline::TimelineNotesModel>("QtCreator.Tracing", 1);
-#endif // Qt < 6.2
-
     d->m_mainView = new QQuickWidget(this);
     d->m_mainView->setResizeMode(QQuickWidget::SizeRootObjectToView);
     d->m_mainView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -169,7 +160,6 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
     setMinimumHeight(170);
 
     Timeline::TimelineTheme::setupTheme(d->m_mainView->engine());
-    Timeline::TimeFormatter::setupTimeFormatter();
 
     d->m_mainView->rootContext()->setContextProperty(QLatin1String("timelineModelAggregator"),
                                                      d->m_modelProxy);
@@ -298,12 +288,9 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
 
 bool QmlProfilerTraceView::isUsable() const
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    return d->m_mainView->quickWindow()->rendererInterface()->graphicsApi()
-            == QSGRendererInterface::OpenGL;
-#else
-    return QSGRendererInterface::isApiRhiBased(d->m_mainView->quickWindow()->rendererInterface()->graphicsApi());
-#endif
+    const QSGRendererInterface::GraphicsApi api =
+            d->m_mainView->quickWindow()->rendererInterface()->graphicsApi();
+    return QSGRendererInterface::isApiRhiBased(api);
 }
 
 bool QmlProfilerTraceView::isSuspended() const

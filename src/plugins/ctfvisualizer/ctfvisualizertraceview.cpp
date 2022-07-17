@@ -43,16 +43,6 @@ CtfVisualizerTraceView::CtfVisualizerTraceView(QWidget *parent, CtfVisualizerToo
     : QQuickWidget(parent)
 {
     setObjectName(QLatin1String("CtfVisualizerTraceView"));
-
-#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
-    qmlRegisterType<Timeline::TimelineRenderer>("QtCreator.Tracing", 1, 0, "TimelineRenderer");
-    qmlRegisterType<Timeline::TimelineOverviewRenderer>("QtCreator.Tracing", 1, 0,
-                                                        "TimelineOverviewRenderer");
-    qmlRegisterAnonymousType<Timeline::TimelineZoomControl>("QtCreator.Tracing", 1);
-    qmlRegisterAnonymousType<Timeline::TimelineModel>("QtCreator.Tracing", 1);
-    qmlRegisterAnonymousType<Timeline::TimelineNotesModel>("QtCreator.Tracing", 1);
-#endif // Qt < 6.2
-
     setResizeMode(QQuickWidget::SizeRootObjectToView);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -60,7 +50,6 @@ CtfVisualizerTraceView::CtfVisualizerTraceView(QWidget *parent, CtfVisualizerToo
     setMinimumHeight(170);
 
     Timeline::TimelineTheme::setupTheme(engine());
-    Timeline::TimeFormatter::setupTimeFormatter();
 
     rootContext()->setContextProperty(QLatin1String("timelineModelAggregator"),
                                       tool->modelAggregator());

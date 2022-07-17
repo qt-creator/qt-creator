@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
-import QtCreator.Tracing 1.0
+import QtQuick
+import QtCreator.Tracing
 
 Item {
     id: flamegraphItem

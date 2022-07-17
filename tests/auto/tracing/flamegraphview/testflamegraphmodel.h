@@ -31,10 +31,9 @@
 class TestFlameGraphModel : public QStandardItemModel
 {
     Q_OBJECT
-#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
     QML_ELEMENT
     QML_UNCREATABLE("use the context property")
-#endif // Qt >= 6.2
+
 public:
     enum Role {
         TypeIdRole = Qt::UserRole + 1,

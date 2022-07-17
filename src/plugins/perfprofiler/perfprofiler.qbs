@@ -71,6 +71,13 @@ QtcPlugin {
     ]
 
     Group {
+        name: "Qml Files"
+        Qt.core.resourcePrefix: "QtCreator/PerfProfiler/"
+        fileTags: "qt.core.resource_data"
+        files: [ "PerfProfilerFlameGraphView.qml" ]
+    }
+
+    Group {
         name: "Unit tests"
         condition: qtc.testsEnabled
         prefix: "tests/"

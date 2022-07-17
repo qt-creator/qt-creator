@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/QtCreator/TstTracingFlameGraphView">
-        <file>TestFlameGraphView.qml</file>
-    </qresource>
-</RCC>

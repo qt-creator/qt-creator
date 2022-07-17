@@ -2,7 +2,4 @@
     <qresource prefix="/perfprofiler">
         <file>tracepoints.sh</file>
     </qresource>
-    <qresource prefix="/QtCreator/PerfProfiler">
-        <file>PerfProfilerFlameGraphView.qml</file>
-    </qresource>
 </RCC>

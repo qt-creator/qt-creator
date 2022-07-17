@@ -23,10 +23,10 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtQuick.Controls 2.2
+import QtQuick
+import QtQuick.Controls
 
-import QtCreator.Tracing 1.0
+import QtCreator.Tracing
 
 Item {
     id: labelContainer

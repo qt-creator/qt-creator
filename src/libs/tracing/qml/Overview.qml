@@ -23,8 +23,8 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtCreator.Tracing 1.0
+import QtQuick
+import QtCreator.Tracing
 
 Rectangle {
     id: overview

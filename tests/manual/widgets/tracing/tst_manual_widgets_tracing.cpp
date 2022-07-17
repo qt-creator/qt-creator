@@ -125,17 +125,7 @@ public:
     {
         setResizeMode(QQuickView::SizeRootObjectToView);
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
-        qmlRegisterType<TimelineRenderer>("QtCreator.Tracing", 1, 0, "TimelineRenderer");
-        qmlRegisterType<TimelineOverviewRenderer>(
-                    "QtCreator.Tracing", 1, 0, "TimelineOverviewRenderer");
-        qmlRegisterAnonymousType<TimelineZoomControl>("QtCreator.Tracing", 1);
-        qmlRegisterAnonymousType<TimelineModel>("QtCreator.Tracing", 1);
-        qmlRegisterAnonymousType<TimelineNotesModel>("QtCreator.Tracing", 1);
-#endif // Qt < 6.2
-
         TimelineTheme::setupTheme(engine());
-        TimeFormatter::setupTimeFormatter();
 
         m_modelAggregator = new TimelineModelAggregator(this);
         m_model = new DummyModel(m_modelAggregator);
@@ -162,11 +152,6 @@ public:
 
 int main(int argc, char *argv[])
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
-#endif // Qt < 6
-
     QApplication app(argc, argv);
 
     ManualTest::ThemeSelector::setTheme(":/themes/flat.creatortheme");

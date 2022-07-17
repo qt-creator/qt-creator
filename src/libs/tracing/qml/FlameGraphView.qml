@@ -23,12 +23,12 @@
 **
 ****************************************************************************/
 
-import QtCreator.Tracing 1.0
+import QtCreator.Tracing
 
-import QtQml 2.2
-import QtQuick 2.9
-import QtQuick.Controls 2.3
-import QtQuick.Controls.Material 2.3
+import QtQml
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Controls.Material
 
 ScrollView {
     id: root

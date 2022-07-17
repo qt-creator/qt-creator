@@ -36,9 +36,7 @@ class TRACING_EXPORT TimelineNotesModel : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int count READ count NOTIFY changed)
-#if QT_VERSION >= QT_VERSION_CHECK(6, 2, 0)
     QML_ANONYMOUS
-#endif // Qt >= 6.2
 
 public:
     TimelineNotesModel(QObject *parent = nullptr);

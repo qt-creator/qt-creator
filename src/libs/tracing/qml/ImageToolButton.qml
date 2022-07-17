@@ -23,10 +23,10 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.1
-import QtQuick.Controls 2.0
+import QtQuick
+import QtQuick.Controls
 
-import QtCreator.Tracing 1.0
+import QtCreator.Tracing
 
 ToolButton {
     implicitWidth: 30

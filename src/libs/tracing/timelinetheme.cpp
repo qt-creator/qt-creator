@@ -107,12 +107,6 @@ TimelineTheme::TimelineTheme(QObject *parent)
 
 void TimelineTheme::setupTheme(QQmlEngine *engine)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 2, 0)
-    static const int typeIndex = qmlRegisterSingletonType<Utils::Theme>(
-                "QtCreator.Tracing", 1, 0, "Theme",
-                [](QQmlEngine *, QJSEngine *){ return Utils::proxyTheme(); });
-    Q_UNUSED(typeIndex)
-#endif // Qt < 6.2
     engine->addImageProvider(QLatin1String("icons"), new TimelineImageIconProvider);
 }
 

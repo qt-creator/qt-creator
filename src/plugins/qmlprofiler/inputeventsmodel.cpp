@@ -72,12 +72,7 @@ QVariantList InputEventsModel::labels() const
 
 QMetaEnum InputEventsModel::metaEnum(const char *name)
 {
-    return
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-        staticQtMetaObject.enumerator(staticQtMetaObject.indexOfEnumerator(name));
-#else // < Qt 6
-        Qt::staticMetaObject.enumerator(Qt::staticMetaObject.indexOfEnumerator(name));
-#endif // < Qt 6
+    return Qt::staticMetaObject.enumerator(Qt::staticMetaObject.indexOfEnumerator(name));
 }
 
 QVariantMap InputEventsModel::details(int index) const

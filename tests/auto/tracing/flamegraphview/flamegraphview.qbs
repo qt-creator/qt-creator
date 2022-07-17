@@ -11,7 +11,16 @@ TracingAutotest {
         name: "Test sources"
         files: [
             "testflamegraphmodel.h",
-            "tst_flamegraphview.cpp", "flamegraphview.qrc"
+            "tst_flamegraphview.cpp"
+        ]
+    }
+
+    Group {
+        name: "Qml Files"
+        Qt.core.resourcePrefix: "QtCreator/TstTracingFlameGraphView/"
+        fileTags: "qt.core.resource_data"
+        files: [
+            "TestFlameGraphView.qml",
         ]
     }
 }

@@ -23,10 +23,10 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.0
-import QtQuick.Controls 2.2
-import QtCreator.Tracing 1.0
-import QtQml.Models 2.1
+import QtQuick
+import QtQuick.Controls
+import QtCreator.Tracing
+import QtQml.Models
 
 Flickable {
     id: flick
