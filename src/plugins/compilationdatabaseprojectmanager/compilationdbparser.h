@@ -69,7 +69,6 @@ public:
     QList<ProjectExplorer::FileNode *> scannedFiles() const;
     DbContents dbContents() const
     {
-        m_guard.markAsSuccess();
         return m_dbContents;
     }
 

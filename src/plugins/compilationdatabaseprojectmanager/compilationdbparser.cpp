@@ -153,6 +153,9 @@ void CompilationDbParser::parserJobFinished()
 
 void CompilationDbParser::finish(ParseResult result)
 {
+    if (result != ParseResult::Failure)
+        m_guard.markAsSuccess();
+
     emit finished(result);
     deleteLater();
 }
