@@ -117,8 +117,9 @@ inline QDataStream &operator>>(QDataStream &stream, PerfEvent &event)
     case PerfEventType::TracePointSample:
     case PerfEventType::ContextSwitchDefinition:
         break;
-    case PerfEventType::InvalidFeature:
-        QTC_ASSERT(false, return stream);
+    default:
+        qWarning() << "Unrecognized perf event feature" << event.m_feature;
+        return stream;
     }
 
     quint64 timestamp;
