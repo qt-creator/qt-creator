@@ -195,6 +195,7 @@ ClangdFollowSymbol::~ClangdFollowSymbol()
         d->client->cancelRequest(id);
     for (const MessageId &id : qAsConst(d->pendingGotoDefRequests))
         d->client->cancelRequest(id);
+    delete d;
 }
 
 void ClangdFollowSymbol::clear()
