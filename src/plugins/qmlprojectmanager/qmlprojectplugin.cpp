@@ -266,7 +266,6 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     d = new QmlProjectPluginPrivate;
 
     if (!qmlDesignerEnabled()) {
-        QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
         d->landingPage = new QdsLandingPage();
         qmlRegisterSingletonInstance<QdsLandingPage>("LandingPageApi",
                                                      1,

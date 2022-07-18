@@ -25,11 +25,12 @@
 
 pragma Singleton
 import QtQuick 2.15
+import StudioFonts 1.0
 
 QtObject {
     id: values
 
-    property string baseFont: "Titillium Web"
+    property string baseFont: StudioFonts.titilliumWeb_regular
 
     property real scaleFactor: 1.0
     property real checkBoxSize: Math.round(26 * values.scaleFactor)

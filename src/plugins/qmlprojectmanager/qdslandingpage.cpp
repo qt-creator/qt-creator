@@ -74,6 +74,7 @@ QQuickWidget *QdsLandingPageWidget::widget()
         m_widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
         m_widget->engine()->addImportPath(landingPath + "/imports");
         m_widget->engine()->addImportPath(resourcePath);
+        m_widget->engine()->addImportPath("qrc:/studiofonts");
         m_widget->setSource(QUrl::fromLocalFile(landingPath + "/main.qml"));
         m_widget->hide();
 
