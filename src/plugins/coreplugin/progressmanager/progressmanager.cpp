@@ -340,9 +340,9 @@ void ProgressManagerPrivate::doCancelTasks(Id type)
             continue;
         }
         found = true;
-        disconnect(task.key(), &QFutureWatcherBase::finished, this, &ProgressManagerPrivate::taskFinished);
         if (m_applicationTask == task.key())
             disconnectApplicationTask();
+        task.key()->disconnect();
         task.key()->cancel();
         delete task.key();
         task = m_runningTasks.erase(task);
@@ -383,9 +383,9 @@ void ProgressManagerPrivate::cancelAllRunningTasks()
 {
     QMap<QFutureWatcher<void> *, Id>::const_iterator task = m_runningTasks.constBegin();
     while (task != m_runningTasks.constEnd()) {
-        disconnect(task.key(), &QFutureWatcherBase::finished, this, &ProgressManagerPrivate::taskFinished);
         if (m_applicationTask == task.key())
             disconnectApplicationTask();
+        task.key()->disconnect();
         task.key()->cancel();
         delete task.key();
         ++task;
@@ -404,12 +404,13 @@ FutureProgress *ProgressManagerPrivate::doAddTask(const QFuture<void> &future, c
             this, &ProgressManagerPrivate::updateSummaryProgressBar);
     connect(watcher, &QFutureWatcherBase::progressValueChanged,
             this, &ProgressManagerPrivate::updateSummaryProgressBar);
-    connect(watcher, &QFutureWatcherBase::finished, this, &ProgressManagerPrivate::taskFinished);
+    connect(watcher, &QFutureWatcherBase::finished, this, [this, watcher] {
+        taskFinished(watcher);
+    });
 
     // handle application task
     if (flags & ShowInApplicationIcon) {
-        if (m_applicationTask)
-            disconnectApplicationTask();
+        disconnectApplicationTask();
         m_applicationTask = watcher;
         setApplicationProgressRange(future.progressMinimum(), future.progressMaximum());
         setApplicationProgressValue(future.progressValue());
@@ -461,16 +462,14 @@ ProgressView *ProgressManagerPrivate::progressView()
     return m_progressView;
 }
 
-void ProgressManagerPrivate::taskFinished()
+void ProgressManagerPrivate::taskFinished(QFutureWatcher<void> *task)
 {
-    QObject *taskObject = sender();
-    QTC_ASSERT(taskObject, return);
-    auto task = static_cast<QFutureWatcher<void> *>(taskObject);
+    const Id type = m_runningTasks.value(task);
     if (m_applicationTask == task)
         disconnectApplicationTask();
-    Id type = m_runningTasks.value(task);
+    task->disconnect();
+    task->deleteLater();
     m_runningTasks.remove(task);
-    delete task;
     updateSummaryProgressBar();
 
     if (!m_runningTasks.key(type, 0))
@@ -479,6 +478,9 @@ void ProgressManagerPrivate::taskFinished()
 
 void ProgressManagerPrivate::disconnectApplicationTask()
 {
+    if (!m_applicationTask)
+        return;
+
     disconnect(m_applicationTask, &QFutureWatcherBase::progressRangeChanged,
                this, &ProgressManagerPrivate::setApplicationProgressRange);
     disconnect(m_applicationTask, &QFutureWatcherBase::progressValueChanged,

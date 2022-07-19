@@ -67,7 +67,7 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
-    void taskFinished();
+    void taskFinished(QFutureWatcher<void> *task);
     void cancelAllRunningTasks();
     void setApplicationProgressRange(int min, int max);
     void setApplicationProgressValue(int value);
