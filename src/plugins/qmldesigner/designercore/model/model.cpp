@@ -405,7 +405,7 @@ void ModelPrivate::notifyNodeInstanceViewLast(Callable call)
         resetModel = true;
     }
 
-    for (QPointer<AbstractView> view : enabledViews()) {
+    for (const QPointer<AbstractView> &view : enabledViews()) {
         if (!view->isBlockingNotifications())
             call(view.data());
     }
@@ -434,7 +434,7 @@ void ModelPrivate::notifyNormalViewsLast(Callable call)
     if (nodeInstanceView() && !nodeInstanceView()->isBlockingNotifications())
         call(nodeInstanceView());
 
-    for (QPointer<AbstractView> view : enabledViews()) {
+    for (const QPointer<AbstractView> &view : enabledViews()) {
         if (!view->isBlockingNotifications())
             call(view.data());
     }
@@ -446,7 +446,7 @@ void ModelPrivate::notifyNormalViewsLast(Callable call)
 template<typename Callable>
 void ModelPrivate::notifyInstanceChanges(Callable call)
 {
-    for (QPointer<AbstractView> view : enabledViews()) {
+    for (const QPointer<AbstractView> &view : enabledViews()) {
         if (!view->isBlockingNotifications())
             call(view.data());
     }
