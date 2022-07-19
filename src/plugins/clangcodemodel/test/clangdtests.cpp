@@ -1358,14 +1358,6 @@ void ClangdTestHighlighting::test()
                  "check if and how we want to support this", Abort);
     QEXPECT_FAIL("old-style signal with complex parameter (signal parameter part 3)",
                  "check if and how we want to support this", Abort);
-    QEXPECT_FAIL("function template specialization (opening angle bracket 1)",
-                 "specialization appears as a normal function in the AST", Abort);
-    QEXPECT_FAIL("function template specialization (closing angle bracket 1)",
-                 "specialization appears as a normal function in the AST", Abort);
-    QEXPECT_FAIL("function template specialization (opening angle bracket 2)",
-                 "specialization appears as a normal function in the AST", Abort);
-    QEXPECT_FAIL("function template specialization (closing angle bracket 2)",
-                 "specialization appears as a normal function in the AST", Abort);
 
     QCOMPARE(results.length(), 1);
 
