@@ -402,15 +402,12 @@ void InfoBarDisplay::update()
                 hbox->addWidget(infoWidgetSuppressButton);
         }
 
-        connect(infoWidget, &QObject::destroyed, this, &InfoBarDisplay::widgetDestroyed);
+        connect(infoWidget, &QObject::destroyed, this, [this, infoWidget] {
+            m_infoWidgets.removeOne(infoWidget);
+        });
         m_boxLayout->insertWidget(m_boxIndex, infoWidget);
         m_infoWidgets << infoWidget;
     }
-}
-
-void InfoBarDisplay::widgetDestroyed()
-{
-    m_infoWidgets.removeOne(static_cast<QWidget *>(sender()));
 }
 
 } // namespace Utils

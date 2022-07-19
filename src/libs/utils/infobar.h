@@ -158,7 +158,6 @@ public:
 private:
     void update();
     void infoBarDestroyed();
-    void widgetDestroyed();
 
     QList<QWidget *> m_infoWidgets;
     InfoBar *m_infoBar = nullptr;
