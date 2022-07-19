@@ -163,7 +163,7 @@ public slots:
     static void gotoPreviousSplit();
     static void gotoNextSplit();
 
-    void handleDocumentStateChange();
+    void handleDocumentStateChange(Core::IDocument *document);
     void editorAreaDestroyed(QObject *area);
 
 signals:

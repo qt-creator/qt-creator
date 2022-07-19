@@ -1462,7 +1462,10 @@ IEditor *EditorManagerPrivate::createEditor(IEditorFactory *factory, const FileP
     IEditor *editor = factory->createEditor();
     if (editor) {
         QTC_CHECK(editor->document()->id().isValid()); // sanity check that the editor has an id set
-        connect(editor->document(), &IDocument::changed, d, &EditorManagerPrivate::handleDocumentStateChange);
+        IDocument *document = editor->document();
+        connect(document, &IDocument::changed, d, [document] {
+            d->handleDocumentStateChange(document);
+        });
         emit m_instance->editorCreated(editor, filePath.toString());
     }
 
@@ -2311,10 +2314,9 @@ void EditorManagerPrivate::vcsOpenCurrentEditor()
     }
 }
 
-void EditorManagerPrivate::handleDocumentStateChange()
+void EditorManagerPrivate::handleDocumentStateChange(IDocument *document)
 {
     updateActions();
-    auto document = qobject_cast<IDocument *>(sender());
     if (!document->isModified())
         document->removeAutoSaveFile();
     if (EditorManager::currentDocument() == document)
