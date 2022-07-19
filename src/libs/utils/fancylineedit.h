@@ -156,7 +156,7 @@ protected:
     virtual QString fixInputString(const QString &string);
 
 private:
-    void iconClicked();
+    void iconClicked(FancyLineEdit::Side);
 
     static bool validateWithValidator(FancyLineEdit *edit, QString *errorMessage);
     // Unimplemented, to force the user to make a decision on

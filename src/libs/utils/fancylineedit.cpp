@@ -195,8 +195,12 @@ FancyLineEdit::FancyLineEdit(QWidget *parent) :
     ensurePolished();
     updateMargins();
 
-    connect(d->m_iconbutton[Left], &QAbstractButton::clicked, this, &FancyLineEdit::iconClicked);
-    connect(d->m_iconbutton[Right], &QAbstractButton::clicked, this, &FancyLineEdit::iconClicked);
+    connect(d->m_iconbutton[Left], &QAbstractButton::clicked, this, [this] {
+        iconClicked(Left);
+    });
+    connect(d->m_iconbutton[Right], &QAbstractButton::clicked, this, [this] {
+        iconClicked(Right);
+    });
     connect(this, &QLineEdit::textChanged, this, &FancyLineEdit::validate);
     connect(&d->m_completionShortcut, &QShortcut::activated, this, [this] {
         if (!completer())
@@ -238,27 +242,20 @@ bool FancyLineEdit::isButtonVisible(Side side) const
     return d->m_iconEnabled[side];
 }
 
-QAbstractButton *FancyLineEdit::button(FancyLineEdit::Side side) const
+QAbstractButton *FancyLineEdit::button(Side side) const
 {
     return d->m_iconbutton[side];
 }
 
-void FancyLineEdit::iconClicked()
+void FancyLineEdit::iconClicked(Side side)
 {
-    auto button = qobject_cast<IconButton *>(sender());
-    int index = -1;
-    for (int i = 0; i < 2; ++i)
-        if (d->m_iconbutton[i] == button)
-            index = i;
-    if (index == -1)
-        return;
-    if (d->m_menu[index]) {
-        execMenuAtWidget(d->m_menu[index], button);
+    if (d->m_menu[side]) {
+        execMenuAtWidget(d->m_menu[side], button(side));
     } else {
-        emit buttonClicked((Side)index);
-        if (index == Left)
+        emit buttonClicked(side);
+        if (side == Left)
             emit leftButtonClicked();
-        else if (index == Right)
+        else if (side == Right)
             emit rightButtonClicked();
     }
 }
