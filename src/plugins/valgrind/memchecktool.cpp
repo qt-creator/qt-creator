@@ -1237,8 +1237,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     sizePolicy.setHorizontalStretch(1);
     m_profilesCombo->setSizePolicy(sizePolicy);
-    connect(m_profilesCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &HeobDialog::updateProfile);
+    connect(m_profilesCombo, &QComboBox::currentIndexChanged, this, &HeobDialog::updateProfile);
     profilesLayout->addWidget(m_profilesCombo);
     auto profileNewButton = new QPushButton(tr("New"));
     connect(profileNewButton, &QAbstractButton::clicked, this, &HeobDialog::newProfileDialog);
@@ -1262,7 +1261,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_handleExceptionCombo->addItem(tr("Off"));
     m_handleExceptionCombo->addItem(tr("On"));
     m_handleExceptionCombo->addItem(tr("Only"));
-    connect(m_handleExceptionCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_handleExceptionCombo, &QComboBox::currentIndexChanged,
             this, &HeobDialog::updateEnabled);
     handleExceptionLayout->addWidget(m_handleExceptionCombo);
     layout->addLayout(handleExceptionLayout);
@@ -1274,7 +1273,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_pageProtectionCombo->addItem(tr("Off"));
     m_pageProtectionCombo->addItem(tr("After"));
     m_pageProtectionCombo->addItem(tr("Before"));
-    connect(m_pageProtectionCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_pageProtectionCombo, &QComboBox::currentIndexChanged,
             this, &HeobDialog::updateEnabled);
     pageProtectionLayout->addWidget(m_pageProtectionCombo);
     layout->addLayout(pageProtectionLayout);
@@ -1295,8 +1294,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     m_leakDetailCombo->addItem(tr("Detect Leak Types (Show Reachable)"));
     m_leakDetailCombo->addItem(tr("Fuzzy Detect Leak Types"));
     m_leakDetailCombo->addItem(tr("Fuzzy Detect Leak Types (Show Reachable)"));
-    connect(m_leakDetailCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &HeobDialog::updateEnabled);
+    connect(m_leakDetailCombo, &QComboBox::currentIndexChanged, this, &HeobDialog::updateEnabled);
     leakDetailLayout->addWidget(m_leakDetailCombo);
     layout->addLayout(leakDetailLayout);
 

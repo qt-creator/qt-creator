@@ -462,7 +462,7 @@ ClangTool::ClangTool()
     action->setDisabled(true);
     action->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
     action->setToolTip(tr("Clear"));
-    connect(action, &QAction::triggered, this, [this]() {
+    connect(action, &QAction::triggered, this, [this] {
         reset();
         update();
     });
@@ -498,7 +498,7 @@ ClangTool::ClangTool()
     m_selectFixitsCheckBox->setText("Select Fixits");
     m_selectFixitsCheckBox->setEnabled(false);
     m_selectFixitsCheckBox->setTristate(true);
-    connect(m_selectFixitsCheckBox, &QCheckBox::clicked, this, [this]() {
+    connect(m_selectFixitsCheckBox, &QCheckBox::clicked, this, [this] {
         m_diagnosticView->scheduleAllFixits(m_selectFixitsCheckBox->isChecked());
     });
 
@@ -524,7 +524,7 @@ ClangTool::ClangTool()
 
                 updateForCurrentState();
             });
-    connect(m_applyFixitsButton, &QToolButton::clicked, [this]() {
+    connect(m_applyFixitsButton, &QToolButton::clicked, [this] {
         QVector<DiagnosticItem *> diagnosticItems;
         m_diagnosticModel->forItemsAtLevel<2>([&](DiagnosticItem *item){
             diagnosticItems += item;
@@ -562,7 +562,7 @@ ClangTool::ClangTool()
     action->setToolTip(toolTip);
     menu->addAction(ActionManager::registerAction(action, "ClangTidyClazy.Action"),
                     Debugger::Constants::G_ANALYZER_TOOLS);
-    QObject::connect(action, &QAction::triggered, this, [this]() {
+    QObject::connect(action, &QAction::triggered, this, [this] {
         startTool(FileSelectionType::AskUser);
     });
     QObject::connect(m_startAction, &QAction::triggered, action, &QAction::triggered);
@@ -692,7 +692,7 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
     connect(m_runWorker, &ClangToolRunWorker::buildFailed,this, &ClangTool::onBuildFailed);
     connect(m_runWorker, &ClangToolRunWorker::startFailed, this, &ClangTool::onStartFailed);
     connect(m_runWorker, &ClangToolRunWorker::started, this, &ClangTool::onStarted);
-    connect(m_runWorker, &ClangToolRunWorker::runnerFinished, this, [this]() {
+    connect(m_runWorker, &ClangToolRunWorker::runnerFinished, this, [this] {
         m_filesCount = m_runWorker->totalFilesToAnalyze();
         m_filesSucceeded = m_runWorker->filesAnalyzed();
         m_filesFailed = m_runWorker->filesNotAnalyzed();
@@ -1017,17 +1017,15 @@ void ClangTool::filterOutCurrentKind()
 
 void ClangTool::onBuildFailed()
 {
-    m_infoBarWidget->setError(InfoBarWidget::Error,
-                              tr("Failed to build the project."),
-                              [this]() { showOutputPane(); });
+    m_infoBarWidget->setError(InfoBarWidget::Error, tr("Failed to build the project."),
+                              [this] { showOutputPane(); });
     setState(State::PreparationFailed);
 }
 
 void ClangTool::onStartFailed()
 {
-    m_infoBarWidget->setError(InfoBarWidget::Error,
-                              makeLink(tr("Failed to start the analyzer.")),
-                              [this]() { showOutputPane(); });
+    m_infoBarWidget->setError(InfoBarWidget::Error, makeLink(tr("Failed to start the analyzer.")),
+                              [this] { showOutputPane(); });
     setState(State::PreparationFailed);
 }
 
@@ -1170,7 +1168,7 @@ void ClangTool::updateForCurrentState()
     const bool hasErrors = m_filesFailed > 0;
     if (hasErrors && !hasErrorText) {
         const QString text = makeLink(tr("Failed to analyze %n file(s).", nullptr, m_filesFailed));
-        m_infoBarWidget->setError(InfoBarWidget::Warning, text, [this]() { showOutputPane(); });
+        m_infoBarWidget->setError(InfoBarWidget::Warning, text, [this] { showOutputPane(); });
     }
 
     // Info bar: info

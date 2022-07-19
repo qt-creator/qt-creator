@@ -124,7 +124,7 @@ QbsProfileManager::QbsProfileManager() : m_defaultPropertyProvider(new DefaultPr
 
     setObjectName(QLatin1String("QbsProjectManager"));
     connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsLoaded, this,
-            [this]() { m_kitsToBeSetupForQbs = ProjectExplorer::KitManager::kits(); } );
+            [this] { m_kitsToBeSetupForQbs = ProjectExplorer::KitManager::kits(); } );
     connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitAdded, this,
             &QbsProfileManager::addProfileFromKit);
     connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitUpdated, this,

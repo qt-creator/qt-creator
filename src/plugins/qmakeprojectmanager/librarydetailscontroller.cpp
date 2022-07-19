@@ -984,8 +984,7 @@ InternalLibraryDetailsController::InternalLibraryDetailsController(Ui::LibraryDe
     if (HostOsInfo::isWindowsHost())
         libraryDetailsWidget()->useSubfoldersCheckBox->setEnabled(true);
 
-    connect(libraryDetailsWidget()->libraryComboBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(libraryDetailsWidget()->libraryComboBox, &QComboBox::currentIndexChanged,
             this, &InternalLibraryDetailsController::slotCurrentLibraryChanged);
 
     updateProFile();

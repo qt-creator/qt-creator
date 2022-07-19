@@ -181,8 +181,7 @@ void QbsProfilesSettingsWidget::refreshKitsList()
     else if (hasKits)
         m_ui.kitsComboBox->setCurrentIndex(0);
     displayCurrentProfile();
-    connect(m_ui.kitsComboBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_ui.kitsComboBox, &QComboBox::currentIndexChanged,
             this, &QbsProfilesSettingsWidget::displayCurrentProfile);
 }
 

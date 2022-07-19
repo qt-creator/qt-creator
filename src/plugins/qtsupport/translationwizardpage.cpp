@@ -119,7 +119,7 @@ TranslationWizardPage::TranslationWizardPage(const QString &enabledExpr)
     fileNameLayout->addWidget(&m_fileNameLineEdit);
     fileNameLayout->addStretch(1);
     formLayout->addRow(tr("Translation file:"), fileNameLayout);
-    connect(&m_languageComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(&m_languageComboBox, &QComboBox::currentIndexChanged,
             this, &TranslationWizardPage::updateLineEdit);
 }
 

@@ -845,7 +845,7 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
     auto topicsModel = new QStringListModel(Utils::toList(m_clazyTreeModel->topics()), this);
     topicsModel->sort(0);
     m_clazyChecks->topicsView->setModel(topicsModel);
-    connect(m_clazyChecks->topicsResetButton, &QPushButton::clicked, [this](){
+    connect(m_clazyChecks->topicsResetButton, &QPushButton::clicked, this, [this] {
         m_clazyChecks->topicsView->clearSelection();
     });
     m_clazyChecks->topicsView->setSelectionMode(QAbstractItemView::MultiSelection);
@@ -920,7 +920,7 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
                 openUrl(m_tidyTreeModel.get(), index);
     });
 
-    connect(m_tidyChecks->plainTextEditButton, &QPushButton::clicked, this, [this]() {
+    connect(m_tidyChecks->plainTextEditButton, &QPushButton::clicked, this, [this] {
         const bool readOnly = currentConfig().isReadOnly();
 
         QDialog dialog;
@@ -1055,20 +1055,16 @@ void DiagnosticConfigsWidget::syncExtraWidgets(const ClangDiagnosticConfig &conf
 
 void DiagnosticConfigsWidget::connectClangTidyItemChanged()
 {
-    connect(m_tidyChecks->tidyMode,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this,
-            &DiagnosticConfigsWidget::onClangTidyModeChanged);
+    connect(m_tidyChecks->tidyMode, &QComboBox::currentIndexChanged,
+            this, &DiagnosticConfigsWidget::onClangTidyModeChanged);
     connect(m_tidyTreeModel.get(), &TidyChecksTreeModel::dataChanged,
             this, &DiagnosticConfigsWidget::onClangTidyTreeChanged);
 }
 
 void DiagnosticConfigsWidget::disconnectClangTidyItemChanged()
 {
-    disconnect(m_tidyChecks->tidyMode,
-               QOverload<int>::of(&QComboBox::currentIndexChanged),
-               this,
-               &DiagnosticConfigsWidget::onClangTidyModeChanged);
+    disconnect(m_tidyChecks->tidyMode, &QComboBox::currentIndexChanged,
+               this, &DiagnosticConfigsWidget::onClangTidyModeChanged);
     disconnect(m_tidyTreeModel.get(), &TidyChecksTreeModel::dataChanged,
                this, &DiagnosticConfigsWidget::onClangTidyTreeChanged);
 }

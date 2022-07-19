@@ -197,10 +197,10 @@ QList<RunnerCreator> ClangToolRunWorker::runnerCreators()
     QList<RunnerCreator> creators;
 
     if (m_diagnosticConfig.isClangTidyEnabled())
-        creators << [this]() { return createRunner<ClangTidyRunner>(); };
+        creators << [this] { return createRunner<ClangTidyRunner>(); };
 
     if (m_diagnosticConfig.isClazyEnabled())
-        creators << [this]() { return createRunner<ClazyStandaloneRunner>(); };
+        creators << [this] { return createRunner<ClazyStandaloneRunner>(); };
 
     return creators;
 }

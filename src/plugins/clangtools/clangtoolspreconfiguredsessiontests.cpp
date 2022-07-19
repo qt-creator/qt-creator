@@ -86,9 +86,7 @@ public:
 
     bool wait()
     {
-        return processEventsUntil([this]() {
-            return m_projectsToWaitFor.isEmpty();
-        });
+        return processEventsUntil([this] { return m_projectsToWaitFor.isEmpty(); });
     }
 
 private:

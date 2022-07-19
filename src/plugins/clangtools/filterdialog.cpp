@@ -103,7 +103,7 @@ FilterDialog::FilterDialog(const Checks &checks, QWidget *parent)
     // Buttons
     connect(m_ui->selectNone, &QPushButton::clicked, m_ui->view, &QTreeView::clearSelection);
     connect(m_ui->selectAll, &QPushButton::clicked, m_ui->view, &QTreeView::selectAll);
-    connect(m_ui->selectWithFixits, &QPushButton::clicked, m_ui->view, [this](){
+    connect(m_ui->selectWithFixits, &QPushButton::clicked, m_ui->view, [this] {
         m_ui->view->clearSelection();
         m_model->forItemsAtLevel<1>([&](CheckItem *item) {
             if (item->check.hasFixit)

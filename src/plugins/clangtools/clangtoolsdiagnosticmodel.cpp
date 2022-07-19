@@ -512,7 +512,7 @@ DiagnosticFilterModel::DiagnosticFilterModel(QObject *parent)
                 if (!m_project && project->projectDirectory() == m_lastProjectDirectory)
                     setProject(project);
             });
-    connect(this, &QAbstractItemModel::modelReset, this, [this]() {
+    connect(this, &QAbstractItemModel::modelReset, this, [this] {
         reset();
         emit fixitCountersChanged(m_fixitsScheduled, m_fixitsScheduable);
     });

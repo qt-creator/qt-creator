@@ -122,7 +122,7 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(ProjectExplorer
             &ClangToolsSettings::changed,
             this,
             QOverload<>::of(&ClangToolsProjectSettingsWidget::onGlobalCustomChanged));
-    connect(m_restoreGlobal, &QPushButton::clicked, this, [this]() {
+    connect(m_restoreGlobal, &QPushButton::clicked, this, [this] {
         m_runSettingsWidget->fromSettings(ClangToolsSettings::instance()->runSettings());
     });
 
@@ -131,7 +131,7 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(ProjectExplorer
     });
 
     // Run options
-    connect(m_runSettingsWidget, &RunSettingsWidget::changed, this, [this]() {
+    connect(m_runSettingsWidget, &RunSettingsWidget::changed, this, [this] {
         // Save project run settings
         m_projectSettings->setRunSettings(m_runSettingsWidget->toSettings());
 

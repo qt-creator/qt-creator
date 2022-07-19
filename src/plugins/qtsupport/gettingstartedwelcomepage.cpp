@@ -307,7 +307,7 @@ public:
             ExampleSetModel *exampleSetModel = m_examplesModel->exampleSetModel();
             exampleSetSelector->setModel(exampleSetModel);
             exampleSetSelector->setCurrentIndex(exampleSetModel->selectedExampleSet());
-            connect(exampleSetSelector, QOverload<int>::of(&QComboBox::activated),
+            connect(exampleSetSelector, &QComboBox::activated,
                     exampleSetModel, &ExampleSetModel::selectExampleSet);
             connect(exampleSetModel, &ExampleSetModel::selectedExampleSetChanged,
                     exampleSetSelector, &QComboBox::setCurrentIndex);

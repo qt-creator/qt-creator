@@ -147,7 +147,7 @@ void ClangFormatConfigWidget::initCheckBoxes()
         m_ui->formatWhileTyping->setEnabled(isFormatting);
     };
     setEnableCheckBoxes(m_ui->indentingOrFormatting->currentIndex());
-    connect(m_ui->indentingOrFormatting, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_ui->indentingOrFormatting, &QComboBox::currentIndexChanged,
             this, setEnableCheckBoxes);
 
     m_ui->formatOnSave->setChecked(ClangFormatSettings::instance().formatOnSave());
@@ -196,10 +196,8 @@ void ClangFormatConfigWidget::connectChecks()
     for (QObject *child : m_checksWidget->children()) {
         auto comboBox = qobject_cast<QComboBox *>(child);
         if (comboBox != nullptr) {
-            connect(comboBox,
-                    QOverload<int>::of(&QComboBox::currentIndexChanged),
-                    this,
-                    &ClangFormatConfigWidget::onTableChanged);
+            connect(comboBox, &QComboBox::currentIndexChanged,
+                    this, &ClangFormatConfigWidget::onTableChanged);
             comboBox->installEventFilter(this);
             continue;
         }
@@ -234,12 +232,11 @@ void ClangFormatConfigWidget::initIndentationOrFormattingCombobox()
     m_ui->indentingOrFormatting->setVisible(isGlobal);
     m_ui->formattingModeLabel->setVisible(isGlobal);
 
-    connect(m_ui->indentingOrFormatting, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [](int index) {
-                ClangFormatSettings &settings = ClangFormatSettings::instance();
-                settings.setMode(static_cast<ClangFormatSettings::Mode>(index));
-                settings.write();
-            });
+    connect(m_ui->indentingOrFormatting, &QComboBox::currentIndexChanged, this, [](int index) {
+        ClangFormatSettings &settings = ClangFormatSettings::instance();
+        settings.setMode(static_cast<ClangFormatSettings::Mode>(index));
+        settings.write();
+    });
 }
 
 static bool projectConfigExists()
@@ -361,7 +358,7 @@ static void fillComboBoxOrLineEdit(QObject *object, const std::string &text, siz
 
 void ClangFormatConfigWidget::fillTable()
 {
-    Utils::ExecuteOnDestruction executeOnDestruction([this]() { m_disableTableUpdate = false; });
+    Utils::ExecuteOnDestruction executeOnDestruction([this] { m_disableTableUpdate = false; });
     m_disableTableUpdate = true;
 
     const std::string configText = readFile(m_config->filePath().path());

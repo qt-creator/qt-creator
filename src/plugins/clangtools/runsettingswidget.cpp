@@ -109,9 +109,7 @@ void RunSettingsWidget::fromSettings(const RunSettings &s)
     m_ui->parallelJobsSpinBox->setValue(s.parallelJobs());
     m_ui->parallelJobsSpinBox->setMinimum(1);
     m_ui->parallelJobsSpinBox->setMaximum(QThread::idealThreadCount());
-    connect(m_ui->parallelJobsSpinBox,
-            QOverload<int>::of(&QSpinBox::valueChanged),
-            [this](int) { emit changed(); });
+    connect(m_ui->parallelJobsSpinBox, &QSpinBox::valueChanged, this, &RunSettingsWidget::changed);
     m_ui->analyzeOpenFiles->setChecked(s.analyzeOpenFiles());
     connect(m_ui->analyzeOpenFiles, &QCheckBox::toggled, this, &RunSettingsWidget::changed);
 
