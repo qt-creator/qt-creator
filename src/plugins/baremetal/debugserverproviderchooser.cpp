@@ -57,7 +57,7 @@ DebugServerProviderChooser::DebugServerProviderChooser(
     layout->addWidget(m_manageButton);
     setFocusProxy(m_manageButton);
 
-    connect(m_chooser, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_chooser, &QComboBox::currentIndexChanged,
             this, &DebugServerProviderChooser::currentIndexChanged);
     connect(m_manageButton, &QAbstractButton::clicked,
             this, &DebugServerProviderChooser::manageButtonClicked);

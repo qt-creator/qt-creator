@@ -348,10 +348,8 @@ HostWidget::HostWidget(QWidget *parent)
     layout->addWidget(m_hostLineEdit);
     layout->addWidget(m_portSpinBox);
 
-    connect(m_hostLineEdit, &QLineEdit::textChanged,
-            this, &HostWidget::dataChanged);
-    connect(m_portSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
-            this, &HostWidget::dataChanged);
+    connect(m_hostLineEdit, &QLineEdit::textChanged, this, &HostWidget::dataChanged);
+    connect(m_portSpinBox, &QSpinBox::valueChanged, this, &HostWidget::dataChanged);
 }
 
 void HostWidget::setChannel(const QUrl &channel)

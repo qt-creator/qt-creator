@@ -280,11 +280,11 @@ JLinkGdbServerProviderConfigWidget::JLinkGdbServerProviderConfigWidget(
     connect(m_targetInterfaceSpeedComboBox, &QComboBox::currentTextChanged,
             this, &GdbServerProviderConfigWidget::dirty);
 
-    connect(m_hostInterfaceComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_hostInterfaceComboBox, &QComboBox::currentIndexChanged,
             this, &JLinkGdbServerProviderConfigWidget::updateAllowedControls);
-    connect(m_targetInterfaceComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_targetInterfaceComboBox, &QComboBox::currentIndexChanged,
             this, &JLinkGdbServerProviderConfigWidget::updateAllowedControls);
-    connect(m_targetInterfaceSpeedComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_targetInterfaceSpeedComboBox, &QComboBox::currentIndexChanged,
             this, &JLinkGdbServerProviderConfigWidget::updateAllowedControls);
 }
 

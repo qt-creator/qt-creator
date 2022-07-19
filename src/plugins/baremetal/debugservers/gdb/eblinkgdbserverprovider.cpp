@@ -304,11 +304,9 @@ EBlinkGdbServerProviderConfigWidget::EBlinkGdbServerProviderConfigWidget(
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_scriptFileChooser, &Utils::PathChooser::rawPathChanged,
             this, &GdbServerProviderConfigWidget::dirty);
-    connect(m_verboseLevelSpinBox,
-            QOverload<int>::of(&QSpinBox::valueChanged),
+    connect(m_verboseLevelSpinBox, &QSpinBox::valueChanged,
             this, &GdbServerProviderConfigWidget::dirty);
-    connect(m_interfaceSpeedSpinBox,
-            QOverload<int>::of(&QSpinBox::valueChanged),
+    connect(m_interfaceSpeedSpinBox, &QSpinBox::valueChanged,
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_notUseCacheCheckBox, &QAbstractButton::clicked,
             this, &GdbServerProviderConfigWidget::dirty);
@@ -316,8 +314,7 @@ EBlinkGdbServerProviderConfigWidget::EBlinkGdbServerProviderConfigWidget(
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_resetOnConnectCheckBox, &QAbstractButton::clicked,
             this, &GdbServerProviderConfigWidget::dirty);
-    connect(m_interfaceTypeComboBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_interfaceTypeComboBox, &QComboBox::currentIndexChanged,
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_initCommandsTextEdit, &QPlainTextEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);

@@ -136,7 +136,7 @@ DeviceSelector::DeviceSelector(QWidget *parent)
     const auto detailsPanel = new DeviceSelectorDetailsPanel(m_selection);
     setWidget(detailsPanel);
 
-    connect(toolPanel, &DeviceSelectorToolPanel::clicked, this, [this]() {
+    connect(toolPanel, &DeviceSelectorToolPanel::clicked, this, [this] {
         DeviceSelectionDialog dialog(m_toolsIniFile, this);
         const int result = dialog.exec();
         if (result != QDialog::Accepted)

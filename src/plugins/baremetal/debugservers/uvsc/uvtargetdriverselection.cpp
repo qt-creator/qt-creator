@@ -132,7 +132,7 @@ DriverSelectionCpuDllView::DriverSelectionCpuDllView(DriverSelection &selection,
     layout->addWidget(m_comboBox);
     setLayout(layout);
 
-    connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_comboBox, &QComboBox::currentIndexChanged,
             this, &DriverSelectionCpuDllView::dllChanged);
 }
 

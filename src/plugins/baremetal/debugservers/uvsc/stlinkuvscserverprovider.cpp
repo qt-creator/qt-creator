@@ -253,13 +253,11 @@ StLinkUvscAdapterOptionsWidget::StLinkUvscAdapterOptionsWidget(QWidget *parent)
 
     populatePorts();
 
-    connect(m_portBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [this](int index) {
-        Q_UNUSED(index);
+    connect(m_portBox, &QComboBox::currentIndexChanged, this, [this] {
         populateSpeeds();
         emit optionsChanged();
     });
-    connect(m_speedBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_speedBox, &QComboBox::currentIndexChanged,
             this, &StLinkUvscAdapterOptionsWidget::optionsChanged);
 }
 

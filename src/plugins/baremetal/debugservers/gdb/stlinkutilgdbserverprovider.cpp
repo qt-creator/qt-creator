@@ -230,15 +230,13 @@ StLinkUtilGdbServerProviderConfigWidget::StLinkUtilGdbServerProviderConfigWidget
     connect(m_executableFileChooser, &Utils::PathChooser::rawPathChanged,
             this, &GdbServerProviderConfigWidget::dirty);
 
-    connect(m_verboseLevelSpinBox,
-            QOverload<int>::of(&QSpinBox::valueChanged),
+    connect(m_verboseLevelSpinBox, &QSpinBox::valueChanged,
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_extendedModeCheckBox, &QAbstractButton::clicked,
             this, &GdbServerProviderConfigWidget::dirty);
     connect(m_resetBoardCheckBox, &QAbstractButton::clicked,
             this, &GdbServerProviderConfigWidget::dirty);
-    connect(m_transportLayerComboBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_transportLayerComboBox, &QComboBox::currentIndexChanged,
             this, &GdbServerProviderConfigWidget::dirty);
 
     connect(m_initCommandsTextEdit, &QPlainTextEdit::textChanged,

@@ -247,7 +247,7 @@ OpenOcdGdbServerProviderConfigWidget::OpenOcdGdbServerProviderConfigWidget(
     connect(m_resetCommandsTextEdit, &QPlainTextEdit::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
 
-    connect(m_startupModeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_startupModeComboBox, &QComboBox::currentIndexChanged,
             this, &OpenOcdGdbServerProviderConfigWidget::startupModeChanged);
 }
 
