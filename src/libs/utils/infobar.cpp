@@ -345,7 +345,7 @@ void InfoBarDisplay::update()
                 cb->addItem(comboInfo.displayText, comboInfo.data);
             if (info.m_combo.currentIndex >= 0 && info.m_combo.currentIndex < cb->count())
                 cb->setCurrentIndex(info.m_combo.currentIndex);
-            connect(cb, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [cb, info]() {
+            connect(cb, &QComboBox::currentIndexChanged, this, [cb, info]() {
                 info.m_combo.callback({cb->currentText(), cb->currentData()});
             }, Qt::QueuedConnection);
 

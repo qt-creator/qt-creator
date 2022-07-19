@@ -347,7 +347,7 @@ bool DeviceShell::start()
                 qCWarning(deviceShellLog) << "Received unexpected output on stderr:" << stdErr;
             });
 
-            connect(m_shellProcess, &QtcProcess::done, m_shellProcess, [this]() {
+            connect(m_shellProcess, &QtcProcess::done, m_shellProcess, [this] {
                 if (m_shellProcess->resultData().m_exitCode != EXIT_SUCCESS
                     || m_shellProcess->resultData().m_exitStatus != QProcess::NormalExit) {
                     qCWarning(deviceShellLog) << "Shell exited with error code:"

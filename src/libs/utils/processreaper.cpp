@@ -99,14 +99,9 @@ public:
     void reap()
     {
         m_timer.start();
-
-        connect(m_reaperSetup.m_process,
-                QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                this, &Reaper::handleFinished);
-
+        connect(m_reaperSetup.m_process, &QProcess::finished, this, &Reaper::handleFinished);
         if (emitFinished())
             return;
-
         terminate();
     }
 

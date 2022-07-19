@@ -72,8 +72,7 @@ SettingsSelector::SettingsSelector(QWidget *parent) :
             this, &SettingsSelector::removeButtonClicked);
     connect(m_renameButton, &QAbstractButton::clicked,
             this, &SettingsSelector::renameButtonClicked);
-    connect(m_configurationCombo,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_configurationCombo, &QComboBox::currentIndexChanged,
             this, &SettingsSelector::currentChanged);
 }
 

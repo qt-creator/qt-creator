@@ -270,14 +270,11 @@ DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable)
     m_timer.setInterval(500);
 
     connect(&m_timer, &QTimer::timeout, this, &DockWidget::handleMouseTimeout);
-
     connect(this, &QDockWidget::topLevelChanged, this, &DockWidget::handleToplevelChanged);
-
-    connect(toggleViewAction(), &QAction::triggered,
-            [this]() {
-                if (isVisible())
-                    raise();
-            });
+    connect(toggleViewAction(), &QAction::triggered, [this] {
+        if (isVisible())
+            raise();
+    });
 
     auto origFloatButton = findChild<QAbstractButton *>(QLatin1String("qt_dockwidget_floatbutton"));
     connect(m_titleBar->m_floatButton, &QAbstractButton::clicked,

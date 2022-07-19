@@ -353,12 +353,9 @@ public:
         : m_process(new ProcessHelper(this))
         , m_blockingImpl(new QProcessBlockingImpl(m_process))
     {
-        connect(m_process, &QProcess::started,
-                this, &QProcessImpl::handleStarted);
-        connect(m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                this, &QProcessImpl::handleFinished);
-        connect(m_process, &QProcess::errorOccurred,
-                this, &QProcessImpl::handleError);
+        connect(m_process, &QProcess::started, this, &QProcessImpl::handleStarted);
+        connect(m_process, &QProcess::finished, this, &QProcessImpl::handleFinished);
+        connect(m_process, &QProcess::errorOccurred, this, &QProcessImpl::handleError);
         connect(m_process, &QProcess::readyReadStandardOutput, this, [this] {
             emit readyRead(m_process->readAllStandardOutput(), {});
         });

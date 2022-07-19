@@ -43,7 +43,7 @@ TextFieldComboBox::TextFieldComboBox(QWidget *parent) :
     QComboBox(parent)
 {
     setEditable(false);
-    connect(this, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(this, &QComboBox::currentIndexChanged,
             this, &TextFieldComboBox::slotCurrentIndexChanged);
 }
 

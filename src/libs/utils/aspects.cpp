@@ -1507,10 +1507,10 @@ void SelectionAspect::addToLayout(LayoutBuilder &builder)
         for (int i = 0, n = d->m_options.size(); i < n; ++i)
             d->m_comboBox->addItem(d->m_options.at(i).displayName);
         if (isAutoApply()) {
-            connect(d->m_comboBox.data(), QOverload<int>::of(&QComboBox::activated),
+            connect(d->m_comboBox.data(), &QComboBox::activated,
                     this, &SelectionAspect::setValue);
         }
-        connect(d->m_comboBox.data(), QOverload<int>::of(&QComboBox::currentIndexChanged),
+        connect(d->m_comboBox.data(), &QComboBox::currentIndexChanged,
                 this, &SelectionAspect::volatileValueChanged);
         d->m_comboBox->setCurrentIndex(value());
         addLabeledItem(builder, d->m_comboBox);
@@ -1799,7 +1799,7 @@ void IntegerAspect::addToLayout(LayoutBuilder &builder)
     addLabeledItem(builder, d->m_spinBox);
 
     if (isAutoApply()) {
-        connect(d->m_spinBox.data(), QOverload<int>::of(&QSpinBox::valueChanged),
+        connect(d->m_spinBox.data(), &QSpinBox::valueChanged,
                 this, [this] { setValue(d->m_spinBox->value()); });
     }
 }
@@ -1926,7 +1926,7 @@ void DoubleAspect::addToLayout(LayoutBuilder &builder)
     addLabeledItem(builder, d->m_spinBox);
 
     if (isAutoApply()) {
-        connect(d->m_spinBox.data(), QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+        connect(d->m_spinBox.data(), &QDoubleSpinBox::valueChanged,
                 this, [this] { setValue(d->m_spinBox->value()); });
     }
 }

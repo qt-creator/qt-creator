@@ -94,7 +94,7 @@ static FilePath imageFileNameForIndicatorSize(ProgressIndicatorSize size)
 ProgressIndicatorPainter::ProgressIndicatorPainter(ProgressIndicatorSize size)
 {
     m_timer.setSingleShot(false);
-    QObject::connect(&m_timer, &QTimer::timeout, [this]() {
+    QObject::connect(&m_timer, &QTimer::timeout, [this] {
         nextAnimationStep();
         if (m_callback)
             m_callback();
@@ -219,7 +219,7 @@ ProgressIndicator::ProgressIndicator(ProgressIndicatorSize size, QWidget *parent
 {
     setPaintFunction(
         [this](QWidget *w, QPainter &p, QPaintEvent *) { m_paint.paint(p, w->rect()); });
-    m_paint.setUpdateCallback([this]() { update(); });
+    m_paint.setUpdateCallback([this] { update(); });
     updateGeometry();
 }
 
