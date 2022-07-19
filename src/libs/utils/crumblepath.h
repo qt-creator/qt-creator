@@ -56,7 +56,6 @@ signals:
     void elementClicked(const QVariant &data);
 
 private:
-    void emitElementClicked();
     void setBackgroundStyle();
 
 private:

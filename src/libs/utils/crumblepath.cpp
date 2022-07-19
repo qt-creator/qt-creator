@@ -210,7 +210,9 @@ void CrumblePath::pushElement(const QString &title, const QVariant &data)
     auto *newButton = new CrumblePathButton(title, this);
     newButton->setData(data);
     m_buttonsLayout->addWidget(newButton);
-    connect(newButton, &QAbstractButton::clicked, this, &CrumblePath::emitElementClicked);
+    connect(newButton, &QAbstractButton::clicked, this, [this, newButton] {
+        emit elementClicked(newButton->data());
+    });
 
     if (m_buttons.empty()) {
         newButton->setSegmentType(CrumblePathButton::SingleSegment);
@@ -235,7 +237,9 @@ void CrumblePath::addChild(const QString &title, const QVariant &data)
 
     auto *childAction = new QAction(title, lastButton);
     childAction->setData(data);
-    connect(childAction, &QAction::triggered, this, &CrumblePath::emitElementClicked);
+    connect(childAction, &QAction::triggered, this, [this, childAction] {
+        emit elementClicked(childAction->data());
+    });
     childList->addAction(childAction);
     lastButton->setMenu(childList);
 }
@@ -260,15 +264,6 @@ void CrumblePath::clear()
 {
     while (!m_buttons.isEmpty())
         popElement();
-}
-
-void CrumblePath::emitElementClicked()
-{
-    QObject *element = sender();
-    if (auto *action = qobject_cast<QAction*>(element))
-        emit elementClicked(action->data());
-    else if (auto *button = qobject_cast<CrumblePathButton*>(element))
-        emit elementClicked(button->data());
 }
 
 } // namespace Utils
