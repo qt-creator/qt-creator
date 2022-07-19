@@ -198,8 +198,8 @@ Internal::SideBarWidget *SideBar::insertSideBarWidget(int position, const QStrin
         d->m_widgets.at(0)->setCloseIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
 
     auto item = new Internal::SideBarWidget(this, id);
-    connect(item, &Internal::SideBarWidget::splitMe, this, &SideBar::splitSubWidget);
-    connect(item, &Internal::SideBarWidget::closeMe, this, &SideBar::closeSubWidget);
+    connect(item, &Internal::SideBarWidget::splitMe, this, [this, item] { splitSubWidget(item); });
+    connect(item, &Internal::SideBarWidget::closeMe, this, [this, item] { closeSubWidget(item); });
     connect(item, &Internal::SideBarWidget::currentWidgetChanged, this, &SideBar::updateWidgets);
     insertWidget(position, item);
     d->m_widgets.insert(position, item);
@@ -219,20 +219,16 @@ void SideBar::removeSideBarWidget(Internal::SideBarWidget *widget)
     widget->deleteLater();
 }
 
-void SideBar::splitSubWidget()
+void SideBar::splitSubWidget(Internal::SideBarWidget *widget)
 {
-    auto original = qobject_cast<Internal::SideBarWidget*>(sender());
-    int pos = indexOf(original) + 1;
+    int pos = indexOf(widget) + 1;
     insertSideBarWidget(pos);
     updateWidgets();
 }
 
-void SideBar::closeSubWidget()
+void SideBar::closeSubWidget(Internal::SideBarWidget *widget)
 {
     if (d->m_widgets.count() != 1) {
-        auto widget = qobject_cast<Internal::SideBarWidget*>(sender());
-        if (!widget)
-            return;
         removeSideBarWidget(widget);
         // update close button of top item
         if (d->m_widgets.size() == 1)

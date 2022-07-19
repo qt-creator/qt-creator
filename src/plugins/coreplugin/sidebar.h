@@ -113,8 +113,8 @@ signals:
     void availableItemsChanged();
 
 private:
-    void splitSubWidget();
-    void closeSubWidget();
+    void splitSubWidget(Internal::SideBarWidget *widget);
+    void closeSubWidget(Internal::SideBarWidget *widget);
     void updateWidgets();
 
     Internal::SideBarWidget *insertSideBarWidget(int position,
