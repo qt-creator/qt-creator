@@ -360,8 +360,10 @@ QAction *ChangeTextCursorHandler::createAnnotateAction(const QString &change, bo
                 editorWidget()->annotatePreviousRevisionTextFormat() :
                 editorWidget()->annotateRevisionTextFormat();
     auto a = new QAction(format.arg(change), nullptr);
-    a->setData(change);
-    connect(a, &QAction::triggered, editorWidget(), &VcsBaseEditorWidget::slotAnnotateRevision);
+    VcsBaseEditorWidget *editor = editorWidget();
+    connect(a, &QAction::triggered, editor, [editor, change] {
+        editor->slotAnnotateRevision(change);
+    });
     return a;
 }
 
@@ -1493,18 +1495,16 @@ void VcsBaseEditorWidget::addDiffActions(QMenu *, const DiffChunk &)
 {
 }
 
-void VcsBaseEditorWidget::slotAnnotateRevision()
+void VcsBaseEditorWidget::slotAnnotateRevision(const QString &change)
 {
-    if (auto a = qobject_cast<const QAction *>(sender())) {
-        const int currentLine = textCursor().blockNumber() + 1;
-        const QString fileName = fileNameForLine(currentLine);
-        QString workingDirectory = d->m_workingDirectory;
-        if (workingDirectory.isEmpty())
-            workingDirectory = QFileInfo(fileName).absolutePath();
-        emit annotateRevisionRequested(FilePath::fromString(workingDirectory),
-                                       QDir(workingDirectory).relativeFilePath(fileName),
-                                       a->data().toString(), currentLine);
-    }
+    const int currentLine = textCursor().blockNumber() + 1;
+    const QString fileName = fileNameForLine(currentLine);
+    QString workingDirectory = d->m_workingDirectory;
+    if (workingDirectory.isEmpty())
+        workingDirectory = QFileInfo(fileName).absolutePath();
+    emit annotateRevisionRequested(FilePath::fromString(workingDirectory),
+                                   QDir(workingDirectory).relativeFilePath(fileName),
+                                   change, currentLine);
 }
 
 QStringList VcsBaseEditorWidget::annotationPreviousVersions(const QString &) const

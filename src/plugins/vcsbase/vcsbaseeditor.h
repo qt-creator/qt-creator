@@ -273,7 +273,7 @@ private:
     void slotPopulateLogBrowser();
     void slotJumpToEntry(int);
     void slotCursorPositionChanged() override;
-    void slotAnnotateRevision();
+    void slotAnnotateRevision(const QString &change);
     void slotApplyDiffChunk();
     void slotPaste();
     void showProgressIndicator();
