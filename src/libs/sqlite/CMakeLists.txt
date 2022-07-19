@@ -48,6 +48,7 @@ add_qtc_library(Sqlite
     sqliteblob.h
     sqlitetimestamp.h
     sqlitelibraryinitializer.cpp sqlitelibraryinitializer.h
+    sqliteids.h
 )
 
 if (APPLE)

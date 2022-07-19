@@ -30,6 +30,7 @@
 
 #include "sqliteblob.h"
 #include "sqliteexception.h"
+#include "sqliteids.h"
 #include "sqlitetransaction.h"
 #include "sqlitevalue.h"
 
@@ -94,6 +95,12 @@ public:
     void bind(int index, const Value &value);
     void bind(int index, ValueView value);
     void bind(int index, BlobView blobView);
+
+    template<auto Type, typename InternalIntergerType>
+    void bind(int index, BasicId<Type, InternalIntergerType> id)
+    {
+        bind(index, id.id);
+    }
 
     void bind(int index, uint value) { bind(index, static_cast<long long>(value)); }
 

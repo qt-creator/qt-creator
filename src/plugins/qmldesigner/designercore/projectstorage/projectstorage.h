@@ -138,42 +138,42 @@ public:
     {
         if (version.minor)
             return selectTypeIdByModuleIdAndExportedNameAndVersionStatement
-                .template valueWithTransaction<TypeId>(&moduleId,
+                .template valueWithTransaction<TypeId>(moduleId,
                                                        exportedTypeName,
                                                        version.major.value,
                                                        version.minor.value);
 
         if (version.major)
             return selectTypeIdByModuleIdAndExportedNameAndMajorVersionStatement
-                .template valueWithTransaction<TypeId>(&moduleId, exportedTypeName, version.major.value);
+                .template valueWithTransaction<TypeId>(moduleId, exportedTypeName, version.major.value);
 
         return selectTypeIdByModuleIdAndExportedNameStatement
-            .template valueWithTransaction<TypeId>(&moduleId, exportedTypeName);
+            .template valueWithTransaction<TypeId>(moduleId, exportedTypeName);
     }
 
     PropertyDeclarationIds propertyDeclarationIds(TypeId typeId) const
     {
         return selectPropertyDeclarationIdsForTypeStatement
-            .template valuesWithTransaction<PropertyDeclarationId>(32, &typeId);
+            .template valuesWithTransaction<PropertyDeclarationId>(32, typeId);
     }
 
     PropertyDeclarationIds localPropertyDeclarationIds(TypeId typeId) const
     {
         return selectLocalPropertyDeclarationIdsForTypeStatement
-            .template valuesWithTransaction<PropertyDeclarationId>(16, &typeId);
+            .template valuesWithTransaction<PropertyDeclarationId>(16, typeId);
     }
 
     PropertyDeclarationId propertyDeclarationId(TypeId typeId, Utils::SmallStringView propertyName) const
     {
         return selectPropertyDeclarationIdForTypeAndPropertyNameStatement
-            .template valueWithTransaction<PropertyDeclarationId>(&typeId, propertyName);
+            .template valueWithTransaction<PropertyDeclarationId>(typeId, propertyName);
     }
 
     PropertyDeclarationId localPropertyDeclarationId(TypeId typeId,
                                                      Utils::SmallStringView propertyName) const
     {
         return selectLocalPropertyDeclarationIdForTypeAndPropertyNameStatement
-            .template valueWithTransaction<PropertyDeclarationId>(&typeId, propertyName);
+            .template valueWithTransaction<PropertyDeclarationId>(typeId, propertyName);
     }
 
     Utils::optional<Storage::Info::PropertyDeclaration> propertyDeclaration(
@@ -181,38 +181,38 @@ public:
     {
         return selectPropertyDeclarationForPropertyDeclarationIdStatement
             .template optionalValueWithTransaction<Storage::Info::PropertyDeclaration>(
-                &propertyDeclarationId);
+                propertyDeclarationId);
     }
 
     Utils::optional<Storage::Info::Type> type(TypeId typeId)
     {
         return selectInfoTypeByTypeIdStatement.template optionalValueWithTransaction<Storage::Info::Type>(
-            &typeId);
+            typeId);
     }
 
     std::vector<Utils::SmallString> signalDeclarationNames(TypeId typeId) const
     {
         return selectSignalDeclarationNamesForTypeStatement
-            .template valuesWithTransaction<Utils::SmallString>(32, &typeId);
+            .template valuesWithTransaction<Utils::SmallString>(32, typeId);
     }
 
     std::vector<Utils::SmallString> functionDeclarationNames(TypeId typeId) const
     {
         return selectFuncionDeclarationNamesForTypeStatement
-            .template valuesWithTransaction<Utils::SmallString>(32, &typeId);
+            .template valuesWithTransaction<Utils::SmallString>(32, typeId);
     }
 
     Utils::optional<Utils::SmallString> propertyName(PropertyDeclarationId propertyDeclarationId) const
     {
         return selectPropertyNameStatement.template optionalValueWithTransaction<Utils::SmallString>(
-            &propertyDeclarationId);
+            propertyDeclarationId);
     }
 
     PropertyDeclarationId fetchPropertyDeclarationByTypeIdAndName(TypeId typeId,
                                                                   Utils::SmallStringView name)
     {
         return selectPropertyDeclarationIdByTypeIdAndNameStatement
-            .template valueWithTransaction<PropertyDeclarationId>(&typeId, name);
+            .template valueWithTransaction<PropertyDeclarationId>(typeId, name);
     }
 
     TypeId fetchTypeIdByExportedName(Utils::SmallStringView name) const
@@ -228,7 +228,7 @@ public:
 
     TypeId fetchTypeIdByName(SourceId sourceId, Utils::SmallStringView name)
     {
-        return selectTypeIdBySourceIdAndNameStatement.template valueWithTransaction<TypeId>(&sourceId,
+        return selectTypeIdBySourceIdAndNameStatement.template valueWithTransaction<TypeId>(sourceId,
                                                                                             name);
     }
 
@@ -236,7 +236,7 @@ public:
     {
         Sqlite::DeferredTransaction transaction{database};
 
-        auto type = selectTypeByTypeIdStatement.template value<Storage::Synchronization::Type>(&typeId);
+        auto type = selectTypeByTypeIdStatement.template value<Storage::Synchronization::Type>(typeId);
 
         type.exportedTypes = fetchExportedTypes(typeId);
         type.propertyDeclarations = fetchPropertyDeclarations(type.typeId);
@@ -270,13 +270,12 @@ public:
 
     bool fetchIsProtype(TypeId type, TypeId prototype)
     {
-        return bool(
-            selectPrototypeIdStatement.template valueWithTransaction<TypeId>(&type, &prototype));
+        return bool(selectPrototypeIdStatement.template valueWithTransaction<TypeId>(type, prototype));
     }
 
     auto fetchPrototypes(TypeId type)
     {
-        return selectPrototypeIdsStatement.template rangeWithTransaction<TypeId>(&type);
+        return selectPrototypeIdsStatement.template rangeWithTransaction<TypeId>(type);
     }
 
     SourceContextId fetchSourceContextIdUnguarded(Utils::SmallStringView sourceContextPath)
@@ -307,7 +306,7 @@ public:
 
         auto optionalSourceContextPath = selectSourceContextPathFromSourceContextsBySourceContextIdStatement
                                              .template optionalValue<Utils::PathString>(
-                                                 &sourceContextId);
+                                                 sourceContextId);
 
         if (!optionalSourceContextPath)
             throw SourceContextIdDoesNotExists();
@@ -337,7 +336,7 @@ public:
     auto fetchSourceNameAndSourceContextId(SourceId sourceId) const
     {
         auto value = selectSourceNameAndSourceContextIdFromSourcesBySourceIdStatement
-                         .template valueWithTransaction<Cache::SourceNameAndSourceContextId>(&sourceId);
+                         .template valueWithTransaction<Cache::SourceNameAndSourceContextId>(sourceId);
 
         if (!value.sourceContextId)
             throw SourceIdDoesNotExists();
@@ -358,7 +357,7 @@ public:
     SourceContextId fetchSourceContextId(SourceId sourceId) const
     {
         auto sourceContextId = selectSourceContextIdFromSourcesBySourceIdStatement
-                                   .template valueWithTransaction<SourceContextId>(&sourceId);
+                                   .template valueWithTransaction<SourceContextId>(sourceId);
 
         if (!sourceContextId)
             throw SourceIdDoesNotExists();
@@ -389,14 +388,14 @@ public:
     FileStatus fetchFileStatus(SourceId sourceId) const override
     {
         return selectFileStatusesForSourceIdStatement.template valueWithTransaction<FileStatus>(
-            &sourceId);
+            sourceId);
     }
 
     Storage::Synchronization::ProjectDatas fetchProjectDatas(SourceId projectSourceId) const override
     {
         return selectProjectDatasForModuleIdStatement
             .template valuesWithTransaction<Storage::Synchronization::ProjectData>(64,
-                                                                                   &projectSourceId);
+                                                                                   projectSourceId);
     }
 
     Storage::Synchronization::ProjectDatas fetchProjectDatas(const SourceIds &projectSourceIds) const
@@ -823,20 +822,20 @@ private:
 
         auto insert = [&](const Storage::Synchronization::ModuleExportedImport &import) {
             if (import.version.minor) {
-                insertModuleExportedImportWithVersionStatement.write(&import.moduleId,
-                                                                     &import.exportedModuleId,
+                insertModuleExportedImportWithVersionStatement.write(import.moduleId,
+                                                                     import.exportedModuleId,
                                                                      to_underlying(import.isAutoVersion),
                                                                      import.version.major.value,
                                                                      import.version.minor.value);
             } else if (import.version.major) {
-                insertModuleExportedImportWithMajorVersionStatement.write(&import.moduleId,
-                                                                          &import.exportedModuleId,
+                insertModuleExportedImportWithMajorVersionStatement.write(import.moduleId,
+                                                                          import.exportedModuleId,
                                                                           to_underlying(
                                                                               import.isAutoVersion),
                                                                           import.version.major.value);
             } else {
-                insertModuleExportedImportWithoutVersionStatement.write(&import.moduleId,
-                                                                        &import.exportedModuleId,
+                insertModuleExportedImportWithoutVersionStatement.write(import.moduleId,
+                                                                        import.exportedModuleId,
                                                                         to_underlying(
                                                                             import.isAutoVersion));
             }
@@ -848,7 +847,7 @@ private:
         };
 
         auto remove = [&](const Storage::Synchronization::ModuleExportedImportView &view) {
-            deleteModuleExportedImportStatement.write(&view.moduleExportedImportId);
+            deleteModuleExportedImportStatement.write(view.moduleExportedImportId);
         };
 
         Sqlite::insertUpdateDelete(range, moduleExportedImports, compareKey, insert, update, remove);
@@ -920,7 +919,7 @@ private:
             return Sqlite::CallbackControl::Continue;
         };
 
-        updatePrototypeIdToNullStatement.readCallback(callback, &prototypeId);
+        updatePrototypeIdToNullStatement.readCallback(callback, prototypeId);
     }
 
     void deleteType(TypeId typeId,
@@ -932,11 +931,11 @@ private:
         handleAliasPropertyDeclarationsWithPropertyType(typeId, relinkableAliasPropertyDeclarations);
         handlePrototypes(typeId, relinkablePrototypes);
         deleteTypeNamesByTypeIdStatement.write(&typeId);
-        deleteEnumerationDeclarationByTypeIdStatement.write(&typeId);
-        deletePropertyDeclarationByTypeIdStatement.write(&typeId);
-        deleteFunctionDeclarationByTypeIdStatement.write(&typeId);
-        deleteSignalDeclarationByTypeIdStatement.write(&typeId);
-        deleteTypeStatement.write(&typeId);
+        deleteEnumerationDeclarationByTypeIdStatement.write(typeId);
+        deletePropertyDeclarationByTypeIdStatement.write(typeId);
+        deleteFunctionDeclarationByTypeIdStatement.write(typeId);
+        deleteSignalDeclarationByTypeIdStatement.write(typeId);
+        deleteTypeStatement.write(typeId);
     }
 
     void relinkAliasPropertyDeclarations(AliasPropertyDeclarations &aliasPropertyDeclarations,
@@ -958,11 +957,11 @@ private:
                 auto [propertyTypeId, aliasId, propertyTraits] = fetchPropertyDeclarationByTypeIdAndNameUngarded(
                     typeId, alias.aliasPropertyName);
 
-                updatePropertyDeclarationWithAliasAndTypeStatement.write(&alias.propertyDeclarationId,
-                                                                         &propertyTypeId,
+                updatePropertyDeclarationWithAliasAndTypeStatement.write(alias.propertyDeclarationId,
+                                                                         propertyTypeId,
                                                                          propertyTraits,
-                                                                         &alias.aliasImportedTypeNameId,
-                                                                         &aliasId);
+                                                                         alias.aliasImportedTypeNameId,
+                                                                         aliasId);
             },
             TypeCompare<AliasPropertyDeclaration>{});
     }
@@ -983,8 +982,8 @@ private:
                 if (!propertyTypeId)
                     throw TypeNameDoesNotExists{};
 
-                updatePropertyDeclarationTypeStatement.write(&property.propertyDeclarationId,
-                                                             &propertyTypeId);
+                updatePropertyDeclarationTypeStatement.write(property.propertyDeclarationId,
+                                                             propertyTypeId);
             },
             TypeCompare<PropertyDeclaration>{});
     }
@@ -1004,7 +1003,7 @@ private:
                 if (!prototypeId)
                     throw TypeNameDoesNotExists{};
 
-                updateTypePrototypeStatement.write(&prototype.typeId, &prototypeId);
+                updateTypePrototypeStatement.write(prototype.typeId, prototypeId);
                 checkForPrototypeChainCycle(prototype.typeId);
             },
             TypeCompare<Prototype>{});
@@ -1073,9 +1072,9 @@ private:
                                         aliasDeclaration.aliasPropertyNameTail);
 
             updatePropertyDeclarationAliasIdAndTypeNameIdStatement
-                .write(&aliasDeclaration.propertyDeclarationId,
-                       &aliasId,
-                       &aliasDeclaration.aliasImportedTypeNameId);
+                .write(aliasDeclaration.propertyDeclarationId,
+                       aliasId,
+                       aliasDeclaration.aliasImportedTypeNameId);
         }
     }
 
@@ -1083,9 +1082,9 @@ private:
     {
         for (const auto &aliasDeclaration : aliasDeclarations) {
             updatetPropertiesDeclarationValuesOfAliasStatement.write(
-                &aliasDeclaration.propertyDeclarationId);
+                aliasDeclaration.propertyDeclarationId);
             updatePropertyAliasDeclarationRecursivelyStatement.write(
-                &aliasDeclaration.propertyDeclarationId);
+                aliasDeclaration.propertyDeclarationId);
         }
     }
 
@@ -1157,21 +1156,21 @@ private:
 
             try {
                 if (type.version) {
-                    insertExportedTypeNamesWithVersionStatement.write(&type.moduleId,
+                    insertExportedTypeNamesWithVersionStatement.write(type.moduleId,
                                                                       type.name,
                                                                       type.version.major.value,
                                                                       type.version.minor.value,
-                                                                      &type.typeId);
+                                                                      type.typeId);
 
                 } else if (type.version.major) {
-                    insertExportedTypeNamesWithMajorVersionStatement.write(&type.moduleId,
+                    insertExportedTypeNamesWithMajorVersionStatement.write(type.moduleId,
                                                                            type.name,
                                                                            type.version.major.value,
-                                                                           &type.typeId);
+                                                                           type.typeId);
                 } else {
-                    insertExportedTypeNamesWithoutVersionStatement.write(&type.moduleId,
+                    insertExportedTypeNamesWithoutVersionStatement.write(type.moduleId,
                                                                          type.name,
-                                                                         &type.typeId);
+                                                                         type.typeId);
                 }
             } catch (const Sqlite::ConstraintPreventsModification &) {
                 throw QmlDesigner::ExportedTypeCannotBeInserted{};
@@ -1185,7 +1184,7 @@ private:
                 handleAliasPropertyDeclarationsWithPropertyType(view.typeId,
                                                                 relinkableAliasPropertyDeclarations);
                 handlePrototypes(view.typeId, relinkablePrototypes);
-                updateExportedTypeNameTypeIdStatement.write(&view.exportedTypeNameId, &type.typeId);
+                updateExportedTypeNameTypeIdStatement.write(view.exportedTypeNameId, type.typeId);
                 return Sqlite::UpdateChange::Update;
             }
             return Sqlite::UpdateChange::No;
@@ -1196,7 +1195,7 @@ private:
             handleAliasPropertyDeclarationsWithPropertyType(view.typeId,
                                                             relinkableAliasPropertyDeclarations);
             handlePrototypes(view.typeId, relinkablePrototypes);
-            deleteExportedTypeNameStatement.write(&view.exportedTypeNameId);
+            deleteExportedTypeNameStatement.write(view.exportedTypeNameId);
         };
 
         Sqlite::insertUpdateDelete(range, exportedTypes, compareKey, insert, update, remove);
@@ -1218,7 +1217,7 @@ private:
             return Sqlite::CallbackControl::Abort;
         };
 
-        insertAliasPropertyDeclarationStatement.readCallback(callback, &typeId, value.name);
+        insertAliasPropertyDeclarationStatement.readCallback(callback, typeId, value.name);
     }
 
     void synchronizePropertyDeclarationsInsertProperty(
@@ -1231,16 +1230,16 @@ private:
             throw TypeNameDoesNotExists{};
 
         auto propertyDeclarationId = insertPropertyDeclarationStatement.template value<PropertyDeclarationId>(
-            &typeId, value.name, &propertyTypeId, to_underlying(value.traits), &propertyImportedTypeNameId);
+            typeId, value.name, propertyTypeId, to_underlying(value.traits), propertyImportedTypeNameId);
 
         auto nextPropertyDeclarationId = selectPropertyDeclarationIdPrototypeChainDownStatement
-                                             .template value<PropertyDeclarationId>(&typeId,
+                                             .template value<PropertyDeclarationId>(typeId,
                                                                                     value.name);
         if (nextPropertyDeclarationId) {
             updateAliasIdPropertyDeclarationStatement.write(&nextPropertyDeclarationId,
                                                             &propertyDeclarationId);
             updatePropertyAliasDeclarationRecursivelyWithTypeAndTraitsStatement
-                .write(&propertyDeclarationId, &propertyTypeId, to_underlying(value.traits));
+                .write(propertyDeclarationId, propertyTypeId, to_underlying(value.traits));
         }
     }
 
@@ -1276,12 +1275,12 @@ private:
             && propertyImportedTypeNameId == view.typeNameId)
             return Sqlite::UpdateChange::No;
 
-        updatePropertyDeclarationStatement.write(&view.id,
-                                                 &propertyTypeId,
+        updatePropertyDeclarationStatement.write(view.id,
+                                                 propertyTypeId,
                                                  to_underlying(value.traits),
-                                                 &propertyImportedTypeNameId);
+                                                 propertyImportedTypeNameId);
         updatePropertyAliasDeclarationRecursivelyWithTypeAndTraitsStatement
-            .write(&view.id, &propertyTypeId, to_underlying(value.traits));
+            .write(view.id, propertyTypeId, to_underlying(value.traits));
         propertyDeclarationIds.push_back(view.id);
         return Sqlite::UpdateChange::Update;
     }
@@ -1343,11 +1342,11 @@ private:
                                                                                         view.name);
             if (nextPropertyDeclarationId) {
                 updateAliasPropertyDeclarationByAliasPropertyDeclarationIdStatement
-                    .write(&nextPropertyDeclarationId, &view.id);
+                    .write(nextPropertyDeclarationId, view.id);
             }
 
-            updateDefaultPropertyIdToNullStatement.write(&view.id);
-            deletePropertyDeclarationStatement.write(&view.id);
+            updateDefaultPropertyIdToNullStatement.write(view.id);
+            deletePropertyDeclarationStatement.write(view.id);
             propertyDeclarationIds.push_back(view.id);
         };
 
@@ -1399,7 +1398,7 @@ private:
         };
 
         auto remove = [&](const AliasPropertyDeclarationView &view) {
-            updatePropertyDeclarationAliasIdToNullStatement.write(&view.id);
+            updatePropertyDeclarationAliasIdToNullStatement.write(view.id);
             propertyDeclarationIds.push_back(view.id);
         };
 
@@ -1427,26 +1426,26 @@ private:
                               ModuleExportedImportId moduleExportedImportId)
     {
         if (import.version.minor) {
-            insertDocumentImportWithVersionStatement.write(&import.sourceId,
-                                                           &import.moduleId,
-                                                           &sourceModuleId,
+            insertDocumentImportWithVersionStatement.write(import.sourceId,
+                                                           import.moduleId,
+                                                           sourceModuleId,
                                                            to_underlying(importKind),
                                                            import.version.major.value,
                                                            import.version.minor.value,
-                                                           &moduleExportedImportId);
+                                                           moduleExportedImportId);
         } else if (import.version.major) {
-            insertDocumentImportWithMajorVersionStatement.write(&import.sourceId,
-                                                                &import.moduleId,
-                                                                &sourceModuleId,
+            insertDocumentImportWithMajorVersionStatement.write(import.sourceId,
+                                                                import.moduleId,
+                                                                sourceModuleId,
                                                                 to_underlying(importKind),
                                                                 import.version.major.value,
-                                                                &moduleExportedImportId);
+                                                                moduleExportedImportId);
         } else {
-            insertDocumentImportWithoutVersionStatement.write(&import.sourceId,
-                                                              &import.moduleId,
-                                                              &sourceModuleId,
+            insertDocumentImportWithoutVersionStatement.write(import.sourceId,
+                                                              import.moduleId,
+                                                              sourceModuleId,
                                                               to_underlying(importKind),
-                                                              &moduleExportedImportId);
+                                                              moduleExportedImportId);
         }
     }
 
@@ -1700,7 +1699,7 @@ private:
         auto insert = [&](const Storage::Synchronization::EnumerationDeclaration &value) {
             Utils::PathString signature{createJson(value.enumeratorDeclarations)};
 
-            insertEnumerationDeclarationStatement.write(&typeId, value.name, signature);
+            insertEnumerationDeclarationStatement.write(typeId, value.name, signature);
         };
 
         auto update = [&](const Storage::Synchronization::EnumerationDeclarationView &view,
@@ -1710,13 +1709,13 @@ private:
             if (enumeratorDeclarations == view.enumeratorDeclarations)
                 return Sqlite::UpdateChange::No;
 
-            updateEnumerationDeclarationStatement.write(&view.id, enumeratorDeclarations);
+            updateEnumerationDeclarationStatement.write(view.id, enumeratorDeclarations);
 
             return Sqlite::UpdateChange::Update;
         };
 
         auto remove = [&](const Storage::Synchronization::EnumerationDeclarationView &view) {
-            deleteEnumerationDeclarationStatement.write(&view.id);
+            deleteEnumerationDeclarationStatement.write(view.id);
         };
 
         Sqlite::insertUpdateDelete(range, enumerationDeclarations, compareKey, insert, update, remove);
@@ -1846,7 +1845,7 @@ private:
             if (&valueDefaultPropertyId == &view.defaultPropertyId)
                 return Sqlite::UpdateChange::No;
 
-            updateDefaultPropertyIdStatement.write(&value.typeId, &valueDefaultPropertyId);
+            updateDefaultPropertyIdStatement.write(value.typeId, valueDefaultPropertyId);
 
             return Sqlite::UpdateChange::Update;
         };
@@ -1882,7 +1881,7 @@ private:
             if (&valueDefaultPropertyId == &view.defaultPropertyId)
                 return Sqlite::UpdateChange::No;
 
-            updateDefaultPropertyIdStatement.write(&value.typeId, Sqlite::NullValue{});
+            updateDefaultPropertyIdStatement.write(value.typeId, Sqlite::NullValue{});
 
             return Sqlite::UpdateChange::Update;
         };
@@ -1901,7 +1900,7 @@ private:
             return Sqlite::CallbackControl::Continue;
         };
 
-        selectTypeIdsForPrototypeChainIdStatement.readCallback(callback, &typeId);
+        selectTypeIdsForPrototypeChainIdStatement.readCallback(callback, typeId);
     }
 
     void checkForAliasChainCycle(PropertyDeclarationId propertyDeclarationId) const
@@ -1914,7 +1913,7 @@ private:
         };
 
         selectPropertyDeclarationIdsForAliasChainStatement.readCallback(callback,
-                                                                        &propertyDeclarationId);
+                                                                        propertyDeclarationId);
     }
 
     void syncPrototype(Storage::Synchronization::Type &type, TypeIds &typeIds)
@@ -1934,7 +1933,7 @@ private:
             if (!prototypeId)
                 throw TypeNameDoesNotExists{};
 
-            updatePrototypeStatement.write(&type.typeId, &prototypeId, &prototypeTypeNameId);
+            updatePrototypeStatement.write(type.typeId, prototypeId, prototypeTypeNameId);
             checkForPrototypeChainCycle(type.typeId);
         }
 
@@ -1956,16 +1955,16 @@ private:
     {
         if (import.version) {
             return selectImportIdBySourceIdAndModuleIdAndVersionStatement.template value<ImportId>(
-                &sourceId, &import.moduleId, import.version.major.value, import.version.minor.value);
+                sourceId, import.moduleId, import.version.major.value, import.version.minor.value);
         }
 
         if (import.version.major) {
             return selectImportIdBySourceIdAndModuleIdAndMajorVersionStatement
-                .template value<ImportId>(&sourceId, &import.moduleId, import.version.major.value);
+                .template value<ImportId>(sourceId, import.moduleId, import.version.major.value);
         }
 
-        return selectImportIdBySourceIdAndModuleIdStatement.template value<ImportId>(&sourceId,
-                                                                                     &import.moduleId);
+        return selectImportIdBySourceIdAndModuleIdStatement.template value<ImportId>(sourceId,
+                                                                                     import.moduleId);
     }
 
     ImportedTypeNameId fetchImportedTypeNameId(const Storage::Synchronization::ImportedTypeName &name,
@@ -2024,10 +2023,10 @@ private:
     {
         if (kind == Storage::Synchronization::TypeNameKind::QualifiedExported) {
             return selectTypeIdForQualifiedImportedTypeNameNamesStatement.template value<TypeId>(
-                &typeNameId);
+                typeNameId);
         }
 
-        return selectTypeIdForImportedTypeNameNamesStatement.template value<TypeId>(&typeNameId);
+        return selectTypeIdForImportedTypeNameNamesStatement.template value<TypeId>(typeNameId);
     }
 
     class FetchPropertyDeclarationResult
@@ -2051,7 +2050,7 @@ private:
                                                                  Utils::SmallStringView name)
     {
         return selectPropertyDeclarationByTypeIdAndNameStatement
-            .template optionalValue<FetchPropertyDeclarationResult>(&typeId, name);
+            .template optionalValue<FetchPropertyDeclarationResult>(typeId, name);
     }
 
     FetchPropertyDeclarationResult fetchPropertyDeclarationByTypeIdAndNameUngarded(
@@ -2070,7 +2069,7 @@ private:
                                                                             Utils::SmallStringView name)
     {
         auto propertyDeclarationId = selectPropertyDeclarationIdByTypeIdAndNameStatement
-                                         .template value<PropertyDeclarationId>(&typeId, name);
+                                         .template value<PropertyDeclarationId>(typeId, name);
 
         if (propertyDeclarationId)
             return propertyDeclarationId;
@@ -2093,7 +2092,7 @@ private:
 
     SourceId writeSourceId(SourceContextId sourceContextId, Utils::SmallStringView sourceName)
     {
-        insertIntoSourcesStatement.write(&sourceContextId, sourceName);
+        insertIntoSourcesStatement.write(sourceContextId, sourceName);
 
         return SourceId(database.lastInsertedRowId());
     }
@@ -2101,19 +2100,19 @@ private:
     SourceId readSourceId(SourceContextId sourceContextId, Utils::SmallStringView sourceName)
     {
         return selectSourceIdFromSourcesBySourceContextIdAndSourceNameStatement
-            .template value<SourceId>(&sourceContextId, sourceName);
+            .template value<SourceId>(sourceContextId, sourceName);
     }
 
     auto fetchExportedTypes(TypeId typeId)
     {
         return selectExportedTypesByTypeIdStatement
-            .template values<Storage::Synchronization::ExportedType>(12, &typeId);
+            .template values<Storage::Synchronization::ExportedType>(12, typeId);
     }
 
     auto fetchPropertyDeclarations(TypeId typeId)
     {
         return selectPropertyDeclarationsByTypeIdStatement
-            .template values<Storage::Synchronization::PropertyDeclaration>(24, &typeId);
+            .template values<Storage::Synchronization::PropertyDeclaration>(24, typeId);
     }
 
     auto fetchFunctionDeclarations(TypeId typeId)
@@ -2130,7 +2129,7 @@ private:
             return Sqlite::CallbackControl::Continue;
         };
 
-        selectFunctionDeclarationsForTypeIdWithoutSignatureStatement.readCallback(callback, &typeId);
+        selectFunctionDeclarationsForTypeIdWithoutSignatureStatement.readCallback(callback, typeId);
 
         return functionDeclarations;
     }
@@ -2147,7 +2146,7 @@ private:
             return Sqlite::CallbackControl::Continue;
         };
 
-        selectSignalDeclarationsForTypeIdWithoutSignatureStatement.readCallback(callback, &typeId);
+        selectSignalDeclarationsForTypeIdWithoutSignatureStatement.readCallback(callback, typeId);
 
         return signalDeclarations;
     }

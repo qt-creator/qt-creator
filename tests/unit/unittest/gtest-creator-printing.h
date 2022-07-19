@@ -43,6 +43,8 @@ class SessionChangeSet;
 enum class Operation : char;
 enum class LockingMode : char;
 class TimeStamp;
+template<auto Type, typename InternalIntegerType>
+class BasicId;
 
 std::ostream &operator<<(std::ostream &out, const Value &value);
 std::ostream &operator<<(std::ostream &out, const ValueView &value);
@@ -50,6 +52,12 @@ std::ostream &operator<<(std::ostream &out, Operation operation);
 std::ostream &operator<<(std::ostream &out, const SessionChangeSet &changeset);
 std::ostream &operator<<(std::ostream &out, LockingMode lockingMode);
 std::ostream &operator<<(std::ostream &out, TimeStamp timeStamp);
+
+template<auto Type, typename InternalIntegerType>
+std::ostream &operator<<(std::ostream &out, const BasicId<Type, InternalIntegerType> &id)
+{
+    return out << "id=" << &id;
+}
 
 namespace SessionChangeSetInternal {
 class ConstIterator;
@@ -124,8 +132,6 @@ std::ostream &operator<<(std::ostream &out, const Diagnostic &diag);
 namespace QmlDesigner {
 class ModelNode;
 class VariantProperty;
-template<auto Type, typename InternalIntergerType>
-class BasicId;
 class WatcherEntry;
 class IdPaths;
 class ProjectChunkId;
@@ -135,11 +141,6 @@ class FileStatus;
 std::ostream &operator<<(std::ostream &out, const ModelNode &node);
 std::ostream &operator<<(std::ostream &out, const VariantProperty &property);
 
-template<auto Type, typename InternalIntergerType>
-std::ostream &operator<<(std::ostream &out, const BasicId<Type, InternalIntergerType> &id)
-{
-    return out << "id=" << &id;
-}
 
 std::ostream &operator<<(std::ostream &out, const WatcherEntry &entry);
 std::ostream &operator<<(std::ostream &out, const IdPaths &idPaths);
