@@ -160,7 +160,6 @@ private:
     PluginManager *q;
 
     void nextDelayedInitialize();
-    void asyncShutdownFinished();
 
     void readPluginPaths();
     bool loadQueue(PluginSpec *spec,

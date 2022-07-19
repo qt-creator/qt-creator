@@ -1414,18 +1414,6 @@ void PluginManagerPrivate::shutdown()
 /*!
     \internal
 */
-void PluginManagerPrivate::asyncShutdownFinished()
-{
-    auto *plugin = qobject_cast<IPlugin *>(sender());
-    Q_ASSERT(plugin);
-    asynchronousPlugins.remove(plugin->pluginSpec());
-    if (asynchronousPlugins.isEmpty())
-        shutdownEventLoop->exit();
-}
-
-/*!
-    \internal
-*/
 const QVector<PluginSpec *> PluginManagerPrivate::loadQueue()
 {
     QVector<PluginSpec *> queue;
@@ -1645,8 +1633,11 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
         profilingReport(">stop", spec);
         if (spec->d->stop() == IPlugin::AsynchronousShutdown) {
             asynchronousPlugins << spec;
-            connect(spec->plugin(), &IPlugin::asynchronousShutdownFinished,
-                    this, &PluginManagerPrivate::asyncShutdownFinished);
+            connect(spec->plugin(), &IPlugin::asynchronousShutdownFinished, this, [this, spec] {
+                asynchronousPlugins.remove(spec);
+                if (asynchronousPlugins.isEmpty())
+                    shutdownEventLoop->exit();
+            });
         }
         profilingReport("<stop", spec);
         break;
