@@ -85,8 +85,6 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
 
 private:
-    void onDockActionTriggered();
-
     void handleVisibilityChanged(bool visible);
 
     FancyMainWindowPrivate *d;
