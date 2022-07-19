@@ -81,7 +81,6 @@ private:
     void updateVisibilityWithDelay();
     void updateStatusDetailsWidget();
 
-    void slotRemoveTask();
     void readSettings();
     void initInternal();
     void stopFadeOfSummaryProgress();

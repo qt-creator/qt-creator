@@ -439,7 +439,11 @@ FutureProgress *ProgressManagerPrivate::doAddTask(const QFuture<void> &future, c
         progress->setKeepOnFinish(FutureProgress::HideOnFinish);
     connect(progress, &FutureProgress::hasErrorChanged,
             this, &ProgressManagerPrivate::updateSummaryProgressBar);
-    connect(progress, &FutureProgress::removeMe, this, &ProgressManagerPrivate::slotRemoveTask);
+    connect(progress, &FutureProgress::removeMe, this, [this, progress] {
+        const Id type = progress->type();
+        removeTask(progress);
+        removeOldTasks(type, true);
+    });
     connect(progress, &FutureProgress::fadeStarted,
             this, &ProgressManagerPrivate::updateSummaryProgressBar);
     connect(progress, &FutureProgress::statusBarWidgetChanged,
@@ -546,15 +550,6 @@ bool ProgressManagerPrivate::isLastFading() const
             return false;
     }
     return true;
-}
-
-void ProgressManagerPrivate::slotRemoveTask()
-{
-    auto progress = qobject_cast<FutureProgress *>(sender());
-    QTC_ASSERT(progress, return);
-    Id type = progress->type();
-    removeTask(progress);
-    removeOldTasks(type, true);
 }
 
 void ProgressManagerPrivate::removeOldTasks(const Id type, bool keepOne)
