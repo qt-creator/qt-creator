@@ -81,9 +81,6 @@ class QActionPushButton : public QToolButton
     Q_OBJECT
 public:
     explicit QActionPushButton(QAction *a);
-
-private slots:
-    void actionChanged();
 };
 
 QActionPushButton::QActionPushButton(QAction *a) :
@@ -92,19 +89,13 @@ QActionPushButton::QActionPushButton(QAction *a) :
     setIcon(a->icon());
     setText(a->text());
     setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    connect(a, &QAction::changed, this, &QActionPushButton::actionChanged);
+    connect(a, &QAction::changed, this, [this, a] {
+        setEnabled(a->isEnabled());
+        setText(a->text());
+    });
     connect(this, &QAbstractButton::clicked, a, &QAction::trigger);
     setEnabled(a->isEnabled());
 }
-
-void QActionPushButton::actionChanged()
-{
-    if (const QAction *a = qobject_cast<QAction*>(sender())) {
-        setEnabled(a->isEnabled());
-        setText(a->text());
-    }
-}
-
 
 // Helpers to retrieve model data
 // Convenience to extract a list of selected indexes
