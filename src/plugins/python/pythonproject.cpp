@@ -497,7 +497,7 @@ Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *e
 PythonBuildSystem::PythonBuildSystem(Target *target)
     : BuildSystem(target)
 {
-    connect(target->project(), &Project::projectFileIsDirty, this, [this]() { triggerParsing(); });
+    connect(target->project(), &Project::projectFileIsDirty, this, [this] { triggerParsing(); });
     QTimer::singleShot(0, this, &PythonBuildSystem::triggerParsing);
 }
 

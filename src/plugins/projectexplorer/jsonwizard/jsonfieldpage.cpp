@@ -115,7 +115,7 @@ public:
         m_expander.setDisplayName(JsonFieldPage::tr("Line Edit Validator Expander"));
         m_expander.setAccumulating(true);
         m_expander.registerVariable("INPUT", JsonFieldPage::tr("The text edit input to fix up."),
-                                    [this]() { return m_currentInput; });
+                                    [this] { return m_currentInput; });
         m_expander.registerSubProvider([expander]() -> MacroExpander * { return expander; });
         setValidationFunction([this, pattern](FancyLineEdit *, QString *) {
             return pattern.match(text()).hasMatch();
@@ -1241,7 +1241,7 @@ void ComboBoxField::setup(JsonFieldPage *page, const QString &name)
     // the selectionModel does not behave like expected and wanted - so we block signals here
     // (for example there was some losing focus thing when hovering over items, ...)
     selectionModel()->blockSignals(true);
-    QObject::connect(w, QOverload<int>::of(&QComboBox::activated), [w, this](int index) {
+    QObject::connect(w, &QComboBox::activated, [w, this](int index) {
         w->blockSignals(true);
         selectionModel()->clearSelection();
 
@@ -1251,7 +1251,7 @@ void ComboBoxField::setup(JsonFieldPage *page, const QString &name)
         selectionModel()->blockSignals(true);
         w->blockSignals(false);
     });
-    page->registerObjectAsFieldWithName<QComboBox>(name, w, QOverload<int>::of(&QComboBox::activated), [w]() {
+    page->registerObjectAsFieldWithName<QComboBox>(name, w, &QComboBox::activated, [w] {
         return w->currentData(ValueRole);
     });
     QObject::connect(selectionModel(), &QItemSelectionModel::selectionChanged, page, [page]() {
@@ -1262,8 +1262,7 @@ void ComboBoxField::setup(JsonFieldPage *page, const QString &name)
 QWidget *ComboBoxField::createWidget(const QString & /*displayName*/, JsonFieldPage * /*page*/)
 {
     const auto comboBox = new QComboBox;
-    QObject::connect(comboBox, QOverload<int>::of(&QComboBox::activated),
-                     [this] { setHasUserChanges(); });
+    QObject::connect(comboBox, &QComboBox::activated, [this] { setHasUserChanges(); });
     return comboBox;
 }
 
@@ -1317,7 +1316,8 @@ void IconListField::setup(JsonFieldPage *page, const QString &name)
 
     w->setModel(itemModel());
     setSelectionModel(w->selectionModel());
-    page->registerObjectAsFieldWithName<QItemSelectionModel>(name, selectionModel(), &QItemSelectionModel::selectionChanged, [this]() {
+    page->registerObjectAsFieldWithName<QItemSelectionModel>(name, selectionModel(),
+                                        &QItemSelectionModel::selectionChanged, [this] {
         const QModelIndex i = selectionModel()->currentIndex();
         if (i.isValid())
             return i.data(ValueRole);

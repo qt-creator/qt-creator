@@ -555,7 +555,7 @@ public:
 
         m_projectSelection = new QComboBox;
         m_projectSelection->setModel(&m_comboBoxModel);
-        connect(m_projectSelection, QOverload<int>::of(&QComboBox::activated),
+        connect(m_projectSelection, &QComboBox::activated,
                 this, &ProjectWindowPrivate::projectSelected, Qt::QueuedConnection);
 
         const auto switchProjectAction = new QAction(this);

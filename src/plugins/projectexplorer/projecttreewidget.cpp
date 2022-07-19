@@ -262,7 +262,7 @@ ProjectTreeWidget::ProjectTreeWidget(QWidget *parent) : QWidget(parent)
         Command *cmd = ActionManager::registerAction(focusDocumentInProjectTree, focusActionId);
         cmd->setDefaultKeySequence(
             QKeySequence(useMacShortcuts ? tr("Meta+Shift+L") : tr("Alt+Shift+L")));
-        connect(focusDocumentInProjectTree, &QAction::triggered, this, [this]() {
+        connect(focusDocumentInProjectTree, &QAction::triggered, this, [this] {
             syncFromDocumentManager();
         });
     }

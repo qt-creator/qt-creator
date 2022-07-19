@@ -849,7 +849,7 @@ void InterpreterAspect::addToLayout(LayoutBuilder &builder)
         m_comboBox = new QComboBox;
 
     updateComboBox();
-    connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_comboBox, &QComboBox::currentIndexChanged,
             this, &InterpreterAspect::updateCurrentInterpreter);
 
     auto manageButton = new QPushButton(tr("Manage..."));

@@ -184,7 +184,7 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
 
     proxyModel.setFilterRegularExpression(processFilterLineEdit->text());
 
-    connect(processFilterLineEdit, QOverload<const QString &>::of(&FancyLineEdit::textChanged),
+    connect(processFilterLineEdit, &FancyLineEdit::textChanged,
             &proxyModel, QOverload<const QString &>::of(&ProcessListFilterModel::setFilterRegularExpression));
     connect(procView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &DeviceProcessesDialogPrivate::updateButtons);

@@ -121,7 +121,7 @@ void DeviceSettingsWidget::initGui()
         lastIndex = 0;
     if (lastIndex < m_ui->configurationComboBox->count())
         m_ui->configurationComboBox->setCurrentIndex(lastIndex);
-    connect(m_ui->configurationComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_ui->configurationComboBox, &QComboBox::currentIndexChanged,
             this, &DeviceSettingsWidget::currentDeviceChanged);
     currentDeviceChanged(currentIndex());
     connect(m_ui->defaultDeviceButton, &QAbstractButton::clicked,

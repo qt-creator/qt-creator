@@ -93,7 +93,7 @@ SessionNameInputDialog::SessionNameInputDialog(QWidget *parent)
     m_okButton = buttons->button(QDialogButtonBox::Ok);
     m_switchToButton = new QPushButton;
     buttons->addButton(m_switchToButton, QDialogButtonBox::AcceptRole);
-    connect(m_switchToButton, &QPushButton::clicked, [this]() {
+    connect(m_switchToButton, &QPushButton::clicked, this, [this] {
         m_usedSwitchTo = true;
     });
     connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);

@@ -140,7 +140,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
 
     connect(m_addDeployMenu, &QMenu::aboutToShow,
             this, &RunSettingsWidget::aboutToShowDeployMenu);
-    connect(m_deployConfigurationCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_deployConfigurationCombo, &QComboBox::currentIndexChanged,
             this, &RunSettingsWidget::currentDeployConfigurationChanged);
     connect(m_removeDeployToolButton, &QAbstractButton::clicked,
             this, &RunSettingsWidget::removeDeployConfiguration);
@@ -172,7 +172,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
 
     connect(m_addRunToolButton, &QAbstractButton::clicked,
             this, &RunSettingsWidget::showAddRunConfigDialog);
-    connect(m_runConfigurationCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_runConfigurationCombo, &QComboBox::currentIndexChanged,
             this, &RunSettingsWidget::currentRunConfigurationChanged);
     connect(m_removeRunToolButton, &QAbstractButton::clicked,
             this, &RunSettingsWidget::removeRunConfiguration);
@@ -437,7 +437,7 @@ void RunSettingsWidget::setConfigurationWidget(RunConfiguration *rc)
         m_runLayout->addWidget(m_runConfigurationWidget);
         updateEnabledState();
         connect(m_runConfiguration, &RunConfiguration::enabledChanged,
-                m_runConfigurationWidget, [this]() { updateEnabledState(); });
+                m_runConfigurationWidget, [this] { updateEnabledState(); });
     }
     addRunControlWidgets();
 }

@@ -101,7 +101,7 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
             config, &EditorConfiguration::setShowWrapColumn);
     connect(m_useIndenter, &QAbstractButton::toggled,
             config, &EditorConfiguration::setUseIndenter);
-    connect(m_wrapColumn, QOverload<int>::of(&QSpinBox::valueChanged),
+    connect(m_wrapColumn, &QSpinBox::valueChanged,
             config, &EditorConfiguration::setWrapColumn);
 
     connect(m_behaviorSettings, &TextEditor::BehaviorSettingsWidget::typingSettingsChanged,

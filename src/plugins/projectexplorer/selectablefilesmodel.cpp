@@ -565,7 +565,7 @@ SelectableFilesWidget::SelectableFilesWidget(QWidget *parent) :
     connect(m_baseDirChooser, &Utils::PathChooser::validChanged,
             this, &SelectableFilesWidget::baseDirectoryChanged);
     connect(m_startParsingButton, &QAbstractButton::clicked,
-            this, [this]() { startParsing(m_baseDirChooser->filePath()); });
+            this, [this] { startParsing(m_baseDirChooser->filePath()); });
 
     m_selectFilesFilterLabel->setText(tr("Select files matching:"));
     m_selectFilesFilterEdit->setText(selectFilter);

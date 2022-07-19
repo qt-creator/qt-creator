@@ -63,7 +63,7 @@ EnvironmentAspectWidget::EnvironmentAspectWidget(EnvironmentAspect *aspect)
         m_baseEnvironmentComboBox->setEnabled(false);
     m_baseEnvironmentComboBox->setCurrentIndex(m_aspect->baseEnvironmentBase());
 
-    connect(m_baseEnvironmentComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_baseEnvironmentComboBox, &QComboBox::currentIndexChanged,
             this, &EnvironmentAspectWidget::baseEnvironmentSelected);
 
     m_baseLayout->addWidget(m_baseEnvironmentComboBox);

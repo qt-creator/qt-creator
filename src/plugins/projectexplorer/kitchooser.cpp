@@ -60,10 +60,8 @@ KitChooser::KitChooser(QWidget *parent) :
     layout->addWidget(m_manageButton);
     setFocusProxy(m_manageButton);
 
-    connect(m_chooser, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &KitChooser::onCurrentIndexChanged);
-    connect(m_chooser, QOverload<int>::of(&QComboBox::activated),
-            this, &KitChooser::onActivated);
+    connect(m_chooser, &QComboBox::currentIndexChanged, this, &KitChooser::onCurrentIndexChanged);
+    connect(m_chooser, &QComboBox::activated, this, &KitChooser::onActivated);
     connect(m_manageButton, &QAbstractButton::clicked, this, &KitChooser::onManageButtonClicked);
     connect(KitManager::instance(), &KitManager::kitsChanged, this, &KitChooser::populate);
 }

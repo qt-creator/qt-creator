@@ -320,7 +320,7 @@ public:
             Kit *k = KitManager::kit(m_kitId);
             if (!k)
                 break;
-            const QString extraText = [this]() {
+            const QString extraText = [this] {
                 if (m_kitErrorsForProject)
                     return QString("<h3>" + tr("Kit is unsuited for project") + "</h3>");
                 if (!isEnabled())

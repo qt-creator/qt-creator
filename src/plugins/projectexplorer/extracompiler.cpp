@@ -83,7 +83,7 @@ ExtraCompiler::ExtraCompiler(const Project *project, const FilePath &source,
         d->contents.insert(target, QByteArray());
     d->timer.setSingleShot(true);
 
-    connect(&d->timer, &QTimer::timeout, this, [this](){
+    connect(&d->timer, &QTimer::timeout, this, [this] {
         if (d->dirty && d->lastEditor) {
             d->dirty = false;
             run(d->lastEditor->document()->contents());
