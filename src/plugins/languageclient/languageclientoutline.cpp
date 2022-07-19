@@ -429,7 +429,7 @@ OutlineComboBox::OutlineComboBox(Client *client, TextEditor::BaseTextEditor *edi
     connect(client, &Client::documentUpdated, this, &OutlineComboBox::documentUpdated);
     connect(m_editorWidget, &TextEditor::TextEditorWidget::cursorPositionChanged,
             this, &OutlineComboBox::updateEntry);
-    connect(this, QOverload<int>::of(&QComboBox::activated), this, &OutlineComboBox::activateEntry);
+    connect(this, &QComboBox::activated, this, &OutlineComboBox::activateEntry);
     connect(sortAction, &QAction::toggled, this, &OutlineComboBox::setSorted);
 
     documentUpdated(editor->textDocument());

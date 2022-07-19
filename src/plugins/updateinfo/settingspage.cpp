@@ -128,8 +128,7 @@ public:
 
         connect(m_checkNowButton, &QPushButton::clicked,
                 m_plugin, &UpdateInfoPlugin::startCheckForUpdates);
-        connect(m_checkIntervalComboBox,
-                QOverload<int>::of(&QComboBox::currentIndexChanged),
+        connect(m_checkIntervalComboBox, &QComboBox::currentIndexChanged,
                 this, &UpdateInfoSettingsPageWidget::updateNextCheckDate);
         connect(m_plugin, &UpdateInfoPlugin::lastCheckDateChanged,
                 this, &UpdateInfoSettingsPageWidget::updateLastCheckDate);

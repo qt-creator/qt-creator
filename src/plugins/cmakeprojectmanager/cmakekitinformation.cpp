@@ -105,7 +105,7 @@ public:
 
         updateComboBox();
         refresh();
-        connect(m_comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+        connect(m_comboBox, &QComboBox::currentIndexChanged,
                 this, &CMakeKitAspectWidget::currentCMakeToolChanged);
 
         CMakeToolManager *cmakeMgr = CMakeToolManager::instance();

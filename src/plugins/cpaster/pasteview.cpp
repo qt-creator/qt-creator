@@ -53,8 +53,7 @@ PasteView::PasteView(const QList<Protocol *> &protocols,
 
     foreach (const Protocol *p, protocols)
         m_ui.protocolBox->addItem(p->name());
-    connect(m_ui.protocolBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &PasteView::protocolChanged);
+    connect(m_ui.protocolBox, &QComboBox::currentIndexChanged, this, &PasteView::protocolChanged);
 }
 
 PasteView::~PasteView() = default;

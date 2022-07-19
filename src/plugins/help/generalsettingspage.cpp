@@ -245,24 +245,23 @@ QWidget *GeneralSettingsPage::widget()
         updateFontStyleSelector();
         updateFontFamilySelector();
 
-        connect(m_widget->familyComboBox, &QFontComboBox::currentFontChanged, this, [this]() {
+        connect(m_widget->familyComboBox, &QFontComboBox::currentFontChanged, this, [this] {
             updateFont();
             updateFontStyleSelector();
             updateFontSizeSelector();
             updateFont(); // changes that might have happened when updating the selectors
         });
 
-        connect(m_widget->styleComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                this, [this]() {
+        connect(m_widget->styleComboBox, &QComboBox::currentIndexChanged, this, [this] {
             updateFont();
             updateFontSizeSelector();
             updateFont(); // changes that might have happened when updating the selectors
         });
 
-        connect(m_widget->sizeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+        connect(m_widget->sizeComboBox, &QComboBox::currentIndexChanged,
                 this, &GeneralSettingsPage::updateFont);
 
-        connect(m_widget->zoomSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
+        connect(m_widget->zoomSpinBox, &QSpinBox::valueChanged,
                 this, [this](int value) { m_fontZoom = value; });
 
         m_homePage = LocalHelpManager::homePage();

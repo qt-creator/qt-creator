@@ -49,7 +49,7 @@ public:
 BacktraceCollector::BacktraceCollector(QObject *parent) :
     QObject(parent), d(new BacktraceCollectorPrivate)
 {
-    connect(&d->debugger, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+    connect(&d->debugger, &QProcess::finished,
             this, &BacktraceCollector::onDebuggerFinished);
     connect(&d->debugger, &QProcess::errorOccurred,
             this, &BacktraceCollector::onDebuggerError);

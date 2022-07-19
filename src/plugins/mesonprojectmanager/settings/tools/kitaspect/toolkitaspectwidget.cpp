@@ -48,18 +48,12 @@ ToolKitAspectWidget::ToolKitAspectWidget(ProjectExplorer::Kit *kit,
     m_toolsComboBox->setToolTip(ki->description());
     loadTools();
 
-    connect(MesonTools::instance(),
-            &MesonTools::toolAdded,
-            this,
-            &ToolKitAspectWidget::addTool);
-    connect(MesonTools::instance(),
-            &MesonTools::toolRemoved,
-            this,
-            &ToolKitAspectWidget::removeTool);
-    connect(m_toolsComboBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this,
-            &ToolKitAspectWidget::setCurrentToolIndex);
+    connect(MesonTools::instance(), &MesonTools::toolAdded,
+            this, &ToolKitAspectWidget::addTool);
+    connect(MesonTools::instance(), &MesonTools::toolRemoved,
+            this, &ToolKitAspectWidget::removeTool);
+    connect(m_toolsComboBox, &QComboBox::currentIndexChanged,
+            this, &ToolKitAspectWidget::setCurrentToolIndex);
 }
 
 ToolKitAspectWidget::~ToolKitAspectWidget()

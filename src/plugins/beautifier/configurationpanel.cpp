@@ -40,7 +40,7 @@ ConfigurationPanel::ConfigurationPanel(QWidget *parent) :
     connect(ui->add, &QPushButton::clicked, this, &ConfigurationPanel::add);
     connect(ui->edit, &QPushButton::clicked, this, &ConfigurationPanel::edit);
     connect(ui->remove, &QPushButton::clicked, this, &ConfigurationPanel::remove);
-    connect(ui->configurations, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(ui->configurations, &QComboBox::currentIndexChanged,
             this, &ConfigurationPanel::updateButtons);
 }
 

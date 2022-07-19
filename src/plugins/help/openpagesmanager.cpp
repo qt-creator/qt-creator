@@ -59,15 +59,10 @@ OpenPagesManager::OpenPagesManager(HelpWidget *helpWidget)
     m_comboBox = new QComboBox;
     m_comboBox->setModel(m_helpWidget->model());
     m_comboBox->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(m_comboBox,
-            QOverload<int>::of(&QComboBox::activated),
-            m_helpWidget,
-            &HelpWidget::setCurrentIndex);
+    connect(m_comboBox, &QComboBox::activated, m_helpWidget, &HelpWidget::setCurrentIndex);
     connect(m_helpWidget, &HelpWidget::currentIndexChanged, m_comboBox, &QComboBox::setCurrentIndex);
-    connect(m_comboBox,
-            &QWidget::customContextMenuRequested,
-            this,
-            &OpenPagesManager::openPagesContextMenu);
+    connect(m_comboBox, &QWidget::customContextMenuRequested,
+            this, &OpenPagesManager::openPagesContextMenu);
 
     m_openPagesSwitcher = new OpenPagesSwitcher(m_helpWidget->model());
     connect(m_openPagesSwitcher, &OpenPagesSwitcher::closePage, this,

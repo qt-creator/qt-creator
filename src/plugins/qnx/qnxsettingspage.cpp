@@ -165,7 +165,7 @@ QnxSettingsWidget::QnxSettingsWidget() :
             this, &QnxSettingsWidget::addConfiguration);
     connect(m_removeButton, &QAbstractButton::clicked,
             this, &QnxSettingsWidget::removeConfiguration);
-    connect(m_configsCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_configsCombo, &QComboBox::currentIndexChanged,
             this, &QnxSettingsWidget::updateInformation);
     connect(m_generateKitsCheckBox, &QAbstractButton::toggled,
             this, &QnxSettingsWidget::generateKits);

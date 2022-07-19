@@ -120,8 +120,7 @@ QWidget *NimCompilerBuildStep::createConfigWidget()
 
     connect(project(), &Project::fileListChanged, this, updateUi);
 
-    connect(targetComboBox, QOverload<int>::of(&QComboBox::activated),
-            this, [this, targetComboBox, updateUi] {
+    connect(targetComboBox, &QComboBox::activated, this, [this, targetComboBox, updateUi] {
         const QVariant data = targetComboBox->currentData();
         m_targetNimFile = FilePath::fromString(data.toString());
         updateUi();
@@ -133,8 +132,7 @@ QWidget *NimCompilerBuildStep::createConfigWidget()
         updateUi();
     });
 
-    connect(defaultArgumentsComboBox, QOverload<int>::of(&QComboBox::activated),
-            this, [this, updateUi](int index) {
+    connect(defaultArgumentsComboBox, &QComboBox::activated, this, [this, updateUi](int index) {
         m_defaultOptions = static_cast<DefaultBuildOptions>(index);
         updateUi();
     });

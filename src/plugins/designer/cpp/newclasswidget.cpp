@@ -82,8 +82,7 @@ NewClassWidget::NewClassWidget(QWidget *parent) :
             this, &NewClassWidget::slotUpdateFileNames);
     connect(d->m_ui.classLineEdit, &QLineEdit::textEdited,
             this, &NewClassWidget::classNameEdited);
-    connect(d->m_ui.baseClassComboBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(d->m_ui.baseClassComboBox, &QComboBox::currentIndexChanged,
             this, &NewClassWidget::suggestClassNameFromBase);
     connect(d->m_ui.baseClassComboBox, &QComboBox::editTextChanged,
             this, &NewClassWidget::slotValidChanged);

@@ -104,8 +104,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *p
 
     connect(m_activeFrameworks, &QTreeWidget::itemChanged,
             this, &ProjectTestSettingsWidget::onActiveFrameworkChanged);
-    connect(m_runAfterBuild, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [this](int index) {
+    connect(m_runAfterBuild, &QComboBox::currentIndexChanged, this, [this](int index) {
         m_projectSettings->setRunAfterBuild(RunAfterBuildMode(index));
     });
     m_syncTimer.setSingleShot(true);

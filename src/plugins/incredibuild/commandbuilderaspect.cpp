@@ -139,8 +139,7 @@ void CommandBuilderAspect::addToLayout(LayoutBuilder &builder)
         d->commandBuilder = new QComboBox;
         for (CommandBuilder *p : d->m_commandBuilders)
             d->commandBuilder->addItem(p->displayName());
-        connect(d->commandBuilder, QOverload<int>::of(&QComboBox::currentIndexChanged),
-                this, [this](int idx) {
+        connect(d->commandBuilder, &QComboBox::currentIndexChanged, this, [this](int idx) {
             if (idx >= 0 && idx < int(sizeof(d->m_commandBuilders) / sizeof(d->m_commandBuilders[0])))
                 d->m_activeCommandBuilder = d->m_commandBuilders[idx];
             updateGui();

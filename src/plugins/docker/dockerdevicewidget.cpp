@@ -209,8 +209,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         if (index == 1)
             searchDirsLineEdit->setFocus();
     };
-    QObject::connect(searchDirsComboBox, qOverload<int>(&QComboBox::activated),
-                     this, updateDirectoriesLineEdit);
+    QObject::connect(searchDirsComboBox, &QComboBox::activated, this, updateDirectoriesLineEdit);
 }
 
 void DockerDeviceWidget::updateDaemonStateTexts()

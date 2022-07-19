@@ -371,8 +371,7 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         layout->addWidget(m_filterComboBox);
         connect(&LocalHelpManager::helpEngine(), &QHelpEngine::setupFinished,
                 this, &HelpWidget::setupFilterCombo, Qt::QueuedConnection);
-        connect(m_filterComboBox, QOverload<int>::of(&QComboBox::activated),
-                this, &HelpWidget::filterDocumentation);
+        connect(m_filterComboBox, &QComboBox::activated, this, &HelpWidget::filterDocumentation);
         connect(LocalHelpManager::filterEngine(), &QHelpFilterEngine::filterActivated,
                 this, &HelpWidget::currentFilterChanged);
 
