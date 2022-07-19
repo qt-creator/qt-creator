@@ -70,7 +70,6 @@ public:
     void print(QPrinter *printer) override;
 
 private:
-    void goToHistoryItem();
     void setFontAndScale(const QFont &font, qreal scale);
 
     TextBrowserHelpWidget *m_textBrowser;
