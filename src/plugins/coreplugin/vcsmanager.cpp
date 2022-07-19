@@ -173,17 +173,18 @@ VcsManager *VcsManager::instance()
 void VcsManager::extensionsInitialized()
 {
     // Change signal connections
-    const QList<IVersionControl *> versionControlList = versionControls();
-    for (const IVersionControl *versionControl : versionControlList) {
-        connect(versionControl, &IVersionControl::filesChanged, DocumentManager::instance(),
-                [](const QStringList fileNames) {
-                    DocumentManager::notifyFilesChangedInternally(
+    const QList<IVersionControl *> vcs = versionControls();
+    for (IVersionControl *vc : vcs) {
+        connect(vc, &IVersionControl::filesChanged, DocumentManager::instance(),
+                [](const QStringList &fileNames) {
+            DocumentManager::notifyFilesChangedInternally(
                         Utils::transform(fileNames, &Utils::FilePath::fromString));
-                });
-        connect(versionControl, &IVersionControl::repositoryChanged,
+        });
+        connect(vc, &IVersionControl::repositoryChanged,
                 m_instance, &VcsManager::repositoryChanged);
-        connect(versionControl, &IVersionControl::configurationChanged,
-                m_instance, &VcsManager::handleConfigurationChanges);
+        connect(vc, &IVersionControl::configurationChanged, m_instance, [vc] {
+            m_instance->handleConfigurationChanges(vc);
+        });
     }
 }
 
@@ -474,12 +475,10 @@ void VcsManager::clearVersionControlCache()
         emit m_instance->repositoryChanged(FilePath::fromString(repo));
 }
 
-void VcsManager::handleConfigurationChanges()
+void VcsManager::handleConfigurationChanges(IVersionControl *vc)
 {
     d->m_cachedAdditionalToolsPathsDirty = true;
-    auto vcs = qobject_cast<IVersionControl *>(sender());
-    if (vcs)
-        emit configurationChanged(vcs);
+    emit configurationChanged(vc);
 }
 
 } // namespace Core

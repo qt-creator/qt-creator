@@ -106,7 +106,7 @@ private:
     explicit VcsManager(QObject *parent = nullptr);
     ~VcsManager() override;
 
-    void handleConfigurationChanges();
+    void handleConfigurationChanges(IVersionControl *vc);
     static void addVersionControl(IVersionControl *vc);
 
     friend class Core::Internal::MainWindow;
