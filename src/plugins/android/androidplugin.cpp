@@ -199,7 +199,7 @@ void AndroidPlugin::askUserAboutAndroidSetup()
     info.addCustomButton(tr("Configure Android"), [this] {
         Core::ICore::infoBar()->removeInfo(kSetupAndroidSetting);
         Core::ICore::infoBar()->globallySuppressInfo(kSetupAndroidSetting);
-        QTimer::singleShot(0, this, [this]() { d->potentialKit.executeFromMenu(); });
+        QTimer::singleShot(0, this, [this] { d->potentialKit.executeFromMenu(); });
     });
     Core::ICore::infoBar()->addInfo(info);
 }

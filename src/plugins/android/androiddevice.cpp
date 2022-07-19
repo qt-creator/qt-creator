@@ -685,7 +685,7 @@ void AndroidDeviceManager::setupDevicesWatcher()
     m_avdFileSystemWatcher.addPath(avdPath.toString());
     connect(&m_avdsFutureWatcher, &QFutureWatcherBase::finished,
             this,  &AndroidDeviceManager::HandleAvdsListChange);
-    connect(&m_avdFileSystemWatcher, &QFileSystemWatcher::directoryChanged, this, [this]() {
+    connect(&m_avdFileSystemWatcher, &QFileSystemWatcher::directoryChanged, this, [this] {
         // If the avd list upate command is running no need to call it again.
         if (!m_avdsFutureWatcher.isRunning())
             updateAvdsList();

@@ -45,17 +45,16 @@ CreateSimulatorDialog::CreateSimulatorDialog(QWidget *parent)
     m_ui->setupUi(this);
     m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-    const auto enableOk = [this]() {
+    const auto enableOk = [this] {
         m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(
                     !m_ui->nameEdit->text().isEmpty() &&
                     m_ui->deviceTypeCombo->currentIndex() > 0 &&
                     m_ui->runtimeCombo->currentIndex() > 0);
     };
 
-    const auto indexChanged = QOverload<int>::of(&QComboBox::currentIndexChanged);
-    connect(m_ui->nameEdit, &QLineEdit::textChanged, enableOk);
-    connect(m_ui->runtimeCombo, indexChanged, enableOk);
-    connect(m_ui->deviceTypeCombo, indexChanged, [this, enableOk]() {
+    connect(m_ui->nameEdit, &QLineEdit::textChanged, this, enableOk);
+    connect(m_ui->runtimeCombo, &QComboBox::currentIndexChanged, this, enableOk);
+    connect(m_ui->deviceTypeCombo, &QComboBox::currentIndexChanged, this, [this, enableOk] {
         populateRuntimes(m_ui->deviceTypeCombo->currentData().value<DeviceTypeInfo>());
         enableOk();
     });

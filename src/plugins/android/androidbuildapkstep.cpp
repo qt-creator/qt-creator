@@ -189,8 +189,7 @@ QWidget *AndroidBuildApkWidget::createApplicationGroup()
     targetSDKComboBox->addItems(targets);
     targetSDKComboBox->setCurrentIndex(targets.indexOf(m_step->buildTargetSdk()));
 
-    const auto cbActivated = QOverload<int>::of(&QComboBox::activated);
-    connect(targetSDKComboBox, cbActivated, this, [this, targetSDKComboBox](int idx) {
+    connect(targetSDKComboBox, &QComboBox::activated, this, [this, targetSDKComboBox](int idx) {
        const QString sdk = targetSDKComboBox->itemText(idx);
        m_step->setBuildTargetSdk(sdk);
        AndroidManager::updateGradleProperties(m_step->target(), QString()); // FIXME: Use real key.
@@ -292,11 +291,8 @@ QWidget *AndroidBuildApkWidget::createSignPackageGroup()
             m_step->setCertificateAlias(alias);
     };
 
-    const auto cbActivated = QOverload<int>::of(&QComboBox::activated);
-    const auto cbCurrentIndexChanged = QOverload<int>::of(&QComboBox::currentIndexChanged);
-
-    connect(m_certificatesAliasComboBox, cbActivated, this, updateAlias);
-    connect(m_certificatesAliasComboBox, cbCurrentIndexChanged, this, updateAlias);
+    connect(m_certificatesAliasComboBox, &QComboBox::activated, this, updateAlias);
+    connect(m_certificatesAliasComboBox, &QComboBox::currentIndexChanged, this, updateAlias);
 
     return group;
 }
@@ -1094,7 +1090,7 @@ PasswordInputDialog::PasswordInputDialog(PasswordInputDialog::Context context,
         buttonBox->button(QDialogButtonBox::Ok)->setEnabled(!text.isEmpty());
     });
 
-    connect(buttonBox, &QDialogButtonBox::accepted, [this]() {
+    connect(buttonBox, &QDialogButtonBox::accepted, [this] {
         if (verifyCallback(inputEdit->text())) {
             accept(); // Dialog accepted.
         } else {

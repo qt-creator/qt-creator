@@ -405,12 +405,12 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             this, &AndroidSettingsWidget::validateSdk);
     connect(&m_sdkManager, &AndroidSdkManager::packageReloadFinished,
             m_androidProgress, &ProgressIndicator::hide);
-    connect(&m_sdkManager, &AndroidSdkManager::packageReloadBegin, this, [this]() {
+    connect(&m_sdkManager, &AndroidSdkManager::packageReloadBegin, this, [this] {
         m_androidSummary->setInProgressText("Retrieving packages information");
         m_androidProgress->show();
     });
     connect(m_ui.sdkManagerToolButton, &QAbstractButton::clicked,
-            this, [this]() { m_sdkManagerWidget->exec(); });
+            this, [this] { m_sdkManagerWidget->exec(); });
     connect(m_ui.sdkToolsAutoDownloadButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::downloadSdk);
     connect(&m_sdkDownloader, &AndroidSdkDownloader::sdkDownloaderError, this, [this](const QString &error) {

@@ -155,18 +155,12 @@ IosSigningSettingsWidget::IosSigningSettingsWidget(BuildConfiguration *buildConf
     detailsWidget->setWidget(container);
 
     if (m_isDevice) {
-        connect(IosConfigurations::instance(),
-                &IosConfigurations::provisioningDataChanged,
-                this,
-                &IosSigningSettingsWidget::populateDevelopmentTeams);
-        connect(m_signEntityCombo,
-                QOverload<int>::of(&QComboBox::currentIndexChanged),
-                this,
-                &IosSigningSettingsWidget::onSigningEntityComboIndexChanged);
-        connect(m_autoSignCheckbox,
-                &QCheckBox::toggled,
-                this,
-                &IosSigningSettingsWidget::configureSigningUi);
+        connect(IosConfigurations::instance(), &IosConfigurations::provisioningDataChanged,
+                this, &IosSigningSettingsWidget::populateDevelopmentTeams);
+        connect(m_signEntityCombo, &QComboBox::currentIndexChanged,
+                this, &IosSigningSettingsWidget::onSigningEntityComboIndexChanged);
+        connect(m_autoSignCheckbox, &QCheckBox::toggled,
+                this, &IosSigningSettingsWidget::configureSigningUi);
         const QString signingIdentifier = m_signingIdentifier->value();
         configureSigningUi(m_autoSignCheckbox->isChecked());
         setDefaultSigningIdentfier(signingIdentifier);

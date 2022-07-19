@@ -380,16 +380,11 @@ QGroupBox *AndroidManifestEditorWidget::createPackageFormLayout(QWidget *parent)
 
     connect(m_packageNameLineEdit, &QLineEdit::textEdited,
             this, &AndroidManifestEditorWidget::setPackageName);
-    connect(m_versionCodeLineEdit, &QLineEdit::textEdited,
-            this, [this]() { setDirty(); });
-    connect(m_versionNameLinedit, &QLineEdit::textEdited,
-            this, [this]() { setDirty(); });
-    connect(m_androidMinSdkVersion,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [this]() { setDirty(); });
-    connect(m_androidTargetSdkVersion,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [this]() { setDirty(); });
+    connect(m_versionCodeLineEdit, &QLineEdit::textEdited, this, [this] { setDirty(); });
+    connect(m_versionNameLinedit, &QLineEdit::textEdited, this, [this] { setDirty(); });
+    connect(m_androidMinSdkVersion, &QComboBox::currentIndexChanged, this, [this] { setDirty(); });
+    connect(m_androidTargetSdkVersion, &QComboBox::currentIndexChanged,
+            this, [this] { setDirty(); });
 
     return packageGroupBox;
 }
@@ -459,16 +454,10 @@ QGroupBox *Android::Internal::AndroidManifestEditorWidget::createApplicationGrou
     }
     applicationGroupBox->setLayout(formLayout);
 
-    connect(m_appNameLineEdit, &QLineEdit::textEdited,
-            this, [this]() { setDirty(); });
-    connect(m_activityNameLineEdit, &QLineEdit::textEdited,
-            this, [this]() { setDirty(); });
-    connect(m_styleExtractMethod,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [this]() { setDirty(); });
-    connect(m_screenOrientation,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [this]() { setDirty(); });
+    connect(m_appNameLineEdit, &QLineEdit::textEdited, this, [this] { setDirty(); });
+    connect(m_activityNameLineEdit, &QLineEdit::textEdited, this, [this] { setDirty(); });
+    connect(m_styleExtractMethod, &QComboBox::currentIndexChanged, this, [this] { setDirty(); });
+    connect(m_screenOrientation, &QComboBox::currentIndexChanged, this, [this] { setDirty(); });
 
     return applicationGroupBox;
 }
@@ -490,15 +479,15 @@ QGroupBox *AndroidManifestEditorWidget::createAdvancedGroupBox(QWidget *parent)
                                                       m_textEditorWidget);
     m_advanvedTabWidget->addTab(m_splashButtons, tr("Splash screen"));
 
-    connect(m_services, &AndroidServiceWidget::servicesModified, this, [this]() { setDirty(); });
+    connect(m_services, &AndroidServiceWidget::servicesModified, this, [this] { setDirty(); });
     connect(m_services, &AndroidServiceWidget::servicesModified,
             this, &AndroidManifestEditorWidget::clearInvalidServiceInfo);
     connect(m_services, &AndroidServiceWidget::servicesInvalid,
             this, &AndroidManifestEditorWidget::setInvalidServiceInfo);
     connect(m_splashButtons, &SplashScreenContainerWidget::splashScreensModified,
-            this, [this]() { setDirty(); });
+            this, [this] { setDirty(); });
     connect(m_iconButtons, &AndroidManifestEditorIconContainerWidget::iconsModified,
-            this, [this]() { setDirty(); });
+            this, [this] { setDirty(); });
 
     formLayout->addRow(m_advanvedTabWidget);
     otherGroupBox->setLayout(formLayout);
@@ -748,7 +737,7 @@ void AndroidManifestEditorWidget::updateInfoBar(const QString &errorMessage, int
     else
         text = tr("%2: Could not parse file: \"%1\".").arg(errorMessage).arg(line);
     Utils::InfoBarEntry infoBarEntry(infoBarId, text);
-    infoBarEntry.addCustomButton(tr("Goto error"), [this]() {
+    infoBarEntry.addCustomButton(tr("Goto error"), [this] {
         m_textEditorWidget->gotoLine(m_errorLine, m_errorColumn);
     });
     infoBar->removeInfo(infoBarId);

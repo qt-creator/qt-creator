@@ -60,11 +60,9 @@ AvdDialog::AvdDialog(const AndroidConfig &config, QWidget *parent)
     m_hideTipTimer.setSingleShot(true);
 
     connect(&m_hideTipTimer, &QTimer::timeout, this, &Utils::ToolTip::hide);
-    connect(m_avdDialog.deviceDefinitionTypeComboBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_avdDialog.deviceDefinitionTypeComboBox, &QComboBox::currentIndexChanged,
             this, &AvdDialog::updateDeviceDefinitionComboBox);
-    connect(m_avdDialog.abiComboBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_avdDialog.abiComboBox, &QComboBox::currentIndexChanged,
             this, &AvdDialog::updateApiLevelComboBox);
 
     deviceTypeToStringMap.insert(AvdDialog::Phone, "Phone");

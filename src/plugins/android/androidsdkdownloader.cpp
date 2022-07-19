@@ -92,7 +92,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
 
     connect(m_progressDialog, &QProgressDialog::canceled, this, &AndroidSdkDownloader::cancel);
 
-    connect(this, &AndroidSdkDownloader::sdkPackageWriteFinished, this, [this]() {
+    connect(this, &AndroidSdkDownloader::sdkPackageWriteFinished, this, [this] {
         if (!Archive::supportsFile(m_sdkFilename))
             return;
         const FilePath extractDir = m_sdkFilename.parentDir();

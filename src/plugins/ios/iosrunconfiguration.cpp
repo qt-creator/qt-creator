@@ -357,7 +357,7 @@ void IosDeviceTypeAspect::addToLayout(LayoutBuilder &builder)
 
     updateValues();
 
-    connect(m_deviceTypeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_deviceTypeComboBox, &QComboBox::currentIndexChanged,
             this, &IosDeviceTypeAspect::setDeviceTypeIndex);
 }
 

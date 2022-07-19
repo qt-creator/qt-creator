@@ -84,12 +84,12 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
     m_formatter = new Utils::OutputFormatter;
     m_formatter->setPlainTextEdit(m_ui->outputEdit);
 
-    connect(m_sdkModel, &AndroidSdkModel::dataChanged, [this]() {
+    connect(m_sdkModel, &AndroidSdkModel::dataChanged, this, [this] {
         if (m_ui->viewStack->currentWidget() == m_ui->packagesStack)
             m_ui->applySelectionButton->setEnabled(!m_sdkModel->userSelection().isEmpty());
     });
 
-    connect(m_sdkModel, &AndroidSdkModel::modelAboutToBeReset, [this]() {
+    connect(m_sdkModel, &AndroidSdkModel::modelAboutToBeReset, this, [this] {
         m_ui->applySelectionButton->setEnabled(false);
         m_ui->expandCheck->setChecked(false);
         cancelPendingOperations();
@@ -102,7 +102,7 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
     m_ui->packagesView->header()->setSectionResizeMode(AndroidSdkModel::packageNameColumn,
                                                        QHeaderView::Stretch);
     m_ui->packagesView->header()->setStretchLastSection(false);
-    connect(m_ui->expandCheck, &QCheckBox::stateChanged, [this](int state) {
+    connect(m_ui->expandCheck, &QCheckBox::stateChanged, this, [this](int state) {
        if (state == Qt::Checked)
            m_ui->packagesView->expandAll();
        else
@@ -110,19 +110,21 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
     });
     connect(m_ui->updateInstalledButton, &QPushButton::clicked,
             this, &AndroidSdkManagerWidget::onUpdatePackages);
-    connect(m_ui->showAllRadio, &QRadioButton::toggled, [this, proxyModel](bool checked) {
+    connect(m_ui->showAllRadio, &QRadioButton::toggled, this, [this, proxyModel](bool checked) {
         if (checked) {
             proxyModel->setAcceptedPackageState(AndroidSdkPackage::AnyValidState);
             m_sdkModel->resetSelection();
         }
     });
-    connect(m_ui->showInstalledRadio, &QRadioButton::toggled, [this, proxyModel](bool checked) {
+    connect(m_ui->showInstalledRadio, &QRadioButton::toggled,
+            this, [this, proxyModel](bool checked) {
         if (checked) {
             proxyModel->setAcceptedPackageState(AndroidSdkPackage::Installed);
             m_sdkModel->resetSelection();
         }
     });
-    connect(m_ui->showAvailableRadio, &QRadioButton::toggled, [this, proxyModel](bool checked) {
+    connect(m_ui->showAvailableRadio, &QRadioButton::toggled,
+            this, [this, proxyModel](bool checked) {
         if (checked) {
             proxyModel->setAcceptedPackageState(AndroidSdkPackage::Available);
             m_sdkModel->resetSelection();
@@ -130,7 +132,8 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
     });
 
     m_ui->searchField->setPlaceholderText("Filter");
-    connect(m_ui->searchField, &QLineEdit::textChanged, [this, proxyModel](const QString &text) {
+    connect(m_ui->searchField, &QLineEdit::textChanged,
+            this, [this, proxyModel](const QString &text) {
         proxyModel->setAcceptedSearchPackage(text);
         m_sdkModel->resetSelection();
         // It is more convenient to expand the view with the results
@@ -138,22 +141,21 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
     });
 
     connect(m_ui->buttonBox, &QDialogButtonBox::accepted, this, &AndroidSdkManagerWidget::close);
-    connect(m_ui->applySelectionButton, &QPushButton::clicked,
-            this, [this]() { onApplyButton(); });
+    connect(m_ui->applySelectionButton, &QPushButton::clicked, this, [this] { onApplyButton(); });
     connect(m_ui->cancelButton, &QPushButton::clicked, this,
             &AndroidSdkManagerWidget::onCancel);
     connect(m_ui->optionsButton, &QPushButton::clicked,
             this, &AndroidSdkManagerWidget::onSdkManagerOptions);
-    connect(m_ui->sdkLicensebuttonBox, &QDialogButtonBox::accepted, [this]() {
+    connect(m_ui->sdkLicensebuttonBox, &QDialogButtonBox::accepted, this, [this] {
         m_sdkManager->acceptSdkLicense(true);
         m_ui->sdkLicensebuttonBox->setEnabled(false); // Wait for next license to enable controls
     });
-    connect(m_ui->sdkLicensebuttonBox, &QDialogButtonBox::rejected, [this]() {
+    connect(m_ui->sdkLicensebuttonBox, &QDialogButtonBox::rejected, this, [this] {
         m_sdkManager->acceptSdkLicense(false);
         m_ui->sdkLicensebuttonBox->setEnabled(false); // Wait for next license to enable controls
     });
 
-    connect(m_ui->oboleteCheckBox, &QCheckBox::stateChanged, [this](int state) {
+    connect(m_ui->oboleteCheckBox, &QCheckBox::stateChanged, this, [this](int state) {
         const QString obsoleteArg = "--include_obsolete";
         QStringList args = m_androidConfig.sdkManagerToolArgs();
         if (state == Qt::Checked && !args.contains(obsoleteArg)) {
@@ -166,8 +168,7 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
         m_sdkManager->reloadPackages(true);
     });
 
-    connect(m_ui->channelCheckbox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [this](int index) {
+    connect(m_ui->channelCheckbox, &QComboBox::currentIndexChanged, this, [this](int index) {
         QStringList args = m_androidConfig.sdkManagerToolArgs();
         QString existingArg;
         for (int i = 0; i < 4; ++i) {
@@ -338,14 +339,12 @@ void AndroidSdkManagerWidget::addPackageFuture(const QFuture<AndroidSdkManager::
     QTC_ASSERT(!m_currentOperation, return);
     if (!future.isFinished() || !future.isCanceled()) {
         m_currentOperation = new QFutureWatcher<AndroidSdkManager::OperationOutput>;
-        connect(m_currentOperation,
-                &QFutureWatcher<AndroidSdkManager::OperationOutput>::resultReadyAt,
+        connect(m_currentOperation, &QFutureWatcherBase::resultReadyAt,
                 this, &AndroidSdkManagerWidget::onOperationResult);
-        connect(m_currentOperation, &QFutureWatcher<AndroidSdkManager::OperationOutput>::finished,
+        connect(m_currentOperation, &QFutureWatcherBase::finished,
                 this, &AndroidSdkManagerWidget::packageFutureFinished);
-        connect(m_currentOperation,
-                &QFutureWatcher<AndroidSdkManager::OperationOutput>::progressValueChanged,
-                [this](int value) {
+        connect(m_currentOperation, &QFutureWatcherBase::progressValueChanged,
+                this, [this](int value) {
             m_ui->operationProgress->setValue(value);
         });
         m_currentOperation->setFuture(future);
