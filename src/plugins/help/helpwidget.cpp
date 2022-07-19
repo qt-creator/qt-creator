@@ -736,7 +736,9 @@ HelpViewer *HelpWidget::insertViewer(int index, const QUrl &url)
         emit m_model.dataChanged(m_model.index(i, 0), m_model.index(i, 0));
     });
 
-    connect(viewer, &HelpViewer::loadFinished, this, &HelpWidget::highlightSearchTerms);
+    connect(viewer, &HelpViewer::loadFinished, this, [this, viewer] {
+        highlightSearchTerms(viewer);
+    });
     connect(viewer, &HelpViewer::newPageRequested, this, &HelpWidget::openNewPage);
     connect(viewer, &HelpViewer::externalPageRequested, this, [this](const QUrl &url) {
         emit requestShowHelpUrl(url, Core::HelpManager::ExternalHelpAlways);
@@ -1005,13 +1007,11 @@ void HelpWidget::print(HelpViewer *viewer)
         viewer->print(m_printer);
 }
 
-void HelpWidget::highlightSearchTerms()
+void HelpWidget::highlightSearchTerms(HelpViewer *viewer)
 {
     if (m_searchTerms.isEmpty())
         return;
-    auto viewer = qobject_cast<HelpViewer *>(sender());
-    QTC_ASSERT(viewer, return);
-    foreach (const QString& term, m_searchTerms)
+    for (const QString &term : qAsConst(m_searchTerms))
         viewer->findText(term, {}, false, true);
     m_searchTerms.clear();
 }

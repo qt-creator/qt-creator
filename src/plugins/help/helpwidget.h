@@ -138,7 +138,7 @@ private:
     void scaleDown();
     void resetScale();
     void print(HelpViewer *viewer);
-    void highlightSearchTerms();
+    void highlightSearchTerms(HelpViewer *viewer);
     void addSideBar();
     QString sideBarSettingsKey() const;
 
