@@ -118,9 +118,9 @@ VcsCommandDecorator::VcsCommandDecorator(ShellCommand *command)
     connect(m_command, &ShellCommand::executedAsync, this, &VcsCommandDecorator::addTask);
     const auto connection = connect(m_command, &ShellCommand::runCommandFinished,
                                     this, &VcsCommandDecorator::postRunCommand);
-    connect(ICore::instance(), &ICore::coreAboutToClose, this, [connection] {
+    connect(ICore::instance(), &ICore::coreAboutToClose, this, [this, connection] {
         disconnect(connection);
-        abort();
+        m_command->abort();
     });}
 
 void VcsCommandDecorator::addTask(const QFuture<void> &future)
