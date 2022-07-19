@@ -1024,7 +1024,7 @@ TEST_F(ProjectStorage, FetchSourceContextPath)
 
 TEST_F(ProjectStorage, FetchUnknownSourceContextPathThrows)
 {
-    ASSERT_THROW(storage.fetchSourceContextPath(SourceContextId{323}),
+    ASSERT_THROW(storage.fetchSourceContextPath(SourceContextId::create(323)),
                  QmlDesigner::SourceContextIdDoesNotExists);
 }
 
@@ -1096,13 +1096,13 @@ TEST_F(ProjectStorage, FetchSourceIdWithDifferentNameAreNotEqual)
 
 TEST_F(ProjectStorage, FetchSourceIdWithNonExistingSourceContextIdThrows)
 {
-    ASSERT_THROW(storage.fetchSourceId(SourceContextId{42}, "foo"),
+    ASSERT_THROW(storage.fetchSourceId(SourceContextId::create(42), "foo"),
                  Sqlite::ConstraintPreventsModification);
 }
 
 TEST_F(ProjectStorage, FetchSourceNameAndSourceContextIdForNonExistingSourceId)
 {
-    ASSERT_THROW(storage.fetchSourceNameAndSourceContextId(SourceId{212}),
+    ASSERT_THROW(storage.fetchSourceNameAndSourceContextId(SourceId::create(212)),
                  QmlDesigner::SourceIdDoesNotExists);
 }
 
@@ -1119,7 +1119,8 @@ TEST_F(ProjectStorage, FetchSourceNameAndSourceContextIdForNonExistingEntry)
 
 TEST_F(ProjectStorage, FetchSourceContextIdForNonExistingSourceId)
 {
-    ASSERT_THROW(storage.fetchSourceContextId(SourceId{212}), QmlDesigner::SourceIdDoesNotExists);
+    ASSERT_THROW(storage.fetchSourceContextId(SourceId::create(212)),
+                 QmlDesigner::SourceIdDoesNotExists);
 }
 
 TEST_F(ProjectStorage, FetchSourceContextIdForExistingSourceId)
@@ -1194,7 +1195,7 @@ TEST_F(ProjectStorage, FetchSourceIdUnguardedWithNonExistingSourceContextIdThrow
 {
     std::lock_guard lock{database};
 
-    ASSERT_THROW(storage.fetchSourceIdUnguarded(SourceContextId{42}, "foo"),
+    ASSERT_THROW(storage.fetchSourceIdUnguarded(SourceContextId::create(42), "foo"),
                  Sqlite::ConstraintPreventsModification);
 }
 
@@ -1261,7 +1262,7 @@ TEST_F(ProjectStorage, SynchronizeTypesAddsNewTypesWithMissingModule)
         Storage::Synchronization::ImportedType{},
         TypeAccessSemantics::Reference,
         sourceId3,
-        {Storage::Synchronization::ExportedType{ModuleId{22}, "Object2"},
+        {Storage::Synchronization::ExportedType{ModuleId::create(22), "Object2"},
          Storage::Synchronization::ExportedType{pathToModuleId, "Obj2"}}});
 
     ASSERT_THROW(storage.synchronize(std::move(package)), QmlDesigner::ExportedTypeCannotBeInserted);
@@ -4475,7 +4476,7 @@ TEST_F(ProjectStorage, ModuleNameThrowsIfIdIsInvalid)
 
 TEST_F(ProjectStorage, ModuleNameThrowsIfIdDoesNotExists)
 {
-    ASSERT_THROW(storage.moduleName(ModuleId{222}), QmlDesigner::ModuleDoesNotExists);
+    ASSERT_THROW(storage.moduleName(ModuleId::create(222)), QmlDesigner::ModuleDoesNotExists);
 }
 
 TEST_F(ProjectStorage, GetModuleName)

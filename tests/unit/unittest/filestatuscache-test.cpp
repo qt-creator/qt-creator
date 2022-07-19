@@ -57,10 +57,10 @@ protected:
 protected:
     NiceMock<FileSystemMock> fileSystem;
     QmlDesigner::FileStatusCache cache{fileSystem};
-    SourceId header{1};
-    SourceId source{2};
-    SourceId header2{3};
-    SourceId source2{4};
+    SourceId header{SourceId::create(1)};
+    SourceId source{SourceId::create(2)};
+    SourceId header2{SourceId::create(3)};
+    SourceId source2{SourceId::create(4)};
     SourceIds entries{header, source, header2, source2};
     long long headerLastModifiedTime = 100;
     long long headerLastModifiedTime2 = 110;

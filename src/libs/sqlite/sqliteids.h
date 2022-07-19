@@ -27,6 +27,7 @@
 
 #include <utils/span.h>
 
+#include <type_traits>
 #include <vector>
 
 namespace Sqlite {
@@ -35,15 +36,19 @@ template<auto Type, typename InternalIntegerType = long long>
 class BasicId
 {
 public:
+    using IsBasicId = std::true_type;
     using DatabaseType = InternalIntegerType;
 
     constexpr explicit BasicId() = default;
 
     constexpr BasicId(const char *) = delete;
 
-    constexpr explicit BasicId(InternalIntegerType id)
-        : id{id}
-    {}
+    static constexpr BasicId create(InternalIntegerType idNumber)
+    {
+        BasicId id;
+        id.id = idNumber;
+        return id;
+    }
 
     constexpr friend bool operator==(BasicId first, BasicId second)
     {
@@ -71,7 +76,7 @@ public:
 
     InternalIntegerType operator&() const { return id; }
 
-public:
+private:
     InternalIntegerType id = -1;
 };
 

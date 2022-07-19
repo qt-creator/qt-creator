@@ -36,11 +36,6 @@ public:
         , id(id)
     {}
 
-    StorageCacheEntry(ViewType value, typename IndexType::DatabaseType id)
-        : value(value)
-        , id{id}
-    {}
-
     operator ViewType() const noexcept { return value; }
     friend bool operator==(const StorageCacheEntry &first, const StorageCacheEntry &second)
     {

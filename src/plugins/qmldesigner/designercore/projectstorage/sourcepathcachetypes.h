@@ -57,11 +57,6 @@ public:
 class SourceNameEntry
 {
 public:
-    SourceNameEntry(Utils::SmallStringView sourceName, int sourceContextId)
-        : sourceName(sourceName)
-        , sourceContextId(sourceContextId)
-    {}
-
     SourceNameEntry(Utils::SmallStringView sourceName, SourceContextId sourceContextId)
         : sourceName(sourceName)
         , sourceContextId(sourceContextId)
@@ -129,10 +124,6 @@ public:
         : Base{{sourceName, sourceContextId}, sourceId}
     {}
 
-    Source(Utils::SmallStringView sourceName, int sourceContextId, int sourceId)
-        : Base{{sourceName, SourceContextId{sourceContextId}}, SourceId{sourceId}}
-    {}
-
     friend bool operator==(const Source &first, const Source &second)
     {
         return first.id == second.id && first.value == second.value;
@@ -145,10 +136,7 @@ class SourceNameAndSourceContextId
 {
 public:
     constexpr SourceNameAndSourceContextId() = default;
-    SourceNameAndSourceContextId(Utils::SmallStringView sourceName, int sourceContextId)
-        : sourceName(sourceName)
-        , sourceContextId(sourceContextId)
-    {}
+
     SourceNameAndSourceContextId(Utils::SmallStringView sourceName, SourceContextId sourceContextId)
         : sourceName{sourceName}
         , sourceContextId{sourceContextId}

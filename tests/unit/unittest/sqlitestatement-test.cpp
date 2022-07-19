@@ -1162,6 +1162,11 @@ TEST_F(SqliteStatement, GetValueCallsReset)
 {
     struct Value
     {
+        Value() = default;
+        Value(int x)
+            : x(x)
+        {}
+
         int x = 0;
     };
     MockSqliteStatement<1, 1> mockStatement{databaseMock};
@@ -1175,6 +1180,11 @@ TEST_F(SqliteStatement, GetValueCallsResetIfExceptionIsThrown)
 {
     struct Value
     {
+        Value() = default;
+        Value(int x)
+            : x(x)
+        {}
+
         int x = 0;
     };
     MockSqliteStatement<1, 1> mockStatement{databaseMock};

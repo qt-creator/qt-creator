@@ -41,12 +41,6 @@ public:
         , lastModified{lastModified}
     {}
 
-    explicit FileStatus(int sourceId, long long size, long long lastModified)
-        : sourceId{sourceId}
-        , size{size}
-        , lastModified{lastModified}
-    {}
-
     friend bool operator==(const FileStatus &first, const FileStatus &second)
     {
         return first.sourceId == second.sourceId && first.size == second.size

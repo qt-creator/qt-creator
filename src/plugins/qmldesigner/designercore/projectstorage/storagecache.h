@@ -269,7 +269,7 @@ public:
     {
         std::shared_lock<Mutex> sharedLock(m_mutex);
 
-        if (IndexType{static_cast<IndexDatabaseType>(m_indices.size())} > id) {
+        if (IndexType::create(static_cast<IndexDatabaseType>(m_indices.size())) > id) {
             if (auto indirectionIndex = m_indices.at(static_cast<std::size_t>(id));
                 indirectionIndex.isValid())
                 return m_entries.at(static_cast<std::size_t>(indirectionIndex)).value;

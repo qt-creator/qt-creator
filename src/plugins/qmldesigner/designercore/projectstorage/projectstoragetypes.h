@@ -174,7 +174,7 @@ public:
         , sourceId{sourceId}
     {}
 
-    explicit Import(int moduleId, int majorVersion, int minorVersion, int sourceId)
+    explicit Import(ModuleId moduleId, int majorVersion, int minorVersion, SourceId sourceId)
         : version{majorVersion, minorVersion}
         , moduleId{moduleId}
         , sourceId{sourceId}
@@ -205,7 +205,8 @@ class ImportView
 public:
     explicit ImportView() = default;
 
-    explicit ImportView(long long importId, int sourceId, int moduleId, int majorVersion, int minorVersion)
+    explicit ImportView(
+        ImportId importId, SourceId sourceId, ModuleId moduleId, int majorVersion, int minorVersion)
         : importId{importId}
         , sourceId{sourceId}
         , moduleId{moduleId}
@@ -272,9 +273,9 @@ class ModuleExportedImportView
 public:
     explicit ModuleExportedImportView() = default;
 
-    explicit ModuleExportedImportView(long long moduleExportedImportId,
-                                      int moduleId,
-                                      int exportedModuleId,
+    explicit ModuleExportedImportView(ModuleExportedImportId moduleExportedImportId,
+                                      ModuleId moduleId,
+                                      ModuleId exportedModuleId,
                                       int majorVersion,
                                       int minorVersion,
                                       int isAutoVersion)
@@ -360,7 +361,7 @@ public:
         , moduleId{moduleId}
     {}
 
-    explicit ExportedType(int moduleId, Utils::SmallStringView name, int majorVersion, int minorVersion)
+    explicit ExportedType(ModuleId moduleId, Utils::SmallStringView name, int majorVersion, int minorVersion)
         : name{name}
         , version{majorVersion, minorVersion}
         , moduleId{moduleId}
@@ -395,12 +396,12 @@ public:
         , version{version}
         , moduleId{moduleId}
     {}
-    explicit ExportedTypeView(int moduleId,
+    explicit ExportedTypeView(ModuleId moduleId,
                               Utils::SmallStringView name,
                               int majorVersion,
                               int minorVersion,
-                              int typeId,
-                              long long exportedTypeNameId)
+                              TypeId typeId,
+                              ExportedTypeNameId exportedTypeNameId)
         : name{name}
         , version{majorVersion, minorVersion}
         , typeId{typeId}
@@ -475,7 +476,7 @@ public:
     explicit EnumerationDeclarationView() = default;
     explicit EnumerationDeclarationView(Utils::SmallStringView name,
                                         Utils::SmallStringView enumeratorDeclarations,
-                                        long long id)
+                                        EnumerationDeclarationId id)
         : name{name}
         , enumeratorDeclarations{std::move(enumeratorDeclarations)}
         , id{id}
@@ -550,7 +551,7 @@ public:
     explicit SignalDeclarationView() = default;
     explicit SignalDeclarationView(Utils::SmallStringView name,
                                    Utils::SmallStringView signature,
-                                   long long id)
+                                   SignalDeclarationId id)
         : name{name}
         , signature{signature}
         , id{id}
@@ -601,7 +602,7 @@ public:
     explicit FunctionDeclarationView(Utils::SmallStringView name,
                                      Utils::SmallStringView returnTypeName,
                                      Utils::SmallStringView signature,
-                                     long long id)
+                                     FunctionDeclarationId id)
         : name{name}
         , returnTypeName{returnTypeName}
         , signature{signature}
@@ -667,7 +668,7 @@ public:
     {}
 
     explicit PropertyDeclaration(Utils::SmallStringView name,
-                                 long long propertyTypeId,
+                                 TypeId propertyTypeId,
                                  int traits,
                                  Utils::SmallStringView aliasPropertyName,
                                  Utils::SmallStringView aliasPropertyNameTail = {})
@@ -718,10 +719,10 @@ class PropertyDeclarationView
 public:
     explicit PropertyDeclarationView(Utils::SmallStringView name,
                                      int traits,
-                                     long long typeId,
-                                     long long typeNameId,
-                                     long long id,
-                                     long long aliasId)
+                                     TypeId typeId,
+                                     ImportedTypeNameId typeNameId,
+                                     PropertyDeclarationId id,
+                                     PropertyDeclarationId aliasId)
         : name{name}
         , traits{static_cast<PropertyDeclarationTraits>(traits)}
         , typeId{typeId}
@@ -794,7 +795,7 @@ public:
     explicit Type(Utils::SmallStringView typeName,
                   Utils::SmallStringView prototype,
                   int accessSemantics,
-                  int sourceId)
+                  SourceId sourceId)
         : typeName{typeName}
         , prototype{ImportedType{prototype}}
         , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
@@ -802,10 +803,10 @@ public:
 
     {}
 
-    explicit Type(int sourceId,
+    explicit Type(SourceId sourceId,
                   Utils::SmallStringView typeName,
-                  long long typeId,
-                  long long prototypeId,
+                  TypeId typeId,
+                  TypeId prototypeId,
                   int accessSemantics,
                   Utils::SmallStringView defaultPropertyName)
         : typeName{typeName}
@@ -855,7 +856,7 @@ public:
         , fileType{fileType}
     {}
 
-    ProjectData(int projectSourceId, int sourceId, int moduleId, int fileType)
+    ProjectData(SourceId projectSourceId, SourceId sourceId, ModuleId moduleId, int fileType)
         : projectSourceId{projectSourceId}
         , sourceId{sourceId}
         , moduleId{moduleId}
@@ -938,10 +939,7 @@ namespace QmlDesigner::Storage::Info {
 class PropertyDeclaration
 {
 public:
-    PropertyDeclaration(long long typeId,
-                        Utils::SmallStringView name,
-                        long long traits,
-                        long long propertyTypeId)
+    PropertyDeclaration(TypeId typeId, Utils::SmallStringView name, long long traits, TypeId propertyTypeId)
         : typeId{typeId}
         , name{name}
         , traits{static_cast<PropertyDeclarationTraits>(traits)}
@@ -967,11 +965,6 @@ public:
 class Type
 {
 public:
-    Type(long long defaultPropertyId)
-        : defaultPropertyId{defaultPropertyId}
-
-    {}
-
     Type(PropertyDeclarationId defaultPropertyId)
         : defaultPropertyId{defaultPropertyId}
     {}

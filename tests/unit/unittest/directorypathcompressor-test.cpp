@@ -47,8 +47,8 @@ protected:
     NiceMock<MockFunction<void(const SourceContextIds &sourceContextIds)>> mockCompressorCallback;
     QmlDesigner::DirectoryPathCompressor<NiceMock<MockTimer>> compressor;
     NiceMock<MockTimer> &mockTimer = compressor.timer();
-    SourceContextId sourceContextId1{1};
-    SourceContextId sourceContextId2{2};
+    SourceContextId sourceContextId1{SourceContextId::create(1)};
+    SourceContextId sourceContextId2{SourceContextId::create(2)};
 };
 
 TEST_F(DirectoryPathCompressor, AddFilePath)

@@ -519,14 +519,6 @@ private:
             , importedTypeNameId{std::move(importedTypeNameId)}
         {}
 
-        explicit PropertyDeclaration(long long typeId,
-                                     long long propertyDeclarationId,
-                                     long long importedTypeNameId)
-            : typeId{typeId}
-            , propertyDeclarationId{propertyDeclarationId}
-            , importedTypeNameId{importedTypeNameId}
-        {}
-
         friend bool operator<(const PropertyDeclaration &first, const PropertyDeclaration &second)
         {
             return std::tie(first.typeId, first.propertyDeclarationId)
@@ -876,15 +868,15 @@ private:
     void handleAliasPropertyDeclarationsWithPropertyType(
         TypeId typeId, AliasPropertyDeclarations &relinkableAliasPropertyDeclarations)
     {
-        auto callback = [&](long long typeId,
-                            long long propertyDeclarationId,
-                            long long propertyImportedTypeNameId,
-                            long long aliasPropertyDeclarationId,
-                            long long aliasPropertyDeclarationTailId) {
+        auto callback = [&](TypeId typeId,
+                            PropertyDeclarationId propertyDeclarationId,
+                            ImportedTypeNameId propertyImportedTypeNameId,
+                            PropertyDeclarationId aliasPropertyDeclarationId,
+                            PropertyDeclarationId aliasPropertyDeclarationTailId) {
             auto aliasPropertyName = selectPropertyNameStatement.template value<Utils::SmallString>(
                 aliasPropertyDeclarationId);
             Utils::SmallString aliasPropertyNameTail;
-            if (aliasPropertyDeclarationTailId != -1)
+            if (aliasPropertyDeclarationTailId)
                 aliasPropertyNameTail = selectPropertyNameStatement.template value<Utils::SmallString>(
                     aliasPropertyDeclarationTailId);
 
@@ -901,7 +893,7 @@ private:
         };
 
         selectAliasPropertiesDeclarationForPropertiesWithTypeIdStatement.readCallback(callback,
-                                                                                      &typeId);
+                                                                                      typeId);
     }
 
     void handlePropertyDeclarationWithPropertyType(TypeId typeId,
@@ -913,8 +905,8 @@ private:
 
     void handlePrototypes(TypeId prototypeId, Prototypes &relinkablePrototypes)
     {
-        auto callback = [&](long long typeId, long long prototypeNameId) {
-            relinkablePrototypes.emplace_back(TypeId{typeId}, ImportedTypeNameId{prototypeNameId});
+        auto callback = [&](TypeId typeId, ImportedTypeNameId prototypeNameId) {
+            relinkablePrototypes.emplace_back(typeId, prototypeNameId);
 
             return Sqlite::CallbackControl::Continue;
         };
@@ -1017,9 +1009,9 @@ private:
                                Prototypes &relinkablePrototypes,
                                TypeIds &deletedTypeIds)
     {
-        auto callback = [&](long long typeId) {
-            deletedTypeIds.push_back(TypeId{typeId});
-            deleteType(TypeId{typeId},
+        auto callback = [&](TypeId typeId) {
+            deletedTypeIds.push_back(typeId);
+            deleteType(typeId,
                        relinkableAliasPropertyDeclarations,
                        relinkablePropertyDeclarations,
                        relinkablePrototypes);
@@ -1030,7 +1022,7 @@ private:
                                                              toIntegers(updatedSourceIds),
                                                              toIntegers(updatedTypeIds));
         for (TypeId typeIdToBeDeleted : typeIdsToBeDeleted)
-            callback(&typeIdToBeDeleted);
+            callback(typeIdToBeDeleted);
     }
 
     void relink(AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
@@ -1207,9 +1199,9 @@ private:
         SourceId sourceId,
         TypeId typeId)
     {
-        auto callback = [&](long long propertyDeclarationId) {
+        auto callback = [&](PropertyDeclarationId propertyDeclarationId) {
             insertedAliasPropertyDeclarations.emplace_back(typeId,
-                                                           PropertyDeclarationId{propertyDeclarationId},
+                                                           propertyDeclarationId,
                                                            fetchImportedTypeNameId(value.typeName,
                                                                                    sourceId),
                                                            value.aliasPropertyName,
@@ -1365,8 +1357,8 @@ private:
         {
         public:
             explicit AliasPropertyDeclarationView(Utils::SmallStringView name,
-                                                  long long id,
-                                                  long long aliasId)
+                                                  PropertyDeclarationId id,
+                                                  PropertyDeclarationId aliasId)
                 : name{name}
                 , id{id}
                 , aliasId{aliasId}
@@ -1481,12 +1473,12 @@ private:
 
         auto insert = [&](const Storage::Synchronization::Import &import) {
             insertDocumentImport(import, importKind, import.moduleId, ModuleExportedImportId{});
-            auto callback = [&](int exportedModuleId,
+            auto callback = [&](ModuleId exportedModuleId,
                                 int majorVersion,
                                 int minorVersion,
-                                long long moduleExportedImportId) {
+                                ModuleExportedImportId moduleExportedImportId) {
                 Storage::Synchronization::Import additionImport{
-                    ModuleId{exportedModuleId},
+                    exportedModuleId,
                     Storage::Synchronization::Version{majorVersion, minorVersion},
                     import.sourceId};
 
@@ -1497,7 +1489,7 @@ private:
                 insertDocumentImport(additionImport,
                                      exportedImportKind,
                                      import.moduleId,
-                                     ModuleExportedImportId{moduleExportedImportId});
+                                     moduleExportedImportId);
 
                 return Sqlite::CallbackControl::Continue;
             };
@@ -1812,7 +1804,7 @@ private:
     class TypeWithDefaultPropertyView
     {
     public:
-        TypeWithDefaultPropertyView(long long typeId, long long defaultPropertyId)
+        TypeWithDefaultPropertyView(TypeId typeId, PropertyDeclarationId defaultPropertyId)
             : typeId{typeId}
             , defaultPropertyId{defaultPropertyId}
         {}
@@ -1893,8 +1885,8 @@ private:
 
     void checkForPrototypeChainCycle(TypeId typeId) const
     {
-        auto callback = [=](long long currentTypeId) {
-            if (typeId == TypeId{currentTypeId})
+        auto callback = [=](TypeId currentTypeId) {
+            if (typeId == currentTypeId)
                 throw PrototypeChainCycle{};
 
             return Sqlite::CallbackControl::Continue;
@@ -1905,8 +1897,8 @@ private:
 
     void checkForAliasChainCycle(PropertyDeclarationId propertyDeclarationId) const
     {
-        auto callback = [=](long long currentPropertyDeclarationId) {
-            if (propertyDeclarationId == PropertyDeclarationId{currentPropertyDeclarationId})
+        auto callback = [=](PropertyDeclarationId currentPropertyDeclarationId) {
+            if (propertyDeclarationId == currentPropertyDeclarationId)
                 throw AliasChainCycle{};
 
             return Sqlite::CallbackControl::Continue;
@@ -2032,8 +2024,8 @@ private:
     class FetchPropertyDeclarationResult
     {
     public:
-        FetchPropertyDeclarationResult(long long propertyTypeId,
-                                       long long propertyDeclarationId,
+        FetchPropertyDeclarationResult(TypeId propertyTypeId,
+                                       PropertyDeclarationId propertyDeclarationId,
                                        long long propertyTraits)
             : propertyTypeId{propertyTypeId}
             , propertyDeclarationId{propertyDeclarationId}
@@ -2087,14 +2079,14 @@ private:
     {
         insertIntoSourceContextsStatement.write(sourceContextPath);
 
-        return SourceContextId(database.lastInsertedRowId());
+        return SourceContextId::create(database.lastInsertedRowId());
     }
 
     SourceId writeSourceId(SourceContextId sourceContextId, Utils::SmallStringView sourceName)
     {
         insertIntoSourcesStatement.write(sourceContextId, sourceName);
 
-        return SourceId(database.lastInsertedRowId());
+        return SourceId::create(database.lastInsertedRowId());
     }
 
     SourceId readSourceId(SourceContextId sourceContextId, Utils::SmallStringView sourceName)
@@ -2121,7 +2113,7 @@ private:
 
         auto callback = [&](Utils::SmallStringView name,
                             Utils::SmallStringView returnType,
-                            long long functionDeclarationId) {
+                            FunctionDeclarationId functionDeclarationId) {
             auto &functionDeclaration = functionDeclarations.emplace_back(name, returnType);
             functionDeclaration.parameters = selectFunctionParameterDeclarationsStatement.template values<
                 Storage::Synchronization::ParameterDeclaration>(8, functionDeclarationId);
@@ -2138,7 +2130,7 @@ private:
     {
         Storage::Synchronization::SignalDeclarations signalDeclarations;
 
-        auto callback = [&](Utils::SmallStringView name, long long signalDeclarationId) {
+        auto callback = [&](Utils::SmallStringView name, SignalDeclarationId signalDeclarationId) {
             auto &signalDeclaration = signalDeclarations.emplace_back(name);
             signalDeclaration.parameters = selectSignalParameterDeclarationsStatement.template values<
                 Storage::Synchronization::ParameterDeclaration>(8, signalDeclarationId);
@@ -2155,7 +2147,8 @@ private:
     {
         Storage::Synchronization::EnumerationDeclarations enumerationDeclarations;
 
-        auto callback = [&](Utils::SmallStringView name, long long enumerationDeclarationId) {
+        auto callback = [&](Utils::SmallStringView name,
+                            EnumerationDeclarationId enumerationDeclarationId) {
             enumerationDeclarations.emplace_back(
                 name,
                 selectEnumeratorDeclarationStatement.template values<

@@ -96,10 +96,10 @@ public:
     void bind(int index, ValueView value);
     void bind(int index, BlobView blobView);
 
-    template<auto Type, typename InternalIntergerType>
-    void bind(int index, BasicId<Type, InternalIntergerType> id)
+    template<typename Type, typename = std::enable_if_t<Type::IsBasicId::value>>
+    void bind(int index, Type id)
     {
-        bind(index, id.id);
+        bind(index, &id);
     }
 
     void bind(int index, uint value) { bind(index, static_cast<long long>(value)); }
@@ -452,13 +452,23 @@ private:
             , column(column)
         {}
 
-        operator int() { return statement.fetchIntValue(column); }
-        operator long() { return statement.fetchLongValue(column); }
-        operator long long() { return statement.fetchLongLongValue(column); }
-        operator double() { return statement.fetchDoubleValue(column); }
+        operator int() const { return statement.fetchIntValue(column); }
+        operator long() const { return statement.fetchLongValue(column); }
+        operator long long() const { return statement.fetchLongLongValue(column); }
+        operator double() const { return statement.fetchDoubleValue(column); }
         operator Utils::SmallStringView() { return statement.fetchSmallStringViewValue(column); }
         operator BlobView() { return statement.fetchBlobValue(column); }
         operator ValueView() { return statement.fetchValueView(column); }
+
+        template<typename ConversionType,
+                 typename = std::enable_if_t<ConversionType::IsBasicId::value>>
+        constexpr operator ConversionType()
+        {
+            if constexpr (std::is_same_v<typename ConversionType::DatabaseType, int>)
+                return ConversionType::create(statement.fetchIntValue(column));
+            else
+                return ConversionType::create(statement.fetchLongLongValue(column));
+        }
 
         StatementImplementation &statement;
         int column;
@@ -491,7 +501,7 @@ private:
     template<typename ResultType, int... ColumnIndices>
     ResultType createValue(std::integer_sequence<int, ColumnIndices...>)
     {
-        return ResultType{ValueGetter(*this, ColumnIndices)...};
+        return ResultType(ValueGetter(*this, ColumnIndices)...);
     }
 
     template<typename ResultType>
