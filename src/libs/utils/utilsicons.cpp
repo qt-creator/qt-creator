@@ -88,6 +88,8 @@ const Icon SNAPSHOT_TOOLBAR({
 const Icon NEWSEARCH_TOOLBAR({
         {":/utils/images/zoom.png", Theme::IconsBaseColor},
         {":/utils/images/iconoverlay_add_small.png", Theme::IconsRunColor}});
+const Icon SETTINGS({
+        {":/utils/images/settings.png", Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon SETTINGS_TOOLBAR({
         {":/utils/images/settings.png", Theme::IconsBaseColor}});
 
