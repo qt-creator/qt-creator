@@ -964,4 +964,19 @@ public:
     TypeId propertyTypeId;
 };
 
+class Type
+{
+public:
+    Type(long long defaultPropertyId)
+        : defaultPropertyId{defaultPropertyId}
+
+    {}
+
+    Type(PropertyDeclarationId defaultPropertyId)
+        : defaultPropertyId{defaultPropertyId}
+    {}
+
+    PropertyDeclarationId defaultPropertyId;
+};
+
 } // namespace QmlDesigner::Storage::Info

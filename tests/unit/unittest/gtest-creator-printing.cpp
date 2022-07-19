@@ -554,7 +554,12 @@ std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyD
     using Utils::operator<<;
     return out << "(\"" << propertyDeclaration.typeId << "\", " << propertyDeclaration.name << ", "
                << propertyDeclaration.typeId << ", " << propertyDeclaration.traits << ", "
-               << propertyDeclaration.propertyTypeId << "\")";
+               << propertyDeclaration.propertyTypeId << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const Type &type)
+{
+    return out << "(" << type.defaultPropertyId << ")";
 }
 } // namespace Storage::Info
 

@@ -247,6 +247,16 @@ MATCHER(StringsAreSorted, std::string(negation ? "isn't sorted" : "is sorted"))
     });
 }
 
+MATCHER_P(IsInfoType,
+          defaultPropertyId,
+          std::string(negation ? "isn't " : "is ")
+              + PrintToString(Storage::Info::Type{defaultPropertyId}))
+{
+    const Storage::Info::Type &type = arg;
+
+    return type.defaultPropertyId == defaultPropertyId;
+}
+
 class ProjectStorage : public testing::Test
 {
 protected:
@@ -347,7 +357,9 @@ protected:
              Storage::Synchronization::EnumerationDeclaration{
                  "Type",
                  {Storage::Synchronization::EnumeratorDeclaration{"Foo"},
-                  Storage::Synchronization::EnumeratorDeclaration{"Poo", 12}}}}});
+                  Storage::Synchronization::EnumeratorDeclaration{"Poo", 12}}}},
+            Storage::Synchronization::ChangeLevel::Full,
+            "data"});
         package.types.push_back(Storage::Synchronization::Type{
             "QObject",
             Storage::Synchronization::ImportedType{},
@@ -5948,6 +5960,19 @@ TEST_F(ProjectStorage, SynchronizeMoveTheDefaultPropertyToThePrototypeProperty)
     ASSERT_THAT(storage.fetchTypes(),
                 ElementsAre(Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("children")),
                             _));
+}
+
+TEST_F(ProjectStorage, GetType)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QQuickItem");
+    auto defaultPropertyName = storage.fetchTypeByTypeId(typeId).defaultPropertyName;
+    auto defaultPropertyId = storage.propertyDeclarationId(typeId, defaultPropertyName);
+
+    auto type = storage.type(typeId);
+
+    ASSERT_THAT(type, Optional(IsInfoType(defaultPropertyId)));
 }
 
 } // namespace

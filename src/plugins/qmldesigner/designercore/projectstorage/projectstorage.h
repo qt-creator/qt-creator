@@ -184,6 +184,12 @@ public:
                 &propertyDeclarationId);
     }
 
+    Utils::optional<Storage::Info::Type> type(TypeId typeId)
+    {
+        return selectInfoTypeByTypeIdStatement.template optionalValueWithTransaction<Storage::Info::Type>(
+            &typeId);
+    }
+
     std::vector<Utils::SmallString> signalDeclarationNames(TypeId typeId) const
     {
         return selectSignalDeclarationNamesForTypeStatement
@@ -233,6 +239,10 @@ public:
         auto type = selectTypeByTypeIdStatement.template value<Storage::Synchronization::Type>(&typeId);
 
         type.exportedTypes = fetchExportedTypes(typeId);
+        type.propertyDeclarations = fetchPropertyDeclarations(type.typeId);
+        type.functionDeclarations = fetchFunctionDeclarations(type.typeId);
+        type.signalDeclarations = fetchSignalDeclarations(type.typeId);
+        type.enumerationDeclarations = fetchEnumerationDeclarations(type.typeId);
 
         transaction.commit();
 
@@ -2588,8 +2598,11 @@ public:
         "INSERT INTO sources(sourceContextId, sourceName) VALUES (?,?)", database};
     mutable ReadStatement<3> selectAllSourcesStatement{
         "SELECT sourceName, sourceContextId, sourceId  FROM sources", database};
-    mutable ReadStatement<4, 1> selectTypeByTypeIdStatement{
-        "SELECT sourceId, name, prototypeId, accessSemantics FROM types WHERE typeId=?", database};
+    mutable ReadStatement<6, 1> selectTypeByTypeIdStatement{
+        "SELECT sourceId, t.name, t.typeId, ifnull(prototypeId, -1), accessSemantics, pd.name "
+        "FROM types AS t LEFT JOIN propertyDeclarations AS pd "
+        "  ON defaultPropertyId=propertyDeclarationId WHERE t.typeId=?",
+        database};
     mutable ReadStatement<4, 1> selectExportedTypesByTypeIdStatement{
         "SELECT moduleId, name, ifnull(majorVersion, -1), ifnull(minorVersion, -1) FROM "
         "exportedTypeNames WHERE typeId=?",
@@ -3077,6 +3090,8 @@ public:
         "UPDATE types SET defaultPropertyId=nullif(?2, -1) WHERE typeId=?1", database};
     WriteStatement<1> updateDefaultPropertyIdToNullStatement{
         "UPDATE types SET defaultPropertyId=NULL WHERE defaultPropertyId=?1", database};
+    mutable ReadStatement<1, 1> selectInfoTypeByTypeIdStatement{
+        "SELECT defaultPropertyId FROM types WHERE typeId=?", database};
 };
 extern template class ProjectStorage<Sqlite::Database>;
 } // namespace QmlDesigner

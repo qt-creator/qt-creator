@@ -161,7 +161,11 @@ std::ostream &operator<<(std::ostream &out, PropertyDeclarationTraits traits);
 
 namespace Storage::Info {
 class ProjectDeclaration;
+class Type;
+
 std::ostream &operator<<(std::ostream &out, const ProjectDeclaration &declaration);
+std::ostream &operator<<(std::ostream &out, const Type &type);
+
 } // namespace Storage::Info
 
 namespace Storage::Synchronization {
