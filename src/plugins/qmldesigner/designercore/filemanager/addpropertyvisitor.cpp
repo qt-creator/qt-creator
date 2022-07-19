@@ -155,8 +155,14 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
         Q_ASSERT(!"unknown property type");
     }
 
-    if (!m_dynamicTypeName.isEmpty())
-        newPropertyTemplate.prepend(QStringLiteral("property %1 ").arg(QString::fromUtf8(m_dynamicTypeName)));
+    if (!m_dynamicTypeName.isEmpty()) {
+        if (m_dynamicTypeName == "signal") {
+            newPropertyTemplate = "signal %1%2";
+        } else {
+            newPropertyTemplate.prepend(
+                QStringLiteral("property %1 ").arg(QString::fromUtf8(m_dynamicTypeName)));
+        }
+    }
 
     if (isOneLiner) {
         if (needsPreceedingSemicolon)

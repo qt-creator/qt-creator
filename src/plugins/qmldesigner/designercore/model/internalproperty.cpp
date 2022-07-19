@@ -107,6 +107,11 @@ bool InternalProperty::isSignalHandlerProperty() const
     return false;
 }
 
+bool InternalProperty::isSignalDeclarationProperty() const
+{
+    return false;
+}
+
 QSharedPointer<InternalVariantProperty> InternalProperty::toVariantProperty() const
 
 {
@@ -141,6 +146,12 @@ QSharedPointer<InternalSignalHandlerProperty> InternalProperty::toSignalHandlerP
 {
     Q_ASSERT(internalPointer().dynamicCast<InternalSignalHandlerProperty>());
     return internalPointer().staticCast<InternalSignalHandlerProperty>();
+}
+
+QSharedPointer<InternalSignalDeclarationProperty> InternalProperty::toSignalDeclarationProperty() const
+{
+    Q_ASSERT(internalPointer().dynamicCast<InternalSignalDeclarationProperty>());
+    return internalPointer().staticCast<InternalSignalDeclarationProperty>();
 }
 
 void InternalProperty::remove()

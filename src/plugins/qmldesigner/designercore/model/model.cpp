@@ -843,6 +843,22 @@ void ModelPrivate::notifySignalHandlerPropertiesChanged(
     });
 }
 
+void ModelPrivate::notifySignalDeclarationPropertiesChanged(
+    const QVector<InternalSignalDeclarationPropertyPointer> &internalPropertyList,
+    AbstractView::PropertyChangeFlags propertyChange)
+{
+    notifyNodeInstanceViewLast([&](AbstractView *view) {
+        QVector<SignalDeclarationProperty> propertyList;
+        for (const InternalSignalDeclarationPropertyPointer &signalHandlerProperty : internalPropertyList) {
+            propertyList.append(SignalDeclarationProperty(signalHandlerProperty->name(),
+                                                      signalHandlerProperty->propertyOwner(),
+                                                      m_model,
+                                                      view));
+        }
+        view->signalDeclarationPropertiesChanged(propertyList, propertyChange);
+    });
+}
+
 void ModelPrivate::notifyScriptFunctionsChanged(const InternalNodePointer &node,
                                                 const QStringList &scriptFunctionList)
 {
@@ -1098,6 +1114,19 @@ void ModelPrivate::setSignalHandlerProperty(const InternalNodePointer &node, con
     InternalSignalHandlerPropertyPointer signalHandlerProperty = node->signalHandlerProperty(name);
     signalHandlerProperty->setSource(source);
     notifySignalHandlerPropertiesChanged({signalHandlerProperty}, propertyChange);
+}
+
+void ModelPrivate::setSignalDeclarationProperty(const InternalNodePointer &node, const PropertyName &name, const QString &signature)
+{
+    AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
+    if (!node->hasProperty(name)) {
+        node->addSignalDeclarationProperty(name);
+        propertyChange = AbstractView::PropertiesAdded;
+    }
+
+    InternalSignalDeclarationPropertyPointer signalDeclarationProperty = node->signalDeclarationProperty(name);
+    signalDeclarationProperty->setSignature(signature);
+    notifySignalDeclarationPropertiesChanged({signalDeclarationProperty}, propertyChange);
 }
 
 void ModelPrivate::setVariantProperty(const InternalNodePointer &node, const PropertyName &name, const QVariant &value)

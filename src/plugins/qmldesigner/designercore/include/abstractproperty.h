@@ -51,6 +51,7 @@ class QMLDESIGNERCORE_EXPORT NodeAbstractProperty;
 class QMLDESIGNERCORE_EXPORT BindingProperty;
 class QMLDESIGNERCORE_EXPORT NodeProperty;
 class QMLDESIGNERCORE_EXPORT SignalHandlerProperty;
+class QMLDESIGNERCORE_EXPORT SignalDeclarationProperty;
 class QmlObjectNode;
 
 
@@ -88,6 +89,7 @@ public:
     BindingProperty toBindingProperty() const;
     NodeProperty toNodeProperty() const;
     SignalHandlerProperty toSignalHandlerProperty() const;
+    SignalDeclarationProperty toSignalDeclarationProperty() const;
 
     bool isVariantProperty() const;
     bool isNodeListProperty() const;
@@ -95,6 +97,7 @@ public:
     bool isBindingProperty() const;
     bool isNodeProperty() const;
     bool isSignalHandlerProperty() const;
+    bool isSignalDeclarationProperty() const;
 
     bool isDynamic() const;
     TypeName dynamicTypeName() const;

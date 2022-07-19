@@ -51,5 +51,26 @@ private:
     QString m_source;
 };
 
+class InternalSignalDeclarationProperty : public InternalProperty
+{
+public:
+    using Pointer = QSharedPointer<InternalSignalDeclarationProperty>;
+
+    static Pointer create(const PropertyName &name, const InternalNodePointer &propertyOwner);
+
+    bool isValid() const override;
+
+    QString signature() const;
+    void setSignature(const QString &source);
+
+    bool isSignalDeclarationProperty() const override;
+
+protected:
+    InternalSignalDeclarationProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
+
+private:
+    QString m_signature;
+};
+
 } // namespace Internal
 } // namespace QmlDesigner

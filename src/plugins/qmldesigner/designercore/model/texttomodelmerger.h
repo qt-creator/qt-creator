@@ -107,6 +107,9 @@ public:
                            const QList<QmlJS::AST::UiObjectMember *> &arrayMembers,
                            ReadingContext *context,
                            DifferenceHandler &differenceHandler);
+    void syncSignalDeclarationProperty(AbstractProperty &modelProperty,
+                            const QString &signature,
+                            DifferenceHandler &differenceHandler);
     void syncVariantProperty(AbstractProperty &modelProperty,
                              const QVariant &astValue,
                              const TypeName &astType,
@@ -187,11 +190,15 @@ public:
                                           const TypeName &astType) = 0;
     virtual void signalHandlerSourceDiffer(SignalHandlerProperty &modelProperty,
                                           const QString &javascript) = 0;
+    virtual void signalDeclarationSignatureDiffer(SignalDeclarationProperty &modelProperty,
+                                                       const QString &signature) = 0;
     virtual void shouldBeBindingProperty(AbstractProperty &modelProperty,
                                          const QString &javascript,
                                          const TypeName &astType) = 0;
     virtual void shouldBeSignalHandlerProperty(AbstractProperty &modelProperty,
                                          const QString &javascript) = 0;
+    virtual void shouldBeSignalDeclarationProperty(AbstractProperty &modelProperty,
+                                               const QString &signature) = 0;
     virtual void shouldBeNodeListProperty(AbstractProperty &modelProperty,
                                           const QList<QmlJS::AST::UiObjectMember *> arrayMembers,
                                           ReadingContext *context) = 0;
@@ -241,6 +248,10 @@ public:
                                  const TypeName &astType) override;
     void signalHandlerSourceDiffer(SignalHandlerProperty &modelProperty,
                                    const QString &javascript) override;
+    void signalDeclarationSignatureDiffer(SignalDeclarationProperty &modelProperty,
+                                          const QString &signature) override;
+    void shouldBeSignalDeclarationProperty(AbstractProperty &modelProperty,
+                                           const QString &signature) override;
     void shouldBeSignalHandlerProperty(AbstractProperty &modelProperty,
                                        const QString &javascript) override;
     void shouldBeNodeListProperty(AbstractProperty &modelProperty,
@@ -290,6 +301,10 @@ public:
                                  const TypeName &astType) override;
     void signalHandlerSourceDiffer(SignalHandlerProperty &modelProperty,
                                    const QString &javascript) override;
+    void signalDeclarationSignatureDiffer(SignalDeclarationProperty &modelProperty,
+                                          const QString &signature) override;
+    void shouldBeSignalDeclarationProperty(AbstractProperty &modelProperty,
+                                           const QString &signature) override;
     void shouldBeSignalHandlerProperty(AbstractProperty &modelProperty,
                                        const QString &javascript) override;
     void shouldBeNodeListProperty(AbstractProperty &modelProperty,

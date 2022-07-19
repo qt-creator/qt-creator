@@ -170,7 +170,8 @@ tst_TestCore::tst_TestCore()
     : QObject()
 {
     QLoggingCategory::setFilterRules(QStringLiteral("qtc.qmljs.imports=false"));
-    QLoggingCategory::setFilterRules(QStringLiteral("*.info=false\n*.debug=false\n*.warning=false"));
+    //QLoggingCategory::setFilterRules(QStringLiteral("*.info=false\n*.debug=false\n*.warning=false"));
+    QLoggingCategory::setFilterRules(QStringLiteral("*.warning=false"));
 }
 
 void tst_TestCore::initTestCase()
@@ -1273,6 +1274,7 @@ void tst_TestCore::testRewriterBehaivours()
     testRewriterView->setTextModifier(&modifier);
     model->attachView(testRewriterView.data());
 
+    //qDebug() << testRewriterView->errors().first().toString();
     QVERIFY(testRewriterView->errors().isEmpty());
 
     ModelNode rootModelNode = testRewriterView->rootModelNode();
@@ -1343,6 +1345,119 @@ void tst_TestCore::testRewriterBehaivours()
     newBehavior.destroy();
 
     QVERIFY(!newBehavior.isValid());
+}
+
+void tst_TestCore::testRewriterSignalDefinition()
+{
+    const QLatin1String qmlString("\n"
+                                  "import QtQuick 2.1\n"
+                                  "\n"
+                                  "Rectangle {\n"
+                                  "    id: root\n"
+                                  "    x: 10;\n"
+                                  "    y: 10;\n"
+                                  "    signal testSignal()\n"
+                                  "    signal testSignal2(float i)\n"
+                                  "    Rectangle {\n"
+                                  "        id: rectangle1\n"
+                                  "        x: 10;\n"
+                                  "        y: 10;\n"
+                                  "        signal testSignal\n"
+                                  "    }\n"
+                                  "}");
+
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(qmlString);
+    NotIndentingTextEditModifier modifier(&textEdit);
+
+    QScopedPointer<Model> model(Model::create("QtQuick.Text"));
+
+    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    testRewriterView->setTextModifier(&modifier);
+    model->attachView(testRewriterView.data());
+
+    QVERIFY(testRewriterView->errors().isEmpty());
+
+    ModelNode rootModelNode = testRewriterView->rootModelNode();
+    QVERIFY(rootModelNode.isValid());
+
+    QVERIFY(rootModelNode.hasProperty("testSignal"));
+    QVERIFY(rootModelNode.hasProperty("testSignal2"));
+
+    QVERIFY(rootModelNode.property("testSignal").isSignalDeclarationProperty());
+    QVERIFY(rootModelNode.signalDeclarationProperty("testSignal").isValid());
+    QCOMPARE(rootModelNode.signalDeclarationProperty("testSignal").signature(), "()");
+
+    QVERIFY(rootModelNode.property("testSignal2").isSignalDeclarationProperty());
+    QVERIFY(rootModelNode.signalDeclarationProperty("testSignal2").isValid());
+    QCOMPARE(rootModelNode.signalDeclarationProperty("testSignal2").signature(), "(float i)");
+
+    ModelNode rectangle = testRewriterView->modelNodeForId("rectangle1");
+    QVERIFY(rectangle.isValid());
+
+    QVERIFY(rectangle.hasProperty("testSignal"));
+
+    QVERIFY(rectangle.property("testSignal").isSignalDeclarationProperty());
+    QVERIFY(rectangle.signalDeclarationProperty("testSignal").isValid());
+    QCOMPARE(rectangle.signalDeclarationProperty("testSignal").signature(), "()");
+
+    rootModelNode.signalDeclarationProperty("addedSignal").setSignature("()");
+    rootModelNode.signalDeclarationProperty("addedSignal").setSignature("(real i)");
+
+    const QLatin1String expectedQmlCode(
+        "\nimport QtQuick 2.1\n\n"
+        "Rectangle {\n"
+        "    id: root\n"
+        "    x: 10;\n"
+        "    y: 10;\n"
+        "    signal addedSignal (real i)\n"
+        "    signal testSignal()\n"
+        "    signal testSignal2(float i)\n"
+        "    Rectangle {\n"
+        "        id: rectangle1\n"
+        "        x: 10;\n"
+        "        y: 10;\n"
+        "        signal testSignal\n"
+        "    }\n}");
+
+    QCOMPARE(textEdit.toPlainText(), expectedQmlCode);
+
+    rootModelNode.removeProperty("addedSignal");
+
+    const QLatin1String expectedQmlCode2(
+        "\nimport QtQuick 2.1\n\n"
+        "Rectangle {\n"
+        "    id: root\n"
+        "    x: 10;\n"
+        "    y: 10;\n"
+        "    signal testSignal()\n"
+        "    signal testSignal2(float i)\n"
+        "    Rectangle {\n"
+        "        id: rectangle1\n"
+        "        x: 10;\n"
+        "        y: 10;\n"
+        "        signal testSignal\n"
+        "    }\n}");
+
+    QCOMPARE(textEdit.toPlainText(), expectedQmlCode2);
+
+    testRewriterView->executeInTransaction("identifer", [rectangle](){
+        ModelNode newRectangle = rectangle.view()->createModelNode(rectangle.type(),
+                                                                   rectangle.majorVersion(),
+                                                                   rectangle.minorVersion());
+
+        QVERIFY(newRectangle.isValid());
+        newRectangle.signalDeclarationProperty("newSignal").setSignature("()");
+        newRectangle.setIdWithoutRefactoring("newRect");
+        newRectangle.view()->rootModelNode().defaultNodeListProperty().reparentHere(newRectangle);
+    });
+
+    const QString expectedQmlCode3
+        = expectedQmlCode2.chopped(1)
+          + QLatin1String("\n    Rectangle {\n    id: newRect\n    signal newSignal ()\n    }\n}");
+
+    QCOMPARE(textEdit.toPlainText(), expectedQmlCode3);
 }
 
 void tst_TestCore::testRewriterForGradientMagic()
@@ -6889,6 +7004,29 @@ void tst_TestCore::testModelChangeType()
                                   "}");
 
     QCOMPARE(textEdit.toPlainText(), expectedQmlCode2);
+}
+
+void tst_TestCore::testModelSignalDefinition()
+{
+    QScopedPointer<Model> model(createModel("QtQuick.Rectangle", 2, 0));
+    QVERIFY(model.data());
+
+    QScopedPointer<TestView> view(new TestView(model.data()));
+    QVERIFY(view.data());
+    model->attachView(view.data());
+
+    ModelNode rootModelNode(view->rootModelNode());
+    QVERIFY(rootModelNode.isValid());
+
+    QVERIFY(!rootModelNode.hasProperty("mySignal"));
+
+    rootModelNode.signalDeclarationProperty("mySignal").setSignature("()");
+
+    QVERIFY(rootModelNode.hasProperty("mySignal"));
+
+    QVERIFY(rootModelNode.signalDeclarationProperty("mySignal").isValid());
+    QVERIFY(rootModelNode.property("mySignal").isSignalDeclarationProperty());
+    QCOMPARE(rootModelNode.signalDeclarationProperty("mySignal").signature(), "()");
 }
 
 void tst_TestCore::testModelDefaultProperties()

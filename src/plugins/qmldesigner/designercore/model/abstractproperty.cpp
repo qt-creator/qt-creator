@@ -203,6 +203,19 @@ SignalHandlerProperty AbstractProperty::toSignalHandlerProperty() const
     return SignalHandlerProperty();
 }
 
+SignalDeclarationProperty AbstractProperty::toSignalDeclarationProperty() const
+{
+    if (!isValid())
+        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, m_propertyName);
+
+    SignalDeclarationProperty propertyNode(name(), internalNode(), model(), view());
+
+    if (propertyNode.isSignalDeclarationProperty())
+        return propertyNode;
+
+    return SignalDeclarationProperty();
+}
+
 NodeListProperty AbstractProperty::toNodeListProperty() const
 {
     if (!isValid())
@@ -307,6 +320,18 @@ bool AbstractProperty::isSignalHandlerProperty() const
     return false;
 }
 
+bool AbstractProperty::isSignalDeclarationProperty() const
+{
+    if (!isValid())
+        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, m_propertyName);
+
+    if (internalNode()->hasProperty(name())) {
+        Q_ASSERT(internalNode()->property(name()));
+        return internalNode()->property(name())->isSignalDeclarationProperty();
+    }
+
+    return false;
+}
 
 bool AbstractProperty::isBindingProperty() const
 {
