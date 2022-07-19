@@ -47,7 +47,7 @@
 
 #include <QDebug>
 #include <QFileInfo>
-#include <QFutureWatcher>
+#include <QFutureInterface>
 #include <QStringList>
 #include <QTextCodec>
 #include <QVariant>
@@ -81,12 +81,14 @@ class VcsCommandDecorator : public QObject
 {
 public:
     VcsCommandDecorator(ShellCommand *command);
+    ~VcsCommandDecorator();
 
 private:
     void addTask(const QFuture<void> &future);
     void postRunCommand(const FilePath &workingDirectory);
 
     ShellCommand *m_command;
+    QFutureInterface<void> m_futureInterface;
 };
 
 VcsCommandDecorator::VcsCommandDecorator(ShellCommand *command)
@@ -121,7 +123,13 @@ VcsCommandDecorator::VcsCommandDecorator(ShellCommand *command)
     connect(ICore::instance(), &ICore::coreAboutToClose, this, [this, connection] {
         disconnect(connection);
         m_command->abort();
-    });}
+    });
+}
+
+VcsCommandDecorator::~VcsCommandDecorator()
+{
+    m_futureInterface.reportFinished();
+}
 
 void VcsCommandDecorator::addTask(const QFuture<void> &future)
 {
@@ -133,18 +141,7 @@ void VcsCommandDecorator::addTask(const QFuture<void> &future)
     if (m_command->hasProgressParser()) {
         ProgressManager::addTask(future, name, id);
     } else {
-        // add a timed tasked based on timeout
-        // we cannot access the future interface directly, so we need to create a new one
-        // with the same lifetime
-        auto fi = new QFutureInterface<void>();
-        auto watcher = new QFutureWatcher<void>();
-        connect(watcher, &QFutureWatcherBase::finished, [fi, watcher] {
-            fi->reportFinished();
-            delete fi;
-            watcher->deleteLater();
-        });
-        watcher->setFuture(future);
-        ProgressManager::addTimedTask(*fi, name, id, qMax(2, m_command->timeoutS() / 5));
+        ProgressManager::addTimedTask(m_futureInterface, name, id, qMax(2, m_command->timeoutS() / 5));
     }
 
     Internal::VcsPlugin::addFuture(future);
