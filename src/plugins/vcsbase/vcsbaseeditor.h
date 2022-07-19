@@ -274,7 +274,7 @@ private:
     void slotJumpToEntry(int);
     void slotCursorPositionChanged() override;
     void slotAnnotateRevision(const QString &change);
-    void slotApplyDiffChunk();
+    void slotApplyDiffChunk(const DiffChunk &chunk, bool revert);
     void slotPaste();
     void showProgressIndicator();
     void hideProgressIndicator();

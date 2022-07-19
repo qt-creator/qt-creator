@@ -128,23 +128,7 @@ QByteArray DiffChunk::asPatch(const QString &workingDirectory) const
     return rc;
 }
 
-namespace Internal {
-
-// Data to be passed to apply/revert diff chunk actions.
-class DiffChunkAction
-{
-public:
-    DiffChunkAction(const DiffChunk &dc = DiffChunk(), bool revertIn = false) :
-        chunk(dc), revert(revertIn) {}
-
-    DiffChunk chunk;
-    bool revert;
-};
-
-} // namespace Internal
 } // namespace VcsBase
-
-Q_DECLARE_METATYPE(VcsBase::Internal::DiffChunkAction)
 
 namespace VcsBase {
 
@@ -1015,12 +999,14 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         // the user has "Open With" and choose the right diff editor so that
         // fileNameFromDiffSpecification() works.
         QAction *applyAction = menu->addAction(tr("Apply Chunk..."));
-        applyAction->setData(QVariant::fromValue(Internal::DiffChunkAction(chunk, false)));
-        connect(applyAction, &QAction::triggered, this, &VcsBaseEditorWidget::slotApplyDiffChunk);
+        connect(applyAction, &QAction::triggered, this, [this, chunk] {
+            slotApplyDiffChunk(chunk, false);
+        });
         // Revert a chunk from a VCS diff, which might be linked to reloading the diff.
         QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
-        revertAction->setData(QVariant::fromValue(Internal::DiffChunkAction(chunk, true)));
-        connect(revertAction, &QAction::triggered, this, &VcsBaseEditorWidget::slotApplyDiffChunk);
+        connect(revertAction, &QAction::triggered, this, [this, chunk] {
+            slotApplyDiffChunk(chunk, true);
+        });
         // Custom diff actions
         addDiffActions(menu, chunk);
         break;
@@ -1624,22 +1610,19 @@ bool VcsBaseEditorWidget::hasDiff() const
     }
 }
 
-void VcsBaseEditorWidget::slotApplyDiffChunk()
+void VcsBaseEditorWidget::slotApplyDiffChunk(const DiffChunk &chunk, bool revert)
 {
-    const QAction *a = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(a, return);
-    const Internal::DiffChunkAction chunkAction = qvariant_cast<Internal::DiffChunkAction>(a->data());
-    const QString title = chunkAction.revert ? tr("Revert Chunk") : tr("Apply Chunk");
-    const QString question = chunkAction.revert ?
-        tr("Would you like to revert the chunk?") : tr("Would you like to apply the chunk?");
+    const QString title = revert ? tr("Revert Chunk") : tr("Apply Chunk");
+    const QString question = revert ? tr("Would you like to revert the chunk?")
+                                    : tr("Would you like to apply the chunk?");
     if (QMessageBox::No == QMessageBox::question(this, title, question, QMessageBox::Yes|QMessageBox::No))
         return;
 
-    if (applyDiffChunk(chunkAction.chunk, chunkAction.revert)) {
-        if (chunkAction.revert)
-            emit diffChunkReverted(chunkAction.chunk);
+    if (applyDiffChunk(chunk, revert)) {
+        if (revert)
+            emit diffChunkReverted(chunk);
         else
-            emit diffChunkApplied(chunkAction.chunk);
+            emit diffChunkApplied(chunk);
     }
 }
 
