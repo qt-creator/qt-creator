@@ -1978,7 +1978,7 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item, QWidget *parent)
                            });
     }
 
-    addAction(this, menu, Tr::tr("Reset All Individual Formats"), true, [this]() {
+    addAction(this, menu, Tr::tr("Reset All Individual Formats"), true, [this] {
         theIndividualFormats.clear();
         saveFormats();
         m_engine->updateLocals();
@@ -2004,7 +2004,7 @@ QMenu *WatchModel::createFormatMenu(WatchItem *item, QWidget *parent)
                            });
     }
 
-    addAction(this, menu, Tr::tr("Reset All Formats for Types"), true, [this]() {
+    addAction(this, menu, Tr::tr("Reset All Formats for Types"), true, [this] {
         theTypeFormats.clear();
         saveFormats();
         m_engine->updateLocals();

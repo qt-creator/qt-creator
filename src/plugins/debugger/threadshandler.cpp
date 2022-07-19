@@ -359,7 +359,7 @@ QPointer<QComboBox> ThreadsHandler::threadSwitcher()
         m_comboBox = new QComboBox;
         m_comboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
         m_comboBox->setModel(this);
-        connect(m_comboBox, QOverload<int>::of(&QComboBox::activated), this, [this](int row) {
+        connect(m_comboBox, &QComboBox::activated, this, [this](int row) {
             setData(index(row, 0), {}, BaseTreeView::ItemActivatedRole);
         });
     }

@@ -80,9 +80,7 @@ AnalyzerRunConfigWidget::AnalyzerRunConfigWidget(ProjectExplorer::GlobalOrProjec
 
     chooseSettings(aspect->isUsingGlobalSettings() ? 0 : 1);
 
-    connect(settingsCombo, QOverload<int>::of(&QComboBox::activated),
-            this, chooseSettings);
-
+    connect(settingsCombo, &QComboBox::activated, this, chooseSettings);
     connect(restoreButton, &QPushButton::clicked,
             aspect, &ProjectExplorer::GlobalOrProjectAspect::resetProjectToGlobalSettings);
 }

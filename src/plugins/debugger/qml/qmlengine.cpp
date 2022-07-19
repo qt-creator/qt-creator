@@ -2438,7 +2438,7 @@ void QmlEnginePrivate::stateChanged(State state)
         BreakpointManager::claimBreakpointsForEngine(engine);
 
         // Since the breakpoint claiming is deferred, we need to also defer the connecting
-        QTimer::singleShot(0, this, [this]() {
+        QTimer::singleShot(0, this, [this] {
             /// Start session.
             flushSendBuffer();
             QJsonObject parameters;

@@ -69,8 +69,8 @@ SymbolPathsDialog::SymbolPathsDialog(QWidget *parent) :
     buttonBox->setOrientation(Qt::Horizontal);
     buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
-    connect(buttonBox, &QDialogButtonBox::accepted, this, qOverload<>(&QDialog::accept));
-    connect(buttonBox, &QDialogButtonBox::rejected, this, qOverload<>(&QDialog::reject));
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     auto horizontalLayout = new QHBoxLayout();
     horizontalLayout->addWidget(m_pixmapLabel);
