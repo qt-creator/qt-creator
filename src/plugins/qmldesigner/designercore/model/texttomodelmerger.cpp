@@ -530,7 +530,8 @@ public:
                 qDebug() << metaInfo.isValid() << metaInfo.typeName();
                 qDebug() << metaInfo.directSuperClass().typeName();
 
-                throw RewritingException(__LINE__, __FUNCTION__, __FILE__, "test", "test");
+                if (!typeName.startsWith("..."))
+                    throw RewritingException(__LINE__, __FUNCTION__, __FILE__, "test", "test");
             }
 
             typeName = QString::fromUtf8(metaInfo.typeName());
