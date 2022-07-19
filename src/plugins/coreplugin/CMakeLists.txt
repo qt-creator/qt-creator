@@ -87,7 +87,7 @@ add_qtc_plugin(Core
     findplaceholder.cpp findplaceholder.h
     foldernavigationwidget.cpp
     foldernavigationwidget.h
-    generalsettings.cpp generalsettings.h generalsettings.ui
+    generalsettings.cpp generalsettings.h
     generatedfile.cpp generatedfile.h
     helpitem.cpp helpitem.h
     helpmanager.cpp helpmanager.h helpmanager_implementation.h

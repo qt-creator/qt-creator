@@ -116,7 +116,7 @@ public:
     class QTCREATOR_UTILS_EXPORT Space : public LayoutItem
     {
     public:
-        explicit Space(int space);
+        explicit Space(int space = 0);
     };
 
     class QTCREATOR_UTILS_EXPORT Span : public LayoutItem

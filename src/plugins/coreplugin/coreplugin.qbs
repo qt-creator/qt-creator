@@ -77,7 +77,6 @@ Project {
                 "foldernavigationwidget.h",
                 "generalsettings.cpp",
                 "generalsettings.h",
-                "generalsettings.ui",
                 "generatedfile.cpp",
                 "generatedfile.h",
                 "helpitem.cpp",
