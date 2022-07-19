@@ -65,6 +65,7 @@
 #include <QScrollBar>
 #include <QSlider>
 #include <QMenu>
+#include <QQmlEngine>
 #include <QQuickItem>
 #include <QQuickWidget>
 #include <QApplication>
@@ -159,13 +160,14 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
     // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
     setMinimumHeight(170);
 
+    d->m_mainView->engine()->addImportPath(":/qt/qml/");
     Timeline::TimelineTheme::setupTheme(d->m_mainView->engine());
 
     d->m_mainView->rootContext()->setContextProperty(QLatin1String("timelineModelAggregator"),
                                                      d->m_modelProxy);
     d->m_mainView->rootContext()->setContextProperty(QLatin1String("zoomControl"),
                                                      d->m_zoomControl);
-    d->m_mainView->setSource(QUrl(QLatin1String("qrc:/QtCreator/Tracing/MainView.qml")));
+    d->m_mainView->setSource(QUrl(QLatin1String("qrc:/qt/qml/QtCreator/Tracing/MainView.qml")));
 
     connect(d->m_modelProxy, &Timeline::TimelineModelAggregator::updateCursorPosition,
             this, &QmlProfilerTraceView::updateCursorPosition);

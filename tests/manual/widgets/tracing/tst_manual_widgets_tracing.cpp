@@ -26,6 +26,7 @@
 #include <QApplication>
 #include <QQuickView>
 #include <QQmlContext>
+#include <QQmlEngine>
 
 #include <tracing/timelinerenderer.h>
 #include <tracing/timelineoverviewrenderer.h>
@@ -125,6 +126,7 @@ public:
     {
         setResizeMode(QQuickView::SizeRootObjectToView);
 
+        engine()->addImportPath(":/qt/qml/");
         TimelineTheme::setupTheme(engine());
 
         m_modelAggregator = new TimelineModelAggregator(this);
@@ -137,7 +139,7 @@ public:
         m_zoomControl = new TimelineZoomControl(this);
         m_zoomControl->setTrace(0, oneMs * 1000); // Total timeline length
         rootContext()->setContextProperty("zoomControl", m_zoomControl);
-        setSource(QUrl(QLatin1String("qrc:/QtCreator/Tracing/MainView.qml")));
+        setSource(QUrl(QLatin1String("qrc:/qt/qml/QtCreator/Tracing/MainView.qml")));
 
         // Zoom onto first timeline third. Needs to be done after loading setSource.
         m_zoomControl->setRange(0, oneMs * 1000 / 3.0);

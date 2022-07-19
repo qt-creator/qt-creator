@@ -34,7 +34,7 @@
 #include <tracing/timelinetheme.h>
 
 #include <QQmlContext>
-
+#include <QQmlEngine>
 
 namespace CtfVisualizer {
 namespace Internal {
@@ -49,13 +49,14 @@ CtfVisualizerTraceView::CtfVisualizerTraceView(QWidget *parent, CtfVisualizerToo
     // Minimum height: 5 rows of 20 pixels + scrollbar of 50 pixels + 20 pixels margin
     setMinimumHeight(170);
 
+    engine()->addImportPath(":/qt/qml/");
     Timeline::TimelineTheme::setupTheme(engine());
 
     rootContext()->setContextProperty(QLatin1String("timelineModelAggregator"),
                                       tool->modelAggregator());
     rootContext()->setContextProperty(QLatin1String("zoomControl"),
                                       tool->zoomControl());
-    setSource(QUrl(QLatin1String("qrc:/QtCreator/Tracing/MainView.qml")));
+    setSource(QUrl(QLatin1String("qrc:/qt/qml/QtCreator/Tracing/MainView.qml")));
 
     // Avoid ugly warnings when reading from null properties in QML.
     connect(tool->modelAggregator(), &QObject::destroyed, this, [this]{ setSource(QUrl()); });

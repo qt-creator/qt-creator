@@ -60,6 +60,7 @@ qt_add_qml_module(PerfProfiler
   URI "QtCreator.PerfProfiler"
   VERSION "1.0"
   NO_PLUGIN
+  RESOURCE_PREFIX "/qt/qml"
   QML_FILES
     PerfProfilerFlameGraphView.qml
   SOURCES

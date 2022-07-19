@@ -451,8 +451,8 @@ public:
 TimelineItemsMaterialShader::TimelineItemsMaterialShader()
     : QSGMaterialShader()
 {
-    setShaderFileName(VertexStage, ":/QtCreator/Tracing/timelineitems_qt6.vert.qsb");
-    setShaderFileName(FragmentStage, ":/QtCreator/Tracing/timelineitems_qt6.frag.qsb");
+    setShaderFileName(VertexStage, ":/qt/qml/QtCreator/Tracing/timelineitems_qt6.vert.qsb");
+    setShaderFileName(FragmentStage, ":/qt/qml/QtCreator/Tracing/timelineitems_qt6.frag.qsb");
 }
 
 bool TimelineItemsMaterialShader::updateUniformData(RenderState &state,

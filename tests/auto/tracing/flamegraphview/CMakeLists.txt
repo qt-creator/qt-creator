@@ -16,6 +16,7 @@ qt_add_qml_module(tst_tracing_flamegraphview
   URI "QtCreator.TstTracingFlameGraphView"
   VERSION "1.0"
   NO_PLUGIN
+  RESOURCE_PREFIX "/qt/qml"
   QML_FILES
     TestFlameGraphView.qml
   SOURCES

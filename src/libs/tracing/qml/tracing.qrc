@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/QtCreator/Tracing">
+    <qresource prefix="/qt/qml/QtCreator/Tracing">
         <file>ButtonsBar.qml</file>
         <file>CategoryLabel.qml</file>
         <file>Detail.qml</file>

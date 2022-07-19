@@ -41,7 +41,7 @@ Project {
 
         Group {
             name: "Qml Files"
-            Qt.core.resourcePrefix: "QtCreator/Tracing/"
+            Qt.core.resourcePrefix: "qt/qml/QtCreator/Tracing/"
             fileTags: "qt.core.resource_data"
             files: "qml/**"
         }

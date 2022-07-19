@@ -72,7 +72,7 @@ QtcPlugin {
 
     Group {
         name: "Qml Files"
-        Qt.core.resourcePrefix: "QtCreator/PerfProfiler/"
+        Qt.core.resourcePrefix: "qt/qml/QtCreator/PerfProfiler/"
         fileTags: "qt.core.resource_data"
         files: [ "PerfProfilerFlameGraphView.qml" ]
     }

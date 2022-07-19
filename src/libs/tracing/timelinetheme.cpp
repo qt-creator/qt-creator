@@ -69,19 +69,19 @@ public:
         else if (iconName == "zoom")
             icon = Icons::ZOOM_TOOLBAR;
         else if (iconName == "rangeselection")
-            icon = Icon({{":/QtCreator/Tracing/ico_rangeselection.png", Theme::IconsBaseColor}});
+            icon = Icon({{":/qt/qml/QtCreator/Tracing/ico_rangeselection.png", Theme::IconsBaseColor}});
         else if (iconName == "rangeselected")
-            icon = Icon({{":/QtCreator/Tracing/ico_rangeselected.png", Theme::IconsBaseColor}});
+            icon = Icon({{":/qt/qml/QtCreator/Tracing/ico_rangeselected.png", Theme::IconsBaseColor}});
         else if (iconName == "selectionmode")
-            icon = Icon({{":/QtCreator/Tracing/ico_selectionmode.png", Theme::IconsBaseColor}});
+            icon = Icon({{":/qt/qml/QtCreator/Tracing/ico_selectionmode.png", Theme::IconsBaseColor}});
         else if (iconName == "edit")
-            icon = Icon({{":/QtCreator/Tracing/ico_edit.png", Theme::IconsBaseColor}});
+            icon = Icon({{":/qt/qml/QtCreator/Tracing/ico_edit.png", Theme::IconsBaseColor}});
         else if (iconName == "lock_open")
             icon = Icons::UNLOCKED_TOOLBAR;
         else if (iconName == "lock_closed")
             icon = Icons::LOCKED_TOOLBAR;
         else if (iconName == "range_handle")
-            icon = Icon({{":/QtCreator/Tracing/range_handle.png", Theme::IconsBaseColor}});
+            icon = Icon({{":/qt/qml/QtCreator/Tracing/range_handle.png", Theme::IconsBaseColor}});
         else if (iconName == "note")
             icon = Icons::INFO_TOOLBAR;
         else if (iconName == "split")

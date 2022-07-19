@@ -97,7 +97,7 @@ endforeach()
 qt_add_shaders(QmlProfiler "res_qmlprofilershaders"
   BATCHABLE
   PREFIX
-    "/QtCreator/QmlProfiler"
+    "/qt/qml/QtCreator/QmlProfiler"
   BASE
     "qml"
   FILES
@@ -109,6 +109,7 @@ qt_add_qml_module(QmlProfiler
   URI "QtCreator.QmlProfiler"
   VERSION "1.0"
   NO_PLUGIN
+  RESOURCE_PREFIX "/qt/qml"
   QML_FILES
     ${QMLPROFILER_QML_FILES}
   RESOURCES

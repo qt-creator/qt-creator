@@ -301,8 +301,8 @@ public:
 BindingLoopMaterialShader::BindingLoopMaterialShader()
     : QSGMaterialShader()
 {
-    setShaderFileName(VertexStage, ":/QtCreator/QmlProfiler/bindingloops_qt6.vert.qsb");
-    setShaderFileName(FragmentStage, ":/QtCreator/QmlProfiler/bindingloops_qt6.frag.qsb");
+    setShaderFileName(VertexStage, ":/qt/qml/QtCreator/QmlProfiler/bindingloops_qt6.vert.qsb");
+    setShaderFileName(FragmentStage, ":/qt/qml/QtCreator/QmlProfiler/bindingloops_qt6.frag.qsb");
 }
 
 static QColor bindingLoopsColor()

@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 import QtCreator.PerfProfiler
-import "../Tracing" // TODO: Turn into module import when possible
+import QtCreator.Tracing
 
 FlameGraphView {
     id: root

@@ -32,6 +32,7 @@
 
 #include <QObject>
 #include <QQmlContext>
+#include <QQmlEngine>
 #include <QQuickWidget>
 #include <QtTest>
 
@@ -80,11 +81,12 @@ void tst_FlameGraphView::initTestCase()
 {
     model.fill();
 
+    widget.engine()->addImportPath(":/qt/qml/");
     Timeline::TimelineTheme::setupTheme(widget.engine());
 
     widget.rootContext()->setContextProperty(QStringLiteral("flameGraphModel"), &model);
     widget.setSource(QUrl(QStringLiteral(
-                              "qrc:/QtCreator/TstTracingFlameGraphView/TestFlameGraphView.qml")));
+                              "qrc:/qt/qml/QtCreator/TstTracingFlameGraphView/TestFlameGraphView.qml")));
 
     widget.setResizeMode(QQuickWidget::SizeRootObjectToView);
     widget.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);

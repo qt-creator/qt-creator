@@ -66,7 +66,7 @@ QtcPlugin {
 
     Group {
         name: "Qml Files"
-        Qt.core.resourcePrefix: "QtCreator/QmlProfiler/"
+        Qt.core.resourcePrefix: "qt/qml/QtCreator/QmlProfiler/"
         fileTags: "qt.core.resource_data"
         files: "qml/**"
     }

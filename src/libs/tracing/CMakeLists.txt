@@ -90,7 +90,7 @@ endforeach()
 qt_add_shaders(Tracing "res_tracingshaders"
   BATCHABLE
   PREFIX
-    "/QtCreator/Tracing"
+    "/qt/qml/QtCreator/Tracing"
   BASE
     "qml"
   FILES
@@ -104,6 +104,7 @@ qt_add_qml_module(Tracing
   URI "QtCreator.Tracing"
   VERSION "1.0"
   NO_PLUGIN
+  RESOURCE_PREFIX "/qt/qml"
   DEPENDENCIES
     QtQuick
   QML_FILES

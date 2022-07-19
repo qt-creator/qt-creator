@@ -17,7 +17,7 @@ TracingAutotest {
 
     Group {
         name: "Qml Files"
-        Qt.core.resourcePrefix: "QtCreator/TstTracingFlameGraphView/"
+        Qt.core.resourcePrefix: "qt/qml/QtCreator/TstTracingFlameGraphView/"
         fileTags: "qt.core.resource_data"
         files: [
             "TestFlameGraphView.qml",

@@ -33,6 +33,7 @@
 #include <utils/theme/theme.h>
 
 #include <QQmlContext>
+#include <QQmlEngine>
 
 namespace PerfProfiler {
 namespace Internal {
@@ -45,10 +46,12 @@ PerfProfilerFlameGraphView::PerfProfilerFlameGraphView(QWidget *parent, PerfProf
     PerfProfilerTraceManager *manager = tool->traceManager();
     m_model = new PerfProfilerFlameGraphModel(manager);
 
+    engine()->addImportPath(":/qt/qml/");
     Timeline::TimelineTheme::setupTheme(engine());
 
     rootContext()->setContextProperty(QStringLiteral("flameGraphModel"), m_model);
-    setSource(QUrl(QStringLiteral("qrc:/QtCreator/PerfProfiler/PerfProfilerFlameGraphView.qml")));
+    setSource(QUrl(QStringLiteral(
+                       "qrc:/qt/qml/QtCreator/PerfProfiler/PerfProfilerFlameGraphView.qml")));
     setClearColor(Utils::creatorTheme()->color(Utils::Theme::Timeline_BackgroundColor1));
 
     setResizeMode(QQuickWidget::SizeRootObjectToView);

@@ -236,8 +236,8 @@ public:
 NotesMaterialShader::NotesMaterialShader()
     : QSGMaterialShader()
 {
-    setShaderFileName(VertexStage, ":/QtCreator/Tracing/notes_qt6.vert.qsb");
-    setShaderFileName(FragmentStage, ":/QtCreator/Tracing/notes_qt6.frag.qsb");
+    setShaderFileName(VertexStage, ":/qt/qml/QtCreator/Tracing/notes_qt6.vert.qsb");
+    setShaderFileName(FragmentStage, ":/qt/qml/QtCreator/Tracing/notes_qt6.frag.qsb");
 }
 
 static QColor notesColor()
