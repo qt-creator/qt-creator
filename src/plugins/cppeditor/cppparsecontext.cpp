@@ -144,16 +144,13 @@ ParseContextWidget::ParseContextWidget(ParseContextModel &parseContextModel, QWi
     // Set up context menu with a clear action
     setContextMenuPolicy(Qt::ActionsContextMenu);
     m_clearPreferredAction = new QAction(tr("Clear Preferred Parse Context"), this);
-    connect(m_clearPreferredAction, &QAction::triggered, this, [this]() {
+    connect(m_clearPreferredAction, &QAction::triggered, this, [this] {
         m_parseContextModel.clearPreferred();
     });
     addAction(m_clearPreferredAction);
 
     // Set up sync of this widget and model in both directions
-    connect(this,
-            QOverload<int>::of(&QComboBox::activated),
-            &m_parseContextModel,
-            &ParseContextModel::setPreferred);
+    connect(this, &QComboBox::activated, &m_parseContextModel, &ParseContextModel::setPreferred);
     connect(&m_parseContextModel, &ParseContextModel::updated,
             this, &ParseContextWidget::syncToModel);
 

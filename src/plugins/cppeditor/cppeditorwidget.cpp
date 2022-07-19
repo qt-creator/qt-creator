@@ -513,7 +513,7 @@ void CppEditorWidget::finalizeInitialization()
     connect(this, &QPlainTextEdit::textChanged, this, &CppEditorWidget::updateFunctionDeclDefLink);
 
     // set up the use highlighitng
-    connect(this, &CppEditorWidget::cursorPositionChanged, this, [this]() {
+    connect(this, &CppEditorWidget::cursorPositionChanged, this, [this] {
         if (!d->m_localRenaming.isActive())
             d->m_useSelectionsUpdater.scheduleUpdate();
 
@@ -1182,7 +1182,7 @@ AssistInterface *CppEditorWidget::createAssistInterface(AssistKind kind, AssistR
                 ? qobject_cast<CppCompletionAssistProvider *>(cppEditorDocument()->completionAssistProvider())
                 : qobject_cast<CppCompletionAssistProvider *>(cppEditorDocument()->functionHintAssistProvider());
 
-        auto getFeatures = [this]() {
+        auto getFeatures = [this] {
             LanguageFeatures features = LanguageFeatures::defaultFeatures();
             if (Document::Ptr doc = d->m_lastSemanticInfo.doc)
                 features = doc->languageFeatures();

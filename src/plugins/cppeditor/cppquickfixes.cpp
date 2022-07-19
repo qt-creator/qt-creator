@@ -3138,7 +3138,7 @@ public:
         if (!implFile.isEmpty())
             implTargetStrings.append(implFile.fileName());
         defaultImplTargetComboBox->insertItems(0, implTargetStrings);
-        connect(defaultImplTargetComboBox, qOverload<int>(&QComboBox::currentIndexChanged), this,
+        connect(defaultImplTargetComboBox, &QComboBox::currentIndexChanged, this,
                 [this](int index) {
             for (int i = 0; i < m_implTargetBoxes.size(); ++i) {
                 if (!m_candidates.at(i)->type()->asFunctionType()->isPureVirtual())
@@ -8762,7 +8762,7 @@ public:
 
         using A = InsertionPointLocator::AccessSpec;
         auto accessCombo = new QComboBox;
-        connect(accessCombo, qOverload<int>(&QComboBox::currentIndexChanged), [this, accessCombo]() {
+        connect(accessCombo, &QComboBox::currentIndexChanged, this, [this, accessCombo] {
             const auto data = accessCombo->currentData();
             m_accessSpec = static_cast<A>(data.toInt());
         });

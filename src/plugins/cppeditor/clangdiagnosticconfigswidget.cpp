@@ -291,7 +291,7 @@ void ClangDiagnosticConfigsWidget::sync()
         return;
 
     disconnectClangOnlyOptionsChanged();
-    Utils::ExecuteOnDestruction e([this]() { connectClangOnlyOptionsChanged(); });
+    Utils::ExecuteOnDestruction e([this] { connectClangOnlyOptionsChanged(); });
 
     // Update main button row
     const ClangDiagnosticConfig &config = currentConfig();

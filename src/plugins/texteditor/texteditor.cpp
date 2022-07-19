@@ -864,7 +864,7 @@ void TextEditorWidgetFind::selectAll(const QString &txt, FindFlags findFlags)
 
     m_selectWatcher = new QFutureWatcher<FileSearchResultList>();
     connect(m_selectWatcher, &QFutureWatcher<Utils::FileSearchResultList>::finished,
-            this, [this]() {
+            this, [this] {
                 const QFuture<FileSearchResultList> future = m_selectWatcher->future();
                 m_selectWatcher->deleteLater();
                 m_selectWatcher = nullptr;
@@ -1214,7 +1214,7 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
             q, &TextEditorWidget::updateTextCodecLabel);
     q->updateTextCodecLabel();
 
-    connect(m_fileLineEnding, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_fileLineEnding, &QComboBox::currentIndexChanged,
             q, &TextEditorWidget::selectLineEnding);
     connect(m_document->document(), &QTextDocument::modificationChanged,
             q, &TextEditorWidget::updateTextLineEndingLabel);
@@ -1611,7 +1611,7 @@ void TextEditorWidgetPrivate::updateCannotDecodeInfo()
         InfoBarEntry info(selectEncodingId,
             TextEditorWidget::tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding. Editing not possible.")
                 .arg(m_document->displayName(), QString::fromLatin1(m_document->codec()->name())));
-        info.addCustomButton(TextEditorWidget::tr("Select Encoding"), [this]() { q->selectEncoding(); });
+        info.addCustomButton(TextEditorWidget::tr("Select Encoding"), [this] { q->selectEncoding(); });
         infoBar->addInfo(info);
     } else {
         infoBar->removeInfo(selectEncodingId);
@@ -3484,8 +3484,7 @@ void TextEditorWidgetPrivate::setupDocumentSignals()
     QObject::connect(m_document.data(), &TextDocument::reloadFinished,
                      this, &TextEditorWidgetPrivate::documentReloadFinished);
 
-    QObject::connect(m_document.data(), &TextDocument::tabSettingsChanged,
-                     this, [this](){
+    QObject::connect(m_document.data(), &TextDocument::tabSettingsChanged, this, [this] {
         updateTabStops();
         m_autoCompleter->setTabSettings(m_document->tabSettings());
     });
@@ -5240,7 +5239,7 @@ void TextEditorWidgetPrivate::updateHighlights()
     }
 
     if (m_highlightAutoComplete && !m_autoCompleteHighlightPos.isEmpty()) {
-        QMetaObject::invokeMethod(this, [this]() {
+        QMetaObject::invokeMethod(this, [this] {
             const QTextCursor &cursor = q->textCursor();
             auto popAutoCompletion = [&]() {
                 return !m_autoCompleteHighlightPos.isEmpty()
@@ -8047,7 +8046,7 @@ bool TextEditorWidget::inFindScope(const QTextCursor &cursor) const
 
 void TextEditorWidget::updateVisualWrapColumn()
 {
-    auto calcMargin = [this]() {
+    auto calcMargin = [this] {
         const auto &ms = d->m_marginSettings;
 
         if (!ms.m_showMargin) {

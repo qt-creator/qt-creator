@@ -1386,8 +1386,7 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
             this, &CppCodeModelInspectorDialog::onDocumentSelected);
     connect(m_snapshotView, &FilterableView::filterChanged,
             this, &CppCodeModelInspectorDialog::onSnapshotFilterChanged);
-    connect(m_ui->snapshotSelector,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_ui->snapshotSelector, &QComboBox::currentIndexChanged,
             this, &CppCodeModelInspectorDialog::onSnapshotSelected);
     connect(m_ui->docSymbolsView, &QTreeView::expanded,
             this, &CppCodeModelInspectorDialog::onSymbolsViewExpandedOrCollapsed);

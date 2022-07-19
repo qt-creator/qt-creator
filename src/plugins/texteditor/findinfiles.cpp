@@ -153,8 +153,8 @@ QWidget *FindInFiles::createConfigWidget()
         auto searchEngineLabel = new QLabel(tr("Search engine:"));
         gridLayout->addWidget(searchEngineLabel, row, 0, Qt::AlignRight);
         m_searchEngineCombo = new QComboBox;
-        auto cc = QOverload<int>::of(&QComboBox::currentIndexChanged);
-        connect(m_searchEngineCombo, cc, this, &FindInFiles::searchEnginesSelectionChanged);
+        connect(m_searchEngineCombo, &QComboBox::currentIndexChanged,
+                this, &FindInFiles::searchEnginesSelectionChanged);
         searchEngineLabel->setBuddy(m_searchEngineCombo);
         gridLayout->addWidget(m_searchEngineCombo, row, 1);
 
@@ -194,7 +194,7 @@ QWidget *FindInFiles::createConfigWidget()
         m_configWidget->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
         // validity
-        auto updateValidity = [this]() {
+        auto updateValidity = [this] {
             setValid(currentSearchEngine()->isEnabled() && m_directory->isValid());
         };
         connect(this, &BaseFileFind::currentSearchEngineChanged, this, updateValidity);

@@ -200,7 +200,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
                                            bool isUpdate)
 {
     // make sure to cleanup old proposals if we cannot find a new assistant
-    Utils::ExecuteOnDestruction earlyReturnContextClear([this]() { destroyContext(); });
+    Utils::ExecuteOnDestruction earlyReturnContextClear([this] { destroyContext(); });
     if (isWaitingForProposal())
         cancelCurrentRequest();
 

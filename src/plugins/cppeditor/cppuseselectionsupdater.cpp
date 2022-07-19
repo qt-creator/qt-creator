@@ -47,7 +47,7 @@ CppUseSelectionsUpdater::CppUseSelectionsUpdater(CppEditorWidget *editorWidget)
 {
     m_timer.setSingleShot(true);
     m_timer.setInterval(updateUseSelectionsInternalInMs);
-    connect(&m_timer, &QTimer::timeout, this, [this]() { update(); });
+    connect(&m_timer, &QTimer::timeout, this, [this] { update(); });
 }
 
 CppUseSelectionsUpdater::~CppUseSelectionsUpdater()

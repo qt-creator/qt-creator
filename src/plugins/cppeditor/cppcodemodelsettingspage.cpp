@@ -390,13 +390,13 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->autoIncludeHeadersCheckBox, &QCheckBox::toggled,
             this, &ClangdSettingsWidget::settingsDataChanged);
-    connect(&d->threadLimitSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+    connect(&d->threadLimitSpinBox, &QSpinBox::valueChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->sizeThresholdCheckBox, &QCheckBox::toggled,
             this, &ClangdSettingsWidget::settingsDataChanged);
-    connect(&d->sizeThresholdSpinBox, qOverload<int>(&QSpinBox::valueChanged),
+    connect(&d->sizeThresholdSpinBox, &QSpinBox::valueChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
-    connect(&d->documentUpdateThreshold, qOverload<int>(&QSpinBox::valueChanged),
+    connect(&d->documentUpdateThreshold, &QSpinBox::valueChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->clangdChooser, &Utils::PathChooser::filePathChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
