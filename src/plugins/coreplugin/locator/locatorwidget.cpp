@@ -630,7 +630,8 @@ LocatorWidget::LocatorWidget(Locator *locator) :
     m_progressIndicator->hide();
     m_showProgressTimer.setSingleShot(true);
     m_showProgressTimer.setInterval(50); // don't show progress for < 50ms tasks
-    connect(&m_showProgressTimer, &QTimer::timeout, [this]() { setProgressIndicatorVisible(true);});
+    connect(&m_showProgressTimer, &QTimer::timeout,
+            this, [this] { setProgressIndicatorVisible(true); });
 
     Command *locateCmd = ActionManager::command(Constants::LOCATE);
     if (QTC_GUARD(locateCmd)) {

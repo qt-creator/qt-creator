@@ -1493,7 +1493,7 @@ void MainWindow::changeLog()
                          "[\\1](https://bugreports.qt.io/browse/\\1)");
         textEdit->setMarkdown(contents);
     };
-    connect(versionCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), textEdit, showLog);
+    connect(versionCombo, &QComboBox::currentIndexChanged, textEdit, showLog);
     showLog(versionCombo->currentIndex());
 
     connect(showInExplorer, &QPushButton::clicked, [versionCombo, versionedFiles] {

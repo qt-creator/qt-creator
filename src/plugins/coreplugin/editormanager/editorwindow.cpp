@@ -76,7 +76,7 @@ EditorWindow::EditorWindow(QWidget *parent) :
     connect(m_area, &EditorArea::windowTitleNeedsUpdate,
             this, &EditorWindow::updateWindowTitle);
     // editor area can be deleted by editor manager
-    connect(m_area, &EditorArea::destroyed, this, [this]() {
+    connect(m_area, &EditorArea::destroyed, this, [this] {
         m_area = nullptr;
         deleteLater();
     });

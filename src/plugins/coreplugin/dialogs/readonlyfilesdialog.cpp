@@ -466,7 +466,7 @@ void ReadOnlyFilesDialogPrivate::initDialog(const FilePaths &filePaths)
 
         // Also save the buttongroup for every file to get the result for each entry.
         buttonGroups.append({filePath, radioButtonGroup});
-        QObject::connect(radioButtonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked),
+        QObject::connect(radioButtonGroup, &QButtonGroup::buttonClicked,
                          [this] { updateSelectAll(); });
     }
 
@@ -525,8 +525,7 @@ void ReadOnlyFilesDialogPrivate::initDialog(const FilePaths &filePaths)
         ui.setAll->addItem(saveAsText);
         setAllIndexForOperation[SaveAs] = ui.setAll->count() - 1;
     }
-    QObject::connect(ui.setAll, QOverload<int>::of(&QComboBox::activated),
-                     [this](int index) { setAll(index); });
+    QObject::connect(ui.setAll, &QComboBox::activated, [this](int index) { setAll(index); });
 
     // Filter which columns should be visible and resize them to content.
     for (int i = 0; i < NumberOfColumns; ++i) {

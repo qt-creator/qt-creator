@@ -90,7 +90,7 @@ WindowSupport::WindowSupport(QWidget *window, const Context &context)
 
     m_windowList->addWindow(window);
 
-    connect(ICore::instance(), &ICore::coreAboutToClose, this, [this]() { m_shutdown = true; });
+    connect(ICore::instance(), &ICore::coreAboutToClose, this, [this] { m_shutdown = true; });
 }
 
 WindowSupport::~WindowSupport()

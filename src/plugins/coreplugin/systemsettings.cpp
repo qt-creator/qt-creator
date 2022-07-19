@@ -94,13 +94,10 @@ public:
             for (const TerminalCommand &term : availableTerminals)
                 m_ui.terminalComboBox->addItem(term.command, QVariant::fromValue(term));
             updateTerminalUi(TerminalCommand::terminalEmulator());
-            connect(m_ui.terminalComboBox,
-                    QOverload<int>::of(&QComboBox::currentIndexChanged),
-                    this,
+            connect(m_ui.terminalComboBox, &QComboBox::currentIndexChanged, this,
                     [this](int index) {
-                        updateTerminalUi(
-                            m_ui.terminalComboBox->itemData(index).value<TerminalCommand>());
-                    });
+                updateTerminalUi(m_ui.terminalComboBox->itemData(index).value<TerminalCommand>());
+            });
         } else {
             m_ui.terminalLabel->hide();
             m_ui.terminalComboBox->hide();
@@ -156,8 +153,7 @@ public:
         connect(m_ui.helpCrashReportingButton, &QAbstractButton::clicked, this, [this] {
             showHelpDialog(tr("Crash Reporting"), CorePlugin::msgCrashpadInformation());
         });
-        connect(m_ui.enableCrashReportingCheckBox,
-                QOverload<int>::of(&QCheckBox::stateChanged), this, [this] {
+        connect(m_ui.enableCrashReportingCheckBox, &QCheckBox::stateChanged, this, [this] {
             const QString restartText = tr("The change will take effect after restart.");
             Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
             restartDialog.exec();

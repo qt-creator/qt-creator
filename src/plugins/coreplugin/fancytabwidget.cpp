@@ -221,7 +221,7 @@ void FancyTabBar::mousePressEvent(QMouseEvent *event)
                         m_currentIndex = index;
                         update();
                         // update tab bar before showing widget
-                        QMetaObject::invokeMethod(this, [this]() {
+                        QMetaObject::invokeMethod(this, [this] {
                             emit currentChanged(m_currentIndex);
                         }, Qt::QueuedConnection);
                     }

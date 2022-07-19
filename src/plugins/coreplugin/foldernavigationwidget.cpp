@@ -388,11 +388,8 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
             this,
             &FolderNavigationWidget::toggleAutoSynchronization);
     connect(m_toggleRootSync, &QAbstractButton::clicked,
-            this, [this]() { setRootAutoSynchronization(!m_rootAutoSync); });
-    connect(m_rootSelector,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this,
-            [this](int index) {
+            this, [this] { setRootAutoSynchronization(!m_rootAutoSync); });
+    connect(m_rootSelector, &QComboBox::currentIndexChanged, this, [this](int index) {
                 const auto directory = m_rootSelector->itemData(index).value<Utils::FilePath>();
                 m_rootSelector->setToolTip(directory.toUserOutput());
                 setRootDirectory(directory);

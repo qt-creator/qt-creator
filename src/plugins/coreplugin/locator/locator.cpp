@@ -109,7 +109,7 @@ Locator::Locator()
 {
     m_instance = this;
     m_refreshTimer.setSingleShot(false);
-    connect(&m_refreshTimer, &QTimer::timeout, this, [this]() { refresh(filters()); });
+    connect(&m_refreshTimer, &QTimer::timeout, this, [this] { refresh(filters()); });
 }
 
 Locator::~Locator()

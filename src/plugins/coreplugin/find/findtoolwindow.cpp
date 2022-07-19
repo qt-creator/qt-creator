@@ -77,7 +77,7 @@ FindToolWindow::FindToolWindow(QWidget *parent)
     connect(m_ui.matchCase, &QAbstractButton::toggled, Find::instance(), &Find::setCaseSensitive);
     connect(m_ui.wholeWords, &QAbstractButton::toggled, Find::instance(), &Find::setWholeWord);
     connect(m_ui.regExp, &QAbstractButton::toggled, Find::instance(), &Find::setRegularExpression);
-    connect(m_ui.filterList, QOverload<int>::of(&QComboBox::activated),
+    connect(m_ui.filterList, &QComboBox::activated,
             this, QOverload<int>::of(&FindToolWindow::setCurrentFilter));
 
     m_findCompleter->setModel(Find::findCompletionModel());

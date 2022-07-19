@@ -99,8 +99,7 @@ NavigationSubWidget::NavigationSubWidget(NavigationWidget *parentWidget, int pos
 
     setFactoryIndex(factoryIndex);
 
-    connect(m_navigationComboBox,
-            QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_navigationComboBox, &QComboBox::currentIndexChanged,
             this, &NavigationSubWidget::comboBoxIndexChanged);
 
     comboBoxIndexChanged(factoryIndex);

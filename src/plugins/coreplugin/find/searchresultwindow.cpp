@@ -650,10 +650,8 @@ QList<QWidget *> SearchResultWindowPrivate::toolBarWidgets()
         m_recentSearchesBox->setProperty("drawleftborder", true);
         m_recentSearchesBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
         m_recentSearchesBox->addItem(tr("New Search"));
-        connect(m_recentSearchesBox,
-                QOverload<int>::of(&QComboBox::activated),
-                this,
-                &SearchResultWindowPrivate::setCurrentIndexWithFocus);
+        connect(m_recentSearchesBox, &QComboBox::activated,
+                this, &SearchResultWindowPrivate::setCurrentIndexWithFocus);
     }
     return {m_expandCollapseButton,
             m_filterButton,

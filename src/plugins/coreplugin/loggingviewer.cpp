@@ -564,7 +564,7 @@ void LoggingViewManagerWidget::showLogViewContextMenu(const QPoint &pos) const
     m.addAction(copy);
     auto copyAll = new QAction(tr("Copy All"), &m);
     m.addAction(copyAll);
-    connect(copy, &QAction::triggered, &m, [this](){
+    connect(copy, &QAction::triggered, &m, [this] {
         auto selectionModel = m_logView->selectionModel();
         QString copied;
         const bool useTS = m_timestamps->isChecked();
@@ -576,7 +576,7 @@ void LoggingViewManagerWidget::showLogViewContextMenu(const QPoint &pos) const
 
         QGuiApplication::clipboard()->setText(copied);
     });
-    connect(copyAll, &QAction::triggered, &m, [this](){
+    connect(copyAll, &QAction::triggered, &m, [this] {
         QString copied;
         const bool useTS = m_timestamps->isChecked();
         const bool useLL = m_messageTypes->isChecked();

@@ -496,9 +496,9 @@ ExternalToolConfig::ExternalToolConfig()
             this, &ExternalToolConfig::updateCurrentItem);
     connect(m_ui.environmentButton, &QAbstractButton::clicked,
             this, &ExternalToolConfig::editEnvironmentChanges);
-    connect(m_ui.outputBehavior, QOverload<int>::of(&QComboBox::activated),
+    connect(m_ui.outputBehavior, &QComboBox::activated,
             this, &ExternalToolConfig::updateCurrentItem);
-    connect(m_ui.errorOutputBehavior, QOverload<int>::of(&QComboBox::activated),
+    connect(m_ui.errorOutputBehavior, &QComboBox::activated,
             this, &ExternalToolConfig::updateCurrentItem);
     connect(m_ui.modifiesDocumentCheckbox, &QAbstractButton::clicked,
             this, &ExternalToolConfig::updateCurrentItem);

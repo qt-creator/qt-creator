@@ -55,8 +55,7 @@ MimeTypeMagicDialog::MimeTypeMagicDialog(QWidget *parent) :
     connect(ui.informationLabel, &QLabel::linkActivated, this, [](const QString &link) {
         QDesktopServices::openUrl(QUrl(link));
     });
-    connect(ui.typeSelector, QOverload<int>::of(&QComboBox::activated),
-            this, [this]() {
+    connect(ui.typeSelector, &QComboBox::activated, this, [this] {
         if (ui.useRecommendedGroupBox->isChecked())
             setToRecommendedValues();
     });

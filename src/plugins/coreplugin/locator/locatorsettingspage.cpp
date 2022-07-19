@@ -207,7 +207,7 @@ public:
         connect(m_ui.filterList, &Utils::TreeView::activated,
                 this, &LocatorSettingsWidget::configureFilter);
         connect(m_ui.editButton, &QPushButton::clicked,
-                this, [this]() { configureFilter(m_ui.filterList->currentIndex()); });
+                this, [this] { configureFilter(m_ui.filterList->currentIndex()); });
         connect(m_ui.removeButton, &QPushButton::clicked,
                 this, &LocatorSettingsWidget::removeCustomFilter);
 

@@ -221,7 +221,7 @@ NewDialogWidget::NewDialogWidget(QWidget *parent) :
     connect(m_ui->buttonBox, &QDialogButtonBox::accepted, this, &NewDialogWidget::accept);
     connect(m_ui->buttonBox, &QDialogButtonBox::rejected, this, &NewDialogWidget::reject);
 
-    connect(m_ui->comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_ui->comboBox, &QComboBox::currentIndexChanged,
             this, &NewDialogWidget::setSelectedPlatform);
 }
 
