@@ -147,10 +147,10 @@ GerritPushDialog::GerritPushDialog(const Utils::FilePath &workingDir, const QStr
     }
 
     m_ui->localBranchComboBox->init(workingDir);
-    connect(m_ui->localBranchComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_ui->localBranchComboBox, &QComboBox::currentIndexChanged,
             this, &GerritPushDialog::updateCommits);
 
-    connect(m_ui->targetBranchComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_ui->targetBranchComboBox, &QComboBox::currentIndexChanged,
             this, &GerritPushDialog::setChangeRange);
 
     connect(m_ui->targetBranchComboBox, &QComboBox::currentTextChanged,

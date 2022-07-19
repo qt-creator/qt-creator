@@ -57,7 +57,7 @@ GitLabDialog::GitLabDialog(QWidget *parent)
 
     updateRemotes();
 
-    connect(m_ui.remoteCB, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(m_ui.remoteCB, &QComboBox::currentIndexChanged,
             this, &GitLabDialog::requestMainViewUpdate);
     connect(m_ui.searchLE, &QLineEdit::returnPressed, this, &GitLabDialog::querySearch);
     connect(m_ui.searchPB, &QPushButton::clicked, this, &GitLabDialog::querySearch);

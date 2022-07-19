@@ -163,20 +163,18 @@ GitLabProjectSettingsWidget::GitLabProjectSettingsWidget(ProjectExplorer::Projec
     verticalLayout->addWidget(new QLabel(tr("Projects linked with GitLab receive event "
                                             "notifications in the Version Control output pane.")));
 
-    connect(m_linkWithGitLab, &QPushButton::clicked, this, [this]() {
+    connect(m_linkWithGitLab, &QPushButton::clicked, this, [this] {
         checkConnection(Link);
     });
     connect(m_unlink, &QPushButton::clicked,
             this, &GitLabProjectSettingsWidget::unlink);
-    connect(m_checkConnection, &QPushButton::clicked, this, [this]() {
+    connect(m_checkConnection, &QPushButton::clicked, this, [this] {
         checkConnection(Connection);
     });
-    connect(m_linkedGitLabServer, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [this]() {
+    connect(m_linkedGitLabServer, &QComboBox::currentIndexChanged, this, [this] {
         m_infoLabel->setVisible(false);
     });
-    connect(m_hostCB, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [this]() {
+    connect(m_hostCB, &QComboBox::currentIndexChanged, this, [this] {
         m_infoLabel->setVisible(false);
     });
     connect(GitLabPlugin::optionsPage(), &GitLabOptionsPage::settingsChanged,

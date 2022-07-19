@@ -156,8 +156,7 @@ GitLabOptionsWidget::GitLabOptionsWidget(QWidget *parent)
     connect(m_edit, &QPushButton::clicked, this, &GitLabOptionsWidget::showEditServerDialog);
     connect(m_remove, &QPushButton::clicked, this, &GitLabOptionsWidget::removeCurrentTriggered);
     connect(m_add, &QPushButton::clicked, this, &GitLabOptionsWidget::showAddServerDialog);
-    connect(m_defaultGitLabServer, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, [this]() {
+    connect(m_defaultGitLabServer, &QComboBox::currentIndexChanged, this, [this] {
         m_gitLabServerWidget->setGitLabServer(
                     m_defaultGitLabServer->currentData().value<GitLabServer>());
     });
