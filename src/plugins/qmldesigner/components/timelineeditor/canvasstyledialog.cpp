@@ -100,25 +100,21 @@ CanvasStyleDialog::CanvasStyleDialog(const CanvasStyle &style, QWidget *parent)
         emit styleChanged(out);
     };
 
-    auto doubleValueChanged = QOverload<double>::of(
-        &QDoubleSpinBox::valueChanged);
-    auto colorValueChanged = &ColorControl::valueChanged;
+    connect(m_aspect, &QDoubleSpinBox::valueChanged, this, emitValueChanged);
 
-    connect(m_aspect, doubleValueChanged, this, emitValueChanged);
+    connect(m_thinLineWidth, &QDoubleSpinBox::valueChanged, this, emitValueChanged);
+    connect(m_thickLineWidth, &QDoubleSpinBox::valueChanged, this, emitValueChanged);
 
-    connect(m_thinLineWidth, doubleValueChanged, this, emitValueChanged);
-    connect(m_thickLineWidth, doubleValueChanged, this, emitValueChanged);
+    connect(m_thinLineColor, &ColorControl::valueChanged, this, emitValueChanged);
+    connect(m_thickLineColor, &ColorControl::valueChanged, this, emitValueChanged);
 
-    connect(m_thinLineColor, colorValueChanged, this, emitValueChanged);
-    connect(m_thickLineColor, colorValueChanged, this, emitValueChanged);
+    connect(m_handleSize, &QDoubleSpinBox::valueChanged, this, emitValueChanged);
+    connect(m_handleLineWidth, &QDoubleSpinBox::valueChanged, this, emitValueChanged);
 
-    connect(m_handleSize, doubleValueChanged, this, emitValueChanged);
-    connect(m_handleLineWidth, doubleValueChanged, this, emitValueChanged);
+    connect(m_endPointColor, &ColorControl::valueChanged, this, emitValueChanged);
+    connect(m_interPointColor, &ColorControl::valueChanged, this, emitValueChanged);
 
-    connect(m_endPointColor, colorValueChanged, this, emitValueChanged);
-    connect(m_interPointColor, colorValueChanged, this, emitValueChanged);
-
-    connect(m_curveWidth, doubleValueChanged, this, emitValueChanged);
+    connect(m_curveWidth, &QDoubleSpinBox::valueChanged, this, emitValueChanged);
 }
 
 } // namespace QmlDesigner

@@ -138,18 +138,10 @@ EasingCurveDialog::EasingCurveDialog(const QList<ModelNode> &frames, QWidget *pa
     mainBox->addWidget(tabWidget);
     setLayout(mainBox);
 
-    connect(m_splineEditor,
-            &SplineEditor::easingCurveChanged,
-            this,
-            &EasingCurveDialog::updateEasingCurve);
-
+    connect(m_splineEditor, &SplineEditor::easingCurveChanged,
+            this, &EasingCurveDialog::updateEasingCurve);
     connect(m_presets, &PresetEditor::presetChanged, m_splineEditor, &SplineEditor::setEasingCurve);
-
-    connect(durationEdit,
-            QOverload<int>::of(&QSpinBox::valueChanged),
-            m_splineEditor,
-            &SplineEditor::setDuration);
-
+    connect(durationEdit, &QSpinBox::valueChanged, m_splineEditor, &SplineEditor::setDuration);
     connect(animateButton, &QPushButton::clicked, m_splineEditor, &SplineEditor::animate);
 
     m_presets->initialize(presetBar);

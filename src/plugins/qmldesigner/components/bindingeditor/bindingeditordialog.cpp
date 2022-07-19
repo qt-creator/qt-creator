@@ -47,11 +47,11 @@ BindingEditorDialog::BindingEditorDialog(QWidget *parent)
 {
     setupUIComponents();
 
-    QObject::connect(m_comboBoxItem, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    QObject::connect(m_comboBoxItem, &QComboBox::currentIndexChanged,
                      this, &BindingEditorDialog::itemIDChanged);
-    QObject::connect(m_comboBoxProperty, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    QObject::connect(m_comboBoxProperty, &QComboBox::currentIndexChanged,
                      this, &BindingEditorDialog::propertyIDChanged);
-    QObject::connect(m_checkBoxNot, QOverload<int>::of(&QCheckBox::stateChanged),
+    QObject::connect(m_checkBoxNot, &QCheckBox::stateChanged,
                      this, &BindingEditorDialog::checkBoxChanged);
 }
 

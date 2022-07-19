@@ -37,10 +37,7 @@ public:
     void operator()(QProcess *process)
     {
         process->disconnect();
-        QObject::connect(process,
-                         QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                         process,
-                         &QProcess::deleteLater);
+        QObject::connect(process, &QProcess::finished, process, &QProcess::deleteLater);
         process->kill();
     }
 };

@@ -269,7 +269,7 @@ QWidget *SwitchLanguageComboboxAction::createWidget(QWidget *parent)
         refreshComboBoxFunction(project);
 
     // do this after refreshComboBoxFunction so we do not get currentLocaleChanged signals at initialization
-    connect(comboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this, comboBox](int index) {
+    connect(comboBox, &QComboBox::currentIndexChanged, [this, comboBox](int index) {
         if (index == 0) // == Default
             emit currentLocaleChanged("");
         else

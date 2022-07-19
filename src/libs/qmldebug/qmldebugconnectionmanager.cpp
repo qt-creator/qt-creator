@@ -120,7 +120,7 @@ void QmlDebugConnectionManager::connectToTcpServer()
 void QmlDebugConnectionManager::startLocalServer()
 {
     stopConnectionTimer();
-    connect(&m_connectionTimer, &QTimer::timeout, this, [this]() {
+    connect(&m_connectionTimer, &QTimer::timeout, this, [this] {
         QTC_ASSERT(!isConnected(), return);
 
         // We leave the server running as some application might currently be trying to

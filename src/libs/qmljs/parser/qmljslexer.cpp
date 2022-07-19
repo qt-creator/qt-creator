@@ -492,7 +492,7 @@ again:
 
     // handle comment can be called after a '/' has been read
     // and returns true if it actually encountered a comment
-    auto handleComment = [this](){
+    auto handleComment = [this] {
         if (_char == u'*') {
             scanChar();
             while (_codePtr <= _endPtr) {

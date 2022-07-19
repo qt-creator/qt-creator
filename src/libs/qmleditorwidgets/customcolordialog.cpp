@@ -112,13 +112,13 @@ CustomColorDialog::CustomColorDialog(QWidget *parent) : QFrame(parent )
     resize(sizeHint());
 
     connect(m_colorBox, &ColorBox::colorChanged, this, &CustomColorDialog::onColorBoxChanged);
-    connect(m_alphaSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    connect(m_alphaSpinBox, &QDoubleSpinBox::valueChanged,
             this, &CustomColorDialog::spinBoxChanged);
-    connect(m_rSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    connect(m_rSpinBox, &QDoubleSpinBox::valueChanged,
             this, &CustomColorDialog::spinBoxChanged);
-    connect(m_gSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    connect(m_gSpinBox, &QDoubleSpinBox::valueChanged,
             this, &CustomColorDialog::spinBoxChanged);
-    connect(m_bSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    connect(m_bSpinBox, &QDoubleSpinBox::valueChanged,
             this, &CustomColorDialog::spinBoxChanged);
     connect(m_hueControl, &HueControl::hueChanged, this, &CustomColorDialog::onHueChanged);
 

@@ -101,13 +101,9 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
     m_startSpin->setRange(std::numeric_limits<int>::lowest(), std::numeric_limits<int>::max());
     m_startSpin->setValue(model->minimumTime());
 
-    connect(
-        m_startSpin, QOverload<int>::of(&QSpinBox::valueChanged),
-        this, &CurveEditorToolBar::startFrameChanged);
-
-    connect(
-        model, &CurveEditorModel::commitStartFrame,
-        [this](int frame) { m_startSpin->setValue(frame); });
+    connect(m_startSpin, &QSpinBox::valueChanged, this, &CurveEditorToolBar::startFrameChanged);
+    connect(model, &CurveEditorModel::commitStartFrame,
+            this, [this](int frame) { m_startSpin->setValue(frame); });
 
     auto validateEnd = [this](int val) -> bool {
         if (m_startSpin==nullptr)
@@ -118,20 +114,14 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
     m_endSpin->setRange(std::numeric_limits<int>::lowest(), std::numeric_limits<int>::max());
     m_endSpin->setValue(model->maximumTime());
 
-    connect(
-        m_endSpin, QOverload<int>::of(&QSpinBox::valueChanged),
-        this, &CurveEditorToolBar::endFrameChanged);
-
-    connect(
-        model, &CurveEditorModel::commitEndFrame,
-        [this](int frame) { m_endSpin->setValue(frame); });
+    connect(m_endSpin, &QSpinBox::valueChanged, this, &CurveEditorToolBar::endFrameChanged);
+    connect(model, &CurveEditorModel::commitEndFrame,
+            this, [this](int frame) { m_endSpin->setValue(frame); });
 
     m_currentSpin->setMinimum(0);
     m_currentSpin->setMaximum(std::numeric_limits<int>::max());
 
-    connect(
-        m_currentSpin, QOverload<int>::of(&QSpinBox::valueChanged),
-        this, &CurveEditorToolBar::currentFrameChanged);
+    connect(m_currentSpin, &QSpinBox::valueChanged, this, &CurveEditorToolBar::currentFrameChanged);
 
     auto *durationBox = new QHBoxLayout;
     durationBox->addWidget(new QLabel(tr("Start Frame")));

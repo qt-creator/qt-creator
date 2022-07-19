@@ -136,8 +136,7 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
         m_combo->setCurrentIndex(indexOf(1.0));
         m_combo->setToolTip(m_combo->currentText());
 
-        auto currentChanged = QOverload<int>::of(&QComboBox::currentIndexChanged);
-        connect(m_combo, currentChanged, this, &ZoomAction::emitZoomLevelChanged);
+        connect(m_combo, &QComboBox::currentIndexChanged, this, &ZoomAction::emitZoomLevelChanged);
 
         return m_combo.data();
     }

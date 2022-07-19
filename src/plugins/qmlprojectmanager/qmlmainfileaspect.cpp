@@ -85,8 +85,7 @@ void QmlMainFileAspect::addToLayout(LayoutBuilder &builder)
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
             this, &QmlMainFileAspect::updateFileComboBox);
-    connect(m_fileListCombo, QOverload<int>::of(&QComboBox::activated),
-            this, &QmlMainFileAspect::setMainScript);
+    connect(m_fileListCombo, &QComboBox::activated, this, &QmlMainFileAspect::setMainScript);
 
     builder.addItems({tr("Main QML file:"), m_fileListCombo.data()});
 }

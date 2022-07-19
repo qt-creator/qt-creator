@@ -49,23 +49,23 @@ ActionEditorDialog::ActionEditorDialog(QWidget *parent)
 {
     setupUIComponents();
 
-    QObject::connect(m_comboBoxType, QOverload<int>::of(&QComboBox::activated),
+    QObject::connect(m_comboBoxType, &QComboBox::activated,
                      [this] (int idx) { this->updateComboBoxes(idx, ComboBox::Type); });
 
     // Action connections
-    QObject::connect(m_actionTargetItem, QOverload<int>::of(&QComboBox::activated),
+    QObject::connect(m_actionTargetItem, &QComboBox::activated,
                      [this] (int idx) { this->updateComboBoxes(idx, ComboBox::TargetItem); });
-    QObject::connect(m_actionMethod, QOverload<int>::of(&QComboBox::activated),
+    QObject::connect(m_actionMethod, &QComboBox::activated,
                      [this] (int idx) { this->updateComboBoxes(idx, ComboBox::TargetProperty); });
 
     // Assignment connections
-    QObject::connect(m_assignmentTargetItem, QOverload<int>::of(&QComboBox::activated),
+    QObject::connect(m_assignmentTargetItem, &QComboBox::activated,
                      [this] (int idx) { this->updateComboBoxes(idx, ComboBox::TargetItem); });
-    QObject::connect(m_assignmentTargetProperty, QOverload<int>::of(&QComboBox::activated),
+    QObject::connect(m_assignmentTargetProperty, &QComboBox::activated,
                      [this] (int idx) { this->updateComboBoxes(idx, ComboBox::TargetProperty); });
-    QObject::connect(m_assignmentSourceItem, QOverload<int>::of(&QComboBox::activated),
+    QObject::connect(m_assignmentSourceItem, &QComboBox::activated,
                      [this] (int idx) { this->updateComboBoxes(idx, ComboBox::SourceItem); });
-    QObject::connect(m_assignmentSourceProperty, QOverload<int>::of(&QComboBox::activated),
+    QObject::connect(m_assignmentSourceProperty, &QComboBox::activated,
                      [this] (int idx) { this->updateComboBoxes(idx, ComboBox::SourceProperty); });
 }
 

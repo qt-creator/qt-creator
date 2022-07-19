@@ -571,7 +571,7 @@ void QmlJSEditorWidget::createToolBar()
     policy.setHorizontalPolicy(QSizePolicy::Expanding);
     m_outlineCombo->setSizePolicy(policy);
 
-    connect(m_outlineCombo, QOverload<int>::of(&QComboBox::activated),
+    connect(m_outlineCombo, &QComboBox::activated,
             this, &QmlJSEditorWidget::jumpToOutlineElement);
     connect(m_qmlJsEditorDocument->outlineModel(), &Internal::QmlOutlineModel::updated,
             static_cast<QTreeView *>(m_outlineCombo->view()), &QTreeView::expandAll);

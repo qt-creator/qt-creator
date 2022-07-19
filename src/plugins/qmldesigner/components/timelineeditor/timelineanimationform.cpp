@@ -56,11 +56,11 @@ TimelineAnimationForm::TimelineAnimationForm(QWidget *parent)
     connectSpinBox(ui->startFrame, "from");
     connectSpinBox(ui->endFrame, "to");
 
-    connect(ui->loops, QOverload<int>::of(&QSpinBox::valueChanged), [this]() {
+    connect(ui->loops, &QSpinBox::valueChanged, this, [this] {
         ui->continuous->setChecked(ui->loops->value() == -1);
     });
 
-    connect(ui->continuous, &QCheckBox::toggled, [this](bool checked) {
+    connect(ui->continuous, &QCheckBox::toggled, this, [this](bool checked) {
         if (checked) {
             setProperty("loops", -1);
             ui->loops->setValue(-1);
@@ -70,7 +70,7 @@ TimelineAnimationForm::TimelineAnimationForm(QWidget *parent)
         }
     });
 
-    connect(ui->idLineEdit, &QLineEdit::editingFinished, [this]() {
+    connect(ui->idLineEdit, &QLineEdit::editingFinished, this, [this] {
         QTC_ASSERT(m_timeline.isValid(), return );
 
         static QString lastString;
@@ -105,7 +105,7 @@ TimelineAnimationForm::TimelineAnimationForm(QWidget *parent)
         }
     });
 
-    connect(ui->running, &QCheckBox::clicked, [this](bool checked) {
+    connect(ui->running, &QCheckBox::clicked, this, [this](bool checked) {
         if (checked) {
             setProperty("running", true);
         } else {
@@ -113,7 +113,7 @@ TimelineAnimationForm::TimelineAnimationForm(QWidget *parent)
         }
     });
 
-    connect(ui->pingPong, &QCheckBox::clicked, [this](bool checked) {
+    connect(ui->pingPong, &QCheckBox::clicked, this, [this](bool checked) {
         if (checked) {
             setProperty("pingPong", true);
         } else {
@@ -121,9 +121,7 @@ TimelineAnimationForm::TimelineAnimationForm(QWidget *parent)
         }
     });
 
-    connect(ui->transitionToState,
-            QOverload<int>::of(&QComboBox::activated),
-            [this](int index) {
+    connect(ui->transitionToState, &QComboBox::activated, this, [this](int index) {
                 if (!m_animation.isValid())
                     return;
                 if (!m_animation.view()->rootModelNode().hasId())

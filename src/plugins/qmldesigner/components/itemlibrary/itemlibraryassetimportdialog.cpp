@@ -565,8 +565,8 @@ QGridLayout *ItemLibraryAssetImportDialog::createOptionsGrid(
             optSpin->setMinimumWidth(controlMinWidth);
             optControl = optSpin;
             if (advanced) {
-                QObject::connect(optSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
-                                 [this, optSpin, optKey, optionsIndex]() {
+                QObject::connect(optSpin, &QDoubleSpinBox::valueChanged, this,
+                                 [this, optSpin, optKey, optionsIndex] {
                     QJsonObject optObj = m_importOptions[optionsIndex].value(optKey).toObject();
                     QJsonValue value(optSpin->value());
                     optObj.insert("value", value);
@@ -577,13 +577,13 @@ QGridLayout *ItemLibraryAssetImportDialog::createOptionsGrid(
                             m_labelToControlWidgetMaps[optionsIndex].value(optKey));
                 if (advSpin) {
                     // Connect corresponding advanced control
-                    QObject::connect(optSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-                                     this, [optSpin, advSpin]() {
+                    QObject::connect(optSpin, &QDoubleSpinBox::valueChanged,
+                                     this, [optSpin, advSpin] {
                         if (advSpin->value() != optSpin->value())
                             advSpin->setValue(optSpin->value());
                     });
-                    QObject::connect(advSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-                                     this, [optSpin, advSpin]() {
+                    QObject::connect(advSpin, &QDoubleSpinBox::valueChanged,
+                                     this, [optSpin, advSpin] {
                         if (advSpin->value() != optSpin->value())
                             optSpin->setValue(advSpin->value());
                     });
@@ -675,9 +675,8 @@ QGridLayout *ItemLibraryAssetImportDialog::createOptionsGrid(
                         w2->setEnabled(enable);
                     };
                     enableConditionally(optSpin, conLabel, conControl, mode);
-                    QObject::connect(
-                                optSpin, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
-                                optSpin, [optSpin, conLabel, conControl, mode, enableConditionally]() {
+                    QObject::connect(optSpin, &QDoubleSpinBox::valueChanged, optSpin,
+                                     [optSpin, conLabel, conControl, mode, enableConditionally] {
                         enableConditionally(optSpin, conLabel, conControl, mode);
                     });
                 }

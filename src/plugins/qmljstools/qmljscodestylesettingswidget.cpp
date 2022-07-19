@@ -38,8 +38,7 @@ QmlJSCodeStyleSettingsWidget::QmlJSCodeStyleSettingsWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    auto spinValueChanged = QOverload<int>::of(&QSpinBox::valueChanged);
-    connect(ui->lineLengthSpinBox, spinValueChanged,
+    connect(ui->lineLengthSpinBox, &QSpinBox::valueChanged,
             this, &QmlJSCodeStyleSettingsWidget::slotSettingsChanged);
 }
 

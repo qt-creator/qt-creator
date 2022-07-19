@@ -132,17 +132,17 @@ EasingContextPane::EasingContextPane(QWidget *parent) :
 
     connect(m_simulation, &EasingSimulation::finished, this, &EasingContextPane::switchToGraph);
     connect(ui->playButton, &QPushButton::clicked, this, &EasingContextPane::playClicked);
-    connect(ui->overshootSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    connect(ui->overshootSpinBox, &QDoubleSpinBox::valueChanged,
             this, &EasingContextPane::overshootChanged);
-    connect(ui->periodSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    connect(ui->periodSpinBox, &QDoubleSpinBox::valueChanged,
             this, &EasingContextPane::periodChanged);
-    connect(ui->amplitudeSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    connect(ui->amplitudeSpinBox, &QDoubleSpinBox::valueChanged,
             this, &EasingContextPane::amplitudeChanged);
-    connect(ui->easingExtremesComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(ui->easingExtremesComboBox, &QComboBox::currentIndexChanged,
             this, &EasingContextPane::easingExtremesChanged);
-    connect(ui->easingShapeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+    connect(ui->easingShapeComboBox, &QComboBox::currentIndexChanged,
             this, &EasingContextPane::easingShapeChanged);
-    connect(ui->durationSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
+    connect(ui->durationSpinBox, &QSpinBox::valueChanged,
             this, &EasingContextPane::durationChanged);
 }
 
