@@ -39,6 +39,7 @@ tags
 ui_*.h
 wrapper.bat
 wrapper.sh
+debug_toolchain.cmake
 
 # qtcreator generated files
 *.creator.user*

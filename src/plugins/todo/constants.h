@@ -31,6 +31,8 @@
 namespace Todo {
 namespace Constants {
 
+const char TODO_SETTINGS[] = "TodoSettings";
+
 // Settings entries
 const char SETTINGS_GROUP[] = "TodoPlugin";
 const char SCANNING_SCOPE[] = "ScanningScope";

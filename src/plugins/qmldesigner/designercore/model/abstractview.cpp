@@ -97,14 +97,15 @@ ModelNode AbstractView::createModelNode(const TypeName &typeName)
 }
 
 ModelNode AbstractView::createModelNode(const TypeName &typeName,
-                            int majorVersion,
-                            int minorVersion,
-                            const QList<QPair<PropertyName, QVariant> > &propertyList,
-                            const QList<QPair<PropertyName, QVariant> > &auxPropertyList,
-                            const QString &nodeSource,
-                            ModelNode::NodeSourceType nodeSourceType)
+                                        int majorVersion,
+                                        int minorVersion,
+                                        const QList<QPair<PropertyName, QVariant>> &propertyList,
+                                        const QList<QPair<PropertyName, QVariant>> &auxPropertyList,
+                                        const QString &nodeSource,
+                                        ModelNode::NodeSourceType nodeSourceType,
+                                        const QString &behaviorPropertyName)
 {
-    return ModelNode(model()->d->createNode(typeName, majorVersion, minorVersion, propertyList, auxPropertyList, nodeSource, nodeSourceType), model(), this);
+    return ModelNode(model()->d->createNode(typeName, majorVersion, minorVersion, propertyList, auxPropertyList, nodeSource, nodeSourceType, behaviorPropertyName), model(), this);
 }
 
 

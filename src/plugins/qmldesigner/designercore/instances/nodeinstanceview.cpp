@@ -1050,7 +1050,8 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
                                     nodeMetaType,
                                     nodeFlags);
 
-        instanceContainerList.append(container);
+        if (instance.modelNode().behaviorPropertyName().isEmpty())
+            instanceContainerList.append(container);
     }
 
     QVector<ReparentContainer> reparentContainerList;

@@ -218,6 +218,10 @@ QString QmlTextGenerator::toQml(const ModelNode &node, int indentDepth) const
         result = alias + '.';
 
     result += type;
+    if (!node.behaviorPropertyName().isEmpty()) {
+        result += " on " +  node.behaviorPropertyName();
+    }
+
     result += QStringLiteral(" {\n");
 
     const int propertyIndentDepth = indentDepth + m_tabSettings.m_indentSize;

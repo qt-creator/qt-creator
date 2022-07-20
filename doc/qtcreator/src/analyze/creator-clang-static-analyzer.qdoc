@@ -122,8 +122,8 @@
     \image qtcreator-clang-tools-options-customized.png "Clang Tools customized settings"
 
     To restore the global settings, select \uicontrol {Restore Global Settings}.
-    To view and modify the global settings, select
-    \uicontrol {Open Global Settings}. To open the Clang static analyzer,
+    To view and modify the global settings, select the link in
+    \uicontrol {Use global settings}. To open the Clang static analyzer,
     select \uicontrol {Go to Analyzer}.
 
     \section1 Configuring Clang Tools
@@ -174,6 +174,8 @@
 
         \li In the \uicontrol {Clang-Tidy Checks} tab, select
             \uicontrol {Select Checks} to select the checks to perform.
+            To filter the checks, enter a string in the
+            \uicontrol {Filter by name} field.
 
             \image qtcreator-clang-tidy.png "Clang-Tidy Checks tab"
 
@@ -189,8 +191,10 @@
 
             \image qtcreator-clazy.png "Clazy Checks tab"
 
-        \li In the \uicontrol {Topic Filter} field, select a topic to view
-            only checks related to that area in the \uicontrol Checks field.
+        \li In the \uicontrol Filters field, select topics to view
+            only checks related to those areas in the \uicontrol Checks field.
+            To filter the checks in the selected areas, enter a string in the
+            \uicontrol {Filter by name} field.
 
         \li To view all checks again, select \uicontrol {Reset Filter}.
 

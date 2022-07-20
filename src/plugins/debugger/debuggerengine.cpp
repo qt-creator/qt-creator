@@ -1058,10 +1058,12 @@ void DebuggerEngine::setRunId(const QString &id)
 void DebuggerEngine::setRunTool(DebuggerRunTool *runTool)
 {
     d->m_device = runTool->device();
-    QTC_ASSERT(d->m_device, d->m_device = DeviceManager::deviceForPath(
-                                d->m_runParameters.inferior.command.executable()));
-    if (QTC_GUARD(d->m_device))
-        d->m_runParameters.dumperPath = d->m_device->debugDumperPath();
+
+    IDevice::ConstPtr debuggerDevice =
+        DeviceManager::deviceForPath(d->m_runParameters.debugger.command.executable());
+    if (QTC_GUARD(debuggerDevice))
+        d->m_runParameters.dumperPath = debuggerDevice->debugDumperPath();
+
     d->m_terminalRunner = runTool->terminalRunner();
 
     validateRunParameters(d->m_runParameters);

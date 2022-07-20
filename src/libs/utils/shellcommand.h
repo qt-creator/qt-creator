@@ -151,7 +151,8 @@ signals:
     void append(const QString &text);
     void appendSilently(const QString &text);
     void appendError(const QString &text);
-    void appendCommand(const FilePath &workingDirectory, const CommandLine &command);
+    // TODO: remove Utils:: scope when support for Qt5 is dropped (Creator 9.0)
+    void appendCommand(const Utils::FilePath &workingDirectory, const Utils::CommandLine &command);
     void appendMessage(const QString &text);
 
     void executedAsync(const QFuture<void> &future);

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2018 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -48,7 +48,7 @@
                 into binaries. Different build configurations allow you to
                 quickly build the project for different purposes.
                 By default, \QC creates \e {debug build} and \e {release build}
-                configurations for each \l{glossary-buildandrun-kit}{kit} defined for your project.
+                configurations for each \e {kit} defined for your project.
                 A debug build contains
                 additional debug symbols that you need for debugging the
                 application but that you can leave out from the release version.
@@ -81,20 +81,20 @@
             \li Handles the packaging and copying of the necessary files to a
                 location you want to run the executable at. The files can be
                 copied to a location in the file system of the development PC or
-                a \l{glossary-device}{device}.
+                a \e {device}.
 
         \row
             \li Device
                 \target glossary-device
             \li An embedded device or a mobile device. For more information, see
-                \l{Target Platforms}.
+                \l{Embedded Platforms} and \l{Mobile Platforms}.
 
         \row
             \li Kit
                 \target glossary-buildandrun-kit
             \li \QC groups build and run specific settings as kits to make
                 cross-platform development easier. Each kit consists of a set
-                of values that define one environment, such as a \l{glossary-device}{device},
+                of values that define one environment, such as a \e {device},
                 tool chain, Qt version, and debugger command to use. Configure kits at
                 \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits.
 
@@ -113,7 +113,7 @@
                 \target glossary-project
             \li Groups together a set of source files, forms, and resource files
                 that you can build for, as well as deploy and run on different
-                desktop and \l{glossary-device}{device} platforms, as
+                desktop and \e {device} platforms, as
                 specified by a \e {build configuration}, \e {deploy
                 configuration}, and \e {run configuration}.
 
@@ -129,9 +129,8 @@
                 \target glossary-run-config
             \li Starts the application in the location where it was copied by
                 the \e {deploy configuration}. By default, when you run a
-                project, \QC builds it, deploys it to the
-                \l{glossary-device}{device} specified in the selected
-                \l{glossary-buildandrun-kit}{kit},
+                project, \QC builds it, deploys it to the \e {device} specified
+                in the selected \e {kit},
                 and runs it there. However, if you have not made any changes to
                 the project since you last built and deployed it, \QC simply
                 runs it again.

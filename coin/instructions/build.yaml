@@ -138,15 +138,6 @@ instructions:
           property: target.arch
           equals_value: X86
 
-  - type: SignPackage
-    directory: "{{.AgentWorkingDir}}/qt-creator/qt-creator_build/install/"
-    maxTimeInSeconds: 1200
-    maxTimeBetweenOutput: 1200
-    enable_if:
-      condition: property
-      property: host.os
-      equals_value: Windows
-
   - type: UploadArtifact
     archiveDirectory: "{{.AgentWorkingDir}}/qt-creator/qt-creator_build/build"
     transferType: UploadModuleBuildArtifact

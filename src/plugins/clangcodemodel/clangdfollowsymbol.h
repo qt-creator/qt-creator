@@ -55,7 +55,7 @@ signals:
     void done();
 
 private:
-    void emitDone();
+    void emitDone(const Utils::Link &link = {});
     class VirtualFunctionAssistProcessor;
     class VirtualFunctionAssistProvider;
 

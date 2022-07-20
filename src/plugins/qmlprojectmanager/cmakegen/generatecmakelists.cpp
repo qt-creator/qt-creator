@@ -90,11 +90,14 @@ void generateMenuEntry(QObject *parent)
     Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.CreateCMakeLists");
     menu->addAction(cmd, Core::Constants::G_FILE_EXPORT);
 
-    action->setEnabled(ProjectExplorer::SessionManager::startupProject() != nullptr);
+    action->setEnabled(false);
     QObject::connect(ProjectExplorer::SessionManager::instance(),
-        &ProjectExplorer::SessionManager::startupProjectChanged, [action]() {
-            action->setEnabled(ProjectExplorer::SessionManager::startupProject() != nullptr);
-    });
+                     &ProjectExplorer::SessionManager::startupProjectChanged,
+                     [action]() {
+                         auto qmlProject = qobject_cast<QmlProject *>(
+                             ProjectExplorer::SessionManager::startupProject());
+                         action->setEnabled(qmlProject != nullptr);
+                     });
 }
 
 void onGenerateCmakeLists()

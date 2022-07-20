@@ -379,7 +379,8 @@ bool QmlProjectPlugin::initialize(const QStringList &, QString *errorMessage)
     }
 
     GenerateCmake::generateMenuEntry(this);
-    GenerateCmake::CmakeProjectConverter::generateMenuEntry(this);
+    if (QmlProject::isQtDesignStudio())
+        GenerateCmake::CmakeProjectConverter::generateMenuEntry(this);
 
     return true;
 }

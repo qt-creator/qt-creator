@@ -673,10 +673,17 @@
     in the \uicontrol {Scanning scope} group.
 
     To exclude files from scanning, select \uicontrol {Project Settings} >
-    \uicontrol {To-Do} in the
-    \uicontrol Projects mode. Select \uicontrol Add and enter a regular
-    expression that matches the path to files to exclude. Use a forward slash
-    (/) as a separator in the path also on Windows.
+    \uicontrol {To-Do} in the \uicontrol Projects mode.
+
+    \image qtcreator-todo-excluded-files.png "Excluded Files in To-Do preferences"
+
+    Select \uicontrol Add and double-click the placeholder text in
+    \uicontrol {Exclude Files} to enter a regular expression that
+    matches the path to files to exclude. Use a forward slash (/)
+    as a separator in the path also on Windows.
+
+    Select the link in \uicontrol {Use global settings} to open global
+    To-Do preferences.
 
     The Todo plugin is disabled by default. To enable the plugin, select
     \uicontrol Help > \uicontrol {About Plugins} > \uicontrol Utilities >

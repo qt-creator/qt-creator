@@ -389,5 +389,15 @@ void InternalNode::setNodeSourceType(int i)
     m_nodeSourceType = i;
 }
 
+QString InternalNode::behaviorPropertyName() const
+{
+    return m_behaviorPropertyName;
+}
+
+void InternalNode::setBehaviorPropertyName(const QString &name)
+{
+    m_behaviorPropertyName = name;
+}
+
 }
 }

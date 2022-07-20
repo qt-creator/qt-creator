@@ -97,9 +97,11 @@ ModelPrivate::ModelPrivate(Model *model)
                                     0,
                                     PropertyListType(),
                                     PropertyListType(),
-                                    QString(),
+                                    {},
                                     ModelNode::NodeWithoutSource,
+                                    {},
                                     true);
+
     m_currentStateNode = m_rootInternalNode;
     m_currentTimelineNode = m_rootInternalNode;
 }
@@ -250,6 +252,7 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
                                              const QList<QPair<PropertyName, QVariant>> &auxPropertyList,
                                              const QString &nodeSource,
                                              ModelNode::NodeSourceType nodeSourceType,
+                                             const QString &behaviorPropertyName,
                                              bool isRootNode)
 {
     if (typeName.isEmpty())
@@ -262,6 +265,8 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
 
     InternalNodePointer newNode = InternalNode::create(typeName, majorVersion, minorVersion, internalId);
     newNode->setNodeSourceType(nodeSourceType);
+
+    newNode->setBehaviorPropertyName(behaviorPropertyName);
 
     using PropertyPair = QPair<PropertyName, QVariant>;
 
@@ -400,7 +405,7 @@ void ModelPrivate::notifyNodeInstanceViewLast(Callable call)
         resetModel = true;
     }
 
-    for (QPointer<AbstractView> view : enabledViews()) {
+    for (const QPointer<AbstractView> &view : enabledViews()) {
         if (!view->isBlockingNotifications())
             call(view.data());
     }
@@ -429,7 +434,7 @@ void ModelPrivate::notifyNormalViewsLast(Callable call)
     if (nodeInstanceView() && !nodeInstanceView()->isBlockingNotifications())
         call(nodeInstanceView());
 
-    for (QPointer<AbstractView> view : enabledViews()) {
+    for (const QPointer<AbstractView> &view : enabledViews()) {
         if (!view->isBlockingNotifications())
             call(view.data());
     }
@@ -441,7 +446,7 @@ void ModelPrivate::notifyNormalViewsLast(Callable call)
 template<typename Callable>
 void ModelPrivate::notifyInstanceChanges(Callable call)
 {
-    for (QPointer<AbstractView> view : enabledViews()) {
+    for (const QPointer<AbstractView> &view : enabledViews()) {
         if (!view->isBlockingNotifications())
             call(view.data());
     }

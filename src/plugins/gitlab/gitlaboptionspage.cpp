@@ -274,7 +274,7 @@ GitLabOptionsPage::GitLabOptionsPage(GitLabParameters *p, QObject *parent)
     : Core::IOptionsPage{parent}
     , m_parameters(p)
 {
-    setId("GitLab");
+    setId(Constants::GITLAB_SETTINGS);
     setDisplayName(tr("GitLab"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
 }

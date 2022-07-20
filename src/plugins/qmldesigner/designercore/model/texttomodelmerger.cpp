@@ -40,6 +40,7 @@
 #include "propertyparser.h"
 #include "rewriterview.h"
 #include "variantproperty.h"
+#include <rewritingexception.h>
 
 #include <enumeration.h>
 
@@ -435,13 +436,14 @@ class ReadingContext
 {
 public:
     ReadingContext(const Snapshot &snapshot, const Document::Ptr &doc,
-                   const ViewerContext &vContext)
+                   const ViewerContext &vContext, Model *model)
         : m_doc(doc)
         , m_context(
               Link(snapshot, vContext, ModelManagerInterface::instance()->builtins(doc))
               (doc, &m_diagnosticLinkMessages))
         , m_scopeChain(doc, m_context)
         , m_scopeBuilder(&m_scopeChain)
+        , m_model(model)
     {
     }
 
@@ -506,6 +508,36 @@ public:
                 if (!name.isEmpty())
                     typeName.prepend(name + QLatin1Char('.'));
             }
+        }
+
+        {
+            TypeName fullTypeName;
+            for (AST::UiQualifiedId *iter = astTypeNode; iter; iter = iter->next)
+                if (!iter->name.isEmpty())
+                    fullTypeName += iter->name.toUtf8() + '.';
+
+            if (fullTypeName.endsWith('.'))
+                fullTypeName.chop(1);
+
+            NodeMetaInfo metaInfo = m_model->metaInfo(fullTypeName);
+
+            bool ok = metaInfo.typeName() == typeName.toUtf8()
+                && metaInfo.majorVersion() == majorVersion
+                && metaInfo.minorVersion() == minorVersion;
+
+            if (!ok) {
+                qDebug() << Q_FUNC_INFO;
+                qDebug() << astTypeNode->name.toString() << typeName;
+                qDebug() << metaInfo.isValid() << metaInfo.typeName();
+                qDebug() << metaInfo.directSuperClass().typeName();
+
+                if (!typeName.startsWith("..."))
+                    throw RewritingException(__LINE__, __FUNCTION__, __FILE__, "test", "test");
+            }
+
+            typeName = QString::fromUtf8(metaInfo.typeName());
+            majorVersion = metaInfo.majorVersion();
+            minorVersion = metaInfo.minorVersion();
         }
     }
 
@@ -759,6 +791,7 @@ private:
     ContextPtr m_context;
     ScopeChain m_scopeChain;
     ScopeBuilder m_scopeBuilder;
+    Model *m_model;
 };
 
 } // namespace Internal
@@ -1127,7 +1160,7 @@ bool TextToModelMerger::load(const QString &data, DifferenceHandler &differenceH
 
 
         m_vContext = ModelManagerInterface::instance()->projectVContext(Dialect::Qml, m_document);
-        ReadingContext ctxt(snapshot, m_document, m_vContext);
+        ReadingContext ctxt(snapshot, m_document, m_vContext, m_rewriterView->model());
         m_scopeChain = QSharedPointer<const ScopeChain>(
                     new ScopeChain(ctxt.scopeChain()));
 
@@ -1188,6 +1221,15 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
                                  ReadingContext *context,
                                  DifferenceHandler &differenceHandler)
 {
+    auto binding = AST::cast<AST::UiObjectBinding *>(astNode);
+
+    const bool hasOnToken = binding && binding->hasOnToken;
+
+    QString onTokenProperty;
+
+    if (hasOnToken)
+        onTokenProperty =  toString(binding->qualifiedId);
+
     AST::UiQualifiedId *astObjectType = qualifiedTypeNameId(astNode);
     AST::UiObjectInitializer *astInitializer = initializerOfObject(astNode);
 
@@ -1224,10 +1266,10 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
 
     bool isImplicitComponent = modelNode.hasParentProperty() && propertyIsComponentType(modelNode.parentProperty(), typeName, modelNode.model());
 
-
-    if (modelNode.type() != typeName //If there is no valid parentProperty                                                                                                      //the node has just been created. The type is correct then.
-            || modelNode.majorVersion() != majorVersion
-            || modelNode.minorVersion() != minorVersion) {
+    if (modelNode.type()
+            != typeName //If there is no valid parentProperty                                                                                                      //the node has just been created. The type is correct then.
+        || modelNode.majorVersion() != majorVersion || modelNode.minorVersion() != minorVersion
+        || modelNode.behaviorPropertyName() != onTokenProperty) {
         const bool isRootNode = m_rewriterView->rootModelNode() == modelNode;
         differenceHandler.typeDiffers(isRootNode, modelNode, typeName,
                                       majorVersion, minorVersion,
@@ -1294,7 +1336,8 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         } else if (auto binding = AST::cast<AST::UiObjectBinding *>(member)) {
             const QString astPropertyName = toString(binding->qualifiedId);
             if (binding->hasOnToken) {
-                // skip value sources
+                // Store Behaviours in the default property
+                defaultPropertyItems.append(member);
             } else {
                 const Value *propertyType = nullptr;
                 const ObjectValue *containingObject = nullptr;
@@ -1690,6 +1733,13 @@ ModelNode TextToModelMerger::createModelNode(const TypeName &typeName,
 {
     QString nodeSource;
 
+    auto binding = AST::cast<AST::UiObjectBinding *>(astNode);
+
+    const bool hasOnToken = binding && binding->hasOnToken;
+
+    QString onTokenProperty;
+    if (hasOnToken)
+        onTokenProperty =  toString(binding->qualifiedId);
 
     AST::UiQualifiedId *astObjectType = qualifiedTypeNameId(astNode);
 
@@ -1721,7 +1771,8 @@ ModelNode TextToModelMerger::createModelNode(const TypeName &typeName,
                                                         PropertyListType(),
                                                         PropertyListType(),
                                                         nodeSource,
-                                                        nodeSourceType);
+                                                        nodeSourceType,
+                                                        onTokenProperty);
 
     syncNode(newNode, astNode, context, differenceHandler);
     return newNode;

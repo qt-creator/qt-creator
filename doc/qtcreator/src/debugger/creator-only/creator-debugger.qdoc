@@ -406,6 +406,15 @@
             applications.
         \li Select the \uicontrol {Break at "main"} check box to stop the
             debugger at the main function.
+        \li Select the \uicontrol {Use target extended-remote to connect}
+            check box to create the connection in the
+            \c {target extended-remote mode}. In this mode, when the debugged
+            application exits or you detach from it, the debugger remains
+            connected to the target. You can rerun the application, attach
+            to a running application, or use monitor commands specific to the
+            target. For example, GDB does not exit unless it was invoked using
+            the \c {--once} option, but you can make it exit by using the
+            \c {monitor exit} command.
         \li In the \uicontrol {Override SysRoot} field, specify the path to
             the \c sysroot to use instead of the default \c sysroot.
         \li In the \uicontrol {Init commands} field, enter the commands
@@ -429,6 +438,10 @@
     \uicontrol GDB. For more information about settings that you can specify
     to manage the GDB process, see \l{Specifying GDB Settings} and
     \l{Specifying Extended GDB Settings}.
+
+    For more informaton about connecting with \c {target extended-remote} mode
+    in GDB, see \l{https://sourceware.org/gdb/onlinedocs/gdb/Connecting.html}
+    {Debugging with GDB: Connecting to a Remote Target}.
 
     \section3 Using CDB
 
@@ -864,7 +877,7 @@
     Debugging helpers are always automatically used. To force a plain C-like
     display of structures, select \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Debugger > \uicontrol {Locals & Expressions}, and then deselect
-    the \uicontrol {Use Debugging Helper} check box. This will still use the
+    the \uicontrol {Use Debugging Helpers} check box. This will still use the
     Python scripts, but generate more basic output. To force the plain display
     for a single object or for all objects of a given type, select the
     corresponding option from the context menu.
@@ -892,6 +905,8 @@
     to the libraries your application uses, select \uicontrol Preferences >
     \uicontrol Debugger > \uicontrol GDB > \uicontrol {Load system GDB pretty
     printers}. For more information, see \l{Specifying GDB Settings}.
+
+    \image qtcreator-gdb-options.png "GDB preferences"
 
     \section2 Customizing Built-In Debugging Helpers
 
@@ -968,7 +983,7 @@
             installation in your file system and specify the location in
             \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
             \uicontrol {Locals & Expressions} >
-            \uicontrol {Extra Debugging Helpers}.
+            \uicontrol {Extra Debugging Helper}.
     \endlist
 
     The custom debugging helpers will be automatically picked up from
@@ -1111,6 +1126,8 @@
     When using CDB as debugger backend, you can enable the Python dumper by
     selecting \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
     \uicontrol CDB > \uicontrol {Use Python dumper}.
+
+    \image qtcreator-cdb-options.png "CDB preferences"
 
     \section3 Dumper Class
 
@@ -1548,6 +1565,8 @@
     when loading the same binary in the future. Select \uicontrol Edit
     > \uicontrol Preferences > \uicontrol Debugger > \uicontrol GDB >
     \uicontrol {Use automatic symbol cache}.
+
+    \image qtcreator-gdb-options.png "GDB preferences"
 
     Some slowness stems from maintaining breakpoints inside
     the debugger (under some circumstances all breakpoints need to be inserted

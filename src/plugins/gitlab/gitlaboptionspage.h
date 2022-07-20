@@ -39,6 +39,10 @@ QT_END_NAMESPACE
 
 namespace GitLab {
 
+namespace Constants {
+const char GITLAB_SETTINGS[] = "GitLab";
+} // namespace Constants
+
 class GitLabServerWidget : public QWidget
 {
 public:

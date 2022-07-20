@@ -60,9 +60,10 @@ private:
 bool testDocker(const FilePath &executable)
 {
     QtcProcess p;
-    p.setCommand({executable, {"info"}});
+    p.setCommand({executable, {"info", "--format", "{{.OSType}}"}});
     p.runBlocking();
-    return p.result() == ProcessResult::FinishedWithSuccess;
+    const QString platform = p.cleanedStdOut().trimmed();
+    return p.result() == ProcessResult::FinishedWithSuccess && platform == "linux";
 }
 
 class tst_DeviceShell : public QObject
@@ -336,10 +337,25 @@ private slots:
 
         QList<int> runs{1,2,3,4,5,6,7,8,9};
 
-        QList<QByteArray> results = Utils::mapped<QList>(runs, [&shell](const int i) -> QByteArray{
+        int maxDepth = 4;
+        int numMs = 0;
+
+        while (true) {
             QElapsedTimer t;
             t.start();
-            DeviceShell::RunResult result = shell.outputForRunInShell({"find", {"/usr", "-maxdepth", "4"}});
+            DeviceShell::RunResult result = shell.outputForRunInShell({"find", {"/usr", "-maxdepth", QString::number(maxDepth)}});
+            numMs = t.elapsed();
+            qDebug() << "adjusted maxDepth" << maxDepth << "took" << numMs << "ms";
+            if (numMs < 100 || maxDepth == 1) {
+                break;
+            }
+            maxDepth--;
+        }
+
+        QList<QByteArray> results = Utils::mapped<QList>(runs, [&shell, maxDepth](const int i) -> QByteArray{
+            QElapsedTimer t;
+            t.start();
+            DeviceShell::RunResult result = shell.outputForRunInShell({"find", {"/usr", "-maxdepth", QString::number(maxDepth)}});
             qDebug() << i << "took" << t.elapsed() << "ms";
             return result.stdOut;
         });

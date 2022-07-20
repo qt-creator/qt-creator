@@ -267,11 +267,15 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
 {
     QFileInfo info(m_config.emulatorToolPath().toString());
     if (!info.exists()) {
-        QMessageBox::critical(Core::ICore::dialogParent(),
-                              tr("Emulator Tool Is Missing"),
-                              tr("Install the missing emulator tool (%1) to the"
-                                 " installed Android SDK.")
-                              .arg(m_config.emulatorToolPath().toString()));
+        const QString emulatorToolPath = m_config.emulatorToolPath().toUserOutput();
+        QMetaObject::invokeMethod(Core::ICore::mainWindow(), [emulatorToolPath] {
+            QMessageBox::critical(Core::ICore::dialogParent(),
+                                  AndroidAvdManager::tr("Emulator Tool Is Missing"),
+                                  AndroidAvdManager::tr(
+                                      "Install the missing emulator tool (%1) to the"
+                                      " installed Android SDK.")
+                                      .arg(emulatorToolPath));
+        });
         return false;
     }
 
@@ -283,10 +287,13 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
     avdProcess->setProcessChannelMode(QProcess::MergedChannels);
     QObject::connect(avdProcess, &QtcProcess::done, avdProcess, [avdProcess] {
         if (avdProcess->exitCode()) {
-            const QString title = QCoreApplication::translate("Android::Internal::AndroidAvdManager",
-                                                              "AVD Start Error");
-            QMessageBox::critical(Core::ICore::dialogParent(), title,
-                                  QString::fromLatin1(avdProcess->readAllStandardOutput()));
+            const QString errorOutput = QString::fromLatin1(avdProcess->readAllStandardOutput());
+            QMetaObject::invokeMethod(Core::ICore::mainWindow(), [errorOutput] {
+                const QString title
+                    = QCoreApplication::translate("Android::Internal::AndroidAvdManager",
+                                                  "AVD Start Error");
+                QMessageBox::critical(Core::ICore::dialogParent(), title, errorOutput);
+            });
         }
         avdProcess->deleteLater();
     });

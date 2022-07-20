@@ -146,14 +146,14 @@ ClangdFollowSymbol::ClangdFollowSymbol(ClangdClient *client, const QTextCursor &
                     openInSplit))
 {
     // Abort if the user does something else with the document in the meantime.
-    connect(document, &TextDocument::contentsChanged, this, &ClangdFollowSymbol::emitDone,
+    connect(document, &TextDocument::contentsChanged, this, [this] { emitDone(); },
             Qt::QueuedConnection);
     if (editorWidget) {
         connect(editorWidget, &CppEditorWidget::cursorPositionChanged,
-                this, &ClangdFollowSymbol::emitDone, Qt::QueuedConnection);
+                this, [this] { emitDone(); }, Qt::QueuedConnection);
     }
     d->focusChangedConnection = connect(qApp, &QApplication::focusChanged,
-                                        this, &ClangdFollowSymbol::emitDone, Qt::QueuedConnection);
+                                        this, [this] { emitDone(); }, Qt::QueuedConnection);
 
     // Step 1: Follow the symbol via "Go to Definition". At the same time, request the
     //         AST node corresponding to the cursor position, so we can find out whether
@@ -195,6 +195,7 @@ ClangdFollowSymbol::~ClangdFollowSymbol()
         d->client->cancelRequest(id);
     for (const MessageId &id : qAsConst(d->pendingGotoDefRequests))
         d->client->cancelRequest(id);
+    delete d;
 }
 
 void ClangdFollowSymbol::clear()
@@ -205,12 +206,14 @@ void ClangdFollowSymbol::clear()
     d->pendingGotoDefRequests.clear();
 }
 
-void ClangdFollowSymbol::emitDone()
+void ClangdFollowSymbol::emitDone(const Link &link)
 {
     if (d->done)
         return;
 
     d->done = true;
+    if (link.hasValidTarget())
+        d->callback(link);
     emit done();
 }
 
@@ -246,14 +249,12 @@ void ClangdFollowSymbol::Private::handleDocumentInfoResults()
 
     // If something went wrong, we just follow the original link.
     if (symbolsToDisplay.isEmpty()) {
-        callback(defLink);
-        q->emitDone();
+        q->emitDone(defLink);
         return;
     }
 
     if (symbolsToDisplay.size() == 1) {
-        callback(symbolsToDisplay.first().second);
-        q->emitDone();
+        q->emitDone(symbolsToDisplay.first().second);
         return;
     }
 
@@ -382,8 +383,7 @@ void ClangdFollowSymbol::Private::handleGotoDefinitionResult()
 
     // No dis-ambiguation necessary. Call back with the link and finish.
     if (!defLinkIsAmbiguous()) {
-        callback(defLink);
-        q->emitDone();
+        q->emitDone(defLink);
         return;
     }
 
@@ -416,8 +416,7 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
 
     // We didn't find any further candidates, so jump to the original definition link.
     if (allLinks.size() == 1 && pendingGotoImplRequests.isEmpty()) {
-        callback(allLinks.first());
-        q->emitDone();
+        q->emitDone(allLinks.first());
         return;
     }
 

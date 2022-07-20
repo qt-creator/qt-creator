@@ -276,7 +276,7 @@ bool RemoveNodeRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePosi
 
 QString RemoveNodeRewriteAction::info() const
 {
-    return QLatin1String("RemoveNodeRewriteAction");
+    return QLatin1String("RemoveNodeRewriteAction") + QString::number(m_node.internalId());
 }
 
 bool RemovePropertyRewriteAction::execute(QmlRefactoring &refactoring, ModelNodePositionStorage &positionStore)

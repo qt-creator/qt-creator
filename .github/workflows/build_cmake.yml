@@ -25,10 +25,10 @@ jobs:
       matrix:
         config:
         - {
-            name: "Windows MSVC 2019", artifact: "Windows-MSVC",
-            os: windows-2019,
+            name: "Windows Latest MSVC", artifact: "Windows-MSVC",
+            os: windows-latest,
             cc: "cl", cxx: "cl",
-            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+            environment_script: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
             is_msvc: true
           }
         - {
@@ -121,12 +121,27 @@ jobs:
             COMMAND sudo apt update
           )
           execute_process(
-            COMMAND sudo apt install libgl1-mesa-dev libvulkan-dev libxcb-xinput-dev libxcb-xinerama0-dev libxkbcommon-dev libxkbcommon-x11-dev
+            COMMAND
+              sudo apt install libgl1-mesa-dev libvulkan-dev libxcb-xinput-dev libxcb-xinerama0-dev libxkbcommon-dev libxkbcommon-x11-dev
+                               libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xkb1 libxcb-randr0 libxcb-icccm4
+                               xvfb
             RESULT_VARIABLE result
           )
           if (NOT result EQUAL 0)
             message(FATAL_ERROR "Failed to install dependencies")
           endif()
+        endif()
+
+        if ("${{ runner.os }}" STREQUAL "Windows")
+          file(MAKE_DIRECTORY build/build/bin)
+          foreach(retry RANGE 10)
+            file(DOWNLOAD "https://download.qt.io/development_releases/prebuilt/llvmpipe/windows/opengl32sw-64.7z" ./opengl32sw-64.7z SHOW_PROGRESS)
+            file(SIZE ./opengl32sw-64.7z fileSize)
+            if (fileSize GREATER 0)
+              break()
+            endif()
+          endforeach()
+          execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ../../../opengl32sw-64.7z WORKING_DIRECTORY build/build/bin)
         endif()
 
         if (NOT "x${{ matrix.config.toolchain }}" STREQUAL "x")
@@ -138,6 +153,12 @@ jobs:
             endif()
           endforeach()
           execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./toolchain.7z)
+        endif()
+
+        # For tests update the docker image
+        find_program(docker_executable docker)
+        if (docker_executable)
+          execute_process(COMMAND ${docker_executable} pull alpine:latest COMMAND_ECHO STDOUT)
         endif()
 
     - name: Download Qt
@@ -593,11 +614,16 @@ jobs:
         set(ENV{CTEST_OUTPUT_ON_FAILURE} "ON")
 
         if ("${{ runner.os }}" STREQUAL "Linux")
-          set(ENV{QT_QPA_PLATFORM} "offscreen")
+          set(ENV{DISPLAY} ":1")
+          set(ENV{LIBGL_ALWAYS_SOFTWARE} "1")
+          set(ctest_launcher xvfb-run --auto-servernum --server-num=1)
+        elseif ("${{ runner.os }}" STREQUAL "Windows")
+          set(ENV{QT_OPENGL} "software")
+          set(ENV{QT_ASSUME_STDERR_HAS_CONSOLE} "1")
         endif()
 
         execute_process(
-          COMMAND ctest -j ${N} --timeout 60 --label-exclude exclude_from_precheck --exclude-regex tst_perfdata
+          COMMAND ${ctest_launcher} ctest -j ${N} --timeout 300 --label-exclude exclude_from_precheck --exclude-regex tst_perfdata
           WORKING_DIRECTORY build/build
           RESULT_VARIABLE result
           OUTPUT_VARIABLE output

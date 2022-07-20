@@ -26,8 +26,9 @@
 
 #include "optionsdialog.h"
 
-#include "keyworddialog.h"
+#include "constants.h"
 #include "keyword.h"
+#include "keyworddialog.h"
 #include "settings.h"
 #include "todotr.h"
 
@@ -267,7 +268,7 @@ void OptionsDialog::apply()
 
 TodoOptionsPage::TodoOptionsPage(Settings *settings, const std::function<void ()> &onApply)
 {
-    setId("TodoSettings");
+    setId(Constants::TODO_SETTINGS);
     setDisplayName(Tr::tr("To-Do"));
     setCategory("To-Do");
     setDisplayCategory(Tr::tr("To-Do"));
