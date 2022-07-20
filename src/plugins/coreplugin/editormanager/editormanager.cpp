@@ -2433,11 +2433,10 @@ void EditorManagerPrivate::copyFilePathFromContextMenu()
 
 void EditorManagerPrivate::copyLocationFromContextMenu()
 {
-    const auto action = qobject_cast<const QAction *>(sender());
-    if (!d->m_contextMenuEntry || !action)
+    if (!d->m_contextMenuEntry)
         return;
     const QString text = d->m_contextMenuEntry->fileName().toUserOutput()
-            + QLatin1Char(':') + action->data().toString();
+            + QLatin1Char(':') + m_copyLocationContextAction->data().toString();
     setClipboardAndSelection(text);
 }
 
