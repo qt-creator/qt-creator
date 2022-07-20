@@ -31,13 +31,15 @@
 #include <QMap>
 
 QT_BEGIN_NAMESPACE
+class QGroupBox;
+class QLineEdit;
+class QPushButton;
+class QTreeWidget;
 class QTreeWidgetItem;
 QT_END_NAMESPACE
 
 namespace Macros {
 namespace Internal {
-
-namespace Ui { class MacroOptionsWidget; }
 
 class MacroOptionsWidget final : public Core::IOptionsPageWidget
 {
@@ -60,11 +62,15 @@ private:
     void changeDescription(const QString &description);
 
 private:
-    Ui::MacroOptionsWidget *m_ui;
     QStringList m_macroToRemove;
     bool m_changingCurrent = false;
 
     QMap<QString, QString> m_macroToChange;
+
+    QTreeWidget *m_treeWidget;
+    QPushButton *m_removeButton;
+    QGroupBox *m_macroGroup;
+    QLineEdit *m_description;
 };
 
 } // namespace Internal

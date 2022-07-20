@@ -31,7 +31,6 @@ QtcPlugin {
         "macrooptionspage.h",
         "macrooptionswidget.cpp",
         "macrooptionswidget.h",
-        "macrooptionswidget.ui",
         "macros.qrc",
         "macrosconstants.h",
         "macrosplugin.cpp",
