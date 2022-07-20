@@ -28,7 +28,6 @@
 #include "utils_global.h"
 
 #include "osspecificaspects.h"
-#include "porting.h"
 
 #include <QDir>
 #include <QDirIterator>

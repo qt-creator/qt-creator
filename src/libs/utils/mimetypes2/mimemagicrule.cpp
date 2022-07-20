@@ -41,8 +41,6 @@
 
 #include "mimetypeparser_p.h"
 
-#include "porting.h"
-
 #include <QtCore/QDebug>
 #include <QtCore/QList>
 #include <qendian.h>

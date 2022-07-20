@@ -26,7 +26,6 @@
 #include "fancymainwindow.h"
 
 #include "algorithm.h"
-#include "porting.h"
 #include "qtcassert.h"
 #include "stringutils.h"
 
