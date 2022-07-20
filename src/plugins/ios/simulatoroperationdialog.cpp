@@ -76,8 +76,11 @@ void SimulatorOperationDialog::addFutures(const QList<QFuture<void> > &futureLis
     for (auto future : futureList) {
         if (!future.isFinished() || !future.isCanceled()) {
             auto watcher = new QFutureWatcher<void>;
-            connect(watcher, &QFutureWatcher<void>::finished,
-                    this, &SimulatorOperationDialog::futureFinished);
+            connect(watcher, &QFutureWatcherBase::finished, this, [this, watcher] {
+                m_futureWatchList.removeAll(watcher);
+                watcher->deleteLater();
+                updateInputs();
+            });
             watcher->setFuture(future);
             m_futureWatchList << watcher;
         }
@@ -106,14 +109,6 @@ void SimulatorOperationDialog::addMessage(const SimulatorInfo &siminfo,
         addMessage(message, Utils::StdErrFormat);
         qCDebug(iosCommon) << message;
     }
-}
-
-void SimulatorOperationDialog::futureFinished()
-{
-    auto watcher = static_cast<QFutureWatcher<void> *>(sender());
-    m_futureWatchList.removeAll(watcher);
-    watcher->deleteLater();
-    updateInputs();
 }
 
 void SimulatorOperationDialog::updateInputs()

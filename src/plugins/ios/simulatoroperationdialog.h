@@ -54,7 +54,6 @@ public:
                     const QString &context);
 
 private:
-    void futureFinished();
     void updateInputs();
 
 private:
