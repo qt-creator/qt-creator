@@ -63,6 +63,7 @@
 
 #include <QApplication>
 #include <QMessageBox>
+#include <QPixmapCache>
 #include <QProcess>
 #include <QStandardPaths>
 #include <QTemporaryDir>
@@ -292,6 +293,14 @@ static void setHighDpiEnvironmentVariable()
         QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
             Qt::HighDpiScaleFactorRoundingPolicy::Floor);
     }
+}
+
+void setPixmapCacheLimit()
+{
+    const int originalLimit = QPixmapCache::cacheLimit();
+    const qreal dpr = qApp->devicePixelRatio();
+    const qreal multiplier = std::clamp(dpr * dpr, 1.0, 4.0);
+    QPixmapCache::setCacheLimit(originalLimit * multiplier);
 }
 
 void loadFonts()
@@ -562,6 +571,7 @@ int main(int argc, char **argv)
                                  QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
                                  QLatin1String(Core::Constants::IDE_CASED_ID));
     Utils::TerminalCommand::setSettings(settings);
+    setPixmapCacheLimit();
     loadFonts();
 
     if (Utils::HostOsInfo::isWindowsHost()
