@@ -202,7 +202,7 @@ public:
     bool synchronousCleanList(const Utils::FilePath &workingDirectory, const QString &modulePath,
                               QStringList *files, QStringList *ignoredFiles, QString *errorMessage);
     bool synchronousApplyPatch(const Utils::FilePath &workingDirectory, const QString &file,
-                               QString *errorMessage, const QStringList &extraArguments = {});
+                               QString *errorMessage, const QStringList &extraArguments = {}) const;
     bool synchronousInit(const Utils::FilePath &workingDirectory);
     bool synchronousCheckoutFiles(const Utils::FilePath &workingDirectory, QStringList files = {},
                                   QString revision = {}, QString *errorMessage = nullptr,
@@ -375,11 +375,12 @@ public:
 
 private:
     void finishSubmoduleUpdate();
-    void chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex,
-                               const DiffEditor::ChunkSelection &selection);
+    void chunkActionsRequested(DiffEditor::DiffEditorController *controller,
+                               QMenu *menu, int fileIndex, int chunkIndex,
+                               const DiffEditor::ChunkSelection &selection) const;
 
     void stage(DiffEditor::DiffEditorController *diffController,
-               const QString &patch, bool revert);
+               const QString &patch, bool revert) const;
 
     enum CodecType { CodecSource, CodecLogOutput, CodecNone };
     QTextCodec *codecFor(CodecType codecType, const Utils::FilePath &source = {}) const;

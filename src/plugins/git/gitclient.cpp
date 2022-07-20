@@ -30,10 +30,8 @@
 #include "gitconstants.h"
 #include "giteditor.h"
 #include "gitplugin.h"
-#include "gitsubmiteditor.h"
 #include "mergetool.h"
 #include "branchadddialog.h"
-#include "gerrit/gerritplugin.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -61,6 +59,7 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcsbasesubmiteditor.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <diffeditor/descriptionwidgetwatcher.h>
@@ -965,11 +964,11 @@ QTextCodec *GitClient::codecFor(GitClient::CodecType codecType, const FilePath &
     return nullptr;
 }
 
-void GitClient::chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex,
-                                      const DiffEditor::ChunkSelection &selection)
+void GitClient::chunkActionsRequested(DiffEditor::DiffEditorController *controller,
+                                      QMenu *menu, int fileIndex, int chunkIndex,
+                                      const DiffEditor::ChunkSelection &selection) const
 {
-    QPointer<DiffEditor::DiffEditorController> diffController
-            = qobject_cast<DiffEditorController *>(sender());
+    QPointer<DiffEditor::DiffEditorController> diffController(controller);
 
     auto stageChunk = [this](QPointer<DiffEditor::DiffEditorController> diffController,
             int fileIndex, int chunkIndex, DiffEditorController::PatchOptions options,
@@ -1021,7 +1020,7 @@ void GitClient::chunkActionsRequested(QMenu *menu, int fileIndex, int chunkIndex
 }
 
 void GitClient::stage(DiffEditor::DiffEditorController *diffController,
-                      const QString &patch, bool revert)
+                      const QString &patch, bool revert) const
 {
     TemporaryFile patchFile("git-patchfile");
     if (!patchFile.open())
@@ -1071,8 +1070,11 @@ void GitClient::requestReload(const QString &documentId, const QString &source,
     controller->setWorkingDirectory(workingDirectory);
     controller->initialize();
 
-    connect(controller, &DiffEditorController::chunkActionsRequested,
-            this, &GitClient::chunkActionsRequested, Qt::DirectConnection);
+    using namespace std::placeholders;
+
+    connect(controller, &DiffEditorController::chunkActionsRequested, this,
+            std::bind(&GitClient::chunkActionsRequested, this, controller, _1, _2, _3, _4),
+            Qt::DirectConnection);
 
     VcsBase::setSource(document, sourceCopy);
     EditorManager::activateEditorForDocument(document);
@@ -2249,7 +2251,7 @@ bool GitClient::synchronousCleanList(const FilePath &workingDirectory, const QSt
 
 bool GitClient::synchronousApplyPatch(const FilePath &workingDirectory,
                                       const QString &file, QString *errorMessage,
-                                      const QStringList &extraArguments)
+                                      const QStringList &extraArguments) const
 {
     QStringList arguments = {"apply", "--whitespace=fix"};
     arguments << extraArguments << file;
