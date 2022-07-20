@@ -83,8 +83,8 @@ private:
     bool hasSelectedBuildConfigurations() const;
 
     void toggleEnabled(bool enabled);
-    void checkBoxToggled(bool b);
-    void pathChanged();
+    void checkBoxToggled(QCheckBox *checkBox, bool b);
+    void pathChanged(Utils::PathChooser *pathChooser);
     void targetCheckBoxToggled(bool b);
     void manageKit();
 
