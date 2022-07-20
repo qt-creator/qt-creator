@@ -265,6 +265,8 @@ static void doLayoutHelper(QLayout *layout,
                 gridLayout->addWidget(widget, currentGridRow, currentGridColumn, 1, item.span, align);
             else if (item.layout)
                 gridLayout->addLayout(item.layout, currentGridRow, currentGridColumn, 1, item.span, align);
+            else if (!item.text.isEmpty())
+                gridLayout->addWidget(new QLabel(item.text));
             currentGridColumn += item.span;
         } else if (boxLayout) {
             addItemToBoxLayout(boxLayout, item);

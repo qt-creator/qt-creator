@@ -166,7 +166,6 @@ Project {
                 "styleanimator.h",
                 "systemsettings.cpp",
                 "systemsettings.h",
-                "systemsettings.ui",
                 "textdocument.cpp",
                 "textdocument.h",
                 "themechooser.cpp",
