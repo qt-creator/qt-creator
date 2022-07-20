@@ -76,13 +76,12 @@ signals:
 private:
     void openEditor(const Core::SearchResultItem &item);
 
-    void addResults(int begin, int end);
-    void finish();
-    void cancel();
-    void setPaused(bool paused);
+    void addResults(QFutureWatcher<Core::SearchResultItem> *watcher, int begin, int end);
+    void finish(QFutureWatcher<Core::SearchResultItem> *watcher);
+    void cancel(Core::SearchResult *search);
+    void setPaused(Core::SearchResult *search, bool paused);
     void onTaskStarted(Utils::Id type);
     void onAllTasksFinished(Utils::Id type);
-    void searchAgain();
 
     QString label() const;
     QString toolTip(Core::FindFlags findFlags) const;

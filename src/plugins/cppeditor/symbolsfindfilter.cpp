@@ -83,19 +83,15 @@ bool SymbolsFindFilter::isEnabled() const
     return m_enabled;
 }
 
-void SymbolsFindFilter::cancel()
+void SymbolsFindFilter::cancel(SearchResult *search)
 {
-    auto search = qobject_cast<SearchResult *>(sender());
-    QTC_ASSERT(search, return);
     QFutureWatcher<SearchResultItem> *watcher = m_watchers.key(search);
     QTC_ASSERT(watcher, return);
     watcher->cancel();
 }
 
-void SymbolsFindFilter::setPaused(bool paused)
+void SymbolsFindFilter::setPaused(SearchResult *search, bool paused)
 {
-    auto search = qobject_cast<SearchResult *>(sender());
-    QTC_ASSERT(search, return);
     QFutureWatcher<SearchResultItem> *watcher = m_watchers.key(search);
     QTC_ASSERT(watcher, return);
     if (!paused || watcher->isRunning()) // guard against pausing when the search is finished
@@ -109,9 +105,13 @@ void SymbolsFindFilter::findAll(const QString &txt, FindFlags findFlags)
     search->setSearchAgainSupported(true);
     connect(search, &SearchResult::activated,
             this, &SymbolsFindFilter::openEditor);
-    connect(search, &SearchResult::canceled, this, &SymbolsFindFilter::cancel);
-    connect(search, &SearchResult::paused, this, &SymbolsFindFilter::setPaused);
-    connect(search, &SearchResult::searchAgainRequested, this, &SymbolsFindFilter::searchAgain);
+    connect(search, &SearchResult::canceled, this, [this, search] { cancel(search); });
+    connect(search, &SearchResult::paused,
+            this, [this, search](bool paused) { setPaused(search, paused); });
+    connect(search, &SearchResult::searchAgainRequested, this, [this, search] {
+        search->restart();
+        startSearch(search);
+    });
     connect(this, &IFindFilter::enabledChanged, search, &SearchResult::setSearchAgainEnabled);
     window->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 
@@ -135,10 +135,9 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
 
     auto watcher = new QFutureWatcher<SearchResultItem>;
     m_watchers.insert(watcher, search);
-    connect(watcher, &QFutureWatcherBase::finished,
-            this, &SymbolsFindFilter::finish);
-    connect(watcher, &QFutureWatcherBase::resultsReadyAt,
-            this, &SymbolsFindFilter::addResults);
+    connect(watcher, &QFutureWatcherBase::finished, this, [this, watcher] { finish(watcher); });
+    connect(watcher, &QFutureWatcherBase::resultsReadyAt, this, [this, watcher]
+            (int begin, int end) { addResults(watcher, begin, end); });
     SymbolSearcher *symbolSearcher = m_manager->indexingSupport()->createSymbolSearcher(parameters, projectFileNames);
     connect(watcher, &QFutureWatcherBase::finished,
             symbolSearcher, &QObject::deleteLater);
@@ -149,9 +148,8 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
     connect(progress, &FutureProgress::clicked, search, &SearchResult::popup);
 }
 
-void SymbolsFindFilter::addResults(int begin, int end)
+void SymbolsFindFilter::addResults(QFutureWatcher<SearchResultItem> *watcher, int begin, int end)
 {
-    auto watcher = static_cast<QFutureWatcher<SearchResultItem> *>(sender());
     SearchResult *search = m_watchers.value(watcher);
     if (!search) {
         // search was removed from search history while the search is running
@@ -164,9 +162,8 @@ void SymbolsFindFilter::addResults(int begin, int end)
     search->addResults(items, SearchResult::AddSorted);
 }
 
-void SymbolsFindFilter::finish()
+void SymbolsFindFilter::finish(QFutureWatcher<SearchResultItem> *watcher)
 {
-    auto watcher = static_cast<QFutureWatcher<SearchResultItem> *>(sender());
     SearchResult *search = m_watchers.value(watcher);
     if (search)
         search->finishSearch(watcher->isCanceled());
@@ -226,14 +223,6 @@ void SymbolsFindFilter::onAllTasksFinished(Id type)
         m_enabled = true;
         emit enabledChanged(m_enabled);
     }
-}
-
-void SymbolsFindFilter::searchAgain()
-{
-    auto search = qobject_cast<SearchResult *>(sender());
-    QTC_ASSERT(search, return);
-    search->restart();
-    startSearch(search);
 }
 
 QString SymbolsFindFilter::label() const
