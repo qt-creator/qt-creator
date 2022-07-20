@@ -298,9 +298,8 @@ namespace ADS
             splitter->setSizes(splitterSizes);
         }
 
-        void onDockAreaViewToggled(bool visible)
+        void onDockAreaViewToggled(DockAreaWidget *dockArea, bool visible)
         {
-            DockAreaWidget *dockArea = qobject_cast<DockAreaWidget *>(q->sender());
             m_visibleDockAreaCount += visible ? 1 : -1;
             onVisibleDockAreaCountChanged();
             emit q->dockAreaViewToggled(dockArea, visible);
@@ -661,12 +660,9 @@ namespace ADS
     {
         m_dockAreas.append(newDockAreas);
         for (auto dockArea : newDockAreas) {
-            QObject::connect(dockArea,
-                             &DockAreaWidget::viewToggled,
-                             q,
-                             std::bind(&DockContainerWidgetPrivate::onDockAreaViewToggled,
-                                       this,
-                                       std::placeholders::_1));
+            QObject::connect(dockArea, &DockAreaWidget::viewToggled,
+                             q, std::bind(&DockContainerWidgetPrivate::onDockAreaViewToggled,
+                                          this, dockArea, std::placeholders::_1));
         }
     }
 
