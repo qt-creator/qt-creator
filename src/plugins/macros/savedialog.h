@@ -27,10 +27,11 @@
 
 #include <QDialog>
 
-namespace Macros {
-namespace Internal {
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+QT_END_NAMESPACE
 
-namespace Ui { class SaveDialog; }
+namespace Macros::Internal {
 
 class SaveDialog : public QDialog
 {
@@ -44,9 +45,8 @@ public:
     QString description() const;
 
 private:
-    Ui::SaveDialog *ui;
+    QLineEdit *m_name;
+    QLineEdit *m_description;
 };
 
-
-} // namespace Internal
-} // namespace Macros
+} // Macros::Internal

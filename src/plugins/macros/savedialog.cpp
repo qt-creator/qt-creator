@@ -24,33 +24,54 @@
 ****************************************************************************/
 
 #include "savedialog.h"
-#include "ui_savedialog.h"
 
-#include <QLineEdit>
+#include <utils/layoutbuilder.h>
+
 #include <QCheckBox>
+#include <QDialogButtonBox>
+#include <QLineEdit>
 #include <QRegularExpressionValidator>
 
-using namespace Macros::Internal;
+using namespace Utils;
+
+namespace Macros::Internal {
 
 SaveDialog::SaveDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::SaveDialog)
+    QDialog(parent)
 {
-    ui->setupUi(this);
-    ui->name->setValidator(new QRegularExpressionValidator(QRegularExpression(QLatin1String("\\w*")), this));
+    resize(219, 91);
+    setWindowTitle(tr("Save Macro"));
+
+    m_name = new QLineEdit;
+    m_name->setValidator(new QRegularExpressionValidator(QRegularExpression(QLatin1String("\\w*")), this));
+
+    m_description = new QLineEdit;
+
+    auto buttonBox = new QDialogButtonBox;
+    buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Save);
+
+    using namespace Layouting;
+
+    Form {
+        tr("Name:"), m_name, Break(),
+        tr("Description:"), m_description, Break(),
+        buttonBox
+    }.attachTo(this);
+
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
-SaveDialog::~SaveDialog()
-{
-    delete ui;
-}
+SaveDialog::~SaveDialog() = default;
 
 QString SaveDialog::name() const
 {
-    return ui->name->text();
+    return m_name->text();
 }
 
 QString SaveDialog::description() const
 {
-    return ui->description->text();
+    return m_description->text();
 }
+
+} // Macros::Internal
