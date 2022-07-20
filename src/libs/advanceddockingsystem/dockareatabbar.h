@@ -65,10 +65,10 @@ private:
     friend class DockAreaTabBarPrivate;
     friend class DockAreaTitleBar;
 
-    void onTabClicked();
-    void onTabCloseRequested();
-    void onCloseOtherTabsRequested();
-    void onTabWidgetMoved(const QPoint &globalPos);
+    void onTabClicked(DockWidgetTab *sourceTab);
+    void onTabCloseRequested(DockWidgetTab *sourceTab);
+    void onCloseOtherTabsRequested(DockWidgetTab *sourceTab);
+    void onTabWidgetMoved(DockWidgetTab *sourceTab, const QPoint &globalPos);
 
 protected:
     void wheelEvent(QWheelEvent *event) override;
