@@ -656,9 +656,16 @@ WelcomeMode::WelcomeMode()
         m_modeWidget->engine()->clearComponentCache();
         m_modeWidget->setSource(source);
         m_modeWidget->rootObject()->setProperty("loadingProgress", 100);
+        m_modeWidget->setEnabled(true);
     });
 
-    m_dataModelDownloader->start();
+    connect(m_dataModelDownloader, &DataModelDownloader::downloadFailed, this, [this]() {
+        m_modeWidget->setEnabled(true);
+    });
+
+
+    if (m_dataModelDownloader->start())
+        m_modeWidget->setEnabled(false);
 
 /*
     connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged, this, [this](Utils::Id mode){
