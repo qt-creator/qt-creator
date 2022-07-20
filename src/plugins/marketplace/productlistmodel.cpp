@@ -32,6 +32,7 @@
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
 
+#include <QApplication>
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QJsonArray>
@@ -353,8 +354,11 @@ void SectionedProducts::onImageDownloadFinished(QNetworkReply *reply)
         const QString imageFormat = QFileInfo(imageUrl.fileName()).suffix();
         if (pixmap.loadFromData(data, imageFormat.toLatin1())) {
             const QString url = imageUrl.toString();
-            QPixmapCache::insert(url, pixmap.scaled(ProductListModel::defaultImageSize,
-                                                    Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            const int dpr = qApp->devicePixelRatio();
+            pixmap = pixmap.scaled(ProductListModel::defaultImageSize * dpr,
+                                   Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            pixmap.setDevicePixelRatio(dpr);
+            QPixmapCache::insert(url, pixmap);
             for (ProductListModel *model : qAsConst(m_productModels))
                 model->updateModelIndexesForUrl(url);
         }
