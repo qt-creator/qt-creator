@@ -240,10 +240,10 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
 
         m_requestRunner = new ProcessorRunner;
         m_runnerConnection = connect(m_requestRunner, &ProcessorRunner::finished,
-                                     this, [this, reason](){
+                                     this, [this, reason, sender = m_requestRunner] {
             // Since the request runner is a different thread, there's still a gap in which the
             // queued signal could be processed after an invalidation of the current request.
-            if (!m_requestRunner || m_requestRunner != sender())
+            if (!m_requestRunner || m_requestRunner != sender)
                 return;
 
             IAssistProposal *proposal = m_requestRunner->proposal();
@@ -264,7 +264,7 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
                 IAssistProposal *newProposal) {
             if (!processor->running()) {
                 // do not delete this processor directly since this function is called from within the processor
-                QMetaObject::invokeMethod(QCoreApplication::instance(), [processor]() {
+                QMetaObject::invokeMethod(QCoreApplication::instance(), [processor] {
                     delete processor;
                 }, Qt::QueuedConnection);
             }
