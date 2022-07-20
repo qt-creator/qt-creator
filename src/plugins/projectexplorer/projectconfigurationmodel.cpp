@@ -64,12 +64,8 @@ int ProjectConfigurationModel::columnCount(const QModelIndex &parent) const
     return parent.isValid() ? 0 : 1;
 }
 
-void ProjectConfigurationModel::displayNameChanged()
+void ProjectConfigurationModel::displayNameChanged(ProjectConfiguration *pc)
 {
-    auto pc = qobject_cast<ProjectConfiguration *>(sender());
-    if (!pc)
-        return;
-
     // Find the old position
     int oldPos = m_projectConfigurations.indexOf(pc);
     if (oldPos < 0)
@@ -148,7 +144,7 @@ void ProjectConfigurationModel::addProjectConfiguration(ProjectConfiguration *pc
     endInsertRows();
 
     connect(pc, &ProjectConfiguration::displayNameChanged,
-            this, &ProjectConfigurationModel::displayNameChanged);
+            this, [this, pc] { displayNameChanged(pc); });
 }
 
 void ProjectConfigurationModel::removeProjectConfiguration(ProjectConfiguration *pc)

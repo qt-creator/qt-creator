@@ -52,7 +52,7 @@ public:
     void removeProjectConfiguration(ProjectConfiguration *pc);
 
 private:
-    void displayNameChanged();
+    void displayNameChanged(ProjectConfiguration *pc);
 
     Target *m_target;
     QList<ProjectConfiguration *> m_projectConfigurations;
