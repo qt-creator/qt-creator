@@ -95,7 +95,6 @@ private:
     void loadSettings();
 
     void triggerDefaultHandler(const QModelIndex &index);
-    void actionTriggered();
     void setShowWarnings(bool);
     void updateCategoriesMenu();
 

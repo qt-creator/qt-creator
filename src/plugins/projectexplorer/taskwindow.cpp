@@ -103,7 +103,7 @@ bool ITaskHandler::canHandle(const Tasks &tasks) const
 
 namespace Internal {
 
-class TaskView : public Utils::ListView
+class TaskView : public ListView
 {
 public:
     TaskView(QWidget *parent = nullptr);
@@ -115,7 +115,7 @@ private:
     void mouseReleaseEvent(QMouseEvent *e) override;
     void mouseMoveEvent(QMouseEvent *e) override;
 
-    Utils::Link locationForPos(const QPoint &pos);
+    Link locationForPos(const QPoint &pos);
 
     bool m_linksActive = true;
     Qt::MouseButton m_mouseButtonPressed = Qt::NoButton;
@@ -220,7 +220,7 @@ private:
 };
 
 TaskView::TaskView(QWidget *parent)
-    : Utils::ListView(parent)
+    : ListView(parent)
 {
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
@@ -451,10 +451,14 @@ void TaskWindow::delayedInitialization()
         action->setEnabled(false);
         QTC_ASSERT(action, continue);
         d->m_actionToHandlerMap.insert(action, h);
-        connect(action, &QAction::triggered, this, &TaskWindow::actionTriggered);
+        connect(action, &QAction::triggered, this, [this, action] {
+            ITaskHandler *h = d->handler(action);
+            if (h)
+                h->handle(d->m_filter->tasks(d->m_listview->selectionModel()->selectedIndexes()));
+        });
         d->m_actions << action;
 
-        Utils::Id id = h->actionManagerId();
+        Id id = h->actionManagerId();
         if (id.isValid()) {
             Core::Command *cmd =
                 Core::ActionManager::registerAction(action, id, d->m_taskWindowContext->context(), true);
@@ -474,7 +478,7 @@ QWidget *TaskWindow::outputWidget(QWidget *)
     return d->m_listview;
 }
 
-void TaskWindow::clearTasks(Utils::Id categoryId)
+void TaskWindow::clearTasks(Id categoryId)
 {
     d->m_model->clearTasks(categoryId);
 
@@ -482,12 +486,12 @@ void TaskWindow::clearTasks(Utils::Id categoryId)
     navigateStateChanged();
 }
 
-void TaskWindow::setCategoryVisibility(Utils::Id categoryId, bool visible)
+void TaskWindow::setCategoryVisibility(Id categoryId, bool visible)
 {
     if (!categoryId.isValid())
         return;
 
-    QList<Utils::Id> categories = d->m_filter->filteredCategories();
+    QList<Id> categories = d->m_filter->filteredCategories();
 
     if (visible)
         categories.removeOne(categoryId);
@@ -499,7 +503,7 @@ void TaskWindow::setCategoryVisibility(Utils::Id categoryId, bool visible)
 
 void TaskWindow::saveSettings()
 {
-    QStringList categories = Utils::transform(d->m_filter->filteredCategories(), &Utils::Id::toString);
+    QStringList categories = Utils::transform(d->m_filter->filteredCategories(), &Id::toString);
     SessionManager::setValue(QLatin1String(SESSION_FILTER_CATEGORIES), categories);
     SessionManager::setValue(QLatin1String(SESSION_FILTER_WARNINGS), d->m_filter->filterIncludesWarnings());
 }
@@ -508,8 +512,7 @@ void TaskWindow::loadSettings()
 {
     QVariant value = SessionManager::value(QLatin1String(SESSION_FILTER_CATEGORIES));
     if (value.isValid()) {
-        QList<Utils::Id> categories
-                = Utils::transform(value.toStringList(), &Utils::Id::fromString);
+        QList<Id> categories = Utils::transform(value.toStringList(), &Id::fromString);
         d->m_filter->setFilteredCategories(categories);
     }
     value = SessionManager::value(QLatin1String(SESSION_FILTER_WARNINGS));
@@ -526,12 +529,11 @@ void TaskWindow::visibilityChanged(bool visible)
         delayedInitialization();
 }
 
-void TaskWindow::addCategory(Utils::Id categoryId, const QString &displayName, bool visible,
-                             int priority)
+void TaskWindow::addCategory(Id categoryId, const QString &displayName, bool visible, int priority)
 {
     d->m_model->addCategory(categoryId, displayName, priority);
     if (!visible) {
-        QList<Utils::Id> filters = d->m_filter->filteredCategories();
+        QList<Id> filters = d->m_filter->filteredCategories();
         filters += categoryId;
         d->m_filter->setFilteredCategories(filters);
     }
@@ -600,7 +602,7 @@ void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
 
     if (!task.file.isEmpty() && !task.file.toFileInfo().isAbsolute()
             && !task.fileCandidates.empty()) {
-        const Utils::FilePath userChoice = Utils::chooseFileFromList(task.fileCandidates);
+        const FilePath userChoice = Utils::chooseFileFromList(task.fileCandidates);
         if (!userChoice.isEmpty()) {
             task.file = userChoice;
             updatedTaskFileName(task, task.file.toString());
@@ -615,18 +617,6 @@ void TaskWindow::triggerDefaultHandler(const QModelIndex &index)
     }
 }
 
-void TaskWindow::actionTriggered()
-{
-    auto action = qobject_cast<QAction *>(sender());
-    if (!action || !action->isEnabled())
-        return;
-    ITaskHandler *h = d->handler(action);
-    if (!h)
-        return;
-
-    h->handle(d->m_filter->tasks(d->m_listview->selectionModel()->selectedIndexes()));
-}
-
 void TaskWindow::setShowWarnings(bool show)
 {
     d->m_filter->setFilterIncludesWarnings(show);
@@ -634,21 +624,21 @@ void TaskWindow::setShowWarnings(bool show)
 
 void TaskWindow::updateCategoriesMenu()
 {
-    using NameToIdsConstIt = QMap<QString, Utils::Id>::ConstIterator;
+    using NameToIdsConstIt = QMap<QString, Id>::ConstIterator;
 
     d->m_categoriesMenu->clear();
 
-    const QList<Utils::Id> filteredCategories = d->m_filter->filteredCategories();
+    const QList<Id> filteredCategories = d->m_filter->filteredCategories();
 
-    QMap<QString, Utils::Id> nameToIds;
-    const QList<Utils::Id> ids = d->m_model->categoryIds();
-    for (const Utils::Id categoryId : ids)
+    QMap<QString, Id> nameToIds;
+    const QList<Id> ids = d->m_model->categoryIds();
+    for (const Id categoryId : ids)
         nameToIds.insert(d->m_model->categoryDisplayName(categoryId), categoryId);
 
     const NameToIdsConstIt cend = nameToIds.constEnd();
     for (NameToIdsConstIt it = nameToIds.constBegin(); it != cend; ++it) {
         const QString &displayName = it.key();
-        const Utils::Id categoryId = it.value();
+        const Id categoryId = it.value();
         auto action = new QAction(d->m_categoriesMenu);
         action->setCheckable(true);
         action->setText(displayName);
@@ -660,17 +650,17 @@ void TaskWindow::updateCategoriesMenu()
     }
 }
 
-int TaskWindow::taskCount(Utils::Id category) const
+int TaskWindow::taskCount(Id category) const
 {
     return d->m_model->taskCount(category);
 }
 
-int TaskWindow::errorTaskCount(Utils::Id category) const
+int TaskWindow::errorTaskCount(Id category) const
 {
     return d->m_model->errorTaskCount(category);
 }
 
-int TaskWindow::warningTaskCount(Utils::Id category) const
+int TaskWindow::warningTaskCount(Id category) const
 {
     return d->m_model->warningTaskCount(category);
 }
