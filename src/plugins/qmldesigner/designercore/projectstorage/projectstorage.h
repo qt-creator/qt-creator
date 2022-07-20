@@ -2556,7 +2556,7 @@ public:
         "    UNION ALL "
         "      SELECT prototypeId, typeSelection.level+1 FROM types JOIN typeSelection "
         "        USING(typeId) WHERE prototypeId IS NOT NULL)"
-        "SELECT nullif(propertyTypeId, -1), propertyDeclarationId, propertyTraits "
+        "SELECT propertyTypeId, propertyDeclarationId, propertyTraits "
         "  FROM propertyDeclarations JOIN typeSelection USING(typeId) "
         "  WHERE name=?2 ORDER BY level LIMIT 1",
         database};
@@ -2588,16 +2588,16 @@ public:
     mutable ReadStatement<3> selectAllSourcesStatement{
         "SELECT sourceName, sourceContextId, sourceId  FROM sources", database};
     mutable ReadStatement<6, 1> selectTypeByTypeIdStatement{
-        "SELECT sourceId, t.name, t.typeId, ifnull(prototypeId, -1), accessSemantics, pd.name "
+        "SELECT sourceId, t.name, t.typeId, prototypeId, accessSemantics, pd.name "
         "FROM types AS t LEFT JOIN propertyDeclarations AS pd "
         "  ON defaultPropertyId=propertyDeclarationId WHERE t.typeId=?",
         database};
     mutable ReadStatement<4, 1> selectExportedTypesByTypeIdStatement{
-        "SELECT moduleId, name, ifnull(majorVersion, -1), ifnull(minorVersion, -1) FROM "
+        "SELECT moduleId, name, majorVersion, minorVersion FROM "
         "exportedTypeNames WHERE typeId=?",
         database};
     mutable ReadStatement<6> selectTypesStatement{
-        "SELECT sourceId, t.name, t.typeId, ifnull(prototypeId, -1), accessSemantics, pd.name "
+        "SELECT sourceId, t.name, t.typeId, prototypeId, accessSemantics, pd.name "
         "FROM types AS t LEFT JOIN propertyDeclarations AS pd "
         "  ON defaultPropertyId=propertyDeclarationId",
         database};
@@ -2617,13 +2617,13 @@ public:
         "DELETE FROM signalDeclarations WHERE typeId=?", database};
     WriteStatement<1> deleteTypeStatement{"DELETE FROM types  WHERE typeId=?", database};
     mutable ReadStatement<4, 1> selectPropertyDeclarationsByTypeIdStatement{
-        "SELECT name, nullif(propertyTypeId, -1), propertyTraits, (SELECT name FROM "
+        "SELECT name, propertyTypeId, propertyTraits, (SELECT name FROM "
         "propertyDeclarations WHERE propertyDeclarationId=pd.aliasPropertyDeclarationId) FROM "
         "propertyDeclarations AS pd WHERE typeId=?",
         database};
     ReadStatement<6, 1> selectPropertyDeclarationsForTypeIdStatement{
         "SELECT name, propertyTraits, propertyTypeId, propertyImportedTypeNameId, "
-        "propertyDeclarationId, ifnull(aliasPropertyDeclarationId, -1) FROM propertyDeclarations "
+        "propertyDeclarationId, aliasPropertyDeclarationId FROM propertyDeclarations "
         "WHERE typeId=? ORDER BY name",
         database};
     ReadWriteStatement<1, 5> insertPropertyDeclarationStatement{
@@ -2756,7 +2756,7 @@ public:
         "name=?3",
         database};
     mutable ReadStatement<5, 2> selectDocumentImportForSourceIdStatement{
-        "SELECT importId, sourceId, moduleId, ifnull(majorVersion, -1), ifnull(minorVersion, -1) "
+        "SELECT importId, sourceId, moduleId, majorVersion, minorVersion "
         "FROM documentImports WHERE sourceId IN carray(?1) AND kind=?2 ORDER BY sourceId, "
         "moduleId, majorVersion, minorVersion",
         database};
@@ -2803,7 +2803,7 @@ public:
         database};
     ReadStatement<5, 1> selectAliasPropertiesDeclarationForPropertiesWithTypeIdStatement{
         "SELECT alias.typeId, alias.propertyDeclarationId, alias.propertyImportedTypeNameId, "
-        "alias.aliasPropertyDeclarationId, ifnull(alias.aliasPropertyDeclarationTailId, -1) FROM "
+        "alias.aliasPropertyDeclarationId, alias.aliasPropertyDeclarationTailId FROM "
         "propertyDeclarations AS alias JOIN propertyDeclarations AS target ON "
         "alias.aliasPropertyDeclarationId=target.propertyDeclarationId OR "
         "alias.aliasPropertyDeclarationTailId=target.propertyDeclarationId WHERE "
@@ -3074,9 +3074,9 @@ public:
         "  USING(typeId) ORDER BY name",
         database};
     mutable ReadStatement<2> selectTypesWithDefaultPropertyStatement{
-        "SELECT typeId, ifnull(defaultPropertyId, -1) FROM types ORDER BY typeId", database};
+        "SELECT typeId, defaultPropertyId FROM types ORDER BY typeId", database};
     WriteStatement<2> updateDefaultPropertyIdStatement{
-        "UPDATE types SET defaultPropertyId=nullif(?2, -1) WHERE typeId=?1", database};
+        "UPDATE types SET defaultPropertyId=?2 WHERE typeId=?1", database};
     WriteStatement<1> updateDefaultPropertyIdToNullStatement{
         "UPDATE types SET defaultPropertyId=NULL WHERE defaultPropertyId=?1", database};
     mutable ReadStatement<1, 1> selectInfoTypeByTypeIdStatement{

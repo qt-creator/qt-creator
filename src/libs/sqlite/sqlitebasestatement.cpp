@@ -137,11 +137,16 @@ void BaseStatement::step() const
     next();
 }
 
-void BaseStatement::bind(int index, NullValue)
+void BaseStatement::bindNull(int index)
 {
     int resultCode = sqlite3_bind_null(m_compiledStatement.get(), index);
     if (resultCode != SQLITE_OK)
         checkForBindingError(resultCode);
+}
+
+void BaseStatement::bind(int index, NullValue)
+{
+    bindNull(index);
 }
 
 void BaseStatement::bind(int index, int value)

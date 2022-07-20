@@ -89,6 +89,7 @@ public:
     template<typename Type>
     Type fetchValue(int column) const;
 
+    void bindNull(int index);
     void bind(int index, NullValue);
     void bind(int index, int value);
     void bind(int index, long long value);
@@ -106,7 +107,10 @@ public:
     template<typename Type, typename = std::enable_if_t<Type::IsBasicId::value>>
     void bind(int index, Type id)
     {
-        bind(index, &id);
+        if (id)
+            bind(index, &id);
+        else
+            bindNull(index);
     }
 
     template<typename Enumeration, std::enable_if_t<std::is_enum_v<Enumeration>, bool> = true>
@@ -477,10 +481,14 @@ private:
                  typename = std::enable_if_t<ConversionType::IsBasicId::value>>
         constexpr operator ConversionType()
         {
-            if constexpr (std::is_same_v<typename ConversionType::DatabaseType, int>)
-                return ConversionType::create(statement.fetchIntValue(column));
-            else
-                return ConversionType::create(statement.fetchLongLongValue(column));
+            if (statement.fetchType(column) == Type::Integer) {
+                if constexpr (std::is_same_v<typename ConversionType::DatabaseType, int>)
+                    return ConversionType::create(statement.fetchIntValue(column));
+                else
+                    return ConversionType::create(statement.fetchLongLongValue(column));
+            }
+
+            return ConversionType{};
         }
 
         template<typename Enumeration, std::enable_if_t<std::is_enum_v<Enumeration>, bool> = true>
