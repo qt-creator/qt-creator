@@ -100,7 +100,7 @@ signals:
     void replaceButtonClicked(const QString &replaceText, const QList<Core::SearchResultItem> &checkedItems, bool preserveCase);
     void replaceTextChanged(const QString &replaceText);
     void searchAgainRequested();
-    void cancelled();
+    void canceled();
     void paused(bool paused);
     void restarted();
     void visibilityChanged(bool visible);

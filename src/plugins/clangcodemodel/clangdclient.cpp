@@ -859,7 +859,7 @@ void ClangdClient::Private::findUsages(TextDocument *document,
         finishSearch(refData, false);
         return;
     }
-    QObject::connect(refData.search, &SearchResult::cancelled, q, [this, requestId, key = refData.key] {
+    QObject::connect(refData.search, &SearchResult::canceled, q, [this, requestId, key = refData.key] {
         const auto refData = runningFindUsages.find(key);
         if (refData == runningFindUsages.end())
             return;
@@ -1062,7 +1062,7 @@ void ClangdClient::Private::handleFindUsagesResult(quint64 key, const QList<Loca
         return;
     }
 
-    QObject::connect(refData->search, &SearchResult::cancelled, q, [this, key] {
+    QObject::connect(refData->search, &SearchResult::canceled, q, [this, key] {
         const auto refData = runningFindUsages.find(key);
         if (refData == runningFindUsages.end())
             return;

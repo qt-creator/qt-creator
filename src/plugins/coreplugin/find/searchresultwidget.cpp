@@ -486,7 +486,7 @@ void SearchResultWidget::continueAfterSizeWarning()
 void SearchResultWidget::cancelAfterSizeWarning()
 {
     m_infoBar.suppressInfo(Id(SIZE_WARNING_ID));
-    emit cancelled();
+    emit canceled();
     emit paused(false);
 }
 
@@ -513,7 +513,7 @@ void SearchResultWidget::cancel()
     if (m_infoBar.containsInfo(Id(SIZE_WARNING_ID)))
         cancelAfterSizeWarning();
     else
-        emit cancelled();
+        emit canceled();
 }
 
 void SearchResultWidget::searchAgain()

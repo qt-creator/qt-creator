@@ -109,7 +109,7 @@ void SymbolsFindFilter::findAll(const QString &txt, FindFlags findFlags)
     search->setSearchAgainSupported(true);
     connect(search, &SearchResult::activated,
             this, &SymbolsFindFilter::openEditor);
-    connect(search, &SearchResult::cancelled, this, &SymbolsFindFilter::cancel);
+    connect(search, &SearchResult::canceled, this, &SymbolsFindFilter::cancel);
     connect(search, &SearchResult::paused, this, &SymbolsFindFilter::setPaused);
     connect(search, &SearchResult::searchAgainRequested, this, &SymbolsFindFilter::searchAgain);
     connect(this, &IFindFilter::enabledChanged, search, &SearchResult::setSearchAgainEnabled);

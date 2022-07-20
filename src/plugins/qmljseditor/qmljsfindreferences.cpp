@@ -1031,7 +1031,7 @@ void FindReferences::displayResults(int first, int last)
                 [](const Core::SearchResultItem& item) {
                     Core::EditorManager::openEditorAtSearchResult(item);
                 });
-        connect(m_currentSearch.data(), &SearchResult::cancelled, this, &FindReferences::cancel);
+        connect(m_currentSearch.data(), &SearchResult::canceled, this, &FindReferences::cancel);
         connect(m_currentSearch.data(), &SearchResult::paused, this, &FindReferences::setPaused);
         SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch | IOutputPane::WithFocus));
 

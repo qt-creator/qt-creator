@@ -752,7 +752,7 @@ SearchResult::SearchResult(SearchResultWidget *widget)
             this, &SearchResult::replaceButtonClicked);
     connect(widget, &SearchResultWidget::replaceTextChanged,
             this, &SearchResult::replaceTextChanged);
-    connect(widget, &SearchResultWidget::cancelled, this, &SearchResult::cancelled);
+    connect(widget, &SearchResultWidget::canceled, this, &SearchResult::canceled);
     connect(widget, &SearchResultWidget::paused, this, &SearchResult::paused);
     connect(widget, &SearchResultWidget::visibilityChanged,
             this, &SearchResult::visibilityChanged);

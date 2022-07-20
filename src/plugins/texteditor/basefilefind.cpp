@@ -310,7 +310,7 @@ void BaseFileFind::runSearch(SearchResult *search)
     watcher->setPendingResultsLimit(1);
     // search is deleted if it is removed from search panel
     connect(search, &QObject::destroyed, watcher, &QFutureWatcherBase::cancel);
-    connect(search, &SearchResult::cancelled, watcher, &QFutureWatcherBase::cancel);
+    connect(search, &SearchResult::canceled, watcher, &QFutureWatcherBase::cancel);
     connect(search, &SearchResult::paused, watcher, [watcher](bool paused) {
         if (!paused || watcher->isRunning()) // guard against pausing when the search is finished
             watcher->setPaused(paused);
