@@ -427,9 +427,9 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     connect(m_makeCommand, &PathChooser::rawPathChanged, this, &ToolChainConfigWidget::dirty);
     connect(m_abiWidget, &AbiWidget::abiChanged, this, &ToolChainConfigWidget::dirty);
     connect(m_predefinedMacros, &QPlainTextEdit::textChanged,
-            this, &CustomToolChainConfigWidget::updateSummaries);
+            this, [this] { updateSummaries(m_predefinedDetails); });
     connect(m_headerPaths, &QPlainTextEdit::textChanged,
-            this, &CustomToolChainConfigWidget::updateSummaries);
+            this, [this] { updateSummaries(m_headerDetails); });
     connect(m_cxx11Flags, &QLineEdit::textChanged, this, &ToolChainConfigWidget::dirty);
     connect(m_mkspecs, &QLineEdit::textChanged, this, &ToolChainConfigWidget::dirty);
     connect(m_errorParserComboBox, &QComboBox::currentIndexChanged,
@@ -437,12 +437,9 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     errorParserChanged();
 }
 
-void CustomToolChainConfigWidget::updateSummaries()
+void CustomToolChainConfigWidget::updateSummaries(TextEditDetailsWidget *detailsWidget)
 {
-    if (sender() == m_predefinedMacros)
-        m_predefinedDetails->updateSummaryText();
-    else
-        m_headerDetails->updateSummaryText();
+    detailsWidget->updateSummaryText();
     emit dirty();
 }
 

@@ -141,7 +141,7 @@ public:
     CustomToolChainConfigWidget(CustomToolChain *);
 
 private:
-    void updateSummaries();
+    void updateSummaries(TextEditDetailsWidget *detailsWidget);
     void errorParserChanged(int index = -1);
 
 protected:
