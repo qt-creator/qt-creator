@@ -55,6 +55,13 @@ class DatabaseBackend;
 
 enum class Type : char { Invalid, Integer, Float, Text, Blob, Null };
 
+template<typename Enumeration>
+constexpr static std::underlying_type_t<Enumeration> to_underlying(Enumeration enumeration) noexcept
+{
+    static_assert(std::is_enum_v<Enumeration>, "to_underlying expect an enumeration");
+    return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
+}
+
 class SQLITE_EXPORT BaseStatement
 {
 public:
@@ -100,6 +107,12 @@ public:
     void bind(int index, Type id)
     {
         bind(index, &id);
+    }
+
+    template<typename Enumeration, std::enable_if_t<std::is_enum_v<Enumeration>, bool> = true>
+    void bind(int index, Enumeration enumeration)
+    {
+        bind(index, to_underlying(enumeration));
     }
 
     void bind(int index, uint value) { bind(index, static_cast<long long>(value)); }
@@ -468,6 +481,12 @@ private:
                 return ConversionType::create(statement.fetchIntValue(column));
             else
                 return ConversionType::create(statement.fetchLongLongValue(column));
+        }
+
+        template<typename Enumeration, std::enable_if_t<std::is_enum_v<Enumeration>, bool> = true>
+        constexpr operator Enumeration()
+        {
+            return static_cast<Enumeration>(statement.fetchLongLongValue(column));
         }
 
         StatementImplementation &statement;

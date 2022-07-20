@@ -699,10 +699,10 @@ private:
             if (!projectData.moduleId)
                 throw ProjectDataHasInvalidModuleId{};
 
-            insertProjectDataStatement.write(&projectData.projectSourceId,
-                                             &projectData.sourceId,
-                                             &projectData.moduleId,
-                                             static_cast<int>(projectData.fileType));
+            insertProjectDataStatement.write(projectData.projectSourceId,
+                                             projectData.sourceId,
+                                             projectData.moduleId,
+                                             projectData.fileType);
         };
 
         auto update = [&](const Storage::Synchronization::ProjectData &projectDataFromDatabase,
@@ -712,10 +712,10 @@ private:
 
             if (projectDataFromDatabase.fileType != projectData.fileType
                 || projectDataFromDatabase.moduleId != projectData.moduleId) {
-                updateProjectDataStatement.write(&projectData.projectSourceId,
-                                                 &projectData.sourceId,
-                                                 &projectData.moduleId,
-                                                 static_cast<int>(projectData.fileType));
+                updateProjectDataStatement.write(projectData.projectSourceId,
+                                                 projectData.sourceId,
+                                                 projectData.moduleId,
+                                                 projectData.fileType);
                 return Sqlite::UpdateChange::Update;
             }
 
@@ -723,7 +723,7 @@ private:
         };
 
         auto remove = [&](const Storage::Synchronization::ProjectData &projectData) {
-            deleteProjectDataStatement.write(&projectData.projectSourceId, &projectData.sourceId);
+            deleteProjectDataStatement.write(projectData.projectSourceId, projectData.sourceId);
         };
 
         Sqlite::insertUpdateDelete(range, projectDatas, compareKey, insert, update, remove);
@@ -816,20 +816,18 @@ private:
             if (import.version.minor) {
                 insertModuleExportedImportWithVersionStatement.write(import.moduleId,
                                                                      import.exportedModuleId,
-                                                                     to_underlying(import.isAutoVersion),
+                                                                     import.isAutoVersion,
                                                                      import.version.major.value,
                                                                      import.version.minor.value);
             } else if (import.version.major) {
                 insertModuleExportedImportWithMajorVersionStatement.write(import.moduleId,
                                                                           import.exportedModuleId,
-                                                                          to_underlying(
-                                                                              import.isAutoVersion),
+                                                                          import.isAutoVersion,
                                                                           import.version.major.value);
             } else {
                 insertModuleExportedImportWithoutVersionStatement.write(import.moduleId,
                                                                         import.exportedModuleId,
-                                                                        to_underlying(
-                                                                            import.isAutoVersion));
+                                                                        import.isAutoVersion);
             }
         };
 
@@ -1222,7 +1220,7 @@ private:
             throw TypeNameDoesNotExists{};
 
         auto propertyDeclarationId = insertPropertyDeclarationStatement.template value<PropertyDeclarationId>(
-            typeId, value.name, propertyTypeId, to_underlying(value.traits), propertyImportedTypeNameId);
+            typeId, value.name, propertyTypeId, value.traits, propertyImportedTypeNameId);
 
         auto nextPropertyDeclarationId = selectPropertyDeclarationIdPrototypeChainDownStatement
                                              .template value<PropertyDeclarationId>(typeId,
@@ -1231,7 +1229,7 @@ private:
             updateAliasIdPropertyDeclarationStatement.write(&nextPropertyDeclarationId,
                                                             &propertyDeclarationId);
             updatePropertyAliasDeclarationRecursivelyWithTypeAndTraitsStatement
-                .write(propertyDeclarationId, propertyTypeId, to_underlying(value.traits));
+                .write(propertyDeclarationId, propertyTypeId, value.traits);
         }
     }
 
@@ -1269,10 +1267,11 @@ private:
 
         updatePropertyDeclarationStatement.write(view.id,
                                                  propertyTypeId,
-                                                 to_underlying(value.traits),
+                                                 value.traits,
                                                  propertyImportedTypeNameId);
-        updatePropertyAliasDeclarationRecursivelyWithTypeAndTraitsStatement
-            .write(view.id, propertyTypeId, to_underlying(value.traits));
+        updatePropertyAliasDeclarationRecursivelyWithTypeAndTraitsStatement.write(view.id,
+                                                                                  propertyTypeId,
+                                                                                  value.traits);
         propertyDeclarationIds.push_back(view.id);
         return Sqlite::UpdateChange::Update;
     }
@@ -1421,7 +1420,7 @@ private:
             insertDocumentImportWithVersionStatement.write(import.sourceId,
                                                            import.moduleId,
                                                            sourceModuleId,
-                                                           to_underlying(importKind),
+                                                           importKind,
                                                            import.version.major.value,
                                                            import.version.minor.value,
                                                            moduleExportedImportId);
@@ -1429,14 +1428,14 @@ private:
             insertDocumentImportWithMajorVersionStatement.write(import.sourceId,
                                                                 import.moduleId,
                                                                 sourceModuleId,
-                                                                to_underlying(importKind),
+                                                                importKind,
                                                                 import.version.major.value,
                                                                 moduleExportedImportId);
         } else {
             insertDocumentImportWithoutVersionStatement.write(import.sourceId,
                                                               import.moduleId,
                                                               sourceModuleId,
-                                                              to_underlying(importKind),
+                                                              importKind,
                                                               moduleExportedImportId);
         }
     }
@@ -1451,8 +1450,9 @@ private:
         });
 
         auto range = selectDocumentImportForSourceIdStatement
-                         .template range<Storage::Synchronization::ImportView>(
-                             toIntegers(updatedSourceIds), to_underlying(importKind));
+                         .template range<Storage::Synchronization::ImportView>(toIntegers(
+                                                                                   updatedSourceIds),
+                                                                               importKind);
 
         auto compareKey = [](const Storage::Synchronization::ImportView &view,
                              const Storage::Synchronization::Import &import) -> long long {
@@ -1734,7 +1734,7 @@ private:
 
         type.typeId = upsertTypeStatement.template value<TypeId>(&type.sourceId,
                                                                  type.typeName,
-                                                                 to_underlying(type.accessSemantics));
+                                                                 type.accessSemantics);
 
         if (!type.typeId)
             type.typeId = selectTypeIdBySourceIdAndNameStatement.template value<TypeId>(&type.sourceId,
@@ -1991,22 +1991,19 @@ private:
                                                long long id,
                                                Utils::SmallStringView typeName)
     {
-        auto importedTypeNameId = selectImportedTypeNameIdStatement.template value<ImportedTypeNameId>(
-            to_underlying(kind), id, typeName);
+        auto importedTypeNameId = selectImportedTypeNameIdStatement
+                                      .template value<ImportedTypeNameId>(kind, id, typeName);
 
         if (importedTypeNameId)
             return importedTypeNameId;
 
-        return insertImportedTypeNameIdStatement.template value<ImportedTypeNameId>(to_underlying(kind),
-                                                                                    id,
-                                                                                    typeName);
+        return insertImportedTypeNameIdStatement.template value<ImportedTypeNameId>(kind, id, typeName);
     }
 
     TypeId fetchTypeId(ImportedTypeNameId typeNameId) const
     {
-        auto kindValue = selectKindFromImportedTypeNamesStatement.template optionalValue<int>(
-            &typeNameId);
-        auto kind = static_cast<Storage::Synchronization::TypeNameKind>(*kindValue);
+        auto kind = selectKindFromImportedTypeNamesStatement
+                        .template value<Storage::Synchronization::TypeNameKind>(typeNameId);
 
         return fetchTypeId(typeNameId, kind);
     }

@@ -278,12 +278,12 @@ public:
                                       ModuleId exportedModuleId,
                                       int majorVersion,
                                       int minorVersion,
-                                      int isAutoVersion)
+                                      IsAutoVersion isAutoVersion)
         : moduleExportedImportId{moduleExportedImportId}
         , version{majorVersion, minorVersion}
         , moduleId{moduleId}
         , exportedModuleId{exportedModuleId}
-        , isAutoVersion{static_cast<IsAutoVersion>(isAutoVersion)}
+        , isAutoVersion{isAutoVersion}
     {}
 
     friend bool operator==(const ModuleExportedImportView &first,
@@ -500,12 +500,6 @@ public:
         , traits{traits}
     {}
 
-    explicit ParameterDeclaration(Utils::SmallStringView name, Utils::SmallStringView typeName, int traits)
-        : name{name}
-        , typeName{typeName}
-        , traits{static_cast<PropertyDeclarationTraits>(traits)}
-    {}
-
     friend bool operator==(const ParameterDeclaration &first, const ParameterDeclaration &second)
     {
         return first.name == second.name && first.typeName == second.typeName
@@ -668,20 +662,6 @@ public:
     {}
 
     explicit PropertyDeclaration(Utils::SmallStringView name,
-                                 TypeId propertyTypeId,
-                                 int traits,
-                                 Utils::SmallStringView aliasPropertyName,
-                                 Utils::SmallStringView aliasPropertyNameTail = {})
-        : name{name}
-        , aliasPropertyName{aliasPropertyName}
-        , aliasPropertyNameTail{aliasPropertyNameTail}
-
-        , traits{static_cast<PropertyDeclarationTraits>(traits)}
-        , propertyTypeId{propertyTypeId}
-        , kind{PropertyKind::Property}
-    {}
-
-    explicit PropertyDeclaration(Utils::SmallStringView name,
                                  ImportedTypeName aliasTypeName,
                                  Utils::SmallStringView aliasPropertyName,
                                  Utils::SmallStringView aliasPropertyNameTail = {})
@@ -718,13 +698,13 @@ class PropertyDeclarationView
 {
 public:
     explicit PropertyDeclarationView(Utils::SmallStringView name,
-                                     int traits,
+                                     PropertyDeclarationTraits traits,
                                      TypeId typeId,
                                      ImportedTypeNameId typeNameId,
                                      PropertyDeclarationId id,
                                      PropertyDeclarationId aliasId)
         : name{name}
-        , traits{static_cast<PropertyDeclarationTraits>(traits)}
+        , traits{traits}
         , typeId{typeId}
         , typeNameId{typeNameId}
         , id{id}
@@ -794,11 +774,11 @@ public:
 
     explicit Type(Utils::SmallStringView typeName,
                   Utils::SmallStringView prototype,
-                  int accessSemantics,
+                  TypeAccessSemantics accessSemantics,
                   SourceId sourceId)
         : typeName{typeName}
         , prototype{ImportedType{prototype}}
-        , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
+        , accessSemantics{accessSemantics}
         , sourceId{sourceId}
 
     {}
@@ -807,11 +787,11 @@ public:
                   Utils::SmallStringView typeName,
                   TypeId typeId,
                   TypeId prototypeId,
-                  int accessSemantics,
+                  TypeAccessSemantics accessSemantics,
                   Utils::SmallStringView defaultPropertyName)
         : typeName{typeName}
         , defaultPropertyName{defaultPropertyName}
-        , accessSemantics{static_cast<TypeAccessSemantics>(accessSemantics)}
+        , accessSemantics{accessSemantics}
         , sourceId{sourceId}
         , typeId{typeId}
         , prototypeId{prototypeId}
@@ -854,13 +834,6 @@ public:
         , sourceId{sourceId}
         , moduleId{moduleId}
         , fileType{fileType}
-    {}
-
-    ProjectData(SourceId projectSourceId, SourceId sourceId, ModuleId moduleId, int fileType)
-        : projectSourceId{projectSourceId}
-        , sourceId{sourceId}
-        , moduleId{moduleId}
-        , fileType{static_cast<FileType>(fileType)}
     {}
 
     friend bool operator==(const ProjectData &first, const ProjectData &second)
@@ -939,13 +912,6 @@ namespace QmlDesigner::Storage::Info {
 class PropertyDeclaration
 {
 public:
-    PropertyDeclaration(TypeId typeId, Utils::SmallStringView name, long long traits, TypeId propertyTypeId)
-        : typeId{typeId}
-        , name{name}
-        , traits{static_cast<PropertyDeclarationTraits>(traits)}
-        , propertyTypeId{propertyTypeId}
-    {}
-
     PropertyDeclaration(TypeId typeId,
                         Utils::SmallStringView name,
                         PropertyDeclarationTraits traits,
