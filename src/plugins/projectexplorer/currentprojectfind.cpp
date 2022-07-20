@@ -104,11 +104,8 @@ void CurrentProjectFind::handleProjectChanged()
     emit displayNameChanged();
 }
 
-void CurrentProjectFind::recheckEnabled()
+void CurrentProjectFind::recheckEnabled(Core::SearchResult *search)
 {
-    auto search = qobject_cast<Core::SearchResult *>(sender());
-    if (!search)
-        return;
     QString projectFile = getAdditionalParameters(search).toString();
     for (Project *project : SessionManager::projects()) {
         if (projectFile == project->projectFilePath().toString()) {

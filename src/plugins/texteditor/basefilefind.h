@@ -139,7 +139,7 @@ private:
                    bool preserveCase);
     void hideHighlightAll(bool visible);
     void searchAgain(Core::SearchResult *search);
-    void recheckEnabled(Core::SearchResult *search);
+    virtual void recheckEnabled(Core::SearchResult *search);
 
     void runNewSearch(const QString &txt, Core::FindFlags findFlags,
                       Core::SearchResultWindow::SearchMode searchMode);
