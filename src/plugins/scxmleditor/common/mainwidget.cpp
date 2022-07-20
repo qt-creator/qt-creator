@@ -227,7 +227,7 @@ void MainWidget::init()
     if (provider)
         provider->init(m_errorPane->warningModel());
 
-    connect(m_errorPane, &ErrorWidget::mouseExited, this, [this]() {
+    connect(m_errorPane, &ErrorWidget::mouseExited, this, [this] {
         StateView *view = m_views.last();
         if (view)
             view->scene()->unhighlightAll();
@@ -264,12 +264,12 @@ void MainWidget::init()
     m_actionHandler = new ActionHandler(this);
 
     // Connect actions
-    connect(m_actionHandler->action(ActionZoomIn), &QAction::triggered, this, [this]() {
+    connect(m_actionHandler->action(ActionZoomIn), &QAction::triggered, this, [this] {
         StateView *view = m_views.last();
         if (view)
             view->view()->zoomIn();
     });
-    connect(m_actionHandler->action(ActionZoomOut), &QAction::triggered, this, [this]() {
+    connect(m_actionHandler->action(ActionZoomOut), &QAction::triggered, this, [this] {
         StateView *view = m_views.last();
         if (view)
             view->view()->zoomOut();
@@ -282,49 +282,62 @@ void MainWidget::init()
     });
     connect(m_actionHandler->action(ActionMagnifier), &QAction::toggled, this, &MainWidget::setMagnifier);
 
-    connect(m_navigator, &Navigator::hideFrame, this, [this]() { m_actionHandler->action(ActionNavigator)->setChecked(false); });
+    connect(m_navigator, &Navigator::hideFrame, this,
+            [this] { m_actionHandler->action(ActionNavigator)->setChecked(false); });
     connect(m_actionHandler->action(ActionNavigator), &QAction::toggled, m_navigator, &Navigator::setVisible);
 
-    connect(m_actionHandler->action(ActionCopy), &QAction::triggered, this, [this]() {
+    connect(m_actionHandler->action(ActionCopy), &QAction::triggered, this, [this] {
         StateView *view = m_views.last();
         if (view)
             view->scene()->copy();
     });
 
-    connect(m_actionHandler->action(ActionCut), &QAction::triggered, this, [this]() {
+    connect(m_actionHandler->action(ActionCut), &QAction::triggered, this, [this] {
         StateView *view = m_views.last();
         if (view)
             view->scene()->cut();
     });
 
-    connect(m_actionHandler->action(ActionPaste), &QAction::triggered, this, [this]() {
+    connect(m_actionHandler->action(ActionPaste), &QAction::triggered, this, [this] {
         StateView *view = m_views.last();
         if (view)
             view->scene()->paste(view->view()->mapToScene(QPoint(30, 30)));
     });
 
-    connect(m_actionHandler->action(ActionExportToImage), &QAction::triggered, this, &MainWidget::exportToImage);
-    connect(m_actionHandler->action(ActionScreenshot), &QAction::triggered, this, &MainWidget::saveScreenShot);
+    connect(m_actionHandler->action(ActionExportToImage), &QAction::triggered,
+            this, &MainWidget::exportToImage);
+    connect(m_actionHandler->action(ActionScreenshot), &QAction::triggered,
+            this, &MainWidget::saveScreenShot);
 
-    connect(m_errorPane->warningModel(), &WarningModel::warningsChanged, this, [this]() {
-        m_actionHandler->action(ActionFullNamespace)->setEnabled(m_errorPane->warningModel()->count(Warning::ErrorType) <= 0);
+    connect(m_errorPane->warningModel(), &WarningModel::warningsChanged, this, [this] {
+        m_actionHandler->action(ActionFullNamespace)->setEnabled(
+                    m_errorPane->warningModel()->count(Warning::ErrorType) <= 0);
     });
 
     connect(m_actionHandler->action(ActionFullNamespace), &QAction::triggered, this, [this](bool checked) {
         m_document->setUseFullNameSpace(checked);
     });
 
-    connect(m_actionHandler->action(ActionAlignLeft), &QAction::triggered, this, [this]() { alignButtonClicked(ActionAlignLeft); });
-    connect(m_actionHandler->action(ActionAlignRight), &QAction::triggered, this, [this]() { alignButtonClicked(ActionAlignRight); });
-    connect(m_actionHandler->action(ActionAlignTop), &QAction::triggered, this, [this]() { alignButtonClicked(ActionAlignTop); });
-    connect(m_actionHandler->action(ActionAlignBottom), &QAction::triggered, this, [this]() { alignButtonClicked(ActionAlignBottom); });
-    connect(m_actionHandler->action(ActionAlignHorizontal), &QAction::triggered, this, [this]() { alignButtonClicked(ActionAlignHorizontal); });
-    connect(m_actionHandler->action(ActionAlignVertical), &QAction::triggered, this, [this]() { alignButtonClicked(ActionAlignVertical); });
-    connect(m_actionHandler->action(ActionAdjustWidth), &QAction::triggered, this, [this]() { adjustButtonClicked(ActionAdjustWidth); });
-    connect(m_actionHandler->action(ActionAdjustHeight), &QAction::triggered, this, [this]() { adjustButtonClicked(ActionAdjustHeight); });
-    connect(m_actionHandler->action(ActionAdjustSize), &QAction::triggered, this, [this]() { adjustButtonClicked(ActionAdjustSize); });
-
-    connect(m_actionHandler->action(ActionStatistics), &QAction::triggered, this, [this]() {
+    connect(m_actionHandler->action(ActionAlignLeft), &QAction::triggered,
+            this, [this] { alignButtonClicked(ActionAlignLeft); });
+    connect(m_actionHandler->action(ActionAlignRight), &QAction::triggered,
+            this, [this] { alignButtonClicked(ActionAlignRight); });
+    connect(m_actionHandler->action(ActionAlignTop), &QAction::triggered,
+            this, [this] { alignButtonClicked(ActionAlignTop); });
+    connect(m_actionHandler->action(ActionAlignBottom), &QAction::triggered,
+            this, [this] { alignButtonClicked(ActionAlignBottom); });
+    connect(m_actionHandler->action(ActionAlignHorizontal), &QAction::triggered,
+            this, [this] { alignButtonClicked(ActionAlignHorizontal); });
+    connect(m_actionHandler->action(ActionAlignVertical), &QAction::triggered,
+            this, [this] { alignButtonClicked(ActionAlignVertical); });
+    connect(m_actionHandler->action(ActionAdjustWidth), &QAction::triggered,
+            this, [this] { adjustButtonClicked(ActionAdjustWidth); });
+    connect(m_actionHandler->action(ActionAdjustHeight), &QAction::triggered,
+            this, [this] { adjustButtonClicked(ActionAdjustHeight); });
+    connect(m_actionHandler->action(ActionAdjustSize), &QAction::triggered,
+            this, [this] { adjustButtonClicked(ActionAdjustSize); });
+    connect(m_actionHandler->action(ActionStatistics), &QAction::triggered,
+            this, [this] {
         StatisticsDialog dialog;
         dialog.setDocument(m_document);
         dialog.exec();
@@ -514,9 +527,10 @@ void MainWidget::addStateView(BaseItem *item)
     connect(view->view(), &GraphicsView::panningChanged, m_actionHandler->action(ActionPan), &QAction::setChecked);
     connect(view->view(), &GraphicsView::magnifierChanged, m_actionHandler->action(ActionMagnifier), &QAction::setChecked);
     connect(m_magnifier, &Magnifier::visibilityChanged, m_actionHandler->action(ActionMagnifier), &QAction::setChecked);
-    connect(view->scene(), &GraphicsScene::openStateView, this, &MainWidget::addStateView, Qt::QueuedConnection);
-    connect(view->scene(), &GraphicsScene::selectedStateCountChanged, this, [this](int count) {
-        bool currentView = sender() == m_views.last()->scene();
+    GraphicsScene *scene = view->scene();
+    connect(scene, &GraphicsScene::openStateView, this, &MainWidget::addStateView, Qt::QueuedConnection);
+    connect(scene, &GraphicsScene::selectedStateCountChanged, this, [this, scene](int count) {
+        bool currentView = scene == m_views.last()->scene();
 
         // Enable/disable alignments
         for (int i = ActionAlignLeft; i <= ActionAdjustSize; ++i)
@@ -526,13 +540,13 @@ void MainWidget::addStateView(BaseItem *item)
     });
 
     // Enable/disable color buttons
-    connect(view->scene(), &GraphicsScene::selectedBaseItemCountChanged, this, [this](int count) {
+    connect(scene, &GraphicsScene::selectedBaseItemCountChanged, this, [this](int count) {
         m_toolButtons[ToolButtonStateColor]->setEnabled(count > 0);
         m_toolButtons[ToolButtonFontColor]->setEnabled(count > 0);
     });
 
-    connect(view->scene(), &GraphicsScene::pasteAvailable, this, [this](bool para) {
-        bool currentView = sender() == m_views.last()->scene();
+    connect(scene, &GraphicsScene::pasteAvailable, this, [this, scene](bool para) {
+        bool currentView = scene == m_views.last()->scene();
         m_actionHandler->action(ActionPaste)->setEnabled(currentView && para);
     });
 

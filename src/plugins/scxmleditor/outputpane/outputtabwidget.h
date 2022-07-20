@@ -87,11 +87,11 @@ signals:
 private:
     void createUi();
     void close();
-    void buttonClicked(bool para);
-    void showAlert();
+    void buttonClicked(PaneTitleButton *button, bool checked);
+    void showAlert(OutputPane *pane);
 
-    QVector<OutputPane*> m_pages;
-    QVector<PaneTitleButton*> m_buttons;
+    QVector<OutputPane *> m_pages;
+    QVector<PaneTitleButton *> m_buttons;
 
     QToolBar *m_toolBar = nullptr;
     QStackedWidget *m_stackedWidget = nullptr;
