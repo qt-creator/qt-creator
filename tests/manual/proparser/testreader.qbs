@@ -53,9 +53,5 @@ QtcManualtest {
     Group {
         name: "Porting Helper"
         prefix: "../../../src/libs/utils/"
-
-        files: [
-            "porting.h"
-        ]
     }
 }

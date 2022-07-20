@@ -96,7 +96,6 @@ QtcLibrary {
             "namevaluedictionary.cpp", "namevaluedictionary.h",
             "namevalueitem.cpp", "namevalueitem.h",
             "persistentsettings.cpp", "persistentsettings.h",
-            "porting.h",
             "qtcassert.cpp", "qtcassert.h",
             "savefile.cpp", "savefile.h",
             "stringutils.cpp"

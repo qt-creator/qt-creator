@@ -32,11 +32,6 @@ extend_qtc_test(tst_manual_proparser
     registry.cpp registry_p.h
 )
 
-extend_qtc_test(tst_manual_proparser
-  SOURCES_PREFIX "${PROJECT_SOURCE_DIR}/src/libs/utils/"
-  SOURCES porting.h
-)
-
 extend_qtc_test(tst_manual_proparser CONDITION WIN32
     DEPENDS advapi32
 )
