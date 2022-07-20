@@ -54,7 +54,7 @@ WaitForStopDialog::WaitForStopDialog(const QList<ProjectExplorer::RunControl *> 
     updateProgressText();
 
     for (const RunControl *rc : runControls)
-        connect(rc, &RunControl::stopped, this, &WaitForStopDialog::runControlFinished);
+        connect(rc, &RunControl::stopped, this, [this, rc] { runControlFinished(rc); });
 
     m_timer.start();
 }
@@ -72,11 +72,9 @@ void WaitForStopDialog::updateProgressText()
     m_progressLabel->setText(text);
 }
 
-void WaitForStopDialog::runControlFinished()
+void WaitForStopDialog::runControlFinished(const RunControl *runControl)
 {
-    auto rc = qobject_cast<RunControl *>(sender());
-    m_runControls.removeOne(rc);
-
+    m_runControls.removeOne(runControl);
     if (m_runControls.isEmpty()) {
         if (m_timer.elapsed() < 1000)
             QTimer::singleShot(1000 - m_timer.elapsed(), this, &QDialog::close);

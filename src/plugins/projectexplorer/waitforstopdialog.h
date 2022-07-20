@@ -47,7 +47,7 @@ public:
     bool canceled();
 private:
     void updateProgressText();
-    void runControlFinished();
+    void runControlFinished(const RunControl *runControl);
 
     QList<ProjectExplorer::RunControl *> m_runControls;
     QLabel *m_progressLabel;
