@@ -936,30 +936,28 @@ QMenu *PeripheralRegisterHandler::createRegisterFieldFormatMenu(
 void PeripheralRegisterHandler::setActiveGroup(const QString &groupName)
 {
     deactivateGroups();
-    if (const auto act = qobject_cast<QAction *>(sender())) {
-        const auto groupEnd = m_peripheralRegisterGroups.end();
-        const auto groupIt = std::find_if(
-                    m_peripheralRegisterGroups.begin(), groupEnd,
-                    [groupName](const PeripheralRegisterGroup &group){
-            return group.name == groupName;
-        });
-        if (groupIt == groupEnd)
-            return; // Group not found.
-        // Set active group.
-        groupIt->active = true;
+    const auto groupEnd = m_peripheralRegisterGroups.end();
+    const auto groupIt = std::find_if(
+                m_peripheralRegisterGroups.begin(), groupEnd,
+                [groupName](const PeripheralRegisterGroup &group){
+        return group.name == groupName;
+    });
+    if (groupIt == groupEnd)
+        return; // Group not found.
+    // Set active group.
+    groupIt->active = true;
 
-        // Add all register items of active register group.
-        m_activeRegisters.reserve(groupIt->registers.count());
-        for (PeripheralRegister &reg : groupIt->registers) {
-            const auto item = new PeripheralRegisterItem(m_engine, *groupIt, reg);
-            rootItem()->appendChild(item);
+    // Add all register items of active register group.
+    m_activeRegisters.reserve(groupIt->registers.count());
+    for (PeripheralRegister &reg : groupIt->registers) {
+        const auto item = new PeripheralRegisterItem(m_engine, *groupIt, reg);
+        rootItem()->appendChild(item);
 
-            const quint64 address = reg.address(groupIt->baseAddress);
-            m_activeRegisters.insert(address, item);
-        }
-
-        m_engine->reloadPeripheralRegisters();
+        const quint64 address = reg.address(groupIt->baseAddress);
+        m_activeRegisters.insert(address, item);
     }
+
+    m_engine->reloadPeripheralRegisters();
 }
 
 void PeripheralRegisterHandler::deactivateGroups()
