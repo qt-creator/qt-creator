@@ -69,8 +69,6 @@ signals:
     void codeStyleRemoved(ICodeStylePreferences *);
 
 private:
-    void slotSaveCodeStyle();
-
     QString settingsDir() const;
     Utils::FilePath settingsPath(const QByteArray &id) const;
     ICodeStylePreferences *loadCodeStyle(const Utils::FilePath &fileName);

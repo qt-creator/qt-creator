@@ -174,12 +174,10 @@ void CodeStylePool::addCodeStyle(ICodeStylePreferences *codeStyle)
     // take ownership
     codeStyle->setParent(this);
 
-    connect(codeStyle, &ICodeStylePreferences::valueChanged,
-            this, &CodeStylePool::slotSaveCodeStyle);
-    connect(codeStyle, &ICodeStylePreferences::tabSettingsChanged,
-            this, &CodeStylePool::slotSaveCodeStyle);
-    connect(codeStyle, &ICodeStylePreferences::displayNameChanged,
-            this, &CodeStylePool::slotSaveCodeStyle);
+    auto doSaveStyle = [this, codeStyle] { saveCodeStyle(codeStyle); };
+    connect(codeStyle, &ICodeStylePreferences::valueChanged, this, doSaveStyle);
+    connect(codeStyle, &ICodeStylePreferences::tabSettingsChanged, this, doSaveStyle);
+    connect(codeStyle, &ICodeStylePreferences::displayNameChanged, this, doSaveStyle);
     emit codeStyleAdded(codeStyle);
 }
 
@@ -248,15 +246,6 @@ ICodeStylePreferences *CodeStylePool::loadCodeStyle(const Utils::FilePath &fileN
         }
     }
     return codeStyle;
-}
-
-void CodeStylePool::slotSaveCodeStyle()
-{
-    auto codeStyle = qobject_cast<ICodeStylePreferences *>(sender());
-    if (!codeStyle)
-        return;
-
-    saveCodeStyle(codeStyle);
 }
 
 void CodeStylePool::saveCodeStyle(ICodeStylePreferences *codeStyle) const
