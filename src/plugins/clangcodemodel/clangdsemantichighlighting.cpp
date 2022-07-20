@@ -266,8 +266,7 @@ void doSemanticHighlighting(
     };
 
     const std::function<HighlightingResult(const ExpandedSemanticToken &)> toResult
-            = [&ast, &isOutputParameter, &tokenRange, clangdMajorVersion]
-            (const ExpandedSemanticToken &token) {
+            = [&](const ExpandedSemanticToken &token) {
         TextStyles styles;
         if (token.type == "variable") {
             if (token.modifiers.contains(QLatin1String("functionScope"))) {
@@ -338,6 +337,29 @@ void doSemanticHighlighting(
             // but the latter can be distinguished by the readonly modifier.
             styles.mainStyle = token.modifiers.contains(QLatin1String("readonly"))
                     ? C_PARAMETER : C_TYPE;
+        } else if (token.type == "operator") {
+            const int pos = Utils::Text::positionInText(&doc, token.line, token.column);
+            QTC_ASSERT(pos >= 0 || pos < docContents.size(), return HighlightingResult());
+            const QChar firstChar = docContents.at(pos);
+            if (firstChar.isLetter())
+                styles.mainStyle = C_KEYWORD;
+            else
+                styles.mainStyle = C_PUNCTUATION;
+            styles.mixinStyles.push_back(C_OPERATOR);
+            if (token.modifiers.contains("userDefined"))
+                styles.mixinStyles.push_back(C_OVERLOADED_OPERATOR);
+            else if (token.modifiers.contains("declaration")) {
+                styles.mixinStyles.push_back(C_OVERLOADED_OPERATOR);
+                styles.mixinStyles.push_back(C_DECLARATION);
+            }
+            HighlightingResult result(token.line, token.column, token.length, styles);
+            if (token.length == 1) {
+                if (firstChar == '?')
+                    result.kind = CppEditor::SemanticHighlighter::TernaryIf;
+                else if (firstChar == ':')
+                    result.kind = CppEditor::SemanticHighlighter::TernaryElse;
+            }
+            return result;
         }
         if (token.modifiers.contains(QLatin1String("declaration")))
             styles.mixinStyles.push_back(C_DECLARATION);
@@ -494,14 +516,6 @@ void ExtraHighlightingResultsCollector::insertResult(const HighlightingResult &r
         m_results.insert(it, result);
         return;
     }
-
-    // This is for conversion operators, whose type part is only reported as a type by clangd.
-    if ((it->textStyles.mainStyle == C_TYPE
-         || it->textStyles.mainStyle == C_PRIMITIVE_TYPE)
-            && !result.textStyles.mixinStyles.empty()
-            && result.textStyles.mixinStyles.at(0) == C_OPERATOR) {
-        it->textStyles.mixinStyles = result.textStyles.mixinStyles;
-    }
 }
 
 void ExtraHighlightingResultsCollector::insertResult(const ClangdAstNode &node, TextStyle style)
@@ -598,7 +612,7 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
     const QList<ClangdAstNode> children = node.children().value_or(QList<ClangdAstNode>());
 
     // Match question mark and colon in ternary operators.
-    if (isExpression && node.kind() == "ConditionalOperator") {
+    if (m_clangdVersion < 16 && isExpression && node.kind() == "ConditionalOperator") {
         if (children.size() != 3)
             return;
 
@@ -761,6 +775,9 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
     if (!isExpression && !isDeclaration)
         return;
 
+    if (m_clangdVersion >= 16)
+        return;
+
     // Operators, overloaded ones in particular.
     static const QString operatorPrefix = "operator";
     QString detail = node.detail().value_or(QString());
@@ -782,15 +799,14 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
     if (!isCallToNew && !isCallToDelete)
         detail.remove(0, operatorPrefix.length());
 
+    if (node.kind() == "CXXConversion")
+        return;
+
     HighlightingResult result;
     result.useTextSyles = true;
-    const bool isConversionOp = node.kind() == "CXXConversion";
-    const bool isOverloaded = !isConversionOp
-            && (isDeclaration || ((!isCallToNew && !isCallToDelete)
-                                  || node.arcanaContains("CXXMethod")));
-    result.textStyles.mainStyle = isConversionOp
-            ? C_PRIMITIVE_TYPE
-            : isCallToNew || isCallToDelete || detail.at(0).isSpace()
+    const bool isOverloaded = isDeclaration || ((!isCallToNew && !isCallToDelete)
+                                                || node.arcanaContains("CXXMethod"));
+    result.textStyles.mainStyle = isCallToNew || isCallToDelete || detail.at(0).isSpace()
               ? C_KEYWORD : C_PUNCTUATION;
     result.textStyles.mixinStyles.push_back(C_OPERATOR);
     if (isOverloaded)

@@ -719,9 +719,9 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_FUNCTION} << 0;
     QTest::newRow("function call") << 64 << 5 << 64 << 13 << QList<int>{C_FUNCTION} << 0;
     QTest::newRow("type conversion function (struct)") << 68 << 14 << 68 << 17
-        << QList<int>{C_TYPE, C_OPERATOR, C_DECLARATION} << 0;
+        << QList<int>{C_TYPE} << 0;
     QTest::newRow("type conversion function (built-in)") << 69 << 14 << 69 << 17
-        << QList<int>{C_PRIMITIVE_TYPE, C_OPERATOR, C_DECLARATION} << 0;
+        << QList<int>{C_PRIMITIVE_TYPE} << 0;
     QTest::newRow("type reference") << 74 << 5 << 74 << 8 << QList<int>{C_TYPE} << 0;
     QTest::newRow("local variable declaration") << 79 << 9 << 79 << 12
         << QList<int>{C_LOCAL, C_DECLARATION} << 0;
@@ -836,34 +836,16 @@ void ClangdTestHighlighting::test_data()
         << QList<int>{C_LOCAL} << 0;
     QTest::newRow("operator new[] member declaration (keyword)") << 623 << 20 << 623 << 23
         << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
-    QTest::newRow("operator new[] member declaration (opening bracket)") << 623 << 23 << 623 << 24
-        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
-    QTest::newRow("operator new[] member declaration (closing bracket)") << 623 << 24 << 623 << 25
-        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
     QTest::newRow("operator new[] member call (keyword") << 637 << 19 << 637 << 22
         << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
     QTest::newRow("operator new[] member call (type argument)") << 637 << 23 << 637 << 28
         << QList<int>{C_TYPE} << 0;
-    QTest::newRow("operator new[] member call (opening bracket)") << 637 << 28 << 637 << 29
-        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
     QTest::newRow("operator new[] member call (size argument)") << 637 << 29 << 637 << 31
         << QList<int>{C_NUMBER} << 0;
-    QTest::newRow("operator new[] member call (closing bracket)") << 637 << 31 << 637 << 32
-        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
     QTest::newRow("operator delete[] member declaration (keyword)") << 624 << 19 << 624 << 25
         << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
-    QTest::newRow("operator delete[] member declaration (opening bracket)")
-        << 624 << 25 << 624 << 26
-        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
-    QTest::newRow("operator delete[] member declaration (closing bracket)")
-        << 624 << 26 << 624 << 27
-        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR, C_DECLARATION} << 0;
     QTest::newRow("operator delete[] member call (keyword") << 638 << 5 << 638 << 11
         << QList<int>{C_KEYWORD, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
-    QTest::newRow("operator delete[] member call (opening bracket)") << 638 << 12 << 638 << 13
-        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
-    QTest::newRow("operator delete[] member call (closing bracket)") << 638 << 13 << 638 << 14
-        << QList<int>{C_PUNCTUATION, C_OPERATOR, C_OVERLOADED_OPERATOR} << 0;
     QTest::newRow("operator new built-in call") << 634 << 14 << 634 << 17
         << QList<int>{C_KEYWORD, C_OPERATOR} << 0;
     QTest::newRow("operator() member declaration (opening paren") << 654 << 20 << 654 << 21
