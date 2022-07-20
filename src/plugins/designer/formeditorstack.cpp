@@ -84,8 +84,8 @@ void FormEditorStack::add(const EditorData &data)
     connect(data.formWindowEditor, &FormWindowEditor::destroyed,
             this, &FormEditorStack::removeFormWindowEditor);
 
-    connect(data.widgetHost, &SharedTools::WidgetHost::formWindowSizeChanged,
-            this, &FormEditorStack::formSizeChanged);
+    connect(data.widgetHost, &SharedTools::WidgetHost::formWindowSizeChanged, this,
+            [this, wh = data.widgetHost](int w, int h) { formSizeChanged(wh, w, h); });
 
     if (Designer::Constants::Internal::debug)
         qDebug() << "FormEditorStack::add" << data.widgetHost << m_formEditors.size();
@@ -168,16 +168,13 @@ void FormEditorStack::updateFormWindowSelectionHandles()
     }
 }
 
-void FormEditorStack::formSizeChanged(int w, int h)
+void FormEditorStack::formSizeChanged(const SharedTools::WidgetHost *widgetHost, int w, int h)
 {
     // Handle main container resize.
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << w << h;
-    if (auto wh = qobject_cast<const SharedTools::WidgetHost *>(sender())) {
-        wh->formWindow()->setDirty(true);
-        static const QString geometry = "geometry";
-        m_designerCore->propertyEditor()->setPropertyValue(geometry, QRect(0,0,w,h) );
-    }
+    widgetHost->formWindow()->setDirty(true);
+    m_designerCore->propertyEditor()->setPropertyValue("geometry", QRect(0, 0, w, h));
 }
 
 SharedTools::WidgetHost *FormEditorStack::formWindowEditorForXmlEditor(const Core::IEditor *xmlEditor) const

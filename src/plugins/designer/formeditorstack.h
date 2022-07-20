@@ -68,7 +68,7 @@ public:
 private:
     void updateFormWindowSelectionHandles();
     void modeAboutToChange(Utils::Id mode);
-    void formSizeChanged(int w, int h);
+    void formSizeChanged(const SharedTools::WidgetHost *widgetHost, int w, int h);
 
     inline int indexOfFormWindow(const QDesignerFormWindowInterface *) const;
     inline int indexOfFormEditor(const QObject *xmlEditor) const;
