@@ -368,16 +368,22 @@ static void addFileInfos(const QList<IDocument *> &documents)
 */
 void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool addWatcher)
 {
+    auto connectDocument = [](IDocument *document) {
+        connect(document, &QObject::destroyed, m_instance, &DocumentManager::documentDestroyed);
+        connect(document, &IDocument::changed, m_instance, &DocumentManager::updateSaveAll);
+        connect(document, &IDocument::filePathChanged,
+                m_instance, [document](const FilePath &oldName, const FilePath &newName) {
+            if (document == d->m_blockedIDocument)
+                return;
+            emit m_instance->documentRenamed(document, oldName, newName);
+        });
+    };
     if (!addWatcher) {
         // We keep those in a separate list
 
         for (IDocument *document : documents) {
             if (document && !d->m_documentsWithoutWatch.contains(document)) {
-                connect(document, &QObject::destroyed,
-                        m_instance, &DocumentManager::documentDestroyed);
-                connect(document, &IDocument::filePathChanged,
-                        m_instance, &DocumentManager::filePathChanged);
-                connect(document, &IDocument::changed, m_instance, &DocumentManager::updateSaveAll);
+                connectDocument(document);
                 d->m_documentsWithoutWatch.append(document);
             }
         }
@@ -388,11 +394,9 @@ void DocumentManager::addDocuments(const QList<IDocument *> &documents, bool add
         return document && !d->m_documentsWithWatch.contains(document);
     });
     for (IDocument *document : documentsToWatch) {
-        connect(document, &IDocument::changed, m_instance, &DocumentManager::checkForNewFileName);
-        connect(document, &QObject::destroyed, m_instance, &DocumentManager::documentDestroyed);
-        connect(document, &IDocument::filePathChanged,
-                m_instance, &DocumentManager::filePathChanged);
-        connect(document, &IDocument::changed, m_instance, &DocumentManager::updateSaveAll);
+        connect(document, &IDocument::changed,
+                m_instance, [document] { m_instance->checkForNewFileName(document); });
+        connectDocument(document);
     }
     addFileInfos(documentsToWatch);
 }
@@ -503,15 +507,6 @@ void DocumentManager::renamedFile(const Utils::FilePath &from, const Utils::File
     emit m_instance->allDocumentsRenamed(from, to);
 }
 
-void DocumentManager::filePathChanged(const FilePath &oldName, const FilePath &newName)
-{
-    auto doc = qobject_cast<IDocument *>(sender());
-    QTC_ASSERT(doc, return);
-    if (doc == d->m_blockedIDocument)
-        return;
-    emit m_instance->documentRenamed(doc, oldName, newName);
-}
-
 void DocumentManager::updateSaveAll()
 {
     d->m_saveAllAction->setEnabled(!modifiedDocuments().empty());
@@ -550,23 +545,19 @@ bool DocumentManager::removeDocument(IDocument *document)
     if (!d->m_documentsWithoutWatch.removeOne(document)) {
         addWatcher = true;
         removeFileInfo(document);
-        disconnect(document, &IDocument::changed, m_instance, &DocumentManager::checkForNewFileName);
     }
-    disconnect(document, &QObject::destroyed, m_instance, &DocumentManager::documentDestroyed);
-    disconnect(document, &IDocument::changed, m_instance, &DocumentManager::updateSaveAll);
+    disconnect(document, nullptr, m_instance, nullptr);
     return addWatcher;
 }
 
 /* Slot reacting on IDocument::changed. We need to check if the signal was sent
    because the document was saved under different name. */
-void DocumentManager::checkForNewFileName()
+void DocumentManager::checkForNewFileName(IDocument *document)
 {
-    auto document = qobject_cast<IDocument *>(sender());
     // We modified the IDocument
     // Trust the other code to also update the m_states map
     if (document == d->m_blockedIDocument)
         return;
-    QTC_ASSERT(document, return);
     QTC_ASSERT(d->m_documentsWithWatch.contains(document), return);
 
     // Maybe the name has changed or file has been deleted and created again ...

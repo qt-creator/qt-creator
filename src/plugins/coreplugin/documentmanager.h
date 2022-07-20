@@ -166,10 +166,9 @@ private:
     ~DocumentManager() override;
 
     void documentDestroyed(QObject *obj);
-    void checkForNewFileName();
+    void checkForNewFileName(IDocument *document);
     void checkForReload();
     void changedFile(const QString &file);
-    void filePathChanged(const Utils::FilePath &oldName, const Utils::FilePath &newName);
     void updateSaveAll();
     static void registerSaveAllAction();
 
