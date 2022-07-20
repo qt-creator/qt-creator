@@ -29,11 +29,9 @@
 
 #include <utils/id.h>
 
-#include <QMap>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
-class QAction;
 class QCheckBox;
 QT_END_NAMESPACE
 
@@ -51,11 +49,7 @@ protected:
     bool eventFilter(QObject *obj, QEvent *ev) override;
 
 private:
-    void actionChanged();
-
     QCheckBox *createCheckboxForCommand(Utils::Id id);
-
-    QMap<QAction *, QCheckBox *> m_checkboxMap;
 };
 
 } // namespace Core

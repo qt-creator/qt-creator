@@ -95,15 +95,6 @@ bool OptionsPopup::eventFilter(QObject *obj, QEvent *ev)
     return QWidget::eventFilter(obj, ev);
 }
 
-void OptionsPopup::actionChanged()
-{
-    auto action = qobject_cast<QAction *>(sender());
-    QTC_ASSERT(action, return);
-    QCheckBox *checkbox = m_checkboxMap.value(action);
-    QTC_ASSERT(checkbox, return);
-    checkbox->setEnabled(action->isEnabled());
-}
-
 QCheckBox *OptionsPopup::createCheckboxForCommand(Id id)
 {
     QAction *action = ActionManager::command(id)->action();
@@ -113,8 +104,9 @@ QCheckBox *OptionsPopup::createCheckboxForCommand(Id id)
     checkbox->setEnabled(action->isEnabled());
     checkbox->installEventFilter(this); // enter key handling
     QObject::connect(checkbox, &QCheckBox::clicked, action, &QAction::setChecked);
-    QObject::connect(action, &QAction::changed, this, &OptionsPopup::actionChanged);
-    m_checkboxMap.insert(action, checkbox);
+    QObject::connect(action, &QAction::changed, checkbox, [action, checkbox] {
+        checkbox->setEnabled(action->isEnabled());
+    });
     return checkbox;
 }
 
