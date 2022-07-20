@@ -106,9 +106,7 @@ private:
     void attachToRunControl();
     void tabChanged(int);
     void contextMenuRequested(const QPoint &pos, int index);
-    void slotRunControlChanged();
-    void slotRunControlFinished();
-    void slotRunControlFinished2(ProjectExplorer::RunControl *sender);
+    void runControlFinished(RunControl *runControl);
 
     void aboutToUnloadSession();
     void updateFromSettings();

@@ -393,12 +393,23 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
 {
     QTC_ASSERT(rc, return);
 
-    connect(rc, &RunControl::aboutToStart,
-            this, &AppOutputPane::slotRunControlChanged);
-    connect(rc, &RunControl::started,
-            this, &AppOutputPane::slotRunControlChanged);
-    connect(rc, &RunControl::stopped,
-            this, &AppOutputPane::slotRunControlFinished);
+    auto runControlChanged = [this, rc] {
+        RunControl *current = currentRunControl();
+        if (current && current == rc)
+            enableButtons(current); // RunControl::isRunning() cannot be trusted in signal handler.
+    };
+
+    connect(rc, &RunControl::aboutToStart, this, runControlChanged);
+    connect(rc, &RunControl::started, this, runControlChanged);
+    connect(rc, &RunControl::stopped, this, [this, rc] {
+        QTimer::singleShot(0, this, [this, rc] { runControlFinished(rc); });
+        for (const RunControlTab &t : qAsConst(m_runControlTabs)) {
+            if (t.runControl == rc) {
+                t.window->flush();
+                break;
+            }
+        }
+    });
     connect(rc, &RunControl::applicationProcessHandleChanged,
             this, &AppOutputPane::enableDefaultButtons);
     connect(rc, &RunControl::appendMessage,
@@ -765,28 +776,9 @@ void AppOutputPane::contextMenuRequested(const QPoint &pos, int index)
     }
 }
 
-void AppOutputPane::slotRunControlChanged()
+void AppOutputPane::runControlFinished(RunControl *runControl)
 {
-    RunControl *current = currentRunControl();
-    if (current && current == sender())
-        enableButtons(current); // RunControl::isRunning() cannot be trusted in signal handler.
-}
-
-void AppOutputPane::slotRunControlFinished()
-{
-    auto *rc = qobject_cast<RunControl *>(sender());
-    QTimer::singleShot(0, this, [this, rc]() { slotRunControlFinished2(rc); });
-    for (const RunControlTab &t : qAsConst(m_runControlTabs)) {
-        if (t.runControl == rc) {
-            t.window->flush();
-            break;
-        }
-    }
-}
-
-void AppOutputPane::slotRunControlFinished2(RunControl *sender)
-{
-    const RunControlTab * const tab = tabFor(sender);
+    const RunControlTab * const tab = tabFor(runControl);
 
     // This slot is queued, so the stop() call in closeTab might lead to this slot, after closeTab already cleaned up
     if (!tab)
@@ -795,11 +787,11 @@ void AppOutputPane::slotRunControlFinished2(RunControl *sender)
     // Enable buttons for current
     RunControl *current = currentRunControl();
 
-    qCDebug(appOutputLog) << "AppOutputPane::runControlFinished"  << sender
+    qCDebug(appOutputLog) << "AppOutputPane::runControlFinished" << runControl
                           << m_tabWidget->indexOf(tab->window)
                           << "current" << current << m_runControlTabs.size();
 
-    if (current && current == sender)
+    if (current && current == runControl)
         enableButtons(current);
 
     ProjectExplorerPlugin::updateRunActions();
