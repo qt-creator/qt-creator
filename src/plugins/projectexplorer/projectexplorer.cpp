@@ -492,7 +492,7 @@ public:
 
     void determineSessionToRestoreAtStartup();
     void restoreSession();
-    void runProjectContextMenu();
+    void runProjectContextMenu(RunConfiguration *rc);
     void savePersistentSettings();
 
     void addNewFile();
@@ -628,6 +628,7 @@ public:
     static const int m_maxRecentProjects = 25;
 
     QString m_lastOpenDirectory;
+    QPointer<RunConfiguration> m_defaultRunConfiguration;
     QPointer<RunConfiguration> m_delayedRunConfiguration;
     QString m_projectFilterString;
     MiniProjectTargetSelector * m_targetSelector;
@@ -1862,11 +1863,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
         BuildManager::cleanProjects(SessionManager::projectOrder(), ConfigSelection::All);
     });
     connect(dd->m_runAction, &QAction::triggered,
-            dd, []() { runStartupProject(Constants::NORMAL_RUN_MODE); });
+            dd, [] { runStartupProject(Constants::NORMAL_RUN_MODE); });
     connect(dd->m_runActionContextMenu, &QAction::triggered,
-            dd, &ProjectExplorerPluginPrivate::runProjectContextMenu);
+            dd, [] { dd->runProjectContextMenu(dd->m_defaultRunConfiguration); });
     connect(dd->m_runWithoutDeployAction, &QAction::triggered,
-            dd, []() { runStartupProject(Constants::NORMAL_RUN_MODE, true); });
+            dd, [] { runStartupProject(Constants::NORMAL_RUN_MODE, true); });
     connect(dd->m_cancelBuildAction, &QAction::triggered,
             BuildManager::instance(), &BuildManager::cancel);
     connect(dd->m_unloadAction, &QAction::triggered,
@@ -1903,11 +1904,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             &ProjectExplorerPluginPrivate::showInFileSystemPane,
             Qt::QueuedConnection);
 
-    connect(dd->m_openTerminalHere, &QAction::triggered, dd, []() { dd->openTerminalHere(sysEnv); });
-    connect(dd->m_openTerminalHereBuildEnv, &QAction::triggered, dd, []() { dd->openTerminalHere(buildEnv); });
-    connect(dd->m_openTerminalHereRunEnv, &QAction::triggered, dd, []() { dd->openTerminalHereWithRunEnv(); });
+    connect(dd->m_openTerminalHere, &QAction::triggered, dd, [] { dd->openTerminalHere(sysEnv); });
+    connect(dd->m_openTerminalHereBuildEnv, &QAction::triggered, dd, [] { dd->openTerminalHere(buildEnv); });
+    connect(dd->m_openTerminalHereRunEnv, &QAction::triggered, dd, [] { dd->openTerminalHereWithRunEnv(); });
 
-    connect(dd->m_filePropertiesAction, &QAction::triggered, this, []() {
+    connect(dd->m_filePropertiesAction, &QAction::triggered, this, [] {
                 const Node *currentNode = ProjectTree::currentNode();
                 QTC_ASSERT(currentNode && currentNode->asFileNode(), return);
                 ProjectTree::CurrentNodeKeeper nodeKeeper;
@@ -1994,13 +1995,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                                  return QString();
                              });
     EnvironmentProvider::addProvider(
-        {currentBuildEnvVar, tr("Current Build Environment"), []() {
+        {currentBuildEnvVar, tr("Current Build Environment"), [] {
              if (BuildConfiguration *bc = currentBuildConfiguration())
                  return bc->environment();
              return Environment::systemEnvironment();
          }});
     EnvironmentProvider::addProvider(
-        {"CurrentDocument:Project:RunConfig:Env", tr("Current Run Environment"), []() {
+        {"CurrentDocument:Project:RunConfig:Env", tr("Current Run Environment"), [] {
              const Project *const project = ProjectTree::currentProject();
              const Target *const target = project ? project->activeTarget() : nullptr;
              const RunConfiguration *const rc = target ? target->activeRunConfiguration() : nullptr;
@@ -2731,7 +2732,7 @@ void ProjectExplorerPluginPrivate::restoreSession()
             m_instance, &ProjectExplorerPlugin::openProjectWelcomePage);
     dd->m_arguments = arguments;
     // delay opening projects from the command line even more
-    QTimer::singleShot(0, m_instance, []() {
+    QTimer::singleShot(0, m_instance, [] {
         ICore::openFiles(Utils::transform(dd->m_arguments, &FilePath::fromUserInput),
                          ICore::OpenFilesFlags(ICore::CanContainLineAndColumnNumbers | ICore::SwitchMode));
         emit m_instance->finishedInitialization();
@@ -3079,20 +3080,14 @@ void ProjectExplorerPluginPrivate::extendFolderNavigationWidgetFactory()
             });
 }
 
-void ProjectExplorerPluginPrivate::runProjectContextMenu()
+void ProjectExplorerPluginPrivate::runProjectContextMenu(RunConfiguration *rc)
 {
     const Node *node = ProjectTree::currentNode();
     const ProjectNode *projectNode = node ? node->asProjectNode() : nullptr;
     if (projectNode == ProjectTree::currentProject()->rootProjectNode() || !projectNode) {
         ProjectExplorerPlugin::runProject(ProjectTree::currentProject(),
                                           Constants::NORMAL_RUN_MODE);
-    } else {
-        auto act = qobject_cast<QAction *>(sender());
-        if (!act)
-            return;
-        auto *rc = act->data().value<RunConfiguration *>();
-        if (!rc)
-            return;
+    } else if (rc) {
         ProjectExplorerPlugin::runRunConfiguration(rc, Constants::NORMAL_RUN_MODE);
     }
 }
@@ -3554,6 +3549,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
     m_duplicateFileAction->setVisible(false);
     m_deleteFileAction->setVisible(true);
     m_runActionContextMenu->setVisible(false);
+    m_defaultRunConfiguration.clear();
     m_diffFileAction->setVisible(DiffService::instance());
 
     m_openTerminalHere->setVisible(true);
@@ -3593,16 +3589,15 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
                 }
                 if (runConfigs.count() == 1) {
                     m_runActionContextMenu->setVisible(true);
-                    m_runActionContextMenu->setData(QVariant::fromValue(runConfigs.first()));
+                    m_defaultRunConfiguration = runConfigs.first();
                 } else if (runConfigs.count() > 1) {
                     runMenu->menu()->menuAction()->setVisible(true);
                     for (RunConfiguration *rc : qAsConst(runConfigs)) {
                         auto *act = new QAction(runMenu->menu());
-                        act->setData(QVariant::fromValue(rc));
                         act->setText(tr("Run %1").arg(rc->displayName()));
                         runMenu->menu()->addAction(act);
                         connect(act, &QAction::triggered,
-                                this, &ProjectExplorerPluginPrivate::runProjectContextMenu);
+                                this, [this, rc] { runProjectContextMenu(rc); });
                     }
                 }
             }
@@ -3725,7 +3720,7 @@ void ProjectExplorerPluginPrivate::updateLocationSubMenus()
                                   ? li.displayName
                                   : tr("%1 in %2").arg(li.displayName).arg(li.path.toUserOutput());
         auto *action = new QAction(displayName, nullptr);
-        connect(action, &QAction::triggered, this, [line, path]() {
+        connect(action, &QAction::triggered, this, [line, path] {
             Core::EditorManager::openEditorAt(Link(path, line),
                                               {},
                                               Core::EditorManager::AllowExternalEditor);
@@ -4170,7 +4165,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFileName)
                                                 .arg(newFilePath.toUserOutput())
                                                 .arg(projectFileName);
 
-            QTimer::singleShot(0, [renameFileError]() {
+            QTimer::singleShot(0, [renameFileError] {
                 QMessageBox::warning(ICore::dialogParent(),
                                      tr("Project Editing Failed"),
                                      renameFileError);
@@ -4181,7 +4176,7 @@ void ProjectExplorerPlugin::renameFile(Node *node, const QString &newFileName)
                                             .arg(oldFilePath.toUserOutput())
                                             .arg(newFilePath.toUserOutput());
 
-        QTimer::singleShot(0, [renameFileError]() {
+        QTimer::singleShot(0, [renameFileError] {
             QMessageBox::warning(ICore::dialogParent(), tr("Cannot Rename File"), renameFileError);
         });
     }
@@ -4531,7 +4526,7 @@ void SwitchToRunConfigurationLocatorFilter::accept(const LocatorFilterEntry &sel
         return;
 
     SessionManager::startupTarget()->setActiveRunConfiguration(toSwitchTo);
-    QTimer::singleShot(200, this, [displayName = selection.displayName](){
+    QTimer::singleShot(200, this, [displayName = selection.displayName] {
         if (auto ks = ICore::mainWindow()->findChild<QWidget *>("KitSelector.Button")) {
             Utils::ToolTip::show(ks->mapToGlobal(QPoint{25, 25}),
                                  ProjectExplorerPluginPrivate::tr(
