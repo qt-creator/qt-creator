@@ -107,8 +107,8 @@ namespace Internal {
         int visibleSearchIndex() const { return m_currentIndex - 1; }
         void setCurrentIndex(int index, bool focus);
         void setCurrentIndexWithFocus(int index) { setCurrentIndex(index, true); }
-        void moveWidgetToTop();
-        void popupRequested(bool focus);
+        void moveWidgetToTop(SearchResultWidget *widget);
+        void popupRequested(SearchResultWidget *widget, bool focus);
         void handleExpandCollapseToolButton(bool checked);
         void updateFilterButton();
         QList<QWidget *> toolBarWidgets();
@@ -210,11 +210,9 @@ namespace Internal {
         updateFilterButton();
     }
 
-    void SearchResultWindowPrivate::moveWidgetToTop()
+    void SearchResultWindowPrivate::moveWidgetToTop(SearchResultWidget *widget)
     {
-        QTC_ASSERT(m_recentSearchesBox, return );
-        auto widget = qobject_cast<SearchResultWidget *>(sender());
-        QTC_ASSERT(widget, return);
+        QTC_ASSERT(m_recentSearchesBox, return);
         const int index = m_searchResultWidgets.indexOf(widget);
         if (index == 0)
             return; // nothing to do
@@ -245,10 +243,8 @@ namespace Internal {
         }
     }
 
-    void SearchResultWindowPrivate::popupRequested(bool focus)
+    void SearchResultWindowPrivate::popupRequested(SearchResultWidget *widget, bool focus)
     {
-        auto widget = qobject_cast<SearchResultWidget *>(sender());
-        QTC_ASSERT(widget, return);
         int internalIndex = m_searchResultWidgets.indexOf(widget) + 1/*account for "new search" entry*/;
         setCurrentIndex(internalIndex, focus);
         q->popup(focus ? IOutputPane::ModeSwitch | IOutputPane::WithFocus
@@ -517,10 +513,10 @@ SearchResult *SearchResultWindow::startNewSearch(const QString &label,
     d->m_widget->insertWidget(1, widget);
     connect(widget, &SearchResultWidget::navigateStateChanged,
             this, &SearchResultWindow::navigateStateChanged);
-    connect(widget, &SearchResultWidget::restarted,
-            d, &SearchResultWindowPrivate::moveWidgetToTop);
-    connect(widget, &SearchResultWidget::requestPopup,
-            d, &SearchResultWindowPrivate::popupRequested);
+    connect(widget, &SearchResultWidget::restarted, d,
+            [this, widget] { d->moveWidgetToTop(widget); });
+    connect(widget, &SearchResultWidget::requestPopup, d,
+            [this, widget](bool focus) { d->popupRequested(widget, focus); });
     widget->setTextEditorFont(d->m_font, d->m_colors);
     widget->setTabWidth(d->m_tabWidth);
     widget->setSupportPreserveCase(preserveCaseMode == PreserveCaseEnabled);
