@@ -5976,4 +5976,14 @@ TEST_F(ProjectStorage, GetType)
     ASSERT_THAT(type, Optional(IsInfoType(defaultPropertyId)));
 }
 
+TEST_F(ProjectStorage, DontGetTypeForInvalidId)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+
+    auto type = storage.type(TypeId());
+
+    ASSERT_THAT(type, Eq(Utils::nullopt));
+}
+
 } // namespace
