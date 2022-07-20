@@ -799,24 +799,25 @@ bool PeripheralRegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
     return true;
 }
 
-QMenu *PeripheralRegisterHandler::createRegisterGroupsMenu(DebuggerState state) const
+QMenu *PeripheralRegisterHandler::createRegisterGroupsMenu(DebuggerState state)
 {
     const auto groupMenu = new QMenu(Tr::tr("View Groups"));
     const auto actionGroup = new QActionGroup(groupMenu);
     bool hasActions = false;
     for (const PeripheralRegisterGroup &group : qAsConst(m_peripheralRegisterGroups)) {
-        const QString actName = QStringLiteral("%1: %2")
-                .arg(group.name, group.description);
+        const QString groupName = group.name;
+        const QString actName = QStringLiteral("%1: %2").arg(groupName, group.description);
         QAction *act = groupMenu->addAction(actName);
         const bool on = m_engine->hasCapability(RegisterCapability)
                 && (state == InferiorStopOk || state == InferiorUnrunnable);
         act->setEnabled(on);
-        act->setData(group.name);
         act->setCheckable(true);
         act->setChecked(group.active);
         actionGroup->addAction(act);
-        QObject::connect(act, &QAction::triggered,
-                         this, &PeripheralRegisterHandler::setActiveGroup);
+        QObject::connect(act, &QAction::triggered, this, [this, groupName](bool checked) {
+            if (checked)
+                setActiveGroup(groupName);
+        });
         hasActions = true;
     }
     groupMenu->setEnabled(hasActions);
@@ -932,13 +933,10 @@ QMenu *PeripheralRegisterHandler::createRegisterFieldFormatMenu(
     return fmtMenu;
 }
 
-void PeripheralRegisterHandler::setActiveGroup(bool checked)
+void PeripheralRegisterHandler::setActiveGroup(const QString &groupName)
 {
-    if (!checked)
-        return;
     deactivateGroups();
     if (const auto act = qobject_cast<QAction *>(sender())) {
-        const QString groupName = act->data().toString();
         const auto groupEnd = m_peripheralRegisterGroups.end();
         const auto groupIt = std::find_if(
                     m_peripheralRegisterGroups.begin(), groupEnd,

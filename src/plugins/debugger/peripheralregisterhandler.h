@@ -166,12 +166,12 @@ private:
     bool setData(const QModelIndex &idx, const QVariant &data, int role) final;
 
     bool contextMenuEvent(const Utils::ItemViewEvent &ev);
-    QMenu *createRegisterGroupsMenu(DebuggerState state) const;
+    QMenu *createRegisterGroupsMenu(DebuggerState state);
     QMenu *createRegisterFormatMenu(DebuggerState state,
                                     PeripheralRegisterItem *item) const;
     QMenu *createRegisterFieldFormatMenu(DebuggerState state,
                                          PeripheralRegisterFieldItem *item) const;
-    void setActiveGroup(bool checked);
+    void setActiveGroup(const QString &groupName);
     void deactivateGroups();
 
     PeripheralRegisterGroups m_peripheralRegisterGroups;
