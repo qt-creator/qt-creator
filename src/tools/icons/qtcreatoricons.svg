@@ -3127,6 +3127,27 @@
          id="path1746" />
     </g>
     <g
+       id="src/plugins/cmakeprojectmanager/images/settingscategory_cmakeprojectmanager">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_24"
+         id="use3468-6"
+         width="100%"
+         height="100%"
+         transform="translate(1090,64)"
+         style="display:inline;fill:none" />
+      <path
+         id="path4544-1"
+         style="fill:#000000"
+         d="m 1078,478.85 -8.5,16.15 h 17 z m 0.7724,8.61732 0.4208,4.69491 -4.1948,-1.62916 z" />
+      <path
+         id="path6034"
+         style="fill:none;stroke:#ffffff"
+         d="m 1078,478.85469 1.189,13.30208 m -4.1861,-1.62746 L 1086.5,495 m -17,0 9.272,-7.52758"
+         sodipodi:nodetypes="cccccc" />
+    </g>
+    <g
        id="src/plugins/valgrind/images/kcachegrind"
        transform="translate(112)">
       <use

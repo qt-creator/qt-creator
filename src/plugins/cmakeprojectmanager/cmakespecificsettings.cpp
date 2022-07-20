@@ -88,7 +88,7 @@ CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *sett
     setDisplayName(tr("General"));
     setDisplayCategory("CMake");
     setCategory(Constants::Settings::CATEGORY);
-    setCategoryIconPath(Constants::Icons::LOGO_BW);
+    setCategoryIconPath(Constants::Icons::SETTINGS_CATEGORY);
     setSettings(settings);
 
     setLayouter([settings](QWidget *widget) {

@@ -59,8 +59,7 @@ const char CMAKE_SNIPPETS_GROUP_ID[] = "CMake";
 
 namespace Icons {
 const char FILE_OVERLAY[] = ":/cmakeproject/images/fileoverlay_cmake.png";
-const char LOGO_BW[] = ":/cmakeproject/images/logo_cmake_bw.png";
-const char LOGO_BW_2X[] = ":/cmakeproject/images/logo_cmake_bw@2x.png";
+const char SETTINGS_CATEGORY[] = ":/cmakeproject/images/settingscategory_cmakeprojectmanager.png";
 } // namespace Icons
 
 // Actions
