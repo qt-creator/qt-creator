@@ -60,6 +60,8 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
+using namespace std::placeholders;
+
 namespace CppEditor {
 
 namespace { static bool isAllLowerCase(const QString &text) { return text.toLower() == text; } }
@@ -467,13 +469,10 @@ void CppFindReferences::findUsages(CPlusPlus::Symbol *symbol,
     search->setTextToReplace(replacement);
     if (codeModelSettings()->categorizeFindReferences())
         search->setFilter(new CppSearchResultFilter);
-    auto renameFilesCheckBox = new QCheckBox();
-    renameFilesCheckBox->setVisible(false);
-    search->setAdditionalReplaceWidget(renameFilesCheckBox);
-    connect(search, &SearchResult::replaceButtonClicked,
-            this, &CppFindReferences::onReplaceButtonClicked);
+    setupSearch(search);
     search->setSearchAgainSupported(true);
-    connect(search, &SearchResult::searchAgainRequested, this, &CppFindReferences::searchAgain);
+    connect(search, &SearchResult::searchAgainRequested, this,
+            std::bind(&CppFindReferences::searchAgain, this, search));
     CppFindReferencesParameters parameters;
     parameters.symbolId = fullIdForSymbol(symbol);
     parameters.symbolFileName = QByteArray(symbol->fileName());
@@ -525,7 +524,17 @@ void CppFindReferences::findAll_helper(SearchResult *search, CPlusPlus::Symbol *
     connect(progress, &FutureProgress::clicked, search, &SearchResult::popup);
 }
 
-void CppFindReferences::onReplaceButtonClicked(const QString &text,
+void CppFindReferences::setupSearch(Core::SearchResult *search)
+{
+    auto renameFilesCheckBox = new QCheckBox();
+    renameFilesCheckBox->setVisible(false);
+    search->setAdditionalReplaceWidget(renameFilesCheckBox);
+    connect(search, &SearchResult::replaceButtonClicked, this,
+            std::bind(&CppFindReferences::onReplaceButtonClicked, this, search, _1, _2, _3));
+}
+
+void CppFindReferences::onReplaceButtonClicked(Core::SearchResult *search,
+                                               const QString &text,
                                                const QList<SearchResultItem> &items,
                                                bool preserveCase)
 {
@@ -535,9 +544,6 @@ void CppFindReferences::onReplaceButtonClicked(const QString &text,
             Utils::transform<QSet>(filePaths, &Utils::FilePath::toString));
         SearchResultWindow::instance()->hide();
     }
-
-    auto search = qobject_cast<SearchResult *>(sender());
-    QTC_ASSERT(search, return);
 
     CppFindReferencesParameters parameters = search->userData().value<CppFindReferencesParameters>();
     if (parameters.filesToRename.isEmpty())
@@ -550,9 +556,8 @@ void CppFindReferences::onReplaceButtonClicked(const QString &text,
     renameFilesForSymbol(parameters.prettySymbolName, text, parameters.filesToRename);
 }
 
-void CppFindReferences::searchAgain()
+void CppFindReferences::searchAgain(SearchResult *search)
 {
-    auto search = qobject_cast<SearchResult *>(sender());
     CppFindReferencesParameters parameters = search->userData().value<CppFindReferencesParameters>();
     parameters.filesToRename.clear();
     CPlusPlus::Snapshot snapshot = CppModelManager::instance()->snapshot();
@@ -820,12 +825,7 @@ void CppFindReferences::findMacroUses(const CPlusPlus::Macro &macro, const QStri
                 QLatin1String("CppEditor"));
 
     search->setTextToReplace(replacement);
-    auto renameFilesCheckBox = new QCheckBox();
-    renameFilesCheckBox->setVisible(false);
-    search->setAdditionalReplaceWidget(renameFilesCheckBox);
-    connect(search, &SearchResult::replaceButtonClicked,
-            this, &CppFindReferences::onReplaceButtonClicked);
-
+    setupSearch(search);
     SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 
     connect(search, &SearchResult::activated,

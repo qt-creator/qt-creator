@@ -97,8 +97,10 @@ public:
     void renameMacroUses(const CPlusPlus::Macro &macro, const QString &replacement = QString());
 
 private:
-    void onReplaceButtonClicked(const QString &text, const QList<Core::SearchResultItem> &items, bool preserveCase);
-    void searchAgain();
+    void setupSearch(Core::SearchResult *search);
+    void onReplaceButtonClicked(Core::SearchResult *search, const QString &text,
+                                const QList<Core::SearchResultItem> &items, bool preserveCase);
+    void searchAgain(Core::SearchResult *search);
 
     void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
                     const QString &replacement, bool replace);
