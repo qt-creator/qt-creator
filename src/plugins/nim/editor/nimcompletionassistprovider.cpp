@@ -80,8 +80,8 @@ public:
 
         if (!suggest->isReady()) {
             m_interface = interface;
-            QObject::connect(suggest, &Suggest::NimSuggest::readyChanged,
-                             this, &NimCompletionAssistProcessor::onNimSuggestReady);
+            QObject::connect(suggest, &Suggest::NimSuggest::readyChanged, this,
+                             [this, suggest](bool ready) { onNimSuggestReady(suggest, ready); });
         } else {
             doPerform(interface, suggest);
         }
@@ -96,13 +96,11 @@ public:
     }
 
 private:
-    void onNimSuggestReady(bool ready)
+    void onNimSuggestReady(Suggest::NimSuggest *suggest, bool ready)
     {
-        auto suggest = dynamic_cast<Suggest::NimSuggest *>(sender());
-        QTC_ASSERT(suggest, return);
         QTC_ASSERT(m_interface, return);
 
-        if (!ready || !suggest) {
+        if (!ready) {
             m_running = false;
             setAsyncProposalAvailable(nullptr);
         } else {

@@ -93,12 +93,14 @@ void NimTextEditorWidget::findLinkAt(const QTextCursor &c, const Utils::LinkHand
     m_callback = processLinkCallback;
     m_request = std::move(request);
 
-    QObject::connect(m_request.get(), &NimSuggestClientRequest::finished, this, &NimTextEditorWidget::onFindLinkFinished);
+    Suggest::NimSuggestClientRequest *req = m_request.get();
+    connect(req, &NimSuggestClientRequest::finished,
+            this, [this, req] { onFindLinkFinished(req); });
 }
 
-void NimTextEditorWidget::onFindLinkFinished()
+void NimTextEditorWidget::onFindLinkFinished(Suggest::NimSuggestClientRequest *request)
 {
-    QTC_ASSERT(m_request.get() == this->sender(), return);
+    QTC_ASSERT(m_request.get() == request, return);
     if (m_request->lines().empty()) {
         m_callback(Utils::Link());
         return;
