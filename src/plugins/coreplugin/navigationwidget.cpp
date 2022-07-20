@@ -335,10 +335,16 @@ Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position, int
         d->m_subWidgets.at(0)->setCloseIcon(Utils::Icons::CLOSE_SPLIT_BOTTOM.icon());
 
     auto nsw = new Internal::NavigationSubWidget(this, position, factoryIndex);
-    connect(nsw, &Internal::NavigationSubWidget::splitMe,  this, &NavigationWidget::splitSubWidget);
-    connect(nsw, &Internal::NavigationSubWidget::closeMe, this, &NavigationWidget::closeSubWidget);
-    connect(nsw, &Internal::NavigationSubWidget::factoryIndexChanged,
-            this, &NavigationWidget::onSubWidgetFactoryIndexChanged);
+    connect(nsw, &Internal::NavigationSubWidget::splitMe, this, [this, nsw](int factoryIndex) {
+        insertSubItem(indexOf(nsw) + 1, factoryIndex);
+    });
+    connect(nsw, &Internal::NavigationSubWidget::closeMe, this, [this, nsw] {
+        closeSubWidget(nsw);
+    });
+    connect(nsw, &Internal::NavigationSubWidget::factoryIndexChanged, this, [this, nsw] {
+        const Id factoryId = nsw->factory()->id();
+        NavigationWidgetPrivate::updateActivationsMap(factoryId, {d->m_side, nsw->position()});
+    });
     insertWidget(position, nsw);
 
     d->m_subWidgets.insert(position, nsw);
@@ -371,17 +377,9 @@ QWidget *NavigationWidget::activateSubWidget(Id factoryId, int preferredPosition
     return nullptr;
 }
 
-void NavigationWidget::splitSubWidget(int factoryIndex)
-{
-    auto original = qobject_cast<Internal::NavigationSubWidget *>(sender());
-    int pos = indexOf(original) + 1;
-    insertSubItem(pos, factoryIndex);
-}
-
-void NavigationWidget::closeSubWidget()
+void NavigationWidget::closeSubWidget(Internal::NavigationSubWidget *subWidget)
 {
     if (d->m_subWidgets.count() != 1) {
-        auto subWidget = qobject_cast<Internal::NavigationSubWidget *>(sender());
         subWidget->saveSettings();
 
         int position = d->m_subWidgets.indexOf(subWidget);
@@ -551,15 +549,6 @@ int NavigationWidget::factoryIndex(Id id)
 QString NavigationWidget::settingsKey(const QString &key) const
 {
     return QStringLiteral("%1/%2").arg(settingsGroup(), key);
-}
-
-void NavigationWidget::onSubWidgetFactoryIndexChanged(int factoryIndex)
-{
-    Q_UNUSED(factoryIndex)
-    auto subWidget = qobject_cast<Internal::NavigationSubWidget *>(sender());
-    QTC_ASSERT(subWidget, return);
-    Id factoryId = subWidget->factory()->id();
-    NavigationWidgetPrivate::updateActivationsMap(factoryId, {d->m_side, subWidget->position()});
 }
 
 QHash<Id, Command *> NavigationWidget::commandMap() const

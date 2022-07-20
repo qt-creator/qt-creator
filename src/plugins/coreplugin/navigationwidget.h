@@ -116,13 +116,11 @@ protected:
     void resizeEvent(QResizeEvent *) override;
 
 private:
-    void splitSubWidget(int factoryIndex);
-    void closeSubWidget();
+    void closeSubWidget(Internal::NavigationSubWidget *subWidget);
     void updateToggleText();
     Internal::NavigationSubWidget *insertSubItem(int position, int factoryIndex);
     int factoryIndex(Utils::Id id);
     QString settingsKey(const QString &key) const;
-    void onSubWidgetFactoryIndexChanged(int factoryIndex);
 
     NavigationWidgetPrivate *d;
 };
