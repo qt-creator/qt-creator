@@ -121,42 +121,30 @@ GitLabDialog::GitLabDialog(QWidget *parent)
     const Stretch st;
 
     Column {
-        Column {
-            Row {
-                Column {
-                    m_mainLabel,
-                    m_detailsLabel
-                },
-                st,
-                tr("Remote:"),
-                m_remoteComboBox
-            },
+        Row {
             Column {
-                Column {
-                    Space(40),
-                    Column {
-                        Row {
-                            m_treeViewTitle,
-                            st,
-                            m_searchLineEdit,
-                            searchPB
-                        },
-                        Column {
-                            m_treeView,
-                        }
-                    }
-                }
-            }
+                m_mainLabel,
+                m_detailsLabel
+            },
+            st,
+            tr("Remote:"),
+            m_remoteComboBox
         },
+        Space(40),
+        Row {
+            m_treeViewTitle,
+            st,
+            m_searchLineEdit,
+            searchPB
+        },
+        m_treeView,
         Row {
             st,
-            Row {
-                m_firstToolButton,
-                m_previousToolButton,
-                m_currentPageLabel,
-                m_nextToolButton,
-                m_lastToolButton
-            },
+            m_firstToolButton,
+            m_previousToolButton,
+            m_currentPageLabel,
+            m_nextToolButton,
+            m_lastToolButton,
             st,
         },
         buttonBox
