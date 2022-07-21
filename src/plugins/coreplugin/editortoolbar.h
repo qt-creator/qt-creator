@@ -100,7 +100,7 @@ private:
     static void changeActiveEditor(int row);
     static void makeEditorWritable();
 
-    void checkDocumentStatus();
+    void checkDocumentStatus(IDocument *document);
     void closeEditor();
     void updateActionShortcuts();
 

@@ -228,7 +228,7 @@ EditorToolBar::~EditorToolBar()
 void EditorToolBar::removeToolbarForEditor(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
-    disconnect(editor->document(), &IDocument::changed, this, &EditorToolBar::checkDocumentStatus);
+    disconnect(editor->document(), &IDocument::changed, this, nullptr);
 
     QWidget *toolBar = editor->toolBar();
     if (toolBar != nullptr) {
@@ -262,7 +262,9 @@ void EditorToolBar::closeEditor()
 void EditorToolBar::addEditor(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
-    connect(editor->document(), &IDocument::changed, this, &EditorToolBar::checkDocumentStatus);
+    auto document = editor->document();
+    connect(document, &IDocument::changed,
+            this, [this, document] { checkDocumentStatus(document); });
     QWidget *toolBar = editor->toolBar();
 
     if (toolBar && !d->m_isStandalone)
@@ -372,10 +374,8 @@ void EditorToolBar::updateActionShortcuts()
     d->m_closeSplitButton->setToolTip(ActionManager::command(Constants::REMOVE_CURRENT_SPLIT)->stringWithAppendedShortcut(tr("Remove Split")));
 }
 
-void EditorToolBar::checkDocumentStatus()
+void EditorToolBar::checkDocumentStatus(IDocument *document)
 {
-    auto document = qobject_cast<IDocument *>(sender());
-    QTC_ASSERT(document, return);
     DocumentModel::Entry *entry = DocumentModel::entryAtRow(
                 d->m_editorList->currentIndex());
 
