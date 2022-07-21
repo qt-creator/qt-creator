@@ -43,6 +43,7 @@ constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumerat
     return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
 }
 
+
 } // namespace QmlDesigner
 
 namespace QmlDesigner::Storage {
@@ -63,18 +64,25 @@ constexpr bool operator&(PropertyDeclarationTraits first, PropertyDeclarationTra
     return static_cast<int>(first) & static_cast<int>(second);
 }
 
+enum class TypeTraits : int {
+    None,
+    Reference,
+    Value,
+    Sequence,
+    IsEnum = 1 << 8,
+    IsFileComponent = 1 << 9
+};
+
+constexpr TypeTraits operator|(TypeTraits first, TypeTraits second)
+{
+    return static_cast<TypeTraits>(static_cast<int>(first) | static_cast<int>(second));
+}
+
 using TypeNameString = Utils::BasicSmallString<63>;
 
 } // namespace QmlDesigner::Storage
 
 namespace QmlDesigner::Storage::Synchronization {
-
-enum class TypeAccessSemantics : int { None, Reference, Value, Sequence, IsEnum = 1 << 8 };
-
-constexpr TypeAccessSemantics operator|(TypeAccessSemantics first, TypeAccessSemantics second)
-{
-    return static_cast<TypeAccessSemantics>(static_cast<int>(first) | static_cast<int>(second));
-}
 
 enum class TypeNameKind { Exported = 1, QualifiedExported = 2 };
 
@@ -728,7 +736,7 @@ public:
     explicit Type() = default;
     explicit Type(Utils::SmallStringView typeName,
                   ImportedTypeName prototype,
-                  TypeAccessSemantics accessSemantics,
+                  TypeTraits traits,
                   SourceId sourceId,
                   ExportedTypes exportedTypes = {},
                   PropertyDeclarations propertyDeclarations = {},
@@ -745,40 +753,37 @@ public:
         , functionDeclarations{std::move(functionDeclarations)}
         , signalDeclarations{std::move(signalDeclarations)}
         , enumerationDeclarations{std::move(enumerationDeclarations)}
-        , accessSemantics{accessSemantics}
+        , traits{traits}
         , sourceId{sourceId}
         , changeLevel{changeLevel}
     {}
 
-    explicit Type(Utils::SmallStringView typeName,
-                  TypeId prototypeId,
-                  TypeAccessSemantics accessSemantics,
-                  SourceId sourceId)
+    explicit Type(Utils::SmallStringView typeName, TypeId prototypeId, TypeTraits traits, SourceId sourceId)
         : typeName{typeName}
-        , accessSemantics{accessSemantics}
+        , traits{traits}
         , sourceId{sourceId}
         , prototypeId{prototypeId}
     {}
 
     explicit Type(Utils::SmallStringView typeName,
                   ImportedTypeName prototype,
-                  TypeAccessSemantics accessSemantics,
+                  TypeTraits traits,
                   SourceId sourceId,
                   ChangeLevel changeLevel)
         : typeName{typeName}
         , prototype{std::move(prototype)}
-        , accessSemantics{accessSemantics}
+        , traits{traits}
         , sourceId{sourceId}
         , changeLevel{changeLevel}
     {}
 
     explicit Type(Utils::SmallStringView typeName,
                   Utils::SmallStringView prototype,
-                  TypeAccessSemantics accessSemantics,
+                  TypeTraits traits,
                   SourceId sourceId)
         : typeName{typeName}
         , prototype{ImportedType{prototype}}
-        , accessSemantics{accessSemantics}
+        , traits{traits}
         , sourceId{sourceId}
 
     {}
@@ -787,11 +792,11 @@ public:
                   Utils::SmallStringView typeName,
                   TypeId typeId,
                   TypeId prototypeId,
-                  TypeAccessSemantics accessSemantics,
+                  TypeTraits traits,
                   Utils::SmallStringView defaultPropertyName)
         : typeName{typeName}
         , defaultPropertyName{defaultPropertyName}
-        , accessSemantics{accessSemantics}
+        , traits{traits}
         , sourceId{sourceId}
         , typeId{typeId}
         , prototypeId{prototypeId}
@@ -817,7 +822,7 @@ public:
     FunctionDeclarations functionDeclarations;
     SignalDeclarations signalDeclarations;
     EnumerationDeclarations enumerationDeclarations;
-    TypeAccessSemantics accessSemantics = TypeAccessSemantics::None;
+    TypeTraits traits = TypeTraits::None;
     SourceId sourceId;
     TypeId typeId;
     TypeId prototypeId;

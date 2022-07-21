@@ -473,6 +473,7 @@ const char *sourceTypeToText(SourceType sourceType)
 
     return "";
 }
+
 } // namespace
 
 std::ostream &operator<<(std::ostream &out, const FileStatus &fileStatus)
@@ -517,6 +518,7 @@ std::ostream &operator<<(std::ostream &out, const VariantProperty &property)
     return out << "(" << property.parentModelNode() << ", " << property.name() << ", "
                << property.value() << ")";
 }
+
 namespace Cache {
 
 std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext)
@@ -526,6 +528,53 @@ std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext)
 } // namespace Cache
 
 namespace Storage {
+
+namespace {
+TypeTraits cleanFlags(TypeTraits traits)
+{
+    auto data = static_cast<int>(traits);
+    data &= ~static_cast<int>(TypeTraits::IsEnum);
+    return static_cast<TypeTraits>(data);
+}
+
+const char *typeTraitsToString(TypeTraits traits)
+{
+    switch (cleanFlags(traits)) {
+    case TypeTraits::None:
+        return "None";
+    case TypeTraits::Reference:
+        return "Reference";
+    case TypeTraits::Sequence:
+        return "Sequence";
+    case TypeTraits::Value:
+        return "Value";
+    default:
+        break;
+    }
+
+    return "";
+}
+
+bool operator&(TypeTraits first, TypeTraits second)
+{
+    return static_cast<int>(first) & static_cast<int>(second);
+}
+
+const char *typeTraitsFlagsToString(TypeTraits traits)
+{
+    if (traits & TypeTraits::IsEnum)
+        return "(IsEnum)";
+
+    return "";
+}
+
+} // namespace
+
+std::ostream &operator<<(std::ostream &out, TypeTraits traits)
+{
+    return out << typeTraitsToString(traits) << typeTraitsFlagsToString(traits);
+}
+
 std::ostream &operator<<(std::ostream &out, PropertyDeclarationTraits traits)
 {
     const char *padding = "";
@@ -566,44 +615,6 @@ std::ostream &operator<<(std::ostream &out, const Type &type)
 namespace Storage::Synchronization {
 
 namespace {
-
-TypeAccessSemantics cleanFlags(TypeAccessSemantics accessSemantics)
-{
-    auto data = static_cast<int>(accessSemantics);
-    data &= ~static_cast<int>(TypeAccessSemantics::IsEnum);
-    return static_cast<TypeAccessSemantics>(data);
-}
-
-const char *typeAccessSemanticsToString(TypeAccessSemantics accessSemantics)
-{
-    switch (cleanFlags(accessSemantics)) {
-    case TypeAccessSemantics::None:
-        return "None";
-    case TypeAccessSemantics::Reference:
-        return "Reference";
-    case TypeAccessSemantics::Sequence:
-        return "Sequence";
-    case TypeAccessSemantics::Value:
-        return "Value";
-    default:
-        break;
-    }
-
-    return "";
-}
-
-bool operator&(TypeAccessSemantics first, TypeAccessSemantics second)
-{
-    return static_cast<int>(first) & static_cast<int>(second);
-}
-
-const char *typeAccessSemanticsFlagsToString(TypeAccessSemantics accessSemantics)
-{
-    if (accessSemantics & TypeAccessSemantics::IsEnum)
-        return "(IsEnum)";
-
-    return "";
-}
 
 const char *isQualifiedToString(IsQualified isQualified)
 {
@@ -696,12 +707,6 @@ std::ostream &operator<<(std::ostream &out, const ProjectData &data)
                << ", " << data.fileType << ")";
 }
 
-std::ostream &operator<<(std::ostream &out, TypeAccessSemantics accessSemantics)
-{
-    return out << typeAccessSemanticsToString(accessSemantics)
-               << typeAccessSemanticsFlagsToString(accessSemantics);
-}
-
 std::ostream &operator<<(std::ostream &out, IsQualified isQualified)
 {
     return out << isQualifiedToString(isQualified);
@@ -736,7 +741,7 @@ std::ostream &operator<<(std::ostream &out, const Type &type)
 {
     using Utils::operator<<;
     return out << "( typename: \"" << type.typeName << "\", prototype: " << type.prototype << ", "
-               << type.prototypeId << ", " << type.accessSemantics << ", source: " << type.sourceId
+               << type.prototypeId << ", " << type.traits << ", source: " << type.sourceId
                << ", exports: " << type.exportedTypes << ", properties: " << type.propertyDeclarations
                << ", functions: " << type.functionDeclarations
                << ", signals: " << type.signalDeclarations << ", changeLevel: " << type.changeLevel

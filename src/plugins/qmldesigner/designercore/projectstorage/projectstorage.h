@@ -1731,7 +1731,7 @@ private:
 
         type.typeId = upsertTypeStatement.template value<TypeId>(type.sourceId,
                                                                  type.typeName,
-                                                                 type.accessSemantics);
+                                                                 type.traits);
 
         if (!type.typeId)
             type.typeId = selectTypeIdBySourceIdAndNameStatement.template value<TypeId>(type.sourceId,
@@ -2230,7 +2230,7 @@ private:
             typesTable.addColumn("typeId", Sqlite::StrictColumnType::Integer, {Sqlite::PrimaryKey{}});
             auto &sourceIdColumn = typesTable.addColumn("sourceId", Sqlite::StrictColumnType::Integer);
             auto &typesNameColumn = typesTable.addColumn("name", Sqlite::StrictColumnType::Text);
-            typesTable.addColumn("accessSemantics", Sqlite::StrictColumnType::Integer);
+            typesTable.addColumn("traits", Sqlite::StrictColumnType::Integer);
             typesTable.addForeignKeyColumn("prototypeId",
                                            typesTable,
                                            Sqlite::ForeignKeyAction::NoAction,
@@ -2517,9 +2517,9 @@ public:
     Initializer initializer;
     ModuleCache moduleCache{ModuleStorageAdapter{*this}};
     ReadWriteStatement<1, 3> upsertTypeStatement{
-        "INSERT INTO types(sourceId, name,  accessSemantics) VALUES(?1, ?2, ?3) ON CONFLICT DO "
-        "UPDATE SET accessSemantics=excluded.accessSemantics WHERE accessSemantics IS NOT "
-        "excluded.accessSemantics RETURNING typeId",
+        "INSERT INTO types(sourceId, name,  traits) VALUES(?1, ?2, ?3) ON CONFLICT DO "
+        "UPDATE SET traits=excluded.traits WHERE traits IS NOT "
+        "excluded.traits RETURNING typeId",
         database};
     WriteStatement<3> updatePrototypeStatement{
         "UPDATE types SET prototypeId=?2, prototypeNameId=?3 WHERE typeId=?1 AND (prototypeId IS "
@@ -2604,7 +2604,7 @@ public:
     mutable ReadStatement<3> selectAllSourcesStatement{
         "SELECT sourceName, sourceContextId, sourceId  FROM sources", database};
     mutable ReadStatement<6, 1> selectTypeByTypeIdStatement{
-        "SELECT sourceId, t.name, t.typeId, prototypeId, accessSemantics, pd.name "
+        "SELECT sourceId, t.name, t.typeId, prototypeId, traits, pd.name "
         "FROM types AS t LEFT JOIN propertyDeclarations AS pd "
         "  ON defaultPropertyId=propertyDeclarationId WHERE t.typeId=?",
         database};
@@ -2613,7 +2613,7 @@ public:
         "exportedTypeNames WHERE typeId=?",
         database};
     mutable ReadStatement<6> selectTypesStatement{
-        "SELECT sourceId, t.name, t.typeId, prototypeId, accessSemantics, pd.name "
+        "SELECT sourceId, t.name, t.typeId, prototypeId, traits, pd.name "
         "FROM types AS t LEFT JOIN propertyDeclarations AS pd "
         "  ON defaultPropertyId=propertyDeclarationId",
         database};

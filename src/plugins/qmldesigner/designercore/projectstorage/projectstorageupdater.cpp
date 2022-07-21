@@ -416,7 +416,7 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView relativeFil
     package.updatedSourceIds.push_back(sourceId);
 
     type.typeName = SourcePath{qmlFilePath}.name();
-    type.accessSemantics = Storage::Synchronization::TypeAccessSemantics::Reference;
+    type.traits = Storage::TypeTraits::Reference;
     type.sourceId = sourceId;
     type.exportedTypes = std::move(exportedTypes);
 
@@ -445,7 +445,7 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView fileName,
     auto type = m_qmlDocumentParser.parse(content, package.imports, sourceId, directoryPath);
 
     type.typeName = fileName;
-    type.accessSemantics = Storage::Synchronization::TypeAccessSemantics::Reference;
+    type.traits = Storage::TypeTraits::Reference;
     type.sourceId = sourceId;
     type.changeLevel = Storage::Synchronization::ChangeLevel::ExcludeExportedTypes;
 

@@ -101,21 +101,21 @@ void addImports(Storage::Synchronization::Imports &imports,
         imports.emplace_back(qmlCppModuleId, Storage::Synchronization::Version{}, sourceId);
 }
 
-Storage::Synchronization::TypeAccessSemantics createTypeAccessSemantics(
+Storage::Synchronization::TypeTraits createTypeTraits(
     QQmlJSScope::AccessSemantics accessSematics)
 {
     switch (accessSematics) {
     case QQmlJSScope::AccessSemantics::Reference:
-        return Storage::Synchronization::TypeAccessSemantics::Reference;
+        return Storage::Synchronization::TypeTraits::Reference;
     case QQmlJSScope::AccessSemantics::Value:
-        return Storage::Synchronization::TypeAccessSemantics::Value;
+        return Storage::Synchronization::TypeTraits::Value;
     case QQmlJSScope::AccessSemantics::None:
-        return Storage::Synchronization::TypeAccessSemantics::None;
+        return Storage::Synchronization::TypeTraits::None;
     case QQmlJSScope::AccessSemantics::Sequence:
-        return Storage::Synchronization::TypeAccessSemantics::Sequence;
+        return Storage::Synchronization::TypeTraits::Sequence;
     }
 
-    return Storage::Synchronization::TypeAccessSemantics::None;
+    return Storage::Synchronization::TypeTraits::None;
 }
 
 Storage::Synchronization::Version createVersion(QTypeRevision qmlVersion)
@@ -369,8 +369,8 @@ void addEnumerationType(EnumerationTypes &enumerationTypes,
     auto fullTypeName = addEnumerationType(enumerationTypes, typeName, enumerationName);
     types.emplace_back(fullTypeName,
                        Storage::Synchronization::ImportedType{TypeNameString{}},
-                       Storage::Synchronization::TypeAccessSemantics::Value
-                           | Storage::Synchronization::TypeAccessSemantics::IsEnum,
+                       Storage::Synchronization::TypeTraits::Value
+                           | Storage::Synchronization::TypeTraits::IsEnum,
                        sourceId,
                        createCppEnumerationExports(typeName,
                                                    cppModuleId,
@@ -440,7 +440,7 @@ void addType(Storage::Synchronization::Types &types,
     auto enumerationTypes = addEnumerationTypes(types, typeName, sourceId, cppModuleId, enumerations);
     types.emplace_back(Utils::SmallStringView{typeName},
                        Storage::Synchronization::ImportedType{TypeNameString{component.baseTypeName()}},
-                       createTypeAccessSemantics(component.accessSemantics()),
+                       createTypeTraits(component.traits()),
                        sourceId,
                        createExports(exports, typeName, storage, cppModuleId),
                        createProperties(component.ownProperties(),

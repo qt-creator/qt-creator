@@ -61,15 +61,15 @@ MATCHER_P(HasPrototype, prototype, std::string(negation ? "isn't " : "is ") + Pr
 MATCHER_P4(IsType,
            typeName,
            prototype,
-           accessSemantics,
+           traits,
            sourceId,
            std::string(negation ? "isn't " : "is ")
-               + PrintToString(Storage::Type{typeName, prototype, accessSemantics, sourceId}))
+               + PrintToString(Storage::Type{typeName, prototype, traits, sourceId}))
 {
     const Storage::Type &type = arg;
 
     return type.typeName == typeName && type.prototype == Storage::ImportedTypeName{prototype}
-           && type.accessSemantics == accessSemantics && type.sourceId == sourceId;
+           && type.traits == traits && type.sourceId == sourceId;
 }
 
 MATCHER_P3(IsPropertyDeclaration,
@@ -214,11 +214,11 @@ TEST_F(QmlTypesParser, Types)
     ASSERT_THAT(types,
                 UnorderedElementsAre(IsType("QObject",
                                             Storage::ImportedType{},
-                                            Storage::TypeAccessSemantics::Reference,
+                                            Storage::TypeTraits::Reference,
                                             qmltypesFileSourceId),
                                      IsType("QQmlComponent",
                                             Storage::ImportedType{"QObject"},
-                                            Storage::TypeAccessSemantics::Reference,
+                                            Storage::TypeTraits::Reference,
                                             qmltypesFileSourceId)));
 }
 
@@ -543,7 +543,7 @@ TEST_F(QmlTypesParser, EnumerationIsExportedAsType)
         UnorderedElementsAre(
             AllOf(IsType("QObject::NamedColorSpace",
                          Storage::ImportedType{},
-                         Storage::TypeAccessSemantics::Value | Storage::TypeAccessSemantics::IsEnum,
+                         Storage::TypeTraits::Value | Storage::TypeTraits::IsEnum,
                          qmltypesFileSourceId),
                   Field(&Storage::Type::exportedTypes,
                         UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
@@ -551,7 +551,7 @@ TEST_F(QmlTypesParser, EnumerationIsExportedAsType)
                                                             Storage::Version{})))),
             AllOf(IsType("QObject::VerticalLayoutDirection",
                          Storage::ImportedType{},
-                         Storage::TypeAccessSemantics::Value | Storage::TypeAccessSemantics::IsEnum,
+                         Storage::TypeTraits::Value | Storage::TypeTraits::IsEnum,
                          qmltypesFileSourceId),
                   Field(&Storage::Type::exportedTypes,
                         UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
@@ -584,7 +584,7 @@ TEST_F(QmlTypesParser, EnumerationIsExportedAsTypeWithAlias)
                 UnorderedElementsAre(
                     AllOf(IsType("QObject::NamedColorSpaces",
                                  Storage::ImportedType{},
-                                 Storage::TypeAccessSemantics::Value | Storage::TypeAccessSemantics::IsEnum,
+                                 Storage::TypeTraits::Value | Storage::TypeTraits::IsEnum,
                                  qmltypesFileSourceId),
                           Field(&Storage::Type::exportedTypes,
                                 UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
@@ -629,7 +629,7 @@ TEST_F(QmlTypesParser, EnumerationIsExportedAsTypeWithAliasToo)
                 UnorderedElementsAre(
                     AllOf(IsType("QObject::NamedColorSpaces",
                                  Storage::ImportedType{},
-                                 Storage::TypeAccessSemantics::Value | Storage::TypeAccessSemantics::IsEnum,
+                                 Storage::TypeTraits::Value | Storage::TypeTraits::IsEnum,
                                  qmltypesFileSourceId),
                           Field(&Storage::Type::exportedTypes,
                                 UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
