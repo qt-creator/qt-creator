@@ -131,6 +131,13 @@ signals:
      */
     void status(const QString &status);
 
+    /**
+      * Similar to finished, but emitted from MakefileParserThread thread, i.e. from the
+      * thread where the MakefileParserThread lives in, not the tread that it creates.
+      * This helps to avoid race condition when connecting to finished() signal.
+      */
+    void done();
+
 private:
     MakefileParser m_parser;    ///< Is not accessible outside the thread
 

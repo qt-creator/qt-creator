@@ -29,6 +29,8 @@
 
 #include <projectexplorer/buildsystem.h>
 
+#include <memory>
+
 namespace CppEditor { class CppProjectUpdater; }
 
 namespace AutotoolsProjectManager {
@@ -63,7 +65,7 @@ private:
     QStringList m_files;
 
     /// Responsible for parsing the makefiles asynchronously in a thread
-    MakefileParserThread *m_makefileParserThread = nullptr;
+    std::unique_ptr<MakefileParserThread> m_makefileParserThread;
 
     CppEditor::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
 };

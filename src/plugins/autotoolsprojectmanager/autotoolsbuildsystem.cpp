@@ -55,53 +55,31 @@ AutotoolsBuildSystem::~AutotoolsBuildSystem()
 {
     delete m_cppCodeModelUpdater;
 
-    if (m_makefileParserThread) {
+    if (m_makefileParserThread)
         m_makefileParserThread->wait();
-        delete m_makefileParserThread;
-        m_makefileParserThread = nullptr;
-    }
 }
 
 void AutotoolsBuildSystem::triggerParsing()
 {
-    if (m_makefileParserThread) {
-        // The thread is still busy parsing a previous configuration.
-        // Wait until the thread has been finished and delete it.
-        // TODO: Discuss whether blocking is acceptable.
-        disconnect(m_makefileParserThread,
-                   &QThread::finished,
-                   this,
-                   &AutotoolsBuildSystem::makefileParsingFinished);
+    // The thread is still busy parsing a previous configuration.
+    // Wait until the thread has been finished and delete it.
+    // TODO: Discuss whether blocking is acceptable.
+    if (m_makefileParserThread)
         m_makefileParserThread->wait();
-        delete m_makefileParserThread;
-        m_makefileParserThread = nullptr;
-    }
 
     // Parse the makefile asynchronously in a thread
-    m_makefileParserThread = new MakefileParserThread(this);
+    m_makefileParserThread.reset(new MakefileParserThread(this));
 
-    connect(m_makefileParserThread,
-            &MakefileParserThread::finished,
-            this,
-            &AutotoolsBuildSystem::makefileParsingFinished);
+    connect(m_makefileParserThread.get(), &MakefileParserThread::done,
+            this, &AutotoolsBuildSystem::makefileParsingFinished);
     m_makefileParserThread->start();
 }
 
 void AutotoolsBuildSystem::makefileParsingFinished()
 {
-    // The finished() signal is from a previous makefile-parser-thread
-    // and can be skipped. This can happen, if the thread has emitted the
-    // finished() signal during the execution of AutotoolsBuildSystem::loadProjectTree().
-    // In this case the signal is in the message queue already and deleting
-    // the thread of course does not remove the signal again.
-    if (sender() != m_makefileParserThread)
-        return;
-
+    // The parsing has been cancelled by the user. Don't show any project data at all.
     if (m_makefileParserThread->isCanceled()) {
-        // The parsing has been cancelled by the user. Don't show any
-        // project data at all.
-        m_makefileParserThread->deleteLater();
-        m_makefileParserThread = nullptr;
+        m_makefileParserThread.release()->deleteLater();
         return;
     }
 
@@ -151,8 +129,7 @@ void AutotoolsBuildSystem::makefileParsingFinished()
 
     updateCppCodeModel();
 
-    m_makefileParserThread->deleteLater();
-    m_makefileParserThread = nullptr;
+    m_makefileParserThread.release()->deleteLater();
 
     emitBuildSystemUpdated();
 }
