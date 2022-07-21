@@ -84,8 +84,9 @@ signals:
     void startFailed();
 
 protected:
-    void onRunnerFinishedWithSuccess(const QString &filePath);
-    void onRunnerFinishedWithFailure(const QString &errorMessage, const QString &errorDetails);
+    void onRunnerFinishedWithSuccess(ClangToolRunner *runner, const QString &filePath);
+    void onRunnerFinishedWithFailure(ClangToolRunner *runner, const QString &errorMessage,
+                                     const QString &errorDetails);
 
 private:
     void start() final;
@@ -98,7 +99,7 @@ private:
                                 const QString &clangVersion);
     void analyzeNextFile();
 
-    void handleFinished();
+    void handleFinished(ClangToolRunner *runner);
 
     void onProgressCanceled();
     void updateProgressValue();

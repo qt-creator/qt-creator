@@ -345,9 +345,9 @@ void ClangToolRunWorker::analyzeNextFile()
     }
 }
 
-void ClangToolRunWorker::onRunnerFinishedWithSuccess(const QString &filePath)
+void ClangToolRunWorker::onRunnerFinishedWithSuccess(ClangToolRunner *runner,
+                                                     const QString &filePath)
 {
-    auto runner = qobject_cast<ClangToolRunner *>(sender());
     const QString outputFilePath = runner->outputFilePath();
     qCDebug(LOG) << "onRunnerFinishedWithSuccess:" << outputFilePath;
 
@@ -363,7 +363,7 @@ void ClangToolRunWorker::onRunnerFinishedWithSuccess(const QString &filePath)
         m_filesAnalyzed.remove(filePath);
         m_filesNotAnalyzed.insert(filePath);
         qCDebug(LOG) << "onRunnerFinishedWithSuccess: Error reading log file:" << errorMessage;
-        const QString filePath = qobject_cast<ClangToolRunner *>(sender())->fileToAnalyze();
+        const QString filePath = runner->fileToAnalyze();
         appendMessage(tr("Failed to analyze \"%1\": %2").arg(filePath, errorMessage),
                       Utils::StdErrFormat);
     } else {
@@ -377,19 +377,19 @@ void ClangToolRunWorker::onRunnerFinishedWithSuccess(const QString &filePath)
         }
     }
 
-    handleFinished();
+    handleFinished(runner);
 }
 
-void ClangToolRunWorker::onRunnerFinishedWithFailure(const QString &errorMessage,
-                                                      const QString &errorDetails)
+void ClangToolRunWorker::onRunnerFinishedWithFailure(ClangToolRunner *runner,
+                                                     const QString &errorMessage,
+                                                     const QString &errorDetails)
 {
-    qCDebug(LOG).noquote() << "onRunnerFinishedWithFailure:"
-                           << errorMessage << '\n' << errorDetails;
+    qCDebug(LOG).noquote() << "onRunnerFinishedWithFailure:" << errorMessage
+                           << '\n' << errorDetails;
 
     emit runnerFinished();
 
-    auto *toolRunner = qobject_cast<ClangToolRunner *>(sender());
-    const QString fileToAnalyze = toolRunner->fileToAnalyze();
+    const QString fileToAnalyze = runner->fileToAnalyze();
 
     m_filesAnalyzed.remove(fileToAnalyze);
     m_filesNotAnalyzed.insert(fileToAnalyze);
@@ -397,14 +397,14 @@ void ClangToolRunWorker::onRunnerFinishedWithFailure(const QString &errorMessage
     const QString message = tr("Failed to analyze \"%1\": %2").arg(fileToAnalyze, errorMessage);
     appendMessage(message, Utils::StdErrFormat);
     appendMessage(errorDetails, Utils::StdErrFormat);
-    handleFinished();
+    handleFinished(runner);
 }
 
-void ClangToolRunWorker::handleFinished()
+void ClangToolRunWorker::handleFinished(ClangToolRunner *runner)
 {
-    m_runners.remove(qobject_cast<ClangToolRunner *>(sender()));
+    m_runners.remove(runner);
     updateProgressValue();
-    sender()->deleteLater();
+    runner->deleteLater();
     analyzeNextFile();
 }
 
@@ -449,12 +449,13 @@ void ClangToolRunWorker::finalize()
 template<class T>
 ClangToolRunner *ClangToolRunWorker::createRunner()
 {
+    using namespace std::placeholders;
     auto runner = new T(m_diagnosticConfig, this);
     runner->init(m_temporaryDir.path(), m_environment);
-    connect(runner, &ClangToolRunner::finishedWithSuccess,
-            this, &ClangToolRunWorker::onRunnerFinishedWithSuccess);
-    connect(runner, &ClangToolRunner::finishedWithFailure,
-            this, &ClangToolRunWorker::onRunnerFinishedWithFailure);
+    connect(runner, &ClangToolRunner::finishedWithSuccess, this,
+            std::bind(&ClangToolRunWorker::onRunnerFinishedWithSuccess, this, runner, _1));
+    connect(runner, &ClangToolRunner::finishedWithFailure, this,
+            std::bind(&ClangToolRunWorker::onRunnerFinishedWithFailure, this, runner, _1, _2));
     return runner;
 }
 
