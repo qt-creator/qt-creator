@@ -96,16 +96,15 @@ void EnvironmentAspectWidget::addWidget(QWidget *widget)
 
 void EnvironmentAspectWidget::baseEnvironmentSelected(int idx)
 {
-    m_ignoreChange = true;
+    const Utils::GuardLocker locker(m_ignoreChanges);
     m_aspect->setBaseEnvironmentBase(idx);
     m_environmentWidget->setBaseEnvironment(m_aspect->modifiedBaseEnvironment());
     m_environmentWidget->setBaseEnvironmentText(m_aspect->currentDisplayName());
-    m_ignoreChange = false;
 }
 
 void EnvironmentAspectWidget::changeBaseEnvironment()
 {
-    if (m_ignoreChange)
+    if (m_ignoreChanges.isLocked())
         return;
 
     int base = m_aspect->baseEnvironmentBase();
@@ -119,21 +118,20 @@ void EnvironmentAspectWidget::changeBaseEnvironment()
 
 void EnvironmentAspectWidget::userChangesEdited()
 {
-    m_ignoreChange = true;
+    const Utils::GuardLocker locker(m_ignoreChanges);
     m_aspect->setUserEnvironmentChanges(m_environmentWidget->userChanges());
-    m_ignoreChange = false;
 }
 
 void EnvironmentAspectWidget::changeUserChanges(Utils::EnvironmentItems changes)
 {
-    if (m_ignoreChange)
+    if (m_ignoreChanges.isLocked())
         return;
     m_environmentWidget->setUserChanges(changes);
 }
 
 void EnvironmentAspectWidget::environmentChanged()
 {
-    if (m_ignoreChange)
+    if (m_ignoreChanges.isLocked())
         return;
     m_environmentWidget->setBaseEnvironment(m_aspect->modifiedBaseEnvironment());
 }

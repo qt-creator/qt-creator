@@ -31,6 +31,7 @@
 #include "runconfiguration.h"
 
 #include <utils/environment.h>
+#include <utils/guard.h>
 
 #include <QList>
 #include <QVariantMap>
@@ -66,7 +67,7 @@ private:
     void environmentChanged();
 
     EnvironmentAspect *m_aspect;
-    bool m_ignoreChange = false;
+    Utils::Guard m_ignoreChanges;
     QHBoxLayout *m_baseLayout = nullptr;
     QComboBox *m_baseEnvironmentComboBox = nullptr;
     EnvironmentWidget *m_environmentWidget = nullptr;
