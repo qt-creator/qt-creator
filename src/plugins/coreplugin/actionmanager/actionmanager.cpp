@@ -52,6 +52,46 @@ using namespace Core;
 using namespace Core::Internal;
 using namespace Utils;
 
+namespace Core::Internal {
+
+class PresentationModeHandler : public QObject
+{
+    Q_OBJECT
+
+public:
+    void connectCommand(Command *command);
+
+private:
+    void showShortcutPopup(const QString &shortcut);
+};
+
+void PresentationModeHandler::connectCommand(Command *command)
+{
+    QAction *action = command->action();
+    if (action) {
+        connect(action, &QAction::triggered,
+                this, [this, action] { showShortcutPopup(action->shortcut().toString()); });
+    }
+}
+
+void PresentationModeHandler::showShortcutPopup(const QString &shortcut)
+{
+    if (shortcut.isEmpty())
+        return;
+
+    QWidget *window = QApplication::activeWindow();
+    if (!window) {
+        if (!QApplication::topLevelWidgets().isEmpty()) {
+            window = QApplication::topLevelWidgets().first();
+        } else {
+            window = ICore::mainWindow();
+        }
+    }
+    Utils::FadingIndicator::showText(window, shortcut);
+}
+
+}
+
 /*!
     \class Core::ActionManager
     \inheaderfile coreplugin/actionmanager/actionmanager.h
@@ -342,18 +382,15 @@ void ActionManager::setPresentationModeEnabled(bool enabled)
     if (enabled == isPresentationModeEnabled())
         return;
 
-    // Signal/slots to commands:
-    const QList<Command *> commandList = commands();
-    for (Command *c : commandList) {
-        if (c->action()) {
-            if (enabled)
-                connect(c->action(), &QAction::triggered, d, &ActionManagerPrivate::actionTriggered);
-            else
-                disconnect(c->action(), &QAction::triggered, d, &ActionManagerPrivate::actionTriggered);
-        }
+    if (!enabled) {
+        d->m_presentationModeHandler.reset();
+        return;
     }
 
-    d->m_presentationModeEnabled = enabled;
+    d->m_presentationModeHandler.reset(new PresentationModeHandler);
+    const auto commandList = commands();
+    for (Command *command : commandList)
+        d->m_presentationModeHandler->connectCommand(command);
 }
 
 /*!
@@ -365,7 +402,7 @@ void ActionManager::setPresentationModeEnabled(bool enabled)
 */
 bool ActionManager::isPresentationModeEnabled()
 {
-    return d->m_presentationModeEnabled;
+    return bool(d->m_presentationModeHandler);
 }
 
 /*!
@@ -401,6 +438,8 @@ void ActionManager::setContext(const Context &context)
     \internal
 */
 
+ActionManagerPrivate::ActionManagerPrivate() = default;
+
 ActionManagerPrivate::~ActionManagerPrivate()
 {
     // first delete containers to avoid them reacting to command deletion
@@ -430,34 +469,10 @@ bool ActionManagerPrivate::hasContext(const Context &context) const
     return false;
 }
 
-void ActionManagerPrivate::containerDestroyed()
+void ActionManagerPrivate::containerDestroyed(QObject *sender)
 {
-    auto container = static_cast<ActionContainerPrivate *>(sender());
+    auto container = static_cast<ActionContainerPrivate *>(sender);
     m_idContainerMap.remove(m_idContainerMap.key(container));
-}
-
-void ActionManagerPrivate::actionTriggered()
-{
-    auto action = qobject_cast<QAction *>(QObject::sender());
-    if (action)
-        showShortcutPopup(action->shortcut().toString());
-}
-
-void ActionManagerPrivate::showShortcutPopup(const QString &shortcut)
-{
-    if (shortcut.isEmpty() || !ActionManager::isPresentationModeEnabled())
-        return;
-
-    QWidget *window = QApplication::activeWindow();
-    if (!window) {
-        if (!QApplication::topLevelWidgets().isEmpty()) {
-            window = QApplication::topLevelWidgets().first();
-        } else {
-            window = ICore::mainWindow();
-        }
-    }
-
-    Utils::FadingIndicator::showText(window, shortcut);
 }
 
 Command *ActionManagerPrivate::overridableAction(Id id)
@@ -467,16 +482,14 @@ Command *ActionManagerPrivate::overridableAction(Id id)
         cmd = new Command(id);
         m_idCmdMap.insert(id, cmd);
         readUserSettings(id, cmd);
-        ICore::mainWindow()->addAction(cmd->action());
-        cmd->action()->setObjectName(id.toString());
-        cmd->action()->setShortcutContext(Qt::ApplicationShortcut);
+        QAction *action = cmd->action();
+        ICore::mainWindow()->addAction(action);
+        action->setObjectName(id.toString());
+        action->setShortcutContext(Qt::ApplicationShortcut);
         cmd->d->setCurrentContext(m_context);
 
-        if (ActionManager::isPresentationModeEnabled())
-            connect(cmd->action(),
-                    &QAction::triggered,
-                    this,
-                    &ActionManagerPrivate::actionTriggered);
+        if (d->m_presentationModeHandler)
+            d->m_presentationModeHandler->connectCommand(cmd);
     }
 
     return cmd;
@@ -529,3 +542,5 @@ void ActionManagerPrivate::saveSettings()
         saveSettings(j.value());
     }
 }
+
+#include "actionmanager.moc"

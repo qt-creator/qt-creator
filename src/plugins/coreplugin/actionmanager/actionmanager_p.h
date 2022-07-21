@@ -32,6 +32,8 @@
 #include <QMultiHash>
 #include <QTimer>
 
+#include <memory>
+
 namespace Core {
 
 class Command;
@@ -39,6 +41,7 @@ class Command;
 namespace Internal {
 
 class ActionContainerPrivate;
+class PresentationModeHandler;
 
 class ActionManagerPrivate : public QObject
 {
@@ -48,6 +51,7 @@ public:
     using IdCmdMap = QHash<Utils::Id, Command *>;
     using IdContainerMap = QHash<Utils::Id, ActionContainerPrivate *>;
 
+    ActionManagerPrivate();
     ~ActionManagerPrivate() override;
 
     void setContext(const Context &context);
@@ -56,14 +60,12 @@ public:
     void saveSettings();
     static void saveSettings(Command *cmd);
 
-    static void showShortcutPopup(const QString &shortcut);
     bool hasContext(const Context &context) const;
     Command *overridableAction(Utils::Id id);
 
     static void readUserSettings(Utils::Id id, Command *cmd);
 
-    void containerDestroyed();
-    void actionTriggered();
+    void containerDestroyed(QObject *sender);
 
     IdCmdMap m_idCmdMap;
 
@@ -71,7 +73,7 @@ public:
 
     Context m_context;
 
-    bool m_presentationModeEnabled = false;
+    std::unique_ptr<PresentationModeHandler> m_presentationModeHandler;
 };
 
 } // namespace Internal
