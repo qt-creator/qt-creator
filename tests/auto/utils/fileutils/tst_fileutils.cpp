@@ -319,7 +319,8 @@ void tst_fileutils::toString()
     filePath.setPath(path);
 
     QCOMPARE(filePath.toString(), result);
-    QCOMPARE(filePath.toUserOutput(), userResult);
+    QString cleanedOutput = filePath.needsDevice() ? filePath.toUserOutput() : QDir::cleanPath(filePath.toUserOutput());
+    QCOMPARE(cleanedOutput, userResult);
 }
 
 void tst_fileutils::fromString_data()

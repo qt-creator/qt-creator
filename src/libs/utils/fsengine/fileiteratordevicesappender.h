@@ -116,7 +116,7 @@ private:
     {
         if (!m_hasSetPath) {
             const QString p = path();
-            if (p.toLower() == QDir::rootPath())
+            if (p.compare(QDir::rootPath(), Qt::CaseInsensitive) == 0)
                 m_status = State::IteratingRoot;
 
             ((*m_baseIterator).*get(QAFEITag()))(p);
