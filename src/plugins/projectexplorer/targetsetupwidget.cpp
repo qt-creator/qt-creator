@@ -123,10 +123,9 @@ void TargetSetupWidget::setKitSelected(bool b)
 {
     // Only check target if there are build configurations possible
     b &= hasSelectedBuildConfigurations();
-    m_ignoreChange = true;
+    const GuardLocker locker(m_ignoreChanges);
     m_detailsWidget->setChecked(b);
     m_detailsWidget->widget()->setEnabled(b);
-    m_ignoreChange = false;
 }
 
 void TargetSetupWidget::addBuildInfo(const BuildInfo &info, bool isImport)
@@ -184,7 +183,7 @@ void TargetSetupWidget::addBuildInfo(const BuildInfo &info, bool isImport)
 
 void TargetSetupWidget::targetCheckBoxToggled(bool b)
 {
-    if (m_ignoreChange)
+    if (m_ignoreChanges.isLocked())
         return;
     m_detailsWidget->widget()->setEnabled(b);
     if (b && (contains(m_infoStore, &BuildInfoStore::hasIssues)
@@ -301,9 +300,8 @@ void TargetSetupWidget::updateDefaultBuildDirectories()
         for (BuildInfoStore &buildInfoStore : m_infoStore) {
             if (buildInfoStore.buildInfo.typeName == buildInfo.typeName) {
                 if (!buildInfoStore.customBuildDir) {
-                    m_ignoreChange = true;
+                    const GuardLocker locker(m_ignoreChanges);
                     buildInfoStore.pathChooser->setFilePath(buildInfo.buildDirectory);
-                    m_ignoreChange = false;
                 }
                 found = true;
                 break;
@@ -334,7 +332,7 @@ void TargetSetupWidget::checkBoxToggled(bool b)
 
 void TargetSetupWidget::pathChanged()
 {
-    if (m_ignoreChange)
+    if (m_ignoreChanges.isLocked())
         return;
     auto pathChooser = qobject_cast<Utils::PathChooser *>(sender());
     QTC_ASSERT(pathChooser, return);

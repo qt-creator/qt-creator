@@ -31,6 +31,8 @@
 #include "kit.h"
 #include "task.h"
 
+#include <utils/guard.h>
+
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -117,7 +119,7 @@ private:
     };
     std::vector<BuildInfoStore> m_infoStore;
 
-    bool m_ignoreChange = false;
+    Utils::Guard m_ignoreChanges;
     int m_selected = 0; // Number of selected "buildconfigurations"
 };
 
