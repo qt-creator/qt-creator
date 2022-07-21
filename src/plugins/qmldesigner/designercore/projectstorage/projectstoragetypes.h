@@ -936,11 +936,13 @@ public:
 class Type
 {
 public:
-    Type(PropertyDeclarationId defaultPropertyId)
+    Type(PropertyDeclarationId defaultPropertyId, TypeTraits traits)
         : defaultPropertyId{defaultPropertyId}
+        , traits{traits}
     {}
 
     PropertyDeclarationId defaultPropertyId;
+    TypeTraits traits;
 };
 
 } // namespace QmlDesigner::Storage::Info

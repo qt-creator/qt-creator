@@ -246,14 +246,15 @@ MATCHER(StringsAreSorted, std::string(negation ? "isn't sorted" : "is sorted"))
     });
 }
 
-MATCHER_P(IsInfoType,
-          defaultPropertyId,
-          std::string(negation ? "isn't " : "is ")
-              + PrintToString(Storage::Info::Type{defaultPropertyId}))
+MATCHER_P2(IsInfoType,
+           defaultPropertyId,
+           traits,
+           std::string(negation ? "isn't " : "is ")
+               + PrintToString(Storage::Info::Type{defaultPropertyId, traits}))
 {
     const Storage::Info::Type &type = arg;
 
-    return type.defaultPropertyId == defaultPropertyId;
+    return type.defaultPropertyId == defaultPropertyId && type.traits == traits;
 }
 
 class ProjectStorage : public testing::Test
@@ -5874,7 +5875,7 @@ TEST_F(ProjectStorage, GetType)
 
     auto type = storage.type(typeId);
 
-    ASSERT_THAT(type, Optional(IsInfoType(defaultPropertyId)));
+    ASSERT_THAT(type, Optional(IsInfoType(defaultPropertyId, TypeTraits::Reference)));
 }
 
 TEST_F(ProjectStorage, DontGetTypeForInvalidId)

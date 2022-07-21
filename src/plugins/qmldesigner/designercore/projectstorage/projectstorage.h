@@ -3095,8 +3095,8 @@ public:
         "UPDATE types SET defaultPropertyId=?2 WHERE typeId=?1", database};
     WriteStatement<1> updateDefaultPropertyIdToNullStatement{
         "UPDATE types SET defaultPropertyId=NULL WHERE defaultPropertyId=?1", database};
-    mutable ReadStatement<1, 1> selectInfoTypeByTypeIdStatement{
-        "SELECT defaultPropertyId FROM types WHERE typeId=?", database};
+    mutable ReadStatement<2, 1> selectInfoTypeByTypeIdStatement{
+        "SELECT defaultPropertyId, traits FROM types WHERE typeId=?", database};
 };
 extern template class ProjectStorage<Sqlite::Database>;
 } // namespace QmlDesigner
