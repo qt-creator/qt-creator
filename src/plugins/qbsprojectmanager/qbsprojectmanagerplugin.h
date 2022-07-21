@@ -54,7 +54,7 @@ private:
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
 
     void targetWasAdded(ProjectExplorer::Target *target);
-    void projectChanged();
+    void projectChanged(QbsProject *project);
 
     void buildFileContextMenu();
     void buildFile();

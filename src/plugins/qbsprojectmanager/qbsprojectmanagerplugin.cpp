@@ -246,7 +246,7 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
             this, &QbsProjectManagerPlugin::updateContextActions);
 
     connect(BuildManager::instance(), &BuildManager::buildStateChanged,
-            this, &QbsProjectManagerPlugin::projectChanged);
+            this, std::bind(&QbsProjectManagerPlugin::projectChanged, this, nullptr));
 
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
             this, &QbsProjectManagerPlugin::updateBuildActions);
@@ -259,10 +259,11 @@ bool QbsProjectManagerPlugin::initialize(const QStringList &arguments, QString *
             this, &QbsProjectManagerPlugin::updateReparseQbsAction);
     connect(SessionManager::instance(), &SessionManager::projectAdded,
             this, [this](Project *project) {
+        auto qbsProject = qobject_cast<QbsProject *>(project);
         connect(project, &Project::anyParsingStarted,
-                this, &QbsProjectManagerPlugin::projectChanged);
+                this, std::bind(&QbsProjectManagerPlugin::projectChanged, this, qbsProject));
         connect(project, &Project::anyParsingFinished,
-                this, &QbsProjectManagerPlugin::projectChanged);
+                this, std::bind(&QbsProjectManagerPlugin::projectChanged, this, qbsProject));
     });
 
     // Run initial setup routines
@@ -279,9 +280,9 @@ void QbsProjectManagerPlugin::targetWasAdded(Target *target)
         return;
 
     connect(target, &Target::parsingStarted,
-            this, &QbsProjectManagerPlugin::projectChanged);
+            this, std::bind(&QbsProjectManagerPlugin::projectChanged, this, nullptr));
     connect(target, &Target::parsingFinished,
-            this, &QbsProjectManagerPlugin::projectChanged);
+            this, std::bind(&QbsProjectManagerPlugin::projectChanged, this, nullptr));
 }
 
 void QbsProjectManagerPlugin::updateContextActions(Node *node)
@@ -364,17 +365,17 @@ void QbsProjectManagerPlugin::updateBuildActions()
     m_rebuildProduct->setVisible(productVisible);
 }
 
-void QbsProjectManagerPlugin::projectChanged()
+void QbsProjectManagerPlugin::projectChanged(QbsProject *project)
 {
-    auto project = qobject_cast<QbsProject *>(sender());
+    auto qbsProject = qobject_cast<QbsProject *>(project);
 
-    if (!project || project == SessionManager::startupProject())
+    if (!qbsProject || qbsProject == SessionManager::startupProject())
         updateReparseQbsAction();
 
-    if (!project || project == ProjectTree::currentProject())
+    if (!qbsProject || qbsProject == ProjectTree::currentProject())
         updateContextActions(ProjectTree::currentNode());
 
-    if (!project || project == currentEditorProject())
+    if (!qbsProject || qbsProject == currentEditorProject())
         updateBuildActions();
 }
 
