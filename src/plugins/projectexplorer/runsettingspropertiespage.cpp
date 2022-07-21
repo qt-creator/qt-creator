@@ -253,15 +253,16 @@ void RunSettingsWidget::removeRunConfiguration()
 
 void RunSettingsWidget::activeRunConfigurationChanged()
 {
-    if (m_ignoreChange)
+    if (m_ignoreChanges.isLocked())
         return;
 
     ProjectConfigurationModel *model = m_target->runConfigurationModel();
     int index = model->indexFor(m_target->activeRunConfiguration());
-    m_ignoreChange = true;
-    m_runConfigurationCombo->setCurrentIndex(index);
-    setConfigurationWidget(qobject_cast<RunConfiguration *>(model->projectConfigurationAt(index)));
-    m_ignoreChange = false;
+    {
+        const Utils::GuardLocker locker(m_ignoreChanges);
+        m_runConfigurationCombo->setCurrentIndex(index);
+        setConfigurationWidget(qobject_cast<RunConfiguration *>(model->projectConfigurationAt(index)));
+    }
     m_renameRunButton->setEnabled(m_target->activeRunConfiguration());
     m_cloneRunButton->setEnabled(m_target->activeRunConfiguration());
 }
@@ -286,7 +287,7 @@ void RunSettingsWidget::renameRunConfiguration()
 
 void RunSettingsWidget::currentRunConfigurationChanged(int index)
 {
-    if (m_ignoreChange)
+    if (m_ignoreChanges.isLocked())
         return;
 
     RunConfiguration *selectedRunConfiguration = nullptr;
@@ -297,9 +298,10 @@ void RunSettingsWidget::currentRunConfigurationChanged(int index)
     if (selectedRunConfiguration == m_runConfiguration)
         return;
 
-    m_ignoreChange = true;
-    m_target->setActiveRunConfiguration(selectedRunConfiguration);
-    m_ignoreChange = false;
+    {
+        const Utils::GuardLocker locker(m_ignoreChanges);
+        m_target->setActiveRunConfiguration(selectedRunConfiguration);
+    }
 
     // Update the run configuration configuration widget
     setConfigurationWidget(selectedRunConfiguration);
@@ -307,7 +309,7 @@ void RunSettingsWidget::currentRunConfigurationChanged(int index)
 
 void RunSettingsWidget::currentDeployConfigurationChanged(int index)
 {
-    if (m_ignoreChange)
+    if (m_ignoreChanges.isLocked())
         return;
     if (index == -1)
         SessionManager::setActiveDeployConfiguration(m_target, nullptr, SetActive::Cascade);
@@ -399,9 +401,10 @@ void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
     delete m_deploySteps;
     m_deploySteps = nullptr;
 
-    m_ignoreChange = true;
-    m_deployConfigurationCombo->setCurrentIndex(-1);
-    m_ignoreChange = false;
+    {
+        const Utils::GuardLocker locker(m_ignoreChanges);
+        m_deployConfigurationCombo->setCurrentIndex(-1);
+    }
 
     m_renameDeployButton->setEnabled(dc);
 
@@ -409,9 +412,11 @@ void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
         return;
 
     int index = m_target->deployConfigurationModel()->indexFor(dc);
-    m_ignoreChange = true;
-    m_deployConfigurationCombo->setCurrentIndex(index);
-    m_ignoreChange = false;
+
+    {
+        const Utils::GuardLocker locker(m_ignoreChanges);
+        m_deployConfigurationCombo->setCurrentIndex(index);
+    }
 
     m_deployConfigurationWidget = dc->createConfigWidget();
     if (m_deployConfigurationWidget)

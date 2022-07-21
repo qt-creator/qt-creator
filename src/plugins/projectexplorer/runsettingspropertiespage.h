@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <utils/guard.h>
+
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -90,7 +92,7 @@ private:
     QVBoxLayout *m_deployLayout = nullptr;
     BuildStepListWidget *m_deploySteps = nullptr;
     QMenu *m_addDeployMenu;
-    bool m_ignoreChange = false;
+    Utils::Guard m_ignoreChanges;
     using RunConfigItem = QPair<QWidget *, QLabel *>;
     QList<RunConfigItem> m_subWidgets;
 
