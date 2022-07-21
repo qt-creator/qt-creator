@@ -146,8 +146,10 @@ QnxDebugSupport::QnxDebugSupport(RunControl *runControl)
     setCloseMode(KillAtClose);
     setUseCtrlCStub(true);
     setSolibSearchPath(searchPaths(k));
-    if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(k)))
+    if (auto qtVersion = dynamic_cast<QnxQtVersion *>(QtSupport::QtKitAspect::qtVersion(k))) {
         setSysRoot(qtVersion->qnxTarget());
+        modifyDebuggerEnvironment(qtVersion->environment());
+    }
 }
 
 

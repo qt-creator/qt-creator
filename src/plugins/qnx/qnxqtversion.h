@@ -66,10 +66,10 @@ public:
     Utils::FilePath sdpPath() const;
     void setSdpPath(const Utils::FilePath &sdpPath);
 
+    Utils::EnvironmentItems environment() const;
+
 private:
     void updateEnvironment() const;
-
-    Utils::EnvironmentItems environment() const;
 
     Utils::FilePath m_sdpPath;
 
