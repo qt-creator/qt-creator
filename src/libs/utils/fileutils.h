@@ -134,6 +134,7 @@ public:
     static bool isRelativePath(const QString &fileName);
     static bool isAbsolutePath(const QString &fileName) { return !isRelativePath(fileName); }
     static FilePath commonPath(const FilePath &oldCommonPath, const FilePath &fileName);
+    static FilePath commonPath(const FilePaths &paths);
     static QByteArray fileId(const FilePath &fileName);
     static FilePath homePath();
 

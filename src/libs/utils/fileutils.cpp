@@ -385,6 +385,52 @@ static QByteArray fileIdWin(HANDLE fHandle)
 }
 #endif
 
+FilePath FileUtils::commonPath(const FilePaths &paths)
+{
+    if (paths.isEmpty())
+        return {};
+
+    if (paths.count() == 1)
+        return paths.constFirst();
+
+    const FilePath &first = paths.constFirst();
+    const FilePaths others = paths.mid(1);
+    FilePath result;
+
+    // Common scheme
+    const QString &commonScheme = first.scheme();
+    auto sameScheme = [&commonScheme] (const FilePath &fp) {
+        return commonScheme == fp.scheme();
+    };
+    if (!allOf(others, sameScheme))
+        return result;
+    result.setScheme(commonScheme);
+
+    // Common host
+    const QString &commonHost = first.host();
+    auto sameHost = [&commonHost] (const FilePath &fp) {
+        return commonHost == fp.host();
+    };
+    if (!allOf(others, sameHost))
+        return result;
+    result.setHost(commonHost);
+
+    // Common path
+    QString commonPath;
+    auto sameBasePath = [&commonPath] (const FilePath &fp) {
+        return QString(fp.path() + '/').startsWith(commonPath);
+    };
+    const QStringList pathSegments = first.path().split('/');
+    for (const QString &segment : pathSegments) {
+        commonPath += segment + '/';
+        if (!allOf(others, sameBasePath))
+            return result;
+        result.setPath(commonPath.chopped(1));
+    }
+
+    return result;
+}
+
 QByteArray FileUtils::fileId(const FilePath &fileName)
 {
     QByteArray result;

@@ -66,6 +66,8 @@ private slots:
     void linkFromString();
     void pathAppended_data();
     void pathAppended();
+    void commonPath_data();
+    void commonPath();
 
     void asyncLocalCopy();
 
@@ -588,6 +590,46 @@ void tst_fileutils::pathAppended_data()
     QTest::newRow("u2") << "a/b" << "c/"  << "a/b/c/";
     QTest::newRow("u3") << "a/b" <<  "/d" << "a/b/d";
     QTest::newRow("u4") << "a/b" << "c/d" << "a/b/c/d";
+}
+
+void tst_fileutils::commonPath()
+{
+    QFETCH(FilePaths, list);
+    QFETCH(FilePath, expected);
+
+    const FilePath result = FileUtils::commonPath(list);
+
+    QCOMPARE(expected.toString(), result.toString());
+}
+
+void tst_fileutils::commonPath_data()
+{
+    QTest::addColumn<FilePaths>("list");
+    QTest::addColumn<FilePath>("expected");
+
+    const FilePath p1 = FilePath::fromString("c:/Program Files(x86)");
+    const FilePath p2 = FilePath::fromString("c:/Program Files(x86)/Ide");
+    const FilePath p3 = FilePath::fromString("c:/Program Files(x86)/Ide/Qt Creator");
+    const FilePath p4 = FilePath::fromString("c:/Program Files");
+    const FilePath p5 = FilePath::fromString("c:");
+
+    const FilePath url1 = FilePath::fromString("http://127.0.0.1/./");
+    const FilePath url2 = FilePath::fromString("https://127.0.0.1/./");
+    const FilePath url3 = FilePath::fromString("http://www.qt.io/./");
+    const FilePath url4 = FilePath::fromString("https://www.qt.io/./");
+    const FilePath url5 = FilePath::fromString("https://www.qt.io/ide/");
+    const FilePath url6 = FilePath::fromString("http:///./");
+
+    QTest::newRow("Zero paths") << FilePaths{} << FilePath();
+    QTest::newRow("Single path") << FilePaths{ p1 } << p1;
+    QTest::newRow("3 identical paths") << FilePaths{ p1, p1, p1 } << p1;
+    QTest::newRow("3 paths, common path") << FilePaths{ p1, p2, p3 } << p1;
+    QTest::newRow("3 paths, no common path") << FilePaths{ p1, p2, p4 } << p5;
+    QTest::newRow("3 paths, first is part of second") << FilePaths{ p4, p1, p3 } << p5;
+    QTest::newRow("Common scheme") << FilePaths{ url1, url3 } << url6;
+    QTest::newRow("Different scheme") << FilePaths{ url1, url2 } << FilePath();
+    QTest::newRow("Common host") << FilePaths{ url4, url5 } << url4;
+    QTest::newRow("Different host") << FilePaths{ url1, url3 } << url6;
 }
 
 void tst_fileutils::asyncLocalCopy()
