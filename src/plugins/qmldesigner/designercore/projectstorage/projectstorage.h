@@ -2021,7 +2021,7 @@ private:
     public:
         FetchPropertyDeclarationResult(TypeId propertyTypeId,
                                        PropertyDeclarationId propertyDeclarationId,
-                                       long long propertyTraits)
+                                       Storage::PropertyDeclarationTraits propertyTraits)
             : propertyTypeId{propertyTypeId}
             , propertyDeclarationId{propertyDeclarationId}
             , propertyTraits{propertyTraits}
@@ -2030,7 +2030,7 @@ private:
     public:
         TypeId propertyTypeId;
         PropertyDeclarationId propertyDeclarationId;
-        long long propertyTraits;
+        Storage::PropertyDeclarationTraits propertyTraits;
     };
 
     auto fetchOptionalPropertyDeclarationByTypeIdAndNameUngarded(TypeId typeId,
