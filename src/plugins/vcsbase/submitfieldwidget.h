@@ -70,9 +70,8 @@ signals:
     void browseButtonClicked(int pos, const QString &field);
 
 private:
-    void slotRemove();
-    void slotComboIndexChanged(int);
-    void slotBrowseButtonClicked();
+    void slotRemove(int pos);
+    void slotComboIndexChanged(int pos, int comboIndex);
 
     void removeField(int index);
     bool comboIndexChange(int fieldNumber, int index);

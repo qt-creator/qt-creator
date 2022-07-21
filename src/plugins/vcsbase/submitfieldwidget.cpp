@@ -25,6 +25,7 @@
 
 #include "submitfieldwidget.h"
 
+#include <utils/algorithm.h>
 #include <utils/utilsicons.h>
 
 #include <QComboBox>
@@ -111,7 +112,7 @@ void FieldEntry::deleteGuiLater()
 struct SubmitFieldWidgetPrivate {
     SubmitFieldWidgetPrivate();
 
-    int findSender(const QObject *o) const;
+    int indexOf(const QWidget *w) const;
     int findField(const QString &f, int excluded = -1) const;
     inline QString fieldText(int) const;
     inline QString fieldValue(int) const;
@@ -133,15 +134,11 @@ SubmitFieldWidgetPrivate::SubmitFieldWidgetPrivate() :
 {
 }
 
-int SubmitFieldWidgetPrivate::findSender(const QObject *o) const
+int SubmitFieldWidgetPrivate::indexOf(const QWidget *w) const
 {
-    const int count = fieldEntries.size();
-    for (int i = 0; i < count; i++) {
-        const FieldEntry &fe = fieldEntries.at(i);
-        if (fe.combo == o || fe.browseButton == o || fe.clearButton == o || fe.lineEdit == o)
-            return i;
-    }
-    return -1;
+    return Utils::indexOf(fieldEntries, [w](const FieldEntry &fe) {
+        return fe.combo == w || fe.browseButton == w || fe.clearButton == w || fe.lineEdit == w;
+    });
 }
 
 int SubmitFieldWidgetPrivate::findField(const QString &ft, int excluded) const
@@ -279,35 +276,34 @@ void SubmitFieldWidget::createField(const QString &f)
         }
     }
 
-    connect(fe.browseButton, &QAbstractButton::clicked, this, &SubmitFieldWidget::slotBrowseButtonClicked);
+    connect(fe.browseButton, &QAbstractButton::clicked, this, [this, button = fe.browseButton] {
+        const int pos = d->indexOf(button);
+        emit browseButtonClicked(pos, d->fieldText(pos));
+    });
     if (!d->hasBrowseButton)
         fe.browseButton->setVisible(false);
 
     if (d->completer)
         fe.lineEdit->setCompleter(d->completer);
 
-    connect(fe.combo, &QComboBox::currentIndexChanged,
-            this, &SubmitFieldWidget::slotComboIndexChanged);
-    connect(fe.clearButton, &QAbstractButton::clicked,
-            this, &SubmitFieldWidget::slotRemove);
+    connect(fe.combo, &QComboBox::currentIndexChanged, this, [this, combo = fe.combo](int index) {
+        slotComboIndexChanged(d->indexOf(combo), index);
+    });
+    connect(fe.clearButton, &QAbstractButton::clicked, this, [this, button = fe.clearButton] {
+        slotRemove(d->indexOf(button));
+    });
     d->layout->addLayout(fe.layout);
     d->fieldEntries.push_back(fe);
 }
 
-void SubmitFieldWidget::slotRemove()
+void SubmitFieldWidget::slotRemove(int pos)
 {
-    // Never remove first entry
-    const int index = d->findSender(sender());
-    switch (index) {
-    case -1:
-        break;
-    case 0:
+    if (pos < 0)
+        return;
+    if (pos == 0)
         d->fieldEntries.front().lineEdit->clear();
-        break;
-    default:
-        removeField(index);
-        break;
-    }
+    else
+        removeField(pos);
 }
 
 void SubmitFieldWidget::removeField(int index)
@@ -318,12 +314,11 @@ void SubmitFieldWidget::removeField(int index)
     delete item;
 }
 
-void SubmitFieldWidget::slotComboIndexChanged(int comboIndex)
+void SubmitFieldWidget::slotComboIndexChanged(int pos, int comboIndex)
 {
-    const int pos = d->findSender(sender());
     if (debug)
         qDebug() << '>' << Q_FUNC_INFO << pos;
-    if (pos == -1)
+    if (pos < 0)
         return;
     // Accept new index or reset combo to previous value?
     int &previousIndex = d->fieldEntries[pos].comboIndex;
@@ -354,12 +349,6 @@ bool SubmitFieldWidget::comboIndexChange(int pos, int index)
     // Non-empty: Create a new field and reset the triggering combo
     createField(newField);
     return false;
-}
-
-void SubmitFieldWidget::slotBrowseButtonClicked()
-{
-    const int pos = d->findSender(sender());
-    emit browseButtonClicked(pos, d->fieldText(pos));
 }
 
 }
