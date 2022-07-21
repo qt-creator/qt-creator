@@ -29,6 +29,7 @@
 #include "ui_submiteditorwidget.h"
 
 #include <utils/algorithm.h>
+#include <utils/guard.h>
 #include <utils/theme/theme.h>
 
 #include <QDebug>
@@ -121,9 +122,9 @@ struct SubmitEditorWidgetPrivate
     bool m_filesSelected = false;
     bool m_emptyFileListEnabled = false;
     bool m_commitEnabled = false;
-    bool m_ignoreChange = false;
     bool m_descriptionMandatory = true;
     bool m_updateInProgress = false;
+    Guard m_ignoreChanges;
 };
 
 SubmitEditorWidget::SubmitEditorWidget() :
@@ -444,7 +445,7 @@ void SubmitEditorWidget::updateDiffAction()
 
 void SubmitEditorWidget::updateCheckAllComboBox()
 {
-    d->m_ignoreChange = true;
+    const GuardLocker locker(d->m_ignoreChanges);
     int checkedCount = checkedFilesCount();
     if (checkedCount == 0)
         d->m_ui.checkAllCheckBox->setCheckState(Qt::Unchecked);
@@ -452,7 +453,6 @@ void SubmitEditorWidget::updateCheckAllComboBox()
         d->m_ui.checkAllCheckBox->setCheckState(Qt::Checked);
     else
         d->m_ui.checkAllCheckBox->setCheckState(Qt::PartiallyChecked);
-    d->m_ignoreChange = false;
 }
 
 bool SubmitEditorWidget::hasSelection() const
@@ -669,7 +669,7 @@ void SubmitEditorWidget::editorCustomContextMenuRequested(const QPoint &pos)
 
 void SubmitEditorWidget::checkAllToggled()
 {
-    if (d->m_ignoreChange)
+    if (d->m_ignoreChanges.isLocked())
         return;
     Qt::CheckState checkState = d->m_ui.checkAllCheckBox->checkState();
     fileModel()->setAllChecked(checkState == Qt::Checked || checkState == Qt::PartiallyChecked);
