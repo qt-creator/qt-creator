@@ -164,7 +164,7 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool,
     const auto exeAspect = runControl->aspect<ExecutableAspect>();
     QTC_ASSERT(exeAspect, return false);
 
-    const FilePath bin = exeAspect->executable;
+    const FilePath bin = FilePath::fromString(exeAspect->executable.path());
     if (bin.isEmpty()) {
         errorMessage = BareMetalDebugSupport::tr(
                     "Cannot debug: Local executable is not set.");
