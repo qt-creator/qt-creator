@@ -34,8 +34,7 @@
 
 using namespace Utils;
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 const QLatin1String QNXConfigDataKey("QNXConfiguration.");
 const QLatin1String QNXConfigCountKey("QNXConfiguration.Count");
@@ -146,5 +145,4 @@ void QnxConfigurationManager::restoreConfigurations()
     }
 }
 
-} // Internal
-} // Qnx
+} // Qnx::Internal

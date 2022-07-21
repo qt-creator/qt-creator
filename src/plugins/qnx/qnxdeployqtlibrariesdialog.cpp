@@ -57,8 +57,7 @@ using namespace QtSupport;
 using namespace RemoteLinux;
 using namespace Utils;
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const IDevice::ConstPtr &device,
                                                        QWidget *parent)
@@ -362,5 +361,4 @@ bool QnxDeployQtLibrariesDialog::handleError(const QtcProcess &process)
     return true;
 }
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

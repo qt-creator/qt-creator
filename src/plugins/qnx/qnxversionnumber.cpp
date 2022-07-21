@@ -28,8 +28,7 @@
 #include <QDir>
 #include <QRegularExpression>
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 static const char NONDIGIT_SEGMENT_REGEXP[] = "(?<=\\d)(?=\\D)|(?<=\\D)(?=\\d)";
 
@@ -112,5 +111,4 @@ bool QnxVersionNumber::isEmpty() const
     return m_segments.isEmpty();
 }
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

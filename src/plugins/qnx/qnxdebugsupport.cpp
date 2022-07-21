@@ -27,7 +27,6 @@
 
 #include "qnxconstants.h"
 #include "qnxqtversion.h"
-#include "qnxrunconfiguration.h"
 #include "qnxtr.h"
 #include "slog2inforunner.h"
 
@@ -67,8 +66,7 @@ using namespace Debugger;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 const char QNX_DEBUG_EXECUTABLE[] = "pdebug";
 
@@ -237,10 +235,7 @@ void QnxAttachDebugSupport::showProcessesDialog()
         return;
 
     // FIXME: That should be somehow related to the selected kit.
-    auto startRunConfig = SessionManager::startupRunConfiguration();
-    auto runConfig = qobject_cast<QnxRunConfiguration *>(startRunConfig);
-    if (!runConfig)
-        return;
+    auto runConfig = SessionManager::startupRunConfiguration();
 
     const int pid = dlg.currentProcess().processId;
 //    QString projectSourceDirectory = dlg.projectSource();
@@ -268,5 +263,4 @@ void QnxAttachDebugSupport::showProcessesDialog()
     ProjectExplorerPlugin::startRunControl(runControl);
 }
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

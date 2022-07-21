@@ -26,12 +26,12 @@
 #include "qnxdevice.h"
 
 #include "qnxconstants.h"
+#include "qnxdeployqtlibrariesdialog.h"
 #include "qnxdevicetester.h"
 #include "qnxdeviceprocesslist.h"
 #include "qnxdeviceprocesssignaloperation.h"
 #include "qnxdevicewizard.h"
 #include "qnxtr.h"
-#include "qnxdeployqtlibrariesdialog.h"
 
 #include <remotelinux/sshprocessinterface.h>
 
@@ -45,8 +45,7 @@ using namespace ProjectExplorer;
 using namespace RemoteLinux;
 using namespace Utils;
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 class QnxProcessImpl final : public SshProcessInterface
 {
@@ -208,5 +207,4 @@ QnxDeviceFactory::QnxDeviceFactory() : IDeviceFactory(Constants::QNX_QNX_OS_TYPE
     });
 }
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

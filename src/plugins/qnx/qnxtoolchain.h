@@ -31,8 +31,7 @@
 namespace ProjectExplorer { class AbiWidget; }
 namespace Utils { class PathChooser; }
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 class QnxToolChain : public ProjectExplorer::GccToolChain
 {
@@ -75,30 +74,4 @@ public:
             const ProjectExplorer::ToolchainDetector &detector) const final;
 };
 
-//----------------------------------------------------------------------------
-// QnxToolChainConfigWidget
-//----------------------------------------------------------------------------
-
-class QnxToolChainConfigWidget : public ProjectExplorer::ToolChainConfigWidget
-{
-    Q_OBJECT
-
-public:
-    QnxToolChainConfigWidget(QnxToolChain *tc);
-
-private:
-    void applyImpl() override;
-    void discardImpl() override;
-    bool isDirtyImpl() const override;
-    void makeReadOnlyImpl() override { }
-
-    void handleSdpPathChange();
-
-    Utils::PathChooser *m_compilerCommand;
-    Utils::PathChooser *m_sdpPath;
-    ProjectExplorer::AbiWidget *m_abiWidget;
-
-};
-
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

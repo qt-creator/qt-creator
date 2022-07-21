@@ -64,8 +64,7 @@
 
 using namespace ProjectExplorer;
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 class QnxUploadStep : public RemoteLinux::GenericDirectUploadStep
 {
@@ -193,5 +192,4 @@ void QnxPluginPrivate::updateDebuggerActions()
     m_debugSeparator->setVisible(hasValidQnxKit);
 }
 
-} // Internal
-} // Qnx
+} // Qnx::Internal

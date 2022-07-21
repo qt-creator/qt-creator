@@ -34,8 +34,7 @@
 
 using namespace ProjectExplorer;
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 QnxDeviceWizard::QnxDeviceWizard(QWidget *parent) :
     Utils::Wizard(parent)
@@ -68,5 +67,4 @@ IDevice::Ptr QnxDeviceWizard::device()
     return m_device;
 }
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

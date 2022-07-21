@@ -27,12 +27,10 @@
 
 #include <remotelinux/remotelinuxsignaloperation.h>
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 class QnxDeviceProcessSignalOperation : public RemoteLinux::RemoteLinuxSignalOperation
 {
-    Q_OBJECT
 protected:
     explicit QnxDeviceProcessSignalOperation(const ProjectExplorer::IDeviceConstPtr &device);
 
@@ -43,5 +41,4 @@ private:
     friend class QnxDevice;
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

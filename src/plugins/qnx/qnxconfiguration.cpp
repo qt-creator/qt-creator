@@ -62,8 +62,7 @@ using namespace QtSupport;
 using namespace Utils;
 using namespace Debugger;
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 const QLatin1String QNXEnvFileKey("EnvFile");
 const QLatin1String QNXVersionKey("QNXVersion");
@@ -474,5 +473,4 @@ QString QnxConfiguration::Target::cpuDir() const
     return m_path.fileName();
 }
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

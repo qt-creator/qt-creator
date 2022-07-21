@@ -43,8 +43,7 @@ namespace ProjectExplorer
     class ToolChain;
 }
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 class QnxToolChain;
 class QnxQtVersion;
@@ -135,5 +134,4 @@ private:
     void assignDebuggersToTargets();
 };
 
-} // Internal
-} // Qnx
+} // Qnx::Internal

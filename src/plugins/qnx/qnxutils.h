@@ -28,15 +28,12 @@
 #include "qnxconstants.h"
 
 #include <projectexplorer/abi.h>
+
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/fileutils.h>
 
-#include <QTextStream>
-#include <QString>
-
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 class ConfigInstallInformation
 {
@@ -78,5 +75,4 @@ public:
     static ProjectExplorer::Abis convertAbis(const ProjectExplorer::Abis &abis);
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

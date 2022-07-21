@@ -32,8 +32,7 @@
 
 #include <utils/environment.h>
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 class QnxQtVersion : public QtSupport::QtVersion
 {
@@ -84,5 +83,4 @@ public:
     QnxQtVersionFactory();
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

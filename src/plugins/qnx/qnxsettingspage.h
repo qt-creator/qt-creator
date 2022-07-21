@@ -27,8 +27,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 class QnxSettingsPage final : public Core::IOptionsPage
 {
@@ -36,5 +35,4 @@ public:
     QnxSettingsPage();
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

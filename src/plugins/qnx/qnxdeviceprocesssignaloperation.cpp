@@ -25,7 +25,7 @@
 
 #include "qnxdeviceprocesssignaloperation.h"
 
-using namespace Qnx::Internal;
+namespace Qnx::Internal {
 
 QnxDeviceProcessSignalOperation::QnxDeviceProcessSignalOperation(
         const ProjectExplorer::IDeviceConstPtr &device)
@@ -54,3 +54,5 @@ QString QnxDeviceProcessSignalOperation::interruptProcessByNameCommandLine(
 {
     return signalProcessByNameQnxCommandLine(filePath, 2);
 }
+
+} // Qnx::Internal

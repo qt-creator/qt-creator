@@ -25,22 +25,16 @@
 
 #pragma once
 
-#include <QObject>
-
 #include <projectexplorer/runcontrol.h>
-#include <utils/outputformat.h>
 
 #include <QDateTime>
-#include <QByteArray>
 
 namespace Utils { class QtcProcess; }
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 class Slog2InfoRunner : public ProjectExplorer::RunWorker
 {
-    Q_OBJECT
 public:
     explicit Slog2InfoRunner(ProjectExplorer::RunControl *runControl);
 
@@ -74,5 +68,4 @@ private:
     Utils::QtcProcess *m_logProcess = nullptr;
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

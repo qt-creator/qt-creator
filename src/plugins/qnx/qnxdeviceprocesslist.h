@@ -27,12 +27,10 @@
 
 #include <projectexplorer/devicesupport/sshdeviceprocesslist.h>
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 class QnxDeviceProcessList : public ProjectExplorer::SshDeviceProcessList
 {
-    Q_OBJECT
 public:
     explicit QnxDeviceProcessList(
             const ProjectExplorer::IDeviceConstPtr &device, QObject *parent = nullptr);
@@ -42,5 +40,4 @@ private:
     QList<Utils::ProcessInfo> buildProcessList(const QString &listProcessesReply) const override;
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

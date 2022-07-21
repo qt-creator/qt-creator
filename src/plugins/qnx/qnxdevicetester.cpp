@@ -31,8 +31,7 @@
 
 using namespace Utils;
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 QnxDeviceTester::QnxDeviceTester(QObject *parent)
     : ProjectExplorer::DeviceTester(parent)
@@ -47,23 +46,25 @@ QnxDeviceTester::QnxDeviceTester(QObject *parent)
 
     connect(&m_process, &QtcProcess::done, this, &QnxDeviceTester::handleProcessDone);
 
-    m_commandsToTest << QLatin1String("awk")
-                     << QLatin1String("cat")
-                     << QLatin1String("cut")
-                     << QLatin1String("df")
-                     << QLatin1String("grep")
-                     << QLatin1String("kill")
-                     << QLatin1String("netstat")
-                     << QLatin1String("mkdir")
-                     << QLatin1String("print")
-                     << QLatin1String("printf")
-                     << QLatin1String("pidin")
-                     << QLatin1String("read")
-                     << QLatin1String("rm")
-                     << QLatin1String("sed")
-                     << QLatin1String("sleep")
-                     << QLatin1String("tail")
-                     << QLatin1String("uname");
+    m_commandsToTest = {
+        "awk",
+        "cat",
+        "cut",
+        "df",
+        "grep",
+        "kill",
+        "netstat",
+        "mkdir",
+        "print",
+        "printf",
+        "pidin",
+        "read",
+        "rm",
+        "sed",
+        "sleep",
+        "tail",
+        "uname"
+    };
 }
 
 void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::Ptr &deviceConfiguration)
@@ -183,5 +184,4 @@ QStringList QnxDeviceTester::versionSpecificCommandsToTest(int versionNumber) co
     return result;
 }
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

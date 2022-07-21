@@ -27,26 +27,20 @@
 
 #include <debugger/debuggerruncontrol.h>
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 class QnxDebugSupport : public Debugger::DebuggerRunTool
 {
-    Q_OBJECT
-
 public:
     explicit QnxDebugSupport(ProjectExplorer::RunControl *runControl);
 };
 
 class QnxAttachDebugSupport : public Debugger::DebuggerRunTool
 {
-    Q_OBJECT
-
 public:
     explicit QnxAttachDebugSupport(ProjectExplorer::RunControl *runControl);
 
     static void showProcessesDialog();
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

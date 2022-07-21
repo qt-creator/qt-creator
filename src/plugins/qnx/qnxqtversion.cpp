@@ -45,8 +45,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 const char SDP_PATH_KEY[] = "SDKPath";
 
@@ -221,5 +220,4 @@ QnxQtVersionFactory::QnxQtVersionFactory()
     setRestrictionChecker([](const SetupData &setup) { return setup.isQnx; });
 }
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

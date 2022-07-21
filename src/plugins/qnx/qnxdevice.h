@@ -29,8 +29,7 @@
 
 #include <remotelinux/linuxdevice.h>
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 class QnxDevice final : public RemoteLinux::LinuxDevice
 {
@@ -70,5 +69,4 @@ public:
     QnxDeviceFactory();
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

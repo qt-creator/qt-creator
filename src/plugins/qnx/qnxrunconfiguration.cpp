@@ -31,6 +31,7 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
@@ -42,8 +43,13 @@ using namespace ProjectExplorer;
 using namespace RemoteLinux;
 using namespace Utils;
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
+
+class QnxRunConfiguration final : public ProjectExplorer::RunConfiguration
+{
+public:
+    QnxRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
+};
 
 QnxRunConfiguration::QnxRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id)
@@ -101,5 +107,4 @@ QnxRunConfigurationFactory::QnxRunConfigurationFactory()
     addSupportedTargetDeviceType(Constants::QNX_QNX_OS_TYPE);
 }
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

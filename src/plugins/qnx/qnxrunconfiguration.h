@@ -25,19 +25,9 @@
 
 #pragma once
 
-#include <projectexplorer/runconfigurationaspects.h>
-#include <remotelinux/remotelinuxrunconfiguration.h>
+#include <projectexplorer/runconfiguration.h>
 
-namespace Qnx {
-namespace Internal {
-
-class QnxRunConfiguration final : public ProjectExplorer::RunConfiguration
-{
-    Q_OBJECT
-
-public:
-    QnxRunConfiguration(ProjectExplorer::Target *target, Utils::Id id);
-};
+namespace Qnx::Internal {
 
 class QnxRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
 {
@@ -45,5 +35,4 @@ public:
     QnxRunConfigurationFactory();
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

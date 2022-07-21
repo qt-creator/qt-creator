@@ -50,13 +50,10 @@
 
 using namespace Utils;
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 class QnxSettingsWidget final : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Qnx::Internal::QnxSettingsWidget)
-
 public:
     QnxSettingsWidget();
 
@@ -325,5 +322,4 @@ QnxSettingsPage::QnxSettingsPage()
     setWidgetCreator([] { return new QnxSettingsWidget; });
 }
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

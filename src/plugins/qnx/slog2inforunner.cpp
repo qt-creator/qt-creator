@@ -38,8 +38,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 Slog2InfoRunner::Slog2InfoRunner(RunControl *runControl)
     : RunWorker(runControl)
@@ -186,12 +185,12 @@ void Slog2InfoRunner::processLogLine(const QString &line)
     if (bufferName == QLatin1String("default") && bufferId == 8900)
         return;
 
-    appendMessage(match.captured(6).trimmed() + '\n', Utils::StdOutFormat);
+    appendMessage(match.captured(6).trimmed() + '\n', StdOutFormat);
 }
 
 void Slog2InfoRunner::readLogStandardError()
 {
-    appendMessage(QString::fromLatin1(m_logProcess->readAllStandardError()), Utils::StdErrFormat);
+    appendMessage(QString::fromLatin1(m_logProcess->readAllStandardError()), StdErrFormat);
 }
 
 void Slog2InfoRunner::handleLogDone()
@@ -200,8 +199,7 @@ void Slog2InfoRunner::handleLogDone()
         return;
 
     appendMessage(Tr::tr("Cannot show slog2info output. Error: %1")
-                  .arg(m_logProcess->errorString()), Utils::StdErrFormat);
+                  .arg(m_logProcess->errorString()), StdErrFormat);
 }
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

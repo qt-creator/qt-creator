@@ -27,8 +27,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 class QnxPlugin final : public ExtensionSystem::IPlugin
 {
@@ -43,5 +42,4 @@ private:
     void extensionsInitialized() final;
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

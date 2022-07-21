@@ -41,11 +41,31 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 const char CompilerSdpPath[] = "Qnx.QnxToolChain.NDKPath";
 const char CpuDirKey[] = "Qnx.QnxToolChain.CpuDir";
+
+// QnxToolChainConfigWidget
+
+class QnxToolChainConfigWidget : public ToolChainConfigWidget
+{
+public:
+    QnxToolChainConfigWidget(QnxToolChain *tc);
+
+private:
+    void applyImpl() override;
+    void discardImpl() override;
+    bool isDirtyImpl() const override;
+    void makeReadOnlyImpl() override { }
+
+    void handleSdpPathChange();
+
+    Utils::PathChooser *m_compilerCommand;
+    Utils::PathChooser *m_sdpPath;
+    ProjectExplorer::AbiWidget *m_abiWidget;
+
+};
 
 static Abis detectTargetAbis(const FilePath &sdpPath)
 {
@@ -323,5 +343,4 @@ void QnxToolChainConfigWidget::handleSdpPathChange()
     emit dirty();
 }
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

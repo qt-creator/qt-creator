@@ -33,9 +33,9 @@
 #include <QRegularExpression>
 #include <QStringList>
 
-using namespace Qnx;
-using namespace Qnx::Internal;
 using namespace Utils;
+
+namespace Qnx::Internal {
 
 QnxDeviceProcessList::QnxDeviceProcessList(
         const ProjectExplorer::IDevice::ConstPtr &device, QObject *parent)
@@ -78,3 +78,5 @@ QList<ProcessInfo> QnxDeviceProcessList::buildProcessList(const QString &listPro
     Utils::sort(processes);
     return processes;
 }
+
+} // Qnx::Internal

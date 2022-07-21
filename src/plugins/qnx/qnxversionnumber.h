@@ -27,8 +27,8 @@
 
 #include <QStringList>
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
+
 class QnxVersionNumber
 {
 public:
@@ -50,5 +50,4 @@ private:
     QStringList m_segments;
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

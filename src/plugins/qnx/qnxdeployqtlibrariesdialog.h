@@ -41,13 +41,10 @@ QT_END_NAMESPACE
 namespace ProjectExplorer { class DeployableFile; }
 namespace RemoteLinux { class GenericDirectUploadService; }
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 class QnxDeployQtLibrariesDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     enum State {
         Inactive,
@@ -103,5 +100,4 @@ private:
     State m_state = Inactive;
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

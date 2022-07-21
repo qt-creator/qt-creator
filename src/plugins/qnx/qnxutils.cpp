@@ -41,8 +41,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 const char *EVAL_ENV_VARS[] = {
     "QNX_TARGET", "QNX_HOST", "QNX_CONFIGURATION", "QNX_CONFIGURATION_EXCLUSIVE",
@@ -253,5 +252,4 @@ Abis QnxUtils::convertAbis(const Abis &abis)
     return Utils::transform(abis, &QnxUtils::convertAbi);
 }
 
-} // Internal
-} // Qnx
+} // Qnx::Internal

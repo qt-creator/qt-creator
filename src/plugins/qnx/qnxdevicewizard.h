@@ -35,13 +35,10 @@ class GenericLinuxDeviceConfigurationWizardKeyDeploymentPage;
 class GenericLinuxDeviceConfigurationWizardFinalPage;
 }
 
-namespace Qnx {
-namespace Internal {
+namespace Qnx::Internal {
 
 class QnxDeviceWizard : public Utils::Wizard
 {
-    Q_OBJECT
-
 public:
     explicit QnxDeviceWizard(QWidget *parent = nullptr);
 
@@ -60,5 +57,4 @@ private:
     QnxDevice::Ptr m_device;
 };
 
-} // namespace Internal
-} // namespace Qnx
+} // Qnx::Internal

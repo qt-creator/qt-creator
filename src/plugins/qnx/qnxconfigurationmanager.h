@@ -28,8 +28,8 @@
 #include <utils/fileutils.h>
 
 namespace Utils { class PersistentSettingsWriter; }
-namespace Qnx {
-namespace Internal {
+
+namespace Qnx::Internal {
 
 class QnxConfiguration;
 class QnxPlugin;
@@ -59,5 +59,4 @@ private:
     void restoreConfigurations();
 };
 
-}
-}
+} // Qnx::Internal
