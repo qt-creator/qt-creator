@@ -25,11 +25,20 @@
 
 #pragma once
 #include "androidconfigurations.h"
-#include "ui_addnewavddialog.h"
 #include "androidconfigurations.h"
 
 #include <QDialog>
 #include <QTimer>
+
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QCheckBox;
+class QDialogButtonBox;
+class QLineEdit;
+class QSpinBox;
+QT_END_NAMESPACE
+
+namespace Utils { class InfoLabel; }
 
 namespace Android {
 class AndroidConfig;
@@ -70,14 +79,24 @@ private:
         DeviceType deviceType;
     };
 
-    Ui::AddNewAVDDialog m_avdDialog;
     CreateAvdInfo m_createdAvdInfo;
     QTimer m_hideTipTimer;
     QRegularExpression m_allowedNameChars;
     QList<DeviceDefinitionStruct> m_deviceDefinitionsList;
     const AndroidConfig &m_androidConfig;
     AndroidSdkManager m_sdkManager;
-    QMap<AvdDialog::DeviceType, QString> deviceTypeToStringMap;
+    QMap<AvdDialog::DeviceType, QString> m_deviceTypeToStringMap;
+
+    QComboBox *m_abiComboBox;
+    QSpinBox *m_sdcardSizeSpinBox;
+    QLineEdit *m_nameLineEdit;
+    QComboBox *m_targetApiComboBox;
+    QComboBox *m_deviceDefinitionComboBox;
+    Utils::InfoLabel *m_warningText;
+    QComboBox *m_deviceDefinitionTypeComboBox;
+    QCheckBox *m_overwriteCheckBox;
+    QDialogButtonBox *m_buttonBox;
 };
-}
-}
+
+} // Internal
+} // Android

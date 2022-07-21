@@ -2,7 +2,6 @@ add_qtc_plugin(Android
   DEPENDS QmlDebug Qt5::Xml LanguageServerProtocol
   PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport LanguageClient
   SOURCES
-    addnewavddialog.ui
     android.qrc
     android_global.h
     androidtr.h

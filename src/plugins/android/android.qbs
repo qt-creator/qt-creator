@@ -20,7 +20,6 @@ Project {
         files: [
             "android_global.h", "androidtr.h",
             "android.qrc",
-            "addnewavddialog.ui",
             "androidavdmanager.cpp",
             "androidavdmanager.h",
             "androidconfigurations.cpp",
