@@ -43,6 +43,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/aspects.h>
+#include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/outputformatter.h>
@@ -201,7 +202,7 @@ private:
 
     QbsBuildStep *m_qbsStep;
     QList<Property> m_propertyCache;
-    bool m_ignoreChange = false;
+    Guard m_ignoreChanges;
 
     FancyLineEdit *propertyEdit;
     PathChooser *installDirChooser;
@@ -644,9 +645,8 @@ void QbsBuildStep::dropSession()
 // QbsBuildStepConfigWidget:
 // --------------------------------------------------------------------
 
-QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
-    m_qbsStep(step),
-    m_ignoreChange(false)
+QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step)
+    : m_qbsStep(step)
 {
     connect(step, &ProjectConfiguration::displayNameChanged,
             this, &QbsBuildStepConfigWidget::updateState);
@@ -711,7 +711,7 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step) :
 
 void QbsBuildStepConfigWidget::updateState()
 {
-    if (!m_ignoreChange) {
+    if (!m_ignoreChanges.isLocked()) {
         updatePropertyEdit(m_qbsStep->qbsConfiguration(QbsBuildStep::PreserveVariables));
         installDirChooser->setFilePath(m_qbsStep->installRoot(QbsBuildStep::PreserveVariables));
         defaultInstallDirCheckBox->setChecked(!m_qbsStep->hasCustomInstallRoot());
@@ -790,7 +790,7 @@ void QbsBuildStep::changeBuildVariant()
 
 void QbsBuildStepConfigWidget::changeUseDefaultInstallDir(bool useDefault)
 {
-    m_ignoreChange = true;
+    const GuardLocker locker(m_ignoreChanges);
     QVariantMap config = m_qbsStep->qbsConfiguration(QbsBuildStep::PreserveVariables);
     installDirChooser->setEnabled(!useDefault);
     if (useDefault)
@@ -798,18 +798,16 @@ void QbsBuildStepConfigWidget::changeUseDefaultInstallDir(bool useDefault)
     else
         config.insert(Constants::QBS_INSTALL_ROOT_KEY, installDirChooser->rawFilePath().toString());
     m_qbsStep->setQbsConfiguration(config);
-    m_ignoreChange = false;
 }
 
 void QbsBuildStepConfigWidget::changeInstallDir(const QString &dir)
 {
     if (!m_qbsStep->hasCustomInstallRoot())
         return;
-    m_ignoreChange = true;
+    const GuardLocker locker(m_ignoreChanges);
     QVariantMap config = m_qbsStep->qbsConfiguration(QbsBuildStep::PreserveVariables);
     config.insert(Constants::QBS_INSTALL_ROOT_KEY, dir);
     m_qbsStep->setQbsConfiguration(config);
-    m_ignoreChange = false;
 }
 
 void QbsBuildStepConfigWidget::applyCachedProperties()
@@ -840,9 +838,8 @@ void QbsBuildStepConfigWidget::applyCachedProperties()
         data.insert(property.name, property.value);
     }
 
-    m_ignoreChange = true;
+    const GuardLocker locker(m_ignoreChanges);
     m_qbsStep->setQbsConfiguration(data);
-    m_ignoreChange = false;
 }
 
 QbsBuildStep *QbsBuildStepConfigWidget::qbsStep() const
