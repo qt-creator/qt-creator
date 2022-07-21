@@ -3124,7 +3124,7 @@ GitClient::RevertResult GitClient::revertI(QStringList files,
     return RevertOk;
 }
 
-void GitClient::revert(const QStringList &files, bool revertStaging)
+void GitClient::revertFiles(const QStringList &files, bool revertStaging)
 {
     bool isDirectory;
     QString errorMessage;

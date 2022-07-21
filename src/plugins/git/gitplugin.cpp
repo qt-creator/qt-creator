@@ -332,7 +332,6 @@ public:
     void pull();
     void push();
     void startMergeTool();
-    void continueOrAbortCommand();
     void updateContinueAndAbortCommands();
     void delayedPushToGerrit();
 
@@ -612,11 +611,10 @@ QAction *GitPluginPrivate::createRepositoryAction(ActionContainer *ac, const QSt
 }
 
 QAction *GitPluginPrivate::createChangeRelatedRepositoryAction(const QString &text, Id id,
-                                                        const Context &context)
+                                                               const Context &context)
 {
     return createRepositoryAction(nullptr, text, id, context, true,
-                                  std::bind(&GitPluginPrivate::startChangeRelatedAction, this, id),
-                                  QKeySequence());
+                                  std::bind(&GitPluginPrivate::startChangeRelatedAction, this, id));
 }
 
 // Action to act on the repository forwarded to a git client member function
@@ -795,54 +793,45 @@ GitPluginPrivate::GitPluginPrivate()
             = createRepositoryAction(localRepositoryMenu,
                                      tr("Update Submodules"), "Git.SubmoduleUpdate",
                                      context, true, std::bind(&GitPluginPrivate::updateSubmodules, this));
-    m_abortMergeAction
-            = createRepositoryAction(localRepositoryMenu,
-                                     tr("Abort Merge", "Avoid translating \"Merge\""),
-                                     "Git.MergeAbort", context, true,
-                                     std::bind(&GitPluginPrivate::continueOrAbortCommand, this));
 
-    m_abortRebaseAction
-            = createRepositoryAction(localRepositoryMenu,
-                                     tr("Abort Rebase", "Avoid translating \"Rebase\""),
-                                     "Git.RebaseAbort", context, true,
-                                     std::bind(&GitPluginPrivate::continueOrAbortCommand, this));
+    auto createAction = [=](const QString &text, Id id,
+                            const std::function<void(const FilePath &)> &callback) {
+        auto actionHandler = [this, callback] {
+            if (!DocumentManager::saveAllModifiedDocuments())
+                return;
+            const VcsBasePluginState state = currentState();
+            QTC_ASSERT(state.hasTopLevel(), return);
 
-    m_abortCherryPickAction
-            = createRepositoryAction(localRepositoryMenu,
-                                     tr("Abort Cherry Pick", "Avoid translating \"Cherry Pick\""),
-                                     "Git.CherryPickAbort",
-                                     context, true,
-                                     std::bind(&GitPluginPrivate::continueOrAbortCommand, this));
+            callback(state.topLevel());
 
-    m_abortRevertAction
-            = createRepositoryAction(localRepositoryMenu,
-                                     tr("Abort Revert", "Avoid translating \"Revert\""), "Git.RevertAbort",
-                                     context, true,
-                                     std::bind(&GitPluginPrivate::continueOrAbortCommand, this));
+            updateContinueAndAbortCommands();
+        };
+        return createRepositoryAction(localRepositoryMenu, text, id, context, true, actionHandler);
+    };
 
-    m_continueRebaseAction
-            = createRepositoryAction(localRepositoryMenu,
-                                     tr("Continue Rebase"), "Git.RebaseContinue",
-                                     context, true,
-                                     std::bind(&GitPluginPrivate::continueOrAbortCommand, this));
+    m_abortMergeAction = createAction(tr("Abort Merge", "Avoid translating \"Merge\""), "Git.MergeAbort",
+        std::bind(&GitClient::synchronousMerge, &m_gitClient, _1, QString("--abort"), true));
 
-    m_skipRebaseAction
-            = createRepositoryAction(localRepositoryMenu,
-                                     tr("Skip Rebase"), "Git.RebaseSkip",
-                                     context, true,
-                                     std::bind(&GitPluginPrivate::continueOrAbortCommand, this));
+    m_abortRebaseAction = createAction(tr("Abort Rebase", "Avoid translating \"Rebase\""), "Git.RebaseAbort",
+        std::bind(&GitClient::rebase, &m_gitClient, _1, QString("--abort")));
 
-    m_continueCherryPickAction
-            = createRepositoryAction(localRepositoryMenu,
-                                     tr("Continue Cherry Pick"), "Git.CherryPickContinue",
-                                     context, true,
-                                     std::bind(&GitPluginPrivate::continueOrAbortCommand, this));
+    m_continueRebaseAction = createAction(tr("Continue Rebase"), "Git.RebaseContinue",
+        std::bind(&GitClient::rebase, &m_gitClient, _1, QString("--continue")));
 
-    m_continueRevertAction
-            = createRepositoryAction(localRepositoryMenu,
-                                     tr("Continue Revert"), "Git.RevertContinue",
-                                     context, true,
-                                     std::bind(&GitPluginPrivate::continueOrAbortCommand, this));
+    m_skipRebaseAction = createAction(tr("Skip Rebase"), "Git.RebaseSkip",
+        std::bind(&GitClient::rebase, &m_gitClient, _1, QString("--skip")));
+
+    m_abortCherryPickAction = createAction(tr("Abort Cherry Pick", "Avoid translating \"Cherry Pick\""), "Git.CherryPickAbort",
+        std::bind(&GitClient::synchronousCherryPick, &m_gitClient, _1, QString("--abort")));
+
+    m_continueCherryPickAction = createAction(tr("Continue Cherry Pick"), "Git.CherryPickContinue",
+        std::bind(&GitClient::cherryPick, &m_gitClient, _1, QString("--continue")));
+
+    m_abortRevertAction = createAction(tr("Abort Revert", "Avoid translating \"Revert\""), "Git.RevertAbort",
+        std::bind(&GitClient::synchronousRevert, &m_gitClient, _1, QString("--abort")));
+
+    m_continueRevertAction = createAction(tr("Continue Revert"), "Git.RevertContinue",
+        std::bind(&GitClient::revert, &m_gitClient, _1, QString("--continue")));
 
     // --------------
     localRepositoryMenu->addSeparator(context);
@@ -1125,7 +1114,7 @@ void GitPluginPrivate::undoFileChanges(bool revertStaging)
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     FileChangeBlocker fcb(Utils::FilePath::fromString(state.currentFile()));
-    m_gitClient.revert({state.currentFile()}, revertStaging);
+    m_gitClient.revertFiles({state.currentFile()}, revertStaging);
 }
 
 class ResetItemDelegate : public LogItemDelegate
@@ -1524,34 +1513,6 @@ void GitPluginPrivate::startMergeTool()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
     m_gitClient.merge(state.topLevel());
-}
-
-void GitPluginPrivate::continueOrAbortCommand()
-{
-    if (!DocumentManager::saveAllModifiedDocuments())
-        return;
-    const VcsBasePluginState state = currentState();
-    QTC_ASSERT(state.hasTopLevel(), return);
-    QObject *action = QObject::sender();
-
-    if (action == m_abortMergeAction)
-        m_gitClient.synchronousMerge(state.topLevel(), "--abort");
-    else if (action == m_abortRebaseAction)
-        m_gitClient.rebase(state.topLevel(), "--abort");
-    else if (action == m_abortCherryPickAction)
-        m_gitClient.synchronousCherryPick(state.topLevel(), "--abort");
-    else if (action == m_abortRevertAction)
-        m_gitClient.synchronousRevert(state.topLevel(), "--abort");
-    else if (action == m_skipRebaseAction)
-        m_gitClient.rebase(state.topLevel(), "--skip");
-    else if (action == m_continueRebaseAction)
-        m_gitClient.rebase(state.topLevel(), "--continue");
-    else if (action == m_continueCherryPickAction)
-        m_gitClient.cherryPick(state.topLevel(), "--continue");
-    else if (action == m_continueRevertAction)
-        m_gitClient.revert(state.topLevel(), "--continue");
-
-    updateContinueAndAbortCommands();
 }
 
 void GitPluginPrivate::cleanProject()

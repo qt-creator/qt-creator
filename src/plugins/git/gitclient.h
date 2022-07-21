@@ -298,7 +298,7 @@ public:
     void subversionDeltaCommit(const Utils::FilePath &workingDirectory) const;
 
     void stashPop(const Utils::FilePath &workingDirectory, const QString &stash = {});
-    void revert(const QStringList &files, bool revertStaging);
+    void revertFiles(const QStringList &files, bool revertStaging);
     bool synchronousStashList(const Utils::FilePath &workingDirectory, QList<Stash> *stashes,
                               QString *errorMessage = nullptr) const;
     // Resolve a stash name from message (for IVersionControl's names).
