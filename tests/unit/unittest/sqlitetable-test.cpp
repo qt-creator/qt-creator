@@ -386,7 +386,7 @@ TEST_F(StrictSqliteTable, InitializeTable)
 
     EXPECT_CALL(databaseMock,
                 execute(Eq("CREATE TEMPORARY TABLE IF NOT EXISTS testTable(name ANY, value ANY) "
-                           "WITHOUT ROWID STRICT")));
+                           "WITHOUT ROWID, STRICT")));
 
     table.initialize(databaseMock);
 }

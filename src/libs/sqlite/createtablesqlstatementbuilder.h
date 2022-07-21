@@ -323,10 +323,14 @@ private:
 
     void bindWithoutRowId() const
     {
-        if (m_useWithoutRowId)
-            m_sqlStatementBuilder.bind("$withoutRowId", " WITHOUT ROWID");
-        else
+        if (m_useWithoutRowId) {
+            if constexpr (std::is_same_v<ColumnType, ::Sqlite::ColumnType>)
+                m_sqlStatementBuilder.bind("$withoutRowId", " WITHOUT ROWID");
+            else
+                m_sqlStatementBuilder.bind("$withoutRowId", " WITHOUT ROWID,");
+        } else {
             m_sqlStatementBuilder.bindEmptyText("$withoutRowId");
+        }
     }
 
     void bindIfNotExists() const

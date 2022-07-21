@@ -690,7 +690,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, SetWitoutRowId)
 
     ASSERT_THAT(
         builder.sqlStatement(),
-        "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number ANY) WITHOUT ROWID STRICT");
+        "CREATE TABLE test(id INTEGER PRIMARY KEY, name TEXT, number ANY) WITHOUT ROWID, STRICT");
 }
 
 TEST_F(CreateStrictTableSqlStatementBuilder, SetColumnDefinitions)

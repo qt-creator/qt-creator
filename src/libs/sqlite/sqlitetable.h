@@ -103,7 +103,7 @@ public:
     }
 
     Column &addForeignKeyColumn(Utils::SmallStringView name,
-                                const Column &referencedColumn,
+                                const BasicColumn<ColumnType> &referencedColumn,
                                 ForeignKeyAction foreignKeyupdateAction = {},
                                 ForeignKeyAction foreignKeyDeleteAction = {},
                                 Enforment foreignKeyEnforcement = {},
