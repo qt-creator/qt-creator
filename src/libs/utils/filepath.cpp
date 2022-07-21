@@ -1454,13 +1454,13 @@ Environment FilePath::deviceEnvironment() const
     return Environment::systemEnvironment();
 }
 
-QString FilePath::formatFilePaths(const QList<FilePath> &files, const QString &separator)
+QString FilePath::formatFilePaths(const FilePaths &files, const QString &separator)
 {
     const QStringList nativeFiles = transform(files, &FilePath::toUserOutput);
     return nativeFiles.join(separator);
 }
 
-void FilePath::removeDuplicates(QList<FilePath> &files)
+void FilePath::removeDuplicates(FilePaths &files)
 {
     // FIXME: Improve.
     QStringList list = transform<QStringList>(files, &FilePath::toString);
@@ -1468,7 +1468,7 @@ void FilePath::removeDuplicates(QList<FilePath> &files)
     files = transform(list, &FilePath::fromString);
 }
 
-void FilePath::sort(QList<FilePath> &files)
+void FilePath::sort(FilePaths &files)
 {
     // FIXME: Improve.
     QStringList list = transform<QStringList>(files, &FilePath::toString);

@@ -71,7 +71,7 @@ public:
     std::function<bool(const FilePath &)> removeRecursively;
     std::function<bool(const FilePath &, const FilePath &)> copyFile;
     std::function<bool(const FilePath &, const FilePath &)> renameFile;
-    std::function<FilePath(const FilePath &, const QList<FilePath> &)> searchInPath;
+    std::function<FilePath(const FilePath &, const FilePaths &)> searchInPath;
     std::function<FilePath(const FilePath &)> symLinkTarget;
     std::function<QString(const FilePath &)> mapToDevicePath;
     std::function<void(const FilePath &,
@@ -104,7 +104,7 @@ public:
         CopyAskingForOverwrite(QWidget *dialogParent,
                                const std::function<void(FilePath)> &postOperation = {});
         bool operator()(const FilePath &src, const FilePath &dest, QString *error);
-        QList<FilePath> files() const;
+        FilePaths files() const;
 
     private:
         QWidget *m_parent;

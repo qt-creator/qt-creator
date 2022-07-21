@@ -75,8 +75,8 @@ private:
     std::unique_ptr<QtcProcess> m_process;
     QMutex m_mutex;
     QWaitCondition m_waitForItems;
-    QList<FilePath> m_queue;
-    QList<FilePath> m_filePaths;
+    FilePaths m_queue;
+    FilePaths m_filePaths;
     int m_index;
     bool m_finished;
 };

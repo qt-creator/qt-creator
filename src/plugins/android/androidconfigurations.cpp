@@ -402,7 +402,7 @@ static QList<int> availableNdkPlatformsV21Plus(const FilePath &ndkLocation, cons
     const QString abi = AndroidConfig::toolsPrefix(abis.first());
     const FilePath libPath =
             AndroidConfig::toolchainPathFromNdk(ndkLocation, hostOs) / "sysroot/usr/lib" / abi;
-    const QList<FilePath> dirEntries = libPath.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+    const FilePaths dirEntries = libPath.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
     const QList<int> availableNdkPlatforms =
             Utils::transform(dirEntries, [](const FilePath &path) {
                 return path.fileName().toInt(); });

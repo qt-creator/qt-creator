@@ -62,6 +62,8 @@ public:
     const QDirIterator::IteratorFlags iteratorFlags = QDirIterator::NoIteratorFlags;
 };
 
+using FilePaths = QList<class FilePath>;
+
 class QTCREATOR_UTILS_EXPORT FilePath
 {
 public:
@@ -132,9 +134,8 @@ public:
     qint64 fileSize() const;
     qint64 bytesAvailable() const;
     bool createDir() const;
-    QList<FilePath> dirEntries(const FileFilter &filter,
-                               QDir::SortFlags sort = QDir::NoSort) const;
-    QList<FilePath> dirEntries(QDir::Filters filters) const;
+    FilePaths dirEntries(const FileFilter &filter, QDir::SortFlags sort = QDir::NoSort) const;
+    FilePaths dirEntries(QDir::Filters filters) const;
     QByteArray fileContents(qint64 maxSize = -1, qint64 offset = 0) const;
     bool writeFileContents(const QByteArray &data) const;
 
@@ -163,18 +164,18 @@ public:
     [[nodiscard]] FilePath withExecutableSuffix() const;
     [[nodiscard]] FilePath relativeChildPath(const FilePath &parent) const;
     [[nodiscard]] FilePath relativePath(const FilePath &anchor) const;
-    [[nodiscard]] FilePath searchInDirectories(const QList<FilePath> &dirs) const;
+    [[nodiscard]] FilePath searchInDirectories(const FilePaths &dirs) const;
     [[nodiscard]] Environment deviceEnvironment() const;
     [[nodiscard]] FilePath onDevice(const FilePath &deviceTemplate) const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
     void iterateDirectory(const std::function<bool(const FilePath &item)> &callBack,
                           const FileFilter &filter) const;
-    static void iterateDirectories(const QList<FilePath> &dirs,
+    static void iterateDirectories(const FilePaths &dirs,
                                    const std::function<bool(const FilePath &item)> &callBack,
                                    const FileFilter &filter);
 
     enum PathAmending { AppendToPath, PrependToPath };
-    [[nodiscard]] FilePath searchInPath(const QList<FilePath> &additionalDirs = {},
+    [[nodiscard]] FilePath searchInPath(const FilePaths &additionalDirs = {},
                                         PathAmending = AppendToPath) const;
 
     // makes sure that capitalization of directories is canonical
@@ -186,9 +187,9 @@ public:
     QString shortNativePath() const;
     bool startsWithDriveLetter() const;
 
-    static QString formatFilePaths(const QList<FilePath> &files, const QString &separator);
-    static void removeDuplicates(QList<FilePath> &files);
-    static void sort(QList<FilePath> &files);
+    static QString formatFilePaths(const FilePaths &files, const QString &separator);
+    static void removeDuplicates(FilePaths &files);
+    static void sort(FilePaths &files);
 
     // Asynchronous interface
     template <class ...Args> using Continuation = std::function<void(Args...)>;
@@ -231,8 +232,6 @@ private:
     QString m_host; // May contain raw slashes.
     QString m_data;
 };
-
-using FilePaths = QList<FilePath>;
 
 inline size_t qHash(const Utils::FilePath &a, uint seed = 0)
 {

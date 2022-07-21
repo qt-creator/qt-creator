@@ -1473,8 +1473,8 @@ void MainWindow::changeLog()
         ICore::raiseWindow(dialog);
         return;
     }
-    const QList<FilePath> files = ICore::resourcePath("changelog")
-                                      .dirEntries({{"changes-*"}, QDir::Files});
+    const FilePaths files =
+            ICore::resourcePath("changelog").dirEntries({{"changes-*"}, QDir::Files});
     static const QRegularExpression versionRegex("\\d+[.]\\d+[.]\\d+");
     using VersionFilePair = std::pair<QVersionNumber, FilePath>;
     QList<VersionFilePair> versionedFiles = Utils::transform(files, [](const FilePath &fp) {

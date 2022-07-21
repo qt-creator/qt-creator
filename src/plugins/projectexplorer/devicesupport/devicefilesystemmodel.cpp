@@ -253,7 +253,7 @@ static FileType fileType(const FilePath &path)
 
 static void dirEntries(QFutureInterface<ResultType> &futureInterface, const FilePath &dir)
 {
-    const QList<FilePath> entries = dir.dirEntries(QDir::NoFilter);
+    const FilePaths entries = dir.dirEntries(QDir::NoFilter);
     ResultType result;
     for (const FilePath &entry : entries) {
         if (futureInterface.isCanceled())

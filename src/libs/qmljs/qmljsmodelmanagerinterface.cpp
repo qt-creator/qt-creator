@@ -902,19 +902,19 @@ static bool findNewQmlLibraryInPath(const Utils::FilePath &path,
     return true;
 }
 
-static FilePath modulePath(const ImportInfo &import, const QList<FilePath> &paths)
+static FilePath modulePath(const ImportInfo &import, const FilePaths &paths)
 {
     if (!import.version().isValid())
         return FilePath();
 
-    const QList<FilePath> modPaths = modulePaths(import.name(), import.version().toString(), paths);
+    const FilePaths modPaths = modulePaths(import.name(), import.version().toString(), paths);
     return modPaths.value(0); // first is best match
 }
 
 static void findNewLibraryImports(const Document::Ptr &doc,
                                   const Snapshot &snapshot,
                                   ModelManagerInterface *modelManager,
-                                  QList<FilePath> *importedFiles,
+                                  FilePaths *importedFiles,
                                   QSet<Utils::FilePath> *scannedPaths,
                                   QSet<Utils::FilePath> *newLibraries)
 {
@@ -923,7 +923,7 @@ static void findNewLibraryImports(const Document::Ptr &doc,
                             importedFiles, scannedPaths, newLibraries, false);
 
     // scan dir and lib imports
-    const QList<FilePath> importPaths = modelManager->importPathsNames();
+    const FilePaths importPaths = modelManager->importPathsNames();
     const auto imports = doc->bind()->imports();
     for (const ImportInfo &import : imports) {
         switch (import.type()) {

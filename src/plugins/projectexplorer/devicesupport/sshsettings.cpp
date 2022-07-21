@@ -129,7 +129,7 @@ static FilePath filePathValue(const FilePath &value, const QStringList &candidat
 {
     if (!value.isEmpty())
         return value;
-    const QList<FilePath> additionalSearchPaths = sshSettings->searchPathRetriever();
+    const FilePaths additionalSearchPaths = sshSettings->searchPathRetriever();
     for (const QString &candidate : candidateFileNames) {
         const FilePath filePath = Environment::systemEnvironment()
                 .searchInPath(candidate, additionalSearchPaths);

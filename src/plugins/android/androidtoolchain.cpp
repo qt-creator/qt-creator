@@ -176,7 +176,7 @@ static FilePath clangPlusPlusPath(const FilePath &clangPath)
     return clangPath.parentDir().pathAppended(clangPath.baseName() + "++").withExecutableSuffix();
 }
 
-static QList<FilePath> uniqueNdksForCurrentQtVersions()
+static FilePaths uniqueNdksForCurrentQtVersions()
 {
     const AndroidConfig &config = AndroidConfigurations::currentConfig();
 
@@ -185,7 +185,7 @@ static QList<FilePath> uniqueNdksForCurrentQtVersions()
             return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
         });
 
-    QList<FilePath> uniqueNdks;
+    FilePaths uniqueNdks;
     for (const QtSupport::QtVersion *version : androidQtVersions) {
         FilePath ndk = config.ndkLocation(version);
         if (!uniqueNdks.contains(ndk))
