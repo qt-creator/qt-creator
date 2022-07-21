@@ -215,14 +215,10 @@ namespace ADS
 
     void DockFocusController::onFocusedDockAreaViewToggled(bool open)
     {
-        if (d->m_dockManager->isRestoringState())
+        if (d->m_dockManager->isRestoringState() || !d->m_focusedArea || open)
             return;
 
-        DockAreaWidget* dockArea = qobject_cast<DockAreaWidget *>(sender());
-        if (!dockArea || open)
-            return;
-
-        auto container = dockArea->dockContainer();
+        auto container = d->m_focusedArea->dockContainer();
         auto openedDockAreas = container->openedDockAreas();
         if (openedDockAreas.isEmpty())
             return;
