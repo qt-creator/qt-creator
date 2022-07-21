@@ -59,7 +59,7 @@ public:
             DebuggerSettings &s = *debuggerSettings();
 
             Group general {
-                Title { Tr::tr("General") },
+                title(Tr::tr("General")),
                 Column {
                     Row { s.gdbWatchdogTimeout, Stretch() },
                     s.skipKnownFrames,
@@ -77,11 +77,11 @@ public:
 
             Column commands {
                 Group {
-                    Title { Tr::tr("Additional Startup Commands") },
+                    title(Tr::tr("Additional Startup Commands")),
                     Column { s.gdbStartupCommands }
                 },
                 Group {
-                    Title { Tr::tr("Additional Attach Commands") },
+                    title(Tr::tr("Additional Attach Commands")),
                     Column { s.gdbPostAttachCommands },
                 },
                 Stretch()

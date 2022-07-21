@@ -460,13 +460,6 @@ LayoutBuilder::Space::Space(int space)
     specialValue = space;
 }
 
-LayoutBuilder::Title::Title(const QString &title, BoolAspect *check)
-{
-    specialType = SpecialType::Title;
-    specialValue = title;
-    aspect = check;
-}
-
 LayoutBuilder::Span::Span(int span_, const LayoutItem &item)
 {
     LayoutBuilder::LayoutItem::operator=(item);
@@ -482,23 +475,38 @@ LayoutBuilder::AlignAsFormLabel::AlignAsFormLabel(const LayoutItem &item)
 namespace Layouting {
 
 Group::Group(const LayoutBuilder &innerLayout)
-    : Group(Title({}), innerLayout)
+    : Group({}, innerLayout)
 {}
 
-Group::Group(const LayoutBuilder::Title &title, const LayoutBuilder &innerLayout)
+Group::Group(const LayoutBuilder::Setters &setters, const LayoutBuilder &innerLayout)
 {
     auto box = new QGroupBox;
-
-    box->setTitle(title.specialValue.toString());
-    box->setObjectName(title.specialValue.toString());
-    if (auto check = qobject_cast<BoolAspect *>(title.aspect)) {
-        box->setCheckable(true);
-        box->setChecked(check->value());
-        check->setHandlesGroup(box);
-    }
-
     innerLayout.attachTo(box, true);
+    for (const LayoutBuilder::Setter &func : setters)
+        func(box);
     widget = box;
+}
+
+LayoutBuilder::Setter Title(const QString &title, BoolAspect *checker)
+{
+    return Layouting::title(title, checker);
+}
+
+LayoutBuilder::Setter title(const QString &title, BoolAspect *checker)
+{
+    return [title, checker](QObject *target) {
+        if (auto groupBox = qobject_cast<QGroupBox *>(target)) {
+            groupBox->setTitle(title);
+            groupBox->setObjectName(title);
+            if (checker) {
+                groupBox->setCheckable(true);
+                groupBox->setChecked(checker->value());
+                checker->setHandlesGroup(groupBox);
+            }
+        } else {
+            QTC_CHECK(false);
+        }
+    };
 }
 
 } // Layouting

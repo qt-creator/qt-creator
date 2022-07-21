@@ -63,7 +63,6 @@ public:
         Space,
         Stretch,
         Break,
-        Title,
     };
 
     class QTCREATOR_UTILS_EXPORT LayoutItem
@@ -143,10 +142,13 @@ public:
         Break();
     };
 
-    class QTCREATOR_UTILS_EXPORT Title : public LayoutItem
+    using Setter = std::function<void(QObject *target)>;
+
+    class QTCREATOR_UTILS_EXPORT Setters : public std::vector<Setter>
     {
     public:
-        explicit Title(const QString &title, BoolAspect *check = nullptr);
+        using std::vector<Setter>::vector;
+        Setters(const Setter &setter) { push_back(setter); }
     };
 
 protected:
@@ -172,11 +174,17 @@ private:
 
 namespace Layouting {
 
+QTCREATOR_UTILS_EXPORT LayoutBuilder::Setter title(const QString &title,
+                                                   BoolAspect *checker = nullptr);
+
+QTCREATOR_UTILS_EXPORT LayoutBuilder::Setter Title(const QString &title,
+                                                   BoolAspect *checker = nullptr); // FIXME: Remove
+
 class QTCREATOR_UTILS_EXPORT Group : public LayoutBuilder::LayoutItem
 {
 public:
     explicit Group(const LayoutBuilder &innerLayout);
-    Group(const LayoutBuilder::Title &title, const LayoutBuilder &innerLayout);
+    Group(const LayoutBuilder::Setters &setters, const LayoutBuilder &innerLayout);
 };
 
 class QTCREATOR_UTILS_EXPORT Column : public LayoutBuilder
@@ -212,7 +220,6 @@ using Space = LayoutBuilder::Space;
 using Span = LayoutBuilder::Span;
 using AlignAsFormLabel = LayoutBuilder::AlignAsFormLabel;
 using Break = LayoutBuilder::Break;
-using Title = LayoutBuilder::Title;
 
 }
 } // namespace Utils
