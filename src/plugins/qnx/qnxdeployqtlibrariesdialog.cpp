@@ -13,6 +13,7 @@
 #include <remotelinux/genericdirectuploadservice.h>
 
 #include <utils/algorithm.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
@@ -70,28 +71,17 @@ QnxDeployQtLibrariesDialog::QnxDeployQtLibrariesDialog(const IDevice::ConstPtr &
     m_uploadService = new GenericDirectUploadService(this);
     m_uploadService->setDevice(m_device);
 
-    auto horizontalLayout = new QHBoxLayout();
-    horizontalLayout->addWidget(m_qtLibraryCombo);
-    horizontalLayout->addWidget(m_deployButton);
+    using namespace Layouting;
 
-    auto horizontalLayout_3 = new QHBoxLayout();
-    horizontalLayout_3->setSpacing(0);
-    horizontalLayout_3->addWidget(m_basePathLabel);
-    horizontalLayout_3->addWidget(m_remoteDirectory);
-
-    auto formLayout = new QFormLayout();
-    formLayout->addRow(Tr::tr("Qt library to deploy:"), horizontalLayout);
-    formLayout->addRow(Tr::tr("Remote directory:"), horizontalLayout_3);
-
-    auto horizontalLayout_2 = new QHBoxLayout();
-    horizontalLayout_2->addItem(new QSpacerItem(218, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
-    horizontalLayout_2->addWidget(m_closeButton);
-
-    auto verticalLayout = new QVBoxLayout(this);
-    verticalLayout->addLayout(formLayout);
-    verticalLayout->addWidget(m_deployProgress);
-    verticalLayout->addWidget(m_deployLogWindow);
-    verticalLayout->addLayout(horizontalLayout_2);
+    Column {
+        Form {
+            Tr::tr("Qt library to deploy:"), m_qtLibraryCombo, m_deployButton, br,
+            Tr::tr("Remote directory:"), m_basePathLabel, m_remoteDirectory, br
+        },
+        m_deployProgress,
+        m_deployLogWindow,
+        Row { st, m_closeButton }
+    }.attachTo(this);
 
     connect(m_uploadService, &AbstractRemoteLinuxDeployService::progressMessage,
             this, &QnxDeployQtLibrariesDialog::updateProgress);
