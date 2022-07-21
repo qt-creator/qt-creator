@@ -31,6 +31,7 @@
 
 #include <functional>
 
+namespace Core { class IDocument; }
 namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {
@@ -132,9 +133,7 @@ private:
 
     void updateFromFocus();
 
-    void updateFileWarning(const QString &text);
-    void updateExternalFileWarning();
-    void updateGeneratedFileWarning();
+    void updateFileWarning(Core::IDocument *document, const QString &text);
     static bool hasFocus(Internal::ProjectTreeWidget *widget);
     Internal::ProjectTreeWidget *currentWidget() const;
     void hideContextMenu();

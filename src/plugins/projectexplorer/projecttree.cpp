@@ -216,19 +216,15 @@ void ProjectTree::setCurrent(Node *node, Project *project)
     }
 
     if (Core::IDocument *document = Core::EditorManager::currentDocument()) {
-        if (!node) {
-            connect(document, &Core::IDocument::changed,
-                    this, &ProjectTree::updateExternalFileWarning,
-                    Qt::UniqueConnection);
-        } else if (node->isGenerated()) {
-            connect(document, &Core::IDocument::changed,
-                    this, &ProjectTree::updateGeneratedFileWarning,
-                    Qt::UniqueConnection);
+        disconnect(document, &Core::IDocument::changed, this, nullptr);
+        if (!node || node->isGenerated()) {
+            const QString message = node
+                    ? tr("<b>Warning:</b> This file is generated.")
+                    : tr("<b>Warning:</b> This file is outside the project directory.");
+            connect(document, &Core::IDocument::changed, this, [this, document, message] {
+                updateFileWarning(document, message);
+            });
         } else {
-            disconnect(document, &Core::IDocument::changed,
-                       this, &ProjectTree::updateExternalFileWarning);
-            disconnect(document, &Core::IDocument::changed,
-                       this, &ProjectTree::updateGeneratedFileWarning);
             document->infoBar()->removeInfo(EXTERNAL_OR_GENERATED_FILE_WARNING);
         }
     }
@@ -312,10 +308,9 @@ void ProjectTree::changeProjectRootDirectory()
         m_currentProject->changeRootProjectDirectory();
 }
 
-void ProjectTree::updateFileWarning(const QString &text)
+void ProjectTree::updateFileWarning(Core::IDocument *document, const QString &text)
 {
-    auto document = qobject_cast<Core::IDocument *>(sender());
-    if (!document || document->filePath().isEmpty())
+    if (document->filePath().isEmpty())
         return;
     Utils::InfoBar *infoBar = document->infoBar();
     Utils::Id infoId(EXTERNAL_OR_GENERATED_FILE_WARNING);
@@ -346,21 +341,10 @@ void ProjectTree::updateFileWarning(const QString &text)
         Utils::InfoBarEntry(infoId, text, Utils::InfoBarEntry::GlobalSuppression::Enabled));
 }
 
-void ProjectTree::updateExternalFileWarning()
-{
-    updateFileWarning(tr("<b>Warning:</b> This file is outside the project directory."));
-}
-
-void ProjectTree::updateGeneratedFileWarning()
-{
-    updateFileWarning(tr("<b>Warning:</b> This file is generated."));
-}
-
 bool ProjectTree::hasFocus(ProjectTreeWidget *widget)
 {
-    return widget
-            && ((widget->focusWidget() && widget->focusWidget()->hasFocus())
-                || s_instance->m_focusForContextMenu == widget);
+    return widget && ((widget->focusWidget() && widget->focusWidget()->hasFocus())
+                      || s_instance->m_focusForContextMenu == widget);
 }
 
 ProjectTreeWidget *ProjectTree::currentWidget() const
