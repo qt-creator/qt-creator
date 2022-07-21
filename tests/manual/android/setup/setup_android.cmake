@@ -1,12 +1,12 @@
 # CMake script to download OpenJDK and Android Command Line Tools.
 # Execute with: cmake -P setup_android.cmake
 
-set(JDK_VERSION "8u292-b10")
+set(JDK_VERSION "11.0.9.1+1")
 
-set(ANDROID_CMDTOOLS_VERSION "6609375")
-set(ANDROID_PLATFORM "android-30")
-set(BUILD_TOOLS "30.0.2")
-set(NDK_VERSION "21.3.6528147")
+set(ANDROID_CMDTOOLS_VERSION "8092744")
+set(ANDROID_PLATFORM "android-31")
+set(BUILD_TOOLS "31.0.0")
+set(NDK_VERSION "22.1.7171670")
 
 set(qtc_android_sdk_definitions "${CMAKE_CURRENT_LIST_DIR}/../../../../share/qtcreator/android/sdk_definitions.json")
 
@@ -29,16 +29,17 @@ if (EXISTS ${qtc_android_sdk_definitions} AND CMAKE_VERSION GREATER_EQUAL 3.19)
 endif()
 
 function(download_jdk)
-  string(REPLACE "-" "" version_no_dash ${JDK_VERSION})
+  string(REPLACE "+" "_" version_no_plus ${JDK_VERSION})
+  string(REPLACE "+" "%2B" version_url_encode ${JDK_VERSION})
   if (WIN32)
-    set(jdk_suffix "windows_hotspot_${version_no_dash}.zip")
+    set(jdk_suffix "windows_hotspot_${version_no_plus}.zip")
   elseif(APPLE)
-    set(jdk_suffix "mac_hotspot_${version_no_dash}.tar.gz")
+    set(jdk_suffix "mac_hotspot_${version_no_plus}.tar.gz")
   else()
-    set(jdk_suffix "linux_hotspot_${version_no_dash}.tar.gz")
+    set(jdk_suffix "linux_hotspot_${version_no_plus}.tar.gz")
   endif()
 
-  set(jdk_url "https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk${JDK_VERSION}/OpenJDK8U-jdk_x64_${jdk_suffix}")
+  set(jdk_url "https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-${version_url_encode}/OpenJDK11U-jdk_x64_${jdk_suffix}")
 
   message("Downloading: ${jdk_url}")
   file(DOWNLOAD ${jdk_url} ./jdk.zip SHOW_PROGRESS)
@@ -64,12 +65,12 @@ function(download_android_commandline)
 endfunction()
 
 function(setup_android)
-  set(sdkmanager "${CMAKE_CURRENT_LIST_DIR}/android-cmdlinetools/tools/bin/sdkmanager")
+  set(sdkmanager "${CMAKE_CURRENT_LIST_DIR}/android-cmdlinetools/cmdline-tools/bin/sdkmanager")
   if (WIN32)
     set(sdkmanager "${sdkmanager}.bat")
   endif()
 
-  set(ENV{JAVA_HOME} "${CMAKE_CURRENT_LIST_DIR}/jdk${JDK_VERSION}")
+  set(ENV{JAVA_HOME} "${CMAKE_CURRENT_LIST_DIR}/jdk-${JDK_VERSION}")
   if (APPLE)
     set(ENV{JAVA_HOME} "$ENV{JAVA_HOME}/Contents/Home")
   endif()
