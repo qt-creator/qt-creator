@@ -53,6 +53,7 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/namedwidget.h>
+#include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -139,6 +140,8 @@ private:
     void reconfigureWithInitialParameters();
     void updateInitialCMakeArguments();
     void kitCMakeConfiguration();
+    void updateConfigureDetailsWidgetsSummary(
+        const QStringList &configurationArguments = QStringList());
 
     CMakeBuildSystem *m_buildSystem;
     QTreeView *m_configView;
@@ -157,6 +160,7 @@ private:
     QTimer m_showProgressTimer;
     FancyLineEdit *m_filterEdit;
     InfoLabel *m_warningMessageLabel;
+    DetailsWidget *m_configureDetailsWidget;
 
     QPushButton *m_batchEditButton = nullptr;
     QPushButton *m_kitConfiguration = nullptr;
@@ -188,12 +192,14 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
 
     auto vbox = new QVBoxLayout(this);
     vbox->setContentsMargins(0, 0, 0, 0);
-    auto container = new DetailsWidget;
-    container->setState(DetailsWidget::NoSummary);
-    vbox->addWidget(container);
+    m_configureDetailsWidget = new DetailsWidget;
 
-    auto details = new QWidget(container);
-    container->setWidget(details);
+    updateConfigureDetailsWidgetsSummary();
+
+    vbox->addWidget(m_configureDetailsWidget);
+
+    auto details = new QWidget(m_configureDetailsWidget);
+    m_configureDetailsWidget->setWidget(details);
 
     auto buildDirAspect = bc->buildDirectoryAspect();
     buildDirAspect->setAutoApplyOnEditingFinished(true);
@@ -674,6 +680,27 @@ void CMakeBuildSettingsWidget::kitCMakeConfiguration()
     dialog->show();
 }
 
+void CMakeBuildSettingsWidget::updateConfigureDetailsWidgetsSummary(
+    const QStringList &configurationArguments)
+{
+    ProjectExplorer::ProcessParameters params;
+
+    CommandLine cmd;
+    const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildSystem->kit());
+    cmd.setExecutable(tool ? tool->cmakeExecutable() : "cmake");
+
+    const BuildConfiguration *bc = m_buildSystem->buildConfiguration();
+    const FilePath buildDirectory = bc ? bc->buildDirectory() : ".";
+
+    cmd.addArgs({"-S", m_buildSystem->projectDirectory().path()});
+    cmd.addArgs({"-B", buildDirectory.onDevice(cmd.executable()).path()});
+    cmd.addArgs(configurationArguments);
+
+    params.setCommandLine(cmd);
+    m_configureDetailsWidget->setSummaryText(params.summary(tr("Configure")));
+    m_configureDetailsWidget->setState(DetailsWidget::Expanded);
+}
+
 void CMakeBuildSettingsWidget::setError(const QString &message)
 {
     m_buildSystem->buildConfiguration()->buildDirectoryAspect()->setProblem(message);
@@ -756,8 +783,10 @@ void CMakeBuildSettingsWidget::updateButtonState()
     m_buildSystem->setConfigurationChanges(configChanges);
 
     // Update the tooltip with the changes
-    m_reconfigureButton->setToolTip(
-        m_buildSystem->configurationChangesArguments(isInitialConfiguration()).join('\n'));
+    const QStringList configurationArguments = m_buildSystem->configurationChangesArguments(
+        isInitialConfiguration());
+    m_reconfigureButton->setToolTip(configurationArguments.join('\n'));
+    updateConfigureDetailsWidgetsSummary(configurationArguments);
 }
 
 void CMakeBuildSettingsWidget::updateAdvancedCheckBox()
