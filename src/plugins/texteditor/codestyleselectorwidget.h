@@ -46,19 +46,19 @@ public:
                                      QWidget *parent = nullptr);
     ~CodeStyleSelectorWidget() override;
 
-    void setCodeStyle(TextEditor::ICodeStylePreferences *codeStyle);
+    void setCodeStyle(ICodeStylePreferences *codeStyle);
 
 private:
     void slotComboBoxActivated(int index);
-    void slotCurrentDelegateChanged(TextEditor::ICodeStylePreferences *delegate);
+    void slotCurrentDelegateChanged(ICodeStylePreferences *delegate);
     void slotCopyClicked();
     void slotEditClicked();
     void slotRemoveClicked();
     void slotImportClicked();
     void slotExportClicked();
-    void slotCodeStyleAdded(ICodeStylePreferences*);
-    void slotCodeStyleRemoved(ICodeStylePreferences*);
-    void slotUpdateName();
+    void slotCodeStyleAdded(ICodeStylePreferences *codeStylePreferences);
+    void slotCodeStyleRemoved(ICodeStylePreferences *codeStylePreferences);
+    void slotUpdateName(ICodeStylePreferences *codeStylePreferences);
 
     void updateName(ICodeStylePreferences *codeStyle);
     ICodeStylePreferencesFactory *m_factory;

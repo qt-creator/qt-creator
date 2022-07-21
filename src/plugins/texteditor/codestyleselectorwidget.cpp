@@ -109,7 +109,7 @@ CodeStyleDialog::CodeStyleDialog(ICodeStylePreferencesFactory *factory,
     m_codeStyle->setId(codeStyle->id());
     m_codeStyle->setDisplayName(m_originalDisplayName);
     m_codeStyle->setReadOnly(codeStyle->isReadOnly());
-    TextEditor::CodeStyleEditorWidget *editor = factory->createEditor(m_codeStyle, project, this);
+    CodeStyleEditorWidget *editor = factory->createEditor(m_codeStyle, project, this);
 
     m_buttons = new QDialogButtonBox(
                 QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
@@ -372,38 +372,34 @@ void CodeStyleSelectorWidget::slotCodeStyleAdded(ICodeStylePreferences *codeStyl
     m_ui->delegateComboBox->addItem(name, data);
     m_ui->delegateComboBox->setItemData(m_ui->delegateComboBox->count() - 1, name, Qt::ToolTipRole);
     connect(codeStylePreferences, &ICodeStylePreferences::displayNameChanged,
-            this, &CodeStyleSelectorWidget::slotUpdateName);
+            this, [this, codeStylePreferences] { slotUpdateName(codeStylePreferences); });
     if (codeStylePreferences->delegatingPool()) {
         connect(codeStylePreferences, &ICodeStylePreferences::currentPreferencesChanged,
-                this, &CodeStyleSelectorWidget::slotUpdateName);
+                this, [this, codeStylePreferences] { slotUpdateName(codeStylePreferences); });
     }
 }
 
 void CodeStyleSelectorWidget::slotCodeStyleRemoved(ICodeStylePreferences *codeStylePreferences)
 {
     m_ignoreGuiSignals = true;
-    m_ui->delegateComboBox->removeItem(m_ui->delegateComboBox->findData(QVariant::fromValue(codeStylePreferences)));
-    disconnect(codeStylePreferences, &ICodeStylePreferences::displayNameChanged,
-               this, &CodeStyleSelectorWidget::slotUpdateName);
+    m_ui->delegateComboBox->removeItem(m_ui->delegateComboBox->findData(
+                                           QVariant::fromValue(codeStylePreferences)));
+    disconnect(codeStylePreferences, &ICodeStylePreferences::displayNameChanged, this, nullptr);
     if (codeStylePreferences->delegatingPool()) {
         disconnect(codeStylePreferences, &ICodeStylePreferences::currentPreferencesChanged,
-                   this, &CodeStyleSelectorWidget::slotUpdateName);
+                   this, nullptr);
     }
     m_ignoreGuiSignals = false;
 }
 
-void CodeStyleSelectorWidget::slotUpdateName()
+void CodeStyleSelectorWidget::slotUpdateName(ICodeStylePreferences *codeStylePreferences)
 {
-    auto changedCodeStyle = qobject_cast<ICodeStylePreferences *>(sender());
-    if (!changedCodeStyle)
-        return;
-
-    updateName(changedCodeStyle);
+    updateName(codeStylePreferences);
 
     QList<ICodeStylePreferences *> codeStyles = m_codeStyle->delegatingPool()->codeStyles();
     for (int i = 0; i < codeStyles.count(); i++) {
         ICodeStylePreferences *codeStyle = codeStyles.at(i);
-        if (codeStyle->currentDelegate() == changedCodeStyle)
+        if (codeStyle->currentDelegate() == codeStylePreferences)
             updateName(codeStyle);
     }
 
