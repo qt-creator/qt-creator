@@ -204,7 +204,11 @@ namespace ADS
         d->m_tabWidget = componentsFactory()->createDockWidgetTab(this);
         d->m_toggleViewAction = new QAction(uniqueId, this);
         d->m_toggleViewAction->setCheckable(true);
-        connect(d->m_toggleViewAction, &QAction::triggered, this, &DockWidget::toggleView);
+        connect(d->m_toggleViewAction, &QAction::triggered, this, [this](bool open) {
+            // If the toggle view action mode is ActionModeShow (== m_toggleViewAction isn't
+            // checkable, see setToggleViewActionMode()), then open is always true
+            toggleView(open || !d->m_toggleViewAction->isCheckable());
+        });
         setToolbarFloatingStyle(false);
 
         if (DockManager::testConfigFlag(DockManager::FocusHighlighting))
@@ -219,10 +223,7 @@ namespace ADS
 
     void DockWidget::setToggleViewActionChecked(bool checked)
     {
-        QAction *action = d->m_toggleViewAction;
-        //action->blockSignals(true);
-        action->setChecked(checked);
-        //action->blockSignals(false);
+        d->m_toggleViewAction->setChecked(checked);
     }
 
     void DockWidget::setWidget(QWidget *widget, eInsertMode insertMode)
@@ -344,12 +345,6 @@ namespace ADS
 
     void DockWidget::toggleView(bool open)
     {
-        // If the toggle view action mode is ActionModeShow, then Open is always
-        // true if the sender is the toggle view action
-        QAction *action = qobject_cast<QAction *>(sender());
-        if (action == d->m_toggleViewAction && !d->m_toggleViewAction->isCheckable())
-            open = true;
-
         // If the dock widget state is different, then we really need to toggle
         // the state. If we are in the right state, then we simply make this
         // dock widget the current dock widget
