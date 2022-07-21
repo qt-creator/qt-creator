@@ -25,27 +25,31 @@
 
 #include "locatorsettingspage.h"
 
-#include "ui_locatorsettingspage.h"
-
 #include "directoryfilter.h"
 #include "ilocatorfilter.h"
 #include "locator.h"
 #include "locatorconstants.h"
 #include "urllocatorfilter.h"
 
+#include <utils/layoutbuilder.h>
 #include <utils/treemodel.h>
 
 #include <coreplugin/coreconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/categorysortfiltermodel.h>
+#include <utils/fancylineedit.h>
 #include <utils/headerviewstretcher.h>
+#include <utils/itemviews.h>
 #include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 
 #include <QCoreApplication>
 #include <QHash>
+#include <QHeaderView>
 #include <QMenu>
+#include <QPushButton>
+#include <QSpinBox>
 
 using namespace Utils;
 
@@ -177,41 +181,82 @@ public:
         m_filters = Locator::filters();
         m_customFilters = m_plugin->customFilters();
 
-        m_ui.setupUi(this);
-        m_ui.refreshInterval->setToolTip(m_ui.refreshIntervalLabel->toolTip());
+        auto addButton = new QPushButton(tr("Add..."));
 
-        m_ui.filterEdit->setFiltering(true);
+        auto refreshIntervalLabel = new QLabel(tr("Refresh interval:"));
+        refreshIntervalLabel->setToolTip(
+            tr("Locator filters that do not update their cached data immediately, such as the "
+               "custom directory filters, update it after this time interval."));
 
-        m_ui.filterList->setSelectionMode(QAbstractItemView::SingleSelection);
-        m_ui.filterList->setSelectionBehavior(QAbstractItemView::SelectRows);
-        m_ui.filterList->setSortingEnabled(true);
-        m_ui.filterList->setUniformRowHeights(true);
-        m_ui.filterList->setActivationMode(Utils::DoubleClickActivation);
+        m_refreshInterval = new QSpinBox;
+        m_refreshInterval->setToolTip(refreshIntervalLabel->toolTip());
+        m_refreshInterval->setSuffix(tr(" min"));
+        m_refreshInterval->setFrame(true);
+        m_refreshInterval->setButtonSymbols(QAbstractSpinBox::PlusMinus);
+        m_refreshInterval->setMaximum(320);
+        m_refreshInterval->setSingleStep(5);
+        m_refreshInterval->setValue(60);
 
-        m_model = new TreeModel<>(m_ui.filterList);
+        auto filterEdit = new FancyLineEdit;
+        filterEdit->setFiltering(true);
+
+        m_filterList = new TreeView;
+        m_filterList->setSelectionMode(QAbstractItemView::SingleSelection);
+        m_filterList->setSelectionBehavior(QAbstractItemView::SelectRows);
+        m_filterList->setSortingEnabled(true);
+        m_filterList->setUniformRowHeights(true);
+        m_filterList->setActivationMode(Utils::DoubleClickActivation);
+
+        m_model = new TreeModel<>(m_filterList);
         initializeModel();
-        m_proxyModel = new CategorySortFilterModel(m_ui.filterList);
+        m_proxyModel = new CategorySortFilterModel(m_filterList);
         m_proxyModel->setSourceModel(m_model);
         m_proxyModel->setSortRole(SortRole);
         m_proxyModel->setFilterKeyColumn(-1/*all*/);
-        m_ui.filterList->setModel(m_proxyModel);
-        m_ui.filterList->expandAll();
+        m_filterList->setModel(m_proxyModel);
+        m_filterList->expandAll();
 
-        new HeaderViewStretcher(m_ui.filterList->header(), FilterName);
-        m_ui.filterList->header()->setSortIndicator(FilterName, Qt::AscendingOrder);
+        new HeaderViewStretcher(m_filterList->header(), FilterName);
+        m_filterList->header()->setSortIndicator(FilterName, Qt::AscendingOrder);
 
-        connect(m_ui.filterEdit, &FancyLineEdit::filterChanged,
-                this, &LocatorSettingsWidget::setFilter);
-        connect(m_ui.filterList->selectionModel(), &QItemSelectionModel::currentChanged,
-                this, &LocatorSettingsWidget::updateButtonStates);
-        connect(m_ui.filterList, &Utils::TreeView::activated,
-                this, &LocatorSettingsWidget::configureFilter);
-        connect(m_ui.editButton, &QPushButton::clicked,
-                this, [this] { configureFilter(m_ui.filterList->currentIndex()); });
-        connect(m_ui.removeButton, &QPushButton::clicked,
-                this, &LocatorSettingsWidget::removeCustomFilter);
+        m_removeButton = new QPushButton(tr("Remove"));
+        m_removeButton->setEnabled(false);
 
-        auto addMenu = new QMenu(m_ui.addButton);
+        m_editButton = new QPushButton(tr("Edit..."));
+        m_editButton->setEnabled(false);
+
+        using namespace Layouting;
+        static const Break br;
+        static const Stretch st;
+
+        Column buttons{addButton, m_removeButton, m_editButton, st};
+
+        Grid{filterEdit,
+             br,
+             m_filterList,
+             buttons,
+             br,
+             Span(2, Row{refreshIntervalLabel, m_refreshInterval, st})}
+            .attachTo(this);
+
+        connect(filterEdit, &FancyLineEdit::filterChanged, this, &LocatorSettingsWidget::setFilter);
+        connect(m_filterList->selectionModel(),
+                &QItemSelectionModel::currentChanged,
+                this,
+                &LocatorSettingsWidget::updateButtonStates);
+        connect(m_filterList,
+                &Utils::TreeView::activated,
+                this,
+                &LocatorSettingsWidget::configureFilter);
+        connect(m_editButton, &QPushButton::clicked, this, [this] {
+            configureFilter(m_filterList->currentIndex());
+        });
+        connect(m_removeButton,
+                &QPushButton::clicked,
+                this,
+                &LocatorSettingsWidget::removeCustomFilter);
+
+        auto addMenu = new QMenu(addButton);
         addMenu->addAction(tr("Files in Directories"), this, [this] {
             addCustomFilter(new DirectoryFilter(Id(Constants::CUSTOM_DIRECTORY_FILTER_BASEID)
                                                     .withSuffix(m_customFilters.size() + 1)));
@@ -222,9 +267,9 @@ public:
             filter->setIsCustomFilter(true);
             addCustomFilter(filter);
         });
-        m_ui.addButton->setMenu(addMenu);
+        addButton->setMenu(addMenu);
 
-        m_ui.refreshInterval->setValue(m_plugin->refreshInterval());
+        m_refreshInterval->setValue(m_plugin->refreshInterval());
         saveFilterStates();
     }
 
@@ -242,7 +287,10 @@ private:
     void requestRefresh();
     void setFilter(const QString &text);
 
-    Ui::LocatorSettingsWidget m_ui;
+    Utils::TreeView *m_filterList;
+    QPushButton *m_removeButton;
+    QPushButton *m_editButton;
+    QSpinBox *m_refreshInterval;
     Locator *m_plugin = nullptr;
     Utils::TreeModel<> *m_model = nullptr;
     QSortFilterProxyModel *m_proxyModel = nullptr;
@@ -265,7 +313,7 @@ void LocatorSettingsWidget::apply()
     // Pass the new configuration on to the plugin
     m_plugin->setFilters(m_filters);
     m_plugin->setCustomFilters(m_customFilters);
-    m_plugin->setRefreshInterval(m_ui.refreshInterval->value());
+    m_plugin->setRefreshInterval(m_refreshInterval->value());
     requestRefresh();
     m_plugin->saveSettings();
     saveFilterStates();
@@ -299,7 +347,7 @@ void LocatorSettingsWidget::setFilter(const QString &text)
     m_proxyModel->setFilterRegularExpression(
         QRegularExpression(QRegularExpression::escape(text),
                            QRegularExpression::CaseInsensitiveOption));
-    m_ui.filterList->expandAll();
+    m_filterList->expandAll();
 }
 
 void LocatorSettingsWidget::saveFilterStates()
@@ -340,7 +388,7 @@ void LocatorSettingsWidget::initializeModel()
 
 void LocatorSettingsWidget::updateButtonStates()
 {
-    const QModelIndex currentIndex = m_proxyModel->mapToSource(m_ui.filterList->currentIndex());
+    const QModelIndex currentIndex = m_proxyModel->mapToSource(m_filterList->currentIndex());
     bool selected = currentIndex.isValid();
     ILocatorFilter *filter = nullptr;
     if (selected) {
@@ -348,8 +396,8 @@ void LocatorSettingsWidget::updateButtonStates()
         if (item)
             filter = item->filter();
     }
-    m_ui.editButton->setEnabled(filter && filter->isConfigurable());
-    m_ui.removeButton->setEnabled(filter && m_customFilters.contains(filter));
+    m_editButton->setEnabled(filter && filter->isConfigurable());
+    m_removeButton->setEnabled(filter && m_customFilters.contains(filter));
 }
 
 void LocatorSettingsWidget::configureFilter(const QModelIndex &proxyIndex)
@@ -386,7 +434,7 @@ void LocatorSettingsWidget::addCustomFilter(ILocatorFilter *filter)
 
 void LocatorSettingsWidget::removeCustomFilter()
 {
-    QModelIndex currentIndex = m_proxyModel->mapToSource(m_ui.filterList->currentIndex());
+    QModelIndex currentIndex = m_proxyModel->mapToSource(m_filterList->currentIndex());
     QTC_ASSERT(currentIndex.isValid(), return);
     auto item = dynamic_cast<FilterItem *>(m_model->itemForIndex(currentIndex));
     QTC_ASSERT(item, return);

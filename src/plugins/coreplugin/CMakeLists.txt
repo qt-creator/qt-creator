@@ -116,7 +116,7 @@ add_qtc_plugin(Core
     locator/locatorfiltersfilter.cpp locator/locatorfiltersfilter.h
     locator/locatormanager.cpp locator/locatormanager.h
     locator/locatorsearchutils.cpp locator/locatorsearchutils.h
-    locator/locatorsettingspage.cpp locator/locatorsettingspage.h locator/locatorsettingspage.ui
+    locator/locatorsettingspage.cpp locator/locatorsettingspage.h
     locator/locatorwidget.cpp locator/locatorwidget.h
     locator/opendocumentsfilter.cpp locator/opendocumentsfilter.h
     locator/spotlightlocatorfilter.h locator/spotlightlocatorfilter.cpp

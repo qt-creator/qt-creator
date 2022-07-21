@@ -366,7 +366,6 @@ Project {
                 "locatorsearchutils.h",
                 "locatorsettingspage.cpp",
                 "locatorsettingspage.h",
-                "locatorsettingspage.ui",
                 "locatorwidget.cpp",
                 "locatorwidget.h",
                 "opendocumentsfilter.cpp",
