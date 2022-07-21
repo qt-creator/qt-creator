@@ -369,11 +369,10 @@ void ActionContainerPrivate::clear()
     scheduleUpdate();
 }
 
-void ActionContainerPrivate::itemDestroyed()
+void ActionContainerPrivate::itemDestroyed(QObject *sender)
 {
-    QObject *obj = sender();
     for (Group &group : m_groups) {
-        if (group.items.removeAll(obj) > 0)
+        if (group.items.removeAll(sender) > 0)
             break;
     }
 }

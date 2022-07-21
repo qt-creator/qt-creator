@@ -90,7 +90,7 @@ protected:
 private:
     void scheduleUpdate();
     void update();
-    void itemDestroyed();
+    void itemDestroyed(QObject *sender);
 
     QList<Group>::const_iterator findGroup(Utils::Id groupId) const;
     QAction *insertLocation(QList<Group>::const_iterator group) const;
