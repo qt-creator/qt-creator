@@ -27,7 +27,6 @@ QtcPlugin {
         "perfeventtype.h",
         "perfloaddialog.cpp",
         "perfloaddialog.h",
-        "perfloaddialog.ui",
         "perfoptionspage.cpp",
         "perfoptionspage.h",
         "perfprofiler_global.h", "perfprofilertr.h",

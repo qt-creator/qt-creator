@@ -24,14 +24,24 @@
 ****************************************************************************/
 
 #include "perfloaddialog.h"
+
 #include "perfprofilerconstants.h"
-#include "ui_perfloaddialog.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/kitchooser.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+
+#include <utils/layoutbuilder.h>
+
+#include <QDialogButtonBox>
+#include <QFrame>
+#include <QGridLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
 
 using namespace Utils;
 
@@ -39,38 +49,69 @@ namespace PerfProfiler {
 namespace Internal {
 
 PerfLoadDialog::PerfLoadDialog(QWidget *parent)
-    : QDialog(parent),
-      ui(new Ui::PerfLoadDialog)
+    : QDialog(parent)
 {
-    ui->setupUi(this);
-    ui->kitChooser->populate();
-    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
-    connect(ui->browseExecutableDirButton, &QPushButton::pressed,
+    setWindowTitle(tr("Load Perf Trace"));
+    resize(710, 164);
+
+    auto label1 = new QLabel(tr("&Trace file:"));
+    m_traceFileLineEdit = new QLineEdit(this);
+    label1->setBuddy(m_traceFileLineEdit);
+    auto browseTraceFileButton = new QPushButton(tr("&Browse..."));
+
+    auto label2 = new QLabel(tr("Directory of &executable:"));
+    m_executableDirLineEdit = new QLineEdit(this);
+    label2->setBuddy(m_executableDirLineEdit);
+    auto browseExecutableDirButton = new QPushButton(tr("B&rowse..."));
+
+    auto label3 = new QLabel(tr("Kit:"));
+    m_kitChooser = new ProjectExplorer::KitChooser(this);
+    m_kitChooser->populate();
+
+    auto line = new QFrame(this);
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+
+    auto buttonBox = new QDialogButtonBox(this);
+    buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+    using namespace Layouting;
+
+    Column {
+        Grid {
+            label1, m_traceFileLineEdit, browseTraceFileButton, Break(),
+            label2, m_executableDirLineEdit, browseExecutableDirButton, Break(),
+            label3, Span(2, m_kitChooser)
+        },
+        Stretch(),
+        line,
+        buttonBox
+    }.attachTo(this);
+
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(browseExecutableDirButton, &QPushButton::pressed,
             this, &PerfLoadDialog::on_browseExecutableDirButton_pressed);
-    connect(ui->browseTraceFileButton, &QPushButton::pressed,
+    connect(browseTraceFileButton, &QPushButton::pressed,
             this, &PerfLoadDialog::on_browseTraceFileButton_pressed);
     chooseDefaults();
 }
 
-PerfLoadDialog::~PerfLoadDialog()
-{
-    delete ui;
-}
+PerfLoadDialog::~PerfLoadDialog() = default;
 
 QString PerfLoadDialog::traceFilePath() const
 {
-    return ui->traceFileLineEdit->text();
+    return m_traceFileLineEdit->text();
 }
 
 QString PerfLoadDialog::executableDirPath() const
 {
-    return ui->executableDirLineEdit->text();
+    return m_executableDirLineEdit->text();
 }
 
 ProjectExplorer::Kit *PerfLoadDialog::kit() const
 {
-    return ui->kitChooser->currentKit();
+    return m_kitChooser->currentKit();
 }
 
 void PerfLoadDialog::on_browseTraceFileButton_pressed()
@@ -81,7 +122,7 @@ void PerfLoadDialog::on_browseTraceFileButton_pressed()
     if (filePath.isEmpty())
         return;
 
-    ui->traceFileLineEdit->setText(filePath.toUserOutput());
+    m_traceFileLineEdit->setText(filePath.toUserOutput());
 }
 
 void PerfLoadDialog::on_browseExecutableDirButton_pressed()
@@ -91,7 +132,7 @@ void PerfLoadDialog::on_browseExecutableDirButton_pressed()
     if (filePath.isEmpty())
         return;
 
-    ui->executableDirLineEdit->setText(filePath.toUserOutput());
+    m_executableDirLineEdit->setText(filePath.toUserOutput());
 }
 
 void PerfLoadDialog::chooseDefaults()
@@ -100,10 +141,10 @@ void PerfLoadDialog::chooseDefaults()
     if (!target)
         return;
 
-    ui->kitChooser->setCurrentKitId(target->kit()->id());
+    m_kitChooser->setCurrentKitId(target->kit()->id());
 
     if (auto *bc = target->activeBuildConfiguration())
-        ui->executableDirLineEdit->setText(bc->buildDirectory().toString());
+        m_executableDirLineEdit->setText(bc->buildDirectory().toString());
 }
 
 } // namespace Internal

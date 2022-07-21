@@ -27,16 +27,17 @@
 
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer {
 class Kit;
-} // namespace ProjectExplorer
+class KitChooser;
+} // ProjectExplorer
 
 namespace PerfProfiler {
 namespace Internal {
-
-namespace Ui {
-class PerfLoadDialog;
-} // namespace Ui
 
 class PerfLoadDialog : public QDialog
 {
@@ -56,7 +57,9 @@ private:
 
     void chooseDefaults();
 
-    Ui::PerfLoadDialog *ui;
+    QLineEdit *m_traceFileLineEdit;
+    QLineEdit *m_executableDirLineEdit;
+    ProjectExplorer::KitChooser *m_kitChooser;
 };
 
 } // namespace Internal

@@ -14,7 +14,7 @@ set(PERFPROFILER_CPP_SOURCES
   perfdatareader.cpp perfdatareader.h
   perfevent.h
   perfeventtype.h
-  perfloaddialog.cpp perfloaddialog.h perfloaddialog.ui
+  perfloaddialog.cpp perfloaddialog.h
   perfoptionspage.cpp perfoptionspage.h
   perfprofiler.qrc
   perfprofilerconstants.h
