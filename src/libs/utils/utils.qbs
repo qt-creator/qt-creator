@@ -133,11 +133,6 @@ Project {
             "fixedsizeclicklabel.h",
             "flowlayout.cpp",
             "flowlayout.h",
-            "fsengine/fileiconprovider.cpp",
-            "fsengine/fileiconprovider.h",
-            "fsengine/qtcfsengine.cpp",
-            "fsengine/qtcfsengine.h",
-            "fsengine/qtcfsengine_p.h",
             "functiontraits.h",
             "futuresynchronizer.cpp",
             "futuresynchronizer.h",
@@ -350,6 +345,25 @@ Project {
             "wizardpage.h",
             "images/*.png",
         ]
+
+        Group {
+            name: "FSEngine"
+            prefix: "fsengine/"
+            files: [
+                "diriterator.h",
+                "fileiconprovider.cpp",
+                "fileiconprovider.h",
+                "fileiteratordevicesappender.h",
+                "fixedlistfsengine.h",
+                "fsengine.cpp",
+                "fsengine.h",
+                "fsenginehandler.cpp",
+                "fsenginehandler.h",
+                "fsengine_impl.cpp",
+                "fsengine_impl.h",
+                "rootinjectfsengine.h",
+            ]
+        }
 
         Group {
             name: "Theme"
