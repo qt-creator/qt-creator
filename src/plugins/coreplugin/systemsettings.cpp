@@ -207,7 +207,12 @@ public:
         form.addRow(Span(3, Row{m_clearCrashReportsButton, m_crashReportsSizeText, Stretch()}));
 #endif
 
-        Column{Group{Title(tr("System")), form, Stretch()}}.attachTo(this);
+        Column {
+            Group {
+                Title(tr("System")),
+                Column { form, Stretch() }
+            }
+        }.attachTo(this);
 
         m_reloadBehavior->setCurrentIndex(EditorManager::reloadSetting());
         if (HostOsInfo::isAnyUnixHost()) {

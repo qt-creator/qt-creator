@@ -143,7 +143,7 @@ NimToolsSettingsPage::NimToolsSettingsPage(NimSettings *settings)
         Column {
             Group {
                 Title("Nimsuggest"),
-                settings->nimSuggestPath
+                Column { settings->nimSuggestPath }
             },
             Stretch()
         }.attachTo(widget);

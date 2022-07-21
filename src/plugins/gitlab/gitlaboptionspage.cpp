@@ -148,7 +148,7 @@ GitLabOptionsWidget::GitLabOptionsWidget(QWidget *parent)
     Grid {
         Form {
             defaultLabel, m_defaultGitLabServer, nl,
-            Row { Group { m_gitLabServerWidget, Space(1) } }, nl,
+            Row { Group { Column { m_gitLabServerWidget, Space(1) } } }, nl,
             m_curl, nl,
         }, Column { m_add, m_edit, m_remove, Stretch() },
     }.attachTo(this);

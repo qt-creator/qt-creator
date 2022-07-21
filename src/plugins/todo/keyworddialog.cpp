@@ -81,7 +81,7 @@ KeywordDialog::KeywordDialog(const Keyword &keyword, const QSet<QString> &alread
             },
             Group {
                 Title(Tr::tr("Keyword")),
-                m_keywordNameEdit
+                Column { m_keywordNameEdit }
             }
         },
         m_errorLabel,

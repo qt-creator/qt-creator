@@ -170,14 +170,18 @@ GitSettingsPage::GitSettingsPage(GitSettings *settings)
         Column {
             Group {
                 Title(GitSettings::tr("Configuration")),
-                Row { s.path },
-                s.winSetHomeEnvironment,
+                Column {
+                    Row { s.path },
+                    s.winSetHomeEnvironment,
+                }
             },
 
             Group {
                 Title(GitSettings::tr("Miscellaneous")),
-                Row { s.logCount, s.timeout, Stretch() },
-                s.pullRebase
+                Column {
+                    Row { s.logCount, s.timeout, Stretch() },
+                    s.pullRebase
+                }
             },
 
             Group {

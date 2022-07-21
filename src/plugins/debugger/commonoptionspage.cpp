@@ -160,13 +160,16 @@ public:
             label,
             s.useCodeModel,
             s.showThreadNames,
-            Group { Title(Tr::tr("Extra Debugging Helper")), s.extraDumperFile }
+            Group { Title(Tr::tr("Extra Debugging Helper")), Column { s.extraDumperFile } }
         };
 
         Group useHelper {
             Row {
                 left,
-                Group { Title(Tr::tr("Debugging Helper Customization")), s.extraDumperCommands }
+                Group {
+                    Title(Tr::tr("Debugging Helper Customization")),
+                    Column { s.extraDumperCommands }
+                }
             }
         };
 

@@ -89,10 +89,12 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings)
         Span {
             2,
             Group {
-                s.enableCacheSim,
-                s.enableBranchSim,
-                s.collectSystime,
-                s.collectBusEvents,
+                Column {
+                    s.enableCacheSim,
+                    s.enableBranchSim,
+                    s.collectSystime,
+                    s.collectBusEvents,
+                }
             }
         }
     };

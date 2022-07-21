@@ -25,7 +25,6 @@
 
 #include "layoutbuilder.h"
 
-#include "algorithm.h"
 #include "aspects.h"
 #include "qtcassert.h"
 
@@ -287,7 +286,6 @@ LayoutBuilder::LayoutItem::LayoutItem(const LayoutBuilder &builder)
 {
     layout = builder.createLayout();
     doLayoutHelper(layout, builder.m_items);
-    setMargins(builder.m_withMargins, layout);
 }
 
 /*!
@@ -386,13 +384,13 @@ LayoutBuilder &LayoutBuilder::addItem(const LayoutItem &item)
     return *this;
 }
 
-void LayoutBuilder::doLayout(QWidget *parent)
+void LayoutBuilder::doLayout(QWidget *parent, bool withMargins) const
 {
     QLayout *layout = createLayout();
     parent->setLayout(layout);
 
     doLayoutHelper(layout, m_items);
-    setMargins(m_withMargins, layout);
+    setMargins(withMargins, layout);
 }
 
 /*!
@@ -410,17 +408,15 @@ LayoutBuilder &LayoutBuilder::addItems(const LayoutItems &items)
 
     This operation can only be performed once per LayoutBuilder instance.
  */
-void LayoutBuilder::attachTo(QWidget *w, bool withMargins)
+void LayoutBuilder::attachTo(QWidget *w, bool withMargins) const
 {
-    m_withMargins = withMargins;
-    doLayout(w);
+    doLayout(w, withMargins);
 }
 
 QWidget *LayoutBuilder::emerge(bool withMargins)
 {
-    m_withMargins = withMargins;
     auto w = new QWidget;
-    doLayout(w);
+    doLayout(w, withMargins);
     return w;
 }
 
@@ -485,25 +481,23 @@ LayoutBuilder::AlignAsFormLabel::AlignAsFormLabel(const LayoutItem &item)
 
 namespace Layouting {
 
-Group::Group(std::initializer_list<LayoutItem> items)
+Group::Group(const LayoutBuilder &innerLayout)
+    : Group(Title({}), innerLayout)
+{}
+
+Group::Group(const LayoutBuilder::Title &title, const LayoutBuilder &innerLayout)
 {
     auto box = new QGroupBox;
-    Column builder;
-    bool innerMargins = true;
-    for (const LayoutItem &item : items) {
-        if (item.specialType == LayoutBuilder::SpecialType::Title) {
-            box->setTitle(item.specialValue.toString());
-            box->setObjectName(item.specialValue.toString());
-            if (auto check = qobject_cast<BoolAspect *>(item.aspect)) {
-                box->setCheckable(true);
-                box->setChecked(check->value());
-                check->setHandlesGroup(box);
-            }
-        } else {
-            builder.addItem(item);
-        }
+
+    box->setTitle(title.specialValue.toString());
+    box->setObjectName(title.specialValue.toString());
+    if (auto check = qobject_cast<BoolAspect *>(title.aspect)) {
+        box->setCheckable(true);
+        box->setChecked(check->value());
+        check->setHandlesGroup(box);
     }
-    builder.attachTo(box, innerMargins);
+
+    innerLayout.attachTo(box, true);
     widget = box;
 }
 

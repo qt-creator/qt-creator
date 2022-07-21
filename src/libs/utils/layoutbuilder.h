@@ -110,7 +110,7 @@ public:
 
     LayoutType layoutType() const { return m_layoutType; }
 
-    void attachTo(QWidget *w, bool withMargins = true);
+    void attachTo(QWidget *w, bool withMargins = true) const;
     QWidget *emerge(bool withMargins = true);
 
     class QTCREATOR_UTILS_EXPORT Space : public LayoutItem
@@ -153,12 +153,11 @@ protected:
     explicit LayoutBuilder(); // Adds to existing layout.
 
     QLayout *createLayout() const;
-    void doLayout(QWidget *parent);
+    void doLayout(QWidget *parent, bool withMargins) const;
 
     LayoutItems m_items;
     LayoutType m_layoutType;
     Utils::optional<int> m_spacing;
-    bool m_withMargins = false;
 };
 
 class QTCREATOR_UTILS_EXPORT LayoutExtender : public LayoutBuilder
@@ -176,7 +175,8 @@ namespace Layouting {
 class QTCREATOR_UTILS_EXPORT Group : public LayoutBuilder::LayoutItem
 {
 public:
-    Group(std::initializer_list<LayoutBuilder::LayoutItem> items);
+    explicit Group(const LayoutBuilder &innerLayout);
+    Group(const LayoutBuilder::Title &title, const LayoutBuilder &innerLayout);
 };
 
 class QTCREATOR_UTILS_EXPORT Column : public LayoutBuilder

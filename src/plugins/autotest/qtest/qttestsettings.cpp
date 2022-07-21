@@ -134,7 +134,7 @@ QtTestSettingsPage::QtTestSettingsPage(QtTestSettings *settings, Id settingsId)
             },
             Group {
                 Title(QtTestSettings::tr("Benchmark Metrics")),
-                s.metrics
+                Column { s.metrics }
             },
         };
 

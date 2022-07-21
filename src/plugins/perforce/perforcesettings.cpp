@@ -277,9 +277,11 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
 
         Group misc {
             Title(PerforceSettings::tr("Miscellaneous")),
-            Row { s.logCount, s.timeOutS, Stretch() },
-            s.promptToSubmit,
-            s.autoOpen
+            Column {
+                Row { s.logCount, s.timeOutS, Stretch() },
+                s.promptToSubmit,
+                s.autoOpen
+            }
         };
 
         Column {

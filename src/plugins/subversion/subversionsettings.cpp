@@ -122,7 +122,7 @@ SubversionSettingsPage::SubversionSettingsPage(SubversionSettings *settings)
         Column {
             Group {
                 Title(SubversionSettings::tr("Configuration")),
-                s.binaryPath
+                Column { s.binaryPath }
             },
 
             Group {
@@ -135,9 +135,11 @@ SubversionSettingsPage::SubversionSettingsPage(SubversionSettings *settings)
 
             Group {
                 Title(SubversionSettings::tr("Miscellaneous")),
-                Row { s.logCount, s.timeout, Stretch() },
-                s.promptOnSubmit,
-                s.spaceIgnorantAnnotation,
+                Column {
+                    Row { s.logCount, s.timeout, Stretch() },
+                    s.promptOnSubmit,
+                    s.spaceIgnorantAnnotation,
+                }
             },
 
             Stretch()

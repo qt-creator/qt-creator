@@ -97,7 +97,7 @@ CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *sett
         Column {
             Group {
                 Title(::CMakeProjectManager::Internal::CMakeSpecificSettings::tr("Adding Files")),
-                s.afterAddFileSetting
+                Column { s.afterAddFileSetting }
             },
             s.packageManagerAutoSetup,
             s.askBeforeReConfigureInitialParams,

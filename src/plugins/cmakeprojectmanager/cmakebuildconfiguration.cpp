@@ -347,12 +347,14 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
         Column {
             m_configurationStates,
             Group {
-                cmakeConfiguration,
-                Row {
-                    bc->aspect<InitialCMakeArgumentsAspect>(),
-                    bc->aspect<AdditionalCMakeOptionsAspect>()
-                },
-                m_reconfigureButton,
+                Column {
+                    cmakeConfiguration,
+                    Row {
+                        bc->aspect<InitialCMakeArgumentsAspect>(),
+                        bc->aspect<AdditionalCMakeOptionsAspect>()
+                    },
+                    m_reconfigureButton,
+                }
             }
         }.setSpacing(0)
     }.attachTo(details, false);

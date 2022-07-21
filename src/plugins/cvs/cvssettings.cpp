@@ -112,12 +112,14 @@ CvsSettingsPage::CvsSettingsPage(CvsSettings *settings)
             },
             Group {
                 Title(CvsSettings::tr("Miscellaneous")),
-                Form {
-                    s.timeout,
-                    s.diffOptions,
-                },
-                s.promptOnSubmit,
-                s.describeByCommitId,
+                Column {
+                    Form {
+                        s.timeout,
+                        s.diffOptions,
+                    },
+                    s.promptOnSubmit,
+                    s.describeByCommitId,
+                }
             },
             Stretch()
         }.attachTo(widget);

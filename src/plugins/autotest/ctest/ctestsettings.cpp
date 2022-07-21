@@ -155,13 +155,15 @@ CTestSettingsPage::CTestSettingsPage(CTestSettings *settings, Utils::Id settings
             Row {s.stopOnFailure}, nl,
             Row {s.outputMode}, nl,
             Group {
-                Title(tr("Repeat tests"), &s.repeat), nl,
+                Title(tr("Repeat tests"), &s.repeat),
                 Row {s.repetitionMode, s.repetitionCount},
             }, nl,
             Group {
-                Title(tr("Run in parallel"), &s.parallel), nl,
-                Row {s.jobs}, nl,
-                Row {s.testLoad, s.threshold}
+                Title(tr("Run in parallel"), &s.parallel),
+                Column {
+                    Row {s.jobs}, nl,
+                    Row {s.testLoad, s.threshold}
+                }
             }
         };
 

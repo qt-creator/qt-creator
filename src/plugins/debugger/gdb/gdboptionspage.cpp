@@ -60,22 +60,30 @@ public:
 
             Group general {
                 Title { Tr::tr("General") },
-                Row { s.gdbWatchdogTimeout, Stretch() },
-                s.skipKnownFrames,
-                s.useMessageBoxForSignals,
-                s.adjustBreakpointLocations,
-                s.useDynamicType,
-                s.loadGdbInit,
-                s.loadGdbDumpers,
-                s.intelFlavor,
-                s.usePseudoTracepoints,
-                s.useIndexCache,
-                Stretch()
+                Column {
+                    Row { s.gdbWatchdogTimeout, Stretch() },
+                    s.skipKnownFrames,
+                    s.useMessageBoxForSignals,
+                    s.adjustBreakpointLocations,
+                    s.useDynamicType,
+                    s.loadGdbInit,
+                    s.loadGdbDumpers,
+                    s.intelFlavor,
+                    s.usePseudoTracepoints,
+                    s.useIndexCache,
+                    Stretch()
+                 }
             };
 
             Column commands {
-                Group { Title { Tr::tr("Additional Startup Commands") }, s.gdbStartupCommands },
-                Group { Title { Tr::tr("Additional Attach Commands") }, s.gdbPostAttachCommands },
+                Group {
+                    Title { Tr::tr("Additional Startup Commands") },
+                    Column { s.gdbStartupCommands }
+                },
+                Group {
+                    Title { Tr::tr("Additional Attach Commands") },
+                    Column { s.gdbPostAttachCommands },
+                },
                 Stretch()
             };
 
@@ -112,14 +120,16 @@ public:
 
             Group extended {
                 Title(Tr::tr("Extended")),
-                labelDangerous,
-                s.targetAsync,
-                s.autoEnrichParameters,
-                s.breakOnWarning,
-                s.breakOnFatal,
-                s.breakOnAbort,
-                s.enableReverseDebugging,
-                s.multiInferior,
+                Column {
+                    labelDangerous,
+                    s.targetAsync,
+                    s.autoEnrichParameters,
+                    s.breakOnWarning,
+                    s.breakOnFatal,
+                    s.breakOnAbort,
+                    s.enableReverseDebugging,
+                    s.multiInferior,
+                }
             };
 
             Column { extended, Stretch() }.attachTo(w);

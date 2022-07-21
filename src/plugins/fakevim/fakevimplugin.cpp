@@ -429,18 +429,22 @@ void FakeVimOptionPage::layoutPage(QWidget *widget)
 
         Group {
             Title(Tr::tr("Vim Behavior")),
-            bools,
-            ints,
-            strings
+            Column {
+                bools,
+                ints,
+                strings
+            }
         },
 
         Group {
             Title(Tr::tr("Plugin Emulation")),
-            s.emulateVimCommentary,
-            s.emulateReplaceWithRegister,
-            s.emulateArgTextObj,
-            s.emulateExchange,
-            s.emulateSurround
+            Column {
+                s.emulateVimCommentary,
+                s.emulateReplaceWithRegister,
+                s.emulateArgTextObj,
+                s.emulateExchange,
+                s.emulateSurround
+            }
         },
 
         Row { copyTextEditorSettings, setQtStyle, setPlainStyle, Stretch() },
