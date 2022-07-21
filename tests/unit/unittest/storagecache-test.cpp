@@ -442,7 +442,7 @@ TYPED_TEST(StorageCache, GetEntryByIndexAfterInsertingByCustomIndex)
 TYPED_TEST(StorageCache, CallFetchSourceContextPathForLowerIndex)
 {
     auto index = this->cache.id("foo");
-    SourceContextId lowerIndex{SourceContextId::create(&index - 1)};
+    SourceContextId lowerIndex{SourceContextId::create(index.internalId() - 1)};
 
     EXPECT_CALL(this->mockStorage, fetchSourceContextPath(Eq(lowerIndex)));
 

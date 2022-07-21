@@ -56,7 +56,7 @@ std::ostream &operator<<(std::ostream &out, TimeStamp timeStamp);
 template<auto Type, typename InternalIntegerType>
 std::ostream &operator<<(std::ostream &out, const BasicId<Type, InternalIntegerType> &id)
 {
-    return out << "id=" << &id;
+    return out << "id=" << id.internalId();
 }
 
 namespace SessionChangeSetInternal {

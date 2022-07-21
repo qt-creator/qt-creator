@@ -50,6 +50,11 @@ public:
         return id;
     }
 
+    constexpr friend bool compareInvalidAreTrue(BasicId first, BasicId second)
+    {
+        return first.id == second.id;
+    }
+
     constexpr friend bool operator==(BasicId first, BasicId second)
     {
         return first.id == second.id && first.isValid() && second.isValid();
@@ -68,13 +73,20 @@ public:
         return first.id >= second.id;
     }
 
+    constexpr friend InternalIntegerType operator-(BasicId first, BasicId second)
+    {
+        return first.id - second.id;
+    }
+
     constexpr bool isValid() const { return id >= 0; }
 
     explicit operator bool() const { return isValid(); }
 
     explicit operator std::size_t() const { return static_cast<std::size_t>(id); }
 
-    InternalIntegerType operator&() const { return id; }
+    InternalIntegerType internalId() const { return id; }
+
+    [[noreturn, deprecated]] InternalIntegerType operator&() const { throw std::exception{}; }
 
 private:
     InternalIntegerType id = -1;

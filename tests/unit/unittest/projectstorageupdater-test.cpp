@@ -125,8 +125,9 @@ MATCHER_P4(IsProjectData,
 {
     const Storage::Synchronization::ProjectData &projectData = arg;
 
-    return &projectData.projectSourceId == &projectSourceId && projectData.sourceId == sourceId
-           && projectData.moduleId == moduleId && projectData.fileType == fileType;
+    return compareInvalidAreTrue(projectData.projectSourceId, projectSourceId)
+           && projectData.sourceId == sourceId && projectData.moduleId == moduleId
+           && projectData.fileType == fileType;
 }
 
 MATCHER(PackageIsEmpty, std::string(negation ? "isn't empty" : "is empty"))

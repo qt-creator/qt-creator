@@ -108,7 +108,7 @@ public:
     void bind(int index, Type id)
     {
         if (id)
-            bind(index, &id);
+            bind(index, id.internalId());
         else
             bindNull(index);
     }

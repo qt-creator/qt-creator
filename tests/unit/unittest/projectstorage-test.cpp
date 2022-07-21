@@ -97,7 +97,8 @@ MATCHER_P4(IsStorageType,
     const Storage::Synchronization::Type &type = arg;
 
     return type.sourceId == sourceId && type.typeName == typeName
-           && type.accessSemantics == accessSemantics && &prototypeId == &type.prototypeId;
+           && type.accessSemantics == accessSemantics
+           && compareInvalidAreTrue(prototypeId, type.prototypeId);
 }
 
 MATCHER_P(IsExportedType,
@@ -3864,7 +3865,7 @@ TEST_F(ProjectStorage, ThrowForInvalidSourceIdInFileStatus)
     FileStatus fileStatus1{SourceId{}, 100, 100};
 
     ASSERT_THROW(storage.synchronize(SynchronizationPackage{{sourceId1}, {fileStatus1}}),
-                 Sqlite::ConstraintPreventsModification);
+                 QmlDesigner::FileStatusHasInvalidSourceId);
 }
 
 TEST_F(ProjectStorage, FetchAllFileStatuses)

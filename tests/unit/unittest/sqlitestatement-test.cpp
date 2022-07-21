@@ -1248,7 +1248,7 @@ TEST_F(SqliteStatement, GetSingleLongLongId)
 
     auto value = statement.value<TestLongLongId>();
 
-    ASSERT_THAT(&value, Eq(42));
+    ASSERT_THAT(value.internalId(), Eq(42));
 }
 
 TEST_F(SqliteStatement, GetSingleInvalidIntId)
@@ -1270,7 +1270,7 @@ TEST_F(SqliteStatement, GetSingleIntId)
 
     auto value = statement.value<TestIntId>();
 
-    ASSERT_THAT(&value, Eq(42));
+    ASSERT_THAT(value.internalId(), Eq(42));
 }
 
 TEST_F(SqliteStatement, GetValueCallsReset)

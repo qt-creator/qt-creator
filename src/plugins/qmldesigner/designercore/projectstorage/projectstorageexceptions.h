@@ -143,4 +143,13 @@ public:
     const char *what() const noexcept override { return "The module id is invalid!"; }
 };
 
+class FileStatusHasInvalidSourceId : std::exception
+{
+public:
+    const char *what() const noexcept override
+    {
+        return "The source id in file status is invalid!";
+    }
+};
+
 } // namespace QmlDesigner
