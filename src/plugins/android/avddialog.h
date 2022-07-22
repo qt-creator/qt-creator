@@ -28,6 +28,7 @@
 #include "androidconfigurations.h"
 
 #include <QDialog>
+#include <QRegularExpression>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
