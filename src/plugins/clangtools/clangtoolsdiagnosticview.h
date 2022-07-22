@@ -83,7 +83,6 @@ private:
 
     DiagnosticViewStyle *m_style = nullptr;
     DiagnosticViewDelegate *m_delegate = nullptr;
-    bool m_ignoreSetSelectedFixItsCount = false;
 };
 
 } // namespace Internal
