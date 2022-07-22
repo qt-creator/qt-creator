@@ -27,8 +27,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 class ClangFormatSettings;
 
@@ -38,5 +37,4 @@ public:
     explicit ClangFormatOptionsPage(ClangFormatSettings *settings);
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

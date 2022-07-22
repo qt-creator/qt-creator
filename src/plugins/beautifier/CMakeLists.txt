@@ -13,7 +13,7 @@ add_qtc_plugin(Beautifier
     beautifierplugin.cpp beautifierplugin.h
     clangformat/clangformat.cpp clangformat/clangformat.h
     clangformat/clangformatconstants.h
-    clangformat/clangformatoptionspage.cpp clangformat/clangformatoptionspage.h clangformat/clangformatoptionspage.ui
+    clangformat/clangformatoptionspage.cpp clangformat/clangformatoptionspage.h
     clangformat/clangformatsettings.cpp clangformat/clangformatsettings.h
     configurationdialog.cpp configurationdialog.h configurationdialog.ui
     configurationeditor.cpp configurationeditor.h

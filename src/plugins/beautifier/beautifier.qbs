@@ -55,7 +55,6 @@ QtcPlugin {
             "clangformatconstants.h",
             "clangformatoptionspage.cpp",
             "clangformatoptionspage.h",
-            "clangformatoptionspage.ui",
             "clangformatsettings.cpp",
             "clangformatsettings.h"
         ]
