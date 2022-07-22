@@ -20,7 +20,6 @@ QtcPlugin {
         "beautifierplugin.h",
         "configurationdialog.cpp",
         "configurationdialog.h",
-        "configurationdialog.ui",
         "configurationeditor.cpp",
         "configurationeditor.h",
         "configurationpanel.cpp",

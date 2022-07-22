@@ -15,7 +15,7 @@ add_qtc_plugin(Beautifier
     clangformat/clangformatconstants.h
     clangformat/clangformatoptionspage.cpp clangformat/clangformatoptionspage.h
     clangformat/clangformatsettings.cpp clangformat/clangformatsettings.h
-    configurationdialog.cpp configurationdialog.h configurationdialog.ui
+    configurationdialog.cpp configurationdialog.h
     configurationeditor.cpp configurationeditor.h
     configurationpanel.cpp configurationpanel.h
     generaloptionspage.cpp generaloptionspage.h

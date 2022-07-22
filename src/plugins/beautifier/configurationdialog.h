@@ -26,13 +26,18 @@
 #pragma once
 
 #include <QDialog>
-#include <QString>
 
-namespace Beautifier {
-namespace Internal {
+QT_BEGIN_NAMESPACE
+class QDialogButtonBox;
+class QLabel;
+class QLineEdit;
+class QTextEdit;
+QT_END_NAMESPACE
+
+namespace Beautifier::Internal {
 
 class AbstractSettings;
-namespace Ui { class ConfigurationDialog; }
+class ConfigurationEditor;
 
 class ConfigurationDialog : public QDialog
 {
@@ -51,11 +56,15 @@ public:
 private:
     void updateOkButton();
     void updateDocumentation(const QString &word = QString(), const QString &docu = QString());
-    Ui::ConfigurationDialog *ui;
+
     AbstractSettings *m_settings = nullptr;
     QString m_currentKey;
+
+    QLineEdit *m_name;
+    ConfigurationEditor *m_editor;
+    QLabel *m_documentationHeader;
+    QTextEdit *m_documentation;
+    QDialogButtonBox *m_buttonBox;
 };
 
-
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal
