@@ -31,6 +31,7 @@
 
 #include <utils/aspects.h>
 #include <utils/commandline.h>
+#include <utils/guard.h>
 
 #include <memory>
 
@@ -206,7 +207,7 @@ private:
     QStringList m_selectedAbis;
     Utils::OutputFormatter *m_outputFormatter = nullptr;
 
-    bool m_ignoreChange = false;
+    Utils::Guard m_ignoreChanges;
 
     QLabel *abisLabel = nullptr;
     Utils::SelectionAspect *m_buildType = nullptr;

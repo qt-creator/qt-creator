@@ -587,10 +587,11 @@ void QMakeStep::qtVersionChanged()
 void QMakeStep::qmakeBuildConfigChanged()
 {
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
-    bool debug = bc->qmakeBuildConfiguration() & QtVersion::DebugBuild;
-    m_ignoreChange = true;
-    m_buildType->setValue(debug? 0 : 1);
-    m_ignoreChange = false;
+    const bool debug = bc->qmakeBuildConfiguration() & QtVersion::DebugBuild;
+    {
+        const GuardLocker locker(m_ignoreChanges);
+        m_buildType->setValue(debug ? 0 : 1);
+    }
     updateAbiWidgets();
     updateEffectiveQMakeCall();
 }
@@ -674,7 +675,7 @@ void QMakeStep::abisChanged()
 
 void QMakeStep::buildConfigurationSelected()
 {
-    if (m_ignoreChange)
+    if (m_ignoreChanges.isLocked())
         return;
     QmakeBuildConfiguration *bc = qmakeBuildConfiguration();
     QtVersion::QmakeBuildConfigs buildConfiguration = bc->qmakeBuildConfiguration();
@@ -683,9 +684,11 @@ void QMakeStep::buildConfigurationSelected()
     } else {
         buildConfiguration = buildConfiguration & ~QtVersion::DebugBuild;
     }
-    m_ignoreChange = true;
-    bc->setQMakeBuildConfiguration(buildConfiguration);
-    m_ignoreChange = false;
+
+    {
+        const GuardLocker locker(m_ignoreChanges);
+        bc->setQMakeBuildConfiguration(buildConfiguration);
+    }
 
     updateAbiWidgets();
     updateEffectiveQMakeCall();
