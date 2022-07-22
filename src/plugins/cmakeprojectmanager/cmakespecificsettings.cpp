@@ -102,7 +102,7 @@ CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *sett
             s.packageManagerAutoSetup,
             s.askBeforeReConfigureInitialParams,
             s.showSourceSubFolders,
-            Stretch(),
+            st
         }.attachTo(widget);
     });
 }

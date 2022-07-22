@@ -103,22 +103,22 @@ QnxSettingsWidget::QnxSettingsWidget()
     Row {
         Column {
             m_configsCombo,
-            Row { m_generateKitsCheckBox, Stretch() },
+            Row { m_generateKitsCheckBox, st },
             Group {
                 Title(Tr::tr("Configuration Information:")),
                 Form {
-                    Tr::tr("Name:"), m_configName, Break(),
-                    Tr::tr("Version:"), m_configVersion, Break(),
-                    Tr::tr("Host:"), m_configHost, Break(),
+                    Tr::tr("Name:"), m_configName, br,
+                    Tr::tr("Version:"), m_configVersion, br,
+                    Tr::tr("Host:"), m_configHost, br,
                     Tr::tr("Target:"), m_configTarget
                 }
             },
-            Stretch()
+            st
         },
         Column {
             addButton,
             removeButton,
-            Stretch()
+            st
         }
     }.attachTo(this);
 

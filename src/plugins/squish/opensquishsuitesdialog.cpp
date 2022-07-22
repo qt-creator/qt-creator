@@ -76,7 +76,7 @@ OpenSquishSuitesDialog::OpenSquishSuitesDialog(QWidget *parent)
             Column {
                 selectAllPushButton,
                 deselectAllPushButton,
-                Stretch()
+                st
             }
         },
         m_buttonBox

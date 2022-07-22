@@ -81,7 +81,7 @@ MacroOptionsWidget::MacroOptionsWidget()
             Title(tr("Preferences")),
             Row {
                 m_treeWidget,
-                Column { m_removeButton, Stretch() },
+                Column { m_removeButton, st },
             }
         },
         m_macroGroup

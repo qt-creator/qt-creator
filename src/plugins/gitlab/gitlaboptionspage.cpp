@@ -146,14 +146,13 @@ GitLabOptionsWidget::GitLabOptionsWidget(QWidget *parent)
     m_add->setToolTip(tr("Add new GitLab server configuration."));
 
     using namespace Utils::Layouting;
-    const Break nl;
 
     Grid {
         Form {
-            defaultLabel, m_defaultGitLabServer, nl,
-            Row { Group { Column { m_gitLabServerWidget, Space(1) } } }, nl,
-            m_curl, nl,
-        }, Column { m_add, m_edit, m_remove, Stretch() },
+            defaultLabel, m_defaultGitLabServer, br,
+            Row { Group { Column { m_gitLabServerWidget, Space(1) } } }, br,
+            m_curl, br,
+        }, Column { m_add, m_edit, m_remove, st },
     }.attachTo(this);
 
     connect(m_edit, &QPushButton::clicked, this, &GitLabOptionsWidget::showEditServerDialog);

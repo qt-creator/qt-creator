@@ -65,6 +65,8 @@ public:
         Break,
     };
 
+    using Modifier = std::function<void(QLayout *)>;
+
     class QTCREATOR_UTILS_EXPORT LayoutItem
     {
     public:
@@ -215,11 +217,15 @@ public:
     Form(std::initializer_list<LayoutItem> items) : LayoutBuilder(FormLayout, items) {}
 };
 
-using Stretch = LayoutBuilder::Stretch;
 using Space = LayoutBuilder::Space;
 using Span = LayoutBuilder::Span;
 using AlignAsFormLabel = LayoutBuilder::AlignAsFormLabel;
-using Break = LayoutBuilder::Break;
 
-}
-} // namespace Utils
+using Stretch = LayoutBuilder::Stretch; // FIXME: Remove
+using Break = LayoutBuilder::Break; // FIXME: Remove
+
+QTCREATOR_UTILS_EXPORT extern LayoutBuilder::Break br;
+QTCREATOR_UTILS_EXPORT extern LayoutBuilder::Stretch st;
+
+} // Layouting
+} // Utils

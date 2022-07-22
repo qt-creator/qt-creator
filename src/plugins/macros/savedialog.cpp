@@ -53,8 +53,8 @@ SaveDialog::SaveDialog(QWidget *parent) :
     using namespace Layouting;
 
     Form {
-        tr("Name:"), m_name, Break(),
-        tr("Description:"), m_description, Break(),
+        tr("Name:"), m_name, br,
+        tr("Description:"), m_description, br,
         buttonBox
     }.attachTo(this);
 

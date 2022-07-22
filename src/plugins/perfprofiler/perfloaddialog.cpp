@@ -79,11 +79,11 @@ PerfLoadDialog::PerfLoadDialog(QWidget *parent)
 
     Column {
         Grid {
-            label1, m_traceFileLineEdit, browseTraceFileButton, Break(),
-            label2, m_executableDirLineEdit, browseExecutableDirButton, Break(),
+            label1, m_traceFileLineEdit, browseTraceFileButton, br,
+            label2, m_executableDirLineEdit, browseExecutableDirButton, br,
             label3, Span(2, m_kitChooser)
         },
-        Stretch(),
+        st,
         line,
         buttonBox
     }.attachTo(this);

@@ -416,7 +416,7 @@ void FakeVimOptionPage::layoutPage(QWidget *widget)
         }
     };
 
-    Row ints { s.shiftWidth, s.tabStop, s.scrollOff, Stretch() };
+    Row ints { s.shiftWidth, s.tabStop, s.scrollOff, st };
 
     Column strings {
         s.backspace,
@@ -447,8 +447,8 @@ void FakeVimOptionPage::layoutPage(QWidget *widget)
             }
         },
 
-        Row { copyTextEditorSettings, setQtStyle, setPlainStyle, Stretch() },
-        Stretch()
+        Row { copyTextEditorSettings, setQtStyle, setPlainStyle, st },
+        st
 
     }.attachTo(widget, true);
 

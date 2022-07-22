@@ -121,7 +121,7 @@ CvsSettingsPage::CvsSettingsPage(CvsSettings *settings)
                     s.describeByCommitId,
                 }
             },
-            Stretch()
+            st
         }.attachTo(widget);
     });
 }

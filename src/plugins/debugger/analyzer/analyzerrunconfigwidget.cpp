@@ -56,7 +56,7 @@ AnalyzerRunConfigWidget::AnalyzerRunConfigWidget(ProjectExplorer::GlobalOrProjec
     details->setWidget(innerPane);
 
     Column {
-        Row { settingsCombo, restoreButton, Stretch() },
+        Row { settingsCombo, restoreButton, st },
         configWidget
     }.attachTo(innerPane);
 

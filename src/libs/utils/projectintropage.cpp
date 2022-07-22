@@ -124,7 +124,6 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     d->m_projectLabel->setVisible(d->m_forceSubProject);
 
     using namespace Layouting;
-    const Break br;
 
     Form {
         tr("Name:"), d->m_nameLineEdit, br,
@@ -136,7 +135,7 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
 
     Column {
         d->m_descriptionLabel,
-        Stretch(),
+        st,
         frame,
         d->m_stateLabel
     }.attachTo(this);

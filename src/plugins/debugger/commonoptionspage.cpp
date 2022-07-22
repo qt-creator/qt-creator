@@ -63,7 +63,7 @@ public:
             s.raiseOnInterrupt,
             s.breakpointsFullPathByDefault,
             s.warnOnReleaseBuilds,
-            Row { s.maximalStackDepth, Stretch() }
+            Row { s.maximalStackDepth, st }
         };
 
         Column col2 {
@@ -73,13 +73,13 @@ public:
             s.stationaryEditorWhileStepping,
             s.forceLoggingToConsole,
             s.registerForPostMortem,
-            Stretch()
+            st
         };
 
         Column {
-            Group { Title("Behavior"), Row { col1, col2, Stretch() } },
+            Group { Title("Behavior"), Row { col1, col2, st } },
             s.sourcePathMap,
-            Stretch()
+            st
         }.attachTo(this);
     }
 
@@ -174,8 +174,7 @@ public:
         };
 
         Grid limits {
-            s.maximalStringLength,
-            Break(),
+            s.maximalStringLength, br,
             s.displayStringLimit
         };
 
@@ -187,8 +186,8 @@ public:
             s.showQtNamespace,
             s.showQObjectNames,
             Space(10),
-            Row { limits, Stretch() },
-            Stretch()
+            Row { limits, st },
+            st
         }.attachTo(this);
     }
 

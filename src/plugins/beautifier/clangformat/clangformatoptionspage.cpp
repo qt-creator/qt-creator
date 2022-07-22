@@ -109,7 +109,6 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
         useCustomizedStyle->setChecked(true);
 
     using namespace Utils::Layouting;
-    const Break br;
     const Space empty;
 
     Form {
@@ -127,7 +126,7 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
             }
         },
         options,
-        Stretch()
+        st
     }.attachTo(this);
 
     connect(m_command, &Utils::PathChooser::validChanged, options, &QWidget::setEnabled);

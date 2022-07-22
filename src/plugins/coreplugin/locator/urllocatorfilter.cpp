@@ -93,8 +93,6 @@ UrlFilterOptions::UrlFilterOptions(UrlLocatorFilter *filter, QWidget *parent)
     buttonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
 
     using namespace Layouting;
-    static const Break br;
-    static const Stretch st;
 
     Column buttons { add, remove, moveUp, moveDown, st };
 

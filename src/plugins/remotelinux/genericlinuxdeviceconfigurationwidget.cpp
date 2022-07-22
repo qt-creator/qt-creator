@@ -98,17 +98,15 @@ GenericLinuxDeviceConfigurationWidget::GenericLinuxDeviceConfigurationWidget(
     sshPortLabel->setBuddy(m_sshPortSpinBox);
 
     using namespace Layouting;
-    const Break nl;
-    const Stretch st;
 
     Form {
-        Tr::tr("Machine type:"), m_machineTypeValueLabel, st, nl,
-        Tr::tr("Authentication type:"), m_defaultAuthButton, m_keyButton, st, nl,
-        Tr::tr("&Host name:"), m_hostLineEdit, sshPortLabel, m_sshPortSpinBox, m_hostKeyCheckBox, st, nl,
-        Tr::tr("Free ports:"), m_portsLineEdit, m_portsWarningLabel, Tr::tr("Timeout:"), m_timeoutSpinBox, st, nl,
-        Tr::tr("&Username:"), m_userLineEdit, st, nl,
-        m_keyLabel, m_keyFileLineEdit, createKeyButton, st, nl,
-        Tr::tr("GDB server executable:"), m_gdbServerLineEdit, st, nl
+        Tr::tr("Machine type:"), m_machineTypeValueLabel, st, br,
+        Tr::tr("Authentication type:"), m_defaultAuthButton, m_keyButton, st, br,
+        Tr::tr("&Host name:"), m_hostLineEdit, sshPortLabel, m_sshPortSpinBox, m_hostKeyCheckBox, st, br,
+        Tr::tr("Free ports:"), m_portsLineEdit, m_portsWarningLabel, Tr::tr("Timeout:"), m_timeoutSpinBox, st, br,
+        Tr::tr("&Username:"), m_userLineEdit, st, br,
+        m_keyLabel, m_keyFileLineEdit, createKeyButton, st, br,
+        Tr::tr("GDB server executable:"), m_gdbServerLineEdit, st, br
     }.attachTo(this);
 
     connect(m_hostLineEdit, &QLineEdit::editingFinished,

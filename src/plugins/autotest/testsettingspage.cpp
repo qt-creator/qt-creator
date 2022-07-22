@@ -188,16 +188,16 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
             m_omitInternalMsgCB,
             m_omitRunConfigWarnCB,
             m_limitResultOutputCB,
-            Row { m_limitResultDescriptionCb, m_limitResultDescriptionSpinBox, Stretch()},
+            Row { m_limitResultDescriptionCb, m_limitResultDescriptionSpinBox, st },
             m_openResultsOnStartCB,
             m_openResultsOnFinishCB,
             Row { Space(20), m_openResultsOnFailCB },
             m_autoScrollCB,
             m_displayAppCB,
             m_processArgsCB,
-            Row { new QLabel(tr("Automatically run")), m_runAfterBuildCB, Stretch() },
-            Row { timeoutLabel, m_timeoutSpin, Stretch() },
-            Row { resetChoicesButton, Stretch() }
+            Row { new QLabel(tr("Automatically run")), m_runAfterBuildCB, st },
+            Row { timeoutLabel, m_timeoutSpin, st },
+            Row { resetChoicesButton, st }
          }
     };
 
@@ -211,10 +211,10 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
 
     Column {
         Row {
-            Column { generalGroup, Stretch() },
-            Column { activeFrameworks, Stretch() }
+            Column { generalGroup, st },
+            Column { activeFrameworks, st }
         },
-        Stretch()
+        st
     }.attachTo(this);
 
     connect(m_frameworkTreeWidget, &QTreeWidget::itemChanged,

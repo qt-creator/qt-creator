@@ -64,7 +64,7 @@ TodoProjectSettingsWidget::TodoProjectSettingsWidget(ProjectExplorer::Project *p
                 Column {
                     addExcludedPatternButton,
                     m_removeExcludedPatternButton,
-                    Stretch()
+                    st
                 }
             }
         }

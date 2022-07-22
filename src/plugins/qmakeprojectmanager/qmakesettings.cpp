@@ -105,7 +105,7 @@ public:
             s.m_warnAgainstUnalignedBuildDir,
             s.m_alwaysRunQmake,
             s.m_ignoreSystemFunction,
-            Stretch()
+            st
         }.attachTo(this);
     }
 

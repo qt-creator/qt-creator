@@ -72,14 +72,14 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
         m_showWrapColumn,
         m_wrapColumn,
         m_useIndenter,
-        Stretch()
+        st
     }.attachTo(m_displaySettings);
 
     Column {
-        Row { m_restoreButton, Stretch() },
+        Row { m_restoreButton, st },
         m_displaySettings,
         m_behaviorSettings,
-        Stretch(),
+        st,
     }.attachTo(this, false);
 
     const EditorConfiguration *config = m_project->editorConfiguration();

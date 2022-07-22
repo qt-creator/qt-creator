@@ -150,9 +150,6 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
     packagesView->header()->setStretchLastSection(false);
 
     using namespace Layouting;
-    const Break br;
-    const Stretch st;
-
     Grid {
         searchField, expandCheck, br,
 

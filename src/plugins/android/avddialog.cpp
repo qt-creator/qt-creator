@@ -103,20 +103,19 @@ AvdDialog::AvdDialog(const AndroidConfig &config, QWidget *parent)
     m_hideTipTimer.setSingleShot(true);
 
     using namespace Layouting;
-    const Break nl;
 
     Column {
         Form {
-            tr("Name:"), m_nameLineEdit, nl,
+            tr("Name:"), m_nameLineEdit, br,
             tr("Device definition:"),
-                Row { m_deviceDefinitionTypeComboBox, m_deviceDefinitionComboBox }, nl,
-            tr("Architecture (ABI):"), m_abiComboBox, nl,
-            tr("Target API:"), m_targetApiComboBox, nl,
-            QString(), m_warningText, nl,
-            tr("SD card size:"), m_sdcardSizeSpinBox, nl,
+                Row { m_deviceDefinitionTypeComboBox, m_deviceDefinitionComboBox }, br,
+            tr("Architecture (ABI):"), m_abiComboBox, br,
+            tr("Target API:"), m_targetApiComboBox, br,
+            QString(), m_warningText, br,
+            tr("SD card size:"), m_sdcardSizeSpinBox, br,
             QString(), m_overwriteCheckBox,
         },
-        Stretch(),
+        st,
         m_buttonBox
     }.attachTo(this);
 

@@ -118,9 +118,9 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
     resetColorButton->setToolTip(tr("Reset to default.", "Color"));
 
     Form form;
-    form.addRow({tr("Color:"), m_colorButton, resetColorButton, Stretch()});
+    form.addRow({tr("Color:"), m_colorButton, resetColorButton, st});
     form.addRow({tr("Theme:"), m_themeChooser});
-    form.addRow({tr("Language:"), m_languageBox, Stretch()});
+    form.addRow({tr("Language:"), m_languageBox, st});
 
     if (!Utils::HostOsInfo::isMacHost()) {
         auto dpiCheckbox = new QCheckBox(tr("Enable high DPI scaling"));
@@ -136,8 +136,8 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
     }
 
     form.addRow({Space(), m_showShortcutsInContextMenus});
-    form.addRow(Row{m_resetWarningsButton, Stretch()});
-    form.addRow({tr("Text codec for tools:"), m_codecBox, Stretch()});
+    form.addRow(Row{m_resetWarningsButton, st});
+    form.addRow({tr("Text codec for tools:"), m_codecBox, st});
     Column{Group{Title(tr("User Interface")), form}}.attachTo(this);
 
     fillLanguageBox();

@@ -61,31 +61,30 @@ public:
 ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings)
 {
     using namespace Layouting;
-    const Break nl;
     ValgrindBaseSettings &s = *settings;
 
     Grid generic {
-        s.valgrindExecutable, nl,
-        s.valgrindArguments, nl,
-        s.selfModifyingCodeDetection, nl
+        s.valgrindExecutable, br,
+        s.valgrindArguments, br,
+        s.selfModifyingCodeDetection, br
     };
 
     Grid memcheck {
-        s.memcheckArguments, nl,
-        s.trackOrigins, nl,
-        s.showReachable, nl,
-        s.leakCheckOnFinish, nl,
-        s.numCallers, nl,
-        s.filterExternalIssues, nl,
+        s.memcheckArguments, br,
+        s.trackOrigins, br,
+        s.showReachable, br,
+        s.leakCheckOnFinish, br,
+        s.numCallers, br,
+        s.filterExternalIssues, br,
         s.suppressions
     };
 
     Grid callgrind {
-        s.callgrindArguments, nl,
-        s.kcachegrindExecutable, nl,
-        s.minimumInclusiveCostRatio, nl,
-        s.visualizationMinimumInclusiveCostRatio, nl,
-        s.enableEventToolTips, nl,
+        s.callgrindArguments, br,
+        s.kcachegrindExecutable, br,
+        s.minimumInclusiveCostRatio, br,
+        s.visualizationMinimumInclusiveCostRatio, br,
+        s.enableEventToolTips, br,
         Span {
             2,
             Group {
@@ -103,7 +102,7 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings)
         Group { Title(Tr::tr("Valgrind Generic Settings")), generic },
         Group { Title(Tr::tr("MemCheck Memory Analysis Options")), memcheck },
         Group { Title(Tr::tr("CallGrind Profiling Options")), callgrind },
-        Stretch(),
+        st,
     }.attachTo(this);
 }
 

@@ -109,20 +109,18 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, QWidget *parent)
     connect(resetButton, &QPushButton::pressed, m_settings, &PerfSettings::resetToDefault);
 
     using namespace Layouting;
-    const Break nl;
-
     Column {
-        Row { Stretch(), useTracePointsButton, addEventButton, removeEventButton, resetButton },
+        Row { st, useTracePointsButton, addEventButton, removeEventButton, resetButton },
 
         eventsView,
 
         Grid {
-            m_settings->callgraphMode, m_settings->stackSize, nl,
-            m_settings->sampleMode, m_settings->period, nl,
+            m_settings->callgraphMode, m_settings->stackSize, br,
+            m_settings->sampleMode, m_settings->period, br,
             m_settings->extraArguments,
         },
 
-        Stretch()
+        st
     }.attachTo(this);
 }
 

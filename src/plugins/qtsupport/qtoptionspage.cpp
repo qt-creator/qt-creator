@@ -290,15 +290,9 @@ QtOptionsPageWidget::QtOptionsPageWidget()
 
     auto versionInfoWidget = new QWidget;
     Form {
-        new QLabel(tr("Name:")), m_nameEdit, Break(),
-        new QLabel(tr("qmake path:")),
-        Row {
-            m_qmakePath,
-            m_editPathPushButton,
-        },
-        Break(),
+        tr("Name:"), m_nameEdit, br,
+        tr("qmake path:"), Row { m_qmakePath, m_editPathPushButton }, br,
         Span(2, m_errorLabel)
-
     }.attachTo(versionInfoWidget, false);
 
     m_formLayout = qobject_cast<QFormLayout*>(versionInfoWidget->layout());
@@ -308,11 +302,7 @@ QtOptionsPageWidget::QtOptionsPageWidget()
             m_qtdirList,
             m_versionInfoWidget,
             m_infoWidget,
-            Row {
-                new QLabel(tr("Register documentation:")),
-                m_documentationSetting,
-                Stretch()
-            }
+            Row { tr("Register documentation:"), m_documentationSetting, st }
         },
 
         Column {
@@ -321,7 +311,7 @@ QtOptionsPageWidget::QtOptionsPageWidget()
             Space(20),
             m_linkWithQtButton,
             m_cleanUpButton,
-            Stretch()
+            st,
         }
     }.attachTo(this);
 

@@ -109,7 +109,6 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
     m_command->setFilePath(m_settings->command());
 
     using namespace Utils::Layouting;
-    const Break br;
 
     Column {
         m_useOtherFiles,
@@ -127,7 +126,7 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
             }
         },
         options,
-        Stretch()
+        st
     }.attachTo(this);
 
     connect(m_command, &Utils::PathChooser::validChanged, options, &QWidget::setEnabled);

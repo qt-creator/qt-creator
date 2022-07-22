@@ -76,10 +76,10 @@ public:
             m_infoLabel,
             Row {
                 Form {
-                    new QLabel(tr("Check interval basis:")), m_checkIntervalComboBox, Break(),
+                    new QLabel(tr("Check interval basis:")), m_checkIntervalComboBox, br,
                     new QLabel(tr("Next check date:")), m_nextCheckDateLabel
                 },
-                Stretch()
+                st
             },
             m_checkForNewQtVersions
         }.attachTo(m_updatesGroupBox);
@@ -95,14 +95,14 @@ public:
             Row {
                 new QLabel(tr("Last check date:")),
                 m_lastCheckDateLabel,
-                Stretch(),
+                st,
                 Row {
                     m_messageLabel,
-                    Stretch(),
+                    st,
                     m_checkNowButton
                 }
             },
-            Stretch()
+            st
         }.attachTo(this);
 
         m_checkIntervalComboBox->setCurrentIndex(-1);

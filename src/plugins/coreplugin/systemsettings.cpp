@@ -186,31 +186,31 @@ public:
         form.addRow({patchCommandLabel, Span(2, m_patchChooser)});
         if (HostOsInfo::isMacHost()) {
             form.addRow({fileSystemCaseSensitivityLabel,
-                         Span(2, Row{m_fileSystemCaseSensitivityChooser, Stretch()})});
+                         Span(2, Row{m_fileSystemCaseSensitivityChooser, st})});
         }
         form.addRow(
-            {tr("When files are externally modified:"), Span(2, Row{m_reloadBehavior, Stretch()})});
+            {tr("When files are externally modified:"), Span(2, Row{m_reloadBehavior, st})});
         form.addRow(
-            {m_autoSaveCheckBox, Span(2, Row{tr("Interval:"), m_autoSaveInterval, Stretch()})});
+            {m_autoSaveCheckBox, Span(2, Row{tr("Interval:"), m_autoSaveInterval, st})});
         form.addRow(Span(3, m_autoSaveRefactoringCheckBox));
         form.addRow({m_autoSuspendCheckBox,
-                     Span(2, Row{autoSuspendLabel, m_autoSuspendMinDocumentCount, Stretch()})});
-        form.addRow(Span(3, Row{m_warnBeforeOpeningBigFiles, m_bigFilesLimitSpinBox, Stretch()}));
+                     Span(2, Row{autoSuspendLabel, m_autoSuspendMinDocumentCount, st})});
+        form.addRow(Span(3, Row{m_warnBeforeOpeningBigFiles, m_bigFilesLimitSpinBox, st}));
         form.addRow(Span(3,
                          Row{tr("Maximum number of entries in \"Recent Files\":"),
                              m_maxRecentFilesSpinBox,
-                             Stretch()}));
+                             st}));
         form.addRow(m_askBeforeExitCheckBox);
 #ifdef ENABLE_CRASHPAD
         form.addRow(
-            Span(3, Row{m_enableCrashReportingCheckBox, helpCrashReportingButton, Stretch()}));
-        form.addRow(Span(3, Row{m_clearCrashReportsButton, m_crashReportsSizeText, Stretch()}));
+            Span(3, Row{m_enableCrashReportingCheckBox, helpCrashReportingButton, st}));
+        form.addRow(Span(3, Row{m_clearCrashReportsButton, m_crashReportsSizeText, st}));
 #endif
 
         Column {
             Group {
                 Title(tr("System")),
-                Column { form, Stretch() }
+                Column { form, st }
             }
         }.attachTo(this);
 

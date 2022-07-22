@@ -71,7 +71,7 @@ GeneralSettingsPage::GeneralSettingsPage()
         Column {
             s.autorunMeson,
             s.verboseNinja,
-            Stretch(),
+            st,
         }.attachTo(widget);
     });
 }

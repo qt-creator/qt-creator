@@ -219,7 +219,7 @@ NewDialogWidget::NewDialogWidget(QWidget *parent)
 
     Column {
         Row { QCoreApplication::translate("Core::Internal::NewDialog", "Choose a template:"),
-              Stretch(), m_comboBox },
+              st, m_comboBox },
         Row { m_templateCategoryView, m_templatesView, frame },
         buttonBox
     }.attachTo(this);

@@ -173,10 +173,10 @@ void SuppressionAspect::addToLayout(LayoutBuilder &builder)
     connect(d->entryList->selectionModel(), &QItemSelectionModel::selectionChanged,
             d, &SuppressionAspectPrivate::slotSuppressionSelectionChanged);
 
-    builder.addItem(Column { new QLabel(Tr::tr("Suppression files:")), Stretch() });
+    builder.addItem(Column { Tr::tr("Suppression files:"), st });
     Row group {
         d->entryList.data(),
-        Column { d->addEntry.data(), d->removeEntry.data(), Stretch() }
+        Column { d->addEntry.data(), d->removeEntry.data(), st }
     };
     builder.addItem(Span { 2, group });
 

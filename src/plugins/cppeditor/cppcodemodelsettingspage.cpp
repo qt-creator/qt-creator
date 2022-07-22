@@ -109,10 +109,10 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(CppCodeModelSettings *s)
             Column {
                 m_interpretAmbiguousHeadersAsCHeaders,
                 m_ignorePchCheckBox,
-                Row { m_skipIndexingBigFilesCheckBox, m_bigFilesLimitSpinBox, Stretch() },
+                Row { m_skipIndexingBigFilesCheckBox, m_bigFilesLimitSpinBox, st },
             }
         },
-        Stretch()
+        st
     }.attachTo(this);
 }
 

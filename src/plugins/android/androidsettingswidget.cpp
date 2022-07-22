@@ -353,7 +353,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     downloadNdkToolButton->setIcon(downloadIcon);
 
     using namespace Layouting;
-    const Break br;
     const Space empty;
 
     Column {
@@ -374,7 +373,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
 
                 empty, empty, sdkManagerToolButton, br,
 
-                Column { tr("Android NDK list:"), Stretch() },
+                Column { tr("Android NDK list:"), st },
                 m_ndkListWidget,
                 Column {
                     addCustomNdkButton,
@@ -400,7 +399,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
                 Span(4, openSslDetailsWidget)
             }
         },
-        Stretch(),
+        st
     }.attachTo(this);
 
     connect(m_sdkLocationPathChooser, &PathChooser::rawPathChanged,

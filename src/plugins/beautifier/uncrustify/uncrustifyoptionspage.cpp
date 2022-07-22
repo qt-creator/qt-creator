@@ -112,7 +112,6 @@ UncrustifyOptionsPageWidget::UncrustifyOptionsPageWidget(UncrustifySettings *set
     auto options = new QGroupBox(tr("Options"));
 
     using namespace Utils::Layouting;
-    const Break br;
 
     Column {
         m_useOtherFiles,
@@ -131,7 +130,7 @@ UncrustifyOptionsPageWidget::UncrustifyOptionsPageWidget(UncrustifySettings *set
             }
         },
         options,
-        Stretch()
+        st
     }.attachTo(this);
 
     connect(m_command, &Utils::PathChooser::validChanged, options, &QWidget::setEnabled);

@@ -118,7 +118,6 @@ GitLabDialog::GitLabDialog(QWidget *parent)
     buttonBox->addButton(m_clonePB, QDialogButtonBox::ActionRole);
 
     using namespace Layouting;
-    const Stretch st;
 
     Column {
         Row {

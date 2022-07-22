@@ -119,7 +119,7 @@ BuildPropertiesSettingsPage::BuildPropertiesSettingsPage(BuildPropertiesSettings
                 s.qmlDebugging,
                 s.qtQuickCompiler
             },
-            Stretch()
+            st
         }.attachTo(widget);
     });
 }

@@ -71,20 +71,17 @@ SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
     auto closeButton = new QPushButton(Tr::tr("&Cancel"));
 
     using namespace Layouting;
-    const Break nl;
-    const Stretch st;
-
     Column {
         Group {
             Title(Tr::tr("Options")),
             Form {
-                Tr::tr("Key algorithm:"), m_rsa, m_ecdsa, st, nl,
-                Tr::tr("Key &size:"), m_comboBox, st, nl,
-                Tr::tr("Private key file:"), m_privateKeyFileValueLabel, privateKeyFileButton, st, nl,
+                Tr::tr("Key algorithm:"), m_rsa, m_ecdsa, st, br,
+                Tr::tr("Key &size:"), m_comboBox, st, br,
+                Tr::tr("Private key file:"), m_privateKeyFileValueLabel, privateKeyFileButton, st, br,
                 Tr::tr("Public key file:"), m_publicKeyFileLabel
             }
         },
-        Stretch(),
+        st,
         Row { m_generateButton, closeButton, st }
     }.attachTo(this);
 

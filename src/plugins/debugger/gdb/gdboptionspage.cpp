@@ -61,7 +61,7 @@ public:
             Group general {
                 title(Tr::tr("General")),
                 Column {
-                    Row { s.gdbWatchdogTimeout, Stretch() },
+                    Row { s.gdbWatchdogTimeout, st },
                     s.skipKnownFrames,
                     s.useMessageBoxForSignals,
                     s.adjustBreakpointLocations,
@@ -71,7 +71,7 @@ public:
                     s.intelFlavor,
                     s.usePseudoTracepoints,
                     s.useIndexCache,
-                    Stretch()
+                    st
                  }
             };
 
@@ -84,7 +84,7 @@ public:
                     title(Tr::tr("Additional Attach Commands")),
                     Column { s.gdbPostAttachCommands },
                 },
-                Stretch()
+                st
             };
 
             Row { general, commands }.attachTo(w);
@@ -132,7 +132,7 @@ public:
                 }
             };
 
-            Column { extended, Stretch() }.attachTo(w);
+            Column { extended, st }.attachTo(w);
         });
     }
 };

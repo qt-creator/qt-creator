@@ -113,15 +113,13 @@ SquishSettingsPage::SquishSettingsPage(SquishSettings *settings)
         SquishSettings &s = *settings;
         using namespace Layouting;
 
-        const Break nl;
-
         Grid grid {
-            s.squishPath, nl,
-            s.licensePath, nl,
-            Span {2, Row { s.local, s.serverHost, s.serverPort } }, nl,
-            s.verbose, nl,
+            s.squishPath, br,
+            s.licensePath, br,
+            Span {2, Row { s.local, s.serverHost, s.serverPort } }, br,
+            s.verbose, br,
         };
-        Column { Row { grid }, Stretch() }.attachTo(widget);
+        Column { Row { grid }, st }.attachTo(widget);
     });
 }
 
@@ -311,14 +309,14 @@ SquishServerSettingsWidget::SquishServerSettingsWidget(QWidget *parent)
 
     using namespace Layouting;
     Form grid {
-        &m_applicationsView, Break(),
+        &m_applicationsView, br,
         &m_serverSettings.autTimeout,
         &m_serverSettings.responseTimeout,
         &m_serverSettings.postMortemWaitTime,
         &m_serverSettings.animatedCursor,
     };
     // TODO buttons for add, edit, remove
-    Column { Row { grid }, Stretch() }.attachTo(this);
+    Column { Row { grid }, st }.attachTo(this);
 
     repopulateApplicationView(); // initial
 

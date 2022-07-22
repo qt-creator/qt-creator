@@ -123,11 +123,10 @@ BazaarSettingsPage::BazaarSettingsPage(BazaarSettings *settings)
                 Row {
                     s.logCount,
                     s.timeout,
-                    Stretch()
+                    st
                 }
             },
-            Stretch()
-
+            st
         }.attachTo(widget);
     });
 }

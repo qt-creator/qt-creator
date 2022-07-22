@@ -179,7 +179,7 @@ GitSettingsPage::GitSettingsPage(GitSettings *settings)
             Group {
                 Title(GitSettings::tr("Miscellaneous")),
                 Column {
-                    Row { s.logCount, s.timeout, Stretch() },
+                    Row { s.logCount, s.timeout, st },
                     s.pullRebase
                 }
             },
@@ -194,7 +194,7 @@ GitSettingsPage::GitSettingsPage(GitSettings *settings)
                 Row { s.repositoryBrowserCmd }
             },
 
-            Stretch()
+            st
         }.attachTo(widget);
     });
 }

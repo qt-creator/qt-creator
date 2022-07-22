@@ -147,27 +147,26 @@ CTestSettingsPage::CTestSettingsPage(CTestSettings *settings, Utils::Id settings
     setLayouter([settings](QWidget *widget) {
         CTestSettings &s = *settings;
         using namespace Utils::Layouting;
-        const Break nl;
 
         Form form {
-            Row {s.outputOnFail}, nl,
-            Row {s.scheduleRandom}, nl,
-            Row {s.stopOnFailure}, nl,
-            Row {s.outputMode}, nl,
+            Row {s.outputOnFail}, br,
+            Row {s.scheduleRandom}, br,
+            Row {s.stopOnFailure}, br,
+            Row {s.outputMode}, br,
             Group {
                 Title(tr("Repeat tests"), &s.repeat),
                 Row {s.repetitionMode, s.repetitionCount},
-            }, nl,
+            }, br,
             Group {
                 Title(tr("Run in parallel"), &s.parallel),
                 Column {
-                    Row {s.jobs}, nl,
+                    Row {s.jobs}, br,
                     Row {s.testLoad, s.threshold}
                 }
             }
         };
 
-        Column {Row {Column { form , Stretch() }, Stretch() } }.attachTo(widget);
+        Column { Row { Column { form , st }, st } }.attachTo(widget);
     });
 }
 

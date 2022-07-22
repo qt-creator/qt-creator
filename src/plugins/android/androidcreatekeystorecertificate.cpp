@@ -99,7 +99,6 @@ AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate(QWidget *pare
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Close|QDialogButtonBox::Save);
 
     using namespace Layouting;
-    const Break br;
 
     Column {
         Group {

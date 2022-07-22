@@ -88,7 +88,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
 
     using namespace Layouting;
     Grid {
-        AlignAsFormLabel(label), m_nameEdit, m_iconButton, Break(),
+        AlignAsFormLabel(label), m_nameEdit, m_iconButton, br,
         AlignAsFormLabel(label), m_fileSystemFriendlyNameLineEdit
     }.attachTo(this);
 

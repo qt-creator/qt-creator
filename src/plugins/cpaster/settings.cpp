@@ -94,7 +94,7 @@ SettingsPage::SettingsPage(Settings *settings)
             },
             s.copyToClipboard,
             s.displayOutput,
-            Stretch()
+            st
         }.attachTo(widget);
     });
 }

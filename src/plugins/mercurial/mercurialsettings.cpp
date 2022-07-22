@@ -98,11 +98,11 @@ MercurialSettingsPage::MercurialSettingsPage(MercurialSettings *settings)
                 Row {
                     s.logCount,
                     s.timeout,
-                    Stretch()
+                    st
                 }
             },
-            Stretch()
 
+            st
         }.attachTo(widget);
     });
 }

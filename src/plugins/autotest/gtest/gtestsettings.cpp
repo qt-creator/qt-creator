@@ -143,12 +143,11 @@ GTestSettingsPage::GTestSettingsPage(GTestSettings *settings, Utils::Id settings
     setLayouter([settings](QWidget *widget) {
         GTestSettings &s = *settings;
         using namespace Layouting;
-        const Break nl;
 
         Grid grid {
-            s.runDisabled, nl,
-            s.breakOnFailure, nl,
-            s.repeat, s.iterations, nl,
+            s.runDisabled, br,
+            s.breakOnFailure, br,
+            s.repeat, s.iterations, br,
             s.shuffle, s.seed
         };
 
@@ -157,7 +156,7 @@ GTestSettingsPage::GTestSettingsPage(GTestSettings *settings, Utils::Id settings
             s.gtestFilter
         };
 
-        Column { Row { Column { grid, form, Stretch() }, Stretch() } }.attachTo(widget);
+        Column { Row { Column { grid, form, st }, st } }.attachTo(widget);
     });
 }
 

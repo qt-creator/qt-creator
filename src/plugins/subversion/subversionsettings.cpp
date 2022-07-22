@@ -136,13 +136,13 @@ SubversionSettingsPage::SubversionSettingsPage(SubversionSettings *settings)
             Group {
                 Title(SubversionSettings::tr("Miscellaneous")),
                 Column {
-                    Row { s.logCount, s.timeout, Stretch() },
+                    Row { s.logCount, s.timeout, st },
                     s.promptOnSubmit,
                     s.spaceIgnorantAnnotation,
                 }
             },
 
-            Stretch()
+            st
         }.attachTo(widget);
     });
 }

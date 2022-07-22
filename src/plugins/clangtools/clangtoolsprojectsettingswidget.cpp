@@ -89,13 +89,8 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(ProjectExplorer
     m_removeAllButton = new QPushButton(tr("Remove All"));
 
     using namespace Utils::Layouting;
-
     Column {
-        Row {
-            m_restoreGlobal,
-            Stretch(),
-            gotoAnalyzerModeLabel
-        },
+        Row { m_restoreGlobal, st, gotoAnalyzerModeLabel },
 
         m_runSettingsWidget,
 
@@ -106,7 +101,7 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(ProjectExplorer
                 Column {
                     m_removeSelectedButton,
                     m_removeAllButton,
-                    Stretch()
+                    st
                 }
             }
         }

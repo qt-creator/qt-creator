@@ -202,7 +202,7 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
                 Column {
                     s.cdbAdditionalArguments,
                     s.useCdbConsole,
-                    Stretch()
+                    st
                  }
             },
 
@@ -230,7 +230,7 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
             }
         },
 
-        Stretch()
+        st
 
     }.attachTo(this);
 }
@@ -283,7 +283,7 @@ CdbPathsPageWidget::CdbPathsPageWidget()
     Column {
         Group { Title(Tr::tr("Symbol Paths")), Column { m_symbolPaths } },
         Group { Title(Tr::tr("Source Paths")), Column { m_sourcePaths } },
-        Stretch()
+        st
     }.attachTo(this);
 }
 

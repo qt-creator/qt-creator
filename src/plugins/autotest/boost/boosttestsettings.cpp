@@ -113,18 +113,17 @@ BoostTestSettingsPage::BoostTestSettingsPage(BoostTestSettings *settings, Utils:
     setLayouter([settings](QWidget *widget) {
         BoostTestSettings &s = *settings;
         using namespace Layouting;
-        const Break nl;
 
         Grid grid {
-            s.logLevel, nl,
-            s.reportLevel, nl,
-            s.randomize, Row { s.seed }, nl,
-            s.systemErrors, nl,
-            s.fpExceptions, nl,
+            s.logLevel, br,
+            s.reportLevel, br,
+            s.randomize, Row { s.seed }, br,
+            s.systemErrors, br,
+            s.fpExceptions, br,
             s.memLeaks,
         };
 
-        Column { Row { Column { grid, Stretch() }, Stretch() } }.attachTo(widget);
+        Column { Row { Column { grid, st }, st } }.attachTo(widget);
     });
 }
 

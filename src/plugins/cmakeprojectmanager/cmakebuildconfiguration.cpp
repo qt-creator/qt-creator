@@ -327,7 +327,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
 
     using namespace Layouting;
     Grid cmakeConfiguration {
-        m_filterEdit, Break(),
+        m_filterEdit, br,
         findWrapper,
         Column {
             m_addButton,
@@ -338,7 +338,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
             m_batchEditButton,
             Space(10),
             m_showAdvancedCheckBox,
-            Stretch()
+            st
         }
     };
 

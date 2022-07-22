@@ -70,7 +70,7 @@ CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project)
     using namespace Utils::Layouting;
 
     Column {
-        Row { new QLabel(tr("Language:")), languageComboBox, Stretch() },
+        Row { new QLabel(tr("Language:")), languageComboBox, st },
         stackedWidget
     }.attachTo(this, false);
 }

@@ -77,13 +77,10 @@ GenericLinuxDeviceConfigurationWizardSetupPage::GenericLinuxDeviceConfigurationW
     d->userNameLineEdit = new QLineEdit(this);
 
     using namespace Layouting;
-    const Break nl;
-    const Stretch st;
-
     Form {
-        Tr::tr("The name to identify this configuration:"), d->nameLineEdit, nl,
-        Tr::tr("The device's host name or IP address:"), d->hostNameLineEdit, st, nl,
-        Tr::tr("The username to log into the device:"), d->userNameLineEdit, st, nl
+        Tr::tr("The name to identify this configuration:"), d->nameLineEdit, br,
+        Tr::tr("The device's host name or IP address:"), d->hostNameLineEdit, st, br,
+        Tr::tr("The username to log into the device:"), d->userNameLineEdit, st, br
     }.attachTo(this);
 
     setSubTitle(QLatin1String(" ")); // For Qt bug (background color)

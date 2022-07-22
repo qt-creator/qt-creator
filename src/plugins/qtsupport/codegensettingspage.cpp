@@ -108,7 +108,7 @@ CodeGenSettingsPageWidget::CodeGenSettingsPageWidget()
                 m_addQtVersionCheckBox
             }
         },
-        Stretch()
+        st
     }.attachTo(this);
 
     connect(m_includeQtModuleCheckBox, &QAbstractButton::toggled,

@@ -71,11 +71,11 @@ FileShareProtocolSettingsPage::FileShareProtocolSettingsPage(FileShareProtocolSe
 
         Column {
             Form {
-                label, Break(),
+                label, br,
                 s.path,
                 s.displayCount
             },
-            Stretch()
+            st
         }.attachTo(widget);
     });
 }

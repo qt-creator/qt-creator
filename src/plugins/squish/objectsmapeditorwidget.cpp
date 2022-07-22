@@ -118,13 +118,13 @@ void ObjectsMapEditorWidget::initUi()
             m_newProperty,
             m_removeProperty,
             m_jumpToSymbolicName,
-            Stretch()
+            st
         }
     }.attachTo(validPropertiesWidget);
 
     Column {
         m_propertiesLineEdit,
-        Stretch()
+        st
     }.attachTo(invalidPropertiesWidget);
 
     Column {
@@ -135,7 +135,7 @@ void ObjectsMapEditorWidget::initUi()
             Column {
                 m_newSymbolicName,
                 m_removeSymbolicName,
-                Stretch(),
+                st,
             }
         },
         m_propertiesLabel,

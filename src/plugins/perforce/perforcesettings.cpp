@@ -278,7 +278,7 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
         Group misc {
             Title(PerforceSettings::tr("Miscellaneous")),
             Column {
-                Row { s.logCount, s.timeOutS, Stretch() },
+                Row { s.logCount, s.timeOutS, st },
                 s.promptToSubmit,
                 s.autoOpen
             }
@@ -288,8 +288,8 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
             config,
             environment,
             misc,
-            Row { errorLabel, Stretch(), testButton },
-            Stretch()
+            Row { errorLabel, st, testButton },
+            st
         }.attachTo(widget);
     });
 }

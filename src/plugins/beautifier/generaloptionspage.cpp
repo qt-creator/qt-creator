@@ -84,7 +84,6 @@ GeneralOptionsPageWidget::GeneralOptionsPageWidget(const QStringList &toolIds)
     m_autoFormatTool->setCurrentIndex(qMax(index, 0));
 
     using namespace Utils::Layouting;
-    const Break br;
 
     Column {
         Group {
@@ -96,7 +95,7 @@ GeneralOptionsPageWidget::GeneralOptionsPageWidget(const QStringList &toolIds)
                 Span(2, m_autoFormatOnlyCurrentProject)
             }
         },
-        Stretch()
+        st
     }.attachTo(this);
 
     connect(m_autoFormat, &QCheckBox::toggled, m_autoFormatTool, &QComboBox::setEnabled);

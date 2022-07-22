@@ -138,7 +138,7 @@ CommonSettingsWidget::CommonSettingsWidget(CommonOptionsPage *page)
 
     using namespace Layouting;
     Column {
-        Row { s.lineWrap, s.lineWrapWidth, Stretch() },
+        Row { s.lineWrap, s.lineWrapWidth, st },
         Form {
             s.submitMessageCheckScript,
             s.nickNameMailMap,

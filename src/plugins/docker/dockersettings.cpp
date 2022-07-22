@@ -75,7 +75,7 @@ DockerSettingsPage::DockerSettingsPage(DockerSettings *settings)
                 Title(Tr::tr("Configuration")),
                 Row { s.dockerBinaryPath }
             },
-            Stretch()
+            st
         }.attachTo(widget);
         // clang-format on
     });

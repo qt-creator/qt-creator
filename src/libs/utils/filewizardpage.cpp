@@ -73,7 +73,6 @@ FileWizardPage::FileWizardPage(QWidget *parent) :
     d->m_pathChooser = new PathChooser;
 
     using namespace Layouting;
-    const Break br;
 
     Form {
         Space(), d->m_defaultSuffixLabel, br,

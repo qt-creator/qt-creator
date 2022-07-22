@@ -145,22 +145,21 @@ CatchTestSettingsPage::CatchTestSettingsPage(CatchTestSettings *settings, Utils:
     setLayouter([settings](QWidget *widget) {
         CatchTestSettings &s = *settings;
         using namespace Layouting;
-        const Break nl;
 
         Grid col {
-            s.showSuccess, nl,
-            s.breakOnFailure, nl,
-            s.noThrow, nl,
-            s.visibleWhitespace, nl,
-            s.abortAfterChecked, s.abortAfter, nl,
-            s.samplesChecked, s.benchmarkSamples, nl,
-            s.resamplesChecked, s.benchmarkResamples, nl,
-            s.confidenceIntervalChecked, s.confidenceInterval, nl,
-            s.warmupChecked, s.benchmarkWarmupTime, nl,
+            s.showSuccess, br,
+            s.breakOnFailure, br,
+            s.noThrow, br,
+            s.visibleWhitespace, br,
+            s.abortAfterChecked, s.abortAfter, br,
+            s.samplesChecked, s.benchmarkSamples, br,
+            s.resamplesChecked, s.benchmarkResamples, br,
+            s.confidenceIntervalChecked, s.confidenceInterval, br,
+            s.warmupChecked, s.benchmarkWarmupTime, br,
             s.noAnalysis
         };
 
-        Column { Row { col, Stretch() }, Stretch() }.attachTo(widget);
+        Column { Row { col, st }, st }.attachTo(widget);
     });
 }
 

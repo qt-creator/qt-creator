@@ -145,7 +145,7 @@ NimToolsSettingsPage::NimToolsSettingsPage(NimSettings *settings)
                 Title("Nimsuggest"),
                 Column { settings->nimSuggestPath }
             },
-            Stretch()
+            st
         }.attachTo(widget);
      });
 }

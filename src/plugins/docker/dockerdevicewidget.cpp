@@ -177,15 +177,15 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     using namespace Layouting;
 
     Form {
-        repoLabel, m_repoLineEdit, Break(),
-        tagLabel, m_tagLineEdit, Break(),
-        idLabel, m_idLineEdit, Break(),
-        daemonStateLabel, m_daemonReset, m_daemonState, Break(),
-        m_runAsOutsideUser, Break(),
+        repoLabel, m_repoLineEdit, br,
+        tagLabel, m_tagLineEdit, br,
+        idLabel, m_idLineEdit, br,
+        daemonStateLabel, m_daemonReset, m_daemonState, br,
+        m_runAsOutsideUser, br,
         Column {
             pathListLabel,
             m_pathsListEdit,
-        }, Break(),
+        }, br,
         Column {
             Space(20),
             Row {
@@ -196,9 +196,9 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
                 autoDetectButton,
                 undoAutoDetectButton,
                 listAutoDetectedButton,
-                Stretch(),
+                st,
             },
-            new QLabel(Tr::tr("Detection log:")),
+            Tr::tr("Detection log:"),
             logView
         }
     }.attachTo(this);

@@ -138,7 +138,7 @@ QtTestSettingsPage::QtTestSettingsPage(QtTestSettings *settings, Id settingsId)
             },
         };
 
-        Column { Row { col, Stretch() }, Stretch() }.attachTo(widget);
+        Column { Row { col, st }, st }.attachTo(widget);
     });
 }
 

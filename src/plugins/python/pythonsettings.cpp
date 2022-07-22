@@ -112,7 +112,7 @@ public:
         connect(m_executable, &PathChooser::filePathChanged, this, &InterpreterDetailsWidget::changed);
 
         Form {
-            Tr::tr("Name:"), m_name, Break(),
+            Tr::tr("Name:"), m_name, br,
             Tr::tr("Executable"), m_executable
         }.attachTo(this, false);
     }
@@ -221,7 +221,7 @@ InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &int
         m_deleteButton,
         m_makeDefaultButton,
         m_cleanButton,
-        Stretch()
+        st
     };
 
     Column {

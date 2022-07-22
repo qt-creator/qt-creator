@@ -227,8 +227,6 @@ public:
         m_editButton->setEnabled(false);
 
         using namespace Layouting;
-        static const Break br;
-        static const Stretch st;
 
         Column buttons{addButton, m_removeButton, m_editButton, st};
 

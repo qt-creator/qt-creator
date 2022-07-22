@@ -107,7 +107,7 @@ OptionsDialog::OptionsDialog(Settings *settings, const std::function<void ()> &o
                     m_editKeywordButton,
                     m_removeKeywordButton,
                     resetKeywordsButton,
-                    Stretch()
+                    st
                 }
             }
         },

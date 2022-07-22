@@ -509,5 +509,8 @@ LayoutBuilder::Setter title(const QString &title, BoolAspect *checker)
     };
 }
 
+LayoutBuilder::Break br;
+LayoutBuilder::Stretch st;
+
 } // Layouting
 } // Utils
