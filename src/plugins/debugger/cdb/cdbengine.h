@@ -221,7 +221,6 @@ private:
     QSet<Breakpoint> m_pendingBreakpointMap;
     bool m_autoBreakPointCorrection = false;
     QMultiHash<QString, quint64> m_symbolAddressCache;
-    bool m_ignoreCdbOutput = false;
     QList<InterruptCallback> m_interrupCallbacks;
     QList<SourcePathMapping> m_sourcePathMappings;
     QScopedPointer<GdbMi> m_coreStopReason;

@@ -225,7 +225,6 @@ void CdbEngine::init()
     m_hasDebuggee = false;
     m_sourceStepInto = false;
     m_watchPointX = m_watchPointY = 0;
-    m_ignoreCdbOutput = false;
     m_autoBreakPointCorrection = false;
     m_wow64State = wow64Uninitialized;
 
@@ -670,8 +669,9 @@ void CdbEngine::shutdownEngine()
         return;
     }
 
-    // No longer trigger anything from messages
-    m_ignoreCdbOutput = true;
+    m_process.setStdOutCallback({});
+    m_process.setStdErrCallback({});
+
     // Go for kill if there are commands pending.
     if (m_accessible && !commandsPending()) {
         // detach (except console): Wait for debugger to finish.
