@@ -27,11 +27,14 @@
 
 #include <QWidget>
 
-namespace Beautifier {
-namespace Internal {
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QPushButton;
+QT_END_NAMESPACE
+
+namespace Beautifier::Internal {
 
 class AbstractSettings;
-namespace Ui { class ConfigurationPanel; }
 
 class ConfigurationPanel : public QWidget
 {
@@ -50,10 +53,13 @@ private:
     void add();
     void edit();
     void updateButtons();
-    Ui::ConfigurationPanel *ui;
-    AbstractSettings *m_settings = nullptr;
     void populateConfigurations(const QString &key = QString());
+
+    AbstractSettings *m_settings = nullptr;
+
+    QComboBox *m_configurations;
+    QPushButton *m_edit;
+    QPushButton *m_remove;
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal
