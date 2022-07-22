@@ -164,15 +164,15 @@ void LibraryDetailsController::updateGui()
     libraryDetailsWidget()->libraryRadio->setEnabled(macRadiosEnabled);
     libraryDetailsWidget()->frameworkRadio->setEnabled(macRadiosEnabled);
 
-    // update values in gui
-    setIgnoreGuiSignals(true);
+    {
+        // update values in gui
+        const GuardLocker locker(m_ignoreChanges);
 
-    showLinkageType(linkageType());
-    showMacLibraryType(macLibraryType());
-    if (!m_includePathChanged)
-        libraryDetailsWidget()->includePathChooser->setPath(suggestedIncludePath());
-
-    setIgnoreGuiSignals(false);
+        showLinkageType(linkageType());
+        showMacLibraryType(macLibraryType());
+        if (!m_includePathChanged)
+            libraryDetailsWidget()->includePathChooser->setPath(suggestedIncludePath());
+    }
 
     // UGLY HACK BEGIN
     //
@@ -208,16 +208,6 @@ FilePath LibraryDetailsController::proFile() const
 bool LibraryDetailsController::isIncludePathChanged() const
 {
     return m_includePathChanged;
-}
-
-void LibraryDetailsController::setIgnoreGuiSignals(bool ignore)
-{
-    m_ignoreGuiSignals = ignore;
-}
-
-bool LibraryDetailsController::guiSignalsIgnored() const
-{
-    return m_ignoreGuiSignals;
 }
 
 void LibraryDetailsController::showLinkageType(
@@ -352,7 +342,7 @@ bool LibraryDetailsController::isWindowsGroupVisible() const
 
 void LibraryDetailsController::slotIncludePathChanged()
 {
-    if (m_ignoreGuiSignals)
+    if (m_ignoreChanges.isLocked())
         return;
     m_includePathChanged = true;
 }
@@ -365,14 +355,12 @@ void LibraryDetailsController::slotPlatformChanged()
 
 void LibraryDetailsController::slotMacLibraryTypeChanged()
 {
-    if (guiSignalsIgnored())
+    if (m_ignoreChanges.isLocked())
         return;
 
-    if (m_linkageRadiosVisible
-            && libraryDetailsWidget()->frameworkRadio->isChecked()) {
-        setIgnoreGuiSignals(true);
+    if (m_linkageRadiosVisible && libraryDetailsWidget()->frameworkRadio->isChecked()) {
+        const GuardLocker locker(m_ignoreChanges);
         libraryDetailsWidget()->dynamicRadio->setChecked(true);
-        setIgnoreGuiSignals(false);
     }
 
     updateGui();
@@ -706,17 +694,15 @@ void NonInternalLibraryDetailsController::updateWindowsOptionsEnablement()
 
 void NonInternalLibraryDetailsController::handleLinkageTypeChange()
 {
-    if (isMacLibraryRadiosVisible()
-            && libraryDetailsWidget()->staticRadio->isChecked()) {
-        setIgnoreGuiSignals(true);
+    if (isMacLibraryRadiosVisible() && libraryDetailsWidget()->staticRadio->isChecked()) {
+        const GuardLocker locker(m_ignoreChanges);
         libraryDetailsWidget()->libraryRadio->setChecked(true);
-        setIgnoreGuiSignals(false);
     }
 }
 
 void NonInternalLibraryDetailsController::slotLinkageTypeChanged()
 {
-    if (guiSignalsIgnored())
+    if (m_ignoreChanges.isLocked())
         return;
 
     handleLinkageTypeChange();
@@ -1051,7 +1037,7 @@ void InternalLibraryDetailsController::updateProFile()
     if (!project)
         return;
 
-    setIgnoreGuiSignals(true);
+    const GuardLocker locker(m_ignoreChanges);
 
     m_rootProjectPath = project->projectDirectory().toString();
 
@@ -1078,8 +1064,6 @@ void InternalLibraryDetailsController::updateProFile()
                         itemToolTip, Qt::ToolTipRole);
         }
     }
-
-    setIgnoreGuiSignals(false);
 }
 
 void InternalLibraryDetailsController::slotCurrentLibraryChanged()
@@ -1101,7 +1085,7 @@ void InternalLibraryDetailsController::slotCurrentLibraryChanged()
         }
     }
 
-    if (guiSignalsIgnored())
+    if (m_ignoreChanges.isLocked())
         return;
 
     updateGui();

@@ -27,6 +27,8 @@
 
 #include "addlibrarywizard.h"
 
+#include <utils/guard.h>
+
 namespace QmakeProjectManager {
 class QmakeProFile;
 namespace Internal {
@@ -56,15 +58,12 @@ protected:
     QString libraryPlatformFilter() const;
     Utils::FilePath proFile() const;
     bool isIncludePathChanged() const;
-    bool guiSignalsIgnored() const;
 
     void updateGui();
     virtual AddLibraryWizard::LinkageType suggestedLinkageType() const = 0;
     virtual AddLibraryWizard::MacLibraryType suggestedMacLibraryType() const = 0;
     virtual QString suggestedIncludePath() const = 0;
     virtual void updateWindowsOptionsEnablement() = 0;
-
-    void setIgnoreGuiSignals(bool ignore);
 
     void setPlatformsVisible(bool ena);
     void setLinkageRadiosVisible(bool ena);
@@ -81,6 +80,8 @@ protected:
     bool isMacLibraryRadiosVisible() const;
     bool isIncludePathVisible() const;
     bool isWindowsGroupVisible() const;
+
+    Utils::Guard m_ignoreChanges;
 
 private:
     void slotIncludePathChanged();
@@ -101,7 +102,6 @@ private:
 
     Utils::FilePath m_proFile;
 
-    bool m_ignoreGuiSignals = false;
     bool m_includePathChanged = false;
 
     bool m_linkageRadiosVisible = true;
