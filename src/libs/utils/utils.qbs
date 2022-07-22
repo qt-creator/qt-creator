@@ -240,7 +240,6 @@ Project {
             "progressindicator.h",
             "projectintropage.cpp",
             "projectintropage.h",
-            "projectintropage.ui",
             "proxyaction.cpp",
             "proxyaction.h",
             "proxycredentialsdialog.cpp",

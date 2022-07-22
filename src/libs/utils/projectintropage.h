@@ -33,8 +33,6 @@
 
 namespace Utils {
 
-class ProjectIntroPagePrivate;
-
 class QTCREATOR_UTILS_EXPORT ProjectIntroPage : public WizardPage
 {
     Q_OBJECT
@@ -52,9 +50,6 @@ public:
     FilePath filePath() const;
     QString description() const;
     bool useAsDefaultPath() const;
-
-    // Insert an additional control into the form layout for the target.
-    void insertControl(int row, QWidget *label, QWidget *control);
 
     bool isComplete() const override;
 
@@ -90,7 +85,7 @@ private:
     void displayStatusMessage(InfoLabel::InfoType t, const QString &);
     void hideStatusLabel();
 
-    ProjectIntroPagePrivate *d;
+    class ProjectIntroPagePrivate *d;
 };
 
 } // namespace Utils
