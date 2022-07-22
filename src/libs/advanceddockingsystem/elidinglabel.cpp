@@ -138,11 +138,7 @@ namespace ADS {
 
     bool ElidingLabel::hasPixmap() const
     {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         return !pixmap().isNull();
-#else
-        return pixmap() != nullptr;
-#endif
     }
 
     QSize ElidingLabel::minimumSizeHint() const
