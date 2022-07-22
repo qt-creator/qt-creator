@@ -129,12 +129,12 @@ QdbDevice::QdbDevice()
 {
     setDisplayType(tr("Boot2Qt Device"));
 
-    addDeviceAction({tr("Reboot Device"), [this](const IDevice::Ptr &device, QWidget *) {
-                         (void) new DeviceApplicationObserver(device, {filePath("reboot"), {}});
+    addDeviceAction({tr("Reboot Device"), [](const IDevice::Ptr &device, QWidget *) {
+        (void) new DeviceApplicationObserver(device, {device->filePath("reboot"), {}});
     }});
 
-    addDeviceAction({tr("Restore Default App"), [this](const IDevice::Ptr &device, QWidget *) {
-        (void) new DeviceApplicationObserver(device, {filePath("appcontroller"), {"--remove-default"}});
+    addDeviceAction({tr("Restore Default App"), [](const IDevice::Ptr &device, QWidget *) {
+        (void) new DeviceApplicationObserver(device, {device->filePath("appcontroller"), {"--remove-default"}});
     }});
 }
 
