@@ -382,9 +382,6 @@ private:
 
     void refresh() override
     {
-        if (m_ignoreChange)
-            return;
-
         CMakeTool *const tool = CMakeKitAspect::cmakeTool(m_kit);
         if (tool != m_currentTool)
             m_currentTool = tool;
@@ -505,7 +502,6 @@ private:
         }
     }
 
-    bool m_ignoreChange = false;
     ElidingLabel *m_label;
     QPushButton *m_changeButton;
     CMakeTool *m_currentTool = nullptr;
