@@ -128,7 +128,6 @@ Project {
             "fileutils.h",
             "filewizardpage.cpp",
             "filewizardpage.h",
-            "filewizardpage.ui",
             "fixedsizeclicklabel.cpp",
             "fixedsizeclicklabel.h",
             "flowlayout.cpp",

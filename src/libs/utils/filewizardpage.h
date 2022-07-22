@@ -33,8 +33,6 @@ namespace Utils {
 
 class FilePath;
 
-class FileWizardPagePrivate;
-
 class QTCREATOR_UTILS_EXPORT FileWizardPage : public WizardPage
 {
     Q_OBJECT
@@ -76,7 +74,7 @@ private:
     void slotValidChanged();
     void slotActivated();
 
-    FileWizardPagePrivate *d;
+    class FileWizardPagePrivate *d;
 };
 
 } // namespace Utils
