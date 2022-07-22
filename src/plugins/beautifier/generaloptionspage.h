@@ -27,8 +27,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 class GeneralOptionsPage final : public Core::IOptionsPage
 {
@@ -36,5 +35,4 @@ public:
     explicit GeneralOptionsPage(const QStringList &toolIds);
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal
