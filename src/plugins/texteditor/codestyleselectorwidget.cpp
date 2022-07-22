@@ -239,7 +239,7 @@ void CodeStyleSelectorWidget::setCodeStyle(ICodeStylePreferences *codeStyle)
 
 void CodeStyleSelectorWidget::slotComboBoxActivated(int index)
 {
-    if (m_ignoreGuiSignals)
+    if (m_ignoreChanges.isLocked())
         return;
 
     if (index < 0 || index >= m_ui->delegateComboBox->count())
@@ -252,11 +252,11 @@ void CodeStyleSelectorWidget::slotComboBoxActivated(int index)
 
 void CodeStyleSelectorWidget::slotCurrentDelegateChanged(ICodeStylePreferences *delegate)
 {
-    m_ignoreGuiSignals = true;
-    m_ui->delegateComboBox->setCurrentIndex(m_ui->delegateComboBox->findData(QVariant::fromValue(delegate)));
-    m_ui->delegateComboBox->setToolTip(m_ui->delegateComboBox->currentText());
-    m_ignoreGuiSignals = false;
-
+    {
+        const GuardLocker locker(m_ignoreChanges);
+        m_ui->delegateComboBox->setCurrentIndex(m_ui->delegateComboBox->findData(QVariant::fromValue(delegate)));
+        m_ui->delegateComboBox->setToolTip(m_ui->delegateComboBox->currentText());
+    }
     const bool removeEnabled = delegate && !delegate->isReadOnly() && !delegate->currentDelegate();
     m_ui->removeButton->setEnabled(removeEnabled);
 }
@@ -381,7 +381,7 @@ void CodeStyleSelectorWidget::slotCodeStyleAdded(ICodeStylePreferences *codeStyl
 
 void CodeStyleSelectorWidget::slotCodeStyleRemoved(ICodeStylePreferences *codeStylePreferences)
 {
-    m_ignoreGuiSignals = true;
+    const GuardLocker locker(m_ignoreChanges);
     m_ui->delegateComboBox->removeItem(m_ui->delegateComboBox->findData(
                                            QVariant::fromValue(codeStylePreferences)));
     disconnect(codeStylePreferences, &ICodeStylePreferences::displayNameChanged, this, nullptr);
@@ -389,7 +389,6 @@ void CodeStyleSelectorWidget::slotCodeStyleRemoved(ICodeStylePreferences *codeSt
         disconnect(codeStylePreferences, &ICodeStylePreferences::currentPreferencesChanged,
                    this, nullptr);
     }
-    m_ignoreGuiSignals = false;
 }
 
 void CodeStyleSelectorWidget::slotUpdateName(ICodeStylePreferences *codeStylePreferences)

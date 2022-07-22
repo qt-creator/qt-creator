@@ -27,6 +27,8 @@
 
 #include "texteditor_global.h"
 
+#include <utils/guard.h>
+
 #include <QWidget>
 
 namespace ProjectExplorer { class Project; }
@@ -69,7 +71,7 @@ private:
 
     Internal::Ui::CodeStyleSelectorWidget *m_ui;
 
-    bool m_ignoreGuiSignals = false;
+    Utils::Guard m_ignoreChanges;
 };
 
 } // namespace TextEditor
