@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "shortcutsettings.h"
+
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -33,6 +34,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>

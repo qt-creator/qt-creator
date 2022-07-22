@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "mainwidget.h"
+
 #include "actionhandler.h"
 #include "colorthemes.h"
 #include "colortoolbutton.h"
@@ -32,8 +33,9 @@
 #include "magnifier.h"
 #include "navigator.h"
 #include "outputtabwidget.h"
-#include "scxmltagutils.h"
 #include "scxmleditorconstants.h"
+#include "scxmltagutils.h"
+#include "scxmluifactory.h"
 #include "search.h"
 #include "shapestoolbox.h"
 #include "stateitem.h"
@@ -47,20 +49,20 @@
 
 #include <QAction>
 #include <QClipboard>
-#include <QGuiApplication>
-#include <QMenu>
-#include <QMimeData>
-
 #include <QComboBox>
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QDebug>
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QGuiApplication>
 #include <QImage>
 #include <QImageWriter>
 #include <QItemEditorFactory>
+#include <QMenu>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QPainter>
 #include <QProgressBar>
 #include <QProgressDialog>
@@ -68,16 +70,16 @@
 #include <QStandardPaths>
 #include <QXmlStreamWriter>
 
-#include "scxmluifactory.h"
-
-#include <QCoreApplication>
 #include <app/app_version.h>
-#include <iostream>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
+
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/icon.h>
+
+#include <iostream>
 
 using namespace ScxmlEditor::PluginInterface;
 using namespace ScxmlEditor::Common;

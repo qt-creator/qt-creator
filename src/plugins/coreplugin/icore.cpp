@@ -30,10 +30,12 @@
 #include "windowsupport.h"
 
 #include <app/app_version.h>
+
 #include <extensionsystem/pluginmanager.h>
 
-#include <utils/qtcassert.h>
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 
 #include <QApplication>
 #include <QDebug>

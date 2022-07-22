@@ -38,6 +38,8 @@
 #include <QToolButton>
 
 #include <coreplugin/icore.h>
+
+#include <utils/fileutils.h>
 #include <utils/utilsicons.h>
 
 using namespace ScxmlEditor::OutputPane;

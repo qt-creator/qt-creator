@@ -29,6 +29,8 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <utils/fileutils.h>
+
 #include <QXmlStreamReader>
 #include <QXmlStreamAttribute>
 #include <QTemporaryFile>
@@ -38,12 +40,12 @@
 
 enum { debug = 0 };
 
-static const char tempPatternC[] = "pasterXXXXXX.xml";
-static const char tempGlobPatternC[] = "paster*.xml";
-static const char pasterElementC[] = "paster";
-static const char userElementC[] = "user";
-static const char descriptionElementC[] = "description";
-static const char textElementC[] = "text";
+const char tempPatternC[] = "pasterXXXXXX.xml";
+const char tempGlobPatternC[] = "paster*.xml";
+const char pasterElementC[] = "paster";
+const char userElementC[] = "user";
+const char descriptionElementC[] = "description";
+const char textElementC[] = "text";
 
 namespace CodePaster {
 

@@ -28,7 +28,7 @@
 #include "core_global.h"
 #include "icontext.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/qtcsettings.h>
 
 #include <QList>
@@ -45,9 +45,7 @@ class QStatusBar;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Utils {
-class InfoBar;
-}
+namespace Utils { class InfoBar; }
 
 namespace Core {
 class Context;

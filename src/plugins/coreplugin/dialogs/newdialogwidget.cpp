@@ -27,11 +27,13 @@
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
+#include <QCoreApplication>
 #include <QComboBox>
 #include <QDebug>
 #include <QDialogButtonBox>

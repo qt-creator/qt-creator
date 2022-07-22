@@ -28,13 +28,16 @@
 #include "gitlabparameters.h"
 
 #include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <QAction>
 #include <QComboBox>
+#include <QDialog>
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QLabel>

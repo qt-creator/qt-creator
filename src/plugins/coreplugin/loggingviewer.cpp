@@ -33,6 +33,7 @@
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/executeondestruction.h>
+#include <utils/fileutils.h>
 #include <utils/listmodel.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>

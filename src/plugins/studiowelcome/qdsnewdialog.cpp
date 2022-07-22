@@ -27,13 +27,16 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/iwizardfactory.h>
-#include <utils/qtcassert.h>
+
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
+#include <utils/qtcassert.h>
+
 #include <qmldesigner/components/componentcore/theme.h>
 
 #include "createproject.h"
-#include "wizardfactories.h"
 #include "newprojectdialogimageprovider.h"
+#include "wizardfactories.h"
 
 #include <QMessageBox>
 #include <QQmlContext>
