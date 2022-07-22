@@ -41,6 +41,7 @@
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
+#include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
@@ -96,19 +97,18 @@ private:
 
     void refresh() override
     {
-        if (!m_ignoreChange)
+        if (!m_ignoreChanges.isLocked())
             m_chooser->setFilePath(SysRootKitAspect::sysRoot(m_kit));
     }
 
     void pathWasChanged()
     {
-        m_ignoreChange = true;
+        const GuardLocker locker(m_ignoreChanges);
         SysRootKitAspect::setSysRoot(m_kit, m_chooser->filePath());
-        m_ignoreChange = false;
     }
 
     PathChooser *m_chooser;
-    bool m_ignoreChange = false;
+    Guard m_ignoreChanges;
 };
 } // namespace Internal
 
@@ -267,7 +267,7 @@ private:
 
     void refresh() override
     {
-        m_ignoreChanges = true;
+        const GuardLocker locker(m_ignoreChanges);
         const QList<Id> keys = m_languageComboboxMap.keys();
         for (const Id l : keys) {
             const Toolchains ltcList = ToolChainManager::toolchains(equal(&ToolChain::language, l));
@@ -283,7 +283,6 @@ private:
             const int index = indexOf(cb, ToolChainKitAspect::toolChain(m_kit, l));
             cb->setCurrentIndex(index);
         }
-        m_ignoreChanges = false;
     }
 
     void makeReadOnly() override
@@ -297,7 +296,7 @@ private:
 
     void currentToolChainChanged(Id language, int idx)
     {
-        if (m_ignoreChanges || idx < 0)
+        if (m_ignoreChanges.isLocked() || idx < 0)
             return;
 
         const QByteArray id = m_languageComboboxMap.value(language)->itemData(idx).toByteArray();
@@ -322,7 +321,7 @@ private:
     QWidget *m_mainWidget = nullptr;
     QWidget *m_manageButton = nullptr;
     QHash<Id, QComboBox *> m_languageComboboxMap;
-    bool m_ignoreChanges = false;
+    Guard m_ignoreChanges;
     bool m_isReadOnly = false;
 };
 } // namespace Internal
