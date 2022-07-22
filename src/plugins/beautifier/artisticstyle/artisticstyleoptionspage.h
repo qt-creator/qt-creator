@@ -27,8 +27,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 class ArtisticStyleSettings;
 
@@ -38,5 +37,4 @@ public:
     explicit ArtisticStyleOptionsPage(ArtisticStyleSettings *settings);
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

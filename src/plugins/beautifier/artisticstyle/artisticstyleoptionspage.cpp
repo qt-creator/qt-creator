@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "artisticstyleoptionspage.h"
-#include "ui_artisticstyleoptionspage.h"
 
 #include "artisticstyleconstants.h"
 #include "artisticstylesettings.h"
@@ -32,9 +31,18 @@
 
 #include "../beautifierconstants.h"
 #include "../beautifierplugin.h"
+#include "../configurationpanel.h"
 
-namespace Beautifier {
-namespace Internal {
+#include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
+
+#include <QApplication>
+#include <QCheckBox>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLineEdit>
+
+namespace Beautifier::Internal {
 
 class ArtisticStyleOptionsPageWidget : public Core::IOptionsPageWidget
 {
@@ -46,49 +54,99 @@ public:
     void apply() final;
 
 private:
-    Ui::ArtisticStyleOptionsPage ui;
     ArtisticStyleSettings *m_settings;
+
+    Utils::PathChooser *m_command;
+    QLineEdit *m_mime;
+    QCheckBox *m_useOtherFiles;
+    QCheckBox *m_useSpecificConfigFile;
+    Utils::PathChooser *m_specificConfigFile;
+    QCheckBox *m_useHomeFile;
+    QCheckBox *m_useCustomStyle;
+    Beautifier::Internal::ConfigurationPanel *m_configurations;
 };
 
 ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSettings *settings)
     : m_settings(settings)
 {
-    ui.setupUi(this);
-    ui.useHomeFile->setText(ui.useHomeFile->text().replace(
-                                 "HOME", QDir::toNativeSeparators(QDir::home().absolutePath())));
-    ui.specificConfigFile->setExpectedKind(Utils::PathChooser::File);
-    ui.specificConfigFile->setPromptDialogFilter(tr("AStyle (*.astylerc)"));
-    ui.command->setExpectedKind(Utils::PathChooser::ExistingCommand);
-    ui.command->setCommandVersionArguments({"--version"});
-    ui.command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
-                                          ArtisticStyle::tr(Constants::ARTISTICSTYLE_DISPLAY_NAME)));
-    connect(ui.command, &Utils::PathChooser::validChanged, ui.options, &QWidget::setEnabled);
-    ui.configurations->setSettings(m_settings);
+    resize(817, 631);
 
-    ui.command->setFilePath(m_settings->command());
-    ui.mime->setText(m_settings->supportedMimeTypesAsString());
-    ui.useOtherFiles->setChecked(m_settings->useOtherFiles());
-    ui.useSpecificConfigFile->setChecked(m_settings->useSpecificConfigFile());
-    ui.specificConfigFile->setFilePath(m_settings->specificConfigFile());
-    ui.useHomeFile->setChecked(m_settings->useHomeFile());
-    ui.useCustomStyle->setChecked(m_settings->useCustomStyle());
-    ui.configurations->setCurrentConfiguration(m_settings->customStyle());
+    m_command = new Utils::PathChooser;
+
+    m_mime = new QLineEdit(m_settings->supportedMimeTypesAsString());
+
+    auto options = new QGroupBox(tr("Options"));
+
+    m_useOtherFiles = new QCheckBox(tr("Use file *.astylerc defined in project files"));
+    m_useOtherFiles->setChecked(m_settings->useOtherFiles());
+
+    m_useSpecificConfigFile = new QCheckBox(tr("Use specific config file:"));
+    m_useSpecificConfigFile->setChecked(m_settings->useSpecificConfigFile());
+
+    m_specificConfigFile = new Utils::PathChooser;
+    m_specificConfigFile->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_specificConfigFile->setExpectedKind(Utils::PathChooser::File);
+    m_specificConfigFile->setPromptDialogFilter(tr("AStyle (*.astylerc)"));
+    m_specificConfigFile->setFilePath(m_settings->specificConfigFile());
+
+    m_useHomeFile = new QCheckBox(
+        tr("Use file .astylerc or astylerc in HOME").
+            replace("HOME", QDir::toNativeSeparators(QDir::home().absolutePath())));
+    m_useHomeFile->setChecked(m_settings->useHomeFile());
+
+    m_useCustomStyle = new QCheckBox(tr("Use customized style:"));
+    m_useCustomStyle->setChecked(m_settings->useCustomStyle());
+
+    m_configurations = new Beautifier::Internal::ConfigurationPanel(options);
+    m_configurations->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    m_configurations->setSettings(m_settings);
+    m_configurations->setCurrentConfiguration(m_settings->customStyle());
+
+    m_command->setExpectedKind(Utils::PathChooser::ExistingCommand);
+    m_command->setCommandVersionArguments({"--version"});
+    m_command->setPromptDialogTitle(BeautifierPlugin::msgCommandPromptDialogTitle(
+                                          ArtisticStyle::tr(Constants::ARTISTICSTYLE_DISPLAY_NAME)));
+    m_command->setFilePath(m_settings->command());
+
+    using namespace Utils::Layouting;
+    const Break br;
+
+    Column {
+        m_useOtherFiles,
+        Row { m_useSpecificConfigFile, m_specificConfigFile },
+        m_useHomeFile,
+        Row { m_useCustomStyle, m_configurations }
+    }.attachTo(options);
+
+    Column {
+        Group {
+            Title(tr("Configuration")),
+            Form {
+                tr("Artistic Style command:"), m_command, br,
+                tr("Restrict to MIME types:"), m_mime
+            }
+        },
+        options,
+        Stretch()
+    }.attachTo(this);
+
+    connect(m_command, &Utils::PathChooser::validChanged, options, &QWidget::setEnabled);
 }
 
 void ArtisticStyleOptionsPageWidget::apply()
 {
-    m_settings->setCommand(ui.command->filePath().toString());
-    m_settings->setSupportedMimeTypes(ui.mime->text());
-    m_settings->setUseOtherFiles(ui.useOtherFiles->isChecked());
-    m_settings->setUseSpecificConfigFile(ui.useSpecificConfigFile->isChecked());
-    m_settings->setSpecificConfigFile(ui.specificConfigFile->filePath());
-    m_settings->setUseHomeFile(ui.useHomeFile->isChecked());
-    m_settings->setUseCustomStyle(ui.useCustomStyle->isChecked());
-    m_settings->setCustomStyle(ui.configurations->currentConfiguration());
+    m_settings->setCommand(m_command->filePath().toString());
+    m_settings->setSupportedMimeTypes(m_mime->text());
+    m_settings->setUseOtherFiles(m_useOtherFiles->isChecked());
+    m_settings->setUseSpecificConfigFile(m_useSpecificConfigFile->isChecked());
+    m_settings->setSpecificConfigFile(m_specificConfigFile->filePath());
+    m_settings->setUseHomeFile(m_useHomeFile->isChecked());
+    m_settings->setUseCustomStyle(m_useCustomStyle->isChecked());
+    m_settings->setCustomStyle(m_configurations->currentConfiguration());
     m_settings->save();
 
     // update since not all MIME types are accepted (invalids or duplicates)
-    ui.mime->setText(m_settings->supportedMimeTypesAsString());
+    m_mime->setText(m_settings->supportedMimeTypesAsString());
 }
 
 ArtisticStyleOptionsPage::ArtisticStyleOptionsPage(ArtisticStyleSettings *settings)
@@ -99,5 +157,4 @@ ArtisticStyleOptionsPage::ArtisticStyleOptionsPage(ArtisticStyleSettings *settin
     setWidgetCreator([settings] { return new ArtisticStyleOptionsPageWidget(settings); });
 }
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal

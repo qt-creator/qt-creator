@@ -39,7 +39,6 @@ QtcPlugin {
             "artisticstyleconstants.h",
             "artisticstyleoptionspage.cpp",
             "artisticstyleoptionspage.h",
-            "artisticstyleoptionspage.ui",
             "artisticstylesettings.cpp",
             "artisticstylesettings.h"
         ]

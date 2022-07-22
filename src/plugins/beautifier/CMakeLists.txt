@@ -5,7 +5,7 @@ add_qtc_plugin(Beautifier
     abstractsettings.cpp abstractsettings.h
     artisticstyle/artisticstyle.cpp artisticstyle/artisticstyle.h
     artisticstyle/artisticstyleconstants.h
-    artisticstyle/artisticstyleoptionspage.cpp artisticstyle/artisticstyleoptionspage.h artisticstyle/artisticstyleoptionspage.ui
+    artisticstyle/artisticstyleoptionspage.cpp artisticstyle/artisticstyleoptionspage.h
     artisticstyle/artisticstylesettings.cpp artisticstyle/artisticstylesettings.h
     beautifier.qrc
     beautifierabstracttool.h
