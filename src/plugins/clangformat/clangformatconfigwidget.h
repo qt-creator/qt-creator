@@ -31,16 +31,20 @@
 
 #include <memory>
 
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QComboBox;
+class QLabel;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer { class Project; }
 namespace TextEditor { class SnippetEditorWidget; }
 namespace CppEditor { class CppCodeStyleSettings; }
 
 namespace ClangFormat {
 
-namespace Ui {
-class ClangFormatConfigWidget;
-class ClangFormatChecksWidget;
-}
+namespace Ui { class ClangFormatChecksWidget; }
+
 class ClangFormatFile;
 
 class ClangFormatConfigWidget : public CppEditor::CppCodeStyleWidget
@@ -69,6 +73,7 @@ private:
 
     void fillTable();
     void saveChanges(QObject *sender);
+
     void updatePreview();
 
     ProjectExplorer::Project *m_project;
@@ -77,8 +82,12 @@ private:
     TextEditor::SnippetEditorWidget *m_preview;
     std::unique_ptr<ClangFormatFile> m_config;
     std::unique_ptr<Ui::ClangFormatChecksWidget> m_checks;
-    std::unique_ptr<Ui::ClangFormatConfigWidget> m_ui;
+
     bool m_disableTableUpdate = false;
+
+    QLabel *m_projectHasClangFormat;
+    QCheckBox *m_overrideDefault;
+    QLabel *m_fallbackConfig;
 };
 
-} // namespace ClangFormat
+} // ClangFormat

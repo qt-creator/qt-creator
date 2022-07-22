@@ -29,11 +29,15 @@
 
 #include <memory>
 
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QComboBox;
+class QLabel;
+QT_END_NAMESPACE
+
 namespace ProjectExplorer { class Project; }
 
 namespace ClangFormat {
-
-namespace Ui { class ClangFormatGlobalConfigWidget; }
 
 class ClangFormatGlobalConfigWidget : public CppEditor::CppCodeStyleWidget
 {
@@ -49,7 +53,10 @@ private:
     void initCheckBoxes();
     void initIndentationOrFormattingCombobox();
 
-    std::unique_ptr<Ui::ClangFormatGlobalConfigWidget> m_ui;
+    QLabel *m_formattingModeLabel;
+    QComboBox *m_indentingOrFormatting;
+    QCheckBox *m_formatWhileTyping;
+    QCheckBox *m_formatOnSave;
 };
 
 } // namespace ClangFormat
