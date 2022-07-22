@@ -34,24 +34,19 @@
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/qtversionmanager.h>
 
-#include <QObject>
-#include <QString>
 #include <QStringList>
 #include <QVector>
 #include <QHash>
 #include <QMap>
 #include <QVersionNumber>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
-class Abi;
-class Project;
-}
+namespace ProjectExplorer { class Abi; }
 
 namespace Android {
 

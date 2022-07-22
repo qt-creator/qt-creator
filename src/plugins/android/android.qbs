@@ -83,7 +83,6 @@ Project {
             "androidsdkmanager.h",
             "androidsdkmanagerwidget.cpp",
             "androidsdkmanagerwidget.h",
-            "androidsdkmanagerwidget.ui",
             "androidsdkmodel.cpp",
             "androidsdkmodel.h",
             "androidsdkpackage.cpp",

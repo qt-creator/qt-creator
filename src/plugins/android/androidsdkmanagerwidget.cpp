@@ -22,15 +22,16 @@
 ** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ****************************************************************************/
+
 #include "androidsdkmanagerwidget.h"
 
-#include "ui_androidsdkmanagerwidget.h"
 #include "androidconfigurations.h"
 #include "androidsdkmanager.h"
 #include "androidsdkmodel.h"
 
 #include <app/app_version.h>
-#include <utils/runextensions.h>
+
+#include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/runextensions.h>
 #include <utils/qtcassert.h>
@@ -43,26 +44,24 @@
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 
-namespace {
-static Q_LOGGING_CATEGORY(androidSdkMgrUiLog, "qtc.android.sdkManagerUi", QtWarningMsg)
-}
-
-namespace Android {
-namespace Internal {
-
+using namespace Utils;
 using namespace std::placeholders;
+
+namespace Android::Internal {
+
+static Q_LOGGING_CATEGORY(androidSdkMgrUiLog, "qtc.android.sdkManagerUi", QtWarningMsg)
 
 class PackageFilterModel : public QSortFilterProxyModel
 {
 public:
-    PackageFilterModel(AndroidSdkModel* sdkModel);
+    PackageFilterModel(AndroidSdkModel *sdkModel);
 
     void setAcceptedPackageState(AndroidSdkPackage::PackageState state);
     void setAcceptedSearchPackage(const QString &text);
     bool filterAcceptsRow(int source_row, const QModelIndex &sourceParent) const override;
 
 private:
-    AndroidSdkPackage::PackageState m_packageState =  AndroidSdkPackage::AnyValidState;
+    AndroidSdkPackage::PackageState m_packageState = AndroidSdkPackage::AnyValidState;
     QString m_searchText;
 };
 
@@ -71,91 +70,190 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
     QDialog(parent),
     m_androidConfig(config),
     m_sdkManager(sdkManager),
-    m_sdkModel(new AndroidSdkModel(m_androidConfig, m_sdkManager, this)),
-    m_ui(new Ui::AndroidSdkManagerWidget)
+    m_sdkModel(new AndroidSdkModel(m_androidConfig, m_sdkManager, this))
 {
     QTC_CHECK(sdkManager);
-    m_ui->setupUi(this);
-    m_ui->sdkLicensebuttonBox->hide();
-    m_ui->sdkLicenseLabel->hide();
-    m_ui->viewStack->setCurrentWidget(m_ui->packagesStack);
+
+    setWindowTitle(tr("Android SDK Manager"));
+    resize(664, 396);
     setModal(true);
 
-    m_formatter = new Utils::OutputFormatter;
-    m_formatter->setPlainTextEdit(m_ui->outputEdit);
+    m_packagesStack = new QWidget;
 
-    connect(m_sdkModel, &AndroidSdkModel::dataChanged, this, [this] {
-        if (m_ui->viewStack->currentWidget() == m_ui->packagesStack)
-            m_ui->applySelectionButton->setEnabled(!m_sdkModel->userSelection().isEmpty());
+    auto packagesView = new QTreeView(m_packagesStack);
+    packagesView->setIndentation(20);
+    packagesView->header()->setCascadingSectionResizes(false);
+
+    auto updateInstalledButton = new QPushButton(tr("Update Installed"));
+
+    auto applySelectionButton = new QPushButton(tr("Apply"));
+    applySelectionButton->setEnabled(false);
+
+    auto channelCheckbox = new QComboBox;
+    channelCheckbox->addItem(tr("Default"));
+    channelCheckbox->addItem(tr("Stable"));
+    channelCheckbox->addItem(tr("Beta"));
+    channelCheckbox->addItem(tr("Dev"));
+    channelCheckbox->addItem(tr("Canary"));
+
+    auto obsoleteCheckBox = new QCheckBox(tr("Include obsolete"));
+
+    auto line = new QFrame;
+    line->setFrameShape(QFrame::HLine);
+    line->setFrameShadow(QFrame::Sunken);
+
+    auto showAvailableRadio = new QRadioButton(tr("Available"));
+    auto showInstalledRadio = new QRadioButton(tr("Installed"));
+    auto showAllRadio = new QRadioButton(tr("All"));
+    showAllRadio->setChecked(true);
+
+    auto optionsButton = new QPushButton(tr("Advanced Options..."));
+
+    auto searchField = new FancyLineEdit(m_packagesStack);
+    searchField->setPlaceholderText("Filter");
+
+    auto expandCheck = new QCheckBox(tr("Expand All"));
+
+    m_outputStack = new QWidget;
+    auto cancelButton = new QPushButton(tr("Cancel"));
+
+    m_operationProgress = new QProgressBar(m_outputStack);
+
+    m_outputEdit = new QPlainTextEdit(m_outputStack);
+    m_outputEdit->setReadOnly(true);
+
+    m_sdkLicenseLabel = new QLabel(tr("Do you want to accept the Android SDK license?"));
+    m_sdkLicenseLabel->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+    m_sdkLicenseLabel->hide();
+
+    m_sdkLicenseButtonBox = new QDialogButtonBox(m_outputStack);
+    m_sdkLicenseButtonBox->setEnabled(false);
+    m_sdkLicenseButtonBox->setStandardButtons(QDialogButtonBox::No|QDialogButtonBox::Yes);
+    m_sdkLicenseButtonBox->hide();
+
+    m_buttonBox = new QDialogButtonBox(this);
+    m_buttonBox->setStandardButtons(QDialogButtonBox::Ok);
+
+    m_viewStack = new QStackedWidget(this);
+    m_viewStack->addWidget(m_packagesStack);
+    m_viewStack->addWidget(m_outputStack);
+    m_viewStack->setCurrentWidget(m_packagesStack);
+
+    m_formatter = new OutputFormatter;
+    m_formatter->setPlainTextEdit(m_outputEdit);
+
+    auto proxyModel = new PackageFilterModel(m_sdkModel);
+    packagesView->setModel(proxyModel);
+    packagesView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    packagesView->header()->setSectionResizeMode(AndroidSdkModel::packageNameColumn,
+                                                       QHeaderView::Stretch);
+    packagesView->header()->setStretchLastSection(false);
+
+    using namespace Layouting;
+    const Break br;
+    const Stretch st;
+
+    Grid {
+        searchField, expandCheck, br,
+
+        Span(2, packagesView),
+        Column {
+            updateInstalledButton,
+            applySelectionButton,
+            st,
+            Group {
+                Title(tr("Show Packages")),
+                Column {
+                    Row { tr("Channel:"), channelCheckbox },
+                    obsoleteCheckBox,
+                    line,
+                    showAvailableRadio,
+                    showInstalledRadio,
+                    showAllRadio,
+                }
+            },
+            optionsButton
+        }
+    }.attachTo(m_packagesStack);
+
+    Column {
+        m_outputEdit,
+        Row { m_sdkLicenseLabel, m_sdkLicenseButtonBox },
+        m_operationProgress,
+        st,
+        Row { st, cancelButton }
+    }.attachTo(m_outputStack);
+
+    Column {
+        m_viewStack,
+        m_buttonBox
+    }.attachTo(this);
+
+    connect(m_sdkModel, &AndroidSdkModel::dataChanged, this, [this, applySelectionButton] {
+        if (m_viewStack->currentWidget() == m_packagesStack)
+            applySelectionButton->setEnabled(!m_sdkModel->userSelection().isEmpty());
     });
 
-    connect(m_sdkModel, &AndroidSdkModel::modelAboutToBeReset, this, [this] {
-        m_ui->applySelectionButton->setEnabled(false);
-        m_ui->expandCheck->setChecked(false);
+    connect(m_sdkModel, &AndroidSdkModel::modelAboutToBeReset, this,
+            [this, applySelectionButton, expandCheck] {
+        applySelectionButton->setEnabled(false);
+        expandCheck->setChecked(false);
         cancelPendingOperations();
         switchView(PackageListing);
     });
 
-    auto proxyModel = new PackageFilterModel(m_sdkModel);
-    m_ui->packagesView->setModel(proxyModel);
-    m_ui->packagesView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    m_ui->packagesView->header()->setSectionResizeMode(AndroidSdkModel::packageNameColumn,
-                                                       QHeaderView::Stretch);
-    m_ui->packagesView->header()->setStretchLastSection(false);
-    connect(m_ui->expandCheck, &QCheckBox::stateChanged, this, [this](int state) {
+    connect(expandCheck, &QCheckBox::stateChanged, this, [this, packagesView](int state) {
        if (state == Qt::Checked)
-           m_ui->packagesView->expandAll();
+           packagesView->expandAll();
        else
-           m_ui->packagesView->collapseAll();
+           packagesView->collapseAll();
     });
-    connect(m_ui->updateInstalledButton, &QPushButton::clicked,
+    connect(updateInstalledButton, &QPushButton::clicked,
             this, &AndroidSdkManagerWidget::onUpdatePackages);
-    connect(m_ui->showAllRadio, &QRadioButton::toggled, this, [this, proxyModel](bool checked) {
+    connect(showAllRadio, &QRadioButton::toggled, this, [this, proxyModel](bool checked) {
         if (checked) {
             proxyModel->setAcceptedPackageState(AndroidSdkPackage::AnyValidState);
             m_sdkModel->resetSelection();
         }
     });
-    connect(m_ui->showInstalledRadio, &QRadioButton::toggled,
+    connect(showInstalledRadio, &QRadioButton::toggled,
             this, [this, proxyModel](bool checked) {
         if (checked) {
             proxyModel->setAcceptedPackageState(AndroidSdkPackage::Installed);
             m_sdkModel->resetSelection();
         }
     });
-    connect(m_ui->showAvailableRadio, &QRadioButton::toggled,
-            this, [this, proxyModel](bool checked) {
+    connect(showAvailableRadio, &QRadioButton::toggled, this, [this, proxyModel](bool checked) {
         if (checked) {
             proxyModel->setAcceptedPackageState(AndroidSdkPackage::Available);
             m_sdkModel->resetSelection();
         }
     });
 
-    m_ui->searchField->setPlaceholderText("Filter");
-    connect(m_ui->searchField, &QLineEdit::textChanged,
-            this, [this, proxyModel](const QString &text) {
+    connect(searchField, &QLineEdit::textChanged,
+            this, [this, proxyModel, expandCheck](const QString &text) {
         proxyModel->setAcceptedSearchPackage(text);
         m_sdkModel->resetSelection();
         // It is more convenient to expand the view with the results
-        m_ui->expandCheck->setChecked(!text.isEmpty());
+        expandCheck->setChecked(!text.isEmpty());
     });
 
-    connect(m_ui->buttonBox, &QDialogButtonBox::accepted, this, &AndroidSdkManagerWidget::close);
-    connect(m_ui->applySelectionButton, &QPushButton::clicked, this, [this] { onApplyButton(); });
-    connect(m_ui->cancelButton, &QPushButton::clicked, this,
+    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &AndroidSdkManagerWidget::close);
+    connect(applySelectionButton, &QPushButton::clicked, this, [this] { onApplyButton(); });
+    connect(cancelButton, &QPushButton::clicked, this,
             &AndroidSdkManagerWidget::onCancel);
-    connect(m_ui->optionsButton, &QPushButton::clicked,
+    connect(optionsButton, &QPushButton::clicked,
             this, &AndroidSdkManagerWidget::onSdkManagerOptions);
-    connect(m_ui->sdkLicensebuttonBox, &QDialogButtonBox::accepted, this, [this] {
+    connect(m_sdkLicenseButtonBox, &QDialogButtonBox::accepted, this, [this] {
         m_sdkManager->acceptSdkLicense(true);
-        m_ui->sdkLicensebuttonBox->setEnabled(false); // Wait for next license to enable controls
+        m_sdkLicenseButtonBox->setEnabled(false); // Wait for next license to enable controls
     });
-    connect(m_ui->sdkLicensebuttonBox, &QDialogButtonBox::rejected, this, [this] {
+    connect(m_sdkLicenseButtonBox, &QDialogButtonBox::rejected, this, [this] {
         m_sdkManager->acceptSdkLicense(false);
-        m_ui->sdkLicensebuttonBox->setEnabled(false); // Wait for next license to enable controls
+        m_sdkLicenseButtonBox->setEnabled(false); // Wait for next license to enable controls
     });
 
-    connect(m_ui->oboleteCheckBox, &QCheckBox::stateChanged, this, [this](int state) {
+    connect(obsoleteCheckBox, &QCheckBox::stateChanged, this, [this](int state) {
         const QString obsoleteArg = "--include_obsolete";
         QStringList args = m_androidConfig.sdkManagerToolArgs();
         if (state == Qt::Checked && !args.contains(obsoleteArg)) {
@@ -168,7 +266,7 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
         m_sdkManager->reloadPackages(true);
     });
 
-    connect(m_ui->channelCheckbox, &QComboBox::currentIndexChanged, this, [this](int index) {
+    connect(channelCheckbox, &QComboBox::currentIndexChanged, this, [this](int index) {
         QStringList args = m_androidConfig.sdkManagerToolArgs();
         QString existingArg;
         for (int i = 0; i < 4; ++i) {
@@ -204,7 +302,6 @@ AndroidSdkManagerWidget::~AndroidSdkManagerWidget()
         delete m_currentOperation;
     cancelPendingOperations();
     delete m_formatter;
-    delete m_ui;
 }
 
 void AndroidSdkManagerWidget::installEssentials()
@@ -224,10 +321,10 @@ void AndroidSdkManagerWidget::installEssentials()
 
 void AndroidSdkManagerWidget::beginLicenseCheck()
 {
-    m_formatter->appendMessage(tr("Checking pending licenses...\n"), Utils::NormalMessageFormat);
+    m_formatter->appendMessage(tr("Checking pending licenses...\n"), NormalMessageFormat);
     m_formatter->appendMessage(tr("The installation of Android SDK packages may fail if the "
                                   "respective licenses are not accepted.\n"),
-                               Utils::LogMessageFormat);
+                               LogMessageFormat);
     addPackageFuture(m_sdkManager->checkPendingLicenses());
 }
 
@@ -236,7 +333,7 @@ void AndroidSdkManagerWidget::onApplyButton(const QString &extraMessage)
     QTC_ASSERT(m_currentView == PackageListing, return);
 
     if (m_sdkManager->isBusy()) {
-        m_formatter->appendMessage(tr("\nSDK Manager is busy."), Utils::StdErrFormat);
+        m_formatter->appendMessage(tr("\nSDK Manager is busy."), StdErrFormat);
         return;
     }
 
@@ -290,7 +387,7 @@ void AndroidSdkManagerWidget::onApplyButton(const QString &extraMessage)
 void AndroidSdkManagerWidget::onUpdatePackages()
 {
     if (m_sdkManager->isBusy()) {
-        m_formatter->appendMessage(tr("\nSDK Manager is busy."), Utils::StdErrFormat);
+        m_formatter->appendMessage(tr("\nSDK Manager is busy."), StdErrFormat);
         return;
     }
     switchView(Operations);
@@ -309,17 +406,17 @@ void AndroidSdkManagerWidget::onOperationResult(int index)
     AndroidSdkManager::OperationOutput result = m_currentOperation->resultAt(index);
     if (result.type == AndroidSdkManager::LicenseWorkflow) {
         // Show license controls and enable to user input.
-        m_ui->sdkLicenseLabel->setVisible(true);
-        m_ui->sdkLicensebuttonBox->setVisible(true);
-        m_ui->sdkLicensebuttonBox->setEnabled(true);
-        m_ui->sdkLicensebuttonBox->button(QDialogButtonBox::No)->setDefault(true);
+        m_sdkLicenseLabel->setVisible(true);
+        m_sdkLicenseButtonBox->setVisible(true);
+        m_sdkLicenseButtonBox->setEnabled(true);
+        m_sdkLicenseButtonBox->button(QDialogButtonBox::No)->setDefault(true);
     }
     auto breakLine = [](const QString &line) { return line.endsWith("\n") ? line : line + "\n";};
     if (!result.stdError.isEmpty() && result.type != AndroidSdkManager::LicenseCheck)
-        m_formatter->appendMessage(breakLine(result.stdError), Utils::StdErrFormat);
+        m_formatter->appendMessage(breakLine(result.stdError), StdErrFormat);
     if (!result.stdOutput.isEmpty() && result.type != AndroidSdkManager::LicenseCheck)
-        m_formatter->appendMessage(breakLine(result.stdOutput), Utils::StdOutFormat);
-    m_ui->outputEdit->ensureCursorVisible();
+        m_formatter->appendMessage(breakLine(result.stdOutput), StdOutFormat);
+    m_outputEdit->ensureCursorVisible();
 }
 
 void AndroidSdkManagerWidget::onLicenseCheckResult(const AndroidSdkManager::OperationOutput& output)
@@ -345,14 +442,14 @@ void AndroidSdkManagerWidget::addPackageFuture(const QFuture<AndroidSdkManager::
                 this, &AndroidSdkManagerWidget::packageFutureFinished);
         connect(m_currentOperation, &QFutureWatcherBase::progressValueChanged,
                 this, [this](int value) {
-            m_ui->operationProgress->setValue(value);
+            m_operationProgress->setValue(value);
         });
         m_currentOperation->setFuture(future);
     } else {
         qCDebug(androidSdkMgrUiLog) << "Operation canceled/finished before adding to the queue";
         if (m_sdkManager->isBusy()) {
             m_formatter->appendMessage(tr("SDK Manager is busy. Operation cancelled."),
-                                       Utils::StdErrFormat);
+                                       StdErrFormat);
         }
         notifyOperationFinished();
         switchView(PackageListing);
@@ -375,22 +472,22 @@ void AndroidSdkManagerWidget::beginExecution()
             installSdkPaths << package->sdkStylePath();
     }
     m_formatter->appendMessage(tr("Installing/Uninstalling selected packages...\n"),
-                               Utils::NormalMessageFormat);
+                               NormalMessageFormat);
     m_formatter->appendMessage(tr("Closing the %1 dialog will cancel the running and scheduled SDK "
-                                  "operations.\n").arg(Utils::HostOsInfo::isMacHost() ?
+                                  "operations.\n").arg(HostOsInfo::isMacHost() ?
                                                            tr("preferences") : tr("options")),
-                               Utils::LogMessageFormat);
+                               LogMessageFormat);
 
     addPackageFuture(m_sdkManager->update(installSdkPaths, uninstallSdkPaths));
 }
 
 void AndroidSdkManagerWidget::beginUpdate()
 {
-    m_formatter->appendMessage(tr("Updating installed packages...\n"), Utils::NormalMessageFormat);
+    m_formatter->appendMessage(tr("Updating installed packages...\n"), NormalMessageFormat);
     m_formatter->appendMessage(tr("Closing the %1 dialog will cancel the running and scheduled SDK "
-                                  "operations.\n").arg(Utils::HostOsInfo::isMacHost() ?
+                                  "operations.\n").arg(HostOsInfo::isMacHost() ?
                                                            tr("preferences") : tr("options")),
-                               Utils::LogMessageFormat);
+                               LogMessageFormat);
     addPackageFuture(m_sdkManager->updateAll());
 }
 
@@ -405,7 +502,7 @@ void AndroidSdkManagerWidget::notifyOperationFinished()
     if (!m_currentOperation || m_currentOperation->isFinished()) {
         QMessageBox::information(this, tr("Android SDK Changes"),
                                  tr("Android SDK operations finished."), QMessageBox::Ok);
-        m_ui->operationProgress->setValue(0);
+        m_operationProgress->setValue(0);
         // Once the update/install is done, let's hide the dialog.
         hide();
     }
@@ -417,10 +514,10 @@ void AndroidSdkManagerWidget::packageFutureFinished()
 
     bool continueWorkflow = true;
     if (m_currentOperation->isCanceled()) {
-        m_formatter->appendMessage(tr("Operation cancelled.\n"), Utils::StdErrFormat);
+        m_formatter->appendMessage(tr("Operation cancelled.\n"), StdErrFormat);
         continueWorkflow = false;
     }
-    m_ui->operationProgress->setValue(100);
+    m_operationProgress->setValue(100);
     int resultCount = m_currentOperation->future().resultCount();
     if (continueWorkflow && resultCount > 0) {
         AndroidSdkManager::OperationOutput output = m_currentOperation->resultAt(resultCount -1);
@@ -432,8 +529,8 @@ void AndroidSdkManagerWidget::packageFutureFinished()
             onLicenseCheckResult(output);
             break;
         case AndroidSdkManager::LicenseWorkflow:
-            m_ui->sdkLicensebuttonBox->hide();
-            m_ui->sdkLicenseLabel->hide();
+            m_sdkLicenseButtonBox->hide();
+            m_sdkLicenseLabel->hide();
             runPendingCommand();
             break;
         case AndroidSdkManager::UpdateAll:
@@ -457,12 +554,12 @@ void AndroidSdkManagerWidget::cancelPendingOperations()
 {
     if (!m_sdkManager->isBusy()) {
         m_formatter->appendMessage(tr("\nNo pending operations to cancel...\n"),
-                                   Utils::NormalMessageFormat);
+                                   NormalMessageFormat);
         switchView(PackageListing);
         return;
     }
     m_formatter->appendMessage(tr("\nCancelling pending operations...\n"),
-                               Utils::NormalMessageFormat);
+                               NormalMessageFormat);
     m_sdkManager->cancelOperatons();
 }
 
@@ -474,19 +571,19 @@ void AndroidSdkManagerWidget::switchView(AndroidSdkManagerWidget::View view)
     if (m_currentView == PackageListing) {
         // We need the buttonBox only in the main listing view, as the license and update
         // views already have a cancel button.
-        m_ui->buttonBox->button(QDialogButtonBox::Ok)->setVisible(true);
+        m_buttonBox->button(QDialogButtonBox::Ok)->setVisible(true);
         emit updatingSdkFinished();
     } else {
-        m_ui->buttonBox->button(QDialogButtonBox::Ok)->setVisible(false);
+        m_buttonBox->button(QDialogButtonBox::Ok)->setVisible(false);
         emit updatingSdk();
     }
 
     if (m_currentView == LicenseWorkflow)
         emit licenseWorkflowStarted();
 
-    m_ui->operationProgress->setValue(0);
-    m_ui->viewStack->setCurrentWidget(m_currentView == PackageListing ?
-                                          m_ui->packagesStack : m_ui->outputStack);
+    m_operationProgress->setValue(0);
+    m_viewStack->setCurrentWidget(m_currentView == PackageListing ?
+                                          m_packagesStack : m_outputStack);
 }
 
 void AndroidSdkManagerWidget::runPendingCommand()
@@ -566,15 +663,15 @@ OptionsDialog::OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &a
     resize(800, 480);
     setWindowTitle(tr("SDK Manager Arguments"));
 
-    argumentDetailsEdit = new QPlainTextEdit(this);
-    argumentDetailsEdit->setReadOnly(true);
+    m_argumentDetailsEdit = new QPlainTextEdit(this);
+    m_argumentDetailsEdit->setReadOnly(true);
 
     auto populateOptions = [this](const QString& options) {
         if (options.isEmpty()) {
-            argumentDetailsEdit->setPlainText(tr("Cannot load available arguments for "
+            m_argumentDetailsEdit->setPlainText(tr("Cannot load available arguments for "
                                                  "\"sdkmanager\" command."));
         } else {
-            argumentDetailsEdit->setPlainText(options);
+            m_argumentDetailsEdit->setPlainText(options);
         }
     };
     m_optionsFuture = sdkManager->availableArguments();
@@ -585,14 +682,14 @@ OptionsDialog::OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &a
     connect(dialogButtons, &QDialogButtonBox::accepted, this, &OptionsDialog::accept);
     connect(dialogButtons, &QDialogButtonBox::rejected, this, &OptionsDialog::reject);
 
-    argumentsEdit = new QLineEdit(this);
-    argumentsEdit->setText(args.join(" "));
+    m_argumentsEdit = new QLineEdit(this);
+    m_argumentsEdit->setText(args.join(" "));
 
     auto gridLayout = new QGridLayout(this);
     gridLayout->addWidget(new QLabel(tr("SDK manager arguments:"), this), 0, 0, 1, 1);
-    gridLayout->addWidget(argumentsEdit, 0, 1, 1, 1);
+    gridLayout->addWidget(m_argumentsEdit, 0, 1, 1, 1);
     gridLayout->addWidget(new QLabel(tr("Available arguments:"), this), 1, 0, 1, 2);
-    gridLayout->addWidget(argumentDetailsEdit, 2, 0, 1, 2);
+    gridLayout->addWidget(m_argumentDetailsEdit, 2, 0, 1, 2);
     gridLayout->addWidget(dialogButtons, 3, 0, 1, 2);
 }
 
@@ -604,9 +701,8 @@ OptionsDialog::~OptionsDialog()
 
 QStringList OptionsDialog::sdkManagerArguments() const
 {
-    QString userInput = argumentsEdit->text().simplified();
+    QString userInput = m_argumentsEdit->text().simplified();
     return userInput.isEmpty() ? QStringList() : userInput.split(' ');
 }
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

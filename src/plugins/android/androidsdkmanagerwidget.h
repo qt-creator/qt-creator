@@ -36,16 +36,34 @@ class QLineEdit;
 class QPlainTextEdit;
 QT_END_NAMESPACE
 
+#include <QtCore/QVariant>
+#include <QtWidgets/QAbstractButton>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QDialogButtonBox>
+#include <QtWidgets/QFrame>
+#include <QtWidgets/QGridLayout>
+#include <QtWidgets/QGroupBox>
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QHeaderView>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QPlainTextEdit>
+#include <QtWidgets/QProgressBar>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QRadioButton>
+#include <QtWidgets/QSpacerItem>
+#include <QtWidgets/QStackedWidget>
+#include <QtWidgets/QTreeView>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QWidget>
+#include <utils/fancylineedit.h>
+
 namespace Utils { class OutputFormatter; }
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidSdkManager;
-namespace Ui {
-    class AndroidSdkManagerWidget;
-}
-
 class AndroidSdkModel;
 
 class OptionsDialog : public QDialog
@@ -60,8 +78,8 @@ public:
     QStringList sdkManagerArguments() const;
 
 private:
-    QPlainTextEdit *argumentDetailsEdit;
-    QLineEdit *argumentsEdit;
+    QPlainTextEdit *m_argumentDetailsEdit;
+    QLineEdit *m_argumentsEdit;
     QFuture<QString> m_optionsFuture;
 };
 
@@ -110,10 +128,17 @@ private:
     View m_currentView = PackageListing;
     AndroidSdkManager *m_sdkManager = nullptr;
     AndroidSdkModel *m_sdkModel = nullptr;
-    Ui::AndroidSdkManagerWidget *m_ui = nullptr;
     Utils::OutputFormatter *m_formatter = nullptr;
     QFutureWatcher<AndroidSdkManager::OperationOutput> *m_currentOperation = nullptr;
+
+    QStackedWidget *m_viewStack;
+    QWidget *m_packagesStack;
+    QWidget *m_outputStack;
+    QProgressBar *m_operationProgress;
+    QPlainTextEdit *m_outputEdit;
+    QLabel *m_sdkLicenseLabel;
+    QDialogButtonBox *m_sdkLicenseButtonBox;
+    QDialogButtonBox *m_buttonBox;
 };
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

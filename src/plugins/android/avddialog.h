@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #pragma once
-#include "androidconfigurations.h"
+
 #include "androidconfigurations.h"
 
 #include <QDialog>
