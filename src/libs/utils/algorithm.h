@@ -1296,14 +1296,6 @@ QSet<T> toSet(const QList<T> &list)
     return QSet<T>(list.begin(), list.end());
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-template<class T>
-QSet<T> toSet(const QVector<T> &vec)
-{
-    return QSet<T>(vec.begin(), vec.end());
-}
-#endif
-
 template<class T>
 QList<T> toList(const QSet<T> &set)
 {

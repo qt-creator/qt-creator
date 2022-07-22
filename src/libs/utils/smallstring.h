@@ -34,9 +34,7 @@
 
 #include <QByteArray>
 #include <QString>
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include <QStringEncoder>
-#endif
 
 #include <algorithm>
 #include <charconv>
@@ -488,7 +486,6 @@ public:
 
     void append(QStringView string)
     {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         QStringEncoder encoder{QStringEncoder::Utf8};
 
         constexpr size_type temporaryArraySize = Size * 6;
@@ -518,10 +515,6 @@ public:
         }
         *newEnd = 0;
         setSize(newEnd - data());
-#else
-        QByteArray array = string.toUtf8();
-        append(SmallStringView{array.data(), static_cast<size_type>(array.size())});
-#endif
     }
 
     BasicSmallString &operator+=(SmallStringView string)

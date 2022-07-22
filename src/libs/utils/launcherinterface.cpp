@@ -48,24 +48,11 @@ class LauncherProcess : public QProcess
 public:
     LauncherProcess(QObject *parent) : QProcess(parent)
     {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0) && defined(Q_OS_UNIX)
-        setChildProcessModifier([this] { setupChildProcess_impl(); });
-#endif
-    }
-
-private:
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    void setupChildProcess() override
-    {
-        setupChildProcess_impl();
-    }
-#endif
-
-    void setupChildProcess_impl()
-    {
 #ifdef Q_OS_UNIX
-        const auto pid = static_cast<pid_t>(processId());
-        setpgid(pid, pid);
+        setChildProcessModifier([this] {
+            const auto pid = static_cast<pid_t>(processId());
+            setpgid(pid, pid);
+        });
 #endif
     }
 };

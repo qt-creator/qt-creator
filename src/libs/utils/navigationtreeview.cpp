@@ -68,12 +68,8 @@ void NavigationTreeView::scrollTo(const QModelIndex &index, QAbstractItemView::S
 
     QAbstractItemDelegate *delegate = itemDelegate(index);
     if (delegate) {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-        const QStyleOptionViewItem option = viewOptions();
-#else
         QStyleOptionViewItem option;
         initViewItemOption(&option);
-#endif
         itemRect.setWidth(delegate->sizeHint(option, index).width());
     }
 
