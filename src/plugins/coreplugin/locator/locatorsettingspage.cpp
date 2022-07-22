@@ -47,6 +47,7 @@
 #include <QCoreApplication>
 #include <QHash>
 #include <QHeaderView>
+#include <QLabel>
 #include <QMenu>
 #include <QPushButton>
 #include <QSpinBox>

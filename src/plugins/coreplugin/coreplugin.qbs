@@ -371,8 +371,7 @@ Project {
                 "spotlightlocatorfilter.h",
                 "spotlightlocatorfilter.cpp",
                 "urllocatorfilter.cpp",
-                "urllocatorfilter.h",
-                "urllocatorfilter.ui"
+                "urllocatorfilter.h"
             ]
         }
 

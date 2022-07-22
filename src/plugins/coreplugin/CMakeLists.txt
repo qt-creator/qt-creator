@@ -119,7 +119,7 @@ add_qtc_plugin(Core
     locator/locatorwidget.cpp locator/locatorwidget.h
     locator/opendocumentsfilter.cpp locator/opendocumentsfilter.h
     locator/spotlightlocatorfilter.h locator/spotlightlocatorfilter.cpp
-    locator/urllocatorfilter.cpp locator/urllocatorfilter.h locator/urllocatorfilter.ui
+    locator/urllocatorfilter.cpp locator/urllocatorfilter.h
     loggingviewer.cpp loggingviewer.h
     loggingmanager.cpp loggingmanager.h
     mainwindow.cpp mainwindow.h

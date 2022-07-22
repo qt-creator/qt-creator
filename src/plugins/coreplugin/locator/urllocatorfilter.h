@@ -25,13 +25,18 @@
 
 #pragma once
 
-#include "ui_urllocatorfilter.h"
-
 #include "ilocatorfilter.h"
 
 #include <coreplugin/core_global.h>
 
 #include <QMutex>
+
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QLineEdit;
+class QListWidget;
+class QPushButton;
+QT_END_NAMESPACE
 
 namespace Core {
 
@@ -87,7 +92,13 @@ private:
     void updateActionButtons();
 
     UrlLocatorFilter *m_filter = nullptr;
-    Ui::UrlFilterOptions m_ui;
+    QLineEdit *nameEdit;
+    QListWidget *listWidget;
+    QPushButton *remove;
+    QPushButton *moveUp;
+    QPushButton *moveDown;
+    QLineEdit *shortcutEdit;
+    QCheckBox *includeByDefault;
 };
 
 } // namespace Internal
