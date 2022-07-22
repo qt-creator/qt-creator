@@ -333,8 +333,8 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     const auto configFilesHelpLabel = new QLabel;
     configFilesHelpLabel->setText(tr("Additional settings are available via "
             "<a href=\"https://clangd.llvm.org/config\"> clangd configuration files</a>.<br>"
-            "General settings go <a href=\"%1\">here</a> "
-            "and can be overridden per project by putting a .clangd file into "
+            "User-specific settings go <a href=\"%1\">here</a>, "
+            "project-specific settings can be configured by putting a .clangd file into "
             "the project source tree.")
                 .arg(ClangdSettings::clangdUserConfigFilePath().toUserOutput()));
     connect(configFilesHelpLabel, &QLabel::linkHovered, configFilesHelpLabel, &QLabel::setToolTip);
