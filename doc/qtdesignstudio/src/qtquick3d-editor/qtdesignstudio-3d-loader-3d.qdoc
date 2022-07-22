@@ -43,19 +43,12 @@
     example, when a component should be created on demand or when a component
     should not be created unnecessarily for performance reasons.
 
-    Add a \uicontrol Loader3D component to your scene by drag-and-dropping it
-    from \uicontrol Components > \uicontrol {Qt Quick 3D} >
-    \uicontrol {Qt Quick 3D} to \uicontrol Scene in \uicontrol Navigator.
-
     For more information, see the \l{https://doc.qt.io/qt/qml-qtquick3d-loader3d.html}
     {Loader3D QML type} in the \uicontrol {Qt Quick 3D} documentation.
 
     \section1 Loader3D Properties
 
-    Select the \uicontrol Loader3D component in \uicontrol Navigator to specify
-    its properties in \uicontrol Properties > \uicontrol Loader3D.
-
-    \image studio-3d-loader3d-properties.png "Loader3D specific properties"
+    \section2 Active
 
     The \uicontrol Active property is set to \uicontrol true by default, which
     makes the \uicontrol Loader3D currently active. Setting \uicontrol Active to
@@ -67,18 +60,24 @@
     not affect the files or components defined as \uicontrol Source or
     \uicontrol {Source component}.
 
-    Use the dropdown menu of the \uicontrol Source property to define the URL of
+    \section2 Source
+
+    The \uicontrol Source property defines the URL of
     the 3D component to instantiate. To unload the currently loaded object, set
     this property to an empty string or set the \uicontrol {Source component} to
     undefined. Setting \uicontrol Source to a new URL will also cause the item
     created by the previous URL to be unloaded.
 
-    The \uicontrol {Source component} property defines the component for
+    \section2 Source Component
+
+    The \uicontrol {Source Component} property defines the component for
     \uicontrol Loader3D to instantiate. Currently, the
     \uicontrol {Source component} needs to be defined in code using the
     \l {Working in Edit Mode}{Edit} mode or \l {Text Editor}.
 
-    Set the \uicontrol Asynchronous property to define whether the component
+    \section2 Asynchronous
+
+    The \uicontrol Asynchronous property defines whether the component
     will be instantiated asynchronously. This property is set to \uicontrol false
     by default. When used in conjunction with the source property, loading and
     compilation will be performed in a background thread. Loading asynchronously
@@ -90,21 +89,53 @@
     \uicontrol Loader3D content must be accessed before the asynchronous
     loading is completed.
 
+    \section1 Setting the Loader3D to Load a QML File
+
+    To add a Loader3D component and set it to load a QML file:
+    \list 1
+      \li From \uicontrol {Components}, drag a Loader3D component to
+      \e scene in \uicontrol Navigator or to \uicontrol {3D Editor}.
+      \li In \uicontrol {Navigator}, select \e{loader3D}.
+      \image loader3d-navigator.png
+      \li In \uicontrol {Properties}, select \uicontrol{Source} and select a
+      QML file.
+      \image loader3d-select-source.png
+    \endlist
+
+    \section1 Setting the Loader3D  to Load a Component3D Component
+
+    To add a Loader3D component and set it to load a Component3D component:
+    \list 1
+      \li From \uicontrol {Components}, drag a Loader3D Component to
+      \e scene in \uicontrol Navigator or to \uicontrol {3D Editor}.
+      \li From \uicontrol {Components}, drag a Component3D component to
+      \e scene in \uicontrol {Navigator}.
+      \li In \uicontrol {Navigator}, select the filter icon and clear
+      \uicontrol {Show Only Visible Components}. This makes the Component3D
+      component visible in \uicontrol Navigator.
+      \image navigator-show-all-loader.png
+      \li In \uicontrol {Navigator}, select \e{loader3D}.
+      \li In \uicontrol {Properties}, select \uicontrol{Source Component}
+      and select \e {component3D}.
+
+      \image loader3d-select-source-component.png
+    \endlist
+
+    \section1 Setting the Visibility of Loading Components
+
     To avoid seeing the components loading progressively, set the \uicontrol
     Visibility property for \uicontrol Loader3D appropriately in
     \uicontrol {Binding Editor}:
         \list 1
             \li In \uicontrol Properties > \uicontrol Loader3D, select the
-                \uicontrol Asynchronous check box to set the property to
-                \uicontrol true.
-            \li In \uicontrol Node > \l {Setting Node Opacity and Visibility}{Visibility},
+                \uicontrol Asynchronous check box.
+                \image loader3d-visibility.png
+            \li In \uicontrol {Visibility},
                 select \inlineimage icons/action-icon.png
                 to open the actions menu, and then select \uicontrol {Set Binding}.
-            \li Type \c {status === Loader3D.Ready} into \uicontrol {Binding Editor},
-                as shown in the image below.
+            \li Type \c {status === Loader3D.Ready} into \uicontrol {Binding Editor}.
+                \image studio-3d-loader3d-binding-editor.png "Setting Visibility in Binding Editor"
             \li Select \uicontrol OK.
         \endlist
-
-    \image studio-3d-loader3d-binding-editor.png "Setting Visibility in Binding Editor"
 
 */
