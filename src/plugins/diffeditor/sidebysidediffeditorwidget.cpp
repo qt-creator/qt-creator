@@ -838,18 +838,15 @@ DiffEditorDocument *SideBySideDiffEditorWidget::diffDocument() const
 
 void SideBySideDiffEditorWidget::clear(const QString &message)
 {
-    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
-    m_controller.m_ignoreCurrentIndexChange = true;
+    const GuardLocker locker(m_controller.m_ignoreChanges);
     setDiff(QList<FileData>());
     m_leftEditor->clearAll(message);
     m_rightEditor->clearAll(message);
-    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
 }
 
 void SideBySideDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
 {
-    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
-    m_controller.m_ignoreCurrentIndexChange = true;
+    const GuardLocker locker(m_controller.m_ignoreChanges);
     m_leftEditor->clear();
     m_rightEditor->clear();
 
@@ -861,18 +858,16 @@ void SideBySideDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
     } else {
         showDiff();
     }
-    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
 }
 
 void SideBySideDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
 {
-    if (m_controller.m_ignoreCurrentIndexChange)
+    if (m_controller.m_ignoreChanges.isLocked())
         return;
 
     const int blockNumber = m_leftEditor->blockNumberForFileIndex(diffFileIndex);
 
-    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
-    m_controller.m_ignoreCurrentIndexChange = true;
+    const GuardLocker locker(m_controller.m_ignoreChanges);
     QTextBlock leftBlock = m_leftEditor->document()->findBlockByNumber(blockNumber);
     QTextCursor leftCursor = m_leftEditor->textCursor();
     leftCursor.setPosition(leftBlock.position());
@@ -884,8 +879,6 @@ void SideBySideDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
     rightCursor.setPosition(rightBlock.position());
     m_rightEditor->setTextCursor(rightCursor);
     m_rightEditor->verticalScrollBar()->setValue(blockNumber);
-
-    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
 }
 
 void SideBySideDiffEditorWidget::setHorizontalSync(bool sync)
@@ -1045,13 +1038,13 @@ void SideBySideDiffEditorWidget::showDiff()
     if (leftTexts.isEmpty() && rightTexts.isEmpty())
         return;
 
-    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
-    m_controller.m_ignoreCurrentIndexChange = true;
-    m_leftEditor->clear();
-    m_leftEditor->setPlainText(leftTexts);
-    m_rightEditor->clear();
-    m_rightEditor->setPlainText(rightTexts);
-    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
+    {
+        const GuardLocker locker(m_controller.m_ignoreChanges);
+        m_leftEditor->clear();
+        m_leftEditor->setPlainText(leftTexts);
+        m_rightEditor->clear();
+        m_rightEditor->setPlainText(rightTexts);
+    }
 
     QTextBlock block = m_leftEditor->document()->firstBlock();
     for (int b = 0; block.isValid(); block = block.next(), ++b)
@@ -1149,7 +1142,7 @@ void SideBySideDiffEditorWidget::slotRightContextMenuRequested(QMenu *menu,
 
 void SideBySideDiffEditorWidget::leftVSliderChanged()
 {
-    if (m_controller.m_ignoreCurrentIndexChange)
+    if (m_controller.m_ignoreChanges.isLocked())
         return;
 
     m_rightEditor->verticalScrollBar()->setValue(m_leftEditor->verticalScrollBar()->value());
@@ -1157,7 +1150,7 @@ void SideBySideDiffEditorWidget::leftVSliderChanged()
 
 void SideBySideDiffEditorWidget::rightVSliderChanged()
 {
-    if (m_controller.m_ignoreCurrentIndexChange)
+    if (m_controller.m_ignoreChanges.isLocked())
         return;
 
     m_leftEditor->verticalScrollBar()->setValue(m_rightEditor->verticalScrollBar()->value());
@@ -1165,7 +1158,7 @@ void SideBySideDiffEditorWidget::rightVSliderChanged()
 
 void SideBySideDiffEditorWidget::leftHSliderChanged()
 {
-    if (m_controller.m_ignoreCurrentIndexChange)
+    if (m_controller.m_ignoreChanges.isLocked())
         return;
 
     if (m_horizontalSync)
@@ -1174,7 +1167,7 @@ void SideBySideDiffEditorWidget::leftHSliderChanged()
 
 void SideBySideDiffEditorWidget::rightHSliderChanged()
 {
-    if (m_controller.m_ignoreCurrentIndexChange)
+    if (m_controller.m_ignoreChanges.isLocked())
         return;
 
     if (m_horizontalSync)
@@ -1183,7 +1176,7 @@ void SideBySideDiffEditorWidget::rightHSliderChanged()
 
 void SideBySideDiffEditorWidget::leftCursorPositionChanged()
 {
-    if (m_controller.m_ignoreCurrentIndexChange)
+    if (m_controller.m_ignoreChanges.isLocked())
         return;
 
     handlePositionChange(m_leftEditor, m_rightEditor);
@@ -1193,7 +1186,7 @@ void SideBySideDiffEditorWidget::leftCursorPositionChanged()
 
 void SideBySideDiffEditorWidget::rightCursorPositionChanged()
 {
-    if (m_controller.m_ignoreCurrentIndexChange)
+    if (m_controller.m_ignoreChanges.isLocked())
         return;
 
     handlePositionChange(m_rightEditor, m_leftEditor);
@@ -1215,15 +1208,13 @@ void SideBySideDiffEditorWidget::syncHorizontalScrollBarPolicy()
 
 void SideBySideDiffEditorWidget::handlePositionChange(SideDiffEditorWidget *source, SideDiffEditorWidget *dest)
 {
-    if (m_controller.m_ignoreCurrentIndexChange)
+    if (m_controller.m_ignoreChanges.isLocked())
         return;
 
-    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
-    m_controller.m_ignoreCurrentIndexChange = true;
+    const GuardLocker locker(m_controller.m_ignoreChanges);
     syncCursor(source, dest);
     emit currentDiffFileIndexChanged(
                 source->fileIndexForBlockNumber(source->textCursor().blockNumber()));
-    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
 }
 
 void SideBySideDiffEditorWidget::syncCursor(SideDiffEditorWidget *source, SideDiffEditorWidget *dest)

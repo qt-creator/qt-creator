@@ -47,6 +47,7 @@
 
 using namespace Core;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace DiffEditor {
 namespace Internal {
@@ -112,11 +113,9 @@ void UnifiedDiffEditorWidget::restoreState()
     if (m_state.isNull())
         return;
 
-    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
-    m_controller.m_ignoreCurrentIndexChange = true;
+    const GuardLocker locker(m_controller.m_ignoreChanges);
     SelectableTextEditorWidget::restoreState(m_state);
     m_state.clear();
-    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
 }
 
 void UnifiedDiffEditorWidget::setDisplaySettings(const DisplaySettings &ds)
@@ -136,13 +135,11 @@ void UnifiedDiffEditorWidget::setFontSettings(const FontSettings &fontSettings)
 
 void UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor()
 {
-    if (m_controller.m_ignoreCurrentIndexChange)
+    if (m_controller.m_ignoreChanges.isLocked())
         return;
 
-    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
-    m_controller.m_ignoreCurrentIndexChange = true;
+    const GuardLocker locker(m_controller.m_ignoreChanges);
     emit currentDiffFileIndexChanged(fileIndexForBlockNumber(textCursor().blockNumber()));
-    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
 }
 
 void UnifiedDiffEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
@@ -245,12 +242,10 @@ void UnifiedDiffEditorWidget::clear(const QString &message)
     m_chunkInfo.clear();
     setSelections(QMap<int, QList<DiffSelection> >());
 
-    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
-    m_controller.m_ignoreCurrentIndexChange = true;
+    const GuardLocker locker(m_controller.m_ignoreChanges);
     SelectableTextEditorWidget::clear();
     m_controller.m_contextFileData.clear();
     setPlainText(message);
-    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
 }
 
 QString UnifiedDiffEditorWidget::lineNumber(int blockNumber) const
@@ -317,12 +312,10 @@ void UnifiedDiffEditorWidget::setChunkIndex(int startBlockNumber,
 
 void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
 {
-    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
-    m_controller.m_ignoreCurrentIndexChange = true;
+    const GuardLocker locker(m_controller.m_ignoreChanges);
     clear();
     m_controller.m_contextFileData = diffFileList;
     showDiff();
-    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
 }
 
 QString UnifiedDiffEditorWidget::showChunk(const ChunkData &chunkData,
@@ -563,15 +556,14 @@ void UnifiedDiffEditorWidget::showDiff()
     }
 
     diffText.replace('\r', ' ');
-    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
-    m_controller.m_ignoreCurrentIndexChange = true;
-    setPlainText(diffText);
+    {
+        const GuardLocker locker(m_controller.m_ignoreChanges);
+        setPlainText(diffText);
 
-    QTextBlock block = document()->firstBlock();
-    for (int b = 0; block.isValid(); block = block.next(), ++b)
-        setFoldingIndent(block, foldingIndent.value(b, 3));
-
-    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
+        QTextBlock block = document()->firstBlock();
+        for (int b = 0; block.isValid(); block = block.next(), ++b)
+            setFoldingIndent(block, foldingIndent.value(b, 3));
+    }
 
     setSelections(selections);
 }
@@ -662,11 +654,10 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
 
 void UnifiedDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
 {
-    if (m_controller.m_ignoreCurrentIndexChange)
+    if (m_controller.m_ignoreChanges.isLocked())
         return;
 
-    const bool oldIgnore = m_controller.m_ignoreCurrentIndexChange;
-    m_controller.m_ignoreCurrentIndexChange = true;
+    const GuardLocker locker(m_controller.m_ignoreChanges);
     const int blockNumber = blockNumberForFileIndex(diffFileIndex);
 
     QTextBlock block = document()->findBlockByNumber(blockNumber);
@@ -674,7 +665,6 @@ void UnifiedDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
     cursor.setPosition(block.position());
     setTextCursor(cursor);
     verticalScrollBar()->setValue(blockNumber);
-    m_controller.m_ignoreCurrentIndexChange = oldIgnore;
 }
 
 } // namespace Internal

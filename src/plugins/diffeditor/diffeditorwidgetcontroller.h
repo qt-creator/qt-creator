@@ -27,6 +27,8 @@
 
 #include "diffutils.h"
 
+#include <utils/guard.h>
+
 #include <QObject>
 #include <QTextCharFormat>
 #include <QTimer>
@@ -65,7 +67,7 @@ public:
 
     ChunkData chunkData(int fileIndex, int chunkIndex) const;
 
-    bool m_ignoreCurrentIndexChange = false;
+    Utils::Guard m_ignoreChanges;
     QList<FileData> m_contextFileData; // ultimate data to be shown
                                        // contextLineCount taken into account
     QTextCharFormat m_fileLineFormat;
