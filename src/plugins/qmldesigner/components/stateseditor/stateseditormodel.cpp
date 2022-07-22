@@ -65,7 +65,7 @@ QModelIndex StatesEditorModel::index(int row, int column, const QModelIndex &par
 
     int internalNodeId = 0;
     if (row > 0 && row < rowCount() - 1) // first and last rows are base state, add state
-        internalNodeId = m_statesEditorView->rootModelNode().nodeListProperty("states").at(row - 1).internalId();
+        internalNodeId = m_statesEditorView->acitveStatesGroupNode().nodeListProperty("states").at(row - 1).internalId();
 
     return hasIndex(row, column, parent) ? createIndex(row, column,  internalNodeId) : QModelIndex();
 }
@@ -75,10 +75,10 @@ int StatesEditorModel::rowCount(const QModelIndex &parent) const
     if (parent.isValid() || m_statesEditorView.isNull() || !m_statesEditorView->model())
         return 0;
 
-    if (!m_statesEditorView->rootModelNode().hasNodeListProperty("states"))
+    if (!m_statesEditorView->acitveStatesGroupNode().hasNodeListProperty("states"))
         return 2; // base state + add new state
 
-    return m_statesEditorView->rootModelNode().nodeListProperty("states").count() + 2; // 2 = base state + add new state
+    return m_statesEditorView->acitveStatesGroupNode().nodeListProperty("states").count() + 2; // 2 = base state + add new state
 }
 
 void StatesEditorModel::reset()

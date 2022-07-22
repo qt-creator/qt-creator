@@ -85,6 +85,20 @@ void StatesEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorV
     checkForStatesAvailability();
 }
 
+ModelNode StatesEditorView::acitveStatesGroupNode() const
+{
+    return m_activeStatesGroupNode;
+}
+
+void StatesEditorView::setAcitveStatesGroupNode(const ModelNode &modelNode)
+{
+    if (m_activeStatesGroupNode == modelNode)
+        return;
+
+    m_activeStatesGroupNode = modelNode;
+    resetModel();
+}
+
 void StatesEditorView::removeState(int nodeId)
 {
     try {
@@ -193,12 +207,12 @@ void StatesEditorView::createNewState()
 void StatesEditorView::addState()
 {
     // can happen when root node is e.g. a ListModel
-    if (!QmlVisualNode::isValidQmlVisualNode(rootModelNode()))
+    if (!QmlVisualNode::isValidQmlVisualNode(acitveStatesGroupNode()))
         return;
 
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_STATE_ADDED);
 
-    QStringList modelStateNames = rootStateGroup().names();
+    QStringList modelStateNames = activeStateGroup().names();
 
     QString newStateName;
     int index = 1;
@@ -209,9 +223,9 @@ void StatesEditorView::addState()
     }
 
     executeInTransaction("addState", [this, newStateName]() {
-        rootModelNode().validId();
+        acitveStatesGroupNode().validId();
 
-        ModelNode newState = rootStateGroup().addState(newStateName);
+        ModelNode newState = activeStateGroup().addState(newStateName);
         setCurrentState(newState);
     });
 }
@@ -244,7 +258,7 @@ void StatesEditorView::duplicateCurrentState()
         newName = newName.left(match.capturedStart());
 
     int i = 1;
-    QStringList stateNames = rootStateGroup().names();
+    QStringList stateNames = activeStateGroup().names();
     while (stateNames.contains(newName + QString::number(i)))
         i++;
     const QString newStateName = newName + QString::number(i);
@@ -258,7 +272,7 @@ void StatesEditorView::duplicateCurrentState()
 void StatesEditorView::checkForStatesAvailability()
 {
     if (m_statesEditorWidget) {
-        const bool isVisual = QmlVisualNode::isValidQmlVisualNode(rootModelNode());
+        const bool isVisual = QmlVisualNode::isValidQmlVisualNode(acitveStatesGroupNode());
         m_statesEditorWidget->showAddNewStatesButton(isVisual);
     }
 }
@@ -277,16 +291,16 @@ QmlModelState StatesEditorView::baseState() const
     return QmlModelState::createBaseState(this);
 }
 
-QmlModelStateGroup StatesEditorView::rootStateGroup() const
+QmlModelStateGroup StatesEditorView::activeStateGroup() const
 {
-    return QmlModelStateGroup(rootModelNode());
+    return QmlModelStateGroup(acitveStatesGroupNode());
 }
 
 bool StatesEditorView::validStateName(const QString &name) const
 {
     if (name == tr("base state"))
         return false;
-    const QList<QmlModelState> modelStates = rootStateGroup().allStates();
+    const QList<QmlModelState> modelStates = activeStateGroup().allStates();
     for (const QmlModelState &state : modelStates) {
         if (state.name() == name)
             return false;
@@ -392,8 +406,8 @@ void StatesEditorView::resetDefaultState()
     auto guard = qScopeGuard([&]() { m_block = false; });
 
     try {
-        if (rootModelNode().hasProperty("state"))
-            rootModelNode().removeProperty("state");
+        if (acitveStatesGroupNode().hasProperty("state"))
+            acitveStatesGroupNode().removeProperty("state");
 
     } catch (const RewritingException &e) {
         e.showException();
@@ -402,7 +416,7 @@ void StatesEditorView::resetDefaultState()
 
 bool StatesEditorView::hasDefaultState() const
 {
-    return rootModelNode().hasProperty("state");
+    return acitveStatesGroupNode().hasProperty("state");
 }
 
 void StatesEditorView::setAnnotation(int internalNodeId)
@@ -474,6 +488,8 @@ void StatesEditorView::modelAttached(Model *model)
 
     Q_ASSERT(model);
     AbstractView::modelAttached(model);
+
+    m_activeStatesGroupNode = rootModelNode();
 
     if (m_statesEditorWidget)
         m_statesEditorWidget->setNodeInstanceView(nodeInstanceView());
@@ -593,7 +609,7 @@ void StatesEditorView::instancesPreviewImageChanged(const QVector<ModelNode> &no
             minimumIndex = qMin(minimumIndex, 0);
             maximumIndex = qMax(maximumIndex, 0);
         } else {
-            int index = rootStateGroup().allStates().indexOf(QmlModelState(node)) + 1;
+            int index = activeStateGroup().allStates().indexOf(QmlModelState(node)) + 1;
             if (index > 0) {
                 minimumIndex = qMin(minimumIndex, index);
                 maximumIndex = qMax(maximumIndex, index);
