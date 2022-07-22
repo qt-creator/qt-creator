@@ -261,7 +261,6 @@ Project {
             "reloadpromptutils.h",
             "removefiledialog.cpp",
             "removefiledialog.h",
-            "removefiledialog.ui",
             "runextensions.cpp",
             "runextensions.h",
             "savefile.cpp",

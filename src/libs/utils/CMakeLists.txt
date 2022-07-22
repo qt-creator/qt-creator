@@ -135,7 +135,7 @@ add_qtc_library(Utils
     qtcprocess.cpp qtcprocess.h
     qtcsettings.cpp qtcsettings.h
     reloadpromptutils.cpp reloadpromptutils.h
-    removefiledialog.cpp removefiledialog.h removefiledialog.ui
+    removefiledialog.cpp removefiledialog.h
     runextensions.cpp runextensions.h
     savefile.cpp savefile.h
     scopedswap.h

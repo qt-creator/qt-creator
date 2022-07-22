@@ -29,10 +29,13 @@
 
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+QT_END_NAMESPACE
+
 namespace Utils {
 
 class FilePath;
-namespace Ui { class RemoveFileDialog; }
 
 class QTCREATOR_UTILS_EXPORT RemoveFileDialog : public QDialog
 {
@@ -46,7 +49,7 @@ public:
     bool isDeleteFileChecked() const;
 
 private:
-    Ui::RemoveFileDialog *m_ui;
+    QCheckBox *m_deleteFileCheckBox;
 };
 
 } // namespace Utils
