@@ -946,23 +946,23 @@ private:
     void modelAboutToReset()
     {
         m_selectedId = m_model->deviceId(m_comboBox->currentIndex());
-        m_ignoreChange = true;
+        m_ignoreChanges.lock();
     }
 
     void modelReset()
     {
         m_comboBox->setCurrentIndex(m_model->indexForId(m_selectedId));
-        m_ignoreChange = false;
+        m_ignoreChanges.unlock();
     }
 
     void currentDeviceChanged()
     {
-        if (m_ignoreChange)
+        if (m_ignoreChanges.isLocked())
             return;
         DeviceKitAspect::setDeviceId(m_kit, m_model->deviceId(m_comboBox->currentIndex()));
     }
 
-    bool m_ignoreChange = false;
+    Guard m_ignoreChanges;
     QComboBox *m_comboBox;
     QWidget *m_manageButton;
     DeviceManagerModel *m_model;
@@ -1218,23 +1218,23 @@ private:
     void modelAboutToReset()
     {
         m_selectedId = m_model->deviceId(m_comboBox->currentIndex());
-        m_ignoreChange = true;
+        m_ignoreChanges.lock();
     }
 
     void modelReset()
     {
         m_comboBox->setCurrentIndex(m_model->indexForId(m_selectedId));
-        m_ignoreChange = false;
+        m_ignoreChanges.unlock();
     }
 
     void currentDeviceChanged()
     {
-        if (m_ignoreChange)
+        if (m_ignoreChanges.isLocked())
             return;
         BuildDeviceKitAspect::setDeviceId(m_kit, m_model->deviceId(m_comboBox->currentIndex()));
     }
 
-    bool m_ignoreChange = false;
+    Guard m_ignoreChanges;
     QComboBox *m_comboBox;
     QWidget *m_manageButton;
     DeviceManagerModel *m_model;

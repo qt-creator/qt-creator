@@ -97,6 +97,17 @@ bool Guard::isLocked() const
     return m_lockCount;
 }
 
+void Guard::lock()
+{
+    ++m_lockCount;
+}
+
+void Guard::unlock()
+{
+    QTC_CHECK(m_lockCount > 0);
+    --m_lockCount;
+}
+
 GuardLocker::GuardLocker(Guard &guard)
     : m_guard(guard)
 {

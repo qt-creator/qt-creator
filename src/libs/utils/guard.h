@@ -38,6 +38,12 @@ public:
     Guard();
     ~Guard();
     bool isLocked() const;
+
+    // Prefer using GuardLocker when possible. These two methods are provided only for cases
+    // when locking and unlocking are done in separate methods, so that GuardLocker can't be
+    // used.
+    void lock();
+    void unlock();
 private:
     int m_lockCount = 0;
     friend class GuardLocker;
