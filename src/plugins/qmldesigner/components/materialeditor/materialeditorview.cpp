@@ -27,11 +27,13 @@
 
 #include "materialeditorqmlbackend.h"
 #include "materialeditorcontextobject.h"
+#include "materialeditordynamicpropertiesproxymodel.h"
 #include "propertyeditorvalue.h"
 #include "materialeditortransaction.h"
 #include "assetslibrarywidget.h"
 
 #include <bindingproperty.h>
+#include <dynamicpropertiesmodel.h>
 #include <metainfo.h>
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
@@ -70,6 +72,7 @@ namespace QmlDesigner {
 MaterialEditorView::MaterialEditorView(QWidget *parent)
     : AbstractView(parent)
     , m_stackedWidget(new QStackedWidget(parent))
+    , m_dynamicPropertiesModel(new Internal::DynamicPropertiesModel(true, this))
 {
     m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F7), m_stackedWidget);
     connect(m_updateShortcut, &QShortcut::activated, this, &MaterialEditorView::reloadQml);
@@ -92,6 +95,8 @@ MaterialEditorView::MaterialEditorView(QWidget *parent)
         QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
     m_stackedWidget->setMinimumWidth(250);
     QmlDesignerPlugin::trackWidgetFocusTime(m_stackedWidget, Constants::EVENT_MATERIALEDITOR_TIME);
+
+    MaterialEditorDynamicPropertiesProxyModel::registerDeclarativeType();
 }
 
 MaterialEditorView::~MaterialEditorView()
@@ -312,6 +317,29 @@ bool MaterialEditorView::locked() const
 void MaterialEditorView::currentTimelineChanged(const ModelNode &)
 {
     m_qmlBackEnd->contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(this));
+}
+
+Internal::DynamicPropertiesModel *MaterialEditorView::dynamicPropertiesModel() const
+{
+    return m_dynamicPropertiesModel;
+}
+
+MaterialEditorView *MaterialEditorView::instance()
+{
+    static MaterialEditorView *s_instance = nullptr;
+
+    if (s_instance)
+        return s_instance;
+
+    const auto views = QmlDesignerPlugin::instance()->viewManager().views();
+    for (auto *view : views) {
+        MaterialEditorView *myView = qobject_cast<MaterialEditorView *>(view);
+        if (myView)
+            s_instance =  myView;
+    }
+
+    QTC_ASSERT(s_instance, return nullptr);
+    return s_instance;
 }
 
 void MaterialEditorView::delayedResetView()
@@ -592,6 +620,11 @@ void MaterialEditorView::setupQmlBackend()
 
     m_qmlBackEnd = currentQmlBackend;
 
+    if (m_hasMaterialRoot)
+        m_dynamicPropertiesModel->setSelectedNode(m_selectedMaterial);
+    else
+        m_dynamicPropertiesModel->reset();
+
     delayedTypeUpdate();
     initPreviewData();
 
@@ -751,6 +784,7 @@ void MaterialEditorView::modelAttached(Model *model)
 void MaterialEditorView::modelAboutToBeDetached(Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
+    m_dynamicPropertiesModel->reset();
     m_qmlBackEnd->materialEditorTransaction()->end();
 }
 
@@ -783,8 +817,9 @@ void MaterialEditorView::variantPropertiesChanged(const QList<VariantProperty> &
     bool changed = false;
     for (const VariantProperty &property : propertyList) {
         ModelNode node(property.parentModelNode());
-
         if (node == m_selectedMaterial || QmlObjectNode(m_selectedMaterial).propertyChangeForCurrentState() == node) {
+            if (property.isDynamic())
+                m_dynamicPropertiesModel->variantPropertyChanged(property);
             if (m_selectedMaterial.property(property.name()).isBindingProperty())
                 setValue(m_selectedMaterial, property.name(), QmlObjectNode(m_selectedMaterial).instanceValue(property.name()));
             else
@@ -810,6 +845,8 @@ void MaterialEditorView::bindingPropertiesChanged(const QList<BindingProperty> &
             m_qmlBackEnd->contextObject()->setHasAliasExport(QmlObjectNode(m_selectedMaterial).isAliasExported());
 
         if (node == m_selectedMaterial || QmlObjectNode(m_selectedMaterial).propertyChangeForCurrentState() == node) {
+            if (property.isDynamic())
+                m_dynamicPropertiesModel->bindingPropertyChanged(property);
             if (QmlObjectNode(m_selectedMaterial).modelNode().property(property.name()).isBindingProperty())
                 setValue(m_selectedMaterial, property.name(), QmlObjectNode(m_selectedMaterial).instanceValue(property.name()));
             else
@@ -829,6 +866,16 @@ void MaterialEditorView::auxiliaryDataChanged(const ModelNode &node, const Prope
         return;
 
     m_qmlBackEnd->setValueforAuxiliaryProperties(m_selectedMaterial, name);
+}
+
+void MaterialEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
+{
+    for (const auto &property : propertyList) {
+        if (property.isBindingProperty())
+            m_dynamicPropertiesModel->bindingRemoved(property.toBindingProperty());
+        else if (property.isVariantProperty())
+            m_dynamicPropertiesModel->variantRemoved(property.toVariantProperty());
+    }
 }
 
 // request render image for the selected material node
@@ -998,6 +1045,7 @@ void MaterialEditorView::customNotification(const AbstractView *view, const QStr
     if (identifier == "selected_material_changed") {
         if (!m_hasMaterialRoot) {
             m_selectedMaterial = nodeList.first();
+            m_dynamicPropertiesModel->setSelectedNode(m_selectedMaterial);
             QTimer::singleShot(0, this, &MaterialEditorView::resetView);
         }
     } else if (identifier == "apply_to_selected_triggered") {

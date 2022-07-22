@@ -209,11 +209,11 @@ QWidget *DynamicPropertiesDelegate::createEditor(QWidget *parent, const QStyleOp
             return widget;
         }
 
-        if (!model->connectionView()) {
+        if (!model->view()) {
             qWarning() << "BindingDelegate::createEditor no connection view";
             return widget;
         }
-        model->connectionView()->allModelNodes();
+        model->view()->allModelNodes();
 
         switch (index.column()) {
         case DynamicPropertiesModel::TargetModelNodeRow: {
@@ -239,6 +239,10 @@ QWidget *DynamicPropertiesDelegate::createEditor(QWidget *parent, const QStyleOp
             dynamicPropertiesComboBox->addItem(QLatin1String("url"));
             dynamicPropertiesComboBox->addItem(QLatin1String("color"));
             dynamicPropertiesComboBox->addItem(QLatin1String("variant"));
+            dynamicPropertiesComboBox->addItem(QLatin1String("TextureInput"));
+            dynamicPropertiesComboBox->addItem(QLatin1String("vector2d"));
+            dynamicPropertiesComboBox->addItem(QLatin1String("vector3d"));
+            dynamicPropertiesComboBox->addItem(QLatin1String("vector4d"));
             return dynamicPropertiesComboBox;
         };
         case DynamicPropertiesModel::PropertyValueRow: {

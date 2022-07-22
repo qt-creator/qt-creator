@@ -66,6 +66,10 @@ SecondColumnLayout {
         colorEditor.backendValue.resetValue()
     }
 
+    function initEditor() {
+        cePopup.initEditor()
+    }
+
     Connections {
         id: backendConnection
         target: colorEditor

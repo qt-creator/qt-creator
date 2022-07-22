@@ -20,6 +20,7 @@ ComponentSection 2.0 ComponentSection.qml
 ControlLabel 2.0 ControlLabel.qml
 singleton Controller 2.0 Controller.qml
 DoubleSpinBox 2.0 DoubleSpinBox.qml
+DynamicPropertiesSection 2.0 DynamicPropertiesSection.qml
 EditableListView 2.0 EditableListView.qml
 ExpandingSpacer 2.0 ExpandingSpacer.qml
 ExpressionTextField 2.0 ExpressionTextField.qml

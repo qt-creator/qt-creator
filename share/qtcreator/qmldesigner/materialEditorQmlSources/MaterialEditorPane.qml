@@ -63,6 +63,10 @@ PropertyEditorPane {
 
     Item { width: 1; height: 10 }
 
+    DynamicPropertiesSection {
+        propertiesModel: MaterialEditorDynamicPropertiesModel {}
+    }
+
     Loader {
         id: specificsTwo
 
@@ -79,7 +83,11 @@ PropertyEditorPane {
         }
     }
 
-    Item { width: 1; height: 10 }
+    Item {
+        width: 1
+        height: 10
+        visible: specificsTwo.visible
+    }
 
     Loader {
         id: specificsOne

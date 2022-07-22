@@ -50,7 +50,7 @@ ConnectionView::ConnectionView(QObject *parent) : AbstractView(parent),
     m_connectionViewWidget(new ConnectionViewWidget()),
     m_connectionModel(new ConnectionModel(this)),
     m_bindingModel(new BindingModel(this)),
-    m_dynamicPropertiesModel(new DynamicPropertiesModel(this)),
+    m_dynamicPropertiesModel(new DynamicPropertiesModel(false, this)),
     m_backendModel(new BackendModel(this))
 {
     connectionViewWidget()->setBindingModel(m_bindingModel);
@@ -65,7 +65,7 @@ void ConnectionView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
     bindingModel()->selectionChanged(QList<ModelNode>());
-    dynamicPropertiesModel()->selectionChanged(QList<ModelNode>());
+    dynamicPropertiesModel()->reset();
     connectionModel()->resetModel();
     connectionViewWidget()->resetItemViews();
     backendModel()->resetModel();
@@ -75,7 +75,7 @@ void ConnectionView::modelAboutToBeDetached(Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
     bindingModel()->selectionChanged(QList<ModelNode>());
-    dynamicPropertiesModel()->selectionChanged(QList<ModelNode>());
+    dynamicPropertiesModel()->reset();
     connectionModel()->resetModel();
     connectionViewWidget()->resetItemViews();
 }
@@ -121,7 +121,7 @@ void ConnectionView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &p
             bindingModel()->bindingRemoved(property.toBindingProperty());
             dynamicPropertiesModel()->bindingRemoved(property.toBindingProperty());
         } else if (property.isVariantProperty()) {
-            //### dynamicPropertiesModel->bindingRemoved(property.toVariantProperty());
+            dynamicPropertiesModel()->variantRemoved(property.toVariantProperty());
         } else if (property.isSignalHandlerProperty()) {
             connectionModel()->removeRowFromTable(property.toSignalHandlerProperty());
         }
@@ -167,7 +167,7 @@ void ConnectionView::selectedNodesChanged(const QList<ModelNode> & selectedNodeL
                                      const QList<ModelNode> & /*lastSelectedNodeList*/)
 {
     bindingModel()->selectionChanged(selectedNodeList);
-    dynamicPropertiesModel()->selectionChanged(selectedNodeList);
+    dynamicPropertiesModel()->reset();
     connectionViewWidget()->bindingTableViewSelectionChanged(QModelIndex(), QModelIndex());
     connectionViewWidget()->dynamicPropertiesTableViewSelectionChanged(QModelIndex(), QModelIndex());
 

@@ -30,6 +30,7 @@
 #include "bindingeditor/actioneditor.h"
 #include "bindingeditor/bindingeditor.h"
 #include "colorpalettebackend.h"
+#include "selectiondynamicpropertiesproxymodel.h"
 #include "fileresourcesmodel.h"
 #include "gradientmodel.h"
 #include "gradientpresetcustomlistmodel.h"
@@ -75,6 +76,8 @@ void Quick2PropertyEditorView::registerQmlTypes()
         Tooltip::registerDeclarativeType();
         EasingCurveEditor::registerDeclarativeType();
         RichTextEditorProxy::registerDeclarativeType();
+        SelectionDynamicPropertiesProxyModel::registerDeclarativeType();
+        DynamicPropertyRow::registerDeclarativeType();
 
         const QString resourcePath = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 

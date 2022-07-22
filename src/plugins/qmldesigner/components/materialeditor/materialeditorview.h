@@ -44,6 +44,10 @@ namespace QmlDesigner {
 class ModelNode;
 class MaterialEditorQmlBackend;
 
+namespace Internal {
+class DynamicPropertiesModel;
+}
+
 class MaterialEditorView : public AbstractView
 {
     Q_OBJECT
@@ -66,6 +70,7 @@ public:
     void variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags propertyChange) override;
     void bindingPropertiesChanged(const QList<BindingProperty> &propertyList, PropertyChangeFlags propertyChange) override;
     void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) override;
+    void propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList) override;
 
     void resetView();
     void currentStateChanged(const ModelNode &node) override;
@@ -89,6 +94,10 @@ public:
     bool locked() const;
 
     void currentTimelineChanged(const ModelNode &node) override;
+
+    Internal::DynamicPropertiesModel *dynamicPropertiesModel() const;
+
+    static MaterialEditorView *instance();
 
 public slots:
     void handleToolBarAction(int action);
@@ -142,6 +151,7 @@ private:
 
     QPointer<QColorDialog> m_colorDialog;
     QPointer<ItemLibraryInfo> m_itemLibraryInfo;
+    Internal::DynamicPropertiesModel *m_dynamicPropertiesModel = nullptr;
 };
 
 } // namespace QmlDesigner

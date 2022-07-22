@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,47 +23,15 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
-import QtQuickDesignerTheme 1.0
-import HelperWidgets 2.0
-import StudioTheme 1.0 as StudioTheme
+#pragma once
 
-PropertyEditorPane {
-    id: itemPane
+#include <dynamicpropertiesproxymodel.h>
 
-    ComponentSection {
-        showState: majorQtQuickVersion >= 6
-    }
+class SelectionDynamicPropertiesProxyModel : public DynamicPropertiesProxyModel
+{
+    Q_OBJECT
+public:
+    explicit SelectionDynamicPropertiesProxyModel(QObject *parent = nullptr);
 
-    Column {
-        anchors.left: parent.left
-        anchors.right: parent.right
-
-        DynamicPropertiesSection {
-            propertiesModel: SelectionDynamicPropertiesModel {}
-        }
-
-        Loader {
-            id: specificsTwo
-            anchors.left: parent.left
-            anchors.right: parent.right
-            visible: theSource !== ""
-            sourceComponent: specificQmlComponent
-
-            property string theSource: specificQmlData
-
-            onTheSourceChanged: {
-                active = false
-                active = true
-            }
-        }
-
-        Loader {
-            id: specificsOne
-            anchors.left: parent.left
-            anchors.right: parent.right
-            source: specificsUrl
-        }
-    }
-}
+    static void registerDeclarativeType();
+};

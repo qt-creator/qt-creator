@@ -321,9 +321,10 @@ void BindingProperty::setDynamicTypeNameAndExpression(const TypeName &typeName, 
         Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
         if (internalProperty->isBindingProperty()
             && internalProperty->toBindingProperty()->expression() == expression
-            && internalProperty->toBindingProperty()->dynamicTypeName() == typeName)
+            && internalProperty->toBindingProperty()->dynamicTypeName() == typeName) {
 
             return;
+        }
     }
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isBindingProperty())

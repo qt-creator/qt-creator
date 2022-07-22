@@ -44,6 +44,23 @@ T.Popup {
 
     property bool isInValidState: false
 
+    function initEditor() {
+        if (colorEditor.supportGradient && gradientModel.hasGradient) {
+            colorEditor.color = gradientLine.currentColor
+            gradientLine.currentColor = colorEditor.color
+            hexTextField.text = colorEditor.color
+            popupHexTextField.text = colorEditor.color
+        }
+
+        cePopup.isInValidState = true
+        colorEditor.originalColor = colorEditor.color
+        colorPalette.selectedColor = colorEditor.color
+        colorPicker.color = colorEditor.color
+
+        cePopup.createModel()
+        cePopup.determineActiveColorMode()
+    }
+
     function commitGradientColor() {
         var hexColor = convertColorToString(colorEditor.color)
         cePopup.popupHexTextField.text = hexColor
@@ -475,24 +492,10 @@ T.Popup {
                         }
                     }
                 }
-
                 Connections {
                     target: modelNodeBackend
                     function onSelectionChanged() {
-                        if (colorEditor.supportGradient && gradientModel.hasGradient) {
-                            colorEditor.color = gradientLine.currentColor
-                            gradientLine.currentColor = colorEditor.color
-                            hexTextField.text = colorEditor.color
-                            popupHexTextField.text = colorEditor.color
-                        }
-
-                        cePopup.isInValidState = true
-                        colorEditor.originalColor = colorEditor.color
-                        colorPalette.selectedColor = colorEditor.color
-                        colorPicker.color = colorEditor.color
-
-                        cePopup.createModel()
-                        cePopup.determineActiveColorMode()
+                        cePopup.initEditor()
                     }
                 }
             }
