@@ -412,14 +412,14 @@ bool CMakeBuildSystem::mustApplyConfigurationChangesArguments(const BuildDirPara
     if (parameters.configurationChangesArguments.isEmpty())
         return false;
 
-    auto answer = QMessageBox::question(Core::ICore::mainWindow(),
-                                        tr("Apply configuration changes?"),
-                                        "<p>" + tr("Run CMake with configuration changes?")
-                                            + "</p><pre>"
-                                            + parameters.configurationChangesArguments.join("\n")
-                                            + "</pre>",
-                                        QMessageBox::Apply | QMessageBox::Discard,
-                                        QMessageBox::Apply);
+    int answer = QMessageBox::question(Core::ICore::dialogParent(),
+                                       tr("Apply configuration changes?"),
+                                       "<p>" + tr("Run CMake with configuration changes?")
+                                       + "</p><pre>"
+                                       + parameters.configurationChangesArguments.join("\n")
+                                       + "</pre>",
+                                       QMessageBox::Apply | QMessageBox::Discard,
+                                       QMessageBox::Apply);
     return answer == QMessageBox::Apply;
 }
 

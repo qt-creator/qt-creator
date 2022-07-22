@@ -732,7 +732,7 @@ void LoggingViewManagerWidget::setCategoryColor(const QString &category, const Q
 void LoggingViewer::showLoggingView()
 {
     ActionManager::command(Constants::LOGGER)->action()->setEnabled(false);
-    auto widget = new LoggingViewManagerWidget(ICore::mainWindow());
+    auto widget = new LoggingViewManagerWidget(ICore::dialogParent());
     QObject::connect(widget, &QDialog::finished, widget, [widget] () {
         ActionManager::command(Constants::LOGGER)->action()->setEnabled(true);
         // explicitly disable manager again

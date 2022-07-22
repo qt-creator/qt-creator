@@ -58,6 +58,7 @@
 #include <utils/utilsicons.h>
 
 #include <QAction>
+#include <QMainWindow>
 #include <QSettings>
 
 using namespace Utils;

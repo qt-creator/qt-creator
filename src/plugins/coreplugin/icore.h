@@ -32,7 +32,6 @@
 #include <utils/qtcsettings.h>
 
 #include <QList>
-#include <QMainWindow>
 #include <QObject>
 #include <QRect>
 #include <QSettings>
@@ -40,6 +39,7 @@
 #include <functional>
 
 QT_BEGIN_NAMESPACE
+class QMainWindow;
 class QPrinter;
 class QStatusBar;
 class QWidget;

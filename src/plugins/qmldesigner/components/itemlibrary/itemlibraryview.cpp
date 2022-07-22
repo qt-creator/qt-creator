@@ -169,7 +169,7 @@ void ItemLibraryView::updateImport3DSupport(const QVariantMap &supportMap)
             auto importDlg = new ItemLibraryAssetImportDialog(fileNames, defaultDir,
                                                               m_importableExtensions3DMap,
                                                               m_importOptions3DMap, {}, {},
-                                                              Core::ICore::mainWindow());
+                                                              Core::ICore::dialogParent());
             int result = importDlg->exec();
 
             return result == QDialog::Accepted ? AddFilesResult::Succeeded : AddFilesResult::Cancelled;

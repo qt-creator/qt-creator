@@ -373,7 +373,7 @@ void ItemLibraryAssetImportDialog::updateImport(const ModelNode &updateNode,
                                         {sourceInfo.absoluteFilePath()},
                                         node.model()->fileUrl().toLocalFile(),
                                         supportedExts, supportedOpts, options,
-                                        preselectedFiles, Core::ICore::mainWindow());
+                                        preselectedFiles, Core::ICore::dialogParent());
                             importDlg->show();
 
                         } else {

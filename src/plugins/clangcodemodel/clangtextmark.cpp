@@ -47,6 +47,7 @@
 
 #include <QAction>
 #include <QLayout>
+#include <QMainWindow>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include <QString>

@@ -147,7 +147,7 @@ public:
 
         auto introAction = new QAction(tr("UI Tour"), this);
         connect(introAction, &QAction::triggered, this, []() {
-            auto intro = new IntroductionWidget(ICore::mainWindow());
+            auto intro = new IntroductionWidget(ICore::dialogParent());
             intro->show();
         });
         Command *cmd = ActionManager::registerAction(introAction, "Welcome.UITour");
@@ -157,7 +157,7 @@ public:
 
         if (!arguments.contains("-notour")) {
             connect(ICore::instance(), &ICore::coreOpened, this, []() {
-                IntroductionWidget::askUserAboutIntroduction(ICore::mainWindow(),
+                IntroductionWidget::askUserAboutIntroduction(ICore::dialogParent(),
                                                              ICore::settings());
             }, Qt::QueuedConnection);
         }

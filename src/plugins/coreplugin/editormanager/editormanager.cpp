@@ -94,6 +94,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QFileDialog>
+#include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>

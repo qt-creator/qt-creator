@@ -525,21 +525,21 @@ public:
 
         model.setListView(targetNode);
 
-        ListModelEditorDialog dialog{Core::ICore::mainWindow()};
+        ListModelEditorDialog dialog{Core::ICore::dialogParent()};
         dialog.setModel(&model);
 
         try {
             dialog.exec();
         } catch (const DocumentError &) {
             QMessageBox::warning(
-                Core::ICore::mainWindow(),
+                Core::ICore::dialogParent(),
                 QCoreApplication::translate("DesignerActionManager", "Document Has Errors"),
                 QCoreApplication::translate("DesignerActionManager",
                                             "The document which contains the list model "
                                             "contains errors. So we cannot edit it."));
         } catch (const RewritingException &) {
             QMessageBox::warning(
-                Core::ICore::mainWindow(),
+                Core::ICore::dialogParent(),
                 QCoreApplication::translate("DesignerActionManager", "Document Cannot Be Written"),
                 QCoreApplication::translate("DesignerActionManager",
                                             "An error occurred during a write attemp."));

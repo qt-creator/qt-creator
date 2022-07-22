@@ -39,6 +39,7 @@
 #include <QApplication>
 #include <QFileInfo>
 #include <QLoggingCategory>
+#include <QMainWindow>
 #include <QMessageBox>
 #include <QSettings>
 

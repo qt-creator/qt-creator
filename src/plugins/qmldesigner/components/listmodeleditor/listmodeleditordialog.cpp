@@ -37,6 +37,7 @@
 #include <QInputDialog>
 #include <QKeyEvent>
 #include <QLineEdit>
+#include <QMainWindow>
 #include <QTableView>
 #include <QToolBar>
 #include <QVBoxLayout>

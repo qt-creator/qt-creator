@@ -60,6 +60,7 @@
 #include <QLayout>
 #include <QList>
 #include <QListWidget>
+#include <QMainWindow>
 #include <QPainter>
 #include <QPixmap>
 #include <QStatusBar>
