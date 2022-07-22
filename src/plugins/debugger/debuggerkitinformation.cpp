@@ -35,6 +35,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <utils/environment.h>
+#include <utils/guard.h>
 #include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
@@ -96,7 +97,7 @@ private:
 
     void refresh() override
     {
-        m_ignoreChanges = true;
+        const GuardLocker locker(m_ignoreChanges);
         m_comboBox->clear();
         m_comboBox->addItem(Tr::tr("None"), QString());
         for (const DebuggerItem &item : DebuggerItemManager::debuggers())
@@ -104,13 +105,12 @@ private:
 
         const DebuggerItem *item = DebuggerKitAspect::debugger(m_kit);
         updateComboBox(item ? item->id() : QVariant());
-        m_ignoreChanges = false;
     }
 
     void currentDebuggerChanged(int idx)
     {
         Q_UNUSED(idx)
-        if (m_ignoreChanges)
+        if (m_ignoreChanges.isLocked())
             return;
 
         int currentIndex = m_comboBox->currentIndex();
@@ -131,7 +131,7 @@ private:
         m_comboBox->setCurrentIndex(0);
     }
 
-    bool m_ignoreChanges = false;
+    Guard m_ignoreChanges;
     QComboBox *m_comboBox;
     QWidget *m_manageButton;
 };
