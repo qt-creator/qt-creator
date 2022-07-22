@@ -27,8 +27,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Beautifier {
-namespace Internal {
+namespace Beautifier::Internal {
 
 class UncrustifySettings;
 
@@ -38,5 +37,4 @@ public:
     explicit UncrustifyOptionsPage(UncrustifySettings *settings);
 };
 
-} // namespace Internal
-} // namespace Beautifier
+} // Beautifier::Internal
