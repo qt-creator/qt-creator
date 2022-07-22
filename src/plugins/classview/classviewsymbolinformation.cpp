@@ -51,11 +51,7 @@ SymbolInformation::SymbolInformation() :
 SymbolInformation::SymbolInformation(const QString &valueName, const QString &valueType,
                                      int valueIconType)
     : m_iconType(valueIconType)
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     , m_hash(qHashMulti(0, valueIconType, valueName, valueType))
-#else
-    , m_hash(qHash(qMakePair(valueIconType, qMakePair(valueName, valueType))))
-#endif
     , m_name(valueName)
     , m_type(valueType)
 {

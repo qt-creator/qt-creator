@@ -49,11 +49,7 @@ SymbolLocation::SymbolLocation(const QString &file, int lineNumber, int columnNu
     : m_fileName(file)
     , m_line(lineNumber)
     , m_column(qMax(columnNumber, 0))
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     , m_hash(qHashMulti(0, m_fileName, m_line, m_column))
-#else
-    , m_hash(qHash(qMakePair(m_fileName, qMakePair(m_line, m_column))))
-#endif
 {
 }
 
