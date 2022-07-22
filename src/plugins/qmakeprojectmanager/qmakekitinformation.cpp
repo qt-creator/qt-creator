@@ -34,6 +34,7 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/algorithm.h>
+#include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
@@ -72,19 +73,18 @@ private:
 
     void refresh() override
     {
-        if (!m_ignoreChange)
+        if (!m_ignoreChanges.isLocked())
             m_lineEdit->setText(QDir::toNativeSeparators(QmakeKitAspect::mkspec(m_kit)));
     }
 
     void mkspecWasChanged(const QString &text)
     {
-        m_ignoreChange = true;
+        const GuardLocker locker(m_ignoreChanges);
         QmakeKitAspect::setMkspec(m_kit, text, QmakeKitAspect::MkspecSource::User);
-        m_ignoreChange = false;
     }
 
     QLineEdit *m_lineEdit = nullptr;
-    bool m_ignoreChange = false;
+    Guard m_ignoreChanges;
 };
 
 
