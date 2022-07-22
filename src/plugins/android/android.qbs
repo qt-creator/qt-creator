@@ -93,7 +93,6 @@ Project {
             "androidservicewidget_p.h",
             "androidsettingswidget.cpp",
             "androidsettingswidget.h",
-            "androidsettingswidget.ui",
             "androidsignaloperation.cpp",
             "androidsignaloperation.h",
             "androidtoolchain.cpp",

@@ -27,8 +27,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidSettingsPage final : public Core::IOptionsPage
 {
@@ -36,5 +35,4 @@ public:
     AndroidSettingsPage();
 };
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

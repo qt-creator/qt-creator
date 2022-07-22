@@ -40,7 +40,7 @@ add_qtc_plugin(Android
     androidsdkmodel.cpp androidsdkmodel.h
     androidsdkpackage.cpp androidsdkpackage.h
     androidservicewidget.cpp androidservicewidget.h androidservicewidget_p.h
-    androidsettingswidget.cpp androidsettingswidget.h androidsettingswidget.ui
+    androidsettingswidget.cpp androidsettingswidget.h
     androidsignaloperation.cpp androidsignaloperation.h
     androidtoolchain.cpp androidtoolchain.h
     avddialog.cpp avddialog.h

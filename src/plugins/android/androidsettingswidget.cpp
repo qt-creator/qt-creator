@@ -25,8 +25,6 @@
 
 #include "androidsettingswidget.h"
 
-#include "ui_androidsettingswidget.h"
-
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidsdkdownloader.h"
@@ -35,100 +33,39 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/detailswidget.h>
 #include <utils/hostosinfo.h>
 #include <utils/infolabel.h>
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
+#include <QCheckBox>
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileDialog>
+#include <QGroupBox>
 #include <QList>
+#include <QListWidget>
 #include <QLoggingCategory>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QStandardPaths>
 #include <QTimer>
+#include <QToolButton>
 #include <QUrl>
-#include <QWidget>
+#include <QVBoxLayout>
 
 #include <memory>
 
 using namespace Utils;
 
-namespace {
+namespace Android::Internal {
+
 static Q_LOGGING_CATEGORY(androidsettingswidget, "qtc.android.androidsettingswidget", QtWarningMsg);
-}
-
-namespace Android {
-namespace Internal {
-
-class AndroidSdkManagerWidget;
-class SummaryWidget;
-
-class AndroidSettingsWidget final : public Core::IOptionsPageWidget
-{
-    Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidSettingsWidget)
-
-public:
-    // Todo: This would be so much simpler if it just used Utils::PathChooser!!!
-    AndroidSettingsWidget();
-    ~AndroidSettingsWidget() final;
-
-private:
-    void apply() final { AndroidConfigurations::setConfig(m_androidConfig); }
-
-    void showEvent(QShowEvent *event) override;
-
-    void validateJdk();
-    void updateNdkList();
-    void onSdkPathChanged();
-    void validateSdk();
-    void openSDKDownloadUrl();
-    void openNDKDownloadUrl();
-    void openOpenJDKDownloadUrl();
-    void downloadOpenSslRepo(const bool silent = false);
-    void createKitToggled();
-
-    void updateUI();
-
-    void downloadSdk();
-    void addCustomNdkItem();
-    bool isDefaultNdkSelected() const;
-    void validateOpenSsl();
-
-    Ui_AndroidSettingsWidget m_ui;
-    AndroidSdkManagerWidget *m_sdkManagerWidget = nullptr;
-    AndroidConfig &m_androidConfig{AndroidConfigurations::currentConfig()};
-
-    AndroidSdkManager m_sdkManager{m_androidConfig};
-    AndroidSdkDownloader m_sdkDownloader;
-    bool m_isInitialReloadDone = false;
-
-    SummaryWidget *m_androidSummary = nullptr;
-    SummaryWidget *m_openSslSummary = nullptr;
-
-    ProgressIndicator *m_androidProgress = nullptr;
-};
-
-enum AndroidValidation {
-    JavaPathExistsAndWritableRow,
-    SdkPathExistsAndWritableRow,
-    SdkToolsInstalledRow,
-    PlatformToolsInstalledRow,
-    SdkManagerSuccessfulRow,
-    PlatformSdkInstalledRow,
-    BuildToolsInstalledRow,
-    AllEssentialsInstalledRow,
-};
-
-enum OpenSslValidation {
-    OpenSslPathExistsRow,
-    OpenSslPriPathExists,
-    OpenSslCmakeListsPathExists
-};
 
 class SummaryWidget : public QWidget
 {
@@ -222,133 +159,116 @@ private:
     QMap<int, RowData> m_validationData;
 };
 
-void AndroidSettingsWidget::showEvent(QShowEvent *event)
+class AndroidSettingsWidget final : public Core::IOptionsPageWidget
 {
-    Q_UNUSED(event)
-    if (!m_isInitialReloadDone) {
-        validateJdk();
-        // Reloading SDK packages (force) is still synchronous. Use zero timer
-        // to let settings dialog open first.
-        QTimer::singleShot(0, &m_sdkManager, std::bind(&AndroidSdkManager::reloadPackages,
-                                                       &m_sdkManager, false));
-        validateOpenSsl();
-        m_isInitialReloadDone = true;
-    }
-}
+    Q_DECLARE_TR_FUNCTIONS(Android::Internal::AndroidSettingsWidget)
 
-void AndroidSettingsWidget::updateNdkList()
-{
-    m_ui.ndkListWidget->clear();
-    const auto installedPkgs = m_sdkManager.installedNdkPackages();
-    for (const Ndk *ndk : installedPkgs) {
-        m_ui.ndkListWidget->addItem(new QListWidgetItem(Icons::LOCKED.icon(),
-                                                        ndk->installedLocation().toUserOutput()));
-    }
+public:
+    // Todo: This would be so much simpler if it just used Utils::PathChooser!!!
+    AndroidSettingsWidget();
+    ~AndroidSettingsWidget() final;
 
-    const auto customNdks = m_androidConfig.getCustomNdkList();
-    for (const QString &ndk : customNdks) {
-        if (m_androidConfig.isValidNdk(ndk)) {
-            m_ui.ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndk));
-        } else {
-            m_androidConfig.removeCustomNdk(ndk);
-        }
-    }
+private:
+    void apply() final { AndroidConfigurations::setConfig(m_androidConfig); }
 
-    m_ui.ndkListWidget->setCurrentRow(0);
+    void showEvent(QShowEvent *event) override;
 
-    updateUI();
-}
+    void validateJdk();
+    void updateNdkList();
+    void onSdkPathChanged();
+    void validateSdk();
+    void openSDKDownloadUrl();
+    void openNDKDownloadUrl();
+    void openOpenJDKDownloadUrl();
+    void downloadOpenSslRepo(const bool silent = false);
+    void createKitToggled();
 
-void AndroidSettingsWidget::addCustomNdkItem()
-{
-    const QString homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation)
-            .constFirst();
-    const QString ndkPath = QFileDialog::getExistingDirectory(this, tr("Select an NDK"), homePath);
+    void updateUI();
 
-    if (m_androidConfig.isValidNdk(ndkPath)) {
-        m_androidConfig.addCustomNdk(ndkPath);
-        if (m_ui.ndkListWidget->findItems(ndkPath, Qt::MatchExactly).size() == 0) {
-            m_ui.ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndkPath));
-        }
-    } else if (!ndkPath.isEmpty()) {
-        QMessageBox::warning(
-            this,
-            tr("Add Custom NDK"),
-            tr("The selected path has an invalid NDK. This might mean that the path contains space "
-               "characters, or that it does not have a \"toolchains\" sub-directory, or that the "
-               "NDK version could not be retrieved because of a missing \"source.properties\" or "
-               "\"RELEASE.TXT\" file"));
-    }
-}
+    void downloadSdk();
+    void addCustomNdkItem();
+    bool isDefaultNdkSelected() const;
+    void validateOpenSsl();
 
+    AndroidSdkManagerWidget *m_sdkManagerWidget = nullptr;
+    AndroidConfig &m_androidConfig{AndroidConfigurations::currentConfig()};
 
-bool AndroidSettingsWidget::isDefaultNdkSelected() const
-{
-    if (!m_androidConfig.defaultNdk().isEmpty()) {
-        if (const QListWidgetItem *item = m_ui.ndkListWidget->currentItem()) {
-            return FilePath::fromUserInput(item->text()) == m_androidConfig.defaultNdk();
-        }
-    }
-    return false;
-}
+    AndroidSdkManager m_sdkManager{m_androidConfig};
+    AndroidSdkDownloader m_sdkDownloader;
+    bool m_isInitialReloadDone = false;
+
+    SummaryWidget *m_androidSummary = nullptr;
+    SummaryWidget *m_openSslSummary = nullptr;
+
+    ProgressIndicator *m_androidProgress = nullptr;
+
+    PathChooser *m_sdkLocationPathChooser;
+    QPushButton *m_makeDefaultNdkButton;
+    QListWidget *m_ndkListWidget;
+    PathChooser *m_openJdkLocationPathChooser;
+    QCheckBox *m_createKitCheckBox;
+    PathChooser *m_openSslPathChooser;
+};
+
+enum AndroidValidation {
+    JavaPathExistsAndWritableRow,
+    SdkPathExistsAndWritableRow,
+    SdkToolsInstalledRow,
+    PlatformToolsInstalledRow,
+    SdkManagerSuccessfulRow,
+    PlatformSdkInstalledRow,
+    BuildToolsInstalledRow,
+    AllEssentialsInstalledRow,
+};
+
+enum OpenSslValidation {
+    OpenSslPathExistsRow,
+    OpenSslPriPathExists,
+    OpenSslCmakeListsPathExists
+};
 
 AndroidSettingsWidget::AndroidSettingsWidget()
 {
-    m_ui.setupUi(this);
-    m_sdkManagerWidget = new AndroidSdkManagerWidget(m_androidConfig, &m_sdkManager, this);
-    QMap<int, QString> androidValidationPoints;
-    androidValidationPoints[SdkPathExistsAndWritableRow] =
-            tr("Android SDK path exists and is writable.");
-    androidValidationPoints[JavaPathExistsAndWritableRow] = tr("JDK path exists and is writable.");
-    androidValidationPoints[SdkToolsInstalledRow] = tr("SDK tools installed.");
-    androidValidationPoints[SdkManagerSuccessfulRow] = tr("SDK manager runs.");
-    androidValidationPoints[PlatformToolsInstalledRow] = tr("Platform tools installed.");
-    androidValidationPoints[AllEssentialsInstalledRow] = tr(
-        "All essential packages installed for all installed Qt versions.");
-    androidValidationPoints[BuildToolsInstalledRow] = tr("Build tools installed.");
-    androidValidationPoints[PlatformSdkInstalledRow] = tr("Platform SDK installed.");
-    m_androidSummary = new SummaryWidget(androidValidationPoints, tr("Android settings are OK."),
-                                         tr("Android settings have errors."),
-                                         m_ui.androidDetailsWidget);
-    m_androidProgress = new ProgressIndicator(ProgressIndicatorSize::Medium, this);
-    m_androidProgress->attachToWidget(m_ui.androidDetailsWidget);
-    m_androidProgress->hide();
-
-    QMap<int, QString> openSslValidationPoints;
-    openSslValidationPoints[OpenSslPathExistsRow] = tr("OpenSSL path exists.");
-    openSslValidationPoints[OpenSslPriPathExists] = tr(
-        "QMake include project (openssl.pri) exists.");
-    openSslValidationPoints[OpenSslCmakeListsPathExists] = tr(
-        "CMake include project (CMakeLists.txt) exists.");
-    m_openSslSummary = new SummaryWidget(openSslValidationPoints,
-                                         tr("OpenSSL Settings are OK."),
-                                         tr("OpenSSL settings have errors."),
-                                         m_ui.openSslDetailsWidget);
-
-    connect(m_ui.OpenJDKLocationPathChooser, &PathChooser::rawPathChanged,
-            this, &AndroidSettingsWidget::validateJdk);
-    if (m_androidConfig.openJDKLocation().isEmpty())
-        m_androidConfig.setOpenJDKLocation(AndroidConfig::getJdkPath());
-    m_ui.OpenJDKLocationPathChooser->setFilePath(m_androidConfig.openJDKLocation());
-    m_ui.OpenJDKLocationPathChooser->setPromptDialogTitle(tr("Select JDK Path"));
-
-    if (m_androidConfig.sdkLocation().isEmpty())
-        m_androidConfig.setSdkLocation(AndroidConfig::defaultSdkPath());
-    m_ui.SDKLocationPathChooser->setFilePath(m_androidConfig.sdkLocation());
-    m_ui.SDKLocationPathChooser->setPromptDialogTitle(tr("Select Android SDK Folder"));
-
-    m_ui.openSslPathChooser->setPromptDialogTitle(tr("Select OpenSSL Include Project File"));
-    if (m_androidConfig.openSslLocation().isEmpty())
-        m_androidConfig.setOpenSslLocation(m_androidConfig.sdkLocation() / ("android_openssl"));
-    m_ui.openSslPathChooser->setFilePath(m_androidConfig.openSslLocation());
-
-    m_ui.CreateKitCheckBox->setChecked(m_androidConfig.automaticKitCreation());
+    setWindowTitle(tr("Android Configuration"));
 
     const QIcon downloadIcon = Icons::ONLINE.icon();
-    m_ui.downloadSDKToolButton->setIcon(downloadIcon);
-    m_ui.downloadNDKToolButton->setIcon(downloadIcon);
-    m_ui.downloadOpenJDKToolButton->setIcon(downloadIcon);
-    m_ui.sdkToolsAutoDownloadButton->setToolTip(
+
+    m_sdkLocationPathChooser = new PathChooser;
+
+    auto downloadSdkToolButton = new QToolButton;
+    downloadSdkToolButton->setIcon(downloadIcon);
+    downloadSdkToolButton->setToolTip(tr("Open Android SDK download URL in the system's browser."));
+
+    auto addCustomNdkButton = new QPushButton(tr("Add..."));
+    addCustomNdkButton->setToolTip(tr("Add the selected custom NDK. The toolchains "
+                                      "and debuggers will be created automatically."));
+
+    auto removeCustomNdkButton = new QPushButton(tr("Remove"));
+    removeCustomNdkButton->setEnabled(false);
+    removeCustomNdkButton->setToolTip(tr("Remove the selected NDK if it has been added manually."));
+
+    m_makeDefaultNdkButton = new QPushButton;
+    m_makeDefaultNdkButton->setToolTip(tr("Force a specific NDK installation to be used by all "
+                                          "Android kits.<br/>Note that the forced NDK might not "
+                                          "be compatible with all registered Qt versions."));
+
+    auto androidDetailsWidget = new DetailsWidget;
+
+    m_ndkListWidget = new QListWidget;
+    m_ndkListWidget->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+    m_ndkListWidget->setIconSize(QSize(16, 16));
+    m_ndkListWidget->setResizeMode(QListView::Adjust);
+    m_ndkListWidget->setModelColumn(0);
+    m_ndkListWidget->setSortingEnabled(false);
+
+    m_openJdkLocationPathChooser = new PathChooser;
+
+    auto downloadOpenJdkToolButton = new QToolButton;
+    downloadOpenJdkToolButton->setIcon(downloadIcon);
+    downloadOpenJdkToolButton->setToolTip(tr("Open JDK download URL in the system's browser."));
+
+    auto sdkToolsAutoDownloadButton = new QPushButton(tr("Set Up SDK"));
+    sdkToolsAutoDownloadButton->setToolTip(
         tr("Automatically download Android SDK Tools to selected location.\n\n"
            "If the selected path contains no valid SDK Tools, the SDK Tools package is downloaded\n"
            "from %1,\n"
@@ -357,7 +277,21 @@ AndroidSettingsWidget::AndroidSettingsWidget()
            "packages required for Qt to build for Android.")
             .arg(m_androidConfig.sdkToolsUrl().toString()));
 
-    m_ui.downloadOpenSSLPrebuiltLibs->setToolTip(
+    auto sdkManagerToolButton = new QPushButton(tr("SDK Manager"));
+
+    auto downloadNdkToolButton = new QToolButton;
+    downloadNdkToolButton->setToolTip(tr("Open Android NDK download URL in the system's browser."));
+
+    m_createKitCheckBox = new QCheckBox(tr("Automatically create kits for Android tool chains"));
+    m_createKitCheckBox->setChecked(true);
+
+    auto openSslDetailsWidget = new DetailsWidget;
+
+    m_openSslPathChooser = new PathChooser;
+    m_openSslPathChooser->setToolTip(tr("Select the path of the prebuilt OpenSSL binaries."));
+
+    auto downloadOpenSslPrebuiltLibs = new QPushButton(tr("Download OpenSSL"));
+    downloadOpenSslPrebuiltLibs->setToolTip(
         tr("Automatically download OpenSSL prebuilt libraries.\n\n"
            "These libraries can be shipped with your application if any SSL operations\n"
            "are performed. Find the checkbox under \"Projects > Build > Build Steps >\n"
@@ -365,41 +299,147 @@ AndroidSettingsWidget::AndroidSettingsWidget()
            "If the automatic download fails, Qt Creator proposes to open the download URL\n"
            "in the system's browser for manual download."));
 
-    connect(m_ui.SDKLocationPathChooser, &PathChooser::rawPathChanged,
+
+    m_sdkManagerWidget = new AndroidSdkManagerWidget(m_androidConfig, &m_sdkManager, this);
+
+    const QMap<int, QString> androidValidationPoints = {
+        { SdkPathExistsAndWritableRow, tr("Android SDK path exists and is writable.") },
+        { JavaPathExistsAndWritableRow, tr("JDK path exists and is writable.") },
+        { SdkToolsInstalledRow, tr("SDK tools installed.") },
+        { SdkManagerSuccessfulRow, tr("SDK manager runs.") },
+        { PlatformToolsInstalledRow, tr("Platform tools installed.") },
+        { AllEssentialsInstalledRow,
+            tr( "All essential packages installed for all installed Qt versions.") },
+        { BuildToolsInstalledRow, tr("Build tools installed.") },
+        { PlatformSdkInstalledRow, tr("Platform SDK installed.") }
+    };
+
+    m_androidSummary = new SummaryWidget(androidValidationPoints, tr("Android settings are OK."),
+                                         tr("Android settings have errors."),
+                                         androidDetailsWidget);
+    m_androidProgress = new ProgressIndicator(ProgressIndicatorSize::Medium, this);
+    m_androidProgress->attachToWidget(androidDetailsWidget);
+    m_androidProgress->hide();
+
+    const QMap<int, QString> openSslValidationPoints = {
+        { OpenSslPathExistsRow, tr("OpenSSL path exists.") },
+        { OpenSslPriPathExists, tr("QMake include project (openssl.pri) exists.") },
+        { OpenSslCmakeListsPathExists, tr("CMake include project (CMakeLists.txt) exists.") }
+   };
+    m_openSslSummary = new SummaryWidget(openSslValidationPoints,
+                                         tr("OpenSSL Settings are OK."),
+                                         tr("OpenSSL settings have errors."),
+                                         openSslDetailsWidget);
+
+    connect(m_openJdkLocationPathChooser, &PathChooser::rawPathChanged,
+            this, &AndroidSettingsWidget::validateJdk);
+    if (m_androidConfig.openJDKLocation().isEmpty())
+        m_androidConfig.setOpenJDKLocation(AndroidConfig::getJdkPath());
+    m_openJdkLocationPathChooser->setFilePath(m_androidConfig.openJDKLocation());
+    m_openJdkLocationPathChooser->setPromptDialogTitle(tr("Select JDK Path"));
+
+    if (m_androidConfig.sdkLocation().isEmpty())
+        m_androidConfig.setSdkLocation(AndroidConfig::defaultSdkPath());
+    m_sdkLocationPathChooser->setFilePath(m_androidConfig.sdkLocation());
+    m_sdkLocationPathChooser->setPromptDialogTitle(tr("Select Android SDK Folder"));
+
+    m_openSslPathChooser->setPromptDialogTitle(tr("Select OpenSSL Include Project File"));
+    if (m_androidConfig.openSslLocation().isEmpty())
+        m_androidConfig.setOpenSslLocation(m_androidConfig.sdkLocation() / ("android_openssl"));
+    m_openSslPathChooser->setFilePath(m_androidConfig.openSslLocation());
+
+    m_createKitCheckBox->setChecked(m_androidConfig.automaticKitCreation());
+
+    downloadNdkToolButton->setIcon(downloadIcon);
+
+    using namespace Layouting;
+    const Break br;
+    const Space empty;
+
+    Column {
+        Group {
+            Title(tr("Android Settings")),
+            Grid {
+                tr("JDK location:"),
+                m_openJdkLocationPathChooser,
+                empty,
+                downloadOpenJdkToolButton,
+                br,
+
+                tr("Android SDK location:"),
+                m_sdkLocationPathChooser,
+                sdkToolsAutoDownloadButton,
+                downloadSdkToolButton,
+                br,
+
+                empty, empty, sdkManagerToolButton, br,
+
+                Column { tr("Android NDK list:"), Stretch() },
+                m_ndkListWidget,
+                Column {
+                    addCustomNdkButton,
+                    removeCustomNdkButton,
+                    m_makeDefaultNdkButton,
+                },
+                downloadNdkToolButton,
+                br,
+
+                Span(4, androidDetailsWidget), br,
+
+                Span(4, m_createKitCheckBox)
+            }
+        },
+        Group {
+            Title(tr("Android OpenSSL settings (Optional)")),
+            Grid {
+                tr("OpenSSL binaries location:"),
+                m_openSslPathChooser,
+                downloadOpenSslPrebuiltLibs,
+                br,
+
+                Span(4, openSslDetailsWidget)
+            }
+        },
+        Stretch(),
+    }.attachTo(this);
+
+    connect(m_sdkLocationPathChooser, &PathChooser::rawPathChanged,
             this, &AndroidSettingsWidget::onSdkPathChanged);
 
-    connect(m_ui.ndkListWidget, &QListWidget::currentTextChanged, [this](const QString &ndk) {
+    connect(m_ndkListWidget, &QListWidget::currentTextChanged,
+            [this, removeCustomNdkButton](const QString &ndk) {
         updateUI();
-        m_ui.removeCustomNdkButton->setEnabled(m_androidConfig.getCustomNdkList().contains(ndk));
+        removeCustomNdkButton->setEnabled(m_androidConfig.getCustomNdkList().contains(ndk));
     });
-    connect(m_ui.addCustomNdkButton, &QPushButton::clicked, this,
+    connect(addCustomNdkButton, &QPushButton::clicked, this,
             &AndroidSettingsWidget::addCustomNdkItem);
-    connect(m_ui.removeCustomNdkButton, &QPushButton::clicked, this, [this] {
+    connect(removeCustomNdkButton, &QPushButton::clicked, this, [this] {
         if (isDefaultNdkSelected())
             m_androidConfig.setDefaultNdk({});
-        m_androidConfig.removeCustomNdk(m_ui.ndkListWidget->currentItem()->text());
-        m_ui.ndkListWidget->takeItem(m_ui.ndkListWidget->currentRow());
+        m_androidConfig.removeCustomNdk(m_ndkListWidget->currentItem()->text());
+        m_ndkListWidget->takeItem(m_ndkListWidget->currentRow());
     });
-    connect(m_ui.makeDefaultNdkButton, &QPushButton::clicked, this, [this] {
+    connect(m_makeDefaultNdkButton, &QPushButton::clicked, this, [this] {
         const FilePath defaultNdk = isDefaultNdkSelected()
                 ? FilePath()
-                : FilePath::fromUserInput(m_ui.ndkListWidget->currentItem()->text());
+                : FilePath::fromUserInput(m_ndkListWidget->currentItem()->text());
         m_androidConfig.setDefaultNdk(defaultNdk);
         updateUI();
     });
 
-    connect(m_ui.openSslPathChooser, &PathChooser::rawPathChanged,
+    connect(m_openSslPathChooser, &PathChooser::rawPathChanged,
             this, &AndroidSettingsWidget::validateOpenSsl);
-    connect(m_ui.CreateKitCheckBox, &QAbstractButton::toggled,
+    connect(m_createKitCheckBox, &QAbstractButton::toggled,
             this, &AndroidSettingsWidget::createKitToggled);
-    connect(m_ui.downloadNDKToolButton, &QAbstractButton::clicked,
+    connect(downloadNdkToolButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::openNDKDownloadUrl);
-    connect(m_ui.downloadSDKToolButton, &QAbstractButton::clicked,
+    connect(downloadSdkToolButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::openSDKDownloadUrl);
-    connect(m_ui.downloadOpenSSLPrebuiltLibs, &QAbstractButton::clicked,
+    connect(downloadOpenSslPrebuiltLibs, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::downloadOpenSslRepo);
-    connect(m_ui.downloadOpenJDKToolButton, &QAbstractButton::clicked,
+    connect(downloadOpenJdkToolButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::openOpenJDKDownloadUrl);
+
     // Validate SDK again after any change in SDK packages.
     connect(&m_sdkManager, &AndroidSdkManager::packageReloadFinished,
             this, &AndroidSettingsWidget::validateSdk);
@@ -409,9 +449,9 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         m_androidSummary->setInProgressText("Retrieving packages information");
         m_androidProgress->show();
     });
-    connect(m_ui.sdkManagerToolButton, &QAbstractButton::clicked,
+    connect(sdkManagerToolButton, &QAbstractButton::clicked,
             this, [this] { m_sdkManagerWidget->exec(); });
-    connect(m_ui.sdkToolsAutoDownloadButton, &QAbstractButton::clicked,
+    connect(sdkToolsAutoDownloadButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::downloadSdk);
     connect(&m_sdkDownloader, &AndroidSdkDownloader::sdkDownloaderError, this, [this](const QString &error) {
         QMessageBox::warning(this, AndroidSdkDownloader::dialogTitle(), error);
@@ -444,9 +484,79 @@ AndroidSettingsWidget::~AndroidSettingsWidget()
     delete m_sdkManagerWidget;
 }
 
+void AndroidSettingsWidget::showEvent(QShowEvent *event)
+{
+    Q_UNUSED(event)
+    if (!m_isInitialReloadDone) {
+        validateJdk();
+        // Reloading SDK packages (force) is still synchronous. Use zero timer
+        // to let settings dialog open first.
+        QTimer::singleShot(0, &m_sdkManager, std::bind(&AndroidSdkManager::reloadPackages,
+                                                       &m_sdkManager, false));
+        validateOpenSsl();
+        m_isInitialReloadDone = true;
+    }
+}
+
+void AndroidSettingsWidget::updateNdkList()
+{
+    m_ndkListWidget->clear();
+    const auto installedPkgs = m_sdkManager.installedNdkPackages();
+    for (const Ndk *ndk : installedPkgs) {
+        m_ndkListWidget->addItem(new QListWidgetItem(Icons::LOCKED.icon(),
+                                                        ndk->installedLocation().toUserOutput()));
+    }
+
+    const auto customNdks = m_androidConfig.getCustomNdkList();
+    for (const QString &ndk : customNdks) {
+        if (m_androidConfig.isValidNdk(ndk)) {
+            m_ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndk));
+        } else {
+            m_androidConfig.removeCustomNdk(ndk);
+        }
+    }
+
+    m_ndkListWidget->setCurrentRow(0);
+
+    updateUI();
+}
+
+void AndroidSettingsWidget::addCustomNdkItem()
+{
+    const QString homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation)
+            .constFirst();
+    const QString ndkPath = QFileDialog::getExistingDirectory(this, tr("Select an NDK"), homePath);
+
+    if (m_androidConfig.isValidNdk(ndkPath)) {
+        m_androidConfig.addCustomNdk(ndkPath);
+        if (m_ndkListWidget->findItems(ndkPath, Qt::MatchExactly).size() == 0) {
+            m_ndkListWidget->addItem(new QListWidgetItem(Icons::UNLOCKED.icon(), ndkPath));
+        }
+    } else if (!ndkPath.isEmpty()) {
+        QMessageBox::warning(
+            this,
+            tr("Add Custom NDK"),
+            tr("The selected path has an invalid NDK. This might mean that the path contains space "
+               "characters, or that it does not have a \"toolchains\" sub-directory, or that the "
+               "NDK version could not be retrieved because of a missing \"source.properties\" or "
+               "\"RELEASE.TXT\" file"));
+    }
+}
+
+
+bool AndroidSettingsWidget::isDefaultNdkSelected() const
+{
+    if (!m_androidConfig.defaultNdk().isEmpty()) {
+        if (const QListWidgetItem *item = m_ndkListWidget->currentItem()) {
+            return FilePath::fromUserInput(item->text()) == m_androidConfig.defaultNdk();
+        }
+    }
+    return false;
+}
+
 void AndroidSettingsWidget::validateJdk()
 {
-    m_androidConfig.setOpenJDKLocation(m_ui.OpenJDKLocationPathChooser->filePath());
+    m_androidConfig.setOpenJDKLocation(m_openJdkLocationPathChooser->filePath());
     bool jdkPathExists = m_androidConfig.openJDKLocation().exists();
     const FilePath bin = m_androidConfig.openJDKLocation()
                                         .pathAppended("bin/javac" QTC_HOST_EXE_SUFFIX);
@@ -460,7 +570,7 @@ void AndroidSettingsWidget::validateJdk()
 
 void AndroidSettingsWidget::validateOpenSsl()
 {
-    m_androidConfig.setOpenSslLocation(m_ui.openSslPathChooser->filePath());
+    m_androidConfig.setOpenSslLocation(m_openSslPathChooser->filePath());
 
     m_openSslSummary->setPointValid(OpenSslPathExistsRow, m_androidConfig.openSslLocation().exists());
 
@@ -475,19 +585,19 @@ void AndroidSettingsWidget::validateOpenSsl()
 
 void AndroidSettingsWidget::onSdkPathChanged()
 {
-    const FilePath sdkPath = m_ui.SDKLocationPathChooser->filePath().cleanPath();
+    const FilePath sdkPath = m_sdkLocationPathChooser->filePath().cleanPath();
     m_androidConfig.setSdkLocation(sdkPath);
     FilePath currentOpenSslPath = m_androidConfig.openSslLocation();
     if (currentOpenSslPath.isEmpty() || !currentOpenSslPath.exists())
         currentOpenSslPath = sdkPath.pathAppended("android_openssl");
-    m_ui.openSslPathChooser->setFilePath(currentOpenSslPath);
+    m_openSslPathChooser->setFilePath(currentOpenSslPath);
     // Package reload will trigger validateSdk.
     m_sdkManager.reloadPackages();
 }
 
 void AndroidSettingsWidget::validateSdk()
 {
-    const FilePath sdkPath = m_ui.SDKLocationPathChooser->filePath().cleanPath();
+    const FilePath sdkPath = m_sdkLocationPathChooser->filePath().cleanPath();
     m_androidConfig.setSdkLocation(sdkPath);
 
     const FilePath path = m_androidConfig.sdkLocation();
@@ -542,7 +652,7 @@ void AndroidSettingsWidget::openOpenJDKDownloadUrl()
 
 void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
 {
-    const FilePath openSslPath = m_ui.openSslPathChooser->filePath();
+    const FilePath openSslPath = m_openSslPathChooser->filePath();
     const QString openSslCloneTitle(tr("OpenSSL Cloning"));
 
     if (m_openSslSummary->allRowsOk()) {
@@ -610,7 +720,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
             }
         }
         validateOpenSsl();
-        m_ui.openSslPathChooser->triggerChanged(); // After cloning, the path exists
+        m_openSslPathChooser->triggerChanged(); // After cloning, the path exists
 
         if (!openSslProgressDialog->wasCanceled()
                 || gitCloner->result() == ProcessResult::FinishedWithError) {
@@ -624,7 +734,7 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
 
 void AndroidSettingsWidget::createKitToggled()
 {
-    m_androidConfig.setAutomaticKitCreation(m_ui.CreateKitCheckBox->isChecked());
+    m_androidConfig.setAutomaticKitCreation(m_createKitCheckBox->isChecked());
 }
 
 void AndroidSettingsWidget::updateUI()
@@ -632,7 +742,7 @@ void AndroidSettingsWidget::updateUI()
     const bool androidSetupOk = m_androidSummary->allRowsOk();
     const bool openSslOk = m_openSslSummary->allRowsOk();
 
-    const QListWidgetItem *currentItem = m_ui.ndkListWidget->currentItem();
+    const QListWidgetItem *currentItem = m_ndkListWidget->currentItem();
     const FilePath currentNdk = FilePath::fromString(currentItem ? currentItem->text() : "");
     const QString infoText = tr("(SDK Version: %1, NDK Version: %2)")
             .arg(m_androidConfig.sdkToolsVersion().toString())
@@ -644,19 +754,19 @@ void AndroidSettingsWidget::updateUI()
 
     // Mark default entry in NDK list widget
     {
-        const QFont font = m_ui.ndkListWidget->font();
+        const QFont font = m_ndkListWidget->font();
         QFont markedFont = font;
         markedFont.setItalic(true);
-        for (int row = 0; row < m_ui.ndkListWidget->count(); ++row) {
-            QListWidgetItem *item = m_ui.ndkListWidget->item(row);
+        for (int row = 0; row < m_ndkListWidget->count(); ++row) {
+            QListWidgetItem *item = m_ndkListWidget->item(row);
             const bool isDefaultNdk =
                     FilePath::fromUserInput(item->text()) == m_androidConfig.defaultNdk();
             item->setFont(isDefaultNdk ? markedFont : font);
         }
     }
 
-    m_ui.makeDefaultNdkButton->setText(isDefaultNdkSelected() ? tr("Unset Default")
-                                                              : tr("Make Default"));
+    m_makeDefaultNdkButton->setText(isDefaultNdkSelected() ? tr("Unset Default")
+                                                           : tr("Make Default"));
 }
 
 void AndroidSettingsWidget::downloadSdk()
@@ -669,7 +779,7 @@ void AndroidSettingsWidget::downloadSdk()
     }
 
     const QString message = tr("Download and install Android SDK Tools to %1?")
-            .arg("\n\"" + m_ui.SDKLocationPathChooser->filePath().cleanPath().toUserOutput()
+            .arg("\n\"" + m_sdkLocationPathChooser->filePath().cleanPath().toUserOutput()
                  + "\"");
     auto userInput = QMessageBox::information(this, AndroidSdkDownloader::dialogTitle(),
                                               message, QMessageBox::Yes | QMessageBox::No);
@@ -687,5 +797,4 @@ AndroidSettingsPage::AndroidSettingsPage()
     setWidgetCreator([] { return new AndroidSettingsWidget; });
 }
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal
