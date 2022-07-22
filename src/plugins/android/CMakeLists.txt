@@ -9,7 +9,7 @@ add_qtc_plugin(Android
     androidbuildapkstep.cpp androidbuildapkstep.h
     androidconfigurations.cpp androidconfigurations.h
     androidconstants.h
-    androidcreatekeystorecertificate.cpp androidcreatekeystorecertificate.h androidcreatekeystorecertificate.ui
+    androidcreatekeystorecertificate.cpp androidcreatekeystorecertificate.h
     androiddebugsupport.cpp androiddebugsupport.h
     androiddeployqtstep.cpp androiddeployqtstep.h
     androiddevice.cpp androiddevice.h

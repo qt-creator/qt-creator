@@ -25,16 +25,19 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class AndroidCreateKeystoreCertificate; }
+class QCheckBox;
+class QLineEdit;
+class QSpinBox;
 QT_END_NAMESPACE
 
-namespace Android {
-namespace Internal {
+namespace Utils { class InfoLabel; }
+
+namespace Android::Internal {
 
 class AndroidCreateKeystoreCertificate : public QDialog
 {
@@ -49,10 +52,11 @@ class AndroidCreateKeystoreCertificate : public QDialog
 public:
     explicit AndroidCreateKeystoreCertificate(QWidget *parent = nullptr);
     ~AndroidCreateKeystoreCertificate() override;
-    Utils::FilePath keystoreFilePath();
-    QString keystorePassword();
-    QString certificateAlias();
-    QString certificatePassword();
+
+    Utils::FilePath keystoreFilePath() const;
+    QString keystorePassword() const;
+    QString certificateAlias() const;
+    QString certificatePassword() const;
 
 private:
     PasswordStatus checkKeystorePassword();
@@ -60,17 +64,31 @@ private:
     bool checkCertificateAlias();
     bool checkCountryCode();
 
-private slots:
     void keystoreShowPassStateChanged(int state);
     void certificateShowPassStateChanged(int state);
     void buttonBoxAccepted();
     void samePasswordStateChanged(int state);
 
-private:
     bool validateUserInput();
-    Ui::AndroidCreateKeystoreCertificate *ui;
+
     Utils::FilePath m_keystoreFilePath;
+
+    QLineEdit *m_commonNameLineEdit;
+    QLineEdit *m_organizationUnitLineEdit;
+    QLineEdit *m_organizationNameLineEdit;
+    QLineEdit *m_localityNameLineEdit;
+    QLineEdit *m_stateNameLineEdit;
+    QLineEdit *m_countryLineEdit;
+    QLineEdit *m_certificateRetypePassLineEdit;
+    QCheckBox *m_certificateShowPassCheckBox;
+    QSpinBox *m_validitySpinBox;
+    QLineEdit *m_certificateAliasLineEdit;
+    QLineEdit *m_certificatePassLineEdit;
+    QSpinBox *m_keySizeSpinBox;
+    QCheckBox *m_samePasswordCheckBox;
+    QLineEdit *m_keystorePassLineEdit;
+    QLineEdit *m_keystoreRetypePassLineEdit;
+    Utils::InfoLabel *m_infoLabel;
 };
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

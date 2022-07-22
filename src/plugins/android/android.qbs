@@ -27,7 +27,6 @@ Project {
             "androidconstants.h",
             "androidcreatekeystorecertificate.cpp",
             "androidcreatekeystorecertificate.h",
-            "androidcreatekeystorecertificate.ui",
             "androidbuildapkstep.cpp",
             "androidbuildapkstep.h",
             "androiddeployqtstep.cpp",
