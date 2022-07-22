@@ -157,11 +157,7 @@ bool TarPackageCreationStep::fromMap(const QVariantMap &map)
 QVariantMap TarPackageCreationStep::toMap() const
 {
     QVariantMap map = BuildStep::toMap();
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     map.insert(d->m_deployTimes.exportDeployTimes());
-#else
-    map.unite(d->m_deployTimes.exportDeployTimes());
-#endif
     return map;
 }
 
