@@ -58,7 +58,6 @@ Project {
             "completionsettings.h",
             "completionsettingspage.cpp",
             "completionsettingspage.h",
-            "completionsettingspage.ui",
             "displaysettings.cpp",
             "displaysettings.h",
             "displaysettingspage.cpp",

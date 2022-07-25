@@ -38,8 +38,8 @@ class CompletionSettingsPage : public Core::IOptionsPage
 public:
     CompletionSettingsPage();
 
-    const CompletionSettings & completionSettings();
-    const CommentsSettings & commentsSettings();
+    const CompletionSettings &completionSettings() const;
+    const CommentsSettings &commentsSettings() const;
 
 private:
     friend class CompletionSettingsPageWidget;

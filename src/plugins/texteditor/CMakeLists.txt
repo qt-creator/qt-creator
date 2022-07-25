@@ -49,7 +49,7 @@ add_qtc_plugin(TextEditor
     command.cpp command.h
     commentssettings.cpp commentssettings.h
     completionsettings.cpp completionsettings.h
-    completionsettingspage.cpp completionsettingspage.h completionsettingspage.ui
+    completionsettingspage.cpp completionsettingspage.h
     displaysettings.cpp displaysettings.h
     displaysettingspage.cpp displaysettingspage.h displaysettingspage.ui
     extraencodingsettings.cpp extraencodingsettings.h
