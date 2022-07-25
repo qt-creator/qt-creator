@@ -14,7 +14,7 @@ add_qtc_plugin(TextEditor
     basehoverhandler.cpp basehoverhandler.h
     behaviorsettings.cpp behaviorsettings.h
     behaviorsettingspage.cpp behaviorsettingspage.h
-    behaviorsettingswidget.cpp behaviorsettingswidget.h behaviorsettingswidget.ui
+    behaviorsettingswidget.cpp behaviorsettingswidget.h
     blockrange.h
     circularclipboard.cpp circularclipboard.h
     circularclipboardassist.cpp circularclipboardassist.h

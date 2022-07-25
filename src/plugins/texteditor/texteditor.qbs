@@ -32,7 +32,6 @@ Project {
             "behaviorsettingspage.h",
             "behaviorsettingswidget.cpp",
             "behaviorsettingswidget.h",
-            "behaviorsettingswidget.ui",
             "blockrange.h",
             "circularclipboard.cpp",
             "circularclipboard.h",

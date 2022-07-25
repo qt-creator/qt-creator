@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "behaviorsettingswidget.h"
-#include "ui_behaviorsettingswidget.h"
 
 #include "tabsettingswidget.h"
 
@@ -35,14 +34,19 @@
 #include <texteditor/storagesettings.h>
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/extraencodingsettings.h>
+#include <texteditor/simplecodestylepreferenceswidget.h>
+
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 
-#include <QList>
-#include <QString>
-#include <QByteArray>
+#include <QApplication>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLineEdit>
 #include <QTextCodec>
-#include <QTextStream>
 
 #include <functional>
 
@@ -50,15 +54,139 @@ namespace TextEditor {
 
 struct BehaviorSettingsWidgetPrivate
 {
-    Internal::Ui::BehaviorSettingsWidget m_ui;
     QList<QTextCodec *> m_codecs;
+
+    SimpleCodeStylePreferencesWidget *tabPreferencesWidget;
+    QComboBox *tabKeyBehavior;
+    QComboBox *smartBackspaceBehavior;
+    QCheckBox *autoIndent;
+    QCheckBox *preferSingleLineComments;
+    QGroupBox *groupBoxStorageSettings;
+    QGroupBox *groupBoxTyping;
+    QCheckBox *skipTrailingWhitespace;
+    QLineEdit *ignoreFileTypes;
+    QCheckBox *addFinalNewLine;
+    QCheckBox *cleanWhitespace;
+    QCheckBox *cleanIndentation;
+    QCheckBox *inEntireDocument;
+    QGroupBox *groupBoxEncodings;
+    QComboBox *encodingBox;
+    QComboBox *utf8BomBox;
+    QLabel *defaultLineEndingsLabel;
+    QComboBox *defaultLineEndings;
+    QGroupBox *groupBoxMouse;
+    QCheckBox *mouseHiding;
+    QCheckBox *mouseNavigation;
+    QCheckBox *scrollWheelZooming;
+    QCheckBox *camelCaseNavigation;
+    QCheckBox *smartSelectionChanging;
+    QCheckBox *keyboardTooltips;
+    QComboBox *constrainTooltipsBox;
 };
 
 BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
     : QWidget(parent)
     , d(new BehaviorSettingsWidgetPrivate)
 {
-    d->m_ui.setupUi(this);
+    resize(801, 693);
+
+    d->tabPreferencesWidget = new SimpleCodeStylePreferencesWidget(this);
+    d->tabPreferencesWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed); // FIXME: Desirable?
+
+    d->tabKeyBehavior = new QComboBox;
+    d->tabKeyBehavior->addItem(tr("Never"));
+    d->tabKeyBehavior->addItem(tr("Always"));
+    d->tabKeyBehavior->addItem(tr("In Leading White Space"));
+
+    d->smartBackspaceBehavior = new QComboBox;
+    d->smartBackspaceBehavior->addItem(tr("None"));
+    d->smartBackspaceBehavior->addItem(tr("Follows Previous Indents"));
+    d->smartBackspaceBehavior->addItem(tr("Unindents"));
+    d->smartBackspaceBehavior->setToolTip(tr("<html><head/><body>\n"
+"Specifies how backspace interacts with indentation.\n"
+"\n"
+"<ul>\n"
+"<li>None: No interaction at all. Regular plain backspace behavior.\n"
+"</li>\n"
+"\n"
+"<li>Follows Previous Indents: In leading white space it will take the cursor back to the nearest indentation level used in previous lines.\n"
+"</li>\n"
+"\n"
+"<li>Unindents: If the character behind the cursor is a space it behaves as a backtab.\n"
+"</li>\n"
+"</ul></body></html>\n"
+""));
+
+    d->autoIndent = new QCheckBox(tr("Enable automatic &indentation"));
+
+    d->preferSingleLineComments = new QCheckBox(tr("Prefer single line comments"));
+
+    d->skipTrailingWhitespace = new QCheckBox(tr("Skip clean whitespace for file types:"));
+    d->skipTrailingWhitespace->setToolTip(tr("For the file patterns listed, do not trim trailing whitespace."));
+    d->skipTrailingWhitespace->setEnabled(false);
+    d->skipTrailingWhitespace->setChecked(false);
+
+    d->ignoreFileTypes = new QLineEdit;
+    d->ignoreFileTypes->setEnabled(false);
+    d->ignoreFileTypes->setAcceptDrops(false);
+    d->ignoreFileTypes->setToolTip(tr("List of wildcard-aware file patterns, separated by commas or semicolons."));
+
+    d->addFinalNewLine = new QCheckBox(tr("&Ensure newline at end of file"));
+    d->addFinalNewLine->setToolTip(tr("Always writes a newline character at the end of the file."));
+
+    d->cleanWhitespace = new QCheckBox(tr("&Clean whitespace"));
+    d->cleanWhitespace->setToolTip(tr("Removes trailing whitespace upon saving."));
+
+    d->cleanIndentation = new QCheckBox(tr("Clean indentation"));
+    d->cleanIndentation->setEnabled(false);
+    d->cleanIndentation->setToolTip(tr("Corrects leading whitespace according to tab settings."));
+
+    d->inEntireDocument = new QCheckBox(tr("In entire &document"));
+    d->inEntireDocument->setEnabled(false);
+    d->inEntireDocument->setToolTip(tr("Cleans whitespace in entire document instead of only for changed parts."));
+
+    d->encodingBox = new QComboBox;
+    d->encodingBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
+    d->encodingBox->setMinimumContentsLength(20);
+
+    d->utf8BomBox = new QComboBox;
+    d->utf8BomBox->addItem(tr("Add If Encoding Is UTF-8"));
+    d->utf8BomBox->addItem(tr("Keep If Already Present"));
+    d->utf8BomBox->addItem(tr("Always Delete"));
+    d->utf8BomBox->setToolTip(tr("<html><head/><body>\n"
+"<p>How text editors should deal with UTF-8 Byte Order Marks. The options are:</p>\n"
+"<ul ><li><i>Add If Encoding Is UTF-8:</i> always add a BOM when saving a file in UTF-8 encoding. Note that this will not work if the encoding is <i>System</i>, as the text editor does not know what it actually is.</li>\n"
+"<li><i>Keep If Already Present: </i>save the file with a BOM if it already had one when it was loaded.</li>\n"
+"<li><i>Always Delete:</i> never write an UTF-8 BOM, possibly deleting a pre-existing one.</li></ul>\n"
+"<p>Note that UTF-8 BOMs are uncommon and treated incorrectly by some editors, so it usually makes little sense to add any.</p>\n"
+"<p>This setting does <b>not</b> influence the use of UTF-16 and UTF-32 BOMs.</p></body></html>"));
+
+    d->defaultLineEndings = new QComboBox;
+    d->defaultLineEndings->addItems(ExtraEncodingSettings::lineTerminationModeNames());
+
+    d->mouseHiding = new QCheckBox(tr("Hide mouse cursor while typing"));
+    d->mouseNavigation = new QCheckBox(tr("Enable &mouse navigation"));
+    d->scrollWheelZooming = new QCheckBox(tr("Enable scroll &wheel zooming"));
+    d->camelCaseNavigation = new QCheckBox(tr("Enable built-in camel case &navigation"));
+
+    d->smartSelectionChanging = new QCheckBox(tr("Enable smart selection changing"));
+    d->smartSelectionChanging->setToolTip(tr("Using Select Block Up / Down actions will now provide smarter selections."));
+
+    d->keyboardTooltips = new QCheckBox(tr("Show help tooltips using keyboard shortcut (Alt)"));
+    d->keyboardTooltips->setToolTip(tr("Pressing Alt displays context-sensitive help or type information as tooltips."));
+
+    d->constrainTooltipsBox = new QComboBox;
+    d->constrainTooltipsBox->addItem(tr("On Mouseover"));
+    d->constrainTooltipsBox->addItem(tr("On Shift+Mouseover"));
+
+    d->groupBoxTyping = new QGroupBox(tr("Typing"));
+
+    d->groupBoxStorageSettings = new QGroupBox(tr("Cleanups Upon Saving"));
+    d->groupBoxStorageSettings->setToolTip(tr("Cleanup actions which are automatically performed "
+                                              "right before the file is saved to disk."));
+    d->groupBoxEncodings = new QGroupBox(tr("File Encodings"));
+
+    d->groupBoxMouse = new QGroupBox(tr("Mouse and Keyboard"));
 
     QList<int> mibs = QTextCodec::availableMibs();
     Utils::sort(mibs);
@@ -74,57 +202,107 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
                 compoundName += QLatin1String(" / ");
                 compoundName += QString::fromLatin1(alias);
             }
-            d->m_ui.encodingBox->addItem(compoundName);
+            d->encodingBox->addItem(compoundName);
             d->m_codecs.append(codec);
         }
     }
 
     // Qt5 doesn't list the system locale (QTBUG-34283), so add it manually
     const QString system(QLatin1String("System"));
-    if (d->m_ui.encodingBox->findText(system) == -1) {
-        d->m_ui.encodingBox->insertItem(0, system);
+    if (d->encodingBox->findText(system) == -1) {
+        d->encodingBox->insertItem(0, system);
         d->m_codecs.prepend(QTextCodec::codecForLocale());
     }
 
-    d->m_ui.defaultLineEndings->addItems(ExtraEncodingSettings::lineTerminationModeNames());
+    using namespace Utils::Layouting;
 
-    auto currentIndexChanged = QOverload<int>::of(&QComboBox::currentIndexChanged);
-    connect(d->m_ui.autoIndent, &QAbstractButton::toggled,
+    const auto indent = [](QWidget *inner) { return Row { Space(30), inner }; };
+
+    Column {
+        d->autoIndent,
+        tr("Backspace indentation:"),
+            indent(d->smartBackspaceBehavior),
+        tr("Tab key performs auto-indent:"),
+            indent(d->tabKeyBehavior),
+        d->preferSingleLineComments
+    }.attachTo(d->groupBoxTyping);
+
+    Column {
+        d->cleanWhitespace,
+            indent(d->inEntireDocument),
+            indent(d->cleanIndentation),
+            Row { Space(30), d->skipTrailingWhitespace, d->ignoreFileTypes },
+        d->addFinalNewLine,
+    }.attachTo(d->groupBoxStorageSettings);
+
+    Row {
+        Form {
+            tr("Default encoding: "), d->encodingBox, br,
+            tr("UTF-8 BOM:"), d->utf8BomBox, br,
+            tr("Default line endings:"), d->defaultLineEndings, br,
+        }, st
+    }.attachTo(d->groupBoxEncodings);
+
+    Column {
+        d->mouseHiding,
+        d->mouseNavigation,
+        d->scrollWheelZooming,
+        d->camelCaseNavigation,
+        d->smartSelectionChanging,
+        d->keyboardTooltips,
+        tr("Show help tooltips using the mouse:"),
+            Row { Space(30), d->constrainTooltipsBox, st }
+    }.attachTo(d->groupBoxMouse);
+
+    Row {
+        Column { d->tabPreferencesWidget, d->groupBoxTyping, st },
+        Column { d->groupBoxStorageSettings, d->groupBoxEncodings, d->groupBoxMouse, st }
+    }.attachTo(this, false);
+
+    connect(d->cleanWhitespace, &QCheckBox::toggled,
+            d->inEntireDocument, &QCheckBox::setEnabled);
+    connect(d->cleanWhitespace, &QCheckBox::toggled,
+            d->cleanIndentation, &QCheckBox::setEnabled);
+    connect(d->cleanWhitespace, &QCheckBox::toggled,
+            d->skipTrailingWhitespace, &QCheckBox::setEnabled);
+    connect(d->cleanWhitespace, &QCheckBox::toggled,
+            d->ignoreFileTypes, &QLineEdit::setEnabled);
+    connect(d->autoIndent, &QAbstractButton::toggled,
             this, &BehaviorSettingsWidget::slotTypingSettingsChanged);
-    connect(d->m_ui.smartBackspaceBehavior, currentIndexChanged,
+    connect(d->smartBackspaceBehavior, &QComboBox::currentIndexChanged,
             this, &BehaviorSettingsWidget::slotTypingSettingsChanged);
-    connect(d->m_ui.tabKeyBehavior, currentIndexChanged,
+    connect(d->tabKeyBehavior, &QComboBox::currentIndexChanged,
             this, &BehaviorSettingsWidget::slotTypingSettingsChanged);
-    connect(d->m_ui.cleanWhitespace, &QAbstractButton::clicked,
+    connect(d->cleanWhitespace, &QAbstractButton::clicked,
             this, &BehaviorSettingsWidget::slotStorageSettingsChanged);
-    connect(d->m_ui.inEntireDocument, &QAbstractButton::clicked,
+    connect(d->inEntireDocument, &QAbstractButton::clicked,
             this, &BehaviorSettingsWidget::slotStorageSettingsChanged);
-    connect(d->m_ui.addFinalNewLine, &QAbstractButton::clicked,
+    connect(d->addFinalNewLine, &QAbstractButton::clicked,
             this, &BehaviorSettingsWidget::slotStorageSettingsChanged);
-    connect(d->m_ui.cleanIndentation, &QAbstractButton::clicked,
+    connect(d->cleanIndentation, &QAbstractButton::clicked,
             this, &BehaviorSettingsWidget::slotStorageSettingsChanged);
-    connect(d->m_ui.skipTrailingWhitespace, &QAbstractButton::clicked,
+    connect(d->skipTrailingWhitespace, &QAbstractButton::clicked,
             this, &BehaviorSettingsWidget::slotStorageSettingsChanged);
-    connect(d->m_ui.mouseHiding, &QAbstractButton::clicked,
+    connect(d->mouseHiding, &QAbstractButton::clicked,
             this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
-    connect(d->m_ui.mouseNavigation, &QAbstractButton::clicked,
+    connect(d->mouseNavigation, &QAbstractButton::clicked,
             this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
-    connect(d->m_ui.scrollWheelZooming, &QAbstractButton::clicked,
+    connect(d->scrollWheelZooming, &QAbstractButton::clicked,
             this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
-    connect(d->m_ui.camelCaseNavigation, &QAbstractButton::clicked,
+    connect(d->camelCaseNavigation, &QAbstractButton::clicked,
             this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
-    connect(d->m_ui.utf8BomBox, currentIndexChanged,
+    connect(d->utf8BomBox, &QComboBox::currentIndexChanged,
             this, &BehaviorSettingsWidget::slotExtraEncodingChanged);
-    connect(d->m_ui.encodingBox, currentIndexChanged,
+    connect(d->encodingBox, &QComboBox::currentIndexChanged,
             this, &BehaviorSettingsWidget::slotEncodingBoxChanged);
-    connect(d->m_ui.constrainTooltipsBox, currentIndexChanged,
+    connect(d->constrainTooltipsBox, &QComboBox::currentIndexChanged,
             this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
-    connect(d->m_ui.keyboardTooltips, &QAbstractButton::clicked,
+    connect(d->keyboardTooltips, &QAbstractButton::clicked,
             this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
-    connect(d->m_ui.smartSelectionChanging, &QAbstractButton::clicked,
+    connect(d->smartSelectionChanging, &QAbstractButton::clicked,
             this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
 
-    d->m_ui.mouseHiding->setVisible(!Utils::HostOsInfo::isMacHost());
+    d->mouseHiding->setVisible(!Utils::HostOsInfo::isMacHost());
 }
 
 BehaviorSettingsWidget::~BehaviorSettingsWidget()
@@ -134,11 +312,11 @@ BehaviorSettingsWidget::~BehaviorSettingsWidget()
 
 void BehaviorSettingsWidget::setActive(bool active)
 {
-    d->m_ui.tabPreferencesWidget->setEnabled(active);
-    d->m_ui.groupBoxTyping->setEnabled(active);
-    d->m_ui.groupBoxEncodings->setEnabled(active);
-    d->m_ui.groupBoxMouse->setEnabled(active);
-    d->m_ui.groupBoxStorageSettings->setEnabled(active);
+    d->tabPreferencesWidget->setEnabled(active);
+    d->groupBoxTyping->setEnabled(active);
+    d->groupBoxEncodings->setEnabled(active);
+    d->groupBoxMouse->setEnabled(active);
+    d->groupBoxStorageSettings->setEnabled(active);
 }
 
 void BehaviorSettingsWidget::setAssignedCodec(QTextCodec *codec)
@@ -149,8 +327,8 @@ void BehaviorSettingsWidget::setAssignedCodec(QTextCodec *codec)
     int rememberedSystemPosition = -1;
     for (int i = 0; i < d->m_codecs.size(); ++i) {
         if (codec == d->m_codecs.at(i)) {
-            if (d->m_ui.encodingBox->itemText(i) == codecName) {
-                d->m_ui.encodingBox->setCurrentIndex(i);
+            if (d->encodingBox->itemText(i) == codecName) {
+                d->encodingBox->setCurrentIndex(i);
                 return;
             } else { // we've got System matching encoding - but have explicitly set the codec
                 rememberedSystemPosition = i;
@@ -158,123 +336,123 @@ void BehaviorSettingsWidget::setAssignedCodec(QTextCodec *codec)
         }
     }
     if (rememberedSystemPosition != -1)
-        d->m_ui.encodingBox->setCurrentIndex(rememberedSystemPosition);
+        d->encodingBox->setCurrentIndex(rememberedSystemPosition);
 }
 
 QByteArray BehaviorSettingsWidget::assignedCodecName() const
 {
-    return d->m_ui.encodingBox->currentIndex() == 0
+    return d->encodingBox->currentIndex() == 0
             ? QByteArray("System")   // we prepend System to the available codecs
-            : d->m_codecs.at(d->m_ui.encodingBox->currentIndex())->name();
+            : d->m_codecs.at(d->encodingBox->currentIndex())->name();
 
 }
 
 void BehaviorSettingsWidget::setCodeStyle(ICodeStylePreferences *preferences)
 {
-    d->m_ui.tabPreferencesWidget->setPreferences(preferences);
+    d->tabPreferencesWidget->setPreferences(preferences);
 }
 
 void BehaviorSettingsWidget::setAssignedTypingSettings(const TypingSettings &typingSettings)
 {
-    d->m_ui.autoIndent->setChecked(typingSettings.m_autoIndent);
-    d->m_ui.smartBackspaceBehavior->setCurrentIndex(typingSettings.m_smartBackspaceBehavior);
-    d->m_ui.tabKeyBehavior->setCurrentIndex(typingSettings.m_tabKeyBehavior);
+    d->autoIndent->setChecked(typingSettings.m_autoIndent);
+    d->smartBackspaceBehavior->setCurrentIndex(typingSettings.m_smartBackspaceBehavior);
+    d->tabKeyBehavior->setCurrentIndex(typingSettings.m_tabKeyBehavior);
 
-    d->m_ui.preferSingleLineComments->setChecked(typingSettings.m_preferSingleLineComments);
+    d->preferSingleLineComments->setChecked(typingSettings.m_preferSingleLineComments);
 }
 
 void BehaviorSettingsWidget::assignedTypingSettings(TypingSettings *typingSettings) const
 {
-    typingSettings->m_autoIndent = d->m_ui.autoIndent->isChecked();
+    typingSettings->m_autoIndent = d->autoIndent->isChecked();
     typingSettings->m_smartBackspaceBehavior =
-        (TypingSettings::SmartBackspaceBehavior)(d->m_ui.smartBackspaceBehavior->currentIndex());
+        (TypingSettings::SmartBackspaceBehavior)(d->smartBackspaceBehavior->currentIndex());
     typingSettings->m_tabKeyBehavior =
-        (TypingSettings::TabKeyBehavior)(d->m_ui.tabKeyBehavior->currentIndex());
+        (TypingSettings::TabKeyBehavior)(d->tabKeyBehavior->currentIndex());
 
-    typingSettings->m_preferSingleLineComments = d->m_ui.preferSingleLineComments->isChecked();
+    typingSettings->m_preferSingleLineComments = d->preferSingleLineComments->isChecked();
 }
 
 void BehaviorSettingsWidget::setAssignedStorageSettings(const StorageSettings &storageSettings)
 {
-    d->m_ui.cleanWhitespace->setChecked(storageSettings.m_cleanWhitespace);
-    d->m_ui.inEntireDocument->setChecked(storageSettings.m_inEntireDocument);
-    d->m_ui.cleanIndentation->setChecked(storageSettings.m_cleanIndentation);
-    d->m_ui.addFinalNewLine->setChecked(storageSettings.m_addFinalNewLine);
-    d->m_ui.skipTrailingWhitespace->setChecked(storageSettings.m_skipTrailingWhitespace);
-    d->m_ui.ignoreFileTypes->setText(storageSettings.m_ignoreFileTypes);
-    d->m_ui.ignoreFileTypes->setEnabled(d->m_ui.skipTrailingWhitespace->isChecked());
+    d->cleanWhitespace->setChecked(storageSettings.m_cleanWhitespace);
+    d->inEntireDocument->setChecked(storageSettings.m_inEntireDocument);
+    d->cleanIndentation->setChecked(storageSettings.m_cleanIndentation);
+    d->addFinalNewLine->setChecked(storageSettings.m_addFinalNewLine);
+    d->skipTrailingWhitespace->setChecked(storageSettings.m_skipTrailingWhitespace);
+    d->ignoreFileTypes->setText(storageSettings.m_ignoreFileTypes);
+    d->ignoreFileTypes->setEnabled(d->skipTrailingWhitespace->isChecked());
 }
 
 void BehaviorSettingsWidget::assignedStorageSettings(StorageSettings *storageSettings) const
 {
-    storageSettings->m_cleanWhitespace = d->m_ui.cleanWhitespace->isChecked();
-    storageSettings->m_inEntireDocument = d->m_ui.inEntireDocument->isChecked();
-    storageSettings->m_cleanIndentation = d->m_ui.cleanIndentation->isChecked();
-    storageSettings->m_addFinalNewLine = d->m_ui.addFinalNewLine->isChecked();
-    storageSettings->m_skipTrailingWhitespace = d->m_ui.skipTrailingWhitespace->isChecked();
-    storageSettings->m_ignoreFileTypes = d->m_ui.ignoreFileTypes->text();
+    storageSettings->m_cleanWhitespace = d->cleanWhitespace->isChecked();
+    storageSettings->m_inEntireDocument = d->inEntireDocument->isChecked();
+    storageSettings->m_cleanIndentation = d->cleanIndentation->isChecked();
+    storageSettings->m_addFinalNewLine = d->addFinalNewLine->isChecked();
+    storageSettings->m_skipTrailingWhitespace = d->skipTrailingWhitespace->isChecked();
+    storageSettings->m_ignoreFileTypes = d->ignoreFileTypes->text();
 }
 
 void BehaviorSettingsWidget::updateConstrainTooltipsBoxTooltip() const
 {
-    if (d->m_ui.constrainTooltipsBox->currentIndex() == 0) {
-        d->m_ui.constrainTooltipsBox->setToolTip(
+    if (d->constrainTooltipsBox->currentIndex() == 0) {
+        d->constrainTooltipsBox->setToolTip(
             tr("Displays context-sensitive help or type information on mouseover."));
     } else {
-        d->m_ui.constrainTooltipsBox->setToolTip(
+        d->constrainTooltipsBox->setToolTip(
             tr("Displays context-sensitive help or type information on Shift+Mouseover."));
     }
 }
 
 void BehaviorSettingsWidget::setAssignedBehaviorSettings(const BehaviorSettings &behaviorSettings)
 {
-    d->m_ui.mouseHiding->setChecked(behaviorSettings.m_mouseHiding);
-    d->m_ui.mouseNavigation->setChecked(behaviorSettings.m_mouseNavigation);
-    d->m_ui.scrollWheelZooming->setChecked(behaviorSettings.m_scrollWheelZooming);
-    d->m_ui.constrainTooltipsBox->setCurrentIndex(behaviorSettings.m_constrainHoverTooltips ? 1 : 0);
-    d->m_ui.camelCaseNavigation->setChecked(behaviorSettings.m_camelCaseNavigation);
-    d->m_ui.keyboardTooltips->setChecked(behaviorSettings.m_keyboardTooltips);
-    d->m_ui.smartSelectionChanging->setChecked(behaviorSettings.m_smartSelectionChanging);
+    d->mouseHiding->setChecked(behaviorSettings.m_mouseHiding);
+    d->mouseNavigation->setChecked(behaviorSettings.m_mouseNavigation);
+    d->scrollWheelZooming->setChecked(behaviorSettings.m_scrollWheelZooming);
+    d->constrainTooltipsBox->setCurrentIndex(behaviorSettings.m_constrainHoverTooltips ? 1 : 0);
+    d->camelCaseNavigation->setChecked(behaviorSettings.m_camelCaseNavigation);
+    d->keyboardTooltips->setChecked(behaviorSettings.m_keyboardTooltips);
+    d->smartSelectionChanging->setChecked(behaviorSettings.m_smartSelectionChanging);
     updateConstrainTooltipsBoxTooltip();
 }
 
 void BehaviorSettingsWidget::assignedBehaviorSettings(BehaviorSettings *behaviorSettings) const
 {
-    behaviorSettings->m_mouseHiding = d->m_ui.mouseHiding->isChecked();
-    behaviorSettings->m_mouseNavigation = d->m_ui.mouseNavigation->isChecked();
-    behaviorSettings->m_scrollWheelZooming = d->m_ui.scrollWheelZooming->isChecked();
-    behaviorSettings->m_constrainHoverTooltips = (d->m_ui.constrainTooltipsBox->currentIndex() == 1);
-    behaviorSettings->m_camelCaseNavigation = d->m_ui.camelCaseNavigation->isChecked();
-    behaviorSettings->m_keyboardTooltips = d->m_ui.keyboardTooltips->isChecked();
-    behaviorSettings->m_smartSelectionChanging = d->m_ui.smartSelectionChanging->isChecked();
+    behaviorSettings->m_mouseHiding = d->mouseHiding->isChecked();
+    behaviorSettings->m_mouseNavigation = d->mouseNavigation->isChecked();
+    behaviorSettings->m_scrollWheelZooming = d->scrollWheelZooming->isChecked();
+    behaviorSettings->m_constrainHoverTooltips = (d->constrainTooltipsBox->currentIndex() == 1);
+    behaviorSettings->m_camelCaseNavigation = d->camelCaseNavigation->isChecked();
+    behaviorSettings->m_keyboardTooltips = d->keyboardTooltips->isChecked();
+    behaviorSettings->m_smartSelectionChanging = d->smartSelectionChanging->isChecked();
 }
 
 void BehaviorSettingsWidget::setAssignedExtraEncodingSettings(
     const ExtraEncodingSettings &encodingSettings)
 {
-    d->m_ui.utf8BomBox->setCurrentIndex(encodingSettings.m_utf8BomSetting);
+    d->utf8BomBox->setCurrentIndex(encodingSettings.m_utf8BomSetting);
 }
 
 void BehaviorSettingsWidget::assignedExtraEncodingSettings(
     ExtraEncodingSettings *encodingSettings) const
 {
     encodingSettings->m_utf8BomSetting =
-        (ExtraEncodingSettings::Utf8BomSetting)d->m_ui.utf8BomBox->currentIndex();
+        (ExtraEncodingSettings::Utf8BomSetting)d->utf8BomBox->currentIndex();
 }
 
 void BehaviorSettingsWidget::setAssignedLineEnding(int lineEnding)
 {
-    d->m_ui.defaultLineEndings->setCurrentIndex(lineEnding);
+    d->defaultLineEndings->setCurrentIndex(lineEnding);
 }
 
 int BehaviorSettingsWidget::assignedLineEnding() const
 {
-    return d->m_ui.defaultLineEndings->currentIndex();
+    return d->defaultLineEndings->currentIndex();
 }
 
 TabSettingsWidget *BehaviorSettingsWidget::tabSettingsWidget() const
 {
-    return d->m_ui.tabPreferencesWidget->tabSettingsWidget();
+    return d->tabPreferencesWidget->tabSettingsWidget();
 }
 
 void BehaviorSettingsWidget::slotTypingSettingsChanged()
@@ -289,8 +467,8 @@ void BehaviorSettingsWidget::slotStorageSettingsChanged()
     StorageSettings settings;
     assignedStorageSettings(&settings);
 
-    bool ignoreFileTypesEnabled = d->m_ui.cleanWhitespace->isChecked() && d->m_ui.skipTrailingWhitespace->isChecked();
-    d->m_ui.ignoreFileTypes->setEnabled(ignoreFileTypesEnabled);
+    bool ignoreFileTypesEnabled = d->cleanWhitespace->isChecked() && d->skipTrailingWhitespace->isChecked();
+    d->ignoreFileTypes->setEnabled(ignoreFileTypesEnabled);
 
     emit storageSettingsChanged(settings);
 }
