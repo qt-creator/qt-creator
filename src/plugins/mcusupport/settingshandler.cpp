@@ -53,7 +53,7 @@ static FilePath packagePathFromSettings(const QString &settingsKey,
 
 FilePath SettingsHandler::getPath(const QString &settingsKey,
                                   QSettings::Scope scope,
-                                  const Utils::FilePath &defaultPath) const
+                                  const FilePath &defaultPath) const
 {
     //Use the default value for empty keys
     if (settingsKey.isEmpty())
@@ -63,8 +63,8 @@ FilePath SettingsHandler::getPath(const QString &settingsKey,
 }
 
 bool SettingsHandler::write(const QString &settingsKey,
-                            const Utils::FilePath &path,
-                            const Utils::FilePath &defaultPath) const
+                            const FilePath &path,
+                            const FilePath &defaultPath) const
 {
     const FilePath savedPath = packagePathFromSettings(settingsKey,
                                                        *Core::ICore::settings(QSettings::UserScope),

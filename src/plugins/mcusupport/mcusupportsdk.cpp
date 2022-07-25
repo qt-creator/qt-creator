@@ -395,7 +395,7 @@ static McuPackagePtr createStm32CubeProgrammerPackage(const SettingsHandler::Ptr
             defaultPath = programPath;
     }
 
-    const FilePath detectionPath = FilePath::fromString(
+    const FilePath detectionPath = FilePath::fromUserInput(
         QLatin1String(Utils::HostOsInfo::isWindowsHost() ? "/bin/STM32_Programmer_CLI.exe"
                                                          : "/bin/STM32_Programmer.sh"));
 
@@ -433,7 +433,7 @@ static McuPackagePtr createMcuXpressoIdePackage(const SettingsHandler::Ptr &sett
                 defaultPath = subDirs.first();
         }
     } else {
-        const FilePath programPath = FilePath::fromString("/usr/local/mcuxpressoide/");
+        const FilePath programPath = FilePath::fromUserInput("/usr/local/mcuxpressoide/");
         if (programPath.exists())
             defaultPath = programPath;
     }
@@ -468,13 +468,14 @@ static McuPackagePtr createCypressProgrammerPackage(const SettingsHandler::Ptr &
         }
     }
 
-    return McuPackagePtr{new McuPackage(settingsHandler,
-                                        "Cypress Auto Flash Utility",
-                                        defaultPath,
-                                        FilePath("/bin/openocd").withExecutableSuffix(),
-                                        "CypressAutoFlashUtil",            // settings key
-                                        "INFINEON_AUTO_FLASH_UTILITY_DIR", // cmake var
-                                        envVar)};                          // env var
+    return McuPackagePtr{
+        new McuPackage(settingsHandler,
+                       "Cypress Auto Flash Utility",
+                       defaultPath,
+                       FilePath::fromUserInput("/bin/openocd").withExecutableSuffix(),
+                       "CypressAutoFlashUtil",            // settings key
+                       "INFINEON_AUTO_FLASH_UTILITY_DIR", // cmake var
+                       envVar)};                          // env var
 }
 
 static McuPackagePtr createRenesasProgrammerPackage(const SettingsHandler::Ptr &settingsHandler)
@@ -657,8 +658,8 @@ static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
             cmakeEntry["cmakeVar"].toString(),
             cmakeEntry["description"].toString(),
             cmakeEntry["setting"].toString(),
-            FilePath::fromString(cmakeEntry["defaultValue"].toString()),
-            FilePath::fromString(cmakeEntry["validation"].toString()),
+            FilePath::fromUserInput(cmakeEntry["defaultValue"].toString()),
+            FilePath::fromUserInput(cmakeEntry["validation"].toString()),
             versions,
             parseVersionDetection(cmakeEntry),
             false};
@@ -728,7 +729,7 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
             boardSdkPackage,
             {
                 freeRTOS.value("envVar").toString(),
-                FilePath::fromString(freeRTOS.value("boardSdkSubDir").toString()),
+                FilePath::fromUserInput(freeRTOS.value("boardSdkSubDir").toString()),
                 freeRtosEntries,
             }};
 }
@@ -778,7 +779,7 @@ McuSdkRepository targetsAndPackages(const FilePath &qtForMCUSdkPath,
         if (!file.open(QFile::ReadOnly))
             continue;
         const McuTargetDescription desc = parseDescriptionJson(file.readAll());
-        const auto pth = FilePath::fromString(fileInfo.filePath());
+        const auto pth = FilePath::fromUserInput(fileInfo.filePath());
         bool ok = false;
         const int compatVersion = desc.compatVersion.toInt(&ok);
         if (!desc.compatVersion.isEmpty() && ok && compatVersion > MAX_COMPATIBILITY_VERSION) {

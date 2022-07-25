@@ -75,7 +75,7 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
     , m_downloadUrl(downloadUrl)
     , m_addToSystemPath(addToSystemPath)
 {
-    m_path = FilePath::fromString(
+    m_path = FilePath::fromUserInput(
         qEnvironmentVariable(m_environmentVariableName.toStdString().c_str()));
     if (!m_path.exists()) {
         m_path = this->settingsHandler->getPath(settingsKey, QSettings::UserScope, m_defaultPath);

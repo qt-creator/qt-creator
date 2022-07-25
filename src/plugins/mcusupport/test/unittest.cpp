@@ -307,14 +307,15 @@ void McuSupportTest::initTestCase()
     EXPECT_CALL(*freeRtosPackage, cmakeVariableName())
         .WillRepeatedly(Return(QString{freeRtosCMakeVar}));
     EXPECT_CALL(*freeRtosPackage, isValidStatus()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*freeRtosPackage, path()).WillRepeatedly(Return(FilePath::fromString(freeRtosPath)));
+    EXPECT_CALL(*freeRtosPackage, path())
+        .WillRepeatedly(Return(FilePath::fromUserInput(freeRtosPath)));
     EXPECT_CALL(*freeRtosPackage, isAddToSystemPath()).WillRepeatedly(Return(true));
     EXPECT_CALL(*freeRtosPackage, detectionPath()).WillRepeatedly(Return(FilePath{}));
 
     EXPECT_CALL(*sdkPackage, environmentVariableName()).WillRepeatedly(Return(QString{qulEnvVar}));
     EXPECT_CALL(*sdkPackage, cmakeVariableName()).WillRepeatedly(Return(QString{qulCmakeVar}));
     EXPECT_CALL(*sdkPackage, isValidStatus()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*sdkPackage, path()).WillRepeatedly(Return(FilePath::fromString(qtForMcuSdkPath)));
+    EXPECT_CALL(*sdkPackage, path()).WillRepeatedly(Return(FilePath::fromUserInput(qtForMcuSdkPath)));
     EXPECT_CALL(*sdkPackage, isAddToSystemPath()).WillRepeatedly(Return(true));
     EXPECT_CALL(*sdkPackage, detectionPath()).WillRepeatedly(Return(FilePath{}));
 
@@ -324,7 +325,7 @@ void McuSupportTest::initTestCase()
         .WillRepeatedly(Return(QString{Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE}));
     EXPECT_CALL(*armGccToolchainFilePackage, isValidStatus()).WillRepeatedly(Return(true));
     EXPECT_CALL(*armGccToolchainFilePackage, path())
-        .WillRepeatedly(Return(FilePath::fromString(armGccToolchainFilePath)));
+        .WillRepeatedly(Return(FilePath::fromUserInput(armGccToolchainFilePath)));
     EXPECT_CALL(*armGccToolchainFilePackage, isAddToSystemPath()).WillRepeatedly(Return(false));
     EXPECT_CALL(*armGccToolchainFilePackage, detectionPath()).WillRepeatedly(Return(FilePath{}));
 
@@ -829,9 +830,9 @@ void McuSupportTest::test_legacy_createTargetWithToolchainPackages()
 
     EXPECT_CALL(*settingsMockPtr,
                 getPath(QString{Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK}, _, _))
-        .WillRepeatedly(Return(FilePath::fromString(qtForMcuSdkPath)));
+        .WillRepeatedly(Return(FilePath::fromUserInput(qtForMcuSdkPath)));
     EXPECT_CALL(*settingsMockPtr, getPath(compilerSetting, _, _))
-        .WillRepeatedly(Return(FilePath::fromString(compilerPath)));
+        .WillRepeatedly(Return(FilePath::fromUserInput(compilerPath)));
 
     const auto [targets, packages]{
         targetsFromDescriptions({description}, settingsMockPtr, qtForMcuSdkPath, runLegacy)};
@@ -854,10 +855,10 @@ void McuSupportTest::test_createTargetWithToolchainPackages()
     QFETCH(QStringList, versions);
 
     EXPECT_CALL(*settingsMockPtr, getPath(compilerSetting, _, _))
-        .WillRepeatedly(Return(FilePath::fromString(compilerPath)));
+        .WillRepeatedly(Return(FilePath::fromUserInput(compilerPath)));
 
     EXPECT_CALL(*settingsMockPtr, getPath(compilerSetting, _, _))
-        .WillRepeatedly(Return(FilePath::fromString(compilerPath)));
+        .WillRepeatedly(Return(FilePath::fromUserInput(compilerPath)));
 
     const McuTargetDescription description = parseDescriptionJson(json.toLocal8Bit());
     const auto [targets, packages]{
@@ -933,7 +934,7 @@ void McuSupportTest::test_legacy_createQtMCUsPackage()
 {
     EXPECT_CALL(*settingsMockPtr,
                 getPath(QString{Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK}, _, _))
-        .WillRepeatedly(Return(FilePath::fromString(qtForMcuSdkPath)));
+        .WillRepeatedly(Return(FilePath::fromUserInput(qtForMcuSdkPath)));
 
     McuPackagePtr qtForMCUsSDK = createQtForMCUsPackage(settingsMockPtr);
 

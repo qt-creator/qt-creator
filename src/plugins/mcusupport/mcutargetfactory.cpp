@@ -67,7 +67,7 @@ McuPackageVersionDetector *createVersionDetection(const VersionDetection &versio
                                                 versionDetection.xmlAttribute,
                                                 versionDetection.regex};
     else if (!versionDetection.executableArgs.isEmpty())
-        return new McuPackageExecutableVersionDetector{Utils::FilePath::fromString(
+        return new McuPackageExecutableVersionDetector{Utils::FilePath::fromUserInput(
                                                            versionDetection.filePattern),
                                                        QStringList{versionDetection.executableArgs},
                                                        versionDetection.regex};

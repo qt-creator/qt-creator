@@ -26,9 +26,9 @@
 #include "mcukitinformation.h"
 
 #include <cmakeprojectmanager/cmakekitinformation.h>
-#include <utils/qtcassert.h>
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
+#include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 
@@ -74,17 +74,17 @@ Tasks McuDependenciesKitAspect::validate(const Kit *kit) const
 
     // check paths defined in cmake variables for given dependencies exist
     const auto cMakeEntries = Utils::NameValueDictionary(configuration(kit));
-    for (const auto &dependency: dependencies(kit)) {
-        auto givenPath = Utils::FilePath::fromString(cMakeEntries.value(dependency.name));
+    for (const auto &dependency : dependencies(kit)) {
+        auto givenPath = Utils::FilePath::fromUserInput(cMakeEntries.value(dependency.name));
         if (givenPath.isEmpty()) {
-            result << BuildSystemTask(Task::Warning, tr("CMake variable %1 not defined.").arg(
-                                          dependency.name));
+            result << BuildSystemTask(Task::Warning,
+                                      tr("CMake variable %1 not defined.").arg(dependency.name));
         } else {
             const auto detectionPath = givenPath.resolvePath(dependency.value);
             if (!detectionPath.exists()) {
-                result << BuildSystemTask(Task::Warning, tr("CMake variable %1: path %2 does not exist.").arg(
-                                              dependency.name,
-                                              detectionPath.toUserOutput()));
+                result << BuildSystemTask(Task::Warning,
+                                          tr("CMake variable %1: path %2 does not exist.")
+                                              .arg(dependency.name, detectionPath.toUserOutput()));
             }
         }
     }
@@ -94,11 +94,12 @@ Tasks McuDependenciesKitAspect::validate(const Kit *kit) const
 
 void McuDependenciesKitAspect::fix(Kit *kit)
 {
-    QTC_ASSERT(kit, return);
+    QTC_ASSERT(kit, return );
 
     const QVariant variant = kit->value(McuDependenciesKitAspect::id());
     if (!variant.isNull() && !variant.canConvert(QVariant::List)) {
-        qWarning("Kit \"%s\" has a wrong mcu dependencies value set.", qPrintable(kit->displayName()));
+        qWarning("Kit \"%s\" has a wrong mcu dependencies value set.",
+                 qPrintable(kit->displayName()));
         setDependencies(kit, Utils::NameValueItems());
     }
 }
