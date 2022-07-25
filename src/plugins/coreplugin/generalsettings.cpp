@@ -124,7 +124,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
 
     if (!Utils::HostOsInfo::isMacHost()) {
         auto dpiCheckbox = new QCheckBox(tr("Enable high DPI scaling"));
-        form.addRow({Space(), dpiCheckbox});
+        form.addRow({empty, dpiCheckbox});
         const bool defaultValue = Utils::HostOsInfo::isWindowsHost();
         dpiCheckbox->setChecked(ICore::settings()->value(settingsKeyDPI, defaultValue).toBool());
         connect(dpiCheckbox, &QCheckBox::toggled, this, [defaultValue](bool checked) {
@@ -135,7 +135,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
         });
     }
 
-    form.addRow({Space(), m_showShortcutsInContextMenus});
+    form.addRow({empty, m_showShortcutsInContextMenus});
     form.addRow(Row{m_resetWarningsButton, st});
     form.addRow({tr("Text codec for tools:"), m_codecBox, st});
     Column{Group{Title(tr("User Interface")), form}}.attachTo(this);

@@ -353,7 +353,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     downloadNdkToolButton->setIcon(downloadIcon);
 
     using namespace Layouting;
-    const Space empty;
 
     Column {
         Group {

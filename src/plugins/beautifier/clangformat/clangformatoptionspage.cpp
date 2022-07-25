@@ -109,7 +109,6 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
         useCustomizedStyle->setChecked(true);
 
     using namespace Utils::Layouting;
-    const Space empty;
 
     Form {
         m_usePredefinedStyle, m_predefinedStyle, br,

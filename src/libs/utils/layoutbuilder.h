@@ -117,7 +117,7 @@ public:
     class QTCREATOR_UTILS_EXPORT Space : public LayoutItem
     {
     public:
-        explicit Space(int space = 0);
+        explicit Space(int space);
     };
 
     class QTCREATOR_UTILS_EXPORT Span : public LayoutItem
@@ -226,6 +226,7 @@ using Break = LayoutBuilder::Break; // FIXME: Remove
 
 QTCREATOR_UTILS_EXPORT extern LayoutBuilder::Break br;
 QTCREATOR_UTILS_EXPORT extern LayoutBuilder::Stretch st;
+QTCREATOR_UTILS_EXPORT extern LayoutBuilder::Space empty;
 
 } // Layouting
 } // Utils

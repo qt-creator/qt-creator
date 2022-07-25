@@ -75,7 +75,7 @@ FileWizardPage::FileWizardPage(QWidget *parent) :
     using namespace Layouting;
 
     Form {
-        Space(), d->m_defaultSuffixLabel, br,
+        empty, d->m_defaultSuffixLabel, br,
         tr("File name:"), d->m_nameLineEdit, br,
         tr("Path:"), d->m_pathChooser
     }.attachTo(this);
