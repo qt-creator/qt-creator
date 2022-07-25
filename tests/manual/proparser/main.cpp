@@ -142,13 +142,8 @@ int main(int argc, char **argv)
 
     QMakeGlobals option;
     QString qmake = QString::fromLocal8Bit(qgetenv("TESTREADER_QMAKE"));
-    if (qmake.isEmpty()) {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-        qmake = QLibraryInfo::location(QLibraryInfo::BinariesPath) + QLatin1String("/qmake");
-#else
+    if (qmake.isEmpty())
         qmake = QLibraryInfo::path(QLibraryInfo::BinariesPath) + QLatin1String("/qmake");
-#endif
-    }
     option.qmake_abslocation = QDir::cleanPath(qmake);
     option.initProperties();
 
