@@ -92,6 +92,11 @@ public:
         return QString::fromUtf8(data(), int(size()));
     }
 
+    explicit operator QByteArray() const
+    {
+        return QByteArray(data(), int(size()));
+    }
+
     constexpr bool startsWith(SmallStringView subStringToSearch) const noexcept
     {
         if (size() >= subStringToSearch.size())

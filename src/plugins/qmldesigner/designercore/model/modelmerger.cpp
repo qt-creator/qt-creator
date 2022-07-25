@@ -75,9 +75,8 @@ static void syncVariantProperties(ModelNode &outputNode, const ModelNode &inputN
 
 static void syncAuxiliaryProperties(ModelNode &outputNode, const ModelNode &inputNode)
 {
-    auto tmp = inputNode.auxiliaryData();
-    for (auto iter = tmp.begin(); iter != tmp.end(); ++iter)
-        outputNode.setAuxiliaryData(iter.key(), iter.value());
+    for (const auto &element : inputNode.auxiliaryData())
+        outputNode.setAuxiliaryData(AuxiliaryDataKeyView{element.first}, element.second);
 }
 
 static void syncBindingProperties(ModelNode &outputNode, const ModelNode &inputNode, const QHash<QString, QString> &idRenamingHash)

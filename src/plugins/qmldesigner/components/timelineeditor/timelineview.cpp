@@ -35,6 +35,7 @@
 #include "timelinesettingsdialog.h"
 #include "timelinetoolbar.h"
 
+#include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
 #include <exception.h>
 #include <modelnodecontextmenu_helper.h>
@@ -99,6 +100,10 @@ void TimelineView::modelAboutToBeDetached(Model *model)
 
 void TimelineView::nodeCreated(const ModelNode & /*createdNode*/) {}
 
+namespace {
+constexpr AuxiliaryDataKeyView removedProperty{AuxiliaryDataType::Temporary, "removed"};
+}
+
 void TimelineView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
     if (removedNode.isValid()) {
@@ -109,7 +114,7 @@ void TimelineView::nodeAboutToBeRemoved(const ModelNode &removedNode)
             toolBar->removeTimeline(QmlTimeline(removedNode));
             QString currentId = toolBar->currentTimelineId();
 
-            removedNode.setAuxiliaryData("removed@Internal", true);
+            removedNode.setAuxiliaryData(removedProperty, true);
 
             if (currentId.isEmpty())
                 m_timelineWidget->graphicsScene()->clearTimeline();
@@ -239,12 +244,12 @@ void TimelineView::selectedNodesChanged(const QList<ModelNode> & /*selectedNodeL
 }
 
 void TimelineView::auxiliaryDataChanged(const ModelNode &modelNode,
-                                        const PropertyName &name,
+                                        AuxiliaryDataKeyView key,
                                         const QVariant &data)
 {
-    if (name == QmlDesigner::lockedProperty && data.toBool() && modelNode.isValid()) {
+    if (key == lockedProperty && data.toBool() && modelNode.isValid()) {
         for (const auto &node : modelNode.allSubModelNodesAndThisNode()) {
-            if (node.hasAuxiliaryData("timeline_expanded"))
+            if (node.hasAuxiliaryData(timelineExpandedProperty))
                 m_timelineWidget->graphicsScene()->invalidateHeightForTarget(node);
         }
     }
@@ -470,7 +475,7 @@ void TimelineView::customNotification(const AbstractView * /*view*/,
     if (identifier == QStringLiteral("reset QmlPuppet")) {
         QmlTimeline timeline = widget()->graphicsScene()->currentTimeline();
         if (timeline.isValid())
-            timeline.modelNode().removeAuxiliaryData("currentFrame@NodeInstance");
+            timeline.modelNode().removeAuxiliaryData(currentFrameProperty);
     }
 }
 
@@ -494,7 +499,7 @@ QList<QmlTimeline> TimelineView::getTimelines() const
 
     for (const ModelNode &modelNode : allModelNodes()) {
         if (QmlTimeline::isValidQmlTimeline(modelNode)
-            && !modelNode.hasAuxiliaryData("removed@Internal")) {
+            && !modelNode.hasAuxiliaryData(removedProperty)) {
             timelines.append(modelNode);
         }
     }

@@ -261,7 +261,7 @@ TreeItem *CurveEditorModel::createTopLevelItem(const QmlDesigner::QmlTimeline &t
         return nullptr;
 
     auto *nodeItem = new NodeTreeItem(node.id(), node.typeIcon(), parentIds(node));
-    if (node.hasAuxiliaryData("locked"))
+    if (node.locked())
         nodeItem->setLocked(true);
 
     for (auto &&grp : timeline.keyframeGroupsForTarget(node)) {
@@ -272,10 +272,10 @@ TreeItem *CurveEditorModel::createTopLevelItem(const QmlDesigner::QmlTimeline &t
                 auto propertyItem = new PropertyTreeItem(name, curve);
 
                 QmlDesigner::ModelNode target = grp.modelNode();
-                if (target.hasAuxiliaryData("locked"))
+                if (target.locked())
                     propertyItem->setLocked(true);
 
-                if (target.hasAuxiliaryData("pinned"))
+                if (target.hasAuxiliaryData(pinnedProperty))
                     propertyItem->setPinned(true);
 
                 nodeItem->addChild(propertyItem);
@@ -388,8 +388,8 @@ AnimationCurve CurveEditorModel::createDoubleCurve(const QmlDesigner::QmlTimelin
 
     QString str;
     QmlDesigner::ModelNode target = group.modelNode();
-    if (target.hasAuxiliaryData("unified"))
-        str = target.auxiliaryData("unified").toString();
+    if (auto data = target.auxiliaryData(unifiedProperty))
+        str = data->toString();
 
     if (str.size() == static_cast<int>(keyframes.size())) {
         for (int i = 0; i < str.size(); ++i) {

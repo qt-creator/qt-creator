@@ -115,7 +115,9 @@ public:
 
     void registerTool(std::unique_ptr<AbstractCustomTool> &&tool);
 
-    void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) override;
+    void auxiliaryDataChanged(const ModelNode &node,
+                              AuxiliaryDataKeyView name,
+                              const QVariant &data) override;
 
     void instancesCompleted(const QVector<ModelNode> &completedNodeList) override;
     void instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangedHash) override;

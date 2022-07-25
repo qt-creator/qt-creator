@@ -656,36 +656,84 @@ void NodeInstanceView::importsChanged(const QList<Import> &/*addedImports*/, con
 }
 
 void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
-                                            const PropertyName &name,
+                                            AuxiliaryDataKeyView key,
                                             const QVariant &value)
 {
-    QTC_ASSERT(m_nodeInstanceServer, return);
-    const bool forceAuxChange = name == "invisible" || name == "locked" || name == "rotBlocked@Internal";
-    if (((node.isRootNode() && (name == "width" || name == "height")) || forceAuxChange)
-            || name.endsWith(PropertyName("@NodeInstance"))) {
+    QTC_ASSERT(m_nodeInstanceServer, return );
+
+    switch (key.type) {
+    case AuxiliaryDataType::Document:
+        if ((key == lockedProperty || key == invisibleProperty) && hasInstanceForModelNode(node)) {
+            NodeInstance instance = instanceForModelNode(node);
+            if (value.isValid()) {
+                PropertyValueContainer container{instance.instanceId(),
+                                                 PropertyName{key.name},
+                                                 value,
+                                                 TypeName(),
+                                                 key.type};
+                m_nodeInstanceServer->changeAuxiliaryValues({{container}});
+            }
+        };
+        break;
+
+    case AuxiliaryDataType::NodeInstance:
         if (hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
-            if (value.isValid() || forceAuxChange) {
-                PropertyValueContainer container{instance.instanceId(), name, value, TypeName()};
+            if (value.isValid()) {
+                PropertyValueContainer container{instance.instanceId(),
+                                                 PropertyName{key.name},
+                                                 value,
+                                                 TypeName(),
+                                                 key.type};
                 m_nodeInstanceServer->changeAuxiliaryValues({{container}});
             } else {
+                PropertyName name{key.name};
                 if (node.hasVariantProperty(name)) {
-                    PropertyValueContainer container(instance.instanceId(), name, node.variantProperty(name).value(), TypeName());
+                    PropertyValueContainer container(instance.instanceId(),
+                                                     name,
+                                                     node.variantProperty(name).value(),
+                                                     TypeName());
                     ChangeValuesCommand changeValueCommand({container});
                     m_nodeInstanceServer->changePropertyValues(changeValueCommand);
                 } else if (node.hasBindingProperty(name)) {
-                    PropertyBindingContainer container{instance.instanceId(), name, node.bindingProperty(name).expression(), TypeName()};
+                    PropertyBindingContainer container{instance.instanceId(),
+                                                       name,
+                                                       node.bindingProperty(name).expression(),
+                                                       TypeName()};
                     m_nodeInstanceServer->changePropertyBindings({{container}});
                 }
             }
-        }
-    } else if (node.isRootNode() && name == "language@Internal") {
-        const QString languageAsString = value.toString();
-        if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current(m_currentTarget))
-            multiLanguageAspect->setCurrentLocale(languageAsString);
-        m_nodeInstanceServer->changeLanguage({languageAsString});
-    } else if (node.isRootNode() && name == "previewSize@Internal") {
-        m_nodeInstanceServer->changePreviewImageSize(value.toSize());
+        };
+        break;
+
+    case AuxiliaryDataType::Temporary:
+        if (key.name == "rotBlocked" && hasInstanceForModelNode(node)) {
+            NodeInstance instance = instanceForModelNode(node);
+            if (value.isValid()) {
+                PropertyValueContainer container{instance.instanceId(),
+                                                 PropertyName{key.name},
+                                                 value,
+                                                 TypeName(),
+                                                 key.type};
+                m_nodeInstanceServer->changeAuxiliaryValues({{container}});
+            }
+        };
+
+        if (node.isRootNode()) {
+            if (key.name == "language") {
+                const QString languageAsString = value.toString();
+                if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current(
+                        m_currentTarget))
+                    multiLanguageAspect->setCurrentLocale(languageAsString);
+                m_nodeInstanceServer->changeLanguage({languageAsString});
+            } else if (key.name == "previewSize") {
+                m_nodeInstanceServer->changePreviewImageSize(value.toSize());
+            }
+        };
+        break;
+
+    default:
+        break;
     }
 }
 
@@ -986,22 +1034,24 @@ QList<ModelNode> filterNodesForSkipItems(const QList<ModelNode> &nodeList)
 
     return filteredNodeList;
 }
+namespace {
+bool shouldSendAuxiliary(const AuxiliaryDataKey &key)
+{
+    return key == invisibleProperty || key == lockedProperty
+           || key.type == AuxiliaryDataType::NodeInstance
+           || (key.type == AuxiliaryDataType::Temporary && key.name == "rotBlocked");
+}
+} // namespace
 
 CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 {
     QList<ModelNode> nodeList = allModelNodes();
     QList<NodeInstance> instanceList;
 
-    Utils::optional oldNodeInstanceHash = m_nodeInstanceCache.take(model());
-    if (oldNodeInstanceHash
-        && oldNodeInstanceHash->instances.value(rootModelNode()).isValid()) {
-        instanceList = loadInstancesFromCache(nodeList, oldNodeInstanceHash.value());
-    } else {
-        for (const ModelNode &node : std::as_const(nodeList)) {
-            NodeInstance instance = loadNode(node);
-            if (!isSkippedNode(node))
-                instanceList.append(instance);
-        }
+    for (const ModelNode &node : std::as_const(nodeList)) {
+        NodeInstance instance = loadNode(node);
+        if (!isSkippedNode(node))
+            instanceList.append(instance);
     }
 
     clearErrors();
@@ -1017,12 +1067,14 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         bindingPropertyList.append(node.bindingProperties());
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
-            const QHash<PropertyName, QVariant> aux = node.auxiliaryData();
-            for (auto auxiliaryIterator = aux.cbegin(), end = aux.cend();
-                      auxiliaryIterator != end;
-                      ++auxiliaryIterator) {
-                PropertyValueContainer container(instance.instanceId(), auxiliaryIterator.key(), auxiliaryIterator.value(), TypeName());
-                auxiliaryContainerVector.append(container);
+            for (const auto &element : node.auxiliaryData()) {
+                if (shouldSendAuxiliary(element.first)) {
+                    auxiliaryContainerVector.emplace_back(instance.instanceId(),
+                                                          element.first.name.toQByteArray(),
+                                                          element.second,
+                                                          TypeName(),
+                                                          element.first.type);
+                }
             }
         }
     }
@@ -2185,12 +2237,12 @@ void NodeInstanceView::updateRotationBlocks()
         }
     }
     if (!qml3DNodes.isEmpty()) {
-        const PropertyName auxDataProp {"rotBlocked@Internal"};
+        const PropertyName auxDataProp{"rotBlocked"};
         for (const auto &node : qAsConst(qml3DNodes)) {
             if (rotationKeyframeTargets.contains(node))
-                node.setAuxiliaryData(auxDataProp, true);
+                node.setAuxiliaryData(AuxiliaryDataType::Temporary, auxDataProp, true);
             else
-                node.setAuxiliaryData(auxDataProp, false);
+                node.setAuxiliaryData(AuxiliaryDataType::Temporary, auxDataProp, false);
         }
     }
 }

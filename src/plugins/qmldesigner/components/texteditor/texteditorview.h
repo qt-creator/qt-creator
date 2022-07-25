@@ -83,7 +83,9 @@ public:
     void changeToTransformTools();
     void changeToCustomTool();
 
-    void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) override;
+    void auxiliaryDataChanged(const ModelNode &node,
+                              AuxiliaryDataKeyView key,
+                              const QVariant &data) override;
 
     void instancesCompleted(const QVector<ModelNode> &completedNodeList) override;
     void instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangeHash) override;

@@ -116,7 +116,7 @@ public:
                               int majorVersion,
                               int minorVersion,
                               const PropertyListType &propertyList = PropertyListType(),
-                              const PropertyListType &auxPropertyList = PropertyListType(),
+                              const AuxiliaryDatas &auxPropertyList = {},
                               const QString &nodeSource = {},
                               ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource,
                               const QString &behaviorPropertyName = {});
@@ -220,7 +220,9 @@ public:
     virtual void possibleImportsChanged(const QList<Import> &possibleImports);
     virtual void usedImportsChanged(const QList<Import> &usedImports);
 
-    virtual void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data);
+    virtual void auxiliaryDataChanged(const ModelNode &node,
+                                      AuxiliaryDataKeyView type,
+                                      const QVariant &data);
 
     virtual void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
 

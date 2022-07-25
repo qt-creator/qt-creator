@@ -41,6 +41,8 @@ class QmlModelStateGroup;
 class QmlAnchors;
 class ItemLibraryEntry;
 
+inline constexpr AuxiliaryDataKeyView invisibleProperty{AuxiliaryDataType::Document, "invisible"};
+
 class QMLDESIGNERCORE_EXPORT QmlVisualNode : public QmlObjectNode
 {
     friend class QmlAnchors;

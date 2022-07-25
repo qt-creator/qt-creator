@@ -468,24 +468,13 @@ void RewriterView::deactivateTextMofifierChangeSignals()
         textModifier()->deactivateChangeSignals();
 }
 
-void RewriterView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &)
+void RewriterView::auxiliaryDataChanged(const ModelNode &, AuxiliaryDataKeyView key, const QVariant &)
 {
     if (m_restoringAuxData)
         return;
 
-    if (name.endsWith("@NodeInstance"))
-        return;
-
-    if (name.endsWith("@Internal"))
-        return;
-
-    if (node.isRootNode()) {
-        if (name == "width" || name == "height" || name == "autoSize" || name == "formeditorColor"
-            || name == "formeditorZoom")
-            return;
-    }
-
-    m_textModifier->textDocument()->setModified(true);
+    if (key.type == AuxiliaryDataType::Document)
+        m_textModifier->textDocument()->setModified(true);
 }
 
 void RewriterView::applyModificationGroupChanges()
@@ -613,8 +602,8 @@ QString RewriterView::auxiliaryDataAsQML() const
     const QRegularExpression safeName("^[a-z][a-zA-Z0-9]*$");
 
     for (const auto &node : allModelNodes()) {
-        QHash<PropertyName, QVariant> data = node.auxiliaryData();
-        if (!data.isEmpty()) {
+        auto data = node.auxiliaryData(AuxiliaryDataType::Document);
+        if (!data.empty()) {
             if (columnCount > 80) {
                 str += "\n";
                 columnCount = 0;
@@ -626,26 +615,18 @@ QString RewriterView::auxiliaryDataAsQML() const
             str += QString::number(m_canonicalModelNodeInt.value(node));
             str += ";";
 
-            QStringList keys = Utils::transform(data.keys(), [](const PropertyName &name) {
-                return QString::fromUtf8(name);
+            std::sort(data.begin(), data.end(), [](const auto &first, const auto &second) {
+                return first.first < second.first;
             });
 
-            keys.sort();
-
-            for (const QString &key : keys) {
-                if (key.endsWith("@NodeInstance"))
-                    continue;
-
-                if (key.endsWith("@Internal"))
-                    continue;
-
+            for (const auto &[keyUtf8, value] : data) {
+                auto key = QString::fromUtf8(keyUtf8);
                 if (idIsQmlKeyWord(key))
                     continue;
 
                 if (!key.contains(safeName))
                     continue;
                 hasAuxData = true;
-                const QVariant value = data.value(key.toUtf8());
                 QString strValue = value.toString();
 
                 auto metaType = static_cast<QMetaType::Type>(value.type());
@@ -1244,8 +1225,8 @@ void checkNode(const QmlJS::SimpleReaderNode::Ptr &node, RewriterView *view)
     for (auto i = properties.begin(); i != properties.end(); ++i) {
         if (i.key() != "i") {
             const PropertyName name = fixUpIllegalChars(i.key()).toUtf8();
-            if (!modelNode.hasAuxiliaryData(name))
-                modelNode.setAuxiliaryData(name, i.value().value);
+            if (!modelNode.hasAuxiliaryData(AuxiliaryDataType::Document, name))
+                modelNode.setAuxiliaryData(AuxiliaryDataType::Document, name, i.value().value);
         }
     }
 
@@ -1257,7 +1238,7 @@ void RewriterView::restoreAuxiliaryData()
     QTC_ASSERT(m_textModifier, return);
 
     const char auxRestoredFlag[] = "AuxRestored@Internal";
-    if (rootModelNode().hasAuxiliaryData(auxRestoredFlag))
+    if (rootModelNode().hasAuxiliaryData(AuxiliaryDataType::Document, auxRestoredFlag))
         return;
 
     m_restoringAuxData = true;
@@ -1279,7 +1260,7 @@ void RewriterView::restoreAuxiliaryData()
         checkChildNodes(reader.readFromSource(auxSource), this);
     }
 
-    rootModelNode().setAuxiliaryData(auxRestoredFlag, true);
+    rootModelNode().setAuxiliaryData(AuxiliaryDataType::Document, auxRestoredFlag, true);
     m_restoringAuxData = false;
 }
 

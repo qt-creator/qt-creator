@@ -25,6 +25,8 @@
 #include "nodedumper.h"
 #include "assetexportpluginconstants.h"
 
+#include <auxiliarydataproperties.h>
+
 namespace QmlDesigner {
 NodeDumper::NodeDumper(const QByteArrayList &lineage, const ModelNode &node) :
     m_node(node),
@@ -41,7 +43,7 @@ QVariant NodeDumper::propertyValue(const PropertyName &name) const
 
 QString NodeDumper::uuid() const
 {
-    return m_node.auxiliaryData(Constants::UuidAuxTag).toString();
+    return m_node.auxiliaryDataWithDefault(uuidProperty).toString();
 }
 
 }

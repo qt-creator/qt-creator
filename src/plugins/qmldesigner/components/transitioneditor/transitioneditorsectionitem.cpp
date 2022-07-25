@@ -508,7 +508,7 @@ void TransitionEditorSectionItem::invalidateProperties()
 bool TransitionEditorSectionItem::collapsed() const
 {
     return m_targetNode.isValid()
-            && (!m_targetNode.hasAuxiliaryData("transition_expanded") || m_targetNode.locked());
+           && (!m_targetNode.hasAuxiliaryData(transitionExpandedPropery) || m_targetNode.locked());
 }
 
 qreal TransitionEditorSectionItem::rulerWidth() const
@@ -521,9 +521,9 @@ void TransitionEditorSectionItem::toggleCollapsed()
     QTC_ASSERT(m_targetNode.isValid(), return );
 
     if (collapsed())
-        m_targetNode.setAuxiliaryData("transition_expanded", true);
+        m_targetNode.setAuxiliaryData(transitionExpandedPropery, true);
     else
-        m_targetNode.removeAuxiliaryData("transition_expanded");
+        m_targetNode.removeAuxiliaryData(transitionExpandedPropery);
 
     invalidateHeight();
 }

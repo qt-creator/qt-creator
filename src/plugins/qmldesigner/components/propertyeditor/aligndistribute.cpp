@@ -29,6 +29,7 @@
 #include <qmldesignerplugin.h>
 #include <qmlmodelnodeproxy.h>
 
+#include <auxiliarydataproperties.h>
 #include <modelnode.h>
 #include <variantproperty.h>
 
@@ -466,7 +467,7 @@ void AlignDistribute::distributeObjects(Target target, AlignTo alignTo, const QS
                 currentPosition = position.y();
                 position.ry() += equidistant;
             }
-            modelNode.setAuxiliaryData("tmp",
+            modelNode.setAuxiliaryData(tmpProperty,
                                        qRound(currentPosition
                                               - distributePosition(target, qmlItemNode)));
         }
@@ -482,7 +483,7 @@ void AlignDistribute::distributeObjects(Target target, AlignTo alignTo, const QS
         const auto keyObjectModelNode = view->modelNodeForId(keyObject);
         const QmlItemNode keyObjectQmlItemNode(keyObjectModelNode);
         const auto scenePosition = keyObjectQmlItemNode.instanceScenePosition();
-        keyObjectModelNode.setAuxiliaryData("tmp",
+        keyObjectModelNode.setAuxiliaryData(tmpProperty,
                                             (getDimension(target) == Dimension::X
                                                  ? scenePosition.x()
                                                  : scenePosition.y()));
@@ -513,9 +514,9 @@ void AlignDistribute::distributeObjects(Target target, AlignTo alignTo, const QS
                 }
                 }
                 qmlItemNode.setVariantProperty(propertyName,
-                                               modelNode.auxiliaryData("tmp").toReal()
+                                               modelNode.auxiliaryDataWithDefault(tmpProperty).toReal()
                                                    - parentPosition);
-                modelNode.removeAuxiliaryData("tmp");
+                modelNode.removeAuxiliaryData(tmpProperty);
             }
         }
     });
@@ -601,7 +602,7 @@ void AlignDistribute::distributeSpacing(Dimension dimension,
                 currentPosition = position.y();
                 position.ry() += height(qmlItemNode) + equidistant;
             }
-            modelNode.setAuxiliaryData("tmp", qRound(currentPosition));
+            modelNode.setAuxiliaryData(AuxiliaryDataType::Temporary, "tmp", qRound(currentPosition));
         }
     }
 
@@ -615,7 +616,7 @@ void AlignDistribute::distributeSpacing(Dimension dimension,
         const auto keyObjectModelNode = view->modelNodeForId(keyObject);
         const QmlItemNode keyObjectQmlItemNode(keyObjectModelNode);
         const auto scenePosition = keyObjectQmlItemNode.instanceScenePosition();
-        keyObjectModelNode.setAuxiliaryData("tmp",
+        keyObjectModelNode.setAuxiliaryData(tmpProperty,
                                             (dimension == Dimension::X ? scenePosition.x()
                                                                        : scenePosition.y()));
         selectedNodes.append(keyObjectModelNode);
@@ -646,8 +647,9 @@ void AlignDistribute::distributeSpacing(Dimension dimension,
                 }
                 }
                 qmlItemNode.setVariantProperty(propertyName,
-                                               modelNode.auxiliaryData("tmp").toReal() - parentPos);
-                modelNode.removeAuxiliaryData("tmp");
+                                               modelNode.auxiliaryDataWithDefault(tmpProperty).toReal()
+                                                   - parentPos);
+                modelNode.removeAuxiliaryData(tmpProperty);
             }
         }
     });

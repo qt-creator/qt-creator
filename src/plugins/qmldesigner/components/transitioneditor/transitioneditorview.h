@@ -61,7 +61,7 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
     void auxiliaryDataChanged(const ModelNode &node,
-                              const PropertyName &name,
+                              AuxiliaryDataKeyView key,
                               const QVariant &data) override;
 
     void propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList) override;

@@ -35,6 +35,7 @@
 #include <timelineeditor/timelineconstants.h>
 #include <timelineeditor/timelineicons.h>
 
+#include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
 #include <nodeabstractproperty.h>
 #include <nodemetainfo.h>
@@ -363,9 +364,10 @@ void TransitionEditorWidget::init(int zoom)
     m_toolbar->setCurrentTransition(transition);
 
     qreal duration = 2000;
-    if (transition.isValid() && transition.hasAuxiliaryData("transitionDuration"))
-        duration = transition.auxiliaryData("transitionDuration").toDouble();
-
+    if (transition.isValid()) {
+        if (auto data = transition.auxiliaryData(transitionDurationProperty))
+            duration = data->toDouble();
+    }
     m_toolbar->setDuration(duration);
 
     m_graphicsScene->setZoom(zoom);

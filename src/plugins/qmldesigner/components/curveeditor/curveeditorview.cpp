@@ -29,13 +29,14 @@
 #include "curvesegment.h"
 #include "treeitem.h"
 
+#include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
 #include <easingcurve.h>
 #include <nodeabstractproperty.h>
+#include <nodelistproperty.h>
 #include <variantproperty.h>
 #include <qmlstate.h>
 #include <qmltimeline.h>
-#include <nodelistproperty.h>
 
 #include <cmath>
 
@@ -125,10 +126,10 @@ void CurveEditorView::nodeReparented([[maybe_unused]] const ModelNode &node,
 }
 
 void CurveEditorView::auxiliaryDataChanged(const ModelNode &node,
-                                           const PropertyName &name,
+                                           AuxiliaryDataKeyView key,
                                            const QVariant &data)
 {
-    if (name == "locked") {
+    if (key == lockedProperty) {
         if (auto *item = m_model->find(node.id())) {
             QSignalBlocker blocker(m_model);
             m_model->setLocked(item, data.toBool());
@@ -300,20 +301,20 @@ void commitAuxiliaryData(ModelNode &node, TreeItem *item)
 {
     if (node.isValid()) {
         if (item->locked())
-            node.setAuxiliaryData("locked", true);
+            node.setLocked(true);
         else
-            node.removeAuxiliaryData("locked");
+            node.setLocked(false);
 
         if (item->pinned())
-            node.setAuxiliaryData("pinned", true);
+            node.setAuxiliaryData(pinnedProperty, true);
         else
-            node.removeAuxiliaryData("pinned");
+            node.removeAuxiliaryData(pinnedProperty);
 
         if (auto *pitem = item->asPropertyItem()) {
             if (pitem->hasUnified())
-                node.setAuxiliaryData("unified", pitem->unifyString());
+                node.setAuxiliaryData(unifiedProperty, pitem->unifyString());
             else
-                node.removeAuxiliaryData("unified");
+                node.removeAuxiliaryData(unifiedProperty);
         }
     }
 }
@@ -383,7 +384,7 @@ void CurveEditorView::commitCurrentFrame(int frame)
 {
     QmlTimeline timeline = activeTimeline();
     if (timeline.isValid())
-        timeline.modelNode().setAuxiliaryData("currentFrame@NodeInstance", frame);
+        timeline.modelNode().setAuxiliaryData(currentFrameProperty, frame);
 }
 
 void CurveEditorView::commitStartFrame(int frame)

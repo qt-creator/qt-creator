@@ -106,13 +106,12 @@ public:
     InternalNodePointer createNode(const TypeName &typeName,
                                    int majorVersion,
                                    int minorVersion,
-                                   const QList<QPair<PropertyName, QVariant> > &propertyList,
-                                   const QList<QPair<PropertyName, QVariant> > &auxPropertyList,
+                                   const QList<QPair<PropertyName, QVariant>> &propertyList,
+                                   const AuxiliaryDatas &auxPropertyList,
                                    const QString &nodeSource,
                                    ModelNode::NodeSourceType nodeSourceType,
                                    const QString &behaviorPropertyName,
                                    bool isRootNode = false);
-
 
     /*factory methods for internal use in model and rewriter*/
     void removeNode(const InternalNodePointer &node);
@@ -169,7 +168,9 @@ public:
                                 const InternalNodePointer &node,
                                 int oldIndex);
     void notifyNodeOrderChanged(const InternalNodeListPropertyPointer &internalListProperty);
-    void notifyAuxiliaryDataChanged(const InternalNodePointer &node, const PropertyName &name, const QVariant &data);
+    void notifyAuxiliaryDataChanged(const InternalNodePointer &node,
+                                    AuxiliaryDataKeyView key,
+                                    const QVariant &data);
     void notifyNodeSourceChanged(const InternalNodePointer &node, const QString &newNodeSource);
 
     void notifyRootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion);
@@ -209,8 +210,10 @@ public:
     void changeSelectedNodes(const QList<InternalNodePointer> &newSelectedNodeList,
                              const QList<InternalNodePointer> &oldSelectedNodeList);
 
-    void setAuxiliaryData(const InternalNodePointer &node, const PropertyName &name, const QVariant &data);
-    void removeAuxiliaryData(const InternalNodePointer &node, const PropertyName &name);
+    void setAuxiliaryData(const InternalNodePointer &node,
+                          const AuxiliaryDataKeyView &key,
+                          const QVariant &data);
+    void removeAuxiliaryData(const InternalNodePointer &node, const AuxiliaryDataKeyView &key);
     [[noreturn]] void resetModelByRewriter(const QString &description);
 
     // Imports:

@@ -34,6 +34,7 @@
 #include "timelinetoolbar.h"
 #include "timelinetoolbutton.h"
 
+#include <auxiliarydataproperties.h>
 #include <rewritertransaction.h>
 #include <rewritingexception.h>
 #include <theme.h>
@@ -342,7 +343,7 @@ void TimelinePropertyItem::changePropertyValue(const QVariant &value)
         QmlTimelineKeyframeGroup frames = m_frames;
         auto deferredFunc = [frames, value, timeline]() {
             auto constFrames = frames;
-            qreal frame = timeline.modelNode().auxiliaryData("currentFrame@NodeInstance").toReal();
+            qreal frame = timeline.modelNode().auxiliaryDataWithDefault(currentFrameProperty).toReal();
             try {
                 constFrames.setValue(value, frame);
             } catch (const RewritingException &e) {

@@ -25,18 +25,26 @@
 
 #pragma once
 
-#include <QMap>
-#include <QHash>
-#include <QSharedPointer>
-#include <QWeakPointer>
-#include <QStringList>
-#include "internalproperty.h"
-#include "internalvariantproperty.h"
 #include "internalbindingproperty.h"
-#include "internalsignalhandlerproperty.h"
+#include "internalnodeabstractproperty.h"
 #include "internalnodelistproperty.h"
 #include "internalnodeproperty.h"
-#include "internalnodeabstractproperty.h"
+#include "internalproperty.h"
+#include "internalsignalhandlerproperty.h"
+#include "internalvariantproperty.h"
+
+#include <auxiliarydata.h>
+
+#include <utils/optional.h>
+
+#include <QHash>
+#include <QMap>
+#include <QSharedPointer>
+#include <QStringList>
+#include <QWeakPointer>
+
+#include <type_traits>
+#include <vector>
 
 #include <memory>
 
@@ -74,11 +82,12 @@ public:
     void setParentProperty(const InternalNodeAbstractProperty::Pointer &parent);
     void resetParentProperty();
 
-    QVariant auxiliaryData(const PropertyName &name) const;
-    void setAuxiliaryData(const PropertyName &name, const QVariant &data);
-    void removeAuxiliaryData(const PropertyName &name);
-    bool hasAuxiliaryData(const PropertyName &name) const;
-    const QHash<PropertyName, QVariant> &auxiliaryData() const;
+    Utils::optional<QVariant> auxiliaryData(AuxiliaryDataKeyView key) const;
+    bool setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data);
+    bool removeAuxiliaryData(AuxiliaryDataKeyView key);
+    bool hasAuxiliaryData(AuxiliaryDataKeyView key) const;
+    AuxiliaryDatasForType auxiliaryData(AuxiliaryDataType type) const;
+    const AuxiliaryDatas &auxiliaryData() const { return m_auxiliaryDatas; }
 
     InternalProperty::Pointer property(const PropertyName &name) const;
     InternalBindingProperty::Pointer bindingProperty(const PropertyName &name) const;
@@ -142,7 +151,7 @@ public:
     QStringList scriptFunctions;
 
 private:
-    QHash<PropertyName, QVariant> m_auxiliaryDataHash;
+    AuxiliaryDatas m_auxiliaryDatas;
     InternalNodeAbstractProperty::WeakPointer m_parentProperty;
     QHash<PropertyName, InternalPropertyPointer> m_namePropertyHash;
 };

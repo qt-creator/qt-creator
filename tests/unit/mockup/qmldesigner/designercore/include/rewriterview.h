@@ -109,7 +109,7 @@ public:
     void deactivateTextMofifierChangeSignals() {}
 
     void auxiliaryDataChanged([[maybe_unused]] const ModelNode &node,
-                              [[maybe_unused]] const PropertyName &name,
+                              [[maybe_unused]] AuxiliaryDataKeyView key,
                               [[maybe_unused]] const QVariant &data) override
     {}
 

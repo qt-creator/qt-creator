@@ -31,6 +31,7 @@
 #include "transitioneditorgraphicsscene.h"
 #include "transitioneditorsettingsdialog.h"
 
+#include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
 #include <exception.h>
 #include <modelnodecontextmenu_helper.h>
@@ -147,12 +148,12 @@ void TransitionEditorView::selectedNodesChanged(const QList<ModelNode> & /*selec
 }
 
 void TransitionEditorView::auxiliaryDataChanged(const ModelNode &modelNode,
-                                                const PropertyName &name,
+                                                AuxiliaryDataKeyView key,
                                                 const QVariant &data)
 {
-    if (name == QmlDesigner::lockedProperty && data.toBool() && modelNode.isValid()) {
+    if (key == lockedProperty && data.toBool() && modelNode.isValid()) {
         for (const auto &node : modelNode.allSubModelNodesAndThisNode()) {
-            if (node.hasAuxiliaryData("transition_expanded"))
+            if (node.hasAuxiliaryData(transitionExpandedPropery))
                 m_transitionEditorWidget->graphicsScene()->invalidateHeightForTarget(node);
         }
     }
@@ -265,7 +266,7 @@ ModelNode TransitionEditorView::addNewTransition()
                                               "to",
                                               "*",
                                           }});
-            transition.setAuxiliaryData("transitionDuration", 2000);
+            transition.setAuxiliaryData(transitionDurationProperty, 2000);
             transition.validId();
             root.nodeListProperty("transitions").reparentHere(transition);
 

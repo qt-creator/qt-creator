@@ -333,10 +333,11 @@ void MaterialEditorQmlBackend::emitSelectionChanged()
     m_backendModelNode.emitSelectionChanged();
 }
 
-void MaterialEditorQmlBackend::setValueforAuxiliaryProperties(const QmlObjectNode &qmlObjectNode, const PropertyName &name)
+void MaterialEditorQmlBackend::setValueforAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,
+                                                              AuxiliaryDataKeyView key)
 {
-    const PropertyName propertyName = auxNamePostFix(name);
-     setValue(qmlObjectNode, propertyName, qmlObjectNode.modelNode().auxiliaryData(name));
+    const PropertyName propertyName = auxNamePostFix(PropertyName(key.name));
+    setValue(qmlObjectNode, propertyName, qmlObjectNode.modelNode().auxiliaryDataWithDefault(key));
 }
 
 } // namespace QmlDesigner

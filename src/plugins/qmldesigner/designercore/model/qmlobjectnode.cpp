@@ -24,20 +24,22 @@
 ****************************************************************************/
 
 #include "qmlobjectnode.h"
+#include "abstractview.h"
+#include "bindingproperty.h"
+#include "nodeinstance.h"
+#include "nodeinstanceview.h"
+#include "nodelistproperty.h"
+#include "nodemetainfo.h"
+#include "nodeproperty.h"
+#include "qml3dnode.h"
 #include "qmlitemnode.h"
 #include "qmlstate.h"
 #include "qmltimelinekeyframegroup.h"
 #include "qmlvisualnode.h"
-#include "qml3dnode.h"
 #include "variantproperty.h"
-#include "nodeproperty.h"
+
+#include <auxiliarydataproperties.h>
 #include <invalidmodelnodeexception.h>
-#include "abstractview.h"
-#include "nodeinstance.h"
-#include "nodemetainfo.h"
-#include "bindingproperty.h"
-#include "nodelistproperty.h"
-#include "nodeinstanceview.h"
 
 #include <qmltimeline.h>
 
@@ -63,7 +65,7 @@ void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant 
 
         Q_ASSERT(timelineFrames.isValid());
 
-        qreal frame = currentTimeline().modelNode().auxiliaryData("currentFrame@NodeInstance").toReal();
+        qreal frame = currentTimeline().modelNode().auxiliaryDataWithDefault(currentFrameProperty).toReal();
         timelineFrames.setValue(value, frame);
 
         return;
@@ -73,7 +75,10 @@ void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant 
         Q_ASSERT(timelineFrames.isValid());
 
         if (timelineFrames.isRecording()) {
-            qreal frame = currentTimeline().modelNode().auxiliaryData("currentFrame@NodeInstance").toReal();
+            qreal frame = currentTimeline()
+                              .modelNode()
+                              .auxiliaryDataWithDefault(currentFrameProperty)
+                              .toReal();
             timelineFrames.setValue(value, frame);
 
             return;
@@ -220,7 +225,7 @@ QVariant QmlObjectNode::modelValue(const PropertyName &name) const
 
         Q_ASSERT(timelineFrames.isValid());
 
-        qreal frame = currentTimeline().modelNode().auxiliaryData("currentFrame@NodeInstance").toReal();
+        qreal frame = currentTimeline().modelNode().auxiliaryDataWithDefault(currentFrameProperty).toReal();
 
         QVariant value = timelineFrames.value(frame);
 

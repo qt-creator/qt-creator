@@ -223,7 +223,9 @@ void TextEditorView::changeToCustomTool()
 {
 }
 
-void TextEditorView::auxiliaryDataChanged(const ModelNode &/*node*/, const PropertyName &/*name*/, const QVariant &/*data*/)
+void TextEditorView::auxiliaryDataChanged(const ModelNode & /*node*/,
+                                          AuxiliaryDataKeyView /*type*/,
+                                          const QVariant & /*data*/)
 {
 }
 

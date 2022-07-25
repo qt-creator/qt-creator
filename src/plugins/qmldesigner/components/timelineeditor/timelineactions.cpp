@@ -28,6 +28,7 @@
 #include "timelineutils.h"
 #include "timelineview.h"
 
+#include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
 #include <designdocument.h>
 #include <designdocumentview.h>
@@ -148,10 +149,10 @@ void TimelineActions::copyKeyframes(const QList<ModelNode> &keyframes)
                 BindingProperty bp = property.toBindingProperty();
                 ModelNode bpNode = bp.resolveToModelNode();
                 if (bpNode.isValid())
-                    node.setAuxiliaryData(name, bpNode.id());
+                    node.setAuxiliaryData(AuxiliaryDataType::Document, name, bpNode.id());
             } else if (property.isVariantProperty()) {
                 VariantProperty vp = property.toVariantProperty();
-                node.setAuxiliaryData(name, vp.value());
+                node.setAuxiliaryData(AuxiliaryDataType::Document, name, vp.value());
             }
         }
 
@@ -187,14 +188,14 @@ QmlTimelineKeyframeGroup getFrameGroup(const ModelNode &node,
                                        AbstractView *timelineView,
                                        const QmlTimeline &timeline)
 {
-    QVariant targetId = node.auxiliaryData("target");
-    QVariant property = node.auxiliaryData("property");
+    auto targetId = node.auxiliaryData(targetProperty);
+    auto property = node.auxiliaryData(propertyProperty);
 
-    if (targetId.isValid() && property.isValid()) {
-        ModelNode targetNode = timelineView->modelNodeForId(targetId.toString());
+    if (targetId && property) {
+        ModelNode targetNode = timelineView->modelNodeForId(targetId->toString());
         if (targetNode.isValid()) {
             for (QmlTimelineKeyframeGroup frameGrp : timeline.keyframeGroupsForTarget(targetNode)) {
-                if (frameGrp.propertyName() == property.toByteArray())
+                if (frameGrp.propertyName() == property->toByteArray())
                     return frameGrp;
             }
         }

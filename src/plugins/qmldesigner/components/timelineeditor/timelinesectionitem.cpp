@@ -484,7 +484,7 @@ void TimelineSectionItem::invalidateFrames()
 bool TimelineSectionItem::collapsed() const
 {
     return m_targetNode.isValid()
-            && (!m_targetNode.hasAuxiliaryData("timeline_expanded") || m_targetNode.locked());
+           && (!m_targetNode.hasAuxiliaryData(timelineExpandedProperty) || m_targetNode.locked());
 }
 
 void TimelineSectionItem::createPropertyItems()
@@ -509,9 +509,9 @@ void TimelineSectionItem::toggleCollapsed()
     QTC_ASSERT(m_targetNode.isValid(), return );
 
     if (collapsed())
-        m_targetNode.setAuxiliaryData("timeline_expanded", true);
+        m_targetNode.setAuxiliaryData(timelineExpandedProperty, true);
     else
-        m_targetNode.removeAuxiliaryData("timeline_expanded");
+        m_targetNode.removeAuxiliaryData(timelineExpandedProperty);
 
     invalidateHeight();
 }
@@ -1002,6 +1002,11 @@ void TimelineBarItem::scrollOffsetChanged()
     sectionItem()->invalidateBar();
 }
 
+namespace {
+constexpr AuxiliaryDataKeyView timelineOverrideColorProperty{AuxiliaryDataType::Document,
+                                                             "Timeline.OverrideColor"};
+} // namespace
+
 void TimelineBarItem::paint(QPainter *painter,
                             [[maybe_unused]] const QStyleOptionGraphicsItem *option,
                             [[maybe_unused]] QWidget *widget)
@@ -1012,7 +1017,8 @@ void TimelineBarItem::paint(QPainter *painter,
 
     ModelNode target = sectionItem()->targetNode();
     if (target.isValid()) {
-        QColor overrideColor = target.auxiliaryData(TimelineConstants::C_BAR_ITEM_OVERRIDE).value<QColor>();
+        QColor overrideColor = target.auxiliaryDataWithDefault(timelineOverrideColorProperty)
+                                   .value<QColor>();
         if (overrideColor.isValid()) {
             brushColorSelected = overrideColor;
             brushColor = brushColorSelected.darker(120);
@@ -1082,10 +1088,11 @@ void TimelineBarItem::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
     auto setColor = [this] () {
         ModelNode target = sectionItem()->targetNode();
         if (target.isValid()) {
-            QColor current = target.auxiliaryData(TimelineConstants::C_BAR_ITEM_OVERRIDE).value<QColor>();
+            QColor current = target.auxiliaryDataWithDefault(timelineOverrideColorProperty)
+                                 .value<QColor>();
             QColor color = QColorDialog::getColor(current, nullptr);
             if (color.isValid())
-                target.setAuxiliaryData(TimelineConstants::C_BAR_ITEM_OVERRIDE, color);
+                target.setAuxiliaryData(timelineOverrideColorProperty, color);
         }
     };
 
@@ -1095,7 +1102,7 @@ void TimelineBarItem::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
     auto reset = [this]() {
         ModelNode target = sectionItem()->targetNode();
         if (target.isValid())
-            target.removeAuxiliaryData(TimelineConstants::C_BAR_ITEM_OVERRIDE);
+            target.removeAuxiliaryData(timelineOverrideColorProperty);
     };
     QObject::connect(resetColor, &QAction::triggered, reset);
 

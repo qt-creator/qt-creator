@@ -36,6 +36,7 @@
 #include "timelineview.h"
 #include "navigation2d.h"
 
+#include <auxiliarydataproperties.h>
 #include <qmldesignerplugin.h>
 #include <qmlstate.h>
 #include <qmltimeline.h>
@@ -108,8 +109,8 @@ static qreal getcurrentFrame(const QmlTimeline &timeline)
     if (!timeline.isValid())
         return 0;
 
-    if (timeline.modelNode().hasAuxiliaryData("currentFrame@NodeInstance"))
-        return timeline.modelNode().auxiliaryData("currentFrame@NodeInstance").toReal();
+    if (auto data = timeline.modelNode().auxiliaryData(currentFrameProperty))
+        return data->toReal();
     return timeline.currentKeyframe();
 }
 

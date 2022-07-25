@@ -149,6 +149,8 @@ function(extend_with_qmldesigner_core target_name)
       include/annotation.h
       include/asynchronousexplicitimagecache.h
       include/asynchronousimagecache.h
+      include/auxiliarydata.h
+      include/auxiliarydataproperties.h
       include/basetexteditmodifier.h
       include/bindingproperty.h
       include/componenttextmodifier.h

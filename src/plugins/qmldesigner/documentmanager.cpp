@@ -93,20 +93,19 @@ static inline QHash<PropertyName, QVariant> getProperties(const ModelNode &node)
 
 static inline void applyProperties(ModelNode &node, const QHash<PropertyName, QVariant> &propertyHash)
 {
-    const QHash<PropertyName, QVariant> auxiliaryData  = node.auxiliaryData();
+    const auto auxiliaryData = node.auxiliaryData(AuxiliaryDataType::NodeInstance);
 
-    const QList<PropertyName> propertyNames = auxiliaryData.keys();
-    for (const PropertyName &propertyName : propertyNames) {
-        if (node.hasAuxiliaryData(propertyName))
-            node.setAuxiliaryData(propertyName, QVariant());
-    }
+    for (const auto &element : auxiliaryData)
+        node.removeAuxiliaryData(AuxiliaryDataType::NodeInstance, element.first);
 
     for (auto propertyIterator = propertyHash.cbegin(), end = propertyHash.cend();
               propertyIterator != end;
               ++propertyIterator) {
         const PropertyName propertyName = propertyIterator.key();
         if (propertyName == "width" || propertyName == "height") {
-            node.setAuxiliaryData(propertyIterator.key(), propertyIterator.value());
+            node.setAuxiliaryData(AuxiliaryDataType::NodeInstance,
+                                  propertyIterator.key(),
+                                  propertyIterator.value());
         }
     }
 }

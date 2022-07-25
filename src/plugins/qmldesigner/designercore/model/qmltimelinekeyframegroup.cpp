@@ -27,6 +27,8 @@
 #include "abstractview.h"
 #include "bindingproperty.h"
 #include "qmlitemnode.h"
+
+#include <auxiliarydataproperties.h>
 #include <invalidmodelnodeexception.h>
 #include <metainfo.h>
 #include <nodelistproperty.h>
@@ -130,7 +132,7 @@ bool QmlTimelineKeyframeGroup::isRecording() const
 {
     QTC_ASSERT(isValid(), return false);
 
-    return modelNode().hasAuxiliaryData("Record@Internal");
+    return modelNode().hasAuxiliaryData(recordProperty);
 }
 
 void QmlTimelineKeyframeGroup::toogleRecording(bool record) const
@@ -139,9 +141,9 @@ void QmlTimelineKeyframeGroup::toogleRecording(bool record) const
 
     if (!record) {
         if (isRecording())
-            modelNode().removeAuxiliaryData("Record@Internal");
+            modelNode().removeAuxiliaryData(recordProperty);
     } else {
-        modelNode().setAuxiliaryData("Record@Internal", true);
+        modelNode().setAuxiliaryData(recordProperty, true);
     }
 }
 

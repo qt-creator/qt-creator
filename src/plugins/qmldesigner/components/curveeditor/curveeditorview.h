@@ -60,7 +60,7 @@ public:
                         PropertyChangeFlags propertyChange) override;
 
     void auxiliaryDataChanged(const ModelNode &node,
-                              const PropertyName &name,
+                              AuxiliaryDataKeyView key,
                               const QVariant &data) override;
 
     void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName>> &propertyList) override;

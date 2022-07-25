@@ -37,4 +37,5 @@ using PropertyNameList = QList<PropertyName>;
 using PropertyNames = std::vector<PropertyName>;
 using TypeName = QByteArray;
 
+enum class AuxiliaryDataType { None, Temporary, Document, NodeInstance };
 }

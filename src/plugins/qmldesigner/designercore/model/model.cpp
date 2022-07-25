@@ -113,15 +113,8 @@ ModelPrivate::ModelPrivate(
 {
     m_metaInfoProxyModel = metaInfoProxyModel;
 
-    m_rootInternalNode = createNode(typeName,
-                                    major,
-                                    minor,
-                                    PropertyListType(),
-                                    PropertyListType(),
-                                    {},
-                                    ModelNode::NodeWithoutSource,
-                                    {},
-                                    true);
+    m_rootInternalNode = createNode(
+        typeName, major, minor, {}, {}, {}, ModelNode::NodeWithoutSource, {}, true);
 
     m_currentStateNode = m_rootInternalNode;
     m_currentTimelineNode = m_rootInternalNode;
@@ -258,7 +251,7 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
                                              int majorVersion,
                                              int minorVersion,
                                              const QList<QPair<PropertyName, QVariant>> &propertyList,
-                                             const QList<QPair<PropertyName, QVariant>> &auxPropertyList,
+                                             const AuxiliaryDatas &auxiliaryDatas,
                                              const QString &nodeSource,
                                              ModelNode::NodeSourceType nodeSourceType,
                                              const QString &behaviorPropertyName,
@@ -284,8 +277,8 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
         newNode->variantProperty(propertyPair.first)->setValue(propertyPair.second);
     }
 
-    for (const PropertyPair &propertyPair : auxPropertyList)
-        newNode->setAuxiliaryData(propertyPair.first, propertyPair.second);
+    for (const auto &auxiliaryData : auxiliaryDatas)
+        newNode->setAuxiliaryData(AuxiliaryDataKeyView{auxiliaryData.first}, auxiliaryData.second);
 
     m_nodeSet.insert(newNode);
     m_internalIdNodeHash.insert(newNode->internalId, newNode);
@@ -462,12 +455,12 @@ void ModelPrivate::notifyInstanceChanges(Callable call)
 }
 
 void ModelPrivate::notifyAuxiliaryDataChanged(const InternalNodePointer &node,
-                                              const PropertyName &name,
+                                              AuxiliaryDataKeyView key,
                                               const QVariant &data)
 {
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         ModelNode modelNode(node, m_model, view);
-        view->auxiliaryDataChanged(modelNode, name, data);
+        view->auxiliaryDataChanged(modelNode, key, data);
     });
 }
 
@@ -715,18 +708,18 @@ void ModelPrivate::notifyPropertiesAboutToBeRemoved(
 }
 
 void ModelPrivate::setAuxiliaryData(const InternalNodePointer &node,
-                                    const PropertyName &name,
+                                    const AuxiliaryDataKeyView &key,
                                     const QVariant &data)
 {
-    if (node->auxiliaryData(name) == data)
-        return;
+    bool changed = false;
 
     if (data.isValid())
-        node->setAuxiliaryData(name, data);
+        changed = node->setAuxiliaryData(key, data);
     else
-        node->removeAuxiliaryData(name);
+        changed = node->removeAuxiliaryData(key);
 
-    notifyAuxiliaryDataChanged(node, name, data);
+    if (changed)
+        notifyAuxiliaryDataChanged(node, key, data);
 }
 
 void ModelPrivate::resetModelByRewriter(const QString &description)
@@ -975,11 +968,12 @@ void ModelPrivate::clearSelectedNodes()
     changeSelectedNodes(m_selectedInternalNodeList, lastSelectedNodeList);
 }
 
-void ModelPrivate::removeAuxiliaryData(const InternalNodePointer &node, const PropertyName &name)
+void ModelPrivate::removeAuxiliaryData(const InternalNodePointer &node, const AuxiliaryDataKeyView &key)
 {
-    node->removeAuxiliaryData(name);
+    bool removed = node->removeAuxiliaryData(key);
 
-    notifyAuxiliaryDataChanged(node, name, QVariant());
+    if (removed)
+        notifyAuxiliaryDataChanged(node, key, QVariant());
 }
 
 QList<ModelNode> ModelPrivate::toModelNodeList(const QList<InternalNodePointer> &nodeList, AbstractView *view) const

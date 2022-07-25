@@ -1795,7 +1795,7 @@ ModelNode TextToModelMerger::createModelNode(const TypeName &typeName,
                                                         majorVersion,
                                                         minorVersion,
                                                         PropertyListType(),
-                                                        PropertyListType(),
+                                                        {},
                                                         nodeSource,
                                                         nodeSourceType,
                                                         onTokenProperty);

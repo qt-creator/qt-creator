@@ -1009,38 +1009,28 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
 
 void NodeInstanceServer::setInstanceAuxiliaryData(const PropertyValueContainer &auxiliaryContainer)
 {
-    if (auxiliaryContainer.instanceId() == 0 && (auxiliaryContainer.name() == "width" ||
-                                                 auxiliaryContainer.name() == "height")) {
+    if (auxiliaryContainer.auxiliaryDataType() == AuxiliaryDataType::NodeInstance) {
         if (!auxiliaryContainer.value().isNull())
             setInstancePropertyVariant(auxiliaryContainer);
         else
             rootNodeInstance().resetProperty(auxiliaryContainer.name());
-    }
-    if (auxiliaryContainer.name().endsWith("@NodeInstance")) {
-        PropertyName propertyName = auxiliaryContainer.name().left(auxiliaryContainer.name().count() - 13);
-        if (!auxiliaryContainer.value().isNull()) {
-            setInstancePropertyVariant(PropertyValueContainer(auxiliaryContainer.instanceId(),
-                                                              propertyName,
-                                                              auxiliaryContainer.value(),
-                                                              auxiliaryContainer.dynamicTypeName()));
-        } else {
-            rootNodeInstance().resetProperty(propertyName);
-        }
-    } else if (auxiliaryContainer.name() == "invisible") {
-        if (hasInstanceForId(auxiliaryContainer.instanceId())) {
-            ServerNodeInstance instance = instanceForId(auxiliaryContainer.instanceId());
-            if (!auxiliaryContainer.value().isNull())
-                instance.setHiddenInEditor(auxiliaryContainer.value().toBool());
-            else
-                instance.setHiddenInEditor(false);
-        }
-    } else if (auxiliaryContainer.name() == "locked") {
-        if (hasInstanceForId(auxiliaryContainer.instanceId())) {
-            ServerNodeInstance instance = instanceForId(auxiliaryContainer.instanceId());
-            if (!auxiliaryContainer.value().isNull())
-                instance.setLockedInEditor(auxiliaryContainer.value().toBool());
-            else
-                instance.setLockedInEditor(false);
+    } else if (auxiliaryContainer.auxiliaryDataType() == AuxiliaryDataType::Document) {
+        if (auxiliaryContainer.name() == "invisible") {
+            if (hasInstanceForId(auxiliaryContainer.instanceId())) {
+                ServerNodeInstance instance = instanceForId(auxiliaryContainer.instanceId());
+                if (!auxiliaryContainer.value().isNull())
+                    instance.setHiddenInEditor(auxiliaryContainer.value().toBool());
+                else
+                    instance.setHiddenInEditor(false);
+            }
+        } else if (auxiliaryContainer.name() == "locked") {
+            if (hasInstanceForId(auxiliaryContainer.instanceId())) {
+                ServerNodeInstance instance = instanceForId(auxiliaryContainer.instanceId());
+                if (!auxiliaryContainer.value().isNull())
+                    instance.setLockedInEditor(auxiliaryContainer.value().toBool());
+                else
+                    instance.setLockedInEditor(false);
+            }
         }
     }
 }

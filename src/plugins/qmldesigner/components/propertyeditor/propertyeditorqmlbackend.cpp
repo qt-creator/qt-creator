@@ -28,22 +28,23 @@
 #include "propertyeditortransaction.h"
 #include "propertyeditorvalue.h"
 #include "propertymetainfo.h"
-#include <qmldesignerconstants.h>
-#include <qmldesignerplugin.h>
-#include <qmltimeline.h>
 
-#include <qmlobjectnode.h>
+#include <auxiliarydataproperties.h>
+#include <bindingproperty.h>
 #include <nodemetainfo.h>
 #include <variantproperty.h>
-#include <bindingproperty.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
+#include <qmlobjectnode.h>
+#include <qmltimeline.h>
 
 #include <theme.h>
 
 #include <coreplugin/icore.h>
-#include <qmljs/qmljssimplereader.h>
-#include <utils/qtcassert.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
+#include <qmljs/qmljssimplereader.h>
 
 #include <QApplication>
 #include <QDir>
@@ -53,6 +54,8 @@
 #include <QVector4D>
 
 #include <QLoggingCategory>
+
+#include <tuple>
 
 static Q_LOGGING_CATEGORY(propertyEditorBenchmark, "qtc.propertyeditor.load", QtWarningMsg)
 
@@ -137,74 +140,22 @@ void PropertyEditorQmlBackend::setupPropertyEditorValue(const PropertyName &name
         valueObject->setValue(QVariant(QLatin1String("#000000")));
     else
         valueObject->setValue(QVariant(1));
-
 }
-
-PropertyName auxNamePostFix(const PropertyName &propertyName)
+namespace {
+PropertyName auxNamePostFix(Utils::SmallStringView propertyName)
 {
-    return propertyName + "__AUX";
+    return PropertyName(propertyName) + "__AUX";
 }
 
 QVariant properDefaultAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,
-                                          const PropertyName &propertyName)
+                                          AuxiliaryDataKeyDefaultValue key)
 {
     const ModelNode node = qmlObjectNode.modelNode();
-    const PropertyName auxName = propertyName;
 
-    if (node.hasAuxiliaryData(auxName))
-        return node.auxiliaryData(auxName);
-    if (propertyName == "transitionColor")
-        return QColor(Qt::red);
-    if (propertyName == "areaColor")
-        return QColor(Qt::red);
-    if (propertyName == "blockColor")
-        return QColor(Qt::red);
-    if (propertyName == "areaFillColor")
-        return QColor(Qt::transparent);
-    else if (propertyName == "color")
-        return QColor(Qt::red);
-    else if (propertyName == "fillColor")
-        return QColor(Qt::transparent);
-    else if (propertyName == "width")
-        return 4;
-    else if (propertyName == "dash")
-        return false;
-    else if (propertyName == "inOffset")
-        return 0;
-    else if (propertyName == "outOffset")
-        return 0;
-    else if (propertyName == "breakPoint")
-        return 50;
-    else if (propertyName == "transitionType")
-        return 0;
-    else if (propertyName == "type")
-        return 0;
-    else if (propertyName == "transitionRadius")
-        return 8;
-    else if (propertyName == "radius")
-        return 8;
-    else if (propertyName == "transitionBezier")
-        return 50;
-    else if (propertyName == "bezier")
-        return 50;
-    else if (propertyName == "labelPosition")
-        return 50.0;
-    else if (propertyName == "labelFlipSide")
-        return false;
-    else if (propertyName == "customId")
-        return QString();
-    else if (propertyName == "joinConnection")
-        return false;
-    else if (propertyName == "blockSize")
-        return 200;
-    else if (propertyName == "blockRadius")
-        return 18;
-    else if (propertyName == "showDialogLabel")
-        return false;
-    else if (propertyName == "dialogLabelPosition")
-        return Qt::TopRightCorner;
+    if (auto data = node.auxiliaryData(key))
+        return *data;
 
-    return {};
+    return getDefaultValueAsQVariant(key);
 }
 
 QVariant properDefaultLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode,
@@ -241,6 +192,7 @@ QVariant properDefaultLayoutAttachedProperties(const QmlObjectNode &qmlObjectNod
 
     return QVariant();
 }
+} // namespace
 
 void PropertyEditorQmlBackend::setupLayoutAttachedProperties(const QmlObjectNode &qmlObjectNode, PropertyEditorView *propertyEditor)
 {
@@ -260,32 +212,74 @@ void PropertyEditorQmlBackend::setupLayoutAttachedProperties(const QmlObjectNode
 void PropertyEditorQmlBackend::setupAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,
                                                         PropertyEditorView *propertyEditor)
 {
-
     const QmlItemNode itemNode(qmlObjectNode);
 
-    PropertyNameList propertyNames;
+    auto createProperty = [&](auto &&...properties) {
+        (createPropertyEditorValue(qmlObjectNode,
+                                   auxNamePostFix(properties.name),
+                                   properDefaultAuxiliaryProperties(qmlObjectNode, properties),
+                                   propertyEditor),
+         ...);
+    };
 
-    propertyNames.append("customId");
+    constexpr auto commonProperties = std::make_tuple(customIdProperty);
 
     if (itemNode.isFlowTransition()) {
-        propertyNames.append({"color", "width", "inOffset", "outOffset", "dash", "breakPoint", "type", "radius", "bezier", "labelPosition", "labelFlipSide"});
+        constexpr auto properties = std::make_tuple(colorProperty,
+                                                    widthProperty,
+                                                    inOffsetProperty,
+                                                    dashProperty,
+                                                    breakPointProperty,
+                                                    typeProperty,
+                                                    radiusProperty,
+                                                    bezierProperty,
+                                                    labelPositionProperty,
+                                                    labelFlipSideProperty);
+        std::apply(createProperty, std::tuple_cat(commonProperties, properties));
     } else if (itemNode.isFlowItem()) {
-        propertyNames.append({"color", "width", "inOffset", "outOffset", "joinConnection"});
+        constexpr auto properties = std::make_tuple(colorProperty,
+                                                    widthProperty,
+                                                    inOffsetProperty,
+                                                    outOffsetProperty,
+                                                    joinConnectionProperty);
+        std::apply(createProperty, std::tuple_cat(commonProperties, properties));
     } else if (itemNode.isFlowActionArea()) {
-        propertyNames.append({"color", "width", "fillColor", "outOffset", "dash"});
+        constexpr auto properties = std::make_tuple(colorProperty,
+                                                    widthProperty,
+                                                    fillColorProperty,
+                                                    outOffsetProperty,
+                                                    dashProperty);
+        std::apply(createProperty, std::tuple_cat(commonProperties, properties));
     } else if (itemNode.isFlowDecision()) {
-        propertyNames.append({"color", "width", "fillColor", "dash", "blockSize", "blockRadius", "showDialogLabel", "dialogLabelPosition"});
+        constexpr auto properties = std::make_tuple(colorProperty,
+                                                    widthProperty,
+                                                    fillColorProperty,
+                                                    dashProperty,
+                                                    blockSizeProperty,
+                                                    blockRadiusProperty,
+                                                    showDialogLabelProperty,
+                                                    dialogLabelPositionProperty);
+        std::apply(createProperty, std::tuple_cat(commonProperties, properties));
     } else if (itemNode.isFlowWildcard()) {
-        propertyNames.append({"color", "width", "fillColor", "dash", "blockSize", "blockRadius"});
+        constexpr auto properties = std::make_tuple(colorProperty,
+                                                    widthProperty,
+                                                    fillColorProperty,
+                                                    dashProperty,
+                                                    blockSizeProperty,
+                                                    blockRadiusProperty);
+        std::apply(createProperty, std::tuple_cat(commonProperties, properties));
     } else if (itemNode.isFlowView()) {
-        propertyNames.append({"transitionColor", "areaColor", "areaFillColor", "blockColor", "transitionType", "transitionRadius", "transitionBezier"});
+        constexpr auto properties = std::make_tuple(transitionColorProperty,
+                                                    areaColorProperty,
+                                                    areaFillColorProperty,
+                                                    blockColorProperty,
+                                                    transitionTypeProperty,
+                                                    transitionRadiusProperty,
+                                                    transitionBezierProperty);
+        std::apply(createProperty, std::tuple_cat(commonProperties, properties));
+    } else {
+        std::apply(createProperty, commonProperties);
     }
-
-    for (const PropertyName &propertyName : propertyNames) {
-        createPropertyEditorValue(qmlObjectNode, auxNamePostFix(propertyName),
-                                  properDefaultAuxiliaryProperties(qmlObjectNode, propertyName), propertyEditor);
-    }
-
 }
 
 void PropertyEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
@@ -906,10 +900,11 @@ void PropertyEditorQmlBackend::setValueforLayoutAttachedProperties(const QmlObje
     }
 }
 
-void PropertyEditorQmlBackend::setValueforAuxiliaryProperties(const QmlObjectNode &qmlObjectNode, const PropertyName &name)
+void PropertyEditorQmlBackend::setValueforAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,
+                                                              AuxiliaryDataKeyView key)
 {
-    const PropertyName propertyName = auxNamePostFix(name);
-     setValue(qmlObjectNode, propertyName, qmlObjectNode.modelNode().auxiliaryData(name));
+    const PropertyName propertyName = auxNamePostFix(key.name);
+    setValue(qmlObjectNode, propertyName, qmlObjectNode.modelNode().auxiliaryDataWithDefault(key));
 }
 
 QUrl PropertyEditorQmlBackend::getQmlUrlForMetaInfo(const NodeMetaInfo &metaInfo, TypeName &className)

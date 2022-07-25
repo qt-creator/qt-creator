@@ -131,9 +131,8 @@ void StylesheetMerger::syncVariantProperties(ModelNode &outputNode, const ModelN
 
 void StylesheetMerger::syncAuxiliaryProperties(ModelNode &outputNode, const ModelNode &inputNode)
 {
-    auto tmp = inputNode.auxiliaryData();
-    for (auto iter = tmp.begin(); iter != tmp.end(); ++iter)
-        outputNode.setAuxiliaryData(iter.key(), iter.value());
+    for (const auto &element : inputNode.auxiliaryData())
+        outputNode.setAuxiliaryData(AuxiliaryDataKeyView{element.first}, element.second);
 }
 
 void StylesheetMerger::syncBindingProperties(ModelNode &outputNode, const ModelNode &inputNode)
@@ -177,7 +176,6 @@ void StylesheetMerger::setupIdRenamingHash()
 ModelNode StylesheetMerger::createReplacementNode(const ModelNode& styleNode, ModelNode &modelNode)
 {
     QList<QPair<PropertyName, QVariant> > propertyList;
-    QList<QPair<PropertyName, QVariant> > auxPropertyList;
     NodeMetaInfo nodeMetaInfo = m_templateView->model()->metaInfo(styleNode.type());
 
     for (const VariantProperty &variantProperty : modelNode.variantProperties()) {
@@ -187,8 +185,13 @@ ModelNode StylesheetMerger::createReplacementNode(const ModelNode& styleNode, Mo
             continue;
         propertyList.append(QPair<PropertyName, QVariant>(variantProperty.name(), variantProperty.value()));
     }
-    ModelNode newNode(m_templateView->createModelNode(styleNode.type(), nodeMetaInfo.majorVersion(), nodeMetaInfo.minorVersion(),
-                                                      propertyList, auxPropertyList, styleNode.nodeSource(), styleNode.nodeSourceType()));
+    ModelNode newNode(m_templateView->createModelNode(styleNode.type(),
+                                                      nodeMetaInfo.majorVersion(),
+                                                      nodeMetaInfo.minorVersion(),
+                                                      propertyList,
+                                                      {},
+                                                      styleNode.nodeSource(),
+                                                      styleNode.nodeSourceType()));
 
     syncAuxiliaryProperties(newNode, modelNode);
     syncBindingProperties(newNode, modelNode);

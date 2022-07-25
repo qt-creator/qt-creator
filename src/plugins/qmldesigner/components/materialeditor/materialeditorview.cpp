@@ -504,9 +504,9 @@ void MaterialEditorView::commitAuxValueToModel(const PropertyName &propertyName,
 
     try {
         if (value.isValid())
-            m_selectedMaterial.setAuxiliaryData(name, value);
+            m_selectedMaterial.setAuxiliaryData(AuxiliaryDataType::Document, name, value);
         else
-            m_selectedMaterial.removeAuxiliaryData(name);
+            m_selectedMaterial.removeAuxiliaryData(AuxiliaryDataType::Document, name);
     }
     catch (const Exception &e) {
         e.showException();
@@ -625,13 +625,15 @@ void MaterialEditorView::bindingPropertiesChanged(const QList<BindingProperty> &
         requestPreviewRender();
 }
 
-void MaterialEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &)
+void MaterialEditorView::auxiliaryDataChanged(const ModelNode &node,
+                                              AuxiliaryDataKeyView key,
+                                              const QVariant &)
 {
 
     if (noValidSelection() || !node.isSelected())
         return;
 
-    m_qmlBackEnd->setValueforAuxiliaryProperties(m_selectedMaterial, name);
+    m_qmlBackEnd->setValueforAuxiliaryProperties(m_selectedMaterial, key);
 }
 
 // request render image for the selected material node

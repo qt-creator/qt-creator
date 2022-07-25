@@ -35,11 +35,6 @@
 
 namespace QmlDesigner {
 
-static const PropertyName customIdProperty = {("customId")};
-static const PropertyName annotationProperty = {("annotation")};
-static const PropertyName globalAnnotationProperty = {("globalAnnotation")};
-static const PropertyName globalAnnotationStatus = {("globalAnnotationStatus")};
-
 class QMLDESIGNERCORE_EXPORT GlobalAnnotationStatus
 {
 public:
@@ -118,6 +113,7 @@ class QMLDESIGNERCORE_EXPORT Annotation
 {
 public:
     Annotation();
+    Annotation(const QString &string) { fromQString(string); }
     ~Annotation() = default;
 
     QVector<Comment> comments() const;

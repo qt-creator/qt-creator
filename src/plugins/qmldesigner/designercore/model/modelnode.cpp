@@ -24,9 +24,7 @@
 ****************************************************************************/
 
 #include "modelnode.h"
-#include <abstractproperty.h>
-#include <model.h>
-#include <nodemetainfo.h>
+
 #include "internalnode_p.h"
 #include "invalidargumentexception.h"
 #include "invalididexception.h"
@@ -39,8 +37,13 @@
 #include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
 #include "nodeproperty.h"
-#include <rewriterview.h>
 #include "annotation.h"
+
+#include <abstractproperty.h>
+#include <auxiliarydataproperties.h>
+#include <model.h>
+#include <nodemetainfo.h>
+#include <rewriterview.h>
 
 #include <utils/algorithm.h>
 
@@ -1050,40 +1053,91 @@ QVariant ModelNode::toVariant() const
     return QVariant::fromValue(*this);
 }
 
-QVariant ModelNode::auxiliaryData(const PropertyName &name) const
+Utils::optional<QVariant> ModelNode::auxiliaryData(AuxiliaryDataKeyView key) const
 {
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-    return m_internalNode->auxiliaryData(name);
+    return m_internalNode->auxiliaryData(key);
 }
 
-void ModelNode::setAuxiliaryData(const PropertyName &name, const QVariant &data) const
+Utils::optional<QVariant> ModelNode::auxiliaryData(AuxiliaryDataType type,
+                                                   Utils::SmallStringView name) const
 {
-    Internal::WriteLocker locker(m_model.data());
-    m_model.data()->d->setAuxiliaryData(m_internalNode, name, data);
+    return auxiliaryData({type, name});
 }
 
-void ModelNode::setAuxiliaryDataWithoutLock(const PropertyName &name, const QVariant &data) const
+QVariant ModelNode::auxiliaryDataWithDefault(AuxiliaryDataType type, Utils::SmallStringView name) const
 {
-    m_model.data()->d->setAuxiliaryData(m_internalNode, name, data);
+    return auxiliaryDataWithDefault({type, name});
 }
 
-void ModelNode::removeAuxiliaryData(const PropertyName &name) const
-{
-    Internal::WriteLocker locker(m_model.data());
-    m_model.data()->d->removeAuxiliaryData(m_internalNode, name);
-}
-
-bool ModelNode::hasAuxiliaryData(const PropertyName &name) const
+QVariant ModelNode::auxiliaryDataWithDefault(AuxiliaryDataKeyView key) const
 {
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-    return m_internalNode->hasAuxiliaryData(name);
+    auto data = m_internalNode->auxiliaryData(key);
+
+    if (data)
+        return *data;
+
+    return {};
 }
 
-const QHash<PropertyName, QVariant> &ModelNode::auxiliaryData() const
+void ModelNode::setAuxiliaryData(AuxiliaryDataType type,
+                                 Utils::SmallStringView name,
+                                 const QVariant &data) const
+{
+    setAuxiliaryData({type, name}, data);
+}
+
+void ModelNode::setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data) const
+{
+    Internal::WriteLocker locker(m_model.data());
+    m_model->d->setAuxiliaryData(internalNode(), key, data);
+}
+
+void ModelNode::setAuxiliaryDataWithoutLock(AuxiliaryDataType type,
+                                            Utils::SmallStringView name,
+                                            const QVariant &data) const
+{
+    m_model->d->setAuxiliaryData(internalNode(), {type, name}, data);
+}
+
+void ModelNode::removeAuxiliaryData(AuxiliaryDataKeyView key) const
+{
+    Internal::WriteLocker locker(m_model.data());
+    m_model->d->removeAuxiliaryData(internalNode(), key);
+}
+
+void ModelNode::removeAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const
+{
+    removeAuxiliaryData({type, name});
+}
+
+bool ModelNode::hasAuxiliaryData(AuxiliaryDataKeyView key) const
+{
+    if (!isValid())
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    return m_internalNode->hasAuxiliaryData(key);
+}
+
+bool ModelNode::hasAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const
+{
+    return hasAuxiliaryData({type, name});
+}
+
+AuxiliaryDatasForType ModelNode::auxiliaryData(AuxiliaryDataType type) const
+{
+    if (!isValid())
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    return m_internalNode->auxiliaryData(type);
+}
+
+const AuxiliaryDatas &ModelNode::auxiliaryData() const
 {
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
@@ -1093,11 +1147,12 @@ const QHash<PropertyName, QVariant> &ModelNode::auxiliaryData() const
 
 QString ModelNode::customId() const
 {
-    QString result;
-    if (hasCustomId())
-        result = auxiliaryData(customIdProperty).value<QString>();
+    auto data = auxiliaryData(customIdProperty);
 
-    return result;
+    if (data)
+        return data->toString();
+
+    return {};
 }
 
 bool ModelNode::hasCustomId() const
@@ -1107,14 +1162,12 @@ bool ModelNode::hasCustomId() const
 
 void ModelNode::setCustomId(const QString &str)
 {
-    setAuxiliaryData(customIdProperty, QVariant::fromValue<QString>(str));
+    setAuxiliaryData(customIdProperty, QVariant::fromValue(str));
 }
 
 void ModelNode::removeCustomId()
 {
-    if (hasCustomId()) {
-        removeAuxiliaryData(customIdProperty);
-    }
+    removeAuxiliaryData(customIdProperty);
 }
 
 QVector<Comment> ModelNode::comments() const
@@ -1160,12 +1213,12 @@ bool ModelNode::updateComment(const Comment &com, int position)
 
 Annotation ModelNode::annotation() const
 {
-    Annotation result;
+    auto data = auxiliaryData(annotationProperty);
 
-    if (hasAnnotation())
-        result.fromQString(auxiliaryData(annotationProperty).value<QString>());
+    if (data)
+        return Annotation(data->toString());
 
-    return result;
+    return {};
 }
 
 bool ModelNode::hasAnnotation() const
@@ -1175,14 +1228,12 @@ bool ModelNode::hasAnnotation() const
 
 void ModelNode::setAnnotation(const Annotation &annotation)
 {
-    setAuxiliaryData(annotationProperty, QVariant::fromValue<QString>(annotation.toQString()));
+    setAuxiliaryData(annotationProperty, QVariant::fromValue(annotation.toQString()));
 }
 
 void ModelNode::removeAnnotation()
 {
-    if (hasAnnotation()) {
-        removeAuxiliaryData(annotationProperty);
-    }
+    removeAuxiliaryData(annotationProperty);
 }
 
 Annotation ModelNode::globalAnnotation() const
@@ -1190,10 +1241,12 @@ Annotation ModelNode::globalAnnotation() const
     Annotation result;
     ModelNode root = view()->rootModelNode();
 
-    if (hasGlobalAnnotation())
-        result.fromQString(root.auxiliaryData(globalAnnotationProperty).value<QString>());
+    auto data = root.auxiliaryData(globalAnnotationProperty);
 
-    return result;
+    if (data)
+        return Annotation(data->toString());
+
+    return {};
 }
 
 bool ModelNode::hasGlobalAnnotation() const
@@ -1204,14 +1257,12 @@ bool ModelNode::hasGlobalAnnotation() const
 void ModelNode::setGlobalAnnotation(const Annotation &annotation)
 {
     view()->rootModelNode().setAuxiliaryData(globalAnnotationProperty,
-                                             QVariant::fromValue<QString>(annotation.toQString()));
+                                             QVariant::fromValue(annotation.toQString()));
 }
 
 void ModelNode::removeGlobalAnnotation()
 {
-    if (hasGlobalAnnotation()) {
-        view()->rootModelNode().removeAuxiliaryData(globalAnnotationProperty);
-    }
+    view()->rootModelNode().removeAuxiliaryData(globalAnnotationProperty);
 }
 
 GlobalAnnotationStatus ModelNode::globalStatus() const
@@ -1219,9 +1270,10 @@ GlobalAnnotationStatus ModelNode::globalStatus() const
     GlobalAnnotationStatus result;
     ModelNode root = view()->rootModelNode();
 
-    if (hasGlobalAnnotation()) {
-        result.fromQString(root.auxiliaryData(globalAnnotationStatus).value<QString>());
-    }
+    auto data = root.auxiliaryData(globalAnnotationStatus);
+
+    if (data)
+        result.fromQString(data->value<QString>());
 
     return result;
 }
@@ -1234,7 +1286,7 @@ bool ModelNode::hasGlobalStatus() const
 void ModelNode::setGlobalStatus(const GlobalAnnotationStatus &status)
 {
     view()->rootModelNode().setAuxiliaryData(globalAnnotationStatus,
-                                             QVariant::fromValue<QString>(status.toQString()));
+                                             QVariant::fromValue(status.toQString()));
 }
 
 void ModelNode::removeGlobalStatus()
@@ -1246,8 +1298,10 @@ void ModelNode::removeGlobalStatus()
 
 bool ModelNode::locked() const
 {
-    if (hasLocked())
-        return auxiliaryData(lockedProperty).toBool();
+    auto data = auxiliaryData(lockedProperty);
+
+    if (data)
+        return data->toBool();
 
     return false;
 }
@@ -1264,8 +1318,8 @@ void ModelNode::setLocked(bool value)
         // Remove newly locked node and all its descendants from potential selection
         for (ModelNode node : allSubModelNodesAndThisNode()) {
             node.deselectNode();
-            node.removeAuxiliaryData("timeline_expanded");
-            node.removeAuxiliaryData("transition_expanded");
+            node.removeAuxiliaryData(timelineExpandedProperty);
+            node.removeAuxiliaryData(transitionExpandedPropery);
         }
     } else {
         removeAuxiliaryData(lockedProperty);

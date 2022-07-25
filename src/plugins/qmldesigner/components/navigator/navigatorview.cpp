@@ -403,10 +403,9 @@ void NavigatorView::nodeTypeChanged(const ModelNode &modelNode, const TypeName &
 }
 
 void NavigatorView::auxiliaryDataChanged(const ModelNode &modelNode,
-                                         [[maybe_unused]] const PropertyName &name,
+                                         [[maybe_unused]] AuxiliaryDataKeyView key,
                                          [[maybe_unused]] const QVariant &data)
 {
-
     m_currentModelInterface->notifyDataChanged(modelNode);
 }
 

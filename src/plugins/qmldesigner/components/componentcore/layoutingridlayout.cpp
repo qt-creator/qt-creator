@@ -426,7 +426,9 @@ void LayoutInGridLayout::fillEmptyCells()
             }
     m_layoutedNodes.append(m_spacerNodes);
 }
-
+namespace {
+constexpr AuxiliaryDataKeyView extraSpanningProperty{AuxiliaryDataType::Document, "extraSpanning"};
+}
 void LayoutInGridLayout::setSpanning(const ModelNode &layoutNode)
 {
     //Define a post layout operation to set columns/rows and the spanning
@@ -450,8 +452,8 @@ void LayoutInGridLayout::setSpanning(const ModelNode &layoutNode)
                 rowSpan = 1;
             }
 
-            if (modelNode.hasAuxiliaryData("extraSpanning"))
-                columnSpan += modelNode.auxiliaryData("extraSpanning").toInt();
+            if (auto data = modelNode.auxiliaryData(extraSpanningProperty))
+                columnSpan += data->toInt();
 
             if (columnSpan > 1)
                 qmlItemNode.setVariantProperty("Layout.columnSpan", columnSpan);
@@ -472,11 +474,11 @@ void LayoutInGridLayout::removeSpacersBySpanning(QList<ModelNode> &nodes)
                 m_layoutedNodes.removeAll(node);
                 nodes.removeAll(node);
                 ModelNode(node).destroy();
-                if (before.hasAuxiliaryData("extraSpanning")) {
-                    before.setAuxiliaryData("extraSpanning", before.auxiliaryData("extraSpanning").toInt() + 1);
-                } else {
-                    before.setAuxiliaryData("extraSpanning", 1);
-                }
+                auto extraSpanningData = before.auxiliaryData(extraSpanningProperty);
+                if (extraSpanningData)
+                    before.setAuxiliaryData(extraSpanningProperty, extraSpanningData->toInt() + 1);
+                else
+                    before.setAuxiliaryData(extraSpanningProperty, 1);
             }
         }
 

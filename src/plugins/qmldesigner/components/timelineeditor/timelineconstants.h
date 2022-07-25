@@ -72,8 +72,6 @@ const char C_CURVE_EDITOR[] = "QmlDesigner.CurveEditor";
 const char C_ZOOM_IN[] = "QmlDesigner.ZoomIn";
 const char C_ZOOM_OUT[] = "QmlDesigner.ZoomOut";
 
-const char C_BAR_ITEM_OVERRIDE[] = "Timeline.OverrideColor";
-
 const int keyFrameSize = 17;
 const int keyFrameMargin = 2;
 } // namespace TimelineConstants

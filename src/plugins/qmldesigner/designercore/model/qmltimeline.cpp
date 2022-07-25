@@ -24,15 +24,16 @@
 ****************************************************************************/
 
 #include "qmltimeline.h"
-#include "qmltimelinekeyframegroup.h"
 #include "abstractview.h"
-#include <nodelistproperty.h>
-#include <variantproperty.h>
-#include <nodelistproperty.h>
-#include <metainfo.h>
-#include <invalidmodelnodeexception.h>
 #include "bindingproperty.h"
 #include "qmlitemnode.h"
+#include "qmltimelinekeyframegroup.h"
+
+#include <auxiliarydataproperties.h>
+#include <invalidmodelnodeexception.h>
+#include <metainfo.h>
+#include <nodelistproperty.h>
+#include <variantproperty.h>
 
 #include <utils/qtcassert.h>
 
@@ -224,7 +225,7 @@ bool QmlTimeline::isRecording() const
 {
     QTC_ASSERT(isValid(), return false);
 
-    return modelNode().hasAuxiliaryData("Record@Internal");
+    return modelNode().hasAuxiliaryData(recordProperty);
 }
 
 void QmlTimeline::toogleRecording(bool record) const
@@ -233,9 +234,9 @@ void QmlTimeline::toogleRecording(bool record) const
 
     if (!record) {
         if (isRecording())
-            modelNode().removeAuxiliaryData("Record@Internal");
+            modelNode().removeAuxiliaryData(recordProperty);
     } else {
-        modelNode().setAuxiliaryData("Record@Internal", true);
+        modelNode().setAuxiliaryData(recordProperty, true);
     }
 }
 
@@ -301,7 +302,7 @@ void QmlTimeline::insertKeyframe(const ModelNode &target, const PropertyName &pr
 
     QTC_ASSERT(timelineFrames.isValid(), return );
 
-    const qreal frame = modelNode().auxiliaryData("currentFrame@NodeInstance").toReal();
+    const qreal frame = modelNode().auxiliaryData(currentFrameProperty)->toReal();
     const QVariant value = QmlObjectNode(targetNode).instanceValue(propertyName);
 
     timelineFrames.setValue(value, frame);

@@ -554,10 +554,15 @@ void QmlItemNode::setPostionInBaseState(const QPointF &position)
     modelNode().variantProperty("y").setValue(qRound(position.y()));
 }
 
+namespace {
+constexpr AuxiliaryDataKeyView flowXProperty{AuxiliaryDataType::Document, "flowX"};
+constexpr AuxiliaryDataKeyView flowYProperty{AuxiliaryDataType::Document, "flowY"};
+} // namespace
+
 void QmlItemNode::setFlowItemPosition(const QPointF &position)
 {
-    modelNode().setAuxiliaryData("flowX", position.x());
-    modelNode().setAuxiliaryData("flowY", position.y());
+    modelNode().setAuxiliaryData(flowXProperty, position.x());
+    modelNode().setAuxiliaryData(flowYProperty, position.y());
 }
 
 QPointF QmlItemNode::flowPosition() const
@@ -565,8 +570,8 @@ QPointF QmlItemNode::flowPosition() const
     if (!isValid())
         return QPointF();
 
-    return QPointF(modelNode().auxiliaryData("flowX").toInt(),
-                   modelNode().auxiliaryData("flowY").toInt());
+    return QPointF(modelNode().auxiliaryDataWithDefault(flowXProperty).toInt(),
+                   modelNode().auxiliaryDataWithDefault(flowYProperty).toInt());
 }
 
 bool QmlItemNode::isInLayout() const

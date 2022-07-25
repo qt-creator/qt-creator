@@ -28,6 +28,10 @@
 #include <QtGlobal>
 #include <QList>
 
+#include <utils/smallstringview.h>
+
+#include <nodeinstanceglobal.h>
+
 // Unnecessary since core isn't a dll any more.
 
 #if defined(QMLDESIGNER_LIBRARY)
@@ -62,4 +66,5 @@ enum AnchorLineType {
     AnchorLineVerticalMask = AnchorLineTop | AnchorLineBottom | AnchorLineVerticalCenter | AnchorLineBaseline,
     AnchorLineAllMask = AnchorLineVerticalMask | AnchorLineHorizontalMask
 };
-}
+
+} // namespace QmlDesigner

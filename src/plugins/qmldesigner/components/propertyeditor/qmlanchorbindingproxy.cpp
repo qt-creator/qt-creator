@@ -25,33 +25,44 @@
 
 #include "qmlanchorbindingproxy.h"
 
-#include <exception.h>
 #include <abstractview.h>
-#include <qmlanchors.h>
+#include <exception.h>
 #include <nodeabstractproperty.h>
-#include <variantproperty.h>
 #include <utils/qtcassert.h>
+#include <utils/smallstring.h>
+#include <variantproperty.h>
+#include <qmlanchors.h>
 
-
-#include <QtQml>
 #include <QDebug>
+#include <QtQml>
 
 namespace QmlDesigner {
 
 class ModelNode;
 class NodeState;
 
-const PropertyName auxDataString("anchors_");
+namespace {
+const Utils::SmallString auxDataString("anchors_");
+
+Utils::SmallString auxPropertyString(Utils::SmallStringView name)
+{
+    return auxDataString + name;
+}
+} // namespace
 
 static inline void backupPropertyAndRemove(const ModelNode &node, const PropertyName &propertyName)
 {
     if (node.hasVariantProperty(propertyName)) {
-        node.setAuxiliaryData(auxDataString + propertyName, node.variantProperty(propertyName).value());
+        node.setAuxiliaryData(AuxiliaryDataType::Document,
+                              auxPropertyString(propertyName),
+                              node.variantProperty(propertyName).value());
         node.removeProperty(propertyName);
 
     }
     if (node.hasBindingProperty(propertyName)) {
-        node.setAuxiliaryData(auxDataString + propertyName, QmlItemNode(node).instanceValue(propertyName));
+        node.setAuxiliaryData(AuxiliaryDataType::Document,
+                              auxPropertyString(propertyName),
+                              QmlItemNode(node).instanceValue(propertyName));
         node.removeProperty(propertyName);
     }
 }
@@ -59,8 +70,8 @@ static inline void backupPropertyAndRemove(const ModelNode &node, const Property
 
 static inline void restoreProperty(const ModelNode &node, const PropertyName &propertyName)
 {
-    if (node.hasAuxiliaryData(auxDataString + propertyName))
-        node.variantProperty(propertyName).setValue(node.auxiliaryData(auxDataString + propertyName));
+    if (auto value = node.auxiliaryData(AuxiliaryDataType::Document, auxPropertyString(propertyName)))
+        node.variantProperty(propertyName).setValue(*value);
 }
 
 namespace Internal {

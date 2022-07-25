@@ -103,7 +103,9 @@ public:
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) override;
     void nodeOrderChanged(const NodeListProperty &listProperty) override;
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
-    void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) override;
+    void auxiliaryDataChanged(const ModelNode &node,
+                              AuxiliaryDataKeyView key,
+                              const QVariant &data) override;
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
     void nodeSourceChanged(const ModelNode &modelNode, const QString &newNodeSource) override;
     void capturedData(const CapturedDataCommand &capturedData) override;

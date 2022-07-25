@@ -72,7 +72,7 @@ public:
     void emitSelectionToBeChanged();
     void emitSelectionChanged();
 
-    void setValueforAuxiliaryProperties(const QmlObjectNode &qmlObjectNode, const PropertyName &name);
+    void setValueforAuxiliaryProperties(const QmlObjectNode &qmlObjectNode, AuxiliaryDataKeyView key);
 
 private:
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,

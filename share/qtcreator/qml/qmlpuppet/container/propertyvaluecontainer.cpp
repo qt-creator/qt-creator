@@ -34,11 +34,16 @@ PropertyValueContainer::PropertyValueContainer()
 {
 }
 
-PropertyValueContainer::PropertyValueContainer(qint32 instanceId, const PropertyName &name, const QVariant &value, const TypeName &dynamicTypeName)
-    : m_instanceId(instanceId),
-    m_name(name),
-    m_value(value),
-    m_dynamicTypeName(dynamicTypeName)
+PropertyValueContainer::PropertyValueContainer(qint32 instanceId,
+                                               const PropertyName &name,
+                                               const QVariant &value,
+                                               const TypeName &dynamicTypeName,
+                                               AuxiliaryDataType auxiliaryDataType)
+    : m_instanceId(instanceId)
+    , m_name(name)
+    , m_value(value)
+    , m_dynamicTypeName(dynamicTypeName)
+    , m_auxiliaryDataType{auxiliaryDataType}
 {
 }
 
@@ -90,13 +95,19 @@ bool PropertyValueContainer::isReflected() const
     return m_isReflected;
 }
 
+AuxiliaryDataType PropertyValueContainer::auxiliaryDataType() const
+{
+    return m_auxiliaryDataType;
+}
+
 QDataStream &operator<<(QDataStream &out, const PropertyValueContainer &container)
 {
-    out << container.instanceId();
-    out << container.name();
-    out << container.value();
-    out << container.dynamicTypeName();
-    out << container.isReflected();
+    out << container.m_instanceId;
+    out << container.m_name;
+    out << container.m_value;
+    out << container.m_dynamicTypeName;
+    out << container.m_isReflected;
+    out << container.m_auxiliaryDataType;
 
     return out;
 }
@@ -108,17 +119,17 @@ QDataStream &operator>>(QDataStream &in, PropertyValueContainer &container)
     in >> container.m_value;
     in >> container.m_dynamicTypeName;
     in >> container.m_isReflected;
+    in >> container.m_auxiliaryDataType;
 
     return in;
 }
 
 bool operator ==(const PropertyValueContainer &first, const PropertyValueContainer &second)
 {
-    return first.m_instanceId == second.m_instanceId
-            && first.m_name == second.m_name
-            && first.m_value == second.m_value
-            && first.m_dynamicTypeName == second.m_dynamicTypeName
-            && first.m_isReflected == second.m_isReflected;
+    return first.m_instanceId == second.m_instanceId && first.m_name == second.m_name
+           && first.m_value == second.m_value && first.m_dynamicTypeName == second.m_dynamicTypeName
+           && first.m_isReflected == second.m_isReflected
+           && first.m_auxiliaryDataType == second.m_auxiliaryDataType;
 }
 
 bool operator <(const PropertyValueContainer &first, const PropertyValueContainer &second)

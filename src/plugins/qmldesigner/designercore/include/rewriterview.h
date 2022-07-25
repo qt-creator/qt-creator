@@ -114,7 +114,9 @@ public:
     void reactivateTextMofifierChangeSignals();
     void deactivateTextMofifierChangeSignals();
 
-    void auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data) override;
+    void auxiliaryDataChanged(const ModelNode &node,
+                              AuxiliaryDataKeyView key,
+                              const QVariant &data) override;
 
     Internal::ModelNodePositionStorage *positionStorage() const;
 

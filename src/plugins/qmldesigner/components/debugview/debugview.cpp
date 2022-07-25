@@ -38,6 +38,7 @@
 #include <qmlitemnode.h>
 
 #include <utils/algorithm.h>
+#include <utils/smallstringio.h>
 
 namespace   {
 const QString lineBreak = QStringLiteral("<br>");
@@ -242,6 +243,28 @@ void DebugView::rootNodeTypeChanged(const QString &type, int majorVersion, int m
     }
 }
 
+namespace {
+QTextStream &operator<<(QTextStream &stream, AuxiliaryDataType type)
+{
+    switch (type) {
+    case AuxiliaryDataType::None:
+        stream << "None";
+        break;
+    case AuxiliaryDataType::NodeInstance:
+        stream << "NodeInstance";
+        break;
+    case AuxiliaryDataType::Document:
+        stream << "Permanent";
+        break;
+    case AuxiliaryDataType::Temporary:
+        stream << "Temporary";
+        break;
+    }
+
+    return stream;
+}
+} // namespace
+
 void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*selectedNodeList*/,
                                      const QList<ModelNode> & /*lastSelectedNodeList*/)
 {
@@ -286,12 +309,14 @@ void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*sel
             message << lineBreak;
         }
 
-        const QHash<PropertyName, QVariant> data = selectedNode.auxiliaryData();
+        auto auxiliaryData = selectedNode.auxiliaryData();
 
-        PropertyNameList names = data.keys();
-        Utils::sort(names);
-        for (const PropertyName &name : qAsConst(names)) {
-            message << name << ' ' << data.value(name).toString() << lineBreak;
+        Utils::sort(auxiliaryData, [](const auto &first, const auto &second) {
+            return first.first < second.first;
+        });
+        for (const auto &element : auxiliaryData) {
+            message << element.first.type << ' ' << element.first.name.data() << ' '
+                    << element.second.toString() << lineBreak;
         }
 
         log("::selectedNodesChanged:", string);
@@ -315,7 +340,9 @@ void DebugView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
     }
 }
 
-void DebugView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data)
+void DebugView::auxiliaryDataChanged(const ModelNode &node,
+                                     AuxiliaryDataKeyView key,
+                                     const QVariant &data)
 {
     if (isDebugViewEnabled()) {
         QTextStream message;
@@ -323,7 +350,8 @@ void DebugView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &
         message.setString(&string);
 
         message << node;
-        message << name;
+        message << key.type;
+        message << QByteArray{key.name};
         message << data.toString();
 
         log("::auxiliaryDataChanged:", string);

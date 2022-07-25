@@ -8996,8 +8996,11 @@ static void checkNode(QmlJS::SimpleReaderNode::Ptr node, TestRewriterView *view)
     auto properties = node->properties();
 
     for (auto i = properties.begin(); i != properties.end(); ++i) {
-        if (i.key() != "i")
-            QCOMPARE(i.value().value, modelNode.auxiliaryData(i.key().toUtf8()));
+        if (i.key() != "i") {
+            QCOMPARE(i.value().value,
+                     modelNode.auxiliaryData(QmlDesigner::AuxiliaryDataType::Temporary,
+                                             i.key().toUtf8()));
+        }
     }
 
     checkChildNodes(node, view);
@@ -9038,11 +9041,11 @@ void tst_TestCore::writeAnnotations()
     ModelNode rootModelNode(testRewriterView->rootModelNode());
     QVERIFY(rootModelNode.isValid());
 
-    rootModelNode.setAuxiliaryData("x", 10);
+    rootModelNode.setAuxiliaryData(AuxiliaryDataType::Document, "x", 10);
     for (const auto &child : rootModelNode.allSubModelNodes()) {
-        child.setAuxiliaryData("x", 10);
-        child.setAuxiliaryData("test", true);
-        child.setAuxiliaryData("test2", "string");
+        child.setAuxiliaryData(AuxiliaryDataType::Document, "x", 10);
+        child.setAuxiliaryData(AuxiliaryDataType::Document, "test", true);
+        child.setAuxiliaryData(AuxiliaryDataType::Document, "test2", "string");
     }
 
     const QString metaSource = testRewriterView->auxiliaryDataAsQML();

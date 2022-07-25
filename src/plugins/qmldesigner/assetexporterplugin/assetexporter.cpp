@@ -40,6 +40,8 @@
 #include "projectexplorer/session.h"
 #include "projectexplorer/project.h"
 
+#include <auxiliarydataproperties.h>
+
 #include <QCryptographicHash>
 #include <QDir>
 #include <QJsonArray>
@@ -181,7 +183,7 @@ const QPixmap &AssetExporter::generateAsset(const ModelNode &node)
     if (m_cancelled)
         return nullPixmap;
 
-    const QString uuid = node.auxiliaryData(Constants::UuidAuxTag).toString();
+    const QString uuid = node.auxiliaryDataWithDefault(uuidProperty).toString();
     QTC_ASSERT(!uuid.isEmpty(), return nullPixmap);
 
     if (!m_assets.contains(uuid)) {
@@ -196,7 +198,7 @@ const QPixmap &AssetExporter::generateAsset(const ModelNode &node)
 Utils::FilePath AssetExporter::assetPath(const ModelNode &node, const Component *component,
                                          const QString &suffix) const
 {
-    const QString uuid = node.auxiliaryData(Constants::UuidAuxTag).toString();
+    const QString uuid = node.auxiliaryDataWithDefault(uuidProperty).toString();
     if (!component || uuid.isEmpty())
         return {};
 
@@ -324,7 +326,7 @@ void AssetExporter::preprocessQmlFile(const Utils::FilePath &path)
     }
 
     // Cache component UUID
-    const QString uuid = rootNode.auxiliaryData(Constants::UuidAuxTag).toString();
+    const QString uuid = rootNode.auxiliaryDataWithDefault(uuidProperty).toString();
     m_componentUuidCache[path.toString()] = uuid;
 }
 
@@ -334,11 +336,11 @@ bool AssetExporter::assignUuids(const ModelNode &root)
     // Return true if an assignment takes place.
     bool changed = false;
     for (const ModelNode &node : root.allSubModelNodesAndThisNode()) {
-        const QString uuid = node.auxiliaryData(Constants::UuidAuxTag).toString();
+        const QString uuid = node.auxiliaryDataWithDefault(uuidProperty).toString();
         if (uuid.isEmpty()) {
             // Assign an unique identifier to the node.
             QByteArray uuid = generateUuid(node);
-            node.setAuxiliaryData(Constants::UuidAuxTag, QString::fromLatin1(uuid));
+            node.setAuxiliaryData(uuidProperty, QString::fromLatin1(uuid));
             changed = true;
         }
     }

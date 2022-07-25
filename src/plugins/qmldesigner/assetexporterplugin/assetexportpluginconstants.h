@@ -24,13 +24,14 @@
 ****************************************************************************/
 #pragma once
 
+#include <auxiliarydata.h>
+
 namespace QmlDesigner {
 namespace Constants {
 
 const char EXPORT_QML[] = "Designer.ExportPlugin.ExportQml";
 
 const char TASK_CATEGORY_ASSET_EXPORT[] = "AssetExporter.Export";
-const char UuidAuxTag[] = "uuid";
 
 //***************************************************************************
 // Metadata tags

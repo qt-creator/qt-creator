@@ -25,7 +25,11 @@
 
 #pragma once
 
+#include "auxiliarydata.h"
 #include "qmldesignercorelib_global.h"
+
+#include <utils/optional.h>
+
 #include <QPointer>
 #include <QList>
 #include <QVector>
@@ -67,8 +71,13 @@ class Annotation;
 QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
 
 using PropertyListType = QList<QPair<PropertyName, QVariant> >;
+using AuxiliaryPropertyListType = QList<QPair<AuxiliaryDataKey, QVariant>>;
 
-static const PropertyName lockedProperty = {("locked")};
+inline constexpr AuxiliaryDataKeyView lockedProperty{AuxiliaryDataType::Document, "locked"};
+inline constexpr AuxiliaryDataKeyView timelineExpandedProperty{AuxiliaryDataType::Document,
+                                                               "timeline_expanded"};
+inline constexpr AuxiliaryDataKeyView transitionExpandedPropery{AuxiliaryDataType::Document,
+                                                                "transition_expanded"};
 
 class QMLDESIGNERCORE_EXPORT ModelNode
 {
@@ -191,12 +200,21 @@ public:
     static int variantUserType();
     QVariant toVariant() const;
 
-    QVariant auxiliaryData(const PropertyName &name) const;
-    void setAuxiliaryData(const PropertyName &name, const QVariant &data) const;
-    void setAuxiliaryDataWithoutLock(const PropertyName &name, const QVariant &data) const;
-    void removeAuxiliaryData(const PropertyName &name) const;
-    bool hasAuxiliaryData(const PropertyName &name) const;
-    const QHash<PropertyName, QVariant> &auxiliaryData() const;
+    Utils::optional<QVariant> auxiliaryData(AuxiliaryDataKeyView key) const;
+    Utils::optional<QVariant> auxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const;
+    QVariant auxiliaryDataWithDefault(AuxiliaryDataType type, Utils::SmallStringView name) const;
+    QVariant auxiliaryDataWithDefault(AuxiliaryDataKeyView key) const;
+    void setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data) const;
+    void setAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name, const QVariant &data) const;
+    void setAuxiliaryDataWithoutLock(AuxiliaryDataType type,
+                                     Utils::SmallStringView name,
+                                     const QVariant &data) const;
+    void removeAuxiliaryData(AuxiliaryDataKeyView key) const;
+    void removeAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const;
+    bool hasAuxiliaryData(AuxiliaryDataKeyView key) const;
+    bool hasAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const;
+    AuxiliaryDatasForType auxiliaryData(AuxiliaryDataType type) const;
+    const AuxiliaryDatas &auxiliaryData() const;
 
     QString customId() const;
     bool hasCustomId() const;

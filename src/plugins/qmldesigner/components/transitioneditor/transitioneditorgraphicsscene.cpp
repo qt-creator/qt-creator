@@ -41,6 +41,7 @@
 #include "timelinesectionitem.h"
 #include "timelineutils.h"
 
+#include <auxiliarydataproperties.h>
 #include <designdocumentview.h>
 #include <exception.h>
 #include <rewritertransaction.h>
@@ -148,7 +149,7 @@ void TransitionEditorGraphicsScene::invalidateLayout()
 void TransitionEditorGraphicsScene::setDuration(int duration)
 {
     if (m_transition.isValid())
-        m_transition.setAuxiliaryData("transitionDuration", duration);
+        m_transition.setAuxiliaryData(transitionDurationProperty, duration);
     m_layout->setDuration(duration);
     qreal scaling = m_layout->rulerScaling();
     setZoom(scaling);

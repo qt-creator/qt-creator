@@ -43,6 +43,9 @@ class AnimationCurve;
 class PropertyTreeItem;
 class TreeItem;
 
+inline constexpr AuxiliaryDataKeyView pinnedProperty{AuxiliaryDataType::Document, "pinned"};
+inline constexpr AuxiliaryDataKeyView unifiedProperty{AuxiliaryDataType::Document, "unified"};
+
 class CurveEditorModel : public TreeModel
 {
     Q_OBJECT

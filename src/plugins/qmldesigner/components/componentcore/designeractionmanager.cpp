@@ -629,13 +629,14 @@ public:
         }
     }
 };
-
+namespace {
 const char xProperty[] = "x";
 const char yProperty[] = "y";
 const char zProperty[] = "z";
 const char widthProperty[] = "width";
 const char heightProperty[] = "height";
 const char triggerSlot[] = "trigger";
+} // namespace
 
 using namespace SelectionContextFunctors;
 

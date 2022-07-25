@@ -31,16 +31,18 @@
 #include "edit3dviewconfig.h"
 #include "backgroundcolorselection.h"
 
+#include <auxiliarydataproperties.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 #include <designeractionmanager.h>
 #include <designersettings.h>
 #include <designmodecontext.h>
 #include <nodeinstanceview.h>
+#include <viewmanager.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignericons.h>
 #include <qmldesignerplugin.h>
-#include <viewmanager.h>
+
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -127,7 +129,7 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     if (sceneState.contains(sceneKey)) {
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
         edit3DWidget()->canvas()->updateActiveScene(newActiveScene);
-        rootModelNode().setAuxiliaryData("active3dScene@Internal", newActiveScene);
+        rootModelNode().setAuxiliaryData(active3dSceneProperty, newActiveScene);
     }
 
     if (sceneState.contains(selectKey))

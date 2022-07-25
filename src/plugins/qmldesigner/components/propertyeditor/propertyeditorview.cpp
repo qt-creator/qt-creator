@@ -556,11 +556,11 @@ void PropertyEditorView::commitAuxValueToModel(const PropertyName &propertyName,
     try {
         if (value.isValid()) {
             for (const ModelNode &node : m_selectedNode.view()->selectedModelNodes()) {
-                node.setAuxiliaryData(name, value);
+                node.setAuxiliaryData(AuxiliaryDataType::Document, name, value);
             }
         } else {
             for (const ModelNode &node : m_selectedNode.view()->selectedModelNodes()) {
-                node.removeAuxiliaryData(name);
+                node.removeAuxiliaryData(AuxiliaryDataType::Document, name);
             }
         }
     }
@@ -721,7 +721,9 @@ void PropertyEditorView::bindingPropertiesChanged(const QList<BindingProperty>& 
     }
 }
 
-void PropertyEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &)
+void PropertyEditorView::auxiliaryDataChanged(const ModelNode &node,
+                                              [[maybe_unused]] AuxiliaryDataKeyView key,
+                                              const QVariant &)
 {
 
     if (noValidSelection())
@@ -730,8 +732,7 @@ void PropertyEditorView::auxiliaryDataChanged(const ModelNode &node, const Prope
     if (!node.isSelected())
         return;
 
-    m_qmlBackEndForCurrentType->setValueforAuxiliaryProperties(m_selectedNode, name);
-
+    m_qmlBackEndForCurrentType->setValueforAuxiliaryProperties(m_selectedNode, key);
 }
 
 void PropertyEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangedHash)

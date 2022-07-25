@@ -109,7 +109,9 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
 
     if (is3DRoot) {
         if (auto libIcon = Utils::get_if<ImageCache::LibraryIconAuxiliaryData>(&auxiliaryData))
-            rewriterView.rootModelNode().setAuxiliaryData("isLibraryIcon@NodeInstance", libIcon->enable);
+            rewriterView.rootModelNode().setAuxiliaryData(AuxiliaryDataType::NodeInstance,
+                                                          "isLibraryIcon",
+                                                          libIcon->enable);
     }
 
     ModelNode stateNode = rewriterView.modelNodeForId(QString{state});

@@ -74,6 +74,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/smallstring.h>
 
 #include <QComboBox>
 #include <QCoreApplication>
@@ -95,7 +96,14 @@
 
 namespace QmlDesigner {
 
-const PropertyName auxDataString("anchors_");
+namespace {
+const Utils::SmallString auxDataString("anchors_");
+
+Utils::SmallString auxPropertyString(Utils::SmallStringView name)
+{
+    return auxDataString + name;
+}
+} // namespace
 
 static inline void reparentTo(const ModelNode &node, const QmlItemNode &parent)
 {
@@ -376,20 +384,24 @@ void reverse(const SelectionContext &selectionState)
 static inline void backupPropertyAndRemove(const ModelNode &node, const PropertyName &propertyName)
 {
     if (node.hasVariantProperty(propertyName)) {
-        node.setAuxiliaryData(auxDataString + propertyName, node.variantProperty(propertyName).value());
+        node.setAuxiliaryData(AuxiliaryDataType::Document,
+                              auxPropertyString(propertyName),
+                              node.variantProperty(propertyName).value());
         node.removeProperty(propertyName);
 
     }
     if (node.hasBindingProperty(propertyName)) {
-        node.setAuxiliaryData(auxDataString + propertyName, QmlItemNode(node).instanceValue(propertyName));
+        node.setAuxiliaryData(AuxiliaryDataType::Document,
+                              auxPropertyString(propertyName),
+                              QmlItemNode(node).instanceValue(propertyName));
         node.removeProperty(propertyName);
     }
 }
 
-static inline void restoreProperty(const ModelNode &node, const PropertyName &propertyName)
+static void restoreProperty(const ModelNode &node, const PropertyName &propertyName)
 {
-    if (node.hasAuxiliaryData(auxDataString + propertyName))
-        node.variantProperty(propertyName).setValue(node.auxiliaryData(auxDataString + propertyName));
+    if (auto data = node.auxiliaryData(AuxiliaryDataType::Document, auxPropertyString(propertyName)))
+        node.variantProperty(propertyName).setValue(*data);
 }
 
 void anchorsFill(const SelectionContext &selectionState)

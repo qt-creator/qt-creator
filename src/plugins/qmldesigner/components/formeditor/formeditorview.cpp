@@ -36,18 +36,19 @@
 #include "formeditorscene.h"
 #include "abstractcustomtool.h"
 
+#include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
-#include <variantproperty.h>
 #include <designersettings.h>
 #include <designmodecontext.h>
-#include <modelnode.h>
 #include <model.h>
+#include <modelnode.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <rewriterview.h>
-#include <qml3dnode.h>
+#include <variantproperty.h>
 #include <zoomaction.h>
+#include <qml3dnode.h>
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
@@ -125,9 +126,9 @@ void FormEditorView::setupFormEditorItemTree(const QmlItemNode &qmlItemNode)
         FormEditorItem *rootItem = m_scene->addFormEditorItem(qmlItemNode, FormEditorScene::Flow);
 
         ModelNode node = qmlItemNode.modelNode();
-        if (!node.hasAuxiliaryData("width") && !node.hasAuxiliaryData("height")) {
-            node.setAuxiliaryData("width", 10000);
-            node.setAuxiliaryData("height", 10000);
+        if (!node.hasAuxiliaryData(widthProperty) && !node.hasAuxiliaryData(heightProperty)) {
+            node.setAuxiliaryData(widthProperty, 10000);
+            node.setAuxiliaryData(heightProperty, 10000);
         }
 
         m_scene->synchronizeTransformation(rootItem);
@@ -604,11 +605,22 @@ void FormEditorView::registerTool(std::unique_ptr<AbstractCustomTool> &&tool)
     m_customTools.push_back(std::move(tool));
 }
 
-void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyName &name, const QVariant &data)
+namespace {
+
+template<typename Tuple>
+constexpr bool contains(const Tuple &tuple, AuxiliaryDataKeyView key)
+{
+    return std::apply([=](const auto &...keys) { return ((key == keys) || ...); }, tuple);
+}
+} // namespace
+
+void FormEditorView::auxiliaryDataChanged(const ModelNode &node,
+                                          AuxiliaryDataKeyView key,
+                                          const QVariant &data)
 {
     QmlItemNode item(node);
-    AbstractView::auxiliaryDataChanged(node, name, data);
-    if (name == "invisible") {
+
+    if (key == invisibleProperty) {
         if (FormEditorItem *item = scene()->itemForQmlItemNode(QmlItemNode(node))) {
             bool isInvisible = data.toBool();
             item->setVisible(!isInvisible);
@@ -616,29 +628,39 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node, const PropertyN
             if (isInvisible)
                 newNode.deselectNode();
         }
-    } else if (item.isFlowTransition() || item.isFlowActionArea()
-               || item.isFlowDecision() || item.isFlowWildcard()) {
+    } else if (item.isFlowTransition() || item.isFlowActionArea() || item.isFlowDecision()
+               || item.isFlowWildcard()) {
         if (FormEditorItem *editorItem = m_scene->itemForQmlItemNode(item)) {
             // Update the geomtry if one of the following auxiliary properties has changed
-            static const QStringList updateGeometryPropertyNames = {
-                "breakPoint", "bezier", "transitionBezier", "type", "tranitionType", "radius",
-                "transitionRadius", "labelPosition", "labelFlipSide", "inOffset", "outOffset",
-                "blockSize", "blockRadius", "showDialogLabel", "dialogLabelPosition"
-            };
-            if (updateGeometryPropertyNames.contains(QString::fromUtf8(name)))
+            auto updateGeometryPropertyNames = std::make_tuple(breakPointProperty,
+                                                               bezierProperty,
+                                                               transitionBezierProperty,
+                                                               typeProperty,
+                                                               transitionTypeProperty,
+                                                               radiusProperty,
+                                                               transitionRadiusProperty,
+                                                               labelPositionProperty,
+                                                               labelFlipSideProperty,
+                                                               inOffsetProperty,
+                                                               outOffsetProperty,
+                                                               blockSizeProperty,
+                                                               blockRadiusProperty,
+                                                               showDialogLabelProperty,
+                                                               dialogLabelPositionProperty);
+            if (contains(updateGeometryPropertyNames, key))
                 editorItem->updateGeometry();
 
             editorItem->update();
         }
     } else if (item.isFlowView() || item.isFlowItem()) {
         scene()->update();
-    } else if (name == "annotation" || name == "customId") {
+    } else if (key == annotationProperty || key == customIdProperty) {
         if (FormEditorItem *editorItem = scene()->itemForQmlItemNode(item)) {
             editorItem->update();
         }
     }
 
-    if (name == "FrameColor@Internal") {
+    if (key.name == "FrameColor") {
         if (FormEditorItem *editorItem = scene()->itemForQmlItemNode(item))
             editorItem->setFrameColor(data.value<QColor>());
     }
@@ -682,6 +704,10 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
     currentTool()->instancesCompleted(itemNodeList);
 }
 
+namespace {
+constexpr AuxiliaryDataKeyView autoSizeProperty{AuxiliaryDataType::Temporary, "autoSize"};
+}
+
 void FormEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangedHash)
 {
     QList<FormEditorItem*> changedItems;
@@ -700,19 +726,19 @@ void FormEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, Inf
                 if (qmlItemNode.instanceBoundingRect().isEmpty() &&
                         !(qmlItemNode.propertyAffectedByCurrentState("width")
                           && qmlItemNode.propertyAffectedByCurrentState("height"))) {
-                    if (!(rootModelNode().hasAuxiliaryData("width")))
-                        rootModelNode().setAuxiliaryData("width", rootElementInitWidth);
-                    if (!(rootModelNode().hasAuxiliaryData("height")))
-                        rootModelNode().setAuxiliaryData("height", rootElementInitHeight);
-                    rootModelNode().setAuxiliaryData("autoSize", true);
+                    if (!rootModelNode().hasAuxiliaryData(widthProperty))
+                        rootModelNode().setAuxiliaryData(widthProperty, rootElementInitWidth);
+                    if (!rootModelNode().hasAuxiliaryData(heightProperty))
+                        rootModelNode().setAuxiliaryData(heightProperty, rootElementInitHeight);
+                    rootModelNode().setAuxiliaryData(autoSizeProperty, true);
                     formEditorWidget()->updateActions();
                 } else {
-                    if (rootModelNode().hasAuxiliaryData("autoSize")
-                            && (qmlItemNode.propertyAffectedByCurrentState("width")
-                                || qmlItemNode.propertyAffectedByCurrentState("height"))) {
-                        rootModelNode().setAuxiliaryData("width", QVariant());
-                        rootModelNode().setAuxiliaryData("height", QVariant());
-                        rootModelNode().removeAuxiliaryData("autoSize");
+                    if (rootModelNode().hasAuxiliaryData(autoSizeProperty)
+                        && (qmlItemNode.propertyAffectedByCurrentState("width")
+                            || qmlItemNode.propertyAffectedByCurrentState("height"))) {
+                        rootModelNode().removeAuxiliaryData(widthProperty);
+                        rootModelNode().removeAuxiliaryData(heightProperty);
+                        rootModelNode().removeAuxiliaryData(autoSizeProperty);
                         formEditorWidget()->updateActions();
                     }
                 }

@@ -100,7 +100,7 @@ ModelNode AbstractView::createModelNode(const TypeName &typeName,
                                         int majorVersion,
                                         int minorVersion,
                                         const QList<QPair<PropertyName, QVariant>> &propertyList,
-                                        const QList<QPair<PropertyName, QVariant>> &auxPropertyList,
+                                        const AuxiliaryDatas &auxPropertyList,
                                         const QString &nodeSource,
                                         ModelNode::NodeSourceType nodeSourceType,
                                         const QString &behaviorPropertyName)
@@ -376,7 +376,9 @@ void AbstractView::usedImportsChanged(const QList<Import> &/*usedImports*/)
 {
 }
 
-void AbstractView::auxiliaryDataChanged(const ModelNode &/*node*/, const PropertyName &/*name*/, const QVariant &/*data*/)
+void AbstractView::auxiliaryDataChanged(const ModelNode & /*node*/,
+                                        AuxiliaryDataKeyView /*key*/,
+                                        const QVariant & /*data*/)
 {
 }
 
