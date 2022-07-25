@@ -96,12 +96,6 @@ QString StringTablePrivate::insert(const QString &string)
     if (string.isEmpty())
         return string;
 
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-#ifndef QT_NO_UNSHARABLE_CONTAINERS
-    QTC_ASSERT(const_cast<QString&>(string).data_ptr()->ref.isSharable(), return string);
-#endif
-#endif
-
     QMutexLocker locker(&m_lock);
     // From this point of time any possible new call to startGC() will be held until
     // we finish this function. So we are sure that after canceling the running GC() method now,
@@ -138,13 +132,8 @@ StringTable::~StringTable()
 
 static inline bool isQStringInUse(const QString &string)
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    auto data_ptr = const_cast<QString&>(string).data_ptr();
-    return data_ptr->ref.isShared() || data_ptr->ref.isStatic() /* QStringLiteral ? */;
-#else
     auto data_ptr = const_cast<QString&>(string).data_ptr();
     return data_ptr->isShared() || !data_ptr->isMutable() /* QStringLiteral ? */;
-#endif
 }
 
 void StringTablePrivate::GC(QFutureInterface<void> &futureInterface)
