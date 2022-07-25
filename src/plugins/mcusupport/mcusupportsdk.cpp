@@ -627,10 +627,9 @@ FilePath kitsPath(const FilePath &qtMcuSdkPath)
     return qtMcuSdkPath / "kits/";
 }
 
-static QFileInfoList targetDescriptionFiles(const FilePath &dir)
+static FilePaths targetDescriptionFiles(const FilePath &dir)
 {
-    const QDir kitsDir(kitsPath(dir).toString(), "*.json");
-    return kitsDir.entryInfoList();
+    return kitsPath(dir).dirEntries(Utils::FileFilter({"*.json"}, QDir::Files));
 }
 
 VersionDetection parseVersionDetection(const QJsonObject &packageEntry)
@@ -773,18 +772,16 @@ McuSdkRepository targetsAndPackages(const FilePath &qtForMCUSdkPath,
     QList<McuTargetDescription> descriptions;
     bool isLegacy{false};
 
-    auto descriptionFiles = targetDescriptionFiles(qtForMCUSdkPath);
-    for (const QFileInfo &fileInfo : descriptionFiles) {
-        QFile file(fileInfo.absoluteFilePath());
-        if (!file.open(QFile::ReadOnly))
+    const FilePaths descriptionFiles = targetDescriptionFiles(qtForMCUSdkPath);
+    for (const FilePath &filePath : descriptionFiles) {
+        if (!filePath.isReadableFile())
             continue;
-        const McuTargetDescription desc = parseDescriptionJson(file.readAll());
-        const auto pth = FilePath::fromUserInput(fileInfo.filePath());
+        const McuTargetDescription desc = parseDescriptionJson(filePath.fileContents());
         bool ok = false;
         const int compatVersion = desc.compatVersion.toInt(&ok);
         if (!desc.compatVersion.isEmpty() && ok && compatVersion > MAX_COMPATIBILITY_VERSION) {
             printMessage(McuTarget::tr("Skipped %1. Unsupported version \"%2\".")
-                             .arg(QDir::toNativeSeparators(pth.fileNameWithPathComponents(1)),
+                             .arg(QDir::toNativeSeparators(filePath.fileNameWithPathComponents(1)),
                                   desc.qulVersion),
                          false);
             continue;
@@ -801,7 +798,7 @@ McuSdkRepository targetsAndPackages(const FilePath &qtForMCUSdkPath,
                             .arg(desc.qulVersion, legacyVersion)
                       : McuTarget::tr("Unsupported version \"%1\".").arg(desc.qulVersion);
             printMessage(McuTarget::tr("Skipped %1. %2 Qt for MCUs version >= %3 required.")
-                             .arg(QDir::toNativeSeparators(pth.fileNameWithPathComponents(1)),
+                             .arg(QDir::toNativeSeparators(filePath.fileNameWithPathComponents(1)),
                                   qtcSupportText,
                                   McuSupportOptions::minimalQulVersion().toString()),
                          false);
