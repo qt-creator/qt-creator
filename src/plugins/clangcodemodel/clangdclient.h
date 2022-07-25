@@ -145,6 +145,8 @@ private:
     const CustomInspectorTabs createCustomInspectorTabs() override;
     TextEditor::RefactoringChangesData *createRefactoringChangesBackend() const override;
     LanguageClient::DiagnosticManager *createDiagnosticManager() override;
+    bool referencesShadowFile(const TextEditor::TextDocument *doc,
+                              const Utils::FilePath &candidate) override;
 
     class Private;
     class VirtualFunctionAssistProcessor;

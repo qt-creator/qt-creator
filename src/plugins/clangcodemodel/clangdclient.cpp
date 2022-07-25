@@ -1143,6 +1143,14 @@ DiagnosticManager *ClangdClient::createDiagnosticManager()
     return diagnosticManager;
 }
 
+bool ClangdClient::referencesShadowFile(const TextEditor::TextDocument *doc,
+                                        const Utils::FilePath &candidate)
+{
+    const QRegularExpression includeRex("#include.*" + candidate.fileName() + R"([>"])");
+    const QTextCursor includePos = doc->document()->find(includeRex);
+    return !includePos.isNull();
+}
+
 RefactoringChangesData *ClangdClient::createRefactoringChangesBackend() const
 {
     return new CppEditor::CppRefactoringChangesData(
