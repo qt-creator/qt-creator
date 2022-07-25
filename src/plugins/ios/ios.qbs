@@ -45,7 +45,6 @@ QtcPlugin {
         "iossettingspage.h",
         "iossettingswidget.cpp",
         "iossettingswidget.h",
-        "iossettingswidget.ui",
         "iossimulator.cpp",
         "iossimulator.h",
         "iostoolhandler.cpp",

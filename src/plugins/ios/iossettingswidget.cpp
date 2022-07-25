@@ -24,26 +24,37 @@
 ****************************************************************************/
 
 #include "iossettingswidget.h"
-#include "ui_iossettingswidget.h"
 
 #include "createsimulatordialog.h"
 #include "iosconfigurations.h"
+
+#include "iosconfigurations.h"
+#include "simulatorcontrol.h"
 #include "simulatorinfomodel.h"
 #include "simulatoroperationdialog.h"
 
 #include <utils/algorithm.h>
+#include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/runextensions.h>
 
+#include <QApplication>
+#include <QCheckBox>
 #include <QDateTime>
+#include <QFrame>
+#include <QGroupBox>
+#include <QHeaderView>
 #include <QInputDialog>
+#include <QLabel>
 #include <QMessageBox>
 #include <QPointer>
+#include <QPushButton>
 #include <QSortFilterProxyModel>
+#include <QTreeView>
 
 static const int simStartWarnCount = 4;
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 using namespace std::placeholders;
 
@@ -63,35 +74,92 @@ static void onSimOperation(const SimulatorInfo &simInfo, SimulatorOperationDialo
 }
 
 IosSettingsWidget::IosSettingsWidget()
-    : m_ui(new Ui::IosSettingsWidget)
 {
-    m_ui->setupUi(this);
+    resize(622, 456);
+    setWindowTitle(tr("iOS Configuration"));
+
+    m_deviceAskCheckBox = new QCheckBox(tr("Ask about devices not in developer mode"));
+    m_deviceAskCheckBox->setChecked(!IosConfigurations::ignoreAllDevices());
+
+    m_renameButton = new QPushButton(tr("Rename"));
+    m_renameButton->setEnabled(false);
+    m_renameButton->setToolTip(tr("Rename a simulator device."));
+
+    m_deleteButton = new QPushButton(tr("Delete"));
+    m_deleteButton->setEnabled(false);
+    m_deleteButton->setToolTip(tr("Delete simulator devices."));
+
+    m_resetButton = new QPushButton(tr("Reset"));
+    m_resetButton->setEnabled(false);
+    m_resetButton->setToolTip(tr("Reset contents and settings of simulator devices."));
+
+    auto line = new QFrame;
+    line->setFrameShadow(QFrame::Raised);
+    line->setFrameShape(QFrame::HLine);
+
+    auto createButton = new QPushButton(tr("Create"));
+    createButton->setToolTip(tr("Create a new simulator device."));
+
+    m_startButton = new QPushButton(tr("Start"));
+    m_startButton->setEnabled(false);
+    m_startButton->setToolTip(tr("Start simulator devices."));
+
     auto proxyModel = new QSortFilterProxyModel(this);
     proxyModel->setSourceModel(new SimulatorInfoModel(this));
-    m_ui->deviceView->setModel(proxyModel);
-    m_ui->deviceView->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    m_ui->pathWidget->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    m_ui->pathWidget->lineEdit()->setReadOnly(true);
-    m_ui->pathWidget->setFilePath(IosConfigurations::screenshotDir());
-    m_ui->pathWidget->addButton(tr("Screenshot"), this,
+
+    m_deviceView = new QTreeView;
+    m_deviceView->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Expanding);
+    m_deviceView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_deviceView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_deviceView->setSortingEnabled(true);
+    m_deviceView->setModel(proxyModel);
+    m_deviceView->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+
+    m_pathWidget = new Utils::PathChooser;
+    m_pathWidget->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    m_pathWidget->lineEdit()->setReadOnly(true);
+    m_pathWidget->setFilePath(IosConfigurations::screenshotDir());
+    m_pathWidget->addButton(tr("Screenshot"), this,
                                 std::bind(&IosSettingsWidget::onScreenshot, this));
 
-    m_ui->deviceAskCheckBox->setChecked(!IosConfigurations::ignoreAllDevices());
+    using namespace Utils::Layouting;
+    Column {
+        Group {
+            title(tr("Devices")),
+            Row { m_deviceAskCheckBox }
+        },
+        Group {
+            title(tr("Simulator")),
+            Column {
+                Row {
+                    m_deviceView,
+                    Column {
+                        createButton,
+                        st,  // FIXME: Better some fixed space?
+                        m_startButton,
+                        m_renameButton,
+                        m_resetButton,
+                        m_deleteButton,
+                        st
+                    },
+                },
+                line,
+                Row { tr("Screenshot directory:"), m_pathWidget }
+            }
+        }
+    }.attachTo(this);
 
-    connect(m_ui->startButton, &QPushButton::clicked, this, &IosSettingsWidget::onStart);
-    connect(m_ui->createButton, &QPushButton::clicked, this, &IosSettingsWidget::onCreate);
-    connect(m_ui->renameButton, &QPushButton::clicked, this, &IosSettingsWidget::onRename);
-    connect(m_ui->resetButton, &QPushButton::clicked, this, &IosSettingsWidget::onReset);
-    connect(m_ui->deleteButton, &QPushButton::clicked, this, &IosSettingsWidget::onDelete);
+    connect(m_startButton, &QPushButton::clicked, this, &IosSettingsWidget::onStart);
+    connect(createButton, &QPushButton::clicked, this, &IosSettingsWidget::onCreate);
+    connect(m_renameButton, &QPushButton::clicked, this, &IosSettingsWidget::onRename);
+    connect(m_resetButton, &QPushButton::clicked, this, &IosSettingsWidget::onReset);
+    connect(m_deleteButton, &QPushButton::clicked, this, &IosSettingsWidget::onDelete);
 
-    connect(m_ui->deviceView->selectionModel(), &QItemSelectionModel::selectionChanged, this,
-            &IosSettingsWidget::onSelectionChanged);
+    connect(m_deviceView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &IosSettingsWidget::onSelectionChanged);
 }
 
-IosSettingsWidget::~IosSettingsWidget()
-{
-    delete m_ui;
-}
+IosSettingsWidget::~IosSettingsWidget() = default;
 
 void IosSettingsWidget::apply()
 {
@@ -105,7 +173,7 @@ void IosSettingsWidget::apply()
  */
 void IosSettingsWidget::onStart()
 {
-    const SimulatorInfoList simulatorInfoList = selectedSimulators(m_ui->deviceView);
+    const SimulatorInfoList simulatorInfoList = selectedSimulators(m_deviceView);
     if (simulatorInfoList.isEmpty())
         return;
 
@@ -182,7 +250,7 @@ void IosSettingsWidget::onCreate()
  */
 void IosSettingsWidget::onReset()
 {
-    const SimulatorInfoList simulatorInfoList = selectedSimulators(m_ui->deviceView);
+    const SimulatorInfoList simulatorInfoList = selectedSimulators(m_deviceView);
     if (simulatorInfoList.isEmpty())
         return;
 
@@ -214,7 +282,7 @@ void IosSettingsWidget::onReset()
  */
 void IosSettingsWidget::onRename()
 {
-    const SimulatorInfoList simulatorInfoList = selectedSimulators(m_ui->deviceView);
+    const SimulatorInfoList simulatorInfoList = selectedSimulators(m_deviceView);
     if (simulatorInfoList.isEmpty() || simulatorInfoList.count() > 1)
         return;
 
@@ -240,7 +308,7 @@ void IosSettingsWidget::onRename()
  */
 void IosSettingsWidget::onDelete()
 {
-    const SimulatorInfoList simulatorInfoList = selectedSimulators(m_ui->deviceView);
+    const SimulatorInfoList simulatorInfoList = selectedSimulators(m_deviceView);
     if (simulatorInfoList.isEmpty())
         return;
 
@@ -271,14 +339,14 @@ void IosSettingsWidget::onDelete()
  */
 void IosSettingsWidget::onScreenshot()
 {
-    const SimulatorInfoList simulatorInfoList = selectedSimulators(m_ui->deviceView);
+    const SimulatorInfoList simulatorInfoList = selectedSimulators(m_deviceView);
     if (simulatorInfoList.isEmpty())
         return;
 
     const auto generatePath = [this](const SimulatorInfo &info) {
         const QString fileName = QString("%1_%2_%3.png").arg(info.name).arg(info.runtimeName)
                 .arg(QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss-z")).replace(' ', '_');
-        return m_ui->pathWidget->filePath().pathAppended(fileName).toString();
+        return m_pathWidget->filePath().pathAppended(fileName).toString();
     };
 
     QPointer<SimulatorOperationDialog> statusDialog = new SimulatorOperationDialog(this);
@@ -298,26 +366,25 @@ void IosSettingsWidget::onScreenshot()
 
 void IosSettingsWidget::onSelectionChanged()
 {
-    const SimulatorInfoList infoList = selectedSimulators(m_ui->deviceView);
+    const SimulatorInfoList infoList = selectedSimulators(m_deviceView);
     const bool hasRunning = Utils::anyOf(infoList, [](const SimulatorInfo &info) {
         return info.isBooted();
     });
     const bool hasShutdown = Utils::anyOf(infoList, [](const SimulatorInfo &info) {
         return info.isShutdown();
     });
-    m_ui->startButton->setEnabled(hasShutdown);
-    m_ui->deleteButton->setEnabled(hasShutdown);
-    m_ui->resetButton->setEnabled(hasShutdown);
-    m_ui->renameButton->setEnabled(infoList.count() == 1 && hasShutdown);
-    m_ui->pathWidget->buttonAtIndex(1)->setEnabled(hasRunning); // Screenshot button
+    m_startButton->setEnabled(hasShutdown);
+    m_deleteButton->setEnabled(hasShutdown);
+    m_resetButton->setEnabled(hasShutdown);
+    m_renameButton->setEnabled(infoList.count() == 1 && hasShutdown);
+    m_pathWidget->buttonAtIndex(1)->setEnabled(hasRunning); // Screenshot button
 }
 
 void IosSettingsWidget::saveSettings()
 {
-    IosConfigurations::setIgnoreAllDevices(!m_ui->deviceAskCheckBox->isChecked());
-    IosConfigurations::setScreenshotDir(m_ui->pathWidget->filePath());
+    IosConfigurations::setIgnoreAllDevices(!m_deviceAskCheckBox->isChecked());
+    IosConfigurations::setScreenshotDir(m_pathWidget->filePath());
 }
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal
 

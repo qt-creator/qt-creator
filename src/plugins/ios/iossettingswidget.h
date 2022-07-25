@@ -26,14 +26,20 @@
 #pragma once
 
 #include "iosconfigurations.h"
-#include "simulatorcontrol.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Ios {
-namespace Internal {
+#include <QCoreApplication>
 
-namespace Ui { class IosSettingsWidget; }
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QPushButton;
+class QTreeView;
+QT_END_NAMESPACE
+
+namespace Utils { class PathChooser; }
+
+namespace Ios::Internal {
 
 class IosSettingsWidget final : public Core::IOptionsPageWidget
 {
@@ -57,8 +63,13 @@ private:
     void onSelectionChanged();
 
 private:
-    Ui::IosSettingsWidget *m_ui = nullptr;
+    Utils::PathChooser *m_pathWidget;
+    QPushButton *m_startButton;
+    QPushButton *m_renameButton;
+    QPushButton *m_deleteButton;
+    QPushButton *m_resetButton;
+    QTreeView *m_deviceView;
+    QCheckBox *m_deviceAskCheckBox;
 };
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal
