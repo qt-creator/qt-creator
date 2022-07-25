@@ -83,6 +83,7 @@ static QString clangdUseGlobalSettingsKey() { return QLatin1String("useGlobalSet
 static QString sessionsWithOneClangdKey() { return QLatin1String("SessionsWithOneClangd"); }
 static QString diagnosticConfigIdKey() { return QLatin1String("diagnosticConfigId"); }
 static QString checkedHardwareKey() { return QLatin1String("checkedHardware"); }
+static QString completionResultsKey() { return QLatin1String("completionResults"); }
 
 static FilePath g_defaultClangdFilePath;
 static FilePath fallbackClangdFilePath()
@@ -489,6 +490,7 @@ QVariantMap ClangdSettings::Data::toMap() const
     map.insert(sessionsWithOneClangdKey(), sessionsWithOneClangd);
     map.insert(diagnosticConfigIdKey(), diagnosticConfigId.toSetting());
     map.insert(checkedHardwareKey(), true);
+    map.insert(completionResultsKey(), completionResults);
     return map;
 }
 
@@ -506,6 +508,7 @@ void ClangdSettings::Data::fromMap(const QVariantMap &map)
     diagnosticConfigId = Id::fromSetting(map.value(diagnosticConfigIdKey(),
                                                    initialClangDiagnosticConfigId().toSetting()));
     haveCheckedHardwareReqirements = map.value(checkedHardwareKey(), false).toBool();
+    completionResults = map.value(completionResultsKey(), kDefaultCompletionResults).toInt();
 }
 
 } // namespace CppEditor

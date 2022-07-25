@@ -178,6 +178,7 @@ public:
     QSpinBox threadLimitSpinBox;
     QSpinBox documentUpdateThreshold;
     QSpinBox sizeThresholdSpinBox;
+    QSpinBox completionResults;
     Utils::PathChooser clangdChooser;
     Utils::InfoLabel versionWarningLabel;
     ClangDiagnosticConfigsSelectionWidget *configSelectionWidget = nullptr;
@@ -224,6 +225,13 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             "Files greater than this will not be opened as documents in clangd.\n"
             "The built-in code model will handle highlighting, completion and so on."));
 
+    const auto completionResultsLabel = new QLabel(tr("Completion results:"));
+    d->completionResults.setMinimum(0);
+    d->completionResults.setMaximum(std::numeric_limits<int>::max());
+    d->completionResults.setValue(settings.completionResults());
+    d->completionResults.setToolTip(tr("The maximum number of completion results returned by clangd"));
+    d->completionResults.setSpecialValueText(tr("No limit"));
+
     const auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(&d->useClangdCheckBox);
@@ -245,6 +253,12 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     documentUpdateThresholdLayout->addStretch(1);
     const auto documentUpdateThresholdLabel = new QLabel(tr("Document update threshold:"));
     formLayout->addRow(documentUpdateThresholdLabel, documentUpdateThresholdLayout);
+
+    const auto limitResultsLayout = new QHBoxLayout;
+    limitResultsLayout->addWidget(&d->completionResults);
+    limitResultsLayout->addStretch(1);
+    formLayout->addRow(completionResultsLabel, limitResultsLayout);
+
     const auto sizeThresholdLayout = new QHBoxLayout;
     sizeThresholdLayout->addWidget(&d->sizeThresholdSpinBox);
     sizeThresholdLayout->addStretch(1);

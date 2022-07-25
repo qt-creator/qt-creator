@@ -93,6 +93,9 @@ class CPPEDITOR_EXPORT ClangdSettings : public QObject
 {
     Q_OBJECT
 public:
+    // Default clangd --limit-results value is 100
+    static const int kDefaultCompletionResults = 100;
+
     class CPPEDITOR_EXPORT Data
     {
     public:
@@ -112,7 +115,8 @@ public:
                     && s1.documentUpdateThreshold == s2.documentUpdateThreshold
                     && s1.sizeThresholdEnabled == s2.sizeThresholdEnabled
                     && s1.sizeThresholdInKb == s2.sizeThresholdInKb
-                    && s1.haveCheckedHardwareReqirements == s2.haveCheckedHardwareReqirements;
+                    && s1.haveCheckedHardwareReqirements == s2.haveCheckedHardwareReqirements
+                    && s1.completionResults == s2.completionResults;
         }
         friend bool operator!=(const Data &s1, const Data &s2) { return !(s1 == s2); }
 
@@ -128,6 +132,7 @@ public:
         bool autoIncludeHeaders = false;
         bool sizeThresholdEnabled = false;
         bool haveCheckedHardwareReqirements = false;
+        int completionResults = kDefaultCompletionResults;
     };
 
     ClangdSettings(const Data &data) : m_data(data) {}
@@ -148,6 +153,7 @@ public:
     int documentUpdateThreshold() const { return m_data.documentUpdateThreshold; }
     qint64 sizeThresholdInKb() const { return m_data.sizeThresholdInKb; }
     bool sizeThresholdEnabled() const { return m_data.sizeThresholdEnabled; }
+    int completionResults() const { return m_data.completionResults; }
     bool sizeIsOkay(const Utils::FilePath &fp) const;
     ClangDiagnosticConfigs customDiagnosticConfigs() const;
     Utils::Id diagnosticConfigId() const;
