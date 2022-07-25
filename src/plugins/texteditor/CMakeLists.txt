@@ -42,7 +42,7 @@ add_qtc_plugin(TextEditor
     codeassist/textdocumentmanipulatorinterface.h
     codestyleeditor.cpp codestyleeditor.h
     codestylepool.cpp codestylepool.h
-    codestyleselectorwidget.cpp codestyleselectorwidget.h codestyleselectorwidget.ui
+    codestyleselectorwidget.cpp codestyleselectorwidget.h
     colorpreviewhoverhandler.cpp colorpreviewhoverhandler.h
     colorscheme.cpp colorscheme.h
     colorschemeedit.cpp colorschemeedit.h colorschemeedit.ui

@@ -31,10 +31,14 @@
 
 #include <QWidget>
 
-namespace ProjectExplorer { class Project; }
-namespace TextEditor {
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QPushButton;
+QT_END_NAMESPACE
 
-namespace Internal { namespace Ui { class CodeStyleSelectorWidget; } }
+namespace ProjectExplorer { class Project; }
+
+namespace TextEditor {
 
 class ICodeStylePreferences;
 class ICodeStylePreferencesFactory;
@@ -69,9 +73,12 @@ private:
 
     QString displayName(ICodeStylePreferences *codeStyle) const;
 
-    Internal::Ui::CodeStyleSelectorWidget *m_ui;
-
     Utils::Guard m_ignoreChanges;
+
+    QComboBox *m_delegateComboBox;
+    QPushButton *m_removeButton;
+    QPushButton *m_exportButton;
+    QPushButton *m_importButton;
 };
 
 } // namespace TextEditor

@@ -24,23 +24,26 @@
 ****************************************************************************/
 
 #include "codestyleselectorwidget.h"
-#include "ui_codestyleselectorwidget.h"
+
 #include "icodestylepreferences.h"
 #include "icodestylepreferencesfactory.h"
 #include "codestylepool.h"
 #include "tabsettings.h"
 
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 
-#include <QPushButton>
-#include <QDialogButtonBox>
+#include <QApplication>
+#include <QBoxLayout>
+#include <QComboBox>
+#include <QDebug>
 #include <QDialog>
+#include <QDialogButtonBox>
+#include <QFileDialog>
 #include <QInputDialog>
 #include <QLabel>
 #include <QMessageBox>
-#include <QFileDialog>
-
-#include <QDebug>
+#include <QPushButton>
 
 using namespace TextEditor;
 using namespace Utils;
@@ -165,30 +168,57 @@ CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *f
     : QWidget(parent)
     , m_factory(factory)
     , m_project(project)
-    , m_ui(new Internal::Ui::CodeStyleSelectorWidget)
 {
-    m_ui->setupUi(this);
-    m_ui->importButton->setEnabled(false);
-    m_ui->exportButton->setEnabled(false);
+    resize(536, 59);
 
-    connect(m_ui->delegateComboBox, QOverload<int>::of(&QComboBox::activated),
+    m_delegateComboBox = new QComboBox(this);
+    m_delegateComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+    auto copyButton = new QPushButton(tr("Copy..."));
+    auto editButton = new QPushButton(tr("Edit..."));
+
+    m_removeButton = new QPushButton(tr("Remove"));
+
+    m_exportButton = new QPushButton(tr("Export..."));
+    m_exportButton->setEnabled(false);
+
+    m_importButton = new QPushButton(tr("Import..."));
+    m_importButton->setEnabled(false);
+
+
+    using namespace Utils::Layouting;
+
+    Column {
+        Grid {
+            tr("Current settings:"),
+            m_delegateComboBox,
+            copyButton,
+            editButton,
+            m_removeButton,
+            m_exportButton,
+            br,
+
+            Span(5, Space(1)),
+            m_importButton
+        },
+
+    }.attachTo(this, false);
+
+    connect(m_delegateComboBox, &QComboBox::activated,
             this, &CodeStyleSelectorWidget::slotComboBoxActivated);
-    connect(m_ui->copyButton, &QAbstractButton::clicked,
+    connect(copyButton, &QAbstractButton::clicked,
             this, &CodeStyleSelectorWidget::slotCopyClicked);
-    connect(m_ui->editButton, &QAbstractButton::clicked,
+    connect(editButton, &QAbstractButton::clicked,
             this, &CodeStyleSelectorWidget::slotEditClicked);
-    connect(m_ui->removeButton, &QAbstractButton::clicked,
+    connect(m_removeButton, &QAbstractButton::clicked,
             this, &CodeStyleSelectorWidget::slotRemoveClicked);
-    connect(m_ui->importButton, &QAbstractButton::clicked,
+    connect(m_importButton, &QAbstractButton::clicked,
             this, &CodeStyleSelectorWidget::slotImportClicked);
-    connect(m_ui->exportButton, &QAbstractButton::clicked,
+    connect(m_exportButton, &QAbstractButton::clicked,
             this, &CodeStyleSelectorWidget::slotExportClicked);
 }
 
-CodeStyleSelectorWidget::~CodeStyleSelectorWidget()
-{
-    delete m_ui;
-}
+CodeStyleSelectorWidget::~CodeStyleSelectorWidget() = default;
 
 void CodeStyleSelectorWidget::setCodeStyle(ICodeStylePreferences *codeStyle)
 {
@@ -207,9 +237,9 @@ void CodeStyleSelectorWidget::setCodeStyle(ICodeStylePreferences *codeStyle)
         disconnect(m_codeStyle, &ICodeStylePreferences::currentDelegateChanged,
                 this, &CodeStyleSelectorWidget::slotCurrentDelegateChanged);
 
-        m_ui->exportButton->setEnabled(false);
-        m_ui->importButton->setEnabled(false);
-        m_ui->delegateComboBox->clear();
+        m_exportButton->setEnabled(false);
+        m_importButton->setEnabled(false);
+        m_delegateComboBox->clear();
     }
     m_codeStyle = codeStyle;
     // fillup new
@@ -223,8 +253,8 @@ void CodeStyleSelectorWidget::setCodeStyle(ICodeStylePreferences *codeStyle)
                     this, &CodeStyleSelectorWidget::slotCodeStyleAdded);
             connect(codeStylePool, &CodeStylePool::codeStyleRemoved,
                     this, &CodeStyleSelectorWidget::slotCodeStyleRemoved);
-            m_ui->exportButton->setEnabled(true);
-            m_ui->importButton->setEnabled(true);
+            m_exportButton->setEnabled(true);
+            m_importButton->setEnabled(true);
         }
 
         for (int i = 0; i < delegates.count(); i++)
@@ -242,9 +272,9 @@ void CodeStyleSelectorWidget::slotComboBoxActivated(int index)
     if (m_ignoreChanges.isLocked())
         return;
 
-    if (index < 0 || index >= m_ui->delegateComboBox->count())
+    if (index < 0 || index >= m_delegateComboBox->count())
         return;
-    auto delegate = m_ui->delegateComboBox->itemData(index).value<ICodeStylePreferences *>();
+    auto delegate = m_delegateComboBox->itemData(index).value<ICodeStylePreferences *>();
 
     QSignalBlocker blocker(this);
     m_codeStyle->setCurrentDelegate(delegate);
@@ -254,11 +284,12 @@ void CodeStyleSelectorWidget::slotCurrentDelegateChanged(ICodeStylePreferences *
 {
     {
         const GuardLocker locker(m_ignoreChanges);
-        m_ui->delegateComboBox->setCurrentIndex(m_ui->delegateComboBox->findData(QVariant::fromValue(delegate)));
-        m_ui->delegateComboBox->setToolTip(m_ui->delegateComboBox->currentText());
+        m_delegateComboBox->setCurrentIndex(m_delegateComboBox->findData(QVariant::fromValue(delegate)));
+        m_delegateComboBox->setToolTip(m_delegateComboBox->currentText());
     }
+
     const bool removeEnabled = delegate && !delegate->isReadOnly() && !delegate->currentDelegate();
-    m_ui->removeButton->setEnabled(removeEnabled);
+    m_removeButton->setEnabled(removeEnabled);
 }
 
 void CodeStyleSelectorWidget::slotCopyClicked()
@@ -369,8 +400,8 @@ void CodeStyleSelectorWidget::slotCodeStyleAdded(ICodeStylePreferences *codeStyl
 
     const QVariant data = QVariant::fromValue(codeStylePreferences);
     const QString name = displayName(codeStylePreferences);
-    m_ui->delegateComboBox->addItem(name, data);
-    m_ui->delegateComboBox->setItemData(m_ui->delegateComboBox->count() - 1, name, Qt::ToolTipRole);
+    m_delegateComboBox->addItem(name, data);
+    m_delegateComboBox->setItemData(m_delegateComboBox->count() - 1, name, Qt::ToolTipRole);
     connect(codeStylePreferences, &ICodeStylePreferences::displayNameChanged,
             this, [this, codeStylePreferences] { slotUpdateName(codeStylePreferences); });
     if (codeStylePreferences->delegatingPool()) {
@@ -382,7 +413,7 @@ void CodeStyleSelectorWidget::slotCodeStyleAdded(ICodeStylePreferences *codeStyl
 void CodeStyleSelectorWidget::slotCodeStyleRemoved(ICodeStylePreferences *codeStylePreferences)
 {
     const GuardLocker locker(m_ignoreChanges);
-    m_ui->delegateComboBox->removeItem(m_ui->delegateComboBox->findData(
+    m_delegateComboBox->removeItem(m_delegateComboBox->findData(
                                            QVariant::fromValue(codeStylePreferences)));
     disconnect(codeStylePreferences, &ICodeStylePreferences::displayNameChanged, this, nullptr);
     if (codeStylePreferences->delegatingPool()) {
@@ -402,18 +433,18 @@ void CodeStyleSelectorWidget::slotUpdateName(ICodeStylePreferences *codeStylePre
             updateName(codeStyle);
     }
 
-    m_ui->delegateComboBox->setToolTip(m_ui->delegateComboBox->currentText());
+    m_delegateComboBox->setToolTip(m_delegateComboBox->currentText());
 }
 
 void CodeStyleSelectorWidget::updateName(ICodeStylePreferences *codeStyle)
 {
-    const int idx = m_ui->delegateComboBox->findData(QVariant::fromValue(codeStyle));
+    const int idx = m_delegateComboBox->findData(QVariant::fromValue(codeStyle));
     if (idx < 0)
         return;
 
     const QString name = displayName(codeStyle);
-    m_ui->delegateComboBox->setItemText(idx, name);
-    m_ui->delegateComboBox->setItemData(idx, name, Qt::ToolTipRole);
+    m_delegateComboBox->setItemText(idx, name);
+    m_delegateComboBox->setItemData(idx, name, Qt::ToolTipRole);
 }
 
 QString CodeStyleSelectorWidget::displayName(ICodeStylePreferences *codeStyle) const
