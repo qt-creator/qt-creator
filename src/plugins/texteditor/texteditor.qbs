@@ -119,7 +119,6 @@ Project {
             "tabsettings.h",
             "tabsettingswidget.cpp",
             "tabsettingswidget.h",
-            "tabsettingswidget.ui",
             "textdocument.cpp",
             "textdocument.h",
             "textdocumentlayout.cpp",

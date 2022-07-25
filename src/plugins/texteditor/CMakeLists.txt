@@ -90,7 +90,7 @@ add_qtc_plugin(TextEditor
     storagesettings.cpp storagesettings.h
     syntaxhighlighter.cpp syntaxhighlighter.h
     tabsettings.cpp tabsettings.h
-    tabsettingswidget.cpp tabsettingswidget.h tabsettingswidget.ui
+    tabsettingswidget.cpp tabsettingswidget.h
     textdocument.cpp textdocument.h
     textdocumentlayout.cpp textdocumentlayout.h
     texteditor.cpp texteditor.h

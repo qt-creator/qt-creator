@@ -29,9 +29,13 @@
 
 #include <QGroupBox>
 
-namespace TextEditor {
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QLabel;
+class QSpinBox;
+QT_END_NAMESPACE
 
-namespace Internal { namespace Ui { class TabSettingsWidget; } }
+namespace TextEditor {
 
 class TabSettings;
 
@@ -61,7 +65,11 @@ private:
     void slotSettingsChanged();
     void codingStyleLinkActivated(const QString &linkString);
 
-    Internal::Ui::TabSettingsWidget *ui;
+    QLabel *m_codingStyleWarning;
+    QComboBox *m_tabPolicy;
+    QSpinBox *m_tabSize;
+    QSpinBox *m_indentSize;
+    QComboBox *m_continuationAlignBehavior;
 };
 
 } // namespace TextEditor
