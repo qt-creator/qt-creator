@@ -1362,8 +1362,21 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         } else if (auto script = AST::cast<AST::UiScriptBinding *>(member)) {
             modelPropertyNames.remove(syncScriptBinding(modelNode, QString(), script, context, differenceHandler));
         } else if (auto property = AST::cast<AST::UiPublicMember *>(member)) {
-            if (property->type == AST::UiPublicMember::Signal)
-                continue; // QML designer doesn't support this yet.
+            if (property->type == AST::UiPublicMember::Signal) {
+                const QStringView astName = property->name;
+                AbstractProperty modelProperty = modelNode.property(astName.toUtf8());
+                QString signature = "()";
+                if (property->parameters) {
+                    signature = "("
+                                + textAt(context->doc(),
+                                         property->parameters->firstSourceLocation(),
+                                         property->parameters->lastSourceLocation())
+                                + ")";
+                }
+
+                syncSignalDeclarationProperty(modelProperty, signature, differenceHandler);
+                continue; // Done
+            }
 
             const QStringView astName = property->name;
             QString astValue;
@@ -1698,6 +1711,19 @@ void TextToModelMerger::syncVariantProperty(AbstractProperty &modelProperty,
     }
 }
 
+void TextToModelMerger::syncSignalDeclarationProperty(AbstractProperty &modelProperty,
+                                            const QString &signature,
+                                            DifferenceHandler &differenceHandler)
+{
+    if (modelProperty.isSignalHandlerProperty()) {
+        SignalDeclarationProperty signalHandlerProperty = modelProperty.toSignalDeclarationProperty();
+        if (signalHandlerProperty.signature() != signature)
+            differenceHandler.signalDeclarationSignatureDiffer(signalHandlerProperty, signature);
+    } else {
+        differenceHandler.shouldBeSignalDeclarationProperty(modelProperty, signature);
+    }
+}
+
 void TextToModelMerger::syncNodeListProperty(NodeListProperty &modelListProperty,
                                              const QList<AST::UiObjectMember *> arrayMembers,
                                              ReadingContext *context,
@@ -1832,10 +1858,26 @@ void ModelValidator::signalHandlerSourceDiffer([[maybe_unused]] SignalHandlerPro
     QTC_ASSERT(compareJavaScriptExpression(modelProperty.source(), javascript), return);
 }
 
+void ModelValidator::signalDeclarationSignatureDiffer(SignalDeclarationProperty &modelProperty,
+                                                      const QString &signature)
+{
+    Q_UNUSED(modelProperty)
+    Q_UNUSED(signature)
+    QTC_ASSERT(compareJavaScriptExpression(modelProperty.signature(), signature), return);
+}
+
 void ModelValidator::shouldBeSignalHandlerProperty([[maybe_unused]] AbstractProperty &modelProperty,
                                                    const QString & /*javascript*/)
 {
     Q_ASSERT(modelProperty.isSignalHandlerProperty());
+    Q_ASSERT(0);
+}
+
+void ModelValidator::shouldBeSignalDeclarationProperty(AbstractProperty &modelProperty,
+                                                       const QString & /*javascript*/)
+{
+    Q_UNUSED(modelProperty)
+    Q_ASSERT(modelProperty.isSignalDeclarationProperty());
     Q_ASSERT(0);
 }
 
@@ -1971,11 +2013,23 @@ void ModelAmender::signalHandlerSourceDiffer(SignalHandlerProperty &modelPropert
     modelProperty.setSource(javascript);
 }
 
+void ModelAmender::signalDeclarationSignatureDiffer(SignalDeclarationProperty &modelProperty, const QString &signature)
+{
+    modelProperty.setSignature(signature);
+}
+
 void ModelAmender::shouldBeSignalHandlerProperty(AbstractProperty &modelProperty, const QString &javascript)
 {
     ModelNode theNode = modelProperty.parentModelNode();
     SignalHandlerProperty newModelProperty = theNode.signalHandlerProperty(modelProperty.name());
     newModelProperty.setSource(javascript);
+}
+
+void ModelAmender::shouldBeSignalDeclarationProperty(AbstractProperty &modelProperty, const QString &signature)
+{
+    ModelNode theNode = modelProperty.parentModelNode();
+    SignalDeclarationProperty newModelProperty = theNode.signalDeclarationProperty(modelProperty.name());
+    newModelProperty.setSignature(signature);
 }
 
 void ModelAmender::shouldBeNodeListProperty(AbstractProperty &modelProperty,

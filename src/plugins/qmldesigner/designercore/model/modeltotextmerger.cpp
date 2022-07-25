@@ -357,6 +357,8 @@ QmlRefactoring::PropertyType ModelToTextMerger::propertyType(const AbstractPrope
         return QmlRefactoring::ObjectBinding;
     else if (property.isVariantProperty())
         return QmlRefactoring::ScriptBinding;
+    else if (property.isSignalDeclarationProperty())
+        return QmlRefactoring::ScriptBinding;
 
     Q_ASSERT(false); //Cannot convert property type
     return QmlRefactoring::Invalid;

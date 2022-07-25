@@ -613,6 +613,10 @@ Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *erro
             auto setKitWithVersion = [&](int qtMajorVersion) {
                 const QList<Kit *> qtVersionkits
                     = Utils::filtered(kits, [qtMajorVersion](const Kit *k) {
+                          if (!k->isAutoDetected())
+                              return false;
+                          if (k->isReplacementKit())
+                              return false;
                           QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
                           return (version && version->qtVersion().majorVersion == qtMajorVersion);
                       });

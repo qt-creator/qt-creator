@@ -101,6 +101,8 @@ QString QmlTextGenerator::toQml(const AbstractProperty &property, int indentDept
         return property.toBindingProperty().expression();
     } else if (property.isSignalHandlerProperty()) {
         return property.toSignalHandlerProperty().source();
+    } else if (property.isSignalDeclarationProperty()) {
+        return property.toSignalDeclarationProperty().signature();
     } else if (property.isNodeProperty()) {
         return toQml(property.toNodeProperty().modelNode(), indentDepth);
     } else if (property.isNodeListProperty()) {
@@ -288,6 +290,10 @@ QString QmlTextGenerator::propertyToQml(const AbstractProperty &property, int in
                     + QString::fromUtf8(property.name())
                     + QStringLiteral(": ")
                     + toQml(property, indentDepth);
+        }
+        if (property.isSignalDeclarationProperty()) {
+            result = m_tabSettings.indentationString(0, indentDepth, 0) + "signal" + " "
+                     + QString::fromUtf8(property.name()) + " " + toQml(property, indentDepth);
         } else {
             result = m_tabSettings.indentationString(0, indentDepth, 0)
                     + QString::fromUtf8(property.name())

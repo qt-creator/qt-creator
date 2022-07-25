@@ -54,6 +54,7 @@ class InternalNode;
 class InternalProperty;
 class InternalBindingProperty;
 class InternalSignalHandlerProperty;
+class InternalSignalDeclarationProperty;
 class InternalVariantProperty;
 class InternalNodeAbstractProperty;
 class InternalNodeListProperty;
@@ -62,6 +63,7 @@ using InternalNodePointer = QSharedPointer<InternalNode>;
 using InternalPropertyPointer = QSharedPointer<InternalProperty>;
 using InternalBindingPropertyPointer = QSharedPointer<InternalBindingProperty>;
 using InternalSignalHandlerPropertyPointer = QSharedPointer<InternalSignalHandlerProperty>;
+using InternalSignalDeclarationPropertyPointer = QSharedPointer<InternalSignalDeclarationProperty>;
 using InternalVariantPropertyPointer = QSharedPointer<InternalVariantProperty>;
 using InternalNodeAbstractPropertyPointer = QSharedPointer<InternalNodeAbstractProperty>;
 using InternalNodeListPropertyPointer = QSharedPointer<InternalNodeListProperty>;
@@ -155,6 +157,7 @@ public:
         const QList<InternalBindingPropertyPointer> &internalPropertyList);
     void notifyBindingPropertiesChanged(const QList<InternalBindingPropertyPointer> &internalPropertyList, AbstractView::PropertyChangeFlags propertyChange);
     void notifySignalHandlerPropertiesChanged(const QVector<InternalSignalHandlerPropertyPointer> &propertyList, AbstractView::PropertyChangeFlags propertyChange);
+    void notifySignalDeclarationPropertiesChanged(const QVector<InternalSignalDeclarationPropertyPointer> &propertyList, AbstractView::PropertyChangeFlags propertyChange);
     void notifyVariantPropertiesChanged(const InternalNodePointer &node, const PropertyNameList &propertyNameList, AbstractView::PropertyChangeFlags propertyChange);
     void notifyScriptFunctionsChanged(const InternalNodePointer &node, const QStringList &scriptFunctionList);
 
@@ -222,6 +225,7 @@ public:
 
     void setBindingProperty(const InternalNodePointer &node, const PropertyName &name, const QString &expression);
     void setSignalHandlerProperty(const InternalNodePointer &node, const PropertyName &name, const QString &source);
+    void setSignalDeclarationProperty(const InternalNodePointer &node, const PropertyName &name, const QString &signature);
     void setVariantProperty(const InternalNodePointer &node, const PropertyName &name, const QVariant &value);
     void setDynamicVariantProperty(const InternalNodePointer &node, const PropertyName &name, const TypeName &propertyType, const QVariant &value);
     void setDynamicBindingProperty(const InternalNodePointer &node, const PropertyName &name, const TypeName &dynamicPropertyType, const QString &expression);

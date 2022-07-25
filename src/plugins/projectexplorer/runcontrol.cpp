@@ -1392,19 +1392,17 @@ void SimpleTargetRunnerPrivate::start()
 {
     const bool isLocal = !m_command.executable().needsDevice();
 
+    CommandLine cmdLine = m_command;
+    Environment env = m_environment;
+
     m_resultData = {};
     QTC_ASSERT(m_state == Inactive, return);
 
     if (isLocal) {
-        Environment env = m_environment;
         if (m_runAsRoot)
             RunControl::provideAskPassEntry(env);
 
-        m_process.setEnvironment(env);
-
         WinDebugInterface::startIfNeeded();
-
-        CommandLine cmdLine = m_command;
 
         if (HostOsInfo::isMacHost()) {
             CommandLine disclaim(Core::ICore::libexecPath("disclaim"));
@@ -1413,7 +1411,6 @@ void SimpleTargetRunnerPrivate::start()
         }
 
         m_process.setRunAsRoot(m_runAsRoot);
-        m_process.setCommand(cmdLine);
     }
 
     const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_command.executable());
@@ -1427,8 +1424,8 @@ void SimpleTargetRunnerPrivate::start()
 
     m_stopRequested = false;
 
-    m_process.setCommand(m_command);
-    m_process.setEnvironment(m_environment);
+    m_process.setCommand(cmdLine);
+    m_process.setEnvironment(env);
     m_process.setExtraData(m_extraData);
 
     m_state = Run;

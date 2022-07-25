@@ -351,6 +351,10 @@ void AbstractView::signalHandlerPropertiesChanged(const QVector<SignalHandlerPro
 {
 }
 
+void AbstractView::signalDeclarationPropertiesChanged(const QVector<SignalDeclarationProperty>& /*propertyList*/, PropertyChangeFlags /*propertyChange*/)
+{
+}
+
 void AbstractView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
 }

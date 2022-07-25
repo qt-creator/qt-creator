@@ -90,6 +90,7 @@ private slots:
     void testModelNodeInHierarchy();
     void testModelNodeIsAncestorOf();
     void testModelChangeType();
+    void testModelSignalDefinition();
 
     //
     // unit tests Rewriter
@@ -146,6 +147,7 @@ private slots:
     void testRewriterTransactionAddingAfterReparenting();
     void testRewriterReparentToNewNode();
     void testRewriterBehaivours();
+    void testRewriterSignalDefinition();
 
     //
     // unit tests QmlModelNodeFacade/QmlModelState

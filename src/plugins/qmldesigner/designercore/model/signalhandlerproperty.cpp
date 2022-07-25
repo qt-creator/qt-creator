@@ -107,4 +107,57 @@ PropertyName SignalHandlerProperty::prefixRemoved(const PropertyName &propertyNa
     return nameAsString.toLatin1();
 }
 
+SignalDeclarationProperty::SignalDeclarationProperty() = default;
+
+SignalDeclarationProperty::SignalDeclarationProperty(const SignalDeclarationProperty &property,
+                                                     AbstractView *view)
+    : AbstractProperty(property.name(), property.internalNode(), property.model(), view)
+{}
+
+SignalDeclarationProperty::SignalDeclarationProperty(
+    const PropertyName &propertyName,
+    const Internal::InternalNodePointer &internalNode,
+    Model *model,
+    AbstractView *view)
+    : AbstractProperty(propertyName, internalNode, model, view)
+{
+}
+
+void SignalDeclarationProperty::setSignature(const QString &signature)
+{
+    Internal::WriteLocker locker(model());
+    if (!isValid())
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    if (name() == "id") { // the ID for a node is independent of the state, so it has to be set with ModelNode::setId
+        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, name());
+    }
+
+    if (signature.isEmpty())
+        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, name());
+
+    if (internalNode()->hasProperty(name())) { //check if oldValue != value
+        Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
+        if (internalProperty->isSignalDeclarationProperty()
+            && internalProperty->toSignalDeclarationProperty()->signature() == signature)
+
+            return;
+    }
+
+    if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isSignalDeclarationProperty())
+        privateModel()->removeProperty(internalNode()->property(name()));
+
+    privateModel()->setSignalDeclarationProperty(internalNode(), name(), signature);
+}
+
+QString SignalDeclarationProperty::signature() const
+{
+
+    if (internalNode()->hasProperty(name())
+        && internalNode()->property(name())->isSignalDeclarationProperty())
+        return internalNode()->signalDeclarationProperty(name())->signature();
+
+    return QString();
+}
+
 } // namespace QmlDesigner

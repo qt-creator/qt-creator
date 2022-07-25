@@ -123,7 +123,7 @@ void FileDownloader::start()
         if (reply->error()) {
             if (m_tempFile.exists())
                 m_tempFile.remove();
-            qDebug() << Q_FUNC_INFO << m_url << reply->errorString();
+            qWarning() << Q_FUNC_INFO << m_url << reply->errorString();
             emit downloadFailed();
         } else {
             m_tempFile.flush();

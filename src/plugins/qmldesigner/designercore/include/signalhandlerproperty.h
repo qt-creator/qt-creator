@@ -30,7 +30,7 @@
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT SignalHandlerProperty : public QmlDesigner::AbstractProperty
+class QMLDESIGNERCORE_EXPORT SignalHandlerProperty : public AbstractProperty
 {
     friend ModelNode;
     friend Internal::ModelPrivate;
@@ -48,6 +48,23 @@ public:
 
 protected:
     SignalHandlerProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
+};
+
+class QMLDESIGNERCORE_EXPORT SignalDeclarationProperty : public AbstractProperty
+{
+    friend ModelNode;
+    friend Internal::ModelPrivate;
+    friend AbstractProperty;
+
+public:
+    void setSignature(const QString &source);
+    QString signature() const;
+
+    SignalDeclarationProperty();
+    SignalDeclarationProperty(const SignalDeclarationProperty &property, AbstractView *view);
+
+protected:
+    SignalDeclarationProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
 };
 
 } // namespace QmlDesigner

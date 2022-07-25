@@ -137,7 +137,14 @@ void ChangePropertyVisitor::replaceMemberValue(UiObjectMember *propertyMember, b
         startOffset = arrayBinding->lbracketToken.offset;
         endOffset = arrayBinding->rbracketToken.end();
     } else if (auto publicMember = AST::cast<UiPublicMember*>(propertyMember)) {
-        if (publicMember->statement) {
+        if (publicMember->type == AST::UiPublicMember::Signal) {
+            startOffset = publicMember->firstSourceLocation().offset;
+            if (publicMember->semicolonToken.isValid())
+                endOffset = publicMember->semicolonToken.end();
+            else
+                endOffset = publicMember->lastSourceLocation().end();
+            replacement.prepend(QStringLiteral("signal %1 ").arg(publicMember->name));
+        } else if (publicMember->statement) {
             startOffset = publicMember->statement->firstSourceLocation().offset;
             if (publicMember->semicolonToken.isValid())
                 endOffset = publicMember->semicolonToken.end();

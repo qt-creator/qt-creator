@@ -36,6 +36,7 @@ namespace Internal {
 
 class InternalBindingProperty;
 class InternalSignalHandlerProperty;
+class InternalSignalDeclarationProperty;
 class InternalVariantProperty;
 class InternalNodeListProperty;
 class InternalNodeProperty;
@@ -62,6 +63,7 @@ public:
     virtual bool isNodeProperty() const;
     virtual bool isNodeAbstractProperty() const;
     virtual bool isSignalHandlerProperty() const;
+    virtual bool isSignalDeclarationProperty() const;
 
     QSharedPointer<InternalBindingProperty> toBindingProperty() const;
     QSharedPointer<InternalVariantProperty> toVariantProperty() const;
@@ -69,6 +71,7 @@ public:
     QSharedPointer<InternalNodeProperty> toNodeProperty() const;
     QSharedPointer<InternalNodeAbstractProperty> toNodeAbstractProperty() const;
     QSharedPointer<InternalSignalHandlerProperty> toSignalHandlerProperty() const;
+    QSharedPointer<InternalSignalDeclarationProperty> toSignalDeclarationProperty() const;
 
     InternalNodePointer propertyOwner() const;
 

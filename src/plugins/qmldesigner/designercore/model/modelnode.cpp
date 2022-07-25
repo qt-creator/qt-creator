@@ -487,6 +487,13 @@ SignalHandlerProperty ModelNode::signalHandlerProperty(const PropertyName &name)
     return SignalHandlerProperty(name, m_internalNode, model(), view());
 }
 
+SignalDeclarationProperty ModelNode::signalDeclarationProperty(const PropertyName &name) const
+{
+    if (!isValid())
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    return SignalDeclarationProperty(name, m_internalNode, model(), view());
+}
 
 /*!
   \brief Returns a NodeProperty

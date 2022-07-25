@@ -261,6 +261,22 @@ void RewriterView::signalHandlerPropertiesChanged(const QVector<SignalHandlerPro
         applyChanges();
 }
 
+void RewriterView::signalDeclarationPropertiesChanged(const QVector<SignalDeclarationProperty> &propertyList, PropertyChangeFlags propertyChange)
+{
+    Q_ASSERT(textModifier());
+    if (textToModelMerger()->isActive())
+        return;
+
+    QList<AbstractProperty> usefulPropertyList;
+    for (const SignalDeclarationProperty &property : propertyList)
+        usefulPropertyList.append(property);
+
+    modelToTextMerger()->propertiesChanged(usefulPropertyList, propertyChange);
+
+    if (!isModificationGroupActive())
+        applyChanges();
+}
+
 void RewriterView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange)
 {
     Q_ASSERT(textModifier());

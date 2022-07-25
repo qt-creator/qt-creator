@@ -1,4 +1,4 @@
 TEMPLATE = app
 CONFIG -= qt
 SOURCES = references.cpp
-QMAKE_CXXFLAGS += -ffoo
+QMAKE_CXXFLAGS += -broken

@@ -63,5 +63,42 @@ bool InternalSignalHandlerProperty::isSignalHandlerProperty() const
     return true;
 }
 
+InternalSignalDeclarationProperty::Pointer InternalSignalDeclarationProperty::create(const PropertyName &name, const InternalNodePointer &propertyOwner)
+{
+    auto newPointer(new InternalSignalDeclarationProperty(name, propertyOwner));
+    InternalSignalDeclarationProperty::Pointer smartPointer(newPointer);
+
+    newPointer->setInternalWeakPointer(smartPointer);
+
+    newPointer->setDynamicTypeName("signal");
+
+    return smartPointer;
+}
+
+bool InternalSignalDeclarationProperty::isValid() const
+{
+    return InternalProperty::isValid() && isSignalDeclarationProperty();
+}
+
+QString InternalSignalDeclarationProperty::signature() const
+{
+    return m_signature;
+}
+
+void InternalSignalDeclarationProperty::setSignature(const QString &signature)
+{
+    m_signature = signature;
+}
+
+bool InternalSignalDeclarationProperty::isSignalDeclarationProperty() const
+{
+    return true;
+}
+
+InternalSignalDeclarationProperty::InternalSignalDeclarationProperty(const PropertyName &name, const InternalNodePointer &propertyOwner)
+    : InternalProperty(name, propertyOwner)
+{
+}
+
 } // namespace Internal
 } // namespace QmlDesigner
