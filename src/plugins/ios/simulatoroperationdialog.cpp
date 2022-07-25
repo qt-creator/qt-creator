@@ -24,31 +24,55 @@
 ****************************************************************************/
 
 #include "simulatoroperationdialog.h"
-#include "ui_simulatoroperationdialog.h"
 
+#include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
 
+#include <QApplication>
+#include <QDialogButtonBox>
 #include <QFutureWatcher>
 #include <QLoggingCategory>
+#include <QPlainTextEdit>
+#include <QProgressBar>
 #include <QPushButton>
 
 namespace {
 Q_LOGGING_CATEGORY(iosCommon, "qtc.ios.common", QtWarningMsg)
 }
 
-namespace Ios {
-namespace Internal {
+namespace Ios::Internal {
 
 SimulatorOperationDialog::SimulatorOperationDialog(QWidget *parent) :
     // TODO: Maximize buttong only because of QTBUG-41932
-    QDialog(parent,Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMaximizeButtonHint),
-    m_ui(new Ui::SimulatorOperationDialog)
+    QDialog(parent,Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMaximizeButtonHint)
 {
-    m_ui->setupUi(this);
+    resize(580, 320);
+    setModal(true);
+    setWindowTitle(tr("Simulator Operation Status"));
+
+    auto messageEdit = new QPlainTextEdit;
+    messageEdit->setReadOnly(true);
+
+    m_progressBar = new QProgressBar;
+    m_progressBar->setMaximum(0);
+    m_progressBar->setValue(-1);
+
+    m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
     m_formatter = new Utils::OutputFormatter;
-    m_formatter->setPlainTextEdit(m_ui->messageEdit);
+    m_formatter->setPlainTextEdit(messageEdit);
+
+    using namespace Utils::Layouting;
+
+    Column {
+        messageEdit,
+        m_progressBar,
+        m_buttonBox
+    }.attachTo(this);
+
+    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 SimulatorOperationDialog::~SimulatorOperationDialog()
@@ -68,7 +92,6 @@ SimulatorOperationDialog::~SimulatorOperationDialog()
     }
 
     delete m_formatter;
-    delete m_ui;
 }
 
 void SimulatorOperationDialog::addFutures(const QList<QFuture<void> > &futureList)
@@ -114,13 +137,12 @@ void SimulatorOperationDialog::addMessage(const SimulatorInfo &siminfo,
 void SimulatorOperationDialog::updateInputs()
 {
     bool enableOk = m_futureWatchList.isEmpty();
-    m_ui->buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(!enableOk);
-    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enableOk);
+    m_buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(!enableOk);
+    m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(enableOk);
     if (enableOk) {
         addMessage(tr("Done."), Utils::NormalMessageFormat);
-        m_ui->progressBar->setMaximum(1); // Stop progress bar.
+        m_progressBar->setMaximum(1); // Stop progress bar.
     }
 }
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal

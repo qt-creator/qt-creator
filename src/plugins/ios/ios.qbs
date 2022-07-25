@@ -57,6 +57,5 @@ QtcPlugin {
         "simulatorinfomodel.h",
         "simulatoroperationdialog.cpp",
         "simulatoroperationdialog.h",
-        "simulatoroperationdialog.ui"
     ]
 }

@@ -22,7 +22,7 @@ add_qtc_plugin(Ios
     iostoolhandler.cpp iostoolhandler.h
     simulatorcontrol.cpp simulatorcontrol.h
     simulatorinfomodel.cpp simulatorinfomodel.h
-    simulatoroperationdialog.cpp simulatoroperationdialog.h simulatoroperationdialog.ui
+    simulatoroperationdialog.cpp simulatoroperationdialog.h
 )
 
 extend_qtc_plugin(Ios

@@ -33,12 +33,14 @@
 #include <QFuture>
 #include <QList>
 
+QT_BEGIN_NAMESPACE
+class QDialogButtonBox;
+class QProgressBar;
+QT_END_NAMESPACE
+
 namespace Utils { class OutputFormatter; }
 
-namespace Ios {
-namespace Internal {
-
-namespace Ui { class SimulatorOperationDialog; }
+namespace Ios::Internal {
 
 class SimulatorOperationDialog : public QDialog
 {
@@ -56,11 +58,11 @@ public:
 private:
     void updateInputs();
 
-private:
-    Ui::SimulatorOperationDialog *m_ui = nullptr;
     Utils::OutputFormatter *m_formatter = nullptr;
+
     QList<QFutureWatcher<void> *> m_futureWatchList;
+    QProgressBar *m_progressBar;
+    QDialogButtonBox *m_buttonBox;
 };
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal
