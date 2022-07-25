@@ -17,7 +17,6 @@ QtcPlugin {
     files: [
         "createsimulatordialog.cpp",
         "createsimulatordialog.h",
-        "createsimulatordialog.ui",
         "ios.qrc",
         "iosbuildconfiguration.cpp",
         "iosbuildconfiguration.h",

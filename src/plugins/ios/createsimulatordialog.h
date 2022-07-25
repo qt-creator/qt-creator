@@ -25,17 +25,19 @@
 
 #pragma once
 
-#include <QDialog>
-
 #include <utils/futuresynchronizer.h>
 
-namespace Ios {
-namespace Internal {
+#include <QDialog>
 
-namespace Ui { class CreateSimulatorDialog; }
-class SimulatorControl;
-class RuntimeInfo;
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QLineEdit;
+QT_END_NAMESPACE
+
+namespace Ios::Internal {
+
 class DeviceTypeInfo;
+class RuntimeInfo;
 
 /*!
     A dialog to select the iOS Device type and the runtime for a new
@@ -57,11 +59,12 @@ private:
     void populateDeviceTypes(const QList<DeviceTypeInfo> &deviceTypes);
     void populateRuntimes(const DeviceTypeInfo &deviceType);
 
-private:
     Utils::FutureSynchronizer m_futureSync;
-    Ui::CreateSimulatorDialog *m_ui = nullptr;
     QList<RuntimeInfo> m_runtimes;
+
+    QLineEdit *m_nameEdit;
+    QComboBox *m_deviceTypeCombo;
+    QComboBox *m_runtimeCombo;
 };
 
-} // namespace Internal
-} // namespace Ios
+} // Ios::Internal
