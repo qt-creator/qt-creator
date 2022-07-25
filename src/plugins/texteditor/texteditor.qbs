@@ -49,7 +49,6 @@ Project {
             "colorscheme.h",
             "colorschemeedit.cpp",
             "colorschemeedit.h",
-            "colorschemeedit.ui",
             "command.cpp",
             "command.h",
             "commentssettings.cpp",

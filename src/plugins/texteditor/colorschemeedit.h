@@ -31,13 +31,17 @@
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QComboBox;
+class QDoubleSpinBox;
+class QLabel;
+class QListView;
 class QModelIndex;
+class QScrollArea;
+class QToolButton;
 QT_END_NAMESPACE
 
-namespace TextEditor {
-namespace Internal {
-
-namespace Ui { class ColorSchemeEdit; }
+namespace TextEditor::Internal {
 
 class FormatsModel;
 
@@ -91,11 +95,36 @@ private:
     FormatDescriptions m_descriptions;
     ColorScheme m_scheme;
     int m_curItem = -1;
-    Ui::ColorSchemeEdit *m_ui;
     FormatsModel *m_formatsModel;
     bool m_readOnly = false;
+    QListView *m_itemList;
+    QLabel *m_builtinSchemeLabel;
+    QWidget *m_fontProperties;
+    QLabel *m_foregroundLabel;
+    QToolButton *m_foregroundToolButton;
+    QToolButton *m_eraseForegroundToolButton;
+    QLabel *m_backgroundLabel;
+    QToolButton *m_backgroundToolButton;
+    QToolButton *m_eraseBackgroundToolButton;
+    QLabel *m_relativeForegroundHeadline;
+    QLabel *m_foregroundLightnessLabel;
+    QDoubleSpinBox *m_foregroundLightnessSpinBox;
+    QLabel *m_foregroundSaturationLabel;
+    QDoubleSpinBox *m_foregroundSaturationSpinBox;
+    QLabel *m_relativeBackgroundHeadline;
+    QLabel *m_backgroundSaturationLabel;
+    QDoubleSpinBox *m_backgroundSaturationSpinBox;
+    QLabel *m_backgroundLightnessLabel;
+    QDoubleSpinBox *m_backgroundLightnessSpinBox;
+    QLabel *m_fontHeadline;
+    QCheckBox *m_boldCheckBox;
+    QCheckBox *m_italicCheckBox;
+    QLabel *m_underlineHeadline;
+    QLabel *m_underlineLabel;
+    QToolButton *m_underlineColorToolButton;
+    QToolButton *m_eraseUnderlineColorToolButton;
+    QComboBox *m_underlineComboBox;
+
 };
 
-
-} // namespace Internal
-} // namespace TextEditor
+} // TextEditor::Internal

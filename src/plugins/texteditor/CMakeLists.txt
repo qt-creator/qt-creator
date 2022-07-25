@@ -45,7 +45,7 @@ add_qtc_plugin(TextEditor
     codestyleselectorwidget.cpp codestyleselectorwidget.h
     colorpreviewhoverhandler.cpp colorpreviewhoverhandler.h
     colorscheme.cpp colorscheme.h
-    colorschemeedit.cpp colorschemeedit.h colorschemeedit.ui
+    colorschemeedit.cpp colorschemeedit.h
     command.cpp command.h
     commentssettings.cpp commentssettings.h
     completionsettings.cpp completionsettings.h
