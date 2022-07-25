@@ -831,9 +831,7 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
     m_clazySortFilterProxyModel = new ClazyChecksSortFilterModel(this);
     m_clazySortFilterProxyModel->setSourceModel(m_clazyTreeModel.get());
     m_clazySortFilterProxyModel->setRecursiveFilteringEnabled(true);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     m_clazySortFilterProxyModel->setAutoAcceptChildRows(true);
-#endif
     setupTreeView(m_clazyChecks->checksView, m_clazySortFilterProxyModel, 2);
     m_clazyChecks->filterLineEdit->setFiltering(true);
     m_clazyChecks->filterLineEdit->setPlaceholderText(tr("Filter by name"));
@@ -883,9 +881,7 @@ DiagnosticConfigsWidget::DiagnosticConfigsWidget(const ClangDiagnosticConfigs &c
     m_tidyChecks->invalidExecutableLabel->setElideMode(Qt::ElideNone);
     const auto tidyFilterModel = new QSortFilterProxyModel(this);
     tidyFilterModel->setRecursiveFilteringEnabled(true);
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     tidyFilterModel->setAutoAcceptChildRows(true);
-#endif
     tidyFilterModel->setSourceModel(m_tidyTreeModel.get());
     setupTreeView(m_tidyChecks->checksPrefixesTree, tidyFilterModel);
     m_tidyChecks->filterLineEdit->setFiltering(true);
