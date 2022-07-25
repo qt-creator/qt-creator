@@ -25,17 +25,21 @@
 
 #include "fontsettingspage.h"
 
+#include "colorschemeedit.h"
 #include "fontsettings.h"
 #include "texteditorsettings.h"
-#include "ui_fontsettingspage.h"
 
 #include <coreplugin/icore.h>
-#include <utils/fileutils.h>
+
 #include <utils/filepath.h>
-#include <utils/stringutils.h>
+#include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
+#include <QAbstractItemModel>
+#include <QDebug>
 #include <QFileDialog>
 #include <QFontDatabase>
 #include <QInputDialog>
@@ -44,17 +48,30 @@
 #include <QPointer>
 #include <QSettings>
 #include <QTimer>
-#include <QDebug>
+
+#include <QtCore/QVariant>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QCheckBox>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QFontComboBox>
+#include <QtWidgets/QGridLayout>
+#include <QtWidgets/QGroupBox>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QPushButton>
+#include <QtWidgets/QSpacerItem>
+#include <QtWidgets/QSpinBox>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QWidget>
 
 using namespace TextEditor::Internal;
+using namespace Utils;
 
 namespace TextEditor {
 namespace Internal {
 
 struct ColorSchemeEntry
 {
-    ColorSchemeEntry(const QString &fileName,
-                     bool readOnly):
+    ColorSchemeEntry(const QString &fileName, bool readOnly) :
         fileName(fileName),
         name(ColorScheme::readNameOfScheme(fileName)),
         readOnly(readOnly)
@@ -65,7 +82,6 @@ struct ColorSchemeEntry
     QString id;
     bool readOnly;
 };
-
 
 class SchemeListModel : public QAbstractListModel
 {
@@ -119,45 +135,87 @@ public:
     {
         m_lastValue = m_value;
 
-        m_ui.setupUi(this);
-        m_ui.colorSchemeGroupBox->setTitle(
-                    tr("Color Scheme for Theme \"%1\"")
-                    .arg(Utils::creatorTheme()->displayName()));
-        m_ui.schemeComboBox->setModel(&m_schemeListModel);
+        resize(639, 306);
 
-        m_ui.fontComboBox->setCurrentFont(m_value.family());
+        m_antialias = new QCheckBox(tr("Antialias"));
+        m_antialias->setChecked(m_value.antialias());
 
-        m_ui.antialias->setChecked(m_value.antialias());
-        m_ui.zoomSpinBox->setValue(m_value.fontZoom());
+        m_zoomSpinBox = new QSpinBox;
+        m_zoomSpinBox->setSuffix(tr("%"));
+        m_zoomSpinBox->setRange(10, 3000);
+        m_zoomSpinBox->setSingleStep(10);
+        m_zoomSpinBox->setValue(m_value.fontZoom());
 
-        m_ui.schemeEdit->setFormatDescriptions(fd);
-        m_ui.schemeEdit->setBaseFont(m_value.font());
-        m_ui.schemeEdit->setColorScheme(m_value.colorScheme());
+        m_fontComboBox = new QFontComboBox;
+        m_fontComboBox->setCurrentFont(m_value.family());
 
-        auto sizeValidator = new QIntValidator(m_ui.sizeComboBox);
+        m_sizeComboBox = new QComboBox;
+        m_sizeComboBox->setEditable(true);
+        auto sizeValidator = new QIntValidator(m_sizeComboBox);
         sizeValidator->setBottom(0);
-        m_ui.sizeComboBox->setValidator(sizeValidator);
+        m_sizeComboBox->setValidator(sizeValidator);
 
-        connect(m_ui.fontComboBox, &QFontComboBox::currentFontChanged,
+        m_copyButton = new QPushButton(tr("Copy..."));
+
+        m_deleteButton = new QPushButton(tr("Delete"));
+        m_deleteButton->setEnabled(false);
+
+        auto importButton = new QPushButton(tr("Import"));
+        auto exportButton = new QPushButton(tr("Export"));
+
+        m_schemeComboBox = new QComboBox;
+        m_schemeComboBox->setModel(&m_schemeListModel);
+        m_schemeComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
+        m_schemeEdit = new ColorSchemeEdit;
+        m_schemeEdit->setFormatDescriptions(fd);
+        m_schemeEdit->setBaseFont(m_value.font());
+        m_schemeEdit->setColorScheme(m_value.colorScheme());
+
+        using namespace Layouting;
+
+        Column {
+            Group {
+                title(tr("Font")),
+                Column {
+                    Row {
+                        tr("Family:"), m_fontComboBox, Space(20),
+                        tr("Size:"), m_sizeComboBox, Space(20),
+                        tr("Zoom:"), m_zoomSpinBox, st
+                    },
+                    m_antialias
+                }
+            },
+            Group {
+                title(tr("Color Scheme for Theme \"%1\"")
+                    .arg(Utils::creatorTheme()->displayName())),
+                Column {
+                    Row { m_schemeComboBox, m_copyButton, m_deleteButton, importButton, exportButton },
+                    m_schemeEdit
+                }
+            }
+
+        }.attachTo(this);
+
+        connect(m_fontComboBox, &QFontComboBox::currentFontChanged,
                 this, &FontSettingsPageWidget::fontSelected);
-        connect(m_ui.sizeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+        connect(m_sizeComboBox, &QComboBox::currentIndexChanged,
                 this, &FontSettingsPageWidget::fontSizeSelected);
-        connect(m_ui.zoomSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
+        connect(m_zoomSpinBox, &QSpinBox::valueChanged,
                 this, &FontSettingsPageWidget::fontZoomChanged);
-        connect(m_ui.antialias, &QCheckBox::toggled,
+        connect(m_antialias, &QCheckBox::toggled,
                 this, &FontSettingsPageWidget::antialiasChanged);
-        connect(m_ui.schemeComboBox,
-                QOverload<int>::of(&QComboBox::currentIndexChanged),
+        connect(m_schemeComboBox, &QComboBox::currentIndexChanged,
                 this, &FontSettingsPageWidget::colorSchemeSelected);
-        connect(m_ui.copyButton, &QPushButton::clicked,
+        connect(m_copyButton, &QPushButton::clicked,
                 this, &FontSettingsPageWidget::openCopyColorSchemeDialog);
-        connect(m_ui.schemeEdit, &ColorSchemeEdit::copyScheme,
+        connect(m_schemeEdit, &ColorSchemeEdit::copyScheme,
                 this, &FontSettingsPageWidget::openCopyColorSchemeDialog);
-        connect(m_ui.deleteButton, &QPushButton::clicked,
+        connect(m_deleteButton, &QPushButton::clicked,
                 this, &FontSettingsPageWidget::confirmDeleteColorScheme);
-        connect(m_ui.importButton, &QPushButton::clicked,
+        connect(importButton, &QPushButton::clicked,
                 this, &FontSettingsPageWidget::importScheme);
-        connect(m_ui.exportButton, &QPushButton::clicked,
+        connect(exportButton, &QPushButton::clicked,
                 this, &FontSettingsPageWidget::exportScheme);
 
         updatePointSizes();
@@ -186,12 +244,20 @@ public:
     void refreshColorSchemeList();
 
     FontSettingsPage *q;
-    Ui::FontSettingsPage m_ui;
     bool m_refreshingSchemeList = false;
     FontSettings &m_value;
     FontSettings m_lastValue;
     SchemeListModel m_schemeListModel;
     FormatDescriptions m_descriptions;
+
+    QCheckBox *m_antialias;
+    QSpinBox *m_zoomSpinBox;
+    QFontComboBox *m_fontComboBox;
+    QComboBox *m_sizeComboBox;
+    QComboBox *m_schemeComboBox;
+    ColorSchemeEdit *m_schemeEdit;
+    QPushButton *m_deleteButton;
+    QPushButton *m_copyButton;
 };
 
 } // namespace Internal
@@ -370,20 +436,20 @@ bool FormatDescription::showControl(FormatDescription::ShowControls showControl)
     return m_showControls & showControl;
 }
 
+namespace Internal {
+
 void FontSettingsPageWidget::fontSelected(const QFont &font)
 {
     m_value.setFamily(font.family());
-    m_ui.schemeEdit->setBaseFont(font);
+    m_schemeEdit->setBaseFont(font);
     updatePointSizes();
 }
-
-namespace Internal {
 
 void FontSettingsPageWidget::updatePointSizes()
 {
     // Update point sizes
     const int oldSize = m_value.fontSize();
-    m_ui.sizeComboBox->clear();
+    m_sizeComboBox->clear();
     const QList<int> sizeLst = pointSizesForSelectedFont();
     int idx = -1;
     int i = 0;
@@ -391,18 +457,18 @@ void FontSettingsPageWidget::updatePointSizes()
         if (idx == -1 && sizeLst.at(i) >= oldSize) {
             idx = i;
             if (sizeLst.at(i) != oldSize)
-                m_ui.sizeComboBox->addItem(QString::number(oldSize));
+                m_sizeComboBox->addItem(QString::number(oldSize));
         }
-        m_ui.sizeComboBox->addItem(QString::number(sizeLst.at(i)));
+        m_sizeComboBox->addItem(QString::number(sizeLst.at(i)));
     }
     if (idx != -1)
-        m_ui.sizeComboBox->setCurrentIndex(idx);
+        m_sizeComboBox->setCurrentIndex(idx);
 }
 
 QList<int> FontSettingsPageWidget::pointSizesForSelectedFont() const
 {
     QFontDatabase db;
-    const QString familyName = m_ui.fontComboBox->currentFont().family();
+    const QString familyName = m_fontComboBox->currentFont().family();
     QList<int> sizeLst = db.pointSizes(familyName);
     if (!sizeLst.isEmpty())
         return sizeLst;
@@ -418,24 +484,24 @@ QList<int> FontSettingsPageWidget::pointSizesForSelectedFont() const
 
 void FontSettingsPageWidget::fontSizeSelected(int index)
 {
-    const QString sizeString = m_ui.sizeComboBox->itemText(index);
+    const QString sizeString = m_sizeComboBox->itemText(index);
     bool ok = true;
     const int size = sizeString.toInt(&ok);
     if (ok) {
         m_value.setFontSize(size);
-        m_ui.schemeEdit->setBaseFont(m_value.font());
+        m_schemeEdit->setBaseFont(m_value.font());
     }
 }
 
 void FontSettingsPageWidget::fontZoomChanged()
 {
-    m_value.setFontZoom(m_ui.zoomSpinBox->value());
+    m_value.setFontZoom(m_zoomSpinBox->value());
 }
 
 void FontSettingsPageWidget::antialiasChanged()
 {
-    m_value.setAntialias(m_ui.antialias->isChecked());
-    m_ui.schemeEdit->setBaseFont(m_value.font());
+    m_value.setAntialias(m_antialias->isChecked());
+    m_schemeEdit->setBaseFont(m_value.font());
 }
 
 void FontSettingsPageWidget::colorSchemeSelected(int index)
@@ -449,16 +515,16 @@ void FontSettingsPageWidget::colorSchemeSelected(int index)
         const ColorSchemeEntry &entry = m_schemeListModel.colorSchemeAt(index);
         readOnly = entry.readOnly;
         m_value.loadColorScheme(entry.fileName, m_descriptions);
-        m_ui.schemeEdit->setColorScheme(m_value.colorScheme());
+        m_schemeEdit->setColorScheme(m_value.colorScheme());
     }
-    m_ui.copyButton->setEnabled(index != -1);
-    m_ui.deleteButton->setEnabled(!readOnly);
-    m_ui.schemeEdit->setReadOnly(readOnly);
+    m_copyButton->setEnabled(index != -1);
+    m_deleteButton->setEnabled(!readOnly);
+    m_schemeEdit->setReadOnly(readOnly);
 }
 
 void FontSettingsPageWidget::openCopyColorSchemeDialog()
 {
-    QInputDialog *dialog = new QInputDialog(m_ui.copyButton->window());
+    QInputDialog *dialog = new QInputDialog(m_copyButton->window());
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setInputMode(QInputDialog::TextInput);
     dialog->setWindowTitle(tr("Copy Color Scheme"));
@@ -471,7 +537,7 @@ void FontSettingsPageWidget::openCopyColorSchemeDialog()
 
 void FontSettingsPageWidget::copyColorScheme(const QString &name)
 {
-    int index = m_ui.schemeComboBox->currentIndex();
+    int index = m_schemeComboBox->currentIndex();
     if (index == -1)
         return;
 
@@ -486,7 +552,7 @@ void FontSettingsPageWidget::copyColorScheme(const QString &name)
         maybeSaveColorScheme();
 
         // Make sure we're copying the current version
-        m_value.setColorScheme(m_ui.schemeEdit->colorScheme());
+        m_value.setColorScheme(m_schemeEdit->colorScheme());
 
         ColorScheme scheme = m_value.colorScheme();
         scheme.setDisplayName(name);
@@ -499,7 +565,7 @@ void FontSettingsPageWidget::copyColorScheme(const QString &name)
 
 void FontSettingsPageWidget::confirmDeleteColorScheme()
 {
-    const int index = m_ui.schemeComboBox->currentIndex();
+    const int index = m_schemeComboBox->currentIndex();
     if (index == -1)
         return;
 
@@ -511,7 +577,7 @@ void FontSettingsPageWidget::confirmDeleteColorScheme()
                                               tr("Delete Color Scheme"),
                                               tr("Are you sure you want to delete this color scheme permanently?"),
                                               QMessageBox::Discard | QMessageBox::Cancel,
-                                              m_ui.deleteButton->window());
+                                              m_deleteButton->window());
 
     // Change the text and role of the discard button
     auto deleteButton = static_cast<QPushButton*>(messageBox->button(QMessageBox::Discard));
@@ -526,7 +592,7 @@ void FontSettingsPageWidget::confirmDeleteColorScheme()
 
 void FontSettingsPageWidget::deleteColorScheme()
 {
-    const int index = m_ui.schemeComboBox->currentIndex();
+    const int index = m_schemeComboBox->currentIndex();
     QTC_ASSERT(index != -1, return);
 
     const ColorSchemeEntry &entry = m_schemeListModel.colorSchemeAt(index);
@@ -553,7 +619,7 @@ void FontSettingsPageWidget::importScheme()
     // Ask about saving any existing modifications
     maybeSaveColorScheme();
 
-    QInputDialog *dialog = new QInputDialog(m_ui.copyButton->window());
+    QInputDialog *dialog = new QInputDialog(m_copyButton->window());
     dialog->setAttribute(Qt::WA_DeleteOnClose);
     dialog->setInputMode(QInputDialog::TextInput);
     dialog->setWindowTitle(tr("Import Color Scheme"));
@@ -561,7 +627,7 @@ void FontSettingsPageWidget::importScheme()
     dialog->setTextValue(importedFile.baseName());
 
     connect(dialog, &QInputDialog::textValueSelected, this, [this, fileName](const QString &name) {
-        m_value.setColorScheme(m_ui.schemeEdit->colorScheme());
+        m_value.setColorScheme(m_schemeEdit->colorScheme());
 
         ColorScheme scheme = m_value.colorScheme();
         scheme.setDisplayName(name);
@@ -575,7 +641,7 @@ void FontSettingsPageWidget::importScheme()
 
 void FontSettingsPageWidget::exportScheme()
 {
-    int index = m_ui.schemeComboBox->currentIndex();
+    int index = m_schemeComboBox->currentIndex();
     if (index == -1)
         return;
 
@@ -593,16 +659,16 @@ void FontSettingsPageWidget::exportScheme()
 
 void FontSettingsPageWidget::maybeSaveColorScheme()
 {
-    if (m_value.colorScheme() == m_ui.schemeEdit->colorScheme())
+    if (m_value.colorScheme() == m_schemeEdit->colorScheme())
         return;
 
     QMessageBox
         messageBox(QMessageBox::Warning,
                    tr("Color Scheme Changed"),
                    tr("The color scheme \"%1\" was modified, do you want to save the changes?")
-                       .arg(m_ui.schemeEdit->colorScheme().displayName()),
+                       .arg(m_schemeEdit->colorScheme().displayName()),
                    QMessageBox::Discard | QMessageBox::Save,
-                   m_ui.schemeComboBox->window());
+                   m_schemeComboBox->window());
 
     // Change the text of the discard button
     auto discardButton = static_cast<QPushButton*>(messageBox.button(QMessageBox::Discard));
@@ -611,7 +677,7 @@ void FontSettingsPageWidget::maybeSaveColorScheme()
     messageBox.setDefaultButton(QMessageBox::Save);
 
     if (messageBox.exec() == QMessageBox::Save) {
-        const ColorScheme &scheme = m_ui.schemeEdit->colorScheme();
+        const ColorScheme &scheme = m_schemeEdit->colorScheme();
         scheme.save(m_value.colorSchemeFileName(), Core::ICore::dialogParent());
     }
 }
@@ -652,27 +718,27 @@ void FontSettingsPageWidget::refreshColorSchemeList()
 
     m_refreshingSchemeList = true;
     m_schemeListModel.setColorSchemes(colorSchemes);
-    m_ui.schemeComboBox->setCurrentIndex(selected);
+    m_schemeComboBox->setCurrentIndex(selected);
     m_refreshingSchemeList = false;
 }
 
 void FontSettingsPageWidget::apply()
 {
-    if (m_value.colorScheme() != m_ui.schemeEdit->colorScheme()) {
+    if (m_value.colorScheme() != m_schemeEdit->colorScheme()) {
         // Update the scheme and save it under the name it already has
-        m_value.setColorScheme(m_ui.schemeEdit->colorScheme());
+        m_value.setColorScheme(m_schemeEdit->colorScheme());
         const ColorScheme &scheme = m_value.colorScheme();
         scheme.save(m_value.colorSchemeFileName(), Core::ICore::dialogParent());
     }
 
     bool ok;
-    int fontSize = m_ui.sizeComboBox->currentText().toInt(&ok);
+    int fontSize = m_sizeComboBox->currentText().toInt(&ok);
     if (ok && m_value.fontSize() != fontSize) {
         m_value.setFontSize(fontSize);
-        m_ui.schemeEdit->setBaseFont(m_value.font());
+        m_schemeEdit->setBaseFont(m_value.font());
     }
 
-    int index = m_ui.schemeComboBox->currentIndex();
+    int index = m_schemeComboBox->currentIndex();
     if (index != -1) {
         const ColorSchemeEntry &entry = m_schemeListModel.colorSchemeAt(index);
         if (entry.fileName != m_value.colorSchemeFileName())
@@ -719,7 +785,7 @@ FontSettingsPage::FontSettingsPage(FontSettings *fontSettings, const FormatDescr
 void FontSettingsPage::setFontZoom(int zoom)
 {
     if (m_widget)
-        static_cast<FontSettingsPageWidget *>(m_widget.data())->m_ui.zoomSpinBox->setValue(zoom);
+        static_cast<FontSettingsPageWidget *>(m_widget.data())->m_zoomSpinBox->setValue(zoom);
 }
 
 } // TextEditor

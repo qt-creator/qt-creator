@@ -57,7 +57,7 @@ add_qtc_plugin(TextEditor
     findinfiles.cpp findinfiles.h
     findinopenfiles.cpp findinopenfiles.h
     fontsettings.cpp fontsettings.h
-    fontsettingspage.cpp fontsettingspage.h fontsettingspage.ui
+    fontsettingspage.cpp fontsettingspage.h
     formatter.h
     formattexteditor.cpp formattexteditor.h
     highlighter.cpp highlighter.h
