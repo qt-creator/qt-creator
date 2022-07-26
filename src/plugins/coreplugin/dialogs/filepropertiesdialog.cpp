@@ -24,54 +24,111 @@
 ****************************************************************************/
 
 #include "filepropertiesdialog.h"
-#include "ui_filepropertiesdialog.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 #include <utils/mimeutils.h>
 
+#include <QCheckBox>
 #include <QDateTime>
 #include <QDebug>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFileInfo>
+#include <QLabel>
 #include <QLocale>
 
 using namespace Utils;
 
 namespace Core {
 
-FilePropertiesDialog::FilePropertiesDialog(const FilePath &filePath, QWidget *parent) :
-    QDialog(parent),
-    m_ui(new Ui::FilePropertiesDialog),
-    m_filePath(filePath)
+FilePropertiesDialog::FilePropertiesDialog(const FilePath &filePath, QWidget *parent)
+    : QDialog(parent)
+    , m_name(new QLabel)
+    , m_path(new QLabel)
+    , m_mimeType(new QLabel)
+    , m_defaultEditor(new QLabel)
+    , m_lineEndings(new QLabel)
+    , m_indentation(new QLabel)
+    , m_owner(new QLabel)
+    , m_group(new QLabel)
+    , m_size(new QLabel)
+    , m_lastRead(new QLabel)
+    , m_lastModified(new QLabel)
+    , m_readable(new QCheckBox)
+    , m_writable(new QCheckBox)
+    , m_executable(new QCheckBox)
+    , m_symLink(new QCheckBox)
+    , m_filePath(filePath)
 {
-    m_ui->setupUi(this);
+    resize(400, 395);
 
-    connect(m_ui->readable, &QCheckBox::clicked, [this](bool checked) {
+    m_name->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_path->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_mimeType->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_defaultEditor->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_lineEndings->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_indentation->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_owner->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_group->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_size->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_lastRead->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    m_lastModified->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+    m_symLink->setEnabled(false);
+
+    auto buttonBox = new QDialogButtonBox;
+    buttonBox->setStandardButtons(QDialogButtonBox::Close);
+
+    using namespace Layouting;
+    // clang-format off
+    Column {
+        Form {
+            tr("Name:"), m_name, br,
+            tr("Path:"), m_path, br,
+            tr("MIME type:"), m_mimeType, br,
+            tr("Default editor:"), m_defaultEditor, br,
+            tr("Line endings:"), m_lineEndings, br,
+            tr("Indentation:"), m_indentation, br,
+            tr("Owner:"), m_owner, br,
+            tr("Group:"), m_group, br,
+            tr("Size:"), m_size, br,
+            tr("Last read:"), m_lastRead, br,
+            tr("Last modified:"), m_lastModified, br,
+            tr("Readable:"), m_readable, br,
+            tr("Writable:"), m_writable, br,
+            tr("Executable:"), m_executable, br,
+            tr("Symbolic link:"), m_symLink, br
+        },
+        buttonBox
+    }.attachTo(this);
+    // clang-format on
+
+    connect(m_readable, &QCheckBox::clicked, [this](bool checked) {
         setPermission(QFile::ReadUser | QFile::ReadOwner, checked);
     });
-    connect(m_ui->writable, &QCheckBox::clicked, [this](bool checked) {
+    connect(m_writable, &QCheckBox::clicked, [this](bool checked) {
         setPermission(QFile::WriteUser | QFile::WriteOwner, checked);
     });
-    connect(m_ui->executable, &QCheckBox::clicked, [this](bool checked) {
+    connect(m_executable, &QCheckBox::clicked, [this](bool checked) {
         setPermission(QFile::ExeUser | QFile::ExeOwner, checked);
     });
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     refresh();
 }
 
-FilePropertiesDialog::~FilePropertiesDialog()
-{
-    delete m_ui;
-}
+FilePropertiesDialog::~FilePropertiesDialog() = default;
 
 void FilePropertiesDialog::detectTextFileSettings()
 {
     QFile file(m_filePath.toString());
     if (!file.open(QIODevice::ReadOnly)) {
-        m_ui->lineEndings->setText(tr("Unknown"));
-        m_ui->indentation->setText(tr("Unknown"));
+        m_lineEndings->setText(tr("Unknown"));
+        m_indentation->setText(tr("Unknown"));
         return;
     }
 
@@ -81,15 +138,15 @@ void FilePropertiesDialog::detectTextFileSettings()
 
     // Try to guess the files line endings
     if (data.contains("\r\n")) {
-        m_ui->lineEndings->setText(tr("Windows (CRLF)"));
+        m_lineEndings->setText(tr("Windows (CRLF)"));
     } else if (data.contains("\n")) {
-        m_ui->lineEndings->setText(tr("Unix (LF)"));
+        m_lineEndings->setText(tr("Unix (LF)"));
     } else if (data.contains("\r")) {
-        m_ui->lineEndings->setText(tr("Mac (CR)"));
+        m_lineEndings->setText(tr("Mac (CR)"));
         lineSeparator = '\r';
     } else {
         // That does not look like a text file at all
-        m_ui->lineEndings->setText(tr("Unknown"));
+        m_lineEndings->setText(tr("Unknown"));
         return;
     }
 
@@ -132,14 +189,14 @@ void FilePropertiesDialog::detectTextFileSettings()
 
     if (!indents.empty()) {
         if (tabIndented) {
-            m_ui->indentation->setText(tr("Mixed"));
+            m_indentation->setText(tr("Mixed"));
         } else {
-            m_ui->indentation->setText(tr("%1 Spaces").arg(max->first));
+            m_indentation->setText(tr("%1 Spaces").arg(max->first));
         }
     } else if (tabIndented) {
-        m_ui->indentation->setText(tr("Tabs"));
+        m_indentation->setText(tr("Tabs"));
     } else {
-        m_ui->indentation->setText(tr("Unknown"));
+        m_indentation->setText(tr("Unknown"));
     }
 }
 
@@ -149,29 +206,30 @@ void FilePropertiesDialog::refresh()
         const QFileInfo fileInfo = m_filePath.toFileInfo();
         QLocale locale;
 
-        m_ui->name->setText(fileInfo.fileName());
-        m_ui->path->setText(QDir::toNativeSeparators(fileInfo.canonicalPath()));
+        m_name->setText(fileInfo.fileName());
+        m_path->setText(QDir::toNativeSeparators(fileInfo.canonicalPath()));
 
         const Utils::MimeType mimeType = Utils::mimeTypeForFile(m_filePath);
-        m_ui->mimeType->setText(mimeType.name());
+        m_mimeType->setText(mimeType.name());
 
         const EditorTypeList factories = IEditorFactory::preferredEditorTypes(m_filePath);
-        m_ui->defaultEditor->setText(!factories.isEmpty() ? factories.at(0)->displayName() : tr("Undefined"));
+        m_defaultEditor->setText(!factories.isEmpty() ? factories.at(0)->displayName()
+                                                      : tr("Undefined"));
 
-        m_ui->owner->setText(fileInfo.owner());
-        m_ui->group->setText(fileInfo.group());
-        m_ui->size->setText(locale.formattedDataSize(fileInfo.size()));
-        m_ui->readable->setChecked(fileInfo.isReadable());
-        m_ui->writable->setChecked(fileInfo.isWritable());
-        m_ui->executable->setChecked(fileInfo.isExecutable());
-        m_ui->symLink->setChecked(fileInfo.isSymLink());
-        m_ui->lastRead->setText(fileInfo.lastRead().toString(locale.dateTimeFormat()));
-        m_ui->lastModified->setText(fileInfo.lastModified().toString(locale.dateTimeFormat()));
+        m_owner->setText(fileInfo.owner());
+        m_group->setText(fileInfo.group());
+        m_size->setText(locale.formattedDataSize(fileInfo.size()));
+        m_readable->setChecked(fileInfo.isReadable());
+        m_writable->setChecked(fileInfo.isWritable());
+        m_executable->setChecked(fileInfo.isExecutable());
+        m_symLink->setChecked(fileInfo.isSymLink());
+        m_lastRead->setText(fileInfo.lastRead().toString(locale.dateTimeFormat()));
+        m_lastModified->setText(fileInfo.lastModified().toString(locale.dateTimeFormat()));
         if (mimeType.inherits("text/plain")) {
             detectTextFileSettings();
         } else {
-            m_ui->lineEndings->setText(tr("Unknown"));
-            m_ui->indentation->setText(tr("Unknown"));
+            m_lineEndings->setText(tr("Unknown"));
+            m_indentation->setText(tr("Unknown"));
         }
     });
 }

@@ -27,7 +27,7 @@ add_qtc_plugin(Core
     dialogs/addtovcsdialog.cpp dialogs/addtovcsdialog.h dialogs/addtovcsdialog.ui
     dialogs/codecselector.cpp dialogs/codecselector.h
     dialogs/externaltoolconfig.cpp dialogs/externaltoolconfig.h dialogs/externaltoolconfig.ui
-    dialogs/filepropertiesdialog.cpp dialogs/filepropertiesdialog.h dialogs/filepropertiesdialog.ui
+    dialogs/filepropertiesdialog.cpp dialogs/filepropertiesdialog.h
     dialogs/ioptionspage.cpp dialogs/ioptionspage.h
     dialogs/newdialog.cpp dialogs/newdialog.h
     dialogs/newdialogwidget.cpp dialogs/newdialogwidget.h

@@ -30,7 +30,8 @@
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class FilePropertiesDialog; }
+class QLabel;
+class QCheckBox;
 QT_END_NAMESPACE
 
 namespace Core {
@@ -49,7 +50,21 @@ private:
     void detectTextFileSettings();
 
 private:
-    Ui::FilePropertiesDialog *m_ui = nullptr;
+    QLabel *m_name;
+    QLabel *m_path;
+    QLabel *m_mimeType;
+    QLabel *m_defaultEditor;
+    QLabel *m_lineEndings;
+    QLabel *m_indentation;
+    QLabel *m_owner;
+    QLabel *m_group;
+    QLabel *m_size;
+    QLabel *m_lastRead;
+    QLabel *m_lastModified;
+    QCheckBox *m_readable;
+    QCheckBox *m_writable;
+    QCheckBox *m_executable;
+    QCheckBox *m_symLink;
     const Utils::FilePath m_filePath;
 };
 

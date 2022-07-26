@@ -204,7 +204,7 @@ Project {
                 "addtovcsdialog.cpp", "addtovcsdialog.h", "addtovcsdialog.ui",
                 "codecselector.cpp", "codecselector.h",
                 "externaltoolconfig.cpp", "externaltoolconfig.h", "externaltoolconfig.ui",
-                "filepropertiesdialog.cpp", "filepropertiesdialog.h", "filepropertiesdialog.ui",
+                "filepropertiesdialog.cpp", "filepropertiesdialog.h",
                 "ioptionspage.cpp", "ioptionspage.h",
                 "newdialog.cpp", "newdialog.h",
                 "newdialogwidget.cpp", "newdialogwidget.h",
