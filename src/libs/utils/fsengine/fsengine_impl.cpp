@@ -304,7 +304,7 @@ QAbstractFileEngine::Iterator *FSEngineImpl::beginEntryList(QDir::Filters filter
         },
         {filterNames, filters});
 
-    return new DirIterator(paths);
+    return new DirIterator(std::move(paths));
 }
 
 QAbstractFileEngine::Iterator *FSEngineImpl::endEntryList()

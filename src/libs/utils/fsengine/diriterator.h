@@ -51,12 +51,18 @@ public:
     {
         if (it == m_filePaths.end())
             return QString();
-        const QString r = currentFilePath();
+        const QString r = chopIfEndsWith(it->toString(), '/');
         ++it;
         return r;
     }
+
     bool hasNext() const override { return !m_filePaths.empty() && m_filePaths.end() != it + 1; }
-    QString currentFileName() const override { return chopIfEndsWith(it->toString(), '/'); }
+
+    QString currentFileName() const override
+    {
+        const QString result = it->fileName();
+        return chopIfEndsWith(result, '/');
+    }
 
     QFileInfo currentFileInfo() const override
     {
