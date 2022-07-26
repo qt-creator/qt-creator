@@ -29,9 +29,16 @@
 #include "marginsettings.h"
 #include "texteditorconstants.h"
 #include "texteditorsettings.h"
-#include "ui_displaysettingspage.h"
 
 #include <coreplugin/icore.h>
+
+#include <utils/layoutbuilder.h>
+
+#include <QApplication>
+#include <QCheckBox>
+#include <QGroupBox>
+#include <QRadioButton>
+#include <QSpinBox>
 
 namespace TextEditor {
 
@@ -60,7 +67,97 @@ public:
     DisplaySettingsWidget(DisplaySettingsPagePrivate *data)
         : m_data(data)
     {
-        m_ui.setupUi(this);
+        resize(452, 458);
+
+        enableTextWrapping = new QCheckBox(tr("Enable text &wrapping"));
+        showWrapColumn = new QCheckBox(tr("Display right &margin at column:"));
+
+        wrapColumn = new QSpinBox;
+        wrapColumn->setMaximum(999);
+
+        connect(showWrapColumn, &QAbstractButton::toggled, wrapColumn, &QWidget::setEnabled);
+
+        useIndenter = new QCheckBox(tr("Use context-specific margin"));
+        useIndenter->setToolTip(tr("If available, use a different margin. "
+           "For example, the ColumnLimit from the ClangFormat plugin."));
+
+        animateMatchingParentheses = new QCheckBox(tr("&Animate matching parentheses"));
+        scrollBarHighlights = new QCheckBox(tr("Highlight search results on the scrollbar"));
+        displayLineNumbers = new QCheckBox(tr("Display line &numbers"));
+        animateNavigationWithinFile = new QCheckBox(tr("Animate navigation within file"));
+        highlightCurrentLine = new QCheckBox(tr("Highlight current &line"));
+        highlightBlocks = new QCheckBox(tr("Highlight &blocks"));
+        markTextChanges = new QCheckBox(tr("Mark &text changes"));
+        autoFoldFirstComment = new QCheckBox(tr("Auto-fold first &comment"));
+        displayFoldingMarkers = new QCheckBox(tr("Display &folding markers"));
+        centerOnScroll = new QCheckBox(tr("Center &cursor on scroll"));
+        visualizeIndent = new QCheckBox(tr("Visualize indent"));
+        displayFileLineEnding = new QCheckBox(tr("Display file line ending"));
+        displayFileEncoding = new QCheckBox(tr("Display file encoding"));
+        openLinksInNextSplit = new QCheckBox(tr("Always open links in another split"));
+        highlightMatchingParentheses = new QCheckBox(tr("&Highlight matching parentheses"));
+
+        visualizeWhitespace = new QCheckBox(tr("&Visualize whitespace"));
+        visualizeWhitespace->setToolTip(tr("Shows tabs and spaces."));
+
+        leftAligned = new QRadioButton(tr("Next to editor content"));
+        atMargin = new QRadioButton(tr("Next to right margin"));
+        rightAligned = new QRadioButton(tr("Aligned at right side"));
+        rightAligned->setChecked(true);
+        betweenLines = new QRadioButton(tr("Between lines"));
+
+        displayAnnotations = new QGroupBox(tr("Line annotations")),
+        displayAnnotations->setCheckable(true);
+
+        using namespace Utils::Layouting;
+
+        Column {
+            leftAligned,
+            atMargin,
+            rightAligned,
+            betweenLines,
+        }.attachTo(displayAnnotations);
+
+        Column {
+            Group {
+                title(tr("Text Wrapping")),
+                Column {
+                    enableTextWrapping,
+                    Row { showWrapColumn, wrapColumn, useIndenter, st }
+                }
+            },
+
+            Group {
+                title(tr("Display")),
+                Row {
+                    Column {
+                        displayLineNumbers,
+                        displayFoldingMarkers,
+                        markTextChanges,
+                        visualizeWhitespace,
+                        centerOnScroll,
+                        autoFoldFirstComment,
+                        scrollBarHighlights,
+                        animateNavigationWithinFile,
+                    },
+                    Column {
+                        highlightCurrentLine,
+                        highlightBlocks,
+                        animateMatchingParentheses,
+                        visualizeIndent,
+                        highlightMatchingParentheses,
+                        openLinksInNextSplit,
+                        displayFileEncoding,
+                        displayFileLineEnding,
+                        st
+                    }
+                }
+            },
+
+            displayAnnotations,
+            st
+        }.attachTo(this);
+
         settingsToUI();
     }
 
@@ -71,7 +168,32 @@ public:
     void setDisplaySettings(const DisplaySettings &, const MarginSettings &newMarginSettings);
 
     DisplaySettingsPagePrivate *m_data = nullptr;
-    Internal::Ui::DisplaySettingsPage m_ui;
+
+    QCheckBox *enableTextWrapping;
+    QCheckBox *showWrapColumn;
+    QSpinBox *wrapColumn;
+    QCheckBox *useIndenter;
+    QCheckBox *animateMatchingParentheses;
+    QCheckBox *scrollBarHighlights;
+    QCheckBox *displayLineNumbers;
+    QCheckBox *animateNavigationWithinFile;
+    QCheckBox *highlightCurrentLine;
+    QCheckBox *highlightBlocks;
+    QCheckBox *markTextChanges;
+    QCheckBox *autoFoldFirstComment;
+    QCheckBox *displayFoldingMarkers;
+    QCheckBox *centerOnScroll;
+    QCheckBox *visualizeIndent;
+    QCheckBox *displayFileLineEnding;
+    QCheckBox *displayFileEncoding;
+    QCheckBox *openLinksInNextSplit;
+    QCheckBox *highlightMatchingParentheses;
+    QCheckBox *visualizeWhitespace;
+    QGroupBox *displayAnnotations;
+    QRadioButton *leftAligned;
+    QRadioButton *atMargin;
+    QRadioButton *rightAligned;
+    QRadioButton *betweenLines;
 };
 
 void DisplaySettingsWidget::apply()
@@ -86,34 +208,34 @@ void DisplaySettingsWidget::apply()
 void DisplaySettingsWidget::settingsFromUI(DisplaySettings &displaySettings,
                                            MarginSettings &marginSettings) const
 {
-    displaySettings.m_displayLineNumbers = m_ui.displayLineNumbers->isChecked();
-    displaySettings.m_textWrapping = m_ui.enableTextWrapping->isChecked();
-    marginSettings.m_showMargin = m_ui.showWrapColumn->isChecked();
-    marginSettings.m_useIndenter = m_ui.useIndenter->isChecked();
-    marginSettings.m_marginColumn = m_ui.wrapColumn->value();
-    displaySettings.m_visualizeWhitespace = m_ui.visualizeWhitespace->isChecked();
-    displaySettings.m_visualizeIndent = m_ui.visualizeIndent->isChecked();
-    displaySettings.m_displayFoldingMarkers = m_ui.displayFoldingMarkers->isChecked();
-    displaySettings.m_highlightCurrentLine = m_ui.highlightCurrentLine->isChecked();
-    displaySettings.m_highlightBlocks = m_ui.highlightBlocks->isChecked();
-    displaySettings.m_animateMatchingParentheses = m_ui.animateMatchingParentheses->isChecked();
-    displaySettings.m_highlightMatchingParentheses = m_ui.highlightMatchingParentheses->isChecked();
-    displaySettings.m_markTextChanges = m_ui.markTextChanges->isChecked();
-    displaySettings.m_autoFoldFirstComment = m_ui.autoFoldFirstComment->isChecked();
-    displaySettings.m_centerCursorOnScroll = m_ui.centerOnScroll->isChecked();
-    displaySettings.m_openLinksInNextSplit = m_ui.openLinksInNextSplit->isChecked();
-    displaySettings.m_displayFileEncoding = m_ui.displayFileEncoding->isChecked();
-    displaySettings.m_displayFileLineEnding = m_ui.displayFileLineEnding->isChecked();
-    displaySettings.m_scrollBarHighlights = m_ui.scrollBarHighlights->isChecked();
-    displaySettings.m_animateNavigationWithinFile = m_ui.animateNavigationWithinFile->isChecked();
-    displaySettings.m_displayAnnotations = m_ui.displayAnnotations->isChecked();
-    if (m_ui.leftAligned->isChecked())
+    displaySettings.m_displayLineNumbers = displayLineNumbers->isChecked();
+    displaySettings.m_textWrapping = enableTextWrapping->isChecked();
+    marginSettings.m_showMargin = showWrapColumn->isChecked();
+    marginSettings.m_useIndenter = useIndenter->isChecked();
+    marginSettings.m_marginColumn = wrapColumn->value();
+    displaySettings.m_visualizeWhitespace = visualizeWhitespace->isChecked();
+    displaySettings.m_visualizeIndent = visualizeIndent->isChecked();
+    displaySettings.m_displayFoldingMarkers = displayFoldingMarkers->isChecked();
+    displaySettings.m_highlightCurrentLine = highlightCurrentLine->isChecked();
+    displaySettings.m_highlightBlocks = highlightBlocks->isChecked();
+    displaySettings.m_animateMatchingParentheses = animateMatchingParentheses->isChecked();
+    displaySettings.m_highlightMatchingParentheses = highlightMatchingParentheses->isChecked();
+    displaySettings.m_markTextChanges = markTextChanges->isChecked();
+    displaySettings.m_autoFoldFirstComment = autoFoldFirstComment->isChecked();
+    displaySettings.m_centerCursorOnScroll = centerOnScroll->isChecked();
+    displaySettings.m_openLinksInNextSplit = openLinksInNextSplit->isChecked();
+    displaySettings.m_displayFileEncoding = displayFileEncoding->isChecked();
+    displaySettings.m_displayFileLineEnding = displayFileLineEnding->isChecked();
+    displaySettings.m_scrollBarHighlights = scrollBarHighlights->isChecked();
+    displaySettings.m_animateNavigationWithinFile = animateNavigationWithinFile->isChecked();
+    displaySettings.m_displayAnnotations = displayAnnotations->isChecked();
+    if (leftAligned->isChecked())
         displaySettings.m_annotationAlignment = AnnotationAlignment::NextToContent;
-    else if (m_ui.atMargin->isChecked())
+    else if (atMargin->isChecked())
         displaySettings.m_annotationAlignment = AnnotationAlignment::NextToMargin;
-    else if (m_ui.rightAligned->isChecked())
+    else if (rightAligned->isChecked())
         displaySettings.m_annotationAlignment = AnnotationAlignment::RightSide;
-    else if (m_ui.betweenLines->isChecked())
+    else if (betweenLines->isChecked())
         displaySettings.m_annotationAlignment = AnnotationAlignment::BetweenLines;
 }
 
@@ -121,32 +243,32 @@ void DisplaySettingsWidget::settingsToUI()
 {
     const DisplaySettings &displaySettings = m_data->m_displaySettings;
     const MarginSettings &marginSettings = m_data->m_marginSettings;
-    m_ui.displayLineNumbers->setChecked(displaySettings.m_displayLineNumbers);
-    m_ui.enableTextWrapping->setChecked(displaySettings.m_textWrapping);
-    m_ui.showWrapColumn->setChecked(marginSettings.m_showMargin);
-    m_ui.useIndenter->setChecked(marginSettings.m_useIndenter);
-    m_ui.wrapColumn->setValue(marginSettings.m_marginColumn);
-    m_ui.visualizeWhitespace->setChecked(displaySettings.m_visualizeWhitespace);
-    m_ui.visualizeIndent->setChecked(displaySettings.m_visualizeIndent);
-    m_ui.displayFoldingMarkers->setChecked(displaySettings.m_displayFoldingMarkers);
-    m_ui.highlightCurrentLine->setChecked(displaySettings.m_highlightCurrentLine);
-    m_ui.highlightBlocks->setChecked(displaySettings.m_highlightBlocks);
-    m_ui.animateMatchingParentheses->setChecked(displaySettings.m_animateMatchingParentheses);
-    m_ui.highlightMatchingParentheses->setChecked(displaySettings.m_highlightMatchingParentheses);
-    m_ui.markTextChanges->setChecked(displaySettings.m_markTextChanges);
-    m_ui.autoFoldFirstComment->setChecked(displaySettings.m_autoFoldFirstComment);
-    m_ui.centerOnScroll->setChecked(displaySettings.m_centerCursorOnScroll);
-    m_ui.openLinksInNextSplit->setChecked(displaySettings.m_openLinksInNextSplit);
-    m_ui.displayFileEncoding->setChecked(displaySettings.m_displayFileEncoding);
-    m_ui.displayFileLineEnding->setChecked(displaySettings.m_displayFileLineEnding);
-    m_ui.scrollBarHighlights->setChecked(displaySettings.m_scrollBarHighlights);
-    m_ui.animateNavigationWithinFile->setChecked(displaySettings.m_animateNavigationWithinFile);
-    m_ui.displayAnnotations->setChecked(displaySettings.m_displayAnnotations);
+    displayLineNumbers->setChecked(displaySettings.m_displayLineNumbers);
+    enableTextWrapping->setChecked(displaySettings.m_textWrapping);
+    showWrapColumn->setChecked(marginSettings.m_showMargin);
+    useIndenter->setChecked(marginSettings.m_useIndenter);
+    wrapColumn->setValue(marginSettings.m_marginColumn);
+    visualizeWhitespace->setChecked(displaySettings.m_visualizeWhitespace);
+    visualizeIndent->setChecked(displaySettings.m_visualizeIndent);
+    displayFoldingMarkers->setChecked(displaySettings.m_displayFoldingMarkers);
+    highlightCurrentLine->setChecked(displaySettings.m_highlightCurrentLine);
+    highlightBlocks->setChecked(displaySettings.m_highlightBlocks);
+    animateMatchingParentheses->setChecked(displaySettings.m_animateMatchingParentheses);
+    highlightMatchingParentheses->setChecked(displaySettings.m_highlightMatchingParentheses);
+    markTextChanges->setChecked(displaySettings.m_markTextChanges);
+    autoFoldFirstComment->setChecked(displaySettings.m_autoFoldFirstComment);
+    centerOnScroll->setChecked(displaySettings.m_centerCursorOnScroll);
+    openLinksInNextSplit->setChecked(displaySettings.m_openLinksInNextSplit);
+    displayFileEncoding->setChecked(displaySettings.m_displayFileEncoding);
+    displayFileLineEnding->setChecked(displaySettings.m_displayFileLineEnding);
+    scrollBarHighlights->setChecked(displaySettings.m_scrollBarHighlights);
+    animateNavigationWithinFile->setChecked(displaySettings.m_animateNavigationWithinFile);
+    displayAnnotations->setChecked(displaySettings.m_displayAnnotations);
     switch (displaySettings.m_annotationAlignment) {
-    case AnnotationAlignment::NextToContent: m_ui.leftAligned->setChecked(true); break;
-    case AnnotationAlignment::NextToMargin: m_ui.atMargin->setChecked(true); break;
-    case AnnotationAlignment::RightSide: m_ui.rightAligned->setChecked(true); break;
-    case AnnotationAlignment::BetweenLines: m_ui.betweenLines->setChecked(true); break;
+    case AnnotationAlignment::NextToContent: leftAligned->setChecked(true); break;
+    case AnnotationAlignment::NextToMargin: atMargin->setChecked(true); break;
+    case AnnotationAlignment::RightSide: rightAligned->setChecked(true); break;
+    case AnnotationAlignment::BetweenLines: betweenLines->setChecked(true); break;
     }
 }
 
