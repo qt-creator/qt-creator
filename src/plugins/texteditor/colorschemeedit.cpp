@@ -237,7 +237,7 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
         m_itemList,
         m_builtinSchemeLabel,
         m_fontProperties,
-    }.attachTo(this, false);
+    }.attachTo(this, WithoutMargins);
 
     Grid {
         m_foregroundLabel, m_foregroundToolButton, m_eraseForegroundToolButton, br,
