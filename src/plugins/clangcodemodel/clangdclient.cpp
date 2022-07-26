@@ -273,8 +273,13 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
         indexingOption += "=0";
     const QString headerInsertionOption = QString("--header-insertion=")
             + (settings.autoIncludeHeaders() ? "iwyu" : "never");
+
+    bool ok = false;
+    const int userValue = qEnvironmentVariableIntValue("QTC_CLANGD_COMPLETION_RESULTS", &ok);
+    const QString limitResults = QString("--limit-results=%1").arg(ok ? userValue : 0);
+
     Utils::CommandLine cmd{settings.clangdFilePath(), {indexingOption, headerInsertionOption,
-            "--limit-results=0", "--limit-references=0", "--clang-tidy=0"}};
+            limitResults, "--limit-references=0", "--clang-tidy=0"}};
     if (settings.workerThreadLimit() != 0)
         cmd.addArg("-j=" + QString::number(settings.workerThreadLimit()));
     if (!jsonDbDir.isEmpty())
