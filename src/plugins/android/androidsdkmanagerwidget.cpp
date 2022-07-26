@@ -199,11 +199,11 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
         switchView(PackageListing);
     });
 
-    connect(expandCheck, &QCheckBox::stateChanged, this, [this, packagesView](int state) {
-       if (state == Qt::Checked)
-           packagesView->expandAll();
-       else
-           packagesView->collapseAll();
+    connect(expandCheck, &QCheckBox::stateChanged, this, [packagesView](int state) {
+        if (state == Qt::Checked)
+            packagesView->expandAll();
+        else
+            packagesView->collapseAll();
     });
     connect(updateInstalledButton, &QPushButton::clicked,
             this, &AndroidSdkManagerWidget::onUpdatePackages);
