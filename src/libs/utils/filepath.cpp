@@ -1133,6 +1133,10 @@ FilePath FilePath::fromString(const QString &filepath)
     return fn;
 }
 
+bool isWindowsDriveLetter(QChar ch) {
+    return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
+}
+
 void FilePath::setFromString(const QString &filename)
 {
 #ifndef UTILS_FILEPATH_USE_REGEXP
@@ -1142,6 +1146,7 @@ void FilePath::setFromString(const QString &filename)
     static const QString rootPath = QDir::rootPath();
 
     const QChar slash('/');
+    const QChar colon(':');
     const QStringView fileNameView(filename);
 
     if (fileNameView.startsWith(rootPath, Qt::CaseInsensitive)) { // Absolute path ...
@@ -1157,11 +1162,16 @@ void FilePath::setFromString(const QString &filename)
                 m_host = withoutQtcDeviceRoot.mid(firstSlash + 1, secondSlash - firstSlash - 1)
                              .toString();
                 if (secondSlash != -1) {
-                    const QStringView path = withoutQtcDeviceRoot.mid(secondSlash);
-                    m_data = path.startsWith(slashDotSlash) ? path.mid(3).toString()
-                                                            : path.toString();
-                } else {
-                    m_data = slash;
+                    QStringView path = withoutQtcDeviceRoot.mid(secondSlash);
+                    path = path.startsWith(QLatin1String(slashDotSlash)) ? path.mid(3) : path;
+                    if (path.size() >= 3) { // On Windows we want to remove the leading slash ...
+                        if (path[0] == slash && path[2] == colon && isWindowsDriveLetter(path[1]))
+                            path = path.mid(1);
+                    }
+
+                    m_data = path.toString();
+
+                    return;
                 }
             } else {
                 m_scheme.clear();

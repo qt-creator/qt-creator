@@ -62,6 +62,13 @@ private:
 template<class... Args>
 using Continuation = std::function<void(Args...)>;
 
+QString startWithSlash(QString s)
+{
+    if (!s.startsWith('/'))
+        s.prepend('/');
+    return s;
+}
+
 void tst_fsengine::initTestCase()
 {
     if (!FSEngine::isAvailable())
@@ -200,16 +207,14 @@ void tst_fsengine::testFilePathFromToString()
 
 void tst_fsengine::testRootPathContainsFakeDir()
 {
-    QDir root(HostOsInfo::isWindowsHost() ? "c:/" : "/");
-
-    const auto rootList = root.entryList();
+    const auto rootList = QDir::root().entryList();
     QVERIFY(rootList.contains(FilePath::specialPath(FilePath::SpecialPathComponent::RootName)));
 
     QDir schemes(FilePath::specialPath(FilePath::SpecialPathComponent::RootPath));
     const auto schemeList = schemes.entryList();
     QVERIFY(schemeList.contains("device"));
 
-    QDir deviceRoot(FilePath::specialPath(FilePath::SpecialPathComponent::DeviceRootPath) + "/test");
+    QDir deviceRoot(FilePath::specialPath(FilePath::SpecialPathComponent::DeviceRootPath) + "/test" + startWithSlash(QDir::rootPath()));
     const auto deviceRootList = deviceRoot.entryList();
     QVERIFY(!deviceRootList.isEmpty());
 }
@@ -247,7 +252,7 @@ QString tst_fsengine::makeTestPath(QString path, bool asUrl)
 
     return QString(FilePath::specialPath(FilePath::SpecialPathComponent::DeviceRootPath)
                    + "/test%1/tst_fsengine/%2")
-        .arg(tempFolder, path);
+        .arg(startWithSlash(tempFolder), path);
 }
 
 void tst_fsengine::testListDir()
