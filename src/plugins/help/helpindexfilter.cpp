@@ -25,22 +25,19 @@
 
 #include "helpindexfilter.h"
 
-#include "helpicons.h"
 #include "helpmanager.h"
 #include "helptr.h"
-#include "topicchooser.h"
+#include "localhelpmanager.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <utils/utilsicons.h>
 
+#include <QHelpEngine>
+#include <QHelpFilterEngine>
+#include <QHelpLink>
 #include <QIcon>
-
-#include "localhelpmanager.h"
-#include <QtHelp/QHelpEngine>
-#include <QtHelp/QHelpFilterEngine>
-#include <QtHelp/QHelpLink>
 
 using namespace Core;
 using namespace Help;

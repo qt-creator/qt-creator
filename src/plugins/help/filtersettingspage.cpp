@@ -24,13 +24,14 @@
 ****************************************************************************/
 
 #include "filtersettingspage.h"
+
 #include "helpconstants.h"
 #include "helptr.h"
-
-#include <QtCore/QVersionNumber>
-#include <QtHelp/QHelpFilterEngine>
-#include <QtHelp/QHelpFilterSettingsWidget>
 #include "localhelpmanager.h"
+
+#include <QHelpFilterEngine>
+#include <QHelpFilterSettingsWidget>
+#include <QVersionNumber>
 
 using namespace Help::Internal;
 

@@ -52,7 +52,7 @@ public:
                 QString *newText, int *selectionStart, int *selectionLength) const override;
     void refresh(QFutureInterface<void> &future) override;
 
-    Q_INVOKABLE QStringList allIndices() const;
+    QStringList allIndices() const;
 
 signals:
     void linksActivated(const QMultiMap<QString, QUrl> &links, const QString &key) const;

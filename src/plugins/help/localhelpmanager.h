@@ -32,8 +32,10 @@
 #include <QObject>
 #include <QUrl>
 
-QT_FORWARD_DECLARE_CLASS(QHelpFilterEngine)
-QT_FORWARD_DECLARE_CLASS(QHelpEngine)
+QT_BEGIN_NAMESPACE
+class QHelpFilterEngine;
+class QHelpEngine;
+QT_END_NAMESPACE
 
 class BookmarkManager;
 
