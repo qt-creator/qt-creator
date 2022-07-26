@@ -418,9 +418,100 @@ FilePath FileUtils::homePath()
 
 /*! \class Utils::FilePath
 
-    \brief The FilePath class is a light-weight convenience class for filenames.
+    \brief The FilePath class is an abstraction for handles to objects
+    in a (possibly remote) file system, similar to a URL or, in the local
+    case, a path to a file or directory.
 
-    On windows filenames are compared case insensitively.
+    Ideally, all of \QC code should use FilePath for this purpose,
+    but for historic reasons there are still large parts using QString.
+
+    FilePaths are internally stored as triple of strings, with one
+    part ("scheme") identifying an access method, a second part ("host")
+    a file system (e.g. a host) and a third part ("path") identifying
+    a (potential) object on the systems.
+
+    FilePath follows the Unix paradigm of "everything is a file":
+    There is no conceptional difference between FilePaths referring
+    to plain files or directories.
+
+    A FilePath is implicitly associated with an operating system via its
+    host part. The path part of a FilePath is internally stored
+    with forward slashes, independent of the associated OS.
+
+    The path parts of FilePaths associated with Windows (and macOS,
+    unless selected otherwise in the settings) are compared case-insensitively
+    to each other.
+    Note that comparisons for equivalence generally need out-of-band
+    knowledge, as there may be multiple FilePath representations for
+    the same file (e.g. different access methods may lead to the same
+    file).
+
+    There are several conversions between FilePath and other string-like
+    representations:
+
+    \list
+
+    \li FilePath::fromUserInput()
+
+        Convert string-like data from sources originating outside of
+        \QC, e.g. from human input in GUI controls, from environment
+        variables and from command-line parameters to \QC.
+
+        The input can contain both slashes and backslashes and will
+        be parsed and normalized.
+
+    \li FilePath::nativePath()
+
+        Converts the FilePath to the slash convention of the associated
+        OS and drops the scheme and host parts.
+
+        This is useful to interact with the facilities of the associated
+        OS, e.g. when passing this FilePath as an argument to a command
+        executed on the associated OS.
+
+        \note The FilePath passed as executable to a CommandLine is typically
+        not touched by user code. QtcProcess will use it to determine
+        the remote system and apply the necessary conversions internally.
+
+    \li FilePath::toUserOutput()
+
+        Converts the FilePath to the slash convention of the associated
+        OS and retains the scheme and host parts.
+
+        This is rarely useful for remote paths as there is practically
+        no consumer of this style.
+
+    \li FilePath::displayName()
+
+        Converts the FilePath to the slash convention of the associated
+        OS and adds the scheme and host as a " on <device>" suffix.
+
+        This is useful for static user-facing output in he GUI
+
+    \li FilePath::fromVariant(), FilePath::toVariant()
+
+        These are used to interface QVariant-based API, e.g.
+        settings or item model (internal) data.
+
+    \li FilePath::fromString(), FilePath::toString()
+
+        These are used for internal interfaces to code areas that
+        still use QString based file paths.
+
+    \endlist
+
+    Conversion of string-like data should always happen at the outer boundary
+    of \QC code, using \c fromUserInput() for in-bound communication,
+    and depending on the medium \c nativePath() or \c displayName() for out-bound
+    communication.
+
+    Communication with QVariant based Qt API should use \c fromVariant() and
+    \c toVariant().
+
+    Uses of \c fromString() and \c toString() should be phased out by transforming
+    code from QString based file path to FilePath. An exception here are
+    fragments of paths of a FilePath that are later used with \c pathAppended()
+    or similar which should be kept as QString.
 */
 
 FilePath::FilePath()
