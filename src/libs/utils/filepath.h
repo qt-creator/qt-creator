@@ -47,6 +47,7 @@ class tst_fileutils; // This becomes a friend of Utils::FilePath for testing pri
 
 namespace Utils {
 
+class DeviceFileHooks;
 class Environment;
 class EnvironmentChange;
 
@@ -222,6 +223,8 @@ public:
     [[nodiscard]] static QString specialPath(SpecialPathComponent component);
     [[nodiscard]] static FilePath specialFilePath(SpecialPathComponent component);
 
+    static void setDeviceFileHooks(const DeviceFileHooks &hooks);
+
 private:
     friend class ::tst_fileutils;
     static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);
@@ -237,6 +240,47 @@ inline size_t qHash(const Utils::FilePath &a, uint seed = 0)
 {
     return a.hash(seed);
 }
+
+class DeviceFileHooks
+{
+public:
+    std::function<bool(const FilePath &)> isExecutableFile;
+    std::function<bool(const FilePath &)> isReadableFile;
+    std::function<bool(const FilePath &)> isReadableDir;
+    std::function<bool(const FilePath &)> isWritableDir;
+    std::function<bool(const FilePath &)> isWritableFile;
+    std::function<bool(const FilePath &)> isFile;
+    std::function<bool(const FilePath &)> isDir;
+    std::function<bool(const FilePath &)> ensureWritableDir;
+    std::function<bool(const FilePath &)> ensureExistingFile;
+    std::function<bool(const FilePath &)> createDir;
+    std::function<bool(const FilePath &)> exists;
+    std::function<bool(const FilePath &)> removeFile;
+    std::function<bool(const FilePath &)> removeRecursively;
+    std::function<bool(const FilePath &, const FilePath &)> copyFile;
+    std::function<bool(const FilePath &, const FilePath &)> renameFile;
+    std::function<FilePath(const FilePath &, const FilePaths &)> searchInPath;
+    std::function<FilePath(const FilePath &)> symLinkTarget;
+    std::function<QString(const FilePath &)> mapToDevicePath;
+    std::function<void(const FilePath &,
+                       const std::function<bool(const FilePath &)> &, // Abort on 'false' return.
+                       const FileFilter &)> iterateDirectory;
+    std::function<QByteArray(const FilePath &, qint64, qint64)> fileContents;
+    std::function<bool(const FilePath &, const QByteArray &)> writeFileContents;
+    std::function<QDateTime(const FilePath &)> lastModified;
+    std::function<QFile::Permissions(const FilePath &)> permissions;
+    std::function<bool(const FilePath &, QFile::Permissions)> setPermissions;
+    std::function<OsType(const FilePath &)> osType;
+    std::function<Environment(const FilePath &)> environment;
+    std::function<qint64(const FilePath &)> fileSize;
+    std::function<qint64(const FilePath &)> bytesAvailable;
+    std::function<QString(const FilePath &)> deviceDisplayName;
+
+    template <class ...Args> using Continuation = std::function<void(Args...)>;
+    std::function<void(const Continuation<bool> &, const FilePath &, const FilePath &)> asyncCopyFile;
+    std::function<void(const Continuation<const QByteArray &> &, const FilePath &, qint64, qint64)> asyncFileContents;
+    std::function<void(const Continuation<bool> &, const FilePath &, const QByteArray &)> asyncWriteFileContents;
+};
 
 } // namespace Utils
 
@@ -254,4 +298,5 @@ struct QTCREATOR_UTILS_EXPORT hash<Utils::FilePath>
     using result_type = size_t;
     result_type operator()(const argument_type &fn) const;
 };
+
 } // namespace std

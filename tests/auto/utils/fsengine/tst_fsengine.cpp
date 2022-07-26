@@ -175,7 +175,7 @@ void tst_fsengine::initTestCase()
 
     deviceHooks.mapToDevicePath = [](const FilePath &filePath) { return filePath.path(); };
 
-    FileUtils::setDeviceFileHooks(deviceHooks);
+    FilePath::setDeviceFileHooks(deviceHooks);
 
     FSEngine::addDevice(FilePath::fromString("device://test"));
 

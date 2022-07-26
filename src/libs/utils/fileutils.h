@@ -53,47 +53,6 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-class DeviceFileHooks
-{
-public:
-    std::function<bool(const FilePath &)> isExecutableFile;
-    std::function<bool(const FilePath &)> isReadableFile;
-    std::function<bool(const FilePath &)> isReadableDir;
-    std::function<bool(const FilePath &)> isWritableDir;
-    std::function<bool(const FilePath &)> isWritableFile;
-    std::function<bool(const FilePath &)> isFile;
-    std::function<bool(const FilePath &)> isDir;
-    std::function<bool(const FilePath &)> ensureWritableDir;
-    std::function<bool(const FilePath &)> ensureExistingFile;
-    std::function<bool(const FilePath &)> createDir;
-    std::function<bool(const FilePath &)> exists;
-    std::function<bool(const FilePath &)> removeFile;
-    std::function<bool(const FilePath &)> removeRecursively;
-    std::function<bool(const FilePath &, const FilePath &)> copyFile;
-    std::function<bool(const FilePath &, const FilePath &)> renameFile;
-    std::function<FilePath(const FilePath &, const FilePaths &)> searchInPath;
-    std::function<FilePath(const FilePath &)> symLinkTarget;
-    std::function<QString(const FilePath &)> mapToDevicePath;
-    std::function<void(const FilePath &,
-                       const std::function<bool(const FilePath &)> &, // Abort on 'false' return.
-                       const FileFilter &)> iterateDirectory;
-    std::function<QByteArray(const FilePath &, qint64, qint64)> fileContents;
-    std::function<bool(const FilePath &, const QByteArray &)> writeFileContents;
-    std::function<QDateTime(const FilePath &)> lastModified;
-    std::function<QFile::Permissions(const FilePath &)> permissions;
-    std::function<bool(const FilePath &, QFile::Permissions)> setPermissions;
-    std::function<OsType(const FilePath &)> osType;
-    std::function<Environment(const FilePath &)> environment;
-    std::function<qint64(const FilePath &)> fileSize;
-    std::function<qint64(const FilePath &)> bytesAvailable;
-    std::function<QString(const FilePath &)> deviceDisplayName;
-
-    template <class ...Args> using Continuation = std::function<void(Args...)>;
-    std::function<void(const Continuation<bool> &, const FilePath &, const FilePath &)> asyncCopyFile;
-    std::function<void(const Continuation<const QByteArray &> &, const FilePath &, qint64, qint64)> asyncFileContents;
-    std::function<void(const Continuation<bool> &, const FilePath &, const QByteArray &)> asyncWriteFileContents;
-};
-
 class QTCREATOR_UTILS_EXPORT FileUtils
 {
 public:
@@ -137,8 +96,6 @@ public:
     static FilePath commonPath(const FilePaths &paths);
     static QByteArray fileId(const FilePath &fileName);
     static FilePath homePath();
-
-    static void setDeviceFileHooks(const DeviceFileHooks &hooks);
 
     static void iterateLsOutput(const FilePath &base,
                                 const QStringList &entries,
@@ -327,6 +284,9 @@ private:
 };
 
 QTCREATOR_UTILS_EXPORT QTextStream &operator<<(QTextStream &s, const FilePath &fn);
+
+bool isRelativePathHelper(const QString &path, OsType osType);
+QString doCleanPath(const QString &input);
 
 } // namespace Utils
 

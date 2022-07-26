@@ -65,12 +65,6 @@ namespace Utils {
 
 static DeviceFileHooks s_deviceHooks;
 
-/*! \class Utils::FileUtils
-
-  \brief The FileUtils class contains file and directory related convenience
-  functions.
-
-*/
 
 static bool removeRecursivelyLocal(const FilePath &filePath, QString *error)
 {
@@ -78,9 +72,11 @@ static bool removeRecursivelyLocal(const FilePath &filePath, QString *error)
     QFileInfo fileInfo = filePath.toFileInfo();
     if (!fileInfo.exists() && !fileInfo.isSymLink())
         return true;
-    QFile::setPermissions(filePath.toString(), fileInfo.permissions() | QFile::WriteUser);
+
+    QFile::setPermissions(fileInfo.absoluteFilePath(), fileInfo.permissions() | QFile::WriteUser);
+
     if (fileInfo.isDir()) {
-        QDir dir(filePath.toString());
+        QDir dir(fileInfo.absoluteFilePath());
         dir.setPath(dir.canonicalPath());
         if (dir.isRoot()) {
             if (error) {
@@ -122,85 +118,9 @@ static bool removeRecursivelyLocal(const FilePath &filePath, QString *error)
     return true;
 }
 
-// Cleans part after optional :// scheme separator, similar to QDir::cleanPath()
-//  - directory separators normalized (that is, platform-native
-//    separators converted to "/") and redundant ones removed, and "."s and ".."s
-//    resolved (as far as possible).
-//   Symbolic links are kept. This function does not return the
-//    canonical path, but rather the simplest version of the input.
-//    For example, "./local" becomes "local", "local/../bin" becomes
-//    "bin" and "/local/usr/../bin" becomes "/local/bin".
-
-// FIXME: This should not use the host-platform dependent QDir::cleanPath()
-
-static QString doCleanPath(const QString &input)
+void FilePath::setDeviceFileHooks(const DeviceFileHooks &hooks)
 {
-    const int pos = input.indexOf("://");
-    if (pos == -1)
-        return QDir::cleanPath(input);
-    return input.left(pos + 3) + QDir::cleanPath(input.mid(pos + 3));
-}
-
-/*!
-  Copies the directory specified by \a srcFilePath recursively to \a tgtFilePath. \a tgtFilePath will contain
-  the target directory, which will be created. Example usage:
-
-  \code
-    QString error;
-    bool ok = Utils::FileUtils::copyRecursively("/foo/bar", "/foo/baz", &error);
-    if (!ok)
-      qDebug() << error;
-  \endcode
-
-  This will copy the contents of /foo/bar into to the baz directory under /foo, which will be created in the process.
-
-  \note The \a error parameter is optional.
-
-  Returns whether the operation succeeded.
-*/
-
-bool FileUtils::copyRecursively(const FilePath &srcFilePath, const FilePath &tgtFilePath, QString *error)
-{
-    return copyRecursively(
-        srcFilePath, tgtFilePath, error, [](const FilePath &src, const FilePath &dest, QString *error) {
-            if (!src.copyFile(dest)) {
-                if (error) {
-                    *error = QCoreApplication::translate("Utils::FileUtils",
-                                                         "Could not copy file \"%1\" to \"%2\".")
-                                 .arg(src.toUserOutput(), dest.toUserOutput());
-                }
-                return false;
-            }
-            return true;
-        });
-}
-
-/*!
-  Copies a file specified by \a srcFilePath to \a tgtFilePath only if \a srcFilePath is different
-  (file contents and last modification time).
-
-  Returns whether the operation succeeded.
-*/
-
-bool FileUtils::copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgtFilePath)
-{
-    QTC_ASSERT(srcFilePath.exists(), return false);
-    QTC_ASSERT(srcFilePath.scheme() == tgtFilePath.scheme(), return false);
-    QTC_ASSERT(srcFilePath.host() == tgtFilePath.host(), return false);
-
-    if (tgtFilePath.exists()) {
-        const QDateTime srcModified = srcFilePath.lastModified();
-        const QDateTime tgtModified = tgtFilePath.lastModified();
-        if (srcModified == tgtModified) {
-            const QByteArray srcContents = srcFilePath.fileContents();
-            const QByteArray tgtContents = srcFilePath.fileContents();
-            if (srcContents == tgtContents)
-                return true;
-        }
-        tgtFilePath.removeFile();
-    }
-
-    return srcFilePath.copyFile(tgtFilePath);
+    s_deviceHooks = hooks;
 }
 
 /*!
@@ -314,85 +234,6 @@ QString FilePath::shortNativePath() const
     return toUserOutput();
 }
 
-QString FileUtils::fileSystemFriendlyName(const QString &name)
-{
-    QString result = name;
-    result.replace(QRegularExpression(QLatin1String("\\W")), QLatin1String("_"));
-    result.replace(QRegularExpression(QLatin1String("_+")), QLatin1String("_")); // compact _
-    result.remove(QRegularExpression(QLatin1String("^_*"))); // remove leading _
-    result.remove(QRegularExpression(QLatin1String("_+$"))); // remove trailing _
-    if (result.isEmpty())
-        result = QLatin1String("unknown");
-    return result;
-}
-
-int FileUtils::indexOfQmakeUnfriendly(const QString &name, int startpos)
-{
-    static const QRegularExpression checkRegExp(QLatin1String("[^a-zA-Z0-9_.-]"));
-    return checkRegExp.match(name, startpos).capturedStart();
-}
-
-QString FileUtils::qmakeFriendlyName(const QString &name)
-{
-    QString result = name;
-
-    // Remove characters that might trip up a build system (especially qmake):
-    int pos = indexOfQmakeUnfriendly(result);
-    while (pos >= 0) {
-        result[pos] = QLatin1Char('_');
-        pos = indexOfQmakeUnfriendly(result, pos);
-    }
-    return fileSystemFriendlyName(result);
-}
-
-bool FileUtils::makeWritable(const FilePath &path)
-{
-    return path.setPermissions(path.permissions() | QFile::WriteUser);
-}
-
-// makes sure that capitalization of directories is canonical on Windows and OS X.
-// This mimics the logic in QDeclarative_isFileCaseCorrect
-QString FileUtils::normalizedPathName(const QString &name)
-{
-#ifdef Q_OS_WIN
-    const QString nativeSeparatorName(QDir::toNativeSeparators(name));
-    const auto nameC = reinterpret_cast<LPCTSTR>(nativeSeparatorName.utf16()); // MinGW
-    PIDLIST_ABSOLUTE file;
-    HRESULT hr = SHParseDisplayName(nameC, NULL, &file, 0, NULL);
-    if (FAILED(hr))
-        return name;
-    TCHAR buffer[MAX_PATH];
-    const bool success = SHGetPathFromIDList(file, buffer);
-    ILFree(file);
-    return success ? QDir::fromNativeSeparators(QString::fromUtf16(reinterpret_cast<const ushort *>(buffer)))
-                   : name;
-#elif defined(Q_OS_OSX)
-    return Internal::normalizePathName(name);
-#else // do not try to handle case-insensitive file systems on Linux
-    return name;
-#endif
-}
-
-static bool isRelativePathHelper(const QString &path, OsType osType)
-{
-    if (path.startsWith('/'))
-        return false;
-    if (osType == OsType::OsTypeWindows) {
-        if (path.startsWith('\\'))
-            return false;
-        // Unlike QFileInfo, this won't accept a relative path with a drive letter.
-        // Such paths result in a royal mess anyway ...
-        if (path.length() >= 3 && path.at(1) == ':' && path.at(0).isLetter()
-                && (path.at(2) == '/' || path.at(2) == '\\'))
-            return false;
-    }
-    return true;
-}
-
-bool FileUtils::isRelativePath(const QString &path)
-{
-    return isRelativePathHelper(path, HostOsInfo::hostOs());
-}
 
 bool FilePath::isRelativePath() const
 {
@@ -421,20 +262,6 @@ FilePath FilePath::cleanPath() const
     result.setPath(doCleanPath(result.path()));
     return result;
 }
-
-FilePath FileUtils::commonPath(const FilePath &oldCommonPath, const FilePath &filePath)
-{
-    FilePath newCommonPath = oldCommonPath;
-    while (!newCommonPath.isEmpty() && !filePath.isChildOf(newCommonPath))
-        newCommonPath = newCommonPath.parentDir();
-    return newCommonPath.canonicalPath();
-}
-
-FilePath FileUtils::homePath()
-{
-    return FilePath::fromString(doCleanPath(QDir::homePath()));
-}
-
 
 /*! \class Utils::FilePath
 
@@ -595,11 +422,6 @@ QUrl FilePath::toUrl() const
     url.setHost(m_host);
     url.setPath(m_data);
     return url;
-}
-
-void FileUtils::setDeviceFileHooks(const DeviceFileHooks &hooks)
-{
-    s_deviceHooks = hooks;
 }
 
 /// \returns a QString to display to the user, including the device prefix
@@ -1175,13 +997,11 @@ void FilePath::setFromString(const QString &filename)
                 }
 
                 m_data = "/";
-
-            } else {
-                m_scheme.clear();
-                m_host.clear();
-                m_data = filename;
+                return;
             }
-
+            m_scheme.clear();
+            m_host.clear();
+            m_data = filename;
             return;
         }
     }

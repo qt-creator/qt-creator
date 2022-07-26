@@ -610,7 +610,7 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->displayName();
     };
 
-    FileUtils::setDeviceFileHooks(deviceHooks);
+    FilePath::setDeviceFileHooks(deviceHooks);
 
     DeviceProcessHooks processHooks;
 
