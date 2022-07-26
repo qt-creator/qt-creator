@@ -266,17 +266,17 @@ PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
         });
 
         Group config {
-            Title(PerforceSettings::tr("Configuration")),
+            title(PerforceSettings::tr("Configuration")),
             Row { s.p4BinaryPath }
         };
 
         Group environment {
-            Title(PerforceSettings::tr("Environment Variables"), &s.customEnv),
+            title(PerforceSettings::tr("Environment Variables"), &s.customEnv),
             Row { s.p4Port, s.p4Client, s.p4User }
         };
 
         Group misc {
-            Title(PerforceSettings::tr("Miscellaneous")),
+            title(PerforceSettings::tr("Miscellaneous")),
             Column {
                 Row { s.logCount, s.timeOutS, st },
                 s.promptToSubmit,

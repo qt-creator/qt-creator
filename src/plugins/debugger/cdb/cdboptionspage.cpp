@@ -198,7 +198,7 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
     Column {
         Row {
             Group {
-                Title(Tr::tr("Startup")),
+                title(Tr::tr("Startup")),
                 Column {
                     s.cdbAdditionalArguments,
                     s.useCdbConsole,
@@ -207,7 +207,7 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
             },
 
             Group {
-                Title(Tr::tr("Various")),
+                title(Tr::tr("Various")),
                 Column {
                     s.ignoreFirstChanceAccessViolation,
                     s.cdbBreakOnCrtDbgReport,
@@ -218,12 +218,12 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
         },
 
         Group {
-            Title(Tr::tr("Break On")),
+            title(Tr::tr("Break On")),
             Column { m_breakEventWidget }
         },
 
         Group {
-            Title(Tr::tr("Add Exceptions to Issues View")),
+            title(Tr::tr("Add Exceptions to Issues View")),
             Column {
                 s.firstChanceExceptionTaskEntry,
                 s.secondChanceExceptionTaskEntry
@@ -281,8 +281,8 @@ CdbPathsPageWidget::CdbPathsPageWidget()
 
     finish();
     Column {
-        Group { Title(Tr::tr("Symbol Paths")), Column { m_symbolPaths } },
-        Group { Title(Tr::tr("Source Paths")), Column { m_sourcePaths } },
+        Group { title(Tr::tr("Symbol Paths")), Column { m_symbolPaths } },
+        Group { title(Tr::tr("Source Paths")), Column { m_sourcePaths } },
         st
     }.attachTo(this);
 }

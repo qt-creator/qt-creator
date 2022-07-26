@@ -105,7 +105,7 @@ QnxSettingsWidget::QnxSettingsWidget()
             m_configsCombo,
             Row { m_generateKitsCheckBox, st },
             Group {
-                Title(Tr::tr("Configuration Information:")),
+                title(Tr::tr("Configuration Information:")),
                 Form {
                     Tr::tr("Name:"), m_configName, br,
                     Tr::tr("Version:"), m_configVersion, br,

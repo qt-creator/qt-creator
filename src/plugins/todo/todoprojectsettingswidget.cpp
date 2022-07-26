@@ -58,7 +58,7 @@ TodoProjectSettingsWidget::TodoProjectSettingsWidget(ProjectExplorer::Project *p
 
     Column {
         Group {
-            Title(Tr::tr("Excluded Files")),
+            title(Tr::tr("Excluded Files")),
             Row {
                 m_excludedPatternsList,
                 Column {

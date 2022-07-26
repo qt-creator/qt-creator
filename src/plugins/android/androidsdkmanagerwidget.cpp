@@ -159,7 +159,7 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
             applySelectionButton,
             st,
             Group {
-                Title(tr("Show Packages")),
+                title(tr("Show Packages")),
                 Column {
                     Row { tr("Channel:"), channelCheckbox },
                     obsoleteCheckBox,

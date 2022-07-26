@@ -104,14 +104,14 @@ CvsSettingsPage::CvsSettingsPage(CvsSettings *settings)
 
         Column {
             Group {
-                Title(CvsSettings::tr("Configuration")),
+                title(CvsSettings::tr("Configuration")),
                 Form {
                     s.binaryPath,
                     s.cvsRoot
                 }
             },
             Group {
-                Title(CvsSettings::tr("Miscellaneous")),
+                title(CvsSettings::tr("Miscellaneous")),
                 Column {
                     Form {
                         s.timeout,

@@ -169,7 +169,7 @@ GitSettingsPage::GitSettingsPage(GitSettings *settings)
 
         Column {
             Group {
-                Title(GitSettings::tr("Configuration")),
+                title(GitSettings::tr("Configuration")),
                 Column {
                     Row { s.path },
                     s.winSetHomeEnvironment,
@@ -177,7 +177,7 @@ GitSettingsPage::GitSettingsPage(GitSettings *settings)
             },
 
             Group {
-                Title(GitSettings::tr("Miscellaneous")),
+                title(GitSettings::tr("Miscellaneous")),
                 Column {
                     Row { s.logCount, s.timeout, st },
                     s.pullRebase
@@ -185,12 +185,12 @@ GitSettingsPage::GitSettingsPage(GitSettings *settings)
             },
 
             Group {
-                Title(GitSettings::tr("Gitk")),
+                title(GitSettings::tr("Gitk")),
                 Row { s.gitkOptions }
             },
 
             Group {
-                Title(GitSettings::tr("Repository Browser")),
+                title(GitSettings::tr("Repository Browser")),
                 Row { s.repositoryBrowserCmd }
             },
 

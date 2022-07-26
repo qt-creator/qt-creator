@@ -481,11 +481,6 @@ Group::Group(const LayoutBuilder::Setters &setters, const LayoutBuilder &innerLa
         func(widget);
 }
 
-LayoutBuilder::Setter Title(const QString &title, BoolAspect *checker)
-{
-    return Layouting::title(title, checker);
-}
-
 LayoutBuilder::Setter title(const QString &title, BoolAspect *checker)
 {
     return [title, checker](QObject *target) {

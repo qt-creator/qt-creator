@@ -81,12 +81,12 @@ MercurialSettingsPage::MercurialSettingsPage(MercurialSettings *settings)
 
         Column {
             Group {
-                Title(MercurialSettings::tr("Configuration")),
+                title(MercurialSettings::tr("Configuration")),
                 Row { s.binaryPath }
             },
 
             Group {
-                Title(MercurialSettings::tr("User")),
+                title(MercurialSettings::tr("User")),
                 Form {
                     s.userName,
                     s.userEmail
@@ -94,7 +94,7 @@ MercurialSettingsPage::MercurialSettingsPage(MercurialSettings *settings)
             },
 
             Group {
-                Title(MercurialSettings::tr("Miscellaneous")),
+                title(MercurialSettings::tr("Miscellaneous")),
                 Row {
                     s.logCount,
                     s.timeout,

@@ -133,7 +133,7 @@ QtTestSettingsPage::QtTestSettingsPage(QtTestSettings *settings, Id settingsId)
                 s.limitWarnings, s.maxWarnings
             },
             Group {
-                Title(QtTestSettings::tr("Benchmark Metrics")),
+                title(QtTestSettings::tr("Benchmark Metrics")),
                 Column { s.metrics }
             },
         };

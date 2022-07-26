@@ -123,7 +123,7 @@ UncrustifyOptionsPageWidget::UncrustifyOptionsPageWidget(UncrustifySettings *set
 
     Column {
         Group {
-            Title(tr("Configuration")),
+            title(tr("Configuration")),
             Form {
                 tr("Uncrustify command:"), m_command, br,
                 tr("Restrict to MIME types:"), m_mime

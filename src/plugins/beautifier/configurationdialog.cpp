@@ -65,11 +65,11 @@ ConfigurationDialog::ConfigurationDialog(QWidget *parent)
 
     Column {
         Group {
-            Title(tr("Name")),
+            title(tr("Name")),
             Column { m_name }
         },
         Group {
-            Title(tr("Value")),
+            title(tr("Value")),
             Column {
                 m_editor,
                 m_documentationHeader,

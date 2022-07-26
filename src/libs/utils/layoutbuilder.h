@@ -188,9 +188,6 @@ namespace Layouting {
 QTCREATOR_UTILS_EXPORT LayoutBuilder::Setter title(const QString &title,
                                                    BoolAspect *checker = nullptr);
 
-QTCREATOR_UTILS_EXPORT LayoutBuilder::Setter Title(const QString &title,
-                                                   BoolAspect *checker = nullptr); // FIXME: Remove
-
 class QTCREATOR_UTILS_EXPORT Group : public LayoutBuilder::LayoutItem
 {
 public:

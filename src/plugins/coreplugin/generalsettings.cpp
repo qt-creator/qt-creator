@@ -138,7 +138,7 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
     form.addRow({empty, m_showShortcutsInContextMenus});
     form.addRow(Row{m_resetWarningsButton, st});
     form.addRow({tr("Text codec for tools:"), m_codecBox, st});
-    Column{Group{Title(tr("User Interface")), form}}.attachTo(this);
+    Column{Group{title(tr("User Interface")), form}}.attachTo(this);
 
     fillLanguageBox();
     fillCodecBox();

@@ -119,7 +119,7 @@ public:
             DebuggerSettings &s = *debuggerSettings();
 
             Group extended {
-                Title(Tr::tr("Extended")),
+                title(Tr::tr("Extended")),
                 Column {
                     labelDangerous,
                     s.targetAsync,

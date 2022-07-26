@@ -91,7 +91,7 @@ CodeGenSettingsPageWidget::CodeGenSettingsPageWidget()
 
     Column {
         Group {
-            Title(Tr::tr("Embedding of the UI Class")),
+            title(Tr::tr("Embedding of the UI Class")),
             Column {
                 m_ptrAggregationRadioButton,
                 m_aggregationButton,
@@ -99,7 +99,7 @@ CodeGenSettingsPageWidget::CodeGenSettingsPageWidget()
             }
         },
         Group {
-            Title(Tr::tr("Code Generation")),
+            title(Tr::tr("Code Generation")),
             Column {
                 m_retranslateCheckBox,
                 m_includeQtModuleCheckBox,

@@ -106,12 +106,12 @@ BazaarSettingsPage::BazaarSettingsPage(BazaarSettings *settings)
 
         Column {
             Group {
-                Title(BazaarSettings::tr("Configuration")),
+                title(BazaarSettings::tr("Configuration")),
                 Row { s.binaryPath }
             },
 
             Group {
-                Title(BazaarSettings::tr("User")),
+                title(BazaarSettings::tr("User")),
                 Form {
                     s.userName,
                     s.userEmail
@@ -119,7 +119,7 @@ BazaarSettingsPage::BazaarSettingsPage(BazaarSettings *settings)
             },
 
             Group {
-                Title(BazaarSettings::tr("Miscellaneous")),
+                title(BazaarSettings::tr("Miscellaneous")),
                 Row {
                     s.logCount,
                     s.timeout,

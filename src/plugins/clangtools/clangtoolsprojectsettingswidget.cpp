@@ -95,7 +95,7 @@ ClangToolsProjectSettingsWidget::ClangToolsProjectSettingsWidget(ProjectExplorer
         m_runSettingsWidget,
 
         Group {
-            Title(tr("Suppressed diagnostics")),
+            title(tr("Suppressed diagnostics")),
             Row {
                 m_diagnosticsView,
                 Column {

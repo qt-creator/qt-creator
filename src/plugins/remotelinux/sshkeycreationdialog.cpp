@@ -73,7 +73,7 @@ SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
     using namespace Layouting;
     Column {
         Group {
-            Title(Tr::tr("Options")),
+            title(Tr::tr("Options")),
             Form {
                 Tr::tr("Key algorithm:"), m_rsa, m_ecdsa, st, br,
                 Tr::tr("Key &size:"), m_comboBox, st, br,

@@ -121,12 +121,12 @@ SubversionSettingsPage::SubversionSettingsPage(SubversionSettings *settings)
 
         Column {
             Group {
-                Title(SubversionSettings::tr("Configuration")),
+                title(SubversionSettings::tr("Configuration")),
                 Column { s.binaryPath }
             },
 
             Group {
-                Title(SubversionSettings::tr("Authentication"), &s.useAuthentication),
+                title(SubversionSettings::tr("Authentication"), &s.useAuthentication),
                 Form {
                     s.userName,
                     s.password,
@@ -134,7 +134,7 @@ SubversionSettingsPage::SubversionSettingsPage(SubversionSettings *settings)
             },
 
             Group {
-                Title(SubversionSettings::tr("Miscellaneous")),
+                title(SubversionSettings::tr("Miscellaneous")),
                 Column {
                     Row { s.logCount, s.timeout, st },
                     s.promptOnSubmit,

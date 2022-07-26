@@ -118,7 +118,7 @@ ClangFormatOptionsPageWidget::ClangFormatOptionsPageWidget(ClangFormatSettings *
 
     Column {
         Group {
-            Title(tr("Configuration")),
+            title(tr("Configuration")),
             Form {
                 tr("Clang Format command:"), m_command, br,
                 tr("Restrict to MIME types:"), m_mime

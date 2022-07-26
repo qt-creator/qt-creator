@@ -102,7 +102,7 @@ AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate(QWidget *pare
 
     Column {
         Group {
-            Title(tr("Keystore")),
+            title(tr("Keystore")),
             Form {
                 tr("Password:"), m_keystorePassLineEdit, br,
                 tr("Retype password:"), m_keystoreRetypePassLineEdit, br,
@@ -111,7 +111,7 @@ AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate(QWidget *pare
         },
 
         Group {
-            Title(tr("Certificate")),
+            title(tr("Certificate")),
             Form {
                 tr("Alias name:"), m_certificateAliasLineEdit, br,
                 tr("Keysize:"), m_keySizeSpinBox, br,
@@ -124,7 +124,7 @@ AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate(QWidget *pare
         },
 
         Group {
-            Title(tr("Certificate Distinguished Names")),
+            title(tr("Certificate Distinguished Names")),
             Form {
                 tr("First and last name:"), m_commonNameLineEdit, br,
                 tr("Organizational unit (e.g. Necessitas):"),  m_organizationUnitLineEdit, br,

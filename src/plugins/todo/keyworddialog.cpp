@@ -76,11 +76,11 @@ KeywordDialog::KeywordDialog(const Keyword &keyword, const QSet<QString> &alread
         m_listWidget,
         Row {
             Group {
-                Title(Tr::tr("Color")),
+                title(Tr::tr("Color")),
                 Row { m_colorEdit, m_colorButton }
             },
             Group {
-                Title(Tr::tr("Keyword")),
+                title(Tr::tr("Keyword")),
                 Column { m_keywordNameEdit }
             }
         },

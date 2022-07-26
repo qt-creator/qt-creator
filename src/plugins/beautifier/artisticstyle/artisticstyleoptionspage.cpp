@@ -119,7 +119,7 @@ ArtisticStyleOptionsPageWidget::ArtisticStyleOptionsPageWidget(ArtisticStyleSett
 
     Column {
         Group {
-            Title(tr("Configuration")),
+            title(tr("Configuration")),
             Form {
                 tr("Artistic Style command:"), m_command, br,
                 tr("Restrict to MIME types:"), m_mime

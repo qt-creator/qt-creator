@@ -99,7 +99,7 @@ OptionsDialog::OptionsDialog(Settings *settings, const std::function<void ()> &o
 
     Column {
         Group {
-            Title(Tr::tr("Keywords")),
+            title(Tr::tr("Keywords")),
             Row {
                 m_keywordsList,
                 Column {
@@ -112,7 +112,7 @@ OptionsDialog::OptionsDialog(Settings *settings, const std::function<void ()> &o
             }
         },
         Group {
-            Title(Tr::tr("Scanning scope")),
+            title(Tr::tr("Scanning scope")),
             Column {
                 m_scanInProjectRadioButton,
                 m_scanInCurrentFileRadioButton,

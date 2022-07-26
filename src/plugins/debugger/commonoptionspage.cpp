@@ -77,7 +77,7 @@ public:
         };
 
         Column {
-            Group { Title("Behavior"), Row { col1, col2, st } },
+            Group { title("Behavior"), Row { col1, col2, st } },
             s.sourcePathMap,
             st
         }.attachTo(this);
@@ -160,14 +160,14 @@ public:
             label,
             s.useCodeModel,
             s.showThreadNames,
-            Group { Title(Tr::tr("Extra Debugging Helper")), Column { s.extraDumperFile } }
+            Group { title(Tr::tr("Extra Debugging Helper")), Column { s.extraDumperFile } }
         };
 
         Group useHelper {
             Row {
                 left,
                 Group {
-                    Title(Tr::tr("Debugging Helper Customization")),
+                    title(Tr::tr("Debugging Helper Customization")),
                     Column { s.extraDumperCommands }
                 }
             }

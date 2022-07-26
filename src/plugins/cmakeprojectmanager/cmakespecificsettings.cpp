@@ -96,7 +96,7 @@ CMakeSpecificSettingsPage::CMakeSpecificSettingsPage(CMakeSpecificSettings *sett
         using namespace Layouting;
         Column {
             Group {
-                Title(::CMakeProjectManager::Internal::CMakeSpecificSettings::tr("Adding Files")),
+                title(::CMakeProjectManager::Internal::CMakeSpecificSettings::tr("Adding Files")),
                 Column { s.afterAddFileSetting }
             },
             s.packageManagerAutoSetup,

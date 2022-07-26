@@ -99,9 +99,9 @@ ValgrindConfigWidget::ValgrindConfigWidget(ValgrindBaseSettings *settings)
     };
 
     Column {
-        Group { Title(Tr::tr("Valgrind Generic Settings")), generic },
-        Group { Title(Tr::tr("MemCheck Memory Analysis Options")), memcheck },
-        Group { Title(Tr::tr("CallGrind Profiling Options")), callgrind },
+        Group { title(Tr::tr("Valgrind Generic Settings")), generic },
+        Group { title(Tr::tr("MemCheck Memory Analysis Options")), memcheck },
+        Group { title(Tr::tr("CallGrind Profiling Options")), callgrind },
         st,
     }.attachTo(this);
 }

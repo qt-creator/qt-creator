@@ -72,7 +72,7 @@ DockerSettingsPage::DockerSettingsPage(DockerSettings *settings)
         // clang-format off
         Column {
             Group {
-                Title(Tr::tr("Configuration")),
+                title(Tr::tr("Configuration")),
                 Row { s.dockerBinaryPath }
             },
             st

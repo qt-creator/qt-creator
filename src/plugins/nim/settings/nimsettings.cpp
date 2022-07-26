@@ -142,7 +142,7 @@ NimToolsSettingsPage::NimToolsSettingsPage(NimSettings *settings)
         using namespace Layouting;
         Column {
             Group {
-                Title("Nimsuggest"),
+                title("Nimsuggest"),
                 Column { settings->nimSuggestPath }
             },
             st

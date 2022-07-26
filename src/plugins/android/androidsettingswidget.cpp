@@ -356,7 +356,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
 
     Column {
         Group {
-            Title(tr("Android Settings")),
+            title(tr("Android Settings")),
             Grid {
                 tr("JDK location:"),
                 m_openJdkLocationPathChooser,
@@ -388,7 +388,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             }
         },
         Group {
-            Title(tr("Android OpenSSL settings (Optional)")),
+            title(tr("Android OpenSSL settings (Optional)")),
             Grid {
                 tr("OpenSSL binaries location:"),
                 m_openSslPathChooser,

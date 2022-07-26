@@ -87,7 +87,7 @@ GeneralOptionsPageWidget::GeneralOptionsPageWidget(const QStringList &toolIds)
 
     Column {
         Group {
-            Title(tr("Automatic Formatting on File Save")),
+            title(tr("Automatic Formatting on File Save")),
             Form {
                 Span(2, m_autoFormat), br,
                 toolLabel, m_autoFormatTool, br,

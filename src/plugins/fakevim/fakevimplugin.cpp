@@ -428,7 +428,7 @@ void FakeVimOptionPage::layoutPage(QWidget *widget)
         s.useFakeVim,
 
         Group {
-            Title(Tr::tr("Vim Behavior")),
+            title(Tr::tr("Vim Behavior")),
             Column {
                 bools,
                 ints,
@@ -437,7 +437,7 @@ void FakeVimOptionPage::layoutPage(QWidget *widget)
         },
 
         Group {
-            Title(Tr::tr("Plugin Emulation")),
+            title(Tr::tr("Plugin Emulation")),
             Column {
                 s.emulateVimCommentary,
                 s.emulateReplaceWithRegister,

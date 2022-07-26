@@ -105,7 +105,7 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(CppCodeModelSettings *s)
 
     Column {
         Group {
-            Title(tr("General")),
+            title(tr("General")),
             Column {
                 m_interpretAmbiguousHeadersAsCHeaders,
                 m_ignorePchCheckBox,

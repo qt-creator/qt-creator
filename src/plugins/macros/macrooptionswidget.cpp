@@ -78,7 +78,7 @@ MacroOptionsWidget::MacroOptionsWidget()
 
     Column {
         Group {
-            Title(tr("Preferences")),
+            title(tr("Preferences")),
             Row {
                 m_treeWidget,
                 Column { m_removeButton, st },

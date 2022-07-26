@@ -183,7 +183,7 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
     using namespace Utils::Layouting;
 
     Group generalGroup {
-        Title(tr("General")),
+        title(tr("General")),
         Column {
             m_omitInternalMsgCB,
             m_omitRunConfigWarnCB,
@@ -202,7 +202,7 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
     };
 
     Group activeFrameworks {
-        Title(tr("Active Test Frameworks")),
+        title(tr("Active Test Frameworks")),
         Column {
             m_frameworkTreeWidget,
             m_frameworksWarn,

@@ -209,7 +209,7 @@ public:
 
         Column {
             Group {
-                Title(tr("System")),
+                title(tr("System")),
                 Column { form, st }
             }
         }.attachTo(this);
