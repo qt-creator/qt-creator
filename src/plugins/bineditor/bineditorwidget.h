@@ -155,12 +155,12 @@ private:
     using BlockMap = QMap<qint64, QByteArray>;
     BlockMap m_data;
     BlockMap m_oldData;
-    int m_blockSize;
+    int m_blockSize = 4096;
     BlockMap m_modifiedData;
     mutable QSet<qint64> m_requests;
     QByteArray m_emptyBlock;
     QByteArray m_lowerBlock;
-    qint64 m_size;
+    qint64 m_size = 0;
 
     int dataIndexOf(const QByteArray &pattern, qint64 from, bool caseSensitive = true) const;
     int dataLastIndexOf(const QByteArray &pattern, qint64 from, bool caseSensitive = true) const;
@@ -180,32 +180,32 @@ private:
     void asDouble(qint64 offset, double &value, bool old) const;
     QString toolTip(const QHelpEvent *helpEvent) const;
 
-    int m_bytesPerLine;
-    int m_unmodifiedState;
-    int m_readOnly;
-    int m_margin;
-    int m_descent;
-    int m_ascent;
-    int m_lineHeight;
-    int m_charWidth;
-    int m_labelWidth;
-    int m_textWidth;
-    int m_columnWidth;
-    qint64 m_numLines;
-    qint64 m_numVisibleLines;
+    int m_bytesPerLine = 16;
+    int m_unmodifiedState = 0;
+    int m_readOnly = false;
+    int m_margin = 0;
+    int m_descent = 0;
+    int m_ascent = 0;
+    int m_lineHeight = 0;
+    int m_charWidth = 0;
+    int m_labelWidth = 0;
+    int m_textWidth = 0;
+    int m_columnWidth = 0;
+    qint64 m_numLines = 0;
+    qint64 m_numVisibleLines = 0;
 
-    quint64 m_baseAddr;
+    quint64 m_baseAddr = 0;
 
-    bool m_cursorVisible;
-    qint64 m_cursorPosition;
-    qint64 m_anchorPosition;
-    bool m_hexCursor;
-    bool m_lowNibble;
-    bool m_isMonospacedFont;
+    qint64 m_cursorPosition = 0;
+    qint64 m_anchorPosition = 0;
+    bool m_cursorVisible = false;
+    bool m_hexCursor = true;
+    bool m_lowNibble = false;
+    bool m_isMonospacedFont = true;
+    bool m_caseSensitiveSearch = false;
 
     QByteArray m_searchPattern;
     QByteArray m_searchPatternHex;
-    bool m_caseSensitiveSearch;
 
     QBasicTimer m_cursorBlinkTimer;
 
@@ -236,10 +236,10 @@ private:
     QStack<BinEditorEditCommand> m_undoStack, m_redoStack;
 
     QBasicTimer m_autoScrollTimer;
-    Core::IEditor *m_ieditor;
+    Core::IEditor *m_ieditor = nullptr;
     QString m_addressString;
-    int m_addressBytes;
-    bool m_canRequestNewWindow;
+    int m_addressBytes = 4;
+    bool m_canRequestNewWindow = false;
     QList<Markup> m_markup;
 };
 

@@ -141,22 +141,7 @@ private:
 BinEditorWidget::BinEditorWidget(QWidget *parent)
     : QAbstractScrollArea(parent), d(new BinEditorWidgetPrivate(this))
 {
-    m_bytesPerLine = 16;
-    m_ieditor = nullptr;
-    m_baseAddr = 0;
-    m_blockSize = 4096;
-    m_size = 0;
-    m_addressBytes = 4;
     init();
-    m_unmodifiedState = 0;
-    m_readOnly = false;
-    m_hexCursor = true;
-    m_cursorPosition = 0;
-    m_anchorPosition = 0;
-    m_lowNibble = false;
-    m_cursorVisible = false;
-    m_caseSensitiveSearch = false;
-    m_canRequestNewWindow = false;
     setFocusPolicy(Qt::WheelFocus);
     setFrameStyle(QFrame::Plain);
 
