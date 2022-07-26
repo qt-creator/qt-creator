@@ -112,7 +112,7 @@ QWidget *NimbleTaskStep::createConfigWidget()
     auto widget = Form {
         m_taskArgs,
         tr("Tasks:"), taskList
-    }.emerge(false);
+    }.emerge(WithoutMargins);
 
     auto buildSystem = dynamic_cast<NimbleBuildSystem *>(this->buildSystem());
     QTC_ASSERT(buildSystem, return widget);

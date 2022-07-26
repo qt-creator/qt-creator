@@ -72,7 +72,7 @@ CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project)
     Column {
         Row { new QLabel(tr("Language:")), languageComboBox, st },
         stackedWidget
-    }.attachTo(this, false);
+    }.attachTo(this, WithoutMargins);
 }
 
 } // ProjectExplorer::Internal

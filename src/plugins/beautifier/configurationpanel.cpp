@@ -54,7 +54,7 @@ ConfigurationPanel::ConfigurationPanel(QWidget *parent)
         m_edit,
         m_remove,
         add
-    }.attachTo(this, false);
+    }.attachTo(this, WithoutMargins);
 
     connect(add, &QPushButton::clicked, this, &ConfigurationPanel::add);
     connect(m_edit, &QPushButton::clicked, this, &ConfigurationPanel::edit);

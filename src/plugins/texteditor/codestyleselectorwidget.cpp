@@ -185,7 +185,6 @@ CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *f
     m_importButton = new QPushButton(tr("Import..."));
     m_importButton->setEnabled(false);
 
-
     using namespace Utils::Layouting;
 
     Column {
@@ -202,7 +201,7 @@ CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *f
             m_importButton
         },
 
-    }.attachTo(this, false);
+    }.attachTo(this, WithoutMargins);
 
     connect(m_delegateComboBox, &QComboBox::activated,
             this, &CodeStyleSelectorWidget::slotComboBoxActivated);

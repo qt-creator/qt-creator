@@ -350,7 +350,7 @@ NamedWidget *BuildConfiguration::createConfigWidget()
         if (aspect->isVisible())
             aspect->addToLayout(builder.finishRow());
     }
-    builder.attachTo(widget, false);
+    builder.attachTo(widget, Layouting::WithoutMargins);
 
     return named;
 }

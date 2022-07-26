@@ -185,7 +185,7 @@ QWidget *BuildStep::createConfigWidget()
         if (aspect->isVisible())
             aspect->addToLayout(builder.finishRow());
     }
-    auto widget = builder.emerge(false);
+    auto widget = builder.emerge(Layouting::WithoutMargins);
 
     if (m_addMacroExpander)
         VariableChooser::addSupportForChildWidgets(widget, macroExpander());

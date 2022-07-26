@@ -45,6 +45,8 @@
 #include <QRegularExpression>
 #include <QUuid>
 
+using namespace Utils;
+
 namespace GitLab {
 
 static bool hostValid(const QString &host)
@@ -92,7 +94,7 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
     m_secure.setDefaultValue(true);
     m_secure.setEnabled(m == Edit);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Row {
         Form {
@@ -102,7 +104,7 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
             m_port,
             m_secure
         },
-    }.attachTo(this, m == Edit);
+    }.attachTo(this, m == Edit ? WithMargins : WithoutMargins);
 }
 
 GitLabServer GitLabServerWidget::gitLabServer() const

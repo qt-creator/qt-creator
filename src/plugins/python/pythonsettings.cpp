@@ -114,7 +114,7 @@ public:
         Form {
             Tr::tr("Name:"), m_name, br,
             Tr::tr("Executable"), m_executable
-        }.attachTo(this, false);
+        }.attachTo(this, WithoutMargins);
     }
 
     void updateInterpreter(const Interpreter &interpreter)

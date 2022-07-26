@@ -290,7 +290,7 @@ QtOptionsPageWidget::QtOptionsPageWidget()
         Tr::tr("Name:"), m_nameEdit, br,
         Tr::tr("qmake path:"), Row { m_qmakePath, m_editPathPushButton }, br,
         Span(2, m_errorLabel)
-    }.attachTo(versionInfoWidget, false);
+    }.attachTo(versionInfoWidget, WithoutMargins);
     // clang-format on
 
     m_formLayout = qobject_cast<QFormLayout*>(versionInfoWidget->layout());

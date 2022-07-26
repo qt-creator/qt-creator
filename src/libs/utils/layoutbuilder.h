@@ -43,6 +43,15 @@ namespace Utils {
 class BaseAspect;
 class BoolAspect;
 
+namespace Layouting {
+
+enum AttachType {
+    WithMargins,
+    WithoutMargins,
+};
+
+} // Layouting
+
 class QTCREATOR_UTILS_EXPORT LayoutBuilder
 {
 public:
@@ -111,8 +120,8 @@ public:
 
     LayoutType layoutType() const { return m_layoutType; }
 
-    void attachTo(QWidget *w, bool withMargins = true) const;
-    QWidget *emerge(bool withMargins = true);
+    void attachTo(QWidget *w, Layouting::AttachType attachType = Layouting::WithMargins) const;
+    QWidget *emerge(Layouting::AttachType attachType = Layouting::WithMargins);
 
     class QTCREATOR_UTILS_EXPORT Space : public LayoutItem
     {
@@ -157,7 +166,7 @@ protected:
     explicit LayoutBuilder(); // Adds to existing layout.
 
     QLayout *createLayout() const;
-    void doLayout(QWidget *parent, bool withMargins) const;
+    void doLayout(QWidget *parent, Layouting::AttachType attachType) const;
 
     LayoutItems m_items;
     LayoutType m_layoutType;

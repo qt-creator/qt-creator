@@ -450,7 +450,7 @@ void FakeVimOptionPage::layoutPage(QWidget *widget)
         Row { copyTextEditorSettings, setQtStyle, setPlainStyle, st },
         st
 
-    }.attachTo(widget, true);
+    }.attachTo(widget);
 
     s.vimRcPath.setEnabler(&s.readVimRc);
 

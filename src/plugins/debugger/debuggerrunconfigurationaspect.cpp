@@ -181,7 +181,7 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
         static const QByteArray env = qgetenv("QTC_DEBUGGER_MULTIPROCESS");
         if (env.toInt())
             builder.addRow(m_multiProcessAspect);
-        return builder.emerge(false);
+        return builder.emerge(Layouting::WithoutMargins);
     });
 
     addDataExtractor(this, &DebuggerRunConfigurationAspect::useCppDebugger, &Data::useCppDebugger);

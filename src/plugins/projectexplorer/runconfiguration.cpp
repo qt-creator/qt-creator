@@ -245,7 +245,7 @@ QWidget *RunConfiguration::createConfigurationWidget()
             aspect->addToLayout(builder.finishRow());
     }
 
-    auto widget = builder.emerge(false);
+    auto widget = builder.emerge(Layouting::WithoutMargins);
 
     VariableChooser::addSupportForChildWidgets(widget, &m_expander);
 

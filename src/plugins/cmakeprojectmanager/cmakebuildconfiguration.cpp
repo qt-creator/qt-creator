@@ -363,7 +363,7 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildSystem *bs) :
                 }
             }
         }.setSpacing(0)
-    }.attachTo(details, false);
+    }.attachTo(details, WithoutMargins);
 
     updateAdvancedCheckBox();
     setError(m_buildSystem->error());

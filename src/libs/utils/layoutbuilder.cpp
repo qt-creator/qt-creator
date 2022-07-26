@@ -137,12 +137,6 @@ QLayout *LayoutBuilder::createLayout() const
     return layout;
 }
 
-static void setMargins(bool on, QLayout *layout)
-{
-    if (!on)
-        layout->setContentsMargins(0, 0, 0, 0);
-}
-
 static QWidget *widgetForItem(QLayoutItem *item)
 {
     if (QWidget *w = item->widget())
@@ -384,13 +378,14 @@ LayoutBuilder &LayoutBuilder::addItem(const LayoutItem &item)
     return *this;
 }
 
-void LayoutBuilder::doLayout(QWidget *parent, bool withMargins) const
+void LayoutBuilder::doLayout(QWidget *parent, Layouting::AttachType attachType) const
 {
     QLayout *layout = createLayout();
     parent->setLayout(layout);
 
     doLayoutHelper(layout, m_items);
-    setMargins(withMargins, layout);
+    if (attachType == Layouting::WithoutMargins)
+        layout->setContentsMargins(0, 0, 0, 0);
 }
 
 /*!
@@ -408,15 +403,15 @@ LayoutBuilder &LayoutBuilder::addItems(const LayoutItems &items)
 
     This operation can only be performed once per LayoutBuilder instance.
  */
-void LayoutBuilder::attachTo(QWidget *w, bool withMargins) const
+void LayoutBuilder::attachTo(QWidget *w, Layouting::AttachType attachType) const
 {
-    doLayout(w, withMargins);
+    doLayout(w, attachType);
 }
 
-QWidget *LayoutBuilder::emerge(bool withMargins)
+QWidget *LayoutBuilder::emerge(Layouting::AttachType attachType)
 {
     auto w = new QWidget;
-    doLayout(w, withMargins);
+    doLayout(w, attachType);
     return w;
 }
 
@@ -481,7 +476,7 @@ Group::Group(const LayoutBuilder &innerLayout)
 Group::Group(const LayoutBuilder::Setters &setters, const LayoutBuilder &innerLayout)
 {
     widget = new QGroupBox;
-    innerLayout.attachTo(widget, true);
+    innerLayout.attachTo(widget, AttachType::WithMargins);
     for (const LayoutBuilder::Setter &func : setters)
         func(widget);
 }

@@ -257,7 +257,7 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
     Row {
         Column { d->tabPreferencesWidget, d->groupBoxTyping, st },
         Column { d->groupBoxStorageSettings, d->groupBoxEncodings, d->groupBoxMouse, st }
-    }.attachTo(this, false);
+    }.attachTo(this, WithoutMargins);
 
     connect(d->cleanWhitespace, &QCheckBox::toggled,
             d->inEntireDocument, &QCheckBox::setEnabled);
