@@ -25,16 +25,16 @@
 
 #include "behaviorsettingswidget.h"
 
+#include "behaviorsettings.h"
+#include "codecchooser.h"
+#include "extraencodingsettings.h"
+#include "simplecodestylepreferenceswidget.h"
+#include "storagesettings.h"
 #include "tabsettingswidget.h"
+#include "typingsettings.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
-
-#include <texteditor/typingsettings.h>
-#include <texteditor/storagesettings.h>
-#include <texteditor/behaviorsettings.h>
-#include <texteditor/extraencodingsettings.h>
-#include <texteditor/simplecodestylepreferenceswidget.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -54,7 +54,6 @@ namespace TextEditor {
 
 struct BehaviorSettingsWidgetPrivate
 {
-    QList<QTextCodec *> m_codecs;
 
     SimpleCodeStylePreferencesWidget *tabPreferencesWidget;
     QComboBox *tabKeyBehavior;
@@ -70,7 +69,7 @@ struct BehaviorSettingsWidgetPrivate
     QCheckBox *cleanIndentation;
     QCheckBox *inEntireDocument;
     QGroupBox *groupBoxEncodings;
-    QComboBox *encodingBox;
+    CodecChooser *encodingBox;
     QComboBox *utf8BomBox;
     QLabel *defaultLineEndingsLabel;
     QComboBox *defaultLineEndings;
@@ -145,7 +144,7 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
     d->inEntireDocument->setEnabled(false);
     d->inEntireDocument->setToolTip(tr("Cleans whitespace in entire document instead of only for changed parts."));
 
-    d->encodingBox = new QComboBox;
+    d->encodingBox = new CodecChooser;
     d->encodingBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
     d->encodingBox->setMinimumContentsLength(20);
 
@@ -187,32 +186,6 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
     d->groupBoxEncodings = new QGroupBox(tr("File Encodings"));
 
     d->groupBoxMouse = new QGroupBox(tr("Mouse and Keyboard"));
-
-    QList<int> mibs = QTextCodec::availableMibs();
-    Utils::sort(mibs);
-    QList<int>::iterator firstNonNegative =
-        std::find_if(mibs.begin(), mibs.end(), [](int n) { return n >=0; });
-    if (firstNonNegative != mibs.end())
-        std::rotate(mibs.begin(), firstNonNegative, mibs.end());
-    for (int mib : qAsConst(mibs)) {
-        if (QTextCodec *codec = QTextCodec::codecForMib(mib)) {
-            QString compoundName = QLatin1String(codec->name());
-            const QList<QByteArray> aliases = codec->aliases();
-            for (const QByteArray &alias : aliases) {
-                compoundName += QLatin1String(" / ");
-                compoundName += QString::fromLatin1(alias);
-            }
-            d->encodingBox->addItem(compoundName);
-            d->m_codecs.append(codec);
-        }
-    }
-
-    // Qt5 doesn't list the system locale (QTBUG-34283), so add it manually
-    const QString system(QLatin1String("System"));
-    if (d->encodingBox->findText(system) == -1) {
-        d->encodingBox->insertItem(0, system);
-        d->m_codecs.prepend(QTextCodec::codecForLocale());
-    }
 
     using namespace Utils::Layouting;
 
@@ -293,8 +266,8 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
             this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
     connect(d->utf8BomBox, &QComboBox::currentIndexChanged,
             this, &BehaviorSettingsWidget::slotExtraEncodingChanged);
-    connect(d->encodingBox, &QComboBox::currentIndexChanged,
-            this, &BehaviorSettingsWidget::slotEncodingBoxChanged);
+    connect(d->encodingBox, &CodecChooser::codecChanged,
+            this, &BehaviorSettingsWidget::textCodecChanged);
     connect(d->constrainTooltipsBox, &QComboBox::currentIndexChanged,
             this, &BehaviorSettingsWidget::slotBehaviorSettingsChanged);
     connect(d->keyboardTooltips, &QAbstractButton::clicked,
@@ -323,28 +296,12 @@ void BehaviorSettingsWidget::setAssignedCodec(QTextCodec *codec)
 {
     const QString codecName = Core::ICore::settings()->value(
                 Core::Constants::SETTINGS_DEFAULTTEXTENCODING).toString();
-
-    int rememberedSystemPosition = -1;
-    for (int i = 0; i < d->m_codecs.size(); ++i) {
-        if (codec == d->m_codecs.at(i)) {
-            if (d->encodingBox->itemText(i) == codecName) {
-                d->encodingBox->setCurrentIndex(i);
-                return;
-            } else { // we've got System matching encoding - but have explicitly set the codec
-                rememberedSystemPosition = i;
-            }
-        }
-    }
-    if (rememberedSystemPosition != -1)
-        d->encodingBox->setCurrentIndex(rememberedSystemPosition);
+    d->encodingBox->setAssignedCodec(codec, codecName);
 }
 
 QByteArray BehaviorSettingsWidget::assignedCodecName() const
 {
-    return d->encodingBox->currentIndex() == 0
-            ? QByteArray("System")   // we prepend System to the available codecs
-            : d->m_codecs.at(d->encodingBox->currentIndex())->name();
-
+    return d->encodingBox->assignedCodecName();
 }
 
 void BehaviorSettingsWidget::setCodeStyle(ICodeStylePreferences *preferences)
@@ -486,11 +443,6 @@ void BehaviorSettingsWidget::slotExtraEncodingChanged()
     ExtraEncodingSettings settings;
     assignedExtraEncodingSettings(&settings);
     emit extraEncodingSettingsChanged(settings);
-}
-
-void BehaviorSettingsWidget::slotEncodingBoxChanged(int index)
-{
-    emit textCodecChanged(d->m_codecs.at(index));
 }
 
 } // TextEditor

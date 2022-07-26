@@ -88,7 +88,6 @@ private:
     void slotStorageSettingsChanged();
     void slotBehaviorSettingsChanged();
     void slotExtraEncodingChanged();
-    void slotEncodingBoxChanged(int index);
     void updateConstrainTooltipsBoxTooltip() const;
 
     BehaviorSettingsWidgetPrivate *d;

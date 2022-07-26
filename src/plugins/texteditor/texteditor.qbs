@@ -37,6 +37,8 @@ Project {
             "circularclipboard.h",
             "circularclipboardassist.cpp",
             "circularclipboardassist.h",
+            "codecchooser.cpp",
+            "codecchooser.h",
             "codestyleeditor.cpp",
             "codestyleeditor.h",
             "codestylepool.cpp",
