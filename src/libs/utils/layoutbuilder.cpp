@@ -480,11 +480,10 @@ Group::Group(const LayoutBuilder &innerLayout)
 
 Group::Group(const LayoutBuilder::Setters &setters, const LayoutBuilder &innerLayout)
 {
-    auto box = new QGroupBox;
-    innerLayout.attachTo(box, true);
+    widget = new QGroupBox;
+    innerLayout.attachTo(widget, true);
     for (const LayoutBuilder::Setter &func : setters)
-        func(box);
-    widget = box;
+        func(widget);
 }
 
 LayoutBuilder::Setter Title(const QString &title, BoolAspect *checker)
