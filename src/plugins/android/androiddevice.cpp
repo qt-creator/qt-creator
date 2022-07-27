@@ -43,6 +43,7 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
+#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 #include <utils/url.h>
@@ -53,10 +54,8 @@
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QTimer>
 #include <QRegularExpression>
-
-#include <utils/qtcprocess.h>
+#include <QTimer>
 
 using namespace ProjectExplorer;
 using namespace Utils;

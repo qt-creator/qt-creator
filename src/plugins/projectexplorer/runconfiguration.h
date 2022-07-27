@@ -32,7 +32,6 @@
 #include <utils/aspects.h>
 #include <utils/environment.h>
 #include <utils/macroexpander.h>
-#include <utils/port.h>
 
 #include <QWidget>
 

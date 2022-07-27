@@ -30,6 +30,8 @@
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
+#include <utils/port.h>
+
 #include <QFuture>
 
 namespace Android {

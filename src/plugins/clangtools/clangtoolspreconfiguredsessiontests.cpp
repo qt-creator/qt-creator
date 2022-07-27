@@ -39,8 +39,10 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
+#include <utils/qtcassert.h>
 
 #include <QSignalSpy>
 #include <QElapsedTimer>

@@ -40,6 +40,7 @@
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mimeutils.h>
+#include <utils/qtcassert.h>
 
 #include <QComboBox>
 

@@ -25,7 +25,10 @@
 
 #include "port.h"
 
+#include "qtcassert.h"
 #include "stringutils.h"
+
+#include <limits>
 
 /*! \class Utils::Port
 
@@ -34,6 +37,21 @@
 */
 
 namespace Utils {
+
+Port::Port(int port)
+    : m_port((port < 0 || port > std::numeric_limits<quint16>::max()) ? -1 : port)
+{
+}
+
+Port::Port(uint port)
+    : m_port(port > std::numeric_limits<quint16>::max() ? -1 : port)
+{
+}
+
+quint16 Port::number() const
+{
+    QTC_ASSERT(isValid(), return -1); return quint16(m_port);
+}
 
 QList<Port> Port::parseFromSedOutput(const QByteArray &output)
 {
