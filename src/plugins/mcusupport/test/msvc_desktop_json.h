@@ -25,9 +25,9 @@
 
 #pragma once
 
-constexpr auto gcc_desktop_json = R"({
-  "qulVersion": "2.3.0",
-  "compatVersion": "1",
+constexpr auto msvc_desktop_json = R"({
+  "qulVersion": "@CMAKE_PROJECT_VERSION@",
+  "compatVersion": "@COMPATIBILITY_VERSION@",
   "platform": {
       "id": "Qt",
       "platformName": "Desktop",
@@ -50,18 +50,18 @@ constexpr auto gcc_desktop_json = R"({
       ]
   },
   "toolchain": {
-    "id": "gcc",
+    "id": "msvc",
     "versions": [
-      "9.4.0",
-      "10.3.1"
+        "19.20","19.21","19.22","19.23","19.24",
+        "19.25","19.26","19.27","19.28","19.29"
     ],
     "compiler": {
-      "defaultValue": "/usr",
-      "versionDetection": {
-          "filePattern": "bin/g++",
-          "executableArgs": "--version",
-          "regex": "\\b(\\d+\\.\\d+\\.\\d+)\\b"
-      }
+      "defaultValue": "$MSVC_COMPILER_DIR",
+      "versionDetection" : {
+            "filePattern": "cl.exe",
+            "executableArgs": "--version",
+            "regex": "\\b(\\d+\\.\\d+)\\.\\d+\\b"
+        }
     }
   }
 })";

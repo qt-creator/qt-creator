@@ -49,6 +49,7 @@ bool isDesktopToolchain(McuToolChainPackage::ToolChainType type)
            || type == McuToolChainPackage::ToolChainType::GCC;
 }
 
+
 const static QMap<QString, McuToolChainPackage::ToolChainType> toolchainTypeMapping{
     {"iar", McuToolChainPackage::ToolChainType::IAR},
     {"keil", McuToolChainPackage::ToolChainType::KEIL},
@@ -154,18 +155,18 @@ McuToolChainPackage *McuTargetFactory::createToolchain(
     McuToolChainPackage::ToolChainType toolchainType
         = toolchainTypeMapping.value(toolchain.id, McuToolChainPackage::ToolChainType::Unsupported);
 
-    if (isDesktopToolchain(toolchainType))
+    if (isDesktopToolchain(toolchainType)) {
         return new McuToolChainPackage{settingsHandler,
-                                       {},
-                                       {},
-                                       {},
+                                       compilerDescription.label,
+                                       compilerDescription.defaultPath,
+                                       compilerDescription.validationPath,
                                        {},
                                        toolchainType,
                                        toolchain.versions,
                                        compilerDescription.cmakeVar,
                                        {},
-                                       nullptr};
-    else if (!isToolchainDescriptionValid(toolchain))
+                                       createVersionDetection(compilerDescription.versionDetection)};
+    } else if (!isToolchainDescriptionValid(toolchain))
         toolchainType = McuToolChainPackage::ToolChainType::Unsupported;
 
     return new McuToolChainPackage{settingsHandler,

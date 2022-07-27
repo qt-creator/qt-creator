@@ -251,7 +251,7 @@ McuToolChainPackagePtr createGccToolChainPackage(const SettingsHandler::Ptr &set
                                                           "GnuToolchain",
                                                           McuToolChainPackage::ToolChainType::GCC,
                                                           versions,
-                                                          Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE,
+                                                          {},
                                                           {},
                                                           versionDetector)};
 }
