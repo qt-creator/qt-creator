@@ -80,6 +80,9 @@
 #include <algorithm>
 #include <memory>
 
+using namespace ProjectExplorer;
+using namespace Utils;
+
 namespace StudioWelcome {
 namespace Internal {
 
@@ -231,8 +234,8 @@ public:
             return;
 
         m_blockOpenRecent = true;
-        const QString projectFile = data(index(row, 0), ProjectModel::FilePathRole).toString();
-        if (QFileInfo::exists(projectFile))
+        const FilePath projectFile = FilePath::fromVariant(data(index(row, 0), ProjectModel::FilePathRole));
+        if (projectFile.exists())
             ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
 
         resetProjects();
@@ -260,7 +263,7 @@ public:
         if (!explicitQmlproject.isEmpty())
             projectFile = exampleFolder + explicitQmlproject;
 
-        ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
+        ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(FilePath::fromString(projectFile));
 
         const QString qmlFile = QFileInfo(projectFile).dir().absolutePath() + "/" + formFile;
 
@@ -283,7 +286,7 @@ public:
         Q_UNUSED(completeBaseName)
         const Utils::FilePath projectFile = Core::ICore::resourcePath("examples")
                                             / example / example + ".qmlproject";
-        ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile.toString());
+        ProjectExplorer::ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
         const Utils::FilePath qmlFile = Core::ICore::resourcePath("examples")
                                             / example / formFile;
 
@@ -328,10 +331,10 @@ int ProjectModel::rowCount(const QModelIndex &) const
     return ProjectExplorer::ProjectExplorerPlugin::recentProjects().count();
 }
 
-QString getQDSVersion(const QString &projectFilePath)
+static QString getQDSVersion(const FilePath &projectFilePath)
 {
     const QString qdsVersion = QmlProjectManager::ProjectFileContentTools::qdsVersion(
-                                        Utils::FilePath::fromString(projectFilePath));
+                                        projectFilePath);
 
     return ProjectModel::tr("Created with Qt Design Studio version: %1").arg(qdsVersion);
 }
@@ -347,11 +350,11 @@ static QString fromCamelCase(const QString &s) {
    return result;
 }
 
-static QString resolutionFromConstants(const QString &projectFilePath)
+static QString resolutionFromConstants(const FilePath &projectFilePath)
 {
     QmlProjectManager::ProjectFileContentTools::Resolution res =
             QmlProjectManager::ProjectFileContentTools::resolutionFromConstants(
-                Utils::FilePath::fromString(projectFilePath));
+                projectFilePath);
 
     if (res.width > 0 && res.height > 0)
         return ProjectModel::tr("Resolution: %1x%2").arg(res.width).arg(res.height);
@@ -359,25 +362,25 @@ static QString resolutionFromConstants(const QString &projectFilePath)
     return {};
 }
 
-static QString description(const QString &projectFilePath)
+static QString description(const FilePath &projectFilePath)
 {
 
     const QString created = ProjectModel::tr("Created: %1").arg(
-            QFileInfo(projectFilePath).fileTime(QFileDevice::FileBirthTime).toString());
+            projectFilePath.toFileInfo().fileTime(QFileDevice::FileBirthTime).toString());
     const QString lastEdited =  ProjectModel::tr("Last Edited: %1").arg(
-            QFileInfo(projectFilePath).fileTime(QFileDevice::FileModificationTime).toString());
+            projectFilePath.toFileInfo().fileTime(QFileDevice::FileModificationTime).toString());
 
-    return fromCamelCase(QFileInfo(projectFilePath).baseName()) + "\n\n" + created + "\n" + lastEdited
+    return fromCamelCase(projectFilePath.baseName()) + "\n\n" + created + "\n" + lastEdited
             + "\n" + resolutionFromConstants(projectFilePath)
             + "\n" + getQDSVersion(projectFilePath);
 }
 
-static QString tags(const QString &projectFilePath)
+static QString tags(const FilePath &projectFilePath)
 {
     QStringList ret;
     const QString defaultReturn = "content/App.qml";
     Utils::FileReader reader;
-    if (!reader.fetch(Utils::FilePath::fromString(projectFilePath)))
+    if (!reader.fetch(projectFilePath))
             return defaultReturn;
 
     const QByteArray data = reader.data();
@@ -403,13 +406,13 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
         return data.second;
         break;
     case FilePathRole:
-        return data.first;
+        return data.first.toVariant();
     case PrettyFilePathRole:
-        return Utils::withTildeHomePath(QFileInfo(data.first).dir().absolutePath());
+        return Utils::withTildeHomePath(data.first.absolutePath().toUserOutput());
     case PreviewUrl:
         return QVariant(QStringLiteral("image://project_preview/") +
                         QmlProjectManager::ProjectFileContentTools::appQmlFile(
-                            Utils::FilePath::fromString(data.first)));
+                            data.first));
     case TagData:
         return tags(data.first);
     case Description:

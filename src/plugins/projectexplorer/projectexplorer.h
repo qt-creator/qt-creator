@@ -40,7 +40,6 @@ class QThreadPool;
 QT_END_NAMESPACE
 
 namespace Core {
-class IMode;
 class OutputWindow;
 } // Core
 
@@ -64,7 +63,7 @@ class MiniProjectTargetSelector;
 class ProjectExplorerSettings;
 }
 
-using RecentProjectsEntry = QPair<QString, QString>;
+using RecentProjectsEntry = QPair<Utils::FilePath, QString>;
 using RecentProjectsEntries = QList<RecentProjectsEntry>;
 
 class PROJECTEXPLORER_EXPORT ProjectExplorerPlugin : public ExtensionSystem::IPlugin
@@ -122,7 +121,7 @@ public:
     static OpenProjectResult openProject(const Utils::FilePath &filePath);
     static OpenProjectResult openProjects(const Utils::FilePaths &filePaths);
     static void showOpenProjectError(const OpenProjectResult &result);
-    static void openProjectWelcomePage(const QString &fileName);
+    static void openProjectWelcomePage(const Utils::FilePath &filePath);
     static void unloadProject(Project *project);
 
     static bool saveModifiedFiles();
@@ -187,7 +186,7 @@ public:
 
     static void activateProjectPanel(Utils::Id panelId);
     static void clearRecentProjects();
-    static void removeFromRecentProjects(const QString &fileName, const QString &displayName);
+    static void removeFromRecentProjects(const Utils::FilePath &filePath);
 
     static void updateRunActions();
 

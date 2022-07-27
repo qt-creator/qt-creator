@@ -29,6 +29,8 @@
 
 #include <coreplugin/iwelcomepage.h>
 
+#include <utils/filepath.h>
+
 #include <QAbstractListModel>
 
 namespace ProjectExplorer {
@@ -74,7 +76,7 @@ public slots:
     void openProject();
 
 signals:
-    void requestProject(const QString &project);
+    void requestProject(const Utils::FilePath &project);
     void manageSessions();
 
 private:

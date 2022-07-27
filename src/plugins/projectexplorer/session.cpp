@@ -47,6 +47,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/qtcassert.h>
 

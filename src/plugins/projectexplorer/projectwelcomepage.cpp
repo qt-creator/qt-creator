@@ -42,6 +42,7 @@
 #include <utils/icon.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
 #include <QAbstractItemDelegate>
@@ -92,9 +93,9 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
         return data.second;
     case Qt::ToolTipRole:
     case FilePathRole:
-        return data.first;
+        return data.first.toVariant();
     case PrettyFilePathRole:
-        return Utils::withTildeHomePath(data.first);
+        return Utils::withTildeHomePath(data.first.toUserOutput()); // FIXME: FilePath::displayName() ?
     case ShortcutRole: {
         const Id projectBase = PROJECT_BASE_ID;
         if (Command *cmd = ActionManager::command(projectBase.withSuffix(index.row() + 1)))
@@ -162,9 +163,9 @@ void ProjectWelcomePage::openSessionAt(int index)
 void ProjectWelcomePage::openProjectAt(int index)
 {
     QTC_ASSERT(m_projectModel, return);
-    const QString projectFile = m_projectModel->data(m_projectModel->index(index, 0),
-                                                     ProjectModel::FilePathRole).toString();
-    ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
+    const QVariant projectFile = m_projectModel->data(m_projectModel->index(index, 0),
+                                                      ProjectModel::FilePathRole);
+    ProjectExplorerPlugin::openProjectWelcomePage(FilePath::fromVariant(projectFile));
 }
 
 void ProjectWelcomePage::createActions()
@@ -529,8 +530,8 @@ public:
             const QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(ev);
             const Qt::MouseButtons button = mouseEvent->button();
             if (button == Qt::LeftButton) {
-                const QString projectFile = idx.data(ProjectModel::FilePathRole).toString();
-                ProjectExplorerPlugin::openProjectWelcomePage(projectFile);
+                const QVariant projectFile = idx.data(ProjectModel::FilePathRole);
+                ProjectExplorerPlugin::openProjectWelcomePage(FilePath::fromVariant(projectFile));
                 return true;
             }
             if (button == Qt::RightButton) {
@@ -540,9 +541,8 @@ public:
                 const auto projectModel = qobject_cast<ProjectModel *>(model);
                 contextMenu.addAction(action);
                 connect(action, &QAction::triggered, [idx, projectModel](){
-                    const QString projectFile = idx.data(ProjectModel::FilePathRole).toString();
-                    const QString displayName = idx.data(Qt::DisplayRole).toString();
-                    ProjectExplorerPlugin::removeFromRecentProjects(projectFile, displayName);
+                    const QVariant projectFile = idx.data(ProjectModel::FilePathRole);
+                    ProjectExplorerPlugin::removeFromRecentProjects(FilePath::fromVariant(projectFile));
                     projectModel->resetProjects();
                 });
                 contextMenu.addSeparator();
