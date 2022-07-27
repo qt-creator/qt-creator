@@ -210,7 +210,7 @@ Project {
                 "newdialogwidget.cpp", "newdialogwidget.h",
                 "openwithdialog.cpp", "openwithdialog.h",
                 "promptoverwritedialog.cpp", "promptoverwritedialog.h",
-                "readonlyfilesdialog.cpp", "readonlyfilesdialog.h", "readonlyfilesdialog.ui",
+                "readonlyfilesdialog.cpp", "readonlyfilesdialog.h",
                 "restartdialog.cpp", "restartdialog.h",
                 "saveitemsdialog.cpp", "saveitemsdialog.h",
                 "settingsdialog.cpp", "settingsdialog.h",
