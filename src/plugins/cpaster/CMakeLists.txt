@@ -20,7 +20,7 @@ add_qtc_plugin(CodePaster
     pastebindotcomsettings.ui
     pasteselect.ui
     pasteselectdialog.cpp pasteselectdialog.h
-    pasteview.cpp pasteview.h pasteview.ui
+    pasteview.cpp pasteview.h
     protocol.cpp protocol.h
     settings.cpp settings.h
     stickynotespasteprotocol.cpp stickynotespasteprotocol.h

@@ -33,7 +33,6 @@ QtcPlugin {
         "pasteselectdialog.h",
         "pasteview.cpp",
         "pasteview.h",
-        "pasteview.ui",
         "protocol.cpp",
         "protocol.h",
         "settings.cpp",

@@ -24,20 +24,36 @@
 ****************************************************************************/
 
 #include "pasteview.h"
+
+#include "columnindicatortextedit.h"
 #include "protocol.h"
 
 #include <coreplugin/icore.h>
+
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
+#include <QApplication>
+#include <QComboBox>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QListWidget>
+#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QSettings>
+#include <QSpinBox>
+#include <QStackedWidget>
+#include <QTextEdit>
 
-static const char groupC[] = "CPaster";
-static const char heightKeyC[] = "PasteViewHeight";
-static const char widthKeyC[] = "PasteViewWidth";
+const char groupC[] = "CPaster";
+const char heightKeyC[] = "PasteViewHeight";
+const char widthKeyC[] = "PasteViewWidth";
 
 namespace CodePaster {
-// -------------------------------------------------------------------------------------------------
+
 PasteView::PasteView(const QList<Protocol *> &protocols,
                      const QString &mt,
                      QWidget *parent) :
@@ -46,21 +62,93 @@ PasteView::PasteView(const QList<Protocol *> &protocols,
     m_commentPlaceHolder(tr("<Comment>")),
     m_mimeType(mt)
 {
-    m_ui.setupUi(this);
+    resize(670, 678);
+    setWindowTitle(tr("Send to Codepaster"));
 
-    m_ui.buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Paste"));
-    connect(m_ui.uiPatchList, &QListWidget::itemChanged, this, &PasteView::contentChanged);
+    m_protocolBox = new QComboBox;
+    for (const Protocol *p : protocols)
+        m_protocolBox->addItem(p->name());
 
-    foreach (const Protocol *p, protocols)
-        m_ui.protocolBox->addItem(p->name());
-    connect(m_ui.protocolBox, &QComboBox::currentIndexChanged, this, &PasteView::protocolChanged);
+    m_expirySpinBox = new QSpinBox;
+    m_expirySpinBox->setSuffix(tr(" Days"));
+    m_expirySpinBox->setRange(1, 365);
+
+    m_uiUsername = new QLineEdit(this);
+    m_uiUsername->setPlaceholderText(tr("<Username>"));
+
+    m_uiDescription = new QLineEdit(this);
+    m_uiDescription->setPlaceholderText(tr("<Description>"));
+
+    QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    m_uiComment = new QTextEdit(this);
+    m_uiComment->setSizePolicy(sizePolicy);
+    m_uiComment->setMaximumHeight(100);
+    m_uiComment->setTabChangesFocus(true);
+
+    m_uiPatchList = new QListWidget;
+    sizePolicy.setVerticalStretch(1);
+    m_uiPatchList->setSizePolicy(sizePolicy);
+    m_uiPatchList->setUniformItemSizes(true);
+
+    m_uiPatchView = new CodePaster::ColumnIndicatorTextEdit;
+    sizePolicy.setVerticalStretch(3);
+    m_uiPatchView->setSizePolicy(sizePolicy);
+
+    QFont font;
+    font.setFamilies({"Courier New"});
+    m_uiPatchView->setFont(font);
+    m_uiPatchView->setReadOnly(true);
+
+    auto groupBox = new QGroupBox(tr("Parts to Send to Server"));
+    groupBox->setFlat(true);
+
+    m_plainTextEdit = new QPlainTextEdit;
+
+    m_stackedWidget = new QStackedWidget(this);
+    m_stackedWidget->addWidget(groupBox);
+    m_stackedWidget->addWidget(m_plainTextEdit);
+    m_stackedWidget->setCurrentIndex(0);
+
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+    buttonBox->button(QDialogButtonBox::Ok)->setText(tr("Paste"));
+
+    const bool __sortingEnabled = m_uiPatchList->isSortingEnabled();
+    m_uiPatchList->setSortingEnabled(false);
+    m_uiPatchList->setSortingEnabled(__sortingEnabled);
+
+    using namespace Utils::Layouting;
+
+    Column {
+        m_uiPatchList,
+        m_uiPatchView
+    }.attachTo(groupBox);
+
+    Column {
+        Form {
+            tr("Protocol:"), m_protocolBox, br,
+            tr("&Expires after:"), m_expirySpinBox, br,
+            tr("&Username:"), m_uiUsername, br,
+            tr("&Description:"), m_uiDescription,
+        },
+        m_uiComment,
+        m_stackedWidget,
+        buttonBox
+    }.setSpacing(2).attachTo(this);
+
+    connect(m_uiPatchList, &QListWidget::itemChanged, this, &PasteView::contentChanged);
+
+    connect(m_protocolBox, &QComboBox::currentIndexChanged, this, &PasteView::protocolChanged);
+
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 PasteView::~PasteView() = default;
 
 QString PasteView::user() const
 {
-    const QString username = m_ui.uiUsername->text();
+    const QString username = m_uiUsername->text();
     if (username.isEmpty())
         return QLatin1String("Anonymous");
     return username;
@@ -68,12 +156,12 @@ QString PasteView::user() const
 
 QString PasteView::description() const
 {
-    return m_ui.uiDescription->text();
+    return m_uiDescription->text();
 }
 
 QString PasteView::comment() const
 {
-    const QString comment = m_ui.uiComment->toPlainText();
+    const QString comment = m_uiComment->toPlainText();
     if (comment == m_commentPlaceHolder)
         return QString();
     return comment;
@@ -82,11 +170,11 @@ QString PasteView::comment() const
 QString PasteView::content() const
 {
     if (m_mode == PlainTextMode)
-        return m_ui.plainTextEdit->toPlainText();
+        return m_plainTextEdit->toPlainText();
 
     QString newContent;
-    for (int i = 0; i < m_ui.uiPatchList->count(); ++i) {
-        QListWidgetItem *item = m_ui.uiPatchList->item(i);
+    for (int i = 0; i < m_uiPatchList->count(); ++i) {
+        QListWidgetItem *item = m_uiPatchList->item(i);
         if (item->checkState() != Qt::Unchecked)
             newContent += m_parts.at(i).content;
     }
@@ -95,46 +183,45 @@ QString PasteView::content() const
 
 int PasteView::protocol() const
 {
-    return m_ui.protocolBox->currentIndex();
+    return m_protocolBox->currentIndex();
 }
 
 void PasteView::contentChanged()
 {
-    m_ui.uiPatchView->setPlainText(content());
+    m_uiPatchView->setPlainText(content());
 }
 
 void PasteView::protocolChanged(int p)
 {
     QTC_ASSERT(p >= 0 && p < m_protocols.size(), return);
     const unsigned caps = m_protocols.at(p)->capabilities();
-    m_ui.uiDescription->setEnabled(caps & Protocol::PostDescriptionCapability);
-    m_ui.uiUsername->setEnabled(caps & Protocol::PostUserNameCapability);
-    m_ui.uiComment->setEnabled(caps & Protocol::PostCommentCapability);
+    m_uiDescription->setEnabled(caps & Protocol::PostDescriptionCapability);
+    m_uiUsername->setEnabled(caps & Protocol::PostUserNameCapability);
+    m_uiComment->setEnabled(caps & Protocol::PostCommentCapability);
 }
 
 void PasteView::setupDialog(const QString &user, const QString &description, const QString &comment)
 {
-    m_ui.uiUsername->setText(user);
-    m_ui.uiDescription->setText(description);
-    m_ui.uiComment->setPlainText(comment.isEmpty() ? m_commentPlaceHolder : comment);
+    m_uiUsername->setText(user);
+    m_uiDescription->setText(description);
+    m_uiComment->setPlainText(comment.isEmpty() ? m_commentPlaceHolder : comment);
 }
 
 int PasteView::showDialog()
 {
-    m_ui.uiDescription->setFocus();
-    m_ui.uiDescription->selectAll();
+    m_uiDescription->setFocus();
+    m_uiDescription->selectAll();
 
     // (Re)store dialog size
     const QSettings *settings = Core::ICore::settings();
     const QString rootKey = QLatin1String(groupC) + QLatin1Char('/');
     const int h = settings->value(rootKey + QLatin1String(heightKeyC), height()).toInt();
-    const int defaultWidth = m_ui.uiPatchView->columnIndicator() + 50;
+    const int defaultWidth = m_uiPatchView->columnIndicator() + 50;
     const int w = settings->value(rootKey + QLatin1String(widthKeyC), defaultWidth).toInt();
 
     resize(w, h);
 
-    const int ret = QDialog::exec();
-    return ret;
+    return QDialog::exec();
 }
 
 // Show up with checkable list of diff chunks.
@@ -143,22 +230,21 @@ int PasteView::show(
         const QString &description,
         const QString &comment,
         int expiryDays,
-        const FileDataList &parts
-        )
+        const FileDataList &parts)
 {
     setupDialog(user, description, comment);
-    m_ui.uiPatchList->clear();
+    m_uiPatchList->clear();
     m_parts = parts;
     m_mode = DiffChunkMode;
     QString content;
-    foreach (const FileData &part, parts) {
-        auto itm = new QListWidgetItem(part.filename, m_ui.uiPatchList);
+    for (const FileData &part : parts) {
+        auto itm = new QListWidgetItem(part.filename, m_uiPatchList);
         itm->setCheckState(Qt::Checked);
         itm->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
         content += part.content;
     }
-    m_ui.stackedWidget->setCurrentIndex(0);
-    m_ui.uiPatchView->setPlainText(content);
+    m_stackedWidget->setCurrentIndex(0);
+    m_uiPatchView->setPlainText(content);
     setExpiryDays(expiryDays);
     return showDialog();
 }
@@ -169,25 +255,25 @@ int PasteView::show(const QString &user, const QString &description,
 {
     setupDialog(user, description, comment);
     m_mode = PlainTextMode;
-    m_ui.stackedWidget->setCurrentIndex(1);
-    m_ui.plainTextEdit->setPlainText(content);
+    m_stackedWidget->setCurrentIndex(1);
+    m_plainTextEdit->setPlainText(content);
     setExpiryDays(expiryDays);
     return showDialog();
 }
 
 void PasteView::setExpiryDays(int d)
 {
-    m_ui.expirySpinBox->setValue(d);
+    m_expirySpinBox->setValue(d);
 }
 
 int PasteView::expiryDays() const
 {
-    return m_ui.expirySpinBox->value();
+    return m_expirySpinBox->value();
 }
 
 void PasteView::accept()
 {
-    const int index = m_ui.protocolBox->currentIndex();
+    const int index = m_protocolBox->currentIndex();
     if (index == -1)
         return;
 
@@ -213,14 +299,14 @@ void PasteView::accept()
 
 void PasteView::setProtocol(const QString &protocol)
 {
-     const int index = m_ui.protocolBox->findText(protocol);
+     const int index = m_protocolBox->findText(protocol);
      if (index < 0)
          return;
-     m_ui.protocolBox->setCurrentIndex(index);
-     if (index == m_ui.protocolBox->currentIndex())
+     m_protocolBox->setCurrentIndex(index);
+     if (index == m_protocolBox->currentIndex())
          protocolChanged(index); // Force enabling
      else
-         m_ui.protocolBox->setCurrentIndex(index);
+         m_protocolBox->setCurrentIndex(index);
 }
 
-} //namespace CodePaster
+} // CodePaster

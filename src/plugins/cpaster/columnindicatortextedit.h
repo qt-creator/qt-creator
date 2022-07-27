@@ -33,7 +33,7 @@ namespace CodePaster {
 class ColumnIndicatorTextEdit : public QTextEdit
 {
 public:
-    explicit ColumnIndicatorTextEdit(QWidget *parent);
+    ColumnIndicatorTextEdit();
 
     int columnIndicator() const { return m_columnIndicator; }
 
