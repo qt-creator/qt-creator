@@ -511,7 +511,7 @@ FilePath FileUtils::getOpenFilePathFromDevice(QWidget *parent,
                                               QString *selectedFilter,
                                               QFileDialog::Options options)
 {
-    QFileDialog dialog;
+    QFileDialog dialog(parent);
     dialog.setOptions(options | QFileDialog::DontUseNativeDialog);
     dialog.setWindowTitle(caption);
     dialog.setDirectory(dir.toString());
