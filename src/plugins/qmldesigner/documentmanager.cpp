@@ -246,26 +246,22 @@ static bool hasSourceWithFileComponent(const ModelNode &modelNode)
     return false;
 }
 
-DocumentManager::DocumentManager()
-    : QObject()
-{
-}
+DocumentManager::DocumentManager() = default;
 
-DocumentManager::~DocumentManager()
-{
-    qDeleteAll(m_designDocumentHash);
-}
+DocumentManager::~DocumentManager() = default;
 
 void DocumentManager::setCurrentDesignDocument(Core::IEditor *editor)
 {
     if (editor) {
-        m_currentDesignDocument = m_designDocumentHash.value(editor);
-        if (m_currentDesignDocument == nullptr) {
-            m_currentDesignDocument = new DesignDocument;
-            m_designDocumentHash.insert(editor, m_currentDesignDocument);
+        auto found = m_designDocuments.find(editor);
+        if (found == m_designDocuments.end()) {
+            auto &inserted = m_designDocuments[editor] = std::make_unique<DesignDocument>();
+            m_currentDesignDocument = inserted.get();
             m_currentDesignDocument->setEditor(editor);
+        } else {
+            m_currentDesignDocument = found->second.get();
         }
-    } else if (!m_currentDesignDocument.isNull()) {
+    } else if (m_currentDesignDocument) {
         m_currentDesignDocument->resetToDocumentModel();
         m_currentDesignDocument.clear();
     }
@@ -284,7 +280,7 @@ bool DocumentManager::hasCurrentDesignDocument() const
 void DocumentManager::removeEditors(const QList<Core::IEditor *> &editors)
 {
     for (Core::IEditor *editor : editors)
-        delete m_designDocumentHash.take(editor).data();
+        m_designDocuments.erase(editor);
 }
 
 bool DocumentManager::goIntoComponent(const ModelNode &modelNode)

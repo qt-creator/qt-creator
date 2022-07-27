@@ -31,6 +31,9 @@
 
 #include <designdocument.h>
 
+#include <map>
+#include <memory>
+
 namespace Core { class IEditor; }
 namespace ProjectExplorer { class Node; }
 namespace ProjectExplorer { class Project; }
@@ -69,7 +72,7 @@ public:
     static Utils::FilePath currentResourcePath();
 
 private:
-    QHash<Core::IEditor *,QPointer<DesignDocument> > m_designDocumentHash;
+    std::map<Core::IEditor *, std::unique_ptr<DesignDocument>> m_designDocuments;
     QPointer<DesignDocument> m_currentDesignDocument;
 };
 
