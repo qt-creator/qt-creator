@@ -26,14 +26,15 @@
 #include "globalfilechangeblocker.h"
 #include "qtcassert.h"
 
-#include <QApplication>
+#include <QGuiApplication>
 
 namespace Utils {
 
 GlobalFileChangeBlocker::GlobalFileChangeBlocker()
 {
-    m_blockedState = QApplication::applicationState() != Qt::ApplicationActive;
-    qApp->installEventFilter(this);
+    m_blockedState = QGuiApplication::applicationState() != Qt::ApplicationActive;
+    connect(qApp, &QGuiApplication::applicationStateChanged,
+            this, &GlobalFileChangeBlocker::applicationStateChanged);
 }
 
 GlobalFileChangeBlocker *GlobalFileChangeBlocker::instance()
@@ -48,19 +49,12 @@ void GlobalFileChangeBlocker::forceBlocked(bool blocked)
         ++m_forceBlocked;
     else if (QTC_GUARD(m_forceBlocked > 0))
         --m_forceBlocked;
-    emitIfChanged();
+    applicationStateChanged(QGuiApplication::applicationState());
 }
 
-bool GlobalFileChangeBlocker::eventFilter(QObject *obj, QEvent *e)
+void GlobalFileChangeBlocker::applicationStateChanged(Qt::ApplicationState state)
 {
-    if (obj == qApp && e->type() == QEvent::ApplicationStateChange)
-        emitIfChanged();
-    return false;
-}
-
-void GlobalFileChangeBlocker::emitIfChanged()
-{
-    const bool blocked = m_forceBlocked || (QApplication::applicationState() != Qt::ApplicationActive);
+    const bool blocked = m_forceBlocked || (state != Qt::ApplicationActive);
     if (blocked != m_blockedState) {
         emit stateChanged(blocked);
         m_blockedState = blocked;

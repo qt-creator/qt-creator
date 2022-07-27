@@ -45,8 +45,7 @@ signals:
 
 private:
     GlobalFileChangeBlocker();
-    bool eventFilter(QObject *obj, QEvent *e) override;
-    void emitIfChanged();
+    void applicationStateChanged(Qt::ApplicationState state);
 
     int m_forceBlocked = 0;
     bool m_blockedState = false;
