@@ -17,7 +17,6 @@ add_qtc_plugin(CodePaster
     frontend/argumentscollector.cpp frontend/argumentscollector.h
     frontend/main.cpp
     pastebindotcomprotocol.cpp pastebindotcomprotocol.h
-    pasteselect.ui
     pasteselectdialog.cpp pasteselectdialog.h
     pasteview.cpp pasteview.h
     protocol.cpp protocol.h

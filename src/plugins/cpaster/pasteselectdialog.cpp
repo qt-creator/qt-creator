@@ -24,47 +24,83 @@
 ****************************************************************************/
 
 #include "pasteselectdialog.h"
+
 #include "protocol.h"
 
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
+#include <QApplication>
+#include <QComboBox>
 #include <QDebug>
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QListWidget>
 #include <QPushButton>
 
 namespace CodePaster {
 
-PasteSelectDialog::PasteSelectDialog(const QList<Protocol*> &protocols,
-                                     QWidget *parent) :
+PasteSelectDialog::PasteSelectDialog(const QList<Protocol*> &protocols, QWidget *parent) :
     QDialog(parent),
     m_protocols(protocols)
 {
-    m_ui.setupUi(this);
-    foreach (const Protocol *protocol, protocols) {
-        m_ui.protocolBox->addItem(protocol->name());
-        connect(protocol, &Protocol::listDone, this, &PasteSelectDialog::listDone);
-    }
-    connect(m_ui.protocolBox, &QComboBox::currentIndexChanged,
-            this, &PasteSelectDialog::protocolChanged);
+    resize(550, 350);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    m_refreshButton = m_ui.buttons->addButton(tr("Refresh"), QDialogButtonBox::ActionRole);
-    connect(m_refreshButton, &QPushButton::clicked, this, &PasteSelectDialog::list);
+    m_protocolBox = new QComboBox(this);
 
-    m_ui.listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_pasteEdit = new QLineEdit(this);
+    m_pasteEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
+    m_listWidget = new QListWidget(this);
+    m_listWidget->setAlternatingRowColors(true);
+
+    auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+    m_refreshButton = buttons->addButton(tr("Refresh"), QDialogButtonBox::ActionRole);
+
+    m_listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     if (!Utils::HostOsInfo::isMacHost())
-        m_ui.listWidget->setFrameStyle(QFrame::NoFrame);
+        m_listWidget->setFrameStyle(QFrame::NoFrame);
+
     // Proportional formatting of columns for CodePaster
-    QFont listFont = m_ui.listWidget->font();
+    QFont listFont = m_listWidget->font();
     listFont.setFamily(QLatin1String("Courier"));
     listFont.setStyleHint(QFont::TypeWriter);
-    m_ui.listWidget->setFont(listFont);
+    m_listWidget->setFont(listFont);
+
+    using namespace Utils::Layouting;
+    Column {
+        Form {
+            tr("Protocol:"), m_protocolBox, br,
+            tr("Paste:"), m_pasteEdit
+        },
+        m_listWidget,
+        buttons
+    }.attachTo(this);
+
+    connect(m_listWidget, &QListWidget::currentTextChanged, m_pasteEdit, &QLineEdit::setText);
+    connect(m_listWidget, &QListWidget::doubleClicked, this, &QDialog::accept);
+
+    for (const Protocol *protocol : protocols) {
+        m_protocolBox->addItem(protocol->name());
+        connect(protocol, &Protocol::listDone, this, &PasteSelectDialog::listDone);
+    }
+    connect(m_protocolBox, &QComboBox::currentIndexChanged,
+            this, &PasteSelectDialog::protocolChanged);
+    connect(m_refreshButton, &QPushButton::clicked, this, &PasteSelectDialog::list);
+
+    connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 PasteSelectDialog::~PasteSelectDialog() = default;
 
 QString PasteSelectDialog::pasteId() const
 {
-    QString id = m_ui.pasteEdit->text();
+    QString id = m_pasteEdit->text();
     const int blankPos = id.indexOf(QLatin1Char(' '));
     if (blankPos != -1)
         id.truncate(blankPos);
@@ -73,10 +109,10 @@ QString PasteSelectDialog::pasteId() const
 
 void PasteSelectDialog::setProtocol(const QString &p)
 {
-    const int index = m_ui.protocolBox->findText(p);
+    const int index = m_protocolBox->findText(p);
     if (index >= 0) {
-        if (index != m_ui.protocolBox->currentIndex()) {
-            m_ui.protocolBox->setCurrentIndex(index);
+        if (index != m_protocolBox->currentIndex()) {
+            m_protocolBox->setCurrentIndex(index);
         } else {
             // Trigger a refresh
             protocolChanged(index);
@@ -86,20 +122,20 @@ void PasteSelectDialog::setProtocol(const QString &p)
 
 int PasteSelectDialog::protocol() const
 {
-    return m_ui.protocolBox->currentIndex();
+    return m_protocolBox->currentIndex();
 }
 
 QString PasteSelectDialog::protocolName() const
 {
-    return m_ui.protocolBox->currentText();
+    return m_protocolBox->currentText();
 }
 
 void PasteSelectDialog::listDone(const QString &name, const QStringList &items)
 {
     // Set if the protocol is still current
     if (name == protocolName()) {
-        m_ui.listWidget->clear();
-        m_ui.listWidget->addItems(items);
+        m_listWidget->clear();
+        m_listWidget->addItems(items);
     }
 }
 
@@ -110,9 +146,9 @@ void PasteSelectDialog::list()
     Protocol *protocol = m_protocols[index];
     QTC_ASSERT((protocol->capabilities() & Protocol::ListCapability), return);
 
-    m_ui.listWidget->clear();
+    m_listWidget->clear();
     if (Protocol::ensureConfiguration(protocol, this)) {
-        m_ui.listWidget->addItem(new QListWidgetItem(tr("Waiting for items")));
+        m_listWidget->addItem(new QListWidgetItem(tr("Waiting for items")));
         protocol->list();
     }
 }
@@ -124,8 +160,8 @@ void PasteSelectDialog::protocolChanged(int i)
     if (canList) {
         list();
     } else {
-        m_ui.listWidget->clear();
-        m_ui.listWidget->addItem(new QListWidgetItem(tr("This protocol does not support listing")));
+        m_listWidget->clear();
+        m_listWidget->addItem(new QListWidgetItem(tr("This protocol does not support listing")));
     }
 }
 } // namespace CodePaster

@@ -25,13 +25,18 @@
 
 #pragma once
 
-#include "ui_pasteselect.h"
-
+#include <QDialog>
 #include <QList>
 
-QT_FORWARD_DECLARE_CLASS(QPushButton)
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QLineEdit;
+class QListWidget;
+class QPushButton;
+QT_END_NAMESPACE
 
 namespace CodePaster {
+
 class Protocol;
 
 class PasteSelectDialog : public QDialog
@@ -55,8 +60,10 @@ private:
 
     const QList<Protocol*> m_protocols;
 
-    Internal::Ui::PasteSelectDialog m_ui;
+    QComboBox *m_protocolBox;
+    QListWidget *m_listWidget;
     QPushButton *m_refreshButton;
+    QLineEdit *m_pasteEdit;
 };
 
-} // namespace CodePaster
+} // CodePaster

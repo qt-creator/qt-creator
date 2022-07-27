@@ -27,7 +27,6 @@ QtcPlugin {
         "fileshareprotocolsettingspage.h",
         "pastebindotcomprotocol.cpp",
         "pastebindotcomprotocol.h",
-        "pasteselect.ui",
         "pasteselectdialog.cpp",
         "pasteselectdialog.h",
         "pasteview.cpp",
