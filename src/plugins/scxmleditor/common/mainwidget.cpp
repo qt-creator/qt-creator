@@ -528,7 +528,6 @@ void MainWidget::addStateView(BaseItem *item)
     });
     connect(view->view(), &GraphicsView::panningChanged, m_actionHandler->action(ActionPan), &QAction::setChecked);
     connect(view->view(), &GraphicsView::magnifierChanged, m_actionHandler->action(ActionMagnifier), &QAction::setChecked);
-    connect(m_magnifier, &Magnifier::visibilityChanged, m_actionHandler->action(ActionMagnifier), &QAction::setChecked);
     GraphicsScene *scene = view->scene();
     connect(scene, &GraphicsScene::openStateView, this, &MainWidget::addStateView, Qt::QueuedConnection);
     connect(scene, &GraphicsScene::selectedStateCountChanged, this, [this, scene](int count) {
