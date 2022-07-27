@@ -31,7 +31,7 @@ add_qtc_plugin(Core
     dialogs/ioptionspage.cpp dialogs/ioptionspage.h
     dialogs/newdialog.cpp dialogs/newdialog.h
     dialogs/newdialogwidget.cpp dialogs/newdialogwidget.h
-    dialogs/openwithdialog.cpp dialogs/openwithdialog.h dialogs/openwithdialog.ui
+    dialogs/openwithdialog.cpp dialogs/openwithdialog.h
     dialogs/promptoverwritedialog.cpp dialogs/promptoverwritedialog.h
     dialogs/readonlyfilesdialog.cpp dialogs/readonlyfilesdialog.h dialogs/readonlyfilesdialog.ui
     dialogs/restartdialog.cpp dialogs/restartdialog.h

@@ -26,7 +26,10 @@
 #include "openwithdialog.h"
 
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 
+#include <QDialogButtonBox>
+#include <QListWidget>
 #include <QPushButton>
 
 using namespace Core;
@@ -34,10 +37,23 @@ using namespace Core::Internal;
 
 OpenWithDialog::OpenWithDialog(const Utils::FilePath &filePath, QWidget *parent)
     : QDialog(parent)
+    , editorListWidget(new QListWidget)
+    , buttonBox(new QDialogButtonBox)
 {
-    setupUi(this);
-    label->setText(tr("Open file \"%1\" with:").arg(filePath.fileName()));
+    resize(358, 199);
+    setWindowTitle(tr("Open File With..."));
+
+    buttonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
     buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
+
+    using namespace Utils::Layouting;
+    // clang-format off
+    Column {
+        tr("Open file \"%1\" with:").arg(filePath.fileName()),
+        editorListWidget,
+        buttonBox
+    }.attachTo(this);
+    // clang-format on
 
     connect(buttonBox->button(QDialogButtonBox::Ok), &QAbstractButton::clicked,
             this, &QDialog::accept);

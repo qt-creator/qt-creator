@@ -208,7 +208,7 @@ Project {
                 "ioptionspage.cpp", "ioptionspage.h",
                 "newdialog.cpp", "newdialog.h",
                 "newdialogwidget.cpp", "newdialogwidget.h",
-                "openwithdialog.cpp", "openwithdialog.h", "openwithdialog.ui",
+                "openwithdialog.cpp", "openwithdialog.h",
                 "promptoverwritedialog.cpp", "promptoverwritedialog.h",
                 "readonlyfilesdialog.cpp", "readonlyfilesdialog.h", "readonlyfilesdialog.ui",
                 "restartdialog.cpp", "restartdialog.h",

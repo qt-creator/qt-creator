@@ -99,6 +99,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSplitter>
+#include <QVBoxLayout>
 
 #include <algorithm>
 

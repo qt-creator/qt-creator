@@ -26,7 +26,12 @@
 #pragma once
 
 #include <QDialog>
-#include "ui_openwithdialog.h"
+
+QT_BEGIN_NAMESPACE
+class QListWidget;
+class QListWidgetItem;
+class QDialogButtonBox;
+QT_END_NAMESPACE
 
 namespace Utils { class FilePath; }
 
@@ -35,7 +40,7 @@ namespace Internal {
 
 // Present the user with a file name and a list of available
 // editor kinds to choose from.
-class OpenWithDialog : public QDialog, public Ui::OpenWithDialog
+class OpenWithDialog : public QDialog
 {
     Q_OBJECT
 
@@ -50,6 +55,9 @@ public:
 private:
     void currentItemChanged(QListWidgetItem *, QListWidgetItem *);
     void setOkButtonEnabled(bool);
+
+    QListWidget *editorListWidget;
+    QDialogButtonBox *buttonBox;
 };
 
 } // namespace Internal
