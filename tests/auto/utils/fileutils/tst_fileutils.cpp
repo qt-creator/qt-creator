@@ -34,6 +34,14 @@
 //TESTED_COMPONENT=src/libs/utils
 using namespace Utils;
 
+namespace QTest {
+    template<>
+    char *toString(const FilePath &filePath)
+    {
+        return qstrdup(filePath.toString().toLocal8Bit().constData());
+    }
+}
+
 class tst_fileutils : public QObject
 {
     Q_OBJECT
@@ -68,8 +76,15 @@ private slots:
     void pathAppended();
     void commonPath_data();
     void commonPath();
-
+    void resolvePath_data();
+    void resolvePath();
+    void relativeChildPath_data();
+    void relativeChildPath();
     void asyncLocalCopy();
+    void startsWithDriveLetter();
+    void startsWithDriveLetter_data();
+    void onDevice();
+    void onDevice_data();
 
 private:
     QTemporaryDir tempDir;
@@ -332,25 +347,36 @@ void tst_fileutils::fromString_data()
     QTest::addColumn<QString>("scheme");
     QTest::addColumn<QString>("host");
     QTest::addColumn<QString>("path");
+    QTest::addColumn<OsType>("osType");
 
-    QTest::newRow("empty") << "" << "" << "" << "";
+    QTest::newRow("empty") << "" << "" << "" << "" << HostOsInfo::hostOs();
+    QTest::newRow("qrc") << ":/test.txt" << "" << "" << ":/test.txt" << HostOsInfo::hostOs();
+    QTest::newRow("unc-incomplete") << "//" << "" << "" << "" << OsType::OsTypeWindows;
+    QTest::newRow("unc-incomplete-only-server") << "//server" << "" << "" << "//server/" << OsType::OsTypeWindows;
+    QTest::newRow("unc-incomplete-only-server-2") << "//server/" << "" << "" << "//server/" << OsType::OsTypeWindows;
+    QTest::newRow("unc-server-and-share") << "//server/share" << "" << "" << "//server/share/" << OsType::OsTypeWindows;
+    QTest::newRow("unc-server-and-share-2") << "//server/share/" << "" << "" << "//server/share/" << OsType::OsTypeWindows;
+    QTest::newRow("unc-full") << "//server/share/test.txt" << "" << "" << "//server/share/test.txt" << OsType::OsTypeWindows;
 
-    QTest::newRow("unix-root") << "/" << "" << "" << "/";
-    QTest::newRow("unix-folder") << "/tmp" << "" << "" << "/tmp";
-    QTest::newRow("unix-folder-with-trailing-slash") << "/tmp/" << "" << "" << "/tmp/";
+    QTest::newRow("unix-root") << "/" << "" << "" << "/"  << OsType::OsTypeLinux;
+    QTest::newRow("unix-folder") << "/tmp" << "" << "" << "/tmp" << OsType::OsTypeLinux;
+    QTest::newRow("unix-folder-with-trailing-slash") << "/tmp/" << "" << "" << "/tmp/" << OsType::OsTypeLinux;
 
-    QTest::newRow("windows-root") << "c:" << "" << "" << "c:";
-    QTest::newRow("windows-folder") << "c:\\Windows" << "" << "" << "c:\\Windows";
-    QTest::newRow("windows-folder-with-trailing-slash") << "c:\\Windows\\" << "" << "" << "c:\\Windows\\";
-    QTest::newRow("windows-folder-slash") << "C:/Windows" << "" << "" << "C:/Windows";
+    QTest::newRow("windows-root") << "c:" << "" << "" << "c:/" << OsType::OsTypeWindows;
+    QTest::newRow("windows-folder") << "c:\\Windows" << "" << "" << "c:/Windows" << OsType::OsTypeWindows;
+    QTest::newRow("windows-folder-with-trailing-slash") << "c:\\Windows\\" << "" << "" << "c:/Windows\\" << OsType::OsTypeWindows;
+    QTest::newRow("windows-folder-slash") << "C:/Windows" << "" << "" << "C:/Windows" << OsType::OsTypeWindows;
 
-    QTest::newRow("docker-root-url") << "docker://1234/" << "docker" << "1234" << "/";
-    QTest::newRow("docker-root-url-special") << QDir::rootPath() + "__qtc_devices__/docker/1234/" << "docker" << "1234" << "/";
+    QTest::newRow("docker-root-url") << "docker://1234/" << "docker" << "1234" << "/" << OsType::OsTypeLinux;
+    QTest::newRow("docker-root-url-special") << QDir::rootPath() + "__qtc_devices__/docker/1234/" << "docker" << "1234" << "/" << OsType::OsTypeLinux;
 
-    QTest::newRow("qtc-dev") << QDir::rootPath() + "__qtc_devices__" << "" << "" << QDir::rootPath() + "__qtc_devices__";
-    QTest::newRow("qtc-dev-type") << QDir::rootPath() + "__qtc_devices__/docker" << "" << "" << QDir::rootPath() + "__qtc_devices__/docker";
-    QTest::newRow("qtc-dev-type-dev") << QDir::rootPath() + "__qtc_devices__/docker/1234" << "docker" << "1234" << "/";
+    QTest::newRow("qtc-dev") << QDir::rootPath() + "__qtc_devices__" << "" << "" << QDir::rootPath() + "__qtc_devices__" << HostOsInfo::hostOs();
+    QTest::newRow("qtc-dev-type") << QDir::rootPath() + "__qtc_devices__/docker" << "" << "" << QDir::rootPath() + "__qtc_devices__/docker" << HostOsInfo::hostOs();
+    QTest::newRow("qtc-dev-type-dev") << QDir::rootPath() + "__qtc_devices__/docker/1234" << "docker" << "1234" << "/" << OsType::OsTypeLinux;
 
+    QTest::newRow("cross-os") << QDir::rootPath() + "__qtc_devices__/docker/1234/c:/test.txt" << "docker" << "1234" << "c:/test.txt" << OsType::OsTypeWindows;
+    QTest::newRow("cross-os-unclean") << QDir::rootPath() + "__qtc_devices__/docker/1234/c:\\test.txt" << "docker" << "1234" << "c:/test.txt" << OsType::OsTypeWindows;
+    QTest::newRow("unc-full-in-docker") << QDir::rootPath() + "__qtc_devices__/docker/1234//server/share/test.txt" << "docker" << "1234" << "//server/share/test.txt" << OsType::OsTypeWindows;
 }
 
 void tst_fileutils::fromString()
@@ -359,7 +385,9 @@ void tst_fileutils::fromString()
     QFETCH(QString, scheme);
     QFETCH(QString, host);
     QFETCH(QString, path);
-    FilePath filePath = FilePath::fromString(input);
+    QFETCH(OsType, osType);
+
+    FilePath filePath = FilePath::fromString(input, osType);
     QCOMPARE(filePath.scheme(), scheme);
     QCOMPARE(filePath.host(), host);
     QCOMPARE(filePath.path(), path);
@@ -592,6 +620,61 @@ void tst_fileutils::pathAppended_data()
     QTest::newRow("u4") << "a/b" << "c/d" << "a/b/c/d";
 }
 
+void tst_fileutils::resolvePath_data()
+{
+    QTest::addColumn<FilePath>("left");
+    QTest::addColumn<FilePath>("right");
+    QTest::addColumn<FilePath>("expected");
+
+    QTest::newRow("empty") << FilePath() << FilePath() << FilePath();
+    QTest::newRow("s0") << FilePath("/") << FilePath("b") << FilePath("/b");
+    QTest::newRow("s1") << FilePath() << FilePath("b") << FilePath("b");
+    QTest::newRow("s2") << FilePath("a") << FilePath() << FilePath("a");
+    QTest::newRow("s3") << FilePath("a") << FilePath("b") << FilePath("a/b");
+    QTest::newRow("s4") << FilePath("/a") << FilePath("/b") << FilePath("/b");
+    QTest::newRow("s5") << FilePath("a") << FilePath("/b") << FilePath("/b");
+    QTest::newRow("s6") << FilePath("/a") << FilePath("b") << FilePath("/a/b");
+}
+
+void tst_fileutils::resolvePath()
+{
+    QFETCH(FilePath, left);
+    QFETCH(FilePath, right);
+    QFETCH(FilePath, expected);
+
+    const FilePath result = left.resolvePath(right);
+
+    QCOMPARE(result, expected);
+}
+
+void tst_fileutils::relativeChildPath_data()
+{
+    QTest::addColumn<FilePath>("parent");
+    QTest::addColumn<FilePath>("child");
+    QTest::addColumn<FilePath>("expected");
+
+    QTest::newRow("empty") << FilePath() << FilePath() << FilePath();
+
+    QTest::newRow("simple-0") << FilePath("/a") << FilePath("/a/b") << FilePath("b");
+    QTest::newRow("simple-1") << FilePath("/a/") << FilePath("/a/b") << FilePath("b");
+    QTest::newRow("simple-2") << FilePath("/a") << FilePath("/a/b/c/d/e/f") << FilePath("b/c/d/e/f");
+
+    QTest::newRow("not-0") << FilePath("/x") << FilePath("/a/b") << FilePath();
+    QTest::newRow("not-1") << FilePath("/a/b/c") << FilePath("/a/b") << FilePath();
+
+}
+
+void tst_fileutils::relativeChildPath()
+{
+    QFETCH(FilePath, parent);
+    QFETCH(FilePath, child);
+    QFETCH(FilePath, expected);
+
+    const FilePath result = child.relativeChildPath(parent);
+
+    QCOMPARE(result, expected);
+}
+
 void tst_fileutils::commonPath()
 {
     QFETCH(FilePaths, list);
@@ -649,6 +732,53 @@ void tst_fileutils::asyncLocalCopy()
     orig.asyncCopyFile(afterCopy, dest);
     // we usually have already received the signal, but if it fails wait 3s
     QVERIFY(spy.count() == 1 || spy.wait(3000));
+}
+
+void tst_fileutils::startsWithDriveLetter_data()
+{
+    if (!HostOsInfo::isWindowsHost()) {
+        QSKIP("This test is only relevant on Windows");
+    }
+
+    QTest::addColumn<FilePath>("path");
+    QTest::addColumn<bool>("expected");
+
+    QTest::newRow("empty") << FilePath() << false;
+    QTest::newRow("simple-win") << FilePath("c:/a", OsType::OsTypeWindows) << true;
+    QTest::newRow("simple-linux") << FilePath("/c:/a", OsType::OsTypeLinux) << false;
+    QTest::newRow("relative") << FilePath("a/b") << false;
+}
+
+void tst_fileutils::startsWithDriveLetter()
+{
+    QFETCH(FilePath, path);
+    QFETCH(bool, expected);
+
+    qDebug() << path;
+
+    QCOMPARE(path.startsWithDriveLetter(), expected);
+}
+
+void tst_fileutils::onDevice_data() {
+    QTest::addColumn<FilePath>("path");
+    QTest::addColumn<FilePath>("templatePath");
+    QTest::addColumn<FilePath>("expected");
+
+    QTest::newRow("empty") << FilePath() << FilePath() << FilePath();
+    QTest::newRow("same-local") << FilePath("/a/b") << FilePath("/a/b") << FilePath("/a/b");
+    QTest::newRow("same-docker") << FilePath("docker://1234/a/b") << FilePath("docker://1234/e") << FilePath("docker://1234/a/b");
+
+    QTest::newRow("docker-to-local") << FilePath("docker://1234/a/b") << FilePath("/c/d") << FilePath("/a/b");
+    QTest::newRow("local-to-docker") << FilePath("/a/b") << FilePath("docker://1234/c/d") << FilePath("docker://1234/a/b");
+
+}
+
+void tst_fileutils::onDevice() {
+    QFETCH(FilePath, path);
+    QFETCH(FilePath, templatePath);
+    QFETCH(FilePath, expected);
+
+    QCOMPARE(path.onDevice(templatePath), expected);
 }
 
 QTEST_GUILESS_MAIN(tst_fileutils)

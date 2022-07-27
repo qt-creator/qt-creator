@@ -53,215 +53,10 @@
 #include "fileutils_mac.h"
 #endif
 
-QT_BEGIN_NAMESPACE
-QDebug operator<<(QDebug dbg, const Utils::FilePath &c)
-{
-    return dbg << c.toString();
-}
-
-QT_END_NAMESPACE
-
 namespace Utils {
 
 static DeviceFileHooks s_deviceHooks;
-
-DeviceFileHooks &DeviceFileHooks::instance()
-{
-    return s_deviceHooks;
-}
-
-
-static bool removeRecursivelyLocal(const FilePath &filePath, QString *error)
-{
-    QTC_ASSERT(!filePath.needsDevice(), return false);
-    QFileInfo fileInfo = filePath.toFileInfo();
-    if (!fileInfo.exists() && !fileInfo.isSymLink())
-        return true;
-
-    QFile::setPermissions(fileInfo.absoluteFilePath(), fileInfo.permissions() | QFile::WriteUser);
-
-    if (fileInfo.isDir()) {
-        QDir dir(fileInfo.absoluteFilePath());
-        dir.setPath(dir.canonicalPath());
-        if (dir.isRoot()) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils",
-                    "Refusing to remove root directory.");
-            }
-            return false;
-        }
-        if (dir.path() == QDir::home().canonicalPath()) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils",
-                    "Refusing to remove your home directory.");
-            }
-            return false;
-        }
-
-        const QStringList fileNames = dir.entryList(
-                    QDir::Files | QDir::Hidden | QDir::System | QDir::Dirs | QDir::NoDotAndDotDot);
-        for (const QString &fileName : fileNames) {
-            if (!removeRecursivelyLocal(filePath / fileName, error))
-                return false;
-        }
-        if (!QDir::root().rmdir(dir.path())) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to remove directory \"%1\".")
-                        .arg(filePath.toUserOutput());
-            }
-            return false;
-        }
-    } else {
-        if (!QFile::remove(filePath.toString())) {
-            if (error) {
-                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to remove file \"%1\".")
-                        .arg(filePath.toUserOutput());
-            }
-            return false;
-        }
-    }
-    return true;
-}
-
-/*!
-  If this is a directory, the function will recursively check all files and return
-  true if one of them is newer than \a timeStamp. If this is a single file, true will
-  be returned if the file is newer than \a timeStamp.
-
-  Returns whether at least one file in \a filePath has a newer date than
-  \a timeStamp.
-*/
-bool FilePath::isNewerThan(const QDateTime &timeStamp) const
-{
-    if (!exists() || lastModified() >= timeStamp)
-        return true;
-    if (isDir()) {
-        const FilePaths dirContents = dirEntries(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
-        for (const FilePath &entry : dirContents) {
-            if (entry.isNewerThan(timeStamp))
-                return true;
-        }
-    }
-    return false;
-}
-
-Qt::CaseSensitivity FilePath::caseSensitivity() const
-{
-    if (m_scheme.isEmpty())
-        return HostOsInfo::fileNameCaseSensitivity();
-
-    // FIXME: This could or possibly should the target device's file name case sensitivity
-    // into account by diverting to IDevice. However, as this is expensive and we are
-    // in time-critical path here, we go with "good enough" for now:
-    // The first approximation is "most things are case-sensitive".
-    return Qt::CaseSensitive;
-}
-
-/*!
-  Recursively resolves symlinks if this is a symlink.
-  To resolve symlinks anywhere in the path, see canonicalPath.
-  Unlike QFileInfo::canonicalFilePath(), this function will still return the expected deepest
-  target file even if the symlink is dangling.
-
-  \note Maximum recursion depth == 16.
-
-  Returns the symlink target file path.
-*/
-FilePath FilePath::resolveSymlinks() const
-{
-    FilePath current = *this;
-    int links = 16;
-    while (links--) {
-        const FilePath target = current.symLinkTarget();
-        if (target.isEmpty())
-            return current;
-        current = target;
-    }
-    return current;
-}
-
-/*!
-  Recursively resolves possibly present symlinks in this file name.
-  Unlike QFileInfo::canonicalFilePath(), this function will not return an empty
-  string if path doesn't exist.
-
-  Returns the canonical path.
-*/
-FilePath FilePath::canonicalPath() const
-{
-    if (needsDevice()) {
-        // FIXME: Not a full solution, but it stays on the right device.
-        return *this;
-    }
-    const QString result = toFileInfo().canonicalFilePath();
-    if (result.isEmpty())
-        return *this;
-    return FilePath::fromString(result);
-}
-
-FilePath FilePath::operator/(const QString &str) const
-{
-    return pathAppended(str);
-}
-
-void FilePath::clear()
-{
-    m_data.clear();
-    m_host.clear();
-    m_scheme.clear();
-}
-
-bool FilePath::isEmpty() const
-{
-    return m_data.isEmpty();
-}
-
-/*!
-  Like QDir::toNativeSeparators(), but use prefix '~' instead of $HOME on unix systems when an
-  absolute path is given.
-
-  Returns the possibly shortened path with native separators.
-*/
-QString FilePath::shortNativePath() const
-{
-    if (HostOsInfo::isAnyUnixHost()) {
-        const FilePath home = FileUtils::homePath();
-        if (isChildOf(home)) {
-            return QLatin1Char('~') + QDir::separator()
-                + QDir::toNativeSeparators(relativeChildPath(home).toString());
-        }
-    }
-    return toUserOutput();
-}
-
-
-bool FilePath::isRelativePath() const
-{
-    return isRelativePathHelper(m_data, osType());
-}
-
-FilePath FilePath::resolvePath(const FilePath &tail) const
-{
-    if (!isRelativePathHelper(tail.m_data, osType()))
-        return tail;
-    return pathAppended(tail.m_data);
-}
-
-FilePath FilePath::resolvePath(const QString &tail) const
-{
-    if (!FileUtils::isRelativePath(tail))
-        return FilePath::fromString(doCleanPath(tail));
-    FilePath result = *this;
-    result.setPath(doCleanPath(m_data + '/' + tail));
-    return result;
-}
-
-FilePath FilePath::cleanPath() const
-{
-    FilePath result = *this;
-    result.setPath(doCleanPath(result.path()));
-    return result;
-}
+static bool removeRecursivelyLocal(const FilePath &filePath, QString *error);
 
 /*! \class Utils::FilePath
 
@@ -383,7 +178,7 @@ FilePath FilePath::fromUrl(const QUrl &url)
     FilePath fn;
     fn.m_scheme = url.scheme();
     fn.m_host = url.host();
-    fn.m_data = url.path();
+    fn.setRootAndPath(url.path(), HostOsInfo::hostOs());
     return fn;
 }
 
@@ -408,21 +203,17 @@ static QString hostEncoded(QString host)
 QString FilePath::toString() const
 {
     if (m_scheme.isEmpty())
-        return m_data;
+        return m_root + m_path;
 
-    if (m_data.startsWith('/'))
-        return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + hostEncoded(m_host) + m_data;
-    return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + hostEncoded(m_host) + "/./" + m_data;
+    if (!m_root.isEmpty())
+        return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + hostEncoded(m_host) + m_root + m_path;
+    return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + hostEncoded(m_host) + "/./" + m_path;
 }
 
 QString FilePath::toFSPathString() const
 {
-    if (m_scheme.isEmpty())
-        return m_data;
-
-    if (m_data.startsWith('/'))
-        return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + hostEncoded(m_host) + m_data;
-    return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + hostEncoded(m_host) + "/./" + m_data;
+    // TODO ...
+    return toString();
 }
 
 QUrl FilePath::toUrl() const
@@ -430,7 +221,7 @@ QUrl FilePath::toUrl() const
     QUrl url;
     url.setScheme(m_scheme);
     url.setHost(m_host);
-    url.setPath(m_data);
+    url.setPath(m_root + m_path);
     return url;
 }
 
@@ -440,15 +231,15 @@ QUrl FilePath::toUrl() const
 QString FilePath::toUserOutput() const
 {
     if (needsDevice()) {
-        if (m_data.startsWith('/'))
-            return m_scheme + "://" + hostEncoded(m_host) + m_data;
-        return m_scheme + "://" + hostEncoded(m_host) + "/./" + m_data;
+        if (!m_root.isEmpty())
+            return m_scheme + "://" + hostEncoded(m_host) + path();
+        return m_scheme + "://" + hostEncoded(m_host) + "/./" + path();
     }
 
-    FilePath tmp = *this;
+    QString tmp = toString();
     if (osType() == OsTypeWindows)
-        tmp.m_data.replace('/', '\\');
-    return tmp.toString();
+        tmp.replace('/', '\\');
+    return tmp;
 }
 
 /// \returns a QString to pass to target system native commands, without the device prefix.
@@ -456,7 +247,7 @@ QString FilePath::toUserOutput() const
 /// this path belongs to.
 QString FilePath::nativePath() const
 {
-    QString data = m_data;
+    QString data = path();
     if (osType() == OsTypeWindows)
         data.replace('/', '\\');
     return data;
@@ -465,30 +256,32 @@ QString FilePath::nativePath() const
 QString FilePath::fileName() const
 {
     const QChar slash = QLatin1Char('/');
-    return m_data.mid(m_data.lastIndexOf(slash) + 1);
+    return m_path.mid(m_path.lastIndexOf(slash) + 1);
 }
 
 QString FilePath::fileNameWithPathComponents(int pathComponents) const
 {
+    QString fullPath = path();
+
     if (pathComponents < 0)
-        return m_data;
+        return fullPath;
     const QChar slash = QLatin1Char('/');
-    int i = m_data.lastIndexOf(slash);
+    int i = fullPath.lastIndexOf(slash);
     if (pathComponents == 0 || i == -1)
-        return m_data.mid(i + 1);
+        return fullPath.mid(i + 1);
     int component = i + 1;
     // skip adjacent slashes
-    while (i > 0 && m_data.at(--i) == slash)
+    while (i > 0 && fullPath.at(--i) == slash)
         ;
     while (i >= 0 && --pathComponents >= 0) {
-        i = m_data.lastIndexOf(slash, i);
+        i = fullPath.lastIndexOf(slash, i);
         component = i + 1;
-        while (i > 0 && m_data.at(--i) == slash)
+        while (i > 0 && fullPath.at(--i) == slash)
             ;
     }
 
-    if (i > 0 && m_data.lastIndexOf(slash, i) != -1)
-        return m_data.mid(component);
+    if (i > 0 && fullPath.lastIndexOf(slash, i) != -1)
+        return fullPath.mid(component);
 
     // If there are no more slashes before the found one, return the entire string
     return displayName();
@@ -570,7 +363,7 @@ bool FilePath::exists() const
         QTC_ASSERT(s_deviceHooks.exists, return false);
         return s_deviceHooks.exists(*this);
     }
-    return !isEmpty() && QFileInfo::exists(m_data);
+    return !isEmpty() && QFileInfo::exists(path());
 }
 
 /// \returns a bool indicating whether a path is writable.
@@ -580,7 +373,7 @@ bool FilePath::isWritableDir() const
         QTC_ASSERT(s_deviceHooks.isWritableDir, return false);
         return s_deviceHooks.isWritableDir(*this);
     }
-    const QFileInfo fi{m_data};
+    const QFileInfo fi{path()};
     return exists() && fi.isDir() && fi.isWritable();
 }
 
@@ -590,7 +383,7 @@ bool FilePath::isWritableFile() const
         QTC_ASSERT(s_deviceHooks.isWritableFile, return false);
         return s_deviceHooks.isWritableFile(*this);
     }
-    const QFileInfo fi{m_data};
+    const QFileInfo fi{path()};
     return fi.isWritable() && !fi.isDir();
 }
 
@@ -600,10 +393,10 @@ bool FilePath::ensureWritableDir() const
         QTC_ASSERT(s_deviceHooks.ensureWritableDir, return false);
         return s_deviceHooks.ensureWritableDir(*this);
     }
-    const QFileInfo fi{m_data};
+    const QFileInfo fi{path()};
     if (fi.isDir() && fi.isWritable())
         return true;
-    return QDir().mkpath(m_data);
+    return QDir().mkpath(path());
 }
 
 bool FilePath::ensureExistingFile() const
@@ -612,7 +405,7 @@ bool FilePath::ensureExistingFile() const
         QTC_ASSERT(s_deviceHooks.ensureExistingFile, return false);
         return s_deviceHooks.ensureExistingFile(*this);
     }
-    QFile f(m_data);
+    QFile f(path());
     if (f.exists())
         return true;
     f.open(QFile::WriteOnly);
@@ -626,7 +419,7 @@ bool FilePath::isExecutableFile() const
         QTC_ASSERT(s_deviceHooks.isExecutableFile, return false);
         return s_deviceHooks.isExecutableFile(*this);
     }
-    const QFileInfo fi{m_data};
+    const QFileInfo fi{path()};
     return fi.isExecutable() && !fi.isDir();
 }
 
@@ -636,7 +429,7 @@ bool FilePath::isReadableFile() const
         QTC_ASSERT(s_deviceHooks.isReadableFile, return false);
         return s_deviceHooks.isReadableFile(*this);
     }
-    const QFileInfo fi{m_data};
+    const QFileInfo fi{path()};
     return fi.isReadable() && !fi.isDir();
 }
 
@@ -646,7 +439,7 @@ bool FilePath::isReadableDir() const
         QTC_ASSERT(s_deviceHooks.isReadableDir, return false);
         return s_deviceHooks.isReadableDir(*this);
     }
-    const QFileInfo fi{m_data};
+    const QFileInfo fi{path()};
     return fi.isReadable() && fi.isDir();
 }
 
@@ -656,7 +449,7 @@ bool FilePath::isFile() const
         QTC_ASSERT(s_deviceHooks.isFile, return false);
         return s_deviceHooks.isFile(*this);
     }
-    const QFileInfo fi{m_data};
+    const QFileInfo fi{path()};
     return fi.isFile();
 }
 
@@ -666,7 +459,7 @@ bool FilePath::isDir() const
         QTC_ASSERT(s_deviceHooks.isDir, return false);
         return s_deviceHooks.isDir(*this);
     }
-    const QFileInfo fi{m_data};
+    const QFileInfo fi{path()};
     return fi.isDir();
 }
 
@@ -676,7 +469,7 @@ bool FilePath::createDir() const
         QTC_ASSERT(s_deviceHooks.createDir, return false);
         return s_deviceHooks.createDir(*this);
     }
-    QDir dir(m_data);
+    QDir dir(path());
     return dir.mkpath(dir.absolutePath());
 }
 
@@ -689,7 +482,7 @@ FilePaths FilePath::dirEntries(const FileFilter &filter, QDir::SortFlags sort) c
         const auto callBack = [&result](const FilePath &path) { result.append(path); return true; };
         s_deviceHooks.iterateDirectory(*this, callBack, filter);
     } else {
-        QDirIterator dit(m_data, filter.nameFilters, filter.fileFilters, filter.iteratorFlags);
+        QDirIterator dit(path(), filter.nameFilters, filter.fileFilters, filter.iteratorFlags);
         while (dit.hasNext())
             result.append(FilePath::fromString(dit.next()));
     }
@@ -729,7 +522,7 @@ void FilePath::iterateDirectory(const std::function<bool(const FilePath &item)> 
         return;
     }
 
-    QDirIterator it(m_data, filter.nameFilters, filter.fileFilters, filter.iteratorFlags);
+    QDirIterator it(path(), filter.nameFilters, filter.fileFilters, filter.iteratorFlags);
     while (it.hasNext()) {
         if (!callBack(FilePath::fromString(it.next())))
             return;
@@ -815,7 +608,7 @@ FilePath FilePath::symLinkTarget() const
         QTC_ASSERT(s_deviceHooks.symLinkTarget, return {});
         return s_deviceHooks.symLinkTarget(*this);
     }
-    const QFileInfo info(m_data);
+    const QFileInfo info(path());
     if (!info.isSymLink())
         return {};
     return FilePath::fromString(info.symLinkTarget());
@@ -824,16 +617,16 @@ FilePath FilePath::symLinkTarget() const
 QString FilePath::mapToDevicePath() const
 {
     if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.mapToDevicePath, return {});
+        QTC_ASSERT(s_deviceHooks.mapToDevicePath, return path());
         return s_deviceHooks.mapToDevicePath(*this);
     }
-    return m_data;
+    return path();
 }
 
 FilePath FilePath::withExecutableSuffix() const
 {
     FilePath res = *this;
-    res.setPath(OsSpecificAspects::withExecutableSuffix(osType(), m_data));
+    res.setPath(OsSpecificAspects::withExecutableSuffix(osType(), path()));
     return res;
 }
 
@@ -902,7 +695,7 @@ FilePath FilePath::normalizedPathName() const
 {
     FilePath result = *this;
     if (!needsDevice()) // FIXME: Assumes no remote Windows and Mac for now.
-        result.m_data = FileUtils::normalizedPathName(result.m_data);
+        result.m_path = FileUtils::normalizedPathName(result.m_path);
     return result;
 }
 
@@ -910,26 +703,30 @@ QString FilePath::displayName(const QString &args) const
 {
     QString deviceName;
     if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.deviceDisplayName, return m_data);
+        QTC_ASSERT(s_deviceHooks.deviceDisplayName, return path());
         deviceName = s_deviceHooks.deviceDisplayName(*this);
     }
 
+    const QString fullPath = path();
+
     if (args.isEmpty()) {
         if (deviceName.isEmpty())
-            return m_data;
+            return fullPath;
 
         return QCoreApplication::translate("Utils::FileUtils", "%1 on %2", "File on device")
-                .arg(m_data, deviceName);
+                .arg(fullPath, deviceName);
     }
 
     if (deviceName.isEmpty())
-        return m_data + ' ' + args;
+        return fullPath + ' ' + args;
 
     return QCoreApplication::translate("Utils::FileUtils", "%1 %2 on %3", "File and args on device")
-            .arg(m_data, args, deviceName);
+            .arg(fullPath, args, deviceName);
 }
 
 /*!
+   \fn FilePath FilePath::fromString(const QString &filepath)
+
    Constructs a FilePath from \a filepath
 
    \a filepath is not checked for validity. It can be given in the following forms:
@@ -952,11 +749,11 @@ QString FilePath::displayName(const QString &args) const
    path separator, use \c fromUserInput.
 
    \sa toString, fromUserInput
- */
-FilePath FilePath::fromString(const QString &filepath)
+*/
+FilePath FilePath::fromString(const QString &filepath, OsType osType)
 {
     FilePath fn;
-    fn.setFromString(filepath);
+    fn.setFromString(filepath, osType);
     return fn;
 }
 
@@ -964,16 +761,81 @@ bool isWindowsDriveLetter(QChar ch) {
     return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
 }
 
-void FilePath::setFromString(const QString &filename)
+using RootAndPath = QPair<QStringView, QStringView>;
+
+optional<RootAndPath> windowsRootAndPath(const QStringView path)
 {
-#ifndef UTILS_FILEPATH_USE_REGEXP
+    const QChar slash('/');
+    QStringView workPath = path;
+    if (workPath.size() < 2)
+        return {};
+    if (workPath.startsWith(slash))
+        workPath = workPath.mid(1);
+
+    if (workPath.startsWith(slash)) {
+        // Its a UNC path ( //server/share/path )
+        workPath = workPath.mid(1);
+        const auto firstSlash = workPath.indexOf(slash);
+
+        // If the first slash is not found, we either received "//" or "//server"
+        // If we only received "//" we return an empty root name, otherwise
+        // we return "//server" as root name.
+        if (firstSlash == -1)
+            return RootAndPath{path.length() > 2 ? path : workPath, {}};
+
+        workPath = workPath.mid(firstSlash + 1);
+
+        const auto secondSlash = workPath.indexOf(slash);
+        // If the second slash is not found, we either received "//server/" or "//server/share".
+        // In the first case we return "//server" as root name, in the second case we return "//server/share" as root name.
+        if (secondSlash == -1)
+            return RootAndPath{path.mid(0, workPath.length() > 0 ? path.length() : (firstSlash + 2)),
+                               {}};
+
+        workPath = workPath.mid(secondSlash + 1);
+
+        return RootAndPath{path.mid(0, firstSlash + secondSlash + 3), workPath};
+    }
+
+    if (workPath[1] == ':' && isWindowsDriveLetter(workPath[0]))
+        return RootAndPath{workPath.mid(0, 2), workPath.mid(3)};
+    return {};
+}
+
+void FilePath::setRootAndPath(QStringView path, OsType osType)
+{
+    optional<RootAndPath> windowsDriveAndPath = osType == OsType::OsTypeWindows ? windowsRootAndPath(path) : nullopt;
+
+    if (path.startsWith(QLatin1String("/./"))) {
+        m_root = "";
+        path = path.mid(3);
+        m_path = path.toString();
+    } else if (windowsDriveAndPath ) {
+        if (windowsDriveAndPath->first.isEmpty())
+            m_root.clear();
+        else
+            m_root = windowsDriveAndPath->first.toString() + '/';
+
+        m_path = windowsDriveAndPath->second.toString();
+    } else if (path.startsWith('/')) {
+        m_root = "/";
+        m_path = path.mid(1).toString();
+    } else if (path.startsWith(':')) {
+        m_root = ":/";
+        m_path = path.mid(2).toString();
+    } else {
+        m_root.clear();
+        m_path = path.toString();
+    }
+}
+
+void FilePath::setFromString(const QString &filename, OsType osType)
+{
     static const QLatin1String qtcDevSlash("__qtc_devices__/");
-    static const QLatin1String slashDotSlash("/./");
     static const QLatin1String colonSlashSlash("://");
     static const QString rootPath = QDir::rootPath();
 
     const QChar slash('/');
-    const QChar colon(':');
     const QStringView fileNameView(filename);
 
     if (fileNameView.startsWith(rootPath, Qt::CaseInsensitive)) { // Absolute path ...
@@ -990,23 +852,18 @@ void FilePath::setFromString(const QString &filename)
                              .toString();
                 if (secondSlash != -1) {
                     QStringView path = withoutQtcDeviceRoot.mid(secondSlash);
-                    path = path.startsWith(QLatin1String(slashDotSlash)) ? path.mid(3) : path;
-                    if (path.size() >= 3) { // On Windows we want to remove the leading slash ...
-                        if (path[0] == slash && path[2] == colon && isWindowsDriveLetter(path[1]))
-                            path = path.mid(1);
-                    }
-
-                    m_data = path.toString();
-
+                    setRootAndPath(path, osType);
                     return;
                 }
 
-                m_data = "/";
+                m_path.clear();
+                m_root = slash;
                 return;
             }
+
             m_scheme.clear();
             m_host.clear();
-            m_data = filename;
+            m_path = filename;
             return;
         }
     }
@@ -1018,45 +875,12 @@ void FilePath::setFromString(const QString &filename)
         m_scheme = filename.left(schemeEnd);
         const auto hostEnd = filename.indexOf(slash, schemeEnd + 3);
         m_host = filename.mid(schemeEnd + 3, hostEnd - schemeEnd - 3);
-        m_data = filename.mid(hostEnd);
-
+        setRootAndPath(QStringView(filename).mid(hostEnd), osType);
         return;
     }
 
-    m_data = filename;
-
+    setRootAndPath(filename, osType);
     return;
-#else
-    // Convert the root path ( "/" or e.g. "c:/") to a regex match string ( e.g. ^[(?i)c(?-i)]:\/ )
-    // (?i) will turn on case insensitivity, (?-i) will turn it off again.
-    static const QString rootPart = '^'
-                                    + QDir::rootPath()
-                                          .replace('/', "\\/")
-                                          .replace(QRegularExpression("([a-zA-Z])"),
-                                                   R"((?i)[\1](?-i))");
-
-    static const QString pathPattern = rootPart + specialPath(SpecialPathComponent::RootName)
-                                       + QString(R"(\/([^\/]+)\/([^\/]+)(\/.*)?)");
-
-    static const QRegularExpression rePath(pathPattern);
-    static const QRegularExpression reUrl(R"(^\/?([^:]+):\/{2}([^\/]*)(\/.*))");
-
-    const auto m = filename.startsWith(specialPath(SpecialPathComponent::RootPath),
-                                       Qt::CaseInsensitive)
-                       ? rePath.match(filename)
-                       : reUrl.match(filename);
-
-    if (m.hasMatch()) {
-        m_scheme = m.captured(1);
-        m_host = m.captured(2);
-        m_host.replace("%2f", "/");
-        m_host.replace("%25", "%");
-
-        m_data = m.captured(3).isEmpty() ? "/" : m.captured(3);
-    } else {
-        m_data = filename;
-    }
-#endif
 }
 
 /// Constructs a FilePath from \a filePath. The \a defaultExtension is appended
@@ -1109,7 +933,8 @@ QVariant FilePath::toVariant() const
 
 bool FilePath::operator==(const FilePath &other) const
 {
-    return QString::compare(m_data, other.m_data, caseSensitivity()) == 0
+    return QString::compare(m_root, other.m_root, caseSensitivity()) == 0
+        && QString::compare(m_path, other.m_path, caseSensitivity()) == 0
         && m_host == other.m_host
         && m_scheme == other.m_scheme;
 }
@@ -1121,7 +946,8 @@ bool FilePath::operator!=(const FilePath &other) const
 
 bool FilePath::operator<(const FilePath &other) const
 {
-    const int cmp = QString::compare(m_data, other.m_data, caseSensitivity());
+    const int rootCmp = QString::compare(m_root, other.m_root, caseSensitivity());
+    const int cmp = rootCmp == 0 ? QString::compare(m_path, other.m_path, caseSensitivity()) : rootCmp;
     if (cmp != 0)
         return cmp < 0;
     if (m_host != other.m_host)
@@ -1147,7 +973,7 @@ bool FilePath::operator>=(const FilePath &other) const
 FilePath FilePath::operator+(const QString &s) const
 {
     FilePath res = *this;
-    res.m_data += s;
+    res.m_path += s;
     return res;
 }
 
@@ -1156,46 +982,63 @@ bool FilePath::isChildOf(const FilePath &s) const
 {
     if (s.isEmpty())
         return false;
-    if (!m_data.startsWith(s.m_data, caseSensitivity()))
+    if (s.m_root != m_root)
         return false;
-    if (m_data.size() <= s.m_data.size())
+    if (!m_path.startsWith(s.m_path, caseSensitivity()))
+        return false;
+    if (m_path.size() <= s.m_path.size())
         return false;
     // s is root, '/' was already tested in startsWith
-    if (s.m_data.endsWith(QLatin1Char('/')))
+    if (s.m_path.endsWith(QLatin1Char('/')))
         return true;
     // s is a directory, next character should be '/' (/tmpdir is NOT a child of /tmp)
-    return m_data.at(s.m_data.size()) == QLatin1Char('/');
+    return s.m_path.isEmpty() || m_path.at(s.m_path.size()) == QLatin1Char('/');
 }
 
-/// \returns whether FilePath startsWith \a s
+/// \returns whether path() startsWith \a s
 bool FilePath::startsWith(const QString &s) const
 {
-    return m_data.startsWith(s, caseSensitivity());
+    return path().startsWith(s, caseSensitivity());
 }
 
-/// \returns whether FilePath endsWith \a s
+/*!
+* \param s The string to check for at the end of the path.
+* \returns whether FilePath endsWith \a s
+*/
 bool FilePath::endsWith(const QString &s) const
 {
-    return m_data.endsWith(s, caseSensitivity());
+    return path().endsWith(s, caseSensitivity());
 }
 
-/// \returns whether FilePath starts with a drive letter
-/// \note defaults to \c false if it is a non-Windows host or represents a path on device
+/*!
+* \brief Checks whether the FilePath starts with a drive letter.
+* Defaults to \c false if it is a non-Windows host or represents a path on device
+* \returns whether FilePath starts with a drive letter
+*/
 bool FilePath::startsWithDriveLetter() const
 {
     if (needsDevice() || !HostOsInfo::isWindowsHost())
         return false;
-    return m_data.length() >= 2 && m_data.at(0).isLetter() && m_data.at(1) == ':';
+    return m_root.length() >= 2 && m_root.at(0).isLetter() && m_root.at(1) == ':';
 }
 
-/// \returns the relativeChildPath of FilePath to parent if FilePath is a child of parent
-/// \note returns a empty FilePath if FilePath is not a child of parent
-/// That is, this never returns a path starting with "../"
+/*!
+* \brief Relative path from \a parent to this.
+* Returns a empty FilePath if this is not a child of \p parent.
+* That is, this never returns a path starting with "../"
+* \param parent The Parent to calculate the relative path to.
+* \returns The relative path of this to \p parent if this is a child of \p parent.
+*/
 FilePath FilePath::relativeChildPath(const FilePath &parent) const
 {
     FilePath res;
-    if (isChildOf(parent))
-        res.m_data = m_data.mid(parent.m_data.size() + 1, -1);
+    if (isChildOf(parent)) {
+        res.m_scheme = m_scheme;
+        res.m_host = m_host;
+        res.m_path = m_path.mid(parent.m_path.size());
+        if (res.m_path.startsWith('/'))
+            res.m_path = res.m_path.mid(1);
+    }
     return res;
 }
 
@@ -1214,7 +1057,8 @@ FilePath FilePath::relativeChildPath(const FilePath &parent) const
 FilePath FilePath::relativePath(const FilePath &anchor) const
 {
     QTC_ASSERT(!needsDevice(), return *this);
-    const QFileInfo fileInfo(m_data);
+
+    const QFileInfo fileInfo(toString());
     QString absolutePath;
     QString filename;
     if (fileInfo.isFile()) {
@@ -1225,7 +1069,7 @@ FilePath FilePath::relativePath(const FilePath &anchor) const
     } else {
         return {};
     }
-    const QFileInfo anchorInfo(anchor.m_data);
+    const QFileInfo anchorInfo(anchor.toString());
     QString absoluteAnchorPath;
     if (anchorInfo.isFile())
         absoluteAnchorPath = anchorInfo.absolutePath();
@@ -1293,16 +1137,20 @@ QString FilePath::calcRelativePath(const QString &absolutePath, const QString &a
 }
 
 /*!
-    Returns a path corresponding to the current object on the
-    same device as \a deviceTemplate.
-
-    Example usage:
-    \code
-        localDir = FilePath("/tmp/workingdir");
-        executable = FilePath::fromUrl("docker://123/bin/ls")
-        realDir = localDir.onDevice(executable)
-        assert(realDir == FilePath::fromUrl("docker://123/tmp/workingdir"))
-    \endcode
+ * \brief Returns a path corresponding to the current object on the
+ * same device as \a deviceTemplate. The FilePath needs to be local.
+ *
+ * Example usage:
+ * \code
+ *     localDir = FilePath("/tmp/workingdir");
+ *     executable = FilePath::fromUrl("docker://123/bin/ls")
+ *     realDir = localDir.onDevice(executable)
+ *     assert(realDir == FilePath::fromUrl("docker://123/tmp/workingdir"))
+ * \endcode
+ *
+ * \param deviceTemplate A path from which the host and scheme is taken.
+ *
+ * \returns A path on the same device as \a deviceTemplate.
 */
 FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
 {
@@ -1314,8 +1162,9 @@ FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
     FilePath res;
     res.m_scheme = deviceTemplate.m_scheme;
     res.m_host = deviceTemplate.m_host;
-    res.m_data = m_data;
-    res.m_data = res.mapToDevicePath();
+    res.m_root = m_root;
+    res.m_path = m_path;
+    res.setRootAndPath(res.mapToDevicePath(), res.osType());
     return res;
 }
 
@@ -1333,7 +1182,7 @@ FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
 FilePath FilePath::withNewPath(const QString &newPath) const
 {
     FilePath res;
-    res.m_data = newPath;
+    res.setRootAndPath(newPath, osType());
     res.m_host = m_host;
     res.m_scheme = m_scheme;
     return res;
@@ -1404,44 +1253,45 @@ void FilePath::sort(FilePaths &files)
     files = FileUtils::toFilePathList(list);
 }
 
+void join(QString &left, const QString &right)
+{
+    QStringView r(right);
+    if (r.startsWith('/'))
+        r = r.mid(1);
+
+    if (left.isEmpty() || left.endsWith('/'))
+        left += r;
+    else
+        left += '/' + r;
+}
+
 FilePath FilePath::pathAppended(const QString &path) const
 {
-    FilePath fn = *this;
     if (path.isEmpty())
-        return fn;
+        return *this;
 
-    if (fn.m_data.isEmpty()) {
-        fn.m_data = path;
-        return fn;
+    FilePath other = FilePath::fromString(path);
+
+    if (isEmpty()) {
+        return other;
     }
-
-    if (fn.m_data.endsWith('/')) {
-        if (path.startsWith('/'))
-            fn.m_data.append(path.mid(1));
-        else
-            fn.m_data.append(path);
-    } else {
-        if (path.startsWith('/'))
-            fn.m_data.append(path);
-        else
-            fn.m_data.append('/').append(path);
-    }
-
+    FilePath fn = *this;
+    join(fn.m_path, other.path());
     return fn;
 }
 
 FilePath FilePath::stringAppended(const QString &str) const
 {
     FilePath fn = *this;
-    fn.m_data.append(str);
+    fn.m_path.append(str);
     return fn;
 }
 
 size_t FilePath::hash(uint seed) const
 {
     if (HostOsInfo::fileNameCaseSensitivity() == Qt::CaseInsensitive)
-        return qHash(m_data.toCaseFolded(), seed);
-    return qHash(m_data, seed);
+        return qHash(path().toCaseFolded(), seed);
+    return qHash(path(), seed);
 }
 
 QDateTime FilePath::lastModified() const
@@ -1468,13 +1318,13 @@ bool FilePath::setPermissions(QFile::Permissions permissions) const
         QTC_ASSERT(s_deviceHooks.setPermissions, return false);
         return s_deviceHooks.setPermissions(*this, permissions);
     }
-    return QFile(m_data).setPermissions(permissions);
+    return QFile(path()).setPermissions(permissions);
 }
 
 OsType FilePath::osType() const
 {
     if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.osType, return {});
+        QTC_ASSERT(s_deviceHooks.osType, return OsType::OsTypeLinux);
         return s_deviceHooks.osType(*this);
     }
     return HostOsInfo::hostOs();
@@ -1547,7 +1397,7 @@ qint64 FilePath::fileSize() const
         QTC_ASSERT(s_deviceHooks.fileSize, return false);
         return s_deviceHooks.fileSize(*this);
     }
-    return QFileInfo(m_data).size();
+    return QFileInfo(path()).size();
 }
 
 qint64 FilePath::bytesAvailable() const
@@ -1556,9 +1406,229 @@ qint64 FilePath::bytesAvailable() const
         QTC_ASSERT(s_deviceHooks.bytesAvailable, return false);
         return s_deviceHooks.bytesAvailable(*this);
     }
-    return QStorageInfo(m_data).bytesAvailable();
+    return QStorageInfo(path()).bytesAvailable();
 }
 
+static bool removeRecursivelyLocal(const FilePath &filePath, QString *error)
+{
+    QTC_ASSERT(!filePath.needsDevice(), return false);
+    QFileInfo fileInfo = filePath.toFileInfo();
+    if (!fileInfo.exists() && !fileInfo.isSymLink())
+        return true;
+
+    QFile::setPermissions(fileInfo.absoluteFilePath(), fileInfo.permissions() | QFile::WriteUser);
+
+    if (fileInfo.isDir()) {
+        QDir dir(fileInfo.absoluteFilePath());
+        dir.setPath(dir.canonicalPath());
+        if (dir.isRoot()) {
+            if (error) {
+                *error = QCoreApplication::translate("Utils::FileUtils",
+                    "Refusing to remove root directory.");
+            }
+            return false;
+        }
+        if (dir.path() == QDir::home().canonicalPath()) {
+            if (error) {
+                *error = QCoreApplication::translate("Utils::FileUtils",
+                    "Refusing to remove your home directory.");
+            }
+            return false;
+        }
+
+        const QStringList fileNames = dir.entryList(
+                    QDir::Files | QDir::Hidden | QDir::System | QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const QString &fileName : fileNames) {
+            if (!removeRecursivelyLocal(filePath / fileName, error))
+                return false;
+        }
+        if (!QDir::root().rmdir(dir.path())) {
+            if (error) {
+                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to remove directory \"%1\".")
+                        .arg(filePath.toUserOutput());
+            }
+            return false;
+        }
+    } else {
+        if (!QFile::remove(filePath.toString())) {
+            if (error) {
+                *error = QCoreApplication::translate("Utils::FileUtils", "Failed to remove file \"%1\".")
+                        .arg(filePath.toUserOutput());
+            }
+            return false;
+        }
+    }
+    return true;
+}
+
+/*!
+ * \brief Checks if this is newer than \p timeStamp
+ * \param timeStamp The time stamp to compare with
+ * \returns true if this is newer than \p timeStamp.
+ *  If this is a directory, the function will recursively check all files and return
+ *  true if one of them is newer than \a timeStamp. If this is a single file, true will
+ *  be returned if the file is newer than \a timeStamp.
+ *
+ *  Returns whether at least one file in \a filePath has a newer date than
+ *  \p timeStamp.
+ */
+bool FilePath::isNewerThan(const QDateTime &timeStamp) const
+{
+    if (!exists() || lastModified() >= timeStamp)
+        return true;
+    if (isDir()) {
+        const FilePaths dirContents = dirEntries(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const FilePath &entry : dirContents) {
+            if (entry.isNewerThan(timeStamp))
+                return true;
+        }
+    }
+    return false;
+}
+
+/*!
+ * \brief Returns the caseSensitivity of the path.
+ * \returns The caseSensitivity of the path.
+ * This is currently only based on the Host OS.
+ * For device paths, \c Qt::CaseSensitive is always returned.
+ */
+Qt::CaseSensitivity FilePath::caseSensitivity() const
+{
+    if (m_scheme.isEmpty())
+        return HostOsInfo::fileNameCaseSensitivity();
+
+    // FIXME: This could or possibly should the target device's file name case sensitivity
+    // into account by diverting to IDevice. However, as this is expensive and we are
+    // in time-critical path here, we go with "good enough" for now:
+    // The first approximation is "most things are case-sensitive".
+    return Qt::CaseSensitive;
+}
+
+/*!
+*  \brief Recursively resolves symlinks if this is a symlink.
+*  To resolve symlinks anywhere in the path, see canonicalPath.
+*  Unlike QFileInfo::canonicalFilePath(), this function will still return the expected deepest
+*  target file even if the symlink is dangling.
+*
+*  \note Maximum recursion depth == 16.
+*
+*  \returns the symlink target file path.
+*/
+FilePath FilePath::resolveSymlinks() const
+{
+    FilePath current = *this;
+    int links = 16;
+    while (links--) {
+        const FilePath target = current.symLinkTarget();
+        if (target.isEmpty())
+            return current;
+        current = target;
+    }
+    return current;
+}
+
+/*!
+*  \brief Recursively resolves possibly present symlinks in this file name.
+*  Unlike QFileInfo::canonicalFilePath(), this function will not return an empty
+*  string if path doesn't exist.
+*
+*  \returns the canonical path.
+*/
+FilePath FilePath::canonicalPath() const
+{
+    if (needsDevice()) {
+        // FIXME: Not a full solution, but it stays on the right device.
+        return *this;
+    }
+    const QString result = toFileInfo().canonicalFilePath();
+    if (result.isEmpty())
+        return *this;
+    return FilePath::fromString(result);
+}
+
+FilePath FilePath::operator/(const QString &str) const
+{
+    return pathAppended(str);
+}
+
+/*!
+* \brief Clears all parts of the FilePath.
+*/
+void FilePath::clear()
+{
+    m_path.clear();
+    m_root.clear();
+    m_host.clear();
+    m_scheme.clear();
+}
+
+/*!
+* \brief Checks if the path() is empty.
+* \returns true if the path() is empty.
+* The Host and Scheme of the part are ignored.
+*/
+bool FilePath::isEmpty() const
+{
+    return m_root.isEmpty() && m_path.isEmpty();
+}
+
+/*!
+* \brief Converts the path to a possibly shortened path with native separators.
+* Like QDir::toNativeSeparators(), but use prefix '~' instead of $HOME on unix systems when an
+* absolute path is given.
+*
+* \returns the possibly shortened path with native separators.
+*/
+QString FilePath::shortNativePath() const
+{
+    if (HostOsInfo::isAnyUnixHost()) {
+        const FilePath home = FileUtils::homePath();
+        if (isChildOf(home)) {
+            return QLatin1Char('~') + QDir::separator()
+                + QDir::toNativeSeparators(relativeChildPath(home).toString());
+        }
+    }
+    return toUserOutput();
+}
+
+/*!
+* \brief Checks whether the path is relative
+* \returns true if the path is relative.
+*/
+bool FilePath::isRelativePath() const
+{
+    return m_root.isEmpty();
+}
+
+/*!
+* \brief Appends the tail to this, if the tail is a relative path.
+* \param tail The tail to append.
+* \returns Returns tail if tail is absolute, otherwise this + tail.
+*/
+FilePath FilePath::resolvePath(const FilePath &tail) const
+{
+    if (!tail.m_root.isEmpty())
+        return tail;
+    return pathAppended(tail.m_path);
+}
+
+/*!
+* \brief Appends the tail to this, if the tail is a relative path.
+* \param tail The tail to append.
+* \returns Returns tail if tail is absolute, otherwise this + tail.
+*/
+FilePath FilePath::resolvePath(const QString &tail) const
+{
+   FilePath tailPath = FilePath::fromString(doCleanPath(tail));
+   return resolvePath(tailPath);
+}
+
+FilePath FilePath::cleanPath() const
+{
+    FilePath result = *this;
+    result.setPath(doCleanPath(result.path()));
+    return result;
+}
 
 QTextStream &operator<<(QTextStream &s, const FilePath &fn)
 {
@@ -1574,6 +1644,11 @@ FileFilter::FileFilter(const QStringList &nameFilters,
 {
 }
 
+DeviceFileHooks &DeviceFileHooks::instance()
+{
+    return s_deviceHooks;
+}
+
 } // namespace Utils
 
 std::hash<Utils::FilePath>::result_type
@@ -1583,3 +1658,11 @@ std::hash<Utils::FilePath>::result_type
         return hash<string>()(fn.toString().toCaseFolded().toStdString());
     return hash<string>()(fn.toString().toStdString());
 }
+
+QT_BEGIN_NAMESPACE
+QDebug operator<<(QDebug dbg, const Utils::FilePath &c)
+{
+    return dbg << c.toString();
+}
+
+QT_END_NAMESPACE

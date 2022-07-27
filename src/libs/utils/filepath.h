@@ -28,6 +28,7 @@
 #include "utils_global.h"
 
 #include "osspecificaspects.h"
+#include "hostosinfo.h"
 
 #include <QDir>
 #include <QDirIterator>
@@ -69,9 +70,9 @@ class QTCREATOR_UTILS_EXPORT FilePath
 public:
     FilePath();
 
-    template <size_t N> FilePath(const char (&literal)[N]) { setFromString(literal); }
+    template <size_t N> FilePath(const char (&literal)[N], OsType osType = HostOsInfo::hostOs()) { setFromString(literal, osType); }
 
-    [[nodiscard]] static FilePath fromString(const QString &filepath);
+    [[nodiscard]] static FilePath fromString(const QString &filepath, OsType osType = HostOsInfo::hostOs());
     [[nodiscard]] static FilePath fromStringWithExtension(const QString &filepath, const QString &defaultExtension);
     [[nodiscard]] static FilePath fromUserInput(const QString &filepath);
     [[nodiscard]] static FilePath fromUtf8(const char *filepath, int filepathSize = -1);
@@ -94,8 +95,11 @@ public:
     QString host() const { return m_host; }
     void setHost(const QString &host);
 
-    QString path() const { return m_data; }
-    void setPath(const QString &path) { m_data = path; }
+    QString path() const { return m_root + m_path; }
+    void setPath(const QString &path) { setRootAndPath(path, HostOsInfo::hostOs()); }
+
+    QString root() const { return m_root; }
+    void setRoot(const QString &root) { m_root = root; }
 
     QString fileName() const;
     QString fileNameWithPathComponents(int pathComponents) const;
@@ -227,12 +231,14 @@ public:
 private:
     friend class ::tst_fileutils;
     static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);
-    void setFromString(const QString &filepath);
+    void setRootAndPath(QStringView path, OsType osType);
+    void setFromString(const QString &filepath, OsType osType);
     [[nodiscard]] QString mapToDevicePath() const;
 
     QString m_scheme;
     QString m_host; // May contain raw slashes.
-    QString m_data;
+    QString m_path;
+    QString m_root;
 };
 
 inline size_t qHash(const Utils::FilePath &a, uint seed = 0)
