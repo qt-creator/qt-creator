@@ -29,6 +29,8 @@
 #include <model.h>
 #include <modelnode.h>
 #include <nodelistproperty.h>
+#include <projectstorage/projectstorage.h>
+#include <sqlitedatabase.h>
 
 namespace {
 
@@ -69,7 +71,7 @@ protected:
     }
 
 protected:
-    std::unique_ptr<QmlDesigner::Model> model{QmlDesigner::Model::create("QtQuick.Item")};
+    std::unique_ptr<QmlDesigner::Model> model{std::make_unique<QmlDesigner::Model>("QtQuick.Item")};
     NiceMock<AbstractViewMock> abstractViewMock;
     QmlDesigner::NodeListProperty nodeListProperty;
     ModelNode node1;

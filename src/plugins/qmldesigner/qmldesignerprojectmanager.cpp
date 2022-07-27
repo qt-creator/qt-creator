@@ -232,6 +232,11 @@ AsynchronousImageCache &QmlDesignerProjectManager::asynchronousImageCache()
     return imageCacheData()->asynchronousImageCache;
 }
 
+ProjectStorage<Sqlite::Database> &QmlDesignerProjectManager::projectStorage()
+{
+    return m_projectData->projectStorageData.storage;
+}
+
 void QmlDesignerProjectManager::editorOpened(::Core::IEditor *) {}
 
 void QmlDesignerProjectManager::currentEditorChanged(::Core::IEditor *)

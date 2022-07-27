@@ -42,7 +42,14 @@ class Project;
 class Target;
 } // namespace ProjectExplorer
 
+namespace Sqlite {
+class Database;
+}
+
 namespace QmlDesigner {
+
+template<typename Database>
+class ProjectStorage;
 
 class QmlDesignerProjectManager : public QObject
 {
@@ -59,6 +66,7 @@ public:
     void registerPreviewImageProvider(QQmlEngine *engine) const;
 
     class AsynchronousImageCache &asynchronousImageCache();
+    ProjectStorage<Sqlite::Database> &projectStorage();
 
 private:
     void editorOpened(::Core::IEditor *editor);

@@ -30,6 +30,8 @@
 
 #include <QDialog>
 
+#include <memory>
+
 QT_FORWARD_DECLARE_CLASS(QStandardItemModel)
 
 namespace QmlDesigner {
@@ -58,6 +60,7 @@ public:
     static void setSignalSource(SignalHandlerProperty &prop, const QString &source);
 
     EventList();
+    ~EventList();
 
     Model *model() const;
 
@@ -70,8 +73,8 @@ public:
 private:
     static NodeListView *st_nodeView;
 
-    Model *m_model;
-    EventListView *m_eventView;
+    std::unique_ptr<Model> m_model;
+    std::unique_ptr<EventListView> m_eventView;
     Utils::FilePath m_path;
 };
 

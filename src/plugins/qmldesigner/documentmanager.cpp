@@ -26,13 +26,14 @@
 #include "documentmanager.h"
 #include "qmldesignerplugin.h"
 
+#include <bindingproperty.h>
 #include <modelnode.h>
-#include <qmlitemnode.h>
+#include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
-#include <nodelistproperty.h>
-#include <bindingproperty.h>
 #include <variantproperty.h>
+#include <qmldesignerprojectmanager.h>
+#include <qmlitemnode.h>
 
 #include <utils/qtcassert.h>
 #include <utils/textfileformat.h>
@@ -246,16 +247,13 @@ static bool hasSourceWithFileComponent(const ModelNode &modelNode)
     return false;
 }
 
-DocumentManager::DocumentManager() = default;
-
-DocumentManager::~DocumentManager() = default;
-
 void DocumentManager::setCurrentDesignDocument(Core::IEditor *editor)
 {
     if (editor) {
         auto found = m_designDocuments.find(editor);
         if (found == m_designDocuments.end()) {
-            auto &inserted = m_designDocuments[editor] = std::make_unique<DesignDocument>();
+            auto &inserted = m_designDocuments[editor] = std::make_unique<DesignDocument>(
+                m_projectManager.projectStorage());
             m_currentDesignDocument = inserted.get();
             m_currentDesignDocument->setEditor(editor);
         } else {

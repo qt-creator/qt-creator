@@ -39,16 +39,19 @@ namespace ProjectExplorer { class Node; }
 namespace ProjectExplorer { class Project; }
 namespace QmlDesigner {
 
+class QmlDesignerProjectManager;
+
 Q_DECLARE_LOGGING_CATEGORY(documentManagerLog)
 
 class QMLDESIGNERCORE_EXPORT DocumentManager : public QObject
 {
     Q_OBJECT
 public:
-    DocumentManager();
-    ~DocumentManager() override;
+    DocumentManager(QmlDesignerProjectManager &projectManager)
+        : m_projectManager{projectManager}
+    {}
 
-    void setCurrentDesignDocument(Core::IEditor*editor);
+    void setCurrentDesignDocument(Core::IEditor *editor);
     DesignDocument *currentDesignDocument() const;
     bool hasCurrentDesignDocument() const;
 
@@ -74,6 +77,7 @@ public:
 private:
     std::map<Core::IEditor *, std::unique_ptr<DesignDocument>> m_designDocuments;
     QPointer<DesignDocument> m_currentDesignDocument;
+    QmlDesignerProjectManager &m_projectManager;
 };
 
 } // namespace QmlDesigner

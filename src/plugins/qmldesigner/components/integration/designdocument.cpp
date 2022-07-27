@@ -81,13 +81,13 @@ namespace QmlDesigner {
   DesignDocument acts as a facade to a model representing a qml document,
   and the different views/widgets accessing it.
   */
-DesignDocument::DesignDocument(QObject *parent) :
-        QObject(parent),
-        m_documentModel(Model::create("QtQuick.Item", 1, 0)),
-        m_subComponentManager(new SubComponentManager(m_documentModel.data(), this)),
-        m_rewriterView (new RewriterView(RewriterView::Amend, m_documentModel.data())),
-        m_documentLoaded(false),
-        m_currentTarget(nullptr)
+DesignDocument::DesignDocument(ProjectStorage<Sqlite::Database> &projectStorage)
+    : m_documentModel(Model::create("QtQuick.Item", 1, 0))
+    , m_subComponentManager(new SubComponentManager(m_documentModel.get(), this))
+    , m_rewriterView(new RewriterView(RewriterView::Amend, m_documentModel.get()))
+    , m_documentLoaded(false)
+    , m_currentTarget(nullptr)
+    , m_projectStorage(projectStorage)
 {
 }
 
@@ -96,14 +96,14 @@ DesignDocument::~DesignDocument() = default;
 Model *DesignDocument::currentModel() const
 {
     if (m_inFileComponentModel)
-        return m_inFileComponentModel.data();
+        return m_inFileComponentModel.get();
 
-    return m_documentModel.data();
+    return m_documentModel.get();
 }
 
 Model *DesignDocument::documentModel() const
 {
-    return m_documentModel.data();
+    return m_documentModel.get();
 }
 
 QWidget *DesignDocument::centralWidget() const
@@ -166,9 +166,9 @@ AbstractView *DesignDocument::view() const
     return viewManager().nodeInstanceView();
 }
 
-Model* DesignDocument::createInFileComponentModel()
+std::unique_ptr<Model> DesignDocument::createInFileComponentModel()
 {
-    Model *model = Model::create("QtQuick.Item", 1, 0);
+    auto model = Model::create("QtQuick.Item", 1, 0);
     model->setFileUrl(m_documentModel->fileUrl());
     model->setMetaInfo(m_documentModel->metaInfo());
 
@@ -212,7 +212,7 @@ bool DesignDocument::pasteSVG()
 
 bool DesignDocument::inFileComponentModelActive() const
 {
-    return !m_inFileComponentModel.isNull();
+    return bool(m_inFileComponentModel);
 }
 
 QList<DocumentMessage> DesignDocument::qmlParseWarnings() const
@@ -357,7 +357,7 @@ void DesignDocument::changeToInFileComponentModel(ComponentTextModifier *textMod
     if (edit)
         edit->document()->clearUndoRedoStacks();
 
-    m_inFileComponentModel.reset(createInFileComponentModel());
+    m_inFileComponentModel = createInFileComponentModel();
     m_inFileComponentModel->setTextModifier(m_inFileComponentTextModifier.data());
 
     viewManager().attachRewriterView();
@@ -558,7 +558,7 @@ void DesignDocument::paste()
     if (TimelineActions::clipboardContainsKeyframes()) // pasting keyframes is handled in TimelineView
         return;
 
-    QScopedPointer<Model> pasteModel(DesignDocumentView::pasteToModel());
+    auto pasteModel = DesignDocumentView::pasteToModel();
 
     if (!pasteModel)
         return;

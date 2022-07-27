@@ -46,6 +46,10 @@ namespace ProjectExplorer {
 class Target;
 }
 
+namespace Sqlite {
+class Database;
+}
+
 namespace QmlDesigner {
 
 class ModelNode;
@@ -54,12 +58,14 @@ class QmlObjectNode;
 class CrumbleBarInfo;
 class ViewManager;
 class AbstractView;
+template<typename Database>
+class ProjectStorage;
 
 class QMLDESIGNERCORE_EXPORT DesignDocument: public QObject
 {
     Q_OBJECT
 public:
-    DesignDocument(QObject *parent = nullptr);
+    DesignDocument(ProjectStorage<Sqlite::Database> &projectStorage);
     ~DesignDocument() override;
 
     QString displayName() const;
@@ -144,22 +150,22 @@ private: // functions
 
     AbstractView *view() const;
 
-    Model *createInFileComponentModel();
+    std::unique_ptr<Model> createInFileComponentModel();
 
     bool pasteSVG();
 
 private: // variables
-    QScopedPointer<Model> m_documentModel;
-    QScopedPointer<Model> m_inFileComponentModel;
+    std::unique_ptr<Model> m_documentModel;
+    std::unique_ptr<Model> m_inFileComponentModel;
     QPointer<Core::IEditor> m_textEditor;
     QScopedPointer<BaseTextEditModifier> m_documentTextModifier;
     QScopedPointer<ComponentTextModifier> m_inFileComponentTextModifier;
     QScopedPointer<SubComponentManager> m_subComponentManager;
 
     QScopedPointer<RewriterView> m_rewriterView;
-
     bool m_documentLoaded;
     ProjectExplorer::Target *m_currentTarget;
+    ProjectStorage<Sqlite::Database> &m_projectStorage;
 };
 
 } // namespace QmlDesigner

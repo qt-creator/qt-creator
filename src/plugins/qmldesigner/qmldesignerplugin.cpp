@@ -136,7 +136,7 @@ class QmlDesignerPluginPrivate
 public:
     QmlDesignerProjectManager projectManager;
     ViewManager viewManager{projectManager.asynchronousImageCache()};
-    DocumentManager documentManager;
+    DocumentManager documentManager{projectManager};
     ShortCutManager shortCutManager;
     SettingsPage settingsPage;
     DesignModeWidget mainWidget;

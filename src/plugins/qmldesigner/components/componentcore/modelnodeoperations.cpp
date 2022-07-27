@@ -590,7 +590,7 @@ static QString toUpper(const QString &signal)
 
 static void addSignal(const QString &typeName, const QString &itemId, const QString &signalName, bool isRootModelNode)
 {
-    QScopedPointer<Model> model(Model::create("Item", 2, 0));
+    auto model = Model::create("Item", 2, 0);
     RewriterView rewriterView(RewriterView::Amend, nullptr);
 
     auto textEdit = qobject_cast<TextEditor::TextEditorWidget*>
@@ -1514,8 +1514,8 @@ void styleMerge(const SelectionContext &selectionContext, const QString &templat
 
     QTC_ASSERT(parentModel, return);
 
-    QScopedPointer<Model> templateModel(Model::create("QtQuick.Item", 2, 1, parentModel));
-    Q_ASSERT(templateModel.data());
+    auto templateModel(Model::create("QtQuick.Item", 2, 1, parentModel));
+    Q_ASSERT(templateModel.get());
 
     templateModel->setFileUrl(QUrl::fromLocalFile(templateFile));
 
@@ -1540,8 +1540,8 @@ void styleMerge(const SelectionContext &selectionContext, const QString &templat
     ModelNode templateRootNode = templateRewriterView->rootModelNode();
     QTC_ASSERT(templateRootNode.isValid(), return);
 
-    QScopedPointer<Model> styleModel(Model::create("QtQuick.Item", 2, 1, parentModel));
-    Q_ASSERT(styleModel.data());
+    auto styleModel(Model::create("QtQuick.Item", 2, 1, parentModel));
+    Q_ASSERT(styleModel.get());
 
     styleModel->setFileUrl(QUrl::fromLocalFile(templateFile));
 

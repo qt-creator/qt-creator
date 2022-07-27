@@ -239,7 +239,7 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
                                                    const QString &source,
                                                    const QmlVisualNode::Position &position)
 {
-    QScopedPointer<Model> inputModel(Model::create("QtQuick.Item", 1, 0, view->model()));
+    auto inputModel = Model::create("QtQuick.Item", 1, 0, view->model());
     inputModel->setFileUrl(view->model()->fileUrl());
     QPlainTextEdit textEdit;
 

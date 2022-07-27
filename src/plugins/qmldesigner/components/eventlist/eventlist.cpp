@@ -175,14 +175,16 @@ EventList::EventList()
 
 {}
 
+EventList::~EventList() = default;
+
 Model *EventList::model() const
 {
-    return m_model;
+    return m_model.get();
 }
 
 EventListView *EventList::view() const
 {
-    return m_eventView;
+    return m_eventView.get();
 }
 
 QString EventList::read() const
@@ -216,8 +218,8 @@ void EventList::initialize(EventListPluginView *parent)
     }
 
     if (!m_eventView) {
-        m_eventView = new EventListView(m_model);
-        m_model->attachView(m_eventView);
+        m_eventView = std::make_unique<EventListView>(m_model.get());
+        m_model->attachView(m_eventView.get());
     }
 }
 

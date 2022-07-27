@@ -40,6 +40,10 @@ class QPixmap;
 class QUrl;
 QT_END_NAMESPACE
 
+namespace Sqlite {
+class Database;
+}
+
 namespace QmlDesigner {
 
 namespace Internal {
@@ -60,6 +64,8 @@ class AbstractProperty;
 class RewriterView;
 class NodeInstanceView;
 class TextModifier;
+template<typename Database>
+class ProjectStorage;
 
 using PropertyListType = QList<QPair<PropertyName, QVariant> >;
 
@@ -77,9 +83,22 @@ class QMLDESIGNERCORE_EXPORT Model : public QObject
 public:
     enum ViewNotification { NotifyView, DoNotNotifyView };
 
-    ~Model() override;
+    Model(ProjectStorage<Sqlite::Database> &projectStorage,
+          const TypeName &type,
+          int major = 1,
+          int minor = 1,
+          Model *metaInfoProxyModel = nullptr);
+    Model(const TypeName &typeName, int major = 1, int minor = 1, Model *metaInfoProxyModel = nullptr);
 
-    static Model *create(TypeName type, int major = 1, int minor = 1, Model *metaInfoPropxyModel = nullptr);
+    ~Model();
+
+    static std::unique_ptr<Model> create(const TypeName &typeName,
+                                         int major = 1,
+                                         int minor = 1,
+                                         Model *metaInfoProxyModel = nullptr)
+    {
+        return std::make_unique<Model>(typeName, major, minor, metaInfoProxyModel);
+    }
 
     QUrl fileUrl() const;
     QUrl projectUrl() const;
@@ -119,7 +138,8 @@ public:
 
     TextModifier *textModifier() const;
     void setTextModifier(TextModifier *textModifier);
-    void setDocumentMessages(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings);
+    void setDocumentMessages(const QList<DocumentMessage> &errors,
+                             const QList<DocumentMessage> &warnings);
 
     QList<ModelNode> selectedNodes(AbstractView *view) const;
 
@@ -134,11 +154,8 @@ public:
     void startDrag(QMimeData *mimeData, const QPixmap &icon);
     void endDrag();
 
-protected:
-    Model();
-
 private:
-    Internal::ModelPrivate *d;
+    std::unique_ptr<Internal::ModelPrivate> d;
 };
 
 }

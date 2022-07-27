@@ -84,17 +84,21 @@ private:
 
 class ModelPrivate : public QObject {
     Q_OBJECT
-    Q_DISABLE_COPY(ModelPrivate)
 
     friend Model;
     friend Internal::WriteLocker;
     friend NodeMetaInfoPrivate;
 
 public:
-     ModelPrivate(Model *model);
-    ~ModelPrivate() override;
+    ModelPrivate(Model *model,
+                 ProjectStorage<Sqlite::Database> &projectStorage,
+                 const TypeName &type,
+                 int major,
+                 int minor,
+                 Model *metaInfoProxyModel);
+    ModelPrivate(Model *model, const TypeName &type, int major, int minor, Model *metaInfoProxyModel);
 
-    static Model *create(const TypeName &type, int major, int minor, Model *metaInfoPropxyModel);
+    ~ModelPrivate() override;
 
     QUrl fileUrl() const;
     void setFileUrl(const QUrl &url);
@@ -291,6 +295,7 @@ private:
     QPointer<TextModifier> m_textModifier;
     QPointer<Model> m_metaInfoProxyModel;
     QHash<TypeName, QSharedPointer<NodeMetaInfoPrivate>> m_nodeMetaInfoCache;
+    ProjectStorage<Sqlite::Database> *m_projectStorage = nullptr;
     bool m_writeLock = false;
     qint32 m_internalIdCounter = 1;
 };

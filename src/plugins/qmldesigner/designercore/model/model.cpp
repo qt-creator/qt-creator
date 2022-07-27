@@ -89,12 +89,33 @@ Components that want to be informed about changes in the model can register a su
 namespace QmlDesigner {
 namespace Internal {
 
-ModelPrivate::ModelPrivate(Model *model)
+ModelPrivate::ModelPrivate(Model *model,
+                           ProjectStorage<Sqlite::Database> &projectStorage,
+                           const TypeName &typeName,
+                           int major,
+                           int minor,
+                           Model *metaInfoProxyModel)
+    : m_model{model}
+    , m_projectStorage{&projectStorage}
+{
+    m_metaInfoProxyModel = metaInfoProxyModel;
+
+    m_rootInternalNode = createNode(
+        typeName, major, minor, {}, {}, {}, ModelNode::NodeWithoutSource, {}, true);
+
+    m_currentStateNode = m_rootInternalNode;
+    m_currentTimelineNode = m_rootInternalNode;
+}
+
+ModelPrivate::ModelPrivate(
+    Model *model, const TypeName &typeName, int major, int minor, Model *metaInfoProxyModel)
     : m_model(model)
 {
-    m_rootInternalNode = createNode("QtQuick.Item",
-                                    1,
-                                    0,
+    m_metaInfoProxyModel = metaInfoProxyModel;
+
+    m_rootInternalNode = createNode(typeName,
+                                    major,
+                                    minor,
                                     PropertyListType(),
                                     PropertyListType(),
                                     {},
@@ -128,18 +149,6 @@ void ModelPrivate::detachAllViews()
         m_rewriterView->modelAboutToBeDetached(m_model);
         m_rewriterView.clear();
     }
-}
-
-Model *ModelPrivate::create(const TypeName &type, int major, int minor, Model *metaInfoPropxyModel)
-{
-    auto model = new Model;
-
-    model->d->m_metaInfoProxyModel = metaInfoPropxyModel;
-    model->d->rootNode()->setType(type);
-    model->d->rootNode()->setMajorVersion(major);
-    model->d->rootNode()->setMinorVersion(minor);
-
-    return model;
 }
 
 void ModelPrivate::changeImports(const QList<Import> &toBeAddedImportList,
@@ -1370,9 +1379,9 @@ WriteLocker::WriteLocker(ModelPrivate *model)
 }
 
 WriteLocker::WriteLocker(Model *model)
-    : m_model(model->d)
+    : m_model(model->d.get())
 {
-    Q_ASSERT(model->d);
+    Q_ASSERT(model->d.get());
     if (m_model->m_writeLock)
         qWarning() << "QmlDesigner: Misbehaving view calls back to model!!!";
     // FIXME: Enable it again
@@ -1391,20 +1400,20 @@ WriteLocker::~WriteLocker()
 
 } // namespace Internal
 
-Model::Model()
-    : QObject()
-    , d(new Internal::ModelPrivate(this))
+Model::Model(ProjectStorage<Sqlite::Database> &projectStorage,
+             const TypeName &typeName,
+             int major,
+             int minor,
+             Model *metaInfoProxyModel)
+    : d(std::make_unique<Internal::ModelPrivate>(
+        this, projectStorage, typeName, major, minor, metaInfoProxyModel))
 {}
 
-Model::~Model()
-{
-    delete d;
-}
+Model::Model(const TypeName &typeName, int major, int minor, Model *metaInfoProxyModel)
+    : d(std::make_unique<Internal::ModelPrivate>(this, typeName, major, minor, metaInfoProxyModel))
+{}
 
-Model *Model::create(TypeName type, int major, int minor, Model *metaInfoPropxyModel)
-{
-    return Internal::ModelPrivate::create(type, major, minor, metaInfoPropxyModel);
-}
+Model::~Model() = default;
 
 const QList<Import> &Model::imports() const
 {
@@ -1721,7 +1730,7 @@ QUrl Model::projectUrl() const
   */
 void Model::setFileUrl(const QUrl &url)
 {
-    Internal::WriteLocker locker(d);
+    Internal::WriteLocker locker(d.get());
     d->setFileUrl(url);
 }
 

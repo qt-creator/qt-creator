@@ -49,7 +49,7 @@ public:
     QString toText() const;
     void fromText(const QString &text);
 
-    static Model *pasteToModel();
+    static std::unique_ptr<Model> pasteToModel();
     static void copyModelNodes(const QList<ModelNode> &nodesToCopy);
 
 private:

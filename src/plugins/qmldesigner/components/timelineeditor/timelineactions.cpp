@@ -84,7 +84,7 @@ void TimelineActions::pasteKeyframesToTarget(const ModelNode &targetNode,
                                              const QmlTimeline &timeline)
 {
     if (timeline.isValid()) {
-        QScopedPointer<Model> pasteModel(DesignDocumentView::pasteToModel());
+        auto pasteModel = DesignDocumentView::pasteToModel();
 
         if (!pasteModel)
             return;
@@ -263,7 +263,7 @@ std::vector<std::tuple<ModelNode, qreal>> getFramesRelative(const ModelNode &par
 
 void TimelineActions::pasteKeyframes(AbstractView *timelineView, const QmlTimeline &timeline)
 {
-    QScopedPointer<Model> pasteModel(DesignDocumentView::pasteToModel());
+    auto pasteModel = DesignDocumentView::pasteToModel();
 
     if (!pasteModel)
         return;

@@ -104,7 +104,7 @@ void DesignDocumentView::fromClipboard()
 
 QString DesignDocumentView::toText() const
 {
-    QScopedPointer<Model> outputModel(Model::create("QtQuick.Rectangle", 1, 0, model()));
+    auto outputModel = Model::create("QtQuick.Rectangle", 1, 0, model());
     outputModel->setFileUrl(model()->fileUrl());
     QPlainTextEdit textEdit;
 
@@ -137,7 +137,7 @@ QString DesignDocumentView::toText() const
 
 void DesignDocumentView::fromText(const QString &text)
 {
-    QScopedPointer<Model> inputModel(Model::create("QtQuick.Rectangle", 1, 0, model()));
+    auto inputModel = Model::create("QtQuick.Rectangle", 1, 0, model());
     inputModel->setFileUrl(model()->fileUrl());
     QPlainTextEdit textEdit;
     QString imports;
@@ -173,13 +173,13 @@ static Model *currentModel()
     return nullptr;
 }
 
-Model *DesignDocumentView::pasteToModel()
+std::unique_ptr<Model> DesignDocumentView::pasteToModel()
 {
     Model *parentModel = currentModel();
 
     QTC_ASSERT(parentModel, return nullptr);
 
-    Model *pasteModel(Model::create("empty", 1, 0, parentModel));
+    auto pasteModel = Model::create("empty", 1, 0, parentModel);
 
     Q_ASSERT(pasteModel);
 
@@ -203,7 +203,7 @@ void DesignDocumentView::copyModelNodes(const QList<ModelNode> &nodesToCopy)
 
     QTC_ASSERT(parentModel, return);
 
-    QScopedPointer<Model> copyModel(Model::create("QtQuick.Rectangle", 1, 0, parentModel));
+    auto copyModel = Model::create("QtQuick.Rectangle", 1, 0, parentModel);
 
     copyModel->setFileUrl(parentModel->fileUrl());
     copyModel->changeImports(parentModel->imports(), {});
