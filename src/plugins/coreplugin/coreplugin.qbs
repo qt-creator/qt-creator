@@ -201,7 +201,7 @@ Project {
             name: "Dialogs"
             prefix: "dialogs/"
             files: [
-                "addtovcsdialog.cpp", "addtovcsdialog.h", "addtovcsdialog.ui",
+                "addtovcsdialog.cpp", "addtovcsdialog.h",
                 "codecselector.cpp", "codecselector.h",
                 "externaltoolconfig.cpp", "externaltoolconfig.h", "externaltoolconfig.ui",
                 "filepropertiesdialog.cpp", "filepropertiesdialog.h",
