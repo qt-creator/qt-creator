@@ -78,15 +78,14 @@ ProjectModel::ProjectModel(QObject *parent)
 
 int ProjectModel::rowCount(const QModelIndex &) const
 {
-    return ProjectExplorerPlugin::recentProjects().count();
+    return m_projects.count();
 }
 
 QVariant ProjectModel::data(const QModelIndex &index, int role) const
 {
-    const RecentProjectsEntries recentProjects = ProjectExplorerPlugin::recentProjects();
-    if (recentProjects.count() <= index.row())
+    if (m_projects.count() <= index.row())
         return {};
-    RecentProjectsEntry data = recentProjects.at(index.row());
+    RecentProjectsEntry data = m_projects.at(index.row());
     switch (role) {
     case Qt::DisplayRole:
         return data.second;
@@ -120,6 +119,7 @@ QHash<int, QByteArray> ProjectModel::roleNames() const
 void ProjectModel::resetProjects()
 {
     beginResetModel();
+    m_projects = ProjectExplorerPlugin::recentProjects();
     endResetModel();
 }
 
