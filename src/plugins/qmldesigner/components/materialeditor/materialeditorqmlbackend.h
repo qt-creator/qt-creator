@@ -79,7 +79,6 @@ private:
                                    const PropertyName &name, const QVariant &value,
                                    MaterialEditorView *materialEditor);
     PropertyName auxNamePostFix(const PropertyName &propertyName);
-    QVariant properDefaultAuxiliaryProperties(const QmlObjectNode &qmlObjectNode, const PropertyName &propertyName);
 
     QQuickWidget *m_view = nullptr;
     Internal::QmlAnchorBindingProxy m_backendAnchorBinding;

@@ -125,18 +125,6 @@ PropertyName MaterialEditorQmlBackend::auxNamePostFix(const PropertyName &proper
     return propertyName + "__AUX";
 }
 
-QVariant MaterialEditorQmlBackend::properDefaultAuxiliaryProperties(const QmlObjectNode &qmlObjectNode,
-                                                                    const PropertyName &propertyName)
-{
-    const ModelNode node = qmlObjectNode.modelNode();
-    const PropertyName auxName = propertyName;
-
-    if (node.hasAuxiliaryData(auxName))
-        return node.auxiliaryData(auxName);
-
-    return {};
-}
-
 void MaterialEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                                          const PropertyName &name,
                                                          const QVariant &value,
