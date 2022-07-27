@@ -32,8 +32,11 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QAction>
 #include <QMessageBox>

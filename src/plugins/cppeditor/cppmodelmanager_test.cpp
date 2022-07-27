@@ -37,12 +37,15 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/fileutils.h>
 #include <coreplugin/testdatadir.h>
+
+#include <cplusplus/LookupContext.h>
+
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
-#include <cplusplus/LookupContext.h>
 #include <utils/executeondestruction.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QtTest>

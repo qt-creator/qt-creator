@@ -35,6 +35,7 @@
 
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
+#include <utils/qtcassert.h>
 
 #include <QCheckBox>
 #include <QLayout>

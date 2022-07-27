@@ -32,7 +32,9 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
+
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
 #include <QFileInfo>

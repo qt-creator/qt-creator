@@ -34,15 +34,19 @@
 #include "target.h"
 
 #include <app/app_version.h>
+
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
+
 #include <utils/utilsicons.h>
 #include <utils/algorithm.h>
 #include <utils/dropsupport.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 

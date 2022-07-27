@@ -48,10 +48,10 @@
 
 #include <utils/algorithm.h>
 #include <utils/stylehelper.h>
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QDir>
-#include <QFileInfo>
 #include <QMessageBox>
 #include <QPushButton>
 

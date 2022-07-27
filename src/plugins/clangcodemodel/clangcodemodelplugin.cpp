@@ -55,6 +55,7 @@
 #include <texteditor/textmark.h>
 
 #include <utils/temporarydirectory.h>
+#include <utils/qtcassert.h>
 #include <utils/runextensions.h>
 
 using namespace Utils;

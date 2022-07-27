@@ -25,16 +25,20 @@
 
 #include "externaleditors.h"
 
-#include <utils/algorithm.h>
-#include <utils/hostosinfo.h>
-#include <utils/qtcprocess.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/session.h>
+
 #include <qtsupport/qtkitinformation.h>
+
 #include <designer/designerconstants.h>
+
+#include <utils/algorithm.h>
+#include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <QDebug>
 #include <QTcpServer>

@@ -34,19 +34,23 @@
 #include "projectinfo.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <cplusplus/CppDocument.h>
+
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
+
 #include <texteditor/texteditor.h>
 #include <texteditor/codeassist/iassistproposal.h>
 #include <texteditor/codeassist/iassistproposalmodel.h>
 #include <texteditor/storagesettings.h>
 
-#include <cplusplus/CppDocument.h>
 #include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
 #include <QtTest>

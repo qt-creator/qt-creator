@@ -28,13 +28,6 @@
 #include "exampleslistmodel.h"
 #include "qtsupporttr.h"
 
-#include <utils/algorithm.h>
-#include <utils/fileutils.h>
-#include <utils/pathchooser.h>
-#include <utils/stylehelper.h>
-#include <utils/theme/theme.h>
-#include <utils/winutils.h>
-
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -45,6 +38,14 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+
+#include <utils/algorithm.h>
+#include <utils/fileutils.h>
+#include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
+#include <utils/winutils.h>
 
 #include <QComboBox>
 #include <QDesktopServices>

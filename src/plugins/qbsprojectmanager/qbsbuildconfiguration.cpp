@@ -41,6 +41,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 

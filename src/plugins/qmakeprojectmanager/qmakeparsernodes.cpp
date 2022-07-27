@@ -29,18 +29,22 @@
 #include "qmakeprojectmanagerconstants.h"
 
 #include <android/androidconstants.h>
+
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 #include <cppeditor/cppeditorconstants.h>
+
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
+
 #include <qtsupport/profilereader.h>
+
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
@@ -49,6 +53,7 @@
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/mimeutils.h>
+#include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>

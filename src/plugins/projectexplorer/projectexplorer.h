@@ -26,27 +26,28 @@
 #pragma once
 
 #include "projectexplorer_export.h"
-#include "runconfiguration.h"
 
 #include <extensionsystem/iplugin.h>
+
+#include <utils/filepath.h>
+#include <utils/id.h>
 
 #include <QPair>
 
 QT_BEGIN_NAMESPACE
 class QPoint;
-class QAction;
 class QThreadPool;
 QT_END_NAMESPACE
 
 namespace Core {
 class IMode;
 class OutputWindow;
-} // namespace Core
+} // Core
 
 namespace Utils {
+class CommandLine;
 class ProcessHandle;
-class FilePath;
-}
+} // Utils
 
 namespace ProjectExplorer {
 class BuildPropertiesSettings;
@@ -56,7 +57,6 @@ class RunConfiguration;
 class Project;
 class Node;
 class FolderNode;
-class FileNode;
 
 namespace Internal {
 class AppOutputSettings;
