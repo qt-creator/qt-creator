@@ -126,7 +126,7 @@ QString QuickTestParser::quickTestName(const CPlusPlus::Document::Ptr &doc) cons
     const Utils::FilePath filePath = Utils::FilePath::fromString(doc->fileName());
 
     for (const CPlusPlus::Document::MacroUse &macro : macros) {
-        if (!macro.isFunctionLike())
+        if (!macro.isFunctionLike() || macro.arguments().isEmpty())
             continue;
         const QByteArray name = macro.macro().name();
         if (QuickTestUtils::isQuickTestMacro(name)) {
