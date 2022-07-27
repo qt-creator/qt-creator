@@ -28,6 +28,7 @@
 #include "objectsmapeditor.h"
 #include "squishnavigationwidget.h"
 #include "squishoutputpane.h"
+#include "squishresultmodel.h"
 #include "squishsettings.h"
 #include "squishtesttreemodel.h"
 #include "squishtools.h"
@@ -71,6 +72,8 @@ static SquishPluginPrivate *dd = nullptr;
 
 SquishPluginPrivate::SquishPluginPrivate()
 {
+    qRegisterMetaType<SquishResultItem*>("SquishResultItem*");
+
     m_squishSettings.readSettings(ICore::settings());
     m_outputPane = SquishOutputPane::instance();
     m_squishTools = new SquishTools;
