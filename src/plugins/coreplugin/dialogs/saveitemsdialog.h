@@ -28,7 +28,12 @@
 #include <QList>
 #include <QDialog>
 
-#include "ui_saveitemsdialog.h"
+QT_BEGIN_NAMESPACE
+class QLabel;
+class QTreeWidget;
+class QCheckBox;
+class QDialogButtonBox;
+QT_END_NAMESPACE
 
 namespace Core {
 
@@ -56,8 +61,11 @@ private:
     void updateButtons();
     void adjustButtonWidths();
 
-    Ui::SaveItemsDialog m_ui;
-    QList<IDocument*> m_itemsToSave;
+    QLabel *m_msgLabel;
+    QTreeWidget *m_treeWidget;
+    QCheckBox *m_saveBeforeBuildCheckBox;
+    QDialogButtonBox *m_buttonBox;
+    QList<IDocument *> m_itemsToSave;
     QStringList m_filesToDiff;
     QPushButton *m_diffButton = nullptr;
 };

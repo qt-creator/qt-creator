@@ -212,7 +212,7 @@ Project {
                 "promptoverwritedialog.cpp", "promptoverwritedialog.h",
                 "readonlyfilesdialog.cpp", "readonlyfilesdialog.h", "readonlyfilesdialog.ui",
                 "restartdialog.cpp", "restartdialog.h",
-                "saveitemsdialog.cpp", "saveitemsdialog.h", "saveitemsdialog.ui",
+                "saveitemsdialog.cpp", "saveitemsdialog.h",
                 "settingsdialog.cpp", "settingsdialog.h",
                 "shortcutsettings.cpp", "shortcutsettings.h",
             ]

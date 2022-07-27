@@ -58,20 +58,21 @@
 #include <utils/reloadpromptutils.h>
 #include <utils/threadutils.h>
 
-#include <QStringList>
+#include <QAction>
+#include <QApplication>
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QLoggingCategory>
-#include <QSettings>
-#include <QTimer>
-#include <QAction>
-#include <QFileDialog>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
+#include <QSettings>
+#include <QStringList>
+#include <QTimer>
 
 static const bool kUseProjectsDirectoryDefault = true;
 static Q_LOGGING_CATEGORY(log, "qtc.core.documentmanager", QtWarningMsg)
