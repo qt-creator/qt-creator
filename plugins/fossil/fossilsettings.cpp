@@ -177,13 +177,15 @@ OptionsPageWidget::OptionsPageWidget(const std::function<void()> &onApply, Fossi
 
         Group {
             Title(tr("Miscellaneous")),
-            Row {
+            Column {
+                Row {
                 s.logCount,
                 s.timelineWidth,
                 s.timeout,
                 Stretch()
+                },
+                s.disableAutosync
             },
-            s.disableAutosync
         },
         Stretch()
 

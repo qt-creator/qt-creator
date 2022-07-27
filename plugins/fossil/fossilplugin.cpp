@@ -767,7 +767,7 @@ void FossilPluginPrivate::createRepository()
     if (const ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectTree::currentProject())
         directory = currentProject->projectDirectory();
     // Prompt for a directory that is not under version control yet
-    QWidget *mw = Core::ICore::mainWindow();
+    QWidget *mw = Core::ICore::dialogParent();
     do {
         directory = FileUtils::getExistingDirectory(nullptr, tr("Choose Checkout Directory"), directory);
         if (directory.isEmpty())
