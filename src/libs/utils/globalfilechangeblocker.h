@@ -27,6 +27,8 @@
 
 #include "utils_global.h"
 
+#include "guard.h"
+
 #include <QObject>
 
 namespace Utils {
@@ -47,7 +49,7 @@ private:
     GlobalFileChangeBlocker();
     void applicationStateChanged(Qt::ApplicationState state);
 
-    int m_forceBlocked = 0;
+    Guard m_ignoreChanges;
     bool m_blockedState = false;
 };
 

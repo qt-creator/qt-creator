@@ -45,16 +45,13 @@ GlobalFileChangeBlocker *GlobalFileChangeBlocker::instance()
 
 void GlobalFileChangeBlocker::forceBlocked(bool blocked)
 {
-    if (blocked)
-        ++m_forceBlocked;
-    else if (QTC_GUARD(m_forceBlocked > 0))
-        --m_forceBlocked;
+    blocked ? m_ignoreChanges.lock() : m_ignoreChanges.unlock();
     applicationStateChanged(QGuiApplication::applicationState());
 }
 
 void GlobalFileChangeBlocker::applicationStateChanged(Qt::ApplicationState state)
 {
-    const bool blocked = m_forceBlocked || (state != Qt::ApplicationActive);
+    const bool blocked = m_ignoreChanges.isLocked() || (state != Qt::ApplicationActive);
     if (blocked != m_blockedState) {
         emit stateChanged(blocked);
         m_blockedState = blocked;
