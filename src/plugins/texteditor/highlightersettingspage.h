@@ -44,13 +44,7 @@ public:
     const HighlighterSettings &highlighterSettings() const;
 
 private:
-    void settingsFromUI();
-    void settingsToUI();
-
-    bool settingsChanged() const;
-
-    class HighlighterSettingsPagePrivate;
-    HighlighterSettingsPagePrivate *d;
+    class HighlighterSettingsPagePrivate *d;
 };
 
-} // namespace TextEditor
+} // TextEditor

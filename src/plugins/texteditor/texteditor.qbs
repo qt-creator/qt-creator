@@ -82,7 +82,6 @@ Project {
             "highlightersettings.h",
             "highlightersettingspage.cpp",
             "highlightersettingspage.h",
-            "highlightersettingspage.ui",
             "icodestylepreferences.cpp",
             "icodestylepreferences.h",
             "icodestylepreferencesfactory.cpp",
