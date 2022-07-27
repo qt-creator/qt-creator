@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "projectexplorer.h"
+
 #include <coreplugin/iwelcomepage.h>
 
 #include <QAbstractListModel>
@@ -49,6 +51,9 @@ public:
 
 public slots:
     void resetProjects();
+
+private:
+    RecentProjectsEntries m_projects;
 };
 
 class ProjectWelcomePage : public Core::IWelcomePage
