@@ -41,8 +41,12 @@
 #include <QTextDocument>
 #include <QTextFormat>
 
-QT_FORWARD_DECLARE_CLASS(QMenu)
-QT_FORWARD_DECLARE_CLASS(QHelpEvent)
+QT_BEGIN_NAMESPACE
+class QHelpEvent;
+class QMenu;
+class QTextCodec;
+QT_END_NAMESPACE
+
 
 namespace Core { class IEditor; }
 
@@ -127,6 +131,7 @@ public:
     void copy(bool raw = false);
     void setMarkup(const QList<Markup> &markup);
     void setNewWindowRequestAllowed(bool c);
+    void setCodec(QTextCodec *codec);
 
 signals:
     void modificationChanged(bool modified);
@@ -148,6 +153,7 @@ private:
     void focusOutEvent(QFocusEvent *) override;
     void timerEvent(QTimerEvent *) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
+    QChar displayChar(char ch) const;
 
     friend class BinEditorWidgetPrivate;
     BinEditorWidgetPrivate *d;

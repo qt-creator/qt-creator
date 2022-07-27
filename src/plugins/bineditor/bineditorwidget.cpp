@@ -24,10 +24,12 @@
 ****************************************************************************/
 
 #include "bineditorwidget.h"
+#include "bineditorconstants.h"
 #include "bineditorservice.h"
 #include "markup.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
@@ -46,6 +48,7 @@
 #include <QByteArrayMatcher>
 #include <QDebug>
 #include <QFile>
+#include <QTextCodec>
 #include <QFontMetrics>
 #include <QHelpEvent>
 #include <QMenu>
@@ -136,6 +139,9 @@ private:
     std::function<void(quint64, uint)> m_watchPointRequestHandler;
     std::function<void()> m_aboutToBeDestroyedHandler;
     QList<Markup> m_markup;
+
+public:
+    QTextCodec *m_codec = nullptr;
 };
 
 BinEditorWidget::BinEditorWidget(QWidget *parent)
@@ -151,6 +157,9 @@ BinEditorWidget::BinEditorWidget(QWidget *parent)
             &TextEditor::TextEditorSettings::fontSettingsChanged,
             this, &BinEditorWidget::setFontSettings);
 
+    const QByteArray setting = ICore::settings()->value(Constants::C_ENCODING_SETTING).toByteArray();
+    if (!setting.isEmpty())
+        setCodec(QTextCodec::codecForName(setting));
 }
 
 BinEditorWidget::~BinEditorWidget()
@@ -536,6 +545,19 @@ QRect BinEditorWidget::cursorRect() const
     return QRect(x, y, w, m_lineHeight);
 }
 
+QChar BinEditorWidget::displayChar(char ch) const
+{
+    const QChar qc = QLatin1Char(ch);
+    if (qc.isPrint() && qc.unicode() < 128)
+        return qc;
+    if (!d->m_codec || qc.unicode() < 32)
+        return MidpointChar;
+    const QString uc = d->m_codec->toUnicode(&ch, 1);
+    if (uc.isEmpty() || !uc.at(0).isLetterOrNumber())
+        return MidpointChar;
+    return uc.at(0);
+}
+
 Utils::optional<qint64> BinEditorWidget::posAt(const QPoint &pos, bool includeEmptyArea) const
 {
     const int xoffset = horizontalScrollBar()->value();
@@ -553,9 +575,7 @@ Utils::optional<qint64> BinEditorWidget::posAt(const QPoint &pos, bool includeEm
             const qint64 dataPos = line * m_bytesPerLine + column;
             if (dataPos < 0 || dataPos >= m_size)
                 break;
-            QChar qc(QLatin1Char(dataAt(dataPos)));
-            if (!qc.isPrint())
-                qc = MidpointChar;
+            const QChar qc = displayChar(dataAt(dataPos));
             x -= fontMetrics().horizontalAdvance(qc);
             if (x <= 0)
                 break;
@@ -843,19 +863,21 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
         bool isOld = hasOldData && !hasData;
 
         QString printable;
+        QString printableDisp;
 
         if (hasData || hasOldData) {
             for (int c = 0; c < m_bytesPerLine; ++c) {
                 qint64 pos = line * m_bytesPerLine + c;
                 if (pos >= m_size)
                     break;
-                QChar qc(QLatin1Char(dataAt(pos, isOld)));
-                if (qc.unicode() >= 127 || !qc.isPrint())
-                    qc = MidpointChar;
+                const QChar qc = displayChar(dataAt(pos, isOld));
                 printable += qc;
+                printableDisp += qc;
+                if (qc.direction() == QChar::Direction::DirR)
+                    printableDisp += QChar(0x200E); // Add LRM to avoid reversing RTL text
             }
         } else {
-            printable = QString(m_bytesPerLine, QLatin1Char(' '));
+            printableDisp = printable = QString(m_bytesPerLine, QLatin1Char(' '));
         }
 
         QRect selectionRect;
@@ -963,16 +985,16 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
                 painter.fillRect(text_x, y-m_ascent, fm.horizontalAdvance(printable), m_lineHeight,
                                  palette().highlight());
                 painter.setPen(palette().highlightedText().color());
-                painter.drawText(text_x, y, printable);
+                painter.drawText(text_x, y, printableDisp);
                 painter.restore();
         } else {
-            painter.drawText(text_x, y, printable);
+            painter.drawText(text_x, y, printableDisp);
             if (!printableSelectionRect.isEmpty()) {
                 painter.save();
                 painter.fillRect(printableSelectionRect, palette().highlight());
                 painter.setPen(palette().highlightedText().color());
                 painter.setClipRect(printableSelectionRect);
-                painter.drawText(text_x, y, printable);
+                painter.drawText(text_x, y, printableDisp);
                 painter.restore();
             }
         }
@@ -989,7 +1011,7 @@ void BinEditorWidget::paintEvent(QPaintEvent *e)
                 painter.setClipRect(cursorRect);
                 painter.fillRect(cursorRect, Qt::red);
                 painter.setPen(Qt::white);
-                painter.drawText(text_x, y, printable);
+                painter.drawText(text_x, y, printableDisp);
                 painter.restore();
             }
         }
@@ -1472,7 +1494,8 @@ void BinEditorWidget::copy(bool raw)
     QByteArray data = dataMid(selStart, selectionLength);
     if (raw) {
         data.replace(0, ' ');
-        setClipboardAndSelection(QString::fromLatin1(data));
+        QTextCodec *codec = d->m_codec ? d->m_codec : QTextCodec::codecForName("latin1");
+        setClipboardAndSelection(codec->toUnicode(data));
         return;
     }
     QString hexString;
@@ -1670,6 +1693,15 @@ void BinEditorWidget::jumpToAddress(quint64 address)
 void BinEditorWidget::setNewWindowRequestAllowed(bool c)
 {
     m_canRequestNewWindow = c;
+}
+
+void BinEditorWidget::setCodec(QTextCodec *codec)
+{
+    if (codec == d->m_codec)
+        return;
+    d->m_codec = codec;
+    ICore::settings()->setValue(Constants::C_ENCODING_SETTING, codec ? codec->name() : QByteArray());
+    viewport()->update();
 }
 
 void BinEditorWidget::updateContents()

@@ -40,10 +40,12 @@ class TEXTEDITOR_EXPORT CodecChooser : public QComboBox
     Q_OBJECT
 
 public:
-    CodecChooser();
+    enum class Filter { All, SingleByte };
+    explicit CodecChooser(Filter filter = Filter::All);
+    void prependNone();
     QTextCodec *currentCodec() const;
     QTextCodec *codecAt(int index) const;
-    void setAssignedCodec(QTextCodec *codec, const QString &name);
+    void setAssignedCodec(QTextCodec *codec, const QString &name = {});
     QByteArray assignedCodecName() const;
 
 signals:

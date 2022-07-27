@@ -29,9 +29,20 @@
 
 #include <QTextCodec>
 
+static bool isSingleByte(int mib)
+{
+    // Encodings are listed at https://www.iana.org/assignments/character-sets/character-sets.xhtml
+    return (mib >= 0 && mib <= 16)
+            || (mib >= 81 && mib <= 85)
+            || (mib >= 109 && mib <= 112)
+            || (mib >= 2000 && mib <= 2024)
+            || (mib >= 2028 && mib <= 2100)
+            || (mib >= 2106);
+}
+
 namespace TextEditor {
 
-CodecChooser::CodecChooser()
+CodecChooser::CodecChooser(Filter filter)
 {
     QList<int> mibs = QTextCodec::availableMibs();
     Utils::sort(mibs);
@@ -40,6 +51,8 @@ CodecChooser::CodecChooser()
     if (firstNonNegative != mibs.end())
         std::rotate(mibs.begin(), firstNonNegative, mibs.end());
     for (int mib : qAsConst(mibs)) {
+        if (filter == Filter::SingleByte && !isSingleByte(mib))
+            continue;
         if (QTextCodec *codec = QTextCodec::codecForMib(mib)) {
             QString compoundName = QLatin1String(codec->name());
             const QList<QByteArray> aliases = codec->aliases();
@@ -53,6 +66,12 @@ CodecChooser::CodecChooser()
     }
     connect(this, &QComboBox::currentIndexChanged,
             this, [this](int index) { emit codecChanged(m_codecs.at(index)); });
+}
+
+void CodecChooser::prependNone()
+{
+    insertItem(0, "None");
+    m_codecs.prepend(nullptr);
 }
 
 QTextCodec *CodecChooser::currentCodec() const
@@ -73,7 +92,7 @@ void CodecChooser::setAssignedCodec(QTextCodec *codec, const QString &name)
     for (int i = 0, total = m_codecs.size(); i < total; ++i) {
         if (codec != m_codecs.at(i))
             continue;
-        if (itemText(i) == name) {
+        if (name.isEmpty() || itemText(i) == name) {
             setCurrentIndex(i);
             return;
         }

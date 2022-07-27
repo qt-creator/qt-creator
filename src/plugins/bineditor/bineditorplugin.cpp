@@ -29,11 +29,13 @@
 #include "bineditorservice.h"
 
 #include <coreplugin/icore.h>
+#include <texteditor/codecchooser.h>
 
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QTextCodec>
 #include <QVariant>
 
 #include <QMenu>
@@ -343,16 +345,20 @@ class BinEditor : public IEditor
 public:
     BinEditor(BinEditorWidget *widget)
     {
+        using namespace TextEditor;
         setWidget(widget);
         m_file = new BinEditorDocument(widget);
         m_addressEdit = new QLineEdit;
         auto addressValidator = new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-F]{1,16}"), m_addressEdit);
         m_addressEdit->setValidator(addressValidator);
+        m_codecChooser = new CodecChooser(CodecChooser::Filter::SingleByte);
+        m_codecChooser->prependNone();
 
         auto l = new QHBoxLayout;
         auto w = new QWidget;
         l->setContentsMargins(0, 0, 5, 0);
         l->addStretch(1);
+        l->addWidget(m_codecChooser);
         l->addWidget(m_addressEdit);
         w->setLayout(l);
 
@@ -366,9 +372,14 @@ public:
                 this, &BinEditor::updateCursorPosition);
         connect(m_addressEdit, &QLineEdit::editingFinished,
                 this, &BinEditor::jumpToAddress);
+        connect(m_codecChooser, &CodecChooser::codecChanged,
+                widget, &BinEditorWidget::setCodec);
         connect(widget, &BinEditorWidget::modificationChanged,
                 m_file, &IDocument::changed);
         updateCursorPosition(widget->cursorPosition());
+        const QVariant setting = ICore::settings()->value(Constants::C_ENCODING_SETTING);
+        if (!setting.isNull())
+            m_codecChooser->setAssignedCodec(QTextCodec::codecForName(setting.toByteArray()));
     }
 
     ~BinEditor() override
@@ -400,6 +411,7 @@ private:
     BinEditorDocument *m_file;
     QToolBar *m_toolBar;
     QLineEdit *m_addressEdit;
+    TextEditor::CodecChooser *m_codecChooser;
 };
 
 ///////////////////////////////// BinEditorPluginPrivate //////////////////////////////////
