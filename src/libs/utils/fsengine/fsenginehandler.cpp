@@ -42,51 +42,46 @@ QAbstractFileEngine *FSEngineHandler::create(const QString &fileName) const
     if (fileName.startsWith(':'))
         return nullptr;
 
+    static const QString rootPath =
+        FilePath::specialPath(FilePath::SpecialPathComponent::RootPath);
+    static const FilePath rootFilePath =
+        FilePath::specialFilePath(FilePath::SpecialPathComponent::RootPath);
+
     QString fixedFileName = fileName;
 
-    if (fileName.startsWith("//")) {
+    if (fileName.startsWith("//"))
         fixedFileName = fixedFileName.mid(1);
-    }
-    if (fixedFileName == FilePath::specialPath(FilePath::SpecialPathComponent::RootPath)) {
+
+    if (fixedFileName == rootPath) {
         const FilePaths paths
             = Utils::transform(FSEngine::registeredDeviceSchemes(), [](const QString &scheme) {
-                  return FilePath::specialFilePath(FilePath::SpecialPathComponent::RootPath)
-                      .pathAppended(scheme);
+                  return rootFilePath.pathAppended(scheme);
               });
 
-        return new FixedListFSEngine(FilePath::specialFilePath(
-                                         FilePath::SpecialPathComponent::RootPath),
-                                     paths);
+        return new FixedListFSEngine(rootFilePath, paths);
     }
 
-    if (fixedFileName.startsWith(FilePath::specialPath(FilePath::SpecialPathComponent::RootPath))) {
+    if (fixedFileName.startsWith(rootPath)) {
         const QStringList deviceSchemes = FSEngine::registeredDeviceSchemes();
         for (const QString &scheme : deviceSchemes) {
-            if (fixedFileName
-                == FilePath::specialFilePath(FilePath::SpecialPathComponent::RootPath)
-                       .pathAppended(scheme)
-                       .toString()) {
+            if (fixedFileName == rootFilePath.pathAppended(scheme).toString()) {
                 const FilePaths filteredRoots = Utils::filtered(FSEngine::deviceRoots(),
                                                                 [scheme](const FilePath &root) {
                                                                     return root.scheme() == scheme;
                                                                 });
 
-                return new FixedListFSEngine(FilePath::specialFilePath(
-                                                 FilePath::SpecialPathComponent::RootPath)
-                                                 .pathAppended(scheme),
-                                             filteredRoots);
+                return new FixedListFSEngine(rootFilePath.pathAppended(scheme), filteredRoots);
             }
         }
     }
 
     FilePath filePath = FilePath::fromString(fixedFileName);
-    if (filePath.needsDevice()) {
+    if (filePath.needsDevice())
         return new FSEngineImpl(filePath);
-    }
 
-    if (fixedFileName.compare(QDir::rootPath(), Qt::CaseInsensitive) == 0) {
+
+    if (fixedFileName.compare(QDir::rootPath(), Qt::CaseInsensitive) == 0)
         return new RootInjectFSEngine(fixedFileName);
-    }
 
     return nullptr;
 }
