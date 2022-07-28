@@ -262,7 +262,6 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
         indexingOption += "=0";
     const QString headerInsertionOption = QString("--header-insertion=")
             + (settings.autoIncludeHeaders() ? "iwyu" : "never");
-
 #ifdef WITH_TESTS
     // For the #include < test, which needs to get a local header file, but the list
     // is being flooded with system include headers. 4280 on Windows!
@@ -270,8 +269,12 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
 #else
     const QString limitResults = QString("--limit-results=%1").arg(settings.completionResults());
 #endif
-    Utils::CommandLine cmd{settings.clangdFilePath(), {indexingOption, headerInsertionOption,
-            limitResults, "--limit-references=0", "--clang-tidy=0"}};
+    Utils::CommandLine cmd{settings.clangdFilePath(),
+                           {indexingOption,
+                            headerInsertionOption,
+                            limitResults,
+                            "--limit-references=0",
+                            "--clang-tidy=0"}};
     if (settings.workerThreadLimit() != 0)
         cmd.addArg("-j=" + QString::number(settings.workerThreadLimit()));
     if (!jsonDbDir.isEmpty())

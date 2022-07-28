@@ -105,6 +105,8 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     m_pathsListEdit->setToolTip(Tr::tr("Maps paths in this list one-to-one to the "
                                        "docker container."));
     m_pathsListEdit->setPathList(data.mounts);
+    m_pathsListEdit->setMaximumHeight(100);
+    m_pathsListEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     auto markupMounts = [this, pathListLabel] {
         const bool isEmpty = m_pathsListEdit->pathList().isEmpty();

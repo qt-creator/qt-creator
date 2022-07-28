@@ -137,8 +137,8 @@ void SanitizerParser::flush()
     setDetailsFormat(m_task, m_linkSpecs);
     static const int maxLen = 50;
     if (m_task.details.length() > maxLen) {
-        const auto cutOffIt = std::next(m_task.details.begin(), maxLen);
-        m_task.details.insert(cutOffIt, "...");
+        auto cutOffIt = std::next(m_task.details.begin(), maxLen);
+        cutOffIt = m_task.details.insert(cutOffIt, "...");
         m_task.details.erase(std::next(cutOffIt), std::prev(m_task.details.end()));
     }
     scheduleTask(m_task, m_task.details.count());
