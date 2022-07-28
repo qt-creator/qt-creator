@@ -68,7 +68,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-    QLabel *label = new QLabel(tr("Name:"));
+    auto label = new QLabel(tr("Name:"));
     label->setToolTip(tr("Kit name and icon."));
 
     QString toolTip =
@@ -81,15 +81,15 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
     Q_ASSERT(fileSystemFriendlyNameRegexp.isValid());
     m_fileSystemFriendlyNameLineEdit->setValidator(new QRegularExpressionValidator(fileSystemFriendlyNameRegexp, m_fileSystemFriendlyNameLineEdit));
 
-    label = new QLabel(tr("File system name:"));
-    label->setToolTip(toolTip);
+    auto fsLabel = new QLabel(tr("File system name:"));
+    fsLabel->setToolTip(toolTip);
     connect(m_fileSystemFriendlyNameLineEdit, &QLineEdit::textChanged,
             this, &KitManagerConfigWidget::setFileSystemFriendlyName);
 
     using namespace Layouting;
     Grid {
         AlignAsFormLabel(label), m_nameEdit, m_iconButton, Break(),
-        AlignAsFormLabel(label), m_fileSystemFriendlyNameLineEdit
+        AlignAsFormLabel(fsLabel), m_fileSystemFriendlyNameLineEdit
     }.attachTo(this);
 
     m_iconButton->setToolTip(tr("Kit icon."));
