@@ -771,7 +771,7 @@ void KitAspectWidget::addToLayoutWithLabel(QWidget *parent)
         emit labelLinkActivated(link);
     });
 
-    LayoutExtender builder(parent->layout());
+    LayoutExtender builder(parent->layout(), Layouting::WithFormAlignment);
     builder.finishRow();
     builder.addItem(label);
     addToLayout(builder);

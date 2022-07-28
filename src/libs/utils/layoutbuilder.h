@@ -48,6 +48,7 @@ namespace Layouting {
 enum AttachType {
     WithMargins,
     WithoutMargins,
+    WithFormAlignment, // Handle Grid similar to QFormLayout, i.e. use special alignment for the first column on Mac
 };
 
 } // Layouting
@@ -93,7 +94,6 @@ public:
 
         QString text; // FIXME: Use specialValue for that
         int span = 1;
-        AlignmentType align = AlignmentType::DefaultAlignment;
         SpecialType specialType = SpecialType::NotSpecial;
         QVariant specialValue;
     };
@@ -135,12 +135,6 @@ public:
         Span(int span, const LayoutItem &item);
     };
 
-    class QTCREATOR_UTILS_EXPORT AlignAsFormLabel : public LayoutItem
-    {
-    public:
-        AlignAsFormLabel(const LayoutItem &item);
-    };
-
     class QTCREATOR_UTILS_EXPORT Stretch : public LayoutItem
     {
     public:
@@ -176,11 +170,12 @@ protected:
 class QTCREATOR_UTILS_EXPORT LayoutExtender : public LayoutBuilder
 {
 public:
-    explicit LayoutExtender(QLayout *layout);
+    explicit LayoutExtender(QLayout *layout, Layouting::AttachType attachType);
     ~LayoutExtender();
 
 private:
     QLayout *m_layout = nullptr;
+    Layouting::AttachType m_attachType = {};
 };
 
 namespace Layouting {
@@ -236,7 +231,6 @@ public:
 
 using Space = LayoutBuilder::Space;
 using Span = LayoutBuilder::Span;
-using AlignAsFormLabel = LayoutBuilder::AlignAsFormLabel;
 
 using Stretch = LayoutBuilder::Stretch; // FIXME: Remove
 using Break = LayoutBuilder::Break; // FIXME: Remove

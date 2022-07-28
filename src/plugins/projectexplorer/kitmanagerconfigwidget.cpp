@@ -87,13 +87,10 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k) :
             this, &KitManagerConfigWidget::setFileSystemFriendlyName);
 
     using namespace Layouting;
-    Grid{AlignAsFormLabel(label),
-         m_nameEdit,
-         m_iconButton,
-         br,
-         AlignAsFormLabel(fsLabel),
-         m_fileSystemFriendlyNameLineEdit}
-        .attachTo(this);
+    Grid {
+        label, m_nameEdit, m_iconButton, br,
+        fsLabel, m_fileSystemFriendlyNameLineEdit
+    }.attachTo(this, WithFormAlignment);
 
     m_iconButton->setToolTip(tr("Kit icon."));
     auto setIconAction = new QAction(tr("Select Icon..."), this);

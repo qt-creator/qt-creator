@@ -227,6 +227,7 @@ static void flushPendingFormItems(QFormLayout *formLayout,
 
 static void doLayoutHelper(QLayout *layout,
                            const LayoutBuilder::LayoutItems &items,
+                           const Layouting::AttachType attachType,
                            int currentGridRow = 0)
 {
     int currentGridColumn = 0;
@@ -252,15 +253,15 @@ static void doLayoutHelper(QLayout *layout,
         QWidget *widget = item.widget;
 
         if (gridLayout) {
-            Qt::Alignment align;
-            if (item.align == LayoutBuilder::AlignmentType::AlignAsFormLabel)
+            Qt::Alignment align = {};
+            if (attachType == Layouting::WithFormAlignment && currentGridColumn == 0)
                 align = Qt::Alignment(widget->style()->styleHint(QStyle::SH_FormLayoutLabelAlignment));
             if (widget)
                 gridLayout->addWidget(widget, currentGridRow, currentGridColumn, 1, item.span, align);
             else if (item.layout)
                 gridLayout->addLayout(item.layout, currentGridRow, currentGridColumn, 1, item.span, align);
             else if (!item.text.isEmpty())
-                gridLayout->addWidget(new QLabel(item.text));
+                gridLayout->addWidget(new QLabel(item.text), currentGridRow, currentGridColumn, 1, 1, align);
             currentGridColumn += item.span;
         } else if (boxLayout) {
             addItemToBoxLayout(boxLayout, item);
@@ -280,7 +281,7 @@ static void doLayoutHelper(QLayout *layout,
 LayoutBuilder::LayoutItem::LayoutItem(const LayoutBuilder &builder)
 {
     layout = builder.createLayout();
-    doLayoutHelper(layout, builder.m_items);
+    doLayoutHelper(layout, builder.m_items, Layouting::WithoutMargins);
 }
 
 /*!
@@ -384,7 +385,7 @@ void LayoutBuilder::doLayout(QWidget *parent, Layouting::AttachType attachType) 
     QLayout *layout = createLayout();
     parent->setLayout(layout);
 
-    doLayoutHelper(layout, m_items);
+    doLayoutHelper(layout, m_items, attachType);
     if (attachType == Layouting::WithoutMargins)
         layout->setContentsMargins(0, 0, 0, 0);
 }
@@ -424,8 +425,8 @@ QWidget *LayoutBuilder::emerge(Layouting::AttachType attachType)
     new items will be added below existing ones.
  */
 
-LayoutExtender::LayoutExtender(QLayout *layout)
-    : m_layout(layout)
+LayoutExtender::LayoutExtender(QLayout *layout, Layouting::AttachType attachType)
+    : m_layout(layout), m_attachType(attachType)
 {}
 
 LayoutExtender::~LayoutExtender()
@@ -434,7 +435,7 @@ LayoutExtender::~LayoutExtender()
     int currentGridRow = 0;
     if (auto gridLayout = qobject_cast<QGridLayout *>(m_layout))
         currentGridRow = gridLayout->rowCount();
-    doLayoutHelper(m_layout, m_items, currentGridRow);
+    doLayoutHelper(m_layout, m_items, m_attachType, currentGridRow);
 }
 
 // Special items
@@ -460,12 +461,6 @@ LayoutBuilder::Span::Span(int span_, const LayoutItem &item)
 {
     LayoutBuilder::LayoutItem::operator=(item);
     span = span_;
-}
-
-LayoutBuilder::AlignAsFormLabel::AlignAsFormLabel(const LayoutItem &item)
-{
-    LayoutBuilder::LayoutItem::operator=(item);
-    align = AlignmentType::AlignAsFormLabel;
 }
 
 namespace Layouting {
