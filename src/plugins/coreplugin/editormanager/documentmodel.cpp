@@ -617,10 +617,10 @@ DocumentModel::Entry *DocumentModel::entryForDocument(IDocument *document)
 
 DocumentModel::Entry *DocumentModel::entryForFilePath(const Utils::FilePath &filePath)
 {
-    const Utils::optional<int> index = d->indexOfFilePath(filePath);
-    if (!index)
+    if (filePath.isEmpty())
         return nullptr;
-    return d->m_entries.at(*index);
+    const FilePath fixedPath = DocumentManager::filePathKey(filePath, DocumentManager::ResolveLinks);
+    return d->m_entryByFixedPath.value(fixedPath);
 }
 
 QList<IDocument *> DocumentModel::openedDocuments()
@@ -630,10 +630,8 @@ QList<IDocument *> DocumentModel::openedDocuments()
 
 IDocument *DocumentModel::documentForFilePath(const Utils::FilePath &filePath)
 {
-    const Utils::optional<int> index = d->indexOfFilePath(filePath);
-    if (!index)
-        return nullptr;
-    return d->m_entries.at(*index)->document;
+    const Entry *entry = entryForFilePath(filePath);
+    return entry ? entry->document : nullptr;
 }
 
 QList<IEditor *> DocumentModel::editorsForFilePath(const Utils::FilePath &filePath)
