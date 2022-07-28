@@ -62,7 +62,7 @@ int InternalNodeListProperty::count() const
 
 int InternalNodeListProperty::indexOf(const InternalNode::Pointer &node) const
 {
-    if (node.isNull())
+    if (!node)
         return -1;
 
     return m_nodeList.indexOf(node);

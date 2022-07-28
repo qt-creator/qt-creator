@@ -243,9 +243,9 @@ void ModelPrivate::setFileUrl(const QUrl &fileUrl)
 void ModelPrivate::changeNodeType(const InternalNodePointer &node, const TypeName &typeName,
                                   int majorVersion, int minorVersion)
 {
-    node->setType(typeName);
-    node->setMajorVersion(majorVersion);
-    node->setMinorVersion(minorVersion);
+    node->typeName = typeName;
+    node->majorVersion = majorVersion;
+    node->minorVersion = minorVersion;
 
     try {
         notifyNodeTypeChanged(node, typeName, majorVersion, minorVersion);
@@ -272,10 +272,10 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
     if (!isRootNode)
         internalId = m_internalIdCounter++;
 
-    InternalNodePointer newNode = InternalNode::create(typeName, majorVersion, minorVersion, internalId);
-    newNode->setNodeSourceType(nodeSourceType);
+    auto newNode = std::make_shared<InternalNode>(typeName, majorVersion, minorVersion, internalId);
+    newNode->nodeSourceType = nodeSourceType;
 
-    newNode->setBehaviorPropertyName(behaviorPropertyName);
+    newNode->behaviorPropertyName = behaviorPropertyName;
 
     using PropertyPair = QPair<PropertyName, QVariant>;
 
@@ -288,10 +288,10 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
         newNode->setAuxiliaryData(propertyPair.first, propertyPair.second);
 
     m_nodeSet.insert(newNode);
-    m_internalIdNodeHash.insert(newNode->internalId(), newNode);
+    m_internalIdNodeHash.insert(newNode->internalId, newNode);
 
     if (!nodeSource.isNull())
-        newNode->setNodeSource(nodeSource);
+        newNode->nodeSource = nodeSource;
 
     notifyNodeCreated(newNode);
 
@@ -303,16 +303,16 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
 
 void ModelPrivate::removeNodeFromModel(const InternalNodePointer &node)
 {
-    Q_ASSERT(!node.isNull());
+    Q_ASSERT(node);
 
     node->resetParentProperty();
 
     m_selectedInternalNodeList.removeAll(node);
-    if (!node->id().isEmpty())
-        m_idNodeHash.remove(node->id());
-    node->setValid(false);
+    if (!node->id.isEmpty())
+        m_idNodeHash.remove(node->id);
+    node->isValid = false;
     m_nodeSet.remove(node);
-    m_internalIdNodeHash.remove(node->internalId());
+    m_internalIdNodeHash.remove(node->internalId);
 }
 
 const QList<QPointer<AbstractView>> ModelPrivate::enabledViews() const
@@ -328,7 +328,7 @@ void ModelPrivate::removeAllSubNodes(const InternalNodePointer &node)
 
 void ModelPrivate::removeNode(const InternalNodePointer &node)
 {
-    Q_ASSERT(!node.isNull());
+    Q_ASSERT(node);
 
     AbstractView::PropertyChangeFlags propertyChangeFlags = AbstractView::NoAdditionalChanges;
 
@@ -372,9 +372,9 @@ void ModelPrivate::setMetaInfo(const MetaInfo &metaInfo)
 
 void ModelPrivate::changeNodeId(const InternalNodePointer &node, const QString &id)
 {
-    const QString oldId = node->id();
+    const QString oldId = node->id;
 
-    node->setId(id);
+    node->id = id;
     if (!oldId.isEmpty())
         m_idNodeHash.remove(oldId);
     if (!id.isEmpty())
@@ -901,7 +901,7 @@ void ModelPrivate::notifyNodeAboutToBeReparent(const InternalNodePointer &node,
         NodeAbstractProperty newProperty;
         NodeAbstractProperty oldProperty;
 
-        if (!oldPropertyName.isEmpty() && oldParent->isValid())
+        if (!oldPropertyName.isEmpty() && oldParent->isValid)
             oldProperty = NodeAbstractProperty(oldPropertyName, oldParent, m_model, view);
 
         if (!newPropertyParent.isNull())
@@ -922,7 +922,7 @@ void ModelPrivate::notifyNodeReparent(const InternalNodePointer &node,
         NodeAbstractProperty newProperty;
         NodeAbstractProperty oldProperty;
 
-        if (!oldPropertyName.isEmpty() && oldParent->isValid())
+        if (!oldPropertyName.isEmpty() && oldParent->isValid)
             oldProperty = NodeAbstractProperty(oldPropertyName, oldParent, m_model, view);
 
         if (!newPropertyParent.isNull())
@@ -953,8 +953,8 @@ void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListPropertyPointer 
 
 void ModelPrivate::setSelectedNodes(const QList<InternalNodePointer> &selectedNodeList)
 {
-    QList<InternalNodePointer> sortedSelectedList = Utils::filtered(selectedNodeList,
-                                                                    &InternalNode::isValid);
+    auto sortedSelectedList = Utils::filtered(selectedNodeList,
+                                              [](const auto &node) { return node->isValid; });
 
     sortedSelectedList = Utils::toList(Utils::toSet(sortedSelectedList));
     Utils::sort(sortedSelectedList);
@@ -1039,7 +1039,7 @@ void ModelPrivate::changeSelectedNodes(const QList<InternalNodePointer> &newSele
 QList<InternalNodePointer> ModelPrivate::selectedNodes() const
 {
     for (const InternalNodePointer &node : std::as_const(m_selectedInternalNodeList)) {
-        if (!node->isValid())
+        if (!node->isValid)
             throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
 
@@ -1239,23 +1239,23 @@ void ModelPrivate::clearParent(const InternalNodePointer &node)
 
 void ModelPrivate::changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion)
 {
-    Q_ASSERT(!rootNode().isNull());
-    rootNode()->setType(type);
-    rootNode()->setMajorVersion(majorVersion);
-    rootNode()->setMinorVersion(minorVersion);
+    Q_ASSERT(rootNode());
+    rootNode()->typeName = type;
+    rootNode()->majorVersion = majorVersion;
+    rootNode()->minorVersion = minorVersion;
     notifyRootNodeTypeChanged(QString::fromUtf8(type), majorVersion, minorVersion);
 }
 
 void ModelPrivate::setScriptFunctions(const InternalNodePointer &node, const QStringList &scriptFunctionList)
 {
-    node->setScriptFunctions(scriptFunctionList);
+    node->scriptFunctions = scriptFunctionList;
 
     notifyScriptFunctionsChanged(node, scriptFunctionList);
 }
 
 void ModelPrivate::setNodeSource(const InternalNodePointer &node, const QString &nodeSource)
 {
-    node->setNodeSource(nodeSource);
+    node->nodeSource = nodeSource;
     notifyNodeSourceChanged(node, nodeSource);
 }
 
@@ -1343,7 +1343,7 @@ bool ModelPrivate::hasNodeForInternalId(qint32 internalId) const
 
 QList<InternalNodePointer> ModelPrivate::allNodes() const
 {
-    if (m_rootInternalNode.isNull() || !m_rootInternalNode->isValid())
+    if (!m_rootInternalNode || !m_rootInternalNode->isValid)
         return {};
 
     // the nodes must be ordered.

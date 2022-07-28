@@ -126,12 +126,8 @@ PropertyName AbstractProperty::name() const
 */
 bool AbstractProperty::isValid() const
 {
-    return !m_internalNode.isNull() &&
-            !m_model.isNull() &&
-            m_internalNode->isValid() &&
-            !m_propertyName.isEmpty() &&
-            !m_propertyName.contains(' ') &&
-            m_propertyName != "id";
+    return m_internalNode && !m_model.isNull() && m_internalNode->isValid
+           && !m_propertyName.isEmpty() && !m_propertyName.contains(' ') && m_propertyName != "id";
 }
 
 bool AbstractProperty::exists() const

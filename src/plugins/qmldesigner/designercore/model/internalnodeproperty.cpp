@@ -46,7 +46,7 @@ InternalNodeProperty::Pointer InternalNodeProperty::create(const PropertyName &n
 
 bool InternalNodeProperty::isEmpty() const
 {
-    return m_node.isNull();
+    return !m_node;
 }
 
 int InternalNodeProperty::count() const
@@ -59,7 +59,7 @@ int InternalNodeProperty::count() const
 
 int InternalNodeProperty::indexOf(const InternalNode::Pointer &node) const
 {
-    if (!node.isNull() && node == m_node)
+    if (node && node == m_node)
         return 0;
 
     return -1;
@@ -83,8 +83,7 @@ InternalNode::Pointer InternalNodeProperty::node() const
 void InternalNodeProperty::remove([[maybe_unused]] const InternalNode::Pointer &node)
 {
     Q_ASSERT(m_node == node);
-    m_node.clear();
-
+    m_node.reset();
 }
 
 void InternalNodeProperty::add(const InternalNode::Pointer &node)

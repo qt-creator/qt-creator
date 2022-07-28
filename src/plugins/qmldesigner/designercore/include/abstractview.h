@@ -40,6 +40,7 @@
 #include <QPointer>
 
 #include <functional>
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 class QStyle;
@@ -50,8 +51,8 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
     namespace Internal {
-        class InternalNode;
-        using InternalNodePointer = QSharedPointer<InternalNode>;
+    class InternalNode;
+    using InternalNodePointer = std::shared_ptr<InternalNode>;
     }
 }
 

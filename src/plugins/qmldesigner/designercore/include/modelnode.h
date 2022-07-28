@@ -31,6 +31,8 @@
 #include <QVector>
 #include <QVariant>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QTextStream;
 QT_END_NAMESPACE
@@ -43,7 +45,7 @@ namespace Internal {
     class InternalNode;
     class InternalProperty;
 
-    using InternalNodePointer = QSharedPointer<InternalNode>;
+    using InternalNodePointer = std::shared_ptr<InternalNode>;
     using InternalPropertyPointer = QSharedPointer<InternalProperty>;
 }
 class NodeMetaInfo;
@@ -251,7 +253,7 @@ public:
         swap(first.m_view, second.m_view);
     }
 
-    friend auto qHash(const ModelNode &node) { return ::qHash(node.m_internalNode.data()); }
+    friend auto qHash(const ModelNode &node) { return ::qHash(node.m_internalNode.get()); }
 
 private: // functions
     Internal::InternalNodePointer internalNode() const;

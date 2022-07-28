@@ -59,7 +59,7 @@ class InternalVariantProperty;
 class InternalNodeAbstractProperty;
 class InternalNodeListProperty;
 
-using InternalNodePointer = QSharedPointer<InternalNode>;
+using InternalNodePointer = std::shared_ptr<InternalNode>;
 using InternalPropertyPointer = QSharedPointer<InternalProperty>;
 using InternalBindingPropertyPointer = QSharedPointer<InternalBindingProperty>;
 using InternalSignalHandlerPropertyPointer = QSharedPointer<InternalSignalHandlerProperty>;

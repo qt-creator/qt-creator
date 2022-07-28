@@ -62,7 +62,7 @@ void InternalProperty::setInternalWeakPointer(const Pointer &pointer)
 
 bool InternalProperty::isValid() const
 {
-    return m_propertyOwner && !m_name.isEmpty();
+    return !m_propertyOwner.expired() && !m_name.isEmpty();
 }
 
 PropertyName InternalProperty::name() const
@@ -121,7 +121,7 @@ QSharedPointer<InternalVariantProperty> InternalProperty::toVariantProperty() co
 
 InternalNode::Pointer InternalProperty::propertyOwner() const
 {
-    return m_propertyOwner.toStrongRef();
+    return m_propertyOwner.lock();
 }
 
 QSharedPointer<InternalNodeListProperty> InternalProperty::toNodeListProperty() const
@@ -157,7 +157,7 @@ QSharedPointer<InternalSignalDeclarationProperty> InternalProperty::toSignalDecl
 void InternalProperty::remove()
 {
     propertyOwner()->removeProperty(name());
-    m_propertyOwner.clear();
+    m_propertyOwner.reset();
 }
 
 TypeName InternalProperty::dynamicTypeName() const

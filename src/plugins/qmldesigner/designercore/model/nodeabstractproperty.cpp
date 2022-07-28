@@ -149,9 +149,7 @@ int NodeAbstractProperty::count() const
 
 QList<ModelNode> NodeAbstractProperty::allSubNodes()
 {
-    if (!internalNode()
-        || !internalNode()->isValid()
-        || !internalNode()->hasProperty(name())
+    if (!internalNode() || !internalNode()->isValid || !internalNode()->hasProperty(name())
         || !internalNode()->property(name())->isNodeAbstractProperty())
         return QList<ModelNode>();
 
@@ -161,9 +159,7 @@ QList<ModelNode> NodeAbstractProperty::allSubNodes()
 
 QList<ModelNode> NodeAbstractProperty::directSubNodes() const
 {
-    if (!internalNode()
-        || !internalNode()->isValid()
-        || !internalNode()->hasProperty(name())
+    if (!internalNode() || !internalNode()->isValid || !internalNode()->hasProperty(name())
         || !internalNode()->property(name())->isNodeAbstractProperty())
         return QList<ModelNode>();
 

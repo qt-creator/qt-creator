@@ -30,6 +30,8 @@
 #include <QVariant>
 #include <QSharedPointer>
 
+#include <memory>
+
 namespace QmlDesigner {
 
 namespace Internal {
@@ -43,7 +45,7 @@ class InternalNodeProperty;
 class InternalNodeAbstractProperty;
 class InternalNode;
 
-using InternalNodePointer = QSharedPointer<InternalNode>;
+using InternalNodePointer = std::shared_ptr<InternalNode>;
 
 class QMLDESIGNERCORE_EXPORT InternalProperty
 {
@@ -90,8 +92,7 @@ private:
     QWeakPointer<InternalProperty> m_internalPointer;
     PropertyName m_name;
     TypeName m_dynamicType;
-    QWeakPointer<InternalNode> m_propertyOwner;
-
+    std::weak_ptr<InternalNode> m_propertyOwner;
 };
 
 } // namespace Internal

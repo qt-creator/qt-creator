@@ -38,6 +38,8 @@
 #include "internalnodeproperty.h"
 #include "internalnodeabstractproperty.h"
 
+#include <memory>
+
 namespace QmlDesigner {
 
 namespace Internal {
@@ -45,41 +47,32 @@ namespace Internal {
 class InternalProperty;
 class InternalNode;
 
-using InternalNodePointer = QSharedPointer<InternalNode>;
+using InternalNodePointer = std::shared_ptr<InternalNode>;
 using InternalPropertyPointer = QSharedPointer<InternalProperty>;
 
-class InternalNode
+class InternalNode : public std::enable_shared_from_this<InternalNode>
 {
     friend InternalProperty;
 
 public:
-    using Pointer = QSharedPointer<InternalNode>;
-    using WeakPointer = QWeakPointer<InternalNode>;
+    using Pointer = std::shared_ptr<InternalNode>;
+    using WeakPointer = std::weak_ptr<InternalNode>;
 
-    explicit InternalNode();
+    explicit InternalNode() = default;
 
-    static Pointer create(const TypeName &typeName, int majorVersion, int minorVersion, qint32 internalId);
-
-    TypeName type() const;
-    void setType(const TypeName &newType);
-
-    int minorVersion() const;
-    int majorVersion() const;
-    void setMinorVersion(int number);
-    void setMajorVersion(int number);
-
-    bool isValid() const;
-    void setValid(bool valid);
+    explicit InternalNode(TypeName typeName, int majorVersion, int minorVersion, qint32 internalId)
+        : typeName(std::move(typeName))
+        , majorVersion(majorVersion)
+        , minorVersion(minorVersion)
+        , isValid(true)
+        , internalId(internalId)
+    {}
 
     InternalNodeAbstractProperty::Pointer parentProperty() const;
 
     // Reparent within model
     void setParentProperty(const InternalNodeAbstractProperty::Pointer &parent);
     void resetParentProperty();
-
-    QString id() const;
-    void setId(const QString& id);
-    bool hasId() const;
 
     QVariant auxiliaryData(const PropertyName &name) const;
     void setAuxiliaryData(const PropertyName &name, const QVariant &data);
@@ -113,51 +106,46 @@ public:
     QList<InternalNode::Pointer> allSubNodes() const;
     QList<InternalNode::Pointer> allDirectSubNodes() const;
 
-    void setScriptFunctions(const QStringList &scriptFunctionList);
-    QStringList scriptFunctions() const;
+    friend bool operator<(const InternalNode::Pointer &firstNode,
+                          const InternalNode::Pointer &secondNode)
+    {
+        if (!firstNode)
+            return true;
 
-    qint32 internalId() const;
+        if (!secondNode)
+            return false;
 
-    void setNodeSource(const QString&);
-    QString nodeSource() const;
+        return firstNode->internalId < secondNode->internalId;
+    }
 
-    int nodeSourceType() const;
-    void setNodeSourceType(int i);
+    friend size_t qHash(const InternalNodePointer &node)
+    {
+        if (!node)
+            return ::qHash(-1);
 
-    QString behaviorPropertyName() const;
-    void setBehaviorPropertyName(const QString &name);
+        return ::qHash(node->internalId);
+    }
 
 protected:
-    Pointer internalPointer() const;
-    void setInternalWeakPointer(const Pointer &pointer);
     void removeProperty(const PropertyName &name);
-    explicit InternalNode(const TypeName &type, int majorVersion, int minorVersion, qint32 internalId);
+
+public:
+    TypeName typeName;
+    QString id;
+    int majorVersion = 0;
+    int minorVersion = 0;
+    bool isValid = false;
+    qint32 internalId = -1;
+    QString nodeSource;
+    int nodeSourceType = 0;
+    QString behaviorPropertyName;
+    QStringList scriptFunctions;
 
 private:
-    TypeName m_typeName;
-    QString m_id;
-
     QHash<PropertyName, QVariant> m_auxiliaryDataHash;
-
     InternalNodeAbstractProperty::WeakPointer m_parentProperty;
-    WeakPointer m_internalPointer;
-
-    int m_majorVersion;
-    int m_minorVersion;
-
-    bool m_valid;
-    qint32 m_internalId;
-
     QHash<PropertyName, InternalPropertyPointer> m_namePropertyHash;
-    QStringList m_scriptFunctionList;
-
-    QString m_nodeSource;
-    int m_nodeSourceType = 0;
-
-    QString m_behaviorPropertyName;
 };
 
-size_t qHash(const InternalNodePointer& node);
-bool operator <(const InternalNodePointer &firstNode, const InternalNodePointer &secondNode);
 } // Internal
 } // QtQmlDesigner

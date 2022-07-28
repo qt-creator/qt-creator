@@ -29,6 +29,8 @@
 #include <QSharedPointer>
 #include "qmldesignercorelib_global.h"
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QTextStream;
 QT_END_NAMESPACE
@@ -38,7 +40,7 @@ namespace QmlDesigner {
     class InternalNode;
     class InternalProperty;
 
-    using InternalNodePointer = QSharedPointer<InternalNode>;
+    using InternalNodePointer = std::shared_ptr<InternalNode>;
     using InternalPropertyPointer = QSharedPointer<InternalProperty>;
     }
 
@@ -122,7 +124,7 @@ public:
 
     friend auto qHash(const AbstractProperty &property)
     {
-        return ::qHash(property.m_internalNode.data()) ^ ::qHash(property.m_propertyName);
+        return ::qHash(property.m_internalNode.get()) ^ ::qHash(property.m_propertyName);
     }
 
 protected:
