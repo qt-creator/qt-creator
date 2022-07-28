@@ -22,7 +22,6 @@ Project {
                 "addlibrarywizard.cpp", "addlibrarywizard.h",
                 "externaleditors.cpp", "externaleditors.h",
                 "librarydetailscontroller.cpp", "librarydetailscontroller.h",
-                "librarydetailswidget.ui",
                 "makefileparse.cpp", "makefileparse.h",
                 "profilecompletionassist.cpp", "profilecompletionassist.h",
                 "profileeditor.cpp", "profileeditor.h",

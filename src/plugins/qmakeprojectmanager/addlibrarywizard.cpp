@@ -24,22 +24,27 @@
 ****************************************************************************/
 
 #include "addlibrarywizard.h"
-#include "ui_librarydetailswidget.h"
+
 #include "librarydetailscontroller.h"
 
+#include <utils/filepath.h>
 #include <utils/hostosinfo.h>
-#include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 #include <utils/stringutils.h>
 
-#include <QFileInfo>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QGroupBox>
 #include <QLabel>
+#include <QLineEdit>
+#include <QRadioButton>
 #include <QRadioButton>
 #include <QScrollArea>
 #include <QTextStream>
 #include <QVBoxLayout>
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 const char qt_file_dialog_filter_reg_exp[] =
 "^(.*)\\(([a-zA-Z0-9_.*? +;#\\-\\[\\]@\\{\\}/!<>\\$%&=^~:\\|]*)\\)$";
@@ -190,8 +195,8 @@ AddLibraryWizard::LibraryKind LibraryTypePage::libraryKind() const
 DetailsPage::DetailsPage(AddLibraryWizard *parent)
     : QWizardPage(parent), m_libraryWizard(parent)
 {
-    m_libraryDetailsWidget = new Ui::LibraryDetailsWidget();
-    m_libraryDetailsWidget->setupUi(this);
+    m_libraryDetailsWidget = new LibraryDetailsWidget(this);
+    resize(456, 438);
 
     Utils::PathChooser * const libPathChooser = m_libraryDetailsWidget->libraryPathChooser;
     libPathChooser->setHistoryCompleter("Qmake.LibDir.History");
@@ -316,5 +321,88 @@ QString SummaryPage::snippet() const
     return m_snippet;
 }
 
-} // Internal
-} // QmakeProjectManager
+LibraryDetailsWidget::LibraryDetailsWidget(QWidget *parent)
+{
+    includePathChooser = new Utils::PathChooser(parent);
+
+    packageLineEdit = new QLineEdit(parent);
+
+    libraryPathChooser = new Utils::PathChooser(parent);
+
+    libraryComboBox = new QComboBox(parent);
+
+    libraryTypeComboBox = new QComboBox(parent);
+
+
+    platformGroupBox = new QGroupBox(tr("Platform:"));
+    platformGroupBox->setFlat(true);
+
+    linkageGroupBox = new QGroupBox(tr("Linkage:"));
+    linkageGroupBox->setFlat(true);
+
+    macGroupBox = new QGroupBox(tr("Mac:"));
+    macGroupBox->setFlat(true);
+
+    winGroupBox = new QGroupBox(tr("Windows:"));
+    winGroupBox->setFlat(true);
+
+
+    linCheckBox = new QCheckBox(tr("Linux"));
+    linCheckBox->setChecked(true);
+
+    macCheckBox = new QCheckBox(tr("Mac"));
+    macCheckBox->setChecked(true);
+
+    winCheckBox = new QCheckBox(tr("Windows"));
+    winCheckBox->setChecked(true);
+
+    dynamicRadio = new QRadioButton(tr("Dynamic"), linkageGroupBox);
+    staticRadio = new QRadioButton(tr("Static"), linkageGroupBox);
+
+    libraryRadio = new QRadioButton(tr("Library"), macGroupBox);
+    frameworkRadio = new QRadioButton(tr("Framework"), macGroupBox);
+
+    useSubfoldersCheckBox = new QCheckBox(tr("Library inside \"debug\" or \"release\" subfolder"),
+        winGroupBox);
+    useSubfoldersCheckBox->setChecked(true);
+
+    addSuffixCheckBox = new QCheckBox(tr("Add \"d\" suffix for debug version"), winGroupBox);
+    removeSuffixCheckBox = new QCheckBox(tr("Remove \"d\" suffix for release version"), winGroupBox);
+
+    using namespace Utils::Layouting;
+
+    Column { linCheckBox, macCheckBox, winCheckBox, st }.attachTo(platformGroupBox);
+
+    Row { dynamicRadio, staticRadio }.attachTo(linkageGroupBox);
+
+    Row { libraryRadio, frameworkRadio }.attachTo(macGroupBox);
+
+    Column { useSubfoldersCheckBox, addSuffixCheckBox, removeSuffixCheckBox }.attachTo(winGroupBox);
+
+    libraryLabel = new QLabel(tr("Library:"));
+    libraryFileLabel = new QLabel(tr("Library file:"));
+    libraryTypeLabel = new QLabel(tr("Library type:"));
+    packageLabel = new QLabel(tr("Package:"));
+    includeLabel = new QLabel(tr("Include path:"));
+
+    Column {
+        Form {
+            libraryLabel, libraryComboBox, br,
+            libraryTypeLabel, libraryTypeComboBox, br,
+            libraryFileLabel, libraryPathChooser, br,
+            packageLabel, packageLineEdit, br,
+            includeLabel, includePathChooser
+        },
+        Row {
+            platformGroupBox,
+            Column {
+                linkageGroupBox,
+                macGroupBox,
+                winGroupBox,
+            }
+        },
+        st
+    }.attachTo(parent);
+}
+
+} // QmakeProjectManager::Internal

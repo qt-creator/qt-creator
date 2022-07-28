@@ -28,21 +28,59 @@
 #include <utils/wizard.h>
 #include <utils/pathchooser.h>
 
+#include <QCoreApplication>
+
 QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QComboBox;
+class QGroupBox;
 class QRadioButton;
 class QLabel;
 QT_END_NAMESPACE
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace Utils { class PathChooser; }
 
-class LibraryDetailsWidget;
+namespace QmakeProjectManager::Internal {
+
 class LibraryDetailsController;
 class LibraryTypePage;
 class DetailsPage;
 class SummaryPage;
 
-namespace Ui { class LibraryDetailsWidget; }
+class LibraryDetailsWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(QmakeProjectManager::Internal::LibraryDetailsWidget)
+
+public:
+    explicit LibraryDetailsWidget(QWidget *parent);
+
+public:
+    QGroupBox *platformGroupBox;
+    QGroupBox *linkageGroupBox;
+    QGroupBox *macGroupBox;
+    QGroupBox *winGroupBox;
+
+    Utils::PathChooser *includePathChooser;
+    QLineEdit *packageLineEdit;
+    Utils::PathChooser *libraryPathChooser;
+    QComboBox *libraryComboBox;
+    QComboBox *libraryTypeComboBox;
+    QLabel *libraryLabel;
+    QLabel *libraryFileLabel;
+    QLabel *libraryTypeLabel;
+    QLabel *packageLabel;
+    QLabel *includeLabel;
+    QCheckBox *linCheckBox;
+    QCheckBox *macCheckBox;
+    QCheckBox *winCheckBox;
+    QRadioButton *dynamicRadio;
+    QRadioButton *staticRadio;
+    QRadioButton *libraryRadio;
+    QRadioButton *frameworkRadio;
+    QCheckBox *useSubfoldersCheckBox;
+    QCheckBox *addSuffixCheckBox;
+    QCheckBox *removeSuffixCheckBox;
+};
 
 class AddLibraryWizard : public Utils::Wizard
 {
@@ -115,7 +153,7 @@ public:
 
 private:
     AddLibraryWizard *m_libraryWizard;
-    Ui::LibraryDetailsWidget *m_libraryDetailsWidget = nullptr;
+    LibraryDetailsWidget *m_libraryDetailsWidget = nullptr;
     LibraryDetailsController *m_libraryDetailsController = nullptr;
 };
 
@@ -133,7 +171,6 @@ private:
     QString m_snippet;
 };
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // QmakeProjectManager::Internal
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QmakeProjectManager::Internal::AddLibraryWizard::Platforms)

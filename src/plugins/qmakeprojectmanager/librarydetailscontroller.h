@@ -31,15 +31,16 @@
 
 namespace QmakeProjectManager {
 class QmakeProFile;
+
 namespace Internal {
 
-namespace Ui { class LibraryDetailsWidget; }
+class LibraryDetailsWidget;
 
 class LibraryDetailsController : public QObject
 {
     Q_OBJECT
 public:
-    explicit LibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
+    explicit LibraryDetailsController(LibraryDetailsWidget *libraryDetails,
                                       const Utils::FilePath &proFile,
                                       QObject *parent = nullptr);
     virtual bool isComplete() const = 0;
@@ -49,7 +50,7 @@ signals:
     void completeChanged();
 
 protected:
-    Ui::LibraryDetailsWidget *libraryDetailsWidget() const;
+    LibraryDetailsWidget *libraryDetailsWidget() const;
 
     AddLibraryWizard::Platforms platforms() const;
     AddLibraryWizard::LinkageType linkageType() const;
@@ -109,7 +110,7 @@ private:
     bool m_includePathVisible = true;
     bool m_windowsGroupVisible = true;
 
-    Ui::LibraryDetailsWidget *m_libraryDetailsWidget;
+    LibraryDetailsWidget *m_libraryDetailsWidget;
     QWizard *m_wizard = nullptr;
 };
 
@@ -117,7 +118,7 @@ class NonInternalLibraryDetailsController : public LibraryDetailsController
 {
     Q_OBJECT
 public:
-    explicit NonInternalLibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
+    explicit NonInternalLibraryDetailsController(LibraryDetailsWidget *libraryDetails,
                                                  const Utils::FilePath &proFile,
                                                  QObject *parent = nullptr);
     bool isComplete() const override;
@@ -142,7 +143,7 @@ class PackageLibraryDetailsController : public NonInternalLibraryDetailsControll
 {
     Q_OBJECT
 public:
-    explicit PackageLibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
+    explicit PackageLibraryDetailsController(LibraryDetailsWidget *libraryDetails,
                                              const Utils::FilePath &proFile,
                                              QObject *parent = nullptr);
     bool isComplete() const override;
@@ -159,7 +160,7 @@ class SystemLibraryDetailsController : public NonInternalLibraryDetailsControlle
 {
     Q_OBJECT
 public:
-    explicit SystemLibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
+    explicit SystemLibraryDetailsController(LibraryDetailsWidget *libraryDetails,
                                             const Utils::FilePath &proFile,
                                             QObject *parent = nullptr);
 protected:
@@ -172,7 +173,7 @@ class ExternalLibraryDetailsController : public NonInternalLibraryDetailsControl
 {
     Q_OBJECT
 public:
-    explicit ExternalLibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
+    explicit ExternalLibraryDetailsController(LibraryDetailsWidget *libraryDetails,
                                               const Utils::FilePath &proFile,
                                               QObject *parent = nullptr);
 protected:
@@ -183,7 +184,7 @@ class InternalLibraryDetailsController : public LibraryDetailsController
 {
     Q_OBJECT
 public:
-    explicit InternalLibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
+    explicit InternalLibraryDetailsController(LibraryDetailsWidget *libraryDetails,
                                               const Utils::FilePath &proFile,
                                               QObject *parent = nullptr);
     bool isComplete() const override;

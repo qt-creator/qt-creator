@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "librarydetailscontroller.h"
-#include "ui_librarydetailswidget.h"
+
 #include "qmakebuildconfiguration.h"
 #include "qmakeparsernodes.h"
 #include "qmakeproject.h"
@@ -37,8 +37,12 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <QFileInfo>
+#include <QCheckBox>
+#include <QComboBox>
 #include <QDir>
+#include <QFileInfo>
+#include <QGroupBox>
+#include <QRadioButton>
 #include <QTextStream>
 
 using namespace ProjectExplorer;
@@ -58,7 +62,7 @@ static void fillLibraryPlatformTypes(QComboBox *comboBox)
 }
 
 LibraryDetailsController::LibraryDetailsController(
-        Ui::LibraryDetailsWidget *libraryDetails,
+        LibraryDetailsWidget *libraryDetails,
         const FilePath &proFile, QObject *parent) :
     QObject(parent),
     m_proFile(proFile),
@@ -92,7 +96,7 @@ LibraryDetailsController::LibraryDetailsController(
             this, &LibraryDetailsController::slotPlatformChanged);
 }
 
-Ui::LibraryDetailsWidget *LibraryDetailsController::libraryDetailsWidget() const
+LibraryDetailsWidget *LibraryDetailsController::libraryDetailsWidget() const
 {
     return m_libraryDetailsWidget;
 }
@@ -187,7 +191,7 @@ void LibraryDetailsController::updateGui()
     // we use it as a hacky solution to the above issue.
     // For reference please see: QTBUG-88666
     if (!m_wizard) {
-        QWidget *widget = libraryDetailsWidget()->detailsLayout->parentWidget();
+        QWidget *widget = libraryDetailsWidget()->platformGroupBox->parentWidget();
         while (widget) {
             QWizard *wizard = qobject_cast<QWizard *>(widget);
             if (wizard) {
@@ -612,8 +616,7 @@ static QString generatePreTargetDepsSnippet(AddLibraryWizard::Platforms platform
     return snippetMessage;
 }
 
-NonInternalLibraryDetailsController::NonInternalLibraryDetailsController(
-        Ui::LibraryDetailsWidget *libraryDetails,
+NonInternalLibraryDetailsController::NonInternalLibraryDetailsController(LibraryDetailsWidget *libraryDetails,
         const FilePath &proFile, QObject *parent) :
     LibraryDetailsController(libraryDetails, proFile, parent)
 {
@@ -850,8 +853,7 @@ QString NonInternalLibraryDetailsController::snippet() const
 
 /////////////
 
-PackageLibraryDetailsController::PackageLibraryDetailsController(
-    Ui::LibraryDetailsWidget *libraryDetails,
+PackageLibraryDetailsController::PackageLibraryDetailsController(LibraryDetailsWidget *libraryDetails,
     const FilePath &proFile, QObject *parent)
     : NonInternalLibraryDetailsController(libraryDetails, proFile, parent)
 {
@@ -910,7 +912,7 @@ bool PackageLibraryDetailsController::isLinkPackageGenerated() const
 /////////////
 
 SystemLibraryDetailsController::SystemLibraryDetailsController(
-    Ui::LibraryDetailsWidget *libraryDetails,
+    LibraryDetailsWidget *libraryDetails,
     const FilePath &proFile, QObject *parent)
     : NonInternalLibraryDetailsController(libraryDetails, proFile, parent)
 {
@@ -923,7 +925,7 @@ SystemLibraryDetailsController::SystemLibraryDetailsController(
 /////////////
 
 ExternalLibraryDetailsController::ExternalLibraryDetailsController(
-    Ui::LibraryDetailsWidget *libraryDetails,
+    LibraryDetailsWidget *libraryDetails,
     const FilePath &proFile, QObject *parent)
     : NonInternalLibraryDetailsController(libraryDetails, proFile, parent)
 {
@@ -958,7 +960,7 @@ void ExternalLibraryDetailsController::updateWindowsOptionsEnablement()
 
 /////////////
 
-InternalLibraryDetailsController::InternalLibraryDetailsController(Ui::LibraryDetailsWidget *libraryDetails,
+InternalLibraryDetailsController::InternalLibraryDetailsController(LibraryDetailsWidget *libraryDetails,
         const FilePath &proFile, QObject *parent)
     : LibraryDetailsController(libraryDetails, proFile, parent)
 {
