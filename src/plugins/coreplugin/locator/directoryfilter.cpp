@@ -30,6 +30,7 @@
 
 #include <coreplugin/coreconstants.h>
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/filesearch.h>
 
 #include <QFileDialog>

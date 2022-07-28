@@ -27,13 +27,12 @@
 
 #include "core_global.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/id.h>
 
 #include <QObject>
 
 namespace Utils {
-class FilePath;
 class InfoBar;
 class MinimizableInfoBars;
 } // namespace Utils

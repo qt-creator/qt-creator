@@ -30,7 +30,7 @@
 
 #include <coreplugin/testdatadir.h>
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QDir>
 #include <QTextStream>

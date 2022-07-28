@@ -36,7 +36,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
-#include <utils/filepath.h>
+#include <utils/fileutils.h>
 #include <utils/reloadpromptutils.h>
 #include <utils/stringutils.h>
 

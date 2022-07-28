@@ -28,7 +28,7 @@
 #include "core_global.h"
 #include "inavigationwidgetfactory.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QIcon>
 #include <QWidget>

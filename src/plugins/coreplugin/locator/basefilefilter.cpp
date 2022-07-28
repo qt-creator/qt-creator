@@ -27,7 +27,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/linecolumn.h>
 #include <utils/link.h>
 #include <utils/qtcassert.h>

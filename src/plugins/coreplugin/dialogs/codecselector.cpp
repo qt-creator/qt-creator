@@ -27,7 +27,7 @@
 #include <coreplugin/textdocument.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/itemviews.h>
 
 #include <QDebug>

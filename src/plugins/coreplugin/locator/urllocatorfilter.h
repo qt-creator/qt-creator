@@ -29,6 +29,7 @@
 
 #include <coreplugin/core_global.h>
 
+#include <QDialog>
 #include <QMutex>
 
 QT_BEGIN_NAMESPACE

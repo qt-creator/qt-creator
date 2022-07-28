@@ -28,7 +28,7 @@
 #include <coreplugin/diffservice.h>
 #include <coreplugin/idocument.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>

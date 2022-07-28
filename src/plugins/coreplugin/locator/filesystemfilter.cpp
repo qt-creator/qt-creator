@@ -36,7 +36,7 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/vcsmanager.h>
 #include <utils/checkablemessagebox.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/link.h>
 
 #include <QDir>

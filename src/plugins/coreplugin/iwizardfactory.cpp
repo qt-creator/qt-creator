@@ -33,7 +33,7 @@
 #include <extensionsystem/pluginspec.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/icon.h>
 #include <utils/qtcassert.h>
 #include <utils/wizard.h>

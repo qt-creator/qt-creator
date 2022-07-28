@@ -28,7 +28,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/locator/basefilefilter.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/link.h>
 #include <utils/linecolumn.h>
 

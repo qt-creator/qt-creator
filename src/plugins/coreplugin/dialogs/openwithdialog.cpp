@@ -25,7 +25,7 @@
 
 #include "openwithdialog.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
 
 #include <QDialogButtonBox>

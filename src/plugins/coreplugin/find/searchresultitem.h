@@ -27,7 +27,7 @@
 
 #include "searchresultcolor.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/optional.h>
 

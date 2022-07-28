@@ -25,7 +25,7 @@
 
 #include "systemeditor.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QStringList>
 #include <QUrl>

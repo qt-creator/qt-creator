@@ -25,7 +25,7 @@
 
 #include "idocument.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/infobar.h>
 #include <utils/minimizableinfobars.h>
 #include <utils/optional.h>

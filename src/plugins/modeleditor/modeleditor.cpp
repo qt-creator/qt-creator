@@ -76,6 +76,7 @@
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/actionmanager/commandbutton.h>
 #include <utils/fadingindicator.h>
+#include <utils/fileutils.h>
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
 

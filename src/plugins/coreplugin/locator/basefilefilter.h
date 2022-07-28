@@ -27,7 +27,7 @@
 
 #include "ilocatorfilter.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QSharedPointer>
 

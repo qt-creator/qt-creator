@@ -48,6 +48,7 @@
 #include <qmljseditor/qmljseditorconstants.h>
 #include <qmljstools/qmljstoolsconstants.h>
 
+#include <QCoreApplication>
 #include <QGridLayout>
 #include <QPointer>
 #include <QSettings>
