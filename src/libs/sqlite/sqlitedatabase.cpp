@@ -76,10 +76,9 @@ Database::Database(Utils::PathString databaseFilePath,
     setJournalMode(journalMode);
     open(std::move(databaseFilePath), lockingMode);
 
-#ifndef QT_NO_DEBUG
+#ifdef SQLITE_REVERSE
     if (std::rand() % 2)
         execute("PRAGMA reverse_unordered_selects=1");
-
 #endif
 }
 

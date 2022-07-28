@@ -19,7 +19,7 @@ add_qtc_library(Sqlite
   PUBLIC_INCLUDES
     "${CMAKE_CURRENT_LIST_DIR}"
     ../3rdparty/sqlite
-  DEFINES SQLITE_LIBRARY SQLITE_CUSTOM_INCLUDE=config.h
+  DEFINES SQLITE_LIBRARY SQLITE_CUSTOM_INCLUDE=config.h $<$<CONFIG:Debug>:SQLITE_REVERSE>
   SOURCES
     constraints.h
     createtablesqlstatementbuilder.h
