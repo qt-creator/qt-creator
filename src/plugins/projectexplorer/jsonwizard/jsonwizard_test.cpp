@@ -257,8 +257,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsComboBox()
 
 static QString iconInsideResource(const QString &relativePathToIcon)
 {
-    const QDir resourcePath(Core::ICore::resourcePath().toDir());
-    return resourcePath.filePath(relativePathToIcon);
+    return Core::ICore::resourcePath().resolvePath(relativePathToIcon).toString();
 }
 
 void ProjectExplorer::ProjectExplorerPlugin::testJsonWizardsIconList()

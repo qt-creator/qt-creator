@@ -70,7 +70,7 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
     Utils::FilePath directoryWithoutPrefix;
     bool isRelative = false;
 
-    if (path.isEmpty() || path.toDir().isRoot()) {
+    if (path.isEmpty() || path == FilePath::rootPath()) {
         directoryWithoutPrefix = directory;
         isRelative = false;
     } else {

@@ -289,9 +289,8 @@ bool QmlBuildSystem::setFileSettingInProjectFile(const QString &setting, const U
 
     const QString settingQmlCode = setting + ":";
 
-    QDir projectDir = project()->projectFilePath().toDir();
-    projectDir.cdUp();
-    const QString relativePath = projectDir.relativeFilePath(mainFilePath.toString());
+    const Utils::FilePath projectDir = project()->projectFilePath().parentDir();
+    const QString relativePath = mainFilePath.relativeChildPath(projectDir).path();
 
     if (fileContent.indexOf(settingQmlCode) < 0) {
         QString addedText = QString("\n    %1 \"%2\"\n").arg(settingQmlCode).arg(relativePath);

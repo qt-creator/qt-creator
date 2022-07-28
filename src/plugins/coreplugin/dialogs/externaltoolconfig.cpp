@@ -632,12 +632,15 @@ void ExternalToolConfig::showInfoForItem(const QModelIndex &index)
 
 static FilePath getUserFilePath(const QString &proposalFileName)
 {
-    const QDir resourceDir(ICore::userResourcePath().toDir());
-    if (!resourceDir.exists(QLatin1String("externaltools")))
-        resourceDir.mkpath(QLatin1String("externaltools"));
-    const QFileInfo fi(proposalFileName);
-    const QString &suffix = QLatin1Char('.') + fi.completeSuffix();
-    const FilePath newFilePath = ICore::userResourcePath("externaltools") / fi.baseName();
+    const FilePath resourceDir(ICore::userResourcePath());
+    const FilePath externalToolsDir = resourceDir / "externalTools";
+    if (!externalToolsDir.isDir())
+        externalToolsDir.createDir();
+
+    const FilePath proposal = FilePath::fromString(proposalFileName);
+    const QString suffix = QLatin1Char('.') + proposal.suffix();
+    const FilePath newFilePath = externalToolsDir / proposal.baseName();
+
     int count = 0;
     FilePath tryPath = newFilePath + suffix;
     while (tryPath.exists()) {

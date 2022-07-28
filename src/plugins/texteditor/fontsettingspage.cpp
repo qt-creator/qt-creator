@@ -262,18 +262,18 @@ public:
 
 } // namespace Internal
 
-static Utils::FilePath customStylesPath()
+static FilePath customStylesPath()
 {
     return Core::ICore::userResourcePath("styles");
 }
 
-static Utils::FilePath createColorSchemeFileName(const QString &pattern)
+static FilePath createColorSchemeFileName(const QString &pattern)
 {
-    const Utils::FilePath stylesPath = customStylesPath();
+    const FilePath stylesPath = customStylesPath();
 
     // Find an available file name
     int i = 1;
-    Utils::FilePath filePath;
+    FilePath filePath;
     do {
         filePath = stylesPath.pathAppended(pattern.arg((i == 1) ? QString() : QString::number(i)));
         ++i;
@@ -545,7 +545,7 @@ void FontSettingsPageWidget::copyColorScheme(const QString &name)
 
     QString baseFileName = QFileInfo(entry.fileName).completeBaseName();
     baseFileName += QLatin1String("_copy%1.xml");
-    Utils::FilePath fileName = createColorSchemeFileName(baseFileName);
+    FilePath fileName = createColorSchemeFileName(baseFileName);
 
     if (!fileName.isEmpty()) {
         // Ask about saving any existing modifications
@@ -604,7 +604,7 @@ void FontSettingsPageWidget::deleteColorScheme()
 
 void FontSettingsPageWidget::importScheme()
 {
-    const Utils::FilePath importedFile
+    const FilePath importedFile
         = Utils::FileUtils::getOpenFilePath(this,
                                             tr("Import Color Scheme"),
                                             {},
@@ -613,7 +613,7 @@ void FontSettingsPageWidget::importScheme()
     if (importedFile.isEmpty())
         return;
 
-    Utils::FilePath fileName = createColorSchemeFileName(importedFile.baseName() + "%1."
+    FilePath fileName = createColorSchemeFileName(importedFile.baseName() + "%1."
                                                          + importedFile.suffix());
 
     // Ask about saving any existing modifications
@@ -647,10 +647,10 @@ void FontSettingsPageWidget::exportScheme()
 
     const ColorSchemeEntry &entry = m_schemeListModel.colorSchemeAt(index);
 
-    const Utils::FilePath filePath
+    const FilePath filePath
         = Utils::FileUtils::getSaveFilePath(this,
                                             tr("Export Color Scheme"),
-                                            Utils::FilePath::fromString(entry.fileName),
+                                            FilePath::fromString(entry.fileName),
                                             tr("Color scheme (*.xml);;All files (*)"));
 
     if (!filePath.isEmpty())
@@ -686,34 +686,30 @@ void FontSettingsPageWidget::refreshColorSchemeList()
 {
     QList<ColorSchemeEntry> colorSchemes;
 
-    QDir styleDir(Core::ICore::resourcePath("styles").toDir());
-    styleDir.setNameFilters(QStringList() << QLatin1String("*.xml"));
-    styleDir.setFilter(QDir::Files);
+    const FilePath styleDir = Core::ICore::resourcePath("styles");
+
+    FilePaths schemeList = styleDir.dirEntries(FileFilter({"*.xml"}, QDir::Files));
+    const FilePath defaultScheme = FilePath::fromString(FontSettings::defaultSchemeFileName());
+
+    if (schemeList.removeAll(defaultScheme))
+        schemeList.prepend(defaultScheme);
 
     int selected = 0;
 
-    QStringList schemeList = styleDir.entryList();
-    QString defaultScheme = Utils::FilePath::fromString(FontSettings::defaultSchemeFileName()).fileName();
-    if (schemeList.removeAll(defaultScheme))
-        schemeList.prepend(defaultScheme);
-    for (const QString &file : qAsConst(schemeList)) {
-        const QString fileName = styleDir.absoluteFilePath(file);
-        if (m_value.colorSchemeFileName() == fileName)
+    for (const FilePath &file : qAsConst(schemeList)) {
+        if (FilePath::fromString(m_value.colorSchemeFileName()) == file)
             selected = colorSchemes.size();
-        colorSchemes.append(ColorSchemeEntry(fileName, true));
+        colorSchemes.append(ColorSchemeEntry(file.toString(), true));
     }
 
     if (colorSchemes.isEmpty())
-        qWarning() << "Warning: no color schemes found in path:" << styleDir.path();
+        qWarning() << "Warning: no color schemes found in path:" << styleDir.toUserOutput();
 
-    styleDir.setPath(customStylesPath().path());
-
-    const QStringList files = styleDir.entryList();
-    for (const QString &file : files) {
-        const QString fileName = styleDir.absoluteFilePath(file);
-        if (m_value.colorSchemeFileName() == fileName)
+    const FilePaths files = customStylesPath().dirEntries(FileFilter({"*.xml"}, QDir::Files));
+    for (const FilePath &file : files) {
+        if (FilePath::fromString(m_value.colorSchemeFileName()) == file)
             selected = colorSchemes.size();
-        colorSchemes.append(ColorSchemeEntry(fileName, false));
+        colorSchemes.append(ColorSchemeEntry(file.toString(), false));
     }
 
     m_refreshingSchemeList = true;

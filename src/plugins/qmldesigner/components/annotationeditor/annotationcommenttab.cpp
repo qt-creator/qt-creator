@@ -32,9 +32,11 @@
 #include <richtexteditor/richtexteditor.h>
 #include <projectexplorer/target.h>
 #include <qmlprojectmanager/qmlproject.h>
+#include <utils/qtcassert.h>
 
 #include <QCryptographicHash>
 
+using namespace Utils;
 namespace QmlDesigner {
 
 AnnotationCommentTab::AnnotationCommentTab(QWidget *parent)
@@ -53,7 +55,8 @@ AnnotationCommentTab::AnnotationCommentTab(QWidget *parent)
 
     const QmlDesigner::DesignDocument *designDocument = QmlDesigner::QmlDesignerPlugin::instance()
             ->documentManager().currentDesignDocument();
-    Utils::FilePath projectPath;
+
+    FilePath projectPath;
 
     Q_ASSERT(designDocument);
 
@@ -142,7 +145,8 @@ QString AnnotationCommentTab::backupFile(const QString &filePath)
 {
     const QmlDesigner::DesignDocument *designDocument = QmlDesigner::QmlDesignerPlugin::instance()
             ->documentManager().currentDesignDocument();
-    Utils::FilePath projectFolderPath;
+
+    FilePath projectFolderPath;
 
     Q_ASSERT(designDocument);
 
@@ -155,43 +159,35 @@ QString AnnotationCommentTab::backupFile(const QString &filePath)
     else
         return {};
 
-    const QDir projDir(projectFolderPath.toDir());
-
-    if (!projDir.exists())
+    if (!projectFolderPath.isDir())
         return {};
 
     const QString imageSubDir(".AnnotationImages");
-    const QDir imgDir(projDir.absolutePath() + QDir::separator() + imageSubDir);
+    const FilePath imgDir(projectFolderPath / imageSubDir);
 
-    ensureDir(imgDir);
-
-    Q_ASSERT(imgDir.exists());
     if (!imgDir.exists())
-        return {};
+        imgDir.createDir();
 
-    const QFileInfo oldFile(filePath);
-    QFileInfo newFile(imgDir, oldFile.fileName());
+    QTC_ASSERT(imgDir.isDir(), return {});
 
-    QString newName = newFile.baseName() + "_%1." + newFile.completeSuffix();
+    const FilePath oldFile = FilePath::fromString(filePath);
+    FilePath newFile = imgDir.resolvePath(oldFile.fileName());
+
+    QString newNameTemplate = newFile.baseName() + "_%1." + newFile.completeSuffix();
 
     for (size_t i = 1; true; ++i) {
         if (!newFile.exists()) {
-            QFile(oldFile.absoluteFilePath()).copy(newFile.absoluteFilePath());
+            oldFile.copyFile(newFile);
             break;
-        } else if (compareFileChecksum(oldFile.absoluteFilePath(), newFile.absoluteFilePath()) == 0)
+        } else if (compareFileChecksum(oldFile.absoluteFilePath().toString(), newFile.absoluteFilePath().toString()) == 0)
             break;
 
-        newFile.setFile(imgDir, newName.arg(i));
+        newFile = imgDir / newNameTemplate.arg(i);
     }
 
-    return projDir.relativeFilePath(newFile.absoluteFilePath());
+    return newFile.relativeChildPath(projectFolderPath).toString();
 }
 
-void AnnotationCommentTab::ensureDir(const QDir &dir)
-{
-    if (!dir.exists())
-        dir.mkdir(".");
-}
 
 int AnnotationCommentTab::compareFileChecksum(const QString &firstFile, const QString &secondFile)
 {

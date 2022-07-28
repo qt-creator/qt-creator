@@ -79,6 +79,10 @@ public:
     [[nodiscard]] static FilePath fromVariant(const QVariant &variant);
     [[nodiscard]] static FilePath fromUrl(const QUrl &url);
 
+    [[nodiscard]] static FilePath currentWorkingPath();
+    [[nodiscard]] static FilePath rootPath();
+
+
     QString toUserOutput() const;
     QString toString() const;
     QString toFSPathString() const;
@@ -156,6 +160,8 @@ public:
 
     size_t hash(uint seed) const;
 
+    [[nodiscard]] FilePath absoluteFilePath() const;
+    [[nodiscard]] FilePath absolutePath() const;
     [[nodiscard]] FilePath resolvePath(const FilePath &tail) const;
     [[nodiscard]] FilePath resolvePath(const QString &tail) const;
     [[nodiscard]] FilePath cleanPath() const;
@@ -206,12 +212,8 @@ public:
     // on FilePath::osType().
     bool needsDevice() const;
 
-    // Deprecated.
-    [[nodiscard]] static FilePath fromFileInfo(const QFileInfo &info); // Avoid.
-    [[nodiscard]] QFileInfo toFileInfo() const; // Avoid.
-    [[nodiscard]] QDir toDir() const; // Avoid.
-    [[nodiscard]] FilePath absolutePath() const; // Avoid. Use resolvePath(...)[.parent()] with proper base.
-    [[nodiscard]] FilePath absoluteFilePath() const; // Avoid. Use resolvePath(...) with proper base.
+    [[nodiscard]] QFileInfo toFileInfo() const;
+    [[nodiscard]] static FilePath fromFileInfo(const QFileInfo &info);
 
     enum class SpecialPathComponent {
         RootName,

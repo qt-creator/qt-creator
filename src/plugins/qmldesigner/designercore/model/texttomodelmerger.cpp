@@ -494,11 +494,11 @@ public:
                 minorVersion = importInfo.version().minorVersion();
                 typeName.prepend(name + QLatin1Char('.'));
             } else if (importInfo.isValid() && importInfo.type() == ImportType::Directory) {
-                QString path = importInfo.path();
-                QDir dir = m_doc->path().toDir();
-                // should probably try to make it relatve to some import path, not to the document path
-                QString relativeDir = dir.relativeFilePath(path);
-                QString name = relativeDir.replace(QLatin1Char('/'), QLatin1Char('.'));
+                const Utils::FilePath path = Utils::FilePath::fromString(importInfo.path());
+                const Utils::FilePath dir = m_doc->path();
+                // should probably try to make it relative to some import path, not to the document path
+                const Utils::FilePath relativePath = path.relativeChildPath(dir);
+                QString name = relativePath.path().replace(QLatin1Char('/'), QLatin1Char('.'));
                 if (!name.isEmpty() && name != QLatin1String("."))
                     typeName.prepend(name + QLatin1Char('.'));
             } else if (importInfo.isValid() && importInfo.type() == ImportType::QrcDirectory) {

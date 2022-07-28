@@ -124,11 +124,11 @@ static inline QString getModuleName(const ScopeChain &scopeChain, const Document
             return moduleName + QString::number(majorVersion) + QLatin1Char('.')
                     + QString::number(minorVersion) ;
         } else if (importInfo.isValid() && importInfo.type() == ImportType::Directory) {
-            const QString path = importInfo.path();
-            const QDir dir = qmlDocument->path().toDir();
+            const Utils::FilePath path = Utils::FilePath::fromString(importInfo.path());
+            const Utils::FilePath dir = qmlDocument->path();
             // should probably try to make it relatve to some import path, not to the document path
-            QString relativeDir = dir.relativeFilePath(path);
-            const QString name = relativeDir.replace(QLatin1Char('/'), QLatin1Char('.'));
+            const Utils::FilePath relativePath = path.relativeChildPath(dir);
+            const QString name = relativePath.path().replace(QLatin1Char('/'), QLatin1Char('.'));
             return name;
         } else if (importInfo.isValid() && importInfo.type() == ImportType::QrcDirectory) {
             QString path = Utils::QrcParser::normalizedQrcDirectoryPath(importInfo.path());

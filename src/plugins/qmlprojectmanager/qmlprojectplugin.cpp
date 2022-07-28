@@ -194,9 +194,9 @@ const Utils::FilePath findQmlProjectUpwards(const Utils::FilePath &folder)
     if (ret.exists())
         return ret;
 
-    QDir dir = folder.toDir();
-    if (dir.cdUp())
-        return findQmlProjectUpwards(Utils::FilePath::fromString(dir.absolutePath()));
+    if (folder.parentDir().isDir())
+        return findQmlProjectUpwards(folder.parentDir());
+
     return {};
 }
 

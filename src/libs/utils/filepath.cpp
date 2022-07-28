@@ -153,7 +153,7 @@ Qt::CaseSensitivity FilePath::caseSensitivity() const
     // FIXME: This could or possibly should the target device's file name case sensitivity
     // into account by diverting to IDevice. However, as this is expensive and we are
     // in time-critical path here, we go with "good enough" for now:
-    // The first approximation is "Anything unusual is not case sensitive"
+    // The first approximation is "most things are case-sensitive".
     return Qt::CaseSensitive;
 }
 
@@ -385,6 +385,16 @@ FilePath FilePath::fromUrl(const QUrl &url)
     fn.m_host = url.host();
     fn.m_data = url.path();
     return fn;
+}
+
+FilePath FilePath::currentWorkingPath()
+{
+    return FilePath::fromString(QDir::currentPath());
+}
+
+FilePath FilePath::rootPath()
+{
+    return FilePath::fromString(QDir::rootPath());
 }
 
 static QString hostEncoded(QString host)
@@ -839,6 +849,7 @@ FilePath FilePath::parentDir() const
     if (basePath.isEmpty())
         return FilePath();
 
+    // TODO: Replace usage of QDir !!
     const QDir base(basePath);
     if (base.isRoot())
         return FilePath();
@@ -854,22 +865,16 @@ FilePath FilePath::parentDir() const
 
 FilePath FilePath::absolutePath() const
 {
-    if (isAbsolutePath())
-        return parentDir();
-    QTC_ASSERT(!needsDevice(), return *this);
-    FilePath result = *this;
-    result.m_data = QFileInfo(m_data).absolutePath();
-    return result;
+    const FilePath parentPath = isAbsolutePath() ? parentDir() : FilePath::currentWorkingPath().resolvePath(*this).parentDir();
+    return parentPath.isEmpty() ? *this : parentPath;
 }
 
 FilePath FilePath::absoluteFilePath() const
 {
     if (isAbsolutePath())
         return *this;
-    QTC_ASSERT(!needsDevice(), return *this);
-    FilePath result = *this;
-    result.m_data = QFileInfo(m_data).absoluteFilePath();
-    return result;
+
+    return FilePath::currentWorkingPath().resolvePath(*this);
 }
 
 QString FilePath::specialPath(SpecialPathComponent component)
@@ -1100,11 +1105,6 @@ FilePath FilePath::fromVariant(const QVariant &variant)
 QVariant FilePath::toVariant() const
 {
     return toString();
-}
-
-QDir FilePath::toDir() const
-{
-    return QDir(m_data);
 }
 
 bool FilePath::operator==(const FilePath &other) const

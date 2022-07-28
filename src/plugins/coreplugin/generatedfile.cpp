@@ -182,12 +182,12 @@ void GeneratedFile::setEditorId(Id id)
 bool GeneratedFile::write(QString *errorMessage) const
 {
     // Ensure the directory
-    const QDir dir = m_d->path.parentDir().toDir();
-    if (!dir.exists()) {
-        if (!dir.mkpath(dir.absolutePath())) {
+    const FilePath parentDir = m_d->path.parentDir();
+    if (!parentDir.isDir()) {
+        if (!parentDir.createDir()) {
             *errorMessage = QCoreApplication::translate("BaseFileWizard",
                                                         "Unable to create the directory %1.")
-                                .arg(QDir::toNativeSeparators(dir.absolutePath()));
+                                .arg(parentDir.toUserOutput());
             return false;
         }
     }

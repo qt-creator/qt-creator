@@ -69,7 +69,6 @@ signals:
 
 private:
     QString backupFile(const QString &filePath);
-    void ensureDir(const QDir &dir);
     int compareFileChecksum(const QString &firstFile, const QString &secondFile);
 
 private:
