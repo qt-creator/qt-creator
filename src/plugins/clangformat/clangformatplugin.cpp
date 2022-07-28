@@ -26,6 +26,7 @@
 #include "clangformatplugin.h"
 
 #include "clangformatconfigwidget.h"
+#include "clangformatglobalconfigwidget.h"
 #include "clangformatconstants.h"
 #include "clangformatindenter.h"
 #include "clangformatsettings.h"
@@ -94,6 +95,12 @@ public:
         QWidget *parent) const override
     {
         return {new ClangFormatConfigWidget(codeStyle, project, parent), tr("ClangFormat")};
+    }
+
+    TextEditor::CodeStyleEditorWidget *createAdditionalGlobalSettings(
+        ProjectExplorer::Project *project, QWidget *parent)
+    {
+        return new ClangFormatGlobalConfigWidget(project, parent);
     }
 };
 

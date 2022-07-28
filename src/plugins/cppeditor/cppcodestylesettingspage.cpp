@@ -349,7 +349,8 @@ void CppCodeStylePreferencesWidget::addTab(CppCodeStyleWidget *page, QString tab
     if (!page)
         return;
 
-    m_ui->categoryTab->addTab(page, tabName);
+    m_ui->categoryTab->insertTab(0, page, tabName);
+    m_ui->categoryTab->setCurrentIndex(0);
 
     connect(page, &CppEditor::CppCodeStyleWidget::codeStyleSettingsChanged,
             this, [this](const CppEditor::CppCodeStyleSettings &settings) {

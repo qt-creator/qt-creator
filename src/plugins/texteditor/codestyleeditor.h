@@ -49,6 +49,7 @@ public:
                     ProjectExplorer::Project *project = nullptr,
                     QWidget *parent = nullptr);
 
+    void apply() override;
 private:
     void updatePreview();
 
@@ -56,6 +57,7 @@ private:
     ICodeStylePreferencesFactory *m_factory;
     ICodeStylePreferences *m_codeStyle;
     SnippetEditorWidget *m_preview;
+    CodeStyleEditorWidget *m_additionalGlobalSettingsWidget;
 };
 
 } // namespace TextEditor

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -23,24 +23,33 @@
 **
 ****************************************************************************/
 
-#include "icodestylepreferencesfactory.h"
+#pragma once
 
-#include "codestyleeditor.h"
+#include <cppeditor/cppcodestylesettingspage.h>
 
-using namespace TextEditor;
+#include <memory>
 
-ICodeStylePreferencesFactory::ICodeStylePreferencesFactory()
+namespace ProjectExplorer { class Project; }
+
+namespace ClangFormat {
+
+namespace Ui { class ClangFormatGlobalConfigWidget; }
+
+class ClangFormatGlobalConfigWidget : public CppEditor::CppCodeStyleWidget
 {
-}
+    Q_OBJECT
 
-CodeStyleEditorWidget *ICodeStylePreferencesFactory::createCodeStyleEditor(
-    ICodeStylePreferences *codeStyle, ProjectExplorer::Project *project, QWidget *parent)
-{
-    return new CodeStyleEditor(this, codeStyle, project, parent);
-}
+public:
+    explicit ClangFormatGlobalConfigWidget(ProjectExplorer::Project *project = nullptr,
+                                           QWidget *parent = nullptr);
+    ~ClangFormatGlobalConfigWidget() override;
+    void apply() override;
 
-CodeStyleEditorWidget *ICodeStylePreferencesFactory::createAdditionalGlobalSettings(
-    ProjectExplorer::Project *, QWidget *)
-{
-    return nullptr;
-}
+private:
+    void initCheckBoxes();
+    void initIndentationOrFormattingCombobox();
+
+    std::unique_ptr<Ui::ClangFormatGlobalConfigWidget> m_ui;
+};
+
+} // namespace ClangFormat

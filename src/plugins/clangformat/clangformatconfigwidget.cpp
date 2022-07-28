@@ -42,11 +42,8 @@
 #include <cppeditor/cpphighlighter.h>
 #include <cppeditor/cppcodestylesettings.h>
 #include <cppeditor/cppcodestylesnippets.h>
-#include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/pluginspec.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/session.h>
-#include <projectexplorer/editorconfiguration.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/icodestylepreferences.h>
 #include <texteditor/snippets/snippeteditor.h>
@@ -54,7 +51,6 @@
 #include <texteditor/texteditorsettings.h>
 #include <utils/executeondestruction.h>
 #include <utils/qtcassert.h>
-#include <utils/genericconstants.h>
 
 #include <QFile>
 #include <QMessageBox>
@@ -88,8 +84,6 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
 
     initChecksAndPreview(!codeStyle->isReadOnly());
     initOverrideCheckBox();
-    initCheckBoxes();
-    initIndentationOrFormattingCombobox();
 
     showOrHideWidgets();
     fillTable();
@@ -130,45 +124,6 @@ void ClangFormatConfigWidget::initChecksAndPreview(bool enabled)
     }
 
     m_preview->textDocument()->indenter()->setFileName(fileName);
-}
-
-void ClangFormatConfigWidget::initCheckBoxes()
-{
-    if (m_project) {
-        m_ui->formatOnSave->hide();
-        m_ui->formatWhileTyping->hide();
-        return;
-    }
-
-    m_ui->formatOnSave->show();
-    m_ui->formatWhileTyping->show();
-
-    auto setEnableCheckBoxes = [this](int index) {
-        bool isFormatting = index == static_cast<int>(ClangFormatSettings::Mode::Formatting);
-
-        m_ui->formatOnSave->setEnabled(isFormatting);
-        m_ui->formatWhileTyping->setEnabled(isFormatting);
-    };
-    setEnableCheckBoxes(m_ui->indentingOrFormatting->currentIndex());
-    connect(m_ui->indentingOrFormatting, &QComboBox::currentIndexChanged,
-            this, setEnableCheckBoxes);
-
-    m_ui->formatOnSave->setChecked(ClangFormatSettings::instance().formatOnSave());
-    m_ui->formatWhileTyping->setChecked(ClangFormatSettings::instance().formatWhileTyping());
-
-    connect(m_ui->formatOnSave, &QCheckBox::toggled,
-            this, [](bool checked) {
-                ClangFormatSettings &settings = ClangFormatSettings::instance();
-                settings.setFormatOnSave(checked);
-                settings.write();
-            });
-
-    connect(m_ui->formatWhileTyping, &QCheckBox::toggled,
-            this, [](bool checked) {
-                ClangFormatSettings &settings = ClangFormatSettings::instance();
-                settings.setFormatWhileTyping(checked);
-                settings.write();
-            });
 }
 
 void ClangFormatConfigWidget::initOverrideCheckBox()
@@ -217,29 +172,6 @@ void ClangFormatConfigWidget::onTableChanged()
         return;
 
     saveChanges(sender());
-}
-
-void ClangFormatConfigWidget::initIndentationOrFormattingCombobox()
-{
-    m_ui->indentingOrFormatting->insertItem(static_cast<int>(ClangFormatSettings::Mode::Indenting),
-                                            tr("Indenting only"));
-    m_ui->indentingOrFormatting->insertItem(static_cast<int>(ClangFormatSettings::Mode::Formatting),
-                                            tr("Full formatting"));
-    m_ui->indentingOrFormatting->insertItem(static_cast<int>(ClangFormatSettings::Mode::Disable),
-                                            tr("Disable"));
-
-    m_ui->indentingOrFormatting->setCurrentIndex(
-        static_cast<int>(ClangFormatSettings::instance().mode()));
-
-    const bool isGlobal = !m_project;
-    m_ui->indentingOrFormatting->setVisible(isGlobal);
-    m_ui->formattingModeLabel->setVisible(isGlobal);
-
-    connect(m_ui->indentingOrFormatting, &QComboBox::currentIndexChanged, this, [](int index) {
-        ClangFormatSettings &settings = ClangFormatSettings::instance();
-        settings.setMode(static_cast<ClangFormatSettings::Mode>(index));
-        settings.write();
-    });
 }
 
 static bool projectConfigExists()

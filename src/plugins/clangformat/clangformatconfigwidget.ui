@@ -27,47 +27,6 @@
     <number>8</number>
    </property>
    <item>
-    <layout class="QHBoxLayout" name="formattingModeLayout">
-     <item>
-      <widget class="QLabel" name="formattingModeLabel">
-       <property name="text">
-        <string>Formatting mode:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="indentingOrFormatting"/>
-     </item>
-     <item>
-      <spacer name="formattingModeSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="formatWhileTyping">
-     <property name="text">
-      <string>Format while typing</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="formatOnSave">
-     <property name="text">
-      <string>Format edited code on file save</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QLabel" name="projectHasClangFormat">
      <property name="text">
       <string/>

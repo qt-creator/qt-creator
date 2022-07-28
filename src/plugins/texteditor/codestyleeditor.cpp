@@ -66,6 +66,10 @@ CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
     font.setItalic(true);
     label->setFont(font);
     label->setWordWrap(true);
+    m_additionalGlobalSettingsWidget = factory->createAdditionalGlobalSettings(project, parent);
+    if (m_additionalGlobalSettingsWidget)
+        m_layout->addWidget(m_additionalGlobalSettingsWidget);
+
     m_layout->addWidget(selector);
     m_layout->addWidget(m_preview);
     m_layout->addWidget(label);
@@ -97,4 +101,12 @@ void CodeStyleEditor::updatePreview()
         block = block.next();
     }
     tc.endEditBlock();
+}
+
+void CodeStyleEditor::apply()
+{
+    if (!m_additionalGlobalSettingsWidget)
+        return;
+
+    m_additionalGlobalSettingsWidget->apply();
 }

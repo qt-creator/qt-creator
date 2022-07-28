@@ -65,13 +65,10 @@ private:
     void showOrHideWidgets();
     void initChecksAndPreview(bool enabled);
     void initOverrideCheckBox();
-    void initCheckBoxes();
     void connectChecks();
 
     void fillTable();
     void saveChanges(QObject *sender);
-
-    void initIndentationOrFormattingCombobox();
     void updatePreview();
 
     ProjectExplorer::Project *m_project;
