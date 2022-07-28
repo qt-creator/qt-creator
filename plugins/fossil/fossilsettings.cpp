@@ -155,28 +155,27 @@ OptionsPageWidget::OptionsPageWidget(const std::function<void()> &onApply, Fossi
     FossilSettings &s = *m_settings;
 
     using namespace Layouting;
-    const Break nl;
 
     Column {
         Group {
-            Title(tr("Configuration")),
+            title(tr("Configuration")),
             Row { s.binaryPath }
         },
 
         Group {
-            Title(tr("Local Repositories")),
+            title(tr("Local Repositories")),
             Row { s.defaultRepoPath }
         },
         Group {
-            Title(tr("User")),
+            title(tr("User")),
             Form {
-                s.userName, nl,
+                s.userName, br,
                 s.sslIdentityFile
             }
         },
 
         Group {
-            Title(tr("Miscellaneous")),
+            title(tr("Miscellaneous")),
             Column {
                 Row {
                 s.logCount,
