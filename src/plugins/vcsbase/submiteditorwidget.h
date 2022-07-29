@@ -37,8 +37,8 @@ QT_END_NAMESPACE
 namespace Utils { class CompletingTextEdit; }
 namespace VcsBase {
 
-class SubmitFieldWidget;
 struct SubmitEditorWidgetPrivate;
+class SubmitFieldWidget;
 class SubmitFileModel;
 
 class VCSBASE_EXPORT SubmitEditorWidget : public QWidget

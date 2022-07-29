@@ -32,7 +32,6 @@
 #include <functional>
 
 namespace VcsBase {
-class VcsBaseEditor;
 class VcsBaseEditorParameters;
 
 class VCSBASE_EXPORT VcsEditorFactory : public TextEditor::TextEditorFactory

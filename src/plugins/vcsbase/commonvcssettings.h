@@ -28,7 +28,6 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/aspects.h>
-#include <utils/qtcsettings.h>
 
 namespace VcsBase {
 namespace Internal {

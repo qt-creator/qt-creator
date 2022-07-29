@@ -38,13 +38,8 @@ class QAction;
 class QIcon;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer { class Project; }
-
 namespace VcsBase {
-namespace Internal {
-    class CommonVcsSettings;
-    class SubmitEditorFile;
-} // namespace Internal
+namespace Internal { class SubmitEditorFile; }
 
 class SubmitEditorWidget;
 class SubmitFileModel;

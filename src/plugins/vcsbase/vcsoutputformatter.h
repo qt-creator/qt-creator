@@ -27,7 +27,9 @@
 
 #include <QRegularExpression>
 
-QT_FORWARD_DECLARE_CLASS(QMenu)
+QT_BEGIN_NAMESPACE
+class QMenu;
+QT_END_NAMESPACE
 
 namespace VcsBase {
 

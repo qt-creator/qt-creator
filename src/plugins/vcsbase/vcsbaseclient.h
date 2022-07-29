@@ -51,10 +51,8 @@ class ShellCommand;
 
 namespace VcsBase {
 
-class VcsBaseEditorWidget;
-class VcsJob;
-class VcsBaseClientImplPrivate;
 class VcsBaseEditorConfig;
+class VcsBaseEditorWidget;
 
 class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
 {

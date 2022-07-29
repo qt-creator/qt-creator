@@ -27,7 +27,7 @@
 
 #include "vcsbase_global.h"
 
-#include  <QWidget>
+#include <QWidget>
 
 QT_BEGIN_NAMESPACE
 class QCompleter;

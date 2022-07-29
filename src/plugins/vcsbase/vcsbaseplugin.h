@@ -37,12 +37,9 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
-class QTextCodec;
 QT_END_NAMESPACE
 
-namespace Utils {
-class Environment;
-} // namespace Utils
+namespace Utils { class Environment; }
 
 namespace Core {
 class Context;
@@ -57,7 +54,6 @@ namespace Internal { class State; }
 class VcsBaseSubmitEditor;
 class VcsBasePluginPrivate;
 class VcsBasePluginStateData;
-class VcsBasePluginPrivate;
 
 // Documentation inside.
 class VCSBASE_EXPORT VcsBasePluginState

@@ -32,7 +32,6 @@
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
-class QToolButton;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -42,8 +41,6 @@ class StringAspect;
 } // Utils
 
 namespace VcsBase {
-
-class VcsBaseEditorWidget;
 
 namespace Internal { class VcsBaseEditorConfigPrivate; }
 

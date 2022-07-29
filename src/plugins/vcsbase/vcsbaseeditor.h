@@ -46,8 +46,8 @@ class VcsBaseEditorWidgetPrivate;
 } // namespace Internal
 
 class BaseAnnotationHighlighter;
-class VcsBaseEditorWidget;
 class VcsBaseEditorConfig;
+class VcsBaseEditorWidget;
 class VcsEditorFactory;
 
 // Documentation inside

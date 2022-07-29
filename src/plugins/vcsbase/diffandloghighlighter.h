@@ -31,10 +31,7 @@
 
 QT_BEGIN_NAMESPACE
 class QRegularExpression;
-class QTextCharFormat;
 QT_END_NAMESPACE
-
-namespace Core { class ICore; }
 
 namespace VcsBase {
 
