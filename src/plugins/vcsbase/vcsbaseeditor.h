@@ -228,7 +228,7 @@ signals:
     void diffChunkReverted(const VcsBase::DiffChunk &dc);
 
 public slots:
-    void reportCommandFinished(bool ok, int exitCode, const QVariant &data);
+    void reportCommandFinished(bool success, const QVariant &data);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *e) override;

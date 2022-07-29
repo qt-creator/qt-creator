@@ -257,7 +257,6 @@ void ShellCommand::run(QFutureInterface<void> &future)
     else
         future.setProgressRange(0, 1);
     const int count = d->m_jobs.size();
-    int lastExecExitCode = -1;
     bool lastExecSuccess = true;
     for (int j = 0; j < count; j++) {
         const Internal::ShellCommandPrivate::Job &job = d->m_jobs.at(j);
@@ -267,7 +266,6 @@ void ShellCommand::run(QFutureInterface<void> &future)
         runCommand(proc, job.command, job.workingDirectory);
         stdOut += proc.cleanedStdOut();
         stdErr += proc.cleanedStdErr();
-        lastExecExitCode = proc.exitCode();
         lastExecSuccess = proc.result() == ProcessResult::FinishedWithSuccess;
         if (!lastExecSuccess)
             break;
@@ -280,7 +278,7 @@ void ShellCommand::run(QFutureInterface<void> &future)
                 emit stdErrText(stdErr);
         }
 
-        emit finished(lastExecSuccess, lastExecExitCode, cookie());
+        emit finished(lastExecSuccess, cookie());
         if (lastExecSuccess) {
             emit success(cookie());
             future.setProgressValue(future.progressMaximum());

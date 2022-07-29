@@ -1232,12 +1232,10 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
     return rc;
 }
 
-void VcsBaseEditorWidget::reportCommandFinished(bool ok, int exitCode, const QVariant &data)
+void VcsBaseEditorWidget::reportCommandFinished(bool success, const QVariant &data)
 {
-    Q_UNUSED(exitCode)
-
     hideProgressIndicator();
-    if (!ok) {
+    if (!success) {
         textDocument()->setPlainText(tr("Failed to retrieve data."));
     } else if (data.type() == QVariant::Int) {
         const int line = data.toInt();

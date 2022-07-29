@@ -62,7 +62,7 @@ signals:
     void finished(bool success);
 
 private:
-    void slotFinished(bool ok, int exitCode, const QVariant &cookie);
+    void slotFinished(bool success, const QVariant &cookie);
 
     QPlainTextEdit *m_logPlainTextEdit;
     OutputFormatter *m_formatter;

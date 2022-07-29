@@ -103,11 +103,10 @@ void ShellCommandPage::start(ShellCommand *command)
     wizard()->button(QWizard::BackButton)->setEnabled(false);
 }
 
-void ShellCommandPage::slotFinished(bool ok, int exitCode, const QVariant &)
+void ShellCommandPage::slotFinished(bool success, const QVariant &)
 {
     QTC_ASSERT(m_state == Running, return);
 
-    const bool success = (ok && exitCode == 0);
     QString message;
     QPalette palette;
 

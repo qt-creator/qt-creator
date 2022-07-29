@@ -194,9 +194,8 @@ static Utils::FilePaths scanDirectoryForFiles(const Utils::FilePath &directory)
     return result;
 }
 
-void GitLabCloneDialog::cloneFinished(bool ok, int exitCode)
+void GitLabCloneDialog::cloneFinished(bool success)
 {
-    const bool success = (ok && exitCode == 0);
     m_commandRunning = false;
     delete m_command;
     m_command = nullptr;

@@ -56,7 +56,7 @@ private:
     void updateUi();
     void cloneProject();
     void cancel();
-    void cloneFinished(bool ok, int exitCode);
+    void cloneFinished(bool success);
 
     QComboBox * m_repositoryCB = nullptr;
     QCheckBox *m_submodulesCB = nullptr;
