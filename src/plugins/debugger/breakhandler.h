@@ -26,6 +26,7 @@
 #pragma once
 
 #include "breakpoint.h"
+#include "debugger_global.h"
 #include "debuggerprotocol.h"
 
 #include <utils/filepath.h>
@@ -281,7 +282,7 @@ private:
     DebuggerEngine * const m_engine;
 };
 
-class BreakpointManager : public BreakpointManagerModel
+class DEBUGGER_EXPORT BreakpointManager : public BreakpointManagerModel
 {
 public:
     BreakpointManager();

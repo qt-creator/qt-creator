@@ -38,6 +38,13 @@ DEBUGGER_EXPORT extern const Utils::Icon RECORD_OFF;
 DEBUGGER_EXPORT extern const Utils::Icon TRACEPOINT;
 DEBUGGER_EXPORT extern const Utils::Icon TRACEPOINT_TOOLBAR;
 
+// Used in Squish.
+DEBUGGER_EXPORT extern const Utils::Icon LOCATION;
+DEBUGGER_EXPORT extern const Utils::Icon DEBUG_CONTINUE_SMALL_TOOLBAR;
+DEBUGGER_EXPORT extern const Utils::Icon STEP_OVER_TOOLBAR;
+DEBUGGER_EXPORT extern const Utils::Icon STEP_INTO_TOOLBAR;
+DEBUGGER_EXPORT extern const Utils::Icon STEP_OUT_TOOLBAR;
+
 extern const Utils::Icon BREAKPOINT;
 extern const Utils::Icon BREAKPOINT_DISABLED;
 extern const Utils::Icon BREAKPOINT_PENDING;
@@ -47,7 +54,6 @@ extern const Utils::Icon WATCHPOINT;
 extern const Utils::Icon CONTINUE;
 extern const Utils::Icon CONTINUE_FLAT;
 extern const Utils::Icon DEBUG_CONTINUE_SMALL;
-extern const Utils::Icon DEBUG_CONTINUE_SMALL_TOOLBAR;
 extern const Utils::Icon INTERRUPT;
 extern const Utils::Icon INTERRUPT_FLAT;
 extern const Utils::Icon STOP;
@@ -56,7 +62,6 @@ extern const Utils::Icon DEBUG_INTERRUPT_SMALL;
 extern const Utils::Icon DEBUG_INTERRUPT_SMALL_TOOLBAR;
 extern const Utils::Icon DEBUG_EXIT_SMALL;
 extern const Utils::Icon DEBUG_EXIT_SMALL_TOOLBAR;
-extern const Utils::Icon LOCATION;
 extern const Utils::Icon REVERSE_LOCATION;
 extern const Utils::Icon REVERSE_MODE;
 extern const Utils::Icon DIRECTION_FORWARD;
@@ -68,11 +73,8 @@ extern const Utils::Icon SELECT_TOOLBAR;
 extern const Utils::Icon EMPTY;
 
 extern const Utils::Icon STEP_OVER;
-extern const Utils::Icon STEP_OVER_TOOLBAR;
 extern const Utils::Icon STEP_INTO;
-extern const Utils::Icon STEP_INTO_TOOLBAR;
 extern const Utils::Icon STEP_OUT;
-extern const Utils::Icon STEP_OUT_TOOLBAR;
 extern const Utils::Icon RESTART;
 extern const Utils::Icon RESTART_TOOLBAR;
 extern const Utils::Icon SINGLE_INSTRUCTION_MODE;
