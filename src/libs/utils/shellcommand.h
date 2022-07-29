@@ -144,7 +144,6 @@ signals:
     void stdErrText(const QString &);
     void started();
     void finished(bool success, const QVariant &cookie);
-    void success(const QVariant &cookie);
 
     void terminate(); // Internal
 

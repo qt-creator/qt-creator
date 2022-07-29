@@ -984,25 +984,25 @@ void GitClient::chunkActionsRequested(DiffEditor::DiffEditorController *controll
     menu->addSeparator();
     QAction *stageChunkAction = menu->addAction(tr("Stage Chunk"));
     connect(stageChunkAction, &QAction::triggered, this,
-            [stageChunk, diffController, fileIndex, chunkIndex]() {
+            [stageChunk, diffController, fileIndex, chunkIndex] {
         stageChunk(diffController, fileIndex, chunkIndex,
                    DiffEditorController::NoOption, DiffEditor::ChunkSelection());
     });
     QAction *stageLinesAction = menu->addAction(tr("Stage Selection (%n Lines)", "", selection.selectedRowsCount()));
     connect(stageLinesAction, &QAction::triggered, this,
-            [stageChunk, diffController, fileIndex, chunkIndex, selection]() {
+            [stageChunk, diffController, fileIndex, chunkIndex, selection] {
         stageChunk(diffController, fileIndex, chunkIndex,
                    DiffEditorController::NoOption, selection);
     });
     QAction *unstageChunkAction = menu->addAction(tr("Unstage Chunk"));
     connect(unstageChunkAction, &QAction::triggered, this,
-            [stageChunk, diffController, fileIndex, chunkIndex]() {
+            [stageChunk, diffController, fileIndex, chunkIndex] {
         stageChunk(diffController, fileIndex, chunkIndex,
                    DiffEditorController::Revert, DiffEditor::ChunkSelection());
     });
     QAction *unstageLinesAction = menu->addAction(tr("Unstage Selection (%n Lines)", "", selection.selectedRowsCount()));
     connect(unstageLinesAction, &QAction::triggered, this,
-            [stageChunk, diffController, fileIndex, chunkIndex, selection]() {
+            [stageChunk, diffController, fileIndex, chunkIndex, selection] {
         stageChunk(diffController, fileIndex, chunkIndex,
                    DiffEditorController::Revert,
                    selection);
@@ -1199,7 +1199,7 @@ void GitClient::log(const FilePath &workingDirectory, const QString &fileName,
         argWidget = new GitLogArgumentsWidget(settings(), !fileName.isEmpty(), editor);
         argWidget->setBaseArguments(args);
         connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
-                [=]() { this->log(workingDir, fileName, enableAnnotationContextMenu, args); });
+                [=] { this->log(workingDir, fileName, enableAnnotationContextMenu, args); });
         editor->setEditorConfig(argWidget);
     }
     editor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
@@ -1506,8 +1506,10 @@ void GitClient::removeStaleRemoteBranches(const FilePath &workingDirectory, cons
     ShellCommand *command = vcsExec(workingDirectory, arguments, nullptr, true,
                                   ShellCommand::ShowSuccessMessage);
 
-    connect(command, &ShellCommand::success,
-            this, [workingDirectory]() { GitPlugin::updateBranches(workingDirectory); });
+    connect(command, &ShellCommand::finished, this, [workingDirectory](bool success) {
+        if (success)
+            GitPlugin::updateBranches(workingDirectory);
+    });
 }
 
 void GitClient::recoverDeletedFiles(const FilePath &workingDirectory)
@@ -3150,8 +3152,10 @@ void GitClient::fetch(const FilePath &workingDirectory, const QString &remote)
     QStringList const arguments = {"fetch", (remote.isEmpty() ? "--all" : remote)};
     ShellCommand *command = vcsExec(workingDirectory, arguments, nullptr, true,
                                     ShellCommand::ShowSuccessMessage);
-    connect(command, &ShellCommand::success,
-            this, [workingDirectory] { GitPlugin::updateBranches(workingDirectory); });
+    connect(command, &ShellCommand::finished, this, [workingDirectory](bool success) {
+        if (success)
+            GitPlugin::updateBranches(workingDirectory);
+    });
 }
 
 bool GitClient::executeAndHandleConflicts(const FilePath &workingDirectory,
@@ -3182,9 +3186,10 @@ void GitClient::pull(const FilePath &workingDirectory, bool rebase)
     }
 
     ShellCommand *command = vcsExecAbortable(workingDirectory, arguments, rebase, abortCommand);
-    connect(command, &ShellCommand::success, this,
-            [this, workingDirectory] { updateSubmodulesIfNeeded(workingDirectory, true); },
-            Qt::QueuedConnection);
+    connect(command, &ShellCommand::finished, this, [this, workingDirectory](bool success) {
+        if (success)
+            updateSubmodulesIfNeeded(workingDirectory, true);
+    }, Qt::QueuedConnection);
 }
 
 void GitClient::synchronousAbortCommand(const FilePath &workingDir, const QString &abortCommand)
@@ -3368,8 +3373,10 @@ void GitClient::push(const FilePath &workingDirectory, const QStringList &pushAr
                     ShellCommand *rePushCommand = vcsExec(workingDirectory,
                             QStringList({"push", "--force-with-lease"}) + pushArgs,
                             nullptr, true, ShellCommand::ShowSuccessMessage);
-                    connect(rePushCommand, &ShellCommand::success,
-                            this, []() { GitPlugin::updateCurrentBranch(); });
+                    connect(rePushCommand, &ShellCommand::finished, this, [](bool success) {
+                        if (success)
+                            GitPlugin::updateCurrentBranch();
+                    });
                 }
                 break;
             }
@@ -3389,8 +3396,10 @@ void GitClient::push(const FilePath &workingDirectory, const QStringList &pushAr
                     ShellCommand *rePushCommand = vcsExec(workingDirectory,
                                                         fallbackCommandParts.mid(1), nullptr, true,
                                                         ShellCommand::ShowSuccessMessage);
-                    connect(rePushCommand, &ShellCommand::success, this, [workingDirectory]() {
-                        GitPlugin::updateBranches(workingDirectory);
+                    connect(rePushCommand, &ShellCommand::finished, this,
+                            [workingDirectory](bool success) {
+                        if (success)
+                            GitPlugin::updateBranches(workingDirectory);
                     });
                 }
                 break;

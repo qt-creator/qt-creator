@@ -570,7 +570,10 @@ void VcsBaseClient::revertFile(const FilePath &workingDir,
     // Indicate repository change or file list
     ShellCommand *cmd = createCommand(workingDir);
     cmd->setCookie(QStringList(workingDir.pathAppended(file).toString()));
-    connect(cmd, &ShellCommand::success, this, &VcsBaseClient::changed, Qt::QueuedConnection);
+    connect(cmd, &ShellCommand::finished, this, [this](bool success, const QVariant &cookie) {
+        if (success)
+            emit changed(cookie);
+    }, Qt::QueuedConnection);
     enqueueJob(cmd, args);
 }
 
@@ -583,7 +586,10 @@ void VcsBaseClient::revertAll(const FilePath &workingDir,
     // Indicate repository change or file list
     ShellCommand *cmd = createCommand(workingDir);
     cmd->setCookie(QStringList(workingDir.toString()));
-    connect(cmd, &ShellCommand::success, this, &VcsBaseClient::changed, Qt::QueuedConnection);
+    connect(cmd, &ShellCommand::finished, this, [this](bool success, const QVariant &cookie) {
+        if (success)
+            emit changed(cookie);
+    }, Qt::QueuedConnection);
     enqueueJob(createCommand(workingDir), args);
 }
 
@@ -681,7 +687,10 @@ void VcsBaseClient::update(const FilePath &repositoryRoot, const QString &revisi
     args << revisionSpec(revision) << extraOptions;
     ShellCommand *cmd = createCommand(repositoryRoot);
     cmd->setCookie(repositoryRoot.toString());
-    connect(cmd, &ShellCommand::success, this, &VcsBaseClient::changed, Qt::QueuedConnection);
+    connect(cmd, &ShellCommand::finished, this, [this](bool success, const QVariant &cookie) {
+        if (success)
+            emit changed(cookie);
+    }, Qt::QueuedConnection);
     enqueueJob(cmd, args);
 }
 
@@ -702,7 +711,7 @@ void VcsBaseClient::commit(const FilePath &repositoryRoot,
     args << extraOptions << files;
     ShellCommand *cmd = createCommand(repositoryRoot, nullptr, VcsWindowOutputBind);
     if (!commitMessageFile.isEmpty())
-        connect(cmd, &ShellCommand::finished, [commitMessageFile]() { QFile(commitMessageFile).remove(); });
+        connect(cmd, &ShellCommand::finished, [commitMessageFile] { QFile(commitMessageFile).remove(); });
     enqueueJob(cmd, args);
 }
 

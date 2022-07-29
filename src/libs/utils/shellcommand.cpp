@@ -279,12 +279,10 @@ void ShellCommand::run(QFutureInterface<void> &future)
         }
 
         emit finished(lastExecSuccess, cookie());
-        if (lastExecSuccess) {
-            emit success(cookie());
+        if (lastExecSuccess)
             future.setProgressValue(future.progressMaximum());
-        } else {
+        else
             future.cancel(); // sets the progress indicator red
-        }
     }
 
     if (d->m_progressParser)

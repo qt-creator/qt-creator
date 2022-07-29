@@ -259,7 +259,7 @@ protected:
     QString vcsEditorTitle(const QString &vcsCmd, const QString &sourceId) const;
 
 private:
-    void statusParser(const QString&);
+    void statusParser(const QString &);
 
     VcsBaseClient::ConfigCreator m_diffConfigCreator;
     VcsBaseClient::ConfigCreator m_logConfigCreator;
