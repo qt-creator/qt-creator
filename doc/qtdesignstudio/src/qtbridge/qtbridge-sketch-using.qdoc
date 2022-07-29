@@ -245,15 +245,15 @@
             component. See \l {Annotating Designs}.
         \li Select the \uicontrol Settings tab to specify the export path and
             asset format.
-        \li Select \uicontrol Export to copy your assets to the export path you
-            specified.
+        \li Select \uicontrol Export to export the document into a .qtbridge archive.
         \li When the exporting is done, select \uicontrol OK.
     \endlist
 
-    All the assets and metadata are copied to the directory you specified. This
-    might take a little while depending on the complexity of your project.
+    All the assets and metadata are exported into a .qtbridge archive in the directory
+    you specified. This might take a little while depending on the complexity of
+    your project.
 
-    You can now create a project in \QDS and import the assets to it, as
+    You can now create a project in \QDS and import the .atbrige archive to it, as
     described in \l {Creating Projects} and \l{Importing Designs}.
 
     \section1 Specifying Export Path and Asset Format
@@ -263,9 +263,9 @@
 
     \image qt-sketch-bridge-settings.png
 
-    By default, \QBSK exports assets to a directory named after your
-    Sketch file located inside the parent directory of the Sketch file
-    being exported. You can change the export path in the
+    \QBSK exports assets to a .qtbridge archive named after your
+    Sketch file. By default, the directory is  located inside the parent directory
+    of the Sketch file being exported. You can change the export path in the
     \uicontrol {Export Path} field.
 
     You can select the default asset format and DPI to use for each
@@ -279,6 +279,12 @@
     from PNG files, export assets as progressive JPG or compact SVG,
     and include SVG namespaces in SVG files.
 
+    \section1 Scaling
+
+    You can scale the generated assets and UI artefacts by setting a scaling factor between
+    0.1 and 10.0 in \uicontrol Factor.
+    \note The factor is independent of the asset scale settings, that is, 2x assets shall
+    have a size of 5x when a scale factor of 2.5 is selected.
 
     \section1 Exporting Library Symbols
 
