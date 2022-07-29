@@ -333,7 +333,7 @@ CommandResult ShellCommand::runCommand(const CommandLine &command, const FilePat
         }
     }
     emit runCommandFinished(dir);
-    return {proc};
+    return CommandResult(proc);
 }
 
 void ShellCommand::runFullySynchronous(QtcProcess &process)
