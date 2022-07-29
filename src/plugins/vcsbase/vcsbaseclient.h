@@ -40,13 +40,12 @@
 #include <functional>
 
 QT_BEGIN_NAMESPACE
-class QFileInfo;
 class QTextCodec;
 class QToolBar;
 QT_END_NAMESPACE
 
 namespace Utils {
-class QtcProcess;
+class CommandResult;
 class ShellCommand;
 }
 
@@ -109,12 +108,12 @@ public:
     static QString stripLastNewline(const QString &in);
 
     // Fully synchronous VCS execution (QProcess-based)
-    void vcsFullySynchronousExec(Utils::QtcProcess &process,
-                                 const Utils::FilePath &workingDir, const QStringList &args,
-                                 unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
-    void vcsFullySynchronousExec(Utils::QtcProcess &process,
-                                 const Utils::FilePath &workingDir, const Utils::CommandLine &cmdLine,
-                                 unsigned flags = 0, int timeoutS = -1, QTextCodec *codec = nullptr) const;
+    Utils::CommandResult vcsFullySynchronousExec(const Utils::FilePath &workingDir,
+                                 const QStringList &args, unsigned flags = 0,
+                                 int timeoutS = -1, QTextCodec *codec = nullptr) const;
+    Utils::CommandResult vcsFullySynchronousExec(const Utils::FilePath &workingDir,
+                                 const Utils::CommandLine &cmdLine, unsigned flags = 0,
+                                 int timeoutS = -1, QTextCodec *codec = nullptr) const;
 
     // Simple helper to execute a single command using createCommand and enqueueJob.
     Utils::ShellCommand *vcsExec(const Utils::FilePath &workingDirectory,
@@ -131,11 +130,10 @@ protected:
 
     // Synchronous VCS execution using Utils::SynchronousProcess, with
     // log windows updating (using VcsBasePlugin::runVcs with flags)
-    void vcsSynchronousExec(Utils::QtcProcess &proc,
-                            const Utils::FilePath &workingDir,
-                            const QStringList &args,
-                            unsigned flags = 0,
-                            QTextCodec *outputCodec = nullptr) const;
+    Utils::CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
+                                            const QStringList &args,
+                                            unsigned flags = 0,
+                                            QTextCodec *outputCodec = nullptr) const;
 
 private:
     void saveSettings();

@@ -68,6 +68,32 @@ private:
     friend class ShellCommand;
 };
 
+class QTCREATOR_UTILS_EXPORT CommandResult
+{
+public:
+    CommandResult() = default;
+    CommandResult(const QtcProcess &process);
+
+    ProcessResult result() const { return m_result; }
+    int exitCode() const { return m_exitCode; }
+    QString exitMessage() const { return m_exitMessage; }
+
+    QString cleanedStdOut() const { return m_cleanedStdOut; }
+    QString cleanedStdErr() const { return m_cleanedStdErr; }
+
+    QByteArray rawStdOut() const { return m_rawStdOut; }
+
+private:
+    ProcessResult m_result = ProcessResult::StartFailed;
+    int m_exitCode = 0;
+    QString m_exitMessage;
+
+    QString m_cleanedStdOut;
+    QString m_cleanedStdErr;
+
+    QByteArray m_rawStdOut;
+};
+
 class QTCREATOR_UTILS_EXPORT ShellCommand final : public QObject
 {
     Q_OBJECT
@@ -131,8 +157,8 @@ public:
     // This is called once per job in a thread.
     // When called from the UI thread it will execute fully synchronously, so no signals will
     // be triggered!
-    void runCommand(QtcProcess &process, const CommandLine &command,
-                    const FilePath &workingDirectory = {});
+    CommandResult runCommand(const CommandLine &command, const FilePath &workingDirectory = {},
+                             int timeoutS = 10, const ExitCodeInterpreter &interpreter = {});
 
     void cancel();
 

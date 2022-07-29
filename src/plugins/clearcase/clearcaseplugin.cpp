@@ -1666,20 +1666,18 @@ ClearCasePluginPrivate::runCleartool(const FilePath &workingDir,
         return response;
     }
 
-    QtcProcess proc;
-    proc.setTimeoutS(timeOutS);
-
     auto *command = VcsBaseClient::createVcsCommand(workingDir, Environment::systemEnvironment());
     command->addFlags(flags);
     command->setCodec(outputCodec);
-    command->runCommand(proc, {FilePath::fromString(executable), arguments});
+    const CommandResult result = command->runCommand({FilePath::fromString(executable), arguments},
+                                                     workingDir, timeOutS);
     delete command;
 
-    response.error = proc.result() != ProcessResult::FinishedWithSuccess;
+    response.error = result.result() != ProcessResult::FinishedWithSuccess;
     if (response.error)
-        response.message = proc.exitMessage();
-    response.stdErr = proc.cleanedStdErr();
-    response.stdOut = proc.cleanedStdOut();
+        response.message = result.exitMessage();
+    response.stdErr = result.cleanedStdErr();
+    response.stdOut = result.cleanedStdOut();
     return response;
 }
 

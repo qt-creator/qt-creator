@@ -33,11 +33,11 @@
 #include <vcsbase/vcsbaseconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/commandline.h>
 #include <utils/fancylineedit.h>
 #include <utils/filesearch.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 #include <utils/shellcommand.h>
 #include <utils/textfileformat.h>
@@ -198,10 +198,8 @@ public:
         QObject::connect(m_command.get(),
                          &ShellCommand::stdOutText,
                          [this, &fi](const QString &text) { read(fi, text); });
-        QtcProcess proc;
-        proc.setTimeoutS(0);
-        m_command->runCommand(proc, {m_vcsBinary, arguments});
-        switch (proc.result()) {
+        const CommandResult result = m_command->runCommand({m_vcsBinary, arguments}, {}, 0);
+        switch (result.result()) {
         case ProcessResult::TerminatedAbnormally:
         case ProcessResult::StartFailed:
         case ProcessResult::Hang:

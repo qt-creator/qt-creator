@@ -53,11 +53,11 @@
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/shellcommand.h>
 #include <utils/stringutils.h>
 
@@ -1432,20 +1432,19 @@ CvsResponse CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
         return response;
     }
     // Run, connect stderr to the output window
-    QtcProcess proc;
-    proc.setTimeoutS(timeOutS);
 
     auto *command = VcsBaseClient::createVcsCommand(workingDirectory,
                                                     Environment::systemEnvironment());
     command->addFlags(flags);
     command->setCodec(outputCodec);
-    command->runCommand(proc, {executable, m_settings.addOptions(arguments)});
+    const CommandResult result = command->runCommand({executable, m_settings.addOptions(arguments)},
+                                                     workingDirectory, timeOutS);
     delete command;
 
     response.result = CvsResponse::OtherError;
-    response.stdErr = proc.cleanedStdErr();
-    response.stdOut = proc.cleanedStdOut();
-    switch (proc.result()) {
+    response.stdErr = result.cleanedStdErr();
+    response.stdOut = result.cleanedStdOut();
+    switch (result.result()) {
     case ProcessResult::FinishedWithSuccess:
         response.result = CvsResponse::Ok;
         break;
@@ -1459,7 +1458,7 @@ CvsResponse CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
     }
 
     if (response.result != CvsResponse::Ok)
-        response.message = proc.exitMessage();
+        response.message = result.exitMessage();
 
     return response;
 }

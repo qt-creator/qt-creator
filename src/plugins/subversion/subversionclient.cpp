@@ -39,10 +39,10 @@
 #include <diffeditor/diffutils.h>
 
 #include <utils/algorithm.h>
+#include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/shellcommand.h>
 
 #include <QDir>
@@ -83,18 +83,19 @@ bool SubversionClient::doCommit(const FilePath &repositoryRoot,
                                 const QString &commitMessageFile,
                                 const QStringList &extraOptions) const
 {
-    const QStringList svnExtraOptions =
-            QStringList(extraOptions)
-            << SubversionClient::addAuthenticationOptions(static_cast<SubversionSettings &>(settings()))
-            << QLatin1String(Constants::NON_INTERACTIVE_OPTION)
-            << QLatin1String("--encoding") << QLatin1String("UTF-8")
-            << QLatin1String("--file") << commitMessageFile;
-
-    QStringList args(vcsCommandString(CommitCommand));
-    QtcProcess proc;
-    vcsSynchronousExec(proc, repositoryRoot, args << svnExtraOptions << escapeFiles(files),
+    QStringList args;
+    args << vcsCommandString(CommitCommand)
+         << extraOptions
+         << SubversionClient::addAuthenticationOptions(static_cast<SubversionSettings &>(settings()))
+         << QLatin1String(Constants::NON_INTERACTIVE_OPTION)
+         << QLatin1String("--encoding")
+         << QLatin1String("UTF-8")
+         << QLatin1String("--file")
+         << commitMessageFile
+         << escapeFiles(files);
+    const CommandResult result = vcsSynchronousExec(repositoryRoot, args,
                        ShellCommand::ShowStdOut | ShellCommand::NoFullySync);
-    return proc.result() == ProcessResult::FinishedWithSuccess;
+    return result.result() == ProcessResult::FinishedWithSuccess;
 }
 
 void SubversionClient::commit(const FilePath &repositoryRoot,
@@ -151,12 +152,11 @@ QString SubversionClient::synchronousTopic(const FilePath &repository) const
     else
         svnVersionBinary = svnVersionBinary.left(pos + 1);
     svnVersionBinary.append(HostOsInfo::withExecutableSuffix("svnversion"));
-    QtcProcess proc;
-    vcsFullySynchronousExec(proc, repository, {FilePath::fromString(svnVersionBinary), args});
-    if (proc.result() != ProcessResult::FinishedWithSuccess)
-        return QString();
-
-    return proc.cleanedStdOut().trimmed();
+    const CommandResult result = vcsFullySynchronousExec(repository,
+                                 {FilePath::fromString(svnVersionBinary), args});
+    if (result.result() == ProcessResult::FinishedWithSuccess)
+        return result.cleanedStdOut().trimmed();
+    return {};
 }
 
 QString SubversionClient::escapeFile(const QString &file)

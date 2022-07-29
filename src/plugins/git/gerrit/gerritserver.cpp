@@ -26,13 +26,12 @@
 #include "authenticationdialog.h"
 #include "gerritparameters.h"
 #include "gerritserver.h"
-#include "../gitplugin.h"
 #include "../gitclient.h"
 
 #include <coreplugin/icore.h>
 
+#include <utils/commandline.h>
 #include <utils/hostosinfo.h>
-#include <utils/qtcprocess.h>
 #include <utils/shellcommand.h>
 
 #include <QFile>
@@ -243,10 +242,10 @@ int GerritServer::testConnection()
 {
     static GitClient *const client = GitClient::instance();
     const QStringList arguments = curlArguments() << (url(RestUrl) + accountUrlC);
-    QtcProcess proc;
-    client->vcsFullySynchronousExec(proc, {}, {curlBinary, arguments}, ShellCommand::NoOutput);
-    if (proc.result() == ProcessResult::FinishedWithSuccess) {
-        QString output = proc.cleanedStdOut();
+    const CommandResult result = client->vcsFullySynchronousExec({}, {curlBinary, arguments},
+                                                                 ShellCommand::NoOutput);
+    if (result.result() == ProcessResult::FinishedWithSuccess) {
+        QString output = result.cleanedStdOut();
         // Gerrit returns an empty response for /p/qt-creator/a/accounts/self
         // so consider this as 404.
         if (output.isEmpty())
@@ -262,10 +261,10 @@ int GerritServer::testConnection()
         }
         return Success;
     }
-    if (proc.exitCode() == CertificateError)
+    if (result.exitCode() == CertificateError)
         return CertificateError;
     const QRegularExpression errorRegexp("returned error: (\\d+)");
-    QRegularExpressionMatch match = errorRegexp.match(proc.cleanedStdErr());
+    QRegularExpressionMatch match = errorRegexp.match(result.cleanedStdErr());
     if (match.hasMatch())
         return match.captured(1).toInt();
     return UnknownError;
@@ -339,25 +338,25 @@ bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
     if (!version.isEmpty() && !forceReload)
         return true;
     if (type == Ssh) {
-        QtcProcess proc;
         QStringList arguments;
         if (port)
             arguments << p.portFlag << QString::number(port);
         arguments << hostArgument() << "gerrit" << "version";
-        client->vcsFullySynchronousExec(proc, {}, {p.ssh, arguments}, ShellCommand::NoOutput);
-        QString stdOut = proc.cleanedStdOut().trimmed();
+        const CommandResult result = client->vcsFullySynchronousExec({}, {p.ssh, arguments},
+                                                                     ShellCommand::NoOutput);
+        QString stdOut = result.cleanedStdOut().trimmed();
         stdOut.remove("gerrit version ");
         version = stdOut;
         if (version.isEmpty())
             return false;
     } else {
         const QStringList arguments = curlArguments() << (url(RestUrl) + versionUrlC);
-        QtcProcess proc;
-        client->vcsFullySynchronousExec(proc, {}, {curlBinary, arguments}, ShellCommand::NoOutput);
+        const CommandResult result = client->vcsFullySynchronousExec({}, {curlBinary, arguments},
+                                                                     ShellCommand::NoOutput);
         // REST endpoint for version is only available from 2.8 and up. Do not consider invalid
         // if it fails.
-        if (proc.result() == ProcessResult::FinishedWithSuccess) {
-            QString output = proc.cleanedStdOut();
+        if (result.result() == ProcessResult::FinishedWithSuccess) {
+            QString output = result.cleanedStdOut();
             if (output.isEmpty())
                 return false;
             output.remove(0, output.indexOf('\n')); // Strip first line

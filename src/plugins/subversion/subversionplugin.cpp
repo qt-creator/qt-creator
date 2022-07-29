@@ -51,12 +51,12 @@
 #include <coreplugin/messagemanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/shellcommand.h>
 #include <utils/stringutils.h>
 
@@ -1019,16 +1019,14 @@ SubversionResponse SubversionPluginPrivate::runSvn(const FilePath &workingDir,
         return response;
     }
 
-    QtcProcess proc;
-    m_client->vcsFullySynchronousExec(proc, workingDir, arguments, flags,
-                                      m_settings.timeout.value() * defaultTimeoutMutiplier,
-                                      outputCodec);
+    const CommandResult result = m_client->vcsFullySynchronousExec(workingDir, arguments, flags,
+                        m_settings.timeout.value() * defaultTimeoutMutiplier, outputCodec);
 
-    response.error = proc.result() != ProcessResult::FinishedWithSuccess;
+    response.error = result.result() != ProcessResult::FinishedWithSuccess;
     if (response.error)
-        response.message = proc.exitMessage();
-    response.stdErr = proc.cleanedStdErr();
-    response.stdOut = proc.cleanedStdOut();
+        response.message = result.exitMessage();
+    response.stdErr = result.cleanedStdErr();
+    response.stdOut = result.cleanedStdOut();
     return response;
 }
 

@@ -35,10 +35,10 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/globalfilechangeblocker.h>
 #include <utils/qtcassert.h>
-#include <utils/qtcprocess.h>
 #include <utils/shellcommand.h>
 
 #include <vcsbase/vcsbaseeditor.h>
@@ -240,24 +240,21 @@ QString VcsBaseClientImpl::stripLastNewline(const QString &in)
     return in;
 }
 
-void VcsBaseClientImpl::vcsFullySynchronousExec(QtcProcess &proc,
-                                                const FilePath &workingDir, const QStringList &args,
-                                                unsigned flags, int timeoutS, QTextCodec *codec) const
+CommandResult VcsBaseClientImpl::vcsFullySynchronousExec(const FilePath &workingDir,
+              const QStringList &args, unsigned flags, int timeoutS, QTextCodec *codec) const
 {
-    vcsFullySynchronousExec(proc, workingDir, {vcsBinary(), args}, flags, timeoutS, codec);
+    return vcsFullySynchronousExec(workingDir, {vcsBinary(), args}, flags, timeoutS, codec);
 }
 
-void VcsBaseClientImpl::vcsFullySynchronousExec(QtcProcess &proc,
-                                                const FilePath &workingDir, const CommandLine &cmdLine,
-                                                unsigned flags, int timeoutS, QTextCodec *codec) const
+CommandResult VcsBaseClientImpl::vcsFullySynchronousExec(const FilePath &workingDir,
+              const CommandLine &cmdLine, unsigned flags, int timeoutS, QTextCodec *codec) const
 {
     ShellCommand command(workingDir, processEnvironment());
     new VcsCommandDecorator(&command);
     command.addFlags(flags);
     if (codec)
         command.setCodec(codec);
-    proc.setTimeoutS(timeoutS > 0 ? timeoutS : vcsTimeoutS());
-    command.runCommand(proc, cmdLine);
+    return command.runCommand(cmdLine, workingDir, timeoutS > 0 ? timeoutS : vcsTimeoutS());
 }
 
 void VcsBaseClientImpl::resetCachedVcsInfo(const FilePath &workingDir)
@@ -293,19 +290,17 @@ ShellCommand *VcsBaseClientImpl::vcsExec(const FilePath &workingDirectory,
     return command;
 }
 
-void VcsBaseClientImpl::vcsSynchronousExec(QtcProcess &proc,
-                                           const FilePath &workingDir,
-                                           const QStringList &args,
-                                           unsigned flags,
-                                           QTextCodec *outputCodec) const
+CommandResult VcsBaseClientImpl::vcsSynchronousExec(const FilePath &workingDir,
+                                                    const QStringList &args,
+                                                    unsigned flags,
+                                                    QTextCodec *outputCodec) const
 {
     Environment env = processEnvironment();
     ShellCommand command(workingDir, env.isValid() ? env : Environment::systemEnvironment());
     new VcsCommandDecorator(&command);
-    proc.setTimeoutS(vcsTimeoutS());
     command.addFlags(flags);
     command.setCodec(outputCodec);
-    command.runCommand(proc, {vcsBinary(), args});
+    return command.runCommand({vcsBinary(), args}, workingDir, vcsTimeoutS());
 }
 
 int VcsBaseClientImpl::vcsTimeoutS() const
@@ -367,11 +362,10 @@ bool VcsBaseClient::synchronousCreateRepository(const FilePath &workingDirectory
 {
     QStringList args(vcsCommandString(CreateRepositoryCommand));
     args << extraOptions;
-    QtcProcess proc;
-    vcsFullySynchronousExec(proc, workingDirectory, args);
-    if (proc.result() != ProcessResult::FinishedWithSuccess)
+    const CommandResult result = vcsFullySynchronousExec(workingDirectory, args);
+    if (result.result() != ProcessResult::FinishedWithSuccess)
         return false;
-    VcsOutputWindow::append(proc.cleanedStdOut());
+    VcsOutputWindow::append(result.cleanedStdOut());
 
     resetCachedVcsInfo(workingDirectory);
 
@@ -387,10 +381,9 @@ bool VcsBaseClient::synchronousClone(const FilePath &workingDir,
     args << vcsCommandString(CloneCommand)
          << extraOptions << srcLocation << dstLocation;
 
-    QtcProcess proc;
-    vcsFullySynchronousExec(proc, workingDir, args);
+    const CommandResult result = vcsFullySynchronousExec(workingDir, args);
     resetCachedVcsInfo(workingDir);
-    return proc.result() == ProcessResult::FinishedWithSuccess;
+    return result.result() == ProcessResult::FinishedWithSuccess;
 }
 
 bool VcsBaseClient::synchronousAdd(const FilePath &workingDir,
@@ -399,9 +392,7 @@ bool VcsBaseClient::synchronousAdd(const FilePath &workingDir,
 {
     QStringList args;
     args << vcsCommandString(AddCommand) << extraOptions << relFileName;
-    QtcProcess proc;
-    vcsFullySynchronousExec(proc, workingDir, args);
-    return proc.result() == ProcessResult::FinishedWithSuccess;
+    return vcsFullySynchronousExec(workingDir, args).result() == ProcessResult::FinishedWithSuccess;
 }
 
 bool VcsBaseClient::synchronousRemove(const FilePath &workingDir,
@@ -410,9 +401,7 @@ bool VcsBaseClient::synchronousRemove(const FilePath &workingDir,
 {
     QStringList args;
     args << vcsCommandString(RemoveCommand) << extraOptions << filename;
-    QtcProcess proc;
-    vcsFullySynchronousExec(proc, workingDir, args);
-    return proc.result() == ProcessResult::FinishedWithSuccess;
+    return vcsFullySynchronousExec(workingDir, args).result() == ProcessResult::FinishedWithSuccess;
 }
 
 bool VcsBaseClient::synchronousMove(const FilePath &workingDir,
@@ -422,9 +411,7 @@ bool VcsBaseClient::synchronousMove(const FilePath &workingDir,
 {
     QStringList args;
     args << vcsCommandString(MoveCommand) << extraOptions << from << to;
-    QtcProcess proc;
-    vcsFullySynchronousExec(proc, workingDir, args);
-    return proc.result() == ProcessResult::FinishedWithSuccess;
+    return vcsFullySynchronousExec(workingDir, args).result() == ProcessResult::FinishedWithSuccess;
 }
 
 bool VcsBaseClient::synchronousPull(const FilePath &workingDir,
@@ -437,9 +424,8 @@ bool VcsBaseClient::synchronousPull(const FilePath &workingDir,
     const unsigned flags = ShellCommand::SshPasswordPrompt
                          | ShellCommand::ShowStdOut
                          | ShellCommand::ShowSuccessMessage;
-    QtcProcess proc;
-    vcsSynchronousExec(proc, workingDir, args, flags);
-    const bool ok = proc.result() == ProcessResult::FinishedWithSuccess;
+    const bool ok = vcsSynchronousExec(workingDir, args, flags).result()
+            == ProcessResult::FinishedWithSuccess;
     if (ok)
         emit changed(QVariant(workingDir.toString()));
     return ok;
@@ -455,9 +441,8 @@ bool VcsBaseClient::synchronousPush(const FilePath &workingDir,
     const unsigned flags = ShellCommand::SshPasswordPrompt
                          | ShellCommand::ShowStdOut
                          | ShellCommand::ShowSuccessMessage;
-    QtcProcess proc;
-    vcsSynchronousExec(proc, workingDir, args, flags);
-    return proc.result() == ProcessResult::FinishedWithSuccess;
+    return vcsSynchronousExec(workingDir, args, flags).result()
+            == ProcessResult::FinishedWithSuccess;
 }
 
 VcsBaseEditorWidget *VcsBaseClient::annotate(

@@ -31,7 +31,7 @@
 #include <vcsbase/vcsbaseeditorconfig.h>
 
 #include <utils/hostosinfo.h>
-#include <utils/qtcprocess.h>
+#include <utils/shellcommand.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -151,10 +151,9 @@ bool BazaarClient::synchronousUncommit(const FilePath &workingDir,
          << revisionSpec(revision)
          << extraOptions;
 
-    QtcProcess proc;
-    vcsFullySynchronousExec(proc, workingDir, args);
-    VcsOutputWindow::append(proc.cleanedStdOut());
-    return proc.result() == ProcessResult::FinishedWithSuccess;
+    const CommandResult result = vcsFullySynchronousExec(workingDir, args);
+    VcsOutputWindow::append(result.cleanedStdOut());
+    return result.result() == ProcessResult::FinishedWithSuccess;
 }
 
 void BazaarClient::commit(const FilePath &repositoryRoot, const QStringList &files,
@@ -190,11 +189,10 @@ bool BazaarClient::managesFile(const FilePath &workingDirectory, const QString &
     QStringList args(QLatin1String("status"));
     args << fileName;
 
-    QtcProcess proc;
-    vcsFullySynchronousExec(proc, workingDirectory, args);
-    if (proc.result() != ProcessResult::FinishedWithSuccess)
+    const CommandResult result = vcsFullySynchronousExec(workingDirectory, args);
+    if (result.result() != ProcessResult::FinishedWithSuccess)
         return false;
-    return proc.rawStdOut().startsWith("unknown");
+    return result.rawStdOut().startsWith("unknown");
 }
 
 void BazaarClient::view(const QString &source, const QString &id, const QStringList &extraOptions)

@@ -260,13 +260,11 @@ void ShellCommand::run(QFutureInterface<void> &future)
     bool lastExecSuccess = true;
     for (int j = 0; j < count; j++) {
         const Internal::ShellCommandPrivate::Job &job = d->m_jobs.at(j);
-        QtcProcess proc;
-        proc.setExitCodeInterpreter(job.exitCodeInterpreter);
-        proc.setTimeoutS(job.timeoutS);
-        runCommand(proc, job.command, job.workingDirectory);
-        stdOut += proc.cleanedStdOut();
-        stdErr += proc.cleanedStdErr();
-        lastExecSuccess = proc.result() == ProcessResult::FinishedWithSuccess;
+        const CommandResult result = runCommand(job.command, job.workingDirectory,
+                                                job.timeoutS, job.exitCodeInterpreter);
+        stdOut += result.cleanedStdOut();
+        stdErr += result.cleanedStdErr();
+        lastExecSuccess = result.result() == ProcessResult::FinishedWithSuccess;
         if (!lastExecSuccess)
             break;
     }
@@ -291,14 +289,15 @@ void ShellCommand::run(QFutureInterface<void> &future)
     this->deleteLater();
 }
 
-void ShellCommand::runCommand(QtcProcess &proc,
-                              const CommandLine &command,
-                              const FilePath &workingDirectory)
+CommandResult ShellCommand::runCommand(const CommandLine &command, const FilePath &workingDirectory,
+                                       int timeoutS, const ExitCodeInterpreter &interpreter)
 {
-    if (command.executable().isEmpty()) {
-        proc.setResult(ProcessResult::StartFailed);
-        return;
-    }
+    QtcProcess proc;
+    if (command.executable().isEmpty())
+        return {};
+
+    proc.setExitCodeInterpreter(interpreter);
+    proc.setTimeoutS(timeoutS);
 
     const FilePath dir = workDirectory(workingDirectory);
     if (!dir.isEmpty())
@@ -334,6 +333,7 @@ void ShellCommand::runCommand(QtcProcess &proc,
         }
     }
     emit runCommandFinished(dir);
+    return {proc};
 }
 
 void ShellCommand::runFullySynchronous(QtcProcess &process)
@@ -457,5 +457,14 @@ void ProgressParser::setFuture(QFutureInterface<void> *future)
     QMutexLocker lock(m_futureMutex);
     m_future = future;
 }
+
+CommandResult::CommandResult(const QtcProcess &process)
+    : m_result(process.result())
+    , m_exitCode(process.exitCode())
+    , m_exitMessage(process.exitMessage())
+    , m_cleanedStdOut(process.cleanedStdOut())
+    , m_cleanedStdErr(process.cleanedStdErr())
+    , m_rawStdOut(process.rawStdOut())
+{}
 
 } // namespace Utils
