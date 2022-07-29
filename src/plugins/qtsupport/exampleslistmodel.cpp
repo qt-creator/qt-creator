@@ -516,10 +516,10 @@ void ExamplesListModel::updateExamples()
 QPixmap ExamplesListModel::fetchPixmapAndUpdatePixmapCache(const QString &url) const
 {
     QPixmap pixmap;
-    pixmap.load(url);
-    if (pixmap.isNull())
-        pixmap.load(resourcePath() + "/welcomescreen/widgets/" + url);
-    if (pixmap.isNull()) {
+    if (QPixmapCache::find(url, &pixmap))
+        return pixmap;
+
+    if (url.startsWith("qthelp://")) {
         QByteArray fetchedData = Core::HelpManager::fileData(url);
         if (!fetchedData.isEmpty()) {
             QBuffer imgBuffer(&fetchedData);
@@ -531,11 +531,18 @@ QPixmap ExamplesListModel::fetchPixmapAndUpdatePixmapCache(const QString &url) c
             // boundedTo -> don't scale thumbnails up
             const QSize scaledSize = ListModel::defaultImageSize.boundedTo(img.size()) * dpr;
             pixmap = QPixmap::fromImage(
-                        img.scaled(scaledSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+                img.scaled(scaledSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
             pixmap.setDevicePixelRatio(dpr);
         }
+    } else {
+        pixmap.load(url);
+
+        if (pixmap.isNull())
+            pixmap.load(resourcePath() + "/welcomescreen/widgets/" + url);
     }
+
     QPixmapCache::insert(url, pixmap);
+
     return pixmap;
 }
 
