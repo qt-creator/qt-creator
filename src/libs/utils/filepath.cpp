@@ -1137,46 +1137,48 @@ void FilePath::setFromString(const QString &filename)
 {
 #ifndef UTILS_FILEPATH_USE_REGEXP
     static const QLatin1String qtcDevSlash("__qtc_devices__/");
+    static const QLatin1String slashDotSlash("/./");
+    static const QLatin1String colonSlashSlash("://");
+    static const QString rootPath = QDir::rootPath();
 
+    const QChar slash('/');
     const QStringView fileNameView(filename);
-    const QString rootPath = QDir::rootPath();
 
     if (fileNameView.startsWith(rootPath, Qt::CaseInsensitive)) { // Absolute path ...
         const QStringView withoutRootPath = fileNameView.mid(rootPath.size());
         if (withoutRootPath.startsWith(qtcDevSlash)) { // Starts with "/__qtc_devices__/" ...
             const QStringView withoutQtcDeviceRoot = withoutRootPath.mid(qtcDevSlash.size());
 
-            const auto firstSlash = withoutQtcDeviceRoot.indexOf('/');
+            const auto firstSlash = withoutQtcDeviceRoot.indexOf(slash);
 
             if (firstSlash != -1) {
                 m_scheme = withoutQtcDeviceRoot.left(firstSlash).toString();
-                const auto secondSlash = withoutQtcDeviceRoot.indexOf('/', firstSlash + 1);
+                const auto secondSlash = withoutQtcDeviceRoot.indexOf(slash, firstSlash + 1);
                 m_host = withoutQtcDeviceRoot.mid(firstSlash + 1, secondSlash - firstSlash - 1)
                              .toString();
                 if (secondSlash != -1) {
                     const QStringView path = withoutQtcDeviceRoot.mid(secondSlash);
-                    m_data = path.startsWith(QLatin1String("/./")) ? path.mid(3).toString()
-                                                                   : path.toString();
-                    return;
+                    m_data = path.startsWith(slashDotSlash) ? path.mid(3).toString()
+                                                            : path.toString();
+                } else {
+                    m_data = slash;
                 }
-                m_data = "/";
-
-                return;
+            } else {
+                m_scheme.clear();
+                m_host.clear();
+                m_data = filename;
             }
-            m_scheme = "";
-            m_host = "";
-            m_data = filename;
 
             return;
         }
     }
 
-    const auto firstSlash = filename.indexOf('/');
-    const auto schemeEnd = filename.indexOf("://");
+    const auto firstSlash = filename.indexOf(slash);
+    const auto schemeEnd = filename.indexOf(colonSlashSlash);
     if (schemeEnd != -1 && schemeEnd < firstSlash) {
         // This is a pseudo Url, we can't use QUrl here sadly.
         m_scheme = filename.left(schemeEnd);
-        const auto hostEnd = filename.indexOf('/', schemeEnd + 3);
+        const auto hostEnd = filename.indexOf(slash, schemeEnd + 3);
         m_host = filename.mid(schemeEnd + 3, hostEnd - schemeEnd - 3);
         m_data = filename.mid(hostEnd);
 
