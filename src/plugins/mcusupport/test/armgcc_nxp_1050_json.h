@@ -81,7 +81,7 @@ constexpr auto armgcc_nxp_1050_json = R"({
         "label": "CMake Toolchain File",
         "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
         "type": "file",
-        "defaultValue": "$Qul_ROOT//lib/cmake/Qul/toolchain/armgcc.cmake",
+        "defaultValue": "/opt/qtformcu/2.2/lib/cmake/Qul/toolchain/armgcc.cmake",
         "visible": false,
         "optional": false
       }
