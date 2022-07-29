@@ -137,7 +137,7 @@ QString QuickTestParser::quickTestName(const CPlusPlus::Document::Ptr &doc) cons
     }
 
 
-    const QByteArray &fileContent = getFileContent(filePath);
+    const QByteArray fileContent = getFileContent(filePath);
     // check for using quick_test_main() directly
     CPlusPlus::Document::Ptr document = m_cppSnapshot.preprocessedDocument(fileContent, filePath);
     if (document.isNull())
