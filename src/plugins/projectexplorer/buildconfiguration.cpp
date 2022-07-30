@@ -44,6 +44,7 @@
 #include "target.h"
 #include "toolchain.h"
 
+#include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
@@ -92,6 +93,12 @@ public:
         envWidget->setBaseEnvironment(bc->baseEnvironment());
         envWidget->setBaseEnvironmentText(bc->baseEnvironmentText());
         envWidget->setUserChanges(bc->userEnvironmentChanges());
+
+        const EnvironmentWidget::OpenTerminalFunc openTerminalFunc
+                = [bc](const Utils::Environment &env) {
+            Core::FileUtils::openTerminal(bc->buildDirectory(), env);
+        };
+        envWidget->setOpenTerminalFunc(openTerminalFunc);
 
         connect(envWidget, &EnvironmentWidget::userChangesChanged, this, [bc, envWidget] {
             bc->setUserEnvironmentChanges(envWidget->userChanges());
