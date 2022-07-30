@@ -1560,7 +1560,7 @@ TEST(SmallString, ShortSmallStringMoveAssignment)
 
     copy = std::move(text);
 
-    ASSERT_THAT(text, IsEmpty());
+    ASSERT_THAT(text, SmallString("more text"));
     ASSERT_THAT(copy, SmallString("text"));
 }
 
@@ -1570,6 +1570,28 @@ TEST(SmallString, LongSmallStringMoveAssignment)
     SmallString copy("more text");
 
     copy = std::move(text);
+
+    ASSERT_THAT(text, SmallString("more text"));
+    ASSERT_THAT(copy, SmallString("this is a very very very very long text"));
+}
+
+TEST(SmallString, ShortSmallStringTake)
+{
+    SmallString text("text");
+    SmallString copy("more text");
+
+    copy = text.take();
+
+    ASSERT_THAT(text, IsEmpty());
+    ASSERT_THAT(copy, SmallString("text"));
+}
+
+TEST(SmallString, LongSmallStringTake)
+{
+    SmallString text("this is a very very very very long text");
+    SmallString copy("more text");
+
+    copy = text.take();
 
     ASSERT_THAT(text, IsEmpty());
     ASSERT_THAT(copy, SmallString("this is a very very very very long text"));

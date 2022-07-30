@@ -195,17 +195,17 @@ public:
 
     BasicSmallString &operator=(BasicSmallString &&other) noexcept
     {
-        if (this == &other)
-            return *this;
-
-        this->~BasicSmallString();
-
-        m_data = std::move(other.m_data);
-        other.m_data.reset();
+        swap(*this, other);
 
         return *this;
     }
 
+    BasicSmallString take() noexcept
+    {
+        auto tmp = std::move(*this);
+
+        return tmp;
+    }
     BasicSmallString clone() const
     {
         BasicSmallString clonedString(m_data);
