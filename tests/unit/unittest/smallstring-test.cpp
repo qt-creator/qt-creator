@@ -38,6 +38,14 @@ using Utils::SmallString;
 using Utils::SmallStringLiteral;
 using Utils::SmallStringView;
 
+static_assert(32 == sizeof(Utils::BasicSmallString<31>));
+static_assert(64 == sizeof(Utils::BasicSmallString<63>));
+static_assert(192 == sizeof(Utils::BasicSmallString<190>));
+
+static_assert(16 == alignof(Utils::BasicSmallString<31>));
+static_assert(16 == alignof(Utils::BasicSmallString<63>));
+static_assert(16 == alignof(Utils::BasicSmallString<190>));
+
 TEST(SmallString, BasicStringEqual)
 {
     ASSERT_THAT(SmallString("text"), Eq(SmallString("text")));
@@ -1522,6 +1530,80 @@ TEST(SmallString, LongSmallStringMoveConstuctor)
 
     ASSERT_TRUE(text.isEmpty());
     ASSERT_THAT(copy, SmallString("this is a very very very very long text"));
+}
+
+TEST(SmallString, ShortPathStringMoveConstuctor)
+{
+    PathString text("text");
+
+    auto copy = std::move(text);
+
+    ASSERT_TRUE(text.isEmpty());
+    ASSERT_THAT(copy, SmallString("text"));
+}
+
+TEST(SmallString, LongPathStringMoveConstuctor)
+{
+    PathString text(
+        "this is a very very very very very very very very very very very very very very very very "
+        "very very very very very very very very very very very very very very very very very very "
+        "very very very very very very very very very very very very very very long text");
+
+    auto copy = std::move(text);
+
+    ASSERT_TRUE(text.isEmpty());
+    ASSERT_THAT(
+        copy,
+        PathString(
+            "this is a very very very very very very very very very very very very very very very "
+            "very very very very very very very very very very very very very very very very very "
+            "very very very very very very very very very very very very very very very very long "
+            "text"));
+}
+
+TEST(SmallString, ShortSmallStringMoveConstuctorToSelf)
+{
+    SmallString text("text");
+
+    text = std::move(text);
+
+    ASSERT_THAT(text, SmallString("text"));
+}
+
+TEST(SmallString, LongSmallStringMoveConstuctorToSelf)
+{
+    SmallString text("this is a very very very very long text");
+
+    text = std::move(text);
+
+    ASSERT_THAT(text, SmallString("this is a very very very very long text"));
+}
+
+TEST(SmallString, ShortPathStringMoveConstuctorToSelf)
+{
+    PathString text("text");
+
+    text = std::move(text);
+
+    ASSERT_THAT(text, SmallString("text"));
+}
+
+TEST(SmallString, LongPathStringMoveConstuctorToSelf)
+{
+    PathString text(
+        "this is a very very very very very very very very very very very very very very very very "
+        "very very very very very very very very very very very very very very very very very very "
+        "very very very very very very very very very very very very very very long text");
+
+    text = std::move(text);
+
+    ASSERT_THAT(
+        text,
+        PathString(
+            "this is a very very very very very very very very very very very very very very very "
+            "very very very very very very very very very very very very very very very very very "
+            "very very very very very very very very very very very very very very very very long "
+            "text"));
 }
 
 TEST(SmallString, ShortSmallStringCopyAssignment)
