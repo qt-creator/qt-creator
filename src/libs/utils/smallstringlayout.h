@@ -134,6 +134,12 @@ struct ReferenceLayout
 template <uint MaximumShortStringDataAreaSize>
 struct ShortStringLayout
 {
+    constexpr ShortStringLayout() noexcept = default;
+    constexpr ShortStringLayout(
+        typename ControlBlock<MaximumShortStringDataAreaSize>::SizeType shortStringSize) noexcept
+        : control(shortStringSize, false, false)
+    {}
+
     ControlBlock<MaximumShortStringDataAreaSize> control;
     char string[MaximumShortStringDataAreaSize];
 };
@@ -154,27 +160,18 @@ struct StringDataLayout {
     constexpr StringDataLayout(const char *string,
                                size_type size) noexcept
        : reference(string, size, 0)
-    {
-    }
+    {}
 
-    template<size_type Size,
-             typename std::enable_if_t<Size <= MaximumShortStringDataAreaSize, int> = 0>
+    template<size_type Size>
     constexpr StringDataLayout(const char (&string)[Size]) noexcept
-        : shortString(ShortStringLayout<MaximumShortStringDataAreaSize>{})
     {
-       for (size_type i = 0; i < Size; ++i)
-           shortString.string[i] = string[i];
-
-       shortString.control.setShortStringSize(Size - 1);
-       shortString.control.setIsShortString(true);
-       shortString.control.setIsReadOnlyReference(false);
-    }
-
-    template<size_type Size,
-            typename std::enable_if_t<!(Size <= MaximumShortStringDataAreaSize), int> = 1>
-    constexpr StringDataLayout(const char(&string)[Size]) noexcept
-        : reference(string, Size - 1, 0)
-    {
+        if constexpr (Size <= MaximumShortStringDataAreaSize) {
+            shortString = {Size - 1};
+            for (size_type i = 0; i < Size; ++i)
+                shortString.string[i] = string[i];
+        } else {
+            reference = {string, Size - 1, 0};
+        }
     }
 
     constexpr static
