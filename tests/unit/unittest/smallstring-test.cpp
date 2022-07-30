@@ -1518,7 +1518,6 @@ TEST(SmallString, ShortSmallStringMoveConstuctor)
 
     auto copy = std::move(text);
 
-    ASSERT_TRUE(text.isEmpty());
     ASSERT_THAT(copy, SmallString("text"));
 }
 
@@ -1528,7 +1527,6 @@ TEST(SmallString, LongSmallStringMoveConstuctor)
 
     auto copy = std::move(text);
 
-    ASSERT_TRUE(text.isEmpty());
     ASSERT_THAT(copy, SmallString("this is a very very very very long text"));
 }
 
@@ -1538,7 +1536,6 @@ TEST(SmallString, ShortPathStringMoveConstuctor)
 
     auto copy = std::move(text);
 
-    ASSERT_TRUE(text.isEmpty());
     ASSERT_THAT(copy, SmallString("text"));
 }
 
@@ -1551,7 +1548,6 @@ TEST(SmallString, LongPathStringMoveConstuctor)
 
     auto copy = std::move(text);
 
-    ASSERT_TRUE(text.isEmpty());
     ASSERT_THAT(
         copy,
         PathString(
@@ -1642,7 +1638,6 @@ TEST(SmallString, ShortSmallStringMoveAssignment)
 
     copy = std::move(text);
 
-    ASSERT_THAT(text, SmallString("more text"));
     ASSERT_THAT(copy, SmallString("text"));
 }
 
@@ -1653,8 +1648,36 @@ TEST(SmallString, LongSmallStringMoveAssignment)
 
     copy = std::move(text);
 
-    ASSERT_THAT(text, SmallString("more text"));
     ASSERT_THAT(copy, SmallString("this is a very very very very long text"));
+}
+
+TEST(SmallString, ShortPathStringMoveAssignment)
+{
+    PathString text("text");
+    PathString copy("more text");
+
+    copy = std::move(text);
+
+    ASSERT_THAT(copy, SmallString("text"));
+}
+
+TEST(SmallString, LongPathStringMoveAssignment)
+{
+    PathString text(
+        "this is a very very very very very very very very very very very very very very very very "
+        "very very very very very very very very very very very very very very very very very very "
+        "very very very very very very very very very very very very very very long text");
+    PathString copy("more text");
+
+    copy = std::move(text);
+
+    ASSERT_THAT(
+        copy,
+        PathString(
+            "this is a very very very very very very very very very very very very very very very "
+            "very very very very very very very very very very very very very very very very very "
+            "very very very very very very very very very very very very very very very very long "
+            "text"));
 }
 
 TEST(SmallString, ShortSmallStringTake)

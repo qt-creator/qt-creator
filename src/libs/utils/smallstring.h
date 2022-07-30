@@ -170,19 +170,25 @@ public:
             Memory::deallocate(m_data.allocated.data.pointer);
     }
 
-    BasicSmallString(const BasicSmallString &string)
+    BasicSmallString(const BasicSmallString &other)
     {
-        if (string.isShortString() || string.isReadOnlyReference())
-            m_data = string.m_data;
+        if (Q_LIKELY(other.isShortString() || other.isReadOnlyReference()))
+            m_data = other.m_data;
         else
-            new (this) BasicSmallString{string.data(), string.size()};
+            new (this) BasicSmallString{other.data(), other.size()};
     }
 
     BasicSmallString &operator=(const BasicSmallString &other)
     {
-        BasicSmallString copy = other;
+        if (Q_LIKELY(this != &other)) {
+            if (Q_UNLIKELY(hasAllocatedMemory()))
+                Memory::deallocate(m_data.allocated.data.pointer);
 
-        swap(*this, copy);
+            if (Q_LIKELY(other.isShortString() || other.isReadOnlyReference()))
+                m_data = other.m_data;
+            else
+                new (this) BasicSmallString{other.data(), other.size()};
+        }
 
         return *this;
     }
@@ -195,17 +201,18 @@ public:
 
     BasicSmallString &operator=(BasicSmallString &&other) noexcept
     {
-        swap(*this, other);
+        if (Q_LIKELY(this != &other)) {
+            if (Q_UNLIKELY(hasAllocatedMemory()))
+                Memory::deallocate(m_data.allocated.data.pointer);
+
+            m_data = std::move(other.m_data);
+            other.m_data.reset();
+        }
 
         return *this;
     }
 
-    BasicSmallString take() noexcept
-    {
-        auto tmp = std::move(*this);
-
-        return tmp;
-    }
+    BasicSmallString take() noexcept { return std::move(*this); }
     BasicSmallString clone() const
     {
         BasicSmallString clonedString(m_data);
