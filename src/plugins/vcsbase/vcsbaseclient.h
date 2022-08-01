@@ -44,15 +44,12 @@ class QTextCodec;
 class QToolBar;
 QT_END_NAMESPACE
 
-namespace Utils {
-class CommandResult;
-class ShellCommand;
-}
-
 namespace VcsBase {
 
+class CommandResult;
 class VcsBaseEditorConfig;
 class VcsBaseEditorWidget;
+class VcsCommand;
 
 class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
 {
@@ -72,24 +69,24 @@ public:
         VcsWindowOutputBind
     };
 
-    static Utils::ShellCommand *createVcsCommand(const Utils::FilePath &defaultWorkingDir,
-                                                 const Utils::Environment &environment);
+    static VcsCommand *createVcsCommand(const Utils::FilePath &defaultWorkingDir,
+                                        const Utils::Environment &environment);
 
     VcsBaseEditorWidget *createVcsEditor(Utils::Id kind, QString title,
                                          const QString &source, QTextCodec *codec,
                                          const char *registerDynamicProperty,
                                          const QString &dynamicPropertyValue) const;
 
-    Utils::ShellCommand *createCommand(const Utils::FilePath &workingDirectory,
-                                       VcsBaseEditorWidget *editor = nullptr,
-                                       JobOutputBindMode mode = NoOutputBind) const;
+    VcsCommand *createCommand(const Utils::FilePath &workingDirectory,
+                              VcsBaseEditorWidget *editor = nullptr,
+                              JobOutputBindMode mode = NoOutputBind) const;
 
-    Utils::ShellCommand *execBgCommand(const Utils::FilePath &workingDirectory,
-                                       const QStringList &args,
-                                       const std::function<void (const QString &)> &outputCallback,
-                                       unsigned flags = 0) const;
+    VcsCommand *execBgCommand(const Utils::FilePath &workingDirectory,
+                              const QStringList &args,
+                              const std::function<void (const QString &)> &outputCallback,
+                              unsigned flags = 0) const;
 
-    void enqueueJob(Utils::ShellCommand *cmd, const QStringList &args,
+    void enqueueJob(VcsCommand *cmd, const QStringList &args,
                     const Utils::ExitCodeInterpreter &interpreter = {}) const;
 
     virtual Utils::Environment processEnvironment() const;
@@ -106,20 +103,20 @@ public:
     static QString stripLastNewline(const QString &in);
 
     // Fully synchronous VCS execution (QProcess-based)
-    Utils::CommandResult vcsFullySynchronousExec(const Utils::FilePath &workingDir,
-                                 const QStringList &args, unsigned flags = 0,
-                                 int timeoutS = -1, QTextCodec *codec = nullptr) const;
-    Utils::CommandResult vcsFullySynchronousExec(const Utils::FilePath &workingDir,
-                                 const Utils::CommandLine &cmdLine, unsigned flags = 0,
-                                 int timeoutS = -1, QTextCodec *codec = nullptr) const;
+    CommandResult vcsFullySynchronousExec(const Utils::FilePath &workingDir,
+                                          const QStringList &args, unsigned flags = 0,
+                                          int timeoutS = -1, QTextCodec *codec = nullptr) const;
+    CommandResult vcsFullySynchronousExec(const Utils::FilePath &workingDir,
+                                          const Utils::CommandLine &cmdLine, unsigned flags = 0,
+                                          int timeoutS = -1, QTextCodec *codec = nullptr) const;
 
     // Simple helper to execute a single command using createCommand and enqueueJob.
-    Utils::ShellCommand *vcsExec(const Utils::FilePath &workingDirectory,
-                                 const QStringList &arguments,
-                                 VcsBaseEditorWidget *editor = nullptr,
-                                 bool useOutputToWindow = false,
-                                 unsigned additionalFlags = 0,
-                                 const QVariant &cookie = {}) const;
+    VcsCommand *vcsExec(const Utils::FilePath &workingDirectory,
+                        const QStringList &arguments,
+                        VcsBaseEditorWidget *editor = nullptr,
+                        bool useOutputToWindow = false,
+                        unsigned additionalFlags = 0,
+                        const QVariant &cookie = {}) const;
 
 protected:
     void resetCachedVcsInfo(const Utils::FilePath &workingDir);
@@ -128,10 +125,10 @@ protected:
 
     // Synchronous VCS execution using Utils::SynchronousProcess, with
     // log windows updating (using VcsBasePlugin::runVcs with flags)
-    Utils::CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
-                                            const QStringList &args,
-                                            unsigned flags = 0,
-                                            QTextCodec *outputCodec = nullptr) const;
+    CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
+                                     const QStringList &args,
+                                     unsigned flags = 0,
+                                     QTextCodec *outputCodec = nullptr) const;
 
 private:
     void saveSettings();

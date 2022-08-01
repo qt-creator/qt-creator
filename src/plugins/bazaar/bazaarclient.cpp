@@ -27,11 +27,11 @@
 #include "constants.h"
 
 #include <vcsbase/vcsbaseplugin.h>
-#include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
+#include <vcsbase/vcscommand.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <utils/hostosinfo.h>
-#include <utils/shellcommand.h>
 
 #include <QDir>
 #include <QFileInfo>

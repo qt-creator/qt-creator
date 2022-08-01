@@ -36,8 +36,6 @@ QT_BEGIN_NAMESPACE
 class QTextCursor;
 QT_END_NAMESPACE
 
-namespace Utils { class ShellCommand; }
-
 namespace VcsBase {
 
 namespace Internal {
@@ -48,6 +46,7 @@ class VcsBaseEditorWidgetPrivate;
 class BaseAnnotationHighlighter;
 class VcsBaseEditorConfig;
 class VcsBaseEditorWidget;
+class VcsCommand;
 class VcsEditorFactory;
 
 // Documentation inside
@@ -213,7 +212,7 @@ public:
     void setEditorConfig(VcsBaseEditorConfig *config);
     VcsBaseEditorConfig *editorConfig() const;
 
-    void setCommand(Utils::ShellCommand *command);
+    void setCommand(VcsCommand *command);
 
     virtual void setPlainText(const QString &text);
 

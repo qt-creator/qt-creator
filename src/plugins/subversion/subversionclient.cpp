@@ -29,12 +29,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <vcsbase/vcsbaseconstants.h>
-#include <vcsbase/vcsbasediffeditorcontroller.h>
-#include <vcsbase/vcsbaseeditor.h>
-#include <vcsbase/vcsbaseeditorconfig.h>
-#include <vcsbase/vcsbaseplugin.h>
-
 #include <diffeditor/diffeditorcontroller.h>
 #include <diffeditor/diffutils.h>
 
@@ -43,7 +37,13 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-#include <utils/shellcommand.h>
+
+#include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcsbasediffeditorcontroller.h>
+#include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcsbaseeditorconfig.h>
+#include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcscommand.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -94,7 +94,7 @@ bool SubversionClient::doCommit(const FilePath &repositoryRoot,
          << commitMessageFile
          << escapeFiles(files);
     const CommandResult result = vcsSynchronousExec(repositoryRoot, args,
-                       ShellCommand::ShowStdOut | ShellCommand::NoFullySync);
+                                 VcsCommand::ShowStdOut | VcsCommand::NoFullySync);
     return result.result() == ProcessResult::FinishedWithSuccess;
 }
 
@@ -222,7 +222,7 @@ void SubversionDiffEditorController::requestDescription()
     args << m_authenticationOptions;
     args << QLatin1String("-r");
     args << QString::number(m_changeNumber);
-    runCommand(QList<QStringList>() << args, ShellCommand::SshPasswordPrompt);
+    runCommand(QList<QStringList>() << args, VcsCommand::SshPasswordPrompt);
 }
 
 void SubversionDiffEditorController::requestDiff()

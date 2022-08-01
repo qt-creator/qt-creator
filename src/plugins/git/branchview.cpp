@@ -36,12 +36,14 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/inavigationwidgetfactory.h>
+
 #include <utils/elidinglabel.h>
 #include <utils/fancylineedit.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
-#include <utils/shellcommand.h>
 #include <utils/utilsicons.h>
+
+#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QDir>
@@ -57,6 +59,7 @@
 
 using namespace Core;
 using namespace Utils;
+using namespace VcsBase;
 
 namespace Git {
 namespace Internal {
@@ -435,11 +438,11 @@ bool BranchView::checkout()
                 return false;
         }
 
-        ShellCommand *command = m_model->checkoutBranch(selected);
+        VcsCommand *command = m_model->checkoutBranch(selected);
         const bool moveChanges = branchCheckoutDialog.moveLocalChangesToNextBranch();
         const bool popStash = branchCheckoutDialog.popStashOfNextBranch();
         if (command && (moveChanges || popStash)) {
-            connect(command, &ShellCommand::finished,
+            connect(command, &VcsCommand::finished,
                     this, [this, client, popMessageStart, moveChanges, popStash] {
                 if (moveChanges) {
                     client->endStashScope(m_repository);

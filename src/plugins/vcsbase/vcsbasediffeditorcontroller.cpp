@@ -25,16 +25,17 @@
 
 #include "vcsbasediffeditorcontroller.h"
 #include "vcsbaseclient.h"
+#include "vcscommand.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
 #include <diffeditor/diffutils.h>
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
-#include <utils/shellcommand.h>
 
 #include <QPointer>
 
@@ -73,7 +74,7 @@ static void readPatch(QFutureInterface<QList<FileData>> &futureInterface,
 class VcsCommandResultProxy : public QObject {
     Q_OBJECT
 public:
-    VcsCommandResultProxy(ShellCommand *command, VcsBaseDiffEditorControllerPrivate *target);
+    VcsCommandResultProxy(VcsCommand *command, VcsBaseDiffEditorControllerPrivate *target);
 private:
     void storeOutput(const QString &output);
     void commandFinished(bool success);
@@ -103,23 +104,23 @@ public:
     QString m_startupFile;
     QString m_output;
     QString m_displayName;
-    QPointer<ShellCommand> m_command;
+    QPointer<VcsCommand> m_command;
     QPointer<VcsCommandResultProxy> m_commandResultProxy;
     QFutureWatcher<QList<FileData>> *m_processWatcher = nullptr;
 };
 
 /////////////////////
 
-VcsCommandResultProxy::VcsCommandResultProxy(ShellCommand *command,
+VcsCommandResultProxy::VcsCommandResultProxy(VcsCommand *command,
                           VcsBaseDiffEditorControllerPrivate *target)
     : QObject(target->q)
     , m_target(target)
 {
-    connect(command, &ShellCommand::stdOutText,
+    connect(command, &VcsCommand::stdOutText,
             this, &VcsCommandResultProxy::storeOutput);
-    connect(command, &ShellCommand::finished,
+    connect(command, &VcsCommand::finished,
             this, &VcsCommandResultProxy::commandFinished);
-    connect(command, &ShellCommand::destroyed,
+    connect(command, &VcsCommand::destroyed,
             this, &QObject::deleteLater);
 }
 

@@ -25,10 +25,10 @@
 
 #pragma once
 
-#include "utils_global.h"
+#include "vcsbase_global.h"
 
-#include "filepath.h"
-#include "processenums.h"
+#include <utils/filepath.h>
+#include <utils/processenums.h>
 
 #include <QObject>
 
@@ -43,14 +43,16 @@ class QTextCodec;
 QT_END_NAMESPACE
 
 namespace Utils {
-
 class CommandLine;
 class Environment;
 class QtcProcess;
+}
 
-namespace Internal { class ShellCommandPrivate; }
+namespace VcsBase {
 
-class QTCREATOR_UTILS_EXPORT ProgressParser
+namespace Internal { class VcsCommandPrivate; }
+
+class VCSBASE_EXPORT ProgressParser
 {
 public:
     ProgressParser();
@@ -65,16 +67,16 @@ private:
 
     QFutureInterface<void> *m_future;
     QMutex *m_futureMutex = nullptr;
-    friend class ShellCommand;
+    friend class VcsCommand;
 };
 
-class QTCREATOR_UTILS_EXPORT CommandResult
+class VCSBASE_EXPORT CommandResult
 {
 public:
     CommandResult() = default;
-    CommandResult(const QtcProcess &process);
+    CommandResult(const Utils::QtcProcess &process);
 
-    ProcessResult result() const { return m_result; }
+    Utils::ProcessResult result() const { return m_result; }
     int exitCode() const { return m_exitCode; }
     QString exitMessage() const { return m_exitMessage; }
 
@@ -84,7 +86,7 @@ public:
     QByteArray rawStdOut() const { return m_rawStdOut; }
 
 private:
-    ProcessResult m_result = ProcessResult::StartFailed;
+    Utils::ProcessResult m_result = Utils::ProcessResult::StartFailed;
     int m_exitCode = 0;
     QString m_exitMessage;
 
@@ -94,7 +96,7 @@ private:
     QByteArray m_rawStdOut;
 };
 
-class QTCREATOR_UTILS_EXPORT ShellCommand final : public QObject
+class VCSBASE_EXPORT VcsCommand final : public QObject
 {
     Q_OBJECT
 
@@ -118,23 +120,23 @@ public:
     };
 
 
-    ShellCommand(const FilePath &workingDirectory, const Environment &environment);
-    ~ShellCommand() override;
+    VcsCommand(const Utils::FilePath &workingDirectory, const Utils::Environment &environment);
+    ~VcsCommand() override;
 
     QString displayName() const;
     void setDisplayName(const QString &name);
 
-    const FilePath &defaultWorkingDirectory() const;
+    const Utils::FilePath &defaultWorkingDirectory() const;
 
-    Environment environment() const;
-    void setEnvironment(const Environment &env);
+    Utils::Environment environment() const;
+    void setEnvironment(const Utils::Environment &env);
 
-    void addJob(const CommandLine &command,
-                const FilePath &workingDirectory = {},
-                const ExitCodeInterpreter &interpreter = {});
-    void addJob(const CommandLine &command, int timeoutS,
-                const FilePath &workingDirectory = {},
-                const ExitCodeInterpreter &interpreter = {});
+    void addJob(const Utils::CommandLine &command,
+                const Utils::FilePath &workingDirectory = {},
+                const Utils::ExitCodeInterpreter &interpreter = {});
+    void addJob(const Utils::CommandLine &command, int timeoutS,
+                const Utils::FilePath &workingDirectory = {},
+                const Utils::ExitCodeInterpreter &interpreter = {});
     void execute(); // Execute tasks asynchronously!
     void abort();
 
@@ -157,8 +159,9 @@ public:
     // This is called once per job in a thread.
     // When called from the UI thread it will execute fully synchronously, so no signals will
     // be triggered!
-    CommandResult runCommand(const CommandLine &command, const FilePath &workingDirectory = {},
-                             int timeoutS = 10, const ExitCodeInterpreter &interpreter = {});
+    CommandResult runCommand(const Utils::CommandLine &command,
+                             const Utils::FilePath &workingDirectory = {},
+                             int timeoutS = 10, const Utils::ExitCodeInterpreter &interpreter = {});
 
     void cancel();
 
@@ -184,15 +187,15 @@ signals:
     void runCommandFinished(const Utils::FilePath &workingDirectory);
 
 private:
-    FilePath workDirectory(const FilePath &wd) const;
+    Utils::FilePath workDirectory(const Utils::FilePath &wd) const;
     void run(QFutureInterface<void> &future);
 
     // Run without a event loop in fully blocking mode. No signals will be delivered.
-    void runFullySynchronous(QtcProcess &proc);
+    void runFullySynchronous(Utils::QtcProcess &proc);
     // Run with an event loop. Signals will be delivered.
-    void runSynchronous(QtcProcess &proc);
+    void runSynchronous(Utils::QtcProcess &proc);
 
-    class Internal::ShellCommandPrivate *const d;
+    class Internal::VcsCommandPrivate *const d;
 };
 
 } // namespace Utils

@@ -37,6 +37,7 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseeditorconfig.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <texteditor/textdocument.h>
@@ -58,7 +59,6 @@
 #include <utils/fileutils.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
-#include <utils/shellcommand.h>
 #include <utils/stringutils.h>
 
 #include <QAction>
@@ -113,7 +113,7 @@ const char CVS_SUBMIT_MIMETYPE[] = "text/vnd.qtcreator.cvs.submit";
 const char CVSCOMMITEDITOR_ID[]  = "CVS Commit Editor";
 const char CVSCOMMITEDITOR_DISPLAY_NAME[]  = QT_TRANSLATE_NOOP("VCS", "CVS Commit Editor");
 
-const int s_defaultFlags = ShellCommand::SshPasswordPrompt | ShellCommand::ShowStdOut;
+const int s_defaultFlags = VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut;
 
 class CvsResponse
 {
@@ -253,10 +253,10 @@ public:
 
     QString vcsOpenText() const final;
 
-    ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                               const Utils::FilePath &baseDirectory,
-                                               const QString &localName,
-                                               const QStringList &extraArgs) final;
+    VcsCommand *createInitialCheckoutCommand(const QString &url,
+                                             const Utils::FilePath &baseDirectory,
+                                             const QString &localName,
+                                             const QStringList &extraArgs) final;
 
 
     ///
@@ -474,10 +474,10 @@ QString CvsPluginPrivate::vcsOpenText() const
     return tr("&Edit");
 }
 
-ShellCommand *CvsPluginPrivate::createInitialCheckoutCommand(const QString &url,
-                                                             const Utils::FilePath &baseDirectory,
-                                                             const QString &localName,
-                                                             const QStringList &extraArgs)
+VcsCommand *CvsPluginPrivate::createInitialCheckoutCommand(const QString &url,
+                                                           const Utils::FilePath &baseDirectory,
+                                                           const QString &localName,
+                                                           const QStringList &extraArgs)
 {
     QTC_ASSERT(localName == url, return nullptr);
 
@@ -974,7 +974,7 @@ void CvsPluginPrivate::startCommit(const FilePath &workingDir, const QString &fi
     // where we are, so, have stdout/stderr channels merged.
     QStringList args = QStringList(QLatin1String("status"));
     const CvsResponse response =
-            runCvs(workingDir, args, m_settings.timeout.value(), ShellCommand::MergeOutputChannels);
+            runCvs(workingDir, args, m_settings.timeout.value(), VcsCommand::MergeOutputChannels);
     if (response.result != CvsResponse::Ok)
         return;
     // Get list of added/modified/deleted files and purge out undesired ones
@@ -1058,7 +1058,7 @@ void CvsPluginPrivate::filelog(const FilePath &workingDir,
     args.append(file);
     const CvsResponse response =
             runCvs(workingDir, args, m_settings.timeout.value(),
-                   ShellCommand::SshPasswordPrompt, codec);
+                   VcsCommand::SshPasswordPrompt, codec);
     if (response.result != CvsResponse::Ok)
         return;
 
@@ -1198,7 +1198,7 @@ void CvsPluginPrivate::annotate(const FilePath &workingDir, const QString &file,
         args << QLatin1String("-r") << revision;
     args << file;
     const CvsResponse response = runCvs(workingDir, args, m_settings.timeout.value(),
-                                        ShellCommand::SshPasswordPrompt, codec);
+                                        VcsCommand::SshPasswordPrompt, codec);
     if (response.result != CvsResponse::Ok)
         return;
 
@@ -1300,7 +1300,7 @@ bool CvsPluginPrivate::describe(const FilePath &toplevel, const QString &file, c
     QStringList args;
     args << QLatin1String("log") << (QLatin1String("-r") + changeNr) << file;
     const CvsResponse logResponse = runCvs(toplevel, args, m_settings.timeout.value(),
-                                           ShellCommand::SshPasswordPrompt);
+                                           VcsCommand::SshPasswordPrompt);
     if (logResponse.result != CvsResponse::Ok) {
         *errorMessage = logResponse.message;
         return false;
@@ -1322,7 +1322,7 @@ bool CvsPluginPrivate::describe(const FilePath &toplevel, const QString &file, c
         args << QLatin1String("log") << QLatin1String("-d") << (dateS  + QLatin1Char('<') + nextDayS);
 
         const CvsResponse repoLogResponse = runCvs(toplevel, args, 10 * m_settings.timeout.value(),
-                                                   ShellCommand::SshPasswordPrompt);
+                                                   VcsCommand::SshPasswordPrompt);
         if (repoLogResponse.result != CvsResponse::Ok) {
             *errorMessage = repoLogResponse.message;
             return false;
@@ -1359,7 +1359,7 @@ bool CvsPluginPrivate::describe(const FilePath &repositoryPath,
         QStringList args(QLatin1String("log"));
         args << (QLatin1String("-r") + it->revisions.front().revision) << it->file;
         const CvsResponse logResponse = runCvs(repositoryPath, args, m_settings.timeout.value(),
-                                               ShellCommand::SshPasswordPrompt);
+                                               VcsCommand::SshPasswordPrompt);
         if (logResponse.result != CvsResponse::Ok) {
             *errorMessage =  logResponse.message;
             return false;
@@ -1535,7 +1535,7 @@ bool CvsPluginPrivate::managesFile(const FilePath &workingDirectory, const QStri
     QStringList args;
     args << QLatin1String("status") << fileName;
     const CvsResponse response =
-            runCvs(workingDirectory, args, m_settings.timeout.value(), ShellCommand::SshPasswordPrompt);
+            runCvs(workingDirectory, args, m_settings.timeout.value(), VcsCommand::SshPasswordPrompt);
     if (response.result != CvsResponse::Ok)
         return false;
     return !response.stdOut.contains(QLatin1String("Status: Unknown"));

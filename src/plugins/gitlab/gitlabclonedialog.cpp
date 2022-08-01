@@ -30,9 +30,12 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/vcsmanager.h>
+
 #include <git/gitclient.h>
+
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/environment.h>
@@ -43,7 +46,8 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
-#include <utils/shellcommand.h>
+
+#include <vcsbase/vcscommand.h>
 
 #include <QApplication>
 #include <QCheckBox>
@@ -152,13 +156,13 @@ void GitLabCloneDialog::cloneProject()
                                                  m_directoryLE->text(), extraArgs);
     const Utils::FilePath workingDirectory = m_pathChooser->absoluteFilePath();
     m_command->setProgressiveOutput(true);
-    connect(m_command, &Utils::ShellCommand::stdOutText, this, [this](const QString &text) {
+    connect(m_command, &VcsBase::VcsCommand::stdOutText, this, [this](const QString &text) {
         m_cloneOutput->appendPlainText(text);
     });
-    connect(m_command, &Utils::ShellCommand::stdErrText, this, [this](const QString &text) {
+    connect(m_command, &VcsBase::VcsCommand::stdErrText, this, [this](const QString &text) {
         m_cloneOutput->appendPlainText(text);
     });
-    connect(m_command, &Utils::ShellCommand::finished, this, &GitLabCloneDialog::cloneFinished);
+    connect(m_command, &VcsBase::VcsCommand::finished, this, &GitLabCloneDialog::cloneFinished);
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
     m_cloneOutput->clear();

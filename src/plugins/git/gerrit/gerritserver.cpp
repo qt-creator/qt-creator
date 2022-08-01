@@ -32,7 +32,8 @@
 
 #include <utils/commandline.h>
 #include <utils/hostosinfo.h>
-#include <utils/shellcommand.h>
+
+#include <vcsbase/vcscommand.h>
 
 #include <QFile>
 #include <QJsonDocument>
@@ -41,8 +42,9 @@
 #include <QRegularExpression>
 #include <QSettings>
 
-using namespace Utils;
 using namespace Git::Internal;
+using namespace Utils;
+using namespace VcsBase;
 
 namespace Gerrit {
 namespace Internal {
@@ -243,7 +245,7 @@ int GerritServer::testConnection()
     static GitClient *const client = GitClient::instance();
     const QStringList arguments = curlArguments() << (url(RestUrl) + accountUrlC);
     const CommandResult result = client->vcsFullySynchronousExec({}, {curlBinary, arguments},
-                                                                 ShellCommand::NoOutput);
+                                                                 VcsCommand::NoOutput);
     if (result.result() == ProcessResult::FinishedWithSuccess) {
         QString output = result.cleanedStdOut();
         // Gerrit returns an empty response for /p/qt-creator/a/accounts/self
@@ -343,7 +345,7 @@ bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
             arguments << p.portFlag << QString::number(port);
         arguments << hostArgument() << "gerrit" << "version";
         const CommandResult result = client->vcsFullySynchronousExec({}, {p.ssh, arguments},
-                                                                     ShellCommand::NoOutput);
+                                                                     VcsCommand::NoOutput);
         QString stdOut = result.cleanedStdOut().trimmed();
         stdOut.remove("gerrit version ");
         version = stdOut;
@@ -352,7 +354,7 @@ bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
     } else {
         const QStringList arguments = curlArguments() << (url(RestUrl) + versionUrlC);
         const CommandResult result = client->vcsFullySynchronousExec({}, {curlBinary, arguments},
-                                                                     ShellCommand::NoOutput);
+                                                                     VcsCommand::NoOutput);
         // REST endpoint for version is only available from 2.8 and up. Do not consider invalid
         // if it fails.
         if (result.result() == ProcessResult::FinishedWithSuccess) {

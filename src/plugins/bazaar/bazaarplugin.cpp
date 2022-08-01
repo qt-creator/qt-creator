@@ -50,7 +50,6 @@
 #include <utils/environment.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
-#include <utils/shellcommand.h>
 #include <utils/stringutils.h>
 
 #include <vcsbase/basevcseditorfactory.h>
@@ -60,6 +59,7 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
+#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QAction>
@@ -162,10 +162,10 @@ public:
     void vcsAnnotate(const Utils::FilePath &file, int line) final;
     void vcsDescribe(const Utils::FilePath &source, const QString &id) final { m_client.view(source.toString(), id); }
 
-    ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                               const Utils::FilePath &baseDirectory,
-                                               const QString &localName,
-                                               const QStringList &extraArgs) final;
+    VcsCommand *createInitialCheckoutCommand(const QString &url,
+                                             const Utils::FilePath &baseDirectory,
+                                             const QString &localName,
+                                             const QStringList &extraArgs) final;
 
     // To be connected to the VCSTask's success signal to emit the repository/
     // files changed signals according to the variant's type:
@@ -923,10 +923,10 @@ void BazaarPluginPrivate::vcsAnnotate(const FilePath &file, int line)
     m_client.annotate(file.parentDir(), file.fileName(), QString(), line);
 }
 
-ShellCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const QString &url,
-                                                                const FilePath &baseDirectory,
-                                                                const QString &localName,
-                                                                const QStringList &extraArgs)
+VcsCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const QString &url,
+                                                              const FilePath &baseDirectory,
+                                                              const QString &localName,
+                                                              const QStringList &extraArgs)
 {
     QStringList args;
     args << m_client.vcsCommandString(BazaarClient::CloneCommand)

@@ -29,8 +29,11 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
+
 #include <texteditor/findinfiles.h>
+
 #include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcscommand.h>
 
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
@@ -39,7 +42,6 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
-#include <utils/shellcommand.h>
 #include <utils/textfileformat.h>
 
 #include <QCheckBox>
@@ -64,6 +66,7 @@ public:
 
 using namespace Core;
 using namespace Utils;
+using namespace VcsBase;
 
 namespace {
 
@@ -187,16 +190,16 @@ public:
                     return QString(":!" + filter);
                 });
         arguments << "--" << filterArgs << exclusionArgs;
-        m_command->addFlags(ShellCommand::SilentOutput | ShellCommand::SuppressFailMessage);
+        m_command->addFlags(VcsCommand::SilentOutput | VcsCommand::SuppressFailMessage);
         m_command->setProgressiveOutput(true);
         QFutureWatcher<FileSearchResultList> watcher;
         QObject::connect(&watcher,
                          &QFutureWatcher<FileSearchResultList>::canceled,
                          m_command.get(),
-                         &ShellCommand::cancel);
+                         &VcsCommand::cancel);
         watcher.setFuture(fi.future());
         QObject::connect(m_command.get(),
-                         &ShellCommand::stdOutText,
+                         &VcsCommand::stdOutText,
                          [this, &fi](const QString &text) { read(fi, text); });
         const CommandResult result = m_command->runCommand({m_vcsBinary, arguments}, {}, 0);
         switch (result.result()) {
@@ -218,7 +221,7 @@ private:
     FilePath m_directory;
     QString m_ref;
     TextEditor::FileFindParameters m_parameters;
-    std::unique_ptr<ShellCommand> m_command;
+    std::unique_ptr<VcsCommand> m_command;
 };
 
 } // namespace

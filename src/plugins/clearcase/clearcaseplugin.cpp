@@ -62,7 +62,6 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
-#include <utils/shellcommand.h>
 #include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
 
@@ -73,6 +72,7 @@
 #include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcscommand.h>
 
 #include <QAction>
 #include <QDebug>
@@ -128,8 +128,8 @@ static const char CMD_ID_UPDATE_VIEW[]        = "ClearCase.UpdateView";
 static const char CMD_ID_CHECKIN_ALL[]        = "ClearCase.CheckInAll";
 static const char CMD_ID_STATUS[]             = "ClearCase.Status";
 
-const int s_silentRun = ShellCommand::NoOutput | ShellCommand::FullySynchronously;
-const int s_verboseRun = ShellCommand::ShowStdOut | ShellCommand::FullySynchronously;
+const int s_silentRun = VcsCommand::NoOutput | VcsCommand::FullySynchronously;
+const int s_verboseRun = VcsCommand::ShowStdOut | VcsCommand::FullySynchronously;
 
 class ClearCaseResponse
 {
@@ -1538,7 +1538,7 @@ void ClearCasePluginPrivate::ccUpdate(const FilePath &workingDir, const QStringL
     if (!relativePaths.isEmpty())
         args.append(relativePaths);
     const ClearCaseResponse response =
-            runCleartool(workingDir, args, m_settings.longTimeOutS(), ShellCommand::ShowStdOut);
+            runCleartool(workingDir, args, m_settings.longTimeOutS(), VcsCommand::ShowStdOut);
     if (!response.error)
         emit repositoryChanged(workingDir);
 }
@@ -1793,7 +1793,7 @@ bool ClearCasePluginPrivate::vcsOpen(const FilePath &workingDir, const QString &
         }
         args << file;
         ClearCaseResponse response = runCleartool(topLevel, args, m_settings.timeOutS,
-                                                  s_verboseRun | ShellCommand::SuppressStdErr);
+                                                  s_verboseRun | VcsCommand::SuppressStdErr);
         if (response.error) {
             if (response.stdErr.contains(QLatin1String("Versions other than the selected version"))) {
                 VersionSelector selector(file, response.stdErr);
@@ -1833,7 +1833,7 @@ bool ClearCasePluginPrivate::vcsSetActivity(const FilePath &workingDir, const QS
     QStringList args;
     args << QLatin1String("setactivity") << activity;
     const ClearCaseResponse actResponse =
-            runCleartool(workingDir, args, m_settings.timeOutS, ShellCommand::ShowStdOut);
+            runCleartool(workingDir, args, m_settings.timeOutS, VcsCommand::ShowStdOut);
     if (actResponse.error) {
         QMessageBox::warning(ICore::dialogParent(), title,
                              tr("Set current activity failed: %1").arg(actResponse.message), QMessageBox::Ok);
@@ -1880,7 +1880,7 @@ bool ClearCasePluginPrivate::vcsCheckIn(const FilePath &messageFile, const QStri
         blockers.append(fcb);
     }
     const ClearCaseResponse response =
-            runCleartool(m_checkInView, args, m_settings.longTimeOutS(), ShellCommand::ShowStdOut);
+            runCleartool(m_checkInView, args, m_settings.longTimeOutS(), VcsCommand::ShowStdOut);
     const QRegularExpression checkedIn("Checked in \\\"([^\"]*)\\\"");
     QRegularExpressionMatch match = checkedIn.match(response.stdOut);
     bool anySucceeded = false;

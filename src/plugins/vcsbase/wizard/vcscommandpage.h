@@ -30,13 +30,24 @@
 #include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
 
 #include <utils/filepath.h>
-#include <utils/shellcommandpage.h>
+#include <utils/wizardpage.h>
 
 #include <QCoreApplication>
 
-namespace Utils { class FilePath; }
+QT_BEGIN_NAMESPACE
+class QPlainTextEdit;
+class QLabel;
+QT_END_NAMESPACE
+
+namespace Utils {
+class FilePath;
+class OutputFormatter;
+}
 
 namespace VcsBase {
+
+class VcsCommand;
+
 namespace Internal {
 
 class VcsCommandPageFactory : public ProjectExplorer::JsonWizardPageFactory
@@ -51,7 +62,44 @@ public:
     bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) override;
 };
 
-class VcsCommandPage : public Utils::ShellCommandPage
+class ShellCommandPage : public Utils::WizardPage
+{
+    Q_OBJECT
+
+public:
+    enum State { Idle, Running, Failed, Succeeded };
+
+    explicit ShellCommandPage(QWidget *parent = nullptr);
+    ~ShellCommandPage() override;
+
+    void setStartedStatus(const QString &startedStatus);
+    void start(VcsCommand *command);
+
+    bool isComplete() const override;
+    bool isRunning() const{ return m_state == Running; }
+
+    void terminate();
+
+    bool handleReject() override;
+
+signals:
+    void finished(bool success);
+
+private:
+    void slotFinished(bool success, const QVariant &cookie);
+
+    QPlainTextEdit *m_logPlainTextEdit;
+    Utils::OutputFormatter *m_formatter;
+    QLabel *m_statusLabel;
+
+    VcsCommand *m_command = nullptr;
+    QString m_startedStatus;
+    bool m_overwriteOutput = false;
+
+    State m_state = Idle;
+};
+
+class VcsCommandPage : public ShellCommandPage
 {
     Q_OBJECT
 

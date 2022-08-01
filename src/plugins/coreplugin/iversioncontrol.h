@@ -38,7 +38,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QMenu);
 
-namespace Utils { class ShellCommand; }
+namespace VcsBase { class VcsCommand; }
 
 namespace Core {
 
@@ -224,12 +224,12 @@ public:
     virtual Utils::FilePaths additionalToolsPath() const;
 
     /*!
-     * Return a ShellCommand capable of checking out \a url into \a baseDirectory, where
+     * Return a VcsCommand capable of checking out \a url into \a baseDirectory, where
      * a new subdirectory with \a localName will be created.
      *
      * \a extraArgs are passed on to the command being run.
      */
-    virtual Utils::ShellCommand *createInitialCheckoutCommand(const QString &url,
+    virtual VcsBase::VcsCommand *createInitialCheckoutCommand(const QString &url,
                                                               const Utils::FilePath &baseDirectory,
                                                               const QString &localName,
                                                               const QStringList &extraArgs);

@@ -28,18 +28,18 @@
 
 #include <coreplugin/idocument.h>
 
-#include <vcsbase/vcsoutputwindow.h>
-#include <vcsbase/vcsbaseplugin.h>
-#include <vcsbase/vcsbaseeditor.h>
-#include <vcsbase/vcsbaseeditorconfig.h>
-#include <vcsbase/vcsbasediffeditorcontroller.h>
-
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
-#include <utils/shellcommand.h>
+
+#include <vcsbase/vcsbasediffeditorcontroller.h>
+#include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcsbaseeditorconfig.h>
+#include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcscommand.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <QDateTime>
 #include <QDir>
@@ -118,9 +118,9 @@ bool MercurialClient::synchronousClone(const FilePath &workingDirectory,
 {
     Q_UNUSED(srcLocation)
     Q_UNUSED(extraOptions)
-    const unsigned flags = ShellCommand::SshPasswordPrompt
-                         | ShellCommand::ShowStdOut
-                         | ShellCommand::ShowSuccessMessage;
+    const unsigned flags = VcsCommand::SshPasswordPrompt
+                         | VcsCommand::ShowStdOut
+                         | VcsCommand::ShowSuccessMessage;
 
     if (workingDirectory.exists()) {
         // Let's make first init
@@ -165,15 +165,15 @@ bool MercurialClient::synchronousPull(const FilePath &workingDir, const QString 
     QStringList args;
     args << vcsCommandString(PullCommand) << extraOptions << srcLocation;
     // Disable UNIX terminals to suppress SSH prompting
-    const unsigned flags = ShellCommand::SshPasswordPrompt
-                         | ShellCommand::ShowStdOut
-                         | ShellCommand::ShowSuccessMessage;
+    const unsigned flags = VcsCommand::SshPasswordPrompt
+                         | VcsCommand::ShowStdOut
+                         | VcsCommand::ShowSuccessMessage;
 
     // cause mercurial doesn`t understand LANG
     Environment env = Environment::systemEnvironment();
     env.set("LANGUAGE", "C");
 
-    ShellCommand *command = VcsBaseClient::createVcsCommand(workingDir, env);
+    VcsCommand *command = VcsBaseClient::createVcsCommand(workingDir, env);
     command->addFlags(flags);
     const CommandResult result = command->runCommand({vcsBinary(), args}, workingDir, vcsTimeoutS());
     delete command;

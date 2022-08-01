@@ -48,12 +48,12 @@
 #include <utils/environment.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
-#include <utils/shellcommand.h>
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QAction>
@@ -146,10 +146,10 @@ public:
     void vcsAnnotate(const FilePath &filePath, int line) final;
     void vcsDescribe(const FilePath &source, const QString &id) final { m_client.view(source.toString(), id); }
 
-    ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                               const Utils::FilePath &baseDirectory,
-                                               const QString &localName,
-                                               const QStringList &extraArgs) final;
+    VcsCommand *createInitialCheckoutCommand(const QString &url,
+                                             const Utils::FilePath &baseDirectory,
+                                             const QString &localName,
+                                             const QStringList &extraArgs) final;
 
     bool sccManaged(const QString &filename);
 
@@ -826,10 +826,10 @@ void MercurialPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
     m_client.annotate(filePath.parentDir(), filePath.fileName(), QString(), line);
 }
 
-ShellCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const QString &url,
-                                                                   const Utils::FilePath &baseDirectory,
-                                                                   const QString &localName,
-                                                                   const QStringList &extraArgs)
+VcsCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const QString &url,
+                                                                 const Utils::FilePath &baseDirectory,
+                                                                 const QString &localName,
+                                                                 const QStringList &extraArgs)
 {
     QStringList args;
     args << QLatin1String("clone") << extraArgs << url << localName;

@@ -30,6 +30,7 @@
 #include "diffandloghighlighter.h"
 #include "vcsbaseeditorconfig.h"
 #include "vcsbaseplugin.h"
+#include "vcscommand.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
@@ -52,7 +53,6 @@
 #include <utils/algorithm.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
-#include <utils/shellcommand.h>
 #include <utils/stringutils.h>
 
 #include <QAction>
@@ -561,7 +561,7 @@ public:
     QString m_annotatePreviousRevisionTextFormat;
     VcsBaseEditorConfig *m_config = nullptr;
     QList<AbstractTextCursorHandler *> m_textCursorHandlers;
-    QPointer<ShellCommand> m_command;
+    QPointer<VcsCommand> m_command;
     VcsBaseEditorWidget::DescribeFunc m_describeFunc = nullptr;
     ProgressIndicator *m_progressIndicator = nullptr;
     bool m_fileLogAnnotateEnabled = false;
@@ -1408,7 +1408,7 @@ VcsBaseEditorConfig *VcsBaseEditorWidget::editorConfig() const
     return d->m_config;
 }
 
-void VcsBaseEditorWidget::setCommand(ShellCommand *command)
+void VcsBaseEditorWidget::setCommand(VcsCommand *command)
 {
     if (d->m_command) {
         d->m_command->abort();
@@ -1418,7 +1418,7 @@ void VcsBaseEditorWidget::setCommand(ShellCommand *command)
     if (command) {
         d->m_progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Large);
         d->m_progressIndicator->attachToWidget(this);
-        connect(command, &ShellCommand::finished, this, &VcsBaseEditorWidget::reportCommandFinished);
+        connect(command, &VcsCommand::finished, this, &VcsBaseEditorWidget::reportCommandFinished);
         QTimer::singleShot(100, this, &VcsBaseEditorWidget::showProgressIndicator);
     }
 }

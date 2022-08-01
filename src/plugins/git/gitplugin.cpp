@@ -66,18 +66,18 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
-#include <utils/shellcommand.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
 #include <vcsbase/basevcseditorfactory.h>
-#include <vcsbase/submitfilemodel.h>
-#include <vcsbase/vcsbaseeditor.h>
-#include <vcsbase/vcsbaseconstants.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
-#include <vcsbase/vcsoutputwindow.h>
 #include <vcsbase/cleandialog.h>
+#include <vcsbase/submitfilemodel.h>
+#include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcscommand.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <QDebug>
 #include <QDir>
@@ -255,10 +255,10 @@ public:
     void vcsDescribe(const FilePath &source, const QString &id) final { m_gitClient.show(source.toString(), id); };
     QString vcsTopic(const FilePath &directory) final;
 
-    ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                               const Utils::FilePath &baseDirectory,
-                                               const QString &localName,
-                                               const QStringList &extraArgs) final;
+    VcsCommand *createInitialCheckoutCommand(const QString &url,
+                                             const Utils::FilePath &baseDirectory,
+                                             const QString &localName,
+                                             const QStringList &extraArgs) final;
 
     void fillLinkContextMenu(QMenu *menu,
                              const FilePath &workingDirectory,
@@ -1880,16 +1880,16 @@ QString GitPluginPrivate::vcsTopic(const FilePath &directory)
     return topic;
 }
 
-ShellCommand *GitPluginPrivate::createInitialCheckoutCommand(const QString &url,
-                                                             const Utils::FilePath &baseDirectory,
-                                                             const QString &localName,
-                                                             const QStringList &extraArgs)
+VcsCommand *GitPluginPrivate::createInitialCheckoutCommand(const QString &url,
+                                                           const Utils::FilePath &baseDirectory,
+                                                           const QString &localName,
+                                                           const QStringList &extraArgs)
 {
     QStringList args = {"clone", "--progress"};
     args << extraArgs << url << localName;
 
     auto command = VcsBaseClient::createVcsCommand(baseDirectory, m_gitClient.processEnvironment());
-    command->addFlags(ShellCommand::SuppressStdErr);
+    command->addFlags(VcsCommand::SuppressStdErr);
     command->addJob({m_gitClient.vcsBinary(), args}, -1);
     return command;
 }

@@ -39,8 +39,9 @@ namespace Utils {
 class FancyLineEdit;
 class InfoLabel;
 class PathChooser;
-class ShellCommand;
 }
+
+namespace VcsBase { class VcsCommand; }
 
 namespace GitLab {
 
@@ -66,7 +67,7 @@ private:
     Utils::PathChooser *m_pathChooser = nullptr;
     Utils::FancyLineEdit *m_directoryLE = nullptr;
     Utils::InfoLabel *m_infoLabel = nullptr;
-    Utils::ShellCommand *m_command = nullptr;
+    VcsBase::VcsCommand *m_command = nullptr;
     bool m_commandRunning = false;
 };
 

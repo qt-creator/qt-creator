@@ -23,12 +23,12 @@
 **
 ****************************************************************************/
 
-#include "shellcommand.h"
+#include "vcscommand.h"
 
-#include "environment.h"
-#include "qtcassert.h"
-#include "qtcprocess.h"
-#include "runextensions.h"
+#include <utils/environment.h>
+#include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
+#include <utils/runextensions.h>
 
 #include <QFuture>
 #include <QFutureWatcher>
@@ -56,10 +56,12 @@
     when a progress string is detected.
 */
 
-namespace Utils {
+using namespace Utils;
+
+namespace VcsBase {
 namespace Internal {
 
-class ShellCommandPrivate
+class VcsCommandPrivate
 {
 public:
     struct Job {
@@ -72,16 +74,16 @@ public:
         int timeoutS;
     };
 
-    ShellCommandPrivate(const FilePath &defaultWorkingDirectory, const Environment &environment)
+    VcsCommandPrivate(const FilePath &defaultWorkingDirectory, const Environment &environment)
         : m_defaultWorkingDirectory(defaultWorkingDirectory),
           m_environment(environment)
     {}
 
-    ~ShellCommandPrivate() { delete m_progressParser; }
+    ~VcsCommandPrivate() { delete m_progressParser; }
 
     Environment environment()
     {
-        if (!(m_flags & ShellCommand::ForceCLocale))
+        if (!(m_flags & VcsCommand::ForceCLocale))
             return m_environment;
 
         m_environment.set("LANG", "C");
@@ -107,7 +109,7 @@ public:
     bool m_disableUnixTerminal = false;
 };
 
-ShellCommandPrivate::Job::Job(const FilePath &wd, const CommandLine &command,
+VcsCommandPrivate::Job::Job(const FilePath &wd, const CommandLine &command,
                               int t, const ExitCodeInterpreter &interpreter) :
     workingDirectory(wd),
     command(command),
@@ -121,23 +123,23 @@ ShellCommandPrivate::Job::Job(const FilePath &wd, const CommandLine &command,
 
 } // namespace Internal
 
-ShellCommand::ShellCommand(const FilePath &workingDirectory, const Environment &environment) :
-    d(new Internal::ShellCommandPrivate(workingDirectory, environment))
+VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &environment) :
+    d(new Internal::VcsCommandPrivate(workingDirectory, environment))
 {
-    connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, &ShellCommand::cancel);
+    connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, &VcsCommand::cancel);
 }
 
-ShellCommand::~ShellCommand()
+VcsCommand::~VcsCommand()
 {
     delete d;
 }
 
-QString ShellCommand::displayName() const
+QString VcsCommand::displayName() const
 {
     if (!d->m_displayName.isEmpty())
         return d->m_displayName;
     if (!d->m_jobs.isEmpty()) {
-        const Internal::ShellCommandPrivate::Job &job = d->m_jobs.at(0);
+        const Internal::VcsCommandPrivate::Job &job = d->m_jobs.at(0);
         QString result = job.command.executable().baseName();
         if (!result.isEmpty())
             result[0] = result.at(0).toTitleCase();
@@ -152,98 +154,98 @@ QString ShellCommand::displayName() const
     return tr("Unknown");
 }
 
-void ShellCommand::setDisplayName(const QString &name)
+void VcsCommand::setDisplayName(const QString &name)
 {
     d->m_displayName = name;
 }
 
-const FilePath &ShellCommand::defaultWorkingDirectory() const
+const FilePath &VcsCommand::defaultWorkingDirectory() const
 {
     return d->m_defaultWorkingDirectory;
 }
 
-Environment ShellCommand::environment() const
+Environment VcsCommand::environment() const
 {
     return d->m_environment;
 }
 
-void ShellCommand::setEnvironment(const Environment &env)
+void VcsCommand::setEnvironment(const Environment &env)
 {
     d->m_environment = env;
 }
 
-int ShellCommand::defaultTimeoutS() const
+int VcsCommand::defaultTimeoutS() const
 {
     return d->m_defaultTimeoutS;
 }
 
-void ShellCommand::setDefaultTimeoutS(int timeout)
+void VcsCommand::setDefaultTimeoutS(int timeout)
 {
     d->m_defaultTimeoutS = timeout;
 }
 
-unsigned ShellCommand::flags() const
+unsigned VcsCommand::flags() const
 {
     return d->m_flags;
 }
 
-void ShellCommand::addFlags(unsigned f)
+void VcsCommand::addFlags(unsigned f)
 {
     d->m_flags |= f;
 }
 
-void ShellCommand::addJob(const CommandLine &command,
+void VcsCommand::addJob(const CommandLine &command,
                           const FilePath &workingDirectory,
                           const ExitCodeInterpreter &interpreter)
 {
     addJob(command, defaultTimeoutS(), workingDirectory, interpreter);
 }
 
-void ShellCommand::addJob(const CommandLine &command, int timeoutS,
+void VcsCommand::addJob(const CommandLine &command, int timeoutS,
                           const FilePath &workingDirectory,
                           const ExitCodeInterpreter &interpreter)
 {
-    d->m_jobs.push_back(Internal::ShellCommandPrivate::Job(workDirectory(workingDirectory), command,
+    d->m_jobs.push_back(Internal::VcsCommandPrivate::Job(workDirectory(workingDirectory), command,
                                                            timeoutS, interpreter));
 }
 
-void ShellCommand::execute()
+void VcsCommand::execute()
 {
     if (d->m_jobs.empty())
         return;
 
-    QFuture<void> task = runAsync(&ShellCommand::run, this);
+    QFuture<void> task = runAsync(&VcsCommand::run, this);
     d->m_watcher.setFuture(task);
     emit executedAsync(task);
 }
 
-void ShellCommand::abort()
+void VcsCommand::abort()
 {
     d->m_aborted = true;
     d->m_watcher.future().cancel();
 }
 
-void ShellCommand::cancel()
+void VcsCommand::cancel()
 {
     emit terminate();
 }
 
-int ShellCommand::timeoutS() const
+int VcsCommand::timeoutS() const
 {
     return std::accumulate(d->m_jobs.cbegin(), d->m_jobs.cend(), 0,
-                           [](int sum, const Internal::ShellCommandPrivate::Job &job) {
+                           [](int sum, const Internal::VcsCommandPrivate::Job &job) {
         return sum + job.timeoutS;
     });
 }
 
-FilePath ShellCommand::workDirectory(const FilePath &wd) const
+FilePath VcsCommand::workDirectory(const FilePath &wd) const
 {
     if (!wd.isEmpty())
         return wd;
     return defaultWorkingDirectory();
 }
 
-void ShellCommand::run(QFutureInterface<void> &future)
+void VcsCommand::run(QFutureInterface<void> &future)
 {
     // Check that the binary path is not empty
     QTC_ASSERT(!d->m_jobs.isEmpty(), return);
@@ -259,7 +261,7 @@ void ShellCommand::run(QFutureInterface<void> &future)
     const int count = d->m_jobs.size();
     bool lastExecSuccess = true;
     for (int j = 0; j < count; j++) {
-        const Internal::ShellCommandPrivate::Job &job = d->m_jobs.at(j);
+        const Internal::VcsCommandPrivate::Job &job = d->m_jobs.at(j);
         const CommandResult result = runCommand(job.command, job.workingDirectory,
                                                 job.timeoutS, job.exitCodeInterpreter);
         stdOut += result.cleanedStdOut();
@@ -289,7 +291,7 @@ void ShellCommand::run(QFutureInterface<void> &future)
     this->deleteLater();
 }
 
-CommandResult ShellCommand::runCommand(const CommandLine &command, const FilePath &workingDirectory,
+CommandResult VcsCommand::runCommand(const CommandLine &command, const FilePath &workingDirectory,
                                        int timeoutS, const ExitCodeInterpreter &interpreter)
 {
     QtcProcess proc;
@@ -336,7 +338,7 @@ CommandResult ShellCommand::runCommand(const CommandLine &command, const FilePat
     return CommandResult(proc);
 }
 
-void ShellCommand::runFullySynchronous(QtcProcess &process)
+void VcsCommand::runFullySynchronous(QtcProcess &process)
 {
     process.runBlocking();
 
@@ -355,9 +357,9 @@ void ShellCommand::runFullySynchronous(QtcProcess &process)
     }
 }
 
-void ShellCommand::runSynchronous(QtcProcess &process)
+void VcsCommand::runSynchronous(QtcProcess &process)
 {
-    connect(this, &ShellCommand::terminate, &process, [&process] {
+    connect(this, &VcsCommand::terminate, &process, [&process] {
         process.stop();
         process.waitForFinished();
     });
@@ -392,44 +394,44 @@ void ShellCommand::runSynchronous(QtcProcess &process)
     process.runBlocking(EventLoopMode::On);
 }
 
-const QVariant &ShellCommand::cookie() const
+const QVariant &VcsCommand::cookie() const
 {
     return d->m_cookie;
 }
 
-void ShellCommand::setCookie(const QVariant &cookie)
+void VcsCommand::setCookie(const QVariant &cookie)
 {
     d->m_cookie = cookie;
 }
 
-QTextCodec *ShellCommand::codec() const
+QTextCodec *VcsCommand::codec() const
 {
     return d->m_codec;
 }
 
-void ShellCommand::setCodec(QTextCodec *codec)
+void VcsCommand::setCodec(QTextCodec *codec)
 {
     d->m_codec = codec;
 }
 
 //! Use \a parser to parse progress data from stdout. Command takes ownership of \a parser
-void ShellCommand::setProgressParser(ProgressParser *parser)
+void VcsCommand::setProgressParser(ProgressParser *parser)
 {
     QTC_ASSERT(!d->m_progressParser, return);
     d->m_progressParser = parser;
 }
 
-bool ShellCommand::hasProgressParser() const
+bool VcsCommand::hasProgressParser() const
 {
     return d->m_progressParser;
 }
 
-void ShellCommand::setProgressiveOutput(bool progressive)
+void VcsCommand::setProgressiveOutput(bool progressive)
 {
     d->m_progressiveOutput = progressive;
 }
 
-void ShellCommand::setDisableUnixTerminal()
+void VcsCommand::setDisableUnixTerminal()
 {
     d->m_disableUnixTerminal = true;
 }
@@ -467,4 +469,4 @@ CommandResult::CommandResult(const QtcProcess &process)
     , m_rawStdOut(process.rawStdOut())
 {}
 
-} // namespace Utils
+} // namespace VcsBase

@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "vcscommandpage.h"
+#include "vcscommand.h"
 
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
@@ -32,12 +33,18 @@
 
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
+#include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
-#include <utils/shellcommand.h>
+#include <utils/theme/theme.h>
 
-#include <QDir>
+#include <QAbstractButton>
+#include <QApplication>
 #include <QDebug>
+#include <QDir>
+#include <QLabel>
+#include <QPlainTextEdit>
 #include <QTimer>
+#include <QVBoxLayout>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -60,6 +67,122 @@ static char JOB_COMMAND[] = "command";
 static char JOB_ARGUMENTS[] = "arguments";
 static char JOB_TIME_OUT[] = "timeoutFactor";
 static char JOB_ENABLED[] = "enabled";
+
+
+/*!
+    \class VcsBase::ShellCommandPage
+
+    \brief The ShellCommandPage implements a page showing the
+    progress of a \c ShellCommand.
+
+    Turns complete when the command succeeds.
+*/
+
+ShellCommandPage::ShellCommandPage(QWidget *parent) :
+    WizardPage(parent),
+    m_startedStatus(tr("Command started..."))
+{
+    resize(264, 200);
+    auto verticalLayout = new QVBoxLayout(this);
+    m_logPlainTextEdit = new QPlainTextEdit;
+    m_formatter = new OutputFormatter;
+    m_logPlainTextEdit->setReadOnly(true);
+    m_formatter->setPlainTextEdit(m_logPlainTextEdit);
+
+    verticalLayout->addWidget(m_logPlainTextEdit);
+
+    m_statusLabel = new QLabel;
+    verticalLayout->addWidget(m_statusLabel);
+    setTitle(tr("Run Command"));
+}
+
+ShellCommandPage::~ShellCommandPage()
+{
+    QTC_ASSERT(m_state != Running, QApplication::restoreOverrideCursor());
+    delete m_formatter;
+}
+
+void ShellCommandPage::setStartedStatus(const QString &startedStatus)
+{
+    m_startedStatus = startedStatus;
+}
+
+void ShellCommandPage::start(VcsCommand *command)
+{
+    if (!command) {
+        m_logPlainTextEdit->setPlainText(tr("No job running, please abort."));
+        return;
+    }
+
+    QTC_ASSERT(m_state != Running, return);
+    m_command = command;
+    command->setProgressiveOutput(true);
+    connect(command, &VcsCommand::stdOutText, this, [this](const QString &text) {
+        m_formatter->appendMessage(text, StdOutFormat);
+    });
+    connect(command, &VcsCommand::stdErrText, this, [this](const QString &text) {
+        m_formatter->appendMessage(text, StdErrFormat);
+    });
+    connect(command, &VcsCommand::finished, this, &ShellCommandPage::slotFinished);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    m_logPlainTextEdit->clear();
+    m_overwriteOutput = false;
+    m_statusLabel->setText(m_startedStatus);
+    m_statusLabel->setPalette(QPalette());
+    m_state = Running;
+    command->execute();
+
+    wizard()->button(QWizard::BackButton)->setEnabled(false);
+}
+
+void ShellCommandPage::slotFinished(bool success, const QVariant &)
+{
+    QTC_ASSERT(m_state == Running, return);
+
+    QString message;
+    QPalette palette;
+
+    if (success) {
+        m_state = Succeeded;
+        message = tr("Succeeded.");
+        palette.setColor(QPalette::WindowText, creatorTheme()->color(Theme::TextColorNormal).name());
+    } else {
+        m_state = Failed;
+        message = tr("Failed.");
+        palette.setColor(QPalette::WindowText, creatorTheme()->color(Theme::TextColorError).name());
+    }
+
+    m_statusLabel->setText(message);
+    m_statusLabel->setPalette(palette);
+
+    QApplication::restoreOverrideCursor();
+    wizard()->button(QWizard::BackButton)->setEnabled(true);
+
+    if (success)
+        emit completeChanged();
+    emit finished(success);
+}
+
+void ShellCommandPage::terminate()
+{
+    if (m_command)
+        m_command->cancel();
+}
+
+bool ShellCommandPage::handleReject()
+{
+    if (!isRunning())
+        return false;
+
+    terminate();
+    return true;
+}
+
+bool ShellCommandPage::isComplete() const
+{
+    return m_state == Succeeded;
+}
+
 
 // ----------------------------------------------------------------------
 // VcsCommandPageFactory:
@@ -289,8 +412,8 @@ void VcsCommandPage::delayedInitialize()
         extraArgs << tmp;
     }
 
-    ShellCommand *command = vc->createInitialCheckoutCommand(repo, FilePath::fromString(base),
-                                                             name, extraArgs);
+    VcsCommand *command = vc->createInitialCheckoutCommand(repo, FilePath::fromString(base),
+                                                           name, extraArgs);
 
     for (const JobData &job : qAsConst(m_additionalJobs)) {
         QTC_ASSERT(!job.job.isEmpty(), continue);

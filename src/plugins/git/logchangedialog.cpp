@@ -26,10 +26,10 @@
 #include "logchangedialog.h"
 #include "gitclient.h"
 
+#include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <utils/qtcassert.h>
-#include <utils/shellcommand.h>
 
 #include <QComboBox>
 #include <QDialogButtonBox>
@@ -67,9 +67,8 @@ public:
             const auto it = m_descriptions.constFind(revision);
             if (it != m_descriptions.constEnd())
                 return *it;
-            const QString desc = QString::fromUtf8(
-                        GitClient::instance()->synchronousShow(
-                            m_workingDirectory, revision, ShellCommand::NoOutput));
+            const QString desc = QString::fromUtf8(GitClient::instance()->synchronousShow(
+                                 m_workingDirectory, revision, VcsCommand::NoOutput));
             m_descriptions[revision] = desc;
             return desc;
         }
@@ -192,7 +191,7 @@ bool LogChangeWidget::populateLog(const FilePath &repository, const QString &com
     arguments << "--";
     QString output;
     if (!GitClient::instance()->synchronousLog(
-                repository, arguments, &output, nullptr, ShellCommand::NoOutput)) {
+                repository, arguments, &output, nullptr, VcsCommand::NoOutput)) {
         return false;
     }
     const QStringList lines = output.split('\n');

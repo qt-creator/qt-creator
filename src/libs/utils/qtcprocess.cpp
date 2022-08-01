@@ -1707,7 +1707,7 @@ QString QtcProcess::stdOut() const
 QString QtcProcess::stdErr() const
 {
     // FIXME: The tighter check below is actually good theoretically, but currently
-    // ShellCommand::runFullySynchronous triggers it and disentangling there
+    // VcsCommand::runFullySynchronous triggers it and disentangling there
     // is not trivial. So weaken it a bit for now.
     //QTC_CHECK(d->m_stdErr.keepRawData);
     QTC_CHECK(d->m_stdErr.keepRawData || d->m_stdErr.rawData.isEmpty());

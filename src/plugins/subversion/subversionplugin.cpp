@@ -31,15 +31,6 @@
 #include "subversionsettings.h"
 #include "subversionsubmiteditor.h"
 
-#include <vcsbase/basevcseditorfactory.h>
-#include <vcsbase/basevcssubmiteditorfactory.h>
-#include <vcsbase/vcsbaseeditor.h>
-#include <vcsbase/vcsbaseconstants.h>
-#include <vcsbase/vcsbaseplugin.h>
-#include <vcsbase/vcsoutputwindow.h>
-
-#include <texteditor/textdocument.h>
-
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -50,6 +41,8 @@
 #include <coreplugin/locator/commandlocator.h>
 #include <coreplugin/messagemanager.h>
 
+#include <texteditor/textdocument.h>
+
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/environment.h>
@@ -57,8 +50,15 @@
 #include <utils/hostosinfo.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
-#include <utils/shellcommand.h>
 #include <utils/stringutils.h>
+
+#include <vcsbase/basevcseditorfactory.h>
+#include <vcsbase/basevcssubmiteditorfactory.h>
+#include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcsbaseconstants.h>
+#include <vcsbase/vcsbaseplugin.h>
+#include <vcsbase/vcscommand.h>
+#include <vcsbase/vcsoutputwindow.h>
 
 #include <QAction>
 #include <QDebug>
@@ -108,7 +108,7 @@ const char CMD_ID_UPDATE[]             = "Subversion.Update";
 const char CMD_ID_COMMIT_PROJECT[]     = "Subversion.CommitProject";
 const char CMD_ID_DESCRIBE[]           = "Subversion.Describe";
 
-const int s_defaultFlags = ShellCommand::SshPasswordPrompt | ShellCommand::ShowStdOut;
+const int s_defaultFlags = VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut;
 
 struct SubversionResponse
 {
@@ -224,10 +224,10 @@ public:
     void vcsAnnotate(const FilePath &file, int line) final;
     void vcsDescribe(const FilePath &source, const QString &changeNr) final;
 
-    ShellCommand *createInitialCheckoutCommand(const QString &url,
-                                               const Utils::FilePath &baseDirectory,
-                                               const QString &localName,
-                                               const QStringList &extraArgs) final;
+    VcsCommand *createInitialCheckoutCommand(const QString &url,
+                                             const Utils::FilePath &baseDirectory,
+                                             const QString &localName,
+                                             const QStringList &extraArgs) final;
 
     bool isVcsDirectory(const Utils::FilePath &fileName) const;
 
@@ -875,7 +875,7 @@ void SubversionPluginPrivate::svnStatus(const FilePath &workingDir, const QStrin
     if (!relativePath.isEmpty())
         args.append(SubversionClient::escapeFile(relativePath));
     VcsOutputWindow::setRepository(workingDir.toString());
-    runSvn(workingDir, args, ShellCommand::ShowStdOut | ShellCommand::ShowSuccessMessage);
+    runSvn(workingDir, args, VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage);
     VcsOutputWindow::clearRepository();
 }
 
@@ -929,7 +929,7 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, cons
     args.append(QDir::toNativeSeparators(SubversionClient::escapeFile(file)));
 
     const auto response = runSvn(workingDir, args,
-                     ShellCommand::SshPasswordPrompt | ShellCommand::ForceCLocale, 1, codec);
+                          VcsCommand::SshPasswordPrompt | VcsCommand::ForceCLocale, 1, codec);
     if (response.error)
         return;
 
@@ -1110,7 +1110,7 @@ bool SubversionPluginPrivate::vcsMove(const FilePath &workingDir, const QString 
     args << QDir::toNativeSeparators(SubversionClient::escapeFile(from))
          << QDir::toNativeSeparators(SubversionClient::escapeFile(to));
     const auto response = runSvn(workingDir, args,
-                                 s_defaultFlags | ShellCommand::FullySynchronously);
+                                 s_defaultFlags | VcsCommand::FullySynchronously);
     return !response.error;
 }
 
@@ -1136,7 +1136,7 @@ bool SubversionPluginPrivate::vcsCheckout(const FilePath &directory, const QByte
 
     args << QLatin1String(tempUrl.toEncoded()) << directory.toString();
 
-    const auto response = runSvn(directory, args, ShellCommand::SshPasswordPrompt, 10);
+    const auto response = runSvn(directory, args, VcsCommand::SshPasswordPrompt, 10);
     return !response.error;
 
 }
@@ -1264,10 +1264,10 @@ void SubversionPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
     vcsAnnotateHelper(filePath.parentDir(), filePath.fileName(), QString(), line);
 }
 
-ShellCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const QString &url,
-                                                                    const Utils::FilePath &baseDirectory,
-                                                                    const QString &localName,
-                                                                    const QStringList &extraArgs)
+VcsCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const QString &url,
+                                                                  const Utils::FilePath &baseDirectory,
+                                                                  const QString &localName,
+                                                                  const QStringList &extraArgs)
 {
     QStringList args;
     args << QLatin1String("checkout");
