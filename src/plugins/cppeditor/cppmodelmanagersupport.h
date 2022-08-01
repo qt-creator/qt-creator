@@ -76,15 +76,4 @@ public:
     virtual void switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit) = 0;
 };
 
-class CPPEDITOR_EXPORT ModelManagerSupportProvider
-{
-public:
-    virtual ~ModelManagerSupportProvider() = default;
-
-    virtual QString id() const = 0;
-    virtual QString displayName() const = 0;
-
-    virtual ModelManagerSupport::Ptr createModelManagerSupport() = 0;
-};
-
 } // CppEditor namespace

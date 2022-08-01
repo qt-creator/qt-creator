@@ -825,22 +825,5 @@ ClangModelManagerSupport *ClangModelManagerSupport::instance()
     return m_instance;
 }
 
-QString ClangModelManagerSupportProvider::id() const
-{
-    return QLatin1String(Constants::CLANG_MODELMANAGERSUPPORT_ID);
-}
-
-QString ClangModelManagerSupportProvider::displayName() const
-{
-    //: Display name
-    return QCoreApplication::translate("ClangCodeModel::Internal::ModelManagerSupport",
-                                       "Clang");
-}
-
-CppEditor::ModelManagerSupport::Ptr ClangModelManagerSupportProvider::createModelManagerSupport()
-{
-    return CppEditor::ModelManagerSupport::Ptr(new ClangModelManagerSupport);
-}
-
 } // Internal
 } // ClangCodeModel

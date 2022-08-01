@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "clangmodelmanagersupport.h"
 #include "clangutils.h"
 
 #include <extensionsystem/iplugin.h>
@@ -53,7 +52,6 @@ private:
     void generateCompilationDB();
     void createCompilationDBButton();
 
-    ClangModelManagerSupportProvider m_modelManagerSupportProvider;
     Utils::ParameterAction *m_generateCompilationDBAction = nullptr;
     QFutureWatcher<GenerateCompilationDbResult> m_generatorWatcher;
 #ifdef WITH_TESTS

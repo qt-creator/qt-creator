@@ -177,8 +177,9 @@ public:
     QSet<AbstractEditorSupport *> m_extraEditorSupports;
 
     // Model Manager Supports for e.g. completion and highlighting
-    ModelManagerSupport::Ptr m_builtinModelManagerSupport;
-    ModelManagerSupport::Ptr m_activeModelManagerSupport;
+    BuiltinModelManagerSupport m_builtinModelManagerSupport;
+    std::unique_ptr<ModelManagerSupport> m_extendedModelManagerSupport;
+    ModelManagerSupport *m_activeModelManagerSupport = &m_builtinModelManagerSupport;
 
     // Indexing
     CppIndexingSupport *m_internalIndexingSupport;
@@ -307,8 +308,8 @@ QString CppModelManager::editorConfigurationFileName()
 
 ModelManagerSupport *CppModelManager::modelManagerSupport(Backend backend) const
 {
-    return (backend == Backend::Builtin
-            ? d->m_builtinModelManagerSupport : d->m_activeModelManagerSupport).data();
+    return backend == Backend::Builtin
+            ? &d->m_builtinModelManagerSupport : d->m_activeModelManagerSupport;
 }
 
 void CppModelManager::startLocalRenaming(const CursorInEditor &data,
@@ -477,8 +478,7 @@ SignalSlotType CppModelManager::getSignalSlotType(const QString &filePath,
 
 FollowSymbolUnderCursor &CppModelManager::builtinFollowSymbol()
 {
-    return instance()->d->m_builtinModelManagerSupport.staticCast<BuiltinModelManagerSupport>()
-            ->followSymbolInterface();
+    return instance()->d->m_builtinModelManagerSupport.followSymbolInterface();
 }
 
 template<class FilterClass>
@@ -551,7 +551,7 @@ Core::ILocatorFilter *CppModelManager::currentDocumentFilter() const
 
 std::unique_ptr<AbstractOverviewModel> CppModelManager::createOverviewModel() const
 {
-    return d->m_builtinModelManagerSupport->createOverviewModel();
+    return d->m_builtinModelManagerSupport.createOverviewModel();
 }
 
 QString CppModelManager::configurationFileName()
@@ -620,13 +620,6 @@ void CppModelManager::initCppTools()
                 std::make_unique<Internal::CppCurrentDocumentFilter>(this));
 }
 
-void CppModelManager::initializeBuiltinModelManagerSupport()
-{
-    d->m_builtinModelManagerSupport
-            = BuiltinModelManagerSupportProvider().createModelManagerSupport();
-    d->m_activeModelManagerSupport = d->m_builtinModelManagerSupport;
-}
-
 CppModelManager::CppModelManager()
     : CppModelManagerBase(nullptr)
     , d(new CppModelManagerPrivate)
@@ -690,8 +683,6 @@ CppModelManager::CppModelManager()
     qRegisterMetaType<CPlusPlus::Document::Ptr>("CPlusPlus::Document::Ptr");
     qRegisterMetaType<QList<Document::DiagnosticMessage>>(
                 "QList<CPlusPlus::Document::DiagnosticMessage>");
-
-    initializeBuiltinModelManagerSupport();
 
     d->m_internalIndexingSupport = new BuiltinIndexingSupport;
 
@@ -1308,7 +1299,7 @@ bool CppModelManager::usesClangd(const TextEditor::TextDocument *document)
 
 bool CppModelManager::isClangCodeModelActive() const
 {
-    return d->m_activeModelManagerSupport != d->m_builtinModelManagerSupport;
+    return d->m_activeModelManagerSupport != &d->m_builtinModelManagerSupport;
 }
 
 void CppModelManager::emitDocumentUpdated(Document::Ptr doc)
@@ -1639,21 +1630,20 @@ void CppModelManager::finishedRefreshingSourceFiles(const QSet<QString> &files)
 }
 
 void CppModelManager::activateClangCodeModel(
-        ModelManagerSupportProvider *modelManagerSupportProvider)
+        std::unique_ptr<ModelManagerSupport> &&modelManagerSupport)
 {
-    QTC_ASSERT(modelManagerSupportProvider, return);
-
-    d->m_activeModelManagerSupport = modelManagerSupportProvider->createModelManagerSupport();
+    d->m_extendedModelManagerSupport = std::move(modelManagerSupport);
+    d->m_activeModelManagerSupport = d->m_extendedModelManagerSupport.get();
 }
 
 CppCompletionAssistProvider *CppModelManager::completionAssistProvider() const
 {
-    return d->m_builtinModelManagerSupport->completionAssistProvider();
+    return d->m_builtinModelManagerSupport.completionAssistProvider();
 }
 
 TextEditor::BaseHoverHandler *CppModelManager::createHoverHandler() const
 {
-    return d->m_builtinModelManagerSupport->createHoverHandler();
+    return d->m_builtinModelManagerSupport.createHoverHandler();
 }
 
 void CppModelManager::followSymbol(const CursorInEditor &data,

@@ -88,22 +88,6 @@ private:
 };
 } // anonymous namespace
 
-QString BuiltinModelManagerSupportProvider::id() const
-{
-    return QLatin1String("CppEditor.BuiltinCodeModel");
-}
-
-QString BuiltinModelManagerSupportProvider::displayName() const
-{
-    return QCoreApplication::translate("ModelManagerSupportInternal::displayName",
-                                       "%1 Built-in").arg(Core::Constants::IDE_DISPLAY_NAME);
-}
-
-ModelManagerSupport::Ptr BuiltinModelManagerSupportProvider::createModelManagerSupport()
-{
-    return ModelManagerSupport::Ptr(new BuiltinModelManagerSupport);
-}
-
 BuiltinModelManagerSupport::BuiltinModelManagerSupport()
     : m_completionAssistProvider(new InternalCompletionAssistProvider),
       m_followSymbol(new FollowSymbolUnderCursor)

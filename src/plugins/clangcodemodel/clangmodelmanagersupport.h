@@ -123,14 +123,5 @@ private:
     QHash<Utils::FilePath, QString> m_queuedShadowDocuments;
 };
 
-class ClangModelManagerSupportProvider : public CppEditor::ModelManagerSupportProvider
-{
-public:
-    QString id() const override;
-    QString displayName() const override;
-
-    CppEditor::ModelManagerSupport::Ptr createModelManagerSupport() override;
-};
-
 } // namespace Internal
 } // namespace ClangCodeModel

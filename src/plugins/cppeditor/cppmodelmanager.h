@@ -41,6 +41,8 @@
 #include <QObject>
 #include <QStringList>
 
+#include <memory>
+
 namespace Core {
 class IDocument;
 class IEditor;
@@ -177,7 +179,7 @@ public:
 
     void finishedRefreshingSourceFiles(const QSet<QString> &files);
 
-    void activateClangCodeModel(ModelManagerSupportProvider *modelManagerSupportProvider);
+    void activateClangCodeModel(std::unique_ptr<ModelManagerSupport> &&modelManagerSupport);
     CppCompletionAssistProvider *completionAssistProvider() const;
     BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                     TextEditor::TextDocument *baseTextDocument) const;
@@ -291,7 +293,6 @@ private:
     void onCoreAboutToClose();
     void setupFallbackProjectPart();
 
-    void initializeBuiltinModelManagerSupport();
     void delayedGC();
     void recalculateProjectPartMappings();
 

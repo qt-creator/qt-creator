@@ -26,6 +26,7 @@
 #include "clangcodemodelplugin.h"
 
 #include "clangconstants.h"
+#include "clangmodelmanagersupport.h"
 #include "clangutils.h"
 
 #ifdef WITH_TESTS
@@ -115,7 +116,8 @@ bool ClangCodeModelPlugin::initialize(const QStringList &arguments, QString *err
             this,
             &ClangCodeModelPlugin::maybeHandleBatchFileAndExit);
 
-    CppEditor::CppModelManager::instance()->activateClangCodeModel(&m_modelManagerSupportProvider);
+    CppEditor::CppModelManager::instance()->activateClangCodeModel(
+                std::make_unique<ClangModelManagerSupport>());
 
     createCompilationDBButton();
 

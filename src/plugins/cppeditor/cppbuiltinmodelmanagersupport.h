@@ -65,13 +65,4 @@ private:
     QScopedPointer<FollowSymbolUnderCursor> m_followSymbol;
 };
 
-class BuiltinModelManagerSupportProvider : public ModelManagerSupportProvider
-{
-public:
-    QString id() const override;
-    QString displayName() const override;
-
-    ModelManagerSupport::Ptr createModelManagerSupport() override;
-};
-
 } // namespace CppEditor::Internal
