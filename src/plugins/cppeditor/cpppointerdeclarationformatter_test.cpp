@@ -75,8 +75,8 @@ public:
 
         // Find cursor position and remove cursor marker '@'
         int cursorPosition = 0;
-        QString sourceWithoutCursorMarker = QLatin1String(source);
-        const int pos = sourceWithoutCursorMarker.indexOf(QLatin1Char('@'));
+        QByteArray sourceWithoutCursorMarker = source;
+        const int pos = sourceWithoutCursorMarker.indexOf('@');
         if (pos != -1) {
             sourceWithoutCursorMarker.remove(pos, 1);
             cursorPosition = pos;
@@ -85,8 +85,7 @@ public:
         // Write source to temprorary file
         CppEditor::Tests::TemporaryDir temporaryDir;
         QVERIFY(temporaryDir.isValid());
-        const QString filePath = temporaryDir.createFile("file.h",
-                                                         sourceWithoutCursorMarker.toUtf8());
+        const QString filePath = temporaryDir.createFile("file.h", sourceWithoutCursorMarker);
         QVERIFY(!filePath.isEmpty());
 
         // Preprocess source

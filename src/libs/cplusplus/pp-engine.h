@@ -79,7 +79,6 @@ public:
 public:
     Preprocessor(Client *client, Environment *env);
 
-    QByteArray run(const QString &filename, const QString &source);
     QByteArray run(const QString &filename, const QByteArray &source,
                    bool noLines = false, bool markGeneratedTokens = true);
 

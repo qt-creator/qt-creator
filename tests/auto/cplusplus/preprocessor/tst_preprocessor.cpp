@@ -1841,7 +1841,7 @@ void tst_Preprocessor::include_guard()
     MockClient client(&env, &output);
     Preprocessor preprocess(&client, &env);
     preprocess.setKeepComments(true);
-    /*QByteArray prep =*/ preprocess.run(QLatin1String("<test-case>"), input);
+    /*QByteArray prep =*/ preprocess.run(QLatin1String("<test-case>"), input.toUtf8());
     QCOMPARE(QString::fromUtf8(client.includeGuard()), includeGuard);
 }
 
