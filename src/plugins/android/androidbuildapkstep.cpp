@@ -57,6 +57,7 @@
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
 #include <utils/infolabel.h>
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 
@@ -67,7 +68,6 @@
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QGroupBox>
-#include <QHBoxLayout>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLabel>
@@ -79,7 +79,6 @@
 #include <QPushButton>
 #include <QTimer>
 #include <QToolButton>
-#include <QVBoxLayout>
 
 #include <algorithm>
 #include <memory>
@@ -159,11 +158,13 @@ private:
 AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     : m_step(step)
 {
-    auto vbox = new QVBoxLayout(this);
-    vbox->addWidget(createSignPackageGroup());
-    vbox->addWidget(createApplicationGroup());
-    vbox->addWidget(createAdvancedGroup());
-    vbox->addWidget(createAdditionalLibrariesGroup());
+    using namespace Layouting;
+    Column {
+        createSignPackageGroup(),
+        createApplicationGroup(),
+        createAdvancedGroup(),
+        createAdditionalLibrariesGroup()
+    }.attachTo(this, WithoutMargins);
 
     connect(m_step->buildConfiguration(), &BuildConfiguration::buildTypeChanged,
             this, &AndroidBuildApkWidget::updateSigningWarning);
@@ -257,30 +258,18 @@ QWidget *AndroidBuildApkWidget::createSignPackageGroup()
     m_signingDebugWarningLabel->hide();
 
     auto certificateAliasLabel = new QLabel(tr("Certificate alias:"), group);
-    certificateAliasLabel->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+    certificateAliasLabel->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
 
     m_certificatesAliasComboBox = new QComboBox(group);
     m_certificatesAliasComboBox->setEnabled(false);
-    QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    sizePolicy2.setHorizontalStretch(0);
-    sizePolicy2.setVerticalStretch(0);
-    m_certificatesAliasComboBox->setSizePolicy(sizePolicy2);
-    m_certificatesAliasComboBox->setMinimumSize(QSize(300, 0));
+    m_certificatesAliasComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
-    auto horizontalLayout_2 = new QHBoxLayout;
-    horizontalLayout_2->addWidget(keystoreLocationLabel);
-    horizontalLayout_2->addWidget(keystoreLocationChooser);
-    horizontalLayout_2->addWidget(keystoreCreateButton);
-
-    auto horizontalLayout_3 = new QHBoxLayout;
-    horizontalLayout_3->addWidget(m_signingDebugWarningLabel);
-    horizontalLayout_3->addWidget(certificateAliasLabel);
-    horizontalLayout_3->addWidget(m_certificatesAliasComboBox);
-
-    auto vbox = new QVBoxLayout(group);
-    vbox->addLayout(horizontalLayout_2);
-    vbox->addWidget(m_signPackageCheckBox);
-    vbox->addLayout(horizontalLayout_3);
+    using namespace Layouting;
+    Column {
+        Row { keystoreLocationLabel, keystoreLocationChooser, keystoreCreateButton },
+        m_signPackageCheckBox,
+        Row { m_signingDebugWarningLabel, certificateAliasLabel, m_certificatesAliasComboBox }
+    }.attachTo(group);
 
     connect(m_signPackageCheckBox, &QAbstractButton::toggled,
             this, &AndroidBuildApkWidget::signPackageCheckBoxToggled);
@@ -374,21 +363,17 @@ QWidget *AndroidBuildApkWidget::createAdditionalLibrariesGroup()
         libsModel->removeEntries(removeList);
     });
 
-    auto libsButtonLayout = new QVBoxLayout;
-    libsButtonLayout->addWidget(addLibButton);
-    libsButtonLayout->addWidget(removeLibButton);
-    libsButtonLayout->addStretch(1);
-
     m_openSslCheckBox = new QCheckBox(tr("Include prebuilt OpenSSL libraries"));
     m_openSslCheckBox->setToolTip(tr("This is useful for apps that use SSL operations. The path "
                                      "can be defined in Edit > Preferences > Devices > Android."));
     connect(m_openSslCheckBox, &QAbstractButton::clicked, this,
             &AndroidBuildApkWidget::onOpenSslCheckBoxChanged);
 
-    auto grid = new QGridLayout(group);
-    grid->addWidget(m_openSslCheckBox, 0, 0);
-    grid->addWidget(libsView, 1, 0);
-    grid->addLayout(libsButtonLayout, 1, 1);
+    using namespace Layouting;
+    Grid {
+        m_openSslCheckBox, br,
+        libsView, Column { addLibButton, removeLibButton, st }
+    }.attachTo(group);
 
     QItemSelectionModel *libSelection = libsView->selectionModel();
     connect(libSelection, &QItemSelectionModel::selectionChanged, this, [libSelection, removeLibButton] {
