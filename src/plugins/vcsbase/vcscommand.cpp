@@ -325,7 +325,7 @@ void VcsCommand::run(QFutureInterface<void> &future)
                 GlobalFileChangeBlocker::instance()->forceBlocked(false);
             });
         }
-        emit finished(lastExecSuccess, cookie());
+        emit finished(lastExecSuccess, d->m_cookie);
         if (lastExecSuccess)
             future.setProgressValue(future.progressMaximum());
         else
@@ -438,11 +438,6 @@ void VcsCommand::runSynchronous(QtcProcess &process)
 
     process.setTimeOutMessageBoxEnabled(true);
     process.runBlocking(EventLoopMode::On);
-}
-
-const QVariant &VcsCommand::cookie() const
-{
-    return d->m_cookie;
 }
 
 void VcsCommand::setCookie(const QVariant &cookie)

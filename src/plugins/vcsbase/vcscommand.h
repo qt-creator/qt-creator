@@ -140,7 +140,6 @@ public:
 
     void addFlags(unsigned f);
 
-    const QVariant &cookie() const;
     void setCookie(const QVariant &cookie);
 
     void setCodec(QTextCodec *codec);
