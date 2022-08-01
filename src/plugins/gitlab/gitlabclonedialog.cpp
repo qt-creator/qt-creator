@@ -47,6 +47,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
+#include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcscommand.h>
 
 #include <QApplication>
@@ -60,6 +61,8 @@
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QVBoxLayout>
+
+using namespace VcsBase;
 
 namespace GitLab {
 
@@ -147,7 +150,8 @@ void GitLabCloneDialog::updateUi()
 
 void GitLabCloneDialog::cloneProject()
 {
-    Core::IVersionControl *vc = Core::VcsManager::versionControl(Utils::Id::fromString("G.Git"));
+    VcsBasePluginPrivate *vc = static_cast<VcsBasePluginPrivate *>(
+                Core::VcsManager::versionControl(Utils::Id::fromString("G.Git")));
     QTC_ASSERT(vc, return);
     const QStringList extraArgs = m_submodulesCB->isChecked() ? QStringList{ "--recursive" }
                                                               : QStringList{};
@@ -156,13 +160,13 @@ void GitLabCloneDialog::cloneProject()
                                                  m_directoryLE->text(), extraArgs);
     const Utils::FilePath workingDirectory = m_pathChooser->absoluteFilePath();
     m_command->setProgressiveOutput(true);
-    connect(m_command, &VcsBase::VcsCommand::stdOutText, this, [this](const QString &text) {
+    connect(m_command, &VcsCommand::stdOutText, this, [this](const QString &text) {
         m_cloneOutput->appendPlainText(text);
     });
-    connect(m_command, &VcsBase::VcsCommand::stdErrText, this, [this](const QString &text) {
+    connect(m_command, &VcsCommand::stdErrText, this, [this](const QString &text) {
         m_cloneOutput->appendPlainText(text);
     });
-    connect(m_command, &VcsBase::VcsCommand::finished, this, &GitLabCloneDialog::cloneFinished);
+    connect(m_command, &VcsCommand::finished, this, &GitLabCloneDialog::cloneFinished);
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
     m_cloneOutput->clear();

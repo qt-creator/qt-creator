@@ -584,6 +584,18 @@ const VcsBasePluginState &VcsBasePluginPrivate::currentState() const
     return m_state;
 }
 
+VcsCommand *VcsBasePluginPrivate::createInitialCheckoutCommand(const QString &url,
+                                                               const Utils::FilePath &baseDirectory,
+                                                               const QString &localName,
+                                                               const QStringList &extraArgs)
+{
+    Q_UNUSED(url)
+    Q_UNUSED(baseDirectory)
+    Q_UNUSED(localName)
+    Q_UNUSED(extraArgs)
+    return nullptr;
+}
+
 bool VcsBasePluginPrivate::enableMenuAction(ActionState as, QAction *menuAction) const
 {
     qCDebug(baseLog) << "enableMenuAction" << menuAction->text() << as;

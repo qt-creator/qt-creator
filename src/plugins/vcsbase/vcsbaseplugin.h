@@ -54,6 +54,7 @@ namespace Internal { class State; }
 class VcsBaseSubmitEditor;
 class VcsBasePluginPrivate;
 class VcsBasePluginStateData;
+class VcsCommand;
 
 // Documentation inside.
 class VCSBASE_EXPORT VcsBasePluginState
@@ -144,6 +145,16 @@ public:
 
     const VcsBasePluginState &currentState() const;
 
+    /*!
+     * Return a VcsCommand capable of checking out \a url into \a baseDirectory, where
+     * a new subdirectory with \a localName will be created.
+     *
+     * \a extraArgs are passed on to the command being run.
+     */
+    virtual VcsCommand *createInitialCheckoutCommand(const QString &url,
+                                                     const Utils::FilePath &baseDirectory,
+                                                     const QString &localName,
+                                                     const QStringList &extraArgs);
     // Display name of the commit action
     virtual QString commitDisplayName() const;
 

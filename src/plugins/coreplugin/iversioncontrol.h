@@ -38,8 +38,6 @@
 
 QT_FORWARD_DECLARE_CLASS(QMenu);
 
-namespace VcsBase { class VcsCommand; }
-
 namespace Core {
 
 class CORE_EXPORT IVersionControl : public QObject
@@ -222,17 +220,6 @@ public:
      * This is helpful on windows where e.g. git comes with a lot of nice unix tools.
      */
     virtual Utils::FilePaths additionalToolsPath() const;
-
-    /*!
-     * Return a VcsCommand capable of checking out \a url into \a baseDirectory, where
-     * a new subdirectory with \a localName will be created.
-     *
-     * \a extraArgs are passed on to the command being run.
-     */
-    virtual VcsBase::VcsCommand *createInitialCheckoutCommand(const QString &url,
-                                                              const Utils::FilePath &baseDirectory,
-                                                              const QString &localName,
-                                                              const QStringList &extraArgs);
 
     virtual void fillLinkContextMenu(QMenu *menu,
                                      const Utils::FilePath &workingDirectory,

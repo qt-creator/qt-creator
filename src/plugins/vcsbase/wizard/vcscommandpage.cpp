@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #include "vcscommandpage.h"
+#include "vcsbaseplugin.h"
 #include "vcscommand.h"
 
-#include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <projectexplorer/jsonwizard/jsonwizard.h>
@@ -354,7 +354,8 @@ void VcsCommandPage::delayedInitialize()
     QTC_ASSERT(wiz, return);
 
     const QString vcsId = wiz->expander()->expand(m_vcsId);
-    IVersionControl *vc = VcsManager::versionControl(Id::fromString(vcsId));
+    VcsBasePluginPrivate *vc = static_cast<VcsBasePluginPrivate *>(
+                VcsManager::versionControl(Id::fromString(vcsId)));
     if (!vc) {
         qWarning() << QCoreApplication::translate("VcsBase::VcsCommandPage",
                                                   "\"%1\" (%2) not found.")

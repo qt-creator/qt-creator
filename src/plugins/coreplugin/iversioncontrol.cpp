@@ -88,18 +88,6 @@ FilePaths IVersionControl::additionalToolsPath() const
     return {};
 }
 
-VcsBase::VcsCommand *IVersionControl::createInitialCheckoutCommand(const QString &url,
-                                                            const Utils::FilePath &baseDirectory,
-                                                            const QString &localName,
-                                                            const QStringList &extraArgs)
-{
-    Q_UNUSED(url)
-    Q_UNUSED(baseDirectory)
-    Q_UNUSED(localName)
-    Q_UNUSED(extraArgs)
-    return nullptr;
-}
-
 IVersionControl::RepoUrl::RepoUrl(const QString &location)
 {
     if (location.isEmpty())
