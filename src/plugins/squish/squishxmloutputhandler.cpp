@@ -232,6 +232,7 @@ void SquishXmlOutputHandler::outputAvailable(const QByteArray &output)
                 result.setLine(line);
                 testCaseRootItem = new SquishResultItem(result);
                 emit resultItemCreated(testCaseRootItem);
+                emit updateStatus(result.text());
             }
             break;
         }
@@ -245,6 +246,7 @@ void SquishXmlOutputHandler::outputAvailable(const QByteArray &output)
                 TestResult result(Result::End, QString(), time);
                 SquishResultItem *item = new SquishResultItem(result);
                 testCaseRootItem->appendChild(item);
+                emit updateStatus(result.text());
             } else if (currentName == "description") {
                 if (!prepend && !details.trimmed().isEmpty()) {
                     logDetailsList.append(details.trimmed());
@@ -254,17 +256,36 @@ void SquishXmlOutputHandler::outputAvailable(const QByteArray &output)
                        && currentName != "test"
                        && currentName != "result"
                        && currentName != "SquishReport") {
+                QTC_ASSERT(testCaseRootItem, break);
                 TestResult result(type, logDetails, time);
                 if (logDetails.isEmpty() && !logDetailsList.isEmpty())
                     result.setText(logDetailsList.takeFirst());
                 result.setFile(file);
                 result.setLine(line);
                 SquishResultItem *item = new SquishResultItem(result);
+                emit updateStatus(result.text());
+
+                switch (result.type()) {
+                case Result::Pass:
+                case Result::ExpectedFail:
+                    emit increasePassCounter();
+                    break;
+                case Result::Error:
+                case Result::Fail:
+                case Result::Fatal:
+                case Result::UnexpectedPass:
+                    emit increaseFailCounter();
+                    break;
+                default:
+                    break;
+                }
+
                 if (!logDetailsList.isEmpty()) {
                     for (const QString &detail : qAsConst(logDetailsList)) {
                         TestResult childResult(Result::Detail, detail);
                         SquishResultItem *childItem = new SquishResultItem(childResult);
                         item->appendChild(childItem);
+                        emit updateStatus(childResult.text());
                     }
                 }
                 testCaseRootItem->appendChild(item);

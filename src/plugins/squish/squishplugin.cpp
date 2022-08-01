@@ -102,6 +102,13 @@ bool SquishPlugin::initialize(const QStringList &, QString *)
 
 ExtensionSystem::IPlugin::ShutdownFlag SquishPlugin::aboutToShutdown()
 {
+    if (dd->m_squishTools) {
+        if (dd->m_squishTools->shutdown())
+            return SynchronousShutdown;
+        connect(dd->m_squishTools, &SquishTools::shutdownFinished,
+                this, &ExtensionSystem::IPlugin::asynchronousShutdownFinished);
+        return AsynchronousShutdown;
+    }
     return SynchronousShutdown;
 }
 

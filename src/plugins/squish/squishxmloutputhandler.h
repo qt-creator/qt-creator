@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "testresult.h"
-
 #include <QObject>
 #include <QXmlStreamReader>
 
@@ -27,6 +25,9 @@ public:
 
 signals:
     void resultItemCreated(SquishResultItem *resultItem);
+    void updateStatus(const QString &text);
+    void increasePassCounter();
+    void increaseFailCounter();
 
 public slots:
     void outputAvailable(const QByteArray &output);

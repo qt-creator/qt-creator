@@ -3,12 +3,13 @@
 
 #pragma once
 
+#include "squishperspective.h"
+
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
 
 #include <QObject>
 #include <QStringList>
-#include <QWindowList>
 
 #include <memory>
 
@@ -51,6 +52,9 @@ public:
                       const QStringList &additionalRunnerArgs = QStringList());
     void queryServerSettings();
     void writeServerSettingsChanges(const QList<QStringList> &changes);
+    void requestExpansion(const QString &name);
+
+    bool shutdown();
 
 signals:
     void logOutputReceived(const QString &output);
@@ -60,6 +64,9 @@ signals:
     void queryFinished(const QByteArray &output);
     void configChangesFailed(QProcess::ProcessError error);
     void configChangesWritten();
+    void localsUpdated(const QString &output);
+    void symbolUpdated(const QString &output);
+    void shutdownFinished();
 
 private:
     enum Request {
@@ -84,17 +91,26 @@ private:
     void onRunnerFinished();
     void onServerOutput();
     void onServerErrorOutput();
-    void onRunnerOutput();
-    void onRunnerErrorOutput();
+    void onRunnerOutput();                              // runner's results file
+    void onRunnerErrorOutput();                         // runner's error stream
+    void onRunnerStdOutput(const QString &line);        // runner's output stream
+    void setBreakpoints();
+    void handlePrompt(const QString &fileName = {}, int line = -1, int column = -1);
     void onResultsDirChanged(const QString &filePath);
     static void logrotateTestResults();
     void minimizeQtCreatorWindows();
     void restoreQtCreatorWindows();
+    void updateLocationMarker(const Utils::FilePath &file, int line);
+    void clearLocationMarker();
+    void onPerspectiveStateChanged(SquishPerspective::State state);
+    void interruptRunner();
+    void terminateRunner();
     bool isValidToStartRunner();
     bool setupRunnerPath();
     void setupAndStartSquishRunnerProcess(const QStringList &arg,
                                           const QString &caseReportFilePath = {});
 
+    SquishPerspective m_perspective;
     std::unique_ptr<SquishXmlOutputHandler> m_xmlOutputHandler;
     Utils::QtcProcess m_serverProcess;
     Utils::QtcProcess m_runnerProcess;
@@ -106,14 +122,18 @@ private:
     QStringList m_testCases;
     QStringList m_reportFiles;
     QString m_currentResultsDirectory;
+    Utils::FilePath m_currentTestCasePath;
     QFile *m_currentResultsXML = nullptr;
     QFileSystemWatcher *m_resultsFileWatcher = nullptr;
     QStringList m_additionalServerArguments;
     QStringList m_additionalRunnerArguments;
     QList<QStringList> m_serverConfigChanges;
     QWindowList m_lastTopLevelWindows;
+    class SquishLocationMark *m_locationMarker = nullptr;
+    QTimer *m_requestVarsTimer = nullptr;
     enum RunnerMode { NoMode, TestingMode, QueryMode} m_squishRunnerMode = NoMode;
     qint64 m_readResultsCount;
+    bool m_shutdownInitiated = false;
 };
 
 } // namespace Internal

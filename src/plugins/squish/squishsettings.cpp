@@ -73,6 +73,12 @@ SquishSettings::SquishSettings()
     verbose.setLabel(Tr::tr("Verbose log"));
     verbose.setDefaultValue(false);
 
+    registerAspect(&minimizeIDE);
+    minimizeIDE.setSettingsKey("MinimizeIDE");
+    minimizeIDE.setLabel(Tr::tr("Minimize IDE"));
+    minimizeIDE.setToolTip(Tr::tr("Minimize IDE automatically while running or recording test cases."));
+    minimizeIDE.setDefaultValue(true);
+
     connect(&local, &BoolAspect::volatileValueChanged,
             this, [this] (bool checked) {
         serverHost.setEnabled(!checked);
@@ -100,6 +106,7 @@ SquishSettingsPage::SquishSettingsPage(SquishSettings *settings)
             s.licensePath, br,
             Span {2, Row { s.local, s.serverHost, s.serverPort } }, br,
             s.verbose, br,
+            s.minimizeIDE, br,
         };
         Column { Row { grid }, st }.attachTo(widget);
     });

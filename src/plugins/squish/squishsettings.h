@@ -28,6 +28,7 @@ public:
     Utils::IntegerAspect serverPort;
     Utils::BoolAspect local;
     Utils::BoolAspect verbose;
+    Utils::BoolAspect minimizeIDE;
 };
 
 class SquishSettingsPage final : public Core::IOptionsPage
