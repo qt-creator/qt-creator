@@ -68,122 +68,6 @@ static char JOB_ARGUMENTS[] = "arguments";
 static char JOB_TIME_OUT[] = "timeoutFactor";
 static char JOB_ENABLED[] = "enabled";
 
-
-/*!
-    \class VcsBase::ShellCommandPage
-
-    \brief The ShellCommandPage implements a page showing the
-    progress of a \c ShellCommand.
-
-    Turns complete when the command succeeds.
-*/
-
-ShellCommandPage::ShellCommandPage(QWidget *parent) :
-    WizardPage(parent),
-    m_startedStatus(tr("Command started..."))
-{
-    resize(264, 200);
-    auto verticalLayout = new QVBoxLayout(this);
-    m_logPlainTextEdit = new QPlainTextEdit;
-    m_formatter = new OutputFormatter;
-    m_logPlainTextEdit->setReadOnly(true);
-    m_formatter->setPlainTextEdit(m_logPlainTextEdit);
-
-    verticalLayout->addWidget(m_logPlainTextEdit);
-
-    m_statusLabel = new QLabel;
-    verticalLayout->addWidget(m_statusLabel);
-    setTitle(tr("Run Command"));
-}
-
-ShellCommandPage::~ShellCommandPage()
-{
-    QTC_ASSERT(m_state != Running, QApplication::restoreOverrideCursor());
-    delete m_formatter;
-}
-
-void ShellCommandPage::setStartedStatus(const QString &startedStatus)
-{
-    m_startedStatus = startedStatus;
-}
-
-void ShellCommandPage::start(VcsCommand *command)
-{
-    if (!command) {
-        m_logPlainTextEdit->setPlainText(tr("No job running, please abort."));
-        return;
-    }
-
-    QTC_ASSERT(m_state != Running, return);
-    m_command = command;
-    command->setProgressiveOutput(true);
-    connect(command, &VcsCommand::stdOutText, this, [this](const QString &text) {
-        m_formatter->appendMessage(text, StdOutFormat);
-    });
-    connect(command, &VcsCommand::stdErrText, this, [this](const QString &text) {
-        m_formatter->appendMessage(text, StdErrFormat);
-    });
-    connect(command, &VcsCommand::finished, this, &ShellCommandPage::slotFinished);
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    m_logPlainTextEdit->clear();
-    m_overwriteOutput = false;
-    m_statusLabel->setText(m_startedStatus);
-    m_statusLabel->setPalette(QPalette());
-    m_state = Running;
-    command->execute();
-
-    wizard()->button(QWizard::BackButton)->setEnabled(false);
-}
-
-void ShellCommandPage::slotFinished(bool success, const QVariant &)
-{
-    QTC_ASSERT(m_state == Running, return);
-
-    QString message;
-    QPalette palette;
-
-    if (success) {
-        m_state = Succeeded;
-        message = tr("Succeeded.");
-        palette.setColor(QPalette::WindowText, creatorTheme()->color(Theme::TextColorNormal).name());
-    } else {
-        m_state = Failed;
-        message = tr("Failed.");
-        palette.setColor(QPalette::WindowText, creatorTheme()->color(Theme::TextColorError).name());
-    }
-
-    m_statusLabel->setText(message);
-    m_statusLabel->setPalette(palette);
-
-    QApplication::restoreOverrideCursor();
-    wizard()->button(QWizard::BackButton)->setEnabled(true);
-
-    if (success)
-        emit completeChanged();
-    emit finished(success);
-}
-
-void ShellCommandPage::terminate()
-{
-    if (m_command)
-        m_command->cancel();
-}
-
-bool ShellCommandPage::handleReject()
-{
-    if (!isRunning())
-        return false;
-
-    terminate();
-    return true;
-}
-
-bool ShellCommandPage::isComplete() const
-{
-    return m_state == Succeeded;
-}
-
-
 // ----------------------------------------------------------------------
 // VcsCommandPageFactory:
 // ----------------------------------------------------------------------
@@ -336,16 +220,59 @@ bool VcsCommandPageFactory::validateData(Id typeId, const QVariant &data, QStrin
 // VcsCommandPage:
 // ----------------------------------------------------------------------
 
+/*!
+    \class VcsBase::VcsCommandPage
+
+    \brief The VcsCommandPage implements a page showing the
+    progress of a \c VcsCommand.
+
+    Turns complete when the command succeeds.
+*/
+
 VcsCommandPage::VcsCommandPage()
+    : m_startedStatus(tr("Command started..."))
 {
+    resize(264, 200);
+    auto verticalLayout = new QVBoxLayout(this);
+    m_logPlainTextEdit = new QPlainTextEdit;
+    m_formatter = new OutputFormatter;
+    m_logPlainTextEdit->setReadOnly(true);
+    m_formatter->setPlainTextEdit(m_logPlainTextEdit);
+
+    verticalLayout->addWidget(m_logPlainTextEdit);
+
+    m_statusLabel = new QLabel;
+    verticalLayout->addWidget(m_statusLabel);
     setTitle(tr("Checkout"));
 }
+
+VcsCommandPage::~VcsCommandPage()
+{
+    QTC_ASSERT(m_state != Running, QApplication::restoreOverrideCursor());
+    delete m_formatter;
+}
+
 
 void VcsCommandPage::initializePage()
 {
     // Delay real initialization till after QWizard is done with its setup.
     // Otherwise QWizard will reset our disabled back button again.
     QTimer::singleShot(0, this, &VcsCommandPage::delayedInitialize);
+}
+
+bool VcsCommandPage::isComplete() const
+{
+    return m_state == Succeeded;
+}
+
+bool VcsCommandPage::handleReject()
+{
+    if (m_state != Running)
+        return false;
+
+    if (m_command)
+        m_command->cancel();
+    return true;
 }
 
 void VcsCommandPage::delayedInitialize()
@@ -401,7 +328,7 @@ void VcsCommandPage::delayedInitialize()
 
     const QString runMessage = wiz->expander()->expand(m_runMessage);
     if (!runMessage.isEmpty())
-        setStartedStatus(runMessage);
+        m_startedStatus = runMessage;
 
     QStringList extraArgs;
     for (const QString &in : qAsConst(m_arguments)) {
@@ -440,6 +367,61 @@ void VcsCommandPage::delayedInitialize()
     }
 
     start(command);
+}
+
+void VcsCommandPage::start(VcsCommand *command)
+{
+    if (!command) {
+        m_logPlainTextEdit->setPlainText(tr("No job running, please abort."));
+        return;
+    }
+
+    QTC_ASSERT(m_state != Running, return);
+    m_command = command;
+    command->setProgressiveOutput(true);
+    connect(command, &VcsCommand::stdOutText, this, [this](const QString &text) {
+        m_formatter->appendMessage(text, StdOutFormat);
+    });
+    connect(command, &VcsCommand::stdErrText, this, [this](const QString &text) {
+        m_formatter->appendMessage(text, StdErrFormat);
+    });
+    connect(command, &VcsCommand::finished, this, &VcsCommandPage::finished);
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    m_logPlainTextEdit->clear();
+    m_overwriteOutput = false;
+    m_statusLabel->setText(m_startedStatus);
+    m_statusLabel->setPalette(QPalette());
+    m_state = Running;
+    command->execute();
+
+    wizard()->button(QWizard::BackButton)->setEnabled(false);
+}
+
+void VcsCommandPage::finished(bool success, const QVariant &)
+{
+    QTC_ASSERT(m_state == Running, return);
+
+    QString message;
+    QPalette palette;
+
+    if (success) {
+        m_state = Succeeded;
+        message = tr("Succeeded.");
+        palette.setColor(QPalette::WindowText, creatorTheme()->color(Theme::TextColorNormal).name());
+    } else {
+        m_state = Failed;
+        message = tr("Failed.");
+        palette.setColor(QPalette::WindowText, creatorTheme()->color(Theme::TextColorError).name());
+    }
+
+    m_statusLabel->setText(message);
+    m_statusLabel->setPalette(palette);
+
+    QApplication::restoreOverrideCursor();
+    wizard()->button(QWizard::BackButton)->setEnabled(true);
+
+    if (success)
+        emit completeChanged();
 }
 
 void VcsCommandPage::setCheckoutData(const QString &repo, const QString &baseDir, const QString &name,

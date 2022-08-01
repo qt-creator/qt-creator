@@ -39,10 +39,7 @@ class QPlainTextEdit;
 class QLabel;
 QT_END_NAMESPACE
 
-namespace Utils {
-class FilePath;
-class OutputFormatter;
-}
+namespace Utils { class OutputFormatter; }
 
 namespace VcsBase {
 
@@ -62,51 +59,17 @@ public:
     bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) override;
 };
 
-class ShellCommandPage : public Utils::WizardPage
-{
-    Q_OBJECT
-
-public:
-    enum State { Idle, Running, Failed, Succeeded };
-
-    explicit ShellCommandPage(QWidget *parent = nullptr);
-    ~ShellCommandPage() override;
-
-    void setStartedStatus(const QString &startedStatus);
-    void start(VcsCommand *command);
-
-    bool isComplete() const override;
-    bool isRunning() const{ return m_state == Running; }
-
-    void terminate();
-
-    bool handleReject() override;
-
-signals:
-    void finished(bool success);
-
-private:
-    void slotFinished(bool success, const QVariant &cookie);
-
-    QPlainTextEdit *m_logPlainTextEdit;
-    Utils::OutputFormatter *m_formatter;
-    QLabel *m_statusLabel;
-
-    VcsCommand *m_command = nullptr;
-    QString m_startedStatus;
-    bool m_overwriteOutput = false;
-
-    State m_state = Idle;
-};
-
-class VcsCommandPage : public ShellCommandPage
+class VcsCommandPage : public Utils::WizardPage
 {
     Q_OBJECT
 
 public:
     VcsCommandPage();
+    ~VcsCommandPage() override;
 
     void initializePage() override;
+    bool isComplete() const override;
+    bool handleReject() override;
 
     void setCheckoutData(const QString &repo, const QString &baseDir, const QString &name,
                          const QStringList &args);
@@ -115,10 +78,13 @@ public:
     void setVersionControlId(const QString &id);
     void setRunMessage(const QString &msg);
 
-private slots:
-    void delayedInitialize();
-
 private:
+    void delayedInitialize();
+    void start(VcsCommand *command);
+    void finished(bool success, const QVariant &cookie);
+
+    enum State { Idle, Running, Failed, Succeeded };
+
     struct JobData
     {
         bool skipEmptyArguments = false;
@@ -128,6 +94,15 @@ private:
         int timeOutFactor;
     };
 
+    QPlainTextEdit *m_logPlainTextEdit = nullptr;
+    Utils::OutputFormatter *m_formatter = nullptr;
+    QLabel *m_statusLabel = nullptr;
+
+    VcsCommand *m_command = nullptr;
+    QString m_startedStatus;
+    bool m_overwriteOutput = false;
+
+    State m_state = Idle;
     QString m_vcsId;
     QString m_repository;
     QString m_directory;
