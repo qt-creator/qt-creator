@@ -84,14 +84,24 @@ static CppEditor::ProjectFile::Kind fileKindFromString(QString flag)
     return ProjectFile::Unclassified;
 }
 
-QStringList filterFromFileName(const QStringList &flags, QString baseName)
+QStringList filterFromFileName(const QStringList &flags, QString fileName)
 {
-    baseName.append('.'); // to match name.c, name.o, etc.
     QStringList result;
     result.reserve(flags.size());
-    for (const QString &flag : flags) {
-        if (!flag.contains(baseName))
-            result.push_back(flag);
+    bool skipNext = false;
+    for (int i = 0; i < flags.size(); ++i) {
+        const QString &flag = flags.at(i);
+        if (skipNext) {
+            skipNext = false;
+            continue;
+        }
+        if (FilePath::fromUserInput(flag).fileName() == fileName)
+            continue;
+        if (flag == "-o" || flag.startsWith("/Fo")) {
+            skipNext = true;
+            continue;
+        }
+        result.push_back(flag);
     }
 
     return result;
