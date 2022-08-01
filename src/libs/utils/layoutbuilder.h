@@ -188,11 +188,22 @@ namespace Layouting {
 QTCREATOR_UTILS_EXPORT LayoutBuilder::Setter title(const QString &title,
                                                    BoolAspect *checker = nullptr);
 
+QTCREATOR_UTILS_EXPORT LayoutBuilder::Setter text(const QString &text);
+QTCREATOR_UTILS_EXPORT LayoutBuilder::Setter tooltip(const QString &toolTip);
+QTCREATOR_UTILS_EXPORT LayoutBuilder::Setter onClicked(const std::function<void()> &func,
+                                                       QObject *guard = nullptr);
+
 class QTCREATOR_UTILS_EXPORT Group : public LayoutBuilder::LayoutItem
 {
 public:
     explicit Group(const LayoutBuilder &innerLayout);
     Group(const LayoutBuilder::Setters &setters, const LayoutBuilder &innerLayout);
+};
+
+class QTCREATOR_UTILS_EXPORT PushButton : public LayoutBuilder::LayoutItem
+{
+public:
+    PushButton(std::initializer_list<LayoutBuilder::Setter> setters);
 };
 
 class QTCREATOR_UTILS_EXPORT Column : public LayoutBuilder

@@ -157,10 +157,6 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
         Tr::tr("Timeout used when executing test cases. This will apply "
                "for each test case on its own, not the whole project."));
 
-    auto resetChoicesButton = new QPushButton(Tr::tr("Reset Cached Choices"));
-    resetChoicesButton->setToolTip(
-        Tr::tr("Clear all cached choices of run configurations for tests where the executable could not be deduced."));
-
     m_frameworkTreeWidget = new QTreeWidget;
     m_frameworkTreeWidget->setRootIsDecorated(false);
     m_frameworkTreeWidget->setHeaderHidden(false);
@@ -180,6 +176,13 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
     m_frameworksWarn->setType(Utils::InfoLabel::Warning);
 
     using namespace Utils::Layouting;
+
+    PushButton resetChoicesButton {
+        text(Tr::tr("Reset Cached Choices")),
+        tooltip(Tr::tr("Clear all cached choices of run configurations for "
+                       "tests where the executable could not be deduced.")),
+        onClicked([] { AutotestPlugin::clearChoiceCache(); }, this)
+    };
 
     Group generalGroup {
         title(Tr::tr("General")),
@@ -218,8 +221,6 @@ TestSettingsWidget::TestSettingsWidget(QWidget *parent)
 
     connect(m_frameworkTreeWidget, &QTreeWidget::itemChanged,
             this, &TestSettingsWidget::onFrameworkItemChanged);
-    connect(resetChoicesButton, &QPushButton::clicked,
-            this, [] { AutotestPlugin::clearChoiceCache(); });
     connect(m_openResultsOnFinishCB, &QCheckBox::toggled,
             m_openResultsOnFailCB, &QCheckBox::setEnabled);
     connect(m_limitResultDescriptionCb, &QCheckBox::toggled,

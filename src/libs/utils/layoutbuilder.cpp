@@ -31,6 +31,7 @@
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QGroupBox>
+#include <QPushButton>
 #include <QStyle>
 #include <QWidget>
 
@@ -469,6 +470,8 @@ LayoutBuilder::AlignAsFormLabel::AlignAsFormLabel(const LayoutItem &item)
 
 namespace Layouting {
 
+// "Widgets"
+
 Group::Group(const LayoutBuilder &innerLayout)
     : Group({}, innerLayout)
 {}
@@ -481,6 +484,15 @@ Group::Group(const LayoutBuilder::Setters &setters, const LayoutBuilder &innerLa
         func(widget);
 }
 
+PushButton::PushButton(std::initializer_list<LayoutBuilder::Setter> setters)
+{
+    widget = new QPushButton;
+    for (const LayoutBuilder::Setter &func : setters)
+        func(widget);
+}
+
+// "Properties"
+
 LayoutBuilder::Setter title(const QString &title, BoolAspect *checker)
 {
     return [title, checker](QObject *target) {
@@ -492,6 +504,39 @@ LayoutBuilder::Setter title(const QString &title, BoolAspect *checker)
                 groupBox->setChecked(checker->value());
                 checker->setHandlesGroup(groupBox);
             }
+        } else {
+            QTC_CHECK(false);
+        }
+    };
+}
+
+LayoutBuilder::Setter onClicked(const std::function<void ()> &func, QObject *guard)
+{
+    return [func, guard](QObject *target) {
+        if (auto button = qobject_cast<QAbstractButton *>(target)) {
+            QObject::connect(button, &QAbstractButton::clicked, guard ? guard : target, func);
+        } else {
+            QTC_CHECK(false);
+        }
+    };
+}
+
+LayoutBuilder::Setter text(const QString &text)
+{
+    return [text](QObject *target) {
+        if (auto button = qobject_cast<QAbstractButton *>(target)) {
+            button->setText(text);
+        } else {
+            QTC_CHECK(false);
+        }
+    };
+}
+
+LayoutBuilder::Setter tooltip(const QString &toolTip)
+{
+    return [toolTip](QObject *target) {
+        if (auto widget = qobject_cast<QWidget *>(target)) {
+            widget->setToolTip(toolTip);
         } else {
             QTC_CHECK(false);
         }
