@@ -25,7 +25,15 @@
 
 #include "vcscommand.h"
 
+#include "vcsbaseplugin.h"
+#include "vcsoutputwindow.h"
+#include "vcsplugin.h"
+
+#include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
+
 #include <utils/environment.h>
+#include <utils/globalfilechangeblocker.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
@@ -56,6 +64,7 @@
     when a progress string is detected.
 */
 
+using namespace Core;
 using namespace Utils;
 
 namespace VcsBase {
@@ -77,7 +86,9 @@ public:
     VcsCommandPrivate(const FilePath &defaultWorkingDirectory, const Environment &environment)
         : m_defaultWorkingDirectory(defaultWorkingDirectory),
           m_environment(environment)
-    {}
+    {
+        VcsBase::setProcessEnvironment(&m_environment);
+    }
 
     ~VcsCommandPrivate() { delete m_progressParser; }
 
@@ -98,6 +109,7 @@ public:
     QTextCodec *m_codec = nullptr;
     ProgressParser *m_progressParser = nullptr;
     QFutureWatcher<void> m_watcher;
+    QFutureInterface<void> m_futureInterface;
     QList<Job> m_jobs;
 
     unsigned m_flags = 0;
@@ -106,7 +118,6 @@ public:
     bool m_progressiveOutput = false;
     bool m_hadOutput = false;
     bool m_aborted = false;
-    bool m_disableUnixTerminal = false;
 };
 
 VcsCommandPrivate::Job::Job(const FilePath &wd, const CommandLine &command,
@@ -127,10 +138,52 @@ VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &envi
     d(new Internal::VcsCommandPrivate(workingDirectory, environment))
 {
     connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, &VcsCommand::cancel);
+
+    VcsOutputWindow::setRepository(defaultWorkingDirectory().toString());
+    VcsOutputWindow *outputWindow = VcsOutputWindow::instance(); // Keep me here, just to be sure it's not instantiated in other thread
+    connect(this, &VcsCommand::append, outputWindow, [outputWindow](const QString &t) {
+        outputWindow->append(t);
+    });
+    connect(this, &VcsCommand::appendSilently, outputWindow, &VcsOutputWindow::appendSilently);
+    connect(this, &VcsCommand::appendError, outputWindow, &VcsOutputWindow::appendError);
+    connect(this, &VcsCommand::appendCommand, outputWindow, &VcsOutputWindow::appendCommand);
+    connect(this, &VcsCommand::appendMessage, outputWindow, &VcsOutputWindow::appendMessage);
+    const auto connection = connect(this, &VcsCommand::runCommandFinished,
+                                    this, &VcsCommand::postRunCommand);
+    connect(ICore::instance(), &ICore::coreAboutToClose, this, [this, connection] {
+        disconnect(connection);
+        abort();
+    });
+}
+
+void VcsCommand::addTask(const QFuture<void> &future)
+{
+    if ((d->m_flags & VcsCommand::SuppressCommandLogging))
+        return;
+
+    const QString name = displayName();
+    const auto id = Id::fromString(name + QLatin1String(".action"));
+    if (d->m_progressParser) {
+        ProgressManager::addTask(future, name, id);
+    } else {
+        ProgressManager::addTimedTask(d->m_futureInterface, name, id, qMax(2, timeoutS() / 5));
+    }
+
+    Internal::VcsPlugin::addFuture(future);
+}
+
+void VcsCommand::postRunCommand(const FilePath &workingDirectory)
+{
+    if (!(d->m_flags & VcsCommand::ExpectRepoChanges))
+        return;
+    // TODO tell the document manager that the directory now received all expected changes
+    // Core::DocumentManager::unexpectDirectoryChange(d->m_workingDirectory);
+    VcsManager::emitRepositoryChanged(workingDirectory);
 }
 
 VcsCommand::~VcsCommand()
 {
+    d->m_futureInterface.reportFinished();
     delete d;
 }
 
@@ -164,16 +217,6 @@ const FilePath &VcsCommand::defaultWorkingDirectory() const
     return d->m_defaultWorkingDirectory;
 }
 
-Environment VcsCommand::environment() const
-{
-    return d->m_environment;
-}
-
-void VcsCommand::setEnvironment(const Environment &env)
-{
-    d->m_environment = env;
-}
-
 int VcsCommand::defaultTimeoutS() const
 {
     return d->m_defaultTimeoutS;
@@ -182,11 +225,6 @@ int VcsCommand::defaultTimeoutS() const
 void VcsCommand::setDefaultTimeoutS(int timeout)
 {
     d->m_defaultTimeoutS = timeout;
-}
-
-unsigned VcsCommand::flags() const
-{
-    return d->m_flags;
 }
 
 void VcsCommand::addFlags(unsigned f)
@@ -216,7 +254,7 @@ void VcsCommand::execute()
 
     QFuture<void> task = runAsync(&VcsCommand::run, this);
     d->m_watcher.setFuture(task);
-    emit executedAsync(task);
+    addTask(task);
 }
 
 void VcsCommand::abort()
@@ -253,7 +291,11 @@ void VcsCommand::run(QFutureInterface<void> &future)
     QString stdOut;
     QString stdErr;
 
-    emit started();
+    if (d->m_flags & VcsCommand::ExpectRepoChanges) {
+        QMetaObject::invokeMethod(this, [] {
+            GlobalFileChangeBlocker::instance()->forceBlocked(true);
+        });
+    }
     if (d->m_progressParser)
         d->m_progressParser->setFuture(&future);
     else
@@ -278,6 +320,11 @@ void VcsCommand::run(QFutureInterface<void> &future)
                 emit stdErrText(stdErr);
         }
 
+        if (d->m_flags & VcsCommand::ExpectRepoChanges) {
+            QMetaObject::invokeMethod(this, [] {
+                GlobalFileChangeBlocker::instance()->forceBlocked(false);
+            });
+        }
         emit finished(lastExecSuccess, cookie());
         if (lastExecSuccess)
             future.setProgressValue(future.progressMaximum());
@@ -292,7 +339,7 @@ void VcsCommand::run(QFutureInterface<void> &future)
 }
 
 CommandResult VcsCommand::runCommand(const CommandLine &command, const FilePath &workingDirectory,
-                                       int timeoutS, const ExitCodeInterpreter &interpreter)
+                                     int timeoutS, const ExitCodeInterpreter &interpreter)
 {
     QtcProcess proc;
     if (command.executable().isEmpty())
@@ -309,8 +356,7 @@ CommandResult VcsCommand::runCommand(const CommandLine &command, const FilePath 
         emit appendCommand(dir, command);
 
     proc.setCommand(command);
-    if (d->m_disableUnixTerminal)
-        proc.setDisableUnixTerminal();
+    proc.setDisableUnixTerminal();
     proc.setEnvironment(d->environment());
     if (d->m_flags & MergeOutputChannels)
         proc.setProcessChannelMode(QProcess::MergedChannels);
@@ -404,11 +450,6 @@ void VcsCommand::setCookie(const QVariant &cookie)
     d->m_cookie = cookie;
 }
 
-QTextCodec *VcsCommand::codec() const
-{
-    return d->m_codec;
-}
-
 void VcsCommand::setCodec(QTextCodec *codec)
 {
     d->m_codec = codec;
@@ -421,19 +462,9 @@ void VcsCommand::setProgressParser(ProgressParser *parser)
     d->m_progressParser = parser;
 }
 
-bool VcsCommand::hasProgressParser() const
-{
-    return d->m_progressParser;
-}
-
 void VcsCommand::setProgressiveOutput(bool progressive)
 {
     d->m_progressiveOutput = progressive;
-}
-
-void VcsCommand::setDisableUnixTerminal()
-{
-    d->m_disableUnixTerminal = true;
 }
 
 ProgressParser::ProgressParser() :

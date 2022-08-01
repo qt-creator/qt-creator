@@ -25,11 +25,10 @@
 
 #include "vcsplugin.h"
 
-#include "vcsbaseconstants.h"
-#include "vcsbasesubmiteditor.h"
-
 #include "commonvcssettings.h"
 #include "nicknamedialog.h"
+#include "vcsbaseconstants.h"
+#include "vcsbasesubmiteditor.h"
 #include "vcsoutputwindow.h"
 #include "wizard/vcscommandpage.h"
 #include "wizard/vcsconfigurationpage.h"

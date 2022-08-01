@@ -24,9 +24,10 @@
 ****************************************************************************/
 
 #include "vcsbaseplugin.h"
+
+#include "commonvcssettings.h"
 #include "vcsbasesubmiteditor.h"
 #include "vcsplugin.h"
-#include "commonvcssettings.h"
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
@@ -43,8 +44,8 @@
 #include <QDir>
 #include <QLoggingCategory>
 #include <QMessageBox>
-#include <QSharedData>
 #include <QScopedPointer>
+#include <QSharedData>
 #include <QSharedPointer>
 #include <QProcessEnvironment>
 #include <QTextCodec>

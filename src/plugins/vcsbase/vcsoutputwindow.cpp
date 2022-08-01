@@ -25,16 +25,18 @@
 
 #include "vcsoutputwindow.h"
 
-#include <coreplugin/editormanager/editormanager.h>
+#include "vcsoutputformatter.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/outputwindow.h>
-#include <utils/fileutils.h>
-#include <utils/qtcprocess.h>
+
 #include <texteditor/behaviorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>
+
+#include <utils/fileutils.h>
+#include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
-#include <vcsbase/vcsoutputformatter.h>
 
 #include <QAction>
 #include <QContextMenuEvent>

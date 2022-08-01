@@ -36,9 +36,9 @@ QT_BEGIN_NAMESPACE
 class QMutex;
 class QVariant;
 template <typename T>
-class QFutureInterface;
-template <typename T>
 class QFuture;
+template <typename T>
+class QFutureInterface;
 class QTextCodec;
 QT_END_NAMESPACE
 
@@ -119,17 +119,12 @@ public:
         NoOutput = SuppressStdErr | SuppressFailMessage | SuppressCommandLogging
     };
 
-
     VcsCommand(const Utils::FilePath &workingDirectory, const Utils::Environment &environment);
     ~VcsCommand() override;
 
-    QString displayName() const;
     void setDisplayName(const QString &name);
 
     const Utils::FilePath &defaultWorkingDirectory() const;
-
-    Utils::Environment environment() const;
-    void setEnvironment(const Utils::Environment &env);
 
     void addJob(const Utils::CommandLine &command,
                 const Utils::FilePath &workingDirectory = {},
@@ -143,17 +138,14 @@ public:
     int defaultTimeoutS() const;
     void setDefaultTimeoutS(int timeout);
 
-    unsigned flags() const;
     void addFlags(unsigned f);
 
     const QVariant &cookie() const;
     void setCookie(const QVariant &cookie);
 
-    QTextCodec *codec() const;
     void setCodec(QTextCodec *codec);
 
     void setProgressParser(ProgressParser *parser);
-    bool hasProgressParser() const;
     void setProgressiveOutput(bool progressive);
 
     // This is called once per job in a thread.
@@ -162,16 +154,11 @@ public:
     CommandResult runCommand(const Utils::CommandLine &command,
                              const Utils::FilePath &workingDirectory = {},
                              int timeoutS = 10, const Utils::ExitCodeInterpreter &interpreter = {});
-
     void cancel();
-
-    void setDisableUnixTerminal();
-    int timeoutS() const;
 
 signals:
     void stdOutText(const QString &);
     void stdErrText(const QString &);
-    void started();
     void finished(bool success, const QVariant &cookie);
 
     void terminate(); // Internal
@@ -179,16 +166,19 @@ signals:
     void append(const QString &text);
     void appendSilently(const QString &text);
     void appendError(const QString &text);
-    // TODO: remove Utils:: scope when support for Qt5 is dropped (Creator 9.0)
     void appendCommand(const Utils::FilePath &workingDirectory, const Utils::CommandLine &command);
     void appendMessage(const QString &text);
 
-    void executedAsync(const QFuture<void> &future);
     void runCommandFinished(const Utils::FilePath &workingDirectory);
 
 private:
     Utils::FilePath workDirectory(const Utils::FilePath &wd) const;
     void run(QFutureInterface<void> &future);
+    void addTask(const QFuture<void> &future);
+    void postRunCommand(const Utils::FilePath &workingDirectory);
+
+    QString displayName() const;
+    int timeoutS() const;
 
     // Run without a event loop in fully blocking mode. No signals will be delivered.
     void runFullySynchronous(Utils::QtcProcess &proc);

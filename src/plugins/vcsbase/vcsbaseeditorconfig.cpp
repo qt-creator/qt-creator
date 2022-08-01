@@ -28,12 +28,11 @@
 #include <utils/aspects.h>
 #include <utils/utilsicons.h>
 
-#include <QComboBox>
 #include <QAction>
-#include <QHBoxLayout>
-
-#include <QStringList>
+#include <QComboBox>
 #include <QDebug>
+#include <QHBoxLayout>
+#include <QStringList>
 
 using namespace Utils;
 

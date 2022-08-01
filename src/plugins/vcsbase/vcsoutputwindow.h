@@ -27,7 +27,7 @@
 
 #include "vcsbase_global.h"
 
-#include  <coreplugin/ioutputpane.h>
+#include <coreplugin/ioutputpane.h>
 
 namespace Utils {
 class CommandLine;
