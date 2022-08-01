@@ -647,6 +647,7 @@ void Client::closeDocument(TextEditor::TextDocument *document)
 {
     deactivateDocument(document);
     d->m_postponedDocuments.remove(document);
+    d->m_documentsToUpdate.erase(document);
     if (d->m_openedDocument.remove(document) != 0) {
         handleDocumentClosed(document);
         if (d->m_state == Initialized)
