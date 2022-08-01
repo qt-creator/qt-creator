@@ -12,8 +12,9 @@
 
     "options":
     [
-        { "key": "MainQmlFile", "value": "%{ProjectName}.qml" },
-        { "key": "RootItemName", "value": "%{ProjectName}" },
+        { "key": "CorrectedProjectName", "value": "%{JS: '%{ProjectName}'.replace(/-/g, '_')}"},
+        { "key": "MainQmlFile", "value": "%{JS: '%{CorrectedProjectName}.qml'}" },
+        { "key": "RootItemName", "value": "%{JS: '%{CorrectedProjectName}'}" },
         { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" }
     ],
 

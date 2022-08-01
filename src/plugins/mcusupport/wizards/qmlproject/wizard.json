@@ -12,9 +12,10 @@
 
     "options":
     [
-        { "key": "MainQmlFile", "value": "%{ProjectName}.qml" },
-        { "key": "QmlProjectFile", "value": "%{ProjectName}.qmlproject" },
-        { "key": "RootItemName", "value": "%{ProjectName}" },
+        { "key": "CorrectedProjectName", "value": "%{JS: '%{ProjectName}'.replace(/-/g, '_')}"},
+        { "key": "MainQmlFile", "value": "%{CorrectedProjectName}.qml" },
+        { "key": "QmlProjectFile", "value": "%{CorrectedProjectName}.qmlproject" },
+        { "key": "RootItemName", "value": "%{CorrectedProjectName}" },
         { "key": "CMakeFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
         { "key": "ModuleFile", "value": "CustomModule.qmlproject"},
         { "key": "QmlComponent", "value": "CustomComponent.qml"}
