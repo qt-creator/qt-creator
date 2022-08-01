@@ -76,6 +76,7 @@ public:
     void setCodeStyle(CppCodeStylePreferences *codeStylePreferences);
     void addTab(CppCodeStyleWidget *page, QString tabName);
     void apply() override;
+    void finish() override;
 
 private:
     void decorateEditors(const TextEditor::FontSettings &fontSettings);
@@ -98,6 +99,7 @@ signals:
     void codeStyleSettingsChanged(const CppEditor::CppCodeStyleSettings &);
     void tabSettingsChanged(const TextEditor::TabSettings &);
     void applyEmitted();
+    void finishEmitted();
 };
 
 

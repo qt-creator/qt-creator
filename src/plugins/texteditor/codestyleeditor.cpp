@@ -52,25 +52,36 @@ CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
     m_layout = new QVBoxLayout(this);
     auto selector = new CodeStyleSelectorWidget(factory, project, this);
     selector->setCodeStyle(codeStyle);
+    m_additionalGlobalSettingsWidget = factory->createAdditionalGlobalSettings(project, parent);
+
+    if (m_additionalGlobalSettingsWidget)
+        m_layout->addWidget(m_additionalGlobalSettingsWidget);
+
+    m_layout->addWidget(selector);
+    if (!project) {
+        m_widget = factory->createEditor(codeStyle, project, parent);
+
+        if (m_widget)
+            m_layout->addWidget(m_widget);
+        return;
+    }
+
+    QLabel *label = new QLabel(
+        tr("Edit preview contents to see how the current settings "
+           "are applied to custom code snippets. Changes in the preview "
+           "do not affect the current settings."), this);
+    QFont font = label->font();
+    font.setItalic(true);
+    label->setFont(font);
+    label->setWordWrap(true);
+
     m_preview = new SnippetEditorWidget(this);
     DisplaySettings displaySettings = m_preview->displaySettings();
     displaySettings.m_visualizeWhitespace = true;
     m_preview->setDisplaySettings(displaySettings);
     QString groupId = factory->snippetProviderGroupId();
     SnippetProvider::decorateEditor(m_preview, groupId);
-    QLabel *label = new QLabel(
-                tr("Edit preview contents to see how the current settings "
-                "are applied to custom code snippets. Changes in the preview "
-                "do not affect the current settings."), this);
-    QFont font = label->font();
-    font.setItalic(true);
-    label->setFont(font);
-    label->setWordWrap(true);
-    m_additionalGlobalSettingsWidget = factory->createAdditionalGlobalSettings(project, parent);
-    if (m_additionalGlobalSettingsWidget)
-        m_layout->addWidget(m_additionalGlobalSettingsWidget);
 
-    m_layout->addWidget(selector);
     m_layout->addWidget(m_preview);
     m_layout->addWidget(label);
     connect(codeStyle, &ICodeStylePreferences::currentTabSettingsChanged,
@@ -105,8 +116,15 @@ void CodeStyleEditor::updatePreview()
 
 void CodeStyleEditor::apply()
 {
-    if (!m_additionalGlobalSettingsWidget)
-        return;
+    if (m_widget)
+        m_widget->apply();
 
-    m_additionalGlobalSettingsWidget->apply();
+    if (m_additionalGlobalSettingsWidget)
+        m_additionalGlobalSettingsWidget->apply();
+}
+
+void CodeStyleEditor::finish()
+{
+    if (m_widget)
+        m_widget->finish();
 }

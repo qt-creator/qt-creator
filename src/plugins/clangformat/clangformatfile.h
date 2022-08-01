@@ -37,8 +37,8 @@ namespace ClangFormat {
 class ClangFormatFile
 {
 public:
-    explicit ClangFormatFile(Utils::FilePath file, bool isReadOnly);
-    clang::format::FormatStyle format();
+    explicit ClangFormatFile(Utils::FilePath file);
+    clang::format::FormatStyle style();
 
     Utils::FilePath filePath();
     void resetStyleToQtC();
@@ -55,6 +55,7 @@ public:
     void fromCppCodeStyleSettings(const CppEditor::CppCodeStyleSettings &settings);
     void fromTabSettings(const TextEditor::TabSettings &settings);
     bool isReadOnly() const;
+    void setIsReadOnly(bool isReadOnly);
 
 private:
     void saveNewFormat();
@@ -63,7 +64,7 @@ private:
 private:
     Utils::FilePath m_filePath;
     clang::format::FormatStyle m_style;
-    const bool m_isReadOnly;
+    bool m_isReadOnly;
 };
 
 } // namespace ClangFormat

@@ -47,6 +47,7 @@ public:
         : QWidget(parent)
     {}
     virtual void apply() {}
+    virtual void finish() {}
 };
 
 class TEXTEDITOR_EXPORT ICodeStylePreferencesFactory

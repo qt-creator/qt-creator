@@ -35,9 +35,8 @@
 
 using namespace ClangFormat;
 
-ClangFormatFile::ClangFormatFile(Utils::FilePath filePath, bool isReadOnly)
+ClangFormatFile::ClangFormatFile(Utils::FilePath filePath)
     : m_filePath(filePath)
-    , m_isReadOnly(isReadOnly)
 {
     if (!m_filePath.exists()) {
         // create file and folder
@@ -58,7 +57,7 @@ ClangFormatFile::ClangFormatFile(Utils::FilePath filePath, bool isReadOnly)
     }
 }
 
-clang::format::FormatStyle ClangFormatFile::format() {
+clang::format::FormatStyle ClangFormatFile::style() {
     return m_style;
 }
 
@@ -76,6 +75,11 @@ void ClangFormatFile::setStyle(clang::format::FormatStyle style)
 bool ClangFormatFile::isReadOnly() const
 {
     return m_isReadOnly;
+}
+
+void ClangFormatFile::setIsReadOnly(bool isReadOnly)
+{
+    m_isReadOnly = isReadOnly;
 }
 
 void ClangFormatFile::resetStyleToQtC()

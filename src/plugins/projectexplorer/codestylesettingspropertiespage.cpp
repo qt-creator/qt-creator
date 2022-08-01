@@ -28,6 +28,8 @@
 #include "editorconfiguration.h"
 #include "project.h"
 
+#include <cppeditor/cppeditorconstants.h>
+
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/icodestylepreferencesfactory.h>
 #include <texteditor/codestyleeditor.h>
@@ -48,8 +50,8 @@ CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project)
     auto languageComboBox = new QComboBox(this);
     auto stackedWidget = new QStackedWidget(this);
 
+    setGlobalSettingsId(CppEditor::Constants::CPP_CODE_STYLE_SETTINGS_ID);
     setUseGlobalSettingsCheckBoxVisible(false);
-    setUseGlobalSettingsLabelVisible(false);
 
     const EditorConfiguration *config = project->editorConfiguration();
 

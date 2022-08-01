@@ -41,8 +41,11 @@
 #include <cppeditor/cpphighlighter.h>
 #include <cppeditor/cppcodestylesettings.h>
 #include <cppeditor/cppcodestylesnippets.h>
+#include <cppeditor/cpptoolssettings.h>
+#include <cppeditor/cppcodestylepreferences.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/session.h>
 
 #include <texteditor/displaysettings.h>
@@ -83,19 +86,18 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
     , m_project(project)
     , m_checks(std::make_unique<Ui::ClangFormatChecksWidget>())
 {
-    resize(489, 305);
+    m_config = std::make_unique<ClangFormatFile>(filePathToCurrentSettings(codeStyle->currentPreferences()));
 
+    resize(489, 305);
     m_projectHasClangFormat = new QLabel(this);
     m_overrideDefault = new QCheckBox(tr("Override Clang Format configuration file"));
     m_fallbackConfig = new QLabel(tr("Clang-Format Style"));
-    m_config = std::make_unique<ClangFormatFile>(filePathToCurrentSettings(codeStyle),
-                                                 codeStyle->isReadOnly());
     m_checksScrollArea = new QScrollArea();
     m_checksWidget = new QWidget;
 
     m_checks->setupUi(m_checksWidget);
     m_checksScrollArea->setWidget(m_checksWidget);
-    m_checksScrollArea->setMaximumWidth(500);
+    m_checksScrollArea->setMaximumWidth(600);
     m_checksWidget->setEnabled(!codeStyle->isReadOnly());
 
     FilePath fileName;
@@ -120,10 +122,15 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
         m_projectHasClangFormat,
         m_overrideDefault,
         m_fallbackConfig,
-        Row { m_checksScrollArea,  m_preview }
+        Row { m_checksScrollArea, m_preview }
     }.attachTo(this);
 
     initOverrideCheckBox();
+
+    connect(codeStyle, &TextEditor::ICodeStylePreferences::currentPreferencesChanged,
+            this, &ClangFormatConfigWidget::slotCodeStyleChanged);
+
+    slotCodeStyleChanged(codeStyle->currentPreferences());
 
     showOrHideWidgets();
     fillTable();
@@ -133,6 +140,21 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
 }
 
 ClangFormatConfigWidget::~ClangFormatConfigWidget() = default;
+
+void ClangFormatConfigWidget::slotCodeStyleChanged(
+    TextEditor::ICodeStylePreferences *codeStyle)
+{
+    if (!codeStyle)
+        return;
+    m_config.reset(new ClangFormatFile(filePathToCurrentSettings(codeStyle)));
+    m_config->setIsReadOnly(codeStyle->isReadOnly());
+    m_style = m_config->style();
+
+    m_checksWidget->setEnabled(!codeStyle->isReadOnly());
+
+    fillTable();
+    updatePreview();
+}
 
 void ClangFormatConfigWidget::initOverrideCheckBox()
 {
@@ -296,10 +318,16 @@ static void fillComboBoxOrLineEdit(QObject *object, const std::string &text, siz
     std::string value = text.substr(valueStart + 1, valueEnd - valueStart - 1);
     trim(value);
 
-    if (comboBox)
+    if (comboBox) {
+        if (comboBox->findText(QString::fromStdString(value)) == -1) {
+            comboBox->setCurrentIndex(0);
+            return;
+        }
         comboBox->setCurrentText(QString::fromStdString(value));
-    else
-        lineEdit->setText(QString::fromStdString(value));
+        return;
+    }
+
+    lineEdit->setText(QString::fromStdString(value));
 }
 
 void ClangFormatConfigWidget::fillTable()
@@ -414,7 +442,15 @@ void ClangFormatConfigWidget::apply()
     if (!m_checksWidget->isVisible() && !m_checksWidget->isEnabled())
         return;
 
-    saveChanges(this);
+    m_style = m_config->style();
+}
+
+void ClangFormatConfigWidget::finish()
+{
+    if (!m_checksWidget->isVisible() && !m_checksWidget->isEnabled())
+        return;
+
+    m_config->setStyle(m_style);
 }
 
 } // namespace ClangFormat

@@ -27,6 +27,8 @@
 
 #include <cppeditor/cppcodestylesettingspage.h>
 
+#include <clang/Format/Format.h>
+
 #include <QScrollArea>
 
 #include <memory>
@@ -57,6 +59,7 @@ public:
                                      QWidget *parent = nullptr);
     ~ClangFormatConfigWidget() override;
     void apply() override;
+    void finish() override;
     void setCodeStyleSettings(const CppEditor::CppCodeStyleSettings &settings) override;
     void setTabSettings(const TextEditor::TabSettings &settings) override;
     void synchronize() override;
@@ -67,7 +70,7 @@ private:
     bool eventFilter(QObject *object, QEvent *event) override;
 
     void showOrHideWidgets();
-    void initChecksAndPreview(bool enabled);
+    void initChecksAndPreview();
     void initOverrideCheckBox();
     void connectChecks();
 
@@ -75,6 +78,7 @@ private:
     void saveChanges(QObject *sender);
 
     void updatePreview();
+    void slotCodeStyleChanged(TextEditor::ICodeStylePreferences *currentPreferences);
 
     ProjectExplorer::Project *m_project;
     QWidget *m_checksWidget;
@@ -82,6 +86,7 @@ private:
     TextEditor::SnippetEditorWidget *m_preview;
     std::unique_ptr<ClangFormatFile> m_config;
     std::unique_ptr<Ui::ClangFormatChecksWidget> m_checks;
+    clang::format::FormatStyle m_style;
 
     bool m_disableTableUpdate = false;
 

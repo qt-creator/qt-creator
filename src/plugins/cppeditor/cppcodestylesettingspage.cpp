@@ -259,7 +259,7 @@ void CppCodeStylePreferencesWidget::setCodeStyleSettings(const CppCodeStyleSetti
 
 void CppCodeStylePreferencesWidget::slotCurrentPreferencesChanged(ICodeStylePreferences *preferences, bool preview)
 {
-    const bool enable = !preferences->isReadOnly() && !m_preferences->currentDelegate();
+    const bool enable = !preferences->isReadOnly();
     m_ui->tabSettingsWidget->setEnabled(enable);
     m_ui->contentGroupBox->setEnabled(enable);
     m_ui->bracesGroupBox->setEnabled(enable);
@@ -369,12 +369,20 @@ void CppCodeStylePreferencesWidget::addTab(CppCodeStyleWidget *page, QString tab
     connect(this, &CppCodeStylePreferencesWidget::applyEmitted,
             page, &CppCodeStyleWidget::apply);
 
+    connect(this, &CppCodeStylePreferencesWidget::finishEmitted,
+            page, &CppCodeStyleWidget::finish);
+
     page->synchronize();
 }
 
 void CppCodeStylePreferencesWidget::apply()
 {
     emit applyEmitted();
+}
+
+void CppCodeStylePreferencesWidget::finish()
+{
+    emit finishEmitted();
 }
 
 // ------------------ CppCodeStyleSettingsPage
@@ -431,6 +439,7 @@ void CppCodeStyleSettingsPage::apply()
 
 void CppCodeStyleSettingsPage::finish()
 {
+    m_widget->finish();
     delete m_widget;
 }
 

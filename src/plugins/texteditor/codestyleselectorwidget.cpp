@@ -49,118 +49,6 @@ using namespace TextEditor;
 using namespace Utils;
 
 namespace TextEditor {
-namespace Internal {
-
-class CodeStyleDialog : public QDialog
-{
-    Q_OBJECT
-public:
-    explicit CodeStyleDialog(ICodeStylePreferencesFactory *factory,
-                             ICodeStylePreferences *codeStyle,
-                             ProjectExplorer::Project *project = nullptr,
-                             QWidget *parent = nullptr);
-    ~CodeStyleDialog() override;
-    ICodeStylePreferences *codeStyle() const;
-private:
-    void slotCopyClicked();
-    void slotDisplayNameChanged();
-
-    ICodeStylePreferences *m_codeStyle;
-    QLineEdit *m_lineEdit;
-    QDialogButtonBox *m_buttons;
-    QLabel *m_warningLabel = nullptr;
-    QPushButton *m_copyButton = nullptr;
-    QString m_originalDisplayName;
-};
-
-CodeStyleDialog::CodeStyleDialog(ICodeStylePreferencesFactory *factory,
-                                 ICodeStylePreferences *codeStyle,
-                                 ProjectExplorer::Project *project,
-                                 QWidget *parent)
-    : QDialog(parent)
-{
-    setWindowTitle(tr("Edit Code Style"));
-    auto layout = new QVBoxLayout(this);
-    QLabel *label = new QLabel(tr("Code style name:"));
-    m_lineEdit = new QLineEdit(codeStyle->displayName(), this);
-    auto nameLayout = new QHBoxLayout;
-    nameLayout->addWidget(label);
-    nameLayout->addWidget(m_lineEdit);
-    layout->addLayout(nameLayout);
-
-    if (codeStyle->isReadOnly()) {
-        auto warningLayout = new QHBoxLayout;
-        m_warningLabel = new QLabel(
-                    tr("You cannot save changes to a built-in code style. "
-                       "Copy it first to create your own version."), this);
-        QFont font = m_warningLabel->font();
-        font.setItalic(true);
-        m_warningLabel->setFont(font);
-        m_warningLabel->setWordWrap(true);
-        m_copyButton = new QPushButton(tr("Copy Built-in Code Style"), this);
-        m_copyButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        connect(m_copyButton, &QAbstractButton::clicked, this, &CodeStyleDialog::slotCopyClicked);
-        warningLayout->addWidget(m_warningLabel);
-        warningLayout->addWidget(m_copyButton);
-        layout->addLayout(warningLayout);
-    }
-
-    m_originalDisplayName = codeStyle->displayName();
-    m_codeStyle = factory->createCodeStyle();
-    m_codeStyle->setTabSettings(codeStyle->tabSettings());
-    m_codeStyle->setValue(codeStyle->value());
-    m_codeStyle->setId(codeStyle->id());
-    m_codeStyle->setDisplayName(m_originalDisplayName);
-    m_codeStyle->setReadOnly(codeStyle->isReadOnly());
-    CodeStyleEditorWidget *editor = factory->createEditor(m_codeStyle, project, this);
-
-    m_buttons = new QDialogButtonBox(
-                QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
-    if (codeStyle->isReadOnly()) {
-        QPushButton *okButton = m_buttons->button(QDialogButtonBox::Ok);
-        okButton->setEnabled(false);
-    }
-
-    if (editor)
-        layout->addWidget(editor);
-    layout->addWidget(m_buttons);
-    resize(850, 600);
-
-    connect(m_lineEdit, &QLineEdit::textChanged, this, &CodeStyleDialog::slotDisplayNameChanged);
-    connect(m_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(m_buttons, &QDialogButtonBox::accepted, editor, &TextEditor::CodeStyleEditorWidget::apply);
-    connect(m_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
-}
-
-ICodeStylePreferences *CodeStyleDialog::codeStyle() const
-{
-    return m_codeStyle;
-}
-
-void CodeStyleDialog::slotCopyClicked()
-{
-    if (m_warningLabel)
-        m_warningLabel->hide();
-    if (m_copyButton)
-        m_copyButton->hide();
-    QPushButton *okButton = m_buttons->button(QDialogButtonBox::Ok);
-    okButton->setEnabled(true);
-    if (m_lineEdit->text() == m_originalDisplayName)
-        m_lineEdit->setText(tr("%1 (Copy)").arg(m_lineEdit->text()));
-    m_lineEdit->selectAll();
-}
-
-void CodeStyleDialog::slotDisplayNameChanged()
-{
-    m_codeStyle->setDisplayName(m_lineEdit->text());
-}
-
-CodeStyleDialog::~CodeStyleDialog()
-{
-    delete m_codeStyle;
-}
-
-} // Internal
 
 CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *factory,
                                                  ProjectExplorer::Project *project,
@@ -175,7 +63,6 @@ CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *f
     m_delegateComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     auto copyButton = new QPushButton(tr("Copy..."));
-    auto editButton = new QPushButton(tr("Edit..."));
 
     m_removeButton = new QPushButton(tr("Remove"));
 
@@ -192,12 +79,8 @@ CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *f
             tr("Current settings:"),
             m_delegateComboBox,
             copyButton,
-            editButton,
             m_removeButton,
             m_exportButton,
-            br,
-
-            Span(5, Space(1)),
             m_importButton
         },
 
@@ -207,8 +90,6 @@ CodeStyleSelectorWidget::CodeStyleSelectorWidget(ICodeStylePreferencesFactory *f
             this, &CodeStyleSelectorWidget::slotComboBoxActivated);
     connect(copyButton, &QAbstractButton::clicked,
             this, &CodeStyleSelectorWidget::slotCopyClicked);
-    connect(editButton, &QAbstractButton::clicked,
-            this, &CodeStyleSelectorWidget::slotEditClicked);
     connect(m_removeButton, &QAbstractButton::clicked,
             this, &CodeStyleSelectorWidget::slotRemoveClicked);
     connect(m_importButton, &QAbstractButton::clicked,
@@ -311,30 +192,6 @@ void CodeStyleSelectorWidget::slotCopyClicked()
     if (copy) {
         copy->setDisplayName(newName);
         m_codeStyle->setCurrentDelegate(copy);
-    }
-}
-
-void CodeStyleSelectorWidget::slotEditClicked()
-{
-    if (!m_codeStyle)
-        return;
-
-    ICodeStylePreferences *codeStyle = m_codeStyle->currentPreferences();
-    // check if it's read-only
-
-    Internal::CodeStyleDialog dialog(m_factory, codeStyle, m_project, this);
-    if (dialog.exec() == QDialog::Accepted) {
-        ICodeStylePreferences *dialogCodeStyle = dialog.codeStyle();
-        if (codeStyle->isReadOnly()) {
-            CodeStylePool *codeStylePool = m_codeStyle->delegatingPool();
-            codeStyle = codeStylePool->cloneCodeStyle(dialogCodeStyle);
-            if (codeStyle)
-                m_codeStyle->setCurrentDelegate(codeStyle);
-            return;
-        }
-        codeStyle->setTabSettings(dialogCodeStyle->tabSettings());
-        codeStyle->setValue(dialogCodeStyle->value());
-        codeStyle->setDisplayName(dialogCodeStyle->displayName());
     }
 }
 
@@ -457,5 +314,3 @@ QString CodeStyleSelectorWidget::displayName(ICodeStylePreferences *codeStyle) c
 }
 
 } // TextEditor
-
-#include "codestyleselectorwidget.moc"

@@ -58,7 +58,6 @@ private:
     void slotComboBoxActivated(int index);
     void slotCurrentDelegateChanged(ICodeStylePreferences *delegate);
     void slotCopyClicked();
-    void slotEditClicked();
     void slotRemoveClicked();
     void slotImportClicked();
     void slotExportClicked();

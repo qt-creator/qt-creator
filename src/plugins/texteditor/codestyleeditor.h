@@ -50,6 +50,7 @@ public:
                     QWidget *parent = nullptr);
 
     void apply() override;
+    void finish() override;
 private:
     void updatePreview();
 
@@ -58,6 +59,7 @@ private:
     ICodeStylePreferences *m_codeStyle;
     SnippetEditorWidget *m_preview;
     CodeStyleEditorWidget *m_additionalGlobalSettingsWidget;
+    CodeStyleEditorWidget *m_widget;
 };
 
 } // namespace TextEditor
