@@ -62,7 +62,6 @@ signals:
 
 public slots:
     void updateIndex();
-    void setSorted(bool sort);
 
 private:
     void updateNow();

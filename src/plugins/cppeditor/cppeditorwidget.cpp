@@ -458,10 +458,6 @@ void CppEditorWidget::finalizeInitialization()
     // function combo box sorting
     d->m_cppEditorOutline = new CppEditorOutline(this);
 
-    // TODO: Nobody emits this signal... Remove?
-    connect(CppEditorPlugin::instance(), &CppEditorPlugin::outlineSortingChanged,
-            outline(), &CppEditorOutline::setSorted);
-
     connect(d->m_cppEditorDocument, &CppEditorDocument::codeWarningsUpdated,
             this, &CppEditorWidget::onCodeWarningsUpdated);
     connect(d->m_cppEditorDocument, &CppEditorDocument::ifdefedOutBlocksUpdated,

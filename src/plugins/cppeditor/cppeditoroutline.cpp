@@ -148,21 +148,6 @@ bool CppEditorOutline::isSorted() const
     return m_proxyModel->sortColumn() == 0;
 }
 
-void CppEditorOutline::setSorted(bool sort)
-{
-    if (sort != isSorted()) {
-        if (sort)
-            m_proxyModel->sort(0, Qt::AscendingOrder);
-        else
-            m_proxyModel->sort(-1, Qt::AscendingOrder);
-        {
-            QSignalBlocker blocker(m_sortAction);
-            m_sortAction->setChecked(m_proxyModel->sortColumn() == 0);
-        }
-        updateIndexNow();
-    }
-}
-
 AbstractOverviewModel *CppEditorOutline::model() const
 {
     return m_model.get();

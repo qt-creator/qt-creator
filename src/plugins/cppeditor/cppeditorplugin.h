@@ -71,7 +71,6 @@ public:
     static CppFileSettings *fileSettings();
 
 signals:
-    void outlineSortingChanged(bool sort);
     void typeHierarchyRequested();
     void includeHierarchyRequested();
 
