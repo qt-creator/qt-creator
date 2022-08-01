@@ -42,7 +42,7 @@ ClangdQuickFixFactory::ClangdQuickFixFactory() = default;
 void ClangdQuickFixFactory::match(const CppEditor::Internal::CppQuickFixInterface &interface,
                                   QuickFixOperations &result)
 {
-    const auto client = ClangModelManagerSupport::instance()->clientForFile(interface.filePath());
+    const auto client = ClangModelManagerSupport::clientForFile(interface.filePath());
     if (!client)
         return;
 

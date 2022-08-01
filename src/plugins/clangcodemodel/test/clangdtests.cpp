@@ -2029,7 +2029,7 @@ void ClangdTestExternalChanges::test()
     waitForSignalOrTimeout(ClangModelManagerSupport::instance(),
                            &ClangModelManagerSupport::createdClient, timeOutInMs());
     QCOMPARE(client(), oldClient);
-    QCOMPARE(client(), ClangModelManagerSupport::instance()->clientForProject(project()));
+    QCOMPARE(client(), ClangModelManagerSupport::clientForProject(project()));
     const TextDocument * const curDoc = document("main.cpp");
     QVERIFY(curDoc);
     QVERIFY(curDoc->marks().isEmpty());
@@ -2044,8 +2044,7 @@ void ClangdTestExternalChanges::test()
     otherSource.close();
     QVERIFY(waitForSignalOrTimeout(ClangModelManagerSupport::instance(),
                                    &ClangModelManagerSupport::createdClient, timeOutInMs()));
-    ClangdClient * const newClient = ClangModelManagerSupport::instance()
-            ->clientForProject(project());
+    ClangdClient * const newClient = ClangModelManagerSupport::clientForProject(project());
     QVERIFY(newClient);
     QVERIFY(newClient != oldClient);
     newClient->enableTesting();

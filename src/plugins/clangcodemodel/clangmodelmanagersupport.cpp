@@ -499,8 +499,7 @@ void ClangModelManagerSupport::updateLanguageClient(
     m_generatorSynchronizer.addFuture(future);
 }
 
-ClangdClient *ClangModelManagerSupport::clientForProject(
-        const ProjectExplorer::Project *project) const
+ClangdClient *ClangModelManagerSupport::clientForProject(const ProjectExplorer::Project *project)
 {
     const QList<Client *> clients = Utils::filtered(
                 LanguageClientManager::clientsForProject(project),
@@ -525,7 +524,7 @@ ClangdClient *ClangModelManagerSupport::clientForProject(
     return clients.empty() ? nullptr : qobject_cast<ClangdClient *>(clients.first());
 }
 
-ClangdClient *ClangModelManagerSupport::clientForFile(const Utils::FilePath &file) const
+ClangdClient *ClangModelManagerSupport::clientForFile(const Utils::FilePath &file)
 {
     return qobject_cast<ClangdClient *>(LanguageClientManager::clientForFilePath(file));
 }

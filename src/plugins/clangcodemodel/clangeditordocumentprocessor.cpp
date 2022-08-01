@@ -64,7 +64,7 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(TextEditor::TextDocum
     connect(parser().data(), &CppEditor::BaseEditorDocumentParser::projectPartInfoUpdated,
             this, &BaseEditorDocumentProcessor::projectPartInfoUpdated);
     setSemanticHighlightingChecker([this] {
-        return !ClangModelManagerSupport::instance()->clientForFile(m_document.filePath());
+        return !ClangModelManagerSupport::clientForFile(m_document.filePath());
     });
 }
 
@@ -75,7 +75,7 @@ void ClangEditorDocumentProcessor::semanticRehighlight()
     };
     if (!Utils::contains(Core::EditorManager::visibleEditors(), matchesEditor))
         return;
-    if (ClangModelManagerSupport::instance()->clientForFile(m_document.filePath()))
+    if (ClangModelManagerSupport::clientForFile(m_document.filePath()))
         return;
     BuiltinEditorDocumentProcessor::semanticRehighlight();
 }

@@ -383,10 +383,8 @@ void doSemanticHighlighting(
         }
         QMetaObject::invokeMethod(ClangModelManagerSupport::instance(),
                                   [filePath, virtualRanges, docRevision] {
-            if (ClangdClient * const client
-                    = ClangModelManagerSupport::instance()->clientForFile(filePath)) {
+            if (ClangdClient * const client = ClangModelManagerSupport::clientForFile(filePath))
                 client->setVirtualRanges(filePath, virtualRanges, docRevision);
-            }
         }, Qt::QueuedConnection);
         future.reportResults(QVector<HighlightingResult>(results.cbegin(), results.cend()));
     }

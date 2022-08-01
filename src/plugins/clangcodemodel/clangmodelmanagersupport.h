@@ -69,8 +69,8 @@ public:
     std::unique_ptr<CppEditor::AbstractOverviewModel> createOverviewModel() override;
     bool usesClangd(const TextEditor::TextDocument *document) const override;
 
-    ClangdClient *clientForProject(const ProjectExplorer::Project *project) const;
-    ClangdClient *clientForFile(const Utils::FilePath &file) const;
+    static ClangdClient *clientForProject(const ProjectExplorer::Project *project);
+    static ClangdClient *clientForFile(const Utils::FilePath &file);
 
     static ClangModelManagerSupport *instance();
 

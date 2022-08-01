@@ -158,10 +158,10 @@ void ClangGlobalSymbolFilter::prepareSearch(const QString &entry)
     m_cppFilter->prepareSearch(entry);
     QList<LanguageClient::Client *> clients;
     for (ProjectExplorer::Project * const project : ProjectExplorer::SessionManager::projects()) {
-        LanguageClient::Client * const client
-                = ClangModelManagerSupport::instance()->clientForProject(project);
-        if (client)
+        if (LanguageClient::Client * const client
+                = ClangModelManagerSupport::clientForProject(project)) {
             clients << client;
+        }
     }
     if (!clients.isEmpty()) {
         static_cast<LanguageClient::WorkspaceLocatorFilter *>(m_lspFilter)
@@ -296,8 +296,8 @@ void ClangdCurrentDocumentFilter::prepareSearch(const QString &entry)
 {
     const auto doc = TextEditor::TextDocument::currentTextDocument();
     QTC_ASSERT(doc, return);
-    if (const ClangdClient * const client = ClangModelManagerSupport::instance()
-            ->clientForFile(doc->filePath()); client && client->reachable()) {
+    if (const ClangdClient * const client = ClangModelManagerSupport::clientForFile
+            (doc->filePath()); client && client->reachable()) {
         d->activeFilter = &d->lspFilter;
     } else {
         d->activeFilter = d->cppFilter;
