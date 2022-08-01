@@ -50,7 +50,7 @@ Project {
                 "currentprojectfind.cpp", "currentprojectfind.h",
                 "customexecutablerunconfiguration.cpp", "customexecutablerunconfiguration.h",
                 "customparser.cpp", "customparser.h",
-                "customparserconfigdialog.cpp", "customparserconfigdialog.h", "customparserconfigdialog.ui",
+                "customparserconfigdialog.cpp", "customparserconfigdialog.h",
                 "customparserssettingspage.cpp", "customparserssettingspage.h",
                 "customtoolchain.cpp", "customtoolchain.h",
                 "dependenciespanel.cpp", "dependenciespanel.h",
