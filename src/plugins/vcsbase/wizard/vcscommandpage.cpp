@@ -397,7 +397,7 @@ void VcsCommandPage::start(VcsCommand *command)
     wizard()->button(QWizard::BackButton)->setEnabled(false);
 }
 
-void VcsCommandPage::finished(bool success, const QVariant &)
+void VcsCommandPage::finished(bool success)
 {
     QTC_ASSERT(m_state == Running, return);
 
