@@ -70,6 +70,7 @@ struct McuTargetDescription
         QString vendor;
         QVector<int> colorDepths;
         TargetType type;
+        QList<PackageDescription> entries;
     } platform;
     struct Toolchain
     {

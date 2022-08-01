@@ -116,6 +116,7 @@ QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescript
 QList<PackageDescription> aggregatePackageEntries(const McuTargetDescription &desc)
 {
     QList<PackageDescription> result;
+    result.append(desc.platform.entries);
     result.append(desc.boardSdk);
     result.append(desc.freeRTOS.packages);
     return result;

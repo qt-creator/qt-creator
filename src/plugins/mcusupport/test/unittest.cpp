@@ -115,6 +115,7 @@ const char nxp1170[]{"EVK_MIMXRT1170"};
 const char qtForMcuSdkPath[]{"/opt/qtformcu/2.2"};
 const char qulCmakeVar[]{"Qul_ROOT"};
 const char qulEnvVar[]{"Qul_DIR"};
+const char qulLabel[]{"Qt for MCUs SDK"};
 const char stm32f7FreeRtosEnvVar[]{"STM32F7_FREERTOS_DIR"};
 const char stm32f7[]{"STM32F7"};
 const char unsupported[]{"unsupported"};
@@ -131,11 +132,22 @@ const QStringList jsonFiles{QString::fromUtf8(armgcc_nxp_1050_json),
 const bool runLegacy{true};
 const int colorDepth{32};
 
+const PackageDescription qtForMCUsSDKDescription{
+    Legacy::Constants::QUL_LABEL,
+    qulEnvVar,
+    qulCmakeVar,
+    Legacy::Constants::QUL_LABEL,
+    Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK,
+    qtForMcuSdkPath,
+    Legacy::Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH,
+};
+
 const McuTargetDescription::Platform platformDescription{id,
                                                          "",
                                                          "",
                                                          {colorDepth},
-                                                         McuTargetDescription::TargetType::MCU};
+                                                         McuTargetDescription::TargetType::MCU,
+                                                         {qtForMCUsSDKDescription}};
 const Utils::Id cxxLanguageId{ProjectExplorer::Constants::CXX_LANGUAGE_ID};
 } // namespace
 
@@ -632,7 +644,7 @@ void McuSupportTest::test_createTargets()
     QCOMPARE(target->colorDepth(), colorDepth);
 
     const auto &tgtPackages{target->packages()};
-    QCOMPARE(tgtPackages.size(), 4);
+    QCOMPARE(tgtPackages.size(), 5);
 
     // target should contain freertos package
     QVERIFY(anyOf(tgtPackages, [](const McuPackagePtr &pkg) {

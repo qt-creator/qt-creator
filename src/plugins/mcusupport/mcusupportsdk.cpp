@@ -686,6 +686,9 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
     const QJsonObject boardSdk = target.value("boardSdk").toObject();
     const QJsonObject freeRTOS = target.value("freeRTOS").toObject();
 
+    const QJsonArray platformEntries = platform.value(CMAKE_ENTRIES).toArray();
+    const QList<PackageDescription> platformPackages{parsePackages(platformEntries)};
+
     const PackageDescription toolchainPackage = parsePackage(compiler);
     const PackageDescription toolchainFilePackage = parsePackage(toolchainFile);
     const PackageDescription boardSdkPackage{parsePackage(boardSdk)};
@@ -712,14 +715,13 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
 
     return {qulVersion,
             compatVersion,
-            {
-                platform.value("id").toString(),
-                platformName,
-                platform.value("vendor").toString(),
-                colorDepthsVector,
-                platformName == "Desktop" ? McuTargetDescription::TargetType::Desktop
-                                          : McuTargetDescription::TargetType::MCU,
-            },
+            {platform.value("id").toString(),
+             platformName,
+             platform.value("vendor").toString(),
+             colorDepthsVector,
+             platformName == "Desktop" ? McuTargetDescription::TargetType::Desktop
+                                       : McuTargetDescription::TargetType::MCU,
+             platformPackages},
             {toolchain.value("id").toString(),
              toolchainVersionsList,
              toolchainPackage,
