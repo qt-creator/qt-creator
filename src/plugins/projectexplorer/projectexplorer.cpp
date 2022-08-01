@@ -129,8 +129,10 @@
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/outputpane.h>
 #include <coreplugin/vcsmanager.h>
+
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
+
 #include <texteditor/findinfiles.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
@@ -159,6 +161,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPair>
+#include <QPushButton>
 #include <QSettings>
 #include <QThreadPool>
 #include <QTimer>

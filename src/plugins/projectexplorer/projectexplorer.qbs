@@ -136,7 +136,7 @@ Project {
                 "session.cpp", "session.h",
                 "sessionmodel.cpp", "sessionmodel.h",
                 "sessionview.cpp", "sessionview.h",
-                "sessiondialog.cpp", "sessiondialog.h", "sessiondialog.ui",
+                "sessiondialog.cpp", "sessiondialog.h",
                 "showineditortaskhandler.cpp", "showineditortaskhandler.h",
                 "showoutputtaskhandler.cpp", "showoutputtaskhandler.h",
                 "simpleprojectwizard.cpp", "simpleprojectwizard.h",

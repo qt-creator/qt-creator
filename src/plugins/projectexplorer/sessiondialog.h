@@ -25,18 +25,16 @@
 
 #pragma once
 
-#include "ui_sessiondialog.h"
-
 #include <QString>
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
+class QCheckBox;
 class QLineEdit;
 class QPushButton;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class SessionDialog : public QDialog
 {
@@ -51,7 +49,11 @@ public:
 private:
     void updateActions(const QStringList &sessions);
 
-    Ui::SessionDialog m_ui;
+    QPushButton *m_renameButton;
+    QPushButton *m_cloneButton;
+    QPushButton *m_deleteButton;
+    QPushButton *m_switchButton;
+    QCheckBox *m_autoLoadCheckBox;
 };
 
 class SessionNameInputDialog : public QDialog
@@ -73,5 +75,4 @@ private:
     bool m_usedSwitchTo = false;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

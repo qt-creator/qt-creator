@@ -160,7 +160,7 @@ add_qtc_plugin(ProjectExplorer
     sanitizerparser.cpp sanitizerparser.h
     selectablefilesmodel.cpp selectablefilesmodel.h
     session.cpp session.h
-    sessiondialog.cpp sessiondialog.h sessiondialog.ui
+    sessiondialog.cpp sessiondialog.h
     sessionmodel.cpp sessionmodel.h
     sessionview.cpp sessionview.h
     showineditortaskhandler.cpp showineditortaskhandler.h

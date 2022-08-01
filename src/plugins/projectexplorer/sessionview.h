@@ -31,10 +31,10 @@
 
 #include <QAbstractTableModel>
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
-class SessionView : public Utils::TreeView {
+class SessionView : public Utils::TreeView
+{
     Q_OBJECT
 
 public:
@@ -66,5 +66,4 @@ private:
     SessionModel m_sessionModel;
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal
