@@ -13,6 +13,9 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="4" column="3">
     <widget class="QLabel" name="label_16">
+     <property name="toolTip">
+      <string>Number of times the animation runs before it stops.</string>
+     </property>
      <property name="text">
       <string>Loops:</string>
      </property>
@@ -49,6 +52,9 @@
    </item>
    <item row="4" column="1">
     <widget class="QLabel" name="label_15">
+     <property name="toolTip">
+      <string>Sets the animation to loop indefinitely.</string>
+     </property>
      <property name="text">
       <string>Continuous</string>
      </property>
@@ -113,6 +119,9 @@
        <height>0</height>
       </size>
      </property>
+     <property name="toolTip">
+      <string>Name for the animation.</string>
+     </property>
      <property name="text">
       <string>Animation ID:</string>
      </property>
@@ -158,6 +167,9 @@
    </item>
    <item row="5" column="1">
     <widget class="QLabel" name="label_23">
+     <property name="toolTip">
+      <string>State to activate when the animation finishes.</string>
+     </property>
      <property name="text">
       <string>Finished:</string>
      </property>
@@ -165,6 +177,9 @@
    </item>
    <item row="4" column="7">
     <widget class="QLabel" name="label_17">
+     <property name="toolTip">
+      <string>Runs the animation backwards to the beginning when it reaches the end.</string>
+     </property>
      <property name="text">
       <string>Ping pong</string>
      </property>
@@ -218,6 +233,9 @@
      <property name="enabled">
       <bool>true</bool>
      </property>
+     <property name="toolTip">
+      <string>Runs the animation automatically when the base state is active.</string>
+     </property>
      <property name="text">
       <string>Running in base state</string>
      </property>
@@ -253,6 +271,9 @@
    </item>
    <item row="3" column="1">
     <widget class="QLabel" name="label_12">
+     <property name="toolTip">
+      <string>First frame of the animation.</string>
+     </property>
      <property name="text">
       <string>Start frame:</string>
      </property>
@@ -286,6 +307,9 @@
    </item>
    <item row="3" column="7">
     <widget class="QLabel" name="label_14">
+     <property name="toolTip">
+      <string>Length of the animation in milliseconds. If you set a shorter duration than the number of frames, frames are left out from the end of the animation.</string>
+     </property>
      <property name="text">
       <string>Duration:</string>
      </property>
@@ -293,6 +317,9 @@
    </item>
    <item row="3" column="3">
     <widget class="QLabel" name="label_13">
+     <property name="toolTip">
+      <string>Last frame of the animation.</string>
+     </property>
      <property name="text">
       <string>End frame:</string>
      </property>
