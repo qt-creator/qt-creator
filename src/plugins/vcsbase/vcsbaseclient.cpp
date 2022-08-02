@@ -340,7 +340,7 @@ bool VcsBaseClient::synchronousPull(const FilePath &workingDir,
     const bool ok = vcsSynchronousExec(workingDir, args, flags).result()
             == ProcessResult::FinishedWithSuccess;
     if (ok)
-        emit changed(QVariant(workingDir.toString()));
+        emit changed(workingDir.toString());
     return ok;
 }
 
@@ -467,10 +467,10 @@ void VcsBaseClient::revertFile(const FilePath &workingDir,
     args << revisionSpec(revision) << extraOptions << file;
     // Indicate repository change or file list
     VcsCommand *cmd = createCommand(workingDir);
-    cmd->setCookie(QStringList(workingDir.pathAppended(file).toString()));
-    connect(cmd, &VcsCommand::finished, this, [this](bool success, const QVariant &cookie) {
+    const QStringList files = QStringList(workingDir.pathAppended(file).toString());
+    connect(cmd, &VcsCommand::finished, this, [this, files](bool success) {
         if (success)
-            emit changed(cookie);
+            emit changed(files);
     }, Qt::QueuedConnection);
     enqueueJob(cmd, args);
 }
@@ -483,10 +483,10 @@ void VcsBaseClient::revertAll(const FilePath &workingDir,
     args << revisionSpec(revision) << extraOptions;
     // Indicate repository change or file list
     VcsCommand *cmd = createCommand(workingDir);
-    cmd->setCookie(QStringList(workingDir.toString()));
-    connect(cmd, &VcsCommand::finished, this, [this](bool success, const QVariant &cookie) {
+    const QStringList files = QStringList(workingDir.toString());
+    connect(cmd, &VcsCommand::finished, this, [this, files](bool success) {
         if (success)
-            emit changed(cookie);
+            emit changed(files);
     }, Qt::QueuedConnection);
     enqueueJob(createCommand(workingDir), args);
 }
@@ -584,10 +584,9 @@ void VcsBaseClient::update(const FilePath &repositoryRoot, const QString &revisi
     QStringList args(vcsCommandString(UpdateCommand));
     args << revisionSpec(revision) << extraOptions;
     VcsCommand *cmd = createCommand(repositoryRoot);
-    cmd->setCookie(repositoryRoot.toString());
-    connect(cmd, &VcsCommand::finished, this, [this](bool success, const QVariant &cookie) {
+    connect(cmd, &VcsCommand::finished, this, [this, repositoryRoot](bool success) {
         if (success)
-            emit changed(cookie);
+            emit changed(repositoryRoot.toString());
     }, Qt::QueuedConnection);
     enqueueJob(cmd, args);
 }
