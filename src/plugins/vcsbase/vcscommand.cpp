@@ -105,7 +105,6 @@ public:
     QString m_displayName;
     const FilePath m_defaultWorkingDirectory;
     Environment m_environment;
-    QVariant m_cookie;
     QTextCodec *m_codec = nullptr;
     ProgressParser *m_progressParser = nullptr;
     QFutureWatcher<void> m_watcher;
@@ -325,7 +324,7 @@ void VcsCommand::run(QFutureInterface<void> &future)
                 GlobalFileChangeBlocker::instance()->forceBlocked(false);
             });
         }
-        emit finished(lastExecSuccess, d->m_cookie);
+        emit finished(lastExecSuccess);
         if (lastExecSuccess)
             future.setProgressValue(future.progressMaximum());
         else
@@ -438,11 +437,6 @@ void VcsCommand::runSynchronous(QtcProcess &process)
 
     process.setTimeOutMessageBoxEnabled(true);
     process.runBlocking(EventLoopMode::On);
-}
-
-void VcsCommand::setCookie(const QVariant &cookie)
-{
-    d->m_cookie = cookie;
 }
 
 void VcsCommand::setCodec(QTextCodec *codec)

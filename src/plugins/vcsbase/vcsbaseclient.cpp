@@ -194,11 +194,10 @@ void VcsBaseClientImpl::annotateRevisionRequested(const FilePath &workingDirecto
 VcsCommand *VcsBaseClientImpl::vcsExec(const FilePath &workingDirectory,
                                        const QStringList &arguments,
                                        VcsBaseEditorWidget *editor, bool useOutputToWindow,
-                                       unsigned additionalFlags, const QVariant &cookie) const
+                                       unsigned additionalFlags) const
 {
     VcsCommand *command = createCommand(workingDirectory, editor,
                                         useOutputToWindow ? VcsWindowOutputBind : NoOutputBind);
-    command->setCookie(cookie);
     command->addFlags(additionalFlags);
     if (editor)
         command->setCodec(editor->codec());

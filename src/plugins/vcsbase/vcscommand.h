@@ -140,8 +140,6 @@ public:
 
     void addFlags(unsigned f);
 
-    void setCookie(const QVariant &cookie);
-
     void setCodec(QTextCodec *codec);
 
     void setProgressParser(ProgressParser *parser);
@@ -158,7 +156,7 @@ public:
 signals:
     void stdOutText(const QString &);
     void stdErrText(const QString &);
-    void finished(bool success, const QVariant &cookie);
+    void finished(bool success);
 
     void terminate(); // Internal
 

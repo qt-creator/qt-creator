@@ -344,11 +344,8 @@ void GitBaseDiffEditorController::updateBranchList()
     if (revision.isEmpty())
         return;
 
-    const FilePath workingDirectory = baseDirectory();
-    VcsCommand *command = m_instance->vcsExec(
-                workingDirectory,
-                {"branch", noColorOption, "-a", "--contains", revision}, nullptr,
-                false, 0, workingDirectory.toString());
+    VcsCommand *command = m_instance->vcsExec(baseDirectory(),
+                          {"branch", noColorOption, "-a", "--contains", revision});
     connect(command, &VcsCommand::stdOutText, this, [this](const QString &text) {
         const QString remotePrefix = "remotes/";
         const QString localPrefix = "<Local>";

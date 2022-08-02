@@ -115,8 +115,7 @@ public:
                         const QStringList &arguments,
                         VcsBaseEditorWidget *editor = nullptr,
                         bool useOutputToWindow = false,
-                        unsigned additionalFlags = 0,
-                        const QVariant &cookie = {}) const;
+                        unsigned additionalFlags = 0) const;
 
 protected:
     void resetCachedVcsInfo(const Utils::FilePath &workingDir);
