@@ -103,6 +103,7 @@ public:
     static void showInspector();
 
 signals:
+    void clientAdded(Client *client);
     void clientRemoved(Client *client);
     void shutdownFinished();
 

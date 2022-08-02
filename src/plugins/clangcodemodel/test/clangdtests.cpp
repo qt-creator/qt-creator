@@ -61,6 +61,7 @@
 using namespace CPlusPlus;
 using namespace Core;
 using namespace CppEditor::Tests;
+using namespace LanguageClient;
 using namespace ProjectExplorer;
 using namespace TextEditor;
 
@@ -104,12 +105,11 @@ void ClangdTest::waitForNewClient(bool withIndex)
     // Setting up the project should result in a clangd client being created.
     // Wait until that has happened.
     m_client = nullptr;
-    const auto modelManagerSupport = ClangModelManagerSupport::instance();
-    m_client = modelManagerSupport->clientForProject(project());
+    m_client = ClangModelManagerSupport::clientForProject(project());
     if (!m_client) {
-        QVERIFY(waitForSignalOrTimeout(modelManagerSupport,
-                                       &ClangModelManagerSupport::createdClient, timeOutInMs()));
-        m_client = modelManagerSupport->clientForProject(m_project);
+        QVERIFY(waitForSignalOrTimeout(LanguageClientManager::instance(),
+                                       &LanguageClientManager::clientAdded, timeOutInMs()));
+        m_client = ClangModelManagerSupport::clientForProject(project());
     }
     QVERIFY(m_client);
     m_client->enableTesting();
@@ -1878,8 +1878,8 @@ void ClangdTestCompletion::testCompleteAfterProjectChange()
     QString saveError;
     QVERIFY2(proFileEditor->document()->save(&saveError), qPrintable(saveError));
     QVERIFY(waitForSignalOrTimeout(project(), &Project::anyParsingFinished, timeOutInMs()));
-    QVERIFY(waitForSignalOrTimeout(LanguageClient::LanguageClientManager::instance(),
-                                   &LanguageClient::LanguageClientManager::clientRemoved,
+    QVERIFY(waitForSignalOrTimeout(LanguageClientManager::instance(),
+                                   &LanguageClientManager::clientRemoved,
                                    timeOutInMs()));
 
     // Waiting for the index will cause highlighting info collection to start too late,
@@ -2026,8 +2026,8 @@ void ClangdTestExternalChanges::test()
     header.close();
     ClangdClient * const oldClient = client();
     QVERIFY(oldClient);
-    waitForSignalOrTimeout(ClangModelManagerSupport::instance(),
-                           &ClangModelManagerSupport::createdClient, timeOutInMs());
+    waitForSignalOrTimeout(LanguageClientManager::instance(),
+                           &LanguageClientManager::clientAdded, timeOutInMs());
     QCOMPARE(client(), oldClient);
     QCOMPARE(client(), ClangModelManagerSupport::clientForProject(project()));
     const TextDocument * const curDoc = document("main.cpp");
@@ -2042,8 +2042,8 @@ void ClangdTestExternalChanges::test()
     QVERIFY(otherSource.open(QIODevice::WriteOnly));
     otherSource.write("blubb");
     otherSource.close();
-    QVERIFY(waitForSignalOrTimeout(ClangModelManagerSupport::instance(),
-                                   &ClangModelManagerSupport::createdClient, timeOutInMs()));
+    QVERIFY(waitForSignalOrTimeout(LanguageClientManager::instance(),
+                                   &LanguageClientManager::clientAdded, timeOutInMs()));
     ClangdClient * const newClient = ClangModelManagerSupport::clientForProject(project());
     QVERIFY(newClient);
     QVERIFY(newClient != oldClient);

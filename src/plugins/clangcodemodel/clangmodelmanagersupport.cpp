@@ -192,7 +192,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
     connect(modelManager, &CppModelManager::fallbackProjectPartUpdated, this, [this] {
         if (ClangdClient * const fallbackClient = clientForProject(nullptr)) {
             LanguageClientManager::shutdownClient(fallbackClient);
-            claimNonProjectSources(createClient(nullptr, {}));
+            claimNonProjectSources(new ClangdClient(nullptr, {}));
         }
     });
 
@@ -205,7 +205,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
             this, &ClangModelManagerSupport::onClangdSettingsChanged);
 
     if (CppEditor::ClangdSettings::instance().useClangd())
-        createClient(nullptr, {});
+        new ClangdClient(nullptr, {});
 
     m_generatorSynchronizer.setCancelOnWait(true);
     new ClangdQuickFixFactory(); // memory managed by CppEditor::g_cppQuickFixFactories
@@ -388,7 +388,7 @@ void ClangModelManagerSupport::updateLanguageClient(
         }
         if (Client * const oldClient = clientForProject(project))
             LanguageClientManager::shutdownClient(oldClient);
-        ClangdClient * const client = createClient(project, jsonDbDir);
+        ClangdClient * const client = new ClangdClient(project, jsonDbDir);
         connect(client, &Client::initialized, this, [this, client, project, projectInfo, jsonDbDir] {
             using namespace ProjectExplorer;
             if (!SessionManager::hasProject(project))
@@ -519,14 +519,6 @@ ClangdClient *ClangModelManagerSupport::clientForProject(const ProjectExplorer::
 ClangdClient *ClangModelManagerSupport::clientForFile(const Utils::FilePath &file)
 {
     return qobject_cast<ClangdClient *>(LanguageClientManager::clientForFilePath(file));
-}
-
-ClangdClient *ClangModelManagerSupport::createClient(ProjectExplorer::Project *project,
-                                                     const Utils::FilePath &jsonDbDir)
-{
-    const auto client = new ClangdClient(project, jsonDbDir);
-    emit createdClient(client);
-    return client;
 }
 
 void ClangModelManagerSupport::claimNonProjectSources(ClangdClient *client)
@@ -780,7 +772,7 @@ void ClangModelManagerSupport::onClangdSettingsChanged()
     ClangdClient * const fallbackClient = clientForProject(nullptr);
     const ClangdSettings &settings = ClangdSettings::instance();
     const auto startNewFallbackClient = [this] {
-        claimNonProjectSources(createClient(nullptr, {}));
+        claimNonProjectSources(new ClangdClient(nullptr, {}));
     };
     if (!fallbackClient) {
         if (settings.useClangd())

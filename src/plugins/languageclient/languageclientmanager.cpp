@@ -118,6 +118,7 @@ void LanguageClient::LanguageClientManager::addClient(Client *client)
             [client](const DynamicCapabilities &capabilities) {
                 managerInstance->m_inspector.updateCapabilities(client->name(), capabilities);
             });
+    emit managerInstance->clientAdded(client);
 }
 
 void LanguageClientManager::clientStarted(Client *client)

@@ -71,9 +71,6 @@ public:
 
     static ClangModelManagerSupport *instance();
 
-signals:
-    void createdClient(ClangdClient *client);
-
 private:
     void followSymbol(const CppEditor::CursorInEditor &data,
                       const Utils::LinkHandler &processLinkCallback, bool resolveTarget,
@@ -110,7 +107,6 @@ private:
 
     void updateLanguageClient(ProjectExplorer::Project *project,
                               const CppEditor::ProjectInfo::ConstPtr &projectInfo);
-    ClangdClient *createClient(ProjectExplorer::Project *project, const Utils::FilePath &jsonDbDir);
     void claimNonProjectSources(ClangdClient *client);
     void watchForExternalChanges();
     void watchForInternalChanges();
