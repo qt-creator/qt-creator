@@ -3198,7 +3198,7 @@ class DumperBase():
                 return self.cast(self.type.ltarget).extractField(field)
             if self.type.code in (TypeCode.Reference, TypeCode.RValueReference):
                 return self.dereference().extractField(field)
-            #DumperBase.warn('FIELD: %s ' % field)
+            #DumperBase.warn('FIELD: %s ' % (field,))
             val = self.dumper.Value(self.dumper)
             val.name = field.name
             val.isBaseClass = field.isBase
@@ -3227,10 +3227,7 @@ class DumperBase():
                         lbyte = ldata[i]
                     else:
                         lbyte = ldata[fieldOffset + fieldSize - 1 - i]
-                    if sys.version_info[0] >= 3:
-                        data += lbyte
-                    else:
-                        data += ord(lbyte)
+                    data += ord(lbyte)
                 data = data >> fieldBitpos
                 data = data & ((1 << fieldBitsize) - 1)
                 val.lvalue = data
