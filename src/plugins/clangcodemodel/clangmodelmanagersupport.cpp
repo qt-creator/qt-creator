@@ -79,8 +79,6 @@ using namespace LanguageClient;
 namespace ClangCodeModel {
 namespace Internal {
 
-static ClangModelManagerSupport *m_instance = nullptr;
-
 static CppEditor::CppModelManager *cppModelManager()
 {
     return CppEditor::CppModelManager::instance();
@@ -162,9 +160,6 @@ static void checkSystemForClangdSuitability()
 
 ClangModelManagerSupport::ClangModelManagerSupport()
 {
-    QTC_CHECK(!m_instance);
-    m_instance = this;
-
     watchForExternalChanges();
     watchForInternalChanges();
     setupClangdConfigFile();
@@ -214,7 +209,6 @@ ClangModelManagerSupport::ClangModelManagerSupport()
 ClangModelManagerSupport::~ClangModelManagerSupport()
 {
     m_generatorSynchronizer.waitForFinished();
-    m_instance = nullptr;
 }
 
 void ClangModelManagerSupport::followSymbol(const CppEditor::CursorInEditor &data,
@@ -804,11 +798,6 @@ void ClangModelManagerSupport::reinitializeBackendDocuments(const QStringList &p
         processor->clearProjectPart();
         processor->run();
     }
-}
-
-ClangModelManagerSupport *ClangModelManagerSupport::instance()
-{
-    return m_instance;
 }
 
 } // Internal

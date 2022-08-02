@@ -52,7 +52,7 @@ namespace Internal {
 
 class ClangdClient;
 
-class ClangModelManagerSupport:
+class ClangModelManagerSupport :
         public QObject,
         public CppEditor::ModelManagerSupport
 {
@@ -68,8 +68,6 @@ public:
 
     static ClangdClient *clientForProject(const ProjectExplorer::Project *project);
     static ClangdClient *clientForFile(const Utils::FilePath &file);
-
-    static ClangModelManagerSupport *instance();
 
 private:
     void followSymbol(const CppEditor::CursorInEditor &data,

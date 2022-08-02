@@ -32,6 +32,7 @@
 #include "tasktimers.h"
 
 #include <cppeditor/semantichighlighter.h>
+#include <languageclient/languageclientmanager.h>
 #include <languageclient/semantichighlightsupport.h>
 #include <languageserverprotocol/lsptypes.h>
 #include <texteditor/blockrange.h>
@@ -381,7 +382,7 @@ void doSemanticHighlighting(
             const Position startPos(r.line - 1, r.column - 1);
             virtualRanges << Range(startPos, startPos.withOffset(r.length, &doc));
         }
-        QMetaObject::invokeMethod(ClangModelManagerSupport::instance(),
+        QMetaObject::invokeMethod(LanguageClientManager::instance(),
                                   [filePath, virtualRanges, docRevision] {
             if (ClangdClient * const client = ClangModelManagerSupport::clientForFile(filePath))
                 client->setVirtualRanges(filePath, virtualRanges, docRevision);
