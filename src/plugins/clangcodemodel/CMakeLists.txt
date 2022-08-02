@@ -21,6 +21,7 @@ add_qtc_plugin(ClangCodeModel
     clangdfindreferences.cpp clangdfindreferences.h
     clangdfollowsymbol.cpp clangdfollowsymbol.h
     clangdiagnostictooltipwidget.cpp clangdiagnostictooltipwidget.h
+    clangdmemoryusagewidget.cpp clangdmemoryusagewidget.h
     clangdquickfixes.cpp clangdquickfixes.h
     clangdqpropertyhighlighter.cpp clangdqpropertyhighlighter.h
     clangdsemantichighlighting.cpp clangdsemantichighlighting.h

@@ -44,6 +44,8 @@ QtcPlugin {
         "clangdiagnostictooltipwidget.h",
         "clangdlocatorfilters.cpp",
         "clangdlocatorfilters.h",
+        "clangdmemoryusagewidget.cpp",
+        "clangdmemoryusagewidget.h",
         "clangdqpropertyhighlighter.cpp",
         "clangdqpropertyhighlighter.h",
         "clangdquickfixes.cpp",
