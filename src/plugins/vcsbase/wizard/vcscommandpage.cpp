@@ -24,8 +24,9 @@
 ****************************************************************************/
 
 #include "vcscommandpage.h"
-#include "vcsbaseplugin.h"
-#include "vcscommand.h"
+
+#include "../vcsbaseplugin.h"
+#include "../vcscommand.h"
 
 #include <coreplugin/vcsmanager.h>
 
