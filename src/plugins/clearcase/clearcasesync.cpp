@@ -52,7 +52,7 @@ static void runProcess(QFutureInterface<void> &future,
     const QString viewRoot = ClearCasePlugin::viewData().root;
     QtcProcess process;
     process.setWorkingDirectory(FilePath::fromString(viewRoot));
-    process.setCommand({FilePath::fromString(settings.ccBinaryPath), args});
+    process.setCommand({settings.ccBinaryPath, args});
     process.start();
     if (!process.waitForStarted())
         return;
@@ -233,8 +233,7 @@ void ClearCaseSync::run(QFutureInterface<void> &future, QStringList &files)
     if (settings.disableIndexer)
         return;
 
-    const QString program = settings.ccBinaryPath;
-    if (program.isEmpty())
+    if (settings.ccBinaryPath.isEmpty())
         return;
 
     // refresh activities list

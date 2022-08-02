@@ -26,6 +26,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QHash>
 #include <QString>
 
@@ -60,7 +62,7 @@ public:
     { return !p1.equals(p2); }
 
     QString ccCommand;
-    QString ccBinaryPath;
+    Utils::FilePath ccBinaryPath;
     DiffType diffType = GraphicalDiff;
     QString diffArgs;
     QString indexOnlyVOBs;

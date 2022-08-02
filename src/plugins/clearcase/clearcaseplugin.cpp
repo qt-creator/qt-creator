@@ -1658,9 +1658,8 @@ ClearCasePluginPrivate::runCleartool(const FilePath &workingDir,
                                      unsigned flags,
                                      QTextCodec *outputCodec) const
 {
-    const QString executable = m_settings.ccBinaryPath;
     ClearCaseResponse response;
-    if (executable.isEmpty()) {
+    if (m_settings.ccBinaryPath.isEmpty()) {
         response.error = true;
         response.message = tr("No ClearCase executable specified.");
         return response;
@@ -1669,7 +1668,7 @@ ClearCasePluginPrivate::runCleartool(const FilePath &workingDir,
     auto *command = VcsBaseClient::createVcsCommand(workingDir, Environment::systemEnvironment());
     command->addFlags(flags);
     command->setCodec(outputCodec);
-    const CommandResult result = command->runCommand({FilePath::fromString(executable), arguments},
+    const CommandResult result = command->runCommand({m_settings.ccBinaryPath, arguments},
                                                      timeOutS);
     delete command;
 
@@ -2330,7 +2329,7 @@ void ClearCasePluginPrivate::diffGraphical(const QString &file1, const QString &
     args << file1;
     if (!pred)
         args << file2;
-    QtcProcess::startDetached({FilePath::fromString(m_settings.ccBinaryPath), args}, m_topLevel);
+    QtcProcess::startDetached({m_settings.ccBinaryPath, args}, m_topLevel);
 }
 
 QString ClearCasePluginPrivate::runExtDiff(const FilePath &workingDir, const QStringList &arguments,
@@ -2399,11 +2398,8 @@ bool ClearCasePluginPrivate::isConfigured() const
     if (m_fakeClearTool)
         return true;
 #endif
-    const QString binary = m_settings.ccBinaryPath;
-    if (binary.isEmpty())
-        return false;
-    QFileInfo fi(binary);
-    return fi.exists() && fi.isFile() && fi.isExecutable();
+    const FilePath &binary = m_settings.ccBinaryPath;
+    return !binary.isEmpty() && binary.exists() && binary.isFile() && binary.isExecutableFile();
 }
 
 bool ClearCasePluginPrivate::supportsOperation(Operation operation) const

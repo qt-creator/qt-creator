@@ -69,7 +69,7 @@ void ClearCaseSettings::fromSettings(QSettings *settings)
 {
     settings->beginGroup(QLatin1String(groupC));
     ccCommand = settings->value(QLatin1String(commandKeyC), defaultCommand()).toString();
-    ccBinaryPath = Utils::Environment::systemEnvironment().searchInPath(ccCommand).toString();
+    ccBinaryPath = Utils::Environment::systemEnvironment().searchInPath(ccCommand);
     timeOutS = settings->value(QLatin1String(timeOutKeyC), defaultTimeOutS).toInt();
     autoCheckOut = settings->value(QLatin1String(autoCheckOutKeyC), false).toBool();
     noComment = settings->value(QLatin1String(noCommentKeyC), false).toBool();
