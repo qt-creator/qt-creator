@@ -47,6 +47,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/qtcassert.h>
@@ -1042,8 +1043,7 @@ bool SessionManager::loadSession(const QString &session, bool initial)
             return true;
         }
 
-        fileList = Utils::transform(reader.restoreValue("ProjectList").toStringList(),
-                                    &FilePath::fromString);
+        fileList = FileUtils::toFilePathList(reader.restoreValue("ProjectList").toStringList());
     } else if (loadImplicitDefault) {
         return true;
     }

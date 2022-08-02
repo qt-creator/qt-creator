@@ -31,6 +31,7 @@
 #include <coreplugin/testdatadir.h>
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
+#include <utils/fileutils.h>
 
 #include <QDir>
 #include <QTextStream>
@@ -74,7 +75,7 @@ void Core::Internal::CorePlugin::test_basefilefilter()
     QFETCH(QStringList, testFiles);
     QFETCH(QList<ReferenceData>, referenceDataList);
 
-    MyBaseFileFilter filter(Utils::transform(testFiles, &Utils::FilePath::fromString));
+    MyBaseFileFilter filter(Utils::FileUtils::toFilePathList(testFiles));
     BasicLocatorFilterTest test(&filter);
 
     for (const ReferenceData &reference : qAsConst(referenceDataList)) {

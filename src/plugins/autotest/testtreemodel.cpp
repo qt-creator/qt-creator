@@ -39,6 +39,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -117,7 +118,7 @@ void TestTreeModel::setupParsingConnections()
     connect(cppMM, &CppEditor::CppModelManager::aboutToRemoveFiles,
             this, [this](const QStringList &files) {
                 const Utils::FilePaths filesToRemove
-                        = Utils::transform(files, &Utils::FilePath::fromString);
+                        = Utils::FileUtils::toFilePathList(files);
                 removeFiles(filesToRemove);
             }, Qt::QueuedConnection);
     connect(cppMM, &CppEditor::CppModelManager::projectPartsUpdated,

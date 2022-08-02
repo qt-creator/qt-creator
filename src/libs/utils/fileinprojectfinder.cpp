@@ -26,6 +26,7 @@
 #include "fileinprojectfinder.h"
 
 #include "algorithm.h"
+#include "fileutils.h"
 #include "hostosinfo.h"
 #include "qrcparser.h"
 #include "qtcassert.h"
@@ -473,7 +474,7 @@ FilePaths FileInProjectFinder::QrcUrlFinder::find(const QUrl &fileUrl) const
         qrcParser->collectFilesAtPath(QrcParser::normalizedQrcFilePath(fileUrl.toString()), &hits);
     }
     hits.removeDuplicates();
-    const FilePaths result = transform(hits, &FilePath::fromString);
+    const FilePaths result = FileUtils::toFilePathList(hits);
     m_fileCache.insert(fileUrl, result);
     return result;
 }

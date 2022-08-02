@@ -97,6 +97,8 @@ public:
     static QByteArray fileId(const FilePath &fileName);
     static FilePath homePath();
 
+    static FilePaths toFilePathList(const QStringList &paths);
+
     static void iterateLsOutput(const FilePath &base,
                                 const QStringList &entries,
                                 const FileFilter &filter,

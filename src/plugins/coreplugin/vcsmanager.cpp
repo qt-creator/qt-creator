@@ -35,6 +35,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/infobar.h>
 #include <utils/optional.h>
 #include <utils/qtcassert.h>
@@ -177,7 +178,7 @@ void VcsManager::extensionsInitialized()
         connect(vc, &IVersionControl::filesChanged, DocumentManager::instance(),
                 [](const QStringList &fileNames) {
             DocumentManager::notifyFilesChangedInternally(
-                        Utils::transform(fileNames, &Utils::FilePath::fromString));
+                        FileUtils::toFilePathList(fileNames));
         });
         connect(vc, &IVersionControl::repositoryChanged,
                 m_instance, &VcsManager::repositoryChanged);

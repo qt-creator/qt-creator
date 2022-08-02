@@ -337,7 +337,7 @@ ProjectExplorer::DeploymentKnowledge QbsProject::deploymentKnowledge() const
 
 FilePaths QbsBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const
 {
-    return transform(session()->filesGeneratedFrom(sourceFile.toString()), &FilePath::fromString);
+    return FileUtils::toFilePathList(session()->filesGeneratedFrom(sourceFile.toString()));
 }
 
 bool QbsBuildSystem::isProjectEditable() const
@@ -380,7 +380,7 @@ bool QbsBuildSystem::addFilesToProduct(
                 group.value("name").toString());
     if (result.error().hasError()) {
         MessageManager::writeDisrupting(result.error().toString());
-        *notAdded = Utils::transform(result.failedFiles(), &FilePath::fromString);
+        *notAdded = FileUtils::toFilePathList(result.failedFiles());
     }
     return notAdded->isEmpty();
 }
@@ -411,7 +411,7 @@ RemovedFilesFromProject QbsBuildSystem::removeFilesFromProduct(
                 product.value("name").toString(),
                 group.value("name").toString());
 
-    *notRemoved = Utils::transform(result.failedFiles(), &FilePath::fromString);
+    *notRemoved = FileUtils::toFilePathList(result.failedFiles());
     if (result.error().hasError())
         MessageManager::writeDisrupting(result.error().toString());
     const bool success = notRemoved->isEmpty();

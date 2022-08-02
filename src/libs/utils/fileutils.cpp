@@ -556,7 +556,7 @@ FilePaths FileUtils::getOpenFilePaths(QWidget *parent,
                                                              filter,
                                                              selectedFilter,
                                                              options);
-    return transform(result, &FilePath::fromString);
+    return FileUtils::toFilePathList(result);
 }
 
 FilePath FileUtils::getOpenFilePathFromDevice(QWidget *parent,
@@ -811,5 +811,10 @@ FilePath FileUtils::homePath()
 {
     return FilePath::fromString(doCleanPath(QDir::homePath()));
 }
+
+FilePaths FileUtils::toFilePathList(const QStringList &paths) {
+    return transform(paths, [](const QString &path) { return FilePath::fromString(path); });
+}
+
 
 } // namespace Utils

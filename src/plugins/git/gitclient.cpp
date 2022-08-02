@@ -944,7 +944,7 @@ FilePaths GitClient::unmanagedFiles(const FilePaths &filePaths) const
         const QStringList filtered = Utils::filtered(it.value(), [&managedFilePaths, &wd](const QString &fp) {
             return !managedFilePaths.contains(wd.absoluteFilePath(fp));
         });
-        res += transform(filtered, &FilePath::fromString);
+        res += FileUtils::toFilePathList(filtered);
     }
     return res;
 }

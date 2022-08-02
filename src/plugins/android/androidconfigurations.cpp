@@ -1217,8 +1217,7 @@ void AndroidConfigurations::removeUnusedDebuggers()
             uniqueNdks.append(ndkLocation);
     }
 
-    uniqueNdks.append(Utils::transform(currentConfig().getCustomNdkList(),
-                                       FilePath::fromString).toVector());
+    uniqueNdks.append(FileUtils::toFilePathList(currentConfig().getCustomNdkList()).toVector());
 
     const QList<Debugger::DebuggerItem> allDebuggers = Debugger::DebuggerItemManager::debuggers();
     for (const Debugger::DebuggerItem &debugger : allDebuggers) {
@@ -1346,8 +1345,7 @@ void AndroidConfigurations::registerCustomToolChainsAndDebuggers()
     const Toolchains existingAndroidToolChains = ToolChainManager::toolchains(
         Utils::equal(&ToolChain::typeId, Utils::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
 
-    const FilePaths customNdks = Utils::transform(currentConfig().getCustomNdkList(),
-                                                  FilePath::fromString);
+    const FilePaths customNdks = FileUtils::toFilePathList(currentConfig().getCustomNdkList());
     const Toolchains customToolchains
         = AndroidToolChainFactory::autodetectToolChainsFromNdks(existingAndroidToolChains,
                                                                 customNdks,

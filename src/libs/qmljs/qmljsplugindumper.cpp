@@ -451,7 +451,8 @@ QFuture<PluginDumper::DependencyInfo> PluginDumper::loadDependencies(const FileP
 
     Utils::onFinished(loadQmlTypeDescription(dependenciesPaths), const_cast<PluginDumper*>(this), [=] (const QFuture<PluginDumper::QmlTypeDescription> &typesFuture) {
         PluginDumper::QmlTypeDescription typesResult = typesFuture.result();
-        FilePaths newDependencies = Utils::transform(typesResult.dependencies, &FilePath::fromString);
+        FilePaths newDependencies = FileUtils::toFilePathList(typesResult.dependencies);
+
         newDependencies = Utils::toList(Utils::toSet(newDependencies) - *visited.data());
         if (!newDependencies.isEmpty()) {
             Utils::onFinished(loadDependencies(newDependencies, visited),
@@ -589,7 +590,7 @@ void PluginDumper::loadQmltypesFile(const FilePaths &qmltypesFilePaths,
         PluginDumper::QmlTypeDescription typesResult = typesFuture.result();
         if (!typesResult.dependencies.isEmpty())
         {
-            Utils::onFinished(loadDependencies(Utils::transform(typesResult.dependencies, &FilePath::fromString),
+            Utils::onFinished(loadDependencies(FileUtils::toFilePathList(typesResult.dependencies),
                                                QSharedPointer<QSet<FilePath>>()), this,
                               [typesResult, libraryInfo, libraryPath, this] (const QFuture<PluginDumper::DependencyInfo> &loadFuture)
             {

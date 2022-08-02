@@ -143,7 +143,7 @@ SuppressionAspect::~SuppressionAspect()
 
 FilePaths SuppressionAspect::value() const
 {
-    return Utils::transform(BaseAspect::value().toStringList(), &FilePath::fromString);
+    return FileUtils::toFilePathList(BaseAspect::value().toStringList());
 }
 
 void SuppressionAspect::setValue(const FilePaths &val)

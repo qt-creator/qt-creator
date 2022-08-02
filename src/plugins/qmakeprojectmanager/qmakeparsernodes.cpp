@@ -52,6 +52,7 @@
 #include <utils/QtConcurrentTools>
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
+#include <utils/fileutils.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -737,7 +738,7 @@ FilePaths QmakePriFile::formResources(const FilePath &formFile) const
     if (reader.hasError())
         qWarning() << "Could not read form file:" << formFile;
 
-    return Utils::transform(resourceFiles, &FilePath::fromString);
+    return FileUtils::toFilePathList(resourceFiles);
 }
 
 bool QmakePriFile::ensureWriteableProFile(const QString &file)
@@ -887,11 +888,12 @@ void QmakePriFile::changeFiles(const QString &mimeType,
         notChanged->clear();
     } else { // RemoveFromProFile
         QDir priFileDir = QDir(m_qmakeProFile->directoryPath().toString());
-        *notChanged = Utils::transform(
-                    ProWriter::removeFiles(includeFile, &lines, priFileDir,
-                                           Utils::transform(filePaths, &FilePath::toString),
-                                           varNamesForRemoving()),
-                    &FilePath::fromString);
+        *notChanged = FileUtils::toFilePathList(
+            ProWriter::removeFiles(includeFile,
+                                   &lines,
+                                   priFileDir,
+                                   Utils::transform(filePaths, &FilePath::toString),
+                                   varNamesForRemoving()));
     }
 
     // save file

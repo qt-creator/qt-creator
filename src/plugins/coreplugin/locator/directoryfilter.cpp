@@ -103,8 +103,7 @@ void DirectoryFilter::restoreState(const QJsonObject &object)
     m_directories = toStringList(object.value(kDirectoriesKey).toArray());
     m_filters = toStringList(
         object.value(kFiltersKey).toArray(QJsonArray::fromStringList(kFiltersDefault)));
-    m_files = Utils::transform(toStringList(object.value(kFilesKey).toArray()),
-                               &FilePath::fromString);
+    m_files = FileUtils::toFilePathList(toStringList(object.value(kFilesKey).toArray()));
     m_exclusionFilters = toStringList(
         object.value(kExclusionFiltersKey)
             .toArray(QJsonArray::fromStringList(kExclusionFiltersDefault)));
@@ -129,7 +128,7 @@ void DirectoryFilter::restoreState(const QByteArray &state)
         in >> shortcut;
         in >> defaultFilter;
         in >> files;
-        m_files = Utils::transform(files, &Utils::FilePath::fromString);
+        m_files = FileUtils::toFilePathList(files);
         if (!in.atEnd()) // Qt Creator 4.3 and later
             in >> m_exclusionFilters;
         else

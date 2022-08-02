@@ -143,7 +143,7 @@ void ResourceHandler::updateResourcesHelper(bool updateProjectResources)
             }
             if (!qrcPathsToBeAdded.isEmpty()) {
                 m_handlingResources = true;
-                projectNodeForUiFile->addFiles(Utils::transform(qrcPathsToBeAdded, &FilePath::fromString));
+                projectNodeForUiFile->addFiles(FileUtils::toFilePathList(qrcPathsToBeAdded));
                 m_handlingResources = false;
                 projectQrcFiles += qrcPathsToBeAdded;
             }
