@@ -557,6 +557,7 @@ public:
     QList<int> m_entrySections; // line number where this section starts
     int m_cursorLine = -1;
     int m_firstLineNumber = -1;
+    int m_defaultLineNumber = -1;
     QString m_annotateRevisionTextFormat;
     QString m_annotatePreviousRevisionTextFormat;
     VcsBaseEditorConfig *m_config = nullptr;
@@ -1232,16 +1233,13 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
     return rc;
 }
 
-void VcsBaseEditorWidget::reportCommandFinished(bool success, const QVariant &data)
+void VcsBaseEditorWidget::reportCommandFinished(bool success)
 {
     hideProgressIndicator();
-    if (!success) {
+    if (!success)
         textDocument()->setPlainText(tr("Failed to retrieve data."));
-    } else if (data.type() == QVariant::Int) {
-        const int line = data.toInt();
-        if (line >= 0)
-            gotoLine(line);
-    }
+    else if (d->m_defaultLineNumber >= 0)
+        gotoLine(d->m_defaultLineNumber);
 }
 
 const VcsBaseEditorParameters *VcsBaseEditor::findType(const VcsBaseEditorParameters *array,
@@ -1421,6 +1419,11 @@ void VcsBaseEditorWidget::setCommand(VcsCommand *command)
         connect(command, &VcsCommand::finished, this, &VcsBaseEditorWidget::reportCommandFinished);
         QTimer::singleShot(100, this, &VcsBaseEditorWidget::showProgressIndicator);
     }
+}
+
+void VcsBaseEditorWidget::setDefaultLineNumber(int line)
+{
+    d->m_defaultLineNumber = line;
 }
 
 void VcsBaseEditorWidget::setPlainText(const QString &text)

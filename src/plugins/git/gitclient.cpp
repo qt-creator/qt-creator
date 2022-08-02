@@ -1379,7 +1379,8 @@ VcsBaseEditorWidget *GitClient::annotate(
     arguments << argWidget->arguments() << "--" << file;
     if (!revision.isEmpty())
         arguments << revision;
-    vcsExec(workingDir, arguments, editor, false, 0, lineNumber);
+    editor->setDefaultLineNumber(lineNumber);
+    vcsExec(workingDir, arguments, editor);
     return editor;
 }
 

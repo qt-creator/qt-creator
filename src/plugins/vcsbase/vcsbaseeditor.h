@@ -213,6 +213,7 @@ public:
     VcsBaseEditorConfig *editorConfig() const;
 
     void setCommand(VcsCommand *command);
+    void setDefaultLineNumber(int line);
 
     virtual void setPlainText(const QString &text);
 
@@ -227,7 +228,7 @@ signals:
     void diffChunkReverted(const VcsBase::DiffChunk &dc);
 
 public slots:
-    void reportCommandFinished(bool success, const QVariant &data);
+    void reportCommandFinished(bool success);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *e) override;

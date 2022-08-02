@@ -375,7 +375,7 @@ VcsBaseEditorWidget *VcsBaseClient::annotate(
                                                   vcsCmdString.toLatin1().constData(), id);
 
     VcsCommand *cmd = createCommand(workingDir, editor);
-    cmd->setCookie(lineNumber);
+    editor->setDefaultLineNumber(lineNumber);
     enqueueJob(cmd, args);
     return editor;
 }
