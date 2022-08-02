@@ -74,7 +74,6 @@ QtcPlugin {
         files: [
             "authenticationdialog.cpp",
             "authenticationdialog.h",
-            "authenticationdialog.ui",
             "branchcombobox.cpp",
             "branchcombobox.h",
             "gerritdialog.cpp",

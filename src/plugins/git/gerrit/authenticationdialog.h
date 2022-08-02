@@ -29,6 +29,8 @@
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
+class QDialogButtonBox;
+class QLineEdit;
 class QTimer;
 QT_END_NAMESPACE
 
@@ -36,8 +38,6 @@ namespace Gerrit {
 namespace Internal {
 
 class GerritServer;
-
-namespace Ui { class AuthenticationDialog; }
 
 class AuthenticationDialog : public QDialog
 {
@@ -52,12 +52,15 @@ private:
     void readExistingConf();
     bool setupCredentials();
     void checkCredentials();
-    Ui::AuthenticationDialog *ui = nullptr;
+
     GerritServer *m_server = nullptr;
     QString m_netrcFileName;
     QStringList m_allMachines;
     bool m_authenticated = true;
     QTimer *m_checkTimer = nullptr;
+    QLineEdit *m_userLineEdit;
+    QLineEdit *m_passwordLineEdit;
+    QDialogButtonBox *m_buttonBox;
 };
 
 } // Internal
