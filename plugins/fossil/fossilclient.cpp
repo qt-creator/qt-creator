@@ -815,7 +815,7 @@ VcsBaseEditorWidget *FossilClient::annotate(const FilePath &workingDir, const QS
     // When version list requested, ignore the source line.
     if (args.contains("--log"))
         lineNumber = -1;
-    cmd->setCookie(lineNumber);
+    editor->setDefaultLineNumber(lineNumber);
 
     enqueueJob(cmd, args);
     return fossilEditor;
@@ -1089,10 +1089,10 @@ void FossilClient::revertFile(const FilePath &workingDir,
 
     // Indicate file list
     VcsCommand *cmd = createCommand(workingDir);
-    cmd->setCookie(QStringList(workingDir.toString() + "/" + file));
-    connect(cmd, &VcsCommand::finished, this, [this](bool success, const QVariant &cookie) {
+    const QStringList files = QStringList(workingDir.toString() + "/" + file);
+    connect(cmd, &VcsCommand::finished, this, [this, files](bool success) {
         if (success)
-            emit changed(cookie);
+            emit changed(files);
     });
     enqueueJob(cmd, args);
 }
@@ -1118,10 +1118,10 @@ void FossilClient::revertAll(const FilePath &workingDir, const QString &revision
 
     // Indicate repository change
     VcsCommand *cmd = createCommand(workingDir);
-    cmd->setCookie(QStringList(workingDir.toString()));
-    connect(cmd, &VcsCommand::finished, this, [this](bool success, const QVariant &cookie) {
+    const QStringList files = QStringList(workingDir.toString());
+    connect(cmd, &VcsCommand::finished, this, [this, files](bool success) {
         if (success)
-            emit changed(cookie);
+            emit changed(files);
     });
     enqueueJob(createCommand(workingDir), args);
 }
