@@ -93,8 +93,6 @@ class CPPEDITOR_EXPORT ClangdSettings : public QObject
 {
     Q_OBJECT
 public:
-    // Default clangd --limit-results value is 100
-    static const int kDefaultCompletionResults = 100;
 
     class CPPEDITOR_EXPORT Data
     {
@@ -120,6 +118,8 @@ public:
         }
         friend bool operator!=(const Data &s1, const Data &s2) { return !(s1 == s2); }
 
+        static int defaultCompletionResults();
+
         Utils::FilePath executableFilePath;
         QStringList sessionsWithOneClangd;
         ClangDiagnosticConfigs customDiagnosticConfigs;
@@ -132,7 +132,7 @@ public:
         bool autoIncludeHeaders = false;
         bool sizeThresholdEnabled = false;
         bool haveCheckedHardwareReqirements = false;
-        int completionResults = kDefaultCompletionResults;
+        int completionResults = defaultCompletionResults();
     };
 
     ClangdSettings(const Data &data) : m_data(data) {}

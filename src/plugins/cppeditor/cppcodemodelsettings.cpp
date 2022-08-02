@@ -508,7 +508,15 @@ void ClangdSettings::Data::fromMap(const QVariantMap &map)
     diagnosticConfigId = Id::fromSetting(map.value(diagnosticConfigIdKey(),
                                                    initialClangDiagnosticConfigId().toSetting()));
     haveCheckedHardwareReqirements = map.value(checkedHardwareKey(), false).toBool();
-    completionResults = map.value(completionResultsKey(), kDefaultCompletionResults).toInt();
+    completionResults = map.value(completionResultsKey(), defaultCompletionResults()).toInt();
+}
+
+int ClangdSettings::Data::defaultCompletionResults()
+{
+    // Default clangd --limit-results value is 100
+    bool ok = false;
+    const int userValue = qEnvironmentVariableIntValue("QTC_CLANGD_COMPLETION_RESULTS", &ok);
+    return ok ? userValue : 100;
 }
 
 } // namespace CppEditor
