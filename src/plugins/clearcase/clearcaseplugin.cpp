@@ -1670,7 +1670,7 @@ ClearCasePluginPrivate::runCleartool(const FilePath &workingDir,
     command->addFlags(flags);
     command->setCodec(outputCodec);
     const CommandResult result = command->runCommand({FilePath::fromString(executable), arguments},
-                                                     workingDir, timeOutS);
+                                                     timeOutS);
     delete command;
 
     response.error = result.result() != ProcessResult::FinishedWithSuccess;

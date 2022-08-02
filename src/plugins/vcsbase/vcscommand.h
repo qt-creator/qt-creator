@@ -148,9 +148,7 @@ public:
     // This is called once per job in a thread.
     // When called from the UI thread it will execute fully synchronously, so no signals will
     // be triggered!
-    CommandResult runCommand(const Utils::CommandLine &command,
-                             const Utils::FilePath &workingDirectory = {},
-                             int timeoutS = 10, const Utils::ExitCodeInterpreter &interpreter = {});
+    CommandResult runCommand(const Utils::CommandLine &command, int timeoutS = 10);
     void cancel();
 
 signals:
@@ -169,8 +167,13 @@ signals:
     void runCommandFinished(const Utils::FilePath &workingDirectory);
 
 private:
-    Utils::FilePath workDirectory(const Utils::FilePath &wd) const;
     void run(QFutureInterface<void> &future);
+    // This is called once per job in a thread.
+    // When called from the UI thread it will execute fully synchronously, so no signals will
+    // be triggered!
+    CommandResult runCommand(const Utils::CommandLine &command, int timeoutS,
+                             const Utils::FilePath &workingDirectory,
+                             const Utils::ExitCodeInterpreter &interpreter);
     void addTask(const QFuture<void> &future);
     void postRunCommand(const Utils::FilePath &workingDirectory);
 

@@ -74,13 +74,10 @@ class VcsCommandPrivate
 {
 public:
     struct Job {
-        explicit Job(const FilePath &wd, const CommandLine &command, int t,
-                     const ExitCodeInterpreter &interpreter);
-
-        FilePath workingDirectory;
         CommandLine command;
-        ExitCodeInterpreter exitCodeInterpreter;
-        int timeoutS;
+        int timeoutS = 10;
+        FilePath workingDirectory;
+        ExitCodeInterpreter exitCodeInterpreter = {};
     };
 
     VcsCommandPrivate(const FilePath &defaultWorkingDirectory, const Environment &environment)
@@ -118,18 +115,6 @@ public:
     bool m_hadOutput = false;
     bool m_aborted = false;
 };
-
-VcsCommandPrivate::Job::Job(const FilePath &wd, const CommandLine &command,
-                              int t, const ExitCodeInterpreter &interpreter) :
-    workingDirectory(wd),
-    command(command),
-    exitCodeInterpreter(interpreter),
-    timeoutS(t)
-{
-    // Finished cookie is emitted via queued slot, needs metatype
-    static const int qvMetaId = qRegisterMetaType<QVariant>();
-    Q_UNUSED(qvMetaId)
-}
 
 } // namespace Internal
 
@@ -232,18 +217,18 @@ void VcsCommand::addFlags(unsigned f)
 }
 
 void VcsCommand::addJob(const CommandLine &command,
-                          const FilePath &workingDirectory,
-                          const ExitCodeInterpreter &interpreter)
+                        const FilePath &workingDirectory,
+                        const ExitCodeInterpreter &interpreter)
 {
     addJob(command, defaultTimeoutS(), workingDirectory, interpreter);
 }
 
 void VcsCommand::addJob(const CommandLine &command, int timeoutS,
-                          const FilePath &workingDirectory,
-                          const ExitCodeInterpreter &interpreter)
+                        const FilePath &workingDirectory,
+                        const ExitCodeInterpreter &interpreter)
 {
-    d->m_jobs.push_back(Internal::VcsCommandPrivate::Job(workDirectory(workingDirectory), command,
-                                                           timeoutS, interpreter));
+    d->m_jobs.push_back({command, timeoutS, !workingDirectory.isEmpty()
+                         ? workingDirectory : d->m_defaultWorkingDirectory, interpreter});
 }
 
 void VcsCommand::execute()
@@ -275,13 +260,6 @@ int VcsCommand::timeoutS() const
     });
 }
 
-FilePath VcsCommand::workDirectory(const FilePath &wd) const
-{
-    if (!wd.isEmpty())
-        return wd;
-    return defaultWorkingDirectory();
-}
-
 void VcsCommand::run(QFutureInterface<void> &future)
 {
     // Check that the binary path is not empty
@@ -303,8 +281,8 @@ void VcsCommand::run(QFutureInterface<void> &future)
     bool lastExecSuccess = true;
     for (int j = 0; j < count; j++) {
         const Internal::VcsCommandPrivate::Job &job = d->m_jobs.at(j);
-        const CommandResult result = runCommand(job.command, job.workingDirectory,
-                                                job.timeoutS, job.exitCodeInterpreter);
+        const CommandResult result = runCommand(job.command, job.timeoutS,
+                                                job.workingDirectory, job.exitCodeInterpreter);
         stdOut += result.cleanedStdOut();
         stdErr += result.cleanedStdErr();
         lastExecSuccess = result.result() == ProcessResult::FinishedWithSuccess;
@@ -337,8 +315,14 @@ void VcsCommand::run(QFutureInterface<void> &future)
     this->deleteLater();
 }
 
-CommandResult VcsCommand::runCommand(const CommandLine &command, const FilePath &workingDirectory,
-                                     int timeoutS, const ExitCodeInterpreter &interpreter)
+CommandResult VcsCommand::runCommand(const Utils::CommandLine &command, int timeoutS)
+{
+    return runCommand(command, timeoutS, d->m_defaultWorkingDirectory, {});
+}
+
+CommandResult VcsCommand::runCommand(const CommandLine &command, int timeoutS,
+                                     const FilePath &workingDirectory,
+                                     const ExitCodeInterpreter &interpreter)
 {
     QtcProcess proc;
     if (command.executable().isEmpty())
@@ -347,12 +331,11 @@ CommandResult VcsCommand::runCommand(const CommandLine &command, const FilePath 
     proc.setExitCodeInterpreter(interpreter);
     proc.setTimeoutS(timeoutS);
 
-    const FilePath dir = workDirectory(workingDirectory);
-    if (!dir.isEmpty())
-        proc.setWorkingDirectory(dir);
+    if (!workingDirectory.isEmpty())
+        proc.setWorkingDirectory(workingDirectory);
 
     if (!(d->m_flags & SuppressCommandLogging))
-        emit appendCommand(dir, command);
+        emit appendCommand(workingDirectory, command);
 
     proc.setCommand(command);
     proc.setDisableUnixTerminal();
@@ -379,7 +362,7 @@ CommandResult VcsCommand::runCommand(const CommandLine &command, const FilePath 
             emit appendError(proc.exitMessage());
         }
     }
-    emit runCommandFinished(dir);
+    emit runCommandFinished(workingDirectory);
     return CommandResult(proc);
 }
 

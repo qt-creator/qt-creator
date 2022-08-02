@@ -170,7 +170,7 @@ CommandResult VcsBaseClientImpl::vcsFullySynchronousExec(const FilePath &working
     command.addFlags(flags);
     if (codec)
         command.setCodec(codec);
-    return command.runCommand(cmdLine, workingDir, timeoutS > 0 ? timeoutS : vcsTimeoutS());
+    return command.runCommand(cmdLine, timeoutS > 0 ? timeoutS : vcsTimeoutS());
 }
 
 void VcsBaseClientImpl::resetCachedVcsInfo(const FilePath &workingDir)
@@ -214,7 +214,7 @@ CommandResult VcsBaseClientImpl::vcsSynchronousExec(const FilePath &workingDir,
     VcsCommand command(workingDir, env.isValid() ? env : Environment::systemEnvironment());
     command.addFlags(flags);
     command.setCodec(outputCodec);
-    return command.runCommand({vcsBinary(), args}, workingDir, vcsTimeoutS());
+    return command.runCommand({vcsBinary(), args}, vcsTimeoutS());
 }
 
 int VcsBaseClientImpl::vcsTimeoutS() const

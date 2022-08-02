@@ -175,7 +175,7 @@ bool MercurialClient::synchronousPull(const FilePath &workingDir, const QString 
 
     VcsCommand *command = VcsBaseClient::createVcsCommand(workingDir, env);
     command->addFlags(flags);
-    const CommandResult result = command->runCommand({vcsBinary(), args}, workingDir, vcsTimeoutS());
+    const CommandResult result = command->runCommand({vcsBinary(), args}, vcsTimeoutS());
     delete command;
 
     parsePullOutput(result.cleanedStdOut().trimmed());

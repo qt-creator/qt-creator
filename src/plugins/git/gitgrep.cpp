@@ -201,7 +201,7 @@ public:
         QObject::connect(m_command.get(),
                          &VcsCommand::stdOutText,
                          [this, &fi](const QString &text) { read(fi, text); });
-        const CommandResult result = m_command->runCommand({m_vcsBinary, arguments}, {}, 0);
+        const CommandResult result = m_command->runCommand({m_vcsBinary, arguments}, 0);
         switch (result.result()) {
         case ProcessResult::TerminatedAbnormally:
         case ProcessResult::StartFailed:

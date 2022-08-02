@@ -1438,7 +1438,7 @@ CvsResponse CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
     command->addFlags(flags);
     command->setCodec(outputCodec);
     const CommandResult result = command->runCommand({executable, m_settings.addOptions(arguments)},
-                                                     workingDirectory, timeOutS);
+                                                     timeOutS);
     delete command;
 
     response.result = CvsResponse::OtherError;
