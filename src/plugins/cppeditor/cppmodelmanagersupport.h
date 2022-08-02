@@ -56,11 +56,8 @@ public:
 public:
     virtual ~ModelManagerSupport() = 0;
 
-    virtual CppCompletionAssistProvider *completionAssistProvider() = 0;
-    virtual TextEditor::BaseHoverHandler *createHoverHandler() = 0;
     virtual BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) = 0;
-    virtual std::unique_ptr<AbstractOverviewModel> createOverviewModel() = 0;
     virtual bool usesClangd(const TextEditor::TextDocument *) const { return false; }
 
     virtual void followSymbol(const CursorInEditor &data,

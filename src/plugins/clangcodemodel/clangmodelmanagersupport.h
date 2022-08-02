@@ -62,11 +62,8 @@ public:
     ClangModelManagerSupport();
     ~ClangModelManagerSupport() override;
 
-    CppEditor::CppCompletionAssistProvider *completionAssistProvider() override;
-    TextEditor::BaseHoverHandler *createHoverHandler() override { return nullptr; }
     CppEditor::BaseEditorDocumentProcessor *createEditorDocumentProcessor(
                 TextEditor::TextDocument *baseTextDocument) override;
-    std::unique_ptr<CppEditor::AbstractOverviewModel> createOverviewModel() override;
     bool usesClangd(const TextEditor::TextDocument *document) const override;
 
     static ClangdClient *clientForProject(const ProjectExplorer::Project *project);

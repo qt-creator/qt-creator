@@ -41,11 +41,12 @@ public:
     BuiltinModelManagerSupport();
     ~BuiltinModelManagerSupport() override;
 
-    CppCompletionAssistProvider *completionAssistProvider() final;
-    TextEditor::BaseHoverHandler *createHoverHandler() final;
+    CppCompletionAssistProvider *completionAssistProvider();
+    TextEditor::BaseHoverHandler *createHoverHandler();
+    std::unique_ptr<AbstractOverviewModel> createOverviewModel();
+
     BaseEditorDocumentProcessor *createEditorDocumentProcessor(
             TextEditor::TextDocument *baseTextDocument) final;
-    std::unique_ptr<AbstractOverviewModel> createOverviewModel() final;
 
     FollowSymbolUnderCursor &followSymbolInterface() { return *m_followSymbol; }
 

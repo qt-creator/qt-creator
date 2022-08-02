@@ -217,11 +217,6 @@ ClangModelManagerSupport::~ClangModelManagerSupport()
     m_instance = nullptr;
 }
 
-CppEditor::CppCompletionAssistProvider *ClangModelManagerSupport::completionAssistProvider()
-{
-    return nullptr;
-}
-
 void ClangModelManagerSupport::followSymbol(const CppEditor::CursorInEditor &data,
                   const Utils::LinkHandler &processLinkCallback, bool resolveTarget,
                   bool inNextSplit)
@@ -304,11 +299,6 @@ void ClangModelManagerSupport::switchHeaderSource(const Utils::FilePath &filePat
         return;
     }
     CppModelManager::switchHeaderSource(inNextSplit, CppModelManager::Backend::Builtin);
-}
-
-std::unique_ptr<CppEditor::AbstractOverviewModel> ClangModelManagerSupport::createOverviewModel()
-{
-    return {};
 }
 
 bool ClangModelManagerSupport::usesClangd(const TextEditor::TextDocument *document) const
