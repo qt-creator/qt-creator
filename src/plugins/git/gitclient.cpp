@@ -3434,7 +3434,6 @@ VcsCommand *GitClient::vcsExecAbortable(const FilePath &workingDirectory,
     if (abortCommand.isEmpty())
         abortCommand = arguments.at(0);
     VcsCommand *command = createCommand(workingDirectory, nullptr, VcsWindowOutputBind);
-    command->setCookie(workingDirectory.toString());
     command->addFlags(VcsCommand::SshPasswordPrompt
                       | VcsCommand::ShowStdOut
                       | VcsCommand::ShowSuccessMessage);
