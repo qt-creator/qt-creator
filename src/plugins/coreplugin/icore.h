@@ -124,6 +124,7 @@ public:
     static void removeContextObject(IContext *context);
 
     static void registerWindow(QWidget *window, const Context &context);
+    static void restartTrimmer();
 
     enum OpenFilesFlags {
         None = 0,

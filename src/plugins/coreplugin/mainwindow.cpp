@@ -113,6 +113,10 @@
 #include <QVersionNumber>
 #include <QWindow>
 
+#ifdef Q_OS_LINUX
+#include <malloc.h>
+#endif
+
 using namespace ExtensionSystem;
 using namespace Utils;
 
@@ -228,6 +232,13 @@ MainWindow::MainWindow()
     });
     connect(dropSupport, &DropSupport::filesDropped,
             this, &MainWindow::openDroppedFiles);
+
+#ifdef Q_OS_LINUX
+    m_trimTimer.setSingleShot(true);
+    m_trimTimer.setInterval(60000);
+    // glibc may not actually free memory in free().
+    connect(&m_trimTimer, &QTimer::timeout, this, [] { malloc_trim(0); });
+#endif
 }
 
 NavigationWidget *MainWindow::navigationWidget(Side side) const
@@ -367,6 +378,12 @@ void MainWindow::restart()
     exit();
 }
 
+void MainWindow::restartTrimmer()
+{
+    if (!m_trimTimer.isActive())
+        m_trimTimer.start();
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     const auto cancelClose = [event] {
@@ -417,6 +434,18 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     event->accept();
     alreadyClosed = true;
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *event)
+{
+    restartTrimmer();
+    AppMainWindow::keyPressEvent(event);
+}
+
+void MainWindow::mousePressEvent(QMouseEvent *event)
+{
+    restartTrimmer();
+    AppMainWindow::mousePressEvent(event);
 }
 
 void MainWindow::openDroppedFiles(const QList<DropSupport::FileSpec> &files)

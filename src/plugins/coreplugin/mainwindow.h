@@ -32,6 +32,7 @@
 #include <utils/dropsupport.h>
 
 #include <QColor>
+#include <QTimer>
 
 #include <functional>
 #include <unordered_map>
@@ -118,12 +119,16 @@ public:
 
     void openFileFromDevice();
 
+    void restartTrimmer();
+
 public slots:
     static void openFileWith();
     void exit();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
 
 private:
     static void openFile();
@@ -153,6 +158,7 @@ private:
     void updateModeSelectorStyleMenu();
 
     ICore *m_coreImpl = nullptr;
+    QTimer m_trimTimer;
     QStringList m_aboutInformation;
     Context m_highPrioAdditionalContexts;
     Context m_lowPrioAdditionalContexts;

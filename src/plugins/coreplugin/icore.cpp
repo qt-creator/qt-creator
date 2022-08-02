@@ -832,6 +832,11 @@ void ICore::registerWindow(QWidget *window, const Context &context)
     new WindowSupport(window, context); // deletes itself when widget is destroyed
 }
 
+void ICore::restartTrimmer()
+{
+    m_mainwindow->restartTrimmer();
+}
+
 /*!
     Opens files using \a filePaths and \a flags like it would be
     done if they were given to \QC on the command line, or

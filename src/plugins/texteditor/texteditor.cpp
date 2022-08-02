@@ -2372,6 +2372,8 @@ static inline bool isPrintableText(const QString &text)
 
 void TextEditorWidget::keyPressEvent(QKeyEvent *e)
 {
+    ICore::restartTrimmer();
+
     ExecuteOnDestruction eod([&]() { d->clearBlockSelection(); });
 
     if (!isModifier(e) && mouseHidingEnabled())
@@ -5460,6 +5462,8 @@ static bool handleForwardBackwardMouseButtons(QMouseEvent *e)
 
 void TextEditorWidget::mousePressEvent(QMouseEvent *e)
 {
+    ICore::restartTrimmer();
+
     if (e->button() == Qt::LeftButton) {
         MultiTextCursor multiCursor = multiTextCursor();
         const QTextCursor &cursor = cursorForPosition(e->pos());
