@@ -652,6 +652,13 @@ def qdump__QKeyEvent(d, value):
             d.putFields(value, dumpBase=True)
 
 
+def qdump__QKeySequence(d, value):
+    dd = d.extractPointer(value)
+    _, k0, k1, k2, k3 = d.split('iiiii', dd)
+    d.putValue("(0x%x, 0x%x, 0x%x, 0x%x)" % (k0, k1, k2, k3));
+    d.putPlainChildren(value)
+
+
 def qdump__QFile(d, value):
     # 9fc0965 and a373ffcd change the layout of the private structure
     qtVersion = d.qtVersion()
