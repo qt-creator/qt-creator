@@ -80,12 +80,6 @@ enum StashFlag {
     NoPrompt       = 0x02
 };
 
-enum PushFailure {
-    Unknown,
-    NonFastForward,
-    NoRemoteBranch
-};
-
 class SubmoduleData
 {
 public:
@@ -425,7 +419,6 @@ private:
 
     QString m_gitQtcEditor;
     QMap<Utils::FilePath, StashInfo> m_stashInfo;
-    QString m_pushFallbackCommand;
     QString m_diffCommit;
     Utils::FilePaths m_updatedSubmodules;
     bool m_disableEditor = false;

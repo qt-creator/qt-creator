@@ -3290,89 +3290,97 @@ void GitClient::subversionDeltaCommit(const FilePath &workingDirectory) const
     vcsExec(workingDirectory, {"svn", "dcommit"}, nullptr, true, VcsCommand::ShowSuccessMessage);
 }
 
-void GitClient::push(const FilePath &workingDirectory, const QStringList &pushArgs)
+class PushHandler : public QObject
 {
-    VcsCommand *command = vcsExec(workingDirectory, QStringList({"push"}) + pushArgs, nullptr, true,
-                                  VcsCommand::ShowSuccessMessage);
-    connect(command, &VcsCommand::stdErrText, this, [this, command](const QString &text) {
-        PushFailure failure = Unknown;
-        if (text.contains("non-fast-forward"))
-            failure = NonFastForward;
-        else if (text.contains("has no upstream branch"))
-            failure = NoRemoteBranch;
+public:
+    PushHandler(GitClient *gitClient, const FilePath &workingDir, const QStringList &pushArgs)
+        : m_gitClient(gitClient)
+    {
+        VcsCommand *command = gitClient->vcsExec(workingDir, QStringList({"push"}) + pushArgs,
+                                                 nullptr, true, VcsCommand::ShowSuccessMessage);
+        // Make command a parent of this in order to delete this when command is deleted
+        setParent(command);
 
-        if (failure != Unknown)
-            command->setCookie(failure);
-
-        if (failure == NoRemoteBranch) {
-            const QStringList lines = text.split('\n', Qt::SkipEmptyParts);
-            for (const QString &line : lines) {
-                /* Extract the suggested command from the git output which
-                 * should be similar to the following:
-                 *
-                 *     git push --set-upstream origin add_set_upstream_dialog
-                 */
-                const QString trimmedLine = line.trimmed();
-                if (trimmedLine.startsWith("git push")) {
-                    m_pushFallbackCommand = trimmedLine;
-                    break;
+        connect(command, &VcsCommand::stdErrText, this, [this](const QString &text) {
+            if (text.contains("non-fast-forward")) {
+                m_pushFailure = NonFastForward;
+            } else if (text.contains("has no upstream branch")) {
+                m_pushFailure = NoRemoteBranch;
+                const QStringList lines = text.split('\n', Qt::SkipEmptyParts);
+                for (const QString &line : lines) {
+                    /* Extract the suggested command from the git output which
+                     * should be similar to the following:
+                     *
+                     *     git push --set-upstream origin add_set_upstream_dialog
+                     */
+                    const QString trimmedLine = line.trimmed();
+                    if (trimmedLine.startsWith("git push")) {
+                        m_pushFallbackCommand = trimmedLine;
+                        break;
+                    }
                 }
             }
-        }
-    });
-    connect(command, &VcsCommand::finished, this,
-            [this, workingDirectory, pushArgs](bool success, const QVariant &cookie) {
-        if (success) {
-            GitPlugin::updateCurrentBranch();
-            return;
-        }
-        switch (static_cast<PushFailure>(cookie.toInt())) {
-        case Unknown:
-            break;
-        case NonFastForward: {
-            const QColor warnColor = Utils::creatorTheme()->color(Theme::TextColorError);
-            if (QMessageBox::question(
-                        Core::ICore::dialogParent(), tr("Force Push"),
-                        tr("Push failed. Would you like to force-push <span style=\"color:#%1\">"
-                           "(rewrites remote history)</span>?")
-                        .arg(QString::number(warnColor.rgba(), 16)),
-                        QMessageBox::Yes | QMessageBox::No,
-                        QMessageBox::No) == QMessageBox::Yes) {
-                VcsCommand *rePushCommand = vcsExec(workingDirectory,
-                        QStringList({"push", "--force-with-lease"}) + pushArgs,
-                        nullptr, true, VcsCommand::ShowSuccessMessage);
+        });
+
+        connect(command, &VcsCommand::finished, this, [this, workingDir, pushArgs](bool success) {
+            if (success) {
+                GitPlugin::updateCurrentBranch();
+                return;
+            }
+            if (m_pushFailure == Unknown || !m_gitClient)
+                return;
+
+            if (m_pushFailure == NonFastForward) {
+                const QColor warnColor = Utils::creatorTheme()->color(Theme::TextColorError);
+                if (QMessageBox::question(
+                            Core::ICore::dialogParent(), tr("Force Push"),
+                            tr("Push failed. Would you like to force-push <span style=\"color:#%1\">"
+                               "(rewrites remote history)</span>?")
+                            .arg(QString::number(warnColor.rgba(), 16)),
+                            QMessageBox::Yes | QMessageBox::No,
+                            QMessageBox::No) != QMessageBox::Yes) {
+                    return;
+                }
+                VcsCommand *rePushCommand = m_gitClient->vcsExec(workingDir,
+                           QStringList({"push", "--force-with-lease"}) + pushArgs,
+                           nullptr, true, VcsCommand::ShowSuccessMessage);
                 connect(rePushCommand, &VcsCommand::finished, this, [](bool success) {
                     if (success)
                         GitPlugin::updateCurrentBranch();
                 });
+                return;
             }
-            break;
-        }
-        case NoRemoteBranch:
+            // NoRemoteBranch case
             if (QMessageBox::question(
                         Core::ICore::dialogParent(), tr("No Upstream Branch"),
                         tr("Push failed because the local branch \"%1\" "
                            "does not have an upstream branch on the remote.\n\n"
                            "Would you like to create the branch \"%1\" on the "
                            "remote and set it as upstream?")
-                        .arg(synchronousCurrentLocalBranch(workingDirectory)),
+                        .arg(m_gitClient->synchronousCurrentLocalBranch(workingDir)),
                         QMessageBox::Yes | QMessageBox::No,
-                        QMessageBox::No) == QMessageBox::Yes) {
-
-                const QStringList fallbackCommandParts =
-                        m_pushFallbackCommand.split(' ', Qt::SkipEmptyParts);
-                VcsCommand *rePushCommand = vcsExec(workingDirectory,
-                                                    fallbackCommandParts.mid(1), nullptr, true,
-                                                    VcsCommand::ShowSuccessMessage);
-                connect(rePushCommand, &VcsCommand::finished, this,
-                        [workingDirectory](bool success) {
-                    if (success)
-                        GitPlugin::updateBranches(workingDirectory);
-                });
+                        QMessageBox::No) != QMessageBox::Yes) {
+                return;
             }
-            break;
-        }
-    });
+            const QStringList fallbackCommandParts =
+                    m_pushFallbackCommand.split(' ', Qt::SkipEmptyParts);
+            VcsCommand *rePushCommand = m_gitClient->vcsExec(workingDir,
+                       fallbackCommandParts.mid(1), nullptr, true, VcsCommand::ShowSuccessMessage);
+            connect(rePushCommand, &VcsCommand::finished, this, [workingDir](bool success) {
+                if (success)
+                    GitPlugin::updateBranches(workingDir);
+            });
+        });
+    }
+private:
+    enum PushFailure { Unknown, NonFastForward, NoRemoteBranch } m_pushFailure = Unknown;
+    QPointer<GitClient> m_gitClient;
+    QString m_pushFallbackCommand;
+};
+
+void GitClient::push(const FilePath &workingDirectory, const QStringList &pushArgs)
+{
+    new PushHandler(this, workingDirectory, pushArgs);
 }
 
 bool GitClient::synchronousMerge(const FilePath &workingDirectory, const QString &branch,
