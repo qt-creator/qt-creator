@@ -105,7 +105,6 @@ public:
     QTextCodec *m_codec = nullptr;
     ProgressParser *m_progressParser = nullptr;
     QFutureWatcher<void> m_watcher;
-    QFutureInterface<void> m_futureInterface;
     QList<Job> m_jobs;
 
     unsigned m_flags = 0;
@@ -148,7 +147,8 @@ void VcsCommand::addTask(const QFuture<void> &future)
     if (d->m_progressParser) {
         ProgressManager::addTask(future, name, id);
     } else {
-        ProgressManager::addTimedTask(d->m_futureInterface, name, id, qMax(2, timeoutS() / 5));
+        ProgressManager::addTimedTask(QFutureInterface<void>::get(future), name, id,
+                                      qMax(2, timeoutS() / 5));
     }
 
     Internal::VcsPlugin::addFuture(future);
@@ -165,7 +165,7 @@ void VcsCommand::postRunCommand(const FilePath &workingDirectory)
 
 VcsCommand::~VcsCommand()
 {
-    d->m_futureInterface.reportFinished();
+    d->m_watcher.cancel();
     delete d;
 }
 
