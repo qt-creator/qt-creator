@@ -233,7 +233,7 @@ void ClearCaseSync::run(QFutureInterface<void> &future, QStringList &files)
     if (settings.disableIndexer)
         return;
 
-    if (settings.ccBinaryPath.isEmpty())
+    if (!settings.ccBinaryPath.isExecutableFile())
         return;
 
     // refresh activities list

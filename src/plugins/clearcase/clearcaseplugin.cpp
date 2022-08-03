@@ -2398,8 +2398,7 @@ bool ClearCasePluginPrivate::isConfigured() const
     if (m_fakeClearTool)
         return true;
 #endif
-    const FilePath &binary = m_settings.ccBinaryPath;
-    return !binary.isEmpty() && binary.exists() && binary.isFile() && binary.isExecutableFile();
+    return m_settings.ccBinaryPath.isExecutableFile();
 }
 
 bool ClearCasePluginPrivate::supportsOperation(Operation operation) const
