@@ -328,6 +328,7 @@ public:
     QTimer m_shutdownTimer;
     LanguageServerProtocol::ClientInfo m_clientInfo;
     QJsonValue m_configuration;
+    int m_completionResultsLimit = -1;
 };
 
 Client::Client(BaseClientInterface *clientInterface)
@@ -1576,6 +1577,16 @@ void Client::log(const QString &message) const
 TextEditor::RefactoringChangesData *Client::createRefactoringChangesBackend() const
 {
     return new TextEditor::RefactoringChangesData;
+}
+
+void Client::setCompletionResultsLimit(int limit)
+{
+    d->m_completionResultsLimit = limit;
+}
+
+int Client::completionResultsLimit() const
+{
+    return d->m_completionResultsLimit;
 }
 
 const ServerCapabilities &Client::capabilities() const

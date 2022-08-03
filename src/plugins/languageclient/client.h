@@ -202,6 +202,9 @@ public:
     // Caller takes ownership
     virtual TextEditor::RefactoringChangesData *createRefactoringChangesBackend() const;
 
+    void setCompletionResultsLimit(int limit);
+    int completionResultsLimit() const;
+
 signals:
     void initialized(const LanguageServerProtocol::ServerCapabilities &capabilities);
     void capabilitiesChanged(const DynamicCapabilities &capabilities);

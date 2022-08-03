@@ -83,6 +83,9 @@ public:
     void setContext(const CompletionContext &context)
     { insert(contextKey, context); }
     void clearContext() { remove(contextKey); }
+
+    // clangd extension
+    void setLimit(int limit) { insert(limitKey, limit); }
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT CompletionItem : public JsonObject

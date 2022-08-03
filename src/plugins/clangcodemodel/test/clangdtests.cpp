@@ -1550,6 +1550,9 @@ void ClangdTestCompletion::testCompletePreprocessorKeywords()
 
 void ClangdTestCompletion::testCompleteIncludeDirective()
 {
+    // Our local include is way down in the result list.
+    client()->setCompletionResultsLimit(0);
+
     ProposalModelPtr proposal;
     getProposal("includeDirectiveCompletion.cpp", proposal);
 
@@ -1558,6 +1561,7 @@ void ClangdTestCompletion::testCompleteIncludeDirective()
     QVERIFY(hasItem(proposal, " otherFile.h>"));
     QVERIFY(hasItem(proposal, " mylib/"));
     QVERIFY(!hasSnippet(proposal, "class "));
+    client()->setCompletionResultsLimit(-1);
 }
 
 void ClangdTestCompletion::testCompleteGlobals()

@@ -139,6 +139,7 @@ constexpr char labelKey[] = "label";
 constexpr char languageIdKey[] = "languageId";
 constexpr char languageKey[] = "language";
 constexpr char legendKey[] = "legend";
+constexpr char limitKey[] = "limit";
 constexpr char lineKey[] = "line";
 constexpr char linesKey[] = "lines";
 constexpr char locationKey[] = "location";

@@ -379,6 +379,8 @@ IAssistProposal *LanguageClientCompletionAssistProcessor::perform(const AssistIn
     params.setPosition({line, column});
     params.setContext(context);
     params.setTextDocument(TextDocumentIdentifier(DocumentUri::fromFilePath(interface->filePath())));
+    if (const int limit = m_client->completionResultsLimit(); limit >= 0)
+        params.setLimit(limit);
     CompletionRequest completionRequest(params);
     completionRequest.setResponseCallback([this](auto response) {
         this->handleCompletionResponse(response);

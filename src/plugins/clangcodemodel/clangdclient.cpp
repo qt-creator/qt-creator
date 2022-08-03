@@ -167,13 +167,7 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
         indexingOption += "=0";
     const QString headerInsertionOption = QString("--header-insertion=")
             + (settings.autoIncludeHeaders() ? "iwyu" : "never");
-#ifdef WITH_TESTS
-    // For the #include < test, which needs to get a local header file, but the list
-    // is being flooded with system include headers. 4280 on Windows!
-    const QString limitResults = QString("--limit-results=0");
-#else
     const QString limitResults = QString("--limit-results=%1").arg(settings.completionResults());
-#endif
     Utils::CommandLine cmd{settings.clangdFilePath(),
                            {indexingOption,
                             headerInsertionOption,
