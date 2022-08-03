@@ -77,7 +77,6 @@ QtcPlugin {
             "branchcombobox.h",
             "gerritdialog.cpp",
             "gerritdialog.h",
-            "gerritdialog.ui",
             "gerritmodel.cpp",
             "gerritmodel.h",
             "gerritoptionspage.cpp",

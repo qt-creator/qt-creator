@@ -10,7 +10,7 @@ add_qtc_plugin(Git
     commitdata.cpp commitdata.h
     gerrit/authenticationdialog.cpp gerrit/authenticationdialog.h
     gerrit/branchcombobox.cpp gerrit/branchcombobox.h
-    gerrit/gerritdialog.cpp gerrit/gerritdialog.h gerrit/gerritdialog.ui
+    gerrit/gerritdialog.cpp gerrit/gerritdialog.h
     gerrit/gerritmodel.cpp gerrit/gerritmodel.h
     gerrit/gerritoptionspage.cpp gerrit/gerritoptionspage.h
     gerrit/gerritparameters.cpp gerrit/gerritparameters.h

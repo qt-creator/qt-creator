@@ -34,20 +34,28 @@
 #include <functional>
 
 QT_BEGIN_NAMESPACE
+class QDialogButtonBox;
+class QLabel;
 class QModelIndex;
 class QSortFilterProxyModel;
 class QStringListModel;
 class QPushButton;
+class QTextBrowser;
 QT_END_NAMESPACE
 
-namespace Utils { class ProgressIndicator; }
+namespace Utils {
+class FancyLineEdit;
+class ProgressIndicator;
+class TreeView;
+} // Utils
 
 namespace Gerrit {
 namespace Internal {
-namespace Ui { class GerritDialog; }
+
 class GerritChange;
 class GerritModel;
 class GerritParameters;
+class GerritRemoteChooser;
 class GerritServer;
 
 class GerritDialog : public QDialog
@@ -86,14 +94,13 @@ private:
 
     void setProgressIndicatorVisible(bool v);
     QModelIndex currentIndex() const;
-    QPushButton *addActionButton(const QString &text, const std::function<void()> &buttonSlot);
     void updateCompletions(const QString &query);
+    QPushButton *addActionButton(const QString &text, const std::function<void ()> &buttonSlot);
     void updateButtons();
 
     const QSharedPointer<GerritParameters> m_parameters;
     const QSharedPointer<GerritServer> m_server;
     QSortFilterProxyModel *m_filterModel;
-    Ui::GerritDialog *m_ui;
     GerritModel *m_model;
     QStringListModel *m_queryModel;
     QPushButton *m_displayButton;
@@ -106,6 +113,13 @@ private:
     bool m_fetchRunning = false;
     bool m_updatingRemotes = false;
     bool m_shouldUpdateRemotes = false;
+
+    QLabel *m_repositoryLabel;
+    GerritRemoteChooser *m_remoteComboBox;
+    Utils::TreeView *m_treeView;
+    QTextBrowser *m_detailsBrowser;
+    QDialogButtonBox *m_buttonBox;
+    Utils::FancyLineEdit *m_queryLineEdit;
 };
 
 } // namespace Internal
