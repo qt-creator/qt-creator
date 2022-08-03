@@ -1173,6 +1173,9 @@ void FilePath::setFromString(const QString &filename)
 
                     return;
                 }
+
+                m_data = "/";
+
             } else {
                 m_scheme.clear();
                 m_host.clear();
