@@ -25,16 +25,11 @@
 ****************************************************************************/
 
 #include "clearcaseeditor.h"
+
 #include "annotationhighlighter.h"
-#include "clearcaseconstants.h"
-#include "clearcaseplugin.h"
 
 #include <utils/qtcassert.h>
-#include <vcsbase/diffandloghighlighter.h>
 
-#include <QDir>
-#include <QFileInfo>
-#include <QTextBlock>
 #include <QTextCursor>
 
 using namespace ClearCase;

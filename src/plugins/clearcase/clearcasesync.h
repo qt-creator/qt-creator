@@ -27,8 +27,11 @@
 
 #include "clearcaseplugin.h"
 
-#include <QDir>
-#include <QFutureInterface>
+QT_BEGIN_NAMESPACE
+class QDir;
+template <typename T>
+class QFutureInterface;
+QT_END_NAMESPACE
 
 namespace ClearCase {
 namespace Internal {

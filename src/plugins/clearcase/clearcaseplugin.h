@@ -26,18 +26,17 @@
 
 #pragma once
 
-#include "clearcasesettings.h"
-
 #include <extensionsystem/iplugin.h>
 
 #include <QFile>
 #include <QPair>
 #include <QStringList>
-#include <QMetaType>
 #include <QSharedPointer>
 
 namespace ClearCase {
 namespace Internal {
+
+class ClearCaseSettings;
 
 using QStringPair = QPair<QString, QString>;
 

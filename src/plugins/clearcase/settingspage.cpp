@@ -25,12 +25,11 @@
 ****************************************************************************/
 
 #include "settingspage.h"
-#include "clearcaseconstants.h"
-#include "clearcasesettings.h"
-#include "clearcaseplugin.h"
-#include "ui_settingspage.h"
 
-#include <coreplugin/icore.h>
+#include "clearcaseconstants.h"
+#include "clearcaseplugin.h"
+#include "clearcasesettings.h"
+#include "ui_settingspage.h"
 
 #include <vcsbase/vcsbaseconstants.h>
 

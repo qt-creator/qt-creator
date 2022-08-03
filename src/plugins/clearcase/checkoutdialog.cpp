@@ -25,12 +25,10 @@
 ****************************************************************************/
 
 #include "checkoutdialog.h"
-#include "ui_checkoutdialog.h"
-#include "activityselector.h"
 
-#include <QList>
-#include <QPair>
-#include <QPalette>
+#include "activityselector.h"
+#include "ui_checkoutdialog.h"
+
 #include <QPushButton>
 
 namespace ClearCase {

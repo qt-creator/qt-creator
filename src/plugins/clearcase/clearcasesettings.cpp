@@ -27,7 +27,6 @@
 #include "clearcasesettings.h"
 
 #include <utils/environment.h>
-#include <utils/hostosinfo.h>
 
 #include <QSettings>
 

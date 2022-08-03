@@ -25,6 +25,7 @@
 ****************************************************************************/
 
 #include "versionselector.h"
+
 #include "ui_versionselector.h"
 
 #include <QRegularExpression>

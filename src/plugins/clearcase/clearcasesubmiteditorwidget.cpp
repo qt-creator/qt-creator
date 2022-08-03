@@ -25,9 +25,8 @@
 ****************************************************************************/
 
 #include "clearcasesubmiteditorwidget.h"
-#include "activityselector.h"
 
-#include <vcsbase/submitfilemodel.h>
+#include "activityselector.h"
 
 #include <QCheckBox>
 #include <QFrame>

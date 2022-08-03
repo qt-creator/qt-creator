@@ -24,7 +24,8 @@
 ****************************************************************************/
 
 #include "clearcasesync.h"
-#include "clearcaseconstants.h"
+
+#include "clearcasesettings.h"
 
 #include <QDir>
 #include <QFutureInterface>
@@ -258,7 +259,7 @@ public:
     TempFile(const QString &fileName)
         : m_fileName(fileName)
     {
-        Utils::FileSaver srcSaver(Utils::FilePath::fromString(fileName));
+        FileSaver srcSaver(FilePath::fromString(fileName));
         srcSaver.write(QByteArray());
         srcSaver.finalize();
 

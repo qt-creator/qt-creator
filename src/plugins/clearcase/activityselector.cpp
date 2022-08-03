@@ -25,8 +25,10 @@
 ****************************************************************************/
 
 #include "activityselector.h"
+
 #include "clearcaseconstants.h"
 #include "clearcaseplugin.h"
+#include "clearcasesettings.h"
 
 #include <utils/qtcassert.h>
 
