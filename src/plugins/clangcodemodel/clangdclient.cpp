@@ -192,28 +192,6 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
     return interface;
 }
 
-class LocalRefsData {
-public:
-    LocalRefsData(quint64 id, TextDocument *doc, const QTextCursor &cursor,
-                  CppEditor::RenameCallback &&callback)
-        : id(id), document(doc), cursor(cursor), callback(std::move(callback)),
-          uri(DocumentUri::fromFilePath(doc->filePath())), revision(doc->document()->revision())
-    {}
-
-    ~LocalRefsData()
-    {
-        if (callback)
-            callback({}, {}, revision);
-    }
-
-    const quint64 id;
-    const QPointer<TextDocument> document;
-    const QTextCursor cursor;
-    CppEditor::RenameCallback callback;
-    const DocumentUri uri;
-    const int revision;
-};
-
 class DiagnosticsCapabilities : public JsonObject
 {
 public:
@@ -345,7 +323,7 @@ public:
     const CppEditor::ClangdSettings::Data settings;
     ClangdFollowSymbol *followSymbol = nullptr;
     ClangdSwitchDeclDef *switchDeclDef = nullptr;
-    Utils::optional<LocalRefsData> localRefsData;
+    ClangdFindLocalReferences *findLocalRefs = nullptr;
     Utils::optional<QVersionNumber> versionNumber;
 
     QHash<TextDocument *, HighlightingData> highlightingData;
@@ -355,7 +333,6 @@ public:
     VersionedDataCache<const TextDocument *, ClangdAstNode> astCache;
     VersionedDataCache<Utils::FilePath, ClangdAstNode> externalAstCache;
     TaskTimer highlightingTimer{"highlighting"};
-    quint64 nextJobId = 0;
     bool isFullyIndexed = false;
     bool isTesting = false;
 };
@@ -950,81 +927,23 @@ void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cu
     qCDebug(clangdLog) << "local references requested" << document->filePath()
                        << (cursor.blockNumber() + 1) << (cursor.positionInBlock() + 1);
 
-    d->localRefsData.emplace(++d->nextJobId, document, cursor, std::move(callback));
+    if (d->findLocalRefs) {
+        d->findLocalRefs->disconnect(this);
+        d->findLocalRefs->deleteLater();
+        d->findLocalRefs = nullptr;
+    }
+
     const QString searchTerm = d->searchTermFromCursor(cursor);
     if (searchTerm.isEmpty()) {
-        d->localRefsData.reset();
+        callback({}, {}, document->document()->revision());
         return;
     }
 
-    // Step 1: Go to definition
-    const auto gotoDefCallback = [this, id = d->localRefsData->id](const Utils::Link &link) {
-        qCDebug(clangdLog) << "received go to definition response" << link.targetFilePath
-                           << link.targetLine << (link.targetColumn + 1);
-        if (!d->localRefsData || id != d->localRefsData->id)
-            return;
-        if (!link.hasValidTarget()) {
-            d->localRefsData.reset();
-            return;
-        }
-
-        // Step 2: Get AST and check whether it's a local variable.
-        const auto astHandler = [this, link, id](const ClangdAstNode &ast, const MessageId &) {
-            qCDebug(clangdLog) << "received ast response";
-            if (!d->localRefsData || id != d->localRefsData->id)
-                return;
-            if (!ast.isValid() || !d->localRefsData->document) {
-                d->localRefsData.reset();
-                return;
-            }
-
-            const Position linkPos(link.targetLine - 1, link.targetColumn);
-            const ClangdAstPath astPath = getAstPath(ast, linkPos);
-            bool isVar = false;
-            for (auto it = astPath.rbegin(); it != astPath.rend(); ++it) {
-                if (it->role() == "declaration"
-                        && (it->kind() == "Function" || it->kind() == "CXXMethod"
-                            || it->kind() == "CXXConstructor" || it->kind() == "CXXDestructor"
-                            || it->kind() == "Lambda")) {
-                    if (!isVar)
-                        break;
-
-                    // Step 3: Find references.
-                    qCDebug(clangdLog) << "finding references for local var";
-                    symbolSupport().findUsages(d->localRefsData->document,
-                                               d->localRefsData->cursor,
-                                               [this, id](const QList<Location> &locations) {
-                        qCDebug(clangdLog) << "found" << locations.size() << "local references";
-                        if (!d->localRefsData || id != d->localRefsData->id)
-                            return;
-                        const Utils::Links links = Utils::transform(locations, &Location::toLink);
-
-                        // The callback only uses the symbol length, so we just create a dummy.
-                        // Note that the calculation will be wrong for identifiers with
-                        // embedded newlines, but we've never supported that.
-                        QString symbol;
-                        if (!locations.isEmpty()) {
-                            const Range r = locations.first().range();
-                            symbol = QString(r.end().character() - r.start().character(), 'x');
-                        }
-                        d->localRefsData->callback(symbol, links, d->localRefsData->revision);
-                        d->localRefsData->callback = {};
-                        d->localRefsData.reset();
-                    });
-                    return;
-                }
-                if (!isVar && it->role() == "declaration"
-                        && (it->kind() == "Var" || it->kind() == "ParmVar")) {
-                    isVar = true;
-                }
-            }
-            d->localRefsData.reset();
-        };
-        qCDebug(clangdLog) << "sending ast request for link";
-        d->getAndHandleAst(d->localRefsData->document, astHandler,
-                           AstCallbackMode::SyncIfPossible);
-    };
-    symbolSupport().findLinkAt(document, cursor, std::move(gotoDefCallback), true);
+    d->findLocalRefs = new ClangdFindLocalReferences(this, document, cursor, callback);
+    connect(d->findLocalRefs, &ClangdFindLocalReferences::done, this, [this] {
+        d->findLocalRefs->deleteLater();
+        d->findLocalRefs = nullptr;
+    });
 }
 
 void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverResponse,

@@ -26,6 +26,7 @@
 #pragma once
 
 #include <coreplugin/find/searchresultitem.h>
+#include <cppeditor/cursorineditor.h>
 #include <utils/optional.h>
 
 #include <QObject>
@@ -50,6 +51,23 @@ public:
 
 signals:
     void foundReferences(const QList<Core::SearchResultItem> &items);
+    void done();
+
+private:
+    class Private;
+    Private * const d;
+};
+
+class ClangdFindLocalReferences : public QObject
+{
+    Q_OBJECT
+public:
+    explicit ClangdFindLocalReferences(ClangdClient *client, TextEditor::TextDocument *document,
+                                       const QTextCursor &cursor,
+                                       const CppEditor::RenameCallback &callback);
+    ~ClangdFindLocalReferences();
+
+signals:
     void done();
 
 private:

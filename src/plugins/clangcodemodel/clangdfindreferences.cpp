@@ -460,6 +460,135 @@ static Usage::Type getUsageType(const ClangdAstPath &path)
     return Usage::Type::Other;
 }
 
+class ClangdFindLocalReferences::Private
+{
+public:
+    Private(ClangdFindLocalReferences *q, TextDocument *document, const QTextCursor &cursor,
+            const RenameCallback &callback)
+        : q(q), document(document), cursor(cursor), callback(callback),
+          uri(DocumentUri::fromFilePath(document->filePath())),
+          revision(document->document()->revision())
+    {}
+
+    ClangdClient *client() const { return qobject_cast<ClangdClient *>(q->parent()); }
+    void findDefinition();
+    void getDefinitionAst(const Link &link);
+    void checkDefinitionAst(const ClangdAstNode &ast);
+    void handleReferences(const QList<Location> &references);
+    void finish();
+
+    ClangdFindLocalReferences * const q;
+    const QPointer<TextDocument> document;
+    const QTextCursor cursor;
+    RenameCallback callback;
+    const DocumentUri uri;
+    const int revision;
+    Link defLink;
+};
+
+ClangdFindLocalReferences::ClangdFindLocalReferences(
+        ClangdClient *client, TextDocument *document, const QTextCursor &cursor,
+        const RenameCallback &callback)
+    : QObject(client), d(new Private(this, document, cursor, callback))
+{
+    d->findDefinition();
+}
+
+ClangdFindLocalReferences::~ClangdFindLocalReferences()
+{
+    delete d;
+}
+
+void ClangdFindLocalReferences::Private::findDefinition()
+{
+    const auto linkHandler = [sentinel = QPointer(q), this](const Link &l) {
+        if (sentinel)
+            getDefinitionAst(l);
+    };
+    client()->symbolSupport().findLinkAt(document, cursor, linkHandler, true);
+}
+
+void ClangdFindLocalReferences::Private::getDefinitionAst(const Link &link)
+{
+    qCDebug(clangdLog) << "received go to definition response" << link.targetFilePath
+                       << link.targetLine << (link.targetColumn + 1);
+
+    if (!link.hasValidTarget() || !document) {
+        finish();
+        return;
+    }
+
+    defLink = link;
+    qCDebug(clangdLog) << "sending ast request for link";
+    const auto astHandler = [sentinel = QPointer(q), this]
+            (const ClangdAstNode &ast, const MessageId &) {
+        if (sentinel)
+            checkDefinitionAst(ast);
+    };
+    client()->getAndHandleAst(document, astHandler, ClangdClient::AstCallbackMode::SyncIfPossible,
+                              {});
+}
+
+void ClangdFindLocalReferences::Private::checkDefinitionAst(const ClangdAstNode &ast)
+{
+    qCDebug(clangdLog) << "received ast response";
+    if (!ast.isValid() || !document) {
+        finish();
+        return;
+    }
+
+    const Position linkPos(defLink.targetLine - 1, defLink.targetColumn);
+    const ClangdAstPath astPath = getAstPath(ast, linkPos);
+    bool isVar = false;
+    for (auto it = astPath.rbegin(); it != astPath.rend(); ++it) {
+        if (it->role() == "declaration"
+                && (it->kind() == "Function" || it->kind() == "CXXMethod"
+                    || it->kind() == "CXXConstructor" || it->kind() == "CXXDestructor"
+                    || it->kind() == "Lambda")) {
+            if (!isVar)
+                break;
+
+            qCDebug(clangdLog) << "finding references for local var";
+            const auto refsHandler = [sentinel = QPointer(q), this](const QList<Location> &refs) {
+                if (sentinel)
+                    handleReferences(refs);
+            };
+            client()->symbolSupport().findUsages(document, cursor, refsHandler);
+            return;
+        }
+        if (!isVar && it->role() == "declaration"
+                && (it->kind() == "Var" || it->kind() == "ParmVar")) {
+            isVar = true;
+        }
+    }
+    finish();
+}
+
+void ClangdFindLocalReferences::Private::handleReferences(const QList<Location> &references)
+{
+    qCDebug(clangdLog) << "found" << references.size() << "local references";
+    const Utils::Links links = Utils::transform(references, &Location::toLink);
+
+    // The callback only uses the symbol length, so we just create a dummy.
+    // Note that the calculation will be wrong for identifiers with
+    // embedded newlines, but we've never supported that.
+    QString symbol;
+    if (!references.isEmpty()) {
+        const Range r = references.first().range();
+        symbol = QString(r.end().character() - r.start().character(), 'x');
+    }
+    callback(symbol, links, revision);
+    callback = {};
+    finish();
+}
+
+void ClangdFindLocalReferences::Private::finish()
+{
+    if (callback)
+        callback({}, {}, revision);
+    emit q->done();
+}
+
 } // namespace ClangCodeModel::Internal
 
 Q_DECLARE_METATYPE(ClangCodeModel::Internal::ReplacementData)
