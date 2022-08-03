@@ -136,7 +136,7 @@ void CompilationDatabaseTests::testFilterEmptyFlags()
 
 void CompilationDatabaseTests::testFilterFromFilename()
 {
-    QCOMPARE(filterFromFileName(QStringList{"-o", "foo.o"}, "foo"), QStringList{"-o"});
+    QCOMPARE(filterFromFileName(QStringList{"-o", "foo.o"}, "foo.c"), QStringList());
 }
 
 void CompilationDatabaseTests::testFilterArguments()
@@ -169,8 +169,10 @@ void CompilationDatabaseTests::testFilterArguments()
                     "c++",
                     QString("--sysroot=") + (HostOsInfo::isWindowsHost()
                         ? "C:\\sysroot\\embedded" : "/opt/sysroot/embedded"),
-                    "C:\\qt-creator\\src\\plugins\\cpptools\\compileroptionsbuilder.cpp"},
-        "compileroptionsbuilder");
+                    QLatin1String(HostOsInfo::isWindowsHost()
+                        ? "C:\\qt-creator\\src\\plugins\\cpptools\\compileroptionsbuilder.cpp"
+                        : "/opt/qt-creator/src/plugins/cpptools/compileroptionsbuilder.cpp")},
+        "compileroptionsbuilder.cpp");
 
     testData.getFilteredFlags();
 
@@ -241,7 +243,7 @@ void CompilationDatabaseTests::testFilterCommand()
     testData.fileName = "SemaCodeComplete.cpp";
     testData.workingDir = "C:/build-qt_llvm-msvc2017_64bit-Debug";
     testData.flags = filterFromFileName(testData.getSplitCommandLine(kCmakeCommand),
-                                        "SemaCodeComplete");
+                                        "SemaCodeComplete.cpp");
     testData.getFilteredFlags();
 
     if (Utils::HostOsInfo::isWindowsHost()) {
@@ -278,7 +280,7 @@ void CompilationDatabaseTests::testFileKindDifferentFromExtension2()
 void CompilationDatabaseTests::testSkipOutputFiles()
 {
     CompilationDatabaseUtilsTestData testData;
-    testData.flags = filterFromFileName(QStringList{"-o", "foo.o"}, "foo");
+    testData.flags = filterFromFileName(QStringList{"-o", "foo.o"}, "foo.cpp");
 
     QVERIFY(testData.getFilteredFlags().isEmpty());
 }

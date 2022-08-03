@@ -177,7 +177,7 @@ static QStringList jsonObjectFlags(const QJsonObject &object, QSet<QString> &fla
     return flags;
 }
 
-static FilePath jsonObjectFilename(const QJsonObject &object)
+static FilePath jsonObjectFilePath(const QJsonObject &object)
 {
     const QString workingDir = QDir::cleanPath(object["directory"].toString());
     FilePath fileName = FilePath::fromString(QDir::cleanPath(object["file"].toString()));
@@ -204,10 +204,10 @@ std::vector<DbEntry> CompilationDbParser::readJsonObjects() const
         }
 
         const QJsonObject object = document.object();
-        const Utils::FilePath fileName = jsonObjectFilename(object);
+        const Utils::FilePath filePath = jsonObjectFilePath(object);
         const QStringList flags = filterFromFileName(jsonObjectFlags(object, flagsCache),
-                                                     fileName.baseName());
-        result.push_back({flags, fileName, object["directory"].toString()});
+                                                     filePath.fileName());
+        result.push_back({flags, filePath, object["directory"].toString()});
 
         objectStart = m_projectFileContents.indexOf('{', objectEnd + 1);
         objectEnd = m_projectFileContents.indexOf('}', objectStart + 1);

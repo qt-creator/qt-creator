@@ -263,6 +263,12 @@ public:
     void sendOpenNotification(const FilePath &filePath, const QString &mimeType,
                               const QString &content, int version);
     void sendCloseNotification(const FilePath &filePath);
+    void openRequiredShadowDocuments(const TextEditor::TextDocument *doc);
+    void closeRequiredShadowDocuments(const TextEditor::TextDocument *doc);
+
+    using ShadowDocIterator = QMap<FilePath, QPair<QString, QList<const TextEditor::TextDocument *>>>::iterator;
+    void openShadowDocument(const TextEditor::TextDocument *requringDoc, ShadowDocIterator shadowIt);
+    void closeShadowDocument(ShadowDocIterator docIt);
 
     bool reset();
 
@@ -276,7 +282,9 @@ public:
 
     // Used for build system artifacts (e.g. UI headers) that Qt Creator "live-generates" ahead of
     // the build.
-    QMap<FilePath, QString> m_shadowDocuments;
+    // The Value is the file content + the documents that require the shadow file to be open
+    // (empty <=> shadow document is not open).
+    QMap<FilePath, QPair<QString, QList<const TextEditor::TextDocument *>>> m_shadowDocuments;
 
     QSet<TextEditor::TextDocument *> m_postponedDocuments;
     QMap<Utils::FilePath, int> m_documentVersions;
@@ -577,10 +585,12 @@ void Client::openDocument(TextEditor::TextDocument *document)
     }
 
     const FilePath &filePath = document->filePath();
-    if (d->m_shadowDocuments.contains(filePath)) {
-        d->sendCloseNotification(filePath);
+    const auto shadowIt = d->m_shadowDocuments.find(filePath);
+    if (shadowIt != d->m_shadowDocuments.end()) {
+        d->closeShadowDocument(shadowIt);
         emit shadowDocumentSwitched(filePath);
     }
+    d->openRequiredShadowDocuments(document);
 
     const QString method(DidOpenTextDocumentNotification::methodName);
     if (Utils::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
@@ -647,6 +657,7 @@ void Client::closeDocument(TextEditor::TextDocument *document)
 {
     deactivateDocument(document);
     d->m_postponedDocuments.remove(document);
+    d->m_documentsToUpdate.erase(document);
     if (d->m_openedDocument.remove(document) != 0) {
         handleDocumentClosed(document);
         if (d->m_state == Initialized)
@@ -655,12 +666,20 @@ void Client::closeDocument(TextEditor::TextDocument *document)
 
     if (d->m_state != Initialized)
         return;
-    const auto shadowIt = d->m_shadowDocuments.constFind(document->filePath());
+    d->closeRequiredShadowDocuments(document);
+    const auto shadowIt = d->m_shadowDocuments.find(document->filePath());
     if (shadowIt == d->m_shadowDocuments.constEnd())
         return;
-    d->sendOpenNotification(document->filePath(), document->mimeType(), shadowIt.value(),
-                            ++d->m_documentVersions[document->filePath()]);
-    emit shadowDocumentSwitched(document->filePath());
+    QTC_CHECK(shadowIt.value().second.isEmpty());
+    bool isReferenced = false;
+    for (auto it = d->m_openedDocument.cbegin(); it != d->m_openedDocument.cend(); ++it) {
+        if (referencesShadowFile(it.key(), shadowIt.key())) {
+            d->openShadowDocument(it.key(), shadowIt);
+            isReferenced = true;
+        }
+    }
+    if (isReferenced)
+        emit shadowDocumentSwitched(document->filePath());
 }
 
 void ClientPrivate::updateCompletionProvider(TextEditor::TextDocument *document)
@@ -870,6 +889,22 @@ void ClientPrivate::sendCloseNotification(const FilePath &filePath)
                    Client::SendDocUpdates::Ignore);
 }
 
+void ClientPrivate::openRequiredShadowDocuments(const TextEditor::TextDocument *doc)
+{
+    for (auto it = m_shadowDocuments.begin(); it != m_shadowDocuments.end(); ++it) {
+        if (!it.value().second.contains(doc) && q->referencesShadowFile(doc, it.key()))
+            openShadowDocument(doc, it);
+    }
+}
+
+void ClientPrivate::closeRequiredShadowDocuments(const TextEditor::TextDocument *doc)
+{
+    for (auto it = m_shadowDocuments.begin(); it != m_shadowDocuments.end(); ++it) {
+        if (it.value().second.removeOne(doc) && it.value().second.isEmpty())
+            closeShadowDocument(it);
+    }
+}
+
 bool Client::documentOpen(const TextEditor::TextDocument *document) const
 {
     return d->m_openedDocument.contains(const_cast<TextEditor::TextDocument *>(document));
@@ -887,24 +922,25 @@ TextEditor::TextDocument *Client::documentForFilePath(const Utils::FilePath &fil
 void Client::setShadowDocument(const Utils::FilePath &filePath, const QString &content)
 {
     QTC_ASSERT(reachable(), return);
-    const auto it = d->m_shadowDocuments.find(filePath);
-    const bool isNew = it == d->m_shadowDocuments.end();
-    if (isNew)
-        d->m_shadowDocuments.insert(filePath, content);
-    else
-        it.value() = content;
+    auto shadowIt = d->m_shadowDocuments.find(filePath);
+    if (shadowIt == d->m_shadowDocuments.end()) {
+        shadowIt = d->m_shadowDocuments.insert(filePath, {content, {}});
+    } else  {
+        shadowIt.value().first = content;
+        if (!shadowIt.value().second.isEmpty()) {
+            VersionedTextDocumentIdentifier docId(DocumentUri::fromFilePath(filePath));
+            docId.setVersion(++d->m_documentVersions[filePath]);
+            const DidChangeTextDocumentParams params(docId, content);
+            sendMessage(DidChangeTextDocumentNotification(params), SendDocUpdates::Ignore);
+            return;
+        }
+    }
     if (documentForFilePath(filePath))
         return;
-    const auto uri = DocumentUri::fromFilePath(filePath);
-    if (isNew) {
-        const QString mimeType = mimeTypeForFile(filePath, MimeMatchMode::MatchExtension).name();
-        d->sendOpenNotification(filePath, mimeType, content, 0);
+    for (auto docIt = d->m_openedDocument.cbegin(); docIt != d->m_openedDocument.cend(); ++docIt) {
+        if (referencesShadowFile(docIt.key(), filePath))
+            d->openShadowDocument(docIt.key(), shadowIt);
     }
-
-    VersionedTextDocumentIdentifier docId(uri);
-    docId.setVersion(++d->m_documentVersions[filePath]);
-    const DidChangeTextDocumentParams params(docId, content);
-    sendMessage(DidChangeTextDocumentNotification(params), SendDocUpdates::Ignore);
 }
 
 void Client::removeShadowDocument(const Utils::FilePath &filePath)
@@ -912,10 +948,27 @@ void Client::removeShadowDocument(const Utils::FilePath &filePath)
     const auto it = d->m_shadowDocuments.find(filePath);
     if (it == d->m_shadowDocuments.end())
         return;
+    if (!it.value().second.isEmpty())
+        d->closeShadowDocument(it);
     d->m_shadowDocuments.erase(it);
-    if (documentForFilePath(filePath))
+}
+
+void ClientPrivate::openShadowDocument(const TextEditor::TextDocument *requringDoc,
+                                       ShadowDocIterator shadowIt)
+{
+    shadowIt.value().second << requringDoc;
+    if (shadowIt.value().second.size() > 1)
         return;
-    d->sendCloseNotification(filePath);
+    const auto uri = DocumentUri::fromFilePath(shadowIt.key());
+    const QString mimeType = mimeTypeForFile(shadowIt.key(), MimeMatchMode::MatchExtension).name();
+    sendOpenNotification(shadowIt.key(), mimeType, shadowIt.value().first,
+                         ++m_documentVersions[shadowIt.key()]);
+}
+
+void ClientPrivate::closeShadowDocument(ShadowDocIterator shadowIt)
+{
+    sendCloseNotification(shadowIt.key());
+    shadowIt.value().second.clear();
 }
 
 void Client::documentContentsSaved(TextEditor::TextDocument *document)
@@ -947,6 +1000,7 @@ void Client::documentContentsSaved(TextEditor::TextDocument *document)
         return;
     DidSaveTextDocumentParams params(
                 TextDocumentIdentifier(DocumentUri::fromFilePath(document->filePath())));
+    d->openRequiredShadowDocuments(document);
     if (includeText)
         params.setText(document->plainText());
     sendMessage(DidSaveTextDocumentNotification(params), SendDocUpdates::Send, Schedule::Now);
@@ -1968,6 +2022,14 @@ QTextCursor Client::adjustedCursorForHighlighting(const QTextCursor &cursor,
 {
     Q_UNUSED(doc)
     return cursor;
+}
+
+bool Client::referencesShadowFile(const TextEditor::TextDocument *doc,
+                                  const Utils::FilePath &candidate)
+{
+    Q_UNUSED(doc)
+    Q_UNUSED(candidate)
+    return false;
 }
 
 } // namespace LanguageClient

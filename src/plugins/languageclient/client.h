@@ -226,6 +226,8 @@ private:
     virtual void handleDocumentOpened(TextEditor::TextDocument *) {}
     virtual QTextCursor adjustedCursorForHighlighting(const QTextCursor &cursor,
                                                       TextEditor::TextDocument *doc);
+    virtual bool referencesShadowFile(const TextEditor::TextDocument *doc,
+                                      const Utils::FilePath &candidate);
 };
 
 } // namespace LanguageClient

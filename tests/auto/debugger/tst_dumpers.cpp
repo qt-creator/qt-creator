@@ -6121,6 +6121,29 @@ void tst_Dumpers::dumper_data()
                + Check("watch.1.12", "s.front", "13", "unsigned int") % GdbEngine;
 
 
+    QTest::newRow("Bitfield2")
+            << Data("#include <QList>\n\n"
+                    "struct Entry\n"
+                    "{\n"
+                    "    Entry(bool x) : enabled(x) {}\n"
+                    "    bool enabled : 1;\n"
+                    "    bool autorepeat : 1;\n"
+                    "    signed int id;\n"
+                    "};\n",
+
+                    "QList<Entry> list;\n"
+                    "list.append(Entry(true));\n"
+                    "list.append(Entry(false));\n",
+
+                    "&list")
+
+                + CoreProfile()
+                + Check("list.0.enabled", "1", "bool : 1") % NoCdbEngine
+                + Check("list.0.enabled", "1", "bool") % CdbEngine
+                + Check("list.1.enabled", "0", "bool : 1") % NoCdbEngine
+                + Check("list.1.enabled", "0", "bool") % CdbEngine;
+
+
     QTest::newRow("Function")
             << Data("#include <QByteArray>\n"
                     "struct Function\n"

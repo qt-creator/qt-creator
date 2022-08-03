@@ -485,10 +485,15 @@ void DocumentModelPrivate::removeAllSuspendedEntries(PinnedFileRemovalPolicy pin
         if (pinnedFileRemovalPolicy == DoNotRemovePinnedFiles && entry->pinned)
             continue;
 
+        const FilePath fixedPath = DocumentManager::filePathKey(entry->fileName(),
+                                                                DocumentManager::ResolveLinks);
         int row = i + 1/*<no document>*/;
         d->beginRemoveRows(QModelIndex(), row, row);
         delete d->m_entries.takeAt(i);
         d->endRemoveRows();
+
+        if (!fixedPath.isEmpty())
+            d->m_entryByFixedPath.remove(fixedPath);
     }
     QSet<QString> displayNames;
     for (DocumentModel::Entry *entry : qAsConst(d->m_entries)) {

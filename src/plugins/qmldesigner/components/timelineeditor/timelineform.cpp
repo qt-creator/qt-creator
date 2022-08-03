@@ -50,16 +50,7 @@ TimelineForm::TimelineForm(QWidget *parent)
     connect(ui->expressionBindingLineEdit, &QLineEdit::editingFinished, [this]() {
         QTC_ASSERT(m_timeline.isValid(), return );
 
-
-        static QString lastString;
-
         const QString bindingText = ui->expressionBindingLineEdit->text();
-
-        if (bindingText == lastString)
-            return;
-
-        lastString = bindingText;
-
         if (bindingText.isEmpty()) {
             ui->animation->setChecked(true);
             try {

@@ -418,16 +418,18 @@ void ClangModelManagerSupport::updateLanguageClient(
             bool hasDocuments = false;
             const ClangdSettings settings(ClangdProjectSettings(project).settings());
             for (TextEditor::TextDocument * const doc : allCppDocuments()) {
-                const Client * const currentClient = LanguageClientManager::clientForDocument(doc);
+                Client * const currentClient = LanguageClientManager::clientForDocument(doc);
                 if (!settings.sizeIsOkay(doc->filePath()))
                     continue;
+                const Project * const docProject = SessionManager::projectForFile(doc->filePath());
                 if (currentClient && currentClient->project()
-                        && currentClient->project() != project) {
+                        && currentClient->project() != project
+                        && currentClient->project() == docProject) {
                     continue;
                 }
-                if (const Project * const docProject
-                        = SessionManager::projectForFile(doc->filePath());
-                        !docProject || docProject == project) {
+                if (!docProject || docProject == project) {
+                    if (currentClient)
+                        currentClient->closeDocument(doc);
                     LanguageClientManager::openDocumentWithClient(doc, client);
                     hasDocuments = true;
                 }
@@ -532,15 +534,18 @@ void ClangModelManagerSupport::claimNonProjectSources(ClangdClient *client)
     if (!client)
         return;
     for (TextEditor::TextDocument * const doc : allCppDocuments()) {
-        if (Client * const currentClient = LanguageClientManager::clientForDocument(doc);
-                currentClient && currentClient->state() == Client::Initialized
+        Client * const currentClient = LanguageClientManager::clientForDocument(doc);
+        if (currentClient && currentClient->state() == Client::Initialized
                 && (currentClient == client || currentClient->project())) {
             continue;
         }
         if (!ClangdSettings::instance().sizeIsOkay(doc->filePath()))
             continue;
-        if (!ProjectExplorer::SessionManager::projectForFile(doc->filePath()))
+        if (!ProjectExplorer::SessionManager::projectForFile(doc->filePath())) {
+            if (currentClient)
+                currentClient->closeDocument(doc);
             LanguageClientManager::openDocumentWithClient(doc, client);
+        }
     }
 }
 

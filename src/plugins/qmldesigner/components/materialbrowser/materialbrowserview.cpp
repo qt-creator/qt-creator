@@ -138,6 +138,8 @@ bool MaterialBrowserView::isMaterial(const ModelNode &node) const
 
 void MaterialBrowserView::modelAboutToBeDetached(Model *model)
 {
+    m_widget->materialBrowserModel()->setMaterials({}, m_hasQuick3DImport);
+
     AbstractView::modelAboutToBeDetached(model);
 }
 
