@@ -1,4 +1,4 @@
-import qbs
+import qbs.FileInfo
 
 QtcAutotest {
     name: "Debugger dumpers autotest"
@@ -25,7 +25,8 @@ QtcAutotest {
     }
 
     cpp.defines: base.concat([
-        'CDBEXT_PATH="' + project.buildDirectory + '\\\\lib"',
+        'CDBEXT_PATH="' + FileInfo.fromNativeSeparators(FileInfo.joinPaths(qbs.installRoot,
+                qbs.installPrefix, qtc.libDirName)) + '"',
         'DUMPERDIR="' + path + '/../../../share/qtcreator/debugger"',
         'DEFAULT_QMAKE_BINARY="qmake"'
     ])
