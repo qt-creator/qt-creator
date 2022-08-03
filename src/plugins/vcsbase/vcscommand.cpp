@@ -111,7 +111,6 @@ public:
     unsigned m_flags = 0;
 
     bool m_progressiveOutput = false;
-    bool m_hadOutput = false;
     bool m_aborted = false;
 };
 
@@ -393,10 +392,8 @@ void VcsCommand::runSynchronous(QtcProcess &process)
                 d->m_progressParser->parseProgress(text);
             if (d->m_flags & ShowStdOut)
                 emit append(text);
-            if (d->m_progressiveOutput) {
+            if (d->m_progressiveOutput)
                 emit stdOutText(text);
-                d->m_hadOutput = true;
-            }
         });
     }
 
