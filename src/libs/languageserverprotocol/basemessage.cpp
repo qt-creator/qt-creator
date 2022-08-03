@@ -37,6 +37,13 @@ namespace LanguageServerProtocol {
 
 Q_LOGGING_CATEGORY(parseLog, "qtc.languageserverprotocol.parse", QtWarningMsg)
 
+constexpr char headerFieldSeparator[] = ": ";
+constexpr char contentCharsetName[] = "charset";
+constexpr char defaultCharset[] = "utf-8";
+constexpr char contentLengthFieldName[] = "Content-Length";
+constexpr char headerSeparator[] = "\r\n";
+constexpr char contentTypeFieldName[] = "Content-Type";
+
 BaseMessage::BaseMessage()
     : mimeType(JsonRpcMessage::jsonRpcMimeType())
 { }

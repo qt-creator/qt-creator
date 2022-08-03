@@ -37,12 +37,12 @@ JsonObject &JsonObject::operator=(JsonObject &&other)
     return *this;
 }
 
-QJsonObject::iterator JsonObject::insert(const QString &key, const JsonObject &object)
+QJsonObject::iterator JsonObject::insert(const QStringView key, const JsonObject &object)
 {
     return m_jsonObject.insert(key, object.m_jsonObject);
 }
 
-QJsonObject::iterator JsonObject::insert(const QString &key, const QJsonValue &value)
+QJsonObject::iterator JsonObject::insert(const QStringView key, const QJsonValue &value)
 {
     return m_jsonObject.insert(key, value);
 }

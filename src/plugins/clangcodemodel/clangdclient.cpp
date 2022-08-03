@@ -217,7 +217,7 @@ class SymbolDetails : public JsonObject
 public:
     using JsonObject::JsonObject;
 
-    static constexpr char usrKey[] = "usr";
+    static constexpr char16_t usrKey[] = u"usr";
 
     // the unqualified name of the symbol
     QString name() const { return typedValue<QString>(nameKey); }
@@ -341,8 +341,8 @@ class DiagnosticsCapabilities : public JsonObject
 {
 public:
     using JsonObject::JsonObject;
-    void enableCategorySupport() { insert("categorySupport", true); }
-    void enableCodeActionsInline() {insert("codeActionsInline", true);}
+    void enableCategorySupport() { insert(u"categorySupport", true); }
+    void enableCodeActionsInline() {insert(u"codeActionsInline", true);}
 };
 
 class ClangdTextDocumentClientCapabilities : public TextDocumentClientCapabilities
@@ -352,7 +352,7 @@ public:
 
 
     void setPublishDiagnostics(const DiagnosticsCapabilities &caps)
-    { insert("publishDiagnostics", caps); }
+    { insert(u"publishDiagnostics", caps); }
 };
 
 
@@ -674,7 +674,7 @@ public:
     explicit ClangdCompletionCapabilities(const JsonObject &object)
         : TextDocumentClientCapabilities::CompletionCapabilities(object)
     {
-        insert("editsNearCursor", true); // For dot-to-arrow correction.
+        insert(u"editsNearCursor", true); // For dot-to-arrow correction.
         if (Utils::optional<CompletionItemCapbilities> completionItemCaps = completionItem()) {
             completionItemCaps->setSnippetSupport(false);
             setCompletionItem(*completionItemCaps);
@@ -2176,7 +2176,7 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
 
 Utils::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const
 {
-    auto actions = optionalArray<LanguageServerProtocol::CodeAction>("codeActions");
+    auto actions = optionalArray<LanguageServerProtocol::CodeAction>(u"codeActions");
     if (!actions)
         return actions;
     static const QStringList badCodeActions{
@@ -2193,7 +2193,7 @@ Utils::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const
 
 QString ClangdDiagnostic::category() const
 {
-    return typedValue<QString>("category");
+    return typedValue<QString>(u"category");
 }
 
 class ClangdClient::ClangdFunctionHintProcessor : public FunctionHintProcessor

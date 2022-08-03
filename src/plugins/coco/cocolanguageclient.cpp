@@ -260,7 +260,7 @@ public:
     void enableCodecoverageSupport()
     {
         JsonObject coverageSupport(QJsonObject{{"codeCoverageSupport", true}});
-        insert("publishDiagnostics", coverageSupport);
+        insert(u"publishDiagnostics", coverageSupport);
     }
 };
 
