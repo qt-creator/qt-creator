@@ -276,7 +276,7 @@ Task createTask(const ClangDiagnostic &diagnostic)
 
     return Task(taskType,
                 diagnosticCategoryPrefixRemoved(diagnostic.text),
-                FilePath::fromString(diagnostic.location.targetFilePath.toString()),
+                diagnostic.location.targetFilePath,
                 diagnostic.location.targetLine,
                 Constants::TASK_CATEGORY_DIAGNOSTICS,
                 icon,
