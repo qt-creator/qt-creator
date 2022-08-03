@@ -930,7 +930,7 @@ QList<Interpreter> PythonSettings::detectPythonVenvs(const FilePath &path)
                     dir.cdUp();
                 }
             }
-        } while (dir.cdUp());
+        } while (dir.cdUp() && !(dir.isRoot() && Utils::HostOsInfo::isAnyUnixHost()));
     }
     return result;
 }
