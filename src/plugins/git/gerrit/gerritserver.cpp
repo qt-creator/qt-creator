@@ -245,8 +245,7 @@ int GerritServer::testConnection()
 {
     static GitClient *const client = GitClient::instance();
     const QStringList arguments = curlArguments() << (url(RestUrl) + accountUrlC);
-    const CommandResult result = client->vcsFullySynchronousExec({}, {curlBinary, arguments},
-                                                                 VcsCommand::NoOutput);
+    const CommandResult result = client->vcsFullySynchronousExec({}, {curlBinary, arguments});
     if (result.result() == ProcessResult::FinishedWithSuccess) {
         QString output = result.cleanedStdOut();
         // Gerrit returns an empty response for /p/qt-creator/a/accounts/self
