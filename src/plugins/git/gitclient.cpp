@@ -740,8 +740,9 @@ class ConflictHandler final : public QObject
 {
     Q_OBJECT
 public:
-    static void attachToCommand(VcsCommand *command, const QString &abortCommand = QString()) {
-        auto handler = new ConflictHandler(command->defaultWorkingDirectory(), abortCommand);
+    static void attachToCommand(VcsCommand *command, const FilePath &workingDirectory,
+                                const QString &abortCommand = {}) {
+        auto handler = new ConflictHandler(workingDirectory, abortCommand);
         handler->setParent(command); // delete when command goes out of scope
 
         command->addFlags(VcsCommand::ExpectRepoChanges);
@@ -3437,7 +3438,7 @@ VcsCommand *GitClient::vcsExecAbortable(const FilePath &workingDirectory,
     // For rebase, Git might request an editor (which means the process keeps running until the
     // user closes it), so run without timeout.
     command->addJob({vcsBinary(), arguments}, isRebase ? 0 : vcsTimeoutS());
-    ConflictHandler::attachToCommand(command, abortCommand);
+    ConflictHandler::attachToCommand(command, workingDirectory, abortCommand);
     if (isRebase)
         GitProgressParser::attachToCommand(command);
     command->execute();
@@ -3500,7 +3501,7 @@ void GitClient::stashPop(const FilePath &workingDirectory, const QString &stash)
         arguments << stash;
     VcsCommand *cmd = vcsExec(workingDirectory, arguments, nullptr, true,
                               VcsCommand::ExpectRepoChanges);
-    ConflictHandler::attachToCommand(cmd);
+    ConflictHandler::attachToCommand(cmd, workingDirectory);
 }
 
 bool GitClient::synchronousStashRestore(const FilePath &workingDirectory,

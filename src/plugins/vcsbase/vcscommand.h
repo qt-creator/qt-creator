@@ -124,8 +124,6 @@ public:
 
     void setDisplayName(const QString &name);
 
-    const Utils::FilePath &defaultWorkingDirectory() const;
-
     void addJob(const Utils::CommandLine &command, int timeoutS,
                 const Utils::FilePath &workingDirectory = {},
                 const Utils::ExitCodeInterpreter &interpreter = {});
