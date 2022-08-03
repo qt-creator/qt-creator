@@ -97,7 +97,8 @@ bool GerritServer::operator==(const GerritServer &other) const
 {
     if (port && other.port && port != other.port)
         return false;
-    return host == other.host && user.isSameAs(other.user) && type == other.type;
+    return host == other.host && user.isSameAs(other.user) && type == other.type
+            && authenticated == other.authenticated;
 }
 
 QString GerritServer::defaultHost()
