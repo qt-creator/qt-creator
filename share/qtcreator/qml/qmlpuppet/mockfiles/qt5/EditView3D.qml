@@ -48,6 +48,7 @@ Item {
     property color backgroundGradientColorStart: "#222222"
     property color backgroundGradientColorEnd: "#999999"
     property color gridColor: "#aaaaaa"
+    property bool syncBackgroundColor: false
 
     enum SelectionMode { Item, Group }
     enum TransformMode { Move, Rotate, Scale }
@@ -72,15 +73,16 @@ Item {
     signal changeObjectProperty(var objects, var propNames)
     signal notifyActiveSceneChange()
 
-    onUsePerspectiveChanged:    _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
-    onShowEditLightChanged:     _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
-    onGlobalOrientationChanged: _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
-    onShowGridChanged:          _generalHelper.storeToolState(sceneId, "showGrid", showGrid);
-    onShowSelectionBoxChanged:  _generalHelper.storeToolState(sceneId, "showSelectionBox", showSelectionBox);
-    onShowIconGizmoChanged:     _generalHelper.storeToolState(sceneId, "showIconGizmo", showIconGizmo);
-    onShowCameraFrustumChanged: _generalHelper.storeToolState(sceneId, "showCameraFrustum", showCameraFrustum);
-    onSelectionModeChanged:     _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
-    onTransformModeChanged:     _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
+    onUsePerspectiveChanged:        _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
+    onShowEditLightChanged:         _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
+    onGlobalOrientationChanged:     _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
+    onShowGridChanged:              _generalHelper.storeToolState(sceneId, "showGrid", showGrid);
+    onSyncBackgroundColorChanged:   _generalHelper.storeToolState(sceneId, "syncBackgroundColor", syncBackgroundColor);
+    onShowSelectionBoxChanged:      _generalHelper.storeToolState(sceneId, "showSelectionBox", showSelectionBox);
+    onShowIconGizmoChanged:         _generalHelper.storeToolState(sceneId, "showIconGizmo", showIconGizmo);
+    onShowCameraFrustumChanged:     _generalHelper.storeToolState(sceneId, "showCameraFrustum", showCameraFrustum);
+    onSelectionModeChanged:         _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
+    onTransformModeChanged:         _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
 
     onActiveSceneChanged: updateActiveScene()
 
@@ -249,6 +251,16 @@ Item {
         else if (resetToDefault)
             showGrid = true;
 
+        if ("syncBackgroundColor" in toolStates) {
+            syncBackgroundColor = toolStates.syncBackgroundColor;
+            if (syncBackgroundColor) {
+                var color = _generalHelper.sceneEnvironmentColor(sceneId);
+                updateViewStates({"selectBackgroundColor": color})
+            }
+        } else if (resetToDefault) {
+            syncBackgroundColor = false;
+        }
+
         if ("showSelectionBox" in toolStates)
             showSelectionBox = toolStates.showSelectionBox;
         else if (resetToDefault)
@@ -294,6 +306,7 @@ Item {
     {
         _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
         _generalHelper.storeToolState(sceneId, "showGrid", showGrid)
+        _generalHelper.storeToolState(sceneId, "syncBackgroundColor", syncBackgroundColor)
         _generalHelper.storeToolState(sceneId, "showSelectionBox", showSelectionBox)
         _generalHelper.storeToolState(sceneId, "showIconGizmo", showIconGizmo)
         _generalHelper.storeToolState(sceneId, "showCameraFrustum", showCameraFrustum)

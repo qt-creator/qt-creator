@@ -59,6 +59,7 @@ public:
                 SelectBackgroundColor,
                 SelectGridColor,
                 ResetBackgroundColor,
+                SyncBackgroundColor,
                 GetModelAtPos
               };
 

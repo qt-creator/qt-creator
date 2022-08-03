@@ -255,6 +255,7 @@ LanguageClientOutlineWidget::LanguageClientOutlineWidget(Client *client,
         if (m_sync)
             updateSelectionInTree(m_editor->textCursor());
     });
+    setFocusProxy(&m_view);
 }
 
 QList<QAction *> LanguageClientOutlineWidget::filterMenuActions() const

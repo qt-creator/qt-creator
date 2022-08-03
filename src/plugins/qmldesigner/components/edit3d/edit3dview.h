@@ -88,6 +88,7 @@ private:
     Edit3DAction *createSelectBackgrounColorAction();
     Edit3DAction *createGridColorSelectionAction();
     Edit3DAction *createResetColorAction();
+    Edit3DAction *createSyncBackgroundColorAction();
 
     QPointer<Edit3DWidget> m_edit3DWidget;
     QVector<Edit3DAction *> m_leftActions;

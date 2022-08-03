@@ -113,6 +113,9 @@ public:
     Q_INVOKABLE void scaleMultiSelection(bool commit);
     Q_INVOKABLE void rotateMultiSelection(bool commit);
 
+    void setSceneEnvironmentColor(const QString &sceneId, const QColor &color);
+    Q_INVOKABLE QColor sceneEnvironmentColor(const QString &sceneId) const;
+
     bool isMacOS() const;
 
     void addRotationBlocks(const QSet<QQuick3DNode *> &nodes);
@@ -136,6 +139,7 @@ private:
     QTimer m_toolStateUpdateTimer;
     QHash<QString, QVariantMap> m_toolStates;
     QHash<QString, QVariantMap> m_toolStatesPending;
+    QHash<QString, QColor> m_sceneEnvironmentColor;
     QSet<QQuick3DNode *> m_rotationBlockedNodes;
 
     struct MultiSelData {
