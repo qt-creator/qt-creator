@@ -237,7 +237,7 @@ void DebuggerKitAspect::fix(Kit *k)
     // This can be Id, binary path, but not "auto" anymore.
     const QVariant rawId = k->value(DebuggerKitAspect::id());
 
-    if (rawId.isNull()) // No debugger set, that is fine.
+    if (rawId.toString().isEmpty()) // No debugger set, that is fine.
         return;
 
     if (rawId.type() == QVariant::String) {
