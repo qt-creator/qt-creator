@@ -30,6 +30,7 @@
 #include "vcsplugin.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <utils/environment.h>
@@ -105,6 +106,7 @@ public:
     QTextCodec *m_codec = nullptr;
     ProgressParser *m_progressParser = nullptr;
     QFutureWatcher<void> m_watcher;
+    FutureProgress *m_futureProgress = nullptr;
     QList<Job> m_jobs;
 
     unsigned m_flags = 0;
@@ -144,13 +146,7 @@ void VcsCommand::addTask(const QFuture<void> &future)
 
     const QString name = displayName();
     const auto id = Id::fromString(name + QLatin1String(".action"));
-    if (d->m_progressParser) {
-        ProgressManager::addTask(future, name, id);
-    } else {
-        ProgressManager::addTimedTask(QFutureInterface<void>::get(future), name, id,
-                                      qMax(2, timeoutS() / 5));
-    }
-
+    d->m_futureProgress = ProgressManager::addTask(future, name, id);
     Internal::VcsPlugin::addFuture(future);
 }
 
@@ -249,10 +245,14 @@ void VcsCommand::run(QFutureInterface<void> &future)
             GlobalFileChangeBlocker::instance()->forceBlocked(true);
         });
     }
-    if (d->m_progressParser)
+    if (d->m_progressParser) {
         d->m_progressParser->setFuture(&future);
-    else
-        future.setProgressRange(0, 1);
+    } else {
+        QMetaObject::invokeMethod(this, [this, future] {
+            (void) new ProgressTimer(future, qMax(2, timeoutS() / 5), d->m_futureProgress);
+        });
+    }
+
     const int count = d->m_jobs.size();
     bool lastExecSuccess = true;
     for (int j = 0; j < count; j++) {
