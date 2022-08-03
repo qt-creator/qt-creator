@@ -373,12 +373,12 @@ bool QuickTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futu
         Document::Ptr qmlJSDoc = m_qmlSnapshot.document(fileName);
         return checkQmlDocumentForQuickTestCode(futureInterface, qmlJSDoc, framework(), proFile);
     }
-    if (!m_cppSnapshot.contains(fileName) || !selectedForBuilding(fileName))
-        return false;
-    CPlusPlus::Document::Ptr document = m_cppSnapshot.find(fileName).value();
-    if (!includesQtQuickTest(document, m_cppSnapshot))
-        return false;
-    return handleQtQuickTest(futureInterface, document, framework());
+
+   CPlusPlus::Document::Ptr cppdoc = document(fileName);
+   if (cppdoc.isNull() || !includesQtQuickTest(cppdoc, m_cppSnapshot))
+       return false;
+
+   return handleQtQuickTest(futureInterface, cppdoc, framework());
 }
 
 Utils::FilePath QuickTestParser::projectFileForMainCppFile(const Utils::FilePath &fileName) const
