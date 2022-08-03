@@ -97,9 +97,6 @@ TextMark::TextMark(const FilePath &fileName, int lineNumber, Id category, double
 
 TextMark::~TextMark()
 {
-    qDeleteAll(m_actions);
-    m_actions.clear();
-    delete m_settingsAction;
     if (!m_fileName.isEmpty())
         TextMarkRegistry::remove(this);
     if (m_baseTextDocument)
@@ -311,19 +308,29 @@ void TextMark::addToToolTipLayout(QGridLayout *target) const
     target->addLayout(contentLayout, row, 1);
 
     // Right column: action icons/button
-    QVector<QAction *> actions = m_actions;
-    if (m_settingsAction)
-        actions << m_settingsAction;
+    QList<QAction *> actions{m_actions.begin(), m_actions.end()};
+    if (m_actionsProvider)
+        actions = m_actionsProvider();
+    if (m_settingsPage.isValid()) {
+        auto settingsAction = new QAction;
+        settingsAction->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
+        settingsAction->setToolTip(tr("Show Diagnostic Settings"));
+        QObject::connect(settingsAction, &QAction::triggered, Core::ICore::instance(),
+            [id = m_settingsPage] { Core::ICore::showOptionsDialog(id); },
+            Qt::QueuedConnection);
+        actions.append(settingsAction);
+    }
     if (!actions.isEmpty()) {
         auto actionsLayout = new QHBoxLayout;
         QMargins margins = actionsLayout->contentsMargins();
         margins.setLeft(margins.left() + 5);
         actionsLayout->setContentsMargins(margins);
         for (QAction *action : qAsConst(actions)) {
-            QTC_ASSERT(!action->icon().isNull(), continue);
+            QTC_ASSERT(!action->icon().isNull(), delete action; continue);
             auto button = new QToolButton;
             button->setIcon(action->icon());
             button->setToolTip(action->toolTip());
+            action->setParent(button);
             QObject::connect(button, &QToolButton::clicked, action, &QAction::triggered);
             QObject::connect(button, &QToolButton::clicked, []() {
                 Utils::ToolTip::hideImmediately();
@@ -423,15 +430,14 @@ void TextMark::setActions(const QVector<QAction *> &actions)
     m_actions = actions;
 }
 
+void TextMark::setActionsProvider(const std::function<QList<QAction *>()> &actionsProvider)
+{
+    m_actionsProvider = actionsProvider;
+}
+
 void TextMark::setSettingsPage(Id settingsPage)
 {
-    delete m_settingsAction;
-    m_settingsAction = new QAction;
-    m_settingsAction->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
-    m_settingsAction->setToolTip(tr("Show Diagnostic Settings"));
-    QObject::connect(m_settingsAction, &QAction::triggered, Core::ICore::instance(),
-        [settingsPage] { Core::ICore::showOptionsDialog(settingsPage); },
-        Qt::QueuedConnection);
+    m_settingsPage = settingsPage;
 }
 
 TextMarkRegistry::TextMarkRegistry(QObject *parent)

@@ -309,31 +309,32 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
         client->addTask(createTask(m_diagnostic));
     }
 
-    // Copy to clipboard action
-    QVector<QAction *> actions;
-    QAction *action = new QAction();
-    action->setIcon(QIcon::fromTheme("edit-copy", Icons::COPY.icon()));
-    action->setToolTip(tr("Copy to Clipboard", "Clang Code Model Marks"));
-    QObject::connect(action, &QAction::triggered, [diag = m_diagnostic]() {
-        const QString text = ClangDiagnosticWidget::createText({diag},
-                                                               ClangDiagnosticWidget::InfoBar);
-        setClipboardAndSelection(text);
-    });
-    actions << action;
-
-    // Remove diagnostic warning action
-    Project *project = projectForCurrentEditor();
-    if (project && isDiagnosticConfigChangable(project, m_diagnostic)) {
-        action = new QAction();
-        action->setIcon(Icons::BROKEN.icon());
-        action->setToolTip(tr("Disable Diagnostic in Current Project"));
-        QObject::connect(action, &QAction::triggered, [diag = m_diagnostic]() {
-            disableDiagnosticInCurrentProjectConfig(diag);
+    setActionsProvider([diag = m_diagnostic] {
+        // Copy to clipboard action
+        QList<QAction *> actions;
+        QAction *action = new QAction();
+        action->setIcon(QIcon::fromTheme("edit-copy", Icons::COPY.icon()));
+        action->setToolTip(tr("Copy to Clipboard", "Clang Code Model Marks"));
+        QObject::connect(action, &QAction::triggered, [diag] {
+            const QString text = ClangDiagnosticWidget::createText({diag},
+                                                                   ClangDiagnosticWidget::InfoBar);
+            setClipboardAndSelection(text);
         });
         actions << action;
-    }
 
-    setActions(actions);
+        // Remove diagnostic warning action
+        Project *project = projectForCurrentEditor();
+        if (project && isDiagnosticConfigChangable(project, diag)) {
+            action = new QAction();
+            action->setIcon(Icons::BROKEN.icon());
+            action->setToolTip(tr("Disable Diagnostic in Current Project"));
+            QObject::connect(action, &QAction::triggered, [diag] {
+                disableDiagnosticInCurrentProjectConfig(diag);
+            });
+            actions << action;
+        }
+        return actions;
+    });
 }
 
 bool ClangdTextMark::addToolTipContent(QLayout *target) const

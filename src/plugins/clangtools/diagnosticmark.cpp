@@ -54,28 +54,28 @@ DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
     setIcon(markIcon.isNull() ? Utils::Icons::CODEMODEL_WARNING.icon() : markIcon);
     setToolTip(createDiagnosticToolTipString(diagnostic, Utils::nullopt,  true));
     setLineAnnotation(diagnostic.description);
+    setActionsProvider([diagnostic] {
+        // Copy to clipboard action
+        QList<QAction *> actions;
+        QAction *action = new QAction();
+        action->setIcon(QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon()));
+        action->setToolTip(tr("Copy to Clipboard"));
+        QObject::connect(action, &QAction::triggered, [diagnostic]() {
+            const QString text = createFullLocationString(diagnostic.location)
+                                 + ": "
+                                 + diagnostic.description;
+            Utils::setClipboardAndSelection(text);
+        });
+        actions << action;
 
-    // Copy to clipboard action
-    QVector<QAction *> actions;
-    QAction *action = new QAction();
-    action->setIcon(QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon()));
-    action->setToolTip(tr("Copy to Clipboard"));
-    QObject::connect(action, &QAction::triggered, [diagnostic]() {
-        const QString text = createFullLocationString(diagnostic.location)
-                             + ": "
-                             + diagnostic.description;
-        Utils::setClipboardAndSelection(text);
+        // Disable diagnostic action
+        action = new QAction();
+        action->setIcon(Utils::Icons::BROKEN.icon());
+        action->setToolTip(tr("Disable Diagnostic"));
+        QObject::connect(action, &QAction::triggered, [diagnostic] { disableChecks({diagnostic}); });
+        actions << action;
+        return actions;
     });
-    actions << action;
-
-    // Disable diagnostic action
-    action = new QAction();
-    action->setIcon(Utils::Icons::BROKEN.icon());
-    action->setToolTip(tr("Disable Diagnostic"));
-    QObject::connect(action, &QAction::triggered, [diagnostic] { disableChecks({diagnostic}); });
-    actions << action;
-
-    setActions(actions);
 }
 
 void DiagnosticMark::disable()
