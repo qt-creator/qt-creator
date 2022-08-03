@@ -61,38 +61,38 @@ public:
                                       && idElements.at(1) == QLatin1String("disabled"))
                 ? QIcon::Disabled : QIcon::Normal;
 
-        Icon icon;
+        QIcon icon;
         if (iconName == "prev")
-            icon = Icons::PREV_TOOLBAR;
+            icon = Icons::PREV_TOOLBAR.icon();
         else if (iconName == "next")
-            icon = Icons::NEXT_TOOLBAR;
+            icon = Icons::NEXT_TOOLBAR.icon();
         else if (iconName == "zoom")
-            icon = Icons::ZOOM_TOOLBAR;
+            icon = Icons::ZOOM_TOOLBAR.icon();
         else if (iconName == "rangeselection")
-            icon = Icon({{":/qt/qml/QtCreator/Tracing/ico_rangeselection.png", Theme::IconsBaseColor}});
+            icon = Icon({{":/qt/qml/QtCreator/Tracing/ico_rangeselection.png", Theme::IconsBaseColor}}).icon();
         else if (iconName == "rangeselected")
-            icon = Icon({{":/qt/qml/QtCreator/Tracing/ico_rangeselected.png", Theme::IconsBaseColor}});
+            icon = Icon({{":/qt/qml/QtCreator/Tracing/ico_rangeselected.png", Theme::IconsBaseColor}}).icon();
         else if (iconName == "selectionmode")
-            icon = Icon({{":/qt/qml/QtCreator/Tracing/ico_selectionmode.png", Theme::IconsBaseColor}});
+            icon = Icon({{":/qt/qml/QtCreator/Tracing/ico_selectionmode.png", Theme::IconsBaseColor}}).icon();
         else if (iconName == "edit")
-            icon = Icon({{":/qt/qml/QtCreator/Tracing/ico_edit.png", Theme::IconsBaseColor}});
+            icon = Icon({{":/qt/qml/QtCreator/Tracing/ico_edit.png", Theme::IconsBaseColor}}).icon();
         else if (iconName == "lock_open")
-            icon = Icons::UNLOCKED_TOOLBAR;
+            icon = Icons::UNLOCKED_TOOLBAR.icon();
         else if (iconName == "lock_closed")
-            icon = Icons::LOCKED_TOOLBAR;
+            icon = Icons::LOCKED_TOOLBAR.icon();
         else if (iconName == "range_handle")
-            icon = Icon({{":/qt/qml/QtCreator/Tracing/range_handle.png", Theme::IconsBaseColor}});
+            icon = Icon({{":/qt/qml/QtCreator/Tracing/range_handle.png", Theme::IconsBaseColor}}).icon();
         else if (iconName == "note")
-            icon = Icons::INFO_TOOLBAR;
+            icon = Icons::INFO_TOOLBAR.icon();
         else if (iconName == "split")
-            icon = Icons::SPLIT_HORIZONTAL_TOOLBAR;
+            icon = Icons::SPLIT_HORIZONTAL_TOOLBAR.icon();
         else if (iconName == "close_split")
-            icon = Icons::CLOSE_SPLIT_TOP;
+            icon = Icons::CLOSE_SPLIT_TOP.icon();
         else if (iconName == "close_window")
-            icon = Icons::CLOSE_TOOLBAR;
+            icon = Icons::CLOSE_TOOLBAR.icon();
 
         const QSize iconSize(16, 16);
-        const QPixmap result = icon.icon().pixmap(iconSize, iconMode);
+        const QPixmap result = icon.pixmap(iconSize, iconMode);
 
         if (size)
             *size = result.size();
