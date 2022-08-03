@@ -30,6 +30,8 @@
 #include "keyframe.h"
 #include "selectableitem.h"
 
+#include <utils/optional.h>
+
 #include <QGraphicsObject>
 
 namespace QmlDesigner {
@@ -133,7 +135,8 @@ private:
 
     HandleItem *m_right;
 
-    QPointF m_validPos;
+    Utils::optional< QPointF > m_firstPos;
+    Utils::optional< QPointF > m_validPos;
 
     bool m_visibleOverride = true;
 

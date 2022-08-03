@@ -27,7 +27,10 @@
 #include "curveitem.h"
 #include "handleitem.h"
 
+#include <QApplication>
 #include <QPainter>
+#include <qnamespace.h>
+#include <QGraphicsSceneMouseEvent>
 
 #include <cmath>
 
@@ -453,10 +456,22 @@ QVariant KeyframeItem::itemChange(QGraphicsItem::GraphicsItemChange change, cons
                 lseg.moveRightTo(position);
                 rseg.moveLeftTo(position);
 
-                if (legalLeft() && legalRight())
-                    m_validPos = position;
+                if (legalLeft() && legalRight()) {
+                    if (qApp->keyboardModifiers().testFlag(Qt::ShiftModifier) && m_validPos.has_value()) {
+                        if (m_firstPos) {
+                            auto firstToNow = QLineF(*m_firstPos, position);
+                            if (std::abs(firstToNow.dx()) > std::abs(firstToNow.dy()))
+                                m_validPos = QPointF(position.x(), m_firstPos->y());
+                            else
+                                m_validPos = QPointF(m_firstPos->x(), position.y());
+                        }
 
-                return QVariant(m_transform.map(m_validPos));
+                    } else {
+                        m_validPos = position;
+                    }
+                }
+
+                return QVariant(m_transform.map(*m_validPos));
             }
         }
     }
@@ -466,6 +481,11 @@ QVariant KeyframeItem::itemChange(QGraphicsItem::GraphicsItemChange change, cons
 
 void KeyframeItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+    bool ok;
+    m_firstPos = m_transform.inverted(&ok).map(event->scenePos());
+    if (!ok)
+        m_firstPos = Utils::nullopt;
+
     SelectableItem::mousePressEvent(event);
     if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(parentItem()))
         curveItem->setHandleVisibility(false);
@@ -473,6 +493,7 @@ void KeyframeItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void KeyframeItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+    m_firstPos = Utils::nullopt;
     SelectableItem::mouseReleaseEvent(event);
     if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(parentItem()))
         curveItem->setHandleVisibility(true);
