@@ -83,11 +83,11 @@ const char zoomSettingsKey[] = "Vcs/OutputPane/Zoom";
 class RepositoryUserData : public QTextBlockUserData
 {
 public:
-    explicit RepositoryUserData(const QString &repo) : m_repository(repo) {}
-    const QString &repository() const { return m_repository; }
+    explicit RepositoryUserData(const FilePath &repository) : m_repository(repository) {}
+    const FilePath &repository() const { return m_repository; }
 
 private:
-    const QString m_repository;
+    const FilePath m_repository;
 };
 
 // A plain text edit with a special context menu containing "Clear"
@@ -97,9 +97,9 @@ class OutputWindowPlainTextEdit : public Core::OutputWindow
 public:
     explicit OutputWindowPlainTextEdit(QWidget *parent = nullptr);
 
-    void appendLines(const QString &s, const QString &repository = QString());
+    void appendLines(const QString &s, const FilePath &repository = {});
     void appendLinesWithStyle(const QString &s, VcsOutputWindow::MessageStyle style,
-                              const QString &repository = QString());
+                              const FilePath &repository = {});
     VcsOutputLineParser *parser();
 
 protected:
@@ -108,7 +108,7 @@ protected:
 
 private:
     void setFormat(VcsOutputWindow::MessageStyle style);
-    QString identifierUnderCursor(const QPoint &pos, QString *repository = nullptr) const;
+    QString identifierUnderCursor(const QPoint &pos, FilePath *repository = nullptr) const;
 
     OutputFormat m_format;
     VcsOutputLineParser *m_parser = nullptr;
@@ -135,7 +135,7 @@ static inline int firstWordCharacter(const QString &s, int startPos)
     return 0;
 }
 
-QString OutputWindowPlainTextEdit::identifierUnderCursor(const QPoint &widgetPos, QString *repository) const
+QString OutputWindowPlainTextEdit::identifierUnderCursor(const QPoint &widgetPos, FilePath *repository) const
 {
     if (repository)
         repository->clear();
@@ -169,25 +169,23 @@ void OutputWindowPlainTextEdit::contextMenuEvent(QContextMenuEvent *event)
     const QString href = anchorAt(event->pos());
     QMenu *menu = href.isEmpty() ? createStandardContextMenu(event->pos()) : new QMenu;
     // Add 'open file'
-    QString repository;
-    const QString token = identifierUnderCursor(event->pos(), &repository);
-    if (!repository.isEmpty()) {
+    FilePath repo;
+    const QString token = identifierUnderCursor(event->pos(), &repo);
+    if (!repo.isEmpty()) {
         if (VcsOutputLineParser * const p = parser()) {
             if (!href.isEmpty())
-                p->fillLinkContextMenu(menu, FilePath::fromString(repository), href);
+                p->fillLinkContextMenu(menu, repo, href);
         }
     }
     QAction *openAction = nullptr;
     if (!token.isEmpty()) {
         // Check for a file, expand via repository if relative
-        QFileInfo fi(token);
-        if (!repository.isEmpty() && !fi.isFile() && fi.isRelative())
-            fi = QFileInfo(repository + '/' + token);
-        if (fi.isFile())  {
+        if (!repo.isEmpty() && !repo.isFile() && repo.isRelativePath())
+            repo = repo.pathAppended(token);
+        if (repo.isFile())  {
             menu->addSeparator();
-            openAction = menu->addAction(VcsOutputWindow::tr("Open \"%1\"").
-                                         arg(QDir::toNativeSeparators(fi.fileName())));
-            openAction->setData(fi.absoluteFilePath());
+            openAction = menu->addAction(VcsOutputWindow::tr("Open \"%1\"").arg(repo.nativePath()));
+            openAction->setData(repo.absoluteFilePath().toString());
         }
     }
     QAction *clearAction = nullptr;
@@ -217,7 +215,7 @@ void OutputWindowPlainTextEdit::handleLink(const QPoint &pos)
     const QString href = anchorAt(pos);
     if (href.isEmpty())
         return;
-    QString repository;
+    FilePath repository;
     identifierUnderCursor(pos, &repository);
     if (repository.isEmpty()) {
         OutputWindow::handleLink(pos);
@@ -226,10 +224,10 @@ void OutputWindowPlainTextEdit::handleLink(const QPoint &pos)
     if (outputFormatter()->handleFileLink(href))
         return;
     if (VcsOutputLineParser * const p = parser())
-        p->handleVcsLink(FilePath::fromString(repository), href);
+        p->handleVcsLink(repository, href);
 }
 
-void OutputWindowPlainTextEdit::appendLines(const QString &s, const QString &repository)
+void OutputWindowPlainTextEdit::appendLines(const QString &s, const FilePath &repository)
 {
     if (s.isEmpty())
         return;
@@ -251,7 +249,7 @@ void OutputWindowPlainTextEdit::appendLines(const QString &s, const QString &rep
 
 void OutputWindowPlainTextEdit::appendLinesWithStyle(const QString &s,
                                                      VcsOutputWindow::MessageStyle style,
-                                                     const QString &repository)
+                                                     const FilePath &repository)
 {
     setFormat(style);
 
@@ -299,7 +297,7 @@ class VcsOutputWindowPrivate
 {
 public:
     Internal::OutputWindowPlainTextEdit widget;
-    QString repository;
+    FilePath repository;
     const QRegularExpression passwordRegExp = QRegularExpression("://([^@:]+):([^@]+)@");
 };
 
@@ -473,14 +471,9 @@ VcsOutputWindow *VcsOutputWindow::instance()
     return m_instance;
 }
 
-QString VcsOutputWindow::repository() const
+void VcsOutputWindow::setRepository(const FilePath &repository)
 {
-    return d->repository;
-}
-
-void VcsOutputWindow::setRepository(const QString &r)
-{
-    d->repository = r;
+    d->repository = repository;
 }
 
 void VcsOutputWindow::clearRepository()

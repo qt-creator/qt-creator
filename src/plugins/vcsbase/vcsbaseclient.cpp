@@ -495,7 +495,7 @@ void VcsBaseClient::status(const FilePath &workingDir,
 {
     QStringList args(vcsCommandString(StatusCommand));
     args << extraOptions << file;
-    VcsOutputWindow::setRepository(workingDir.toString());
+    VcsOutputWindow::setRepository(workingDir);
     VcsCommand *cmd = createCommand(workingDir, nullptr, VcsWindowOutputBind);
     connect(cmd, &VcsCommand::finished,
             VcsOutputWindow::instance(), &VcsOutputWindow::clearRepository,

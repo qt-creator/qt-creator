@@ -120,7 +120,7 @@ VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &envi
 {
     connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, &VcsCommand::cancel);
 
-    VcsOutputWindow::setRepository(d->m_defaultWorkingDirectory.toString());
+    VcsOutputWindow::setRepository(d->m_defaultWorkingDirectory);
     VcsOutputWindow *outputWindow = VcsOutputWindow::instance(); // Keep me here, just to be sure it's not instantiated in other thread
     connect(this, &VcsCommand::append, outputWindow, [outputWindow](const QString &t) {
         outputWindow->append(t);

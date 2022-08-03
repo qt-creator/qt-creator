@@ -41,7 +41,6 @@ namespace Internal { class VcsPlugin; }
 class VCSBASE_EXPORT VcsOutputWindow : public Core::IOutputPane
 {
     Q_OBJECT
-    Q_PROPERTY(QString repository READ repository WRITE setRepository)
 
 public:
     QWidget *outputWidget(QWidget *parent) override;
@@ -63,8 +62,6 @@ public:
 
     static VcsOutputWindow *instance();
 
-    QString repository() const;
-
     // Helper to consistently format log entries for commands as
     // 'Executing <dir>: <cmd> <args>'. Hides well-known password option
     // arguments.
@@ -80,7 +77,7 @@ public:
     };
 
 public slots:
-    static void setRepository(const QString &);
+    static void setRepository(const Utils::FilePath &repository);
     static void clearRepository();
 
     // Set the whole text.

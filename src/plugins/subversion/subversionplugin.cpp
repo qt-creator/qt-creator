@@ -874,7 +874,7 @@ void SubversionPluginPrivate::svnStatus(const FilePath &workingDir, const QStrin
     args << SubversionClient::addAuthenticationOptions(m_settings);
     if (!relativePath.isEmpty())
         args.append(SubversionClient::escapeFile(relativePath));
-    VcsOutputWindow::setRepository(workingDir.toString());
+    VcsOutputWindow::setRepository(workingDir);
     runSvn(workingDir, args, VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage);
     VcsOutputWindow::clearRepository();
 }

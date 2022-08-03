@@ -1144,7 +1144,7 @@ void GitClient::merge(const FilePath &workingDirectory, const QStringList &unmer
 
 void GitClient::status(const FilePath &workingDirectory) const
 {
-    VcsOutputWindow::setRepository(workingDirectory.toString());
+    VcsOutputWindow::setRepository(workingDirectory);
     VcsCommand *command = vcsExec(workingDirectory, {"status", "-u"}, nullptr, true);
     connect(command, &VcsCommand::finished, VcsOutputWindow::instance(),
             &VcsOutputWindow::clearRepository, Qt::QueuedConnection);
