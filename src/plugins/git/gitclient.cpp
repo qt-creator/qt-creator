@@ -3436,7 +3436,7 @@ VcsCommand *GitClient::vcsExecAbortable(const FilePath &workingDirectory,
                       | VcsCommand::ShowSuccessMessage);
     // For rebase, Git might request an editor (which means the process keeps running until the
     // user closes it), so run without timeout.
-    command->addJob({vcsBinary(), arguments}, isRebase ? 0 : command->defaultTimeoutS());
+    command->addJob({vcsBinary(), arguments}, isRebase ? 0 : vcsTimeoutS());
     ConflictHandler::attachToCommand(command, abortCommand);
     if (isRebase)
         GitProgressParser::attachToCommand(command);

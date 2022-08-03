@@ -126,17 +126,11 @@ public:
 
     const Utils::FilePath &defaultWorkingDirectory() const;
 
-    void addJob(const Utils::CommandLine &command,
-                const Utils::FilePath &workingDirectory = {},
-                const Utils::ExitCodeInterpreter &interpreter = {});
     void addJob(const Utils::CommandLine &command, int timeoutS,
                 const Utils::FilePath &workingDirectory = {},
                 const Utils::ExitCodeInterpreter &interpreter = {});
     void execute(); // Execute tasks asynchronously!
     void abort();
-
-    int defaultTimeoutS() const;
-    void setDefaultTimeoutS(int timeout);
 
     void addFlags(unsigned f);
 
@@ -145,9 +139,6 @@ public:
     void setProgressParser(ProgressParser *parser);
     void setProgressiveOutput(bool progressive);
 
-    // This is called once per job in a thread.
-    // When called from the UI thread it will execute fully synchronously, so no signals will
-    // be triggered!
     CommandResult runCommand(const Utils::CommandLine &command, int timeoutS = 10);
     void cancel();
 

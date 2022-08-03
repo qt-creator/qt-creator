@@ -96,7 +96,6 @@ VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory,
                                              JobOutputBindMode mode) const
 {
     auto cmd = createVcsCommand(workingDirectory, processEnvironment());
-    cmd->setDefaultTimeoutS(vcsTimeoutS());
     if (editor)
         editor->setCommand(cmd);
     if (mode == VcsWindowOutputBind) {
@@ -119,7 +118,7 @@ VcsCommand *VcsBaseClientImpl::execBgCommand(const FilePath &workingDirectory,
     cmd->addFlags(flags | VcsCommand::SuppressCommandLogging
                         | VcsCommand::SuppressStdErr
                         | VcsCommand::SuppressFailMessage);
-    cmd->addJob({vcsBinary(), args});
+    cmd->addJob({vcsBinary(), args}, vcsTimeoutS());
     connect(cmd, &VcsCommand::stdOutText, this, outputCallback);
     cmd->execute();
     return cmd;

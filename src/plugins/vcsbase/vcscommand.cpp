@@ -109,7 +109,6 @@ public:
     QList<Job> m_jobs;
 
     unsigned m_flags = 0;
-    int m_defaultTimeoutS = 10;
 
     bool m_progressiveOutput = false;
     bool m_hadOutput = false;
@@ -201,26 +200,9 @@ const FilePath &VcsCommand::defaultWorkingDirectory() const
     return d->m_defaultWorkingDirectory;
 }
 
-int VcsCommand::defaultTimeoutS() const
-{
-    return d->m_defaultTimeoutS;
-}
-
-void VcsCommand::setDefaultTimeoutS(int timeout)
-{
-    d->m_defaultTimeoutS = timeout;
-}
-
 void VcsCommand::addFlags(unsigned f)
 {
     d->m_flags |= f;
-}
-
-void VcsCommand::addJob(const CommandLine &command,
-                        const FilePath &workingDirectory,
-                        const ExitCodeInterpreter &interpreter)
-{
-    addJob(command, defaultTimeoutS(), workingDirectory, interpreter);
 }
 
 void VcsCommand::addJob(const CommandLine &command, int timeoutS,
