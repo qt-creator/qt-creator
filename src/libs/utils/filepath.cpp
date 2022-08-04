@@ -65,6 +65,11 @@ namespace Utils {
 
 static DeviceFileHooks s_deviceHooks;
 
+DeviceFileHooks &DeviceFileHooks::instance()
+{
+    return s_deviceHooks;
+}
+
 
 static bool removeRecursivelyLocal(const FilePath &filePath, QString *error)
 {
@@ -116,11 +121,6 @@ static bool removeRecursivelyLocal(const FilePath &filePath, QString *error)
         }
     }
     return true;
-}
-
-void FilePath::setDeviceFileHooks(const DeviceFileHooks &hooks)
-{
-    s_deviceHooks = hooks;
 }
 
 /*!

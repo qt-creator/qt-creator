@@ -74,7 +74,7 @@ void tst_fsengine::initTestCase()
     if (!FSEngine::isAvailable())
         QSKIP("Utils was built without Filesystem Engine");
 
-    DeviceFileHooks deviceHooks;
+    DeviceFileHooks &deviceHooks = DeviceFileHooks::instance();
 
     deviceHooks.fileContents =
         [](const FilePath &path, qint64 maxSize, qint64 offset) -> QByteArray {
@@ -174,8 +174,6 @@ void tst_fsengine::initTestCase()
     };
 
     deviceHooks.mapToDevicePath = [](const FilePath &filePath) { return filePath.path(); };
-
-    FilePath::setDeviceFileHooks(deviceHooks);
 
     FSEngine::addDevice(FilePath::fromString("device://test"));
 

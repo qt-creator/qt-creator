@@ -47,7 +47,6 @@ class tst_fileutils; // This becomes a friend of Utils::FilePath for testing pri
 
 namespace Utils {
 
-class DeviceFileHooks;
 class Environment;
 class EnvironmentChange;
 
@@ -225,8 +224,6 @@ public:
     [[nodiscard]] static QString specialPath(SpecialPathComponent component);
     [[nodiscard]] static FilePath specialFilePath(SpecialPathComponent component);
 
-    static void setDeviceFileHooks(const DeviceFileHooks &hooks);
-
 private:
     friend class ::tst_fileutils;
     static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);
@@ -243,9 +240,11 @@ inline size_t qHash(const Utils::FilePath &a, uint seed = 0)
     return a.hash(seed);
 }
 
-class DeviceFileHooks
+class QTCREATOR_UTILS_EXPORT DeviceFileHooks
 {
 public:
+    static DeviceFileHooks &instance();
+
     std::function<bool(const FilePath &)> isExecutableFile;
     std::function<bool(const FilePath &)> isReadableFile;
     std::function<bool(const FilePath &)> isReadableDir;

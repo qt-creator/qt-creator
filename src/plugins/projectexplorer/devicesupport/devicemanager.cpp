@@ -425,7 +425,7 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &DeviceManager::save);
 
-    DeviceFileHooks deviceHooks;
+    DeviceFileHooks &deviceHooks = DeviceFileHooks::instance();
 
     deviceHooks.isExecutableFile = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
@@ -609,8 +609,6 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         QTC_ASSERT(device, return QString());
         return device->displayName();
     };
-
-    FilePath::setDeviceFileHooks(deviceHooks);
 
     DeviceProcessHooks processHooks;
 
