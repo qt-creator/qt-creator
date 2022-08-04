@@ -101,6 +101,7 @@
 #include <QtQuick3D/private/qquick3dscenerootnode_p.h>
 #include <QtQuick3D/private/qquick3drepeater_p.h>
 #include <QtQuick3D/private/qquick3dloader_p.h>
+#include <QtQuick3D/private/qquick3dsceneenvironment_p.h>
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
 #include "../editor3d/qt5compat/qquick3darealight_p.h"
 #endif
