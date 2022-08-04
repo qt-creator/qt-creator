@@ -60,6 +60,15 @@ public:
     void contextHelp(const Core::IContext::HelpCallback &callback) const override;
 };
 
+class MaterialBrowserContext : public Core::IContext
+{
+    Q_OBJECT
+
+public:
+    MaterialBrowserContext(QWidget *widget);
+    void contextHelp(const Core::IContext::HelpCallback &callback) const override;
+};
+
 class NavigatorContext : public Core::IContext
 {
     Q_OBJECT

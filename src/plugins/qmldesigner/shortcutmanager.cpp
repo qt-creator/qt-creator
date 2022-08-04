@@ -77,8 +77,11 @@ ShortCutManager::ShortCutManager()
 void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContext,
                                       const Core::Context &qmlDesignerFormEditorContext,
                                       const Core::Context &qmlDesignerEditor3DContext,
-                                      const Core::Context &qmlDesignerNavigatorContext)
+                                      const Core::Context &qmlDesignerNavigatorContext,
+                                      const Core::Context &qmlDesignerMaterialBrowserContext)
 {
+    Q_UNUSED(qmlDesignerMaterialBrowserContext)
+
     Core::ActionContainer *editMenu = Core::ActionManager::actionContainer(Core::Constants::M_EDIT);
     Core::ActionContainer *fileMenu = Core::ActionManager::actionContainer(Core::Constants::M_FILE);
 
@@ -195,9 +198,12 @@ void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContex
         m_pasteAction.setEnabled(true);
     });
 
-    connect(Core::ICore::instance(), &Core::ICore::contextChanged, this, [&designerActionManager, this](const Core::Context &context){
-        if (!context.contains(Constants::C_QMLFORMEDITOR) && !context.contains(Constants::C_QMLEDITOR3D) && !context.contains(Constants::C_QMLNAVIGATOR)) {
-            m_deleteAction.setEnabled(false);
+    connect(Core::ICore::instance(), &Core::ICore::contextChanged, this, [&](const Core::Context &context) {
+        isMatBrowserActive = context.contains(Constants::C_QMLMATERIALBROWSER);
+
+        if (!context.contains(Constants::C_QMLFORMEDITOR) && !context.contains(Constants::C_QMLEDITOR3D)
+         && !context.contains(Constants::C_QMLNAVIGATOR)) {
+            m_deleteAction.setEnabled(isMatBrowserActive);
             m_cutAction.setEnabled(false);
             m_copyAction.setEnabled(false);
             m_pasteAction.setEnabled(false);
@@ -249,8 +255,12 @@ void ShortCutManager::redo()
 
 void ShortCutManager::deleteSelected()
 {
-    if (currentDesignDocument())
+   if (isMatBrowserActive) {
+       DesignerActionManager &designerActionManager = QmlDesignerPlugin::instance()->viewManager().designerActionManager();
+       designerActionManager.view()->emitCustomNotification("delete_selected_material");
+   } else if (currentDesignDocument()) {
         currentDesignDocument()->deleteSelected();
+   }
 }
 
 void ShortCutManager::cutSelected()

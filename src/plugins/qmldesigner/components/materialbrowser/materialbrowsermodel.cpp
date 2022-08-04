@@ -201,6 +201,12 @@ void MaterialBrowserModel::removeMaterial(const ModelNode &material)
     }
 }
 
+void MaterialBrowserModel::deleteSelectedMaterial()
+{
+    if (isValidIndex(m_selectedIndex))
+        m_materialList[m_selectedIndex].destroy();
+}
+
 void MaterialBrowserModel::updateSelectedMaterial()
 {
     selectMaterial(m_selectedIndex, true);

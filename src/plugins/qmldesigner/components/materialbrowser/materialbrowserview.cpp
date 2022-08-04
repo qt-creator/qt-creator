@@ -32,6 +32,7 @@
 #include <coreplugin/icore.h>
 #include <nodeinstanceview.h>
 #include <qmldesignerconstants.h>
+#include <designmodecontext.h>
 
 #include <QQuickItem>
 
@@ -53,7 +54,11 @@ bool MaterialBrowserView::hasWidget() const
 WidgetInfo MaterialBrowserView::widgetInfo()
 {
     if (m_widget.isNull()) {
-        m_widget = new MaterialBrowserWidget;
+        m_widget = new MaterialBrowserWidget(this);
+
+        auto matEditorContext = new Internal::MaterialBrowserContext(m_widget.data());
+        Core::ICore::addContextObject(matEditorContext);
+
         MaterialBrowserModel *matBrowserModel = m_widget->materialBrowserModel().data();
 
         // custom notifications below are sent to the MaterialEditor
@@ -288,6 +293,8 @@ void MaterialBrowserView::customNotification(const AbstractView *view, const QSt
         QTimer::singleShot(0, this, [this]() {
             refreshModel(true);
         });
+    } else if (identifier == "delete_selected_material") {
+        m_widget->materialBrowserModel()->deleteSelectedMaterial();
     }
 }
 

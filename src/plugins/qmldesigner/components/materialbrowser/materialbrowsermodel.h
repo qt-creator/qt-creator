@@ -61,6 +61,7 @@ public:
     QList<ModelNode> materials() const;
     void setMaterials(const QList<ModelNode> &materials, bool hasQuick3DImport);
     void removeMaterial(const ModelNode &material);
+    void deleteSelectedMaterial();
     void updateMaterialName(const ModelNode &material);
     void updateSelectedMaterial();
     int materialIndex(const ModelNode &material) const;

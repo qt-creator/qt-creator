@@ -47,7 +47,8 @@ public:
     void registerActions(const Core::Context &qmlDesignerMainContext,
                          const Core::Context &qmlDesignerFormEditorContext,
                          const Core::Context &qmlDesignerEditor3DContext,
-                         const Core::Context &qmlDesignerNavigatorContext);
+                         const Core::Context &qmlDesignerNavigatorContext,
+                         const Core::Context &qmlDesignerMaterialBrowserContext);
 
     void connectUndoActions(DesignDocument *designDocument);
     void disconnectUndoActions(DesignDocument *designDocument);
@@ -84,6 +85,8 @@ private:
     QAction m_pasteAction;
     QAction m_selectAllAction;
     QAction m_escapeAction;
+
+    bool isMatBrowserActive = false;
 };
 
 } // namespace QmlDesigner

@@ -25,6 +25,7 @@
 
 #include "materialbrowserwidget.h"
 #include "materialbrowsermodel.h"
+#include "materialbrowserview.h"
 
 #include <theme.h>
 
@@ -130,13 +131,19 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-MaterialBrowserWidget::MaterialBrowserWidget()
-    : m_materialBrowserModel(new MaterialBrowserModel(this))
+MaterialBrowserWidget::MaterialBrowserWidget(MaterialBrowserView *view)
+    : m_materialBrowserView(view)
+    , m_materialBrowserModel(new MaterialBrowserModel(this))
     , m_quickWidget(new QQuickWidget(this))
     , m_previewImageProvider(new PreviewImageProvider())
 {
     setWindowTitle(tr("Material Browser", "Title of material browser widget"));
     setMinimumWidth(120);
+
+    Core::Context context(Constants::C_QMLMATERIALBROWSER);
+    m_context = new Core::IContext(this);
+    m_context->setContext(context);
+    m_context->setWidget(this);
 
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
@@ -180,6 +187,14 @@ void MaterialBrowserWidget::updateMaterialPreview(const ModelNode &node, const Q
 QList<QToolButton *> MaterialBrowserWidget::createToolBarWidgets()
 {
     return {};
+}
+
+void MaterialBrowserWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
+{
+    if (m_materialBrowserView)
+        m_materialBrowserView->contextHelp(callback);
+    else
+        callback({});
 }
 
 void MaterialBrowserWidget::handleSearchfilterChanged(const QString &filterText)
