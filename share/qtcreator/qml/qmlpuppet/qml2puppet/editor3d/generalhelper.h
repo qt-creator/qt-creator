@@ -27,6 +27,7 @@
 
 #ifdef QUICK3D_MODULE
 
+#include <QColor>
 #include <QHash>
 #include <QMatrix4x4>
 #include <QObject>
