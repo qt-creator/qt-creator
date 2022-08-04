@@ -34,7 +34,6 @@ namespace Utils {
 class QTCREATOR_UTILS_EXPORT FormattedText {
 public:
     FormattedText() = default;
-    FormattedText(const FormattedText &other) = default;
     FormattedText(const QString &txt, const QTextCharFormat &fmt = QTextCharFormat()) :
         text(txt), format(fmt)
     { }

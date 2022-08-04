@@ -276,7 +276,6 @@ public:
     }
 
     TargetInformation() = default;
-    TargetInformation(const TargetInformation &other) = default;
 };
 
 class QMAKEPROJECTMANAGER_EXPORT InstallsItem {

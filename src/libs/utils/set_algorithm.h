@@ -45,13 +45,6 @@ public:
         : m_callable(&callable)
     {}
 
-    function_output_iterator &operator=(const function_output_iterator &iterator)
-    {
-        m_callable = iterator.m_callable;
-
-        return *this;
-    }
-
     struct helper
     {
         helper(const Callable *callable)

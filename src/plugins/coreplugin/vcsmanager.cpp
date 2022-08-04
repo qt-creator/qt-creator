@@ -68,7 +68,6 @@ public:
         VcsInfo(IVersionControl *vc, const QString &tl) :
             versionControl(vc), topLevel(tl)
         { }
-        VcsInfo(const VcsInfo &other) = default;
 
         bool operator == (const VcsInfo &other) const
         {

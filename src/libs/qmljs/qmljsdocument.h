@@ -170,7 +170,6 @@ public:
     explicit LibraryInfo(const QString &typeInfo);
     explicit LibraryInfo(const QmlDirParser &parser, const QByteArray &fingerprint = QByteArray());
     ~LibraryInfo() = default;
-    LibraryInfo(const LibraryInfo &other) = default;
 
     QByteArray calculateFingerprint() const;
     void updateFingerprint();

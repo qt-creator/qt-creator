@@ -122,7 +122,6 @@ private:
     {
     public:
         InternalDataItem(const DataItem &item);
-        InternalDataItem(const InternalDataItem &item) = default;
 
         QString currentValue() const;
 

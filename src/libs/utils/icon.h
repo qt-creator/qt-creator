@@ -65,8 +65,6 @@ public:
     Icon(std::initializer_list<IconMaskAndColor> args, IconStyleOptions style = ToolBarStyle);
     Icon(const FilePath &imageFileName);
 
-    Icon(const Icon &other) = default;
-
     QIcon icon() const;
     // Same as icon() but without disabled state.
     QPixmap pixmap(QIcon::Mode iconMode = QIcon::Normal) const;
