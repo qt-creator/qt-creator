@@ -122,7 +122,7 @@ QString GerritServer::url(UrlType urlType) const
         case Https: protocol = "https"; break;
     }
     QString res = protocol + "://";
-    if (type == Ssh || urlType != DefaultUrl)
+    if (type == Ssh || urlType == UrlWithHttpUser)
         res += hostArgument();
     else
         res += host;
