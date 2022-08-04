@@ -56,10 +56,10 @@ public:
     [[nodiscard]] static FilePath fromUtf8(const char *filepath, int filepathSize = -1);
     [[nodiscard]] static FilePath fromVariant(const QVariant &variant);
     [[nodiscard]] static FilePath fromUrl(const QUrl &url);
+    [[nodiscard]] static FilePath fromParts(const QStringView scheme, const QStringView host, const QStringView path);
 
     [[nodiscard]] static FilePath currentWorkingPath();
     [[nodiscard]] static FilePath rootPath();
-
 
     QString toUserOutput() const;
     QString toString() const;
@@ -68,16 +68,11 @@ public:
     QUrl toUrl() const;
 
     QStringView scheme() const;
-    void setScheme(const QStringView scheme);
-
     QStringView host() const;
-    void setHost(const QStringView host);
-
     QString path() const;
-    void setPath(const QStringView path);
-
     QStringView root() const;
-    void setRoot(const QStringView root);
+
+    void setParts(const QStringView scheme, const QStringView host, const QStringView path);
 
     QString fileName() const;
     QString fileNameWithPathComponents(int pathComponents) const;

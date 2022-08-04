@@ -590,10 +590,7 @@ FilePath DockerDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
         return pathOnDevice;
     }
 
-    FilePath result;
-    result.setPath(pathOnDevice.path());
-    result.setScheme(Constants::DOCKER_DEVICE_SCHEME);
-    result.setHost(d->m_data.repoAndTag());
+    return FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME, d->m_data.repoAndTag(), pathOnDevice.path());
 
 // The following would work, but gives no hint on repo and tag
 //   result.setScheme("docker");
@@ -602,8 +599,6 @@ FilePath DockerDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
 // The following would work, but gives no hint on repo, tag and imageid
 //    result.setScheme("device");
 //    result.setHost(id().toString());
-
-    return result;
 }
 
 QString DockerDevice::mapToDevicePath(const Utils::FilePath &globalPath) const
@@ -621,11 +616,7 @@ QString DockerDevice::mapToDevicePath(const Utils::FilePath &globalPath) const
 
 Utils::FilePath DockerDevice::rootPath() const
 {
-    FilePath root;
-    root.setScheme(Constants::DOCKER_DEVICE_SCHEME);
-    root.setHost(d->m_data.repoAndTag());
-    root.setPath(u"/");
-    return root;
+    return FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME,  d->m_data.repoAndTag(), u"/");
 }
 
 bool DockerDevice::handlesFile(const FilePath &filePath) const

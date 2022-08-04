@@ -1200,7 +1200,7 @@ static QList<Utils::FilePath> minimalPrefixPaths(const QList<Utils::FilePath> &p
     // find minimal prefix, ensure '/' at end
     for (Utils::FilePath path : qAsConst(paths)) {
         if (!path.endsWith("/"))
-            path.setPath(QString(path.path() + "/"));
+            path = path.withNewPath(path.path() + "/");
         if (path.path().length() > 1)
             sortedPaths.append(path);
     }

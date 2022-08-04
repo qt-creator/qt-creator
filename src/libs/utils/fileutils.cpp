@@ -392,7 +392,7 @@ FilePath FileUtils::commonPath(const FilePaths &paths)
     };
     if (!allOf(others, sameScheme))
         return result;
-    result.setScheme(commonScheme);
+    result.setParts(commonScheme, {}, {});
 
     // Common host
     const QStringView commonHost = first.host();
@@ -401,7 +401,7 @@ FilePath FileUtils::commonPath(const FilePaths &paths)
     };
     if (!allOf(others, sameHost))
         return result;
-    result.setHost(commonHost);
+    result.setParts(commonScheme, commonHost, {});
 
     // Common path
     QString commonPath;
@@ -413,7 +413,7 @@ FilePath FileUtils::commonPath(const FilePaths &paths)
         commonPath += segment + '/';
         if (!allOf(others, sameBasePath))
             return result;
-        result.setPath(commonPath.chopped(1));
+        result.setParts(commonScheme, commonHost, commonPath.chopped(1));
     }
 
     return result;

@@ -82,7 +82,8 @@ FilePath ProcessParameters::effectiveWorkingDirectory() const
         QString path = m_workingDirectory.path();
         if (m_macroExpander)
             path = m_macroExpander->expand(path);
-        m_effectiveWorkingDirectory.setPath(QDir::cleanPath(m_environment.expandVariables(path)));
+        m_effectiveWorkingDirectory =
+            m_effectiveWorkingDirectory.withNewPath(QDir::cleanPath(m_environment.expandVariables(path)));
     }
     return m_effectiveWorkingDirectory;
 }

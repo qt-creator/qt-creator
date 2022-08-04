@@ -716,7 +716,7 @@ void QtVersion::fromMap(const QVariantMap &map)
     QString string = d->m_qmakeCommand.path();
     if (string.startsWith('~'))
         string.remove(0, 1).prepend(QDir::homePath());
-    qmake.setPath(string);
+    qmake = qmake.withNewPath(string);
     if (!d->m_qmakeCommand.needsDevice()) {
         if (BuildableHelperLibrary::isQtChooser(qmake)) {
             // we don't want to treat qtchooser as a normal qmake

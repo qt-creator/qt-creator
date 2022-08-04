@@ -314,11 +314,7 @@ void tst_fileutils::toString()
     QFETCH(QString, result);
     QFETCH(QString, userResult);
 
-    FilePath filePath;
-    filePath.setScheme(scheme);
-    filePath.setHost(host);
-    filePath.setPath(path);
-
+    FilePath filePath = FilePath::fromParts(scheme, host, path);
     QCOMPARE(filePath.toString(), result);
     QString cleanedOutput = filePath.needsDevice() ? filePath.toUserOutput() : QDir::cleanPath(filePath.toUserOutput());
     QCOMPARE(cleanedOutput, userResult);
@@ -428,15 +424,7 @@ void tst_fileutils::fromToString()
     QCOMPARE(filePath.host(), host);
     QCOMPARE(filePath.path(), path);
 
-
-    FilePath copy = filePath;
-    copy.setHost(host);
-    QCOMPARE(copy.toString(), full);
-
-    copy.setScheme(scheme);
-    QCOMPARE(copy.toString(), full);
-
-    copy.setPath(path);
+    FilePath copy = FilePath::fromParts(scheme, host, path);
     QCOMPARE(copy.toString(), full);
 }
 

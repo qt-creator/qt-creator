@@ -196,11 +196,7 @@ FilePath IDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
         return pathOnDevice;
     }
     // match DeviceManager::deviceForPath
-    FilePath result;
-    result.setPath(pathOnDevice.path());
-    result.setScheme(u"device");
-    result.setHost(id().toString());
-    return result;
+    return FilePath::fromParts(u"device", id().toString(), pathOnDevice.path());
 }
 
 QString IDevice::mapToDevicePath(const FilePath &globalPath) const
@@ -758,11 +754,7 @@ void IDevice::setMachineType(MachineType machineType)
 
 FilePath IDevice::rootPath() const
 {
-    FilePath root;
-    root.setScheme(u"device");
-    root.setHost(id().toString());
-    root.setPath(u"/");
-    return root;
+    return FilePath::fromParts(u"device", id().toString(), u"/");
 }
 
 FilePath IDevice::debugServerPath() const

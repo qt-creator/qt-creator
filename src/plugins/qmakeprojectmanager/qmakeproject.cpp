@@ -780,8 +780,7 @@ FilePath QmakeBuildSystem::buildDir(const FilePath &proFilePath) const
                                  ? projectDirectory()
                                  : buildConfigBuildDir;
     // FIXME: Convoluted.
-    buildDir.setPath(QDir::cleanPath(QDir(buildDir.path()).absoluteFilePath(relativeDir)));
-    return buildDir;
+    return buildDir.withNewPath(QDir::cleanPath(QDir(buildDir.path()).absoluteFilePath(relativeDir)));
 }
 
 void QmakeBuildSystem::proFileParseError(const QString &errorMessage, const FilePath &filePath)

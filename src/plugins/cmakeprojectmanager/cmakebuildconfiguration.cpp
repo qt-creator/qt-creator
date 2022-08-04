@@ -1439,9 +1439,8 @@ FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFi
                                                     bcName, buildType, "cmake");
 
     if (CMakeGeneratorKitAspect::isMultiConfigGenerator(k)) {
-        QString path = buildPath.path();
-        path = path.left(path.lastIndexOf(QString("-%1").arg(bcName)));
-        buildPath.setPath(path);
+        const QString path = buildPath.path();
+        buildPath = buildPath.withNewPath(path.left(path.lastIndexOf(QString("-%1").arg(bcName))));
     }
 
     return buildPath;

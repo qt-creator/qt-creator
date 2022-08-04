@@ -150,11 +150,14 @@ QFileInfo FilePath::toFileInfo() const
 
 FilePath FilePath::fromUrl(const QUrl &url)
 {
-    FilePath fn;
-    fn.m_scheme = url.scheme();
-    fn.m_host = url.host();
-    fn.setRootAndPath(url.path(), HostOsInfo::hostOs());
-    return fn;
+    return FilePath::fromParts(url.scheme(), url.host(), url.path());
+}
+
+FilePath FilePath::fromParts(const QStringView scheme, const QStringView host, const QStringView path)
+{
+    FilePath result;
+    result.setParts(scheme, host, path);
+    return result;
 }
 
 FilePath FilePath::currentWorkingPath()
@@ -318,22 +321,6 @@ QString FilePath::completeSuffix() const
     return {};
 }
 
-void FilePath::setScheme(const QStringView scheme)
-{
-    QTC_CHECK(!scheme.contains('/'));
-    m_scheme = scheme.toString();
-}
-
-void FilePath::setHost(const QStringView host)
-{
-    m_host = host.toString();
-}
-
-void FilePath::setPath(const QStringView path)
-{
-    setRootAndPath(path, HostOsInfo::hostOs());
-}
-
 QStringView FilePath::scheme() const
 {
     return m_scheme;
@@ -354,9 +341,12 @@ QStringView FilePath::root() const
     return m_root;
 }
 
-void FilePath::setRoot(const QStringView root)
+void FilePath::setParts(const QStringView scheme, const QStringView host, const QStringView path)
 {
-    m_root = root.toString();
+    QTC_CHECK(!m_scheme.contains('/'));
+    m_scheme = scheme.toString();
+    m_host = host.toString();
+    setRootAndPath(path, HostOsInfo::hostOs());
 }
 
 /// \returns a bool indicating whether a file with this
@@ -629,9 +619,7 @@ QString FilePath::mapToDevicePath() const
 
 FilePath FilePath::withExecutableSuffix() const
 {
-    FilePath res = *this;
-    res.setPath(OsSpecificAspects::withExecutableSuffix(osType(), path()));
-    return res;
+    return withNewPath(OsSpecificAspects::withExecutableSuffix(osType(), path()));
 }
 
 /// Find the parent directory of a given directory.
@@ -655,9 +643,7 @@ FilePath FilePath::parentDir() const
     const QString parent = doCleanPath(path);
     QTC_ASSERT(parent != path, return FilePath());
 
-    FilePath result = *this;
-    result.setPath(parent);
-    return result;
+    return withNewPath(parent);
 }
 
 FilePath FilePath::absolutePath() const
@@ -1568,7 +1554,7 @@ void FilePath::clear()
 */
 bool FilePath::isEmpty() const
 {
-    return m_root.isEmpty() && m_path.isEmpty();
+    return root().isEmpty() && path().isEmpty();
 }
 
 /*!
@@ -1596,7 +1582,7 @@ QString FilePath::shortNativePath() const
 */
 bool FilePath::isRelativePath() const
 {
-    return m_root.isEmpty();
+    return root().isEmpty();
 }
 
 /*!
@@ -1606,9 +1592,9 @@ bool FilePath::isRelativePath() const
 */
 FilePath FilePath::resolvePath(const FilePath &tail) const
 {
-    if (!tail.m_root.isEmpty())
+    if (!tail.root().isEmpty())
         return tail;
-    return pathAppended(tail.m_path);
+    return pathAppended(tail.path());
 }
 
 /*!
@@ -1624,9 +1610,7 @@ FilePath FilePath::resolvePath(const QString &tail) const
 
 FilePath FilePath::cleanPath() const
 {
-    FilePath result = *this;
-    result.setPath(doCleanPath(result.path()));
-    return result;
+    return withNewPath(doCleanPath(path()));
 }
 
 QTextStream &operator<<(QTextStream &s, const FilePath &fn)

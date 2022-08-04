@@ -771,7 +771,7 @@ void MemcheckToolPrivate::heobAction()
     QString executablePath = executable.path();
     if (executablePath.startsWith(wdSlashed, Qt::CaseInsensitive)) {
         executablePath.remove(0, wdSlashed.size());
-        executable.setPath(executablePath);
+        executable = executable.withNewPath(executablePath);
     }
 
     // heob arguments

@@ -503,15 +503,14 @@ void Snapshot::insertLibraryInfo(const Utils::FilePath &path, const LibraryInfo 
                     break;
                 ImportKey iKey(ImportType::Library, QStringList(myPath.mid(iPath)).join(QLatin1Char('.')),
                                importKey.majorVersion, importKey.minorVersion);
-                Utils::FilePath newP(path);
-                newP.setPath((iPath == 1)
+                Utils::FilePath newP = path.withNewPath(
+                            (iPath == 1)
                                  ? QLatin1String("/")
                                  : QStringList(myPath.mid(0, iPath)).join(QLatin1Char('/')));
                 cImport.addPossibleExport(Export(iKey, newP, true));
             }
         } else {
-            Utils::FilePath requiredPath(path);
-            requiredPath.setPath(
+            Utils::FilePath requiredPath = path.withNewPath(
                 QStringList(splitPath.mid(0, splitPath.size() - importKey.splitPath.size()))
                     .join(QLatin1String("/")));
             cImport.addPossibleExport(Export(importKey, requiredPath, true));
@@ -549,8 +548,8 @@ void Snapshot::insertLibraryInfo(const Utils::FilePath &path, const LibraryInfo 
                 break;
             ImportKey iKey(ImportType::Library, QStringList(splitPath.mid(iPath)).join(QLatin1Char('.')),
                            majorVersion, minorVersion);
-            Utils::FilePath newP(path);
-            newP.setPath((iPath == 1)
+            Utils::FilePath newP = path.withNewPath(
+                        iPath == 1
                              ? QLatin1String("/")
                              : QStringList(splitPath.mid(0, iPath)).join(QLatin1Char('/')));
             cImport.addPossibleExport(Export(iKey, newP, true));

@@ -730,8 +730,7 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
     cmd.addArgs(options);
 
     CommandLine remoteWithLocalPath = q->m_setup.m_commandLine;
-    FilePath executable;
-    executable.setPath(remoteWithLocalPath.executable().path());
+    FilePath executable = FilePath::fromParts({}, {}, remoteWithLocalPath.executable().path());
     remoteWithLocalPath.setExecutable(executable);
 
     cmd.addArg(q->fullCommandLine(remoteWithLocalPath));
@@ -1028,11 +1027,7 @@ QString LinuxDevice::userAtHost() const
 
 FilePath LinuxDevice::rootPath() const
 {
-    FilePath root;
-    root.setScheme(u"ssh");
-    root.setHost(userAtHost());
-    root.setPath(u"/");
-    return root;
+    return FilePath::fromParts(u"ssh", userAtHost(), u"/");
 }
 
 bool LinuxDevice::handlesFile(const FilePath &filePath) const
@@ -1515,7 +1510,8 @@ private:
                     m_batchFile->write("-rm " + ProcessArgs::quoteArgUnix(
                                         file.m_target.path()).toLocal8Bit() + '\n');
                      // see QTBUG-5817.
-                    sourceFileOrLinkTarget.setPath(fi.dir().relativeFilePath(fi.symLinkTarget()));
+                    sourceFileOrLinkTarget =
+                        sourceFileOrLinkTarget.withNewPath(fi.dir().relativeFilePath(fi.symLinkTarget()));
                 }
              }
              m_batchFile->write(transferCommand(direction(), link) + ' '
@@ -1597,8 +1593,10 @@ private:
         }
 
         FileToTransfer fixedFile = file;
-        (direction() == FileTransferDirection::Upload) ? fixedFile.m_source.setPath(localFilePath)
-                                                       : fixedFile.m_target.setPath(localFilePath);
+        if (direction() == FileTransferDirection::Upload)
+            fixedFile.m_source = fixedFile.m_source.withNewPath(localFilePath);
+        else
+            fixedFile.m_target = fixedFile.m_target.withNewPath(localFilePath);
         return fixedFile;
     }
 

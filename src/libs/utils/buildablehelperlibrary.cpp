@@ -37,9 +37,7 @@ FilePath BuildableHelperLibrary::qtChooserToQmakePath(const FilePath &qtChooser)
     if (end == -1)
         return {};
 
-    FilePath qmake = qtChooser;
-    qmake.setPath(QString(output.mid(pos, end - pos) + "/qmake"));
-    return qmake;
+    return qtChooser.withNewPath(output.mid(pos, end - pos) + "/qmake");
 }
 
 static bool isQmake(FilePath path)

@@ -167,7 +167,7 @@ void StackFrame::fixQrcFrame(const DebuggerRunParameters &rp)
     relativePath = relativePath.right(relativePath.size() - 5);
     while (relativePath.startsWith('/'))
         relativePath = relativePath.mid(1);
-    relativeFile.setPath(relativePath);
+    relativeFile = relativeFile.withNewPath(relativePath);
 
     FilePath absFile = findFile(rp.projectSourceDirectory, relativeFile);
     if (absFile.isEmpty())
