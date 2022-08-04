@@ -250,10 +250,8 @@ void DebuggerKitAspect::fix(Kit *k)
             return;
         }
         const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
-        for (const Abi &abi : item->abis()) {
-            if (abi.isCompatibleWith(tcAbi))
-                return;
-        }
+        if (item->matchTarget(tcAbi) != DebuggerItem::DoesNotMatch)
+            return;
         k->setValue(DebuggerKitAspect::id(), QVariant());
         setup(k);
         return; // All fine (now).

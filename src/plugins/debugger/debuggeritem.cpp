@@ -406,29 +406,34 @@ void DebuggerItem::setAbi(const Abi &abi)
 
 static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &targetAbi, DebuggerEngineType engineType)
 {
+    DebuggerItem::MatchLevel matchOnMultiarch = DebuggerItem::DoesNotMatch;
+    const bool isMsvcTarget = targetAbi.osFlavor() >= Abi::WindowsMsvc2005Flavor &&
+            targetAbi.osFlavor() <= Abi::WindowsLastMsvcFlavor;
+    if (!isMsvcTarget && (engineType == GdbEngineType || engineType == LldbEngineType))
+        matchOnMultiarch = DebuggerItem::MatchesSomewhat;
     if (debuggerAbi.architecture() != Abi::UnknownArchitecture
             && debuggerAbi.architecture() != targetAbi.architecture())
-        return DebuggerItem::DoesNotMatch;
+        return matchOnMultiarch;
 
     if (debuggerAbi.os() != Abi::UnknownOS
             && debuggerAbi.os() != targetAbi.os())
-        return DebuggerItem::DoesNotMatch;
+        return matchOnMultiarch;
 
     if (debuggerAbi.binaryFormat() != Abi::UnknownFormat
             && debuggerAbi.binaryFormat() != targetAbi.binaryFormat())
-        return DebuggerItem::DoesNotMatch;
+        return matchOnMultiarch;
 
     if (debuggerAbi.os() == Abi::WindowsOS) {
         if (debuggerAbi.osFlavor() == Abi::WindowsMSysFlavor && targetAbi.osFlavor() != Abi::WindowsMSysFlavor)
-            return DebuggerItem::DoesNotMatch;
+            return matchOnMultiarch;
         if (debuggerAbi.osFlavor() != Abi::WindowsMSysFlavor && targetAbi.osFlavor() == Abi::WindowsMSysFlavor)
-            return DebuggerItem::DoesNotMatch;
+            return matchOnMultiarch;
     }
 
     if (debuggerAbi.wordWidth() == 64 && targetAbi.wordWidth() == 32)
         return DebuggerItem::MatchesSomewhat;
     if (debuggerAbi.wordWidth() != 0 && debuggerAbi.wordWidth() != targetAbi.wordWidth())
-        return DebuggerItem::DoesNotMatch;
+        return matchOnMultiarch;
 
     // We have at least 'Matches well' now. Mark the combinations we really like.
     if (HostOsInfo::isWindowsHost() && engineType == CdbEngineType
