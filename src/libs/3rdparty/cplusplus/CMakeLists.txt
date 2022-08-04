@@ -56,4 +56,8 @@ if(TARGET 3rd_cplusplus)
     target_precompile_headers(3rd_cplusplus PRIVATE
       "${QtCreator_SOURCE_DIR}/src/shared/qtcreator_gui_pch.h")
   endif()
+
+  if(UNIX)
+    target_compile_options(3rd_cplusplus PRIVATE "-Wno-unused-variable")
+  endif()
 endif()
