@@ -3227,7 +3227,10 @@ class DumperBase():
                         lbyte = ldata[i]
                     else:
                         lbyte = ldata[fieldOffset + fieldSize - 1 - i]
-                    data += ord(lbyte)
+                    if isinstance(lbyte, (str, bytes)):
+                        data += ord(lbyte)
+                    else:
+                        data += lbyte
                 data = data >> fieldBitpos
                 data = data & ((1 << fieldBitsize) - 1)
                 val.lvalue = data
