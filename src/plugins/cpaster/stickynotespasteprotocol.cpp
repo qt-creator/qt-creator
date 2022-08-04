@@ -245,8 +245,8 @@ static inline QStringList parseList(QIODevice *device)
             if (obj.contains(pastesKey)) {
                 value = obj.value(pastesKey);
                 if (value.isArray()) {
-                    QJsonArray array = value.toArray();
-                    foreach (const QJsonValue &val, array)
+                    const QJsonArray array = value.toArray();
+                    for (const QJsonValue &val : array)
                         result.append(val.toString());
                 }
             }

@@ -219,7 +219,7 @@ static inline void textFromCurrentEditor(QString *text, QString *mimeType)
             data = textDocument->plainText();
         } else {
             const QVariant textV = document->property("plainText"); // Diff Editor.
-            if (textV.type() == QVariant::String)
+            if (textV.typeId() == QMetaType::QString)
                 data = textV.toString();
         }
     }

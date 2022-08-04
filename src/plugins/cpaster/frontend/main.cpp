@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
         std::cout << qPrintable(argsCollector.usageString()) << std::endl;
         return EXIT_SUCCESS;
     case ArgumentsCollector::RequestTypeListProtocols:
-        foreach (const QString &protocol, protocols)
+        for (const QString &protocol : protocols)
             std::cout << qPrintable(protocol) << std::endl;
         return EXIT_SUCCESS;
     case ArgumentsCollector::RequestTypePaste: {
