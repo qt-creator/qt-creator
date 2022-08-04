@@ -638,6 +638,20 @@ void TextDocumentLayout::updateMarksBlock(const QTextBlock &block)
     }
 }
 
+void TextDocumentLayout::scheduleUpdate()
+{
+    if (m_updateScheduled)
+        return;
+    m_updateScheduled = true;
+    QMetaObject::invokeMethod(this, &TextDocumentLayout::requestUpdateNow, Qt::QueuedConnection);
+}
+
+void TextDocumentLayout::requestUpdateNow()
+{
+    m_updateScheduled = false;
+    requestUpdate();
+}
+
 QRectF TextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
 {
     QRectF boundingRect = QPlainTextDocumentLayout::blockBoundingRect(block);

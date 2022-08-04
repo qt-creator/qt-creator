@@ -242,7 +242,7 @@ void TextMark::removedFromEditor()
 void TextMark::updateMarker()
 {
     if (m_baseTextDocument)
-        m_baseTextDocument->updateLayout();
+        m_baseTextDocument->scheduleUpdateLayout();
 }
 
 void TextMark::setPriority(TextMark::Priority prioriy)

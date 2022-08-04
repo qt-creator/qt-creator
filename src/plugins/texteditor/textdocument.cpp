@@ -970,6 +970,13 @@ void TextDocument::updateLayout() const
     documentLayout->requestUpdate();
 }
 
+void TextDocument::scheduleUpdateLayout() const
+{
+    auto documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
+    QTC_ASSERT(documentLayout, return);
+    documentLayout->scheduleUpdate();
+}
+
 TextMarks TextDocument::marks() const
 {
     return d->m_marksCache;
@@ -1001,7 +1008,7 @@ bool TextDocument::addMark(TextMark *mark)
         documentLayout->hasMarks = true;
         documentLayout->maxMarkWidthFactor = newMaxWidthFactor;
         if (fullUpdate)
-            documentLayout->requestUpdate();
+            documentLayout->scheduleUpdate();
         else
             documentLayout->requestExtraAreaUpdate();
         return true;
@@ -1080,7 +1087,7 @@ void TextDocument::removeMark(TextMark *mark)
     removeMarkFromMarksCache(mark);
     emit markRemoved(mark);
     mark->setBaseTextDocument(nullptr);
-    updateLayout();
+    scheduleUpdateLayout();
 }
 
 void TextDocument::updateMark(TextMark *mark)
@@ -1092,7 +1099,7 @@ void TextDocument::updateMark(TextMark *mark)
         userData->removeMark(mark);
         userData->addMark(mark);
     }
-    updateLayout();
+    scheduleUpdateLayout();
 }
 
 void TextDocument::moveMark(TextMark *mark, int previousLine)
