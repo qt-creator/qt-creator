@@ -416,6 +416,8 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(d->configSelectionWidget, &ClangDiagnosticConfigsSelectionWidget::changed,
             this, &ClangdSettingsWidget::settingsDataChanged);
+    connect(&d->completionResults, &QSpinBox::valueChanged,
+            this, &ClangdSettingsWidget::settingsDataChanged);
 }
 
 ClangdSettingsWidget::~ClangdSettingsWidget()
@@ -437,6 +439,7 @@ ClangdSettings::Data ClangdSettingsWidget::settingsData() const
     data.sessionsWithOneClangd = d->sessionsModel.stringList();
     data.customDiagnosticConfigs = d->configSelectionWidget->customConfigs();
     data.diagnosticConfigId = d->configSelectionWidget->currentConfigId();
+    data.completionResults = d->completionResults.value();
     return data;
 }
 
