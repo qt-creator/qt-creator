@@ -89,17 +89,17 @@ public:
     QVariant toVariant() const;
     QUrl toUrl() const;
 
-    QString scheme() const { return m_scheme; }
-    void setScheme(const QString &scheme);
+    QStringView scheme() const;
+    void setScheme(const QStringView scheme);
 
-    QString host() const { return m_host; }
-    void setHost(const QString &host);
+    QStringView host() const;
+    void setHost(const QStringView host);
 
-    QString path() const { return m_root + m_path; }
-    void setPath(const QString &path) { setRootAndPath(path, HostOsInfo::hostOs()); }
+    QString path() const;
+    void setPath(const QStringView path);
 
-    QString root() const { return m_root; }
-    void setRoot(const QString &root) { m_root = root; }
+    QStringView root() const;
+    void setRoot(const QStringView root);
 
     QString fileName() const;
     QString fileNameWithPathComponents(int pathComponents) const;

@@ -408,7 +408,7 @@ FilePath FileUtils::commonPath(const FilePaths &paths)
     FilePath result;
 
     // Common scheme
-    const QString &commonScheme = first.scheme();
+    const QStringView commonScheme = first.scheme();
     auto sameScheme = [&commonScheme] (const FilePath &fp) {
         return commonScheme == fp.scheme();
     };
@@ -417,7 +417,7 @@ FilePath FileUtils::commonPath(const FilePaths &paths)
     result.setScheme(commonScheme);
 
     // Common host
-    const QString &commonHost = first.host();
+    const QStringView commonHost = first.host();
     auto sameHost = [&commonHost] (const FilePath &fp) {
         return commonHost == fp.host();
     };

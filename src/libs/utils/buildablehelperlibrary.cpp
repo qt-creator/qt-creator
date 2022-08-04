@@ -60,7 +60,7 @@ FilePath BuildableHelperLibrary::qtChooserToQmakePath(const FilePath &qtChooser)
         return {};
 
     FilePath qmake = qtChooser;
-    qmake.setPath(output.mid(pos, end - pos) + "/qmake");
+    qmake.setPath(QString(output.mid(pos, end - pos) + "/qmake"));
     return qmake;
 }
 

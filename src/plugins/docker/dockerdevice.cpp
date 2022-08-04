@@ -614,7 +614,7 @@ FilePath DockerDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
 
     FilePath result;
     result.setPath(pathOnDevice.path());
-    result.setScheme("docker");
+    result.setScheme(Constants::DOCKER_DEVICE_SCHEME);
     result.setHost(d->m_data.repoAndTag());
 
 // The following would work, but gives no hint on repo and tag
@@ -646,18 +646,23 @@ Utils::FilePath DockerDevice::rootPath() const
     FilePath root;
     root.setScheme(Constants::DOCKER_DEVICE_SCHEME);
     root.setHost(d->m_data.repoAndTag());
-    root.setPath("/");
+    root.setPath(u"/");
     return root;
 }
 
 bool DockerDevice::handlesFile(const FilePath &filePath) const
 {
-    if (filePath.scheme() == "device" && filePath.host() == id().toString())
+    if (filePath.scheme() == u"device" && filePath.host() == id().toString())
         return true;
-    if (filePath.scheme() == "docker" && filePath.host() == d->m_data.imageId)
+
+    if (filePath.scheme() == Constants::DOCKER_DEVICE_SCHEME
+            && filePath.host() == d->m_data.imageId)
         return true;
-    if (filePath.scheme() == "docker" && filePath.host() == d->m_data.repo + ':' + d->m_data.tag)
+
+    if (filePath.scheme() == Constants::DOCKER_DEVICE_SCHEME
+            && filePath.host() == QString(d->m_data.repo + ':' + d->m_data.tag))
         return true;
+
     return false;
 }
 

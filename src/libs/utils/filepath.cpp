@@ -340,17 +340,46 @@ QString FilePath::completeSuffix() const
     return {};
 }
 
-void FilePath::setScheme(const QString &scheme)
+void FilePath::setScheme(const QStringView scheme)
 {
     QTC_CHECK(!scheme.contains('/'));
-    m_scheme = scheme;
+    m_scheme = scheme.toString();
 }
 
-void FilePath::setHost(const QString &host)
+void FilePath::setHost(const QStringView host)
 {
-    m_host = host;
+    m_host = host.toString();
 }
 
+void FilePath::setPath(const QStringView path)
+{
+    setRootAndPath(path, HostOsInfo::hostOs());
+}
+
+QStringView FilePath::scheme() const
+{
+    return m_scheme;
+}
+
+QStringView FilePath::host() const
+{
+    return m_host;
+}
+
+QString FilePath::path() const
+{
+    return m_root + m_path;
+}
+
+QStringView FilePath::root() const
+{
+    return m_root;
+}
+
+void FilePath::setRoot(const QStringView root)
+{
+    m_root = root.toString();
+}
 
 /// \returns a bool indicating whether a file with this
 /// FilePath exists.

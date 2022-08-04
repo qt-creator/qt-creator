@@ -295,8 +295,8 @@ FilePath MacroExpander::expand(const FilePath &fileNameWithVariables) const
 {
     FilePath result = fileNameWithVariables;
     result.setPath(expand(result.path()));
-    result.setHost(expand(result.host()));
-    result.setScheme(expand(result.scheme()));
+    result.setHost(expand(result.host().toString()));
+    result.setScheme(expand(result.scheme().toString()));
     return result;
 }
 

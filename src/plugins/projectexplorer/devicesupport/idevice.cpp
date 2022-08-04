@@ -220,7 +220,7 @@ FilePath IDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
     // match DeviceManager::deviceForPath
     FilePath result;
     result.setPath(pathOnDevice.path());
-    result.setScheme("device");
+    result.setScheme(u"device");
     result.setHost(id().toString());
     return result;
 }
@@ -237,7 +237,7 @@ FilePath IDevice::filePath(const QString &pathOnDevice) const
 
 bool IDevice::handlesFile(const FilePath &filePath) const
 {
-    if (filePath.scheme() == "device" && filePath.host() == id().toString())
+    if (filePath.scheme() == u"device" && filePath.host() == id().toString())
         return true;
     return false;
 }
@@ -781,9 +781,9 @@ void IDevice::setMachineType(MachineType machineType)
 FilePath IDevice::rootPath() const
 {
     FilePath root;
-    root.setScheme("device");
+    root.setScheme(u"device");
     root.setHost(id().toString());
-    root.setPath("/");
+    root.setPath(u"/");
     return root;
 }
 

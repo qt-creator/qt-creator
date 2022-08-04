@@ -1048,20 +1048,20 @@ QString LinuxDevice::userAtHost() const
     return sshParameters().userAtHost();
 }
 
-Utils::FilePath LinuxDevice::rootPath() const
+FilePath LinuxDevice::rootPath() const
 {
-    Utils::FilePath root;
-    root.setScheme("ssh");
+    FilePath root;
+    root.setScheme(u"ssh");
     root.setHost(userAtHost());
-    root.setPath("/");
+    root.setPath(u"/");
     return root;
 }
 
 bool LinuxDevice::handlesFile(const FilePath &filePath) const
 {
-    if (filePath.scheme() == "device" && filePath.host() == id().toString())
+    if (filePath.scheme() == u"device" && filePath.host() == id().toString())
         return true;
-    if (filePath.scheme() == "ssh" && filePath.host() == userAtHost())
+    if (filePath.scheme() == u"ssh" && filePath.host() == userAtHost())
         return true;
     return false;
 }

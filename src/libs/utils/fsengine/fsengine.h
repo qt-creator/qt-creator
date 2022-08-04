@@ -51,8 +51,8 @@ public:
     static void addDevice(const Utils::FilePath &deviceRoot);
     static void removeDevice(const Utils::FilePath &deviceRoot);
 
-    static void registerDeviceScheme(const QString &scheme);
-    static void unregisterDeviceScheme(const QString &scheme);
+    static void registerDeviceScheme(const QStringView scheme);
+    static void unregisterDeviceScheme(const QStringView scheme);
     static QStringList registeredDeviceSchemes();
 
 private:

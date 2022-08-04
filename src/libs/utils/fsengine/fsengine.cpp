@@ -78,14 +78,14 @@ QStringList &FSEngine::deviceSchemes()
     return g_deviceSchemes;
 }
 
-void FSEngine::registerDeviceScheme(const QString &scheme)
+void FSEngine::registerDeviceScheme(const QStringView scheme)
 {
-    deviceSchemes().append(scheme);
+    deviceSchemes().append(scheme.toString());
 }
 
-void FSEngine::unregisterDeviceScheme(const QString &scheme)
+void FSEngine::unregisterDeviceScheme(const QStringView scheme)
 {
-    deviceSchemes().removeAll(scheme);
+    deviceSchemes().removeAll(scheme.toString());
 }
 
 QStringList FSEngine::registeredDeviceSchemes()

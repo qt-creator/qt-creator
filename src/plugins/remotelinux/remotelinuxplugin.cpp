@@ -117,12 +117,12 @@ static RemoteLinuxPluginPrivate *dd = nullptr;
 RemoteLinuxPlugin::RemoteLinuxPlugin()
 {
     setObjectName(QLatin1String("RemoteLinuxPlugin"));
-    FSEngine::registerDeviceScheme("ssh");
+    FSEngine::registerDeviceScheme(u"ssh");
 }
 
 RemoteLinuxPlugin::~RemoteLinuxPlugin()
 {
-    FSEngine::unregisterDeviceScheme("ssh");
+    FSEngine::unregisterDeviceScheme(u"ssh");
     delete dd;
 }
 

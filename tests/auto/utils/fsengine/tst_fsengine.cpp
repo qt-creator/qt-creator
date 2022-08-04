@@ -188,9 +188,9 @@ void tst_fsengine::initTestCase()
 void tst_fsengine::testFilePathFromToString()
 {
     FilePath p = FilePath::fromString("device://test/test.txt");
-    QCOMPARE(p.scheme(), "device");
-    QCOMPARE(p.host(), "test");
-    QCOMPARE(p.path(), "/test.txt");
+    QCOMPARE(p.scheme(), u"device");
+    QCOMPARE(p.host(), u"test");
+    QCOMPARE(p.path(), u"/test.txt");
 
     QString asString = p.toString();
     QCOMPARE(asString,
@@ -198,9 +198,9 @@ void tst_fsengine::testFilePathFromToString()
                  + "/test/test.txt");
 
     FilePath p2 = FilePath::fromString(asString);
-    QCOMPARE(p.scheme(), "device");
-    QCOMPARE(p.host(), "test");
-    QCOMPARE(p.path(), "/test.txt");
+    QCOMPARE(p.scheme(), u"device");
+    QCOMPARE(p.host(), u"test");
+    QCOMPARE(p.path(), u"/test.txt");
 }
 
 void tst_fsengine::testRootPathContainsFakeDir()
