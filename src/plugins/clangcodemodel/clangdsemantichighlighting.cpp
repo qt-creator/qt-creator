@@ -297,13 +297,9 @@ void doSemanticHighlighting(
                 const ClangdAstPath path = getAstPath(ast, tokenRange(token));
                 if (path.length() > 1) {
                     const ClangdAstNode declNode = path.at(path.length() - 2);
-                    if (declNode.kind() == "Function" || declNode.kind() == "CXXMethod") {
-                        if (clangdVersion < QVersionNumber(14)
-                                && declNode.arcanaContains("' virtual")) {
-                            styles.mainStyle = C_VIRTUAL_METHOD;
-                        }
-                        if (declNode.hasChildWithRole("statement"))
-                            styles.mixinStyles.push_back(C_FUNCTION_DEFINITION);
+                    if ((declNode.kind() == "Function" || declNode.kind() == "CXXMethod")
+                            && declNode.hasChildWithRole("statement")) {
+                        styles.mixinStyles.push_back(C_FUNCTION_DEFINITION);
                     }
                 }
             }
