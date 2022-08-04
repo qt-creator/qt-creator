@@ -88,8 +88,6 @@ static int preferedQtTarget(Target *target)
     return 5;
 }
 
-const char openInQDSAppSetting[] = "OpenInQDSApp";
-
 Utils::FilePaths QmlProject::getUiQmlFilesForFolder(const Utils::FilePath &folder)
 {
     const Utils::FilePaths uiFiles = files([&](const ProjectExplorer::Node *node) {

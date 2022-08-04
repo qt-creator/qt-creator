@@ -57,7 +57,8 @@ public:
                                          Utils::SmallStringView directoryPath) override;
 
 private:
-    ProjectStorage &m_storage;
-    PathCache &m_pathCache;
+    // m_pathCache and m_storage are only used when compiled for QDS
+    [[maybe_unused]] ProjectStorage &m_storage;
+    [[maybe_unused]] PathCache &m_pathCache;
 };
 } // namespace QmlDesigner

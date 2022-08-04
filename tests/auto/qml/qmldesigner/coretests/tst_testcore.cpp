@@ -9023,9 +9023,6 @@ void tst_TestCore::writeAnnotations()
                                   "  }\n"
                                   "}");
 
-    const QLatin1String metaCode("\n/*##^## Designer {\n    D{i:0;x:10}D{i:1;test:true;x:10;test2:\"string\"}"
-                                 "D{i:2;test:true;x:10;test2:\"string\"}\n}\n ##^##*/\n");
-
     QPlainTextEdit textEdit;
     textEdit.setPlainText(qmlCode);
     NotIndentingTextEditModifier textModifier(&textEdit);
