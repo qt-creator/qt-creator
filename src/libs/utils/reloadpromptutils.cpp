@@ -4,6 +4,7 @@
 #include "reloadpromptutils.h"
 
 #include "fileutils.h"
+#include "hostosinfo.h"
 
 #include <QDir>
 #include <QGuiApplication>

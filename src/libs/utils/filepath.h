@@ -6,7 +6,6 @@
 #include "utils_global.h"
 
 #include "osspecificaspects.h"
-#include "hostosinfo.h"
 
 #include <QDir>
 #include <QDirIterator>
@@ -48,9 +47,10 @@ class QTCREATOR_UTILS_EXPORT FilePath
 public:
     FilePath();
 
-    template <size_t N> FilePath(const char (&literal)[N], OsType osType = HostOsInfo::hostOs()) { setFromString(literal, osType); }
+    template <size_t N> FilePath(const char (&literal)[N]) { setFromString(literal); }
 
-    [[nodiscard]] static FilePath fromString(const QString &filepath, OsType osType = HostOsInfo::hostOs());
+    [[nodiscard]] static FilePath fromString(const QString &filepath);
+    [[nodiscard]] static FilePath fromStringAndOs(const QString &filepath, OsType osType);
     [[nodiscard]] static FilePath fromStringWithExtension(const QString &filepath, const QString &defaultExtension);
     [[nodiscard]] static FilePath fromUserInput(const QString &filepath);
     [[nodiscard]] static FilePath fromUtf8(const char *filepath, int filepathSize = -1);
@@ -205,7 +205,8 @@ private:
     friend class ::tst_fileutils;
     static QString calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath);
     void setRootAndPath(QStringView path, OsType osType);
-    void setFromString(const QString &filepath, OsType osType);
+    void setFromString(const QString &filepath);
+    void setFromStringAndOs(const QString &filepath, OsType osType);
     [[nodiscard]] QString mapToDevicePath() const;
 
     QString m_scheme;

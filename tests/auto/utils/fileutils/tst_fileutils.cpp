@@ -374,7 +374,7 @@ void tst_fileutils::fromString()
     QFETCH(QString, path);
     QFETCH(OsType, osType);
 
-    FilePath filePath = FilePath::fromString(input, osType);
+    FilePath filePath = FilePath::fromStringAndOs(input, osType);
     QCOMPARE(filePath.scheme(), scheme);
     QCOMPARE(filePath.host(), host);
     QCOMPARE(filePath.path(), path);
@@ -715,8 +715,8 @@ void tst_fileutils::startsWithDriveLetter_data()
     QTest::addColumn<bool>("expected");
 
     QTest::newRow("empty") << FilePath() << false;
-    QTest::newRow("simple-win") << FilePath("c:/a", OsType::OsTypeWindows) << true;
-    QTest::newRow("simple-linux") << FilePath("/c:/a", OsType::OsTypeLinux) << false;
+    QTest::newRow("simple-win") << FilePath::fromStringAndOs("c:/a", OsType::OsTypeWindows) << true;
+    QTest::newRow("simple-linux") << FilePath::fromStringAndOs("/c:/a", OsType::OsTypeLinux) << false;
     QTest::newRow("relative") << FilePath("a/b") << false;
 }
 

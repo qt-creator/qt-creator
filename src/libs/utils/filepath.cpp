@@ -740,14 +740,22 @@ QString FilePath::displayName(const QString &args) const
 
    \sa toString, fromUserInput
 */
-FilePath FilePath::fromString(const QString &filepath, OsType osType)
+FilePath FilePath::fromString(const QString &filepath)
 {
     FilePath fn;
-    fn.setFromString(filepath, osType);
+    fn.setFromString(filepath);
     return fn;
 }
 
-bool isWindowsDriveLetter(QChar ch) {
+FilePath FilePath::fromStringAndOs(const QString &filepath, OsType osType)
+{
+    FilePath fn;
+    fn.setFromStringAndOs(filepath, osType);
+    return fn;
+}
+
+bool isWindowsDriveLetter(QChar ch)
+{
     return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
 }
 
@@ -817,7 +825,12 @@ void FilePath::setRootAndPath(QStringView path, OsType osType)
     }
 }
 
-void FilePath::setFromString(const QString &filename, OsType osType)
+void FilePath::setFromString(const QString &fileName)
+{
+    setFromStringAndOs(fileName, HostOsInfo::hostOs());
+}
+
+void FilePath::setFromStringAndOs(const QString &filename, OsType osType)
 {
     static const QLatin1String qtcDevSlash("__qtc_devices__/");
     static const QLatin1String colonSlashSlash("://");
