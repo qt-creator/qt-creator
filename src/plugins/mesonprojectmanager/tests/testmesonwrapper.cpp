@@ -55,6 +55,10 @@ private slots:
                                                                + "/mesontest-XXXXXX");
         Utils::LauncherInterface::setPathToLauncher(qApp->applicationDirPath() + '/'
                                                     + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
+
+        const auto path = MesonWrapper::find();
+        if (!path)
+            QSKIP("Meson not found");
     }
 
     void shouldFindMesonFromPATH()
