@@ -304,7 +304,7 @@ CppEditor::BaseEditorDocumentProcessor *ClangModelManagerSupport::createEditorDo
         TextEditor::TextDocument *baseTextDocument)
 {
     const auto processor = new ClangEditorDocumentProcessor(baseTextDocument);
-    const auto handleConfigChange = [this](const Utils::FilePath &fp,
+    const auto handleConfigChange = [](const Utils::FilePath &fp,
             const BaseEditorDocumentParser::Configuration &config) {
         if (const auto client = clientForFile(fp))
             client->updateParserConfig(fp, config);
@@ -598,7 +598,7 @@ void ClangModelManagerSupport::watchForExternalChanges()
 void ClangModelManagerSupport::watchForInternalChanges()
 {
     connect(Core::DocumentManager::instance(), &Core::DocumentManager::filesChangedInternally,
-            this, [this](const Utils::FilePaths &filePaths) {
+            this, [](const Utils::FilePaths &filePaths) {
         for (const Utils::FilePath &fp : filePaths) {
             ClangdClient * const client = clientForFile(fp);
             if (!client || client->documentForFilePath(fp))

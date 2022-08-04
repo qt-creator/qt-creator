@@ -473,7 +473,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
         }
     });
 
-    connect(this, &Client::initialized, this, [this] {
+    connect(this, &Client::initialized, this, [] {
         auto currentDocumentFilter = static_cast<ClangdCurrentDocumentFilter *>(
             CppEditor::CppModelManager::instance()->currentDocumentFilter());
         currentDocumentFilter->updateCurrentClient();
