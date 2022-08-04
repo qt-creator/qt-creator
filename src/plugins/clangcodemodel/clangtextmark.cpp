@@ -294,7 +294,7 @@ ClangdTextMark::ClangdTextMark(const FilePath &filePath,
     , m_diagnostic(convertDiagnostic(ClangdDiagnostic(diagnostic), filePath))
     , m_client(client)
 {
-    setSettingsPage(CppEditor::Constants::CPP_CODE_MODEL_SETTINGS_ID);
+    setSettingsPage(CppEditor::Constants::CPP_CLANGD_SETTINGS_ID);
 
     const bool isError = diagnostic.severity()
             && *diagnostic.severity() == DiagnosticSeverity::Error;
