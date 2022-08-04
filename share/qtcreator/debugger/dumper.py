@@ -2953,6 +2953,8 @@ class DumperBase():
 
     class Value():
         def __init__(self, dumper):
+            # This can be helpful to track down from where a Value was created
+            #self._stack = inspect.stack()
             self.dumper = dumper
             self.name = None
             self._type = None
@@ -3998,16 +4000,21 @@ class DumperBase():
             return typeobj
         raise RuntimeError('NEED TYPE, NOT %s' % type(typish))
 
-    def createValue(self, datish, typish):
+    def createValueFromAddressAndType(self, address, typish):
         val = self.Value(self)
         val._type = self.createType(typish)
+        #DumperBase.warn('CREATING %s AT 0x%x' % (val.type.name, datish))
+        val.laddress = address
+        if self.useDynamicType:
+            val._type = val.type.dynamicType(address)
+        return val
+
+    def createValue(self, datish, typish):
         if self.isInt(datish):  # Used as address.
-            #DumperBase.warn('CREATING %s AT 0x%x' % (val.type.name, datish))
-            val.laddress = datish
-            if self.useDynamicType:
-                val._type = val.type.dynamicType(datish)
-            return val
+            return self.createValueFromAddressAndType(datish, typish)
         if isinstance(datish, bytes):
+            val = self.Value(self)
+            val._type = self.createType(typish)
             #DumperBase.warn('CREATING %s WITH DATA %s' % (val.type.name, self.hexencode(datish)))
             val.ldata = datish
             val.check()

@@ -30,9 +30,10 @@ set(resource_files
   debugger/pdbbridge.py
   debugger/personaltypes.py
   debugger/qttypes.py
-  debugger/qttypes.py
   debugger/README.txt
   debugger/setup.cfg
+  debugger/android_stdtypes.py
+  debugger/mac_stdtypes.py
   debugger/stdtypes.py
   debugger/utils.py
 )
