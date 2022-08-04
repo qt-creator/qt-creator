@@ -154,15 +154,6 @@ void Keyframe::setPosition(const QPointF &pos)
     m_position = pos;
 }
 
-void Keyframe::setDefaultInterpolation()
-{
-    auto leftToRight = QLineF(m_leftHandle, m_rightHandle);
-    leftToRight.translate(m_position - leftToRight.center());
-
-    m_leftHandle = leftToRight.p1();
-    m_rightHandle = leftToRight.p2();
-}
-
 void Keyframe::setUnified(bool unified)
 {
     m_unified = unified;

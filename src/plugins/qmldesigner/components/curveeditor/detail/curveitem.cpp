@@ -458,18 +458,6 @@ void CurveItem::setInterpolation(Keyframe::Interpolation interpolation)
     emit curveChanged(id(), curve(true));
 }
 
-void CurveItem::setDefaultInterpolation()
-{
-    if (m_keyframes.empty())
-        return;
-
-    for (auto *frame : qAsConst(m_keyframes)) {
-        if (frame->selected())
-            frame->setDefaultInterpolation();
-    }
-    emit curveChanged(id(), curve(true));
-}
-
 void CurveItem::toggleUnified()
 {
     if (m_keyframes.empty())

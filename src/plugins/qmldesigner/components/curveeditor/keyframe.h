@@ -68,8 +68,6 @@ public:
 
     Interpolation interpolation() const;
 
-    void setDefaultInterpolation();
-
     void setUnified(bool unified);
 
     void setPosition(const QPointF &pos);

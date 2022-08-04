@@ -49,6 +49,8 @@ class GraphicsView : public QGraphicsView
 signals:
     void currentFrameChanged(int frame, bool notify);
 
+    void zoomChanged(double x, double y);
+
 public:
     GraphicsView(CurveEditorModel *model, QWidget *parent = nullptr);
 
@@ -111,8 +113,6 @@ public:
     void updateSelection();
 
     void setInterpolation(Keyframe::Interpolation interpol);
-
-    void setDefaultInterpolation();
 
     void toggleUnified();
 

@@ -125,8 +125,6 @@ public:
 
     void setInterpolation(Keyframe::Interpolation interpolation);
 
-    void setDefaultInterpolation();
-
     void toggleUnified();
 
     void connect(GraphicsScene *scene);
