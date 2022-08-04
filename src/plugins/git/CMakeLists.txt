@@ -2,7 +2,7 @@ add_qtc_plugin(Git
   PLUGIN_DEPENDS Core DiffEditor TextEditor VcsBase
   SOURCES
     annotationhighlighter.cpp annotationhighlighter.h
-    branchadddialog.cpp branchadddialog.h branchadddialog.ui
+    branchadddialog.cpp branchadddialog.h
     branchcheckoutdialog.cpp branchcheckoutdialog.h branchcheckoutdialog.ui
     branchmodel.cpp branchmodel.h
     branchview.cpp branchview.h

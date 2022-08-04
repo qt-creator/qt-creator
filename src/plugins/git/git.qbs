@@ -18,7 +18,6 @@ QtcPlugin {
         "annotationhighlighter.h",
         "branchadddialog.cpp",
         "branchadddialog.h",
-        "branchadddialog.ui",
         "branchcheckoutdialog.cpp",
         "branchcheckoutdialog.h",
         "branchcheckoutdialog.ui",

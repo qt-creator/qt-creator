@@ -28,12 +28,16 @@
 #include <QDialog>
 #include <QItemDelegate>
 
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QDialogButtonBox;
+class QLineEdit;
+QT_BEGIN_NAMESPACE
+
 namespace Git {
 namespace Internal {
 
 class BranchModel;
-
-namespace Ui { class BranchAddDialog; }
 
 class BranchValidationDelegate : public QItemDelegate
 {
@@ -74,7 +78,10 @@ public:
 private:
     void updateButtonStatus();
 
-    Ui::BranchAddDialog *m_ui;
+    QLineEdit *m_branchNameEdit;
+    QCheckBox *m_checkoutCheckBox;
+    QCheckBox *m_trackingCheckBox;
+    QDialogButtonBox *m_buttonBox;
 };
 
 } // namespace Internal
