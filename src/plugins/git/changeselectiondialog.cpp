@@ -24,18 +24,21 @@
 ****************************************************************************/
 
 #include "changeselectiondialog.h"
+
 #include "logchangedialog.h"
 #include "gitclient.h"
-#include "ui_changeselectiondialog.h"
 
 #include <coreplugin/vcsmanager.h>
 
+#include <utils/completinglineedit.h>
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
 
 #include <vcsbase/vcscommand.h>
 
+#include <QApplication>
 #include <QCompleter>
 #include <QDir>
 #include <QFileDialog>
@@ -56,63 +59,97 @@ namespace Internal {
 
 ChangeSelectionDialog::ChangeSelectionDialog(const FilePath &workingDirectory, Id id,
                                              QWidget *parent) :
-    QDialog(parent), m_ui(new Ui::ChangeSelectionDialog)
+    QDialog(parent)
 {
     m_gitExecutable = GitClient::instance()->vcsBinary();
-    m_ui->setupUi(this);
-    m_ui->workingDirectoryChooser->setExpectedKind(PathChooser::ExistingDirectory);
-    m_ui->workingDirectoryChooser->setPromptDialogTitle(tr("Select Git Directory"));
-    m_ui->workingDirectoryChooser->setFilePath(workingDirectory);
     m_gitEnvironment = GitClient::instance()->processEnvironment();
-    m_ui->changeNumberEdit->setFocus();
-    m_ui->changeNumberEdit->selectAll();
 
-    connect(m_ui->changeNumberEdit, &CompletingLineEdit::textChanged,
+    resize(550, 350);
+    setWindowTitle(tr("Select a Git Commit"));
+
+    m_workingDirectoryChooser = new PathChooser(this);
+
+    m_changeNumberEdit = new CompletingLineEdit(this);
+    m_changeNumberEdit->setText(tr("HEAD"));
+    m_changeNumberEdit->setFocus();
+    m_changeNumberEdit->selectAll();
+
+    m_detailsText = new QPlainTextEdit(this);
+    m_detailsText->setUndoRedoEnabled(false);
+    m_detailsText->setLineWrapMode(QPlainTextEdit::NoWrap);
+    m_detailsText->setReadOnly(true);
+
+    auto selectFromHistoryButton = new QPushButton(tr("Browse &History..."));
+    auto closeButton = new QPushButton(tr("&Close"));
+    auto archiveButton = new QPushButton(tr("&Archive..."));
+
+    m_checkoutButton = new QPushButton(tr("Check&out"));
+    m_revertButton = new QPushButton(tr("&Revert"));
+    m_cherryPickButton = new QPushButton(tr("Cherry &Pick"));
+    m_showButton = new QPushButton(tr("&Show"));
+
+    m_workingDirectoryChooser->setExpectedKind(PathChooser::ExistingDirectory);
+    m_workingDirectoryChooser->setPromptDialogTitle(tr("Select Git Directory"));
+    m_workingDirectoryChooser->setFilePath(workingDirectory);
+
+    using namespace Layouting;
+    Column {
+        Grid {
+            tr("Working directory:"), m_workingDirectoryChooser, br,
+            tr("Change:"), m_changeNumberEdit, selectFromHistoryButton,
+        },
+        m_detailsText,
+        Row {
+            closeButton, st, archiveButton, m_checkoutButton,
+            m_revertButton, m_cherryPickButton, m_showButton
+        }
+    }.attachTo(this);
+
+    connect(m_changeNumberEdit, &CompletingLineEdit::textChanged,
             this, &ChangeSelectionDialog::changeTextChanged);
-    connect(m_ui->workingDirectoryChooser, &PathChooser::filePathChanged,
+    connect(m_workingDirectoryChooser, &PathChooser::filePathChanged,
             this, &ChangeSelectionDialog::recalculateDetails);
-    connect(m_ui->workingDirectoryChooser, &PathChooser::filePathChanged,
+    connect(m_workingDirectoryChooser, &PathChooser::filePathChanged,
             this, &ChangeSelectionDialog::recalculateCompletion);
-    connect(m_ui->selectFromHistoryButton, &QPushButton::clicked,
+    connect(selectFromHistoryButton, &QPushButton::clicked,
             this, &ChangeSelectionDialog::selectCommitFromRecentHistory);
-    connect(m_ui->showButton, &QPushButton::clicked,
+    connect(m_showButton, &QPushButton::clicked,
             this, std::bind(&ChangeSelectionDialog::acceptCommand, this, Show));
-    connect(m_ui->cherryPickButton, &QPushButton::clicked,
+    connect(m_cherryPickButton, &QPushButton::clicked,
             this, std::bind(&ChangeSelectionDialog::acceptCommand, this, CherryPick));
-    connect(m_ui->revertButton, &QPushButton::clicked,
+    connect(m_revertButton, &QPushButton::clicked,
             this, std::bind(&ChangeSelectionDialog::acceptCommand, this, Revert));
-    connect(m_ui->checkoutButton, &QPushButton::clicked,
+    connect(m_checkoutButton, &QPushButton::clicked,
             this, std::bind(&ChangeSelectionDialog::acceptCommand, this, Checkout));
-    connect(m_ui->archiveButton, &QPushButton::clicked,
+    connect(archiveButton, &QPushButton::clicked,
             this, std::bind(&ChangeSelectionDialog::acceptCommand, this, Archive));
 
     if (id == "Git.Revert")
-        m_ui->revertButton->setDefault(true);
+        m_revertButton->setDefault(true);
     else if (id == "Git.CherryPick")
-        m_ui->cherryPickButton->setDefault(true);
+        m_cherryPickButton->setDefault(true);
     else if (id == "Git.Checkout")
-        m_ui->checkoutButton->setDefault(true);
+        m_checkoutButton->setDefault(true);
     else if (id == "Git.Archive")
-        m_ui->archiveButton->setDefault(true);
+        archiveButton->setDefault(true);
     else
-        m_ui->showButton->setDefault(true);
+        m_showButton->setDefault(true);
     m_changeModel = new QStringListModel(this);
     auto changeCompleter = new QCompleter(m_changeModel, this);
-    m_ui->changeNumberEdit->setCompleter(changeCompleter);
+    m_changeNumberEdit->setCompleter(changeCompleter);
     changeCompleter->setCaseSensitivity(Qt::CaseInsensitive);
 
     recalculateDetails();
     recalculateCompletion();
+
+    connect(closeButton, &QPushButton::clicked, this, &QDialog::reject);
 }
 
-ChangeSelectionDialog::~ChangeSelectionDialog()
-{
-    delete m_ui;
-}
+ChangeSelectionDialog::~ChangeSelectionDialog() = default;
 
 QString ChangeSelectionDialog::change() const
 {
-    return m_ui->changeNumberEdit->text().trimmed();
+    return m_changeNumberEdit->text().trimmed();
 }
 
 void ChangeSelectionDialog::selectCommitFromRecentHistory()
@@ -133,12 +170,12 @@ void ChangeSelectionDialog::selectCommitFromRecentHistory()
     if (dialog.result() == QDialog::Rejected || dialog.commitIndex() == -1)
         return;
 
-    m_ui->changeNumberEdit->setText(dialog.commit());
+    m_changeNumberEdit->setText(dialog.commit());
 }
 
 FilePath ChangeSelectionDialog::workingDirectory() const
 {
-    const FilePath workingDir = m_ui->workingDirectoryChooser->filePath();
+    const FilePath workingDir = m_workingDirectoryChooser->filePath();
     if (workingDir.isEmpty() || !workingDir.exists())
         return {};
 
@@ -163,25 +200,25 @@ void ChangeSelectionDialog::setDetails()
 
     QPalette palette;
     if (m_process->result() == ProcessResult::FinishedWithSuccess) {
-        m_ui->detailsText->setPlainText(m_process->cleanedStdOut());
+        m_detailsText->setPlainText(m_process->cleanedStdOut());
         palette.setColor(QPalette::Text, theme->color(Theme::TextColorNormal));
-        m_ui->changeNumberEdit->setPalette(palette);
+        m_changeNumberEdit->setPalette(palette);
     } else if (m_process->result() == ProcessResult::StartFailed) {
-        m_ui->detailsText->setPlainText(tr("Error: Could not start Git."));
+        m_detailsText->setPlainText(tr("Error: Could not start Git."));
     } else {
-        m_ui->detailsText->setPlainText(tr("Error: Unknown reference"));
+        m_detailsText->setPlainText(tr("Error: Unknown reference"));
         palette.setColor(QPalette::Text, theme->color(Theme::TextColorError));
-        m_ui->changeNumberEdit->setPalette(palette);
+        m_changeNumberEdit->setPalette(palette);
         enableButtons(false);
     }
 }
 
 void ChangeSelectionDialog::enableButtons(bool b)
 {
-    m_ui->showButton->setEnabled(b);
-    m_ui->cherryPickButton->setEnabled(b);
-    m_ui->revertButton->setEnabled(b);
-    m_ui->checkoutButton->setEnabled(b);
+    m_showButton->setEnabled(b);
+    m_cherryPickButton->setEnabled(b);
+    m_revertButton->setEnabled(b);
+    m_checkoutButton->setEnabled(b);
 }
 
 void ChangeSelectionDialog::recalculateCompletion()
@@ -209,13 +246,13 @@ void ChangeSelectionDialog::recalculateDetails()
 
     const FilePath workingDir = workingDirectory();
     if (workingDir.isEmpty()) {
-        m_ui->detailsText->setPlainText(tr("Error: Bad working directory."));
+        m_detailsText->setPlainText(tr("Error: Bad working directory."));
         return;
     }
 
     const QString ref = change();
     if (ref.isEmpty()) {
-        m_ui->detailsText->clear();
+        m_detailsText->clear();
         return;
     }
 
@@ -225,12 +262,12 @@ void ChangeSelectionDialog::recalculateDetails()
     m_process->setEnvironment(m_gitEnvironment);
     m_process->setCommand({m_gitExecutable, {"show", "--decorate", "--stat=80", ref}});
     m_process->start();
-    m_ui->detailsText->setPlainText(tr("Fetching commit data..."));
+    m_detailsText->setPlainText(tr("Fetching commit data..."));
 }
 
 void ChangeSelectionDialog::changeTextChanged(const QString &text)
 {
-    if (QCompleter *comp = m_ui->changeNumberEdit->completer()) {
+    if (QCompleter *comp = m_changeNumberEdit->completer()) {
         if (text.isEmpty() && !comp->popup()->isVisible()) {
             comp->setCompletionPrefix(text);
             QTimer::singleShot(0, comp, [comp]{ comp->complete(); });

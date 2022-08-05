@@ -26,7 +26,6 @@ QtcPlugin {
         "branchview.h",
         "changeselectiondialog.cpp",
         "changeselectiondialog.h",
-        "changeselectiondialog.ui",
         "commitdata.cpp",
         "commitdata.h",
         "git.qrc",

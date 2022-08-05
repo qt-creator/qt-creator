@@ -26,16 +26,22 @@
 #pragma once
 
 #include <utils/environment.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/id.h>
 
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
+class QPlainTextEdit;
+class QPushButton;
 class QStringListModel;
 QT_END_NAMESPACE
 
-namespace Utils { class QtcProcess; }
+namespace Utils {
+class CompletingLineEdit;
+class PathChooser;
+class QtcProcess;
+} // Utils
 
 namespace Git {
 namespace Internal {
@@ -48,8 +54,6 @@ enum ChangeCommand {
     Revert,
     Show
 };
-
-namespace Ui { class ChangeSelectionDialog; }
 
 class ChangeSelectionDialog : public QDialog
 {
@@ -73,14 +77,20 @@ private:
 
     void enableButtons(bool b);
 
-    Ui::ChangeSelectionDialog *m_ui;
-
     std::unique_ptr<Utils::QtcProcess> m_process;
     Utils::FilePath m_gitExecutable;
     Utils::Environment m_gitEnvironment;
     ChangeCommand m_command = NoCommand;
     QStringListModel *m_changeModel = nullptr;
     Utils::FilePath m_oldWorkingDir;
+
+    Utils::PathChooser *m_workingDirectoryChooser;
+    Utils::CompletingLineEdit *m_changeNumberEdit;
+    QPlainTextEdit *m_detailsText;
+    QPushButton *m_checkoutButton;
+    QPushButton *m_revertButton;
+    QPushButton *m_cherryPickButton;
+    QPushButton *m_showButton;
 };
 
 } // namespace Internal
