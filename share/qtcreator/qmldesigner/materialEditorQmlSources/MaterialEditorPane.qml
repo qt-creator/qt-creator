@@ -31,6 +31,8 @@ PropertyEditorPane {
     id: itemPane
 
     signal toolBarAction(int action)
+    signal previewEnvChanged(string env)
+    signal previewModelChanged(string model)
 
     // invoked from C++ to refresh material preview image
     function refreshPreview()
@@ -38,10 +40,25 @@ PropertyEditorPane {
         topSection.refreshPreview()
     }
 
+    // Called also from C++ to close context menu on focus out
+    function closeContextMenu()
+    {
+        topSection.closeContextMenu()
+    }
+
+    // Called from C++ to initialize preview menu checkmarks
+    function initPreviewData(env, model)
+    {
+        topSection.previewEnv = env;
+        topSection.previewModel = model
+    }
+
     MaterialEditorTopSection {
         id: topSection
 
         onToolBarAction: (action) => itemPane.toolBarAction(action)
+        onPreviewEnvChanged: itemPane.previewEnvChanged(previewEnv)
+        onPreviewModelChanged: itemPane.previewModelChanged(previewModel)
     }
 
     Item { width: 1; height: 10 }

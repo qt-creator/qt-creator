@@ -660,7 +660,8 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
                                             const QVariant &value)
 {
     QTC_ASSERT(m_nodeInstanceServer, return);
-    const bool forceAuxChange = name == "invisible" || name == "locked" || name == "rotBlocked@Internal";
+    const bool forceAuxChange = name == "invisible" || name == "locked"
+            || name == "rotBlocked@Internal" || name.startsWith("matPrev");
     if (((node.isRootNode() && (name == "width" || name == "height")) || forceAuxChange)
             || name.endsWith(PropertyName("@NodeInstance"))) {
         if (hasInstanceForModelNode(node)) {

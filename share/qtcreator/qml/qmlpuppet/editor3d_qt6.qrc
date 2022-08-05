@@ -18,6 +18,8 @@
         <file>mockfiles/images/floor_tex.png</file>
         <file>mockfiles/images/spot.png</file>
         <file>mockfiles/images/spot@2x.png</file>
+        <file>mockfiles/images/preview_landscape.hdr</file>
+        <file>mockfiles/images/preview_studio.hdr</file>
         <file>mockfiles/qt6/AdjustableArrow.qml</file>
         <file>mockfiles/qt6/AreaLightHandle.qml</file>
         <file>mockfiles/qt6/Arrow.qml</file>

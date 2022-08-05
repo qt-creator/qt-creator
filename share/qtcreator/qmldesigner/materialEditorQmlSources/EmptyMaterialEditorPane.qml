@@ -33,6 +33,12 @@ PropertyEditorPane {
     id: root
 
     signal toolBarAction(int action)
+    signal previewEnvChanged(string env)
+    signal previewModelChanged(string model)
+
+    // Called from C++, dummy methods to avoid warnings
+    function closeContextMenu() {}
+    function initPreviewData(env, model) {}
 
     Column {
         id: col

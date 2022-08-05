@@ -284,6 +284,10 @@ void MaterialBrowserView::customNotification(const AbstractView *view, const QSt
         int idx = m_widget->materialBrowserModel()->materialIndex(nodeList.first());
         if (idx != -1)
             m_widget->materialBrowserModel()->selectMaterial(idx);
+    } else if (identifier == "refresh_material_browser") {
+        QTimer::singleShot(0, this, [this]() {
+            refreshModel(true);
+        });
     }
 }
 

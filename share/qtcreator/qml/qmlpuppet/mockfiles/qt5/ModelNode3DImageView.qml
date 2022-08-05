@@ -50,25 +50,28 @@ Item {
             view.destroy();
     }
 
-    function createViewForObject(obj)
+    function createViewForObject(obj, env, envValue, model)
     {
         if (obj instanceof Material)
-            createViewForMaterial(obj);
+            createViewForMaterial(obj, env, envValue, model);
         else if (obj instanceof Model)
             createViewForModel(obj);
         else if (obj instanceof Node)
             createViewForNode(obj);
     }
 
-    function createViewForMaterial(material)
+    function createViewForMaterial(material, env, envValue, model)
     {
         if (!materialViewComponent)
             materialViewComponent = Qt.createComponent("MaterialNodeView.qml");
 
         // Always recreate the view to ensure material is up to date
-        if (materialViewComponent.status === Component.Ready)
-            view = materialViewComponent.createObject(viewRect, {"previewMaterial": material});
-
+        if (materialViewComponent.status === Component.Ready) {
+            view = materialViewComponent.createObject(viewRect, {"previewMaterial": material,
+                                                                 "envMode": env,
+                                                                 "envValue": envValue,
+                                                                 "modelSrc": model});
+        }
         previewObject = material;
     }
 

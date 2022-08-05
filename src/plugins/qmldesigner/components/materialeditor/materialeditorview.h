@@ -27,12 +27,14 @@
 
 #include <abstractview.h>
 #include <QHash>
+#include <QPointer>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QShortcut;
 class QStackedWidget;
 class QTimer;
+class QColorDialog;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -87,10 +89,13 @@ public:
 
 public slots:
     void handleToolBarAction(int action);
+    void handlePreviewEnvChanged(const QString &envAndValue);
+    void handlePreviewModelChanged(const QString &modelStr);
 
 protected:
     void timerEvent(QTimerEvent *event) override;
     void setValue(const QmlObjectNode &fxObjectNode, const PropertyName &name, const QVariant &value);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     static QString materialEditorResourcesPath();
@@ -113,6 +118,8 @@ private:
 
     bool noValidSelection() const;
 
+    void initPreviewData();
+
     ModelNode m_selectedMaterial;
     QTimer m_ensureMatLibTimer;
     QShortcut *m_updateShortcut = nullptr;
@@ -124,6 +131,8 @@ private:
     bool m_locked = false;
     bool m_setupCompleted = false;
     bool m_hasQuick3DImport = false;
+
+    QPointer<QColorDialog> m_colorDialog;
 };
 
 } // namespace QmlDesigner

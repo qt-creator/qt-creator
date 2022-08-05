@@ -62,6 +62,7 @@
 #include <QStackedWidget>
 #include <QShortcut>
 #include <QTimer>
+#include <QColorDialog>
 
 namespace QmlDesigner {
 
@@ -442,6 +443,90 @@ void MaterialEditorView::handleToolBarAction(int action)
     }
 }
 
+void MaterialEditorView::handlePreviewEnvChanged(const QString &envAndValue)
+{
+    if (envAndValue.isEmpty())
+        return;
+
+    QTC_ASSERT(m_hasQuick3DImport, return);
+    QTC_ASSERT(model(), return);
+    QTC_ASSERT(model()->nodeInstanceView(), return);
+
+    QStringList parts = envAndValue.split('=');
+    QString env = parts[0];
+    QString value;
+    if (parts.size() > 1)
+        value = parts[1];
+
+    PropertyName matPrevEnvAuxProp("matPrevEnv");
+    PropertyName matPrevEnvValueAuxProp("matPrevEnvValue");
+
+    auto renderPreviews = [=](const QString &auxEnv, const QString &auxValue) {
+        ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
+        QTC_ASSERT(matLib.isValid(), return);
+        matLib.setAuxiliaryData(matPrevEnvAuxProp, auxEnv);
+        matLib.setAuxiliaryData(matPrevEnvValueAuxProp, auxValue);
+        QTimer::singleShot(0, this, &MaterialEditorView::requestPreviewRender);
+        emitCustomNotification("refresh_material_browser", {});
+    };
+
+    if (env == "Color") {
+        m_colorDialog.clear();
+
+        ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
+        QTC_ASSERT(matLib.isValid(), return);
+        // Store color to separate property to persist selection over non-color env changes
+        PropertyName colorAuxProp("matPrevColor");
+        QString oldColor = matLib.auxiliaryData(colorAuxProp).toString();
+        QString oldEnv = matLib.auxiliaryData(matPrevEnvAuxProp).toString();
+        QString oldValue = matLib.auxiliaryData(matPrevEnvValueAuxProp).toString();
+
+        m_colorDialog = new QColorDialog(Core::ICore::dialogParent());
+        m_colorDialog->setModal(true);
+        m_colorDialog->setAttribute(Qt::WA_DeleteOnClose);
+        m_colorDialog->setCurrentColor(QColor(oldColor));
+        m_colorDialog->show();
+
+        QObject::connect(m_colorDialog, &QColorDialog::currentColorChanged,
+                         m_colorDialog, [=](const QColor &color) {
+            renderPreviews(env, color.name());
+        });
+
+        QObject::connect(m_colorDialog, &QColorDialog::colorSelected,
+                         m_colorDialog, [=](const QColor &color) {
+            renderPreviews(env, color.name());
+            ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
+            QTC_ASSERT(matLib.isValid(), return);
+            matLib.setAuxiliaryData(colorAuxProp, color.name());
+        });
+
+        QObject::connect(m_colorDialog, &QColorDialog::rejected,
+                         m_colorDialog, [=]() {
+            renderPreviews(oldEnv, oldValue);
+            initPreviewData();
+        });
+        return;
+    }
+    renderPreviews(env, value);
+}
+
+void MaterialEditorView::handlePreviewModelChanged(const QString &modelStr)
+{
+    if (modelStr.isEmpty())
+        return;
+
+    QTC_ASSERT(m_hasQuick3DImport, return);
+    QTC_ASSERT(model(), return);
+    QTC_ASSERT(model()->nodeInstanceView(), return);
+
+    ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
+    QTC_ASSERT(matLib.isValid(), return);
+    matLib.setAuxiliaryData("matPrevModel", modelStr);
+
+    QTimer::singleShot(0, this, &MaterialEditorView::requestPreviewRender);
+    emitCustomNotification("refresh_material_browser", {});
+}
+
 void MaterialEditorView::setupQmlBackend()
 {
     QUrl qmlPaneUrl;
@@ -472,17 +557,24 @@ void MaterialEditorView::setupQmlBackend()
 
         currentQmlBackend->setSource(qmlPaneUrl);
 
-        QObject::connect(currentQmlBackend->widget()->rootObject(), SIGNAL(toolBarAction(int)),
+        QObject *rootObj = currentQmlBackend->widget()->rootObject();
+        QObject::connect(rootObj, SIGNAL(toolBarAction(int)),
                          this, SLOT(handleToolBarAction(int)));
+        QObject::connect(rootObj, SIGNAL(previewEnvChanged(QString)),
+                         this, SLOT(handlePreviewEnvChanged(QString)));
+        QObject::connect(rootObj, SIGNAL(previewModelChanged(QString)),
+                         this, SLOT(handlePreviewModelChanged(QString)));
     } else {
         currentQmlBackend->setup(m_selectedMaterial, currentStateName, qmlSpecificsUrl, this);
     }
 
+    currentQmlBackend->widget()->installEventFilter(this);
     currentQmlBackend->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
 
     m_stackedWidget->setCurrentWidget(currentQmlBackend->widget());
 
     m_qmlBackEnd = currentQmlBackend;
+    initPreviewData();
 }
 
 void MaterialEditorView::commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value)
@@ -526,6 +618,29 @@ bool MaterialEditorView::noValidSelection() const
 {
     QTC_ASSERT(m_qmlBackEnd, return true);
     return !QmlObjectNode::isValidQmlObjectNode(m_selectedMaterial);
+}
+
+void MaterialEditorView::initPreviewData()
+{
+    if (model() && m_qmlBackEnd) {
+        ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
+        if (matLib.isValid()) {
+            QString env = matLib.auxiliaryData("matPrevEnv").toString();
+            QString envValue = matLib.auxiliaryData("matPrevEnvValue").toString();
+            QString modelStr = matLib.auxiliaryData("matPrevModel").toString();
+            if (!envValue.isEmpty() && env != "Color" && env != "Default") {
+                env += '=';
+                env += envValue;
+            }
+            if (env.isEmpty())
+                env = "Default";
+            if (modelStr.isEmpty())
+                modelStr = "#Sphere";
+            QMetaObject::invokeMethod(m_qmlBackEnd->widget()->rootObject(),
+                                      "initPreviewData",
+                                      Q_ARG(QVariant, env), Q_ARG(QVariant, modelStr));
+        }
+    }
 }
 
 void MaterialEditorView::modelAttached(Model *model)
@@ -842,6 +957,15 @@ void MaterialEditorView::setValue(const QmlObjectNode &qmlObjectNode, const Prop
     m_locked = true;
     m_qmlBackEnd->setValue(qmlObjectNode, name, value);
     m_locked = false;
+}
+
+bool MaterialEditorView::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::FocusOut) {
+        if (m_qmlBackEnd && m_qmlBackEnd->widget() == obj)
+            QMetaObject::invokeMethod(m_qmlBackEnd->widget()->rootObject(), "closeContextMenu");
+    }
+    return QObject::eventFilter(obj, event);
 }
 
 void MaterialEditorView::reloadQml()
