@@ -434,6 +434,7 @@ public:
 
 private:
     void updateQchFilePath();
+    void reload();
 
     CMakeToolItemModel *m_model;
     QLineEdit *m_displayNameLineEdit;
@@ -479,8 +480,8 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
 
     connect(m_binaryChooser, &PathChooser::rawPathChanged, this, [this]() {
         updateQchFilePath();
-        m_qchFileChooser->setBaseDirectory(m_binaryChooser->filePath().parentDir());
         store();
+        reload();
     });
     connect(m_qchFileChooser, &PathChooser::rawPathChanged, this, &CMakeToolItemConfigWidget::store);
     connect(m_displayNameLineEdit, &QLineEdit::textChanged, this, &CMakeToolItemConfigWidget::store);
@@ -502,6 +503,18 @@ void CMakeToolItemConfigWidget::updateQchFilePath()
 {
     if (m_qchFileChooser->filePath().isEmpty())
         m_qchFileChooser->setFilePath(CMakeTool::searchQchFile(m_binaryChooser->filePath()));
+}
+
+void CMakeToolItemConfigWidget::reload()
+{
+    if (!m_id.isValid())
+        return;
+
+    const CMakeToolTreeItem *item = m_model->cmakeToolItem(m_id);
+    if (!item)
+        return;
+
+    load(item);
 }
 
 void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)

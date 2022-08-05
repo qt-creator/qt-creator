@@ -86,6 +86,8 @@ public:
 private:
     QVector<IconMaskAndColor> m_iconSourceList;
     IconStyleOptions m_style = None;
+    mutable int m_lastDevicePixelRatio = -1;
+    mutable QIcon m_lastIcon;
 };
 
 } // namespace Utils

@@ -76,15 +76,14 @@ QString diagnosticCategoryPrefixRemoved(const QString &text)
     // Prefixes are taken from $LLVM_SOURCE_DIR/tools/clang/lib/Frontend/TextDiagnostic.cpp,
     // function TextDiagnostic::printDiagnosticLevel (llvm-3.6.2).
     static const QStringList categoryPrefixes = {
-        QStringLiteral("note"),
-        QStringLiteral("remark"),
-        QStringLiteral("warning"),
-        QStringLiteral("error"),
-        QStringLiteral("fatal error")
+        QStringLiteral("note: "),
+        QStringLiteral("remark: "),
+        QStringLiteral("warning: "),
+        QStringLiteral("error: "),
+        QStringLiteral("fatal error: ")
     };
 
-    for (const QString &prefix : categoryPrefixes) {
-        const QString fullPrefix = prefix + QStringLiteral(": ");
+    for (const QString &fullPrefix : categoryPrefixes) {
         if (theText.startsWith(fullPrefix)) {
             theText.remove(0, fullPrefix.length());
             return theText;

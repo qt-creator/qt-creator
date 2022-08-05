@@ -633,7 +633,7 @@ IAssistProposal *ClangdFunctionHintProcessor::perform(const AssistInterface *int
 ClangdCompletionCapabilities::ClangdCompletionCapabilities(const JsonObject &object)
     : TextDocumentClientCapabilities::CompletionCapabilities(object)
 {
-    insert("editsNearCursor", true); // For dot-to-arrow correction.
+    insert(u"editsNearCursor", true); // For dot-to-arrow correction.
     if (Utils::optional<CompletionItemCapbilities> completionItemCaps = completionItem()) {
         completionItemCaps->setSnippetSupport(false);
         setCompletionItem(*completionItemCaps);

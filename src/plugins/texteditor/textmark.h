@@ -130,6 +130,7 @@ public:
 
     QVector<QAction *> actions() const;
     void setActions(const QVector<QAction *> &actions); // Takes ownership
+    void setActionsProvider(const std::function<QList<QAction *>()> &actionsProvider); // Takes ownership
 
 protected:
     void setSettingsPage(Utils::Id settingsPage);
@@ -150,8 +151,9 @@ private:
     QString m_toolTip;
     std::function<QString()> m_toolTipProvider;
     QString m_defaultToolTip;
-    QVector<QAction *> m_actions;
-    QAction *m_settingsAction = nullptr;
+    QVector<QAction *> m_actions; // FIXME Remove in master
+    std::function<QList<QAction *>()> m_actionsProvider;
+    Utils::Id m_settingsPage;
 };
 
 } // namespace TextEditor

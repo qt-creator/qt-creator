@@ -145,14 +145,16 @@ TextEditor::TextMark *DiagnosticManager::createTextMark(const FilePath &filePath
 {
     static const auto icon = QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon());
     static const QString tooltip = tr("Copy to Clipboard");
-    QAction *action = new QAction();
-    action->setIcon(icon);
-    action->setToolTip(tooltip);
-    QObject::connect(action, &QAction::triggered, [text = diagnostic.message()]() {
-        setClipboardAndSelection(text);
-    });
     auto mark = new TextMark(filePath, diagnostic, m_client->id());
-    mark->setActions({action});
+    mark->setActionsProvider([text = diagnostic.message()] {
+        QAction *action = new QAction();
+        action->setIcon(icon);
+        action->setToolTip(tooltip);
+        QObject::connect(action, &QAction::triggered, [text] {
+            setClipboardAndSelection(text);
+        });
+        return QList<QAction *>{action};
+    });
     return mark;
 }
 

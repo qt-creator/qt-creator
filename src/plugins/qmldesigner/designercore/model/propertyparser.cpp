@@ -249,14 +249,11 @@ QVariant read(int variantType, const QString &str)
         if (str == "false")
             return false;
 
-        auto tmp = QVariant(str);
-        conversionOk = tmp.isValid();
-        value = QVariant(tmp);
+        if (auto f = QVariant(str).toDouble(&conversionOk); conversionOk)
+            return f;
+        else if (auto c = colorFromString(str, &conversionOk); conversionOk)
+            return c;
 
-        if (tmp.canConvert(QMetaType::Double))
-            value.convert(QMetaType::Double);
-        else if (tmp.canConvert(QMetaType::QColor))
-            value.convert(QMetaType::QColor);
         break;
         }
     case QMetaType::QPoint:

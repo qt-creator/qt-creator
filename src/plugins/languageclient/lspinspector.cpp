@@ -549,7 +549,7 @@ QString LspLogMessage::displayText() const
     if (!m_displayText.has_value()) {
         m_displayText = QString(time.toString("hh:mm:ss.zzz") + '\n');
         m_displayText->append(
-            message.toJsonObject().value(QString{methodKey}).toString(id().toString()));
+            message.toJsonObject().value(methodKey).toString(id().toString()));
     }
     return *m_displayText;
 }

@@ -236,6 +236,11 @@ public:
     void documentReloaded(TextMarks marks, TextDocument *baseextDocument);
     void updateMarksLineNumber();
     void updateMarksBlock(const QTextBlock &block);
+    void scheduleUpdate();
+    void requestUpdateNow();
+
+private:
+    bool m_updateScheduled = false;
 
 signals:
     void updateExtraArea();

@@ -79,19 +79,20 @@ CppcheckTextMark::CppcheckTextMark (const Diagnostic &diagnostic)
     setToolTip(toolTipText(diagnostic.severityText));
     setLineAnnotation(diagnostic.message);
     setSettingsPage(Constants::OPTIONS_PAGE_ID);
-
-    // Copy to clipboard action
-    QAction *action = new QAction();
-    action->setIcon(QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon()));
-    action->setToolTip(TextMark::tr("Copy to Clipboard"));
-    QObject::connect(action, &QAction::triggered, [diagnostic]() {
-        const QString text = QString("%1:%2: %3")
-                .arg(diagnostic.fileName.toUserOutput())
-                .arg(diagnostic.lineNumber)
-                .arg(diagnostic.message);
-        Utils::setClipboardAndSelection(text);
+    setActionsProvider([diagnostic] {
+        // Copy to clipboard action
+        QAction *action = new QAction;
+        action->setIcon(QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon()));
+        action->setToolTip(TextMark::tr("Copy to Clipboard"));
+        QObject::connect(action, &QAction::triggered, [diagnostic]() {
+            const QString text = QString("%1:%2: %3")
+                    .arg(diagnostic.fileName.toUserOutput())
+                    .arg(diagnostic.lineNumber)
+                    .arg(diagnostic.message);
+            Utils::setClipboardAndSelection(text);
+        });
+        return QList<QAction *>{action};
     });
-    setActions({action});
 }
 
 QString CppcheckTextMark::toolTipText(const QString &severityText) const
