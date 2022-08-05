@@ -25,7 +25,6 @@
 
 #pragma once
 
-#include "ui_gitsubmitpanel.h"
 #include "gitsettings.h"
 #include "commitdata.h"
 
@@ -42,6 +41,7 @@ QT_END_NAMESPACE
 namespace Git {
 namespace Internal {
 
+class GitSubmitPanel;
 class GitSubmitEditorPanelInfo;
 class GitSubmitEditorPanelData;
 class LogChangeWidget;
@@ -90,9 +90,8 @@ private:
     void setPanelInfo(const GitSubmitEditorPanelInfo &info);
 
     PushAction m_pushAction = NoPush;
-    QWidget *m_gitSubmitPanel;
+    GitSubmitPanel *m_gitSubmitPanel;
     LogChangeWidget *m_logChangeWidget = nullptr;
-    Ui::GitSubmitPanel m_gitSubmitPanelUi;
     QValidator *m_emailValidator;
     QString m_originalAuthor;
     QString m_originalEmail;

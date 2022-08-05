@@ -30,7 +30,6 @@ add_qtc_plugin(Git
     gitsettings.cpp gitsettings.h
     gitsubmiteditor.cpp gitsubmiteditor.h
     gitsubmiteditorwidget.cpp gitsubmiteditorwidget.h
-    gitsubmitpanel.ui
     gitutils.cpp gitutils.h
     logchangedialog.cpp logchangedialog.h
     mergetool.cpp mergetool.h

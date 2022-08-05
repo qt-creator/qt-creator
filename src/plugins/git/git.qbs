@@ -48,7 +48,6 @@ QtcPlugin {
         "gitsubmiteditor.h",
         "gitsubmiteditorwidget.cpp",
         "gitsubmiteditorwidget.h",
-        "gitsubmitpanel.ui",
         "gitutils.cpp",
         "gitutils.h",
         "logchangedialog.cpp",

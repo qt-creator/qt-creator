@@ -23,8 +23,9 @@
 **
 ****************************************************************************/
 
-#include "commitdata.h"
 #include "gitsubmiteditorwidget.h"
+
+#include "commitdata.h"
 #include "githighlighters.h"
 #include "logchangedialog.h"
 
@@ -32,53 +33,118 @@
 
 #include <utils/completingtextedit.h>
 #include <utils/filepath.h>
+#include <utils/layoutbuilder.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
-#include <QRegularExpressionValidator>
-#include <QTextEdit>
-
+#include <QApplication>
+#include <QCheckBox>
 #include <QDir>
 #include <QGroupBox>
-#include <QVBoxLayout>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLineEdit>
 #include <QMenu>
+#include <QRegularExpressionValidator>
+#include <QTextEdit>
+#include <QVBoxLayout>>
 
 using namespace Utils;
 
 namespace Git {
 namespace Internal {
 
+class GitSubmitPanel : public QWidget
+{
+public:
+    GitSubmitPanel()
+    {
+        resize(364, 269);
+
+        repositoryLabel = new QLabel(tr("repository"));
+        branchLabel = new QLabel(tr("branch")); // FIXME: Isn't this overwritten soon?
+        showHeadLabel = new QLabel(tr("<a href=\"head\">Show HEAD</a>")); // FIXME: Simplify string in tr()
+
+        authorLineEdit = new QLineEdit;
+        authorLineEdit->setMinimumSize(QSize(200, 0));
+
+        invalidAuthorLabel = new QLabel;
+        invalidAuthorLabel->setMinimumSize(QSize(20, 20));
+
+        emailLineEdit = new QLineEdit;
+        emailLineEdit->setMinimumSize(QSize(200, 0));
+
+        invalidEmailLabel = new QLabel;
+        invalidEmailLabel->setMinimumSize(QSize(20, 20));
+
+        bypassHooksCheckBox = new QCheckBox(tr("By&pass hooks"));
+
+        signOffCheckBox = new QCheckBox(tr("Sign off"));
+
+        using namespace Layouting;
+
+        editGroup = new QGroupBox(tr("Commit Information"));
+        Grid {
+            tr("Author:"), authorLineEdit, invalidAuthorLabel, st, br,
+            tr("Email:"), emailLineEdit, invalidEmailLabel, br,
+            empty, Row { bypassHooksCheckBox, signOffCheckBox, st }
+        }.attachTo(editGroup);
+
+        Column {
+            Group {
+                title(tr("General Information")),
+                Form {
+                    tr("Repository:"), repositoryLabel, br,
+                    tr("Branch:"), branchLabel, br,
+                    Span(2, showHeadLabel)
+                }
+            },
+            editGroup,
+        }.attachTo(this, WithoutMargins);
+    }
+
+    QLabel *repositoryLabel;
+    QLabel *branchLabel;
+    QLabel *showHeadLabel;
+    QGroupBox *editGroup;
+    QLineEdit *authorLineEdit;
+    QLabel *invalidAuthorLabel;
+    QLineEdit *emailLineEdit;
+    QLabel *invalidEmailLabel;
+    QCheckBox *bypassHooksCheckBox;
+    QCheckBox *signOffCheckBox;
+};
+
 // ------------------
 GitSubmitEditorWidget::GitSubmitEditorWidget() :
-    m_gitSubmitPanel(new QWidget)
+    m_gitSubmitPanel(new GitSubmitPanel)
 {
-    m_gitSubmitPanelUi.setupUi(m_gitSubmitPanel);
     new GitSubmitHighlighter(descriptionEdit());
 
     m_emailValidator = new QRegularExpressionValidator(QRegularExpression("[^@ ]+@[^@ ]+\\.[a-zA-Z]+"), this);
     const QPixmap error = Utils::Icons::CRITICAL.pixmap();
-    m_gitSubmitPanelUi.invalidAuthorLabel->setPixmap(error);
-    m_gitSubmitPanelUi.invalidEmailLabel->setToolTip(tr("Provide a valid email to commit."));
-    m_gitSubmitPanelUi.invalidEmailLabel->setPixmap(error);
+    m_gitSubmitPanel->invalidAuthorLabel->setPixmap(error);
+    m_gitSubmitPanel->invalidEmailLabel->setToolTip(tr("Provide a valid email to commit."));
+    m_gitSubmitPanel->invalidEmailLabel->setPixmap(error);
 
-    connect(m_gitSubmitPanelUi.authorLineEdit, &QLineEdit::textChanged,
+    connect(m_gitSubmitPanel->authorLineEdit, &QLineEdit::textChanged,
             this, &GitSubmitEditorWidget::authorInformationChanged);
-    connect(m_gitSubmitPanelUi.emailLineEdit, &QLineEdit::textChanged,
+    connect(m_gitSubmitPanel->emailLineEdit, &QLineEdit::textChanged,
             this, &GitSubmitEditorWidget::authorInformationChanged);
-    connect(m_gitSubmitPanelUi.showHeadLabel, &QLabel::linkActivated,
+    connect(m_gitSubmitPanel->showHeadLabel, &QLabel::linkActivated,
             this, [this] { emit showRequested("HEAD"); });
 }
 
 void GitSubmitEditorWidget::setPanelInfo(const GitSubmitEditorPanelInfo &info)
 {
-    m_gitSubmitPanelUi.repositoryLabel->setText(info.repository.toUserOutput());
+    m_gitSubmitPanel->repositoryLabel->setText(info.repository.toUserOutput());
     if (info.branch.contains("(no branch)")) {
         const QString errorColor =
                 Utils::creatorTheme()->color(Utils::Theme::TextColorError).name();
-        m_gitSubmitPanelUi.branchLabel->setText(QString::fromLatin1("<span style=\"color:%1\">%2</span>")
+        m_gitSubmitPanel->branchLabel->setText(QString::fromLatin1("<span style=\"color:%1\">%2</span>")
                                                 .arg(errorColor, tr("Detached HEAD")));
     } else {
-        m_gitSubmitPanelUi.branchLabel->setText(info.branch);
+        m_gitSubmitPanel->branchLabel->setText(info.branch);
     }
 }
 
@@ -102,7 +168,7 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
         return;
     m_isInitialized = true;
     if (commitType != AmendCommit)
-        m_gitSubmitPanelUi.showHeadLabel->hide();
+        m_gitSubmitPanel->showHeadLabel->hide();
     if (commitType == FixupCommit) {
         auto logChangeGroupBox = new QGroupBox(tr("Select Change"));
         auto logChangeLayout = new QVBoxLayout;
@@ -112,7 +178,7 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
         connect(m_logChangeWidget, &LogChangeWidget::commitActivated, this, &GitSubmitEditorWidget::showRequested);
         logChangeLayout->addWidget(m_logChangeWidget);
         insertLeftWidget(logChangeGroupBox);
-        m_gitSubmitPanelUi.editGroup->hide();
+        m_gitSubmitPanel->editGroup->hide();
         hideDescription();
     }
     insertTopWidget(m_gitSubmitPanel);
@@ -140,15 +206,15 @@ void GitSubmitEditorWidget::refreshLog(const FilePath &repository)
 GitSubmitEditorPanelData GitSubmitEditorWidget::panelData() const
 {
     GitSubmitEditorPanelData rc;
-    const QString author = m_gitSubmitPanelUi.authorLineEdit->text();
-    const QString email = m_gitSubmitPanelUi.emailLineEdit->text();
+    const QString author = m_gitSubmitPanel->authorLineEdit->text();
+    const QString email = m_gitSubmitPanel->emailLineEdit->text();
     if (author != m_originalAuthor || email != m_originalEmail) {
         rc.author = author;
         rc.email = email;
     }
-    rc.bypassHooks = m_gitSubmitPanelUi.bypassHooksCheckBox->isChecked();
+    rc.bypassHooks = m_gitSubmitPanel->bypassHooksCheckBox->isChecked();
     rc.pushAction = m_pushAction;
-    rc.signOff = m_gitSubmitPanelUi.signOffCheckBox->isChecked();
+    rc.signOff = m_gitSubmitPanel->signOffCheckBox->isChecked();
     return rc;
 }
 
@@ -156,21 +222,21 @@ void GitSubmitEditorWidget::setPanelData(const GitSubmitEditorPanelData &data)
 {
     m_originalAuthor = data.author;
     m_originalEmail = data.email;
-    m_gitSubmitPanelUi.authorLineEdit->setText(data.author);
-    m_gitSubmitPanelUi.emailLineEdit->setText(data.email);
-    m_gitSubmitPanelUi.bypassHooksCheckBox->setChecked(data.bypassHooks);
-    m_gitSubmitPanelUi.signOffCheckBox->setChecked(data.signOff);
+    m_gitSubmitPanel->authorLineEdit->setText(data.author);
+    m_gitSubmitPanel->emailLineEdit->setText(data.email);
+    m_gitSubmitPanel->bypassHooksCheckBox->setChecked(data.bypassHooks);
+    m_gitSubmitPanel->signOffCheckBox->setChecked(data.signOff);
     authorInformationChanged();
 }
 
 bool GitSubmitEditorWidget::canSubmit(QString *whyNot) const
 {
-    if (m_gitSubmitPanelUi.invalidAuthorLabel->isVisible()) {
+    if (m_gitSubmitPanel->invalidAuthorLabel->isVisible()) {
         if (whyNot)
             *whyNot = tr("Invalid author");
         return false;
     }
-    if (m_gitSubmitPanelUi.invalidEmailLabel->isVisible()) {
+    if (m_gitSubmitPanel->invalidEmailLabel->isVisible()) {
         if (whyNot)
             *whyNot = tr("Invalid email");
         return false;
@@ -214,12 +280,12 @@ QString GitSubmitEditorWidget::commitName() const
 
 void GitSubmitEditorWidget::authorInformationChanged()
 {
-    bool bothEmpty = m_gitSubmitPanelUi.authorLineEdit->text().isEmpty() &&
-            m_gitSubmitPanelUi.emailLineEdit->text().isEmpty();
+    bool bothEmpty = m_gitSubmitPanel->authorLineEdit->text().isEmpty() &&
+            m_gitSubmitPanel->emailLineEdit->text().isEmpty();
 
-    m_gitSubmitPanelUi.invalidAuthorLabel->
-            setVisible(m_gitSubmitPanelUi.authorLineEdit->text().isEmpty() && !bothEmpty);
-    m_gitSubmitPanelUi.invalidEmailLabel->
+    m_gitSubmitPanel->invalidAuthorLabel->
+            setVisible(m_gitSubmitPanel->authorLineEdit->text().isEmpty() && !bothEmpty);
+    m_gitSubmitPanel->invalidEmailLabel->
             setVisible(!emailIsValid() && !bothEmpty);
 
     updateSubmitAction();
@@ -245,8 +311,8 @@ void GitSubmitEditorWidget::commitAndPushToGerritSlot()
 
 bool GitSubmitEditorWidget::emailIsValid() const
 {
-    int pos = m_gitSubmitPanelUi.emailLineEdit->cursorPosition();
-    QString text = m_gitSubmitPanelUi.emailLineEdit->text();
+    int pos = m_gitSubmitPanel->emailLineEdit->cursorPosition();
+    QString text = m_gitSubmitPanel->emailLineEdit->text();
     return m_emailValidator->validate(text, pos) == QValidator::Acceptable;
 }
 
