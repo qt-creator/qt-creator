@@ -27,7 +27,6 @@ QtcPlugin {
         "basevcssubmiteditorfactory.h",
         "cleandialog.cpp",
         "cleandialog.h",
-        "cleandialog.ui",
         "commonvcssettings.cpp",
         "commonvcssettings.h",
         "diffandloghighlighter.cpp",

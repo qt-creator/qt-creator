@@ -24,25 +24,31 @@
 ****************************************************************************/
 
 #include "cleandialog.h"
-#include "ui_cleandialog.h"
+
 #include "vcsoutputwindow.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
+#include <utils/layoutbuilder.h>
 #include <utils/runextensions.h>
 
-#include <QStandardItemModel>
-#include <QMessageBox>
 #include <QApplication>
-#include <QStyle>
-#include <QIcon>
-
+#include <QCheckBox>
+#include <QDateTime>
+#include <QDebug>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#include <QDebug>
-#include <QDateTime>
+#include <QGroupBox>
+#include <QHeaderView>
+#include <QIcon>
+#include <QMessageBox>
+#include <QStandardItemModel>
+#include <QStyle>
 #include <QTimer>
+#include <QTreeView>
 
 namespace VcsBase {
 namespace Internal {
@@ -115,17 +121,18 @@ static void handleError(const QString &errorMessage)
 class CleanDialogPrivate
 {
 public:
-    CleanDialogPrivate();
+    CleanDialogPrivate() :
+        m_filesModel(new QStandardItemModel(0, columnCount))
+    {}
 
-    Internal::Ui::CleanDialog ui;
+    QGroupBox *m_groupBox;
+    QCheckBox *m_selectAllCheckBox;
+    QTreeView *m_filesTreeView;
+
     QStandardItemModel *m_filesModel;
     QString m_workingDirectory;
 };
 
-CleanDialogPrivate::CleanDialogPrivate() :
-    m_filesModel(new QStandardItemModel(0, columnCount))
-{
-}
 
 } // namespace Internal
 
@@ -146,22 +153,46 @@ CleanDialog::CleanDialog(QWidget *parent) :
     d(new Internal::CleanDialogPrivate)
 {
     setModal(true);
+    resize(682, 659);
+    setWindowTitle(tr("Clean Repository"));
 
-    d->ui.setupUi(this);
-    d->ui.buttonBox->addButton(tr("Delete..."), QDialogButtonBox::AcceptRole);
+    d->m_groupBox = new QGroupBox(this);
+
+    d->m_selectAllCheckBox = new QCheckBox(tr("Select All"));
+
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel);
+    buttonBox->addButton(tr("Delete..."), QDialogButtonBox::AcceptRole);
 
     d->m_filesModel->setHorizontalHeaderLabels(QStringList(tr("Name")));
-    d->ui.filesTreeView->setModel(d->m_filesModel);
-    d->ui.filesTreeView->setUniformRowHeights(true);
-    d->ui.filesTreeView->setSelectionMode(QAbstractItemView::NoSelection);
-    d->ui.filesTreeView->setAllColumnsShowFocus(true);
-    d->ui.filesTreeView->setRootIsDecorated(false);
-    connect(d->ui.filesTreeView, &QAbstractItemView::doubleClicked,
+
+    d->m_filesTreeView = new QTreeView;
+    d->m_filesTreeView->setModel(d->m_filesModel);
+    d->m_filesTreeView->setUniformRowHeights(true);
+    d->m_filesTreeView->setSelectionMode(QAbstractItemView::NoSelection);
+    d->m_filesTreeView->setAllColumnsShowFocus(true);
+    d->m_filesTreeView->setRootIsDecorated(false);
+
+    using namespace Utils::Layouting;
+
+    Column {
+        d->m_selectAllCheckBox,
+        d->m_filesTreeView
+    }.attachTo(d->m_groupBox);
+
+    Column {
+        d->m_groupBox,
+        buttonBox
+    }.attachTo(this);
+
+    connect(d->m_filesTreeView, &QAbstractItemView::doubleClicked,
             this, &CleanDialog::slotDoubleClicked);
-    connect(d->ui.selectAllCheckBox, &QAbstractButton::clicked,
+    connect(d->m_selectAllCheckBox, &QAbstractButton::clicked,
             this, &CleanDialog::selectAllItems);
-    connect(d->ui.filesTreeView, &QAbstractItemView::clicked,
+    connect(d->m_filesTreeView, &QAbstractItemView::clicked,
             this, &CleanDialog::updateSelectAllCheckBox);
+
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 CleanDialog::~CleanDialog()
@@ -173,7 +204,7 @@ void CleanDialog::setFileList(const QString &workingDirectory, const QStringList
                               const QStringList &ignoredFiles)
 {
     d->m_workingDirectory = workingDirectory;
-    d->ui.groupBox->setTitle(tr("Repository: %1").
+    d->m_groupBox->setTitle(tr("Repository: %1").
                              arg(QDir::toNativeSeparators(workingDirectory)));
     if (const int oldRowCount = d->m_filesModel->rowCount())
         d->m_filesModel->removeRows(0, oldRowCount);
@@ -184,10 +215,10 @@ void CleanDialog::setFileList(const QString &workingDirectory, const QStringList
         addFile(workingDirectory, fileName, false);
 
     for (int c = 0; c < d->m_filesModel->columnCount(); c++)
-        d->ui.filesTreeView->resizeColumnToContents(c);
+        d->m_filesTreeView->resizeColumnToContents(c);
 
     if (ignoredFiles.isEmpty())
-        d->ui.selectAllCheckBox->setChecked(true);
+        d->m_selectAllCheckBox->setChecked(true);
 }
 
 void CleanDialog::addFile(const QString &workingDirectory, QString fileName, bool checked)
@@ -292,7 +323,7 @@ void CleanDialog::updateSelectAllCheckBox()
                 break;
             }
         }
-        d->ui.selectAllCheckBox->setChecked(checked);
+        d->m_selectAllCheckBox->setChecked(checked);
     }
 }
 

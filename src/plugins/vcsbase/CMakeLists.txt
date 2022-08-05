@@ -6,7 +6,7 @@ add_qtc_plugin(VcsBase
     baseannotationhighlighter.cpp baseannotationhighlighter.h
     basevcseditorfactory.cpp basevcseditorfactory.h
     basevcssubmiteditorfactory.cpp basevcssubmiteditorfactory.h
-    cleandialog.cpp cleandialog.h cleandialog.ui
+    cleandialog.cpp cleandialog.h
     commonvcssettings.cpp commonvcssettings.h
     diffandloghighlighter.cpp diffandloghighlighter.h
     nicknamedialog.cpp nicknamedialog.h nicknamedialog.ui
