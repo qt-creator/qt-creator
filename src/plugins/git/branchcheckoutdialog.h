@@ -27,10 +27,14 @@
 
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QGroupBox;
+class QRadioButton;
+QT_END_NAMESPACE
+
 namespace Git {
 namespace Internal {
-
-namespace Ui { class BranchCheckoutDialog; }
 
 class BranchCheckoutDialog : public QDialog
 {
@@ -55,9 +59,14 @@ public:
 private:
     void updatePopStashCheckBox(bool moveChangesChecked);
 
-    Ui::BranchCheckoutDialog *m_ui;
     bool m_foundStashForNextBranch = false;
     bool m_hasLocalChanges = true;
+
+    QGroupBox *m_localChangesGroupBox;
+    QRadioButton *m_makeStashRadioButton;
+    QRadioButton *m_moveChangesRadioButton;
+    QRadioButton *m_discardChangesRadioButton;
+    QCheckBox *m_popStashCheckBox;
 };
 
 } // namespace Internal

@@ -3,7 +3,7 @@ add_qtc_plugin(Git
   SOURCES
     annotationhighlighter.cpp annotationhighlighter.h
     branchadddialog.cpp branchadddialog.h
-    branchcheckoutdialog.cpp branchcheckoutdialog.h branchcheckoutdialog.ui
+    branchcheckoutdialog.cpp branchcheckoutdialog.h
     branchmodel.cpp branchmodel.h
     branchview.cpp branchview.h
     changeselectiondialog.cpp changeselectiondialog.h changeselectiondialog.ui

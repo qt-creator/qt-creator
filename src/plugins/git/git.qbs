@@ -20,7 +20,6 @@ QtcPlugin {
         "branchadddialog.h",
         "branchcheckoutdialog.cpp",
         "branchcheckoutdialog.h",
-        "branchcheckoutdialog.ui",
         "branchmodel.cpp",
         "branchmodel.h",
         "branchview.cpp",

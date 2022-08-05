@@ -24,7 +24,14 @@
 ****************************************************************************/
 
 #include "branchcheckoutdialog.h"
-#include "ui_branchcheckoutdialog.h"
+
+#include <utils/layoutbuilder.h>
+
+#include <QApplication>
+#include <QCheckBox>
+#include <QDialogButtonBox>
+#include <QGroupBox>
+#include <QRadioButton>
 
 namespace Git {
 namespace Internal {
@@ -32,63 +39,90 @@ namespace Internal {
 BranchCheckoutDialog::BranchCheckoutDialog(QWidget *parent,
                                            const QString &currentBranch,
                                            const QString &nextBranch) :
-    QDialog(parent),
-    m_ui(new Ui::BranchCheckoutDialog)
+    QDialog(parent)
 {
-    m_ui->setupUi(this);
-
+    setWindowModality(Qt::WindowModal);
+    resize(394, 199);
+    setModal(true);
     setWindowTitle(tr("Checkout branch \"%1\"").arg(nextBranch));
-    m_ui->moveChangesRadioButton->setText(tr("Move Local Changes to \"%1\"").arg(nextBranch));
-    m_ui->popStashCheckBox->setText(tr("Pop Stash of \"%1\"").arg(nextBranch));
 
+    m_localChangesGroupBox = new QGroupBox(tr("Local Changes Found. Choose Action:"));
+
+    m_moveChangesRadioButton = new QRadioButton(tr("Move Local Changes to \"%1\"").arg(nextBranch));
+
+    m_discardChangesRadioButton = new QRadioButton(tr("Discard Local Changes"));
+    m_discardChangesRadioButton->setEnabled(true);
+
+    m_popStashCheckBox = new QCheckBox(tr("Pop Stash of \"%1\"").arg(nextBranch));
+    m_popStashCheckBox->setEnabled(false);
+
+    m_makeStashRadioButton = new QRadioButton;
+    m_makeStashRadioButton->setChecked(true);
     if (!currentBranch.isEmpty()) {
-        m_ui->makeStashRadioButton->setText(tr("Create Branch Stash for \"%1\"").arg(currentBranch));
+        m_makeStashRadioButton->setText(tr("Create Branch Stash for \"%1\"").arg(currentBranch));
     } else {
-        m_ui->makeStashRadioButton->setText(tr("Create Branch Stash for Current Branch"));
+        m_makeStashRadioButton->setText(tr("Create Branch Stash for Current Branch"));
         foundNoLocalChanges();
     }
 
-    connect(m_ui->moveChangesRadioButton, &QRadioButton::toggled,
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+    using namespace Utils::Layouting;
+
+    Column {
+        m_makeStashRadioButton,
+        m_moveChangesRadioButton,
+        m_discardChangesRadioButton
+    }.attachTo(m_localChangesGroupBox);
+
+    Column {
+        m_localChangesGroupBox,
+        m_popStashCheckBox,
+        st,
+        buttonBox
+    }.attachTo(this);
+
+    connect(m_moveChangesRadioButton, &QRadioButton::toggled,
             this, &BranchCheckoutDialog::updatePopStashCheckBox);
+
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
-BranchCheckoutDialog::~BranchCheckoutDialog()
-{
-    delete m_ui;
-}
+BranchCheckoutDialog::~BranchCheckoutDialog() = default;
 
 void BranchCheckoutDialog::foundNoLocalChanges()
 {
-    m_ui->discardChangesRadioButton->setChecked(true);
-    m_ui->localChangesGroupBox->setEnabled(false);
+    m_discardChangesRadioButton->setChecked(true);
+    m_localChangesGroupBox->setEnabled(false);
     m_hasLocalChanges = false;
 }
 
 void BranchCheckoutDialog::foundStashForNextBranch()
 {
-    m_ui->popStashCheckBox->setChecked(true);
-    m_ui->popStashCheckBox->setEnabled(true);
+    m_popStashCheckBox->setChecked(true);
+    m_popStashCheckBox->setEnabled(true);
     m_foundStashForNextBranch = true;
 }
 
 bool BranchCheckoutDialog::makeStashOfCurrentBranch()
 {
-    return m_ui->makeStashRadioButton->isChecked();
+    return m_makeStashRadioButton->isChecked();
 }
 
 bool BranchCheckoutDialog::moveLocalChangesToNextBranch()
 {
-    return m_ui->moveChangesRadioButton->isChecked();
+    return m_moveChangesRadioButton->isChecked();
 }
 
 bool BranchCheckoutDialog::discardLocalChanges()
 {
-    return m_ui->discardChangesRadioButton->isChecked() && m_ui->localChangesGroupBox->isEnabled();
+    return m_discardChangesRadioButton->isChecked() && m_localChangesGroupBox->isEnabled();
 }
 
 bool BranchCheckoutDialog::popStashOfNextBranch()
 {
-    return m_ui->popStashCheckBox->isChecked();
+    return m_popStashCheckBox->isChecked();
 }
 
 bool BranchCheckoutDialog::hasStashForNextBranch()
@@ -103,8 +137,8 @@ bool BranchCheckoutDialog::hasLocalChanges()
 
 void BranchCheckoutDialog::updatePopStashCheckBox(bool moveChangesChecked)
 {
-    m_ui->popStashCheckBox->setChecked(!moveChangesChecked && m_foundStashForNextBranch);
-    m_ui->popStashCheckBox->setEnabled(!moveChangesChecked && m_foundStashForNextBranch);
+    m_popStashCheckBox->setChecked(!moveChangesChecked && m_foundStashForNextBranch);
+    m_popStashCheckBox->setEnabled(!moveChangesChecked && m_foundStashForNextBranch);
 }
 
 } // namespace Internal
