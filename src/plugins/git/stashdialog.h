@@ -30,14 +30,16 @@
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
-class QSortFilterProxyModel;
+class QLabel;
 class QPushButton;
+class QSortFilterProxyModel;
 QT_END_NAMESPACE
+
+namespace Utils { class TreeView; }
 
 namespace Git {
 namespace Internal {
 
-namespace Ui { class StashDialog; }
 class StashModel;
 
 /* StashDialog: Non-modal dialog that manages the list of stashes
@@ -78,7 +80,6 @@ private:
     int currentRow() const;
     QList<int> selectedRows() const;    \
 
-    Ui::StashDialog *ui;
     StashModel *m_model;
     QSortFilterProxyModel *m_proxyModel;
     QPushButton *m_deleteAllButton;
@@ -88,6 +89,9 @@ private:
     QPushButton *m_restoreCurrentInBranchButton;
     QPushButton *m_refreshButton;
     Utils::FilePath m_repository;
+
+    QLabel *m_repositoryLabel;
+    Utils::TreeView *m_stashView;
 };
 
 } // namespace Internal

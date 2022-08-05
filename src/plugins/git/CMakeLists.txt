@@ -37,5 +37,5 @@ add_qtc_plugin(Git
     remoteadditiondialog.ui
     remotedialog.cpp remotedialog.h remotedialog.ui
     remotemodel.cpp remotemodel.h
-    stashdialog.cpp stashdialog.h stashdialog.ui
+    stashdialog.cpp stashdialog.h
 )
