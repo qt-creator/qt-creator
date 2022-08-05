@@ -33,8 +33,7 @@ add_qtc_plugin(Git
     gitutils.cpp gitutils.h
     logchangedialog.cpp logchangedialog.h
     mergetool.cpp mergetool.h
-    remoteadditiondialog.ui
-    remotedialog.cpp remotedialog.h remotedialog.ui
+    remotedialog.cpp remotedialog.h
     remotemodel.cpp remotemodel.h
     stashdialog.cpp stashdialog.h
 )

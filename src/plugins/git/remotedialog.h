@@ -27,12 +27,15 @@
 
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
+class QLabel;
+class QTreeView;
+QT_END_NAMESPACE
+
 namespace Utils { class FilePath; }
 
 namespace Git {
 namespace Internal {
-
-namespace Ui { class RemoteDialog; }
 
 class RemoteModel;
 
@@ -55,9 +58,14 @@ private:
 
     void updateButtonState();
 
-    Ui::RemoteDialog *m_ui;
-
     RemoteModel *m_remoteModel;
+
+    QLabel *m_repositoryLabel;
+    QTreeView *m_remoteView;
+    QPushButton *m_addButton;
+    QPushButton *m_fetchButton;
+    QPushButton *m_pushButton;
+    QPushButton *m_removeButton;
 };
 
 } // namespace Internal

@@ -34,7 +34,8 @@
 namespace Git {
 namespace Internal {
 
-class RemoteModel : public QAbstractTableModel {
+class RemoteModel : public QAbstractTableModel
+{
     Q_OBJECT
 public:
     explicit RemoteModel(QObject *parent = nullptr);
