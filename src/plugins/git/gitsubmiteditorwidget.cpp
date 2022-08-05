@@ -47,7 +47,7 @@
 #include <QMenu>
 #include <QRegularExpressionValidator>
 #include <QTextEdit>
-#include <QVBoxLayout>>
+#include <QVBoxLayout>
 
 using namespace Utils;
 
