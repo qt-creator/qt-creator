@@ -347,6 +347,7 @@ void BaseStatement::checkForStepError(int resultCode) const
         throwStatementIsMisused("SqliteStatement::stepStatement: was called inappropriately!");
     case SQLITE_CONSTRAINT_CHECK:
     case SQLITE_CONSTRAINT_COMMITHOOK:
+    case SQLITE_CONSTRAINT_DATATYPE:
     case SQLITE_CONSTRAINT_FOREIGNKEY:
     case SQLITE_CONSTRAINT_FUNCTION:
     case SQLITE_CONSTRAINT_NOTNULL:
