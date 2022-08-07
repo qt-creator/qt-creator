@@ -110,7 +110,10 @@ void DatabaseBackend::open(Utils::SmallStringView databaseFilePath, OpenMode mod
 {
     checkCanOpenDatabase(databaseFilePath);
 
-    int resultCode = sqlite3_open_v2(databaseFilePath.data(), &m_databaseHandle, openMode(mode), nullptr);
+    int resultCode = sqlite3_open_v2(std::string(databaseFilePath).c_str(),
+                                     &m_databaseHandle,
+                                     openMode(mode),
+                                     nullptr);
 
     checkDatabaseCouldBeOpened(resultCode);
 

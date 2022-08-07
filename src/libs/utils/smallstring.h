@@ -103,7 +103,7 @@ public:
             m_data.control.setIsShortString(true);
             m_data.control.setIsReadOnlyReference(false);
         } else {
-            m_data.reference.pointer = Memory::allocate(capacity + 1);
+            m_data.reference.pointer = Memory::allocate(capacity);
             std::char_traits<char>::copy(m_data.reference.pointer, string, size);
             initializeLongString(size, capacity);
         }
@@ -274,8 +274,7 @@ public:
     {
         if (fitsNotInCapacity(newCapacity)) {
             if (Q_UNLIKELY(hasAllocatedMemory())) {
-                m_data.reference.pointer = Memory::reallocate(m_data.reference.pointer,
-                                                              newCapacity + 1);
+                m_data.reference.pointer = Memory::reallocate(m_data.reference.pointer, newCapacity);
                 m_data.reference.capacity = newCapacity;
             } else if (newCapacity <= shortStringCapacity()) {
                 new (this) BasicSmallString{m_data.reference.pointer, m_data.reference.size};
@@ -284,7 +283,7 @@ public:
                 newCapacity = std::max(newCapacity, oldSize);
                 const char *oldData = data();
 
-                char *newData = Memory::allocate(newCapacity + 1);
+                char *newData = Memory::allocate(newCapacity);
                 std::char_traits<char>::copy(newData, oldData, oldSize);
                 m_data.reference.pointer = newData;
                 initializeLongString(oldSize, newCapacity);
@@ -296,7 +295,6 @@ public:
     {
         reserve(newSize);
         setSize(newSize);
-        at(newSize) = 0;
     }
 
     void clear() noexcept
@@ -487,7 +485,6 @@ public:
 
         reserve(optimalCapacity(newSize));
         std::char_traits<char>::copy(data() + oldSize, string.data(), string.size());
-        at(newSize) = 0;
         setSize(newSize);
     }
 
@@ -520,7 +517,6 @@ public:
 
             newEnd = data() + newSize;
         }
-        *newEnd = 0;
         setSize(newEnd - data());
     }
 
@@ -598,7 +594,7 @@ public:
     size_type optimalCapacity(const size_type size)
     {
         if (fitsNotInCapacity(size))
-           return optimalHeapCapacity(size + 1) - 1;
+            return optimalHeapCapacity(size);
 
         return size;
     }
@@ -792,8 +788,6 @@ private:
             std::memcpy(currentData, string.data(), string.size());
             currentData += string.size();
         }
-
-        at(size) = 0;
     }
 
     constexpr void initializeLongString(size_type size, size_type capacity)
@@ -877,7 +871,6 @@ private:
 
             newSize -= sizeDifference;
             setSize(newSize);
-            at(newSize) = '\0';
         }
     }
 
@@ -916,7 +909,6 @@ private:
         } else if (startIndex != 0) {
             size_type newSize = size() + sizeDifference;
             setSize(newSize);
-            at(newSize) = 0;
         }
 
         return begin() + foundIndex;

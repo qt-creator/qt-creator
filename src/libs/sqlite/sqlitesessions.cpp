@@ -73,7 +73,7 @@ int xConflict(void *, int conflict, sqlite3_changeset_iter *)
 void Sessions::attachTables(const Utils::SmallStringVector &tableNames)
 {
     for (Utils::SmallStringView tableName : tableNames) {
-        int resultCode = sqlite3session_attach(session.get(), tableName.data());
+        int resultCode = sqlite3session_attach(session.get(), std::string(tableName).c_str());
         checkResultCode(resultCode);
     }
 }
@@ -89,7 +89,7 @@ void Sessions::create()
 {
     sqlite3_session *newSession = nullptr;
     int resultCode = sqlite3session_create(database.backend().sqliteDatabaseHandle(),
-                                           databaseName.data(),
+                                           std::string(databaseName.data()).c_str(),
                                            &newSession);
     session.reset(newSession);
 

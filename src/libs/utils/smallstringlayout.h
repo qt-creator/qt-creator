@@ -124,7 +124,7 @@ struct alignas(16) StringDataLayout
     template<size_type Size>
     constexpr StringDataLayout(const char (&string)[Size]) noexcept
     {
-        if constexpr (Size <= MaximumShortStringDataAreaSize) {
+        if constexpr (Size + 1 <= MaximumShortStringDataAreaSize) {
             control = {Size - 1, false, false};
             for (size_type i = 0; i < Size; ++i)
                 shortString[i] = string[i];
@@ -136,14 +136,10 @@ struct alignas(16) StringDataLayout
 
     constexpr static size_type shortStringCapacity() noexcept
     {
-        return MaximumShortStringDataAreaSize - 1;
+        return MaximumShortStringDataAreaSize;
     }
 
-    constexpr void reset()
-    {
-        control = ControlBlock<MaximumShortStringDataAreaSize>();
-        shortString[0] = '\0';
-    }
+    constexpr void reset() { control = ControlBlock<MaximumShortStringDataAreaSize>(); }
 
 #pragma pack(push)
 #pragma pack(1)
@@ -180,7 +176,7 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
     template<size_type Size>
     constexpr StringDataLayout(const char (&string)[Size]) noexcept
     {
-        if constexpr (Size <= MaximumShortStringDataAreaSize) {
+        if constexpr (Size + 1 <= MaximumShortStringDataAreaSize) {
             control = {Size - 1, false, false};
             for (size_type i = 0; i < Size; ++i)
                 shortString[i] = string[i];
@@ -204,14 +200,10 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
 
     constexpr static size_type shortStringCapacity() noexcept
     {
-        return MaximumShortStringDataAreaSize - 1;
+        return MaximumShortStringDataAreaSize;
     }
 
-    constexpr void reset()
-    {
-        control = ControlBlock<MaximumShortStringDataAreaSize>();
-        shortString[0] = '\0';
-    }
+    constexpr void reset() { control = ControlBlock<MaximumShortStringDataAreaSize>(); }
 
 #pragma pack(push)
 #pragma pack(1)

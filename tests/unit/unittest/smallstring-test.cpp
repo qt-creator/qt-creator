@@ -770,7 +770,7 @@ TEST(SmallString, CapacityShortSmallString)
 
     auto capacity = shortText.capacity();
 
-    ASSERT_THAT(capacity, 30);
+    ASSERT_THAT(capacity, 31);
 }
 
 TEST(SmallString, CapacityLongSmallString)
@@ -807,7 +807,7 @@ TEST(SmallString, FitsInNotShortSmallStringCapacity)
 {
     SmallString text("text", 4);
 
-    ASSERT_TRUE(text.fitsNotInCapacity(31));
+    ASSERT_TRUE(text.fitsNotInCapacity(32));
 }
 
 TEST(SmallString, FitsInLongSmallStringCapacity)
@@ -1327,7 +1327,7 @@ TEST(SmallString, ReserveSmallerThanShortStringCapacity)
 
     text.reserve(2);
 
-    ASSERT_THAT(text.capacity(), AnyOf(30, 4));
+    ASSERT_THAT(text.capacity(), 31);
 }
 
 TEST(SmallString, ReserveSmallerThanShortStringCapacityIsShortString)
@@ -1354,7 +1354,7 @@ TEST(SmallString, ReserveBiggerThanShortStringCapacity)
 
     text.reserve(10);
 
-    ASSERT_THAT(text.capacity(), AnyOf(30, 10));
+    ASSERT_THAT(text.capacity(), 31);
 }
 
 TEST(SmallString, ReserveBiggerThanReference)
@@ -1399,7 +1399,7 @@ TEST(SmallString, ReserveSmallerThanShortSmallString)
 
     text.reserve(10);
 
-    ASSERT_THAT(text.capacity(), 30);
+    ASSERT_THAT(text.capacity(), 31);
 }
 
 TEST(SmallString, ReserveBiggerThanShortSmallString)
@@ -1444,11 +1444,11 @@ TEST(SmallString, OptimalCapacityForSize)
     SmallString text;
 
     ASSERT_THAT(text.optimalCapacity(0), 0);
-    ASSERT_THAT(text.optimalCapacity(30), 30);
-    ASSERT_THAT(text.optimalCapacity(31), 63);
-    ASSERT_THAT(text.optimalCapacity(63), 63);
-    ASSERT_THAT(text.optimalCapacity(64), 127);
-    ASSERT_THAT(text.optimalCapacity(128), 191);
+    ASSERT_THAT(text.optimalCapacity(31), 31);
+    ASSERT_THAT(text.optimalCapacity(32), 64);
+    ASSERT_THAT(text.optimalCapacity(64), 64);
+    ASSERT_THAT(text.optimalCapacity(65), 128);
+    ASSERT_THAT(text.optimalCapacity(129), 192);
 }
 
 TEST(SmallString, DataStreamData)
@@ -1792,13 +1792,6 @@ TEST(SmallString, EmptyInitializerListSize)
     ASSERT_THAT(text, SizeIs(0));
 }
 
-TEST(SmallString, EmptyInitializerListNullTerminated)
-{
-    auto end = SmallString::join({})[0];
-
-    ASSERT_THAT(end, '\0');
-}
-
 TEST(SmallString, InitializerListContent)
 {
     auto text = SmallString::join({"some", " ", "text"});
@@ -1811,13 +1804,6 @@ TEST(SmallString, InitializerListSize)
     auto text = SmallString::join({"some", " ", "text"});
 
     ASSERT_THAT(text, SizeIs(9));
-}
-
-TEST(SmallString, InitializerListNullTerminated)
-{
-    auto end = SmallString::join({"some", " ", "text"})[9];
-
-    ASSERT_THAT(end, '\0');
 }
 
 TEST(SmallString, NumberToString)
@@ -1871,8 +1857,8 @@ TEST(SmallString, StringPlusOperatorReverseOrder)
 
 TEST(SmallString, ShortStringCapacity)
 {
-    ASSERT_THAT(SmallString().shortStringCapacity(), 30);
-    ASSERT_THAT(PathString().shortStringCapacity(), 189);
+    ASSERT_THAT(SmallString().shortStringCapacity(), 31);
+    ASSERT_THAT(PathString().shortStringCapacity(), 190);
 }
 
 TEST(SmallString, ToView)
