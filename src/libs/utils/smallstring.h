@@ -63,7 +63,7 @@
 namespace Utils {
 
 template<uint Size>
-class BasicSmallString
+class alignas(16) BasicSmallString
 {
 public:
     using const_iterator = Internal::SmallStringIterator<std::random_access_iterator_tag, const char>;
@@ -97,14 +97,14 @@ public:
     BasicSmallString(const char *string, size_type size, size_type capacity)
     {
         if (Q_LIKELY(capacity <= shortStringCapacity())) {
-            std::char_traits<char>::copy(m_data.shortString.string, string, size);
-            m_data.shortString.string[size] = 0;
-            m_data.shortString.control.setShortStringSize(size);
-            m_data.shortString.control.setIsShortString(true);
-            m_data.shortString.control.setIsReadOnlyReference(false);
+            std::char_traits<char>::copy(m_data.shortString, string, size);
+            m_data.shortString[size] = 0;
+            m_data.control.setShortStringSize(size);
+            m_data.control.setIsShortString(true);
+            m_data.control.setIsReadOnlyReference(false);
         } else {
-            m_data.allocated.data.pointer = Memory::allocate(capacity + 1);
-            std::char_traits<char>::copy(m_data.allocated.data.pointer, string, size);
+            m_data.reference.pointer = Memory::allocate(capacity + 1);
+            std::char_traits<char>::copy(m_data.reference.pointer, string, size);
             initializeLongString(size, capacity);
         }
     }
@@ -167,7 +167,7 @@ public:
     ~BasicSmallString() noexcept
     {
         if (Q_UNLIKELY(hasAllocatedMemory()))
-            Memory::deallocate(m_data.allocated.data.pointer);
+            Memory::deallocate(m_data.reference.pointer);
     }
 
     BasicSmallString(const BasicSmallString &other)
@@ -182,7 +182,7 @@ public:
     {
         if (Q_LIKELY(this != &other)) {
             if (Q_UNLIKELY(hasAllocatedMemory()))
-                Memory::deallocate(m_data.allocated.data.pointer);
+                Memory::deallocate(m_data.reference.pointer);
 
             if (Q_LIKELY(other.isShortString() || other.isReadOnlyReference()))
                 m_data = other.m_data;
@@ -203,7 +203,7 @@ public:
     {
         if (Q_LIKELY(this != &other)) {
             if (Q_UNLIKELY(hasAllocatedMemory()))
-                Memory::deallocate(m_data.allocated.data.pointer);
+                Memory::deallocate(m_data.reference.pointer);
 
             m_data = std::move(other.m_data);
             other.m_data.reset();
@@ -218,9 +218,9 @@ public:
         BasicSmallString clonedString(m_data);
 
         if (Q_UNLIKELY(hasAllocatedMemory()))
-            new (&clonedString) BasicSmallString{m_data.allocated.data.pointer,
-                                                 m_data.allocated.data.size,
-                                                 m_data.allocated.data.capacity};
+            new (&clonedString) BasicSmallString{m_data.reference.pointer,
+                                                 m_data.reference.size,
+                                                 m_data.reference.capacity};
 
         return clonedString;
     }
@@ -274,11 +274,11 @@ public:
     {
         if (fitsNotInCapacity(newCapacity)) {
             if (Q_UNLIKELY(hasAllocatedMemory())) {
-                m_data.allocated.data.pointer = Memory::reallocate(m_data.allocated.data.pointer,
-                                                                   newCapacity + 1);
-                m_data.allocated.data.capacity = newCapacity;
+                m_data.reference.pointer = Memory::reallocate(m_data.reference.pointer,
+                                                              newCapacity + 1);
+                m_data.reference.capacity = newCapacity;
             } else if (newCapacity <= shortStringCapacity()) {
-                new (this) BasicSmallString{m_data.allocated.data.pointer, m_data.allocated.data.size};
+                new (this) BasicSmallString{m_data.reference.pointer, m_data.reference.size};
             } else {
                 const size_type oldSize = size();
                 newCapacity = std::max(newCapacity, oldSize);
@@ -286,7 +286,7 @@ public:
 
                 char *newData = Memory::allocate(newCapacity + 1);
                 std::char_traits<char>::copy(newData, oldData, oldSize);
-                m_data.allocated.data.pointer = newData;
+                m_data.reference.pointer = newData;
                 initializeLongString(oldSize, newCapacity);
             }
         }
@@ -307,12 +307,12 @@ public:
 
     char *data() noexcept
     {
-        return Q_LIKELY(isShortString()) ? m_data.shortString.string : m_data.allocated.data.pointer;
+        return Q_LIKELY(isShortString()) ? m_data.shortString : m_data.reference.pointer;
     }
 
     const char *data() const noexcept
     {
-        return Q_LIKELY(isShortString()) ? m_data.shortString.string : m_data.allocated.data.pointer;
+        return Q_LIKELY(isShortString()) ? m_data.shortString : m_data.reference.pointer;
     }
 
     const char *constData() const noexcept
@@ -442,15 +442,15 @@ public:
     size_type size() const noexcept
     {
         if (!isShortString())
-            return m_data.allocated.data.size;
+            return m_data.reference.size;
 
-        return m_data.shortString.control.shortStringSize();
+        return m_data.control.shortStringSize();
     }
 
     size_type capacity() const noexcept
     {
         if (!isShortString())
-            return m_data.allocated.data.capacity;
+            return m_data.reference.capacity;
 
         return shortStringCapacity();
     }
@@ -603,11 +603,7 @@ public:
         return size;
     }
 
-    constexpr
-    size_type shortStringSize() const
-    {
-        return m_data.shortString.control.shortStringSize();
-    }
+    constexpr size_type shortStringSize() const { return m_data.control.shortStringSize(); }
 
     static
     BasicSmallString join(std::initializer_list<SmallStringView> list)
@@ -721,13 +717,13 @@ unittest_public:
     constexpr
     bool isShortString() const noexcept
     {
-        return m_data.shortString.control.isShortString();
+        return m_data.control.isShortString();
     }
 
     constexpr
     bool isReadOnlyReference() const noexcept
     {
-        return m_data.shortString.control.isReadOnlyReference();
+        return m_data.control.isReadOnlyReference();
     }
 
     constexpr
@@ -739,7 +735,7 @@ unittest_public:
     bool fitsNotInCapacity(size_type capacity) const noexcept
     {
         return (isShortString() && capacity > shortStringCapacity())
-            || (!isShortString() && capacity > m_data.allocated.data.capacity);
+               || (!isShortString() && capacity > m_data.reference.capacity);
     }
 
     static
@@ -802,12 +798,12 @@ private:
 
     constexpr void initializeLongString(size_type size, size_type capacity)
     {
-        m_data.allocated.data.pointer[size] = 0;
-        m_data.allocated.data.size = size;
-        m_data.allocated.data.capacity = capacity;
-        m_data.shortString.control.setShortStringSize(0);
-        m_data.shortString.control.setIsReference(true);
-        m_data.shortString.control.setIsReadOnlyReference(false);
+        m_data.reference.pointer[size] = 0;
+        m_data.reference.size = size;
+        m_data.reference.capacity = capacity;
+        m_data.control.setShortStringSize(0);
+        m_data.control.setIsReference(true);
+        m_data.control.setIsReadOnlyReference(false);
     }
 
     char &at(size_type index)
@@ -945,9 +941,9 @@ private:
     void setSize(size_type size)
     {
         if (isShortString())
-            m_data.shortString.control.setShortStringSize(size);
+            m_data.control.setShortStringSize(size);
         else
-            m_data.allocated.data.size = size;
+            m_data.reference.size = size;
     }
 
 private:

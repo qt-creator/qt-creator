@@ -96,56 +96,17 @@ private:
     ControlType m_isReference : 1;
 };
 
-template<uint MaximumShortStringDataAreaSize>
-struct alignas(16) AllocatedLayout
-{
-    struct Data
-    {
+struct ReferenceLayout
+{    union {
+        const char *constPointer;
         char *pointer;
-        size_type size;
-        size_type capacity;
     };
-
-    ControlBlock<MaximumShortStringDataAreaSize> control;
-    Data data;
-};
-
-template<uint MaximumShortStringDataAreaSize>
-struct alignas(16) ReferenceLayout
-{
-    constexpr ReferenceLayout() noexcept = default;
-    constexpr ReferenceLayout(const char *stringPointer,
-                              size_type size,
-                              size_type capacity) noexcept
-          : control(0, true, true),
-          data{stringPointer, size, capacity}
-    {}
-
-    struct Data
-    {
-        const char *pointer;
-        size_type size;
-        size_type capacity;
-    };
-
-    ControlBlock<MaximumShortStringDataAreaSize> control;
-    Data data;
-};
-
-template<uint MaximumShortStringDataAreaSize>
-struct alignas(16) ShortStringLayout
-{
-    constexpr ShortStringLayout(
-        typename ControlBlock<MaximumShortStringDataAreaSize>::SizeType shortStringSize) noexcept
-        : control(shortStringSize, false, false)
-    {}
-
-    ControlBlock<MaximumShortStringDataAreaSize> control;
-    char string[MaximumShortStringDataAreaSize];
+    size_type size;
+    size_type capacity;
 };
 
 template<uint MaximumShortStringDataAreaSize, typename = void>
-struct StringDataLayout
+struct alignas(16) StringDataLayout
 {
     static_assert(MaximumShortStringDataAreaSize >= 15, "Size must be greater equal than 15 bytes!");
     static_assert(MaximumShortStringDataAreaSize < 32, "Size must be less than 32 bytes!");
@@ -156,17 +117,19 @@ struct StringDataLayout
     StringDataLayout() noexcept { reset(); }
 
     constexpr StringDataLayout(const char *string, size_type size) noexcept
-        : reference(string, size, 0)
+        : control{0, true, true}
+        , reference{{string}, size, 0}
     {}
 
     template<size_type Size>
     constexpr StringDataLayout(const char (&string)[Size]) noexcept
     {
         if constexpr (Size <= MaximumShortStringDataAreaSize) {
-            shortString = {Size - 1};
+            control = {Size - 1, false, false};
             for (size_type i = 0; i < Size; ++i)
-                shortString.string[i] = string[i];
+                shortString[i] = string[i];
         } else {
+            control = {0, true, true};
             reference = {string, Size - 1, 0};
         }
     }
@@ -178,20 +141,27 @@ struct StringDataLayout
 
     constexpr void reset()
     {
-        shortString.control = ControlBlock<MaximumShortStringDataAreaSize>();
-        shortString.string[0] = '\0';
+        control = ControlBlock<MaximumShortStringDataAreaSize>();
+        shortString[0] = '\0';
     }
 
+#pragma pack(push)
+#pragma pack(1)
+    ControlBlock<MaximumShortStringDataAreaSize> control;
     union {
-        AllocatedLayout<MaximumShortStringDataAreaSize> allocated;
-        ReferenceLayout<MaximumShortStringDataAreaSize> reference;
-        ShortStringLayout<MaximumShortStringDataAreaSize> shortString;
+        char shortString[MaximumShortStringDataAreaSize];
+        struct
+        {
+            char dummy[sizeof(void *) - sizeof(ControlBlock<MaximumShortStringDataAreaSize>)];
+            ReferenceLayout reference;
+        };
     };
+#pragma pack(pop)
 };
 
 template<uint MaximumShortStringDataAreaSize>
-struct StringDataLayout<MaximumShortStringDataAreaSize,
-                        std::enable_if_t<MaximumShortStringDataAreaSize >= 32>>
+struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
+                                    std::enable_if_t<MaximumShortStringDataAreaSize >= 32>>
 {
     static_assert(MaximumShortStringDataAreaSize > 31, "Size must be greater than 31 bytes!");
     static_assert(MaximumShortStringDataAreaSize < 64
@@ -203,17 +173,19 @@ struct StringDataLayout<MaximumShortStringDataAreaSize,
     StringDataLayout() noexcept { reset(); }
 
     constexpr StringDataLayout(const char *string, size_type size) noexcept
-        : reference(string, size, 0)
+        : control{0, true, true}
+        , reference{string, size, 0}
     {}
 
     template<size_type Size>
     constexpr StringDataLayout(const char (&string)[Size]) noexcept
     {
         if constexpr (Size <= MaximumShortStringDataAreaSize) {
-            shortString = {Size - 1};
+            control = {Size - 1, false, false};
             for (size_type i = 0; i < Size; ++i)
-                shortString.string[i] = string[i];
+                shortString[i] = string[i];
         } else {
+            control = {0, true, true};
             reference = {string, Size - 1, 0};
         }
     }
@@ -223,11 +195,9 @@ struct StringDataLayout<MaximumShortStringDataAreaSize,
     StringDataLayout &operator=(const StringDataLayout &other) noexcept
     {
         constexpr auto controlBlockSize = sizeof(ControlBlock<MaximumShortStringDataAreaSize>);
-        auto shortStringLayoutSize = other.shortString.control.stringSize() + controlBlockSize;
-        constexpr auto referenceLayoutSize = sizeof(ReferenceLayout<MaximumShortStringDataAreaSize>);
-        std::memcpy(&shortString,
-                    &other.shortString,
-                    std::max(shortStringLayoutSize, referenceLayoutSize));
+        auto shortStringLayoutSize = other.control.stringSize() + controlBlockSize;
+        constexpr auto referenceLayoutSize = sizeof(ReferenceLayout);
+        std::memcpy(this, &other, std::max(shortStringLayoutSize, referenceLayoutSize));
 
         return *this;
     }
@@ -239,15 +209,22 @@ struct StringDataLayout<MaximumShortStringDataAreaSize,
 
     constexpr void reset()
     {
-        shortString.control = ControlBlock<MaximumShortStringDataAreaSize>();
-        shortString.string[0] = '\0';
+        control = ControlBlock<MaximumShortStringDataAreaSize>();
+        shortString[0] = '\0';
     }
 
+#pragma pack(push)
+#pragma pack(1)
+    ControlBlock<MaximumShortStringDataAreaSize> control;
     union {
-        AllocatedLayout<MaximumShortStringDataAreaSize> allocated;
-        ReferenceLayout<MaximumShortStringDataAreaSize> reference;
-        ShortStringLayout<MaximumShortStringDataAreaSize> shortString;
+        char shortString[MaximumShortStringDataAreaSize];
+        struct
+        {
+            char dummy[sizeof(void *) - sizeof(ControlBlock<MaximumShortStringDataAreaSize>)];
+            ReferenceLayout reference;
+        };
     };
+#pragma pack(pop)
 };
 
 } // namespace Internal

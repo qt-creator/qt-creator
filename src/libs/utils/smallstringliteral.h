@@ -58,12 +58,12 @@ public:
 
     const char *data() const noexcept
     {
-        return Q_LIKELY(isShortString()) ? m_data.shortString.string : m_data.allocated.data.pointer;
+        return Q_LIKELY(isShortString()) ? m_data.shortString : m_data.reference.constPointer;
     }
 
     size_type size() const noexcept
     {
-        return Q_LIKELY(isShortString()) ? m_data.shortString.control.shortStringSize() : m_data.allocated.data.size;
+        return Q_LIKELY(isShortString()) ? m_data.control.shortStringSize() : m_data.reference.size;
     }
 
     constexpr
@@ -94,16 +94,12 @@ public:
         return Internal::StringDataLayout<Size>::shortStringCapacity();
     }
 
-    constexpr
-    bool isShortString() const noexcept
-    {
-        return m_data.shortString.control.isShortString();
-    }
+    constexpr bool isShortString() const noexcept { return m_data.control.isShortString(); }
 
     constexpr
     bool isReadOnlyReference() const noexcept
     {
-        return m_data.shortString.control.isReadOnlyReference();
+        return m_data.control.isReadOnlyReference();
     }
 
     constexpr
