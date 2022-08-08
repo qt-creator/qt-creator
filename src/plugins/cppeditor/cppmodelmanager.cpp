@@ -377,7 +377,6 @@ SignalSlotType CppModelManager::getSignalSlotType(const QString &filePath,
     QTextCursor cursor(&textDocument);
     cursor.setPosition(position);
 
-    // Are we at the second argument of a function call?
     const QList<AST *> path = ASTPath(document)(cursor);
     if (path.isEmpty())
         return SignalSlotType::None;
@@ -387,9 +386,27 @@ SignalSlotType CppModelManager::getSignalSlotType(const QString &filePath,
             break;
     }
 
-    // Is the function called "connect" or "disconnect"?
     if (!callAst || !callAst->base_expression)
         return SignalSlotType::None;
+
+    const int argumentPosition = argumentPositionOf(path.last(), callAst);
+    if (argumentPosition != 2 && argumentPosition != 4)
+        return SignalSlotType::None;
+
+    const NameAST *nameAst = nullptr;
+    if (const IdExpressionAST * const idAst = callAst->base_expression->asIdExpression())
+        nameAst = idAst->name;
+    else if (const MemberAccessAST * const ast = callAst->base_expression->asMemberAccess())
+        nameAst = ast->member_name;
+    if (!nameAst || !nameAst->name)
+        return SignalSlotType::None;
+    const Identifier * const id = nameAst->name->identifier();
+    if (!id)
+        return SignalSlotType::None;
+    const QString funcName = QString::fromUtf8(id->chars(), id->size());
+    if (funcName != "connect" && funcName != "disconnect")
+        return SignalSlotType::None;
+
     Scope *scope = document->globalNamespace();
     for (auto it = path.crbegin(); it != path.crend(); ++it) {
         if (const CompoundStatementAST * const stmtAst = (*it)->asCompoundStatement()) {
@@ -397,12 +414,8 @@ SignalSlotType CppModelManager::getSignalSlotType(const QString &filePath,
             break;
         }
     }
-    const NameAST *nameAst = nullptr;
     const LookupContext context(document, snapshot);
-    if (const IdExpressionAST * const idAst = callAst->base_expression->asIdExpression()) {
-        nameAst = idAst->name;
-    } else if (const MemberAccessAST * const ast = callAst->base_expression->asMemberAccess()) {
-        nameAst = ast->member_name;
+    if (const MemberAccessAST * const ast = callAst->base_expression->asMemberAccess()) {
         TypeOfExpression exprType;
         exprType.setExpandTemplates(true);
         exprType.init(document, snapshot);
@@ -432,14 +445,6 @@ SignalSlotType CppModelManager::getSignalSlotType(const QString &filePath,
         if (!scope)
             return SignalSlotType::None;
     }
-    if (!nameAst || !nameAst->name)
-        return SignalSlotType::None;
-    const Identifier * const id = nameAst->name->identifier();
-    if (!id)
-        return SignalSlotType::None;
-    const QString funcName = QString::fromUtf8(id->chars(), id->size());
-    if (funcName != "connect" && funcName != "disconnect")
-        return SignalSlotType::None;
 
     // Is the function a member function of QObject?
     const QList<LookupItem> matches = context.lookup(nameAst->name, scope);
@@ -462,10 +467,8 @@ SignalSlotType CppModelManager::getSignalSlotType(const QString &filePath,
 
             expression = expressionUnderCursor(cursor);
 
-            const int argumentPosition = argumentPositionOf(path.last(), callAst);
-            if ((expression.endsWith(QLatin1String("SIGNAL"))
-                 && (argumentPosition == 2 || argumentPosition == 4))
-                || (expression.endsWith(QLatin1String("SLOT")) && argumentPosition == 4))
+            if (expression.endsWith(QLatin1String("SIGNAL"))
+                    || (expression.endsWith(QLatin1String("SLOT")) && argumentPosition == 4))
                 return SignalSlotType::OldStyleSignal;
 
             if (argumentPosition == 2)
