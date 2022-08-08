@@ -6,6 +6,7 @@ Project {
     references: [
         "aggregation/aggregation.qbs",
         "algorithm/algorithm.qbs",
+        "android/android.qbs",
         "changeset/changeset.qbs",
         "cplusplus/cplusplus.qbs",
         "debugger/debugger.qbs",

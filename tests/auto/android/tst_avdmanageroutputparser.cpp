@@ -51,7 +51,7 @@ void tst_AvdManagerOutputParser::parse_data()
     QTest::newRow("one") << "Available Android Virtual Devices:\n"
                             "    Name: Test\n"
                             "  Device: Galaxy Nexus (Google)\n"
-                            "    Path: :Test.avd\n"
+                            "    Path: :/Test.avd\n"
                             "  Target: Google APIs (Google Inc.)\n"
                             "          Based on: Android API 30 Tag/ABI: google_apis/x86\n"
                             "  Sdcard: 512 MB\n"
@@ -61,20 +61,20 @@ void tst_AvdManagerOutputParser::parse_data()
                                                     -1,
                                                     IDevice::DeviceConnected,
                                                     IDevice::Emulator,
-                                                    Utils::FilePath::fromString(":Test.avd")}})
+                                                    Utils::FilePath::fromString(":/Test.avd")}})
                          << QStringList();
 
     QTest::newRow("two") << "Available Android Virtual Devices:\n"
                             "    Name: Test\n"
                             "  Device: Galaxy Nexus (Google)\n"
-                            "    Path: :Test.avd\n"
+                            "    Path: :/Test.avd\n"
                             "  Target: Google APIs (Google Inc.)\n"
                             "          Based on: Android API 30 Tag/ABI: google_apis/x86\n"
                             "  Sdcard: 512 MB\n"
                             "---------\n"
                             "    Name: TestTablet\n"
                             "  Device: 7in WSVGA (Tablet) (Generic)\n"
-                            "    Path: :TestTablet.avd\n"
+                            "    Path: :/TestTablet.avd\n"
                             "  Target: Google APIs (Google Inc.)\n"
                             "          Based on: Android API 30 Tag/ABI: google_apis/x86\n"
                             "  Sdcard: 256 MB\n"
@@ -84,14 +84,14 @@ void tst_AvdManagerOutputParser::parse_data()
                                                     -1,
                                                     IDevice::DeviceConnected,
                                                     IDevice::Emulator,
-                                                    Utils::FilePath::fromString(":Test.avd")},
+                                                    Utils::FilePath::fromString(":/Test.avd")},
                                                    {"",
                                                     "TestTablet",
                                                     {"x86"},
                                                     -1,
                                                     IDevice::DeviceConnected,
                                                     IDevice::Emulator,
-                                                    Utils::FilePath::fromString(":TestTablet.avd")}}
+                                                    Utils::FilePath::fromString(":/TestTablet.avd")}}
                                                   )
                          << QStringList();
 }
