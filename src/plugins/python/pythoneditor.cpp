@@ -120,13 +120,13 @@ public:
                     if (python.exists())
                         PyLSConfigureAssistant::openDocumentWithPython(python, this);
                 });
+        connect(this, &PythonDocument::openFinishedSuccessfully,
+                this, &PythonDocument::checkForPyls);
     }
 
-    void setFilePath(const Utils::FilePath &filePath) override
+    void checkForPyls()
     {
-        TextEditor::TextDocument::setFilePath(filePath);
-
-        const Utils::FilePath &python = detectPython(filePath);
+        const Utils::FilePath &python = detectPython(filePath());
         if (!python.exists())
             return;
 
