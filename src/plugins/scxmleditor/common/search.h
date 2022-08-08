@@ -4,7 +4,6 @@
 #pragma once
 
 #include "outputpane.h"
-#include "ui_search.h"
 
 #include <utils/utilsicons.h>
 
@@ -13,12 +12,16 @@
 
 QT_FORWARD_DECLARE_CLASS(QSortFilterProxyModel)
 
+namespace Utils { class FancyLineEdit; }
+
 namespace ScxmlEditor {
 
 namespace PluginInterface {
 class GraphicsScene;
 class ScxmlDocument;
 } // namespace PluginInterface
+
+namespace OutputPane { class TableView; }
 
 namespace Common {
 
@@ -57,7 +60,9 @@ private:
     SearchModel *m_model;
     QSortFilterProxyModel *m_proxyModel;
     QPointer<PluginInterface::ScxmlDocument> m_document;
-    Ui::Search m_ui;
+
+    Utils::FancyLineEdit *m_searchEdit;
+    ScxmlEditor::OutputPane::TableView *m_searchView;
 };
 
 } // namespace Common

@@ -6,15 +6,21 @@
 #include "graphicsview.h"
 
 #include <QMouseEvent>
+#include <QVBoxLayout>
 
 using namespace ScxmlEditor::Common;
 
 Magnifier::Magnifier(QWidget *parent)
     : QWidget(parent)
 {
-    m_ui.setupUi(this);
     setMouseTracking(true);
-    m_ui.m_graphicsView->setEnabled(false);
+    m_graphicsView = new QGraphicsView(this);
+    m_graphicsView->setInteractive(false);
+    m_graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    m_graphicsView->setEnabled(false);
+    auto layout = new QVBoxLayout(this);
+    layout->addWidget(m_graphicsView);
 }
 
 void Magnifier::setTopLeft(const QPoint &topLeft)
@@ -34,7 +40,7 @@ void Magnifier::resizeEvent(QResizeEvent *e)
     m_gradientBrush.setColorAt(0.0, QColor(0, 0, 0, 255));
 
     int cap = radius * 0.1;
-    m_ui.m_graphicsView->setMask(QRegion(rect().adjusted(cap, cap, -cap, -cap), QRegion::Ellipse));
+    m_graphicsView->setMask(QRegion(rect().adjusted(cap, cap, -cap, -cap), QRegion::Ellipse));
 }
 
 void Magnifier::showEvent(QShowEvent *e)
@@ -53,8 +59,8 @@ void Magnifier::mousePressEvent(QMouseEvent *e)
 {
     QWidget::mousePressEvent(e);
     if (m_mainView)
-        m_mainView->magnifierClicked(m_ui.m_graphicsView->transform().m11(),
-            m_ui.m_graphicsView->mapToScene(e->pos() - m_topLeft + rect().center()));
+        m_mainView->magnifierClicked(m_graphicsView->transform().m11(),
+            m_graphicsView->mapToScene(e->pos() - m_topLeft + rect().center()));
 }
 
 void Magnifier::mouseMoveEvent(QMouseEvent *e)
@@ -68,12 +74,12 @@ void Magnifier::wheelEvent(QWheelEvent *e)
     QWidget::wheelEvent(e);
 
     if (e->angleDelta().y() > 0)
-        m_ui.m_graphicsView->scale(1.1, 1.1);
+        m_graphicsView->scale(1.1, 1.1);
     else
-        m_ui.m_graphicsView->scale(1.0 / 1.1, 1.0 / 1.1);
+        m_graphicsView->scale(1.0 / 1.1, 1.0 / 1.1);
 
     if (m_mainView)
-        m_ui.m_graphicsView->centerOn(m_mainView->mapToScene(pos() - m_topLeft + rect().center()));
+        m_graphicsView->centerOn(m_mainView->mapToScene(pos() - m_topLeft + rect().center()));
 }
 
 void Magnifier::moveEvent(QMoveEvent *e)
@@ -81,7 +87,7 @@ void Magnifier::moveEvent(QMoveEvent *e)
     QWidget::moveEvent(e);
 
     if (m_mainView)
-        m_ui.m_graphicsView->centerOn(m_mainView->mapToScene(e->pos() - m_topLeft + rect().center()));
+        m_graphicsView->centerOn(m_mainView->mapToScene(e->pos() - m_topLeft + rect().center()));
 }
 
 void Magnifier::setCurrentView(GraphicsView *view)
@@ -91,7 +97,7 @@ void Magnifier::setCurrentView(GraphicsView *view)
 
 void Magnifier::setCurrentScene(ScxmlEditor::PluginInterface::GraphicsScene *scene)
 {
-    m_ui.m_graphicsView->setScene(scene);
+    m_graphicsView->setScene(scene);
 }
 
 void Magnifier::paintEvent(QPaintEvent *e)

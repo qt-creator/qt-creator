@@ -31,6 +31,7 @@ GraphicsView::GraphicsView(QWidget *parent)
     setRubberBandSelectionMode(Qt::ContainsItemShape);
     setBackgroundBrush(QBrush(QColor(0xef, 0xef, 0xef)));
     setAcceptDrops(true);
+    setFrameShape(QFrame::NoFrame);
 
     connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, &GraphicsView::updateView);
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &GraphicsView::updateView);

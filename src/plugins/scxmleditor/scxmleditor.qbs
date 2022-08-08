@@ -64,17 +64,6 @@ QtcPlugin {
             "treeview.h", "treeview.cpp",
 
             "common.qrc",
-
-            "magnifier.ui",
-            "colorpicker.ui",
-            "colorsettings.ui",
-            "colorthemedialog.ui",
-            "navigatorslider.ui",
-            "search.ui",
-            "shapestoolbox.ui",
-            "stateview.ui",
-            "statistics.ui",
-            "statisticsdialog.ui",
         ]
     }
 

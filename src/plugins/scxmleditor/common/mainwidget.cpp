@@ -8,6 +8,7 @@
 #include "colortoolbutton.h"
 #include "errorwidget.h"
 #include "graphicsscene.h"
+#include "graphicsview.h"
 #include "magnifier.h"
 #include "navigator.h"
 #include "outputtabwidget.h"
@@ -38,6 +39,7 @@
 #include <QImage>
 #include <QImageWriter>
 #include <QItemEditorFactory>
+#include <QLayout>
 #include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>

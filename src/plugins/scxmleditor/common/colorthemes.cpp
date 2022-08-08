@@ -12,6 +12,7 @@
 #include <utils/stringutils.h>
 
 #include <QMenu>
+#include <QToolButton>
 
 using namespace ScxmlEditor::Common;
 

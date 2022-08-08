@@ -14,6 +14,7 @@
 #include <QResizeEvent>
 #include <QToolBar>
 #include <QToolButton>
+#include <QVBoxLayout>
 
 using namespace ScxmlEditor::Common;
 

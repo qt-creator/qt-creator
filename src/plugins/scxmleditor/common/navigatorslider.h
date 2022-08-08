@@ -3,9 +3,11 @@
 
 #pragma once
 
-#include "ui_navigatorslider.h"
-
 #include <QFrame>
+
+QT_BEGIN_NAMESPACE
+class QSlider;
+QT_END_NAMESPACE
 
 namespace ScxmlEditor {
 
@@ -18,11 +20,7 @@ class NavigatorSlider : public QFrame
 public:
     explicit NavigatorSlider(QWidget *parent = nullptr);
 
-    int value() const
-    {
-        return m_ui.m_slider->value();
-    }
-
+    int value() const;
     void setSliderValue(int val);
     void zoomIn();
     void zoomOut();
@@ -31,7 +29,7 @@ signals:
     void valueChanged(int);
 
 private:
-    Ui::NavigatorSlider m_ui;
+    QSlider *m_slider;
 };
 
 } // namespace Common

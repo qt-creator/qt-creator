@@ -5,17 +5,23 @@
 #include "graphicsscene.h"
 #include "scxmldocument.h"
 #include "searchmodel.h"
+#include "tableview.h"
 
+#include <utils/fancylineedit.h>
+#include <utils/layoutbuilder.h>
+
+#include <QHeaderView>
 #include <QSortFilterProxyModel>
 
 using namespace ScxmlEditor::PluginInterface;
 using namespace ScxmlEditor::Common;
+using namespace ScxmlEditor::OutputPane;
+
+constexpr char FILTER_WILDCARD[] = "xxxxxxxx";
 
 Search::Search(QWidget *parent)
     : OutputPane(parent)
 {
-    m_ui.setupUi(this);
-
     m_model = new SearchModel(this);
     m_proxyModel = new QSortFilterProxyModel(this);
 
@@ -24,24 +30,41 @@ Search::Search(QWidget *parent)
     m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_proxyModel->setSourceModel(m_model);
     m_proxyModel->setDynamicSortFilter(false);
-    m_proxyModel->setFilterWildcard("xxxxxxxx");
+    m_proxyModel->setFilterWildcard(FILTER_WILDCARD);
 
-    m_ui.m_searchView->setModel(m_proxyModel);
+    m_searchEdit = new Utils::FancyLineEdit;
+    m_searchEdit->setFiltering(true);
 
-    connect(m_ui.m_searchEdit, &QLineEdit::textChanged, this, &Search::setSearchText);
-    connect(m_ui.m_searchView, &ScxmlEditor::OutputPane::TableView::pressed, this, &Search::rowActivated);
-    connect(m_ui.m_searchView, &ScxmlEditor::OutputPane::TableView::entered, this, &Search::rowEntered);
+    m_searchView = new TableView;
+    m_searchView->setAlternatingRowColors(true);
+    m_searchView->setShowGrid(false);
+    m_searchView->setSortingEnabled(true);
+    m_searchView->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_searchView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_searchView->horizontalHeader()->setStretchLastSection(true);
+    m_searchView->setModel(m_proxyModel);
+    m_searchView->setFrameShape(QFrame::NoFrame);
+
+    using namespace Utils::Layouting;
+    Column {
+        m_searchEdit,
+        m_searchView,
+    }.setSpacing(0).attachTo(this, WithoutMargins);
+
+    connect(m_searchEdit, &Utils::FancyLineEdit::textChanged, this, &Search::setSearchText);
+    connect(m_searchView, &TableView::pressed, this, &Search::rowActivated);
+    connect(m_searchView, &TableView::entered, this, &Search::rowEntered);
 }
 
 void Search::setPaneFocus()
 {
-    m_ui.m_searchEdit->setFocus();
+    m_searchEdit->setFocus();
 }
 
 void Search::setSearchText(const QString &text)
 {
     m_model->setFilter(text);
-    m_proxyModel->setFilterWildcard(text.isEmpty() ? "xxxxxxxx" : text);
+    m_proxyModel->setFilterWildcard(text.isEmpty() ? FILTER_WILDCARD : text);
 }
 
 void Search::setDocument(ScxmlDocument *document)
@@ -53,7 +76,7 @@ void Search::setDocument(ScxmlDocument *document)
 void Search::setGraphicsScene(GraphicsScene *scene)
 {
     m_scene = scene;
-    connect(m_ui.m_searchView, &ScxmlEditor::OutputPane::TableView::mouseExited, m_scene.data(), &GraphicsScene::unhighlightAll);
+    connect(m_searchView, &TableView::mouseExited, m_scene.data(), &GraphicsScene::unhighlightAll);
 }
 
 void Search::rowEntered(const QModelIndex &index)

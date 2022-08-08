@@ -4,20 +4,22 @@
 #include "colorpicker.h"
 #include "scxmleditorconstants.h"
 
-#include <QToolButton>
+#include <utils/layoutbuilder.h>
 
 #include <coreplugin/icore.h>
+
+#include <QHBoxLayout>
+#include <QToolButton>
 
 using namespace ScxmlEditor::Common;
 
 const char C_SETTINGS_COLORPICKER_LASTUSEDCOLORS[] = "ScxmlEditor/ColorPickerLastUsedColors_%1";
+constexpr int C_BUTTON_COLUMNS_COUNT = 5;
 
 ColorPicker::ColorPicker(const QString &key, QWidget *parent)
     : QFrame(parent)
     , m_key(key)
 {
-    m_ui.setupUi(this);
-
     const QVector<QRgb> colors = {
         qRgb(0xed, 0xf7, 0xf2), qRgb(0xdf, 0xd3, 0xb6), qRgb(0x89, 0x72, 0x5b), qRgb(0xff, 0xd3, 0x93), qRgb(0xff, 0x97, 0x4f),
         qRgb(0xff, 0x85, 0x0d), qRgb(0xf7, 0xe9, 0x67), qRgb(0xef, 0xc9, 0x4c), qRgb(0xff, 0xe1, 0x1a), qRgb(0xc2, 0xe0, 0x78),
@@ -25,26 +27,31 @@ ColorPicker::ColorPicker(const QString &key, QWidget *parent)
         qRgb(0xc5, 0xba, 0xfc), qRgb(0xb6, 0x65, 0xfc), qRgb(0xa5, 0x08, 0xd0), qRgb(0xcc, 0x56, 0x64), qRgb(0x96, 0x2d, 0x3e)
     };
 
-    auto vBoxLayout = new QVBoxLayout;
-    vBoxLayout->setContentsMargins(0, 0, 0, 0);
-    vBoxLayout->setSpacing(0);
+    auto basicColorContentFrame = new QWidget;
+    auto lastUsedColorContainer = new QWidget;
 
-    const int buttonRowsCount = 4;
-    const int buttonColumnsCount = 5;
+    m_lastUsedColorContainer = new QHBoxLayout(lastUsedColorContainer);
+    m_lastUsedColorContainer->setContentsMargins(0, 0, 0, 0);
 
-    for (int r = 0; r < buttonRowsCount; ++r) {
-        auto hBoxLayout = new QHBoxLayout;
-        hBoxLayout->setContentsMargins(0, 0, 0, 0);
-        hBoxLayout->setSpacing(0);
-
-        for (int c = 0; c < buttonColumnsCount; ++c)
-            hBoxLayout->addWidget(createButton(colors[r * buttonColumnsCount + c]));
-
-        hBoxLayout->addStretch();
-        vBoxLayout->addLayout(hBoxLayout);
+    using namespace Utils::Layouting;
+    Grid colorGrid;
+    for (int i = 0; i < colors.count(); ++i) {
+        QWidget *button = createButton(colors[i]);
+        colorGrid.addItem(button);
+        if ((i + 1) % C_BUTTON_COLUMNS_COUNT == 0)
+            colorGrid.addItem(br);
+        if (i == 0)
+            m_lastUsedColorContainer->addSpacerItem(new QSpacerItem(0, button->sizeHint().height(),
+                                                                    QSizePolicy::MinimumExpanding,
+                                                                    QSizePolicy::Preferred));
     }
-
-    m_ui.basicColorContentFrame->setLayout(vBoxLayout);
+    colorGrid.attachTo(basicColorContentFrame, WithoutMargins);
+    Column {
+        tr("Basic Colors"),
+        basicColorContentFrame,
+        tr("Last used colors"),
+        lastUsedColorContainer,
+    }.attachTo(this);
 
     const QStringList lastColors = Core::ICore::settings()->value(
                 QString::fromLatin1(C_SETTINGS_COLORPICKER_LASTUSEDCOLORS).arg(m_key), QStringList()).toStringList();
@@ -69,12 +76,12 @@ void ColorPicker::setLastUsedColor(const QString &colorName)
     m_lastUsedColorNames.insert(0, colorName);
     m_lastUsedColorButtons.insert(0, createButton(colorName));
 
-    while (m_lastUsedColorButtons.count() > 5) {
+    while (m_lastUsedColorButtons.count() > C_BUTTON_COLUMNS_COUNT) {
         m_lastUsedColorButtons.takeLast()->deleteLater();
         m_lastUsedColorNames.takeLast();
     }
 
-    m_ui.lastUsedColorLayout->insertWidget(0, m_lastUsedColorButtons.first());
+    m_lastUsedColorContainer->insertWidget(0, m_lastUsedColorButtons.first());
 }
 
 QToolButton *ColorPicker::createButton(const QColor &color)

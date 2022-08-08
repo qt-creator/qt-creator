@@ -2,30 +2,30 @@ add_qtc_plugin(ScxmlEditor
   INCLUDES common plugin_interface outputpane
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport TextEditor
   SOURCES
-    common/colorpicker.cpp common/colorpicker.h common/colorpicker.ui
-    common/colorsettings.cpp common/colorsettings.h common/colorsettings.ui
-    common/colorthemedialog.cpp common/colorthemedialog.h common/colorthemedialog.ui
+    common/colorpicker.cpp common/colorpicker.h
+    common/colorsettings.cpp common/colorsettings.h
+    common/colorthemedialog.cpp common/colorthemedialog.h
     common/colorthemes.cpp common/colorthemes.h
     common/colorthemeview.cpp common/colorthemeview.h
     common/colortoolbutton.cpp common/colortoolbutton.h
     common/common.qrc
     common/dragshapebutton.cpp common/dragshapebutton.h
     common/graphicsview.cpp common/graphicsview.h
-    common/magnifier.cpp common/magnifier.h common/magnifier.ui
+    common/magnifier.cpp common/magnifier.h
     common/mainwidget.cpp common/mainwidget.h
     common/movableframe.cpp common/movableframe.h
     common/navigator.cpp common/navigator.h
     common/navigatorgraphicsview.cpp common/navigatorgraphicsview.h
-    common/navigatorslider.cpp common/navigatorslider.h common/navigatorslider.ui
-    common/search.cpp common/search.h common/search.ui
+    common/navigatorslider.cpp common/navigatorslider.h
+    common/search.cpp common/search.h
     common/searchmodel.cpp common/searchmodel.h
     common/shapegroupwidget.cpp common/shapegroupwidget.h
-    common/shapestoolbox.cpp common/shapestoolbox.h common/shapestoolbox.ui
+    common/shapestoolbox.cpp common/shapestoolbox.h
     common/sizegrip.cpp common/sizegrip.h
     common/stateproperties.cpp common/stateproperties.h
-    common/stateview.cpp common/stateview.h common/stateview.ui
-    common/statistics.cpp common/statistics.h common/statistics.ui
-    common/statisticsdialog.cpp common/statisticsdialog.h common/statisticsdialog.ui
+    common/stateview.cpp common/stateview.h
+    common/statistics.cpp common/statistics.h
+    common/statisticsdialog.cpp common/statisticsdialog.h
     common/structure.cpp common/structure.h
     common/structuremodel.cpp common/structuremodel.h
     common/treeview.cpp common/treeview.h

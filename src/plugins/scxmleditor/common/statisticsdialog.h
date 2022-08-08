@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "ui_statisticsdialog.h"
-
 #include <QDialog>
 
 namespace ScxmlEditor {
@@ -12,6 +10,8 @@ namespace ScxmlEditor {
 namespace PluginInterface { class ScxmlDocument; }
 
 namespace Common {
+
+class Statistics;
 
 class StatisticsDialog : public QDialog
 {
@@ -23,7 +23,7 @@ public:
     void setDocument(PluginInterface::ScxmlDocument *doc);
 
 private:
-    Ui::StatisticsDialog m_ui;
+    Statistics *m_statistics;
 };
 
 } // namespace Common

@@ -6,9 +6,10 @@
 #include <QGraphicsView>
 #include <QPointer>
 
-#include "ui_magnifier.h"
-
-QT_FORWARD_DECLARE_CLASS(QMouseEvent)
+QT_BEGIN_NAMESPACE
+class QGraphicsView;
+class QMouseEvent;
+QT_END_NAMESPACE
 
 namespace ScxmlEditor {
 
@@ -46,7 +47,7 @@ private:
     QPoint m_topLeft;
     QPointer<GraphicsView> m_mainView;
     QRadialGradient m_gradientBrush;
-    Ui::Magnifier m_ui;
+    QGraphicsView *m_graphicsView;
 };
 
 } // namespace Common

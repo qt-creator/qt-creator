@@ -3,10 +3,12 @@
 
 #pragma once
 
-#include "ui_shapestoolbox.h"
-
 #include <QFrame>
 #include <QPointer>
+
+QT_BEGIN_NAMESPACE
+class QVBoxLayout;
+QT_END_NAMESPACE
 
 namespace ScxmlEditor {
 
@@ -33,7 +35,7 @@ public:
 private:
     QPointer<PluginInterface::ShapeProvider> m_shapeProvider;
     QList<QWidget*> m_widgets;
-    Ui::ShapesToolbox m_ui;
+    QVBoxLayout *m_shapeGroupsLayout;
 };
 
 } // namespace Common

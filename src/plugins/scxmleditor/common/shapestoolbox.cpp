@@ -6,12 +6,11 @@
 #include "scxmluifactory.h"
 #include "shapegroupwidget.h"
 #include "shapeprovider.h"
-#include "ui_shapestoolbox.h"
 
-#include <QDebug>
-#include <QResizeEvent>
-#include <QShowEvent>
+#include <QScrollArea>
+#include <QVBoxLayout>
 
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 using namespace ScxmlEditor::Common;
@@ -19,7 +18,21 @@ using namespace ScxmlEditor::Common;
 ShapesToolbox::ShapesToolbox(QWidget *parent)
     : QFrame(parent)
 {
-    m_ui.setupUi(this);
+    auto scrollArea = new QScrollArea;
+    scrollArea->setFrameShape(NoFrame);
+    scrollArea->setWidgetResizable(true);
+
+    auto shapeGroupsContainer = new QWidget;
+    scrollArea->setWidget(shapeGroupsContainer);
+
+    m_shapeGroupsLayout = new QVBoxLayout(shapeGroupsContainer);
+    m_shapeGroupsLayout->setContentsMargins(0, 0, 0, 0);
+    m_shapeGroupsLayout->setSpacing(0);
+
+    using namespace Utils::Layouting;
+    Column {
+        scrollArea,
+    }.setSpacing(0).attachTo(this, WithoutMargins);
 }
 
 void ShapesToolbox::setUIFactory(ScxmlEditor::PluginInterface::ScxmlUiFactory *factory)
@@ -42,10 +55,11 @@ void ShapesToolbox::initView()
         for (int i = 0; i < m_shapeProvider->groupCount(); ++i) {
             auto widget = new ShapeGroupWidget(m_shapeProvider, i);
             m_widgets << widget;
-            m_ui.m_shapeGrouplayout->addWidget(widget);
+            m_shapeGroupsLayout->addWidget(widget);
         }
     }
 
-    m_ui.m_shapeGrouplayout->update();
+    m_shapeGroupsLayout->addStretch(1);
+    m_shapeGroupsLayout->update();
     update();
 }

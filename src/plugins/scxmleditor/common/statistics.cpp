@@ -6,7 +6,11 @@
 #include "statistics.h"
 #include "warningmodel.h"
 
+#include <utils/itemviews.h>
+#include <utils/layoutbuilder.h>
+
 #include <QDateTime>
+#include <QLabel>
 #include <QSortFilterProxyModel>
 
 using namespace ScxmlEditor::PluginInterface;
@@ -112,24 +116,38 @@ QVariant StatisticsModel::data(const QModelIndex &index, int role) const
 Statistics::Statistics(QWidget *parent)
     : QFrame(parent)
 {
-    m_ui.setupUi(this);
-
     m_model = new StatisticsModel(this);
+
+    m_fileNameLabel = new QLabel;
+    m_fileNameLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+    m_levels = new QLabel;
+
+    m_timeLabel = new QLabel;
+    m_timeLabel->setText(QDateTime::currentDateTime().toString(tr("yyyy/MM/dd hh:mm:ss")));
 
     m_proxyModel = new QSortFilterProxyModel(this);
     m_proxyModel->setFilterKeyColumn(-1);
     m_proxyModel->setSourceModel(m_model);
 
-    m_ui.m_statisticsView->setModel(m_proxyModel);
-    m_ui.m_timeLabel->setText(QDateTime::currentDateTime().toString(tr("yyyy/MM/dd hh:mm:ss")));
+    m_statisticsView = new Utils::TreeView;
+    m_statisticsView->setModel(m_proxyModel);
+    m_statisticsView->setAlternatingRowColors(true);
+    m_statisticsView->setSortingEnabled(true);
+
+    using namespace Utils::Layouting;
+    Grid {
+        tr("File"), m_fileNameLabel, br,
+        tr("Time"), m_timeLabel, br,
+        tr("Max. levels"), m_levels, br,
+        Span(2, m_statisticsView), br
+    }.attachTo(this, WithoutMargins);
 }
 
 void Statistics::setDocument(ScxmlDocument *doc)
 {
-    m_ui.m_fileNameLabel->setText(doc->fileName());
+    m_fileNameLabel->setText(doc->fileName());
     m_model->setDocument(doc);
     m_proxyModel->invalidate();
     m_proxyModel->sort(1, Qt::DescendingOrder);
-    m_ui.m_statisticsView->resizeColumnsToContents();
-    m_ui.m_levels->setText(QString::fromLatin1("%1").arg(m_model->levels()));
+    m_levels->setText(QString::fromLatin1("%1").arg(m_model->levels()));
 }

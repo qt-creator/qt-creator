@@ -3,9 +3,14 @@
 
 #include "stateview.h"
 #include "graphicsscene.h"
+#include "graphicsview.h"
 #include "scxmldocument.h"
 #include "scxmluifactory.h"
 #include "stateitem.h"
+
+#include <utils/layoutbuilder.h>
+
+#include <QLabel>
 
 using namespace ScxmlEditor::PluginInterface;
 using namespace ScxmlEditor::Common;
@@ -14,14 +19,27 @@ StateView::StateView(StateItem *state, QWidget *parent)
     : QWidget(parent)
     , m_parentState(state)
 {
-    m_ui.setupUi(this);
-
     m_isMainView = !m_parentState;
 
-    connect(m_ui.m_btnClose, &QPushButton::clicked, this, &StateView::closeView);
+    auto titleBar = new QWidget;
+    titleBar->setVisible(!m_isMainView);
+    auto stateNameLabel = new QLabel;
+    stateNameLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+    stateNameLabel->setAlignment(Qt::AlignCenter);
     if (!m_isMainView)
-        m_ui.m_stateName->setText(m_parentState->itemId());
-    m_ui.m_titleFrame->setVisible(!m_isMainView);
+        stateNameLabel->setText(m_parentState->itemId());
+
+    m_graphicsView = new GraphicsView;
+
+    using namespace Utils::Layouting;
+    Row {
+        PushButton{ text("Back"), onClicked([this] { closeView(); }, this) },
+        stateNameLabel,
+    }.attachTo(titleBar, WithoutMargins);
+
+    Column {
+        titleBar, m_graphicsView
+    }.setSpacing(0).attachTo(this, WithoutMargins);
 
     initScene();
 }
@@ -47,7 +65,7 @@ void StateView::initScene()
 {
     // Init scene
     m_scene = new GraphicsScene(this);
-    m_ui.m_graphicsView->setGraphicsScene(m_scene);
+    m_graphicsView->setGraphicsScene(m_scene);
 }
 
 void StateView::closeView()
@@ -58,14 +76,14 @@ void StateView::closeView()
 void StateView::setUiFactory(ScxmlUiFactory *factory)
 {
     m_scene->setUiFactory(factory);
-    m_ui.m_graphicsView->setUiFactory(factory);
+    m_graphicsView->setUiFactory(factory);
 }
 
 void StateView::setDocument(ScxmlDocument *doc)
 {
     // Set document to scene
     m_scene->setDocument(doc);
-    m_ui.m_graphicsView->setDocument(doc);
+    m_graphicsView->setDocument(doc);
     if (doc)
         connect(doc, &ScxmlDocument::colorThemeChanged, m_scene, [this] { m_scene->invalidate(); });
 }
@@ -82,5 +100,5 @@ GraphicsScene *StateView::scene() const
 
 GraphicsView *StateView::view() const
 {
-    return m_ui.m_graphicsView;
+    return m_graphicsView;
 }

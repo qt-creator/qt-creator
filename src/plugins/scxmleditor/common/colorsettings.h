@@ -3,11 +3,16 @@
 
 #pragma once
 
-#include "ui_colorsettings.h"
 #include <QFrame>
+
+QT_BEGIN_NAMESPACE
+class QComboBox;
+QT_END_NAMESPACE
 
 namespace ScxmlEditor {
 namespace Common {
+
+class ColorThemeView;
 
 class ColorSettings : public QFrame
 {
@@ -25,7 +30,8 @@ private:
     void selectTheme(int);
 
     QVariantMap m_colorThemes;
-    Ui::ColorSettings m_ui;
+    ColorThemeView *m_colorThemeView;
+    QComboBox *m_comboColorThemes;
 };
 
 } // namespace Common
