@@ -958,7 +958,7 @@ protected:
 
 protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
-    //Sqlite::Database database{TESTDATA_DIR "/aaaaa.db", Sqlite::JournalMode::Wal};
+    //Sqlite::Database database{"/tmp/aaaaa.db", Sqlite::JournalMode::Wal};
     QmlDesigner::ProjectStorage<Sqlite::Database> storage{database, database.isInitialized()};
     QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage<Sqlite::Database>> sourcePathCache{
         storage};
@@ -5745,8 +5745,9 @@ TEST_F(ProjectStorage, SynchronizeDefaultProperty)
     storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                ElementsAre(Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("children")),
-                            _));
+                Contains(AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
+                               Field(&Storage::Synchronization::Type::defaultPropertyName,
+                                     Eq("children")))));
 }
 
 TEST_F(ProjectStorage, SynchronizeDefaultPropertyToADifferentName)
@@ -5759,8 +5760,9 @@ TEST_F(ProjectStorage, SynchronizeDefaultPropertyToADifferentName)
     storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                ElementsAre(Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("data")),
-                            _));
+                Contains(
+                    AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
+                          Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("data")))));
 }
 
 TEST_F(ProjectStorage, SynchronizeToRemovedDefaultProperty)
@@ -5773,7 +5775,9 @@ TEST_F(ProjectStorage, SynchronizeToRemovedDefaultProperty)
     storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                ElementsAre(Field(&Storage::Synchronization::Type::defaultPropertyName, IsEmpty()), _));
+                Contains(
+                    AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
+                          Field(&Storage::Synchronization::Type::defaultPropertyName, IsEmpty()))));
 }
 
 TEST_F(ProjectStorage, SynchronizeDefaultPropertyThrowsForMissingDefaultProperty)
@@ -5807,8 +5811,9 @@ TEST_F(ProjectStorage, SynchronizeChangesDefaultPropertyAndRemovesOldDefaultProp
     storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                ElementsAre(Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("data")),
-                            _));
+                Contains(
+                    AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
+                          Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("data")))));
 }
 
 TEST_F(ProjectStorage, SynchronizeAddNewDefaultPropertyAndRemovesOldDefaultProperty)
@@ -5828,8 +5833,9 @@ TEST_F(ProjectStorage, SynchronizeAddNewDefaultPropertyAndRemovesOldDefaultPrope
     storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                ElementsAre(Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("data2")),
-                            _));
+                Contains(
+                    AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
+                          Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("data2")))));
 }
 
 TEST_F(ProjectStorage, SynchronizeDefaultPropertyToThePrototypeProperty)
@@ -5844,8 +5850,9 @@ TEST_F(ProjectStorage, SynchronizeDefaultPropertyToThePrototypeProperty)
     storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                ElementsAre(Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("children")),
-                            _));
+                Contains(AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
+                               Field(&Storage::Synchronization::Type::defaultPropertyName,
+                                     Eq("children")))));
 }
 
 TEST_F(ProjectStorage, SynchronizeMoveTheDefaultPropertyToThePrototypeProperty)
@@ -5861,8 +5868,9 @@ TEST_F(ProjectStorage, SynchronizeMoveTheDefaultPropertyToThePrototypeProperty)
     storage.synchronize(package);
 
     ASSERT_THAT(storage.fetchTypes(),
-                ElementsAre(Field(&Storage::Synchronization::Type::defaultPropertyName, Eq("children")),
-                            _));
+                Contains(AllOf(Field(&Storage::Synchronization::Type::typeName, Eq("QQuickItem")),
+                               Field(&Storage::Synchronization::Type::defaultPropertyName,
+                                     Eq("children")))));
 }
 
 TEST_F(ProjectStorage, GetType)
