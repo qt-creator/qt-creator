@@ -350,6 +350,10 @@ void tst_fileutils::fromString_data()
     QTest::addColumn<OsType>("osType");
 
     QTest::newRow("empty") << "" << "" << "" << "" << HostOsInfo::hostOs();
+    QTest::newRow("single-slash") << ":" << "" << "" << ":" << HostOsInfo::hostOs();
+    QTest::newRow("single-colon") << "/" << "" << "" << "/" << HostOsInfo::hostOs();
+    QTest::newRow("single-char") << "a" << "" << "" << "a" << HostOsInfo::hostOs();
+    QTest::newRow("qrc-no-slash") << ":test.txt" << "" << "" << ":test.txt" << HostOsInfo::hostOs();
     QTest::newRow("qrc") << ":/test.txt" << "" << "" << ":/test.txt" << HostOsInfo::hostOs();
     QTest::newRow("unc-incomplete") << "//" << "" << "" << "" << OsType::OsTypeWindows;
     QTest::newRow("unc-incomplete-only-server") << "//server" << "" << "" << "//server/" << OsType::OsTypeWindows;

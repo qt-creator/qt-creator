@@ -821,8 +821,13 @@ void FilePath::setRootAndPath(QStringView path, OsType osType)
         m_root = "/";
         m_path = path.mid(1).toString();
     } else if (path.startsWith(':')) {
-        m_root = ":/";
-        m_path = path.mid(2).toString();
+        if (path.length() > 1 && path[1] == '/') {
+            m_root = ":/";
+            m_path = path.mid(2).toString();
+        } else {
+            m_root = ":";
+            m_path = path.mid(1).toString();
+        }
     } else {
         m_root.clear();
         m_path = path.toString();
