@@ -473,16 +473,16 @@ void CompilerOptionsBuilder::addLanguageVersionAndExtensions()
         default:
             break;
         case LanguageVersion::CXX14:
-            option = "-clang:std=c++14";
+            option = "-clang:-std=c++14";
             break;
         case LanguageVersion::CXX17:
-            option = "-clang:std=c++17";
+            option = "-clang:-std=c++17";
             break;
         case LanguageVersion::CXX20:
-            option = "-clang:std=c++20";
+            option = "-clang:-std=c++20";
             break;
         case LanguageVersion::CXX2b:
-            option = "-clang:std=c++2b";
+            option = "-clang:-std=c++2b";
             break;
         }
 
