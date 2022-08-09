@@ -1533,7 +1533,8 @@ bool ClientPrivate::reset()
     qDeleteAll(m_documentHighlightsTimer);
     m_documentHighlightsTimer.clear();
     m_progressManager.reset();
-    m_shadowDocuments.clear();
+    for (auto &doc : m_shadowDocuments)
+        doc.second.clear();
     m_documentVersions.clear();
     return true;
 }
