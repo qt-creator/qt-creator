@@ -73,6 +73,7 @@
 #include <QMimeData>
 #include <QPainter>
 #include <QSet>
+#include <QStringDecoder>
 #include <QTableWidget>
 #include <QTabWidget>
 #include <QTextEdit>
@@ -663,6 +664,15 @@ static QString reformatInteger(quint64 value, int format, int size, bool isSigne
 // Format printable (char-type) characters
 static QString reformatCharacter(int code, int size, bool isSigned)
 {
+    if (code > 0xffff) {
+        std::array<char, sizeof(char32_t)> buf;
+        memcpy(buf.data(), &code, sizeof(char32_t));
+        QByteArrayView view(buf);
+        const QString encoded = QStringDecoder(QStringDecoder::Utf32)(view);
+        return QString("'%1'\t%2\t0x%3").arg(encoded).arg(unsigned(code)).arg(uint(code & ((1ULL << (8*size)) - 1)),
+                2 * size, 16, QLatin1Char('0'));
+    }
+
     QChar c;
     switch (size) {
         case 1: c = QChar(uchar(code)); break;
@@ -694,7 +704,10 @@ static QString reformatCharacter(int code, int size, bool isSigned)
         else
             out += QString(2 + 2 * size, ' ');
     } else {
-        out += QString::number(unsigned(code));
+        if (size == 2)
+            out += QString::number(char16_t(code));
+        else
+            out += QString::number(unsigned(code));
     }
 
     out += '\t';
