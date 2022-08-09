@@ -41,7 +41,7 @@ public:
                 (QmlDesigner::Storage::Synchronization::SynchronizationPackage package),
                 (override));
 
-    MOCK_METHOD(QmlDesigner::ModuleId, moduleId, (Utils::SmallStringView), (override));
+    MOCK_METHOD(QmlDesigner::ModuleId, moduleId, (Utils::SmallStringView), (const, override));
 
     MOCK_METHOD(QmlDesigner::FileStatus,
                 fetchFileStatus,

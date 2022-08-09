@@ -378,6 +378,41 @@ protected:
         return package;
     }
 
+    auto createBuiltinSynchronizationPackage()
+    {
+        SynchronizationPackage package;
+
+        package.imports.emplace_back(QMLModuleId, Storage::Synchronization::Version{}, sourceId1);
+        package.moduleDependencies.emplace_back(QMLModuleId,
+                                                Storage::Synchronization::Version{},
+                                                sourceId1);
+        package.updatedModuleDependencySourceIds.push_back(sourceId1);
+
+        importsSourceId1.emplace_back(QMLModuleId, Storage::Synchronization::Version{}, sourceId1);
+        moduleDependenciesSourceId1.emplace_back(QMLModuleId,
+                                                 Storage::Synchronization::Version{},
+                                                 sourceId1);
+
+        package.types.push_back(
+            Storage::Synchronization::Type{"double",
+                                           Storage::Synchronization::ImportedType{},
+                                           TypeTraits::Value,
+                                           sourceId1,
+                                           {Storage::Synchronization::ExportedType{QMLModuleId,
+                                                                                   "double"}}});
+        package.types.push_back(
+            Storage::Synchronization::Type{"var",
+                                           Storage::Synchronization::ImportedType{},
+                                           TypeTraits::Value,
+                                           sourceId1,
+                                           {Storage::Synchronization::ExportedType{QMLModuleId,
+                                                                                   "var"}}});
+
+        package.updatedSourceIds = {sourceId1};
+
+        return package;
+    }
+
     auto createSynchronizationPackageWithAliases()
     {
         auto package{createSimpleSynchronizationPackage()};
@@ -983,6 +1018,7 @@ protected:
     ModuleId pathToModuleId{storage.moduleId("/path/to")};
     ModuleId qtQuick3DModuleId{storage.moduleId("QtQuick3D")};
     ModuleId myModuleModuleId{storage.moduleId("MyModule")};
+    ModuleId QMLModuleId{storage.moduleId("QML")};
     Storage::Synchronization::Imports importsSourceId1;
     Storage::Synchronization::Imports importsSourceId2;
     Storage::Synchronization::Imports importsSourceId3;
@@ -5894,6 +5930,116 @@ TEST_F(ProjectStorage, DontGetTypeForInvalidId)
     auto type = storage.type(TypeId());
 
     ASSERT_THAT(type, Eq(Utils::nullopt));
+}
+
+TEST_F(ProjectStorage, GetCommonType)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+
+    auto typeId = storage.commonTypeId<QmlDesigner::Storage::Info::QtQuick,
+                                       QmlDesigner::Storage::Info::Item>();
+
+    ASSERT_THAT(typeId, fetchTypeId(sourceId1, "QQuickItem"));
+}
+
+TEST_F(ProjectStorage, GetCommonTypeAgain)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    auto firstTypeId = storage.commonTypeId<QmlDesigner::Storage::Info::QtQuick,
+                                            QmlDesigner::Storage::Info::Item>();
+
+    auto typeId = storage.commonTypeId<QmlDesigner::Storage::Info::QtQuick,
+                                       QmlDesigner::Storage::Info::Item>();
+
+    ASSERT_THAT(typeId, firstTypeId);
+}
+
+TEST_F(ProjectStorage, GetCommonTypeAfterChangingType)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    auto oldTypeId = storage.commonTypeId<QmlDesigner::Storage::Info::QtQuick,
+                                          QmlDesigner::Storage::Info::Item>();
+    package.types.front().typeName = "QQuickItem2";
+    storage.synchronize(package);
+
+    auto typeId = storage.commonTypeId<QmlDesigner::Storage::Info::QtQuick,
+                                       QmlDesigner::Storage::Info::Item>();
+
+    ASSERT_THAT(typeId, Ne(oldTypeId));
+    ASSERT_THAT(typeId, fetchTypeId(sourceId1, "QQuickItem2"));
+}
+
+TEST_F(ProjectStorage, GetBuiltinType)
+{
+    auto package{createBuiltinSynchronizationPackage()};
+    storage.synchronize(package);
+
+    auto typeId = storage.builtinTypeId<double>();
+
+    ASSERT_THAT(typeId, fetchTypeId(sourceId1, "double"));
+}
+
+TEST_F(ProjectStorage, GetBuiltinTypeAgain)
+{
+    auto package{createBuiltinSynchronizationPackage()};
+    storage.synchronize(package);
+    auto firstTypeId = storage.builtinTypeId<double>();
+
+    auto typeId = storage.builtinTypeId<double>();
+
+    ASSERT_THAT(typeId, firstTypeId);
+}
+
+TEST_F(ProjectStorage, GetBuiltinTypeAfterChangingType)
+{
+    auto package{createBuiltinSynchronizationPackage()};
+    storage.synchronize(package);
+    auto oldTypeId = storage.builtinTypeId<double>();
+    package.types.front().typeName = "float";
+    storage.synchronize(package);
+
+    auto typeId = storage.builtinTypeId<double>();
+
+    ASSERT_THAT(typeId, Ne(oldTypeId));
+    ASSERT_THAT(typeId, fetchTypeId(sourceId1, "float"));
+}
+
+TEST_F(ProjectStorage, GetBuiltinStringType)
+{
+    auto package{createBuiltinSynchronizationPackage()};
+    storage.synchronize(package);
+
+    auto typeId = storage.builtinTypeId<QmlDesigner::Storage::Info::var>();
+
+    ASSERT_THAT(typeId, fetchTypeId(sourceId1, "var"));
+}
+
+TEST_F(ProjectStorage, GetBuiltinStringTypeAgain)
+{
+    auto package{createBuiltinSynchronizationPackage()};
+    storage.synchronize(package);
+    auto firstTypeId = storage.builtinTypeId<QmlDesigner::Storage::Info::var>();
+
+    auto typeId = storage.builtinTypeId<QmlDesigner::Storage::Info::var>();
+
+    ASSERT_THAT(typeId, firstTypeId);
+}
+
+TEST_F(ProjectStorage, GetBuiltinStringTypeAfterChangingType)
+{
+    auto package{createBuiltinSynchronizationPackage()};
+    storage.synchronize(package);
+    auto oldTypeId = storage.builtinTypeId<QmlDesigner::Storage::Info::var>();
+    package.types.back().typeName = "variant";
+    storage.synchronize(package);
+
+    auto typeId = storage.builtinTypeId<QmlDesigner::Storage::Info::var>();
+
+    ASSERT_THAT(typeId, Ne(oldTypeId));
+    ASSERT_THAT(typeId, fetchTypeId(sourceId1, "variant"));
 }
 
 } // namespace

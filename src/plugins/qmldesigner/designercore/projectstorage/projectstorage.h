@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "commontypecache.h"
 #include "projectstorageexceptions.h"
 #include "projectstorageinterface.h"
 #include "sourcepathcachetypes.h"
@@ -116,15 +117,17 @@ public:
 
         synchronizeProjectDatas(package.projectDatas, package.updatedProjectSourceIds);
 
+        commonTypeCache.resetTypeIds();
+
         transaction.commit();
     }
 
-    ModuleId moduleId(Utils::SmallStringView moduleName) override
+    ModuleId moduleId(Utils::SmallStringView moduleName) const override
     {
         return moduleCache.id(moduleName);
     }
 
-    Utils::SmallString moduleName(ModuleId moduleId)
+    Utils::SmallString moduleName(ModuleId moduleId) const
     {
         if (!moduleId)
             throw ModuleDoesNotExists{};
@@ -134,7 +137,7 @@ public:
 
     TypeId typeId(ModuleId moduleId,
                   Utils::SmallStringView exportedTypeName,
-                  Storage::Synchronization::Version version)
+                  Storage::Synchronization::Version version) const
     {
         if (version.minor)
             return selectTypeIdByModuleIdAndExportedNameAndVersionStatement
@@ -206,6 +209,24 @@ public:
     {
         return selectPropertyNameStatement.template optionalValueWithTransaction<Utils::SmallString>(
             propertyDeclarationId);
+    }
+
+    template<const auto &moduleName, const auto &typeName>
+    TypeId commonTypeId() const
+    {
+        return commonTypeCache.template typeId<moduleName, typeName>();
+    }
+
+    template<typename BuiltinType>
+    TypeId builtinTypeId() const
+    {
+        return commonTypeCache.template builtinTypeId<BuiltinType>();
+    }
+
+    template<const auto &builtinType>
+    TypeId builtinTypeId() const
+    {
+        return commonTypeCache.template builtinTypeId<builtinType>();
     }
 
     PropertyDeclarationId fetchPropertyDeclarationByTypeIdAndName(TypeId typeId,
@@ -2515,7 +2536,8 @@ private:
 public:
     Database &database;
     Initializer initializer;
-    ModuleCache moduleCache{ModuleStorageAdapter{*this}};
+    mutable ModuleCache moduleCache{ModuleStorageAdapter{*this}};
+    Storage::Info::CommonTypeCache<ProjectStorage<Database>> commonTypeCache{*this};
     ReadWriteStatement<1, 3> upsertTypeStatement{
         "INSERT INTO types(sourceId, name,  traits) VALUES(?1, ?2, ?3) ON CONFLICT DO "
         "UPDATE SET traits=excluded.traits WHERE traits IS NOT "

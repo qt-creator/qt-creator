@@ -456,6 +456,7 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX designercore/projectstorage
   SOURCES
+    commontypecache.h
     directorypathcompressor.h
     filesysteminterface.h
     filesystem.cpp filesystem.h
