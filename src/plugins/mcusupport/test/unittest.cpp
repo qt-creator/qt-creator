@@ -144,8 +144,6 @@ const char nxp1064[]{"IMXRT1064"};
 const char nxp1170FreeRtosEnvVar[]{"EVK_MIMXRT1170_FREERTOS_PATH"};
 const char nxp1170[]{"EVK_MIMXRT1170"};
 const char qtForMcuSdkPath[]{"/opt/qtformcu/2.2"};
-const char qulCmakeVar[]{"Qul_ROOT"};
-const char qulEnvVar[]{"Qul_DIR"};
 const char qulLabel[]{"Qt for MCUs SDK"};
 const char stm32f7FreeRtosEnvVar[]{"STM32F7_FREERTOS_DIR"};
 const char stm32f7[]{"STM32F7"};
@@ -165,8 +163,8 @@ const int colorDepth{32};
 
 const PackageDescription qtForMCUsSDKDescription{
     Legacy::Constants::QUL_LABEL,
-    qulEnvVar,
-    qulCmakeVar,
+    QUL_ENV_VAR,
+    QUL_CMAKE_VAR,
     Legacy::Constants::QUL_LABEL,
     Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK,
     qtForMcuSdkPath,
@@ -179,7 +177,7 @@ const McuTargetDescription::Platform platformDescription{id,
                                                          {colorDepth},
                                                          McuTargetDescription::TargetType::MCU,
                                                          {qtForMCUsSDKDescription}};
-const Utils::Id cxxLanguageId{ProjectExplorer::Constants::CXX_LANGUAGE_ID};
+const Id cxxLanguageId{ProjectExplorer::Constants::CXX_LANGUAGE_ID};
 } // namespace
 
 void verifyIarToolchain(const McuToolChainPackagePtr &iarToolchainPackage)
@@ -371,8 +369,8 @@ void McuSupportTest::initTestCase()
     EXPECT_CALL(*freeRtosPackage, isAddToSystemPath()).WillRepeatedly(Return(true));
     EXPECT_CALL(*freeRtosPackage, detectionPath()).WillRepeatedly(Return(FilePath{}));
 
-    EXPECT_CALL(*sdkPackage, environmentVariableName()).WillRepeatedly(Return(QString{qulEnvVar}));
-    EXPECT_CALL(*sdkPackage, cmakeVariableName()).WillRepeatedly(Return(QString{qulCmakeVar}));
+    EXPECT_CALL(*sdkPackage, environmentVariableName()).WillRepeatedly(Return(QString{QUL_ENV_VAR}));
+    EXPECT_CALL(*sdkPackage, cmakeVariableName()).WillRepeatedly(Return(QString{QUL_CMAKE_VAR}));
     EXPECT_CALL(*sdkPackage, isValidStatus()).WillRepeatedly(Return(true));
     EXPECT_CALL(*sdkPackage, path()).WillRepeatedly(Return(FilePath::fromUserInput(qtForMcuSdkPath)));
     EXPECT_CALL(*sdkPackage, isAddToSystemPath()).WillRepeatedly(Return(true));
