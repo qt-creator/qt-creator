@@ -160,6 +160,20 @@ static void checkSystemForClangdSuitability()
     Core::ICore::infoBar()->addInfo(info);
 }
 
+static void updateParserConfig(ClangdClient *client)
+{
+    if (!client->reachable())
+        return;
+    if (const auto editor = TextEditor::BaseTextEditor::currentTextEditor()) {
+        if (!client->documentOpen(editor->textDocument()))
+            return;
+        const Utils::FilePath filePath = editor->textDocument()->filePath();
+        if (const auto processor = ClangEditorDocumentProcessor::get(filePath.toString()))
+            client->updateParserConfig(filePath, processor->parserConfig());
+    }
+}
+
+
 ClangModelManagerSupport::ClangModelManagerSupport()
 {
     QTC_CHECK(!m_instance);
@@ -399,6 +413,12 @@ void ClangModelManagerSupport::updateLanguageClient(
         if (Client * const oldClient = clientForProject(project))
             LanguageClientManager::shutdownClient(oldClient);
         ClangdClient * const client = createClient(project, jsonDbDir);
+        connect(client, &Client::shadowDocumentSwitched, this,
+                [](const Utils::FilePath &fp) {
+                    ClangdClient::handleUiHeaderChange(fp.fileName());
+        });
+        connect(CppModelManager::instance(), &CppModelManager::projectPartsUpdated,
+                client, [client] { updateParserConfig(client); });
         connect(client, &Client::initialized, this, [this, client, project, projectInfo, jsonDbDir] {
             using namespace ProjectExplorer;
             if (!SessionManager::hasProject(project))
@@ -410,25 +430,15 @@ void ClangModelManagerSupport::updateLanguageClient(
             if (!newProjectInfo || *newProjectInfo != *projectInfo)
                 return;
 
-            const auto updateParserConfig = [client] {
-                if (const auto editor = TextEditor::BaseTextEditor::currentTextEditor()) {
-                    if (!client->documentOpen(editor->textDocument()))
-                        return;
-                    const Utils::FilePath filePath = editor->textDocument()->filePath();
-                    if (const auto processor = ClangEditorDocumentProcessor::get(
-                                filePath.toString())) {
-                        const CppEditor::BaseEditorDocumentParser::Configuration config
-                                = processor->parserConfig();
-                        client->updateParserConfig(filePath, config);
-                    }
-                }
-            };
-
             // Acquaint the client with all open C++ documents for this project.
             bool hasDocuments = false;
             const ClangdSettings settings(ClangdProjectSettings(project).settings());
             for (TextEditor::TextDocument * const doc : allCppDocuments()) {
                 Client * const currentClient = LanguageClientManager::clientForDocument(doc);
+                if (currentClient == client) {
+                    hasDocuments = true;
+                    continue;
+                }
                 if (!settings.sizeIsOkay(doc->filePath()))
                     continue;
                 const Project * const docProject = SessionManager::projectForFile(doc->filePath());
@@ -457,17 +467,8 @@ void ClangModelManagerSupport::updateLanguageClient(
                     ++it;
                 }
             }
-            connect(client, &Client::shadowDocumentSwitched, this,
-                    [](const Utils::FilePath &fp) {
-                        ClangdClient::handleUiHeaderChange(fp.fileName());
-            });
 
-            if (client->state() == Client::Initialized)
-                updateParserConfig();
-            else
-                connect(client, &Client::initialized, client, updateParserConfig);
-            connect(CppModelManager::instance(), &CppModelManager::projectPartsUpdated,
-                    client, updateParserConfig);
+            updateParserConfig(client);
 
             if (hasDocuments)
                 return;
