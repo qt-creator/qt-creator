@@ -302,7 +302,7 @@ void QmlTimeline::insertKeyframe(const ModelNode &target, const PropertyName &pr
 
     QTC_ASSERT(timelineFrames.isValid(), return );
 
-    const qreal frame = modelNode().auxiliaryData(currentFrameProperty)->toReal();
+    const qreal frame = modelNode().auxiliaryDataWithDefault(currentFrameProperty).toReal();
     const QVariant value = QmlObjectNode(targetNode).instanceValue(propertyName);
 
     timelineFrames.setValue(value, frame);

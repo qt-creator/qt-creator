@@ -349,7 +349,8 @@ void Qt5InformationNodeInstanceServer::updateRotationBlocks(
         QSet<QQuick3DNode *> unblockedNodes;
         const PropertyName rotBlocked = "rotBlocked";
         for (const auto &container : valueChanges) {
-            if (container.name() == rotBlocked) {
+            if (container.name() == rotBlocked
+                && container.auxiliaryDataType() == AuxiliaryDataType::NodeInstanceAuxiliary) {
                 ServerNodeInstance instance = instanceForId(container.instanceId());
                 if (instance.isValid()) {
                     auto node = qobject_cast<QQuick3DNode *>(instance.internalObject());

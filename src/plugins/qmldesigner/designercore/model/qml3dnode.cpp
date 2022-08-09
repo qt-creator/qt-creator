@@ -24,15 +24,16 @@
 ****************************************************************************/
 
 #include "qml3dnode.h"
-#include <metainfo.h>
-#include "qmlchangeset.h"
-#include "nodelistproperty.h"
-#include "nodehints.h"
-#include "variantproperty.h"
+#include "auxiliarydataproperties.h"
 #include "bindingproperty.h"
-#include "qmlanchors.h"
 #include "invalidmodelnodeexception.h"
 #include "itemlibraryinfo.h"
+#include "nodehints.h"
+#include "nodelistproperty.h"
+#include "qmlanchors.h"
+#include "qmlchangeset.h"
+#include "variantproperty.h"
+#include <metainfo.h>
 
 #include "plaintexteditmodifier.h"
 #include "rewriterview.h"
@@ -92,7 +93,7 @@ void Qml3DNode::setBindingProperty(const PropertyName &name, const QString &expr
 bool Qml3DNode::isBlocked(const PropertyName &propName) const
 {
     if (modelNode().isValid() && propName.startsWith("eulerRotation"))
-        return modelNode().auxiliaryDataWithDefault(AuxiliaryDataType::Temporary, "rotBlocked").toBool();
+        return modelNode().auxiliaryDataWithDefault(rotBlockProperty).toBool();
 
     return false;
 }

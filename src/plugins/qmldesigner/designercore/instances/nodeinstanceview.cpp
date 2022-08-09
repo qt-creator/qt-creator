@@ -76,6 +76,7 @@
 #include "nanotracecommand.h"
 #include "nanotrace/nanotrace.h"
 
+#include <auxiliarydataproperties.h>
 #include <designersettings.h>
 #include <metainfo.h>
 #include <model.h>
@@ -676,7 +677,19 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
         };
         break;
 
-    case AuxiliaryDataType::NodeInstance:
+    case AuxiliaryDataType::NodeInstanceAuxiliary:
+        if (hasInstanceForModelNode(node)) {
+            NodeInstance instance = instanceForModelNode(node);
+            PropertyValueContainer container{instance.instanceId(),
+                                             PropertyName{key.name},
+                                             value,
+                                             TypeName(),
+                                             key.type};
+            m_nodeInstanceServer->changeAuxiliaryValues({{container}});
+        };
+        break;
+
+    case AuxiliaryDataType::NodeInstancePropertyOverwrite:
         if (hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
             if (value.isValid()) {
@@ -707,18 +720,6 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
         break;
 
     case AuxiliaryDataType::Temporary:
-        if (key.name == "rotBlocked" && hasInstanceForModelNode(node)) {
-            NodeInstance instance = instanceForModelNode(node);
-            if (value.isValid()) {
-                PropertyValueContainer container{instance.instanceId(),
-                                                 PropertyName{key.name},
-                                                 value,
-                                                 TypeName(),
-                                                 key.type};
-                m_nodeInstanceServer->changeAuxiliaryValues({{container}});
-            }
-        };
-
         if (node.isRootNode()) {
             if (key.name == "language") {
                 const QString languageAsString = value.toString();
@@ -1037,9 +1038,9 @@ QList<ModelNode> filterNodesForSkipItems(const QList<ModelNode> &nodeList)
 namespace {
 bool shouldSendAuxiliary(const AuxiliaryDataKey &key)
 {
-    return key == invisibleProperty || key == lockedProperty
-           || key.type == AuxiliaryDataType::NodeInstance
-           || (key.type == AuxiliaryDataType::Temporary && key.name == "rotBlocked");
+    return key.type == AuxiliaryDataType::NodeInstancePropertyOverwrite
+           || key.type == AuxiliaryDataType::NodeInstanceAuxiliary || key == invisibleProperty
+           || key == lockedProperty;
 }
 } // namespace
 
@@ -2237,12 +2238,11 @@ void NodeInstanceView::updateRotationBlocks()
         }
     }
     if (!qml3DNodes.isEmpty()) {
-        const PropertyName auxDataProp{"rotBlocked"};
         for (const auto &node : qAsConst(qml3DNodes)) {
             if (rotationKeyframeTargets.contains(node))
-                node.setAuxiliaryData(AuxiliaryDataType::Temporary, auxDataProp, true);
+                node.setAuxiliaryData(rotBlockProperty, true);
             else
-                node.setAuxiliaryData(AuxiliaryDataType::Temporary, auxDataProp, false);
+                node.setAuxiliaryData(rotBlockProperty, false);
         }
     }
 }

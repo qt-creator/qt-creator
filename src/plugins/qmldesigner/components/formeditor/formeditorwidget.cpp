@@ -63,7 +63,7 @@
 namespace QmlDesigner {
 
 namespace {
-constexpr AuxiliaryDataKeyView formeditorZoomProperty{AuxiliaryDataType::NodeInstance,
+constexpr AuxiliaryDataKeyView formeditorZoomProperty{AuxiliaryDataType::NodeInstancePropertyOverwrite,
                                                       "formeditorZoom"};
 }
 

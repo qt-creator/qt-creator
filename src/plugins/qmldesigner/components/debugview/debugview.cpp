@@ -250,8 +250,11 @@ QTextStream &operator<<(QTextStream &stream, AuxiliaryDataType type)
     case AuxiliaryDataType::None:
         stream << "None";
         break;
-    case AuxiliaryDataType::NodeInstance:
-        stream << "NodeInstance";
+    case AuxiliaryDataType::NodeInstancePropertyOverwrite:
+        stream << "NodeInstancePropertyOverwrite";
+        break;
+    case AuxiliaryDataType::NodeInstanceAuxiliary:
+        stream << "NodeInstanceAuxiliary";
         break;
     case AuxiliaryDataType::Document:
         stream << "Permanent";

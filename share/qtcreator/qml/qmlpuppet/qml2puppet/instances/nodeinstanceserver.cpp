@@ -1009,7 +1009,7 @@ void NodeInstanceServer::setInstancePropertyVariant(const PropertyValueContainer
 
 void NodeInstanceServer::setInstanceAuxiliaryData(const PropertyValueContainer &auxiliaryContainer)
 {
-    if (auxiliaryContainer.auxiliaryDataType() == AuxiliaryDataType::NodeInstance) {
+    if (auxiliaryContainer.auxiliaryDataType() == AuxiliaryDataType::NodeInstancePropertyOverwrite) {
         if (!auxiliaryContainer.value().isNull())
             setInstancePropertyVariant(auxiliaryContainer);
         else

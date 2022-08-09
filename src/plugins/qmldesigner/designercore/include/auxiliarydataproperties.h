@@ -60,8 +60,10 @@ public:
 inline constexpr AuxiliaryDataKeyDefaultValue customIdProperty{AuxiliaryDataType::Document,
                                                                "customId",
                                                                QStringView{}};
-inline constexpr AuxiliaryDataKeyDefaultValue widthProperty{AuxiliaryDataType::NodeInstance, "width", 4};
-inline constexpr AuxiliaryDataKeyView heightProperty{AuxiliaryDataType::NodeInstance, "height"};
+inline constexpr AuxiliaryDataKeyDefaultValue widthProperty{
+    AuxiliaryDataType::NodeInstancePropertyOverwrite, "width", 4};
+inline constexpr AuxiliaryDataKeyView heightProperty{AuxiliaryDataType::NodeInstancePropertyOverwrite,
+                                                     "height"};
 inline constexpr AuxiliaryDataKeyDefaultValue breakPointProperty{AuxiliaryDataType::Document,
                                                                  "breakPoint",
                                                                  50};
@@ -132,13 +134,16 @@ inline constexpr AuxiliaryDataKeyView transitionDurationProperty{AuxiliaryDataTy
                                                                  "transitionDuration"};
 inline constexpr AuxiliaryDataKeyView targetProperty{AuxiliaryDataType::Document, "target"};
 inline constexpr AuxiliaryDataKeyView propertyProperty{AuxiliaryDataType::Document, "property"};
-inline constexpr AuxiliaryDataKeyView currentFrameProperty{AuxiliaryDataType::NodeInstance,
+inline constexpr AuxiliaryDataKeyView currentFrameProperty{AuxiliaryDataType::NodeInstancePropertyOverwrite,
                                                            "currentFrame"};
 inline constexpr AuxiliaryDataKeyView annotationProperty{AuxiliaryDataType::Document, "annotation"};
 inline constexpr AuxiliaryDataKeyView globalAnnotationProperty{AuxiliaryDataType::Document,
                                                                "globalAnnotation"};
 inline constexpr AuxiliaryDataKeyView globalAnnotationStatus{AuxiliaryDataType::Document,
                                                              "globalAnnotationStatus"};
+inline constexpr AuxiliaryDataKeyView rotBlockProperty{AuxiliaryDataType::NodeInstanceAuxiliary,
+                                                       "rotBlock"};
+
 template<typename Type>
 QVariant getDefaultValueAsQVariant(const Type &key)
 {
