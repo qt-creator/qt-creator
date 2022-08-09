@@ -24,9 +24,13 @@
 ****************************************************************************/
 
 #include "materialbrowsermodel.h"
-#include "variantproperty.h"
+
+#include <bindingproperty.h>
 #include <designmodewidget.h>
 #include <qmldesignerplugin.h>
+#include <qmlobjectnode.h>
+#include "variantproperty.h"
+#include "utils/qtcassert.h"
 
 namespace QmlDesigner {
 
@@ -46,24 +50,23 @@ int MaterialBrowserModel::rowCount(const QModelIndex &) const
 
 QVariant MaterialBrowserModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= m_materialList.count()) {
-        qWarning() << Q_FUNC_INFO << "invalid index requested";
-        return {};
-    }
+    QTC_ASSERT(index.isValid() && index.row() < m_materialList.count(), return {});
+    QTC_ASSERT(roleNames().contains(role), return {});
 
-    if (roleNames().value(role) == "materialName") {
+    QByteArray roleName = roleNames().value(role);
+    if (roleName == "materialName") {
         QVariant objName = m_materialList.at(index.row()).variantProperty("objectName").value();
         return objName.isValid() ? objName : "";
     }
 
-    if (roleNames().value(role) == "materialInternalId")
+    if (roleName == "materialInternalId")
         return m_materialList.at(index.row()).internalId();
 
-    if (roleNames().value(role) == "materialVisible")
+    if (roleName == "materialVisible")
         return isMaterialVisible(index.row());
 
-    if (!roleNames().contains(role))
-        qWarning() << Q_FUNC_INFO << "invalid role requested";
+    if (roleName == "materialType")
+        return m_materialList.at(index.row()).type();
 
     return {};
 }
@@ -88,6 +91,7 @@ QHash<int, QByteArray> MaterialBrowserModel::roleNames() const
         {Qt::UserRole + 1, "materialName"},
         {Qt::UserRole + 2, "materialInternalId"},
         {Qt::UserRole + 3, "materialVisible"},
+        {Qt::UserRole + 4, "materialType"}
     };
     return roles;
 }
@@ -118,6 +122,20 @@ void MaterialBrowserModel::setHasModelSelection(bool b)
 
     m_hasModelSelection = b;
     emit hasModelSelectionChanged();
+}
+
+TypeName MaterialBrowserModel::copiedMaterialType() const
+{
+    return m_copiedMaterialType;
+}
+
+void MaterialBrowserModel::setCopiedMaterialType(const TypeName &matType)
+{
+    if (matType == m_copiedMaterialType)
+        return;
+
+    m_copiedMaterialType = matType;
+    emit copiedMaterialTypeChanged();
 }
 
 QList<ModelNode> MaterialBrowserModel::materials() const
@@ -260,6 +278,18 @@ void MaterialBrowserModel::selectMaterial(int idx, bool force)
 void MaterialBrowserModel::duplicateMaterial(int idx)
 {
     emit duplicateMaterialTriggered(m_materialList.at(idx));
+}
+
+void MaterialBrowserModel::copyMaterialProperties(int idx)
+{
+    ModelNode mat = m_materialList.at(idx);
+    m_copiedMaterialProps = mat.properties();
+    setCopiedMaterialType(mat.type());
+}
+
+void MaterialBrowserModel::pasteMaterialProperties(int idx)
+{
+    emit pasteMaterialPropertiesTriggered(m_materialList.at(idx), m_copiedMaterialProps);
 }
 
 void MaterialBrowserModel::deleteMaterial(int idx)

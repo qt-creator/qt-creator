@@ -24,15 +24,18 @@
 ****************************************************************************/
 
 #include "materialbrowserview.h"
+
+#include "bindingproperty.h"
 #include "materialbrowserwidget.h"
 #include "materialbrowsermodel.h"
 #include "nodeabstractproperty.h"
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
+
 #include <coreplugin/icore.h>
+#include <designmodecontext.h>
 #include <nodeinstanceview.h>
 #include <qmldesignerconstants.h>
-#include <designmodecontext.h>
 
 #include <QQuickItem>
 
@@ -85,6 +88,30 @@ WidgetInfo MaterialBrowserView::widgetInfo()
         connect(matBrowserModel, &MaterialBrowserModel::duplicateMaterialTriggered, this,
                 [&] (const ModelNode &material) {
             emitCustomNotification("duplicate_material", {material});
+        });
+
+        connect(matBrowserModel, &MaterialBrowserModel::pasteMaterialPropertiesTriggered, this,
+                [&] (const ModelNode &material, const QList<AbstractProperty> &props) {
+            QmlObjectNode mat(material);
+            executeInTransaction(__FUNCTION__, [&] {
+                // remove current properties
+                const PropertyNameList propNames = material.propertyNames();
+                for (const PropertyName &propName : propNames) {
+                    if (propName != "objectName")
+                        mat.removeProperty(propName);
+                }
+
+                // apply pasted properties
+                for (const AbstractProperty &prop : props) {
+                    if (prop.name() == "objectName")
+                        continue;
+
+                    if (prop.isVariantProperty())
+                        mat.setVariantProperty(prop.name(), prop.toVariantProperty().value());
+                    else if (prop.isBindingProperty())
+                        mat.setBindingProperty(prop.name(), prop.toBindingProperty().expression());
+                }
+            });
         });
     }
 

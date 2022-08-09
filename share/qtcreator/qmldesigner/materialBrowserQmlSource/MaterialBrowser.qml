@@ -92,27 +92,48 @@ Item {
 
         StudioControls.MenuItem {
             text: qsTr("Apply to selected (replace)")
-            enabled: currentMaterial && materialBrowserModel.hasModelSelection
-            onTriggered: materialBrowserModel.applyToSelected(currentMaterial.materialInternalId, false)
+            enabled: root.currentMaterial && materialBrowserModel.hasModelSelection
+            onTriggered: materialBrowserModel.applyToSelected(root.currentMaterial.materialInternalId, false)
         }
 
         StudioControls.MenuItem {
             text: qsTr("Apply to selected (add)")
-            enabled: currentMaterial && materialBrowserModel.hasModelSelection
-            onTriggered: materialBrowserModel.applyToSelected(currentMaterial.materialInternalId, true)
+            enabled: root.currentMaterial && materialBrowserModel.hasModelSelection
+            onTriggered: materialBrowserModel.applyToSelected(root.currentMaterial.materialInternalId, true)
+        }
+
+        StudioControls.MenuSeparator {
+            height: StudioTheme.Values.border
+        }
+
+        StudioControls.MenuItem {
+            text: qsTr("Copy properties")
+            enabled: root.currentMaterial
+            onTriggered: materialBrowserModel.copyMaterialProperties(root.currentMaterialIdx)
+        }
+
+        StudioControls.MenuItem {
+            text: qsTr("Paste properties")
+            enabled: root.currentMaterial && root.currentMaterial.materialType.toString()
+                                             === materialBrowserModel.copiedMaterialType.toString()
+            onTriggered: materialBrowserModel.pasteMaterialProperties(root.currentMaterialIdx)
+        }
+
+        StudioControls.MenuSeparator {
+            height: StudioTheme.Values.border
         }
 
         StudioControls.MenuItem {
             text: qsTr("Duplicate")
-            enabled: currentMaterial
-            onTriggered: materialBrowserModel.duplicateMaterial(currentMaterialIdx)
+            enabled: root.currentMaterial
+            onTriggered: materialBrowserModel.duplicateMaterial(root.currentMaterialIdx)
         }
 
         StudioControls.MenuItem {
             text: qsTr("Rename")
-            enabled: currentMaterial
+            enabled: root.currentMaterial
             onTriggered: {
-                var item = gridRepeater.itemAt(currentMaterialIdx);
+                var item = gridRepeater.itemAt(root.currentMaterialIdx);
                 if (item)
                     item.startRename();
             }
@@ -120,9 +141,9 @@ Item {
 
         StudioControls.MenuItem {
             text: qsTr("Delete")
-            enabled: currentMaterial
+            enabled: root.currentMaterial
 
-            onTriggered: materialBrowserModel.deleteMaterial(currentMaterialIdx)
+            onTriggered: materialBrowserModel.deleteMaterial(root.currentMaterialIdx)
         }
 
         StudioControls.MenuSeparator {}
