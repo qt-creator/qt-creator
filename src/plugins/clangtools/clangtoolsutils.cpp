@@ -346,8 +346,16 @@ QString clangTidyDocUrl(const QString &check)
     if (version == QVersionNumber(0))
         version = QVersionNumber(12);
     static const char urlTemplate[]
-            = "https://releases.llvm.org/%1/tools/clang/tools/extra/docs/clang-tidy/checks/%2.html";
-    return QString::fromLatin1(urlTemplate).arg(version.toString(), check);
+            = "https://releases.llvm.org/%1/tools/clang/tools/extra/docs/clang-tidy/checks/";
+    QString url = QString::fromLatin1(urlTemplate).arg(version.toString());
+    if (version.majorVersion() < 15) {
+        url.append(check);
+    } else {
+        const int hyphenIndex = check.indexOf('-');
+        QTC_ASSERT(hyphenIndex != -1, return {});
+        url.append(check.left(hyphenIndex)).append('/').append(check.mid(hyphenIndex + 1));
+    }
+    return url.append(".html");
 }
 
 QString clazyDocUrl(const QString &check)
