@@ -124,7 +124,7 @@ FilePath McuPackage::basePath() const
 
 FilePath McuPackage::path() const
 {
-    return (basePath() / m_relativePathModifier.path()).absoluteFilePath().cleanPath();
+    return (basePath() / m_relativePathModifier.path()).cleanPath();
 }
 
 FilePath McuPackage::defaultPath() const
@@ -135,6 +135,13 @@ FilePath McuPackage::defaultPath() const
 FilePath McuPackage::detectionPath() const
 {
     return m_detectionPath;
+}
+
+void McuPackage::setPath(const FilePath &newPath)
+{
+    m_path = newPath;
+    m_defaultPath = newPath;
+    updateStatus();
 }
 
 void McuPackage::updatePath()

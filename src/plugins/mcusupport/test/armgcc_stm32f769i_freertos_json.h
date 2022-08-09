@@ -53,6 +53,7 @@ constexpr auto armgcc_stm32f769i_freertos_json = R"({
         "id": "Qul_DIR",
         "label": "Qt for MCUs SDK",
         "type": "path",
+        "setting": "QtForMCUsSdk",
         "cmakeVar": "Qul_ROOT",
         "optional": false
       }
@@ -83,7 +84,7 @@ constexpr auto armgcc_stm32f769i_freertos_json = R"({
         "label": "CMake Toolchain File",
         "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
         "type": "file",
-        "defaultValue": "/opt/qtformcu/2.2//lib/cmake/Qul/toolchain/armgcc.cmake",
+        "defaultValue": "$Qul_ROOT//lib/cmake/Qul/toolchain/armgcc.cmake",
         "visible": false,
         "optional": false
       }

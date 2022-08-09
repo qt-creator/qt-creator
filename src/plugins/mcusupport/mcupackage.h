@@ -90,6 +90,8 @@ public:
     QWidget *widget() override;
     const McuPackageVersionDetector *getVersionDetector() const override;
 
+    void setPath(const Utils::FilePath &);
+
 private:
     void updatePath();
     void updateStatusUi();
@@ -100,7 +102,7 @@ private:
     Utils::InfoLabel *m_infoLabel = nullptr;
 
     const QString m_label;
-    const Utils::FilePath m_defaultPath;
+    Utils::FilePath m_defaultPath;
     const Utils::FilePath m_detectionPath;
     const QString m_settingsKey;
     QScopedPointer<const McuPackageVersionDetector> m_versionDetector;

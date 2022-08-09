@@ -106,6 +106,8 @@ private slots:
     void test_createBoardSdk_data();
     void test_createBoardSdk();
 
+    void test_resolveEnvironmentVariablesInDefaultPaths();
+
 private:
     QVersionNumber currentQulVersion{2, 0};
     PackageMock *freeRtosPackage{new PackageMock};

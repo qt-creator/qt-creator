@@ -78,6 +78,34 @@ McuPackageVersionDetector *createVersionDetection(const VersionDetection &versio
                                                       versionDetection.isFile);
 }
 
+static void evaluateVariables(McuTarget &target)
+{
+    const static QRegularExpression variableRegex{R"(\${*\w+}*)",
+                                                  QRegularExpression::CaseInsensitiveOption};
+
+    for (const auto &package : target.packages()) {
+        const QRegularExpressionMatch match{variableRegex.match(package->path().toString())};
+        if (!match.hasMatch())
+            continue;
+        const QString variable{match.captured(0).remove(0, 1)};
+
+        McuPackagePtr packageDefiningVariable{
+            Utils::findOrDefault(target.packages(), [variable](const McuPackagePtr &pkg) {
+                return pkg->cmakeVariableName() == variable;
+                // return pkg->cmakeVariableName() == variable || pkg->environmentVariableName() == variable;
+            })};
+
+        if (packageDefiningVariable == nullptr) // nothing provides the variable
+            continue;
+
+        const auto evaluatedPath{Utils::FilePath::fromUserInput(
+            package->path().toString().replace(match.capturedStart(),
+                                               match.capturedLength(),
+                                               packageDefiningVariable->path().toString()))};
+        package->setPath(evaluatedPath);
+    }
+}
+
 McuTargetFactory::McuTargetFactory(const SettingsHandler::Ptr &settingsHandler)
     : settingsHandler{settingsHandler}
 {}
@@ -102,13 +130,17 @@ QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescript
         targetPackages.insert({toolchainPtr});
         targetPackages.unite({toolchainFile});
         packages.unite(targetPackages);
-        mcuTargets.append(McuTargetPtr{new McuTarget{QVersionNumber::fromString(desc.qulVersion),
-                                                     platform,
-                                                     deduceOperatingSystem(desc),
-                                                     targetPackages,
-                                                     toolchainPtr,
-                                                     toolchainFile,
-                                                     colorDepth}});
+
+        McuTargetPtr target{new McuTarget{QVersionNumber::fromString(desc.qulVersion),
+                                          platform,
+                                          deduceOperatingSystem(desc),
+                                          targetPackages,
+                                          toolchainPtr,
+                                          toolchainFile,
+                                          colorDepth}};
+
+        evaluateVariables(*target);
+        mcuTargets.append(target);
     }
     return {mcuTargets, packages};
 }

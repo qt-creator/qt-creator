@@ -76,7 +76,7 @@ QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescript
                 boardSdkPkgs.insert(desc.boardSdk.envVar, boardSdkPkg);
             }
             McuPackagePtr boardSdkPkg{boardSdkPkgs.value(desc.boardSdk.envVar)};
-            boardSdkDefaultPath = boardSdkPkg->defaultPath();
+            boardSdkDefaultPath = boardSdkPkg->path();
             required3rdPartyPkgs.insert(boardSdkPkg);
         }
 

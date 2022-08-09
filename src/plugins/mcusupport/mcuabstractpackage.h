@@ -57,6 +57,7 @@ public:
 
     virtual Utils::FilePath basePath() const = 0;
     virtual Utils::FilePath path() const = 0;
+    virtual void setPath(const Utils::FilePath &) = 0;
     virtual Utils::FilePath defaultPath() const = 0;
     virtual Utils::FilePath detectionPath() const = 0;
     virtual QString settingsKey() const = 0;

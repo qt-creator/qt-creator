@@ -37,6 +37,7 @@ class PackageMock : public McuAbstractPackage
 public:
     MOCK_METHOD(Utils::FilePath, basePath, (), (const));
     MOCK_METHOD(Utils::FilePath, path, (), (const));
+    MOCK_METHOD(void, setPath, (const Utils::FilePath &) );
     MOCK_METHOD(QString, label, (), (const));
     MOCK_METHOD(Utils::FilePath, defaultPath, (), (const));
     MOCK_METHOD(Utils::FilePath, detectionPath, (), (const));
