@@ -26,6 +26,7 @@
 
 #pragma once
 
+#include <QApplication>
 #include <QObject>
 #include <QDebug>
 #include <QItemSelection>
@@ -51,6 +52,7 @@ public:
 public Q_SLOTS:
     void finished() {
         qDebug() << runner->errorString();
+        qApp->exit(!runner->errorString().isEmpty());
     }
 
     void selectionChanged(const QItemSelection &sel, const QItemSelection &) {
