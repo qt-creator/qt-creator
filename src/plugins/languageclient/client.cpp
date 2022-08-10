@@ -197,6 +197,11 @@ public:
         connect(&m_shutdownTimer, &QTimer::timeout, this, [this] {
             LanguageClientManager::deleteClient(q);
         });
+
+        m_restartCountResetTimer.setSingleShot(true);
+        m_restartCountResetTimer.setInterval(5 * 60 * 1000);
+        connect(&m_restartCountResetTimer, &QTimer::timeout,
+                this, [this] { m_restartsLeft = MaxRestarts; });
     }
 
     ~ClientPrivate()
@@ -307,7 +312,9 @@ public:
     AssistProviders m_clientProviders;
     QMap<TextEditor::TextDocument *, AssistProviders> m_resetAssistProvider;
     QHash<TextEditor::TextEditorWidget *, LanguageServerProtocol::MessageId> m_highlightRequests;
-    int m_restartsLeft = 5;
+    static const int MaxRestarts = 2;
+    int m_restartsLeft = MaxRestarts;
+    QTimer m_restartCountResetTimer;
     InterfaceController *m_clientInterface = nullptr;
     DiagnosticManager *m_diagnosticManager = nullptr;
     DocumentSymbolCache m_documentSymbolCache;
@@ -1511,8 +1518,11 @@ bool Client::reset()
 
 bool ClientPrivate::reset()
 {
-    if (!m_restartsLeft)
+    if (!m_restartsLeft) {
+        m_restartCountResetTimer.stop();
         return false;
+    }
+    m_restartCountResetTimer.start();
     --m_restartsLeft;
     m_state = Client::Uninitialized;
     m_responseHandlers.clear();
