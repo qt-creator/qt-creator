@@ -69,15 +69,20 @@ FileWizardPage::FileWizardPage(QWidget *parent) :
     resize(368, 102);
 
     d->m_defaultSuffixLabel = new QLabel;
+    d->m_nameLabel = new QLabel;
     d->m_nameLineEdit = new FileNameValidatingLineEdit;
+    d->m_pathLabel = new QLabel;
     d->m_pathChooser = new PathChooser;
+
+    d->m_nameLabel->setText(tr("File name:"));
+    d->m_pathLabel->setText(tr("Path:"));
 
     using namespace Layouting;
 
     Form {
         empty, d->m_defaultSuffixLabel, br,
-        tr("File name:"), d->m_nameLineEdit, br,
-        tr("Path:"), d->m_pathChooser
+        d->m_nameLabel, d->m_nameLineEdit, br,
+        d->m_pathLabel, d->m_pathChooser
     }.attachTo(this);
 
     connect(d->m_pathChooser, &PathChooser::validChanged,
