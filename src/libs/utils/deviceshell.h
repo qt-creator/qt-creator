@@ -24,7 +24,7 @@ class QTCREATOR_UTILS_EXPORT DeviceShell : public QObject
     Q_OBJECT
 
 public:
-    enum class State { FailedToStart = -1, Unknown = 0, Succeeded = 1 };
+    enum class State { FailedToStart = -1, Unknown = 0, Succeeded = 1, NoScript = 2 };
 
     struct RunResult
     {
@@ -49,6 +49,8 @@ public:
 
     State state() const;
 
+    QStringList missingFeatures() const;
+
 signals:
     void done(const ProcessResultData &resultData);
 
@@ -60,11 +62,14 @@ protected:
 
 private:
     virtual void setupShellProcess(QtcProcess *shellProcess);
+    virtual CommandLine createFallbackCommand(const CommandLine &cmdLine);
 
     bool installShellScript();
     void closeShellProcess();
 
     void onReadyRead();
+
+    bool checkCommand(const QByteArray &command);
 
 private:
     struct CommandRun : public RunResult
@@ -82,6 +87,7 @@ private:
     QByteArray m_commandBuffer;
 
     State m_shellScriptState = State::Unknown;
+    QStringList m_missingFeatures;
 };
 
 } // namespace Utils

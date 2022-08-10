@@ -751,8 +751,9 @@ class ShellThreadHandler : public QObject
     class LinuxDeviceShell : public DeviceShell
     {
     public:
-        LinuxDeviceShell(const CommandLine &cmdLine)
+        LinuxDeviceShell(const CommandLine &cmdLine, const FilePath &devicePath)
             : m_cmdLine(cmdLine)
+            , m_devicePath(devicePath)
         {
         }
 
@@ -763,8 +764,16 @@ class ShellThreadHandler : public QObject
             shellProcess->setCommand(m_cmdLine);
         }
 
+        CommandLine createFallbackCommand(const CommandLine &cmdLine) override
+        {
+            CommandLine result = cmdLine;
+            result.setExecutable(cmdLine.executable().onDevice(m_devicePath));
+            return result;
+        }
+
     private:
         const CommandLine m_cmdLine;
+        const FilePath m_devicePath;
     };
 
 public:
@@ -792,7 +801,7 @@ public:
                     << m_displaylessSshParameters.host());
         cmd.addArg("/bin/sh");
 
-        m_shell.reset(new LinuxDeviceShell(cmd));
+        m_shell.reset(new LinuxDeviceShell(cmd, FilePath::fromString(QString("ssh://%1/").arg(parameters.userAtHost()))));
         connect(m_shell.get(), &DeviceShell::done, this, [this] { m_shell.reset(); });
         return m_shell->start();
     }
@@ -1052,6 +1061,7 @@ Environment LinuxDevice::systemEnvironment() const
 LinuxDevicePrivate::LinuxDevicePrivate(LinuxDevice *parent)
     : q(parent)
 {
+    m_shellThread.setObjectName("LinuxDeviceShell");
     m_handler = new ShellThreadHandler();
     m_handler->moveToThread(&m_shellThread);
     QObject::connect(&m_shellThread, &QThread::finished, m_handler, &QObject::deleteLater);
@@ -1091,11 +1101,7 @@ bool LinuxDevicePrivate::runInShell(const CommandLine &cmd, const QByteArray &da
     DEBUG(cmd.toUserOutput());
     QTC_ASSERT(setupShell(), return false);
 
-    bool ret = false;
-    QMetaObject::invokeMethod(m_handler, [this, &cmd, &data] {
-        return m_handler->runInShell(cmd, data);
-    }, Qt::BlockingQueuedConnection, &ret);
-    return ret;
+    return m_handler->runInShell(cmd, data);
 }
 
 QByteArray LinuxDevicePrivate::outputForRunInShell(const CommandLine &cmd)
@@ -1104,20 +1110,20 @@ QByteArray LinuxDevicePrivate::outputForRunInShell(const CommandLine &cmd)
     DEBUG(cmd);
     QTC_ASSERT(setupShell(), return {});
 
-    QByteArray ret;
-    QMetaObject::invokeMethod(m_handler, [this, &cmd] {
-        return m_handler->outputForRunInShell(cmd);
-    }, Qt::BlockingQueuedConnection, &ret);
-    return ret;
+    return m_handler->outputForRunInShell(cmd);
 }
 
 void LinuxDevicePrivate::attachToSharedConnection(SshConnectionHandle *connectionHandle,
                                                   const SshParameters &sshParameters)
 {
     QString socketFilePath;
+
+    Qt::ConnectionType connectionType = QThread::currentThread() == m_handler->thread() ? Qt::DirectConnection : Qt::BlockingQueuedConnection;
+
     QMetaObject::invokeMethod(m_handler, [this, connectionHandle, sshParameters] {
         return m_handler->attachToSharedConnection(connectionHandle, sshParameters);
-    }, Qt::BlockingQueuedConnection, &socketFilePath);
+    }, connectionType, &socketFilePath);
+
     if (!socketFilePath.isEmpty())
         emit connectionHandle->connected(socketFilePath);
 }

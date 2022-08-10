@@ -94,6 +94,8 @@ class tst_QtcProcess : public QObject
 private slots:
     void initTestCase();
 
+    void multiRead();
+
     void splitArgs_data();
     void splitArgs();
     void prepareArgs_data();
@@ -210,6 +212,31 @@ void tst_QtcProcess::cleanupTestCase()
 Q_DECLARE_METATYPE(ProcessArgs::SplitError)
 Q_DECLARE_METATYPE(Utils::OsType)
 Q_DECLARE_METATYPE(Utils::ProcessResult)
+
+void tst_QtcProcess::multiRead()
+{
+    QByteArray buffer;
+    QtcProcess process;
+
+    process.setCommand({"/bin/sh", {}});
+    process.setProcessChannelMode(QProcess::SeparateChannels);
+    process.setProcessMode(Utils::ProcessMode::Writer);
+
+    process.start();
+    QVERIFY(process.waitForStarted());
+
+    process.writeRaw("echo hi\n");
+
+    QVERIFY(process.waitForReadyRead(1000));
+    buffer = process.readAllStandardOutput();
+    QCOMPARE(buffer, QByteArray("hi\n"));
+
+    process.writeRaw("echo you\n");
+
+    QVERIFY(process.waitForReadyRead(1000));
+    buffer = process.readAllStandardOutput();
+    QCOMPARE(buffer, QByteArray("you\n"));
+}
 
 void tst_QtcProcess::splitArgs_data()
 {
