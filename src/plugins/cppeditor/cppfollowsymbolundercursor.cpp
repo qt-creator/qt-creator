@@ -207,8 +207,7 @@ Link findMacroLink_helper(const QByteArray &name, Document::Ptr doc, const Snaps
     if (doc && !name.startsWith('<') && !processed->contains(doc->fileName())) {
         processed->insert(doc->fileName());
 
-        const QList<Macro> macros = doc->definedMacros();
-        for (const Macro &macro : macros) {
+        for (const Macro &macro : doc->definedMacros()) {
             if (macro.name() == name) {
                 Link link;
                 link.targetFilePath = Utils::FilePath::fromString(macro.fileName());

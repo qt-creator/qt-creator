@@ -658,8 +658,7 @@ bool FromGuiFunctor::matchIncludeFile(const Document::Ptr &document, int line)
 
 bool FromGuiFunctor::matchMacroInUse(const Document::Ptr &document, int pos)
 {
-    const QList<Document::MacroUse> macros = document->macroUses();
-    for (const Document::MacroUse &use : macros) {
+    for (const Document::MacroUse &use : document->macroUses()) {
         if (use.containsUtf16charOffset(pos)) {
             const int begin = use.utf16charsBegin();
             if (pos < begin + use.macro().nameToQString().size()) {

@@ -111,9 +111,7 @@ TestCases QtTestParser::testCases(const CppEditor::CppModelManager *modelManager
     if (document.isNull())
         return {};
 
-    const QList<CPlusPlus::Document::MacroUse> macros = document->macroUses();
-
-    for (const CPlusPlus::Document::MacroUse &macro : macros) {
+    for (const CPlusPlus::Document::MacroUse &macro : document->macroUses()) {
         if (!macro.isFunctionLike())
             continue;
         const QByteArray name = macro.macro().name();

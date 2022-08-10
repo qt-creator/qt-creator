@@ -88,7 +88,7 @@ public:
     void addFormal(const QByteArray &formal)
     { _formals.append(formal); }
 
-    QString fileName() const
+    const QString &fileName() const
     { return _fileName; }
 
     void setFileName(const QString &fileName)

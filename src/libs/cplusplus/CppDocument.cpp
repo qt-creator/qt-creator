@@ -294,11 +294,6 @@ Document::~Document()
     _control = nullptr;
 }
 
-Control *Document::control() const
-{
-    return _control;
-}
-
 Control *Document::swapControl(Control *newControl)
 {
     if (newControl) {
@@ -318,39 +313,9 @@ Control *Document::swapControl(Control *newControl)
     return oldControl;
 }
 
-unsigned Document::revision() const
-{
-    return _revision;
-}
-
-void Document::setRevision(unsigned revision)
-{
-    _revision = revision;
-}
-
-unsigned Document::editorRevision() const
-{
-    return _editorRevision;
-}
-
-void Document::setEditorRevision(unsigned editorRevision)
-{
-    _editorRevision = editorRevision;
-}
-
-QDateTime Document::lastModified() const
-{
-    return _lastModified;
-}
-
 void Document::setLastModified(const QDateTime &lastModified)
 {
     _lastModified = lastModified;
-}
-
-QString Document::fileName() const
-{
-    return _fileName;
 }
 
 QStringList Document::includedFiles() const
@@ -455,11 +420,6 @@ void Document::addUndefinedMacroUse(const QByteArray &name,
     \sa Document::macroUses(), Document::undefinedMacroUses()
 */
 
-TranslationUnit *Document::translationUnit() const
-{
-    return _translationUnit;
-}
-
 bool Document::skipFunctionBody() const
 {
     return _translationUnit->skipFunctionBody();
@@ -481,11 +441,6 @@ int Document::globalSymbolCount() const
 Symbol *Document::globalSymbolAt(int index) const
 {
     return _globalNamespace->memberAt(index);
-}
-
-Namespace *Document::globalNamespace() const
-{
-    return _globalNamespace;
 }
 
 void Document::setGlobalNamespace(Namespace *globalNamespace)
@@ -589,9 +544,6 @@ Document::Ptr Document::create(const QString &fileName)
     Document::Ptr doc(new Document(fileName));
     return doc;
 }
-
-QByteArray Document::utf8Source() const
-{ return _source; }
 
 void Document::setUtf8Source(const QByteArray &source)
 {

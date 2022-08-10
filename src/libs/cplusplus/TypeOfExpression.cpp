@@ -161,8 +161,7 @@ void TypeOfExpression::processEnvironment(Document::Ptr doc, Environment *env,
         for (const Document::Include &incl : includes)
             processEnvironment(m_snapshot.document(incl.resolvedFileName()), env, processed);
 
-        const QList<Macro> macros = doc->definedMacros();
-        for (const Macro &macro : macros)
+        for (const Macro &macro : doc->definedMacros())
             env->bind(macro);
     }
 }

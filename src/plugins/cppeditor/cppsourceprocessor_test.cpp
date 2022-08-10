@@ -187,8 +187,7 @@ void SourceProcessorTest::testMacroUses()
 
 static bool isMacroDefinedInDocument(const QByteArray &macroName, const Document::Ptr &document)
 {
-    const QList<Macro> macros = document->definedMacros();
-    for (const Macro &macro : macros) {
+    for (const Macro &macro : document->definedMacros()) {
         if (macro.name() == macroName)
             return true;
     }

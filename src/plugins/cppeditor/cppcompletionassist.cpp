@@ -1892,8 +1892,7 @@ void InternalCppCompletionAssistProcessor::addMacros_helper(const Snapshot &snap
     for (const Document::Include &i : includes)
         addMacros_helper(snapshot, i.resolvedFileName(), processed, definedMacros);
 
-    const QList<CPlusPlus::Macro> macros = doc->definedMacros();
-    for (const CPlusPlus::Macro &macro : macros) {
+    for (const CPlusPlus::Macro &macro : doc->definedMacros()) {
         const QString macroName = macro.nameToQString();
         if (!macro.isHidden())
             definedMacros->insert(macroName);

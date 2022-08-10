@@ -296,8 +296,7 @@ bool handleMacroCase(const Document::Ptr document,
         ranges->append(toRange(textCursor, macro->utf16CharOffset(), length));
 
     // Other macro uses
-    const QList<Document::MacroUse> macroUses = document->macroUses();
-    for (const Document::MacroUse &use : macroUses) {
+    for (const Document::MacroUse &use : document->macroUses()) {
         if (isMacroUseOf(use, *macro))
             ranges->append(toRange(textCursor, use.utf16charsBegin(), length));
     }

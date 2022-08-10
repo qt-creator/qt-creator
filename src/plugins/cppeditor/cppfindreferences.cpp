@@ -732,8 +732,7 @@ restart_search:
             return usages;
 
         usages.clear();
-        const QList<CPlusPlus::Document::MacroUse> uses = doc->macroUses();
-        for (const CPlusPlus::Document::MacroUse &use : uses) {
+        for (const CPlusPlus::Document::MacroUse &use : doc->macroUses()) {
             const CPlusPlus::Macro &useMacro = use.macro();
 
             if (useMacro.fileName() == macro.fileName()) { // Check if this is a match, but possibly against an outdated document.

@@ -178,8 +178,7 @@ int LineForNewIncludeDirective::findInsertLineForVeryFirstInclude(unsigned *newL
     // If there is an include guard, insert right after that one
     const QByteArray includeGuardMacroName = m_cppDocument->includeGuardMacroName();
     if (!includeGuardMacroName.isEmpty()) {
-        const QList<Macro> definedMacros = m_cppDocument->definedMacros();
-        for (const Macro &definedMacro : definedMacros) {
+        for (const Macro &definedMacro :  m_cppDocument->definedMacros()) {
             if (definedMacro.name() == includeGuardMacroName) {
                 if (newLinesToPrepend)
                     *newLinesToPrepend = 1;

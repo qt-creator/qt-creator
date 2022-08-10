@@ -62,16 +62,16 @@ public:
 public:
     ~Document();
 
-    unsigned revision() const;
-    void setRevision(unsigned revision);
+    unsigned revision() const { return _revision; }
+    void setRevision(unsigned revision) { _revision = revision; }
 
-    unsigned editorRevision() const;
-    void setEditorRevision(unsigned editorRevision);
+    unsigned editorRevision() const { return _editorRevision; }
+    void setEditorRevision(unsigned editorRevision) { _editorRevision = editorRevision; }
 
-    QDateTime lastModified() const;
+    const QDateTime &lastModified() const { return _lastModified; }
     void setLastModified(const QDateTime &lastModified);
 
-    QString fileName() const;
+    const QString &fileName() const { return _fileName; }
 
     void appendMacro(const Macro &macro);
     void addMacroUse(const Macro &macro,
@@ -81,9 +81,9 @@ public:
     void addUndefinedMacroUse(const QByteArray &name,
                               int bytesOffset, int utf16charsOffset);
 
-    Control *control() const;
+    Control *control() const { return _control; }
     Control *swapControl(Control *newControl);
-    TranslationUnit *translationUnit() const;
+    TranslationUnit *translationUnit() const { return _translationUnit; }
 
     bool skipFunctionBody() const;
     void setSkipFunctionBody(bool skipFunctionBody);
@@ -91,23 +91,21 @@ public:
     int globalSymbolCount() const;
     Symbol *globalSymbolAt(int index) const;
 
-    Namespace *globalNamespace() const;
+    Namespace *globalNamespace() const { return _globalNamespace; }
     void setGlobalNamespace(Namespace *globalNamespace); // ### internal
 
-    QList<Macro> definedMacros() const
-    { return _definedMacros; }
+    const QList<Macro> &definedMacros() const { return _definedMacros; }
 
     QString functionAt(int line, int column, int *lineOpeningDeclaratorParenthesis = nullptr,
                        int *lineClosingBrace = nullptr) const;
     Symbol *lastVisibleSymbolAt(int line, int column = 0) const;
     Scope *scopeAt(int line, int column = 0);
 
-    QByteArray utf8Source() const;
+    const QByteArray &utf8Source() const { return _source; }
     void setUtf8Source(const QByteArray &utf8Source);
 
-    QByteArray fingerprint() const { return m_fingerprint; }
-    void setFingerprint(const QByteArray &fingerprint)
-    { m_fingerprint = fingerprint; }
+    const QByteArray &fingerprint() const { return m_fingerprint; }
+    void setFingerprint(const QByteArray &fingerprint) { m_fingerprint = fingerprint; }
 
     LanguageFeatures languageFeatures() const;
     void setLanguageFeatures(LanguageFeatures features);
@@ -173,7 +171,7 @@ public:
         bool isFatal() const
         { return _level == Fatal; }
 
-        QString fileName() const
+        const QString &fileName() const
         { return _fileName; }
 
         int line() const
@@ -185,7 +183,7 @@ public:
         int length() const
         { return _length; }
 
-        QString text() const
+        const QString &text() const
         { return _text; }
 
         bool operator==(const DiagnosticMessage &other) const;
@@ -206,7 +204,7 @@ public:
     void clearDiagnosticMessages()
     { _diagnosticMessages.clear(); }
 
-    QList<DiagnosticMessage> diagnosticMessages() const
+    const QList<DiagnosticMessage> &diagnosticMessages() const
     { return _diagnosticMessages; }
 
     class Block
@@ -256,10 +254,10 @@ public:
             , _type(type)
         { }
 
-        QString resolvedFileName() const
+        const QString &resolvedFileName() const
         { return _resolvedFileName; }
 
-        QString unresolvedFileName() const
+        const QString &unresolvedFileName() const
         { return _unresolvedFileName; }
 
         int line() const
@@ -290,7 +288,7 @@ public:
         bool isFunctionLike() const
         { return _macro.isFunctionLike(); }
 
-        QVector<Block> arguments() const
+        const QVector<Block> &arguments() const
         { return _arguments; }
 
         int beginLine() const
@@ -327,19 +325,19 @@ public:
     QStringList includedFiles() const;
     void addIncludeFile(const Include &include);
 
-    QList<Include> resolvedIncludes() const
+    const QList<Include> &resolvedIncludes() const
     { return _resolvedIncludes; }
 
-    QList<Include> unresolvedIncludes() const
+    const QList<Include> &unresolvedIncludes() const
     { return _unresolvedIncludes; }
 
-    QList<Block> skippedBlocks() const
+    const QList<Block> &skippedBlocks() const
     { return _skippedBlocks; }
 
-    QList<MacroUse> macroUses() const
+    const QList<MacroUse> macroUses() const
     { return _macroUses; }
 
-    QList<UndefinedMacroUse> undefinedMacroUses() const
+    const QList<UndefinedMacroUse> &undefinedMacroUses() const
     { return _undefinedMacroUses; }
 
     void setIncludeGuardMacroName(const QByteArray &includeGuardMacroName)

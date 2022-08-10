@@ -108,8 +108,7 @@ CheckSymbols *createHighlighter(const CPlusPlus::Document::Ptr &doc,
     using Utils::Text::convertPosition;
 
     // Get macro definitions
-    const QList<CPlusPlus::Macro> definedMacros = doc->definedMacros();
-    for (const CPlusPlus::Macro &macro : definedMacros) {
+    for (const CPlusPlus::Macro &macro : doc->definedMacros()) {
         int line, column;
         convertPosition(textDocument, macro.utf16CharOffset(), &line, &column);
 
@@ -120,8 +119,7 @@ CheckSymbols *createHighlighter(const CPlusPlus::Document::Ptr &doc,
     const LanguageFeatures features = doc->languageFeatures();
 
     // Get macro uses
-    const QList<Document::MacroUse> macroUseList = doc->macroUses();
-    for (const Document::MacroUse &macro : macroUseList) {
+    for (const Document::MacroUse &macro : doc->macroUses()) {
         const QString name = macro.macro().nameToQString();
 
         //Filter out QtKeywords
