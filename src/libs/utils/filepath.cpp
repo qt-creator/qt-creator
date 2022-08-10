@@ -977,9 +977,7 @@ bool FilePath::operator>=(const FilePath &other) const
 
 FilePath FilePath::operator+(const QString &s) const
 {
-    FilePath res = *this;
-    res.m_path += s;
-    return res;
+    return pathAppended(s);
 }
 
 /// \returns whether FilePath is a child of \a s

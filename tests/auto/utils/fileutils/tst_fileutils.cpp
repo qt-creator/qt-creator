@@ -85,6 +85,8 @@ private slots:
     void startsWithDriveLetter_data();
     void onDevice();
     void onDevice_data();
+    void plus();
+    void plus_data();
 
 private:
     QTemporaryDir tempDir;
@@ -783,6 +785,24 @@ void tst_fileutils::onDevice() {
     QFETCH(FilePath, expected);
 
     QCOMPARE(path.onDevice(templatePath), expected);
+}
+
+void tst_fileutils::plus_data() {
+    tst_fileutils::pathAppended_data();
+}
+
+void tst_fileutils::plus()
+{
+    QFETCH(QString, left);
+    QFETCH(QString, right);
+    QFETCH(QString, expected);
+
+    const FilePath fleft = FilePath::fromString(left);
+    const FilePath fexpected = FilePath::fromString(expected);
+
+    const FilePath result = fleft + right;
+
+    QCOMPARE(fexpected, result);
 }
 
 QTEST_GUILESS_MAIN(tst_fileutils)
