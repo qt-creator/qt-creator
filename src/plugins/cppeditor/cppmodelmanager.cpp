@@ -92,6 +92,7 @@ static const bool DumpProjectInfo = qgetenv("QTC_DUMP_PROJECT_INFO") == "1";
 
 using namespace CPlusPlus;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 #ifdef QTCREATOR_WITH_DUMP_AST
 
@@ -357,7 +358,7 @@ int argumentPositionOf(const AST *last, const CallAST *callAst)
     return 0;
 }
 
-SignalSlotType CppModelManager::getSignalSlotType(const QString &filePath,
+SignalSlotType CppModelManager::getSignalSlotType(const FilePath &filePath,
                                                   const QByteArray &content,
                                                   int position) const
 {
@@ -371,8 +372,7 @@ SignalSlotType CppModelManager::getSignalSlotType(const QString &filePath,
         fixedContent.insert(position, 'x');
 
     const Snapshot snapshot = this->snapshot();
-    const Document::Ptr document = snapshot.preprocessedDocument(fixedContent,
-                                                                 Utils::FilePath::fromString(filePath));
+    const Document::Ptr document = snapshot.preprocessedDocument(fixedContent, filePath);
     document->check();
     QTextDocument textDocument(QString::fromUtf8(fixedContent));
     QTextCursor cursor(&textDocument);

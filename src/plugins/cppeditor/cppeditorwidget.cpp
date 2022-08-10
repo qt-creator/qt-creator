@@ -1165,9 +1165,7 @@ bool CppEditorWidget::isOldStyleSignalOrSlot() const
     const QString content = textDocument()->plainText();
 
     return CppEditor::CppModelManager::instance()
-               ->getSignalSlotType(textDocument()->filePath().toString(),
-                                        content.toUtf8(),
-                                        tc.position())
+               ->getSignalSlotType(textDocument()->filePath(), content.toUtf8(), tc.position())
            == CppEditor::SignalSlotType::OldStyleSignal;
 }
 

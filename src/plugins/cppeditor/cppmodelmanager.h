@@ -166,7 +166,7 @@ public:
 
     QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
-    SignalSlotType getSignalSlotType(const QString &filePath,
+    SignalSlotType getSignalSlotType(const Utils::FilePath &filePath,
                                      const QByteArray &content,
                                      int position) const;
 
