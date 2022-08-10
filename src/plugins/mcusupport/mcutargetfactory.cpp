@@ -50,16 +50,6 @@ bool isDesktopToolchain(McuToolChainPackage::ToolChainType type)
 }
 
 
-const static QMap<QString, McuToolChainPackage::ToolChainType> toolchainTypeMapping{
-    {"iar", McuToolChainPackage::ToolChainType::IAR},
-    {"keil", McuToolChainPackage::ToolChainType::KEIL},
-    {"msvc", McuToolChainPackage::ToolChainType::MSVC},
-    {"gcc", McuToolChainPackage::ToolChainType::GCC},
-    {"armgcc", McuToolChainPackage::ToolChainType::ArmGcc},
-    {"ghs", McuToolChainPackage::ToolChainType::GHS},
-    {"ghsarm", McuToolChainPackage::ToolChainType::GHSArm},
-};
-
 McuPackageVersionDetector *createVersionDetection(const VersionDetection &versionDetection)
 {
     if (!versionDetection.xmlElement.isEmpty() && !versionDetection.xmlAttribute.isEmpty())
@@ -183,6 +173,16 @@ McuPackagePtr McuTargetFactory::createPackage(const PackageDescription &pkgDesc)
 McuToolChainPackage *McuTargetFactory::createToolchain(
     const McuTargetDescription::Toolchain &toolchain)
 {
+    const static QMap<QString, McuToolChainPackage::ToolChainType> toolchainTypeMapping{
+        {"iar", McuToolChainPackage::ToolChainType::IAR},
+        {"keil", McuToolChainPackage::ToolChainType::KEIL},
+        {"msvc", McuToolChainPackage::ToolChainType::MSVC},
+        {"gcc", McuToolChainPackage::ToolChainType::GCC},
+        {"armgcc", McuToolChainPackage::ToolChainType::ArmGcc},
+        {"ghs", McuToolChainPackage::ToolChainType::GHS},
+        {"ghsarm", McuToolChainPackage::ToolChainType::GHSArm},
+    };
+
     const PackageDescription compilerDescription{toolchain.compiler};
 
     McuToolChainPackage::ToolChainType toolchainType
