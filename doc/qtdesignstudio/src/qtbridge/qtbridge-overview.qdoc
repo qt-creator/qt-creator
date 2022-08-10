@@ -43,10 +43,8 @@
 
     \section1 2D Assets
 
-    You can use the Qt Installer to install \QB if you have a commercial
-    \QDS license. You can also purchase a \QB license separately from the
-    \l{https://marketplace.qt.io/}{Qt Marketplace} and then install \QB using
-    the Qt Installer.
+    You can use the Qt Installer to install \QB if you have a
+    \QDS enterprise license.
 
     \table
     \row
