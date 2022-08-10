@@ -467,23 +467,31 @@ namespace Layouting {
 
 // "Widgets"
 
-Group::Group(const LayoutBuilder &innerLayout)
-    : Group({}, innerLayout)
-{}
-
-Group::Group(const LayoutBuilder::Setters &setters, const LayoutBuilder &innerLayout)
+static void applyItems(QWidget *widget, const QList<LayoutBuilder::LayoutItem> &items)
 {
-    widget = new QGroupBox;
-    innerLayout.attachTo(widget, AttachType::WithMargins);
-    for (const LayoutBuilder::Setter &func : setters)
-        func(widget);
+    bool hadLayout = false;
+    for (const LayoutBuilder::LayoutItem &item : items) {
+        if (item.setter) {
+            item.setter(widget);
+        } else if (item.layout && !hadLayout) {
+            hadLayout = true;
+            widget->setLayout(item.layout);
+        } else {
+            QTC_CHECK(false);
+        }
+    }
 }
 
-PushButton::PushButton(std::initializer_list<LayoutBuilder::Setter> setters)
+Group::Group(std::initializer_list<LayoutBuilder::LayoutItem> items)
+{
+    widget = new QGroupBox;
+    applyItems(widget, items);
+}
+
+PushButton::PushButton(std::initializer_list<LayoutBuilder::LayoutItem> items)
 {
     widget = new QPushButton;
-    for (const LayoutBuilder::Setter &func : setters)
-        func(widget);
+    applyItems(widget, items);
 }
 
 // "Properties"

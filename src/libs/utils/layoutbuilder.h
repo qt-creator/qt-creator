@@ -75,7 +75,7 @@ public:
         Break,
     };
 
-    using Modifier = std::function<void(QLayout *)>;
+    using Setter = std::function<void(QObject *target)>;
 
     class QTCREATOR_UTILS_EXPORT LayoutItem
     {
@@ -87,6 +87,7 @@ public:
         LayoutItem(BaseAspect &aspect);
         LayoutItem(const QString &text);
         LayoutItem(const LayoutBuilder &builder);
+        LayoutItem(const Setter &setter) { this->setter = setter; }
 
         QLayout *layout = nullptr;
         QWidget *widget = nullptr;
@@ -94,6 +95,8 @@ public:
 
         QString text; // FIXME: Use specialValue for that
         int span = 1;
+        AlignmentType align = AlignmentType::DefaultAlignment;
+        Setter setter;
         SpecialType specialType = SpecialType::NotSpecial;
         QVariant specialValue;
     };
@@ -147,15 +150,6 @@ public:
         Break();
     };
 
-    using Setter = std::function<void(QObject *target)>;
-
-    class QTCREATOR_UTILS_EXPORT Setters : public std::vector<Setter>
-    {
-    public:
-        using std::vector<Setter>::vector;
-        Setters(const Setter &setter) { push_back(setter); }
-    };
-
 protected:
     explicit LayoutBuilder(); // Adds to existing layout.
 
@@ -191,14 +185,13 @@ QTCREATOR_UTILS_EXPORT LayoutBuilder::Setter onClicked(const std::function<void(
 class QTCREATOR_UTILS_EXPORT Group : public LayoutBuilder::LayoutItem
 {
 public:
-    explicit Group(const LayoutBuilder &innerLayout);
-    Group(const LayoutBuilder::Setters &setters, const LayoutBuilder &innerLayout);
+    Group(std::initializer_list<LayoutItem> items);
 };
 
 class QTCREATOR_UTILS_EXPORT PushButton : public LayoutBuilder::LayoutItem
 {
 public:
-    PushButton(std::initializer_list<LayoutBuilder::Setter> setters);
+    PushButton(std::initializer_list<LayoutItem> items);
 };
 
 class QTCREATOR_UTILS_EXPORT Column : public LayoutBuilder
@@ -231,9 +224,6 @@ public:
 
 using Space = LayoutBuilder::Space;
 using Span = LayoutBuilder::Span;
-
-using Stretch = LayoutBuilder::Stretch; // FIXME: Remove
-using Break = LayoutBuilder::Break; // FIXME: Remove
 
 QTCREATOR_UTILS_EXPORT extern LayoutBuilder::Break br;
 QTCREATOR_UTILS_EXPORT extern LayoutBuilder::Stretch st;
