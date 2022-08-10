@@ -39,11 +39,6 @@ ColorSettings::ColorSettings(QWidget *parent)
     m_ui.setupUi(this);
 
     m_ui.m_colorThemeView->setEnabled(false);
-    connect(m_ui.m_comboColorThemes, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &ColorSettings::selectTheme);
-    connect(m_ui.m_colorThemeView, &ColorThemeView::colorChanged, this, &ColorSettings::updateCurrentColors);
-    connect(m_ui.m_addColorTheme, &QToolButton::clicked, this, &ColorSettings::createTheme);
-    connect(m_ui.m_removeColorTheme, &QToolButton::clicked, this, &ColorSettings::removeTheme);
 
     const QSettings *s = Core::ICore::settings();
 
@@ -53,6 +48,12 @@ ColorSettings::ColorSettings(QWidget *parent)
     for (auto it = m_colorThemes.cbegin(); it != m_colorThemes.cend(); ++it)
         m_ui.m_comboColorThemes->addItem(it.key());
     m_ui.m_comboColorThemes->setCurrentText(s->value(Constants::C_SETTINGS_COLORSETTINGS_CURRENTCOLORTHEME).toString());
+
+    connect(m_ui.m_comboColorThemes, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &ColorSettings::selectTheme);
+    connect(m_ui.m_colorThemeView, &ColorThemeView::colorChanged, this, &ColorSettings::updateCurrentColors);
+    connect(m_ui.m_addColorTheme, &QToolButton::clicked, this, &ColorSettings::createTheme);
+    connect(m_ui.m_removeColorTheme, &QToolButton::clicked, this, &ColorSettings::removeTheme);
 }
 
 void ColorSettings::save()
