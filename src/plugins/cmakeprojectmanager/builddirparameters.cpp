@@ -80,7 +80,7 @@ BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
 
     cmakeBuildType = buildSystem->cmakeBuildType();
 
-    environment = bc->environment();
+    environment = bc->configureEnvironment();
     // Disable distributed building for configuration runs. CMake does not do those in parallel,
     // so there is no win in sending data over the network.
     // Unfortunately distcc does not have a simple environment flag to turn it off:-/

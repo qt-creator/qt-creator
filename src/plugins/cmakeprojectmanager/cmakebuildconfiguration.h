@@ -37,6 +37,7 @@ class CMakeProject;
 namespace Internal {
 
 class CMakeBuildSystem;
+class CMakeBuildConfigurationPrivate;
 class CMakeBuildSettingsWidget;
 class CMakeProjectImporter;
 
@@ -65,8 +66,19 @@ public:
 
     void addToEnvironment(Utils::Environment &env) const override;
 
+    Utils::Environment configureEnvironment() const;
+    void setUserConfigureEnvironmentChanges(const Utils::EnvironmentItems &diff);
+    Utils::EnvironmentItems userConfigureEnvironmentChanges() const;
+    bool useClearConfigureEnvironment() const;
+    void setUseClearConfigureEnvironment(bool b);
+    void updateAndEmitConfigureEnvironmentChanged();
+
+    Utils::Environment baseConfigureEnvironment() const;
+    QString baseConfigureEnvironmentText() const;
+
 signals:
     void signingFlagsChanged();
+    void configureEnvironmentChanged();
 
 protected:
     bool fromMap(const QVariantMap &map) override;
@@ -83,6 +95,8 @@ private:
 
     friend class Internal::CMakeBuildSettingsWidget;
     friend class Internal::CMakeBuildSystem;
+
+    Internal::CMakeBuildConfigurationPrivate *d = nullptr;
 };
 
 class CMAKE_EXPORT CMakeBuildConfigurationFactory
