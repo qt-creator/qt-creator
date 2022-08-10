@@ -33,14 +33,17 @@
 #include <propertyparser.h>
 #include <rewriterview.h>
 
-#include <QDir>
 #include <QDebug>
+#include <QDir>
+#include <QVector2D>
+#include <QVector3D>
+#include <QVector4D>
 
-#include <qmljs/qmljsscopechain.h>
+#include <languageutils/fakemetaobject.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <qmljs/qmljsscopechain.h>
 #include <qmljs/qmljsvalueowner.h>
-#include <languageutils/fakemetaobject.h>
 
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>
@@ -1136,7 +1139,7 @@ QVariant::Type NodeMetaInfoPrivate::variantTypeId(const PropertyName &propertyNa
     if (typeName == "vector4d")
         return QVariant::Vector4D;
 
-    return QVariant::nameToType(typeName.data());
+    return QVariant::nameToType(typeName.data()); // This is deprecated
 }
 
 int NodeMetaInfoPrivate::majorVersion() const
@@ -1849,44 +1852,91 @@ bool PropertyMetaInfo::isPointer() const
 
 QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
 {
-    const QVariant variant = value;
-    QVariant copyVariant = variant;
-    if (isEnumType() || variant.canConvert<Enumeration>())
-        return variant;
+    if constexpr (!useProjectStorage()) {
+        const QVariant variant = value;
+        QVariant copyVariant = variant;
+        if (isEnumType() || variant.canConvert<Enumeration>())
+            return variant;
 
-    const TypeName &typeName = propertyTypeName();
+        const TypeName &typeName = propertyTypeName();
 
-    QVariant::Type typeId = m_nodeMetaInfoPrivateData->variantTypeId(m_propertyName);
+        QVariant::Type typeId = m_nodeMetaInfoPrivateData->variantTypeId(m_propertyName);
 
-    if (variant.type() == QVariant::UserType && variant.userType() == ModelNode::variantUserType()) {
-        return variant;
-    } else if (typeId == QVariant::UserType && typeName == "QVariant") {
-        return variant;
-    } else if (typeId == QVariant::UserType && typeName == "variant") {
-        return variant;
-    } else if (typeId == QVariant::UserType && typeName == "var") {
-        return variant;
-    } else if (variant.type() == QVariant::List) {
-        // TODO: check the contents of the list
-        return variant;
-    } else if (typeName == "var" || typeName == "variant") {
-        return variant;
-    } else if (typeName == "alias") {
-        // TODO: The QML compiler resolves the alias type. We probably should do the same.
-        return variant;
-    } else if (typeName == "<cpp>.double") {
-        return variant.toDouble();
-    } else if (typeName == "<cpp>.float") {
-        return variant.toFloat();
-    } else if (typeName == "<cpp>.int") {
-        return variant.toInt();
-    } else if (typeName == "<cpp>.bool") {
-        return variant.toBool();
-    } else if (copyVariant.convert(typeId)) {
-        return copyVariant;
+        if (variant.type() == QVariant::UserType
+            && variant.userType() == ModelNode::variantUserType()) {
+            return variant;
+        } else if (typeId == QVariant::UserType && typeName == "QVariant") {
+            return variant;
+        } else if (typeId == QVariant::UserType && typeName == "variant") {
+            return variant;
+        } else if (typeId == QVariant::UserType && typeName == "var") {
+            return variant;
+        } else if (variant.type() == QVariant::List) {
+            // TODO: check the contents of the list
+            return variant;
+        } else if (typeName == "var" || typeName == "variant") {
+            return variant;
+        } else if (typeName == "alias") {
+            // TODO: The QML compiler resolves the alias type. We probably should do the same.
+            return variant;
+        } else if (typeName == "<cpp>.double") {
+            return variant.toDouble();
+        } else if (typeName == "<cpp>.float") {
+            return variant.toFloat();
+        } else if (typeName == "<cpp>.int") {
+            return variant.toInt();
+        } else if (typeName == "<cpp>.bool") {
+            return variant.toBool();
+        } else if (copyVariant.convert(typeId)) {
+            return copyVariant;
+        }
+
+    } else {
+        if (isEnumType() || value.canConvert<Enumeration>())
+            return value;
+
+        const TypeId &typeId = propertyData().typeId;
+
+        if (value.type() == QVariant::UserType && value.userType() == ModelNode::variantUserType()) {
+            return value;
+        } else if (typeId == m_projectStorage->builtinTypeId<QVariant>()) {
+            return value;
+        } else if (value.type() == QVariant::List) {
+            // TODO: check the contents of the list
+            return value;
+        } else if (typeId == m_projectStorage->builtinTypeId<double>()) {
+            return value.toDouble();
+        } else if (typeId == m_projectStorage->builtinTypeId<float>()) {
+            return value.toFloat();
+        } else if (typeId == m_projectStorage->builtinTypeId<int>()) {
+            return value.toInt();
+        } else if (typeId == m_projectStorage->builtinTypeId<bool>()) {
+            return value.toBool();
+        } else if (typeId == m_projectStorage->builtinTypeId<QString>()) {
+            return value.toString();
+        } else if (typeId == m_projectStorage->builtinTypeId<QDateTime>()) {
+            return value.toDateTime();
+        } else if (typeId == m_projectStorage->builtinTypeId<QUrl>()) {
+            return value.toUrl();
+        } else if (typeId == m_projectStorage->builtinTypeId<QColor>()) {
+            return value.value<QColor>();
+        } else if (typeId == m_projectStorage->builtinTypeId<QVector2D>()) {
+            return value.value<QVector2D>();
+        } else if (typeId == m_projectStorage->builtinTypeId<QVector3D>()) {
+            return value.value<QVector3D>();
+        } else if (typeId == m_projectStorage->builtinTypeId<QVector4D>()) {
+            return value.value<QVector4D>();
+        } else {
+            const auto typeName = propertyTypeName();
+            const auto metaType = QMetaType::fromName(typeName);
+            auto copy = value;
+            bool converted = copy.convert(metaType);
+            if (converted)
+                return copy;
+        }
     }
 
-    return Internal::PropertyParser::variantFromString(variant.toString());
+    return Internal::PropertyParser::variantFromString(value.toString());
 }
 
 const Storage::Info::PropertyDeclaration &PropertyMetaInfo::propertyData() const

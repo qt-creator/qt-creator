@@ -30,13 +30,35 @@
 #include <tuple>
 #include <type_traits>
 
+QT_BEGIN_NAMESPACE
+class QColor;
+class QDateTime;
+class QString;
+class QUrl;
+class QVariant;
+class QVector2D;
+class QVector3D;
+class QVector4D;
+QT_END_NAMESPACE
+
 namespace QmlDesigner::Storage::Info {
 
 inline constexpr char QtQuick[] = "QtQuick";
 inline constexpr char QML[] = "QML";
+inline constexpr char QMLNative[] = "QML-cppnative";
 inline constexpr char Item[] = "Item";
 inline constexpr char DoubleType[] = "double";
+inline constexpr char IntType[] = "int";
+inline constexpr char BoolType[] = "bool";
+inline constexpr char FloatType[] = "float";
 inline constexpr char var[] = "var";
+inline constexpr char string[] = "string";
+inline constexpr char date[] = "date";
+inline constexpr char url[] = "url";
+inline constexpr char color[] = "color";
+inline constexpr char vector2d[] = "vector2d";
+inline constexpr char vector3d[] = "vector3d";
+inline constexpr char vector4d[] = "vector4d";
 
 template<const auto &moduleName_, const auto &typeName_>
 struct CacheType
@@ -48,7 +70,20 @@ struct CacheType
 template<typename ProjectStorage>
 class CommonTypeCache
 {
-    using CommonTypes = std::tuple<CacheType<QtQuick, Item>, CacheType<QML, DoubleType>, CacheType<QML, var>>;
+    using CommonTypes = std::tuple<CacheType<QtQuick, Item>,
+                                   CacheType<QtQuick, color>,
+                                   CacheType<QtQuick, vector2d>,
+                                   CacheType<QtQuick, vector3d>,
+                                   CacheType<QtQuick, vector4d>,
+                                   CacheType<QML, DoubleType>,
+                                   CacheType<QML, var>,
+                                   CacheType<QML, IntType>,
+                                   CacheType<QML, BoolType>,
+                                   CacheType<QML, string>,
+                                   CacheType<QML, date>,
+                                   CacheType<QML, date>,
+                                   CacheType<QML, url>,
+                                   CacheType<QMLNative, FloatType>>;
 
 public:
     CommonTypeCache(const ProjectStorage &projectStorage)
@@ -87,7 +122,29 @@ public:
     auto builtinTypeId() const
     {
         if constexpr (std::is_same_v<Type, double>)
-            return builtinTypeId<DoubleType>();
+            return typeId<QML, DoubleType>();
+        if constexpr (std::is_same_v<Type, int>)
+            return typeId<QML, IntType>();
+        if constexpr (std::is_same_v<Type, bool>)
+            return typeId<QML, BoolType>();
+        if constexpr (std::is_same_v<Type, float>)
+            return typeId<QMLNative, FloatType>();
+        if constexpr (std::is_same_v<Type, QString>)
+            return typeId<QML, string>();
+        if constexpr (std::is_same_v<Type, QDateTime>)
+            return typeId<QML, date>();
+        if constexpr (std::is_same_v<Type, QUrl>)
+            return typeId<QML, url>();
+        if constexpr (std::is_same_v<Type, QVariant>)
+            return typeId<QML, var>();
+        if constexpr (std::is_same_v<Type, QColor>)
+            return typeId<QtQuick, color>();
+        if constexpr (std::is_same_v<Type, QVector2D>)
+            return typeId<QtQuick, vector2d>();
+        if constexpr (std::is_same_v<Type, QVector3D>)
+            return typeId<QtQuick, vector3d>();
+        if constexpr (std::is_same_v<Type, QVector4D>)
+            return typeId<QtQuick, vector4d>();
         else
             return TypeId{};
     }
