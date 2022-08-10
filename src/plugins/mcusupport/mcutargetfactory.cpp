@@ -81,8 +81,8 @@ static void evaluateVariables(McuTarget &target)
 
         McuPackagePtr packageDefiningVariable{
             Utils::findOrDefault(target.packages(), [variable](const McuPackagePtr &pkg) {
-                return pkg->cmakeVariableName() == variable;
-                // return pkg->cmakeVariableName() == variable || pkg->environmentVariableName() == variable;
+                return pkg->cmakeVariableName() == variable
+                       || pkg->environmentVariableName() == variable;
             })};
 
         if (packageDefiningVariable == nullptr) // nothing provides the variable

@@ -106,7 +106,8 @@ private slots:
     void test_createBoardSdk_data();
     void test_createBoardSdk();
 
-    void test_resolveEnvironmentVariablesInDefaultPaths();
+    void test_resolveEnvironmentVariablesInDefaultPath();
+    void test_resolveCmakeVariablesInDefaultPath();
 
 private:
     QVersionNumber currentQulVersion{2, 0};

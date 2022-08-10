@@ -70,6 +70,27 @@
 
 namespace McuSupport::Internal::Test {
 
+using namespace Utils;
+using Legacy::Constants::BOARD_SDK_CMAKE_VAR;
+using Legacy::Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH;
+using Legacy::Constants::QUL_CMAKE_VAR;
+using Legacy::Constants::QUL_ENV_VAR;
+using Legacy::Constants::QUL_LABEL;
+using Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX;
+using Legacy::Constants::TOOLCHAIN_DIR_CMAKE_VARIABLE;
+using Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE;
+
+using CMakeProjectManager::CMakeConfigItem;
+using CMakeProjectManager::CMakeConfigurationKitAspect;
+using ProjectExplorer::EnvironmentKitAspect;
+using ProjectExplorer::Kit;
+using ProjectExplorer::KitManager;
+using ProjectExplorer::ToolChain;
+using ProjectExplorer::ToolChainManager;
+
+using testing::_;
+using testing::Return;
+
 namespace {
 const char empty[]{""};
 const char armGcc[]{"armgcc"};
@@ -156,19 +177,6 @@ const McuTargetDescription::Platform platformDescription{id,
                                                          {qtForMCUsSDKDescription}};
 const Utils::Id cxxLanguageId{ProjectExplorer::Constants::CXX_LANGUAGE_ID};
 } // namespace
-
-using namespace Utils;
-
-using CMakeProjectManager::CMakeConfigItem;
-using CMakeProjectManager::CMakeConfigurationKitAspect;
-using ProjectExplorer::EnvironmentKitAspect;
-using ProjectExplorer::Kit;
-using ProjectExplorer::KitManager;
-using ProjectExplorer::ToolChain;
-using ProjectExplorer::ToolChainManager;
-
-using testing::_;
-using testing::Return;
 
 void verifyIarToolchain(const McuToolChainPackagePtr &iarToolchainPackage)
 {
@@ -1143,24 +1151,25 @@ void McuSupportTest::test_passDirectoryVersionDetectorToRenesasBoardSdkPackage()
     QCOMPARE(typeid(*versionDetector).name(), typeid(McuPackageDirectoryVersionDetector).name());
 }
 
-void McuSupportTest::test_resolveEnvironmentVariablesInDefaultPaths()
+void McuSupportTest::test_resolveEnvironmentVariablesInDefaultPath()
 {
-    QVERIFY(qputenv(qulEnvVar, qtForMcuSdkPath));
-    QCOMPARE(qEnvironmentVariable(qulEnvVar), qtForMcuSdkPath);
+    QVERIFY(qputenv(QUL_ENV_VAR, qtForMcuSdkPath));
+    QCOMPARE(qEnvironmentVariable(QUL_ENV_VAR), qtForMcuSdkPath);
 
-    toochainFileDescription.defaultPath = "$Qul_ROOT/lib/cmake/Qul/toolchain/iar.cmake";
+    toochainFileDescription.defaultPath = FilePath::fromUserInput(
+        QString{"$"} + QUL_ENV_VAR + "/lib/cmake/Qul/toolchain/iar.cmake");
     targetDescription.toolchain.file = toochainFileDescription;
 
     auto [targets, packages] = targetFactory.createTargets(targetDescription, qtForMcuSdkPath);
     auto qtForMCUPkg = findOrDefault(packages, [](const McuPackagePtr &pkg) {
-        return (pkg->cmakeVariableName() == Legacy::Constants::QUL_ENV_VAR);
+        return pkg->environmentVariableName() == QUL_ENV_VAR;
     });
 
     QVERIFY(qtForMCUPkg);
     QCOMPARE(qtForMCUPkg->path().toString(), qtForMcuSdkPath);
 
     auto toolchainFilePkg = findOrDefault(packages, [](const McuPackagePtr &pkg) {
-        return (pkg->cmakeVariableName() == Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE);
+        return (pkg->cmakeVariableName() == TOOLCHAIN_FILE_CMAKE_VARIABLE);
     });
 
     QVERIFY(toolchainFilePkg);
@@ -1171,7 +1180,34 @@ void McuSupportTest::test_resolveEnvironmentVariablesInDefaultPaths()
     QVERIFY(toolchainFilePkg->path().toString().startsWith(qtForMcuSdkPath));
     QCOMPARE(toolchainFilePkg->defaultPath().toString(), expectedPkgPath);
 
-    QVERIFY(qunsetenv(qulEnvVar));
+    QVERIFY(qunsetenv(QUL_ENV_VAR));
+}
+
+void McuSupportTest::test_resolveCmakeVariablesInDefaultPath()
+{
+    toochainFileDescription.defaultPath = FilePath::fromUserInput(
+        QString{"$"} + QUL_CMAKE_VAR + "/lib/cmake/Qul/toolchain/iar.cmake");
+    targetDescription.toolchain.file = toochainFileDescription;
+
+    auto [targets, packages] = targetFactory.createTargets(targetDescription, qtForMcuSdkPath);
+    auto qtForMCUPkg = findOrDefault(packages, [](const McuPackagePtr &pkg) {
+        return pkg->cmakeVariableName() == QUL_CMAKE_VAR;
+    });
+
+    QVERIFY(qtForMCUPkg);
+    QCOMPARE(qtForMCUPkg->path().toString(), qtForMcuSdkPath);
+
+    auto toolchainFilePkg = findOrDefault(packages, [](const McuPackagePtr &pkg) {
+        return (pkg->cmakeVariableName() == TOOLCHAIN_FILE_CMAKE_VARIABLE);
+    });
+
+    QVERIFY(toolchainFilePkg);
+    QVERIFY(targets.size() == 1);
+
+    QString expectedPkgPath = QString{qtForMcuSdkPath} + "/lib/cmake/Qul/toolchain/iar.cmake";
+    QCOMPARE(toolchainFilePkg->path().toString(), expectedPkgPath);
+    QVERIFY(toolchainFilePkg->path().toString().startsWith(qtForMcuSdkPath));
+    QCOMPARE(toolchainFilePkg->defaultPath().toString(), expectedPkgPath);
 }
 
 } // namespace McuSupport::Internal::Test
