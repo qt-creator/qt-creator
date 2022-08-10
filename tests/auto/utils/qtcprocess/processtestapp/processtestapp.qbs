@@ -17,6 +17,7 @@ QtApplication {
         defines.push('PROCESS_TESTAPP="' + destinationDirectory + '"');
         return defines;
     }
+    cpp.rpaths: project.buildDirectory + '/' + qtc.ide_library_path
 
     install: false
     destinationDirectory: project.buildDirectory + '/'
