@@ -136,7 +136,7 @@ Item {
             },
             State {
                 name: "hover"
-                when: searchFilterText.hovered && !searchFilterText.activeFocus
+                when: root.enabled && searchFilterText.hovered && !searchFilterText.activeFocus
                 PropertyChanges {
                     target: textFieldBackground
                     color: StudioTheme.Values.themeControlBackgroundHover

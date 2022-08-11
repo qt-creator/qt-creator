@@ -420,12 +420,15 @@ void MaterialEditorView::handleToolBarAction(int action)
         if (!model())
             break;
         executeInTransaction("MaterialEditorView:handleToolBarAction", [&] {
+            ModelNode matLib = materialLibraryNode();
+            if (!matLib.isValid())
+                return;
+
             NodeMetaInfo metaInfo = model()->metaInfo("QtQuick3D.DefaultMaterial");
             ModelNode newMatNode = createModelNode("QtQuick3D.DefaultMaterial", metaInfo.majorVersion(),
                                                                                 metaInfo.minorVersion());
             renameMaterial(newMatNode, "New Material");
-
-            materialLibraryNode().defaultNodeListProperty().reparentHere(newMatNode);
+            matLib.defaultNodeListProperty().reparentHere(newMatNode);
         });
         break;
     }
@@ -462,10 +465,8 @@ void MaterialEditorView::handlePreviewEnvChanged(const QString &envAndValue)
     PropertyName matPrevEnvValueAuxProp("matPrevEnvValue");
 
     auto renderPreviews = [=](const QString &auxEnv, const QString &auxValue) {
-        ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
-        QTC_ASSERT(matLib.isValid(), return);
-        matLib.setAuxiliaryData(matPrevEnvAuxProp, auxEnv);
-        matLib.setAuxiliaryData(matPrevEnvValueAuxProp, auxValue);
+        rootModelNode().setAuxiliaryData(matPrevEnvAuxProp, auxEnv);
+        rootModelNode().setAuxiliaryData(matPrevEnvValueAuxProp, auxValue);
         QTimer::singleShot(0, this, &MaterialEditorView::requestPreviewRender);
         emitCustomNotification("refresh_material_browser", {});
     };
@@ -473,13 +474,11 @@ void MaterialEditorView::handlePreviewEnvChanged(const QString &envAndValue)
     if (env == "Color") {
         m_colorDialog.clear();
 
-        ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
-        QTC_ASSERT(matLib.isValid(), return);
         // Store color to separate property to persist selection over non-color env changes
         PropertyName colorAuxProp("matPrevColor");
-        QString oldColor = matLib.auxiliaryData(colorAuxProp).toString();
-        QString oldEnv = matLib.auxiliaryData(matPrevEnvAuxProp).toString();
-        QString oldValue = matLib.auxiliaryData(matPrevEnvValueAuxProp).toString();
+        QString oldColor = rootModelNode().auxiliaryData(colorAuxProp).toString();
+        QString oldEnv = rootModelNode().auxiliaryData(matPrevEnvAuxProp).toString();
+        QString oldValue = rootModelNode().auxiliaryData(matPrevEnvValueAuxProp).toString();
 
         m_colorDialog = new QColorDialog(Core::ICore::dialogParent());
         m_colorDialog->setModal(true);
@@ -495,9 +494,7 @@ void MaterialEditorView::handlePreviewEnvChanged(const QString &envAndValue)
         QObject::connect(m_colorDialog, &QColorDialog::colorSelected,
                          m_colorDialog, [=](const QColor &color) {
             renderPreviews(env, color.name());
-            ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
-            QTC_ASSERT(matLib.isValid(), return);
-            matLib.setAuxiliaryData(colorAuxProp, color.name());
+            rootModelNode().setAuxiliaryData(colorAuxProp, color.name());
         });
 
         QObject::connect(m_colorDialog, &QColorDialog::rejected,
@@ -519,9 +516,7 @@ void MaterialEditorView::handlePreviewModelChanged(const QString &modelStr)
     QTC_ASSERT(model(), return);
     QTC_ASSERT(model()->nodeInstanceView(), return);
 
-    ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
-    QTC_ASSERT(matLib.isValid(), return);
-    matLib.setAuxiliaryData("matPrevModel", modelStr);
+    rootModelNode().setAuxiliaryData("matPrevModel", modelStr);
 
     QTimer::singleShot(0, this, &MaterialEditorView::requestPreviewRender);
     emitCustomNotification("refresh_material_browser", {});
@@ -570,6 +565,7 @@ void MaterialEditorView::setupQmlBackend()
 
     currentQmlBackend->widget()->installEventFilter(this);
     currentQmlBackend->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
+    currentQmlBackend->contextObject()->setHasMaterialRoot(m_hasMaterialRoot);
 
     m_stackedWidget->setCurrentWidget(currentQmlBackend->widget());
 
@@ -623,23 +619,20 @@ bool MaterialEditorView::noValidSelection() const
 void MaterialEditorView::initPreviewData()
 {
     if (model() && m_qmlBackEnd) {
-        ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
-        if (matLib.isValid()) {
-            QString env = matLib.auxiliaryData("matPrevEnv").toString();
-            QString envValue = matLib.auxiliaryData("matPrevEnvValue").toString();
-            QString modelStr = matLib.auxiliaryData("matPrevModel").toString();
-            if (!envValue.isEmpty() && env != "Color" && env != "Default") {
-                env += '=';
-                env += envValue;
-            }
-            if (env.isEmpty())
-                env = "Default";
-            if (modelStr.isEmpty())
-                modelStr = "#Sphere";
-            QMetaObject::invokeMethod(m_qmlBackEnd->widget()->rootObject(),
-                                      "initPreviewData",
-                                      Q_ARG(QVariant, env), Q_ARG(QVariant, modelStr));
+        QString env = rootModelNode().auxiliaryData("matPrevEnv").toString();
+        QString envValue = rootModelNode().auxiliaryData("matPrevEnvValue").toString();
+        QString modelStr = rootModelNode().auxiliaryData("matPrevModel").toString();
+        if (!envValue.isEmpty() && env != "Color" && env != "Default") {
+            env += '=';
+            env += envValue;
         }
+        if (env.isEmpty())
+            env = "Default";
+        if (modelStr.isEmpty())
+            modelStr = "#Sphere";
+        QMetaObject::invokeMethod(m_qmlBackEnd->widget()->rootObject(),
+                                  "initPreviewData",
+                                  Q_ARG(QVariant, env), Q_ARG(QVariant, modelStr));
     }
 }
 
@@ -650,11 +643,15 @@ void MaterialEditorView::modelAttached(Model *model)
     m_locked = true;
 
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
+    m_hasMaterialRoot = rootModelNode().isSubclassOf("QtQuick3D.Material");
 
-    // Creating the material library node on model attach causes errors as long as the type information
-    // not complete yet, so we keep checking until type info is complete.
-    if (m_hasQuick3DImport)
+    if (m_hasMaterialRoot) {
+        m_selectedMaterial = rootModelNode();
+    } else if (m_hasQuick3DImport) {
+        // Creating the material library node on model attach causes errors as long as the type
+        // information is not complete yet, so we keep checking until type info is complete.
         m_ensureMatLibTimer.start(500);
+    }
 
     if (!m_setupCompleted) {
         reloadQml();
@@ -868,6 +865,10 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
     QmlObjectNode sourceMat(material);
 
     executeInTransaction(__FUNCTION__, [&] {
+        ModelNode matLib = materialLibraryNode();
+        if (!matLib.isValid())
+            return;
+
         // create the duplicate material
         NodeMetaInfo metaInfo = model()->metaInfo(matType);
         QmlObjectNode duplicateMat = createModelNode(matType, metaInfo.majorVersion(), metaInfo.minorVersion());
@@ -889,7 +890,7 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
                 duplicateMat.setBindingProperty(prop.name(), prop.toBindingProperty().expression());
         }
 
-        materialLibraryNode().defaultNodeListProperty().reparentHere(duplicateMat);
+        matLib.defaultNodeListProperty().reparentHere(duplicateMat);
     });
 }
 
@@ -899,8 +900,10 @@ void MaterialEditorView::customNotification(const AbstractView *view, const QStr
     Q_UNUSED(view)
 
     if (identifier == "selected_material_changed") {
-        m_selectedMaterial = nodeList.first();
-        QTimer::singleShot(0, this, &MaterialEditorView::resetView);
+        if (!m_hasMaterialRoot) {
+            m_selectedMaterial = nodeList.first();
+            QTimer::singleShot(0, this, &MaterialEditorView::resetView);
+        }
     } else if (identifier == "apply_to_selected_triggered") {
         applyMaterialToSelectedModels(nodeList.first(), data.first().toBool());
     } else if (identifier == "rename_material") {

@@ -127,6 +127,7 @@ void MaterialBrowserView::modelAttached(Model *model)
     AbstractView::modelAttached(model);
 
     m_widget->clearSearchFilter();
+    m_widget->materialBrowserModel()->setHasMaterialRoot(rootModelNode().isSubclassOf("QtQuick3D.Material"));
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
 
     // Project load is already very busy and may even trigger puppet reset, so let's wait a moment

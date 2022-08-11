@@ -131,6 +131,7 @@ private:
     bool m_locked = false;
     bool m_setupCompleted = false;
     bool m_hasQuick3DImport = false;
+    bool m_hasMaterialRoot = false;
 
     QPointer<QColorDialog> m_colorDialog;
 };

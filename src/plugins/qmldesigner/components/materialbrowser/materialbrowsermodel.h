@@ -42,6 +42,7 @@ class MaterialBrowserModel : public QAbstractListModel
     Q_PROPERTY(int selectedIndex MEMBER m_selectedIndex NOTIFY selectedIndexChanged)
     Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport WRITE setHasQuick3DImport NOTIFY hasQuick3DImportChanged)
     Q_PROPERTY(bool hasModelSelection READ hasModelSelection WRITE setHasModelSelection NOTIFY hasModelSelectionChanged)
+    Q_PROPERTY(bool hasMaterialRoot READ hasMaterialRoot WRITE setHasMaterialRoot NOTIFY hasMaterialRootChanged)
     Q_PROPERTY(TypeName copiedMaterialType READ copiedMaterialType WRITE setCopiedMaterialType NOTIFY copiedMaterialTypeChanged)
 
 public:
@@ -59,6 +60,9 @@ public:
 
     bool hasModelSelection() const;
     void setHasModelSelection(bool b);
+
+    bool hasMaterialRoot() const;
+    void setHasMaterialRoot(bool b);
 
     TypeName copiedMaterialType() const;
     void setCopiedMaterialType(const TypeName &matType);
@@ -88,6 +92,7 @@ signals:
     void isEmptyChanged();
     void hasQuick3DImportChanged();
     void hasModelSelectionChanged();
+    void hasMaterialRootChanged();
     void copiedMaterialTypeChanged();
     void selectedIndexChanged(int idx);
     void renameMaterialTriggered(const QmlDesigner::ModelNode &material, const QString &newName);
@@ -110,6 +115,7 @@ private:
     bool m_isEmpty = true;
     bool m_hasQuick3DImport = false;
     bool m_hasModelSelection = false;
+    bool m_hasMaterialRoot = false;
     TypeName m_copiedMaterialType;
 };
 

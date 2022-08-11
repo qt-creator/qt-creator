@@ -56,6 +56,7 @@ class MaterialEditorContextObject : public QObject
     Q_PROPERTY(bool hasActiveTimeline READ hasActiveTimeline NOTIFY hasActiveTimelineChanged)
     Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport WRITE setHasQuick3DImport NOTIFY hasQuick3DImportChanged)
     Q_PROPERTY(bool hasModelSelection READ hasModelSelection WRITE setHasModelSelection NOTIFY hasModelSelectionChanged)
+    Q_PROPERTY(bool hasMaterialRoot READ hasMaterialRoot WRITE setHasMaterialRoot NOTIFY hasMaterialRootChanged)
 
     Q_PROPERTY(QQmlPropertyMap *backendValues READ backendValues WRITE setBackendValues NOTIFY backendValuesChanged)
 
@@ -105,6 +106,9 @@ public:
     bool hasQuick3DImport() const;
     void setHasQuick3DImport(bool b);
 
+    bool hasMaterialRoot() const;
+    void setHasMaterialRoot(bool b);
+
     bool hasModelSelection() const;
     void setHasModelSelection(bool b);
 
@@ -134,6 +138,7 @@ signals:
     void hasAliasExportChanged();
     void hasActiveTimelineChanged();
     void hasQuick3DImportChanged();
+    void hasMaterialRootChanged();
     void hasModelSelectionChanged();
 
 private:
@@ -155,6 +160,7 @@ private:
     bool m_aliasExport = false;
     bool m_hasActiveTimeline = false;
     bool m_hasQuick3DImport = false;
+    bool m_hasMaterialRoot = false;
     bool m_hasModelSelection = false;
 
     ModelNode m_selectedMaterial;

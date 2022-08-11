@@ -834,7 +834,7 @@ void AbstractView::changeRootNodeType(const TypeName &type, int majorVersion, in
 void AbstractView::ensureMaterialLibraryNode()
 {
     ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
-    if (matLib.isValid())
+    if (matLib.isValid() || rootModelNode().isSubclassOf("QtQuick3D.Material"))
         return;
 
     // Create material library node
@@ -863,13 +863,11 @@ void AbstractView::ensureMaterialLibraryNode()
 }
 
 // Returns ModelNode for project's material library.
+// Since this calls ensureMaterialLibraryNode(), it should only be called within a transaction.
 ModelNode AbstractView::materialLibraryNode()
 {
     ensureMaterialLibraryNode();
-
     ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
-    QTC_ASSERT(matLib.isValid(), return {});
-
     return matLib;
 }
 

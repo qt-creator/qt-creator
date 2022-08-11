@@ -50,7 +50,7 @@ Rectangle {
             normalColor: StudioTheme.Values.themeSectionHeadBackground
             iconSize: StudioTheme.Values.bigIconFontSize
             buttonSize: root.height
-            enabled: hasMaterial && hasModelSelection && hasQuick3DImport
+            enabled: hasMaterial && hasModelSelection && hasQuick3DImport && !hasMaterialRoot
             onClicked: root.toolBarAction(ToolBarAction.ApplyToSelected)
             tooltip: qsTr("Apply material to selected model.")
         }
@@ -61,7 +61,7 @@ Rectangle {
             normalColor: StudioTheme.Values.themeSectionHeadBackground
             iconSize: StudioTheme.Values.bigIconFontSize
             buttonSize: root.height
-            enabled: hasQuick3DImport
+            enabled: hasQuick3DImport && !hasMaterialRoot
             onClicked: root.toolBarAction(ToolBarAction.AddNewMaterial)
             tooltip: qsTr("Create new material.")
         }
@@ -72,7 +72,7 @@ Rectangle {
             normalColor: StudioTheme.Values.themeSectionHeadBackground
             iconSize: StudioTheme.Values.bigIconFontSize
             buttonSize: root.height
-            enabled: hasMaterial && hasQuick3DImport
+            enabled: hasMaterial && hasQuick3DImport && !hasMaterialRoot
             onClicked: root.toolBarAction(ToolBarAction.DeleteCurrentMaterial)
             tooltip: qsTr("Delete current material.")
         }
@@ -83,7 +83,7 @@ Rectangle {
             normalColor: StudioTheme.Values.themeSectionHeadBackground
             iconSize: StudioTheme.Values.bigIconFontSize
             buttonSize: root.height
-            enabled: hasMaterial && hasQuick3DImport
+            enabled: hasMaterial && hasQuick3DImport && !hasMaterialRoot
             onClicked: root.toolBarAction(ToolBarAction.OpenMaterialBrowser)
             tooltip: qsTr("Open material browser.")
         }

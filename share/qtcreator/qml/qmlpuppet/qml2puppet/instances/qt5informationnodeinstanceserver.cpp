@@ -342,24 +342,14 @@ void Qt5InformationNodeInstanceServer::resolveImportSupport()
 void Qt5InformationNodeInstanceServer::updateMaterialPreviewData(const QVector<PropertyValueContainer> &valueChanges)
 {
     const PropertyName matPrevPrefix("matPrev");
-    qint32 materialLibraryId = -1;
     for (const auto &container : valueChanges) {
-        if (container.name().startsWith(matPrevPrefix)) {
-            if (!hasInstanceForId(container.instanceId()))
-                continue;
-            if (materialLibraryId < 0) {
-                ServerNodeInstance instance = instanceForId(container.instanceId());
-                if (instance.id() == "__materialLibrary__")
-                    materialLibraryId = container.instanceId();
-            }
-            if (container.instanceId() == materialLibraryId) {
-                if (container.name() == "matPrevEnv")
-                    m_materialPreviewData.env = container.value().toString();
-                else if (container.name() == "matPrevEnvValue")
-                    m_materialPreviewData.envValue = container.value().toString();
-                else if (container.name() == "matPrevModel")
-                    m_materialPreviewData.model = container.value().toString();
-            }
+        if (container.instanceId() == 0) {
+            if (container.name() == "matPrevEnv")
+                m_materialPreviewData.env = container.value().toString();
+            else if (container.name() == "matPrevEnvValue")
+                m_materialPreviewData.envValue = container.value().toString();
+            else if (container.name() == "matPrevModel")
+                m_materialPreviewData.model = container.value().toString();
         }
     }
 }

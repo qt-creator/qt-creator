@@ -124,6 +124,20 @@ void MaterialBrowserModel::setHasModelSelection(bool b)
     emit hasModelSelectionChanged();
 }
 
+bool MaterialBrowserModel::hasMaterialRoot() const
+{
+    return m_hasMaterialRoot;
+}
+
+void MaterialBrowserModel::setHasMaterialRoot(bool b)
+{
+    if (m_hasMaterialRoot == b)
+        return;
+
+    m_hasMaterialRoot = b;
+    emit hasMaterialRootChanged();
+}
+
 TypeName MaterialBrowserModel::copiedMaterialType() const
 {
     return m_copiedMaterialType;

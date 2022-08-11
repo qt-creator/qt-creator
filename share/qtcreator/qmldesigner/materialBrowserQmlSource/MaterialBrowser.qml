@@ -67,8 +67,10 @@ Item {
         acceptedButtons: Qt.RightButton
 
         onClicked: {
-            root.currentMaterial = null
-            contextMenu.popup()
+            if (!materialBrowserModel.hasMaterialRoot) {
+                root.currentMaterial = null
+                contextMenu.popup()
+            }
         }
     }
 
@@ -162,6 +164,7 @@ Item {
 
         Row {
             width: root.width
+            enabled: !materialBrowserModel.hasMaterialRoot && materialBrowserModel.hasQuick3DImport
 
             SearchBox {
                 id: searchBox
@@ -186,22 +189,22 @@ Item {
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.baseFontSize
             leftPadding: 10
-            visible: materialBrowserModel.hasQuick3DImport && materialBrowserModel.isEmpty && !searchBox.isEmpty()
+            visible: materialBrowserModel.hasQuick3DImport && materialBrowserModel.isEmpty
+                     && !searchBox.isEmpty() && !materialBrowserModel.hasMaterialRoot
         }
 
         Text {
-            text: qsTr("There are no materials in this project.<br>Select '<b>+</b>' to create one.")
-            textFormat: Text.RichText
-            color: StudioTheme.Values.themeTextColor
-            font.pixelSize: StudioTheme.Values.mediumFontSize
-            horizontalAlignment: Text.AlignHCenter
-            topPadding: 30
-            anchors.horizontalCenter: parent.horizontalCenter
-            visible: materialBrowserModel.hasQuick3DImport && materialBrowserModel.isEmpty && searchBox.isEmpty()
-        }
+            text: {
+                if (materialBrowserModel.hasMaterialRoot)
+                    qsTr("<b>Material Browser</b> is disabled inside a material component.")
+                else if (!materialBrowserModel.hasQuick3DImport)
+                    qsTr("To use <b>Material Browser</b>, first add the QtQuick3D module in the <b>Components</b> view.")
+                else if (materialBrowserModel.isEmpty && searchBox.isEmpty())
+                    qsTr("There are no materials in this project.<br>Select '<b>+</b>' to create one.")
+                else
+                    ""
+            }
 
-        Text {
-            text: qsTr("To use <b>Material Browser</b>, first add the QtQuick3D module in the <b>Components</b> view.");
             textFormat: Text.RichText
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.mediumFontSize
@@ -209,8 +212,7 @@ Item {
             horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.WordWrap
             width: root.width
-            anchors.horizontalCenter: parent.horizontalCenter
-            visible: !materialBrowserModel.hasQuick3DImport
+            visible: text !== ""
         }
 
         ScrollView {

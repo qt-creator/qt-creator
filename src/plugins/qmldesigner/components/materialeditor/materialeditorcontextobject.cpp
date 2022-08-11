@@ -233,6 +233,20 @@ void MaterialEditorContextObject::setHasQuick3DImport(bool b)
     emit hasQuick3DImportChanged();
 }
 
+bool MaterialEditorContextObject::hasMaterialRoot() const
+{
+    return m_hasMaterialRoot;
+}
+
+void MaterialEditorContextObject::setHasMaterialRoot(bool b)
+{
+    if (b == m_hasMaterialRoot)
+        return;
+
+    m_hasMaterialRoot = b;
+    emit hasMaterialRootChanged();
+}
+
 bool MaterialEditorContextObject::hasModelSelection() const
 {
     return m_hasModelSelection;
