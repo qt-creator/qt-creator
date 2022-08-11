@@ -2544,11 +2544,14 @@ class DumperBase():
         self.resetCaches()
 
         for mod in self.dumpermodules:
-            m = __import__(mod)
-            dic = m.__dict__
-            for name in dic.keys():
-                item = dic[name]
-                self.registerDumper(name, item)
+            try:
+                m = __import__(mod)
+                dic = m.__dict__
+                for name in dic.keys():
+                    item = dic[name]
+                    self.registerDumper(name, item)
+            except Exception as e:
+                print('Failed to load dumper module: %s (%s)' % (mod, e))
 
         msg = 'dumpers=['
         for key, value in self.qqFormats.items():
