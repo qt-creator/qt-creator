@@ -3,22 +3,14 @@
 
 #pragma once
 
-#include "remotelinux_export.h"
+#include <projectexplorer/buildstep.h>
 
-#include "abstractremotelinuxdeploystep.h"
+namespace RemoteLinux::Internal {
 
-namespace RemoteLinux {
-
-class REMOTELINUX_EXPORT RsyncDeployStep : public AbstractRemoteLinuxDeployStep
+class RsyncDeployStepFactory : public ProjectExplorer::BuildStepFactory
 {
-    Q_OBJECT
-
 public:
-    RsyncDeployStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-    ~RsyncDeployStep() override;
-
-    static Utils::Id stepId();
-    static QString displayName();
+    RsyncDeployStepFactory();
 };
 
-} // RemoteLinux
+} // RemoteLinux::Internal

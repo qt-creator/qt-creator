@@ -3,6 +3,7 @@
 
 #include "rsyncdeploystep.h"
 
+#include "abstractremotelinuxdeploystep.h"
 #include "abstractremotelinuxdeployservice.h"
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
@@ -10,6 +11,7 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
@@ -20,13 +22,12 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace RemoteLinux {
-namespace Internal {
+namespace RemoteLinux::Internal {
 
 class RsyncDeployService : public AbstractRemoteLinuxDeployService
 {
 public:
-    RsyncDeployService(QObject *parent = nullptr) : AbstractRemoteLinuxDeployService(parent)
+    RsyncDeployService()
     {
         connect(&m_mkdir, &QtcProcess::done, this, [this] {
             if (m_mkdir.result() != ProcessResult::FinishedWithSuccess) {
@@ -139,46 +140,48 @@ void RsyncDeployService::setFinished()
     handleDeploymentDone();
 }
 
-} // namespace Internal
+// RsyncDeployStep
 
-RsyncDeployStep::RsyncDeployStep(BuildStepList *bsl, Utils::Id id)
-    : AbstractRemoteLinuxDeployStep(bsl, id)
+class RsyncDeployStep : public AbstractRemoteLinuxDeployStep
 {
-    auto service = createDeployService<Internal::RsyncDeployService>();
+public:
+    RsyncDeployStep(BuildStepList *bsl, Id id)
+        : AbstractRemoteLinuxDeployStep(bsl, id)
+    {
+        auto service = createDeployService<Internal::RsyncDeployService>();
 
-    auto flags = addAspect<StringAspect>();
-    flags->setDisplayStyle(StringAspect::LineEditDisplay);
-    flags->setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
-    flags->setLabelText(Tr::tr("Flags:"));
-    flags->setValue(FileTransferSetupData::defaultRsyncFlags());
+        auto flags = addAspect<StringAspect>();
+        flags->setDisplayStyle(StringAspect::LineEditDisplay);
+        flags->setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
+        flags->setLabelText(Tr::tr("Flags:"));
+        flags->setValue(FileTransferSetupData::defaultRsyncFlags());
 
-    auto ignoreMissingFiles = addAspect<BoolAspect>();
-    ignoreMissingFiles->setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");
-    ignoreMissingFiles->setLabel(Tr::tr("Ignore missing files:"),
-                                 BoolAspect::LabelPlacement::InExtraLabel);
-    ignoreMissingFiles->setValue(false);
+        auto ignoreMissingFiles = addAspect<BoolAspect>();
+        ignoreMissingFiles->setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");
+        ignoreMissingFiles->setLabel(Tr::tr("Ignore missing files:"),
+                                     BoolAspect::LabelPlacement::InExtraLabel);
+        ignoreMissingFiles->setValue(false);
 
-    setInternalInitializer([service, flags, ignoreMissingFiles] {
-        service->setIgnoreMissingFiles(ignoreMissingFiles->value());
-        service->setFlags(flags->value());
-        return service->isDeploymentPossible();
-    });
+        setInternalInitializer([service, flags, ignoreMissingFiles] {
+            service->setIgnoreMissingFiles(ignoreMissingFiles->value());
+            service->setFlags(flags->value());
+            return service->isDeploymentPossible();
+        });
 
-    setRunPreparer([this, service] {
-        service->setDeployableFiles(target()->deploymentData().allFiles());
-    });
+        setRunPreparer([this, service] {
+            service->setDeployableFiles(target()->deploymentData().allFiles());
+        });
+    }
+};
+
+// RsyncDeployStepFactory
+
+RsyncDeployStepFactory::RsyncDeployStepFactory()
+{
+    registerStep<RsyncDeployStep>(Constants::RsyncDeployStepId);
+    setDisplayName(Tr::tr("Deploy files via rsync"));
+    setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
+    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
 }
 
-RsyncDeployStep::~RsyncDeployStep() = default;
-
-Utils::Id RsyncDeployStep::stepId()
-{
-    return Constants::RsyncDeployStepId;
-}
-
-QString RsyncDeployStep::displayName()
-{
-    return Tr::tr("Deploy files via rsync");
-}
-
-} // RemoteLinux
+} // RemoteLinux::Internal
