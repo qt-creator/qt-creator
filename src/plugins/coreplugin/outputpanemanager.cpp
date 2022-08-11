@@ -101,7 +101,7 @@ IOutputPane::IOutputPane(QObject *parent)
     m_zoomInButton->setCommandId(Constants::ZOOM_IN);
     connect(m_zoomInButton, &QToolButton::clicked, this, [this] { emit zoomInRequested(1); });
 
-    m_zoomOutButton->setIcon(Utils::Icons::MINUS.icon());
+    m_zoomOutButton->setIcon(Utils::Icons::MINUS_TOOLBAR.icon());
     m_zoomOutButton->setCommandId(Constants::ZOOM_OUT);
     connect(m_zoomOutButton, &QToolButton::clicked, this, [this] { emit zoomOutRequested(1); });
 }

@@ -158,7 +158,7 @@ BuildSystemOutputWindow::BuildSystemOutputWindow()
                                   Core::Constants::ZOOM_IN,
                                   Context(kBuildSystemOutputContext));
 
-    m_zoomOut.setIcon(Utils::Icons::MINUS.icon());
+    m_zoomOut.setIcon(Utils::Icons::MINUS_TOOLBAR.icon());
     connect(&m_zoomOut, &QAction::triggered, this, [this] { zoomOut(); });
     ActionManager::registerAction(&m_zoomOut,
                                   Core::Constants::ZOOM_OUT,

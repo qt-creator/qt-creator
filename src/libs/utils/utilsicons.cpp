@@ -149,8 +149,10 @@ const Icon ARROW_DOWN({
         {":/utils/images/arrowdown.png", Theme::IconsBaseColor}});
 const Icon ARROW_DOWN_TOOLBAR({
         {":/utils/images/arrowdown.png", Theme::IconsNavigationArrowsColor}});
-const Icon MINUS({
+const Icon MINUS_TOOLBAR({
         {":/utils/images/minus.png", Theme::IconsBaseColor}});
+const Icon MINUS({
+        {":/utils/images/minus.png", Theme::PaletteText}}, Icon::Tint);
 const Icon PLUS_TOOLBAR({
         {":/utils/images/plus.png", Theme::IconsBaseColor}});
 const Icon PLUS({

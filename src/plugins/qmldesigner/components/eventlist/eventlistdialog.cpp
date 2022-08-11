@@ -68,7 +68,8 @@ EventListDialog::EventListDialog(QWidget *parent)
 
     auto *toolbar = new QToolBar;
     m_addAction = toolbar->addAction(Utils::Icons::PLUS_TOOLBAR.icon(), tr("Add Event"));
-    m_removeAction = toolbar->addAction(Utils::Icons::MINUS.icon(), tr("Remove Selected Events"));
+    m_removeAction = toolbar->addAction(Utils::Icons::MINUS_TOOLBAR.icon(),
+                                        tr("Remove Selected Events"));
 
     auto *filterWidget = new FilterLineWidget;
     toolbar->addWidget(filterWidget);
