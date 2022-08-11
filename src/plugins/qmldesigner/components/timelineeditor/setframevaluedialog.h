@@ -27,13 +27,9 @@
 
 #include <QDialog>
 
-QT_FORWARD_DECLARE_CLASS(QLineEdit)
+QT_FORWARD_DECLARE_CLASS(QSpinBox)
 
 namespace QmlDesigner {
-
-namespace Ui {
-class SetFrameValueDialog;
-}
 
 class SetFrameValueDialog : public QDialog
 {
@@ -48,7 +44,12 @@ public:
     QVariant value() const;
 
 private:
-    Ui::SetFrameValueDialog *ui;
+    QWidget* createValueControl(const QVariant& value);
+
+    std::function<QVariant(void)> m_valueGetter;
+
+    QMetaType m_valueType;
+    QSpinBox *m_frameControl;
 };
 
 } // namespace QmlDesigner

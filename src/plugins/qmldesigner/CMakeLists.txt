@@ -497,7 +497,7 @@ extend_qtc_plugin(QmlDesigner
     easingcurve.cpp easingcurve.h
     easingcurvedialog.cpp easingcurvedialog.h
     preseteditor.cpp preseteditor.h
-    setframevaluedialog.cpp setframevaluedialog.h setframevaluedialog.ui
+    setframevaluedialog.cpp setframevaluedialog.h
     splineeditor.cpp splineeditor.h
     timeline.qrc
     timelineabstracttool.cpp timelineabstracttool.h
