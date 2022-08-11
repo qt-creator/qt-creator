@@ -37,12 +37,7 @@ class QTCREATOR_UTILS_EXPORT LineColumn
 {
 public:
     constexpr LineColumn() = default;
-    constexpr
-    LineColumn(int line, int column)
-        : line(line),
-        column(column)
-    {}
-
+    constexpr LineColumn(int line, int column) : line(line), column(column) {}
 
     bool isValid() const
     {
@@ -59,7 +54,7 @@ public:
         return !(first == second);
     }
 
-    static LineColumn extractFromFileName(const QString &fileName, int &postfixPos);
+    static LineColumn extractFromFileName(QStringView fileName, int &postfixPos);
 
 public:
     int line = -1;

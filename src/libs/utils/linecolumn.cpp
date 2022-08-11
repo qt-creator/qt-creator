@@ -38,17 +38,15 @@ namespace Utils {
     \c {filepath.txt+19+12}, and \c {filepath.txt(19)}.
 */
 
-LineColumn LineColumn::extractFromFileName(const QString &fileName, int &postfixPos)
+LineColumn LineColumn::extractFromFileName(QStringView fileName, int &postfixPos)
 {
     static const auto regexp = QRegularExpression("[:+](\\d+)?([:+](\\d+)?)?$");
     // (10) MSVC-style
     static const auto vsRegexp = QRegularExpression("[(]((\\d+)[)]?)?$");
     const QRegularExpressionMatch match = regexp.match(fileName);
-    QString filePath = fileName;
     LineColumn lineColumn;
     if (match.hasMatch()) {
         postfixPos = match.capturedStart(0);
-        filePath = fileName.left(match.capturedStart(0));
         lineColumn.line = 0; // for the case that there's only a : at the end
         if (match.lastCapturedIndex() > 0) {
             lineColumn.line = match.captured(1).toInt();
@@ -58,7 +56,6 @@ LineColumn LineColumn::extractFromFileName(const QString &fileName, int &postfix
     } else {
         const QRegularExpressionMatch vsMatch = vsRegexp.match(fileName);
         postfixPos = vsMatch.capturedStart(0);
-        filePath = fileName.left(vsMatch.capturedStart(0));
         if (vsMatch.lastCapturedIndex() > 1) // index 1 includes closing )
             lineColumn.line = vsMatch.captured(2).toInt();
     }
