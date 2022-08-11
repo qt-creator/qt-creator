@@ -181,11 +181,11 @@ static QString hostEncoded(QString host)
 QString FilePath::toString() const
 {
     if (m_scheme.isEmpty())
-        return m_root + m_path;
+        return m_path;
 
-    if (!m_root.isEmpty())
-        return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + hostEncoded(m_host) + m_root + m_path;
-    return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + hostEncoded(m_host) + "/./" + m_path;
+    if (isRelativePath())
+        return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + hostEncoded(m_host) + "/./" + m_path;
+    return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + hostEncoded(m_host) +  m_path;
 }
 
 QString FilePath::toFSPathString() const
@@ -199,7 +199,7 @@ QUrl FilePath::toUrl() const
     QUrl url;
     url.setScheme(m_scheme);
     url.setHost(m_host);
-    url.setPath(m_root + m_path);
+    url.setPath(m_path);
     return url;
 }
 
@@ -209,9 +209,9 @@ QUrl FilePath::toUrl() const
 QString FilePath::toUserOutput() const
 {
     if (needsDevice()) {
-        if (!m_root.isEmpty())
-            return m_scheme + "://" + hostEncoded(m_host) + path();
-        return m_scheme + "://" + hostEncoded(m_host) + "/./" + path();
+        if (root().empty())
+            return m_scheme + "://" + hostEncoded(m_host) + "/./" + m_path;
+        return m_scheme + "://" + hostEncoded(m_host) + m_path;
     }
 
     QString tmp = toString();
@@ -233,8 +233,9 @@ QString FilePath::nativePath() const
 
 QString FilePath::fileName() const
 {
-    const QChar slash = QLatin1Char('/');
-    return m_path.mid(m_path.lastIndexOf(slash) + 1);
+    // FIXME: Performance
+    QStringView fp = pathWithoutRoot();
+    return fp.mid(fp.lastIndexOf('/') + 1).toString();
 }
 
 QString FilePath::fileNameWithPathComponents(int pathComponents) const
@@ -333,12 +334,17 @@ QStringView FilePath::host() const
 
 QString FilePath::path() const
 {
-    return m_root + m_path;
+    return m_path;
+}
+
+QStringView FilePath::pathWithoutRoot() const
+{
+    return QStringView{m_path}.mid(m_rootLen);
 }
 
 QStringView FilePath::root() const
 {
-    return m_root;
+    return QStringView{m_path}.first(m_rootLen);
 }
 
 void FilePath::setParts(const QStringView scheme, const QStringView host, const QStringView path)
@@ -798,29 +804,29 @@ void FilePath::setRootAndPath(QStringView path, OsType osType)
                                                          : std::nullopt;
 
     if (path.startsWith(QLatin1String("/./"))) {
-        m_root = "";
-        path = path.mid(3);
-        m_path = path.toString();
+        m_rootLen  = 0;
+        m_path = path.mid(3).toString();
     } else if (windowsDriveAndPath ) {
-        if (windowsDriveAndPath->first.isEmpty())
-            m_root.clear();
-        else
-            m_root = windowsDriveAndPath->first.toString() + '/';
-
-        m_path = windowsDriveAndPath->second.toString();
+        if (windowsDriveAndPath->first.isEmpty()) {
+            m_rootLen = 0;
+            m_path = windowsDriveAndPath->second.toString();
+        } else {
+            m_rootLen = windowsDriveAndPath->first.size() + 1; // 1 for "/"
+            m_path = windowsDriveAndPath->first.toString() + '/' + windowsDriveAndPath->second.toString();
+        }
     } else if (path.startsWith('/')) {
-        m_root = "/";
-        m_path = path.mid(1).toString();
+        m_rootLen = 1;
+        m_path = path.toString();
     } else if (path.startsWith(':')) {
         if (path.length() > 1 && path[1] == '/') {
-            m_root = ":/";
-            m_path = path.mid(2).toString();
+            m_rootLen = 2;
+            m_path = path.toString();
         } else {
-            m_root = ":";
-            m_path = path.mid(1).toString();
+            m_rootLen = 1;
+            m_path = path.toString();
         }
     } else {
-        m_root.clear();
+        m_rootLen = 0;
         m_path = path.toString();
     }
 }
@@ -857,14 +863,15 @@ void FilePath::setFromStringAndOs(const QString &filename, OsType osType)
                     return;
                 }
 
-                m_path.clear();
-                m_root = slash;
+                m_path = slash;
+                m_rootLen = 1;
                 return;
             }
 
             m_scheme.clear();
             m_host.clear();
             m_path = filename;
+            m_rootLen = 0;
             return;
         }
     }
@@ -935,8 +942,7 @@ QVariant FilePath::toVariant() const
 
 bool FilePath::operator==(const FilePath &other) const
 {
-    return QString::compare(m_root, other.m_root, caseSensitivity()) == 0
-        && QString::compare(m_path, other.m_path, caseSensitivity()) == 0
+    return QString::compare(m_path, other.m_path, caseSensitivity()) == 0
         && m_host == other.m_host
         && m_scheme == other.m_scheme;
 }
@@ -948,8 +954,7 @@ bool FilePath::operator!=(const FilePath &other) const
 
 bool FilePath::operator<(const FilePath &other) const
 {
-    const int rootCmp = QString::compare(m_root, other.m_root, caseSensitivity());
-    const int cmp = rootCmp == 0 ? QString::compare(m_path, other.m_path, caseSensitivity()) : rootCmp;
+    const int cmp = QString::compare(m_path, other.m_path, caseSensitivity());
     if (cmp != 0)
         return cmp < 0;
     if (m_host != other.m_host)
@@ -982,7 +987,7 @@ bool FilePath::isChildOf(const FilePath &s) const
 {
     if (s.isEmpty())
         return false;
-    if (s.m_root != m_root)
+    if (s.m_rootLen != m_rootLen)
         return false;
     if (!m_path.startsWith(s.m_path, caseSensitivity()))
         return false;
@@ -1019,7 +1024,7 @@ bool FilePath::startsWithDriveLetter() const
 {
     if (needsDevice() || !HostOsInfo::isWindowsHost())
         return false;
-    return m_root.length() >= 2 && m_root.at(0).isLetter() && m_root.at(1) == ':';
+    return root().size() >= 2 && m_path.at(0).isLetter() && m_path.at(1) == ':';
 }
 
 /*!
@@ -1162,8 +1167,8 @@ FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
     FilePath res;
     res.m_scheme = deviceTemplate.m_scheme;
     res.m_host = deviceTemplate.m_host;
-    res.m_root = m_root;
     res.m_path = m_path;
+    res.m_rootLen = m_rootLen;
     res.setRootAndPath(res.mapToDevicePath(), res.osType());
     return res;
 }
@@ -1554,10 +1559,7 @@ FilePath FilePath::operator/(const QString &str) const
 */
 void FilePath::clear()
 {
-    m_path.clear();
-    m_root.clear();
-    m_host.clear();
-    m_scheme.clear();
+    *this = {};
 }
 
 /*!
@@ -1567,7 +1569,7 @@ void FilePath::clear()
 */
 bool FilePath::isEmpty() const
 {
-    return root().isEmpty() && path().isEmpty();
+    return m_path.isEmpty();
 }
 
 /*!
@@ -1595,7 +1597,7 @@ QString FilePath::shortNativePath() const
 */
 bool FilePath::isRelativePath() const
 {
-    return root().isEmpty();
+    return m_rootLen == 0;
 }
 
 /*!
@@ -1605,9 +1607,9 @@ bool FilePath::isRelativePath() const
 */
 FilePath FilePath::resolvePath(const FilePath &tail) const
 {
-    if (!tail.root().isEmpty())
-        return tail;
-    return pathAppended(tail.path());
+    if (tail.isRelativePath())
+        return pathAppended(tail.pathWithoutRoot().toString());
+    return tail;
 }
 
 /*!

@@ -70,9 +70,9 @@ public:
     QStringView scheme() const;
     QStringView host() const;
     QString path() const;
-    QStringView root() const;
 
     void setParts(const QStringView scheme, const QStringView host, const QStringView path);
+    void setPath(const QStringView path);
 
     QString fileName() const;
     QString fileNameWithPathComponents(int pathComponents) const;
@@ -207,12 +207,14 @@ private:
     void setRootAndPath(QStringView path, OsType osType);
     void setFromString(const QString &filepath);
     void setFromStringAndOs(const QString &filepath, OsType osType);
+    QStringView root() const;
     [[nodiscard]] QString mapToDevicePath() const;
+    [[nodiscard]] QStringView pathWithoutRoot() const;
 
     QString m_scheme;
     QString m_host; // May contain raw slashes.
-    QString m_path;
-    QString m_root;
+    QString m_path; // Includes the root bits
+    int m_rootLen = 0;
 };
 
 inline size_t qHash(const Utils::FilePath &a, uint seed = 0)
