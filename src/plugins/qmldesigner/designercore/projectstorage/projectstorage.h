@@ -233,7 +233,17 @@ public:
         return commonTypeCache.template builtinTypeId<builtinType>();
     }
 
-    auto prototypes(TypeId type) const {}
+    TypeIds prototypeIds(TypeId type) const
+    {
+        return selectPrototypeIdsForTypeIdInOrderStatement.template valuesWithTransaction<TypeId>(16,
+                                                                                                  type);
+    }
+
+    TypeIds prototypeAndSelfIds(TypeId type) const
+    {
+        return selectPrototypeAndSelfIdsForTypeIdInOrderStatement
+            .template valuesWithTransaction<TypeId>(16, type);
+    }
 
     PropertyDeclarationId fetchPropertyDeclarationByTypeIdAndName(TypeId typeId,
                                                                   Utils::SmallStringView name)
@@ -2968,12 +2978,12 @@ public:
         "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
         "    UNION ALL "
         "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
-        "  prototype_and_extension(typeId) AS ("
+        "  prototypes(typeId) AS ("
         "       SELECT prototypeId FROM all_prototype_and_extension WHERE typeId=?"
         "    UNION ALL "
-        "      SELECT prototypeId FROM all_prototype_and_extension JOIN prototype_and_extension "
-        "          USING(typeId)) "
-        "SELECT typeId FROM prototype_and_extension",
+        "       SELECT prototypeId FROM all_prototype_and_extension JOIN "
+        "         prototypes USING(typeId)) "
+        "SELECT typeId FROM prototypes",
         database};
     WriteStatement<3> updatePropertyDeclarationAliasIdAndTypeNameIdStatement{
         "UPDATE propertyDeclarations SET aliasPropertyDeclarationId=?2, "
@@ -3223,6 +3233,32 @@ public:
         "UPDATE types SET defaultPropertyId=NULL WHERE defaultPropertyId=?1", database};
     mutable ReadStatement<2, 1> selectInfoTypeByTypeIdStatement{
         "SELECT defaultPropertyId, traits FROM types WHERE typeId=?", database};
+    mutable ReadStatement<1, 1> selectPrototypeIdsForTypeIdInOrderStatement{
+        "WITH RECURSIVE "
+        "  all_prototype_and_extension(typeId, prototypeId) AS ("
+        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "    UNION ALL "
+        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
+        "  prototypes(typeId, level) AS ("
+        "       SELECT prototypeId, 0 FROM all_prototype_and_extension WHERE typeId=?"
+        "    UNION ALL "
+        "      SELECT prototypeId, p.level+1 FROM all_prototype_and_extension JOIN "
+        "        prototypes AS p USING(typeId)) "
+        "SELECT typeId FROM prototypes ORDER BY level",
+        database};
+    mutable ReadStatement<1, 1> selectPrototypeAndSelfIdsForTypeIdInOrderStatement{
+        "WITH RECURSIVE "
+        "  all_prototype_and_extension(typeId, prototypeId) AS ("
+        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "    UNION ALL "
+        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
+        "  typeChain(typeId, level) AS ("
+        "       VALUES(?1, 0)"
+        "    UNION ALL "
+        "      SELECT prototypeId, tc.level+1 FROM all_prototype_and_extension JOIN "
+        "        typeChain AS tc USING(typeId)) "
+        "SELECT typeId FROM typeChain ORDER BY level",
+        database};
 };
 extern template class ProjectStorage<Sqlite::Database>;
 } // namespace QmlDesigner

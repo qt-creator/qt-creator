@@ -6738,4 +6738,81 @@ TEST_F(ProjectStorage, GetBuiltinStringTypeAfterChangingType)
     ASSERT_THAT(typeId, fetchTypeId(sourceId1, "variant"));
 }
 
+TEST_F(ProjectStorage, GetPrototypeIds)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject3");
+
+    auto prototypeIds = storage.prototypeIds(typeId);
+
+    ASSERT_THAT(prototypeIds,
+                ElementsAre(fetchTypeId(sourceId1, "QObject2"), fetchTypeId(sourceId1, "QObject")));
+}
+
+TEST_F(ProjectStorage, GetNoPrototypeIdsForNoPrototype)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject");
+
+    auto prototypeIds = storage.prototypeIds(typeId);
+
+    ASSERT_THAT(prototypeIds, IsEmpty());
+}
+
+TEST_F(ProjectStorage, GetPrototypeIdsWithExtension)
+{
+    auto package{createPackageWithProperties()};
+    std::swap(package.types[1].extension, package.types[1].prototype);
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject3");
+
+    auto prototypeIds = storage.prototypeIds(typeId);
+
+    ASSERT_THAT(prototypeIds,
+                ElementsAre(fetchTypeId(sourceId1, "QObject2"),
+                            fetchTypeId(sourceId1, "QObject")));
+}
+
+TEST_F(ProjectStorage, GetPrototypeAndSelfIds)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject3");
+
+    auto prototypeAndSelfIds = storage.prototypeAndSelfIds(typeId);
+
+    ASSERT_THAT(prototypeAndSelfIds,
+                ElementsAre(fetchTypeId(sourceId1, "QObject3"),
+                            fetchTypeId(sourceId1, "QObject2"),
+                            fetchTypeId(sourceId1, "QObject")));
+}
+
+TEST_F(ProjectStorage, GetSelfForNoPrototypeIds)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject");
+
+    auto prototypeAndSelfIds = storage.prototypeAndSelfIds(typeId);
+
+    ASSERT_THAT(prototypeAndSelfIds, ElementsAre(fetchTypeId(sourceId1, "QObject")));
+}
+
+TEST_F(ProjectStorage, GetPrototypeAndSelfIdsWithExtension)
+{
+    auto package{createPackageWithProperties()};
+    std::swap(package.types[1].extension, package.types[1].prototype);
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject3");
+
+    auto prototypeAndSelfIds = storage.prototypeAndSelfIds(typeId);
+
+    ASSERT_THAT(prototypeAndSelfIds,
+                ElementsAre(fetchTypeId(sourceId1, "QObject3"),
+                            fetchTypeId(sourceId1, "QObject2"),
+                            fetchTypeId(sourceId1, "QObject")));
+}
+
 } // namespace
