@@ -143,6 +143,7 @@ inline constexpr AuxiliaryDataKeyView globalAnnotationStatus{AuxiliaryDataType::
                                                              "globalAnnotationStatus"};
 inline constexpr AuxiliaryDataKeyView rotBlockProperty{AuxiliaryDataType::NodeInstanceAuxiliary,
                                                        "rotBlock"};
+inline constexpr AuxiliaryDataKeyView languageProperty{AuxiliaryDataType::Temporary, "language"};
 
 template<typename Type>
 QVariant getDefaultValueAsQVariant(const Type &key)

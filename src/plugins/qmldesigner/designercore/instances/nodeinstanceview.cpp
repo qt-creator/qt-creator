@@ -721,7 +721,7 @@ void NodeInstanceView::auxiliaryDataChanged(const ModelNode &node,
 
     case AuxiliaryDataType::Temporary:
         if (node.isRootNode()) {
-            if (key.name == "language") {
+            if (key == languageProperty) {
                 const QString languageAsString = value.toString();
                 if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current(
                         m_currentTarget))
