@@ -87,7 +87,6 @@ private:
 
     bool isSameFile(IEditor *editorA, IEditor *editorB) const;
 
-    const QIcon m_emptyIcon;
     OpenEditorsTreeWidget *m_editorList;
 };
 

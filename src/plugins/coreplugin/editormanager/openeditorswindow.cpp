@@ -30,6 +30,7 @@
 #include "editorview.h"
 #include <coreplugin/idocument.h>
 
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -53,7 +54,6 @@ enum class Role
 
 OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     QFrame(parent, Qt::Popup),
-    m_emptyIcon(Utils::Icons::EMPTY14.icon()),
     m_editorList(new OpenEditorsTreeWidget(this))
 {
     setMinimumSize(300, 200);
@@ -250,7 +250,7 @@ void OpenEditorsWindow::addItem(DocumentModel::Entry *entry,
     if (entry->document->isModified())
         title += tr("*");
     item->setIcon(0, !entry->fileName().isEmpty() && entry->document->isFileReadOnly()
-                  ? DocumentModel::lockedIcon() : m_emptyIcon);
+                  ? DocumentModel::lockedIcon() : Utils::FileIconProvider::icon(entry->fileName()));
     item->setText(0, title);
     item->setToolTip(0, entry->fileName().toString());
     item->setData(0, int(Role::Entry), QVariant::fromValue(entry));
