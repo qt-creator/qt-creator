@@ -664,7 +664,7 @@ static QString reformatInteger(quint64 value, int format, int size, bool isSigne
 // Format printable (char-type) characters
 static QString reformatCharacter(int code, int size, bool isSigned)
 {
-    if (code > 0xffff) {
+    if (uint32_t(code) > 0xffff) {
         std::array<char, sizeof(char32_t)> buf;
         memcpy(buf.data(), &code, sizeof(char32_t));
         QByteArrayView view(buf);
