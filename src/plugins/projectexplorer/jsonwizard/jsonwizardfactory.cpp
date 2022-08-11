@@ -792,12 +792,16 @@ bool JsonWizardFactory::initialize(const QVariantMap &data, const FilePath &base
     }
     setCategory(strVal);
 
-    strVal = data.value(QLatin1String(ICON_KEY)).toString();
-    const FilePath iconPath = baseDir.resolvePath(strVal);
-    if (!iconPath.exists()) {
-        *errorMessage = tr("Icon file \"%1\" not found.").arg(iconPath.toUserOutput());
-        return false;
+    FilePath iconPath;
+    if (data.contains(QLatin1String(ICON_KEY))) {
+        strVal = data.value(QLatin1String(ICON_KEY)).toString();
+        iconPath = baseDir.resolvePath(strVal);
+        if (!iconPath.exists()) {
+            *errorMessage = tr("Icon file \"%1\" not found.").arg(iconPath.toUserOutput());
+            return false;
+        }
     }
+
     const QString iconText = data.value(QLatin1String(ICON_TEXT_KEY)).toString();
     const bool iconIsThemed = data.value(QLatin1String(ICON_KIND_KEY)).toString()
             .compare("Themed", Qt::CaseInsensitive) == 0;
