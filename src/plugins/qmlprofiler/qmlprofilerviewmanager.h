@@ -5,6 +5,7 @@
 
 #include "qmlprofilerstatisticsview.h"
 #include "qmlprofilertraceview.h"
+#include "quick3dframeview.h"
 #include "flamegraphview.h"
 
 namespace Utils { class Perspective; }
@@ -25,6 +26,7 @@ public:
     QmlProfilerTraceView *traceView() const { return m_traceView; }
     QmlProfilerStatisticsView *statisticsView() const { return m_statisticsView; }
     FlameGraphView *flameGraphView() const { return m_flameGraphView; }
+    Quick3DFrameView *quick3dView() const { return m_quick3dView; }
     Utils::Perspective *perspective() const { return m_perspective; }
 
     void clear();
@@ -40,6 +42,7 @@ private:
     QmlProfilerTraceView *m_traceView = nullptr;
     QmlProfilerStatisticsView *m_statisticsView = nullptr;
     FlameGraphView *m_flameGraphView = nullptr;
+    Quick3DFrameView *m_quick3dView = nullptr;
     QmlProfilerStateManager *m_profilerState = nullptr;
     QmlProfilerModelManager *m_profilerModelManager = nullptr;
     Utils::Perspective *m_perspective = nullptr;

@@ -166,13 +166,19 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
     case Quick3DEvent: {
 
         QVarLengthArray<qint64> params;
-        qint64 param;
-
-        while (!stream.atEnd()) {
-            stream >> param;
-            params.push_back(param);
+        qint64 param = 0;
+        QByteArray str;
+        if (subtype == Quick3DEventData) {
+            stream >> str;
+        } else {
+            while (!stream.atEnd()) {
+                stream >> param;
+                params.push_back(param);
+            }
         }
+
         event.type = QmlEventType(static_cast<Message>(messageType), UndefinedRangeType, subtype);
+        event.type.setData(QString::fromUtf8(str));
         event.event.setNumbers<QVarLengthArray<qint64>, qint64>(params);
         break;
     }

@@ -69,6 +69,8 @@ set(QMLPROFILER_CPP_SOURCES
   qmltypedevent.cpp qmltypedevent.h
   scenegraphtimelinemodel.cpp scenegraphtimelinemodel.h
   quick3dmodel.cpp quick3dmodel.h
+  quick3dframeview.cpp quick3dframeview.h
+  quick3dframemodel.cpp quick3dframemodel.h
 )
 
 find_package(Qt6 COMPONENTS ShaderTools QUIET)

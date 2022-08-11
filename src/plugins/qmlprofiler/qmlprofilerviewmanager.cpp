@@ -66,15 +66,19 @@ void QmlProfilerViewManager::createViews()
     prepareEventsView(m_statisticsView);
     m_flameGraphView = new FlameGraphView(m_profilerModelManager);
     prepareEventsView(m_flameGraphView);
+    m_quick3dView = new Quick3DFrameView(m_profilerModelManager);
+    prepareEventsView(m_quick3dView);
 
     QWidget *anchorDock = nullptr;
     if (m_traceView->isUsable()) {
         anchorDock = m_traceView;
         m_perspective->addWindow(m_traceView, Perspective::SplitVertical, nullptr);
         m_perspective->addWindow(m_flameGraphView, Perspective::AddToTab, m_traceView);
+        m_perspective->addWindow(m_quick3dView, Perspective::AddToTab, m_flameGraphView);
     } else {
         anchorDock = m_flameGraphView;
         m_perspective->addWindow(m_flameGraphView, Perspective::SplitVertical, nullptr);
+        m_perspective->addWindow(m_quick3dView, Perspective::AddToTab, m_flameGraphView);
     }
     m_perspective->addWindow(m_statisticsView, Perspective::AddToTab, anchorDock);
     m_perspective->addWindow(anchorDock, Perspective::Raise, nullptr);
@@ -87,6 +91,7 @@ QmlProfilerViewManager::~QmlProfilerViewManager()
     delete m_traceView;
     delete m_flameGraphView;
     delete m_statisticsView;
+    delete m_quick3dView;
     delete m_perspective;
 }
 

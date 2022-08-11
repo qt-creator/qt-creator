@@ -47,9 +47,10 @@ enum Quick3DEventType {
     Quick3DParticleUpdate,
     Quick3DGenerateShader,
     Quick3DLoadShader,
+    Quick3DRenderCall,
+    Quick3DRenderPass,
+    Quick3DEventData,
     MaximumQuick3DFrameType,
-    NumQuick3DRenderThreadFrameTypes = Quick3DParticleUpdate,
-    NumQuick3DGUIThreadFrameTypes = MaximumQuick3DFrameType - NumQuick3DRenderThreadFrameTypes,
 };
 
 enum RangeType {
