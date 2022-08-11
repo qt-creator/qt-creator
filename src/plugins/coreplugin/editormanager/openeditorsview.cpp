@@ -30,6 +30,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -221,6 +222,16 @@ void ProxyModel::setSourceModel(QAbstractItemModel *sm)
         connect(sm, &QAbstractItemModel::rowsAboutToBeRemoved,
                 this, &ProxyModel::sourceRowsAboutToBeRemoved);
     }
+}
+
+QVariant ProxyModel::data(const QModelIndex &index, int role) const
+{
+    if (role == Qt::DecorationRole && index.column() == 0) {
+        const QString fileName = QAbstractProxyModel::data(index, Qt::DisplayRole).toString();
+        return Utils::FileIconProvider::icon(Utils::FilePath::fromString(fileName));
+    }
+
+    return QAbstractProxyModel::data(index, role);
 }
 
 QModelIndex ProxyModel::sibling(int row, int column, const QModelIndex &idx) const

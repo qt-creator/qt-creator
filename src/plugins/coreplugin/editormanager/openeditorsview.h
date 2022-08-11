@@ -50,6 +50,8 @@ public:
 
     void setSourceModel(QAbstractItemModel *sourceModel) override;
 
+    QVariant data(const QModelIndex &index, int role) const override;
+
     // QAbstractProxyModel::sibling is broken in Qt 5
     QModelIndex sibling(int row, int column, const QModelIndex &idx) const override;
     // QAbstractProxyModel::supportedDragActions delegation is missing in Qt 5
