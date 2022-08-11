@@ -30,6 +30,7 @@
 #include "fileutils.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
+#include "stringutils.h"
 
 #include <QtGlobal>
 #include <QDateTime>
@@ -784,20 +785,11 @@ optional<RootAndPath> windowsRootAndPath(const QStringView path)
             return RootAndPath{path.length() > 2 ? path : workPath, {}};
 
         workPath = workPath.mid(firstSlash + 1);
-
-        const auto secondSlash = workPath.indexOf(slash);
-        // If the second slash is not found, we either received "//server/" or "//server/share".
-        // In the first case we return "//server" as root name, in the second case we return "//server/share" as root name.
-        if (secondSlash == -1)
-            return RootAndPath{path.mid(0, workPath.length() > 0 ? path.length() : (firstSlash + 2)),
-                               {}};
-
-        workPath = workPath.mid(secondSlash + 1);
-
-        return RootAndPath{path.mid(0, firstSlash + secondSlash + 3), workPath};
+        return RootAndPath{chopIfEndsWith(path.mid(0, path.length() - workPath.length()), '/'),
+                           workPath};
     }
 
-    if (workPath[1] == ':' && isWindowsDriveLetter(workPath[0]))
+    if (workPath.length() > 1 && workPath[1] == ':' && isWindowsDriveLetter(workPath[0]))
         return RootAndPath{workPath.mid(0, 2), workPath.mid(3)};
     return {};
 }

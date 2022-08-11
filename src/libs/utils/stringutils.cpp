@@ -496,4 +496,12 @@ QTCREATOR_UTILS_EXPORT QString chopIfEndsWith(QString str, QChar c)
     return str;
 }
 
+QTCREATOR_UTILS_EXPORT QStringView chopIfEndsWith(QStringView str, QChar c)
+{
+    if (str.endsWith(c))
+        str.chop(1);
+
+    return str;
+}
+
 } // namespace Utils

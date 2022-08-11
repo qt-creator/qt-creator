@@ -141,14 +141,14 @@ void tst_fileutils::parentDir_data()
 #ifdef Q_OS_WIN
     QTest::newRow("C:/data") << "C:/data" << "C:/" << "";
     QTest::newRow("C:/") << "C:/" << "" << "";
-    QTest::newRow("//./com1") << "//./com1" << "//." << "";
+    QTest::newRow("//./com1") << "//./com1" << "//./" << "";
     QTest::newRow("//?/path") << "//?/path" << "/" << "Qt 4 cannot handle this path.";
     QTest::newRow("/Global?\?/UNC/host") << "/Global?\?/UNC/host" << "/Global?\?/UNC/host"
                                         << "Qt 4 cannot handle this path.";
     QTest::newRow("//server/directory/file")
             << "//server/directory/file" << "//server/directory" << "";
-    QTest::newRow("//server/directory") << "//server/directory" << "//server" << "";
-    QTest::newRow("//server") << "//server" << "" << "";
+    QTest::newRow("//server/directory") << "//server/directory" << "//server/" << "";
+    QTest::newRow("//server") << "//server/" << "" << "";
 #endif
 }
 
@@ -181,8 +181,8 @@ void tst_fileutils::isChildOf_data()
 #ifdef Q_OS_WIN
     QTest::newRow("C:/data") << "C:/" << "C:/data" << true;
     QTest::newRow("C:/") << "" << "C:/" << false;
-    QTest::newRow("//./com1") << "/" << "//./com1" << true;
-    QTest::newRow("//?/path") << "/" << "//?/path" << true;
+    QTest::newRow("//./com1") << "/" << "//./com1" << false;
+    QTest::newRow("//?/path") << "/" << "//?/path" << false;
     QTest::newRow("/Global?\?/UNC/host") << "/Global?\?/UNC/host"
                                         << "/Global?\?/UNC/host/file" << true;
     QTest::newRow("//server/directory/file")
@@ -198,8 +198,10 @@ void tst_fileutils::isChildOf()
     QFETCH(QString, childPath);
     QFETCH(bool, result);
 
-    bool res = FilePath::fromString(childPath).isChildOf(FilePath::fromString(path));
-    QCOMPARE(res, result);
+    const FilePath child = FilePath::fromString(childPath);
+    const FilePath parent = FilePath::fromString(path);
+
+    QCOMPARE(child.isChildOf(parent), result);
 }
 
 void tst_fileutils::fileName_data()
@@ -360,7 +362,7 @@ void tst_fileutils::fromString_data()
     QTest::newRow("unc-incomplete") << "//" << "" << "" << "" << OsType::OsTypeWindows;
     QTest::newRow("unc-incomplete-only-server") << "//server" << "" << "" << "//server/" << OsType::OsTypeWindows;
     QTest::newRow("unc-incomplete-only-server-2") << "//server/" << "" << "" << "//server/" << OsType::OsTypeWindows;
-    QTest::newRow("unc-server-and-share") << "//server/share" << "" << "" << "//server/share/" << OsType::OsTypeWindows;
+    QTest::newRow("unc-server-and-share") << "//server/share" << "" << "" << "//server/share" << OsType::OsTypeWindows;
     QTest::newRow("unc-server-and-share-2") << "//server/share/" << "" << "" << "//server/share/" << OsType::OsTypeWindows;
     QTest::newRow("unc-full") << "//server/share/test.txt" << "" << "" << "//server/share/test.txt" << OsType::OsTypeWindows;
 
@@ -383,6 +385,9 @@ void tst_fileutils::fromString_data()
     QTest::newRow("cross-os") << QDir::rootPath() + "__qtc_devices__/docker/1234/c:/test.txt" << "docker" << "1234" << "c:/test.txt" << OsType::OsTypeWindows;
     QTest::newRow("cross-os-unclean") << QDir::rootPath() + "__qtc_devices__/docker/1234/c:\\test.txt" << "docker" << "1234" << "c:/test.txt" << OsType::OsTypeWindows;
     QTest::newRow("unc-full-in-docker") << QDir::rootPath() + "__qtc_devices__/docker/1234//server/share/test.txt" << "docker" << "1234" << "//server/share/test.txt" << OsType::OsTypeWindows;
+
+    QTest::newRow("unc-dos-1") << "//?/c:" << "" << "" << "//?/c:" << OsType::OsTypeWindows;
+    QTest::newRow("unc-dos-com") << "//./com1" << "" << "" << "//./com1" << OsType::OsTypeWindows;
 }
 
 void tst_fileutils::fromString()
@@ -424,22 +429,8 @@ void tst_fileutils::fromToString_data()
     // Local Windows paths:
     QTest::newRow("w1") << "" << "" << "C:/data" << "C:/data";
     QTest::newRow("w2") << "" << "" << "C:/" << "C:/";
-    QTest::newRow("w3") << "" << "" << "//./com1" << "//./com1";
-    QTest::newRow("w4") << "" << "" << "//?/path" << "//?/path";
-    QTest::newRow("w5") << "" << "" << "/Global?\?/UNC/host" << "/Global?\?/UNC/host";
-    QTest::newRow("w6") << "" << "" << "//server/dir/file" << "//server/dir/file";
-    QTest::newRow("w7") << "" << "" << "//server/dir" << "//server/dir";
-    QTest::newRow("w8") << "" << "" << "//server" << "//server";
-
-    // Not supported yet: "Remote" windows. Would require use of e.g.
-    // FileUtils::isRelativePath with support from the remote device
-    // identifying itself as Windows.
-
-    //  Actual   (filePath.path()): "/C:/data"
-    //  Expected (path)           : "C:/data"
-
-    //QTest::newRow("w9") << "scheme" << "server" << "C:/data"
-    //    << "scheme://server/C:/data";
+    QTest::newRow("w3") << "" << "" << "/Global?\?/UNC/host" << "/Global?\?/UNC/host";
+    QTest::newRow("w4") << "" << "" << "//server/dir/file" << "//server/dir/file";
 }
 
 void tst_fileutils::fromToString()
@@ -624,6 +615,12 @@ void tst_fileutils::pathAppended_data()
     QTest::newRow("u2") << "a/b" << "c/"  << "a/b/c/";
     QTest::newRow("u3") << "a/b" <<  "/d" << "a/b/d";
     QTest::newRow("u4") << "a/b" << "c/d" << "a/b/c/d";
+
+    if (HostOsInfo::isWindowsHost()) {
+        QTest::newRow("win-1") << "c:" << "/a/b" << "c:/a/b";
+        QTest::newRow("win-2") << "c:/" << "/a/b" << "c:/a/b";
+        QTest::newRow("win-3") << "c:/" << "a/b" << "c:/a/b";
+    }
 }
 
 void tst_fileutils::resolvePath_data()
@@ -759,8 +756,6 @@ void tst_fileutils::startsWithDriveLetter()
 {
     QFETCH(FilePath, path);
     QFETCH(bool, expected);
-
-    qDebug() << path;
 
     QCOMPARE(path.startsWithDriveLetter(), expected);
 }
