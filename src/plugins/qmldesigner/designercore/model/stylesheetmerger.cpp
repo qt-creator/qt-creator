@@ -131,8 +131,8 @@ void StylesheetMerger::syncVariantProperties(ModelNode &outputNode, const ModelN
 
 void StylesheetMerger::syncAuxiliaryProperties(ModelNode &outputNode, const ModelNode &inputNode)
 {
-    for (const auto &element : inputNode.auxiliaryData())
-        outputNode.setAuxiliaryData(AuxiliaryDataKeyView{element.first}, element.second);
+    for (const auto &[key, value] : inputNode.auxiliaryData())
+        outputNode.setAuxiliaryData(AuxiliaryDataKeyView{key}, value);
 }
 
 void StylesheetMerger::syncBindingProperties(ModelNode &outputNode, const ModelNode &inputNode)
