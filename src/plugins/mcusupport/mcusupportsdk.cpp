@@ -692,8 +692,7 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
     const PackageDescription toolchainPackage = parsePackage(compiler);
     const PackageDescription toolchainFilePackage = parsePackage(toolchainFile);
     const PackageDescription boardSdkPackage{parsePackage(boardSdk)};
-    const QList<PackageDescription> freeRtosEntries = parsePackages(
-        freeRTOS.value(CMAKE_ENTRIES).toArray());
+    const PackageDescription freeRtosPackage{parsePackage(freeRTOS)};
 
     const QVariantList toolchainVersions = toolchain.value("versions").toArray().toVariantList();
     const auto toolchainVersionsList = Utils::transform<QStringList>(toolchainVersions,
@@ -727,10 +726,8 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
              toolchainPackage,
              toolchainFilePackage},
             boardSdkPackage,
-            {
-                freeRTOS.value("envVar").toString(),
-                freeRtosEntries,
-            }};
+            {freeRTOS.value("envVar").toString(),
+             freeRtosPackage}};
 }
 
 // https://doc.qt.io/qtcreator/creator-developing-mcu.html#supported-qt-for-mcus-sdks

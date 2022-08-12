@@ -65,8 +65,6 @@ private slots:
     void test_createTargetWithToolchainPackages();
     void test_legacy_createQtMCUsPackage();
 
-    void test_createFreeRtosPackageWithCorrectSetting_data();
-    void test_createFreeRtosPackageWithCorrectSetting();
     void test_createTargets();
     void test_createPackages();
     void test_legacy_createIarToolchain();
@@ -105,6 +103,13 @@ private slots:
     void test_legacy_createBoardSdk();
     void test_createBoardSdk_data();
     void test_createBoardSdk();
+
+    void test_legacy_doNOTcreateFreeRtosPackageForMetalVariants_data();
+    void test_legacy_doNOTcreateFreeRtosPackageForMetalVariants();
+    void test_legacy_createFreeRtosPackage_data();
+    void test_legacy_createFreeRtosPackage();
+    void test_createFreeRtosPackage_data();
+    void test_createFreeRtosPackage();
 
     void test_resolveEnvironmentVariablesInDefaultPath();
     void test_resolveCmakeVariablesInDefaultPath();

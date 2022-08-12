@@ -25,9 +25,8 @@
 
 #pragma once
 
-constexpr auto iar_nxp_1064_json = R"({
-    "compatVersion": "1",
-    "qulVersion": "2.0.0",
+constexpr auto armgcc_nxp_1064_json = R"(
+{
     "boardSdk": {
         "cmakeVar": "QUL_BOARD_SDK_DIR",
         "envVar": "EVK_MIMXRT1064_SDK_PATH",
@@ -36,14 +35,9 @@ constexpr auto iar_nxp_1064_json = R"({
         "optional": false,
         "setting": "EVK_MIMXRT1064_SDK_PATH",
         "type": "path",
-        "versionDetection": {
-            "filePattern": "*_manifest_*.xml",
-            "regex": ".*",
-            "xmlAttribute": "version",
-            "xmlElement": "ksdk"
-        },
-        "versions": ["2.11.0"]
+        "versions": ["2.11.1"]
     },
+    "compatVersion": "1",
     "freeRTOS": {
         "cmakeVar": "FREERTOS_DIR",
         "defaultValue": "$QUL_BOARD_SDK_DIR/rtos/freertos/freertos_kernel",
@@ -55,20 +49,24 @@ constexpr auto iar_nxp_1064_json = R"({
         "type": "path"
     },
     "platform": {
-        "cmakeEntries": [
+        "cmakeCacheEntries": [
             {
-                "cmakeVar": "Qul_ROOT",
-                "label": "Qt for MCUs SDK",
+                "camekVar": "Qul_ROOT",
                 "id": "Qul_DIR",
+                "label": "Qt for MCUs SDK",
                 "optional": false,
                 "type": "path"
             },
             {
-                "cmakeVar": "MCUXPRESSO_IDE_PATH",
+                "camekVar": "MCUXPRESSO_IDE_PATH",
                 "defaultValue": {
                     "unix": "/usr/local/mcuxpressoide/",
                     "windows": "$ROOT/nxp/MCUXpressoIDE*"
-                }
+                },
+                "id": "MCU_XPRESSO_PATH",
+                "label": "MCUXpresso IDE",
+                "optional": false,
+                "type": "path"
             }
         ],
         "colorDepths": [16],
@@ -77,26 +75,25 @@ constexpr auto iar_nxp_1064_json = R"({
         "pathEntries": [],
         "vendor": "NXP"
     },
+    "qulVersion": "2.3.0",
     "toolchain": {
-        "id": "iar",
-        "versions": ["8.50.9"],
         "compiler": {
-                "id": "IAR_DIR",
-                "cmakeVar": "QUL_TARGET_TOOLCHAIN_DIR",
-                "setting": "IARToolchain",
-                "envVar": "IAR_ARM_COMPILER_DIR",
-                "label": "IAR ARM Compiler",
-                "optional": false,
-                "type": "path"
+            "camekVar": "QUL_TARGET_TOOLCHAIN_DIR",
+            "id": "ARMGCC_DIR",
+            "label": "GNU Arm Embedded Toolchain",
+            "optional": false,
+            "type": "path"
         },
         "file": {
-            "id": "IAR_CMAKE_TOOLCHAIN_FILE",
+            "camekVar": "CMAKE_TOOLCHAIN_FILE",
+            "defaultValue": "$Qul_ROOT/lib/cmake/Qul/toolchain/armgcc.cmake",
+            "id": "ARMGCC_CMAKE_TOOLCHAIN_FILE",
             "label": "CMake Toolchain File",
-            "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
+            "optional": false,
             "type": "file",
-            "defaultValue": "/opt/qtformcu/2.2//lib/cmake/Qul/toolchain/iar.cmake",
-            "visible": false,
-            "optional": false
-        }
+            "visible": false
+        },
+        "id": "armgcc",
+        "versions": ["9.3.1"]
     }
 })";

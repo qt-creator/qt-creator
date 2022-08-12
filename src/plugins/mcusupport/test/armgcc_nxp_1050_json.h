@@ -86,34 +86,29 @@ constexpr auto armgcc_nxp_1050_json = R"({
         "optional": false
       }
   },
-  "boardSdk": {
-    "versions": [ "2.11.0" ],
-    "id": "NXP_SDK_DIR",
-    "label": "Board SDK for MIMXRT1050-EVK",
-    "cmakeVar": "QUL_BOARD_SDK_DIR",
-    "envVar": "EVKB_IMXRT1050_SDK_PATH",
-    "setting": "EVKB_IMXRT1050_SDK_PATH",
-    "versionDetection" : {
-        "filePattern": "*_manifest_*.xml",
-        "xmlElement": "ksdk",
-        "xmlAttribute": "version",
-        "regex": ".*"
-    },
-    "type": "path",
-    "optional": false
-  },
-  "freeRTOS": {
-    "envVar": "IMXRT1050_FREERTOS_DIR",
-    "cmakeEntries": [
-      {
-        "id": "NXP_FREERTOS_DIR",
-        "label": "FreeRTOS SDK for MIMXRT1050-EVK",
-        "cmakeVar": "FREERTOS_DIR",
-        "envVar": "IMXRT1050_FREERTOS_DIR",
-        "defaultValue": "$QUL_BOARD_SDK_DIR/rtos/freertos/freertos_kernel",
+    "boardSdk": {
+        "cmakeVar": "QUL_BOARD_SDK_DIR",
+        "envVar": "EVKB_IMXRT1050_SDK_PATH",
+        "id": "NXP_SDK_DIR",
+        "label": "Board SDK for MIMXRT1050-EVK",
+        "optional": false,
+        "setting": "EVKB_IMXRT1050_SDK_PATH",
         "type": "path",
-        "optional": false
-      }
-    ]
-  }
+        "versionDetection": {
+            "filePattern": "*_manifest_*.xml",
+            "regex": ".*",
+            "xmlAttribute": "version",
+            "xmlElement": "ksdk"
+        },
+        "versions": ["2.11.0"]
+    },
+    "freeRTOS": {
+        "cmakeVar": "FREERTOS_DIR",
+        "defaultValue": "$QUL_BOARD_SDK_DIR/rtos/freertos/freertos_kernel",
+        "envVar": "IMXRT1050_FREERTOS_DIR",
+        "label": "FreeRTOS SDK for MIMXRT1050-EVK",
+        "optional": false,
+        "setting": "FreeRTOSSourcePackage_IMXRT1050",
+        "type": "path"
+    }
 })";

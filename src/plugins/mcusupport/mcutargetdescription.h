@@ -83,7 +83,7 @@ struct McuTargetDescription
     struct FreeRTOS
     {
         QString envVar;
-        QList<PackageDescription> packages;
+        PackageDescription package;
     } freeRTOS;
 };
 

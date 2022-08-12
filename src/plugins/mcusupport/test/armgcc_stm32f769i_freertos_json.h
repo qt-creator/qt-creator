@@ -26,8 +26,8 @@
 #pragma once
 
 constexpr auto armgcc_stm32f769i_freertos_json = R"({
-  "qulVersion": "@CMAKE_PROJECT_VERSION@",
-  "compatVersion": "@COMPATIBILITY_VERSION@",
+  "qulVersion": "2.3.0",
+  "compatVersion": "1",
   "platform": {
     "id": "STM32F769I-DISCOVERY-FREERTOS",
     "vendor": "ST",
@@ -106,15 +106,11 @@ constexpr auto armgcc_stm32f769i_freertos_json = R"({
   },
   "freeRTOS": {
     "envVar": "STM32F7_FREERTOS_DIR",
-    "cmakeEntries": [
-      {
-        "id": "ST_FREERTOS_DIR",
-        "label": "FreeRTOS SDK for STM32F769I-Discovery",
-        "cmakeVar": "FREERTOS_DIR",
-        "defaultValue": "$QUL_BOARD_SDK_DIR/Middlewares/Third_Party/FreeRTOS/Source",
-        "type": "path",
-        "optional": false
-      }
-    ]
+    "label": "FreeRTOS SDK for STM32F769I-Discovery",
+    "cmakeVar": "FREERTOS_DIR",
+    "defaultValue": "$QUL_BOARD_SDK_DIR/Middlewares/Third_Party/FreeRTOS/Source",
+    "type": "path",
+    "setting": "FreeRTOSSourcePackage_STM32F7",
+    "optional": false
   }
 })";

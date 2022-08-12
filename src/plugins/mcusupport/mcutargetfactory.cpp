@@ -49,7 +49,6 @@ bool isDesktopToolchain(McuToolChainPackage::ToolChainType type)
            || type == McuToolChainPackage::ToolChainType::GCC;
 }
 
-
 McuPackageVersionDetector *createVersionDetection(const VersionDetection &versionDetection)
 {
     if (!versionDetection.xmlElement.isEmpty() && !versionDetection.xmlAttribute.isEmpty())
@@ -140,7 +139,7 @@ QList<PackageDescription> aggregatePackageEntries(const McuTargetDescription &de
     QList<PackageDescription> result;
     result.append(desc.platform.entries);
     result.append(desc.boardSdk);
-    result.append(desc.freeRTOS.packages);
+    result.append(desc.freeRTOS.package);
     return result;
 }
 

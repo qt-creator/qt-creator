@@ -26,6 +26,7 @@
 #include "unittest.h"
 
 #include "armgcc_nxp_1050_json.h"
+#include "armgcc_nxp_1064_json.h"
 #include "armgcc_nxp_mimxrt1170_evk_freertos_json.h"
 #include "armgcc_stm32f769i_freertos_json.h"
 #include "armgcc_stm32h750b_metal_json.h"
@@ -107,14 +108,17 @@ const char armGccToolchainFilePathWithVariable[]{"$Qul_ROOT/lib/cmake/Qul/toolch
 const char armGccVersion[]{"9.3.1"};
 const char armGccNewVersion[]{"10.3.1"};
 const char msvcVersion[]{"14.29"};
-const QStringList boardSdkVersions{{"2.11.0"}};
+const char boardSdkVersion[]{"2.11.0"};
+const QString boardSdkCmakeVar{Legacy::Constants::BOARD_SDK_CMAKE_VAR};
+const char boardSdkDir[]{"/opt/Qul/2.3.0/boardDir/"};
 const char cmakeToolchainLabel[]{"CMake Toolchain File"};
 const char fallbackDir[]{"/abc/def/fallback"};
 const char freeRtosCMakeVar[]{"FREERTOS_DIR"};
-const char freeRtosDescription[]{"Freertos directory"};
 const char freeRtosEnvVar[]{"EVK_MIMXRT1170_FREERTOS_PATH"};
 const char freeRtosLabel[]{"FreeRTOS directory"};
 const char freeRtosPath[]{"/opt/freertos/default"};
+const char freeRtosNxpPathSuffix[]{"rtos/freertos/freertos_kernel"};
+const char freeRtosStmPathSuffix[]{"/Middlewares/Third_Party/FreeRTOS/Source"};
 const char freeRtosSetting[]{"Freertos"};
 const char greenhillToolchainFilePath[]{"/opt/toolchain/ghs.cmake"};
 const char greenhillToolchainFileDefaultPath[]{
@@ -273,15 +277,30 @@ void verifyTargetToolchains(const Targets &targets,
 }
 
 void verifyBoardSdk(const McuPackagePtr &boardSdk,
+                    const QString &cmakeVariable,
                     const QString &environmentVariable,
                     const QStringList &versions)
 {
     QVERIFY(boardSdk);
-    QCOMPARE(boardSdk->cmakeVariableName(), Legacy::Constants::BOARD_SDK_CMAKE_VAR);
+    QCOMPARE(boardSdk->cmakeVariableName(), cmakeVariable);
     QCOMPARE(boardSdk->environmentVariableName(), environmentVariable);
     QCOMPARE(boardSdk->settingsKey(), environmentVariable);
     QCOMPARE(boardSdk->detectionPath().toString(), empty);
     QCOMPARE(boardSdk->versions(), versions);
+}
+
+void verifyFreeRtosPackage(const McuPackagePtr &freeRtos,
+                           const QString &envVar,
+                           const FilePath &boardSdkDir,
+                           const QString &freeRtosPath,
+                           const QString &expectedSettingsKey)
+{
+    QVERIFY(freeRtos);
+    QCOMPARE(freeRtos->environmentVariableName(), envVar);
+    QCOMPARE(freeRtos->cmakeVariableName(), freeRtosCMakeVar);
+    QCOMPARE(freeRtos->settingsKey(), expectedSettingsKey);
+    QCOMPARE(freeRtos->path().cleanPath().toString(), freeRtosPath);
+    QVERIFY(freeRtos->path().toString().startsWith(boardSdkDir.cleanPath().toString()));
 }
 
 McuSupportTest::McuSupportTest()
@@ -398,8 +417,7 @@ void McuSupportTest::test_parseCmakeEntries()
 {
     const auto description{parseDescriptionJson(iar_nxp_1064_json)};
 
-    QVERIFY(!description.freeRTOS.packages.isEmpty());
-    auto &freeRtos = description.freeRTOS.packages[0];
+    auto &freeRtos = description.freeRTOS.package;
     QCOMPARE(freeRtos.envVar, nxp1064FreeRtosEnvVar);
 }
 
@@ -607,50 +625,18 @@ void McuSupportTest::test_legacy_createPackagesWithCorrespondingSettings()
     QVERIFY(settings.contains(expectedSettings));
 }
 
-void McuSupportTest::test_createFreeRtosPackageWithCorrectSetting_data()
-{
-    QTest::addColumn<QString>("freeRtosEnvVar");
-    QTest::addColumn<QString>("expectedSettingsKey");
-
-    QTest::newRow("nxp1050") << nxp1050FreeRtosEnvVar
-                             << QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(
-                                    nxp1050);
-    QTest::newRow("nxp1064") << nxp1064FreeRtosEnvVar
-                             << QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(
-                                    nxp1064);
-    QTest::newRow("nxp1170") << nxp1170FreeRtosEnvVar
-                             << QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(
-                                    nxp1170);
-    QTest::newRow("stm32f7") << stm32f7FreeRtosEnvVar
-                             << QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(
-                                    stm32f7);
-}
-
-void McuSupportTest::test_createFreeRtosPackageWithCorrectSetting()
-{
-    QFETCH(QString, freeRtosEnvVar);
-    QFETCH(QString, expectedSettingsKey);
-
-    McuPackagePtr package{
-        Legacy::createFreeRTOSSourcesPackage(settingsMockPtr, freeRtosEnvVar, FilePath{})};
-    QVERIFY(package != nullptr);
-
-    QCOMPARE(package->settingsKey(), expectedSettingsKey);
-}
-
 void McuSupportTest::test_createTargets()
 {
-    PackageDescription packageDescription{id,
+    targetDescription.freeRTOS.package = {id,
                                           nxp1064FreeRtosEnvVar,
                                           freeRtosCMakeVar,
                                           freeRtosSetting,
-                                          freeRtosDescription,
+                                          freeRtosLabel,
                                           freeRtosPath,
                                           "",
                                           {},
                                           VersionDetection{},
                                           true};
-    targetDescription.freeRTOS.packages.append(packageDescription);
     targetDescription.toolchain.id = armGcc;
 
     const auto [targets, packages]{targetFactory.createTargets(targetDescription, qtForMcuSdkPath)};
@@ -693,7 +679,7 @@ void McuSupportTest::test_createTargets()
 
 void McuSupportTest::test_createPackages()
 {
-    PackageDescription packageDescription{id,
+    targetDescription.freeRTOS.package = {id,
                                           nxp1064FreeRtosEnvVar,
                                           freeRtosCMakeVar,
                                           freeRtosLabel,
@@ -703,7 +689,6 @@ void McuSupportTest::test_createPackages()
                                           {},
                                           VersionDetection{},
                                           true};
-    targetDescription.freeRTOS.packages.append(packageDescription);
 
     const auto packages{targetFactory.createPackages(targetDescription)};
     QVERIFY(!packages.empty());
@@ -937,32 +922,39 @@ void McuSupportTest::test_addToolchainFileInfoToKit()
 void McuSupportTest::test_legacy_createBoardSdk_data()
 {
     QTest::addColumn<QString>("json");
+    QTest::addColumn<QString>("cmakeVariable");
     QTest::addColumn<QString>("environmentVariable");
     QTest::addColumn<QStringList>("versions");
 
     QTest::newRow("armgcc_nxp_1050_json")
-        << armgcc_nxp_1050_json << "EVKB_IMXRT1050_SDK_PATH" << boardSdkVersions;
-    QTest::newRow("stm32h750b") << armgcc_stm32h750b_metal_json << "STM32Cube_FW_H7_SDK_PATH"
-                                << QStringList{"1.5.0"};
-    QTest::newRow("stm32f769i") << armgcc_stm32f769i_freertos_json << "STM32Cube_FW_F7_SDK_PATH"
-                                << QStringList{"1.16.0"};
-    QTest::newRow("stm32f469i") << iar_stm32f469i_metal_json << "STM32Cube_FW_F4_SDK_PATH"
-                                << QStringList{"1.25.0"};
-    QTest::newRow("nxp1064") << iar_nxp_1064_json << "EVK_MIMXRT1064_SDK_PATH" << boardSdkVersions;
+        << armgcc_nxp_1050_json << boardSdkCmakeVar << "EVKB_IMXRT1050_SDK_PATH"
+        << QStringList{boardSdkVersion};
+
+    QTest::newRow("armgcc_nxp_1064_json") << armgcc_nxp_1064_json << boardSdkCmakeVar
+                                          << "EVK_MIMXRT1064_SDK_PATH" << QStringList{"2.11.1"};
+    QTest::newRow("stm32h750b") << armgcc_stm32h750b_metal_json << boardSdkCmakeVar
+                                << "STM32Cube_FW_H7_SDK_PATH" << QStringList{"1.5.0"};
+    QTest::newRow("stm32f769i") << armgcc_stm32f769i_freertos_json << boardSdkCmakeVar
+                                << "STM32Cube_FW_F7_SDK_PATH" << QStringList{"1.16.0"};
+    QTest::newRow("stm32f469i") << iar_stm32f469i_metal_json << boardSdkCmakeVar
+                                << "STM32Cube_FW_F4_SDK_PATH" << QStringList{"1.25.0"};
+    QTest::newRow("nxp1064") << iar_nxp_1064_json << boardSdkCmakeVar << "EVK_MIMXRT1064_SDK_PATH"
+                             << QStringList{boardSdkVersion};
     QTest::newRow("ghs_rh850_d1m1a_baremetal_json")
-        << ghs_rh850_d1m1a_baremetal_json << "RGL_DIR" << QStringList{"2.0.0a"};
+        << ghs_rh850_d1m1a_baremetal_json << boardSdkCmakeVar << "RGL_DIR" << QStringList{"2.0.0a"};
 }
 
 void McuSupportTest::test_legacy_createBoardSdk()
 {
     QFETCH(QString, json);
+    QFETCH(QString, cmakeVariable);
     QFETCH(QString, environmentVariable);
     QFETCH(QStringList, versions);
 
     McuTargetDescription target{parseDescriptionJson(json.toLocal8Bit())};
     McuPackagePtr boardSdk{Legacy::createBoardSdkPackage(settingsMockPtr, target)};
 
-    verifyBoardSdk(boardSdk, environmentVariable, versions);
+    verifyBoardSdk(boardSdk, cmakeVariable, environmentVariable, versions);
 }
 
 void McuSupportTest::test_createBoardSdk_data()
@@ -973,6 +965,7 @@ void McuSupportTest::test_createBoardSdk_data()
 void McuSupportTest::test_createBoardSdk()
 {
     QFETCH(QString, json);
+    QFETCH(QString, cmakeVariable);
     QFETCH(QString, environmentVariable);
     QFETCH(QStringList, versions);
 
@@ -980,7 +973,109 @@ void McuSupportTest::test_createBoardSdk()
 
     McuPackagePtr boardSdk{targetFactory.createPackage(target.boardSdk)};
 
-    verifyBoardSdk(boardSdk, environmentVariable, versions);
+    verifyBoardSdk(boardSdk, cmakeVariable, environmentVariable, versions);
+}
+
+void McuSupportTest::test_legacy_createFreeRtosPackage_data()
+{
+    QTest::addColumn<QString>("json");
+    QTest::addColumn<QStringList>("versions");
+    QTest::addColumn<QString>("expectedSettingsKey");
+    QTest::addColumn<FilePath>("expectedPath");
+
+    QTest::newRow("armgcc_nxp_1050_json")
+        << armgcc_nxp_1050_json << QStringList{boardSdkVersion}
+        << QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(nxp1050)
+        << FilePath::fromUserInput(boardSdkDir) / freeRtosNxpPathSuffix;
+    QTest::newRow("armgcc_nxp_1064_json")
+        << armgcc_nxp_1064_json << QStringList{boardSdkVersion}
+        << QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(nxp1064)
+        << FilePath::fromUserInput(boardSdkDir) / freeRtosNxpPathSuffix;
+    QTest::newRow("iar_nxp_1064_json")
+        << iar_nxp_1064_json << QStringList{boardSdkVersion}
+        << QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(nxp1064)
+        << FilePath::fromUserInput(boardSdkDir) / freeRtosNxpPathSuffix;
+    QTest::newRow("armgcc_stm32f769i_freertos_json")
+        << armgcc_stm32f769i_freertos_json << QStringList{"1.16.0"}
+        << QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(stm32f7)
+        << FilePath::fromUserInput(boardSdkDir) / freeRtosStmPathSuffix;
+}
+
+void McuSupportTest::test_legacy_createFreeRtosPackage()
+{
+    QFETCH(QString, json);
+    QFETCH(QStringList, versions);
+    QFETCH(QString, expectedSettingsKey);
+    QFETCH(FilePath, expectedPath);
+
+    McuTargetDescription targetDescription{parseDescriptionJson(json.toLocal8Bit())};
+
+    EXPECT_CALL(*settingsMockPtr, getPath(expectedSettingsKey, _, _))
+        .WillRepeatedly(Return(FilePath::fromString(expectedPath.toUserOutput())));
+    McuPackagePtr freeRtos{Legacy::createFreeRTOSSourcesPackage(settingsMockPtr,
+                                                                targetDescription.freeRTOS.envVar,
+                                                                FilePath{})};
+
+    verifyFreeRtosPackage(freeRtos,
+                          targetDescription.freeRTOS.envVar,
+                          boardSdkDir,
+                          expectedPath.toUserOutput(),
+                          expectedSettingsKey);
+}
+
+void McuSupportTest::test_createFreeRtosPackage_data()
+{
+    test_legacy_createFreeRtosPackage_data();
+}
+
+void McuSupportTest::test_createFreeRtosPackage()
+{
+    QFETCH(QString, json);
+    QFETCH(QStringList, versions);
+    QFETCH(QString, expectedSettingsKey);
+    QFETCH(FilePath, expectedPath);
+
+    McuTargetDescription targetDescription{parseDescriptionJson(json.toLocal8Bit())};
+
+    EXPECT_CALL(*settingsMockPtr, getPath(targetDescription.boardSdk.envVar, _, _))
+        .WillRepeatedly(Return(FilePath::fromString(boardSdkDir)));
+
+    auto [targets, packages] = targetFactory.createTargets(targetDescription, qtForMcuSdkPath);
+
+    auto freeRtos = findOrDefault(packages, [](const McuPackagePtr &pkg) {
+        return (pkg->cmakeVariableName() == freeRtosCMakeVar);
+    });
+
+    verifyFreeRtosPackage(freeRtos,
+                          targetDescription.freeRTOS.envVar,
+                          boardSdkDir,
+                          expectedPath.toUserOutput(),
+                          expectedSettingsKey);
+}
+
+void McuSupportTest::test_legacy_doNOTcreateFreeRtosPackageForMetalVariants_data()
+
+{
+    QTest::addColumn<QString>("json");
+    QTest::newRow("iar_stm32f469i_metal_json") << iar_stm32f469i_metal_json;
+    QTest::newRow("armgcc_stm32h750b_metal_json") << armgcc_stm32h750b_metal_json;
+    QTest::newRow("ghs_rh850_d1m1a_baremetal_json") << ghs_rh850_d1m1a_baremetal_json;
+    QTest::newRow("gcc_desktop_json") << gcc_desktop_json;
+}
+
+void McuSupportTest::test_legacy_doNOTcreateFreeRtosPackageForMetalVariants()
+{
+    QFETCH(QString, json);
+
+    McuTargetDescription targetDescription{parseDescriptionJson(json.toLocal8Bit())};
+    QCOMPARE(targetDescription.freeRTOS.package.cmakeVar, "");
+
+    auto [targets, packages] = targetFactory.createTargets(targetDescription, qtForMcuSdkPath);
+
+    auto freeRtos = findOrDefault(packages, [](const McuPackagePtr &pkg) {
+        return (pkg->cmakeVariableName() == freeRtosCMakeVar);
+    });
+    QCOMPARE(freeRtos, nullptr);
 }
 
 void McuSupportTest::test_legacy_createQtMCUsPackage()
