@@ -50,10 +50,10 @@ Project {
             name: "Custom Widget Wizard"
             prefix: "customwidgetwizard/"
             files: [
-                "classdefinition.cpp", "classdefinition.h", "classdefinition.ui",
+                "classdefinition.cpp", "classdefinition.h",
                 "classlist.cpp", "classlist.h",
-                "customwidgetpluginwizardpage.cpp", "customwidgetpluginwizardpage.h", "customwidgetpluginwizardpage.ui",
-                "customwidgetwidgetswizardpage.cpp", "customwidgetwidgetswizardpage.h", "customwidgetwidgetswizardpage.ui",
+                "customwidgetpluginwizardpage.cpp", "customwidgetpluginwizardpage.h",
+                "customwidgetwidgetswizardpage.cpp", "customwidgetwidgetswizardpage.h",
                 "customwidgetwizard.cpp", "customwidgetwizard.h",
                 "customwidgetwizarddialog.cpp", "customwidgetwizarddialog.h",
                 "filenamingparameters.h",

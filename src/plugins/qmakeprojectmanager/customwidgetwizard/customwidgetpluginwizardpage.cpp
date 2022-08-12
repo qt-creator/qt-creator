@@ -3,9 +3,12 @@
 
 #include "customwidgetpluginwizardpage.h"
 #include "customwidgetwidgetswizardpage.h"
-#include "ui_customwidgetpluginwizardpage.h"
 
+#include <utils/layoutbuilder.h>
 #include <utils/wizard.h>
+
+#include <QLabel>
+#include <QLineEdit>
 
 namespace QmakeProjectManager {
 namespace Internal {
@@ -18,41 +21,56 @@ static inline QString createPluginName(const QString &prefix)
 
 CustomWidgetPluginWizardPage::CustomWidgetPluginWizardPage(QWidget *parent) :
     QWizardPage(parent),
-    m_ui(new Ui::CustomWidgetPluginWizardPage),
     m_classCount(-1),
     m_complete(false)
 {
-    m_ui->setupUi(this);
-    connect(m_ui->collectionClassEdit, &QLineEdit::textEdited,
+    m_collectionClassLabel = new QLabel(tr("Collection class:"));
+    m_collectionClassEdit = new QLineEdit;
+    m_collectionHeaderLabel = new QLabel(tr("Collection header file:"));
+    m_collectionHeaderEdit = new QLineEdit;
+    m_collectionSourceLabel = new QLabel(tr("Collection source file:"));
+    m_collectionSourceEdit = new QLineEdit;
+    m_pluginNameEdit = new QLineEdit;
+    m_resourceFileEdit = new QLineEdit(tr("icons.qrc"));
+
+    using namespace Utils::Layouting;
+    Column {
+        tr("Specify the properties of the plugin library and the collection class."),
+        Space(10),
+        Form {
+            m_collectionClassLabel, m_collectionClassEdit, br,
+            m_collectionHeaderLabel, m_collectionHeaderEdit, br,
+            m_collectionSourceLabel, m_collectionSourceEdit, br,
+            tr("Plugin name:"), m_pluginNameEdit, br,
+            tr("Resource file:"), m_resourceFileEdit, br,
+        }
+    }.attachTo(this);
+
+    connect(m_collectionClassEdit, &QLineEdit::textEdited,
             this, &CustomWidgetPluginWizardPage::slotCheckCompleteness);
-    connect(m_ui->collectionClassEdit, &QLineEdit::textChanged,
+    connect(m_collectionClassEdit, &QLineEdit::textChanged,
             this, [this](const QString &collectionClass) {
-        m_ui->collectionHeaderEdit->setText(m_fileNamingParameters.headerFileName(collectionClass));
-        m_ui->pluginNameEdit->setText(createPluginName(collectionClass));
+        m_collectionHeaderEdit->setText(m_fileNamingParameters.headerFileName(collectionClass));
+        m_pluginNameEdit->setText(createPluginName(collectionClass));
     });
-    connect(m_ui->pluginNameEdit, &QLineEdit::textEdited,
+    connect(m_pluginNameEdit, &QLineEdit::textEdited,
             this, &CustomWidgetPluginWizardPage::slotCheckCompleteness);
-    connect(m_ui->collectionHeaderEdit, &QLineEdit::textChanged,
+    connect(m_collectionHeaderEdit, &QLineEdit::textChanged,
             this, [this](const QString &text) {
-        m_ui->collectionSourceEdit->setText(m_fileNamingParameters.headerToSourceFileName(text));
+        m_collectionSourceEdit->setText(m_fileNamingParameters.headerToSourceFileName(text));
     });
 
     setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Plugin Details"));
 }
 
-CustomWidgetPluginWizardPage::~CustomWidgetPluginWizardPage()
-{
-    delete m_ui;
-}
-
 QString CustomWidgetPluginWizardPage::collectionClassName() const
 {
-    return m_ui->collectionClassEdit->text();
+    return m_collectionClassEdit->text();
 }
 
 QString CustomWidgetPluginWizardPage::pluginName() const
 {
-    return m_ui->pluginNameEdit->text();
+    return m_pluginNameEdit->text();
 }
 
 void CustomWidgetPluginWizardPage::init(const CustomWidgetWidgetsWizardPage *widgetsPage)
@@ -60,37 +78,37 @@ void CustomWidgetPluginWizardPage::init(const CustomWidgetWidgetsWizardPage *wid
     m_classCount = widgetsPage->classCount();
     const QString empty;
     if (m_classCount == 1) {
-        m_ui->pluginNameEdit->setText(createPluginName(widgetsPage->classNameAt(0)));
+        m_pluginNameEdit->setText(createPluginName(widgetsPage->classNameAt(0)));
         setCollectionEnabled(false);
     } else {
-        m_ui->pluginNameEdit->setText(empty);
+        m_pluginNameEdit->setText(empty);
         setCollectionEnabled(true);
     }
-    m_ui->collectionClassEdit->setText(empty);
-    m_ui->collectionHeaderEdit->setText(empty);
-    m_ui->collectionSourceEdit->setText(empty);
+    m_collectionClassEdit->setText(empty);
+    m_collectionHeaderEdit->setText(empty);
+    m_collectionSourceEdit->setText(empty);
 
     slotCheckCompleteness();
 }
 
 void CustomWidgetPluginWizardPage::setCollectionEnabled(bool enColl)
 {
-    m_ui->collectionClassLabel->setEnabled(enColl);
-    m_ui->collectionClassEdit->setEnabled(enColl);
-    m_ui->collectionHeaderLabel->setEnabled(enColl);
-    m_ui->collectionHeaderEdit->setEnabled(enColl);
-    m_ui->collectionSourceLabel->setEnabled(enColl);
-    m_ui->collectionSourceEdit->setEnabled(enColl);
+    m_collectionClassLabel->setEnabled(enColl);
+    m_collectionClassEdit->setEnabled(enColl);
+    m_collectionHeaderLabel->setEnabled(enColl);
+    m_collectionHeaderEdit->setEnabled(enColl);
+    m_collectionSourceLabel->setEnabled(enColl);
+    m_collectionSourceEdit->setEnabled(enColl);
 }
 
 QSharedPointer<PluginOptions> CustomWidgetPluginWizardPage::basicPluginOptions() const
 {
     QSharedPointer<PluginOptions> po(new PluginOptions);
     po->pluginName = pluginName();
-    po->resourceFile = m_ui->resourceFileEdit->text();
+    po->resourceFile = m_resourceFileEdit->text();
     po->collectionClassName = collectionClassName();
-    po->collectionHeaderFile = m_ui->collectionHeaderEdit->text();
-    po->collectionSourceFile = m_ui->collectionSourceEdit->text();
+    po->collectionHeaderFile = m_collectionHeaderEdit->text();
+    po->collectionSourceFile = m_collectionSourceEdit->text();
     return po;
 }
 

@@ -10,6 +10,7 @@
 #include <QWizardPage>
 
 QT_BEGIN_NAMESPACE
+class QToolButton;
 class QStackedLayout;
 QT_END_NAMESPACE
 
@@ -17,6 +18,7 @@ namespace QmakeProjectManager {
 namespace Internal {
 
 class ClassDefinition;
+class ClassList;
 struct PluginOptions;
 
 namespace Ui { class CustomWidgetWidgetsWizardPage; }
@@ -27,7 +29,6 @@ class CustomWidgetWidgetsWizardPage : public QWizardPage
 
 public:
     explicit CustomWidgetWidgetsWizardPage(QWidget *parent = nullptr);
-    ~CustomWidgetWidgetsWizardPage() override;
 
     QList<PluginOptions::WidgetOptions> widgetOptions() const;
 
@@ -51,11 +52,12 @@ private Q_SLOTS:
 private:
     void updatePluginTab();
 
-    Ui::CustomWidgetWidgetsWizardPage *m_ui;
     QList<ClassDefinition *> m_uiClassDefs;
     QStackedLayout *m_tabStackLayout;
     FileNamingParameters m_fileNamingParameters;
     bool m_complete;
+    QToolButton *m_deleteButton;
+    ClassList *m_classList;
 };
 
 }

@@ -3,7 +3,15 @@
 
 #include "classdefinition.h"
 
+#include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
+
+#include <QCheckBox>
 #include <QFileInfo>
+#include <QLabel>
+#include <QLineEdit>
+#include <QRadioButton>
+#include <QTextEdit>
 
 namespace QmakeProjectManager {
 namespace Internal {
@@ -12,44 +20,102 @@ ClassDefinition::ClassDefinition(QWidget *parent) :
     QTabWidget(parent),
     m_domXmlChanged(false)
 {
-    m_ui.setupUi(this);
-    m_ui.iconPathChooser->setExpectedKind(Utils::PathChooser::File);
-    m_ui.iconPathChooser->setHistoryCompleter(QLatin1String("Qmake.Icon.History"));
-    m_ui.iconPathChooser->setPromptDialogTitle(tr("Select Icon"));
-    m_ui.iconPathChooser->setPromptDialogFilter(tr("Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)"));
+    using namespace Utils::Layouting;
 
-    connect(m_ui.libraryRadio, &QRadioButton::toggled, this, &ClassDefinition::enableButtons);
-    connect(m_ui.skeletonCheck, &QCheckBox::toggled, this, &ClassDefinition::enableButtons);
-    connect(m_ui.widgetLibraryEdit, &QLineEdit::textChanged,
+    // "Sources" tab
+    auto sourceTab = new QWidget;
+    m_libraryRadio = new QRadioButton(tr("&Link library"));
+    auto includeRadio = new QRadioButton(tr("Include pro&ject"));
+    includeRadio->setChecked(true);
+    m_skeletonCheck = new QCheckBox(tr("Create s&keleton"));
+    m_widgetLibraryLabel = new QLabel(tr("Widget librar&y:"));
+    m_widgetLibraryEdit = new QLineEdit;
+    m_widgetProjectLabel = new QLabel(tr("Widget project &file:"));
+    m_widgetProjectEdit = new QLineEdit;
+    m_widgetHeaderEdit = new QLineEdit;
+    m_widgetSourceLabel = new QLabel(tr("Widge&t source file:"));
+    m_widgetSourceEdit = new QLineEdit;
+    m_widgetBaseClassLabel = new QLabel(tr("Widget &base class:"));
+    m_widgetBaseClassEdit = new QLineEdit("QWidget");
+    m_pluginClassEdit = new QLineEdit;
+    m_pluginHeaderEdit = new QLineEdit;
+    m_pluginSourceEdit = new QLineEdit;
+    m_iconPathChooser = new Utils::PathChooser;
+    m_iconPathChooser->setExpectedKind(Utils::PathChooser::File);
+    m_iconPathChooser->setHistoryCompleter(QLatin1String("Qmake.Icon.History"));
+    m_iconPathChooser->setPromptDialogTitle(tr("Select Icon"));
+    m_iconPathChooser->setPromptDialogFilter(tr("Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)"));
+    Form {
+        empty, Row { Column { m_libraryRadio, includeRadio }, m_skeletonCheck}, br,
+        m_widgetLibraryLabel, m_widgetLibraryEdit, br,
+        m_widgetProjectLabel, m_widgetProjectEdit, br,
+        tr("Widget h&eader file:"), m_widgetHeaderEdit, br,
+        m_widgetSourceLabel, m_widgetSourceEdit, br,
+        m_widgetBaseClassLabel, m_widgetBaseClassEdit, br,
+        tr("Plugin class &name:"), m_pluginClassEdit, br,
+        tr("Plugin &header file:"), m_pluginHeaderEdit, br,
+        tr("Plugin sou&rce file:"), m_pluginSourceEdit, br,
+        tr("Icon file:"), m_iconPathChooser, br,
+    }.attachTo(sourceTab);
+    addTab(sourceTab, tr("&Sources"));
+
+    // "Description" tab
+    auto descriptionTab = new QWidget;
+    m_groupEdit = new QLineEdit;
+    m_tooltipEdit = new QLineEdit;
+    m_whatsthisEdit = new QTextEdit;
+    m_containerCheck = new QCheckBox(tr("The widget is a &container"));
+    Form {
+        tr("G&roup:"), m_groupEdit, br,
+        tr("&Tooltip:"), m_tooltipEdit, br,
+        tr("W&hat's this:"), m_whatsthisEdit, br,
+        empty, m_containerCheck, br,
+    }.attachTo(descriptionTab);
+    addTab(descriptionTab, tr("&Description"));
+
+    // "Property defaults" tab
+    auto propertyDefaultsTab = new QWidget;
+    auto domXmlLabel = new QLabel(tr("dom&XML:"));
+    m_domXmlEdit = new QTextEdit;
+    domXmlLabel->setBuddy(m_domXmlEdit);
+    Column {
+        domXmlLabel,
+        m_domXmlEdit,
+    }.attachTo(propertyDefaultsTab);
+    addTab(propertyDefaultsTab, tr("Property defa&ults"));
+
+    connect(m_libraryRadio, &QRadioButton::toggled, this, &ClassDefinition::enableButtons);
+    connect(m_skeletonCheck, &QCheckBox::toggled, this, &ClassDefinition::enableButtons);
+    connect(m_widgetLibraryEdit, &QLineEdit::textChanged,
             this, &ClassDefinition::widgetLibraryChanged);
-    connect(m_ui.widgetHeaderEdit, &QLineEdit::textChanged,
+    connect(m_widgetHeaderEdit, &QLineEdit::textChanged,
             this, &ClassDefinition::widgetHeaderChanged);
-    connect(m_ui.pluginClassEdit, &QLineEdit::textChanged,
+    connect(m_pluginClassEdit, &QLineEdit::textChanged,
             this, &ClassDefinition::pluginClassChanged);
-    connect(m_ui.pluginHeaderEdit, &QLineEdit::textChanged,
+    connect(m_pluginHeaderEdit, &QLineEdit::textChanged,
             this, &ClassDefinition::pluginHeaderChanged);
-    connect(m_ui.domXmlEdit, &QTextEdit::textChanged,
+    connect(m_domXmlEdit, &QTextEdit::textChanged,
             this, [this] { m_domXmlChanged = true; });
 }
 
 void ClassDefinition::enableButtons()
 {
-    const bool enLib = m_ui.libraryRadio->isChecked();
-    m_ui.widgetLibraryLabel->setEnabled(enLib);
-    m_ui.widgetLibraryEdit->setEnabled(enLib);
+    const bool enLib = m_libraryRadio->isChecked();
+    m_widgetLibraryLabel->setEnabled(enLib);
+    m_widgetLibraryEdit->setEnabled(enLib);
 
-    const bool enSrc = m_ui.skeletonCheck->isChecked();
-    m_ui.widgetSourceLabel->setEnabled(enSrc);
-    m_ui.widgetSourceEdit->setEnabled(enSrc);
-    m_ui.widgetBaseClassLabel->setEnabled(enSrc);
-    m_ui.widgetBaseClassEdit->setEnabled(enSrc);
+    const bool enSrc = m_skeletonCheck->isChecked();
+    m_widgetSourceLabel->setEnabled(enSrc);
+    m_widgetSourceEdit->setEnabled(enSrc);
+    m_widgetBaseClassLabel->setEnabled(enSrc);
+    m_widgetBaseClassEdit->setEnabled(enSrc);
 
     const bool enPrj = !enLib || enSrc;
-    m_ui.widgetProjectLabel->setEnabled(enPrj);
-    m_ui.widgetProjectEdit->setEnabled(enPrj);
-    m_ui.widgetProjectEdit->setText(
-        QFileInfo(m_ui.widgetProjectEdit->text()).completeBaseName() +
-        (m_ui.libraryRadio->isChecked() ? QLatin1String(".pro") : QLatin1String(".pri")));
+    m_widgetProjectLabel->setEnabled(enPrj);
+    m_widgetProjectEdit->setEnabled(enPrj);
+    m_widgetProjectEdit->setText(
+        QFileInfo(m_widgetProjectEdit->text()).completeBaseName() +
+        (m_libraryRadio->isChecked() ? QLatin1String(".pro") : QLatin1String(".pri")));
 }
 
 static inline QString xmlFromClassName(const QString &name)
@@ -68,59 +134,59 @@ static inline QString xmlFromClassName(const QString &name)
 
 void ClassDefinition::setClassName(const QString &name)
 {
-    m_ui.widgetLibraryEdit->setText(name.toLower());
-    m_ui.widgetHeaderEdit->setText(m_fileNamingParameters.headerFileName(name));
-    m_ui.pluginClassEdit->setText(name + QLatin1String("Plugin"));
+    m_widgetLibraryEdit->setText(name.toLower());
+    m_widgetHeaderEdit->setText(m_fileNamingParameters.headerFileName(name));
+    m_pluginClassEdit->setText(name + QLatin1String("Plugin"));
     if (!m_domXmlChanged) {
-        m_ui.domXmlEdit->setText(xmlFromClassName(name));
+        m_domXmlEdit->setText(xmlFromClassName(name));
         m_domXmlChanged = false;
     }
 }
 
 void ClassDefinition::widgetLibraryChanged(const QString &text)
 {
-    m_ui.widgetProjectEdit->setText(text +
-        (m_ui.libraryRadio->isChecked() ? QLatin1String(".pro") : QLatin1String(".pri")));
+    m_widgetProjectEdit->setText(text +
+        (m_libraryRadio->isChecked() ? QLatin1String(".pro") : QLatin1String(".pri")));
 }
 
 void ClassDefinition::widgetHeaderChanged(const QString &text)
 {
-    m_ui.widgetSourceEdit->setText(m_fileNamingParameters.headerToSourceFileName(text));
+    m_widgetSourceEdit->setText(m_fileNamingParameters.headerToSourceFileName(text));
 }
 
 void ClassDefinition::pluginClassChanged(const QString &text)
 {
-    m_ui.pluginHeaderEdit->setText(m_fileNamingParameters.headerFileName(text));
+    m_pluginHeaderEdit->setText(m_fileNamingParameters.headerFileName(text));
 }
 
 void ClassDefinition::pluginHeaderChanged(const QString &text)
 {
-    m_ui.pluginSourceEdit->setText(m_fileNamingParameters.headerToSourceFileName(text));
+    m_pluginSourceEdit->setText(m_fileNamingParameters.headerToSourceFileName(text));
 }
 
 PluginOptions::WidgetOptions ClassDefinition::widgetOptions(const QString &className) const
 {
     PluginOptions::WidgetOptions wo;
-    wo.createSkeleton = m_ui.skeletonCheck->isChecked();
+    wo.createSkeleton = m_skeletonCheck->isChecked();
     wo.sourceType =
-            m_ui.libraryRadio->isChecked() ?
+            m_libraryRadio->isChecked() ?
             PluginOptions::WidgetOptions::LinkLibrary :
             PluginOptions::WidgetOptions::IncludeProject;
-    wo.widgetLibrary = m_ui.widgetLibraryEdit->text();
-    wo.widgetProjectFile = m_ui.widgetProjectEdit->text();
+    wo.widgetLibrary = m_widgetLibraryEdit->text();
+    wo.widgetProjectFile = m_widgetProjectEdit->text();
     wo.widgetClassName = className;
-    wo.widgetHeaderFile = m_ui.widgetHeaderEdit->text();
-    wo.widgetSourceFile = m_ui.widgetSourceEdit->text();
-    wo.widgetBaseClassName = m_ui.widgetBaseClassEdit->text();
-    wo.pluginClassName = m_ui.pluginClassEdit->text();
-    wo.pluginHeaderFile = m_ui.pluginHeaderEdit->text();
-    wo.pluginSourceFile = m_ui.pluginSourceEdit->text();
-    wo.iconFile = m_ui.iconPathChooser->filePath().toString();
-    wo.group = m_ui.groupEdit->text();
-    wo.toolTip = m_ui.tooltipEdit->text();
-    wo.whatsThis = m_ui.whatsthisEdit->toPlainText();
-    wo.isContainer = m_ui.containerCheck->isChecked();
-    wo.domXml = m_ui.domXmlEdit->toPlainText();
+    wo.widgetHeaderFile = m_widgetHeaderEdit->text();
+    wo.widgetSourceFile = m_widgetSourceEdit->text();
+    wo.widgetBaseClassName = m_widgetBaseClassEdit->text();
+    wo.pluginClassName = m_pluginClassEdit->text();
+    wo.pluginHeaderFile = m_pluginHeaderEdit->text();
+    wo.pluginSourceFile = m_pluginSourceEdit->text();
+    wo.iconFile = m_iconPathChooser->filePath().toString();
+    wo.group = m_groupEdit->text();
+    wo.toolTip = m_tooltipEdit->text();
+    wo.whatsThis = m_whatsthisEdit->toPlainText();
+    wo.isContainer = m_containerCheck->isChecked();
+    wo.domXml = m_domXmlEdit->toPlainText();
     return wo;
 }
 
