@@ -65,8 +65,12 @@ QVariant MaterialBrowserModel::data(const QModelIndex &index, int role) const
     if (roleName == "materialVisible")
         return isMaterialVisible(index.row());
 
-    if (roleName == "materialType")
-        return m_materialList.at(index.row()).type();
+    if (roleName == "materialType") {
+        QString matType = QString::fromLatin1(m_materialList.at(index.row()).type());
+        if (matType.startsWith("QtQuick3D."))
+            matType.remove("QtQuick3D.");
+        return matType;
+    }
 
     return {};
 }
@@ -83,6 +87,50 @@ bool MaterialBrowserModel::isMaterialVisible(int idx) const
 bool MaterialBrowserModel::isValidIndex(int idx) const
 {
     return idx > -1 && idx < rowCount();
+}
+
+/**
+ * @brief Loads and parses propertyGroups.json from QtQuick3D module's designer folder
+ *
+ * propertyGroups.json contains lists of QtQuick3D objects' properties grouped by sections
+ *
+ * @param path path to propertyGroups.json file
+ */
+void MaterialBrowserModel::loadPropertyGroups(const QString &path)
+{
+    bool ok = true;
+
+    if (m_propertyGroupsObj.isEmpty()) {
+        QFile matPropsFile(path);
+
+        if (!matPropsFile.open(QIODevice::ReadOnly)) {
+            qWarning("Couldn't open propertyGroups.json");
+            ok = false;
+        }
+
+        if (ok) {
+            QJsonDocument matPropsJsonDoc = QJsonDocument::fromJson(matPropsFile.readAll());
+            if (matPropsJsonDoc.isNull()) {
+                qWarning("Invalid propertyGroups.json file");
+                ok = false;
+            } else {
+                m_propertyGroupsObj = matPropsJsonDoc.object();
+            }
+        }
+    }
+
+    m_defaultMaterialSections.clear();
+    m_principledMaterialSections.clear();
+    m_customMaterialSections.clear();
+    if (ok) {
+        m_defaultMaterialSections.append(m_propertyGroupsObj.value("DefaultMaterial").toObject().keys());
+        m_principledMaterialSections.append(m_propertyGroupsObj.value("PrincipledMaterial").toObject().keys());
+
+        QStringList customMatSections = m_propertyGroupsObj.value("CustomMaterial").toObject().keys();
+        if (customMatSections.size() > 1) // as of now custom material has only 1 section, so we don't add it
+            m_customMaterialSections.append(customMatSections);
+    }
+    emit materialSectionsChanged();
 }
 
 QHash<int, QByteArray> MaterialBrowserModel::roleNames() const
@@ -138,12 +186,12 @@ void MaterialBrowserModel::setHasMaterialRoot(bool b)
     emit hasMaterialRootChanged();
 }
 
-TypeName MaterialBrowserModel::copiedMaterialType() const
+QString MaterialBrowserModel::copiedMaterialType() const
 {
     return m_copiedMaterialType;
 }
 
-void MaterialBrowserModel::setCopiedMaterialType(const TypeName &matType)
+void MaterialBrowserModel::setCopiedMaterialType(const QString &matType)
 {
     if (matType == m_copiedMaterialType)
         return;
@@ -294,16 +342,40 @@ void MaterialBrowserModel::duplicateMaterial(int idx)
     emit duplicateMaterialTriggered(m_materialList.at(idx));
 }
 
-void MaterialBrowserModel::copyMaterialProperties(int idx)
+void MaterialBrowserModel::copyMaterialProperties(int idx, const QString &section)
 {
     ModelNode mat = m_materialList.at(idx);
-    m_copiedMaterialProps = mat.properties();
-    setCopiedMaterialType(mat.type());
+    QString matType = QString::fromLatin1(mat.type());
+
+    if (matType.startsWith("QtQuick3D."))
+        matType.remove("QtQuick3D.");
+
+    setCopiedMaterialType(matType);
+    m_allPropsCopied = section == "All";
+
+    if (m_allPropsCopied || m_propertyGroupsObj.empty()) {
+        m_copiedMaterialProps = mat.properties();
+    } else {
+        QJsonObject propsSpecObj = m_propertyGroupsObj.value(m_copiedMaterialType).toObject();
+        if (propsSpecObj.contains(section)) { // should always be true
+           m_copiedMaterialProps.clear();
+           const QJsonArray propNames = propsSpecObj.value(section).toArray();
+           for (const QJsonValueRef &propName : propNames)
+               m_copiedMaterialProps.append(mat.property(propName.toString().toLatin1()));
+
+           if (section == "Base") { // add QtQuick3D.Material base props as well
+               QJsonObject propsMatObj = m_propertyGroupsObj.value("Material").toObject();
+               const QJsonArray propNames = propsMatObj.value("Base").toArray();
+               for (const QJsonValueRef &propName : propNames)
+                   m_copiedMaterialProps.append(mat.property(propName.toString().toLatin1()));
+           }
+        }
+    }
 }
 
 void MaterialBrowserModel::pasteMaterialProperties(int idx)
 {
-    emit pasteMaterialPropertiesTriggered(m_materialList.at(idx), m_copiedMaterialProps);
+    emit pasteMaterialPropertiesTriggered(m_materialList.at(idx), m_copiedMaterialProps, m_allPropsCopied);
 }
 
 void MaterialBrowserModel::deleteMaterial(int idx)

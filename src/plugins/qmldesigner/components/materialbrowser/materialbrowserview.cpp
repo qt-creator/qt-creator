@@ -29,6 +29,7 @@
 #include "materialbrowserwidget.h"
 #include "materialbrowsermodel.h"
 #include "nodeabstractproperty.h"
+#include "nodemetainfo.h"
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
 
@@ -43,7 +44,6 @@ namespace QmlDesigner {
 
 MaterialBrowserView::MaterialBrowserView(QObject *parent)
     : AbstractView(parent)
-
 {}
 
 MaterialBrowserView::~MaterialBrowserView()
@@ -91,14 +91,16 @@ WidgetInfo MaterialBrowserView::widgetInfo()
         });
 
         connect(matBrowserModel, &MaterialBrowserModel::pasteMaterialPropertiesTriggered, this,
-                [&] (const ModelNode &material, const QList<AbstractProperty> &props) {
+                [&] (const ModelNode &material, const QList<AbstractProperty> &props, bool all) {
             QmlObjectNode mat(material);
             executeInTransaction(__FUNCTION__, [&] {
-                // remove current properties
-                const PropertyNameList propNames = material.propertyNames();
-                for (const PropertyName &propName : propNames) {
-                    if (propName != "objectName")
-                        mat.removeProperty(propName);
+                if (all) { // all material properties copied
+                    // remove current properties
+                    const PropertyNameList propNames = material.propertyNames();
+                    for (const PropertyName &propName : propNames) {
+                        if (propName != "objectName")
+                            mat.removeProperty(propName);
+                    }
                 }
 
                 // apply pasted properties
@@ -125,6 +127,10 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 void MaterialBrowserView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
+
+    QString matPropsPath = model->metaInfo("QtQuick3D.Material").importDirectoryPath()
+                           + "/designer/propertyGroups.json";
+    m_widget->materialBrowserModel()->loadPropertyGroups(matPropsPath);
 
     m_widget->clearSearchFilter();
     m_widget->materialBrowserModel()->setHasMaterialRoot(rootModelNode().isSubclassOf("QtQuick3D.Material"));

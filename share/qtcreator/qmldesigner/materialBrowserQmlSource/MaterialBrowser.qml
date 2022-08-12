@@ -39,6 +39,8 @@ Item {
     property var currentMaterial: null
     property int currentMaterialIdx: 0
 
+    property var matSectionsModel: []
+
     // Called also from C++ to close context menu on focus out
     function closeContextMenu()
     {
@@ -108,16 +110,45 @@ Item {
             height: StudioTheme.Values.border
         }
 
-        StudioControls.MenuItem {
-            text: qsTr("Copy properties")
+        StudioControls.Menu {
+            title: qsTr("Copy properties")
             enabled: root.currentMaterial
-            onTriggered: materialBrowserModel.copyMaterialProperties(root.currentMaterialIdx)
+
+            width: parent.width
+
+            onAboutToShow: {
+                root.matSectionsModel = ["All"];
+
+                switch (root.currentMaterial.materialType) {
+                case "DefaultMaterial":
+                    root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.defaultMaterialSections);
+                    break;
+
+                case "PrincipledMaterial":
+                    root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.principledMaterialSections);
+                    break;
+
+                case "CustomMaterial":
+                    root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.customMaterialSections);
+                    break;
+                }
+            }
+
+            Repeater {
+                model: root.matSectionsModel
+
+                StudioControls.MenuItem {
+                    text: modelData
+                    enabled: root.currentMaterial
+                    onTriggered: materialBrowserModel.copyMaterialProperties(root.currentMaterialIdx, modelData)
+                }
+            }
         }
 
         StudioControls.MenuItem {
             text: qsTr("Paste properties")
-            enabled: root.currentMaterial && root.currentMaterial.materialType.toString()
-                                             === materialBrowserModel.copiedMaterialType.toString()
+            enabled: root.currentMaterial && root.currentMaterial.materialType
+                                             === materialBrowserModel.copiedMaterialType
             onTriggered: materialBrowserModel.pasteMaterialProperties(root.currentMaterialIdx)
         }
 

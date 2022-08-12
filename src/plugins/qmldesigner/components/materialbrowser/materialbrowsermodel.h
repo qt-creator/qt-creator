@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "qjsonobject.h"
 #include <modelnode.h>
 #include <qmlobjectnode.h>
 
@@ -43,7 +44,10 @@ class MaterialBrowserModel : public QAbstractListModel
     Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport WRITE setHasQuick3DImport NOTIFY hasQuick3DImportChanged)
     Q_PROPERTY(bool hasModelSelection READ hasModelSelection WRITE setHasModelSelection NOTIFY hasModelSelectionChanged)
     Q_PROPERTY(bool hasMaterialRoot READ hasMaterialRoot WRITE setHasMaterialRoot NOTIFY hasMaterialRootChanged)
-    Q_PROPERTY(TypeName copiedMaterialType READ copiedMaterialType WRITE setCopiedMaterialType NOTIFY copiedMaterialTypeChanged)
+    Q_PROPERTY(QString copiedMaterialType READ copiedMaterialType WRITE setCopiedMaterialType NOTIFY copiedMaterialTypeChanged)
+    Q_PROPERTY(QStringList defaultMaterialSections MEMBER m_defaultMaterialSections NOTIFY materialSectionsChanged)
+    Q_PROPERTY(QStringList principledMaterialSections MEMBER m_principledMaterialSections NOTIFY materialSectionsChanged)
+    Q_PROPERTY(QStringList customMaterialSections MEMBER m_customMaterialSections NOTIFY materialSectionsChanged)
 
 public:
     MaterialBrowserModel(QObject *parent = nullptr);
@@ -64,8 +68,8 @@ public:
     bool hasMaterialRoot() const;
     void setHasMaterialRoot(bool b);
 
-    TypeName copiedMaterialType() const;
-    void setCopiedMaterialType(const TypeName &matType);
+    QString copiedMaterialType() const;
+    void setCopiedMaterialType(const QString &matType);
 
     QList<ModelNode> materials() const;
     void setMaterials(const QList<ModelNode> &materials, bool hasQuick3DImport);
@@ -75,12 +79,13 @@ public:
     void updateSelectedMaterial();
     int materialIndex(const ModelNode &material) const;
     ModelNode materialAt(int idx) const;
+    void loadPropertyGroups(const QString &path);
 
     void resetModel();
 
     Q_INVOKABLE void selectMaterial(int idx, bool force = false);
     Q_INVOKABLE void duplicateMaterial(int idx);
-    Q_INVOKABLE void copyMaterialProperties(int idx);
+    Q_INVOKABLE void copyMaterialProperties(int idx, const QString &section);
     Q_INVOKABLE void pasteMaterialProperties(int idx);
     Q_INVOKABLE void deleteMaterial(int idx);
     Q_INVOKABLE void renameMaterial(int idx, const QString &newName);
@@ -94,13 +99,15 @@ signals:
     void hasModelSelectionChanged();
     void hasMaterialRootChanged();
     void copiedMaterialTypeChanged();
+    void materialSectionsChanged();
     void selectedIndexChanged(int idx);
     void renameMaterialTriggered(const QmlDesigner::ModelNode &material, const QString &newName);
     void applyToSelectedTriggered(const QmlDesigner::ModelNode &material, bool add = false);
     void addNewMaterialTriggered();
     void duplicateMaterialTriggered(const QmlDesigner::ModelNode &material);
     void pasteMaterialPropertiesTriggered(const QmlDesigner::ModelNode &material,
-                                          const QList<QmlDesigner::AbstractProperty> &props);
+                                          const QList<QmlDesigner::AbstractProperty> &props,
+                                          bool all);
 
 private:
     bool isMaterialVisible(int idx) const;
@@ -108,15 +115,20 @@ private:
 
     QString m_searchText;
     QList<ModelNode> m_materialList;
+    QStringList m_defaultMaterialSections;
+    QStringList m_principledMaterialSections;
+    QStringList m_customMaterialSections;
     QList<AbstractProperty> m_copiedMaterialProps;
     QHash<qint32, int> m_materialIndexHash; // internalId -> index
+    QJsonObject m_propertyGroupsObj;
 
     int m_selectedIndex = 0;
     bool m_isEmpty = true;
     bool m_hasQuick3DImport = false;
     bool m_hasModelSelection = false;
     bool m_hasMaterialRoot = false;
-    TypeName m_copiedMaterialType;
+    bool m_allPropsCopied = true;
+    QString m_copiedMaterialType;
 };
 
 } // namespace QmlDesigner
