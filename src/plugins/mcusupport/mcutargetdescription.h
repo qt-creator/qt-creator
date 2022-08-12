@@ -82,7 +82,6 @@ struct McuTargetDescription
     struct FreeRTOS
     {
         QString envVar;
-        Utils::FilePath boardSdkSubDir;
         QList<PackageDescription> packages;
     } freeRTOS;
 };

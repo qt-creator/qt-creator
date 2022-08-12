@@ -151,16 +151,15 @@ McuPackagePtr createBoardSdkPackage(const SettingsHandler::Ptr &settingsHandler,
 
 McuPackagePtr createFreeRTOSSourcesPackage(const SettingsHandler::Ptr &settingsHandler,
                                            const QString &envVar,
-                                           const FilePath &boardSdkDir,
-                                           const FilePath &freeRTOSBoardSdkSubDir)
+                                           const FilePath &boardSdkDir)
 {
     const QString envVarPrefix = removeRtosSuffix(envVar);
 
     FilePath defaultPath;
     if (qEnvironmentVariableIsSet(envVar.toLatin1()))
         defaultPath = FilePath::fromUserInput(qEnvironmentVariable(envVar.toLatin1()));
-    else if (!boardSdkDir.isEmpty() && !freeRTOSBoardSdkSubDir.isEmpty())
-        defaultPath = boardSdkDir / freeRTOSBoardSdkSubDir.toString();
+    else if (!boardSdkDir.isEmpty())
+        defaultPath = boardSdkDir;
 
     return McuPackagePtr{
         new McuPackage(settingsHandler,
@@ -728,7 +727,6 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
             boardSdkPackage,
             {
                 freeRTOS.value("envVar").toString(),
-                FilePath::fromUserInput(freeRTOS.value("boardSdkSubDir").toString()),
                 freeRtosEntries,
             }};
 }

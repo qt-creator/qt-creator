@@ -30,10 +30,10 @@
 #include "armgcc_stm32f769i_freertos_json.h"
 #include "armgcc_stm32h750b_metal_json.h"
 #include "gcc_desktop_json.h"
-#include "msvc_desktop_json.h"
 #include "ghs_rh850_d1m1a_baremetal_json.h"
 #include "iar_nxp_1064_json.h"
 #include "iar_stm32f469i_metal_json.h"
+#include "msvc_desktop_json.h"
 
 #include "mcuhelpers.h"
 #include "mcukitmanager.h"
@@ -82,7 +82,7 @@ const char armGccSuffix[]{"bin/arm-none-eabi-g++"};
 const char armGccToolchainFilePath[]{"/opt/qtformcu/2.2/lib/cmake/Qul/toolchain/armgcc.cmake"};
 const char armGccVersion[]{"9.3.1"};
 const char armGccNewVersion[]{"10.3.1"};
-const char msvcVersion[] {"14.29"};
+const char msvcVersion[]{"14.29"};
 const QStringList boardSdkVersions{{"2.11.0"}};
 const char cmakeToolchainLabel[]{"CMake Toolchain File"};
 const char fallbackDir[]{"/abc/def/fallback"};
@@ -207,7 +207,7 @@ void verifyGccToolchain(const McuToolChainPackagePtr &gccPackage, const QStringL
     QCOMPARE(gccPackage->isDesktopToolchain(), true);
     QCOMPARE(gccPackage->toolChainName(), "gcc");
     QCOMPARE(gccPackage->toolchainType(), McuToolChainPackage::ToolChainType::GCC);
-    QVERIFY(allOf(versions, [&](const QString &v){ return gccPackage->versions().contains(v);}));
+    QVERIFY(allOf(versions, [&](const QString &v) { return gccPackage->versions().contains(v); }));
 }
 
 void verifyMsvcToolchain(const McuToolChainPackagePtr &msvcPackage, const QStringList &versions)
@@ -218,7 +218,7 @@ void verifyMsvcToolchain(const McuToolChainPackagePtr &msvcPackage, const QStrin
     QCOMPARE(msvcPackage->toolchainType(), McuToolChainPackage::ToolChainType::MSVC);
     QCOMPARE(msvcPackage->isDesktopToolchain(), true);
     QCOMPARE(msvcPackage->toolChainName(), "msvc");
-    QVERIFY(allOf(versions, [&](const QString &v){ return msvcPackage->versions().contains(v);}));
+    QVERIFY(allOf(versions, [&](const QString &v) { return msvcPackage->versions().contains(v); }));
 }
 
 void verifyTargetToolchains(const Targets &targets,
@@ -365,7 +365,6 @@ void McuSupportTest::test_parseBasicInfoFromJson()
     const auto description = parseDescriptionJson(iar_nxp_1064_json);
 
     QVERIFY(!description.freeRTOS.envVar.isEmpty());
-    QVERIFY(description.freeRTOS.boardSdkSubDir.isEmpty());
 }
 
 void McuSupportTest::test_parseCmakeEntries()
@@ -457,7 +456,7 @@ void McuSupportTest::test_createDesktopGccToolchain()
 void McuSupportTest::test_legacy_createDesktopMsvcToolchain()
 {
     McuToolChainPackagePtr msvcPackage = Legacy::createMsvcToolChainPackage(settingsMockPtr,
-                                                                          {msvcVersion});
+                                                                            {msvcVersion});
     verifyMsvcToolchain(msvcPackage, {msvcVersion});
 }
 
@@ -604,10 +603,8 @@ void McuSupportTest::test_createFreeRtosPackageWithCorrectSetting()
     QFETCH(QString, freeRtosEnvVar);
     QFETCH(QString, expectedSettingsKey);
 
-    McuPackagePtr package{Legacy::createFreeRTOSSourcesPackage(settingsMockPtr,
-                                                               freeRtosEnvVar,
-                                                               FilePath{},
-                                                               FilePath{})};
+    McuPackagePtr package{
+        Legacy::createFreeRTOSSourcesPackage(settingsMockPtr, freeRtosEnvVar, FilePath{})};
     QVERIFY(package != nullptr);
 
     QCOMPARE(package->settingsKey(), expectedSettingsKey);

@@ -74,8 +74,7 @@ McuToolChainPackagePtr createGhsArmToolchainPackage(const SettingsHandler::Ptr &
 McuPackagePtr createBoardSdkPackage(const SettingsHandler::Ptr &, const McuTargetDescription &);
 McuPackagePtr createFreeRTOSSourcesPackage(const SettingsHandler::Ptr &settingsHandler,
                                            const QString &envVar,
-                                           const Utils::FilePath &boardSdkDir,
-                                           const Utils::FilePath &freeRTOSBoardSdkSubDir);
+                                           const Utils::FilePath &boardSdkDir);
 
 } // namespace Legacy
 } // namespace McuSupport::Internal

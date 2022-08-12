@@ -83,13 +83,11 @@ QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescript
         // Free RTOS specific settings.
         if (!desc.freeRTOS.envVar.isEmpty()) {
             if (!freeRTOSPkgs.contains(desc.freeRTOS.envVar)) {
-                freeRTOSPkgs
-                    .insert(desc.freeRTOS.envVar,
-                            McuPackagePtr{
-                                Legacy::createFreeRTOSSourcesPackage(settingsHandler,
-                                                                     desc.freeRTOS.envVar,
-                                                                     boardSdkDefaultPath,
-                                                                     desc.freeRTOS.boardSdkSubDir)});
+                freeRTOSPkgs.insert(desc.freeRTOS.envVar,
+                                    McuPackagePtr{
+                                        Legacy::createFreeRTOSSourcesPackage(settingsHandler,
+                                                                             desc.freeRTOS.envVar,
+                                                                             boardSdkDefaultPath)});
             }
             required3rdPartyPkgs.insert(freeRTOSPkgs.value(desc.freeRTOS.envVar));
         }
