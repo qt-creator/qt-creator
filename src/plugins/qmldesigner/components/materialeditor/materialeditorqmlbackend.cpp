@@ -102,7 +102,7 @@ public:
 MaterialEditorQmlBackend::MaterialEditorQmlBackend(MaterialEditorView *materialEditor)
     : m_view(new QQuickWidget)
     , m_materialEditorTransaction(new MaterialEditorTransaction(materialEditor))
-    , m_contextObject(new MaterialEditorContextObject())
+    , m_contextObject(new MaterialEditorContextObject(m_view->rootContext()))
     , m_materialEditorImageProvider(new MaterialEditorImageProvider())
 {
     m_view->setResizeMode(QQuickWidget::SizeRootObjectToView);

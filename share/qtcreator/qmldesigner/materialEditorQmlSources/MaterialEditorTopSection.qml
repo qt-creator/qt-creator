@@ -227,17 +227,8 @@ Column {
                 Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
 
                 ComboBox {
-                    currentIndex: {
-                        if (backendValues.__classNamePrivateInternal.value === "CustomMaterial")
-                            return 2
-
-                        if (backendValues.__classNamePrivateInternal.value === "PrincipledMaterial")
-                            return 1
-
-                        return 0
-                    }
-
-                    model: ["DefaultMaterial", "PrincipledMaterial", "CustomMaterial"]
+                    currentIndex: possibleTypeIndex
+                    model: possibleTypes
                     showExtendedFunctionButton: false
                     implicitWidth: StudioTheme.Values.singleControlColumnWidth
 

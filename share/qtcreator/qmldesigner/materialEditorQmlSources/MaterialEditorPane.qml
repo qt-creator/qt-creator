@@ -64,6 +64,24 @@ PropertyEditorPane {
     Item { width: 1; height: 10 }
 
     Loader {
+        id: specificsTwo
+
+        property string theSource: specificQmlData
+
+        anchors.left: parent.left
+        anchors.right: parent.right
+        visible: theSource !== ""
+        sourceComponent: specificQmlComponent
+
+        onTheSourceChanged: {
+            active = false
+            active = true
+        }
+    }
+
+    Item { width: 1; height: 10 }
+
+    Loader {
         id: specificsOne
         anchors.left: parent.left
         anchors.right: parent.right

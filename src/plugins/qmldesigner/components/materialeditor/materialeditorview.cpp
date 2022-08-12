@@ -51,6 +51,7 @@
 #include <qmldesignerplugin.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <propertyeditorqmlbackend.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -82,6 +83,10 @@ MaterialEditorView::MaterialEditorView(QWidget *parent)
             m_ensureMatLibTimer.stop();
         }
     });
+
+    m_typeUpdateTimer.setSingleShot(true);
+    m_typeUpdateTimer.setInterval(500);
+    connect(&m_typeUpdateTimer, &QTimer::timeout, this, &MaterialEditorView::updatePossibleTypes);
 
     m_stackedWidget->setStyleSheet(Theme::replaceCssColors(
         QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
@@ -526,14 +531,30 @@ void MaterialEditorView::setupQmlBackend()
 {
     QUrl qmlPaneUrl;
     QUrl qmlSpecificsUrl;
+    QString specificQmlData;
+    QString currentTypeName;
 
     if (m_selectedMaterial.isValid() && m_hasQuick3DImport) {
         qmlPaneUrl = QUrl::fromLocalFile(materialEditorResourcesPath() + "/MaterialEditorPane.qml");
 
+        TypeName diffClassName;
         NodeMetaInfo metaInfo = m_selectedMaterial.metaInfo();
-        QDir importDir(metaInfo.importDirectoryPath() + Constants::QML_DESIGNER_SUBFOLDER);
-        QString typeName = QString::fromUtf8(metaInfo.typeName().split('.').constLast());
-        qmlSpecificsUrl = QUrl::fromLocalFile(importDir.absoluteFilePath(typeName + "Specifics.qml"));
+        if (metaInfo.isValid()) {
+            diffClassName = metaInfo.typeName();
+            const QList<NodeMetaInfo> hierarchy = metaInfo.classHierarchy();
+            for (const NodeMetaInfo &metaInfo : hierarchy) {
+                if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsUrl))
+                    break;
+                qmlSpecificsUrl = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName()
+                                                                          + "Specifics", metaInfo);
+                diffClassName = metaInfo.typeName();
+            }
+        }
+        if (metaInfo.isValid() && diffClassName != m_selectedMaterial.type()) {
+            specificQmlData = PropertyEditorQmlBackend::templateGeneration(
+                        metaInfo, model()->metaInfo(diffClassName), m_selectedMaterial);
+        }
+        currentTypeName = QString::fromLatin1(m_selectedMaterial.type());
     } else {
         qmlPaneUrl = QUrl::fromLocalFile(materialEditorResourcesPath() + "/EmptyMaterialEditorPane.qml");
     }
@@ -566,11 +587,15 @@ void MaterialEditorView::setupQmlBackend()
     currentQmlBackend->widget()->installEventFilter(this);
     currentQmlBackend->contextObject()->setHasQuick3DImport(m_hasQuick3DImport);
     currentQmlBackend->contextObject()->setHasMaterialRoot(m_hasMaterialRoot);
-
-    m_stackedWidget->setCurrentWidget(currentQmlBackend->widget());
+    currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
+    currentQmlBackend->contextObject()->setCurrentType(currentTypeName);
 
     m_qmlBackEnd = currentQmlBackend;
+
+    delayedTypeUpdate();
     initPreviewData();
+
+    m_stackedWidget->setCurrentWidget(m_qmlBackEnd->widget());
 }
 
 void MaterialEditorView::commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value)
@@ -636,6 +661,53 @@ void MaterialEditorView::initPreviewData()
     }
 }
 
+void MaterialEditorView::delayedTypeUpdate()
+{
+     m_typeUpdateTimer.start();
+}
+
+static Import entryToImport(const ItemLibraryEntry &entry)
+{
+    if (entry.majorVersion() == -1 && entry.minorVersion() == -1)
+        return Import::createFileImport(entry.requiredImport());
+    return Import::createLibraryImport(entry.requiredImport(),
+                                       QString::number(entry.majorVersion()) + QLatin1Char('.') +
+                                       QString::number(entry.minorVersion()));
+}
+
+void MaterialEditorView::updatePossibleTypes()
+{
+    QTC_ASSERT(model(), return);
+
+    if (!m_qmlBackEnd)
+        return;
+
+    // Ensure basic types are always first
+    static const QStringList basicTypes {"DefaultMaterial", "PrincipledMaterial", "CustomMaterial"};
+    QStringList allTypes = basicTypes;
+
+    const QList<ItemLibraryEntry> itemLibEntries = m_itemLibraryInfo->entries();
+    for (const ItemLibraryEntry &entry : itemLibEntries) {
+        NodeMetaInfo metaInfo = model()->metaInfo(entry.typeName());
+        bool valid = metaInfo.isValid()
+                     && (metaInfo.majorVersion() >= entry.majorVersion()
+                         || metaInfo.majorVersion() < 0);
+        if (valid && metaInfo.isSubclassOf("QtQuick3D.Material")) {
+            bool addImport = entry.requiredImport().isEmpty();
+            if (!addImport) {
+                Import import = entryToImport(entry);
+                addImport = model()->hasImport(import, true, true);
+            }
+            if (addImport) {
+                QString typeName = QString::fromLatin1(entry.typeName().split('.').last());
+                if (!allTypes.contains(typeName))
+                    allTypes.append(typeName);
+            }
+        }
+    }
+    m_qmlBackEnd->contextObject()->setPossibleTypes(allTypes);
+}
+
 void MaterialEditorView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
@@ -651,6 +723,18 @@ void MaterialEditorView::modelAttached(Model *model)
         // Creating the material library node on model attach causes errors as long as the type
         // information is not complete yet, so we keep checking until type info is complete.
         m_ensureMatLibTimer.start(500);
+    }
+
+    if (m_itemLibraryInfo.data() != model->metaInfo().itemLibraryInfo()) {
+        if (m_itemLibraryInfo) {
+            disconnect(m_itemLibraryInfo.data(), &ItemLibraryInfo::entriesChanged,
+                       this, &MaterialEditorView::delayedTypeUpdate);
+        }
+        m_itemLibraryInfo = model->metaInfo().itemLibraryInfo();
+        if (m_itemLibraryInfo) {
+            connect(m_itemLibraryInfo.data(), &ItemLibraryInfo::entriesChanged,
+                    this, &MaterialEditorView::delayedTypeUpdate);
+        }
     }
 
     if (!m_setupCompleted) {
@@ -816,10 +900,20 @@ void MaterialEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Pr
     m_locked = false;
 }
 
-void MaterialEditorView::nodeTypeChanged(const ModelNode &node, const TypeName &, int, int)
+void MaterialEditorView::nodeTypeChanged(const ModelNode &node, const TypeName &typeName, int, int)
 {
-     if (node == m_selectedMaterial)
+     if (node == m_selectedMaterial) {
+         m_qmlBackEnd->contextObject()->setCurrentType(QString::fromLatin1(typeName));
          delayedResetView();
+     }
+}
+
+void MaterialEditorView::rootNodeTypeChanged(const QString &type, int, int)
+{
+    if (rootModelNode() == m_selectedMaterial) {
+        m_qmlBackEnd->contextObject()->setCurrentType(type);
+        delayedResetView();
+    }
 }
 
 void MaterialEditorView::modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap)

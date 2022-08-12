@@ -43,9 +43,13 @@ class MaterialEditorContextObject : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QUrl specificsUrl READ specificsUrl WRITE setSpecificsUrl NOTIFY specificsUrlChanged)
+    Q_PROPERTY(QString specificQmlData READ specificQmlData WRITE setSpecificQmlData NOTIFY specificQmlDataChanged)
+    Q_PROPERTY(QQmlComponent *specificQmlComponent READ specificQmlComponent NOTIFY specificQmlComponentChanged)
 
     Q_PROPERTY(QString stateName READ stateName WRITE setStateName NOTIFY stateNameChanged)
     Q_PROPERTY(QStringList allStateNames READ allStateNames WRITE setAllStateNames NOTIFY allStateNamesChanged)
+    Q_PROPERTY(QStringList possibleTypes READ possibleTypes WRITE setPossibleTypes NOTIFY possibleTypesChanged)
+    Q_PROPERTY(int possibleTypeIndex READ possibleTypeIndex NOTIFY possibleTypeIndexChanged)
 
     Q_PROPERTY(bool isBaseState READ isBaseState WRITE setIsBaseState NOTIFY isBaseStateChanged)
     Q_PROPERTY(bool selectionChanged READ selectionChanged WRITE setSelectionChanged NOTIFY selectionChangedChanged)
@@ -61,11 +65,15 @@ class MaterialEditorContextObject : public QObject
     Q_PROPERTY(QQmlPropertyMap *backendValues READ backendValues WRITE setBackendValues NOTIFY backendValuesChanged)
 
 public:
-    MaterialEditorContextObject(QObject *parent = nullptr);
+    MaterialEditorContextObject(QQmlContext *context, QObject *parent = nullptr);
 
     QUrl specificsUrl() const { return m_specificsUrl; }
+    QString specificQmlData() const {return m_specificQmlData; }
+    QQmlComponent *specificQmlComponent();
     QString stateName() const { return m_stateName; }
     QStringList allStateNames() const { return m_allStateNames; }
+    QStringList possibleTypes() const { return m_possibleTypes; }
+    int possibleTypeIndex() const { return m_possibleTypeIndex; }
 
     bool isBaseState() const { return m_isBaseState; }
     bool selectionChanged() const { return m_selectionChanged; }
@@ -87,6 +95,7 @@ public:
     Q_INVOKABLE QStringList allStatesForId(const QString &id);
 
     Q_INVOKABLE bool isBlocked(const QString &propName) const;
+    Q_INVOKABLE void goIntoComponent();
 
     enum ToolBarAction {
         ApplyToSelected = 0,
@@ -117,8 +126,11 @@ public:
     void setSelectedMaterial(const ModelNode &matNode);
 
     void setSpecificsUrl(const QUrl &newSpecificsUrl);
+    void setSpecificQmlData(const QString &newSpecificQmlData);
     void setStateName(const QString &newStateName);
     void setAllStateNames(const QStringList &allStates);
+    void setPossibleTypes(const QStringList &types);
+    void setCurrentType(const QString &type);
     void setIsBaseState(bool newIsBaseState);
     void setSelectionChanged(bool newSelectionChanged);
     void setBackendValues(QQmlPropertyMap *newBackendValues);
@@ -129,8 +141,12 @@ public:
 
 signals:
     void specificsUrlChanged();
+    void specificQmlDataChanged();
+    void specificQmlComponentChanged();
     void stateNameChanged();
     void allStateNamesChanged();
+    void possibleTypesChanged();
+    void possibleTypeIndexChanged();
     void isBaseStateChanged();
     void selectionChangedChanged();
     void backendValuesChanged();
@@ -142,15 +158,22 @@ signals:
     void hasModelSelectionChanged();
 
 private:
+    void updatePossibleTypeIndex();
+
     QUrl m_specificsUrl;
+    QString m_specificQmlData;
+    QQmlComponent *m_specificQmlComponent = nullptr;
+    QQmlContext *m_qmlContext = nullptr;
 
     QString m_stateName;
     QStringList m_allStateNames;
+    QStringList m_possibleTypes;
+    int m_possibleTypeIndex = -1;
+    QString m_currentType;
 
     int m_majorVersion = 1;
 
     QQmlPropertyMap *m_backendValues = nullptr;
-    QQmlComponent *m_qmlComponent = nullptr;
     Model *m_model = nullptr;
 
     QPoint m_lastPos;

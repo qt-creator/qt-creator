@@ -163,7 +163,7 @@ void MaterialBrowserView::refreshModel(bool updateImages)
 
 bool MaterialBrowserView::isMaterial(const ModelNode &node) const
 {
-    if (!node.isValid() || node.isComponent())
+    if (!node.isValid())
         return false;
 
     return node.isSubclassOf("QtQuick3D.Material");

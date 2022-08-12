@@ -26,6 +26,8 @@
 #pragma once
 
 #include <abstractview.h>
+#include <itemlibraryinfo.h>
+
 #include <QHash>
 #include <QPointer>
 #include <QTimer>
@@ -70,6 +72,7 @@ public:
     void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
 
     void nodeTypeChanged(const ModelNode& node, const TypeName &type, int majorVersion, int minorVersion) override;
+    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
     void modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap) override;
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
     void customNotification(const AbstractView *view, const QString &identifier,
@@ -119,9 +122,12 @@ private:
     bool noValidSelection() const;
 
     void initPreviewData();
+    void delayedTypeUpdate();
+    void updatePossibleTypes();
 
     ModelNode m_selectedMaterial;
     QTimer m_ensureMatLibTimer;
+    QTimer m_typeUpdateTimer;
     QShortcut *m_updateShortcut = nullptr;
     int m_timerId = 0;
     QStackedWidget *m_stackedWidget = nullptr;
@@ -134,6 +140,7 @@ private:
     bool m_hasMaterialRoot = false;
 
     QPointer<QColorDialog> m_colorDialog;
+    QPointer<ItemLibraryInfo> m_itemLibraryInfo;
 };
 
 } // namespace QmlDesigner
