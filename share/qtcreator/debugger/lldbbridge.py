@@ -488,7 +488,8 @@ class Dumper(DumperBase):
                     self.nativeStructAlignment(nativeType)
                 tdata.lfields = lambda value: \
                     self.listMembers(value, nativeType)
-                tdata.templateArguments = self.listTemplateParametersHelper(nativeType)
+                tdata.templateArguments = lambda: \
+                    self.listTemplateParametersHelper(nativeType)
             elif code == lldb.eTypeClassFunction:
                 tdata.code = TypeCode.Function
             elif code == lldb.eTypeClassMemberPointer:

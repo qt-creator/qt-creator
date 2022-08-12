@@ -199,7 +199,8 @@ class Dumper(DumperBase):
         if code == TypeCode.Enum:
             tdata.enumDisplay = lambda intval, addr, form: \
                 self.nativeTypeEnumDisplay(nativeType, intval, form)
-        tdata.templateArguments = self.listTemplateParameters(nativeType.name())
+        tdata.templateArguments = lambda: \
+            self.listTemplateParameters(nativeType.name())
         self.registerType(typeId, tdata)  # Fix up fields and template args
         return self.Type(self, typeId)
 

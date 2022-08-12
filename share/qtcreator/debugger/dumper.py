@@ -3500,7 +3500,7 @@ class DumperBase():
             self.lalignment = None  # Function returning alignment of this struct
             self.lbitsize = None
             self.ltarget = None  # Inner type for arrays
-            self.templateArguments = []
+            self.templateArguments = None
             self.code = None
             self.name = None
             self.typeId = None
@@ -3629,7 +3629,7 @@ class DumperBase():
             tdata = self.typeData()
             if tdata is None:
                 return self.dumper.listTemplateParameters(self.typeId)
-            return tdata.templateArguments
+            return tdata.templateArguments()
 
         def templateArgument(self, position):
             tdata = self.typeData()
@@ -3644,8 +3644,8 @@ class DumperBase():
                 #DumperBase.warn('RES: %s' % res.typeId)
                 return res
             #DumperBase.warn('TA: %s %s' % (position, self.typeId))
-            #DumperBase.warn('ARGS: %s' % tdata.templateArguments)
-            return tdata.templateArguments[position]
+            #DumperBase.warn('ARGS: %s' % tdata.templateArguments())
+            return tdata.templateArguments()[position]
 
         def simpleEncoding(self):
             res = {
@@ -3983,7 +3983,7 @@ class DumperBase():
             tdata = self.TypeData(self)
             tdata.name = typish
             tdata.typeId = typish
-            tdata.templateArguments = self.listTemplateParameters(typish)
+            tdata.templateArguments = lambda: self.listTemplateParameters(typish)
             if size is not None:
                 tdata.lbitsize = 8 * size
             if typish.endswith('*'):

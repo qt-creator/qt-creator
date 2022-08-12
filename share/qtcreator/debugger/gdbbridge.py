@@ -421,7 +421,8 @@ class Dumper(DumperBase):
                     self.nativeStructAlignment(nativeType)
                 tdata.lfields = lambda value: \
                     self.listMembers(value, nativeType)
-            tdata.templateArguments = self.listTemplateParameters(nativeType)
+            tdata.templateArguments = lambda: \
+                    self.listTemplateParameters(nativeType)
             self.registerType(typeId, tdata)  # Fix up fields and template args
         #    warn('CREATE TYPE: %s' % typeId)
         #else:
