@@ -419,9 +419,8 @@ class Dumper(DumperBase):
                     targetTypeName = typeName[0:pos1].strip()
                 #DumperBase.warn("TARGET TYPENAME: %s" % targetTypeName)
                 targetType = self.fromNativeType(nativeTargetType)
-                tdata = targetType.typeData().copy()
-                tdata.name = targetTypeName
-                targetType.typeData = lambda: tdata
+                targetType.tdata = targetType.tdata.copy()
+                targetType.tdata.name = targetTypeName
                 return self.createArrayType(targetType, count)
             if hasattr(nativeType, 'GetVectorElementType'):  # New in 3.8(?) / 350.x
                 nativeTargetType = nativeType.GetVectorElementType()

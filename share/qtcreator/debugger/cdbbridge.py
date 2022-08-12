@@ -389,7 +389,7 @@ class Dumper(DumperBase):
                 return None
             _type = self.fromNativeType(nativeType)
             if _type.name != typeName:
-                self.registerType(typeName, _type.typeData())
+                self.registerType(typeName, _type.tdata)
             return _type
         return self.Type(self, typeName)
 
