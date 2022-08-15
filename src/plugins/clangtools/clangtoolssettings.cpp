@@ -27,6 +27,7 @@
 
 #include "clangtoolsconstants.h"
 #include "clangtoolsutils.h"
+#include "executableinfo.h"
 
 #include <coreplugin/icore.h>
 #include <cppeditor/clangdiagnosticconfig.h>
@@ -206,14 +207,18 @@ void ClangToolsSettings::setClazyStandaloneExecutable(const FilePath &path)
     m_clazyVersion = {};
 }
 
-static QVersionNumber getVersionNumber(QVersionNumber &version, const FilePath &toolFilePath)
+static VersionAndSuffix getVersionNumber(VersionAndSuffix &version, const FilePath &toolFilePath)
 {
-    if (version.isNull() && !toolFilePath.isEmpty())
-        version = QVersionNumber::fromString(queryVersion(toolFilePath, QueryFailMode::Silent));
+    if (version.first.isNull() && !toolFilePath.isEmpty()) {
+        const QString versionString = queryVersion(toolFilePath, QueryFailMode::Silent);
+        int suffixIndex = versionString.length() - 1;
+        version.first = QVersionNumber::fromString(versionString, &suffixIndex);
+        version.second = versionString.mid(suffixIndex);
+    }
     return version;
 }
 
-QVersionNumber ClangToolsSettings::clangTidyVersion()
+VersionAndSuffix ClangToolsSettings::clangTidyVersion()
 {
     return getVersionNumber(instance()->m_clangTidyVersion, Internal::clangTidyExecutable());
 }

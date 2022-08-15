@@ -25,13 +25,13 @@
 
 #pragma once
 
-#include "executableinfo.h"
-
 #include <cppeditor/clangdiagnosticconfig.h>
 
+#include <utils/filepath.h>
 #include <utils/id.h>
 
 #include <QObject>
+#include <QPair>
 #include <QString>
 #include <QVersionNumber>
 
@@ -39,6 +39,8 @@ namespace ClangTools {
 namespace Internal {
 
 const char diagnosticConfigIdKey[] = "DiagnosticConfig";
+
+using VersionAndSuffix = QPair<QVersionNumber, QString>;
 
 class RunSettings
 {
@@ -90,7 +92,7 @@ public:
     RunSettings runSettings() const { return m_runSettings; }
     void setRunSettings(const RunSettings &settings) { m_runSettings = settings; }
 
-    static QVersionNumber clangTidyVersion();
+    static VersionAndSuffix clangTidyVersion();
     static QVersionNumber clazyVersion();
 
 signals:
@@ -111,7 +113,7 @@ private:
     RunSettings m_runSettings;
 
     // Version info. Ephemeral.
-    QVersionNumber m_clangTidyVersion;
+    VersionAndSuffix m_clangTidyVersion;
     QVersionNumber m_clazyVersion;
 };
 

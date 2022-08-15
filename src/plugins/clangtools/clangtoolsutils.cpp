@@ -341,14 +341,18 @@ QStringList extraClangToolsAppendOptions()
 
 QString clangTidyDocUrl(const QString &check)
 {
-    QVersionNumber version = ClangToolsSettings::clangTidyVersion();
-    version = QVersionNumber(version.majorVersion(), 0, 0);
-    if (version == QVersionNumber(0))
-        version = QVersionNumber(12);
-    static const char urlTemplate[]
-            = "https://releases.llvm.org/%1/tools/clang/tools/extra/docs/clang-tidy/checks/";
-    QString url = QString::fromLatin1(urlTemplate).arg(version.toString());
-    if (version.majorVersion() < 15) {
+    VersionAndSuffix version = ClangToolsSettings::clangTidyVersion();
+    version.first = QVersionNumber(version.first.majorVersion(), 0, 0);
+    if (version.first == QVersionNumber(0))
+        version.first = QVersionNumber(12);
+    static const char versionedUrlPrefix[]
+            = "https://releases.llvm.org/%1/tools/clang/tools/extra/docs/";
+    static const char unversionedUrlPrefix[] = "https://clang.llvm.org/extra/";
+    QString url = version.second.contains("git")
+            ? QString::fromLatin1(unversionedUrlPrefix)
+            : QString::fromLatin1(versionedUrlPrefix).arg(version.first.toString());
+    url.append("clang-tidy/checks/");
+    if (version.first.majorVersion() < 15) {
         url.append(check);
     } else {
         const int hyphenIndex = check.indexOf('-');
