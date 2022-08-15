@@ -108,8 +108,11 @@ static HeaderPaths getHeaderPaths(const RawProjectPart &rpp,
         const HeaderPaths builtInHeaderPaths = tcInfo.headerPathsRunner(
                     flags.commandLineFlags, tcInfo.sysRootPath, tcInfo.targetTriple);
         for (const HeaderPath &header : builtInHeaderPaths) {
-            if (seenPaths.insert(header.path).second)
-                headerPaths.push_back(HeaderPath{header.path, header.type});
+            // Prevent projects from adding built-in paths as user paths.
+            erase_if(headerPaths, [&header](const HeaderPath &existing) {
+                return header.path == existing.path;
+            });
+            headerPaths.push_back(HeaderPath{header.path, header.type});
         }
     }
     return headerPaths;
