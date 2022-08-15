@@ -56,6 +56,8 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
 
     m_showWrapColumn = new QCheckBox(tr("Display right &margin at column:"));
 
+    m_tintMarginArea = new QCheckBox("Colorize right margin area");
+
     m_wrapColumn = new QSpinBox(m_displaySettings);
     m_wrapColumn->setEnabled(false);
     m_wrapColumn->setMaximum(999);
@@ -70,6 +72,7 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
 
     Row {
         m_showWrapColumn,
+        m_tintMarginArea,
         m_wrapColumn,
         m_useIndenter,
         st
@@ -91,6 +94,9 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
     connect(m_showWrapColumn, &QCheckBox::toggled,
             m_wrapColumn, &QSpinBox::setEnabled);
 
+    connect(m_tintMarginArea, &QCheckBox::toggled,
+            m_tintMarginArea, &QSpinBox::setEnabled);
+
     connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged,
             this, &EditorSettingsWidget::globalSettingsActivated);
 
@@ -99,6 +105,8 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
 
     connect(m_showWrapColumn, &QAbstractButton::toggled,
             config, &EditorConfiguration::setShowWrapColumn);
+    connect(m_tintMarginArea, &QAbstractButton::toggled,
+            config, &EditorConfiguration::setTintMarginArea);
     connect(m_useIndenter, &QAbstractButton::toggled,
             config, &EditorConfiguration::setUseIndenter);
     connect(m_wrapColumn, &QSpinBox::valueChanged,
@@ -119,6 +127,7 @@ EditorSettingsWidget::EditorSettingsWidget(Project *project) : m_project(project
 void EditorSettingsWidget::settingsToUi(const EditorConfiguration *config)
 {
     m_showWrapColumn->setChecked(config->marginSettings().m_showMargin);
+    m_tintMarginArea->setChecked(config->marginSettings().m_tintMarginArea);
     m_useIndenter->setChecked(config->marginSettings().m_useIndenter);
     m_wrapColumn->setValue(config->marginSettings().m_marginColumn);
     m_behaviorSettings->setCodeStyle(config->codeStyle());

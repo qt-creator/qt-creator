@@ -59,6 +59,7 @@ private:
 
     QPushButton *m_restoreButton;
     QCheckBox *m_showWrapColumn;
+    QCheckBox *m_tintMarginArea;
     QSpinBox *m_wrapColumn;
     QCheckBox *m_useIndenter;
     QGroupBox *m_displaySettings;

@@ -383,6 +383,14 @@ void EditorConfiguration::setShowWrapColumn(bool onoff)
     }
 }
 
+void EditorConfiguration::setTintMarginArea(bool onoff)
+{
+    if (d->m_marginSettings.m_tintMarginArea != onoff) {
+        d->m_marginSettings.m_tintMarginArea = onoff;
+        emit marginSettingsChanged(d->m_marginSettings);
+    }
+}
+
 void EditorConfiguration::setUseIndenter(bool onoff)
 {
     if (d->m_marginSettings.m_useIndenter != onoff) {

@@ -96,6 +96,7 @@ public:
     void setMarginSettings(const TextEditor::MarginSettings &settings);
 
     void setShowWrapColumn(bool onoff);
+    void setTintMarginArea(bool onoff);
     void setUseIndenter(bool onoff);
     void setWrapColumn(int column);
 

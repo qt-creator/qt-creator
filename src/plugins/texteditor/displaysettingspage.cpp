@@ -69,11 +69,13 @@ public:
 
         enableTextWrapping = new QCheckBox(tr("Enable text &wrapping"));
         showWrapColumn = new QCheckBox(tr("Display right &margin at column:"));
+        tintMarginArea = new QCheckBox(tr("Tint whole margin area"));
 
         wrapColumn = new QSpinBox;
         wrapColumn->setMaximum(999);
 
         connect(showWrapColumn, &QAbstractButton::toggled, wrapColumn, &QWidget::setEnabled);
+        connect(showWrapColumn, &QAbstractButton::toggled, tintMarginArea, &QWidget::setEnabled);
 
         useIndenter = new QCheckBox(tr("Use context-specific margin"));
         useIndenter->setToolTip(tr("If available, use a different margin. "
@@ -121,7 +123,7 @@ public:
                 title(tr("Text Wrapping")),
                 Column {
                     enableTextWrapping,
-                    Row { showWrapColumn, wrapColumn, useIndenter, st }
+                    Row { showWrapColumn, wrapColumn, useIndenter, tintMarginArea, st }
                 }
             },
 
@@ -169,6 +171,7 @@ public:
 
     QCheckBox *enableTextWrapping;
     QCheckBox *showWrapColumn;
+    QCheckBox *tintMarginArea;
     QSpinBox *wrapColumn;
     QCheckBox *useIndenter;
     QCheckBox *animateMatchingParentheses;
@@ -209,6 +212,7 @@ void DisplaySettingsWidget::settingsFromUI(DisplaySettings &displaySettings,
     displaySettings.m_displayLineNumbers = displayLineNumbers->isChecked();
     displaySettings.m_textWrapping = enableTextWrapping->isChecked();
     marginSettings.m_showMargin = showWrapColumn->isChecked();
+    marginSettings.m_tintMarginArea = tintMarginArea->isChecked();
     marginSettings.m_useIndenter = useIndenter->isChecked();
     marginSettings.m_marginColumn = wrapColumn->value();
     displaySettings.m_visualizeWhitespace = visualizeWhitespace->isChecked();
@@ -244,6 +248,7 @@ void DisplaySettingsWidget::settingsToUI()
     displayLineNumbers->setChecked(displaySettings.m_displayLineNumbers);
     enableTextWrapping->setChecked(displaySettings.m_textWrapping);
     showWrapColumn->setChecked(marginSettings.m_showMargin);
+    tintMarginArea->setChecked(marginSettings.m_tintMarginArea);
     useIndenter->setChecked(marginSettings.m_useIndenter);
     wrapColumn->setValue(marginSettings.m_marginColumn);
     visualizeWhitespace->setChecked(displaySettings.m_visualizeWhitespace);

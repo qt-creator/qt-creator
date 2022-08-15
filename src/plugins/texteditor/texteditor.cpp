@@ -4071,7 +4071,7 @@ void TextEditorWidgetPrivate::paintRightMarginArea(PaintEventData &data, QPainte
     data.rightMargin = QFontMetricsF(q->font()).horizontalAdvance(QLatin1Char('x'))
             * m_visibleWrapColumn
             + data.offset.x() + 4;
-    if (data.rightMargin < data.viewportRect.width()) {
+    if (m_marginSettings.m_tintMarginArea && data.rightMargin < data.viewportRect.width()) {
         const QRectF behindMargin(data.rightMargin,
                                   data.eventRect.top(),
                                   data.viewportRect.width() - data.rightMargin,

@@ -54,6 +54,7 @@ public:
     { return !one.equals(two); }
 
     bool m_showMargin;
+    bool m_tintMarginArea;
     bool m_useIndenter;
     int m_marginColumn;
 };
