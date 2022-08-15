@@ -161,7 +161,8 @@ void VcsCommand::postRunCommand(const FilePath &workingDirectory)
 
 VcsCommand::~VcsCommand()
 {
-    d->m_watcher.cancel();
+    if (!d->m_watcher.future().isFinished())
+        d->m_watcher.future().cancel();
     delete d;
 }
 
