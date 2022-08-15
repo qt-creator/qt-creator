@@ -390,19 +390,26 @@ void DesignModeWidget::setup()
 
     m_dockManager->initialize();
 
+    // Hide all floating widgets if the initial mode isn't design mode
+    if (Core::ModeManager::instance()->currentModeId() != Core::Constants::MODE_DESIGN) {
+        for (auto &floatingWidget : m_dockManager->floatingWidgets())
+            floatingWidget->hide();
+    }
+
     connect(Core::ModeManager::instance(),
             &Core::ModeManager::currentModeChanged,
             this,
-            [this](Utils::Id mode, Utils::Id oldMode) {
+            [this](Utils::Id mode, Utils::Id previousMode) {
                 if (mode == Core::Constants::MODE_DESIGN) {
                     m_dockManager->reloadActiveWorkspace();
                     m_dockManager->setModeChangeState(false);
                 }
 
-                if (oldMode == Core::Constants::MODE_DESIGN && mode != Core::Constants::MODE_DESIGN) {
+                if (previousMode == Core::Constants::MODE_DESIGN
+                    && mode != Core::Constants::MODE_DESIGN) {
                     m_dockManager->save();
                     m_dockManager->setModeChangeState(true);
-                    for (auto floatingWidget : m_dockManager->floatingWidgets())
+                    for (auto &floatingWidget : m_dockManager->floatingWidgets())
                         floatingWidget->hide();
                 }
             });
