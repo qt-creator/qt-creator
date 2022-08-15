@@ -263,7 +263,8 @@ static void buildTree(ProjectExplorer::Tree *parent,
     current->name = node.name;
     current->isDir = node.children.size();
     if (parent) {
-        current->fullPath = parent->fullPath + current->name;
+        current->fullPath = Utils::FilePath::fromString(parent->fullPath.toString()
+                                                        + current->name);
         parent->childDirectories.push_back(current);
     } else {
         current->fullPath = Utils::FilePath::fromString(current->name);
@@ -279,7 +280,7 @@ static bool needsLink(ProjectExplorer::Tree *node) {
     return !node->isDir && !node->fullPath.toString().startsWith("clang-analyzer-");
 }
 
-class BaseChecksTreeModel : public ProjectExplorer::SelectableFilesModel
+class BaseChecksTreeModel : public ProjectExplorer::SelectableFilesModel // FIXME: This isn't about files.
 {
     Q_OBJECT
 
