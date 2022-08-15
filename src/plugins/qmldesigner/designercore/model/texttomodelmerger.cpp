@@ -524,13 +524,14 @@ public:
                 && metaInfo.majorVersion() == majorVersion
                 && metaInfo.minorVersion() == minorVersion;
 
+
             if (!ok) {
                 qDebug() << Q_FUNC_INFO;
                 qDebug() << astTypeNode->name.toString() << typeName;
                 qDebug() << metaInfo.isValid() << metaInfo.typeName();
                 qDebug() << metaInfo.directSuperClass().typeName();
 
-                if (!typeName.startsWith("..."))
+                if (!typeName.startsWith("...") && m_model == m_model->metaInfoProxyModel())
                     throw RewritingException(__LINE__, __FUNCTION__, __FILE__, "test", "test");
             }
 
