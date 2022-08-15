@@ -80,7 +80,7 @@ void SCAttributeItemDelegate::setEditorData(QWidget *editor, const QModelIndex &
             combo->clear();
             const QStringList values = index.data(DataRole).toString().split(";");
 
-            for (QString val : values)
+            for (const QString &val : values)
                 combo->addItem(val);
 
             combo->setCurrentText(index.data().toString());
