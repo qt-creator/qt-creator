@@ -29,6 +29,8 @@
 
 #include <clang/Format/Format.h>
 
+#include <utils/guard.h>
+
 #include <QScrollArea>
 
 #include <memory>
@@ -65,8 +67,6 @@ public:
     void synchronize() override;
 
 private:
-    void onTableChanged();
-
     bool eventFilter(QObject *object, QEvent *event) override;
 
     void showOrHideWidgets();
@@ -88,7 +88,7 @@ private:
     std::unique_ptr<Ui::ClangFormatChecksWidget> m_checks;
     clang::format::FormatStyle m_style;
 
-    bool m_disableTableUpdate = false;
+    Utils::Guard m_ignoreChanges;
 
     QLabel *m_projectHasClangFormat;
     QCheckBox *m_overrideDefault;

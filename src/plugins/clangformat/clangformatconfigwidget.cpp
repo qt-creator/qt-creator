@@ -54,7 +54,6 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <utils/executeondestruction.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
@@ -181,27 +180,24 @@ void ClangFormatConfigWidget::initOverrideCheckBox()
 
 void ClangFormatConfigWidget::connectChecks()
 {
+    auto doSaveChanges = [this](QObject *sender) {
+        if (!m_ignoreChanges.isLocked())
+            saveChanges(sender);
+    };
+
     for (QObject *child : m_checksWidget->children()) {
         auto comboBox = qobject_cast<QComboBox *>(child);
         if (comboBox != nullptr) {
             connect(comboBox, &QComboBox::currentIndexChanged,
-                    this, &ClangFormatConfigWidget::onTableChanged);
+                    this, std::bind(doSaveChanges, comboBox));
             comboBox->installEventFilter(this);
             continue;
         }
 
         const auto button = qobject_cast<QPushButton *>(child);
         if (button != nullptr)
-            connect(button, &QPushButton::clicked, this, &ClangFormatConfigWidget::onTableChanged);
+            connect(button, &QPushButton::clicked, this, std::bind(doSaveChanges, button));
     }
-}
-
-void ClangFormatConfigWidget::onTableChanged()
-{
-    if (m_disableTableUpdate)
-        return;
-
-    saveChanges(sender());
 }
 
 static bool projectConfigExists()
@@ -332,8 +328,7 @@ static void fillComboBoxOrLineEdit(QObject *object, const std::string &text, siz
 
 void ClangFormatConfigWidget::fillTable()
 {
-    Utils::ExecuteOnDestruction executeOnDestruction([this] { m_disableTableUpdate = false; });
-    m_disableTableUpdate = true;
+    Utils::GuardLocker locker(m_ignoreChanges);
 
     const std::string configText = readFile(m_config->filePath().path());
 
