@@ -68,7 +68,7 @@ void CppOutlineTreeView::contextMenuEvent(QContextMenuEvent *event)
     event->accept();
 }
 
-CppOutlineFilterModel::CppOutlineFilterModel(AbstractOverviewModel &sourceModel,
+CppOutlineFilterModel::CppOutlineFilterModel(OverviewModel &sourceModel,
                                              QObject *parent)
     : QSortFilterProxyModel(parent)
     , m_sourceModel(sourceModel)
@@ -102,7 +102,7 @@ CppOutlineWidget::CppOutlineWidget(CppEditorWidget *editor) :
     m_blockCursorSync(false),
     m_sorted(false)
 {
-    AbstractOverviewModel *model = m_editor->outline()->model();
+    OverviewModel *model = m_editor->outline()->model();
     m_proxyModel = new CppOutlineFilterModel(*model, this);
     m_proxyModel->setSourceModel(model);
 
@@ -179,7 +179,7 @@ void CppOutlineWidget::updateSelectionInTree(const QModelIndex &index)
 void CppOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
 {
     QModelIndex index = m_proxyModel->mapToSource(proxyIndex);
-    AbstractOverviewModel *model = m_editor->outline()->model();
+    OverviewModel *model = m_editor->outline()->model();
     Utils::LineColumn lineColumn = model->lineColumnFromIndex(index);
     if (!lineColumn.isValid())
         return;

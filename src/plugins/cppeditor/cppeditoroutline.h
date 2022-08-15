@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "abstractoverviewmodel.h"
+#include "cppoverviewmodel.h"
 
 #include <QModelIndex>
 #include <QObject>
@@ -52,7 +52,7 @@ public:
 
     void update();
 
-    AbstractOverviewModel *model() const;
+    OverviewModel *model() const;
     QModelIndex modelIndex();
 
     QWidget *widget() const; // Must be deleted by client.
@@ -77,7 +77,7 @@ private:
 
 private:
     QSharedPointer<CPlusPlus::Document> m_document;
-    std::unique_ptr<AbstractOverviewModel> m_model;
+    std::unique_ptr<OverviewModel> m_model;
 
     TextEditor::TextEditorWidget *m_editorWidget;
 

@@ -43,7 +43,6 @@ public:
 
     CppCompletionAssistProvider *completionAssistProvider();
     TextEditor::BaseHoverHandler *createHoverHandler();
-    std::unique_ptr<AbstractOverviewModel> createOverviewModel();
 
     BaseEditorDocumentProcessor *createEditorDocumentProcessor(
             TextEditor::TextDocument *baseTextDocument) final;

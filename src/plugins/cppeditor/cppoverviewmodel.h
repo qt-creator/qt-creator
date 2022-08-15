@@ -25,25 +25,49 @@
 
 #pragma once
 
-#include "abstractoverviewmodel.h"
+#include <utils/dropsupport.h>
+#include <utils/treemodel.h>
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Overview.h>
 
+#include <QSharedPointer>
+
+#include <utility>
+
+namespace Utils {
+class LineColumn;
+class Link;
+} // namespace Utils
+
 namespace CppEditor::Internal {
 class SymbolItem;
 
-class OverviewModel : public AbstractOverviewModel
+class OverviewModel : public Utils::TreeModel<>
 {
     Q_OBJECT
 
 public:
-    void rebuild(CPlusPlus::Document::Ptr doc) override;
+    enum Role {
+        FileNameRole = Qt::UserRole + 1,
+        LineNumberRole
+    };
 
-    bool isGenerated(const QModelIndex &sourceIndex) const override;
-    Utils::Link linkFromIndex(const QModelIndex &sourceIndex) const override;
-    Utils::LineColumn lineColumnFromIndex(const QModelIndex &sourceIndex) const override;
-    Range rangeFromIndex(const QModelIndex &sourceIndex) const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    Qt::DropActions supportedDragActions() const override;
+    QStringList mimeTypes() const override;
+    QMimeData *mimeData(const QModelIndexList &indexes) const override;
+
+    void rebuild(CPlusPlus::Document::Ptr doc);
+
+    bool isGenerated(const QModelIndex &sourceIndex) const;
+    Utils::Link linkFromIndex(const QModelIndex &sourceIndex) const;
+    Utils::LineColumn lineColumnFromIndex(const QModelIndex &sourceIndex) const;
+    using Range = std::pair<Utils::LineColumn, Utils::LineColumn>;
+    Range rangeFromIndex(const QModelIndex &sourceIndex) const;
+
+signals:
+    void needsUpdate();
 
 private:
     CPlusPlus::Symbol *symbolFromIndex(const QModelIndex &index) const;

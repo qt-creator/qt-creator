@@ -26,7 +26,7 @@
 #include "cppmodelmanager.h"
 
 #include "abstracteditorsupport.h"
-#include "abstractoverviewmodel.h"
+#include "cppoverviewmodel.h"
 #include "baseeditordocumentprocessor.h"
 #include "builtinindexingsupport.h"
 #include "cppcodemodelinspectordumper.h"
@@ -547,11 +547,6 @@ Core::IFindFilter *CppModelManager::symbolsFindFilter() const
 Core::ILocatorFilter *CppModelManager::currentDocumentFilter() const
 {
     return d->m_currentDocumentFilter.get();
-}
-
-std::unique_ptr<AbstractOverviewModel> CppModelManager::createOverviewModel() const
-{
-    return d->m_builtinModelManagerSupport.createOverviewModel();
 }
 
 QString CppModelManager::configurationFileName()

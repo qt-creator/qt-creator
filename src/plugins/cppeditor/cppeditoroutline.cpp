@@ -57,7 +57,7 @@ class OverviewProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    OverviewProxyModel(CppEditor::AbstractOverviewModel &sourceModel, QObject *parent)
+    OverviewProxyModel(CppEditor::Internal::OverviewModel &sourceModel, QObject *parent)
         : QSortFilterProxyModel(parent)
         , m_sourceModel(sourceModel)
     {
@@ -73,7 +73,7 @@ public:
         return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
     }
 private:
-    CppEditor::AbstractOverviewModel &m_sourceModel;
+    CppEditor::Internal::OverviewModel &m_sourceModel;
 };
 
 QTimer *newSingleShotTimer(QObject *parent, int msInternal, const QString &objectName)
@@ -94,7 +94,7 @@ CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
     , m_editorWidget(editorWidget)
     , m_combo(new Utils::TreeViewComboBox)
 {
-    m_model = CppModelManager::instance()->createOverviewModel();
+    m_model = std::make_unique<OverviewModel>();
     m_proxyModel = new OverviewProxyModel(*m_model, this);
     m_proxyModel->setSourceModel(m_model.get());
 
@@ -130,7 +130,7 @@ CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
     m_updateTimer = newSingleShotTimer(this, UpdateOutlineIntervalInMs,
                                        QLatin1String("CppEditorOutline::m_updateTimer"));
     connect(m_updateTimer, &QTimer::timeout, this, &CppEditorOutline::updateNow);
-    connect(m_model.get(), &AbstractOverviewModel::needsUpdate, this,
+    connect(m_model.get(), &OverviewModel::needsUpdate, this,
             &CppEditorOutline::updateNow);
 
     m_updateIndexTimer = newSingleShotTimer(this, UpdateOutlineIntervalInMs,
@@ -148,7 +148,7 @@ bool CppEditorOutline::isSorted() const
     return m_proxyModel->sortColumn() == 0;
 }
 
-AbstractOverviewModel *CppEditorOutline::model() const
+OverviewModel *CppEditorOutline::model() const
 {
     return m_model.get();
 }
@@ -189,8 +189,7 @@ void CppEditorOutline::updateNow()
         return;
     }
 
-    if (!m_model->rebuild(filePath))
-        m_model->rebuild(m_document);
+    m_model->rebuild(m_document);
 
     m_combo->view()->expandAll();
     updateIndexNow();
@@ -244,7 +243,7 @@ void CppEditorOutline::gotoSymbolInEditor()
     emit m_editorWidget->activateEditor();
 }
 
-static bool contains(const AbstractOverviewModel::Range &range, int line, int column)
+static bool contains(const OverviewModel::Range &range, int line, int column)
 {
     if (line < range.first.line || line > range.second.line)
         return false;
@@ -262,7 +261,7 @@ QModelIndex CppEditorOutline::indexForPosition(int line, int column,
     const int rowCount = m_model->rowCount(rootIndex);
     for (int row = 0; row < rowCount; ++row) {
         const QModelIndex index = m_model->index(row, 0, rootIndex);
-        const AbstractOverviewModel::Range range = m_model->rangeFromIndex(index);
+        const OverviewModel::Range range = m_model->rangeFromIndex(index);
         if (range.first.line > line)
             break;
         // Skip ranges that do not include current line and column.

@@ -5,7 +5,6 @@ add_qtc_plugin(CppEditor
   PLUGIN_TEST_DEPENDS QbsProjectManager QmakeProjectManager
   SOURCES
     abstracteditorsupport.cpp abstracteditorsupport.h
-    abstractoverviewmodel.h
     baseeditordocumentparser.cpp baseeditordocumentparser.h
     baseeditordocumentprocessor.cpp baseeditordocumentprocessor.h
     builtincursorinfo.cpp builtincursorinfo.h

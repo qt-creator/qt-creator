@@ -113,11 +113,6 @@ TextEditor::BaseHoverHandler *BuiltinModelManagerSupport::createHoverHandler()
     return new CppHoverHandler;
 }
 
-std::unique_ptr<AbstractOverviewModel> BuiltinModelManagerSupport::createOverviewModel()
-{
-    return std::make_unique<OverviewModel>();
-}
-
 void BuiltinModelManagerSupport::followSymbol(const CursorInEditor &data,
                                               const Utils::LinkHandler &processLinkCallback,
                                               bool resolveTarget, bool inNextSplit)

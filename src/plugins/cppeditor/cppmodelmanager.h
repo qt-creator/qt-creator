@@ -61,7 +61,6 @@ class TextDocument;
 namespace CppEditor {
 
 class AbstractEditorSupport;
-class AbstractOverviewModel;
 class BaseEditorDocumentProcessor;
 class CppCompletionAssistProvider;
 class CppEditorDocumentHandle;
@@ -202,8 +201,6 @@ public:
     static void switchHeaderSource(bool inNextSplit, Backend backend = Backend::Best);
 
     static Core::ILocatorFilter *createAuxiliaryCurrentDocumentFilter();
-
-    std::unique_ptr<AbstractOverviewModel> createOverviewModel() const;
 
     CppIndexingSupport *indexingSupport();
 

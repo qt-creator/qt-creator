@@ -29,7 +29,6 @@ QtcPlugin {
     files: [
         "abstracteditorsupport.cpp",
         "abstracteditorsupport.h",
-        "abstractoverviewmodel.h",
         "baseeditordocumentparser.cpp",
         "baseeditordocumentparser.h",
         "baseeditordocumentprocessor.cpp",

@@ -126,10 +126,10 @@ public:
         case Qt::DecorationRole:
             return Icons::iconForSymbol(symbol);
 
-        case AbstractOverviewModel::FileNameRole:
+        case OverviewModel::FileNameRole:
             return QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
 
-        case AbstractOverviewModel::LineNumberRole:
+        case OverviewModel::LineNumberRole:
             return symbol->line();
 
         default:
@@ -166,6 +166,40 @@ Symbol *OverviewModel::symbolFromIndex(const QModelIndex &index) const
         return nullptr;
     auto item = static_cast<const SymbolItem*>(itemForIndex(index));
     return item ? item->symbol : nullptr;
+}
+
+Qt::ItemFlags OverviewModel::flags(const QModelIndex &index) const
+{
+    if (!index.isValid())
+        return Qt::NoItemFlags;
+
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
+}
+
+Qt::DropActions OverviewModel::supportedDragActions() const
+{
+    return Qt::MoveAction;
+}
+
+QStringList OverviewModel::mimeTypes() const
+{
+    return Utils::DropSupport::mimeTypesForFilePaths();
+}
+
+QMimeData *OverviewModel::mimeData(const QModelIndexList &indexes) const
+{
+    auto mimeData = new Utils::DropMimeData;
+    for (const QModelIndex &index : indexes) {
+        const QVariant fileName = data(index, FileNameRole);
+        if (!fileName.canConvert<QString>())
+            continue;
+        const QVariant lineNumber = data(index, LineNumberRole);
+        if (!lineNumber.canConvert<unsigned>())
+            continue;
+        mimeData->addFile(Utils::FilePath::fromVariant(fileName),
+                          static_cast<int>(lineNumber.value<unsigned>()));
+    }
+    return mimeData;
 }
 
 void OverviewModel::rebuild(Document::Ptr doc)
