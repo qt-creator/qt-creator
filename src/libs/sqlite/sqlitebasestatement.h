@@ -469,6 +469,7 @@ private:
             , column(column)
         {}
 
+        explicit operator bool() const { return statement.fetchIntValue(column); }
         operator int() const { return statement.fetchIntValue(column); }
         operator long() const { return statement.fetchLongValue(column); }
         operator long long() const { return statement.fetchLongLongValue(column); }

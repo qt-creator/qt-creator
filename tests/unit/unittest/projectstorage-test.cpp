@@ -6771,8 +6771,7 @@ TEST_F(ProjectStorage, GetPrototypeIdsWithExtension)
     auto prototypeIds = storage.prototypeIds(typeId);
 
     ASSERT_THAT(prototypeIds,
-                ElementsAre(fetchTypeId(sourceId1, "QObject2"),
-                            fetchTypeId(sourceId1, "QObject")));
+                ElementsAre(fetchTypeId(sourceId1, "QObject2"), fetchTypeId(sourceId1, "QObject")));
 }
 
 TEST_F(ProjectStorage, GetPrototypeAndSelfIds)
@@ -6813,6 +6812,93 @@ TEST_F(ProjectStorage, GetPrototypeAndSelfIdsWithExtension)
                 ElementsAre(fetchTypeId(sourceId1, "QObject3"),
                             fetchTypeId(sourceId1, "QObject2"),
                             fetchTypeId(sourceId1, "QObject")));
+}
+
+TEST_F(ProjectStorage, IsBaseOfForDirectPrototype)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject2");
+    auto baseTypeId = fetchTypeId(sourceId1, "QObject");
+    auto baseTypeId2 = fetchTypeId(sourceId1, "QObject3");
+
+    bool isBasedOn = storage.isBasedOn(typeId, baseTypeId, baseTypeId2, TypeId{});
+
+    ASSERT_TRUE(isBasedOn);
+}
+
+TEST_F(ProjectStorage, IsBaseOfForIndirectPrototype)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject3");
+    auto baseTypeId = fetchTypeId(sourceId1, "QObject");
+
+    bool isBasedOn = storage.isBasedOn(typeId, baseTypeId);
+
+    ASSERT_TRUE(isBasedOn);
+}
+
+TEST_F(ProjectStorage, IsBaseOfForDirectExtension)
+{
+    auto package{createPackageWithProperties()};
+    std::swap(package.types[1].extension, package.types[1].prototype);
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject2");
+    auto baseTypeId = fetchTypeId(sourceId1, "QObject");
+
+    bool isBasedOn = storage.isBasedOn(typeId, baseTypeId);
+
+    ASSERT_TRUE(isBasedOn);
+}
+
+TEST_F(ProjectStorage, IsBaseOfForIndirectExtension)
+{
+    auto package{createPackageWithProperties()};
+    std::swap(package.types[1].extension, package.types[1].prototype);
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject3");
+    auto baseTypeId = fetchTypeId(sourceId1, "QObject");
+
+    bool isBasedOn = storage.isBasedOn(typeId, baseTypeId);
+
+    ASSERT_TRUE(isBasedOn);
+}
+
+TEST_F(ProjectStorage, IsBaseOfForSelf)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject2");
+    auto baseTypeId = fetchTypeId(sourceId1, "QObject2");
+
+    bool isBasedOn = storage.isBasedOn(typeId, baseTypeId);
+
+    ASSERT_TRUE(isBasedOn);
+}
+
+TEST_F(ProjectStorage, IsNotBaseOf)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject");
+    auto baseTypeId = fetchTypeId(sourceId1, "QObject2");
+    auto baseTypeId2 = fetchTypeId(sourceId1, "QObject3");
+
+    bool isBasedOn = storage.isBasedOn(typeId, baseTypeId, baseTypeId2, TypeId{});
+
+    ASSERT_FALSE(isBasedOn);
+}
+
+TEST_F(ProjectStorage, IsNotBaseOfIfNoBaseTypeIsGiven)
+{
+    auto package{createPackageWithProperties()};
+    storage.synchronize(package);
+    auto typeId = fetchTypeId(sourceId1, "QObject");
+
+    bool isBasedOn = storage.isBasedOn(typeId);
+
+    ASSERT_FALSE(isBasedOn);
 }
 
 } // namespace

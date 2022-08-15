@@ -245,11 +245,17 @@ public:
             .template valuesWithTransaction<TypeId>(16, type);
     }
 
-    PropertyDeclarationId fetchPropertyDeclarationByTypeIdAndName(TypeId typeId,
-                                                                  Utils::SmallStringView name)
+    template<typename... TypeIds>
+    bool isBasedOn(TypeId typeId, TypeIds... baseTypeIds) const
     {
-        return selectPropertyDeclarationIdByTypeIdAndNameStatement
-            .template valueWithTransaction<PropertyDeclarationId>(typeId, name);
+        auto range = selectPrototypeAndSelfIdsStatement.template rangeWithTransaction<TypeId>(typeId);
+
+        for (TypeId currentTypeId : range) {
+            if (((currentTypeId == baseTypeIds) || ...))
+                return true;
+        }
+
+        return false;
     }
 
     TypeId fetchTypeIdByExportedName(Utils::SmallStringView name) const
@@ -2635,7 +2641,6 @@ public:
         "ORDER BY minorVersion DESC "
         "LIMIT 1",
         database};
-
     mutable ReadStatement<1, 2> selectPrototypeIdStatement{
         "WITH RECURSIVE "
         "  all_prototype_and_extension(typeId, prototypeId) AS ("
@@ -3258,6 +3263,19 @@ public:
         "      SELECT prototypeId, tc.level+1 FROM all_prototype_and_extension JOIN "
         "        typeChain AS tc USING(typeId)) "
         "SELECT typeId FROM typeChain ORDER BY level",
+        database};
+    mutable ReadStatement<1, 1> selectPrototypeAndSelfIdsStatement{
+        "WITH RECURSIVE "
+        "  all_prototype_and_extension(typeId, prototypeId) AS ("
+        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "    UNION ALL "
+        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
+        "  typeSelection(typeId) AS ("
+        "      VALUES(?1) "
+        "    UNION ALL "
+        "      SELECT prototypeId FROM all_prototype_and_extension JOIN typeSelection "
+        "        USING(typeId))"
+        "SELECT typeId FROM typeSelection",
         database};
 };
 extern template class ProjectStorage<Sqlite::Database>;
