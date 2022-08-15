@@ -138,6 +138,7 @@ private:
     bool m_setupCompleted = false;
     bool m_hasQuick3DImport = false;
     bool m_hasMaterialRoot = false;
+    bool m_initializingPreviewData = false;
 
     QPointer<QColorDialog> m_colorDialog;
     QPointer<ItemLibraryInfo> m_itemLibraryInfo;

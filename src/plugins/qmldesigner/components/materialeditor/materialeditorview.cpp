@@ -453,7 +453,7 @@ void MaterialEditorView::handleToolBarAction(int action)
 
 void MaterialEditorView::handlePreviewEnvChanged(const QString &envAndValue)
 {
-    if (envAndValue.isEmpty())
+    if (envAndValue.isEmpty() || m_initializingPreviewData)
         return;
 
     QTC_ASSERT(m_hasQuick3DImport, return);
@@ -514,7 +514,7 @@ void MaterialEditorView::handlePreviewEnvChanged(const QString &envAndValue)
 
 void MaterialEditorView::handlePreviewModelChanged(const QString &modelStr)
 {
-    if (modelStr.isEmpty())
+    if (modelStr.isEmpty() || m_initializingPreviewData)
         return;
 
     QTC_ASSERT(m_hasQuick3DImport, return);
@@ -655,9 +655,11 @@ void MaterialEditorView::initPreviewData()
             env = "Default";
         if (modelStr.isEmpty())
             modelStr = "#Sphere";
+        m_initializingPreviewData = true;
         QMetaObject::invokeMethod(m_qmlBackEnd->widget()->rootObject(),
                                   "initPreviewData",
                                   Q_ARG(QVariant, env), Q_ARG(QVariant, modelStr));
+        m_initializingPreviewData = false;
     }
 }
 
