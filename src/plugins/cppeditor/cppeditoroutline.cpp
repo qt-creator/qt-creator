@@ -24,9 +24,11 @@
 ****************************************************************************/
 
 #include "cppeditoroutline.h"
+
+#include "cppeditordocument.h"
+#include "cppeditorwidget.h"
 #include "cppmodelmanager.h"
 #include "cppoverviewmodel.h"
-#include "cpptoolsreuse.h"
 #include "cpptoolssettings.h"
 
 #include <texteditor/texteditor.h>
@@ -89,14 +91,14 @@ QTimer *newSingleShotTimer(QObject *parent, int msInternal, const QString &objec
 
 namespace CppEditor::Internal {
 
-CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
+CppEditorOutline::CppEditorOutline(CppEditorWidget *editorWidget)
     : QObject(editorWidget)
     , m_editorWidget(editorWidget)
     , m_combo(new Utils::TreeViewComboBox)
 {
-    m_model = std::make_unique<OverviewModel>();
+    m_model = &editorWidget->cppEditorDocument()->outlineModel();
     m_proxyModel = new OverviewProxyModel(*m_model, this);
-    m_proxyModel->setSourceModel(m_model.get());
+    m_proxyModel->setSourceModel(m_model);
 
     // Set up proxy model
     if (CppToolsSettings::instance()->sortedEditorDocumentOutline())
@@ -126,31 +128,16 @@ CppEditorOutline::CppEditorOutline(TextEditor::TextEditorWidget *editorWidget)
     connect(m_combo, &QComboBox::activated, this, &CppEditorOutline::gotoSymbolInEditor);
     connect(m_combo, &QComboBox::currentIndexChanged, this, &CppEditorOutline::updateToolTip);
 
+    connect(m_model, &OverviewModel::modelReset, this, &CppEditorOutline::updateNow);
     // Set up timers
-    m_updateTimer = newSingleShotTimer(this, UpdateOutlineIntervalInMs,
-                                       QLatin1String("CppEditorOutline::m_updateTimer"));
-    connect(m_updateTimer, &QTimer::timeout, this, &CppEditorOutline::updateNow);
-    connect(m_model.get(), &OverviewModel::needsUpdate, this,
-            &CppEditorOutline::updateNow);
-
     m_updateIndexTimer = newSingleShotTimer(this, UpdateOutlineIntervalInMs,
                                             QLatin1String("CppEditorOutline::m_updateIndexTimer"));
     connect(m_updateIndexTimer, &QTimer::timeout, this, &CppEditorOutline::updateIndexNow);
 }
 
-void CppEditorOutline::update()
-{
-    m_updateTimer->start();
-}
-
 bool CppEditorOutline::isSorted() const
 {
     return m_proxyModel->sortColumn() == 0;
-}
-
-OverviewModel *CppEditorOutline::model() const
-{
-    return m_model.get();
 }
 
 QModelIndex CppEditorOutline::modelIndex()
@@ -178,19 +165,6 @@ QSharedPointer<CPlusPlus::Document> getDocument(const QString &filePath)
 
 void CppEditorOutline::updateNow()
 {
-    const QString filePath = m_editorWidget->textDocument()->filePath().toString();
-    m_document = getDocument(filePath);
-    if (!m_document)
-        return;
-
-    if (m_document->editorRevision()
-            != static_cast<unsigned>(m_editorWidget->document()->revision())) {
-        m_updateTimer->start();
-        return;
-    }
-
-    m_model->rebuild(m_document);
-
     m_combo->view()->expandAll();
     updateIndexNow();
 }
@@ -202,11 +176,8 @@ void CppEditorOutline::updateIndex()
 
 void CppEditorOutline::updateIndexNow()
 {
-    if (!m_document)
-        return;
-
     const auto revision = static_cast<unsigned>(m_editorWidget->document()->revision());
-    if (m_document->editorRevision() != revision) {
+    if (m_model->editorRevision() != revision) {
         m_updateIndexTimer->start();
         return;
     }

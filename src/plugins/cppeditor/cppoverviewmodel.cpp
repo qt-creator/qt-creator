@@ -64,7 +64,7 @@ public:
 
         switch (role) {
         case Qt::DisplayRole: {
-            QString name = overviewModel->_overview.prettyName(symbol->name());
+            QString name = overviewModel->m_overview.prettyName(symbol->name());
             if (name.isEmpty())
                 name = QLatin1String("anonymous");
             if (symbol->asObjCForwardClassDeclaration())
@@ -79,7 +79,7 @@ public:
                     name = QLatin1String("@implementation ") + name;
 
                 if (clazz->isCategory()) {
-                    name += QString(" (%1)").arg(overviewModel->_overview.prettyName(
+                    name += QString(" (%1)").arg(overviewModel->m_overview.prettyName(
                                                      clazz->categoryName()));
                 }
             }
@@ -92,7 +92,7 @@ public:
                     QStringList parameters;
                     parameters.reserve(t->templateParameterCount());
                     for (int i = 0; i < t->templateParameterCount(); ++i) {
-                        parameters.append(overviewModel->_overview.prettyName(
+                        parameters.append(overviewModel->m_overview.prettyName(
                                               t->templateParameterAt(i)->name()));
                     }
                     name += QString("<%1>").arg(parameters.join(QLatin1String(", ")));
@@ -105,10 +105,10 @@ public:
                 else
                     name = QLatin1Char('-') + name;
             } else if (! symbl->asScope() || symbl->asFunction()) {
-                QString type = overviewModel->_overview.prettyType(symbl->type());
+                QString type = overviewModel->m_overview.prettyType(symbl->type());
                 if (Function *f = symbl->type()->asFunctionType()) {
                     name += type;
-                    type = overviewModel->_overview.prettyType(f->returnType());
+                    type = overviewModel->m_overview.prettyType(f->returnType());
                 }
                 if (! type.isEmpty())
                     name += QLatin1String(": ") + type;
@@ -117,7 +117,7 @@ public:
         }
 
         case Qt::EditRole: {
-            QString name = overviewModel->_overview.prettyName(symbol->name());
+            QString name = overviewModel->m_overview.prettyName(symbol->name());
             if (name.isEmpty())
                 name = QLatin1String("anonymous");
             return name;
@@ -140,25 +140,16 @@ public:
     CPlusPlus::Symbol *symbol = nullptr; // not owned
 };
 
-
-
-
-
-bool OverviewModel::hasDocument() const
-{
-    return !_cppDocument.isNull();
-}
-
 int OverviewModel::globalSymbolCount() const
 {
     int count = 0;
-    if (_cppDocument)
-        count += _cppDocument->globalSymbolCount();
+    if (m_cppDocument)
+        count += m_cppDocument->globalSymbolCount();
     return count;
 }
 
 Symbol *OverviewModel::globalSymbolAt(int index) const
-{ return _cppDocument->globalSymbolAt(index); }
+{ return m_cppDocument->globalSymbolAt(index); }
 
 Symbol *OverviewModel::symbolFromIndex(const QModelIndex &index) const
 {
@@ -166,6 +157,15 @@ Symbol *OverviewModel::symbolFromIndex(const QModelIndex &index) const
         return nullptr;
     auto item = static_cast<const SymbolItem*>(itemForIndex(index));
     return item ? item->symbol : nullptr;
+}
+
+OverviewModel::OverviewModel(QObject *parent)
+    : Utils::TreeModel<>(parent)
+{
+    m_updateTimer = new QTimer(this);
+    m_updateTimer->setSingleShot(true);
+    m_updateTimer->setInterval(500);
+    connect(m_updateTimer, &QTimer::timeout, this, &OverviewModel::rebuild);
 }
 
 Qt::ItemFlags OverviewModel::flags(const QModelIndex &index) const
@@ -202,12 +202,24 @@ QMimeData *OverviewModel::mimeData(const QModelIndexList &indexes) const
     return mimeData;
 }
 
-void OverviewModel::rebuild(Document::Ptr doc)
+void OverviewModel::update(CPlusPlus::Document::Ptr doc)
+{
+    m_cppDocument = doc;
+    if (doc)
+        m_updateTimer->start();
+}
+
+int OverviewModel::editorRevision()
+{
+    return m_cppDocument ? m_cppDocument->editorRevision() : 0;
+}
+
+void OverviewModel::rebuild()
 {
     beginResetModel();
-    _cppDocument = doc;
     auto root = new SymbolItem;
-    buildTree(root, true);
+    if (m_cppDocument)
+        buildTree(root, true);
     setRootItem(root);
     endResetModel();
 }

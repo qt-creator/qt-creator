@@ -393,6 +393,19 @@ ParseContextModel &CppEditorDocument::parseContextModel()
     return m_parseContextModel;
 }
 
+OverviewModel &CppEditorDocument::outlineModel()
+{
+    return m_overviewModel;
+}
+
+void CppEditorDocument::updateOutline()
+{
+    CPlusPlus::Document::Ptr document;
+    if (!usesClangd())
+        document = CppModelManager::instance()->snapshot().document(filePath());
+    m_overviewModel.update(document);
+}
+
 QFuture<CursorInfo> CppEditorDocument::cursorInfo(const CursorInfoParams &params)
 {
     return processor()->cursorInfo(params);
@@ -425,6 +438,8 @@ BaseEditorDocumentProcessor *CppEditorDocument::processor()
                     // Update syntax highlighter
                     auto *highlighter = qobject_cast<CppHighlighter *>(syntaxHighlighter());
                     highlighter->setLanguageFeatures(document->languageFeatures());
+
+                    m_overviewModel.update(usesClangd() ? nullptr : document);
 
                     // Forward signal
                     emit cppDocumentUpdated(document);
@@ -486,6 +501,11 @@ bool CppEditorDocument::save(QString *errorString, const FilePath &filePath, boo
     }
 
     return TextEditor::TextDocument::save(errorString, filePath, autoSave);
+}
+
+bool CppEditorDocument::usesClangd() const
+{
+    return CppModelManager::usesClangd(this);
 }
 
 void CppEditorDocument::onDiagnosticsChanged(const QString &fileName, const QString &kind)

@@ -26,6 +26,7 @@
 #include "cppoutline.h"
 
 #include "cppeditoroutline.h"
+#include "cppeditordocument.h"
 #include "cppmodelmanager.h"
 #include "cppoverviewmodel.h"
 
@@ -102,7 +103,7 @@ CppOutlineWidget::CppOutlineWidget(CppEditorWidget *editor) :
     m_blockCursorSync(false),
     m_sorted(false)
 {
-    OverviewModel *model = m_editor->outline()->model();
+    OverviewModel *model = &m_editor->cppEditorDocument()->outlineModel();
     m_proxyModel = new CppOutlineFilterModel(*model, this);
     m_proxyModel->setSourceModel(model);
 
@@ -179,8 +180,8 @@ void CppOutlineWidget::updateSelectionInTree(const QModelIndex &index)
 void CppOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)
 {
     QModelIndex index = m_proxyModel->mapToSource(proxyIndex);
-    OverviewModel *model = m_editor->outline()->model();
-    Utils::LineColumn lineColumn = model->lineColumnFromIndex(index);
+    Utils::LineColumn lineColumn
+        = m_editor->cppEditorDocument()->outlineModel().lineColumnFromIndex(index);
     if (!lineColumn.isValid())
         return;
 

@@ -462,8 +462,6 @@ void CppEditorWidget::finalizeInitialization()
             this, &CppEditorWidget::onCodeWarningsUpdated);
     connect(d->m_cppEditorDocument, &CppEditorDocument::ifdefedOutBlocksUpdated,
             this, &CppEditorWidget::onIfdefedOutBlocksUpdated);
-    connect(d->m_cppEditorDocument, &CppEditorDocument::cppDocumentUpdated,
-            this, &CppEditorWidget::onCppDocumentUpdated);
     connect(d->m_cppEditorDocument, &CppEditorDocument::semanticInfoUpdated,
             this, [this](const SemanticInfo &info) { updateSemanticInfo(info); });
 
@@ -552,10 +550,8 @@ void CppEditorWidget::finalizeInitialization()
     d->m_outlineTimer.setSingleShot(true);
     connect(&d->m_outlineTimer, &QTimer::timeout, this, [this] {
         d->m_outlineAction->setVisible(d->shouldOfferOutline());
-        if (d->m_outlineAction->isVisible()) {
-            d->m_cppEditorOutline->update();
-            d->m_cppEditorOutline->updateIndex();
-        }
+        if (d->m_outlineAction->isVisible())
+            d->m_cppEditorDocument->updateOutline();
     });
     connect(&ClangdSettings::instance(), &ClangdSettings::changed,
             &d->m_outlineTimer, qOverload<>(&QTimer::start));
@@ -571,8 +567,6 @@ void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *o
 
     if (cppEditorWidget->isSemanticInfoValidExceptLocalUses())
         updateSemanticInfo(cppEditorWidget->semanticInfo());
-    if (d->shouldOfferOutline())
-        d->m_cppEditorOutline->update();
     const Id selectionKind = CodeWarningsSelection;
     setExtraSelections(selectionKind, cppEditorWidget->extraSelections(selectionKind));
 
@@ -630,12 +624,6 @@ void CppEditorWidget::selectAll()
         return;
 
     TextEditorWidget::selectAll();
-}
-
-void CppEditorWidget::onCppDocumentUpdated()
-{
-    if (d->shouldOfferOutline())
-        d->m_cppEditorOutline->update();
 }
 
 void CppEditorWidget::onCodeWarningsUpdated(unsigned revision,

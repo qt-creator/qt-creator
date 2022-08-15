@@ -41,18 +41,18 @@ QT_END_NAMESPACE
 namespace TextEditor { class TextEditorWidget; }
 namespace Utils { class TreeViewComboBox; }
 
-namespace CppEditor::Internal {
+namespace CppEditor {
+class CppEditorWidget;
+
+namespace Internal {
 
 class CppEditorOutline : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit CppEditorOutline(TextEditor::TextEditorWidget *editorWidget);
+    explicit CppEditorOutline(CppEditorWidget *editorWidget);
 
-    void update();
-
-    OverviewModel *model() const;
     QModelIndex modelIndex();
 
     QWidget *widget() const; // Must be deleted by client.
@@ -75,18 +75,16 @@ private:
     QModelIndex indexForPosition(int line, int column,
                                  const QModelIndex &rootIndex = QModelIndex()) const;
 
-private:
-    QSharedPointer<CPlusPlus::Document> m_document;
-    std::unique_ptr<OverviewModel> m_model;
+    OverviewModel *m_model = nullptr; // Not owned
 
-    TextEditor::TextEditorWidget *m_editorWidget;
+    CppEditorWidget *m_editorWidget = nullptr;
 
-    Utils::TreeViewComboBox *m_combo; // Not owned
-    QSortFilterProxyModel *m_proxyModel;
+    Utils::TreeViewComboBox *m_combo = nullptr; // Not owned
+    QSortFilterProxyModel *m_proxyModel = nullptr;
     QModelIndex m_modelIndex;
-    QAction *m_sortAction;
-    QTimer *m_updateTimer;
-    QTimer *m_updateIndexTimer;
+    QAction *m_sortAction = nullptr;
+    QTimer *m_updateIndexTimer = nullptr;
 };
 
-} // namespace CppEditor::Internal
+} // namespace Internal
+} // namespace CppEditor

@@ -48,6 +48,8 @@ class OverviewModel : public Utils::TreeModel<>
     Q_OBJECT
 
 public:
+    explicit OverviewModel(QObject *parent = nullptr);
+
     enum Role {
         FileNameRole = Qt::UserRole + 1,
         LineNumberRole
@@ -58,7 +60,9 @@ public:
     QStringList mimeTypes() const override;
     QMimeData *mimeData(const QModelIndexList &indexes) const override;
 
-    void rebuild(CPlusPlus::Document::Ptr doc);
+    void update(CPlusPlus::Document::Ptr doc);
+
+    int editorRevision();
 
     bool isGenerated(const QModelIndex &sourceIndex) const;
     Utils::Link linkFromIndex(const QModelIndex &sourceIndex) const;
@@ -66,20 +70,18 @@ public:
     using Range = std::pair<Utils::LineColumn, Utils::LineColumn>;
     Range rangeFromIndex(const QModelIndex &sourceIndex) const;
 
-signals:
-    void needsUpdate();
-
 private:
+    void rebuild();
     CPlusPlus::Symbol *symbolFromIndex(const QModelIndex &index) const;
-    bool hasDocument() const;
     int globalSymbolCount() const;
     CPlusPlus::Symbol *globalSymbolAt(int index) const;
     void buildTree(SymbolItem *root, bool isRoot);
 
 private:
-    CPlusPlus::Document::Ptr _cppDocument;
-    CPlusPlus::Overview _overview;
+    CPlusPlus::Document::Ptr m_cppDocument;
+    CPlusPlus::Overview m_overview;
     friend class SymbolItem;
+    QTimer *m_updateTimer = nullptr;
 };
 
 } // namespace CppEditor::Internal

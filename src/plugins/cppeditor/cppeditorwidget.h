@@ -128,8 +128,6 @@ private:
     void abortDeclDefLink();
     void onFunctionDeclDefLinkFound(QSharedPointer<Internal::FunctionDeclDefLink> link);
 
-    void onCppDocumentUpdated();
-
     void onCodeWarningsUpdated(unsigned revision,
                                const QList<QTextEdit::ExtraSelection> selections,
                                const TextEditor::RefactorMarkers &refactorMarkers);

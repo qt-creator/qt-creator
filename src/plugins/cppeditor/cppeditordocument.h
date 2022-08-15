@@ -27,7 +27,7 @@
 
 #include "baseeditordocumentprocessor.h"
 #include "cppcompletionassistprovider.h"
-#include "cppmodelmanager.h"
+#include "cppoverviewmodel.h"
 #include "cppparsecontext.h"
 #include "cppsemanticinfo.h"
 #include "editordocumenthandle.h"
@@ -63,6 +63,8 @@ public:
     void scheduleProcessDocument();
 
     ParseContextModel &parseContextModel();
+    OverviewModel &outlineModel();
+    void updateOutline();
 
     QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params);
     TextEditor::TabSettings tabSettings() const override;
@@ -70,6 +72,8 @@ public:
     bool save(QString *errorString,
               const Utils::FilePath &filePath = Utils::FilePath(),
               bool autoSave = false) override;
+
+    bool usesClangd() const;
 
 signals:
     void codeWarningsUpdated(unsigned contentsRevision,
@@ -133,6 +137,7 @@ private:
     QScopedPointer<CppEditorDocumentHandle> m_editorDocumentHandle;
 
     ParseContextModel m_parseContextModel;
+    OverviewModel m_overviewModel;
 };
 
 } // namespace Internal
