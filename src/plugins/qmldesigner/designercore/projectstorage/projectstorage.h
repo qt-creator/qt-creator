@@ -248,6 +248,8 @@ public:
     template<typename... TypeIds>
     bool isBasedOn(TypeId typeId, TypeIds... baseTypeIds) const
     {
+        static_assert(((std::is_same_v<TypeId, TypeIds>) &&...), "Parameter must be a TypeId!");
+
         auto range = selectPrototypeAndSelfIdsStatement.template rangeWithTransaction<TypeId>(typeId);
 
         for (TypeId currentTypeId : range) {

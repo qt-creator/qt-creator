@@ -1653,34 +1653,74 @@ bool NodeMetaInfo::isSubclassOf(const NodeMetaInfo &metaInfo) const
 
 bool NodeMetaInfo::isGraphicalItem() const
 {
-    return isSubclassOf("QtQuick.Item") || isSubclassOf("QtQuick.Window.Window")
-           || isSubclassOf("QtQuick.Dialogs.Dialog") || isSubclassOf("QtQuick.Controls.Popup");
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        auto itemId = m_projectStorage->commonTypeId<QtQuick, Item>();
+        auto windowId = m_projectStorage->commonTypeId<QtQuick_Window, Window>();
+        auto dialogId = m_projectStorage->commonTypeId<QtQuick_Dialogs, Dialog>();
+        auto popupId = m_projectStorage->commonTypeId<QtQuick_Controls, Popup>();
+
+        return m_projectStorage->isBasedOn(m_typeId, itemId, windowId, dialogId, popupId);
+    } else {
+        return isSubclassOf("QtQuick.Item") || isSubclassOf("QtQuick.Window.Window")
+               || isSubclassOf("QtQuick.Dialogs.Dialog") || isSubclassOf("QtQuick.Controls.Popup");
+    }
 }
 
 bool NodeMetaInfo::isQmlItem() const
 {
-    return isSubclassOf("QtQuick.QtObject") || isSubclassOf("QtQml.QtObject");
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return m_projectStorage->isBasedOn(m_typeId, m_projectStorage->commonTypeId<QML, QtObject>());
+    } else {
+        return isSubclassOf("QtQuick.QtObject") || isSubclassOf("QtQml.QtObject");
+    }
 }
 
 bool NodeMetaInfo::isLayoutable() const
 {
-    if (isSubclassOf("<cpp>.QDeclarativeBasePositioner"))
-        return true; //QtQuick 1
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        auto positionerId = m_projectStorage->commonTypeId<QtQuick, Positioner>();
+        auto layoutId = m_projectStorage->commonTypeId<QtQuick_Layouts, Layout>();
+        auto splitViewId = m_projectStorage->commonTypeId<QtQuick_Controls, SplitView>();
 
-    return isSubclassOf("QtQuick.Positioner") || isSubclassOf("QtQuick.Layouts.Layout")
-           || isSubclassOf("QtQuick.Controls.SplitView");
+        return m_projectStorage->isBasedOn(m_typeId, positionerId, layoutId, splitViewId);
+
+    } else {
+        if (isSubclassOf("<cpp>.QDeclarativeBasePositioner"))
+            return true; //QtQuick 1
+
+        return isSubclassOf("QtQuick.Positioner") || isSubclassOf("QtQuick.Layouts.Layout")
+               || isSubclassOf("QtQuick.Controls.SplitView");
+    }
 }
 
 bool NodeMetaInfo::isView() const
 {
-    return isValid()
-           && (isSubclassOf("QtQuick.ListView") || isSubclassOf("QtQuick.GridView")
-               || isSubclassOf("QtQuick.PathView"));
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        auto listViewId = m_projectStorage->commonTypeId<QtQuick, ListView>();
+        auto gridViewId = m_projectStorage->commonTypeId<QtQuick, GridView>();
+        auto pathViewId = m_projectStorage->commonTypeId<QtQuick, PathView>();
+        return m_projectStorage->isBasedOn(m_typeId, listViewId, gridViewId, pathViewId);
+    } else {
+        return isValid()
+               && (isSubclassOf("QtQuick.ListView") || isSubclassOf("QtQuick.GridView")
+                   || isSubclassOf("QtQuick.PathView"));
+    }
 }
 
 bool NodeMetaInfo::isTabView() const
 {
-    return isSubclassOf("QtQuick.Controls.TabView");
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+
+        return m_projectStorage->isBasedOn(m_typeId,
+                                           m_projectStorage->commonTypeId<QtQuick, TabView>());
+    } else {
+        return isSubclassOf("QtQuick.Controls.TabView");
+    }
 }
 
 bool NodeMetaInfo::isAlias() const
@@ -1690,86 +1730,152 @@ bool NodeMetaInfo::isAlias() const
 
 bool NodeMetaInfo::isQmlComponent() const
 {
-    auto type = m_privateData->qualfiedTypeName();
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return m_projectStorage->isBasedOn(m_typeId, m_projectStorage->commonTypeId<QML, Component>());
+    } else {
+        auto type = m_privateData->qualfiedTypeName();
 
-    return type == "Component" || type == "Qt.Component" || type == "QtQuick.Component"
-           || type == "QtQml.Component" || type == "<cpp>.QQmlComponent" || type == "QQmlComponent";
+        return type == "Component" || type == "Qt.Component" || type == "QtQuick.Component"
+               || type == "QtQml.Component" || type == "<cpp>.QQmlComponent"
+               || type == "QQmlComponent";
+    }
 }
+
+namespace {
+
+template<typename... TypeIds>
+bool isTypeId(TypeId typeId, TypeIds... otherTypeIds)
+{
+    static_assert(((std::is_same_v<TypeId, TypeIds>) &&...), "Parameter must be a TypeId!");
+
+    return ((typeId == otherTypeIds) || ...);
+}
+
+} // namespace
 
 bool NodeMetaInfo::isFont() const
 {
-    return m_privateData && m_privateData->qualfiedTypeName() == "font";
+    if (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isTypeId(m_typeId, m_projectStorage->commonTypeId<QtQuick, font>());
+    } else {
+        return m_privateData && m_privateData->qualfiedTypeName() == "font";
+    }
 }
 
 bool NodeMetaInfo::isColor() const
 {
-    if (!m_privateData)
-        return false;
+    if (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isTypeId(m_typeId, m_projectStorage->builtinTypeId<QColor>());
+    } else {
+        if (!m_privateData)
+            return false;
 
-    auto type = m_privateData->qualfiedTypeName();
+        auto type = m_privateData->qualfiedTypeName();
 
-    return type == "QColor" || type == "color";
+        return type == "QColor" || type == "color";
+    }
 }
 
 bool NodeMetaInfo::isBool() const
 {
-    if (!m_privateData)
-        return false;
+    if (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isTypeId(m_typeId, m_projectStorage->builtinTypeId<bool>());
+    } else {
+        if (!m_privateData)
+            return false;
 
-    auto type = m_privateData->qualfiedTypeName();
+        auto type = m_privateData->qualfiedTypeName();
 
-    return type == "bool" || type == "boolean";
+        return type == "bool" || type == "boolean";
+    }
 }
 
 bool NodeMetaInfo::isInteger() const
 {
-    if (!m_privateData)
-        return false;
+    if (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isTypeId(m_typeId, m_projectStorage->builtinTypeId<int>());
+    } else {
+        if (!m_privateData)
+            return false;
 
-    auto type = m_privateData->qualfiedTypeName();
+        auto type = m_privateData->qualfiedTypeName();
 
-    return type == "int" || type == "integer";
+        return type == "int" || type == "integer";
+    }
 }
 
 bool NodeMetaInfo::isFloat() const
 {
-    if (!m_privateData)
-        return false;
+    if (useProjectStorage()) {
+        using namespace Storage::Info;
+        auto floatId = m_projectStorage->builtinTypeId<float>();
+        auto doubleId = m_projectStorage->builtinTypeId<double>();
 
-    auto type = m_privateData->qualfiedTypeName();
+        return isTypeId(m_typeId, floatId, doubleId);
+    } else {
+        if (!m_privateData)
+            return false;
 
-    return type == "qreal" || type == "double" || type == "float";
-    ;
+        auto type = m_privateData->qualfiedTypeName();
+
+        return type == "qreal" || type == "double" || type == "float";
+    }
 }
 
 bool NodeMetaInfo::isVariant() const
 {
-    return m_privateData && m_privateData->qualfiedTypeName() == "QVariant";
+    if (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isTypeId(m_typeId, m_projectStorage->builtinTypeId<QVariant>());
+    } else {
+        return m_privateData && m_privateData->qualfiedTypeName() == "QVariant";
+    }
 }
 
 bool NodeMetaInfo::isString() const
 {
-    if (!m_privateData)
-        return false;
+    if (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isTypeId(m_typeId, m_projectStorage->builtinTypeId<QString>());
+    } else {
+        if (!m_privateData)
+            return false;
 
-    auto type = m_privateData->qualfiedTypeName();
+        auto type = m_privateData->qualfiedTypeName();
 
-    return type == "string" || type == "QString";
+        return type == "string" || type == "QString";
+    }
 }
 
 bool NodeMetaInfo::isUrl() const
 {
-    if (!m_privateData)
-        return false;
+    if (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isTypeId(m_typeId, m_projectStorage->builtinTypeId<QUrl>());
+    } else {
+        if (!m_privateData)
+            return false;
 
-    auto type = m_privateData->qualfiedTypeName();
+        auto type = m_privateData->qualfiedTypeName();
 
-    return type == "url" || type == "QUrl";
+        return type == "url" || type == "QUrl";
+    }
 }
 
 bool NodeMetaInfo::isQtQuick3DTexture() const
 {
-    return m_privateData && m_privateData->qualfiedTypeName() == "QtQuick3D.Texture";
+    if (useProjectStorage()) {
+        using namespace Storage::Info;
+        return m_projectStorage->isBasedOn(m_typeId,
+                                           m_projectStorage->commonTypeId<QtQuick3D, Texture>());
+    } else {
+        return m_privateData && m_privateData->qualfiedTypeName() == "QtQuick3D.Texture";
+    }
 }
 
 bool NodeMetaInfo::isEnumeration() const

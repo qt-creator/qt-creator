@@ -43,19 +43,40 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner::Storage::Info {
 
-inline constexpr char QtQuick[] = "QtQuick";
-inline constexpr char QML[] = "QML";
 inline constexpr char QMLNative[] = "QML-cppnative";
-inline constexpr char Item[] = "Item";
-inline constexpr char DoubleType[] = "double";
-inline constexpr char IntType[] = "int";
+inline constexpr char QML[] = "QML";
+inline constexpr char QtQml[] = "QtQml";
+inline constexpr char QtQuick3D[] = "QtQuick3D";
+inline constexpr char QtQuick[] = "QtQuick";
+inline constexpr char QtQuick_Controls[] = "QtQuick.Controls";
+inline constexpr char QtQuick_Dialogs[] = "QtQuick.Dialogs";
+inline constexpr char QtQuick_Layouts[] = "QtQuick.Layouts";
+inline constexpr char QtQuick_Window[] = "QtQuick.Window";
+
 inline constexpr char BoolType[] = "bool";
+inline constexpr char Component[] = "Component";
+inline constexpr char Dialog[] = "Dialog";
+inline constexpr char DoubleType[] = "double";
 inline constexpr char FloatType[] = "float";
-inline constexpr char var[] = "var";
-inline constexpr char string[] = "string";
-inline constexpr char date[] = "date";
-inline constexpr char url[] = "url";
+inline constexpr char GridView[] = "GridView";
+inline constexpr char IntType[] = "int";
+inline constexpr char Item[] = "Item";
+inline constexpr char Layout[] = "Layout";
+inline constexpr char ListView[] = "ListView";
+inline constexpr char PathView[] = "PathView";
+inline constexpr char Popup[] = "Popup";
+inline constexpr char Positioner[] = "Positioner";
+inline constexpr char QtObject[] = "QtObject";
+inline constexpr char SplitView[] = "SplitView";
+inline constexpr char TabView[] = "TabView";
+inline constexpr char Texture[] = "Texture";
+inline constexpr char Window[] = "Window";
 inline constexpr char color[] = "color";
+inline constexpr char date[] = "date";
+inline constexpr char font[] = "font";
+inline constexpr char string[] = "string";
+inline constexpr char url[] = "url";
+inline constexpr char var[] = "var";
 inline constexpr char vector2d[] = "vector2d";
 inline constexpr char vector3d[] = "vector3d";
 inline constexpr char vector4d[] = "vector4d";
@@ -70,20 +91,35 @@ struct CacheType
 template<typename ProjectStorage>
 class CommonTypeCache
 {
-    using CommonTypes = std::tuple<CacheType<QtQuick, Item>,
+    using CommonTypes = std::tuple<CacheType<QML, BoolType>,
+                                   CacheType<QML, Component>,
+                                   CacheType<QML, DoubleType>,
+                                   CacheType<QML, IntType>,
+                                   CacheType<QML, QtObject>,
+                                   CacheType<QML, date>,
+                                   CacheType<QML, date>,
+                                   CacheType<QML, string>,
+                                   CacheType<QML, url>,
+                                   CacheType<QML, var>,
+                                   CacheType<QMLNative, FloatType>,
+                                   CacheType<QtQuick, GridView>,
+                                   CacheType<QtQuick, Item>,
+                                   CacheType<QtQuick, ListView>,
+                                   CacheType<QtQuick, PathView>,
+                                   CacheType<QtQuick, Positioner>,
+                                   CacheType<QtQuick, TabView>,
                                    CacheType<QtQuick, color>,
+                                   CacheType<QtQuick, font>,
                                    CacheType<QtQuick, vector2d>,
                                    CacheType<QtQuick, vector3d>,
                                    CacheType<QtQuick, vector4d>,
-                                   CacheType<QML, DoubleType>,
-                                   CacheType<QML, var>,
-                                   CacheType<QML, IntType>,
-                                   CacheType<QML, BoolType>,
-                                   CacheType<QML, string>,
-                                   CacheType<QML, date>,
-                                   CacheType<QML, date>,
-                                   CacheType<QML, url>,
-                                   CacheType<QMLNative, FloatType>>;
+                                   CacheType<QtQuick, vector4d>,
+                                   CacheType<QtQuick3D, Texture>,
+                                   CacheType<QtQuick_Controls, Popup>,
+                                   CacheType<QtQuick_Controls, SplitView>,
+                                   CacheType<QtQuick_Dialogs, Dialog>,
+                                   CacheType<QtQuick_Layouts, Layout>,
+                                   CacheType<QtQuick_Window, Window>>;
 
 public:
     CommonTypeCache(const ProjectStorage &projectStorage)
