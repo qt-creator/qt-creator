@@ -74,9 +74,12 @@
 #include <utils/theme/theme.h>
 #include <utils/tooltip/tooltip.h>
 
+#include <QApplication>
 #include <QDialog>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QFileInfo>
+#include <QLabel>
 #include <QLibraryInfo>
 #include <QPlainTextEdit>
 #include <QTimer>

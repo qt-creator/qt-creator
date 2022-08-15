@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "ui_topicchooser.h"
-
 #include <QUrl>
 #include <QMap>
 #include <QModelIndex>
@@ -34,7 +32,12 @@
 
 #include <QDialog>
 
-QT_FORWARD_DECLARE_CLASS(QSortFilterProxyModel)
+QT_BEGIN_NAMESPACE
+class QListView;
+class QSortFilterProxyModel;
+QT_END_NAMESPACE
+
+namespace Utils { class FancyLineEdit; }
 
 class TopicChooser : public QDialog
 {
@@ -52,9 +55,11 @@ private:
     void activated(const QModelIndex &index);
     bool eventFilter(QObject *object, QEvent *event) override;
 
-    Ui::TopicChooser ui;
     QList<QUrl> m_links;
 
     QModelIndex m_activedIndex;
     QSortFilterProxyModel *m_filterModel;
+
+    Utils::FancyLineEdit *m_lineEdit;
+    QListView *m_listWidget;
 };

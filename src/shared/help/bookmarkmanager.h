@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "ui_bookmarkdialog.h"
-
 #include <utils/navigationtreeview.h>
 
 #include <QUrl>
@@ -42,8 +40,11 @@
 #include <QStandardItemModel>
 
 QT_BEGIN_NAMESPACE
+class QComboBox;
+class QDialogButtonBox;
 class QEvent;
 class QLineEdit;
+class QPushButton;
 class QTreeView;
 class QToolButton;
 class QStandardItem;
@@ -67,7 +68,7 @@ public:
 private:
     void addAccepted();
     void addNewFolder();
-    void toolButtonClicked();
+    void toggleExpanded();
     void itemChanged(QStandardItem *item);
     void textChanged(const QString& string);
     void selectBookmarkFolder(int index);
@@ -81,9 +82,15 @@ private:
     QString oldText;
     QStandardItem *renameItem;
 
-    Ui::BookmarkDialog ui;
     BookmarkManager *bookmarkManager;
     QSortFilterProxyModel *proxyModel;
+
+    QLineEdit *m_bookmarkEdit;
+    QDialogButtonBox *m_buttonBox;
+    QComboBox *m_bookmarkFolders;
+    QPushButton *m_newFolderButton;
+    QTreeView *m_treeView;
+    QToolButton *m_toolButton;
 };
 
 class TreeView : public Utils::NavigationTreeView

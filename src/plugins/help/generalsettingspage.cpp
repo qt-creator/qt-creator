@@ -49,7 +49,9 @@
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
+#include <QLineEdit>
 #include <QLabel>
+#include <QPushButton>
 #include <QSettings>
 #include <QSpinBox>
 #include <QTextStream>

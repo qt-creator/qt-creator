@@ -20,10 +20,9 @@ add_qtc_library(shared_help STATIC
     "${CMAKE_CURRENT_BINARY_DIR}/"
     "${CMAKE_CURRENT_LIST_DIR}"
   SOURCES
-    bookmarkdialog.ui
     bookmarkmanager.cpp bookmarkmanager.h
     contentwindow.cpp contentwindow.h
     helpicons.h
     indexwindow.cpp indexwindow.h
-    topicchooser.cpp topicchooser.h topicchooser.ui
+    topicchooser.cpp topicchooser.h
 )

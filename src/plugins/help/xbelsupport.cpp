@@ -31,7 +31,7 @@
 
 #include <utils/utilsicons.h>
 
-#include <QCoreApplication>
+#include <QApplication>
 
 using namespace Help::Internal;
 

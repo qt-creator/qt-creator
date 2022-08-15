@@ -53,8 +53,10 @@
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
+#include <QComboBox>
 #include <QCoreApplication>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QMenu>
 #include <QPrintDialog>
 #include <QPrinter>
