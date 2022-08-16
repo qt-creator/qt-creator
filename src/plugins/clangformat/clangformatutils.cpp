@@ -118,7 +118,9 @@ clang::format::FormatStyle qtcStyle()
     style.ColumnLimit = 100;
     style.CommentPragmas = "^ IWYU pragma:";
     style.CompactNamespaces = false;
+#if LLVM_VERSION_MAJOR < 15
     style.ConstructorInitializerAllOnOneLineOrOnePerLine = false;
+#endif
     style.ConstructorInitializerIndentWidth = 4;
     style.ContinuationIndentWidth = 4;
     style.Cpp11BracedListStyle = true;

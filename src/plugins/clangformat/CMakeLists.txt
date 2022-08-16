@@ -13,6 +13,8 @@ add_qtc_plugin(ClangFormat
     clangformatplugin.cpp clangformatplugin.h
     clangformatsettings.cpp clangformatsettings.h
     clangformatutils.cpp clangformatutils.h
+  EXPLICIT_MOC
+    clangformatconfigwidget.cpp clangformatconfigwidget.h
 )
 
 if(TARGET ClangFormat)
