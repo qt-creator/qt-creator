@@ -176,7 +176,6 @@ Column {
                 anchors.horizontalCenter: parent.horizontalCenter
                 IconButton {
                     icon: StudioTheme.Constants.materialPreviewEnvironment
-                    normalColor: "transparent"
                     iconSize: StudioTheme.Values.bigIconFontSize
                     buttonSize: previewOptions.width
                     tooltip: qsTr("Select preview environment.")
@@ -184,7 +183,6 @@ Column {
                 }
                 IconButton {
                     icon: StudioTheme.Constants.materialPreviewModel
-                    normalColor: "transparent"
                     iconSize: StudioTheme.Values.bigIconFontSize
                     buttonSize: previewOptions.width
                     tooltip: qsTr("Select preview model.")

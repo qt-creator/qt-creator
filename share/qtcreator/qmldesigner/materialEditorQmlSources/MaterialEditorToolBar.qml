@@ -47,7 +47,7 @@ Rectangle {
         IconButton {
             icon: StudioTheme.Constants.applyMaterialToSelected
 
-            normalColor: "transparent"
+            normalColor: StudioTheme.Values.themeSectionHeadBackground
             iconSize: StudioTheme.Values.bigIconFontSize
             buttonSize: root.height
             enabled: hasMaterial && hasModelSelection && hasQuick3DImport
@@ -58,7 +58,7 @@ Rectangle {
         IconButton {
             icon: StudioTheme.Constants.newMaterial
 
-            normalColor: "transparent"
+            normalColor: StudioTheme.Values.themeSectionHeadBackground
             iconSize: StudioTheme.Values.bigIconFontSize
             buttonSize: root.height
             enabled: hasQuick3DImport
@@ -69,7 +69,7 @@ Rectangle {
         IconButton {
             icon: StudioTheme.Constants.deleteMaterial
 
-            normalColor: "transparent"
+            normalColor: StudioTheme.Values.themeSectionHeadBackground
             iconSize: StudioTheme.Values.bigIconFontSize
             buttonSize: root.height
             enabled: hasMaterial && hasQuick3DImport
@@ -80,7 +80,7 @@ Rectangle {
         IconButton {
             icon: StudioTheme.Constants.openMaterialBrowser
 
-            normalColor: "transparent"
+            normalColor: StudioTheme.Values.themeSectionHeadBackground
             iconSize: StudioTheme.Values.bigIconFontSize
             buttonSize: root.height
             enabled: hasMaterial && hasQuick3DImport

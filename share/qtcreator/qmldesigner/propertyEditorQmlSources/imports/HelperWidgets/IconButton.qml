@@ -51,13 +51,6 @@ Rectangle {
                                         : mouseArea.containsMouse ? hoverColor
                                                                   : normalColor
 
-    Behavior on color {
-        ColorAnimation {
-            duration: 300
-            easing.type: Easing.OutQuad
-        }
-    }
-
     Text {
         id: icon
 
