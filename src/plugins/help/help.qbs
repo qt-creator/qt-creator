@@ -84,7 +84,6 @@ Project {
                 "bookmarkdialog.ui",
                 "bookmarkmanager.cpp", "bookmarkmanager.h",
                 "contentwindow.cpp", "contentwindow.h",
-                "filternamedialog.cpp", "filternamedialog.h", "filternamedialog.ui",
                 "helpicons.h",
                 "indexwindow.cpp", "indexwindow.h",
                 "topicchooser.cpp", "topicchooser.h", "topicchooser.ui",
