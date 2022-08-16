@@ -783,21 +783,29 @@ void tst_fileutils::onDevice() {
 }
 
 void tst_fileutils::plus_data() {
-    tst_fileutils::pathAppended_data();
+    QTest::addColumn<FilePath>("left");
+    QTest::addColumn<QString>("right");
+    QTest::addColumn<FilePath>("expected");
+
+    QTest::newRow("empty") << FilePath() << QString() << FilePath();
+    QTest::newRow("empty-left") << FilePath() << "a" << FilePath("a");
+    QTest::newRow("empty-right") << FilePath("a") << QString() << FilePath("a");
+    QTest::newRow("add-root") << FilePath() << QString("/") << FilePath("/");
+    QTest::newRow("add-root-and-more") << FilePath() << QString("/test/blah") << FilePath("/test/blah");
+    QTest::newRow("add-extension") << FilePath::fromString("/a") << QString(".txt") << FilePath("/a.txt");
+    QTest::newRow("trailing-slash") << FilePath::fromString("/a") << QString("b/") << FilePath("/ab/");
+    QTest::newRow("slash-trailing-slash") << FilePath::fromString("/a/") << QString("b/") << FilePath("/a/b/");
 }
 
 void tst_fileutils::plus()
 {
-    QFETCH(QString, left);
+    QFETCH(FilePath, left);
     QFETCH(QString, right);
-    QFETCH(QString, expected);
+    QFETCH(FilePath, expected);
 
-    const FilePath fleft = FilePath::fromString(left);
-    const FilePath fexpected = FilePath::fromString(expected);
+    const FilePath result = left + right;
 
-    const FilePath result = fleft + right;
-
-    QCOMPARE(fexpected, result);
+    QCOMPARE(expected, result);
 }
 
 QTEST_GUILESS_MAIN(tst_fileutils)
