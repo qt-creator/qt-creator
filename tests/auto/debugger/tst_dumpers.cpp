@@ -32,6 +32,7 @@
 #include <utils/fileutils.h>
 #include <utils/environment.h>
 
+#include <QLoggingCategory>
 #include <QtTest>
 #include <math.h>
 
@@ -40,6 +41,8 @@
 #endif
 
 #define MSKIP_SINGLE(x) do { disarm(); QSKIP(x); } while (0)
+
+Q_LOGGING_CATEGORY(lcDumpers, "qtc.debugger.dumpers", QtDebugMsg)
 
 using namespace Debugger;
 using namespace Internal;
@@ -338,8 +341,8 @@ struct Value
         if (isFloatValue) {
             double f1 = fabs(expectedValue.toDouble());
             double f2 = fabs(actualValue.toDouble());
-            //qDebug() << "expected float: " << qPrintable(expectedValue) << f1;
-            //qDebug() << "actual   float: " << qPrintable(actualValue) << f2;
+            //qCDebug(lcDumpers) << "expected float: " << qPrintable(expectedValue) << f1;
+            //qCDebug(lcDumpers) << "actual   float: " << qPrintable(actualValue) << f2;
             if (f1 < f2)
                 std::swap(f1, f2);
             return f1 - f2 <= 0.01 * f2;
@@ -1184,7 +1187,7 @@ void tst_Dumpers::initTestCase()
         m_debuggerBinary = "gdb";
 #endif
     }
-    qDebug() << "Debugger           : " << m_debuggerBinary;
+    qCDebug(lcDumpers) << "Debugger           : " << m_debuggerBinary;
 
     m_debuggerEngine = GdbEngine;
     if (m_debuggerBinary.endsWith("cdb.exe"))
@@ -1200,14 +1203,14 @@ void tst_Dumpers::initTestCase()
     if (qEnvironmentVariableIntValue("QTC_USE_CMAKE_FOR_TEST"))
         m_buildSystem = BuildSystem::CMake;
 
-    qDebug() << "QMake              : " << m_qmakeBinary;
-    qDebug() << "Use CMake          : " << (m_buildSystem == BuildSystem::CMake) << int(m_buildSystem);
+    qCDebug(lcDumpers) << "QMake              : " << m_qmakeBinary;
+    qCDebug(lcDumpers) << "Use CMake          : " << (m_buildSystem == BuildSystem::CMake) << int(m_buildSystem);
 
     m_useGLibCxxDebug = qgetenv("QTC_USE_GLIBCXXDEBUG_FOR_TEST").toInt();
-    qDebug() << "Use _GLIBCXX_DEBUG : " << m_useGLibCxxDebug;
+    qCDebug(lcDumpers) << "Use _GLIBCXX_DEBUG : " << m_useGLibCxxDebug;
 
     m_forceKeepTemp = qgetenv("QTC_KEEP_TEMP_FOR_TEST").toInt();
-    qDebug() << "Force keep temp    : " << m_forceKeepTemp;
+    qCDebug(lcDumpers) << "Force keep temp    : " << m_forceKeepTemp;
 
     if (m_debuggerEngine == GdbEngine) {
         QProcess debugger;
@@ -1217,10 +1220,10 @@ void tst_Dumpers::initTestCase()
         ok = debugger.waitForFinished();
         QVERIFY(ok);
         QByteArray output = debugger.readAllStandardOutput();
-        //qDebug().noquote() << "stdout: " << output;
+        //qCDebug(lcDumpers).noquote() << "stdout: " << output;
         bool usePython = !output.contains("Python scripting is not supported in this copy of GDB");
-        qDebug() << "Python             : " << (usePython ? "ok" : "*** not ok ***");
-        qDebug() << "Dumper dir         : " << DUMPERDIR;
+        qCDebug(lcDumpers) << "Python             : " << (usePython ? "ok" : "*** not ok ***");
+        qCDebug(lcDumpers) << "Dumper dir         : " << DUMPERDIR;
         QVERIFY(usePython);
 
         QString version = QString::fromLocal8Bit(output);
@@ -1249,8 +1252,8 @@ void tst_Dumpers::initTestCase()
         if (m_makeBinary.isEmpty())
             m_makeBinary = "make";
 #endif
-        qDebug() << "Make path          : " << m_makeBinary;
-        qDebug() << "Gdb version        : " << m_debuggerVersion;
+        qCDebug(lcDumpers) << "Make path          : " << m_makeBinary;
+        qCDebug(lcDumpers) << "Gdb version        : " << m_debuggerVersion;
     } else if (m_debuggerEngine == CdbEngine) {
         QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
         QMap <QString, QString> envPairs;
@@ -1274,13 +1277,13 @@ void tst_Dumpers::initTestCase()
         int pos = output.indexOf('\n');
         if (pos != -1)
             output = output.left(pos);
-        qDebug() << "Extracting MSVC version from: " << output;
+        qCDebug(lcDumpers) << "Extracting MSVC version from: " << output;
         QRegularExpression reg(" (\\d\\d)\\.(\\d\\d)\\.");
         QRegularExpressionMatch match = reg.match(output);
         if (match.matchType() != QRegularExpression::NoMatch)
             m_msvcVersion = QString(match.captured(1) + match.captured(2)).toInt();
     } else if (m_debuggerEngine == LldbEngine) {
-        qDebug() << "Dumper dir         : " << DUMPERDIR;
+        qCDebug(lcDumpers) << "Dumper dir         : " << DUMPERDIR;
         QProcess debugger;
         debugger.start(m_debuggerBinary, {"-v"});
         bool ok = debugger.waitForFinished(2000);
@@ -1306,7 +1309,7 @@ void tst_Dumpers::initTestCase()
             }
         }
 
-        qDebug() << "Lldb version       :" << output << ba << m_debuggerVersion;
+        qCDebug(lcDumpers) << "Lldb version       :" << output << ba << m_debuggerVersion;
         QVERIFY(m_debuggerVersion);
 
         m_env = QProcessEnvironment::systemEnvironment();
@@ -1369,8 +1372,8 @@ void tst_Dumpers::dumper()
         error = qmake.readAllStandardError();
         int pos0 = output.indexOf("Qt version");
         if (pos0 == -1) {
-            qDebug().noquote() << "Output: " << output;
-            qDebug().noquote() << "Error: " << error;
+            qCDebug(lcDumpers).noquote() << "Output: " << output;
+            qCDebug(lcDumpers).noquote() << "Error: " << error;
             QVERIFY(false);
         }
         pos0 += 11;
@@ -1400,7 +1403,7 @@ void tst_Dumpers::dumper()
         int pos = output.indexOf('\n');
         if (pos != -1)
             output = output.left(pos);
-        qDebug() << "Extracting GCC version from: " << output;
+        qCDebug(lcDumpers) << "Extracting GCC version from: " << output;
         if (output.contains(QByteArray("SUSE Linux"))) {
             pos = output.indexOf(')');
             output = output.mid(pos + 1).trimmed();
@@ -1416,7 +1419,7 @@ void tst_Dumpers::dumper()
         int minor = output.mid(pos1, pos2++ - pos1).toInt();
         int patch = output.mid(pos2).toInt();
         m_gccVersion = 10000 * major + 100 * minor + patch;
-        qDebug() << "GCC version: " << m_gccVersion;
+        qCDebug(lcDumpers) << "GCC version: " << m_gccVersion;
 
         if (data.neededGccVersion.min > m_gccVersion)
             MSKIP_SINGLE(QByteArray("Need minimum GCC version "
@@ -1635,23 +1638,23 @@ void tst_Dumpers::dumper()
             "-DCMAKE_PREFIX_PATH=" + dir.absolutePath(),
             "."
         };
-        //qDebug() << "Starting cmake: " << m_cmakeBinary << ' ' << qPrintable(options.join(' '));
+        //qCDebug(lcDumpers) << "Starting cmake: " << m_cmakeBinary << ' ' << qPrintable(options.join(' '));
         cmake.setProcessEnvironment(m_env);
         cmake.start(m_cmakeBinary, options);
         QVERIFY(cmake.waitForFinished());
         output = cmake.readAllStandardOutput();
         error = cmake.readAllStandardError();
-        //qDebug() << "stdout: " << output;
+        //qCDebug(lcDumpers) << "stdout: " << output;
 
         if (data.allProfile.isEmpty()) { // Nim...
             if (!error.isEmpty()) {
-                qDebug() << error; QVERIFY(false);
+                qCDebug(lcDumpers) << error; QVERIFY(false);
             }
         }
     } else {
         QProcess qmake;
         qmake.setWorkingDirectory(t->buildPath);
-        //qDebug() << "Starting qmake: " << m_qmakeBinary;
+        //qCDebug(lcDumpers) << "Starting qmake: " << m_qmakeBinary;
         QStringList options;
     #ifdef Q_OS_MACOS
         if (m_qtVersion && m_qtVersion < 0x050000)
@@ -1662,11 +1665,11 @@ void tst_Dumpers::dumper()
         QVERIFY(qmake.waitForFinished());
         output = qmake.readAllStandardOutput();
         error = qmake.readAllStandardError();
-        //qDebug() << "stdout: " << output;
+        //qCDebug(lcDumpers) << "stdout: " << output;
 
         if (data.allProfile.isEmpty()) { // Nim...
             if (!error.isEmpty()) {
-                qDebug() << error; QVERIFY(qmake.exitCode() == 0);
+                qCDebug(lcDumpers) << error; QVERIFY(qmake.exitCode() == 0);
             }
         }
     }
@@ -1679,16 +1682,16 @@ void tst_Dumpers::dumper()
     QVERIFY(make.waitForFinished());
     output = make.readAllStandardOutput();
     error = make.readAllStandardError();
-    //qDebug() << "stdout: " << output;
+    //qCDebug(lcDumpers) << "stdout: " << output;
     if (make.exitCode()) {
         if (data.useBoost && make.exitStatus() == QProcess::NormalExit)
             MSKIP_SINGLE("Compile failed - probably missing Boost?");
 
-        qDebug().noquote() << error;
-        qDebug() << "\n------------------ CODE --------------------";
-        qDebug().noquote() << fullCode;
-        qDebug() << "\n------------------ CODE --------------------";
-        qDebug().noquote() << "Project file: " << projectFile.fileName();
+        qCDebug(lcDumpers).noquote() << error;
+        qCDebug(lcDumpers) << "\n------------------ CODE --------------------";
+        qCDebug(lcDumpers).noquote() << fullCode;
+        qCDebug(lcDumpers) << "\n------------------ CODE --------------------";
+        qCDebug(lcDumpers).noquote() << "Project file: " << projectFile.fileName();
         QCOMPARE(make.exitCode(), 0);
     }
 
@@ -1702,9 +1705,9 @@ void tst_Dumpers::dumper()
         int pos1 = output.indexOf("Version:") + 8;
         int pos2 = output.indexOf("\n", pos1);
         int dwarfVersion = output.mid(pos1, pos2 - pos1).toInt();
-        //qDebug() << "OUT: " << output;
-        //qDebug() << "ERR: " << error;
-        qDebug() << "DWARF Version : " << dwarfVersion;
+        //qCDebug(lcDumpers) << "OUT: " << output;
+        //qCDebug(lcDumpers) << "ERR: " << error;
+        qCDebug(lcDumpers) << "DWARF Version : " << dwarfVersion;
 
         if (data.neededDwarfVersion.min > dwarfVersion)
             MSKIP_SINGLE(QByteArray("Need minimum DWARF version "
@@ -1835,10 +1838,10 @@ void tst_Dumpers::dumper()
     QVERIFY(debugger.waitForFinished());
     output = debugger.readAllStandardOutput();
     QByteArray fullOutput = output;
-    //qDebug() << "stdout: " << output;
+    //qCDebug(lcDumpers) << "stdout: " << output;
     error = debugger.readAllStandardError();
     if (!error.isEmpty())
-        qDebug() << error;
+        qCDebug(lcDumpers) << error;
 
     if (keepTemp()) {
         QFile logger(t->buildPath + "/output.txt");
@@ -1855,7 +1858,7 @@ void tst_Dumpers::dumper()
     if (m_debuggerEngine == GdbEngine) {
         int posDataStart = output.indexOf("data=");
         if (posDataStart == -1) {
-            qDebug().noquote() << "NO \"data=\" IN OUTPUT: " << output;
+            qCDebug(lcDumpers).noquote() << "NO \"data=\" IN OUTPUT: " << output;
             QVERIFY(posDataStart != -1);
         }
         contents = output.mid(posDataStart);
@@ -1864,10 +1867,10 @@ void tst_Dumpers::dumper()
         actual.fromStringMultiple(QString::fromLocal8Bit(contents));
         context.nameSpace = actual["qtnamespace"].data();
         actual = actual["data"];
-        //qDebug() << "FOUND NS: " << context.nameSpace;
+        //qCDebug(lcDumpers) << "FOUND NS: " << context.nameSpace;
 
     } else if (m_debuggerEngine == LldbEngine) {
-        //qDebug().noquote() << "GOT OUTPUT: " << output;
+        //qCDebug(lcDumpers).noquote() << "GOT OUTPUT: " << output;
         int pos = output.indexOf("data=[{");
         QVERIFY(pos != -1);
         output = output.mid(pos);
@@ -1875,14 +1878,14 @@ void tst_Dumpers::dumper()
 
         int posNameSpaceStart = output.indexOf("@NS@");
         if (posNameSpaceStart == -1)
-            qDebug().noquote() << "OUTPUT: " << output;
+            qCDebug(lcDumpers).noquote() << "OUTPUT: " << output;
         QVERIFY(posNameSpaceStart != -1);
         posNameSpaceStart += sizeof("@NS@") - 1;
         int posNameSpaceEnd = output.indexOf("@", posNameSpaceStart);
         QVERIFY(posNameSpaceEnd != -1);
         context.nameSpace = QString::fromLocal8Bit(output.mid(
             posNameSpaceStart, posNameSpaceEnd - posNameSpaceStart));
-        //qDebug() << "FOUND NS: " << context.nameSpace;
+        //qCDebug(lcDumpers) << "FOUND NS: " << context.nameSpace;
         if (context.nameSpace == "::")
             context.nameSpace.clear();
         contents.replace("\\\"", "\"");
@@ -1892,7 +1895,7 @@ void tst_Dumpers::dumper()
         QByteArray locals("|script|");
         int localsBeginPos = output.indexOf(locals, output.indexOf(localsAnswerStart));
         if (localsBeginPos == -1)
-            qDebug().noquote() << "OUTPUT: " << output;
+            qCDebug(lcDumpers).noquote() << "OUTPUT: " << output;
         QVERIFY(localsBeginPos != -1);
         do {
             const int msgStart = localsBeginPos + locals.length();
@@ -1934,14 +1937,14 @@ void tst_Dumpers::dumper()
     }
 
 
-    //qDebug() << "QT VERSION " << QByteArray::number(context.qtVersion, 16);
+    //qCDebug(lcDumpers) << "QT VERSION " << QByteArray::number(context.qtVersion, 16);
     QSet<QString> seenINames;
     bool ok = true;
 
     auto test = [&](const Check &check, bool *removeIt, bool single) {
         if (!check.matches(m_debuggerEngine, m_debuggerVersion, context)) {
             if (single)
-                qDebug() << "SKIPPING NON-MATCHING TEST " << check;
+                qCDebug(lcDumpers) << "SKIPPING NON-MATCHING TEST " << check;
             return true; // we have not failed
         }
 
@@ -1952,38 +1955,38 @@ void tst_Dumpers::dumper()
         if (!item) {
             if (check.optionallyPresent)
                 return true;
-            qDebug() << "NOT SEEN: " << check.iname;
+            qCDebug(lcDumpers) << "NOT SEEN: " << check.iname;
             return false;
         }
         seenINames.insert(iname);
-        //qDebug() << "CHECKS" << i << check.iname;
+        //qCDebug(lcDumpers) << "CHECKS" << i << check.iname;
 
         *removeIt = true;
 
-        //qDebug() << "USING MATCHING TEST FOR " << iname;
+        //qCDebug(lcDumpers) << "USING MATCHING TEST FOR " << iname;
         QString name = item->realName();
         QString type = item->type;
         if (!check.expectedName.matches(name, context)) {
             if (single) {
-                qDebug() << "INAME        : " << iname;
-                qDebug() << "NAME ACTUAL  : " << name;
-                qDebug() << "NAME EXPECTED: " << check.expectedName.name;
+                qCDebug(lcDumpers) << "INAME        : " << iname;
+                qCDebug(lcDumpers) << "NAME ACTUAL  : " << name;
+                qCDebug(lcDumpers) << "NAME EXPECTED: " << check.expectedName.name;
             }
             return false;
         }
         if (!check.expectedValue.matches(item->value, context)) {
             if (single) {
-                qDebug() << "INAME         : " << iname;
-                qDebug() << "VALUE ACTUAL  : " << item->value << toHex(item->value);
-                qDebug() << "VALUE EXPECTED: " << check.expectedValue.value << toHex(check.expectedValue.value);
+                qCDebug(lcDumpers) << "INAME         : " << iname;
+                qCDebug(lcDumpers) << "VALUE ACTUAL  : " << item->value << toHex(item->value);
+                qCDebug(lcDumpers) << "VALUE EXPECTED: " << check.expectedValue.value << toHex(check.expectedValue.value);
             }
             return false;
         }
         if (!check.expectedType.matches(type, context)) {
             if (single) {
-                qDebug() << "INAME        : " << iname;
-                qDebug() << "TYPE ACTUAL  : " << type;
-                qDebug() << "TYPE EXPECTED: " << check.expectedType.type;
+                qCDebug(lcDumpers) << "INAME        : " << iname;
+                qCDebug(lcDumpers) << "TYPE ACTUAL  : " << type;
+                qCDebug(lcDumpers) << "TYPE EXPECTED: " << check.expectedType.type;
             }
             return false;
         }
@@ -2007,9 +2010,9 @@ void tst_Dumpers::dumper()
             }
         }
         if (!setok) {
-            qDebug() << "NO CHECK IN SET PASSED";
+            qCDebug(lcDumpers) << "NO CHECK IN SET PASSED";
             for (const Check &check : checkset.checks)
-                qDebug() << check;
+                qCDebug(lcDumpers) << check;
             ok = false;
         }
     }
@@ -2023,23 +2026,23 @@ void tst_Dumpers::dumper()
     }
 
     if (!data.checks.isEmpty()) {
-        qDebug() << "SOME TESTS NOT EXECUTED: ";
+        qCDebug(lcDumpers) << "SOME TESTS NOT EXECUTED: ";
         for (const Check &check : qAsConst(data.checks)) {
             if (check.optionallyPresent) {
-                qDebug() << "  OPTIONAL TEST NOT FOUND: " << check << " IGNORED.";
+                qCDebug(lcDumpers) << "  OPTIONAL TEST NOT FOUND: " << check << " IGNORED.";
             } else {
-                qDebug() << "  COMPULSORY TEST NOT FOUND: " << check;
+                qCDebug(lcDumpers) << "  COMPULSORY TEST NOT FOUND: " << check;
                 ok = false;
             }
         }
-        qDebug() << "SEEN INAMES " << seenINames;
-        qDebug() << "EXPANDED     : " << expanded;
+        qCDebug(lcDumpers) << "SEEN INAMES " << seenINames;
+        qCDebug(lcDumpers) << "EXPANDED     : " << expanded;
     }
 
     for (int i = data.requiredMessages.size(); --i >= 0; ) {
         RequiredMessage check = data.requiredMessages.at(i);
         if (fullOutput.contains(check.message.toLatin1())) {
-            qDebug() << " EXPECTED MESSAGE TO BE MISSING, BUT FOUND: " << check.message;
+            qCDebug(lcDumpers) << " EXPECTED MESSAGE TO BE MISSING, BUT FOUND: " << check.message;
             ok = false;
         }
     }
@@ -2047,7 +2050,7 @@ void tst_Dumpers::dumper()
     if (ok) {
         m_keepTemp = false;
     } else {
-        local.forAllChildren([](WatchItem *item) { qDebug() << item->internalName(); });
+        local.forAllChildren([](WatchItem *item) { qCDebug(lcDumpers) << item->internalName(); });
 
         int pos1 = 0, pos2 = -1;
         while (true) {
@@ -2058,14 +2061,14 @@ void tst_Dumpers::dumper()
             pos2 = fullOutput.indexOf("\"}", pos1 + 1);
             if (pos2 == -1)
                 break;
-            qDebug() << "MSG: " << fullOutput.mid(pos1, pos2 - pos1 - 1);
+            qCDebug(lcDumpers) << "MSG: " << fullOutput.mid(pos1, pos2 - pos1 - 1);
         }
-        qDebug().noquote() << "CONTENTS     : " << contents;
-        qDebug().noquote() << "FULL OUTPUT  : " << fullOutput.data();
-        qDebug() << "Qt VERSION   : " << QString::number(context.qtVersion, 16);
+        qCDebug(lcDumpers).noquote() << "CONTENTS     : " << contents;
+        qCDebug(lcDumpers).noquote() << "FULL OUTPUT  : " << fullOutput.data();
+        qCDebug(lcDumpers) << "Qt VERSION   : " << QString::number(context.qtVersion, 16);
         if (m_debuggerEngine != CdbEngine)
-            qDebug() << "GCC VERSION   : " << context.gccVersion;
-        qDebug() << "BUILD DIR    : " << t->buildPath;
+            qCDebug(lcDumpers) << "GCC VERSION   : " << context.gccVersion;
+        qCDebug(lcDumpers) << "BUILD DIR    : " << t->buildPath;
     }
     QVERIFY(ok);
     disarm();
