@@ -28,12 +28,16 @@
 
 #include <aggregation/aggregate.h>
 #include <coreplugin/find/itemviewfind.h>
+#include <utils/layoutbuilder.h>
 
 #include <QDebug>
-#include <QScopedPointer>
-#include <QMenu>
 #include <QFileDialog>
+#include <QLabel>
+#include <QLineEdit>
+#include <QMenu>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QScopedPointer>
 
 using namespace ResourceEditor;
 using namespace ResourceEditor::Internal;
@@ -44,14 +48,46 @@ QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
 {
     addWidget(m_treeview);
     auto widget = new QWidget;
-    m_ui.setupUi(widget);
     addWidget(widget);
     m_treeview->setFrameStyle(QFrame::NoFrame);
+    m_treeview->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
-    connect(m_ui.addPrefixButton, &QAbstractButton::clicked, this, &QrcEditor::onAddPrefix);
-    connect(m_ui.addFilesButton, &QAbstractButton::clicked, this, &QrcEditor::onAddFiles);
-    connect(m_ui.removeButton, &QAbstractButton::clicked, this, &QrcEditor::onRemove);
-    connect(m_ui.removeNonExistingButton, &QPushButton::clicked,
+    auto addPrefixButton = new QPushButton(tr("Add Prefix"));
+    m_addFilesButton = new QPushButton(tr("Add Files"));
+    m_removeButton = new QPushButton(tr("Remove"));
+    m_removeNonExistingButton = new QPushButton(tr("Remove Missing Files"));
+
+    m_aliasLabel = new QLabel(tr("Alias:"));
+    m_aliasText = new QLineEdit;
+    m_prefixLabel = new QLabel(tr("Prefix:"));
+    m_prefixText = new QLineEdit;
+    m_languageLabel = new QLabel(tr("Language:"));
+    m_languageText = new QLineEdit;
+
+    using namespace Utils::Layouting;
+    Column {
+        Row {
+            addPrefixButton,
+            m_addFilesButton,
+            m_removeButton,
+            m_removeNonExistingButton,
+            st,
+        },
+        Group {
+            title(tr("Properties")),
+            Form {
+                m_aliasLabel, m_aliasText, br,
+                m_prefixLabel, m_prefixText, br,
+                m_languageLabel, m_languageText, br,
+            }
+        },
+        st,
+    }.attachTo(widget);
+
+    connect(addPrefixButton, &QAbstractButton::clicked, this, &QrcEditor::onAddPrefix);
+    connect(m_addFilesButton, &QAbstractButton::clicked, this, &QrcEditor::onAddFiles);
+    connect(m_removeButton, &QAbstractButton::clicked, this, &QrcEditor::onRemove);
+    connect(m_removeNonExistingButton, &QPushButton::clicked,
             this, &QrcEditor::onRemoveNonExisting);
 
     connect(m_treeview, &ResourceView::removeItem, this, &QrcEditor::onRemove);
@@ -61,9 +97,9 @@ QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
     connect(m_treeview, &ResourceView::contextMenuShown, this, &QrcEditor::showContextMenu);
     m_treeview->setFocus();
 
-    connect(m_ui.aliasText, &QLineEdit::textEdited, this, &QrcEditor::onAliasChanged);
-    connect(m_ui.prefixText, &QLineEdit::textEdited, this, &QrcEditor::onPrefixChanged);
-    connect(m_ui.languageText, &QLineEdit::textEdited, this, &QrcEditor::onLanguageChanged);
+    connect(m_aliasText, &QLineEdit::textEdited, this, &QrcEditor::onAliasChanged);
+    connect(m_prefixText, &QLineEdit::textEdited, this, &QrcEditor::onPrefixChanged);
+    connect(m_languageText, &QLineEdit::textEdited, this, &QrcEditor::onLanguageChanged);
 
     // Prevent undo command merging after a switch of focus:
     // (0) The initial text is "Green".
@@ -73,11 +109,11 @@ QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
     //     --> text now is "Red is a color."
     // (4) The user hits undo --> text now is "Green is a color."
     //     Without calling advanceMergeId() it would have been "Green", instead.
-    connect(m_ui.aliasText, &QLineEdit::editingFinished,
+    connect(m_aliasText, &QLineEdit::editingFinished,
             m_treeview, &ResourceView::advanceMergeId);
-    connect(m_ui.prefixText, &QLineEdit::editingFinished,
+    connect(m_prefixText, &QLineEdit::editingFinished,
             m_treeview, &ResourceView::advanceMergeId);
-    connect(m_ui.languageText, &QLineEdit::editingFinished,
+    connect(m_languageText, &QLineEdit::editingFinished,
             m_treeview, &ResourceView::advanceMergeId);
 
     connect(&m_history, &QUndoStack::canRedoChanged, this, &QrcEditor::updateHistoryControls);
@@ -116,23 +152,23 @@ void QrcEditor::updateCurrent()
     const bool isPrefix = m_treeview->isPrefix(m_treeview->currentIndex()) && isValid;
     const bool isFile = !isPrefix && isValid;
 
-    m_ui.aliasLabel->setEnabled(isFile);
-    m_ui.aliasText->setEnabled(isFile);
+    m_aliasLabel->setEnabled(isFile);
+    m_aliasText->setEnabled(isFile);
     m_currentAlias = m_treeview->currentAlias();
-    m_ui.aliasText->setText(m_currentAlias);
+    m_aliasText->setText(m_currentAlias);
 
-    m_ui.prefixLabel->setEnabled(isPrefix);
-    m_ui.prefixText->setEnabled(isPrefix);
+    m_prefixLabel->setEnabled(isPrefix);
+    m_prefixText->setEnabled(isPrefix);
     m_currentPrefix = m_treeview->currentPrefix();
-    m_ui.prefixText->setText(m_currentPrefix);
+    m_prefixText->setText(m_currentPrefix);
 
-    m_ui.languageLabel->setEnabled(isPrefix);
-    m_ui.languageText->setEnabled(isPrefix);
+    m_languageLabel->setEnabled(isPrefix);
+    m_languageText->setEnabled(isPrefix);
     m_currentLanguage = m_treeview->currentLanguage();
-    m_ui.languageText->setText(m_currentLanguage);
+    m_languageText->setText(m_currentLanguage);
 
-    m_ui.addFilesButton->setEnabled(isValid);
-    m_ui.removeButton->setEnabled(isValid);
+    m_addFilesButton->setEnabled(isValid);
+    m_removeButton->setEnabled(isValid);
 }
 
 void QrcEditor::updateHistoryControls()
@@ -391,8 +427,8 @@ void QrcEditor::onAddPrefix()
     QUndoCommand * const addEmptyPrefixCommand = new AddEmptyPrefixCommand(m_treeview);
     m_history.push(addEmptyPrefixCommand);
     updateHistoryControls();
-    m_ui.prefixText->selectAll();
-    m_ui.prefixText->setFocus();
+    m_prefixText->selectAll();
+    m_prefixText->setFocus();
 }
 
 // Slot for 'Undo' button

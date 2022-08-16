@@ -2,7 +2,7 @@ add_qtc_plugin(ResourceEditor
   DEPENDS Qt5::Xml
   PLUGIN_DEPENDS Core ProjectExplorer
   SOURCES
-    qrceditor/qrceditor.cpp qrceditor/qrceditor.h qrceditor/qrceditor.ui
+    qrceditor/qrceditor.cpp qrceditor/qrceditor.h
     qrceditor/resourcefile.cpp qrceditor/resourcefile_p.h
     qrceditor/resourceview.cpp qrceditor/resourceview.h
     qrceditor/undocommands.cpp qrceditor/undocommands_p.h

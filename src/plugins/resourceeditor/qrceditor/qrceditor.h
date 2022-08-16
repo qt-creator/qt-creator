@@ -25,11 +25,16 @@
 
 #pragma once
 
-#include "ui_qrceditor.h"
 #include "resourceview.h"
 
 #include <coreplugin/minisplitter.h>
 #include <QUndoStack>
+
+QT_BEGIN_NAMESPACE
+class QLabel;
+class QLineEdit;
+class QPushButton;
+QT_END_NAMESPACE
 
 namespace ResourceEditor {
 namespace Internal {
@@ -76,13 +81,22 @@ private:
     void onAddFiles();
     void onAddPrefix();
 
-    Ui::QrcEditor m_ui;
     QUndoStack m_history;
     ResourceView *m_treeview;
 
     QString m_currentAlias;
     QString m_currentPrefix;
     QString m_currentLanguage;
+
+    QPushButton *m_addFilesButton;
+    QPushButton *m_removeButton;
+    QPushButton *m_removeNonExistingButton;
+    QLabel *m_aliasLabel;
+    QLineEdit *m_aliasText;
+    QLabel *m_prefixLabel;
+    QLineEdit *m_prefixText;
+    QLabel *m_languageLabel;
+    QLineEdit *m_languageText;
 };
 
 } // namespace Internal

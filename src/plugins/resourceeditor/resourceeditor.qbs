@@ -28,7 +28,7 @@ Project {
             name: "QRC Editor"
             prefix: "qrceditor/"
             files: [
-                "qrceditor.cpp", "qrceditor.h", "qrceditor.ui",
+                "qrceditor.cpp", "qrceditor.h",
                 "resourcefile.cpp", "resourcefile_p.h",
                 "resourceview.cpp", "resourceview.h",
                 "undocommands.cpp", "undocommands_p.h",
