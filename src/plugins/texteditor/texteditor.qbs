@@ -217,7 +217,6 @@ Project {
                 "snippetssettings.h",
                 "snippetssettingspage.cpp",
                 "snippetssettingspage.h",
-                "snippetssettingspage.ui",
             ]
         }
 

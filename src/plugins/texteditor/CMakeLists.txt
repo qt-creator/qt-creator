@@ -87,7 +87,7 @@ add_qtc_plugin(TextEditor
     snippets/snippetprovider.cpp snippets/snippetprovider.h
     snippets/snippetscollection.cpp snippets/snippetscollection.h
     snippets/snippetssettings.cpp snippets/snippetssettings.h
-    snippets/snippetssettingspage.cpp snippets/snippetssettingspage.h snippets/snippetssettingspage.ui
+    snippets/snippetssettingspage.cpp snippets/snippetssettingspage.h
     storagesettings.cpp storagesettings.h
     syntaxhighlighter.cpp syntaxhighlighter.h
     tabsettings.cpp tabsettings.h
