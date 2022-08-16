@@ -4,38 +4,46 @@
 #include "qmljscodestylesettingswidget.h"
 
 #include "qmljscodestylesettings.h"
-#include "ui_qmljscodestylesettingswidget.h"
 
+#include <utils/layoutbuilder.h>
+
+#include <QSpinBox>
 #include <QTextStream>
 
 namespace QmlJSTools {
 
-QmlJSCodeStyleSettingsWidget::QmlJSCodeStyleSettingsWidget(QWidget *parent) :
-    QGroupBox(parent),
-    ui(new Internal::Ui::QmlJSCodeStyleSettingsWidget)
+QmlJSCodeStyleSettingsWidget::QmlJSCodeStyleSettingsWidget(QWidget *parent)
+    : QWidget(parent)
 {
-    ui->setupUi(this);
+    m_lineLengthSpinBox = new QSpinBox;
+    m_lineLengthSpinBox->setMinimum(0);
+    m_lineLengthSpinBox->setMaximum(999);
 
-    connect(ui->lineLengthSpinBox, &QSpinBox::valueChanged,
+    using namespace Utils::Layouting;
+    Column {
+        Group {
+            title(tr("Qml JS Code Style")),
+            Form {
+                tr("&Line length:"), m_lineLengthSpinBox, br,
+            }
+        }
+    }.attachTo(this, WithoutMargins);
+
+    connect(m_lineLengthSpinBox, &QSpinBox::valueChanged,
             this, &QmlJSCodeStyleSettingsWidget::slotSettingsChanged);
-}
-
-QmlJSCodeStyleSettingsWidget::~QmlJSCodeStyleSettingsWidget()
-{
-    delete ui;
 }
 
 void QmlJSCodeStyleSettingsWidget::setCodeStyleSettings(const QmlJSCodeStyleSettings& s)
 {
     QSignalBlocker blocker(this);
-    ui->lineLengthSpinBox->setValue(s.lineLength);
+    m_lineLengthSpinBox->setValue(s.lineLength);
 }
 
 QmlJSCodeStyleSettings QmlJSCodeStyleSettingsWidget::codeStyleSettings() const
 {
     QmlJSCodeStyleSettings set;
 
-    set.lineLength = ui->lineLengthSpinBox->value();
+    set.lineLength = m_lineLengthSpinBox->value();
 
     return set;
 }

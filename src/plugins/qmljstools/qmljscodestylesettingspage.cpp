@@ -4,11 +4,11 @@
 #include "qmljscodestylesettingspage.h"
 
 #include "qmljscodestylepreferences.h"
+#include "qmljscodestylepreferenceswidget.h"
 #include "qmljsindenter.h"
 #include "qmljsqtstylecodeformatter.h"
 #include "qmljstoolsconstants.h"
 #include "qmljstoolssettings.h"
-#include "ui_qmljscodestylesettingspage.h"
 
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
@@ -16,9 +16,12 @@
 #include <texteditor/codestyleeditor.h>
 #include <texteditor/displaysettings.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/simplecodestylepreferenceswidget.h>
+#include <texteditor/snippets/snippeteditor.h>
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
+#include <utils/layoutbuilder.h>
 
 #include <QTextStream>
 
@@ -29,13 +32,30 @@ namespace Internal {
 
 // ------------------ CppCodeStyleSettingsWidget
 
-QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(QWidget *parent) :
-    TextEditor::CodeStyleEditorWidget(parent),
-    m_ui(new Ui::QmlJSCodeStyleSettingsPage)
+QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(
+        const TextEditor::ICodeStylePreferencesFactory *factory, QWidget *parent)
+    : TextEditor::CodeStyleEditorWidget(parent)
 {
-    m_ui->setupUi(this);
+    m_tabPreferencesWidget = new SimpleCodeStylePreferencesWidget;
+    m_codeStylePreferencesWidget = new QmlJSTools::QmlJSCodeStylePreferencesWidget;
+    m_previewTextEdit = new SnippetEditorWidget;
+    m_previewTextEdit->setPlainText(factory->previewText());
+    QSizePolicy sp(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
+    sp.setHorizontalStretch(1);
+    m_previewTextEdit->setSizePolicy(sp);
 
     decorateEditor(TextEditorSettings::fontSettings());
+
+    using namespace Utils::Layouting;
+    Row {
+        Column {
+            m_tabPreferencesWidget,
+            m_codeStylePreferencesWidget,
+            st,
+        },
+        m_previewTextEdit,
+    }.attachTo(this, WithoutMargins);
+
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
        this, &QmlJSCodeStylePreferencesWidget::decorateEditor);
 
@@ -44,16 +64,11 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(QWidget *parent
     updatePreview();
 }
 
-QmlJSCodeStylePreferencesWidget::~QmlJSCodeStylePreferencesWidget()
-{
-    delete m_ui;
-}
-
 void QmlJSCodeStylePreferencesWidget::setPreferences(QmlJSCodeStylePreferences *preferences)
 {
     m_preferences = preferences;
-    m_ui->tabPreferencesWidget->setPreferences(preferences);
-    m_ui->codeStylePreferencesWidget->setPreferences(preferences);
+    m_tabPreferencesWidget->setPreferences(preferences);
+    m_codeStylePreferencesWidget->setPreferences(preferences);
     if (m_preferences)
     {
         connect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
@@ -66,16 +81,16 @@ void QmlJSCodeStylePreferencesWidget::setPreferences(QmlJSCodeStylePreferences *
 
 void QmlJSCodeStylePreferencesWidget::decorateEditor(const FontSettings &fontSettings)
 {
-    m_ui->previewTextEdit->textDocument()->setFontSettings(fontSettings);
-    SnippetProvider::decorateEditor(m_ui->previewTextEdit,
+    m_previewTextEdit->textDocument()->setFontSettings(fontSettings);
+    SnippetProvider::decorateEditor(m_previewTextEdit,
                                     QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
 }
 
 void QmlJSCodeStylePreferencesWidget::setVisualizeWhitespace(bool on)
 {
-    DisplaySettings displaySettings = m_ui->previewTextEdit->displaySettings();
+    DisplaySettings displaySettings = m_previewTextEdit->displaySettings();
     displaySettings.m_visualizeWhitespace = on;
-    m_ui->previewTextEdit->setDisplaySettings(displaySettings);
+    m_previewTextEdit->setDisplaySettings(displaySettings);
 }
 
 void QmlJSCodeStylePreferencesWidget::slotSettingsChanged()
@@ -85,20 +100,20 @@ void QmlJSCodeStylePreferencesWidget::slotSettingsChanged()
 
 void QmlJSCodeStylePreferencesWidget::updatePreview()
 {
-    QTextDocument *doc = m_ui->previewTextEdit->document();
+    QTextDocument *doc = m_previewTextEdit->document();
 
     const TabSettings &ts = m_preferences
             ? m_preferences->currentTabSettings()
             : TextEditorSettings::codeStyle()->tabSettings();
-    m_ui->previewTextEdit->textDocument()->setTabSettings(ts);
+    m_previewTextEdit->textDocument()->setTabSettings(ts);
     CreatorCodeFormatter formatter(ts);
     formatter.invalidateCache(doc);
 
     QTextBlock block = doc->firstBlock();
-    QTextCursor tc = m_ui->previewTextEdit->textCursor();
+    QTextCursor tc = m_previewTextEdit->textCursor();
     tc.beginEditBlock();
     while (block.isValid()) {
-        m_ui->previewTextEdit->textDocument()->indenter()->indentBlock(block, QChar::Null, ts);
+        m_previewTextEdit->textDocument()->indenter()->indentBlock(block, QChar::Null, ts);
         block = block.next();
     }
     tc.endEditBlock();

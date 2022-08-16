@@ -7,13 +7,14 @@
 
 #include <QGroupBox>
 
+QT_BEGIN_NAMESPACE
+class QSpinBox;
+QT_END_NAMESPACE
+
 namespace QmlJSTools {
 class QmlJSCodeStyleSettings;
 
-namespace Internal { namespace Ui { class QmlJSCodeStyleSettingsWidget; } }
-
-
-class QMLJSTOOLS_EXPORT QmlJSCodeStyleSettingsWidget : public QGroupBox
+class QMLJSTOOLS_EXPORT QmlJSCodeStyleSettingsWidget : public QWidget
 {
     Q_OBJECT
 
@@ -24,7 +25,6 @@ public:
     };
 
     explicit QmlJSCodeStyleSettingsWidget(QWidget *parent = nullptr);
-    ~QmlJSCodeStyleSettingsWidget() override;
 
     QmlJSCodeStyleSettings codeStyleSettings() const;
 
@@ -38,7 +38,7 @@ private:
     void slotSettingsChanged();
     void codingStyleLinkActivated(const QString &linkString);
 
-    Internal::Ui::QmlJSCodeStyleSettingsWidget *ui;
+    QSpinBox *m_lineLengthSpinBox;
 };
 
 } // namespace QmlJSTools

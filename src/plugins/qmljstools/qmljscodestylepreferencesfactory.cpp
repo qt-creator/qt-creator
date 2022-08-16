@@ -59,8 +59,7 @@ TextEditor::CodeStyleEditorWidget *QmlJSCodeStylePreferencesFactory::createEdito
     auto qmlJSPreferences = qobject_cast<QmlJSCodeStylePreferences *>(preferences);
     if (!qmlJSPreferences)
         return nullptr;
-    auto widget = new Internal::QmlJSCodeStylePreferencesWidget(parent);
-    widget->layout()->setContentsMargins(0, 0, 0, 0);
+    auto widget = new Internal::QmlJSCodeStylePreferencesWidget(this, parent);
     widget->setPreferences(qmlJSPreferences);
     return widget;
 }

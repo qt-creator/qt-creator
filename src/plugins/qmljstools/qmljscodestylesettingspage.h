@@ -16,23 +16,24 @@ QT_END_NAMESPACE
 namespace TextEditor {
     class FontSettings;
     class CodeStyleEditor;
+    class SimpleCodeStylePreferencesWidget;
+    class SnippetEditorWidget;
 }
 
 namespace QmlJSTools {
 class QmlJSCodeStylePreferences;
+class QmlJSCodeStylePreferencesWidget;
 class QmlJSCodeStyleSettings;
 
 namespace Internal {
-
-namespace Ui { class QmlJSCodeStyleSettingsPage; }
 
 class QmlJSCodeStylePreferencesWidget : public TextEditor::CodeStyleEditorWidget
 {
     Q_OBJECT
 
 public:
-    explicit QmlJSCodeStylePreferencesWidget(QWidget *parent = nullptr);
-    ~QmlJSCodeStylePreferencesWidget() override;
+    explicit QmlJSCodeStylePreferencesWidget(const TextEditor::ICodeStylePreferencesFactory *factory,
+                                             QWidget *parent = nullptr);
 
     void setPreferences(QmlJSCodeStylePreferences* preferences);
 
@@ -43,7 +44,9 @@ private:
     void updatePreview();
 
     QmlJSCodeStylePreferences *m_preferences = nullptr;
-    Ui::QmlJSCodeStyleSettingsPage *m_ui;
+    TextEditor::SimpleCodeStylePreferencesWidget *m_tabPreferencesWidget;
+    QmlJSTools::QmlJSCodeStylePreferencesWidget *m_codeStylePreferencesWidget;
+    TextEditor::SnippetEditorWidget *m_previewTextEdit;
 };
 
 
