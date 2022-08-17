@@ -439,7 +439,8 @@ void CppCodeStyleSettingsPage::apply()
 
 void CppCodeStyleSettingsPage::finish()
 {
-    m_widget->finish();
+    if (m_widget)
+        m_widget->finish();
     delete m_widget;
 }
 
