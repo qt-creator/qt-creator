@@ -95,6 +95,8 @@ Module {
         "QT_USE_QSTRINGBUILDER",
     ].concat(testsEnabled ? ["WITH_TESTS"] : [])
      .concat(qbs.toolchain.contains("msvc") ? ["_CRT_SECURE_NO_WARNINGS"] : [])
+     .concat((qbs.toolchain.contains("msvc") && Utilities.versionCompare(qbs.version, "1.23.2") < 0)
+        ? ["_ENABLE_EXTENDED_ALIGNED_STORAGE"] : [])
 
     Properties {
         condition: cpp.present && qbs.toolchain.contains("msvc") && product.Qt
