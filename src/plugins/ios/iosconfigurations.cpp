@@ -587,6 +587,7 @@ Toolchains IosToolChainFactory::autoDetect(const ToolchainDetector &detector) co
             auto createOrAdd = [&](ClangToolChain *toolChain, Id l) {
                 if (!toolChain) {
                     toolChain = new ClangToolChain;
+                    toolChain->setPriority(ToolChain::PriorityHigh);
                     toolChain->setDetection(ToolChain::AutoDetection);
                     toolChain->setLanguage(l);
                     toolChain->setDisplayName(target.name);

@@ -268,6 +268,14 @@ void KitManager::restoreKits()
                 bestTc = tc;
                 continue;
             }
+
+            if (bestTc->priority() > tc->priority())
+                continue;
+            if (bestTc->priority() < tc->priority()) {
+                bestTc = tc;
+                continue;
+            }
+
             const QString bestFilePath = bestTc->compilerCommand().toString();
             const QString currentFilePath = tc->compilerCommand().toString();
             if (bestFilePath.contains("icecc"))
@@ -283,6 +291,7 @@ void KitManager::restoreKits()
                 bestTc = tc;
                 continue;
             }
+
             if (bestFilePath.length() > currentFilePath.length())
                 bestTc = tc;
         }

@@ -209,6 +209,9 @@ public:
     QVariantMap toMap() const override;
     bool fromMap(const QVariantMap &data) override;
 
+    void setPriority(int priority) { m_priority = priority; }
+    int priority() const override { return m_priority; }
+
 protected:
     Utils::LanguageExtensions defaultLanguageExtensions() const override;
     void syncAutodetectedWithParentToolchains();
@@ -218,6 +221,7 @@ private:
     // which is used for comparison with matchesCompileCommand
     mutable std::optional<Utils::FilePath> m_resolvedCompilerCommand;
     QByteArray m_parentToolChainId;
+    int m_priority = PriorityNormal;
     QMetaObject::Connection m_mingwToolchainAddedConnection;
     QMetaObject::Connection m_thisToolchainRemovedConnection;
 

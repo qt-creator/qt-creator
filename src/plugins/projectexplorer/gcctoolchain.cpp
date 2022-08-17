@@ -111,6 +111,7 @@ const char targetAbiKeyC[] = "ProjectExplorer.GccToolChain.TargetAbi";
 const char originalTargetTripleKeyC[] = "ProjectExplorer.GccToolChain.OriginalTargetTriple";
 const char supportedAbisKeyC[] = "ProjectExplorer.GccToolChain.SupportedAbis";
 const char parentToolChainIdKeyC[] = "ProjectExplorer.ClangToolChain.ParentToolChainId";
+const char priorityKeyC[] = "ProjectExplorer.ClangToolChain.Priority";
 const char binaryRegexp[] = "(?:^|-|\\b)(?:gcc|g\\+\\+|clang(?:\\+\\+)?)(?:-([\\d.]+))?$";
 
 static QString runGcc(const FilePath &gcc, const QStringList &arguments, const Environment &env)
@@ -1715,6 +1716,7 @@ QVariantMap ClangToolChain::toMap() const
 {
     QVariantMap data = GccToolChain::toMap();
     data.insert(parentToolChainIdKeyC, m_parentToolChainId);
+    data.insert(priorityKeyC, m_priority);
     return data;
 }
 
@@ -1724,6 +1726,7 @@ bool ClangToolChain::fromMap(const QVariantMap &data)
         return false;
 
     m_parentToolChainId = data.value(parentToolChainIdKeyC).toByteArray();
+    m_priority = data.value(priorityKeyC, PriorityNormal).toInt();
     syncAutodetectedWithParentToolchains();
     return true;
 }
