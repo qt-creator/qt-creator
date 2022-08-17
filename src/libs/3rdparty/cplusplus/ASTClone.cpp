@@ -1840,3 +1840,11 @@ DesignatedInitializerAST *DesignatedInitializerAST::clone(MemoryPool *pool) cons
     return ast;
 }
 
+DecompositionDeclaratorAST *DecompositionDeclaratorAST::clone(MemoryPool *pool) const
+{
+    const auto theClone = new (pool) DecompositionDeclaratorAST;
+    for (NameListAST *iter = identifiers, **ast_iter = &theClone->identifiers;
+         iter; iter = iter->next, ast_iter = &(*ast_iter)->next)
+        *ast_iter = new (pool) NameListAST((iter->value) ? iter->value->clone(pool) : nullptr);
+    return theClone;
+}

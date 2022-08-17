@@ -352,6 +352,14 @@ bool DeclaratorIdAST::match0(AST *pattern, ASTMatcher *matcher)
     return false;
 }
 
+bool DecompositionDeclaratorAST::match0(AST *pattern, ASTMatcher *matcher)
+{
+    if (DecompositionDeclaratorAST *_other = pattern->asDecompositionDeclarator())
+        return matcher->match(this, _other);
+
+    return false;
+}
+
 bool NestedDeclaratorAST::match0(AST *pattern, ASTMatcher *matcher)
 {
     if (NestedDeclaratorAST *_other = pattern->asNestedDeclarator())

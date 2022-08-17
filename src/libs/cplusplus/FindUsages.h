@@ -282,6 +282,7 @@ protected:
 
     // CoreDeclaratorAST
     virtual bool visit(DeclaratorIdAST *ast);
+    virtual bool visit(DecompositionDeclaratorAST *ast);
     virtual bool visit(NestedDeclaratorAST *ast);
 
     // PostfixDeclaratorAST

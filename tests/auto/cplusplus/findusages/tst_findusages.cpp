@@ -83,6 +83,7 @@ private Q_SLOTS:
     void shadowedNames_1();
     void shadowedNames_2();
     void staticVariables();
+    void structuredBinding();
 
     void functionNameFoundInArguments();
     void memberFunctionFalsePositives_QTCREATORBUG2176();
@@ -372,6 +373,42 @@ void tst_FindUsages::staticVariables()
     QCOMPARE(findUsages.usages().at(2).type, Usage::Type::Write);
     QCOMPARE(findUsages.usages().at(3).type, Usage::Type::Write);
     QCOMPARE(findUsages.usages().at(4).type, Usage::Type::Write);
+}
+
+void tst_FindUsages::structuredBinding()
+{
+    const QByteArray src = "\n"
+            "int array[] = {1, 2};\n"
+            "const auto &[e1, e2] = array;\n"
+            "const int i1 = e1;\n"
+            "const int i2 = e2;\n"
+            ;
+    Document::Ptr doc = Document::create("structuredBinding");
+    doc->setUtf8Source(src);
+    doc->parse();
+    doc->check();
+
+    QVERIFY(doc->diagnosticMessages().isEmpty());
+    QCOMPARE(doc->globalSymbolCount(), 5);
+
+    Snapshot snapshot;
+    snapshot.insert(doc);
+
+    Declaration * const d1 = doc->globalSymbolAt(1)->asDeclaration();
+    QVERIFY(d1);
+    Declaration * const d2 = doc->globalSymbolAt(2)->asDeclaration();
+    QVERIFY(d2);
+
+    FindUsages findUsages(src, doc, snapshot, true);
+    findUsages(d1);
+    QCOMPARE(findUsages.usages().size(), 2);
+    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Initialization);
+    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Read);
+
+    findUsages(d2);
+    QCOMPARE(findUsages.usages().size(), 2);
+    QCOMPARE(findUsages.usages().at(0).type, Usage::Type::Initialization);
+    QCOMPARE(findUsages.usages().at(1).type, Usage::Type::Read);
 }
 
 void tst_FindUsages::functionNameFoundInArguments()

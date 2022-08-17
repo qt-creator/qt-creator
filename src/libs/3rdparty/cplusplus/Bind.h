@@ -77,7 +77,9 @@ protected:
 
     const Name *objCSelectorArgument(ObjCSelectorArgumentAST *ast, bool *hasArg);
     void attribute(GnuAttributeAST *ast);
-    FullySpecifiedType declarator(DeclaratorAST *ast, const FullySpecifiedType &init, DeclaratorIdAST **declaratorId);
+    FullySpecifiedType declarator(DeclaratorAST *ast, const FullySpecifiedType &init,
+                                  DeclaratorIdAST **declaratorId,
+                                  DecompositionDeclaratorAST **decompDeclarator = nullptr);
     void qtInterfaceName(QtInterfaceNameAST *ast);
     void baseSpecifier(BaseSpecifierAST *ast, int colon_token, Class *klass);
     void ctorInitializer(CtorInitializerAST *ast, Function *fun);
@@ -275,6 +277,7 @@ protected:
 
     // CoreDeclaratorAST
     bool visit(DeclaratorIdAST *ast) override;
+    bool visit(DecompositionDeclaratorAST *ast) override;
     bool visit(NestedDeclaratorAST *ast) override;
 
     // PostfixDeclaratorAST
@@ -291,6 +294,7 @@ private:
     const Name *_name;
     FullySpecifiedType _type;
     DeclaratorIdAST **_declaratorId;
+    DecompositionDeclaratorAST **_decompositionDeclarator;
     int _visibility;
     int _objcVisibility;
     int _methodKey;

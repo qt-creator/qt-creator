@@ -1568,6 +1568,8 @@ bool Parser::parseDeclaratorOrAbstractDeclarator(DeclaratorAST *&node, Specifier
     return parseAbstractDeclarator(node, decl_specifier_list);
 }
 
+
+
 bool Parser::parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, ClassSpecifierAST *)
 {
     DEBUG_THIS_RULE();
@@ -1616,9 +1618,49 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
             node = ast;
             return true;
         }
+    } else if (const auto decl = parseDecompositionDeclarator()) {
+        DeclaratorAST *ast = new (_pool) DeclaratorAST;
+        ast->attribute_list = attributes;
+        ast->ptr_operator_list = ptr_operators;
+        ast->core_declarator = decl;
+        node = ast;
+        return true;
     }
     rewind(start);
     return false;
+}
+
+DecompositionDeclaratorAST *Parser::parseDecompositionDeclarator()
+{
+    if (LA() != T_LBRACKET)
+        return nullptr;
+    consumeToken();
+
+    const auto decl = new (_pool) DecompositionDeclaratorAST;
+    for (NameListAST **iter = &decl->identifiers; ; iter = &(*iter)->next) {
+        NameAST *name_ast = nullptr;
+        if (!parseName(name_ast)) {
+            error(cursor(), "expected an identifier");
+            return nullptr;
+        }
+        *iter = new (_pool) NameListAST;
+        (*iter)->value = name_ast;
+
+        if (LA() == T_RBRACKET) {
+            consumeToken();
+            return decl;
+        }
+
+        if (LA() == T_COMMA) {
+            consumeToken();
+            continue;
+        }
+
+        error(cursor(), "expected ',' or ']'");
+        return nullptr;
+    }
+
+    return nullptr;
 }
 
 static bool maybeCppInitializer(DeclaratorAST *declarator)

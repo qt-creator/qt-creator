@@ -4634,4 +4634,3 @@ int NoExceptOperatorExpressionAST::lastToken() const
         return noexcept_token + 1;
     return 1;
 }
-

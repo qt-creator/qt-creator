@@ -836,6 +836,15 @@ bool ASTMatcher::match(DeclaratorIdAST *node, DeclaratorIdAST *pattern)
     return true;
 }
 
+bool ASTMatcher::match(DecompositionDeclaratorAST *node, DecompositionDeclaratorAST *pattern)
+{
+    if (!pattern->identifiers)
+        pattern->identifiers = node->identifiers;
+    else if (! AST::match(node->identifiers, pattern->identifiers, this))
+        return false;
+    return true;
+}
+
 bool ASTMatcher::match(NestedDeclaratorAST *node, NestedDeclaratorAST *pattern)
 {
     (void) node;

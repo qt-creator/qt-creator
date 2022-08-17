@@ -339,6 +339,13 @@ public:
         return ast;
     }
 
+    DecompositionDeclaratorAST *DecompositionDeclarator(NameListAST *names = nullptr)
+    {
+        const auto ast = new (&pool) DecompositionDeclaratorAST;
+        ast->identifiers = names;
+        return ast;
+    }
+
     NestedDeclaratorAST *NestedDeclarator(DeclaratorAST *declarator = nullptr)
     {
         NestedDeclaratorAST *ast = new (&pool) NestedDeclaratorAST;

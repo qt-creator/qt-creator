@@ -368,6 +368,14 @@ void DeclaratorIdAST::accept0(ASTVisitor *visitor)
     visitor->endVisit(this);
 }
 
+void DecompositionDeclaratorAST::accept0(ASTVisitor *visitor)
+{
+    if (visitor->visit(this)) {
+        accept(identifiers, visitor);
+    }
+    visitor->endVisit(this);
+}
+
 void NestedDeclaratorAST::accept0(ASTVisitor *visitor)
 {
     if (visitor->visit(this)) {

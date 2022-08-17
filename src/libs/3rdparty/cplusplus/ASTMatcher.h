@@ -63,6 +63,7 @@ public:
     virtual bool match(DeclarationStatementAST *node, DeclarationStatementAST *pattern);
     virtual bool match(DeclaratorAST *node, DeclaratorAST *pattern);
     virtual bool match(DeclaratorIdAST *node, DeclaratorIdAST *pattern);
+    virtual bool match(DecompositionDeclaratorAST *node, DecompositionDeclaratorAST *pattern);
     virtual bool match(DecltypeSpecifierAST *node, DecltypeSpecifierAST *pattern);
     virtual bool match(DeleteExpressionAST *node, DeleteExpressionAST *pattern);
     virtual bool match(DesignatedInitializerAST *node, DesignatedInitializerAST *pattern);

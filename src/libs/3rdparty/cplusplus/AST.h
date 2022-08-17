@@ -210,6 +210,7 @@ public:
     virtual DeclarationStatementAST *asDeclarationStatement() { return nullptr; }
     virtual DeclaratorAST *asDeclarator() { return nullptr; }
     virtual DeclaratorIdAST *asDeclaratorId() { return nullptr; }
+    virtual DecompositionDeclaratorAST *asDecompositionDeclarator() { return nullptr; }
     virtual DecltypeSpecifierAST *asDecltypeSpecifier() { return nullptr; }
     virtual DeleteExpressionAST *asDeleteExpression() { return nullptr; }
     virtual DesignatedInitializerAST *asDesignatedInitializer() { return nullptr; }
@@ -1271,6 +1272,24 @@ public:
     int lastToken() const override;
 
     DeclaratorIdAST *clone(MemoryPool *pool) const override;
+
+protected:
+    void accept0(ASTVisitor *visitor) override;
+    bool match0(AST *, ASTMatcher *) override;
+};
+
+class CPLUSPLUS_EXPORT DecompositionDeclaratorAST: public CoreDeclaratorAST
+{
+public:
+    NameListAST *identifiers = nullptr;
+
+public:
+    DecompositionDeclaratorAST *asDecompositionDeclarator() override { return this; }
+
+    int firstToken() const override { return identifiers->firstToken(); }
+    int lastToken() const override { return identifiers->lastToken(); }
+
+    DecompositionDeclaratorAST *clone(MemoryPool *pool) const override;
 
 protected:
     void accept0(ASTVisitor *visitor) override;

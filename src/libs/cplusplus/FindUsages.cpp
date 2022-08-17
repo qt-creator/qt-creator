@@ -2494,6 +2494,13 @@ bool FindUsages::visit(DeclaratorIdAST *ast)
     return false;
 }
 
+bool FindUsages::visit(DecompositionDeclaratorAST *ast)
+{
+    for (auto it = ast->identifiers->begin(); it != ast->identifiers->end(); ++it)
+        name(*it);
+    return false;
+}
+
 bool FindUsages::visit(NestedDeclaratorAST *ast)
 {
     // unsigned lparen_token = ast->lparen_token;

@@ -79,6 +79,7 @@ public:
     bool parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *declaringClass = nullptr);
     bool parseDeclarationStatement(StatementAST *&node);
     bool parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, ClassSpecifierAST *declaringClass);
+    DecompositionDeclaratorAST *parseDecompositionDeclarator();
     bool parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, ClassSpecifierAST *declaringClass = nullptr);
     bool parseDeleteExpression(ExpressionAST *&node);
     bool parseDoStatement(StatementAST *&node);
