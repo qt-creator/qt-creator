@@ -140,18 +140,6 @@ bool CppEditorOutline::isSorted() const
     return m_proxyModel->sortColumn() == 0;
 }
 
-QModelIndex CppEditorOutline::modelIndex()
-{
-    if (!m_modelIndex.isValid()) {
-        int line = 0, column = 0;
-        m_editorWidget->convertPosition(m_editorWidget->position(), &line, &column);
-        m_modelIndex = indexForPosition(line, column);
-        emit modelIndexChanged(m_modelIndex);
-    }
-
-    return m_modelIndex;
-}
-
 QWidget *CppEditorOutline::widget() const
 {
     return m_combo;
@@ -184,8 +172,9 @@ void CppEditorOutline::updateIndexNow()
 
     m_updateIndexTimer->stop();
 
-    m_modelIndex = QModelIndex(); //invalidate
-    QModelIndex comboIndex = modelIndex();
+    int line = 0, column = 0;
+    m_editorWidget->convertPosition(m_editorWidget->position(), &line, &column);
+    QModelIndex comboIndex = m_model->indexForPosition(line, column);
 
     if (comboIndex.isValid()) {
         QSignalBlocker blocker(m_combo);
@@ -212,41 +201,6 @@ void CppEditorOutline::gotoSymbolInEditor()
     Core::EditorManager::addCurrentPositionToNavigationHistory();
     m_editorWidget->gotoLine(link.targetLine, link.targetColumn, true, true);
     emit m_editorWidget->activateEditor();
-}
-
-static bool contains(const OverviewModel::Range &range, int line, int column)
-{
-    if (line < range.first.line || line > range.second.line)
-        return false;
-    if (line == range.first.line && column < range.first.column)
-        return false;
-    if (line == range.second.line && column > range.second.column)
-        return false;
-    return true;
-}
-
-QModelIndex CppEditorOutline::indexForPosition(int line, int column,
-                                               const QModelIndex &rootIndex) const
-{
-    QModelIndex lastIndex = rootIndex;
-    const int rowCount = m_model->rowCount(rootIndex);
-    for (int row = 0; row < rowCount; ++row) {
-        const QModelIndex index = m_model->index(row, 0, rootIndex);
-        const OverviewModel::Range range = m_model->rangeFromIndex(index);
-        if (range.first.line > line)
-            break;
-        // Skip ranges that do not include current line and column.
-        if (range.second != range.first && !contains(range, line, column))
-            continue;
-        lastIndex = index;
-    }
-
-    if (lastIndex != rootIndex) {
-        // recurse
-        lastIndex = indexForPosition(line, column, lastIndex);
-    }
-
-    return lastIndex;
 }
 
 } // namespace CppEditor::Internal

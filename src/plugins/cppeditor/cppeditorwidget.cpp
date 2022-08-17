@@ -597,11 +597,6 @@ CppEditorDocument *CppEditorWidget::cppEditorDocument() const
     return d->m_cppEditorDocument;
 }
 
-CppEditorOutline *CppEditorWidget::outline() const
-{
-    return d->m_cppEditorOutline;
-}
-
 void CppEditorWidget::paste()
 {
     if (d->m_localRenaming.handlePaste())

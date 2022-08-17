@@ -99,13 +99,13 @@ Qt::DropActions CppOutlineFilterModel::supportedDragActions() const
 CppOutlineWidget::CppOutlineWidget(CppEditorWidget *editor) :
     m_editor(editor),
     m_treeView(new CppOutlineTreeView(this)),
+    m_model(&m_editor->cppEditorDocument()->outlineModel()),
+    m_proxyModel(new CppOutlineFilterModel(*m_model, this)),
     m_enableCursorSync(true),
     m_blockCursorSync(false),
     m_sorted(false)
 {
-    OverviewModel *model = &m_editor->cppEditorDocument()->outlineModel();
-    m_proxyModel = new CppOutlineFilterModel(*model, this);
-    m_proxyModel->setSourceModel(model);
+    m_proxyModel->setSourceModel(m_model);
 
     auto *layout = new QVBoxLayout;
     layout->setContentsMargins(0, 0, 0, 0);
@@ -117,13 +117,19 @@ CppOutlineWidget::CppOutlineWidget(CppEditorWidget *editor) :
     m_treeView->setSortingEnabled(true);
     setFocusProxy(m_treeView);
 
-    connect(model, &QAbstractItemModel::modelReset, this, &CppOutlineWidget::modelUpdated);
+    connect(m_model, &QAbstractItemModel::modelReset, this, &CppOutlineWidget::modelUpdated);
     modelUpdated();
 
-    connect(m_editor->outline(), &CppEditorOutline::modelIndexChanged,
-            this, &CppOutlineWidget::updateSelectionInTree);
     connect(m_treeView, &QAbstractItemView::activated,
             this, &CppOutlineWidget::onItemActivated);
+    connect(editor, &QPlainTextEdit::cursorPositionChanged, this, [this] {
+        if (m_model->rootItem()->hasChildren())
+            updateIndex();
+    });
+
+    m_updateIndexTimer.setSingleShot(true);
+    m_updateIndexTimer.setInterval(500);
+    connect(&m_updateIndexTimer, &QTimer::timeout, this, &CppOutlineWidget::updateIndexNow);
 }
 
 QList<QAction*> CppOutlineWidget::filterMenuActions() const
@@ -135,7 +141,7 @@ void CppOutlineWidget::setCursorSynchronization(bool syncWithCursor)
 {
     m_enableCursorSync = syncWithCursor;
     if (m_enableCursorSync)
-        updateSelectionInTree(m_editor->outline()->modelIndex());
+        updateIndexNow();
 }
 
 bool CppOutlineWidget::isSorted() const
@@ -164,17 +170,37 @@ void CppOutlineWidget::modelUpdated()
     m_treeView->expandAll();
 }
 
-void CppOutlineWidget::updateSelectionInTree(const QModelIndex &index)
+void CppOutlineWidget::updateIndex()
+{
+    m_updateIndexTimer.start();
+}
+
+void CppOutlineWidget::updateIndexNow()
 {
     if (!syncCursor())
         return;
 
-    QModelIndex proxyIndex = m_proxyModel->mapFromSource(index);
+    const auto revision = static_cast<unsigned>(m_editor->document()->revision());
+    if (m_model->editorRevision() != revision) {
+        m_editor->cppEditorDocument()->updateOutline();
+        m_updateIndexTimer.start();
+        return;
+    }
 
-    m_blockCursorSync = true;
-    m_treeView->setCurrentIndex(proxyIndex);
-    m_treeView->scrollTo(proxyIndex);
-    m_blockCursorSync = false;
+    m_updateIndexTimer.stop();
+
+    int line = 0, column = 0;
+    m_editor->convertPosition(m_editor->position(), &line, &column);
+    QModelIndex index = m_model->indexForPosition(line, column);
+
+    if (index.isValid()) {
+        m_blockCursorSync = true;
+        QModelIndex proxyIndex = m_proxyModel->mapFromSource(index);
+        m_treeView->setCurrentIndex(proxyIndex);
+        m_treeView->scrollTo(proxyIndex);
+        m_blockCursorSync = false;
+    }
+
 }
 
 void CppOutlineWidget::updateTextCursor(const QModelIndex &proxyIndex)

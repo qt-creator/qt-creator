@@ -53,12 +53,7 @@ class CppEditorOutline : public QObject
 public:
     explicit CppEditorOutline(CppEditorWidget *editorWidget);
 
-    QModelIndex modelIndex();
-
     QWidget *widget() const; // Must be deleted by client.
-
-signals:
-    void modelIndexChanged(const QModelIndex &index);
 
 public slots:
     void updateIndex();
@@ -72,8 +67,6 @@ private:
     CppEditorOutline();
 
     bool isSorted() const;
-    QModelIndex indexForPosition(int line, int column,
-                                 const QModelIndex &rootIndex = QModelIndex()) const;
 
     OverviewModel *m_model = nullptr; // Not owned
 
@@ -81,7 +74,6 @@ private:
 
     Utils::TreeViewComboBox *m_combo = nullptr; // Not owned
     QSortFilterProxyModel *m_proxyModel = nullptr;
-    QModelIndex m_modelIndex;
     QAction *m_sortAction = nullptr;
     QTimer *m_updateIndexTimer = nullptr;
 };

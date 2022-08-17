@@ -33,6 +33,7 @@
 #include <utils/navigationtreeview.h>
 
 #include <QSortFilterProxyModel>
+#include <QTimer>
 
 namespace CppEditor {
 namespace Internal {
@@ -75,7 +76,8 @@ public:
     QVariantMap settings() const override;
 private:
     void modelUpdated();
-    void updateSelectionInTree(const QModelIndex &index);
+    void updateIndex();
+    void updateIndexNow();
     void updateTextCursor(const QModelIndex &index);
     void onItemActivated(const QModelIndex &index);
     bool syncCursor();
@@ -83,7 +85,9 @@ private:
 private:
     CppEditorWidget *m_editor;
     CppOutlineTreeView *m_treeView;
+    OverviewModel * const m_model;
     QSortFilterProxyModel *m_proxyModel;
+    QTimer m_updateIndexTimer;
 
     bool m_enableCursorSync;
     bool m_blockCursorSync;

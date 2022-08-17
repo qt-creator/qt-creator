@@ -57,7 +57,6 @@ public:
     ~CppEditorWidget() override;
 
     Internal::CppEditorDocument *cppEditorDocument() const;
-    Internal::CppEditorOutline *outline() const;
 
     bool isSemanticInfoValidExceptLocalUses() const;
     bool isSemanticInfoValid() const;

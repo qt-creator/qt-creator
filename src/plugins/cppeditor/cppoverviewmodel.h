@@ -70,6 +70,8 @@ public:
     using Range = std::pair<Utils::LineColumn, Utils::LineColumn>;
     Range rangeFromIndex(const QModelIndex &sourceIndex) const;
 
+    QModelIndex indexForPosition(int line, int column, const QModelIndex &rootIndex = {}) const;
+
 private:
     void rebuild();
     CPlusPlus::Symbol *symbolFromIndex(const QModelIndex &index) const;

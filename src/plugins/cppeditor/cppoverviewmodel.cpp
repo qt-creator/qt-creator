@@ -290,4 +290,39 @@ void OverviewModel::buildTree(SymbolItem *root, bool isRoot)
     }
 }
 
+static bool contains(const OverviewModel::Range &range, int line, int column)
+{
+    if (line < range.first.line || line > range.second.line)
+        return false;
+    if (line == range.first.line && column < range.first.column)
+        return false;
+    if (line == range.second.line && column > range.second.column)
+        return false;
+    return true;
+}
+
+QModelIndex OverviewModel::indexForPosition(int line, int column,
+                                            const QModelIndex &rootIndex) const
+{
+    QModelIndex lastIndex = rootIndex;
+    const int rowCount = this->rowCount(rootIndex);
+    for (int row = 0; row < rowCount; ++row) {
+        const QModelIndex index = this->index(row, 0, rootIndex);
+        const OverviewModel::Range range = rangeFromIndex(index);
+        if (range.first.line > line)
+            break;
+        // Skip ranges that do not include current line and column.
+        if (range.second != range.first && !contains(range, line, column))
+            continue;
+        lastIndex = index;
+    }
+
+    if (lastIndex != rootIndex) {
+        // recurse
+        lastIndex = indexForPosition(line, column, lastIndex);
+    }
+
+    return lastIndex;
+}
+
 } // namespace CppEditor::Internal
