@@ -411,8 +411,6 @@ public:
 
     CppEditorDocument *m_cppEditorDocument;
     CppEditorOutline *m_cppEditorOutline = nullptr;
-    QAction *m_outlineAction = nullptr;
-    QTimer m_outlineTimer;
 
     QTimer m_updateFunctionDeclDefLinkTimer;
     SemanticInfo m_lastSemanticInfo;
@@ -489,7 +487,7 @@ void CppEditorWidget::finalizeInitialization()
     connect(&d->m_localRenaming, &CppLocalRenaming::processKeyPressNormally,
             this, &CppEditorWidget::processKeyNormally);
     connect(this, &QPlainTextEdit::cursorPositionChanged, this, [this] {
-        if (d->shouldOfferOutline())
+        if (d->m_cppEditorOutline)
             d->m_cppEditorOutline->updateIndex();
     });
 
@@ -527,8 +525,7 @@ void CppEditorWidget::finalizeInitialization()
     });
 
     // Toolbar: Outline/Overview combo box
-    d->m_outlineAction = insertExtraToolBarWidget(TextEditorWidget::Left,
-                                                  d->m_cppEditorOutline->widget());
+    setToolbarOutline(d->m_cppEditorOutline->widget());
 
     // clang-format on
     // Toolbar: '#' Button
@@ -546,17 +543,8 @@ void CppEditorWidget::finalizeInitialization()
         insertExtraToolBarWidget(TextEditorWidget::Left, d->m_preprocessorButton);
     }
 
-    d->m_outlineTimer.setInterval(5000);
-    d->m_outlineTimer.setSingleShot(true);
-    connect(&d->m_outlineTimer, &QTimer::timeout, this, [this] {
-        d->m_outlineAction->setVisible(d->shouldOfferOutline());
-        if (d->m_outlineAction->isVisible())
-            d->m_cppEditorDocument->updateOutline();
-    });
-    connect(&ClangdSettings::instance(), &ClangdSettings::changed,
-            &d->m_outlineTimer, qOverload<>(&QTimer::start));
-    connect(d->m_cppEditorDocument, &CppEditorDocument::changed,
-            &d->m_outlineTimer, qOverload<>(&QTimer::start));
+    connect(this, &TextEditor::TextEditorWidget::toolbarOutlineChanged,
+            this, &CppEditorWidget::handleOutlineChanged);
 }
 
 void CppEditorWidget::finalizeInitializationAfterDuplication(TextEditorWidget *other)
@@ -756,6 +744,20 @@ const ProjectPart *CppEditorWidget::projectPart() const
 
     return findProjectPartForCurrentProject(projectParts,
                                             ProjectExplorer::ProjectTree::currentProject());
+}
+
+void CppEditorWidget::handleOutlineChanged(const QWidget *newOutline)
+{
+    if (d->m_cppEditorOutline && newOutline != d->m_cppEditorOutline->widget()) {
+        delete d->m_cppEditorOutline;
+        d->m_cppEditorOutline = nullptr;
+    }
+    if (newOutline == nullptr) {
+        if (!d->m_cppEditorOutline)
+            d->m_cppEditorOutline = new CppEditorOutline(this);
+        d->m_cppEditorOutline->updateIndex();
+        setToolbarOutline(d->m_cppEditorOutline->widget());
+    }
 }
 
 namespace {

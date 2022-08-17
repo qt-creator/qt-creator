@@ -332,6 +332,8 @@ public:
 
     enum Side { Left, Right };
     QAction *insertExtraToolBarWidget(Side side, QWidget *widget);
+    void setToolbarOutline(QWidget* widget);
+    const QWidget *toolbarOutlineWidget();
 
     // keep the auto completion even if the focus is lost
     void keepAutoCompletionHighlight(bool keepHighlight);
@@ -501,6 +503,7 @@ signals:
     void requestUsages(const QTextCursor &cursor);
     void requestRename(const QTextCursor &cursor);
     void optionalActionMaskChanged();
+    void toolbarOutlineChanged(QWidget *newOutline);
 
 protected:
     QTextBlock blockForVisibleRow(int row) const;

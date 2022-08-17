@@ -228,7 +228,7 @@ public:
 
     QPointer<QAction> m_popupAction;
     QPointer<Client> m_client;
-    QPointer<QAction> m_outlineAction;
+    QPointer<QWidget> m_outline;
 };
 
 void updateEditorToolBar(Core::IEditor *editor)
@@ -292,19 +292,16 @@ void updateEditorToolBar(Core::IEditor *editor)
 
     if (!extras->m_client || !client || extras->m_client != client
         || !client->supportsDocumentSymbols(document)) {
-        if (extras->m_outlineAction) {
-            widget->toolBar()->removeAction(extras->m_outlineAction);
-            delete extras->m_outlineAction;
-        }
+        if (extras->m_outline && widget->toolbarOutlineWidget() == extras->m_outline)
+            widget->setToolbarOutline(nullptr);
         extras->m_client.clear();
     }
 
     if (!extras->m_client) {
-        QWidget *comboBox = LanguageClientOutlineWidgetFactory::createComboBox(client, textEditor);
-        if (comboBox) {
+        extras->m_outline = LanguageClientOutlineWidgetFactory::createComboBox(client, textEditor);
+        if (extras->m_outline) {
+            widget->setToolbarOutline(extras->m_outline);
             extras->m_client = client;
-            extras->m_outlineAction = widget->insertExtraToolBarWidget(TextEditorWidget::Left,
-                                                                       comboBox);
         }
     }
 }

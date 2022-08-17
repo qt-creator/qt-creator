@@ -212,7 +212,7 @@ void OverviewModel::update(CPlusPlus::Document::Ptr doc)
 
 int OverviewModel::editorRevision()
 {
-    return m_cppDocument ? m_cppDocument->editorRevision() : 0;
+    return m_cppDocument ? m_cppDocument->editorRevision() : -1;
 }
 
 void OverviewModel::rebuild()

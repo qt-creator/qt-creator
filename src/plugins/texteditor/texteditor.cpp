@@ -658,6 +658,8 @@ public:
     QWidget *m_toolBarWidget = nullptr;
     QToolBar *m_toolBar = nullptr;
     QWidget *m_stretchWidget = nullptr;
+    QAction *m_stretchAction = nullptr;
+    QAction *m_toolbarOutlineAction = nullptr;
     LineColumnLabel *m_cursorPositionLabel = nullptr;
     FixedSizeClickLabel *m_fileEncodingLabel = nullptr;
     QAction *m_fileEncodingLabelAction = nullptr;
@@ -945,7 +947,7 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     m_stretchWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_toolBar = new QToolBar;
     m_toolBar->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
-    m_toolBar->addWidget(m_stretchWidget);
+    m_stretchAction = m_toolBar->addWidget(m_stretchWidget);
     m_toolBarWidget->layout()->addWidget(m_toolBar);
 
     m_cursorPositionLabel = new LineColumnLabel(q);
@@ -7894,11 +7896,8 @@ QWidget *BaseTextEditor::toolBar()
 QAction * TextEditorWidget::insertExtraToolBarWidget(TextEditorWidget::Side side,
                                                      QWidget *widget)
 {
-    if (widget->sizePolicy().horizontalPolicy() & QSizePolicy::ExpandFlag) {
-        if (d->m_stretchWidget)
-            d->m_stretchWidget->deleteLater();
-        d->m_stretchWidget = nullptr;
-    }
+    if (widget->sizePolicy().horizontalPolicy() & QSizePolicy::ExpandFlag)
+        d->m_stretchAction->setVisible(false);
 
     if (side == Left) {
         QAction *before = Utils::findOr(d->m_toolBar->actions(),
@@ -7910,6 +7909,46 @@ QAction * TextEditorWidget::insertExtraToolBarWidget(TextEditorWidget::Side side
     } else {
         return d->m_toolBar->insertWidget(d->m_fileEncodingLabelAction, widget);
     }
+}
+
+void TextEditorWidget::setToolbarOutline(QWidget *widget)
+{
+    if (d->m_toolbarOutlineAction) {
+        if (d->m_toolBar->widgetForAction(d->m_toolbarOutlineAction) == widget)
+            return;
+        d->m_toolBar->removeAction(d->m_toolbarOutlineAction);
+        delete d->m_toolbarOutlineAction;
+        d->m_toolbarOutlineAction = nullptr;
+    } else if (!widget) {
+        return;
+    }
+
+    if (widget) {
+        if (widget->sizePolicy().horizontalPolicy() & QSizePolicy::ExpandFlag)
+            d->m_stretchAction->setVisible(false);
+
+        d->m_toolbarOutlineAction = d->m_toolBar->insertWidget(d->m_stretchAction, widget);
+    } else {
+        // check for a widget with an expanding size policy otherwise re-enable the stretcher
+        for (auto action : d->m_toolBar->actions()) {
+            if (QWidget *toolbarWidget = d->m_toolBar->widgetForAction(action)) {
+                if (toolbarWidget->isVisible()
+                    && toolbarWidget->sizePolicy().horizontalPolicy() & QSizePolicy::ExpandFlag) {
+                    d->m_stretchAction->setVisible(false);
+                    return;
+                }
+            }
+        }
+        d->m_stretchAction->setVisible(true);
+    }
+
+    emit toolbarOutlineChanged(widget);
+}
+
+const QWidget *TextEditorWidget::toolbarOutlineWidget()
+{
+    return d->m_toolbarOutlineAction ? d->m_toolBar->widgetForAction(d->m_toolbarOutlineAction)
+                                     : nullptr;
 }
 
 void TextEditorWidget::keepAutoCompletionHighlight(bool keepHighlight)

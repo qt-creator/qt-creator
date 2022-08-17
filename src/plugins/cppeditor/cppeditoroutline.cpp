@@ -165,7 +165,7 @@ void CppEditorOutline::updateIndex()
 void CppEditorOutline::updateIndexNow()
 {
     if (m_model->editorRevision() != m_editorWidget->document()->revision()) {
-        m_updateIndexTimer->start();
+        m_editorWidget->cppEditorDocument()->updateOutline();
         return;
     }
 
