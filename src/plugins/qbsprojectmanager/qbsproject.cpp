@@ -766,6 +766,10 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
                 << arrayToStringList(getCppProp("driverFlags"));
     const QStringList toolchain = arrayToStringList(properties.value("qbs.toolchain"));
     if (toolchain.contains("gcc")) {
+        if (const QString sysroot = properties.value("qbs.sysroot").toString();
+                !sysroot.isEmpty()) {
+            commonFlags << "--sysroot" << sysroot;
+        }
         bool hasTargetOption = false;
         if (toolchain.contains("clang")) {
             const int majorVersion = getCppProp("compilerVersionMajor").toInt();

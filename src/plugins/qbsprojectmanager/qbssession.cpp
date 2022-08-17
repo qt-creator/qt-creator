@@ -350,8 +350,6 @@ RunEnvironmentResult QbsSession::getRunEnvironment(
 void QbsSession::insertRequestedModuleProperties(QJsonObject &request)
 {
     request.insert("module-properties", QJsonArray::fromStringList({
-        "qbs.architecture",
-        "qbs.architectures",
         "cpp.commonCompilerFlags",
         "cpp.compilerVersionMajor",
         "cpp.compilerVersionMinor",
@@ -383,6 +381,9 @@ void QbsSession::insertRequestedModuleProperties(QJsonObject &request)
         "cpp.useCxxPrecompiledHeader",
         "cpp.useObjcPrecompiledHeader",
         "cpp.useObjcxxPrecompiledHeader",
+        "qbs.architecture",
+        "qbs.architectures",
+        "qbs.sysroot",
         "qbs.targetOS",
         "qbs.toolchain",
         "Qt.core.enableKeywords",
