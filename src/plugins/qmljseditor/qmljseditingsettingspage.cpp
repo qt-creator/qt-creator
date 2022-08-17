@@ -4,13 +4,15 @@
 #include "qmljseditingsettingspage.h"
 #include "qmljseditorconstants.h"
 
-#include <qmljstools/qmljstoolsconstants.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
+#include <qmljstools/qmljstoolsconstants.h>
+#include <utils/layoutbuilder.h>
 
+#include <QCheckBox>
+#include <QComboBox>
 #include <QSettings>
 #include <QTextStream>
-#include <QCheckBox>
 
 const char AUTO_FORMAT_ON_SAVE[] = "QmlJSEditor.AutoFormatOnSave";
 const char AUTO_FORMAT_ONLY_CURRENT_PROJECT[] = "QmlJSEditor.AutoFormatOnlyCurrentProject";
@@ -134,42 +136,74 @@ void QmlJsEditingSettings::setUiQmlOpenMode(const QString &mode)
 
 class QmlJsEditingSettingsPageWidget final : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlDesigner::Internal::QmlJsEditingSettingsPage)
-
 public:
     QmlJsEditingSettingsPageWidget()
     {
-        m_ui.setupUi(this);
-
         auto s = QmlJsEditingSettings::get();
-        m_ui.textEditHelperCheckBox->setChecked(s.enableContextPane());
-        m_ui.textEditHelperCheckBoxPin->setChecked(s.pinContextPane());
-        m_ui.autoFormatOnSave->setChecked(s.autoFormatOnSave());
-        m_ui.autoFormatOnlyCurrentProject->setChecked(s.autoFormatOnlyCurrentProject());
-        m_ui.foldAuxDataCheckBox->setChecked(s.foldAuxData());
-        m_ui.uiQmlOpenComboBox->addItem(tr("Always Ask"), "");
-        m_ui.uiQmlOpenComboBox->addItem(tr("Qt Design Studio"), Core::Constants::MODE_DESIGN);
-        m_ui.uiQmlOpenComboBox->addItem(tr("Qt Creator"), Core::Constants::MODE_EDIT);
-        int comboIndex = m_ui.uiQmlOpenComboBox->findData(s.uiQmlOpenMode());
-        if (comboIndex < 0)
-            comboIndex = 0;
-        m_ui.uiQmlOpenComboBox->setCurrentIndex(comboIndex);
+        autoFormatOnSave = new QCheckBox(tr("Enable auto format on file save"));
+        autoFormatOnSave->setChecked(s.autoFormatOnSave());
+        autoFormatOnlyCurrentProject =
+                new QCheckBox(tr("Restrict to files contained in the current project"));
+        autoFormatOnlyCurrentProject->setChecked(s.autoFormatOnlyCurrentProject());
+        autoFormatOnlyCurrentProject->setEnabled(autoFormatOnSave->isChecked());
+        pinContextPane = new QCheckBox(tr("Pin Qt Quick Toolbar"));
+        pinContextPane->setChecked(s.pinContextPane());
+        enableContextPane = new QCheckBox(tr("Always show Qt Quick Toolbar"));
+        enableContextPane->setChecked(s.enableContextPane());
+        foldAuxData = new QCheckBox(tr("Auto-fold auxiliary data"));
+        foldAuxData->setChecked(s.foldAuxData());
+        uiQmlOpenComboBox = new QComboBox;
+        uiQmlOpenComboBox->addItem(tr("Always Ask"), "");
+        uiQmlOpenComboBox->addItem(tr("Qt Design Studio"), Core::Constants::MODE_DESIGN);
+        uiQmlOpenComboBox->addItem(tr("Qt Creator"), Core::Constants::MODE_EDIT);
+        const int comboIndex = qMax(0, uiQmlOpenComboBox->findData(s.uiQmlOpenMode()));
+        uiQmlOpenComboBox->setCurrentIndex(comboIndex);
+        uiQmlOpenComboBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+        uiQmlOpenComboBox->setSizeAdjustPolicy(QComboBox::QComboBox::AdjustToContents);
+
+        using namespace Utils::Layouting;
+        Column {
+            Group {
+                title(tr("Automatic Formatting on File Save")),
+                Column { autoFormatOnSave, autoFormatOnlyCurrentProject },
+            },
+            Group {
+                title(tr("Qt Quick Toolbars")),
+                Column { pinContextPane, enableContextPane },
+            },
+            Group {
+                title(tr("Features")),
+                Column {
+                    foldAuxData,
+                    Form { tr("Open .ui.qml files with:"), uiQmlOpenComboBox },
+                },
+            },
+            st,
+        }.attachTo(this);
+
+        connect(autoFormatOnSave, &QCheckBox::toggled,
+                autoFormatOnlyCurrentProject, &QWidget::setEnabled);
     }
 
     void apply() final
     {
         QmlJsEditingSettings s;
-        s.setEnableContextPane(m_ui.textEditHelperCheckBox->isChecked());
-        s.setPinContextPane(m_ui.textEditHelperCheckBoxPin->isChecked());
-        s.setAutoFormatOnSave(m_ui.autoFormatOnSave->isChecked());
-        s.setAutoFormatOnlyCurrentProject(m_ui.autoFormatOnlyCurrentProject->isChecked());
-        s.setFoldAuxData(m_ui.foldAuxDataCheckBox->isChecked());
-        s.setUiQmlOpenMode(m_ui.uiQmlOpenComboBox->currentData().toString());
+        s.setEnableContextPane(enableContextPane->isChecked());
+        s.setPinContextPane(pinContextPane->isChecked());
+        s.setAutoFormatOnSave(autoFormatOnSave->isChecked());
+        s.setAutoFormatOnlyCurrentProject(autoFormatOnlyCurrentProject->isChecked());
+        s.setFoldAuxData(foldAuxData->isChecked());
+        s.setUiQmlOpenMode(uiQmlOpenComboBox->currentData().toString());
         s.set();
     }
 
 private:
-    Ui::QmlJsEditingSettingsPage m_ui;
+    QCheckBox *autoFormatOnSave;
+    QCheckBox *autoFormatOnlyCurrentProject;
+    QCheckBox *pinContextPane;
+    QCheckBox *enableContextPane;
+    QCheckBox *foldAuxData;
+    QComboBox *uiQmlOpenComboBox;
 };
 
 

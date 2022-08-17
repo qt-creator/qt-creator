@@ -5,10 +5,21 @@
 
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QDialogButtonBox;
+class QLabel;
+class QListWidget;
+class QPlainTextEdit;
+QT_END_NAMESPACE
+
+namespace Utils {
+class ClassNameValidatingLineEdit;
+class PathChooser;
+}
+
 namespace QmlJSEditor {
 namespace Internal {
-
-namespace Ui { class ComponentNameDialog; }
 
 class ComponentNameDialog : public QDialog
 {
@@ -16,7 +27,6 @@ class ComponentNameDialog : public QDialog
 
 public:
     explicit ComponentNameDialog(QWidget *parent = nullptr);
-    ~ComponentNameDialog() override;
 
     static bool go(QString *proposedName, QString *proposedPath, QString *proposedSuffix,
                    const QStringList &properties, const QStringList &sourcePreview, const QString &oldFileName,
@@ -35,8 +45,16 @@ protected:
     QString isValid() const;
 
 private:
-    Ui::ComponentNameDialog *ui;
     QStringList m_sourcePreview;
+
+    Utils::ClassNameValidatingLineEdit *m_componentNameEdit;
+    QLabel *m_messageLabel;
+    Utils::PathChooser *m_pathEdit;
+    QLabel *m_label;
+    QListWidget *m_listWidget;
+    QPlainTextEdit *m_plainTextEdit;
+    QCheckBox *m_checkBox;
+    QDialogButtonBox *m_buttonBox;
 };
 
 } // namespace Internal

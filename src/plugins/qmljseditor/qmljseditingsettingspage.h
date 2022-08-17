@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "ui_qmljseditingsettingspage.h"
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <QPointer>
 #include <QWidget>

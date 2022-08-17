@@ -6,8 +6,8 @@ add_qtc_plugin(QmlJSEditor
     qmljsautocompleter.cpp qmljsautocompleter.h
     qmljscompletionassist.cpp qmljscompletionassist.h
     qmljscomponentfromobjectdef.cpp qmljscomponentfromobjectdef.h
-    qmljscomponentnamedialog.cpp qmljscomponentnamedialog.h qmljscomponentnamedialog.ui
-    qmljseditingsettingspage.cpp qmljseditingsettingspage.h qmljseditingsettingspage.ui
+    qmljscomponentnamedialog.cpp qmljscomponentnamedialog.h
+    qmljseditingsettingspage.cpp qmljseditingsettingspage.h
     qmljseditor.cpp qmljseditor.h
     qmljseditor_global.h
     qmljseditortr.h
