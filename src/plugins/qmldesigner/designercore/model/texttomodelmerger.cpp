@@ -1712,7 +1712,7 @@ void TextToModelMerger::syncSignalDeclarationProperty(AbstractProperty &modelPro
                                             const QString &signature,
                                             DifferenceHandler &differenceHandler)
 {
-    if (modelProperty.isSignalHandlerProperty()) {
+    if (modelProperty.isSignalDeclarationProperty()) {
         SignalDeclarationProperty signalHandlerProperty = modelProperty.toSignalDeclarationProperty();
         if (signalHandlerProperty.signature() != signature)
             differenceHandler.signalDeclarationSignatureDiffer(signalHandlerProperty, signature);
