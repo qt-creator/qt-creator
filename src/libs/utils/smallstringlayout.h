@@ -27,6 +27,7 @@
 
 #include <QtGlobal>
 
+#include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <memory>
@@ -170,7 +171,7 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
 
     constexpr StringDataLayout(const char *string, size_type size) noexcept
         : control{0, true, true}
-        , reference{string, size, 0}
+        , reference{{string}, size, 0}
     {}
 
     template<size_type Size>
