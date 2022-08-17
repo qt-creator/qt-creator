@@ -318,8 +318,7 @@
                 },
                 {
                     "source": "Screen01.ui.qml.tpl",
-                    "target": "%{ProjectDirectory}/content/Screen01.ui.qml",
-                    "openInEditor": true
+                    "target": "%{ProjectDirectory}/content/Screen01.ui.qml"
                 },
                 {
                     "source": "../common/fonts.txt",
