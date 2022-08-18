@@ -34,6 +34,8 @@
 #include <utils/linecolumn.h>
 #include <utils/link.h>
 
+#include <QTimer>
+
 using namespace CPlusPlus;
 namespace CppEditor::Internal {
 
