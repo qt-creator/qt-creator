@@ -143,6 +143,7 @@
 #include <QSettings>
 #include <QThreadPool>
 #include <QTimer>
+#include <QVBoxLayout>
 
 #include <functional>
 #include <memory>

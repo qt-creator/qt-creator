@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "ui_projectexplorersettingspage.h"
-
 #include <coreplugin/dialogs/ioptionspage.h>
 
 #include <QPointer>

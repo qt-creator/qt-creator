@@ -111,7 +111,7 @@ Project {
                 "projectexplorerconstants.h",
                 "projectexplorericons.h", "projectexplorericons.cpp",
                 "projectexplorersettings.h",
-                "projectexplorersettingspage.cpp", "projectexplorersettingspage.h", "projectexplorersettingspage.ui",
+                "projectexplorersettingspage.cpp", "projectexplorersettingspage.h",
                 "projectfilewizardextension.cpp", "projectfilewizardextension.h",
                 "projectimporter.cpp", "projectimporter.h",
                 "projectmacro.cpp", "projectmacro.h",
