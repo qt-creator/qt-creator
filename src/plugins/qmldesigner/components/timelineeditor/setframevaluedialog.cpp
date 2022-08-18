@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "setframevaluedialog.h"
-#include "curveeditor/detail/colorcontrol.h"
+#include "timelinecontrols.h"
 
 #include <QDoubleSpinBox>
 #include <QSpinBox>
@@ -110,7 +110,7 @@ QWidget* SetFrameValueDialog::createValueControl(const QVariant& value)
     {
 
     case QMetaType::QColor: {
-        auto* widget = new StyleEditor::ColorControl(value.value<QColor>());
+        auto* widget = new ColorControl(value.value<QColor>());
         m_valueGetter = [widget]() { return widget->value(); };
         return widget;
     }

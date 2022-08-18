@@ -191,7 +191,7 @@ void ColorControl::mouseReleaseEvent(QMouseEvent *event)
 
     event->accept();
 
-    if (color != m_color) {
+    if (color.isValid() && color != m_color) {
         m_color = color;
         update();
         emit valueChanged();
