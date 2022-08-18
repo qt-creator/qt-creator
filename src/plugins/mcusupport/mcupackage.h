@@ -45,8 +45,7 @@ class InfoLabel;
 class Id;
 } // namespace Utils
 
-namespace McuSupport {
-namespace Internal {
+namespace McuSupport::Internal {
 
 class McuPackage : public McuAbstractPackage
 {
@@ -90,7 +89,7 @@ public:
     QWidget *widget() override;
     const McuPackageVersionDetector *getVersionDetector() const override;
 
-    void setPath(const Utils::FilePath &);
+    void setPath(const Utils::FilePath &) override;
 
 private:
     void updatePath();
@@ -149,7 +148,6 @@ private:
     const ToolChainType m_type;
 };
 
-} // namespace Internal
-} // namespace McuSupport
+} // namespace McuSupport::Internal
 
 Q_DECLARE_METATYPE(McuSupport::Internal::McuToolChainPackage::ToolChainType)
