@@ -6782,7 +6782,9 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("BoostList")
-            << Data("#include <boost/container/list.hpp>\n",
+            << Data("#include <utility>\n"
+                    "#include <boost/container/list.hpp>\n"
+                    "#include <boost/container/detail/pair.hpp>\n",
                     "typedef std::pair<int, double> p;\n"
                     "boost::container::list<p> l;\n"
                     "l.push_back(p(13, 61));\n"
@@ -6797,7 +6799,8 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("BoostVector")
-            << Data("#include <boost/container/vector.hpp>\n",
+            << Data("#include <utility>\n"
+                    "#include <boost/container/vector.hpp>\n",
                     "typedef std::pair<int, double> p;\n"
                     "boost::container::vector<p> v;\n"
                     "v.push_back(p(13, 61));\n"
@@ -6812,7 +6815,8 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("BoostStaticVector")
-            << Data("#include <boost/container/static_vector.hpp>\n",
+            << Data("#include <utility>\n"
+                    "#include <boost/container/static_vector.hpp>\n",
                     "typedef std::pair<int, double> p;\n"
                     "boost::container::static_vector<p, 10> v;\n"
                     "v.push_back(p(13, 61));\n"
@@ -6827,7 +6831,8 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("BoostSmallVector")
-            << Data("#include <boost/container/small_vector.hpp>\n",
+            << Data("#include <utility>\n"
+                    "#include <boost/container/small_vector.hpp>\n",
                     "typedef std::pair<int, double> p;\n"
                     "boost::container::small_vector<p, 3> v0;\n"
                     "boost::container::small_vector<p, 3> v2;\n"

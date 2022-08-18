@@ -139,7 +139,10 @@ def qdump__boost__posix_time__time_duration(d, value):
 
 def qdump__boost__unordered__unordered_set(d, value):
     innerType = value.type[0]
-    if value.type.size() == 6 * d.ptrSize():  # 48 for boost 1.55+, 40 for 1.48
+    if value.type.size() == 7 * d.ptrSize(): # 56 for boost 1.79+
+        bases, bucketCount, bcountLog2, size, mlf, maxload, buckets = value.split('ttttttp')
+        forward = True
+    elif value.type.size() == 6 * d.ptrSize():  # 48 for boost 1.55+
         # boost 1.58 or 1.55
         # bases are 3? bytes, and mlf is actually a float, but since
         # its followed by size_t maxload, it's # effectively padded to a size_t
@@ -150,14 +153,16 @@ def qdump__boost__unordered__unordered_set(d, value):
             forward = len(ittype.templateArguments()) == 1
         except:
             forward = True
-    else:
+    elif value.type.size() == 5 * d.ptrSize():  # 40 for boost 1.48
         # boost 1.48
         # Values are stored before the next pointers. Determine the offset.
         buckets, bucketCount, size, mlf, maxload = value.split('ptttt')
         forward = False
+    else:
+        raise Exception("Unknown boost::unordered_set layout")
 
     if forward:
-        # boost 1.58
+        # boost >= 1.58
         code = 'pp{%s}' % innerType.name
 
         def children(p):
@@ -174,6 +179,7 @@ def qdump__boost__unordered__unordered_set(d, value):
             while True:
                 val, pad, p = d.split(code, p - offset)
                 yield val
+
     p = d.extractPointer(buckets + bucketCount * d.ptrSize())
     d.putItems(size, children(p), maxNumChild=10000)
 
