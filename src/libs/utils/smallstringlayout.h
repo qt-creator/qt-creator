@@ -43,12 +43,14 @@ template <uint MaximumShortStringDataAreaSize,
           typename ControlType = typename std::conditional_t<(MaximumShortStringDataAreaSize < 64), uint8_t, uint16_t>>
 struct ControlBlock
 {
-    using SizeType =  ControlType;
+    using SizeType = ControlType;
     constexpr ControlBlock() noexcept = default;
-    constexpr ControlBlock(ControlType shortStringSize, bool isReadOnlyReference, bool isReference) noexcept
-          : m_shortStringSize(shortStringSize),
-            m_isReadOnlyReference(isReadOnlyReference),
-            m_isReference(isReference)
+    constexpr ControlBlock(size_type shortStringSize,
+                           bool isReadOnlyReference,
+                           bool isReference) noexcept
+        : m_shortStringSize(static_cast<SizeType>(shortStringSize))
+        , m_isReadOnlyReference(isReadOnlyReference)
+        , m_isReference(isReference)
     {}
 
     constexpr void setShortStringSize(size_type size)
