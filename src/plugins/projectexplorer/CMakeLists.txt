@@ -150,7 +150,7 @@ add_qtc_plugin(ProjectExplorer
     projecttreewidget.cpp projecttreewidget.h
     projectwelcomepage.cpp projectwelcomepage.h
     projectwindow.cpp projectwindow.h
-    projectwizardpage.cpp projectwizardpage.h projectwizardpage.ui
+    projectwizardpage.cpp projectwizardpage.h
     rawprojectpart.cpp rawprojectpart.h
     removetaskhandler.cpp removetaskhandler.h
     runconfiguration.cpp runconfiguration.h

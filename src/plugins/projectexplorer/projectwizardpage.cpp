@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "projectwizardpage.h"
-#include "ui_projectwizardpage.h"
 
 #include "project.h"
 #include "projectmodels.h"
@@ -14,15 +13,20 @@
 #include <coreplugin/vcsmanager.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/treemodel.h>
+#include <utils/treeviewcombobox.h>
 #include <utils/wizard.h>
 #include <vcsbase/vcsbaseconstants.h>
 
+#include <QComboBox>
 #include <QDir>
+#include <QLabel>
+#include <QPushButton>
+#include <QScrollArea>
 #include <QTextStream>
-#include <QTreeView>
 
 /*!
     \class ProjectExplorer::Internal::ProjectWizardPage
@@ -259,29 +263,52 @@ static AddNewTree *buildAddFilesTree(FolderNode *root, const FilePaths &files,
 // ProjectWizardPage:
 // --------------------------------------------------------------------
 
-ProjectWizardPage::ProjectWizardPage(QWidget *parent) : WizardPage(parent),
-    m_ui(new Ui::WizardPage)
+ProjectWizardPage::ProjectWizardPage(QWidget *parent)
+    : WizardPage(parent)
 {
-    m_ui->setupUi(this);
-    m_ui->vcsManageButton->setText(ICore::msgShowOptionsDialog());
-    connect(m_ui->projectComboBox, &QComboBox::currentIndexChanged,
+    m_projectLabel = new QLabel;
+    m_projectComboBox = new Utils::TreeViewComboBox;
+    m_additionalInfo = new QLabel;
+    m_addToVersionControlLabel = new QLabel(tr("Add to &version control:"));
+    m_addToVersionControlComboBox = new QComboBox;
+    m_vcsManageButton = new QPushButton(ICore::msgShowOptionsDialog());
+    m_vcsManageButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+    m_filesLabel = new QLabel;
+    m_filesLabel->setAlignment(Qt::AlignBottom);
+    m_filesLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
+    auto scrollArea = new QScrollArea;
+    scrollArea->setFrameShape(QFrame::NoFrame);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setWidget(m_filesLabel);
+
+    using namespace Utils::Layouting;
+    Column {
+        Form {
+            m_projectLabel, m_projectComboBox, br,
+            empty, m_additionalInfo, br,
+            m_addToVersionControlLabel, m_addToVersionControlComboBox, m_vcsManageButton, br,
+        },
+        scrollArea,
+    }.attachTo(this);
+
+    connect(m_projectComboBox, &QComboBox::currentIndexChanged,
             this, &ProjectWizardPage::projectChanged);
-    connect(m_ui->addToVersionControlComboBox, &QComboBox::currentIndexChanged,
+    connect(m_addToVersionControlComboBox, &QComboBox::currentIndexChanged,
             this, &ProjectWizardPage::versionControlChanged);
-    connect(m_ui->vcsManageButton, &QAbstractButton::clicked, this, &ProjectWizardPage::manageVcs);
+    connect(m_vcsManageButton, &QAbstractButton::clicked, this, &ProjectWizardPage::manageVcs);
     setProperty(SHORT_TITLE_PROPERTY, tr("Summary"));
 
     connect(VcsManager::instance(), &VcsManager::configurationChanged,
             this, &ProjectExplorer::Internal::ProjectWizardPage::initializeVersionControls);
 
-    m_ui->projectComboBox->setModel(&m_model);
+    m_projectComboBox->setModel(&m_model);
 }
 
 ProjectWizardPage::~ProjectWizardPage()
 {
-    disconnect(m_ui->projectComboBox, &QComboBox::currentIndexChanged,
+    disconnect(m_projectComboBox, &QComboBox::currentIndexChanged,
                this, &ProjectWizardPage::projectChanged);
-    delete m_ui;
 }
 
 bool ProjectWizardPage::expandTree(const QModelIndex &root)
@@ -299,9 +326,9 @@ bool ProjectWizardPage::expandTree(const QModelIndex &root)
 
     // Apply to self
     if (expand)
-        m_ui->projectComboBox->view()->expand(root);
+        m_projectComboBox->view()->expand(root);
     else
-        m_ui->projectComboBox->view()->collapse(root);
+        m_projectComboBox->view()->collapse(root);
 
     // if we are a high priority node, our *parent* needs to be expanded
     auto tree = static_cast<AddNewTree *>(root.internalPointer());
@@ -314,25 +341,25 @@ bool ProjectWizardPage::expandTree(const QModelIndex &root)
 void ProjectWizardPage::setBestNode(AddNewTree *tree)
 {
     QModelIndex index = tree ? m_model.indexForItem(tree) : QModelIndex();
-    m_ui->projectComboBox->setCurrentIndex(index);
+    m_projectComboBox->setCurrentIndex(index);
 
     while (index.isValid()) {
-        m_ui->projectComboBox->view()->expand(index);
+        m_projectComboBox->view()->expand(index);
         index = index.parent();
     }
 }
 
 FolderNode *ProjectWizardPage::currentNode() const
 {
-    QVariant v = m_ui->projectComboBox->currentData(Qt::UserRole);
+    QVariant v = m_projectComboBox->currentData(Qt::UserRole);
     return v.isNull() ? nullptr : static_cast<FolderNode *>(v.value<void *>());
 }
 
 void ProjectWizardPage::setAddingSubProject(bool addingSubProject)
 {
-    m_ui->projectLabel->setText(addingSubProject ?
-                                    tr("Add as a subproject to project:")
-                                  : tr("Add to &project:"));
+    m_projectLabel->setText(addingSubProject ?
+                                tr("Add as a subproject to project:")
+                              : tr("Add to &project:"));
 }
 
 void ProjectWizardPage::initializeVersionControls()
@@ -446,45 +473,45 @@ void ProjectWizardPage::initializeProjectTree(Node *context, const FilePaths &pa
     auto predicate = [context](TreeItem *ti) { return static_cast<AddNewTree*>(ti)->node() == context; };
     TreeItem *contextItem = root->findAnyChild(predicate);
     if (contextItem)
-        m_ui->projectComboBox->setCurrentIndex(m_model.indexForItem(contextItem));
+        m_projectComboBox->setCurrentIndex(m_model.indexForItem(contextItem));
 
     setAdditionalInfo(selector.deployingProjects());
     setBestNode(selector.bestChoice());
     setAddingSubProject(action == AddSubProject);
 
-    m_ui->projectComboBox->setEnabled(m_model.rowCount(QModelIndex()) > 1);
+    m_projectComboBox->setEnabled(m_model.rowCount(QModelIndex()) > 1);
 }
 
 void ProjectWizardPage::setNoneLabel(const QString &label)
 {
-    m_ui->projectComboBox->setItemText(0, label);
+    m_projectComboBox->setItemText(0, label);
 }
 
 void ProjectWizardPage::setAdditionalInfo(const QString &text)
 {
-    m_ui->additionalInfo->setText(text);
-    m_ui->additionalInfo->setVisible(!text.isEmpty());
+    m_additionalInfo->setText(text);
+    m_additionalInfo->setVisible(!text.isEmpty());
 }
 
 void ProjectWizardPage::setVersionControls(const QStringList &vcs)
 {
-    m_ui->addToVersionControlComboBox->clear();
-    m_ui->addToVersionControlComboBox->addItems(vcs);
+    m_addToVersionControlComboBox->clear();
+    m_addToVersionControlComboBox->addItems(vcs);
 }
 
 int ProjectWizardPage::versionControlIndex() const
 {
-    return m_ui->addToVersionControlComboBox->currentIndex();
+    return m_addToVersionControlComboBox->currentIndex();
 }
 
 void ProjectWizardPage::setVersionControlIndex(int idx)
 {
-    m_ui->addToVersionControlComboBox->setCurrentIndex(idx);
+    m_addToVersionControlComboBox->setCurrentIndex(idx);
 }
 
 IVersionControl *ProjectWizardPage::currentVersionControl()
 {
-    int index = m_ui->addToVersionControlComboBox->currentIndex() - 1; // Subtract "<None>"
+    int index = m_addToVersionControlComboBox->currentIndex() - 1; // Subtract "<None>"
     if (index < 0 || index > m_activeVersionControls.count())
         return nullptr; // <None>
     return m_activeVersionControls.at(index);
@@ -530,13 +557,13 @@ void ProjectWizardPage::setFiles(const QStringList &fileNames)
 
         str << "</pre>";
     }
-    m_ui->filesLabel->setText(fileMessage);
+    m_filesLabel->setText(fileMessage);
 }
 
 void ProjectWizardPage::setProjectToolTip(const QString &tt)
 {
-    m_ui->projectComboBox->setToolTip(tt);
-    m_ui->projectLabel->setToolTip(tt);
+    m_projectComboBox->setToolTip(tt);
+    m_projectLabel->setToolTip(tt);
 }
 
 void ProjectWizardPage::projectChanged(int index)
@@ -553,15 +580,15 @@ void ProjectWizardPage::manageVcs()
 
 void ProjectWizardPage::hideVersionControlUiElements()
 {
-    m_ui->addToVersionControlLabel->hide();
-    m_ui->vcsManageButton->hide();
-    m_ui->addToVersionControlComboBox->hide();
+    m_addToVersionControlLabel->hide();
+    m_vcsManageButton->hide();
+    m_addToVersionControlComboBox->hide();
 }
 
 void ProjectWizardPage::setProjectUiVisible(bool visible)
 {
-    m_ui->projectLabel->setVisible(visible);
-    m_ui->projectComboBox->setVisible(visible);
+    m_projectLabel->setVisible(visible);
+    m_projectComboBox->setVisible(visible);
 }
 
 } // namespace Internal

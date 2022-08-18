@@ -12,18 +12,19 @@
 #include <utils/treemodel.h>
 
 QT_BEGIN_NAMESPACE
-class QTreeView;
+class QComboBox;
+class QLabel;
+class QPushButton;
 class QModelIndex;
 QT_END_NAMESPACE
 
+namespace Utils { class TreeViewComboBox; }
 namespace Core { class IVersionControl; }
 
 namespace ProjectExplorer {
 namespace Internal {
 
 class AddNewTree;
-
-namespace Ui { class WizardPage; }
 
 // Documentation inside.
 class ProjectWizardPage : public Utils::WizardPage
@@ -70,13 +71,20 @@ private:
     void setProjectToolTip(const QString &);
     bool expandTree(const QModelIndex &root);
 
-    Ui::WizardPage *m_ui;
     QStringList m_projectToolTips;
     Utils::TreeModel<> m_model;
 
     QList<Core::IVersionControl*> m_activeVersionControls;
     QString m_commonDirectory;
     bool m_repositoryExists = false;
+
+    QLabel *m_projectLabel;
+    Utils::TreeViewComboBox *m_projectComboBox;
+    QLabel *m_additionalInfo;
+    QLabel *m_addToVersionControlLabel;
+    QComboBox *m_addToVersionControlComboBox;
+    QPushButton *m_vcsManageButton;
+    QLabel *m_filesLabel;
 };
 
 } // namespace Internal
