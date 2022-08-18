@@ -118,9 +118,8 @@ protected:
     void insertLeftWidget(QWidget *w);
     void addSubmitButtonMenu(QMenu *menu);
     void hideDescription();
-
-protected slots:
     void descriptionTextChanged();
+    void verifyDescription();
 
 private:
     void updateCheckAllComboBox();
@@ -138,7 +137,6 @@ private:
     int checkedFilesCount() const;
     void wrapDescription();
     void trimDescription();
-    void verifyDescription();
 
     SubmitEditorWidgetPrivate *d;
 };

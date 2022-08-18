@@ -27,6 +27,7 @@
 
 #include <utils/qtcassert.h>
 
+#include "gitconstants.h"
 #include "githighlighters.h"
 
 namespace Git {
@@ -34,12 +35,12 @@ namespace Internal {
 
 static const char CHANGE_PATTERN[] = "\\b[a-f0-9]{7,40}\\b";
 
-GitSubmitHighlighter::GitSubmitHighlighter(QTextEdit * parent) :
+GitSubmitHighlighter::GitSubmitHighlighter(QChar commentChar, QTextEdit * parent) :
     TextEditor::SyntaxHighlighter(parent),
     m_keywordPattern("^[\\w-]+:")
 {
     setDefaultTextFormatCategories();
-    m_hashChar = '#';
+    m_commentChar = commentChar.isNull() ? QChar(Constants::DEFAULT_COMMENT_CHAR) : commentChar;
     QTC_CHECK(m_keywordPattern.isValid());
 }
 
@@ -52,7 +53,7 @@ void GitSubmitHighlighter::highlightBlock(const QString &text)
             state = Other;
         setCurrentBlockState(state);
         return;
-    } else if (text.startsWith(m_hashChar)) {
+    } else if (text.startsWith(m_commentChar)) {
         setFormat(0, text.size(), formatForCategory(TextEditor::C_COMMENT));
         setCurrentBlockState(state);
         return;
@@ -81,6 +82,19 @@ void GitSubmitHighlighter::highlightBlock(const QString &text)
         }
         break;
     }
+}
+
+QChar GitSubmitHighlighter::commentChar() const
+{
+    return m_commentChar;
+}
+
+void GitSubmitHighlighter::setCommentChar(QChar commentChar)
+{
+    if (m_commentChar == commentChar)
+        return;
+    m_commentChar = commentChar;
+    rehighlight();
 }
 
 GitRebaseHighlighter::RebaseAction::RebaseAction(const QString &regexp,
@@ -117,9 +131,9 @@ static TextEditor::TextStyle styleForFormat(int format)
     return C_TEXT;
 }
 
-GitRebaseHighlighter::GitRebaseHighlighter(QTextDocument *parent) :
+GitRebaseHighlighter::GitRebaseHighlighter(QChar commentChar, QTextDocument *parent) :
     TextEditor::SyntaxHighlighter(parent),
-    m_hashChar('#'),
+    m_commentChar(commentChar),
     m_changeNumberPattern(CHANGE_PATTERN)
 {
     setTextFormatCategories(Format_Count, styleForFormat);
@@ -139,7 +153,7 @@ GitRebaseHighlighter::GitRebaseHighlighter(QTextDocument *parent) :
 
 void GitRebaseHighlighter::highlightBlock(const QString &text)
 {
-    if (text.startsWith(m_hashChar)) {
+    if (text.startsWith(m_commentChar)) {
         setFormat(0, text.size(), formatForCategory(Format_Comment));
         QRegularExpressionMatchIterator it = m_changeNumberPattern.globalMatch(text);
         while (it.hasNext()) {

@@ -269,10 +269,15 @@ void GitEditorWidget::init()
 {
     VcsBaseEditorWidget::init();
     Utils::Id editorId = textDocument()->id();
-    if (editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID)
-        textDocument()->setSyntaxHighlighter(new GitSubmitHighlighter);
-    else if (editorId == Git::Constants::GIT_REBASE_EDITOR_ID)
-        textDocument()->setSyntaxHighlighter(new GitRebaseHighlighter);
+    const bool isCommitEditor = editorId == Git::Constants::GIT_COMMIT_TEXT_EDITOR_ID;
+    const bool isRebaseEditor = editorId == Git::Constants::GIT_REBASE_EDITOR_ID;
+    if (!isCommitEditor && !isRebaseEditor)
+        return;
+    const QChar commentChar = GitClient::instance()->commentChar(FilePath::fromString(source()));
+    if (isCommitEditor)
+        textDocument()->setSyntaxHighlighter(new GitSubmitHighlighter(commentChar));
+    else if (isRebaseEditor)
+        textDocument()->setSyntaxHighlighter(new GitRebaseHighlighter(commentChar));
 }
 
 void GitEditorWidget::addDiffActions(QMenu *menu, const DiffChunk &chunk)

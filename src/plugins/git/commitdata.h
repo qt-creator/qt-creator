@@ -115,6 +115,7 @@ public:
     GitSubmitEditorPanelInfo panelInfo;
     GitSubmitEditorPanelData panelData;
     bool enablePush = false;
+    QChar commentChar;
 
     QList<StateFilePair> files;
 

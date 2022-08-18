@@ -26,6 +26,7 @@
 #include "gitsubmiteditorwidget.h"
 
 #include "commitdata.h"
+#include "gitconstants.h"
 #include "githighlighters.h"
 #include "logchangedialog.h"
 
@@ -119,7 +120,7 @@ public:
 GitSubmitEditorWidget::GitSubmitEditorWidget() :
     m_gitSubmitPanel(new GitSubmitPanel)
 {
-    new GitSubmitHighlighter(descriptionEdit());
+    m_highlighter = new GitSubmitHighlighter(QChar(), descriptionEdit());
 
     m_emailValidator = new QRegularExpressionValidator(QRegularExpression("[^@ ]+@[^@ ]+\\.[a-zA-Z]+"), this);
     const QPixmap error = Utils::Icons::CRITICAL.pixmap();
@@ -176,6 +177,10 @@ void GitSubmitEditorWidget::initialize(const FilePath &repository, const CommitD
         insertLeftWidget(logChangeGroupBox);
         m_gitSubmitPanel->editGroup->hide();
         hideDescription();
+    } else {
+        m_highlighter->setCommentChar(data.commentChar);
+        if (data.commentChar != Constants::DEFAULT_COMMENT_CHAR)
+            verifyDescription();
     }
     insertTopWidget(m_gitSubmitPanel);
     setPanelData(data.panelData);
@@ -248,14 +253,14 @@ bool GitSubmitEditorWidget::canSubmit(QString *whyNot) const
 QString GitSubmitEditorWidget::cleanupDescription(const QString &input) const
 {
     // We need to manually purge out comment lines starting with
-    // hash '#' since git does not do that when using -F.
+    // the comment char (default hash '#') since git does not do that when using -F.
     const QChar newLine = '\n';
-    const QChar hash = '#';
+    const QChar commentChar = m_highlighter->commentChar();
     QString message = input;
     for (int pos = 0; pos < message.size(); ) {
         const int newLinePos = message.indexOf(newLine, pos);
         const int startOfNextLine = newLinePos == -1 ? message.size() : newLinePos + 1;
-        if (message.at(pos) == hash)
+        if (message.at(pos) == commentChar)
             message.remove(pos, startOfNextLine - pos);
         else
             pos = startOfNextLine;

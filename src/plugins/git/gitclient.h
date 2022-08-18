@@ -300,6 +300,7 @@ public:
 
     QString readGitVar(const Utils::FilePath &workingDirectory, const QString &configVar) const;
     QString readConfigValue(const Utils::FilePath &workingDirectory, const QString &configVar) const;
+    QChar commentChar(const Utils::FilePath &workingDirectory);
     void setConfigValue(const Utils::FilePath &workingDirectory, const QString &configVar,
                         const QString &value) const;
 

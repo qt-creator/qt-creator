@@ -2780,6 +2780,8 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
             *errorMessage = msgNoCommits(false);
             return false;
         }
+    } else {
+        commitData.commentChar = commentChar(repoDirectory);
     }
     const StatusResult status = gitStatus(repoDirectory, ShowAll, &output, errorMessage);
     switch (status) {
@@ -3548,6 +3550,12 @@ bool GitClient::synchronousStashList(const FilePath &workingDirectory, QList<Sta
 QString GitClient::readConfigValue(const FilePath &workingDirectory, const QString &configVar) const
 {
     return readOneLine(workingDirectory, {"config", configVar});
+}
+
+QChar GitClient::commentChar(const Utils::FilePath &workingDirectory)
+{
+    const QString commentChar = readConfigValue(workingDirectory, "core.commentChar");
+    return commentChar.isEmpty() ? QChar(Constants::DEFAULT_COMMENT_CHAR) : commentChar.at(0);
 }
 
 void GitClient::setConfigValue(const FilePath &workingDirectory, const QString &configVar,

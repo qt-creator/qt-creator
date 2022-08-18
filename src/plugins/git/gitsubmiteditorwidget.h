@@ -44,6 +44,7 @@ namespace Internal {
 class GitSubmitPanel;
 class GitSubmitEditorPanelInfo;
 class GitSubmitEditorPanelData;
+class GitSubmitHighlighter;
 class LogChangeWidget;
 
 /* Submit editor widget with 2 additional panes:
@@ -87,6 +88,7 @@ private:
 
     PushAction m_pushAction = NoPush;
     GitSubmitPanel *m_gitSubmitPanel;
+    GitSubmitHighlighter *m_highlighter = nullptr;
     LogChangeWidget *m_logChangeWidget = nullptr;
     QValidator *m_emailValidator;
     QString m_originalAuthor;

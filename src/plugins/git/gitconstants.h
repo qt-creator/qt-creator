@@ -56,6 +56,7 @@ const int OBSOLETE_COMMIT_AGE_IN_DAYS = 90;
 const int MAX_OBSOLETE_COMMITS_TO_DISPLAY = 5;
 
 const char EXPAND_BRANCHES[] = "Branches: <Expand>";
+const char DEFAULT_COMMENT_CHAR = '#';
 
 } // namespace Constants
 } // namespace Git
