@@ -22,6 +22,7 @@
 #include <utils/expected.h>
 
 #include <QCryptographicHash>
+#include <QLoggingCategory>
 
 using namespace clang;
 using namespace format;

@@ -34,6 +34,8 @@ using namespace std::chrono_literals;
 
 namespace ClangFormat {
 
+Q_LOGGING_CATEGORY(clangIndenterLog, "qtc.dbg.clangformat", QtWarningMsg)
+
 enum class ReplacementsToKeep { OnlyIndent, IndentAndBefore, All };
 
 static Internal::LlvmFileSystemAdapter llvmFileSystemAdapter = {};
@@ -551,6 +553,37 @@ ClangFormatBaseIndenter::~ClangFormatBaseIndenter()
     delete d;
 }
 
+static void printBuffer(QString str)
+{
+    for (const auto &line : str.split("\n")) {
+        qCDebug(clangIndenterLog) << line;
+    }
+}
+
+static void printDebugInfo(
+    const QByteArray &buffer,
+    clang::tooling::Replacements replacements,
+    const QString &additionalInfo)
+{
+    if (!clangIndenterLog().isInfoEnabled())
+        return;
+
+    QString str = QString::fromStdString(buffer.data());
+
+    if (replacements.empty()) {
+        std::string code = buffer.data();
+        llvm::Expected<std::string> code_new
+            = clang::tooling::applyAllReplacements(code, replacements);
+        if (!code_new)
+            return;
+
+        str = QString::fromStdString(code_new.get());
+    }
+    qCDebug(clangIndenterLog) << additionalInfo << str;
+
+    printBuffer(str);
+}
+
 ChangeSet ClangFormatBaseIndenterPrivate::replacements(QByteArray buffer,
                                                        const QTextBlock &startBlock,
                                                        const QTextBlock &endBlock,
@@ -584,6 +617,8 @@ ChangeSet ClangFormatBaseIndenterPrivate::replacements(QByteArray buffer,
         }
     }
 
+    printDebugInfo(buffer, {}, "before");
+
     if (replacementsToKeep != ReplacementsToKeep::IndentAndBefore || utf8Offset < rangeStart)
         rangeStart = utf8Offset;
 
@@ -594,6 +629,8 @@ ChangeSet ClangFormatBaseIndenterPrivate::replacements(QByteArray buffer,
     clang::tooling::Replacements clangReplacements = clang::format::reformat(
         style, buffer.data(), ranges, m_fileName->toFSPathString().toStdString(), &status);
 
+    printDebugInfo(buffer, clangReplacements, "after");
+
     clang::tooling::Replacements filtered;
     if (status.FormatComplete) {
         filtered = filteredReplacements(buffer,
@@ -602,6 +639,9 @@ ChangeSet ClangFormatBaseIndenterPrivate::replacements(QByteArray buffer,
                                         utf8Length,
                                         replacementsToKeep);
     }
+
+    printDebugInfo(buffer, filtered, "filtered");
+
     const bool canTryAgain = replacementsToKeep == ReplacementsToKeep::OnlyIndent
                              && typedChar == QChar::Null && !secondTry;
     if (canTryAgain && filtered.empty()) {
@@ -648,7 +688,7 @@ EditOperations ClangFormatBaseIndenter::format(const RangesInLines &rangesInLine
                                                                                  assumedFileName);
     auto changedCode = clang::tooling::applyAllReplacements(buffer.data(), clangReplacements);
     QTC_ASSERT(changedCode, {
-        qDebug() << QString::fromStdString(llvm::toString(changedCode.takeError()));
+        qCDebug(clangIndenterLog) << QString::fromStdString(llvm::toString(changedCode.takeError()));
         return {};
     });
     ranges = clang::tooling::calculateRangesAfterReplacements(clangReplacements, ranges);
