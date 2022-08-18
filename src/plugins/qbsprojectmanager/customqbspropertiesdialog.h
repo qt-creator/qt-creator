@@ -6,9 +6,12 @@
 #include <QVariantMap>
 #include <QDialog>
 
+QT_BEGIN_NAMESPACE
+class QTableWidget;
+QT_END_NAMESPACE
+
 namespace QbsProjectManager {
 namespace Internal {
-namespace Ui { class CustomQbsPropertiesDialog; }
 
 class CustomQbsPropertiesDialog : public QDialog
 {
@@ -18,7 +21,6 @@ public:
     explicit CustomQbsPropertiesDialog(const QVariantMap &properties, QWidget *parent = nullptr);
 
     QVariantMap properties() const;
-    ~CustomQbsPropertiesDialog() override;
 
 private:
     void addProperty();
@@ -26,7 +28,8 @@ private:
     void handleCurrentItemChanged();
 
 private:
-    Ui::CustomQbsPropertiesDialog * const m_ui;
+    QTableWidget *m_propertiesTable;
+    QPushButton *m_removeButton;
 };
 
 } // namespace Internal

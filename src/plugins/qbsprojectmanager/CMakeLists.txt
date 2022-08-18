@@ -4,7 +4,7 @@ add_qtc_plugin(QbsProjectManager
     IDE_LIBRARY_BASENAME="${IDE_LIBRARY_BASE_PATH}"
   PLUGIN_DEPENDS Core ProjectExplorer CppEditor QtSupport QmlJSTools
   SOURCES
-    customqbspropertiesdialog.cpp customqbspropertiesdialog.h customqbspropertiesdialog.ui
+    customqbspropertiesdialog.cpp customqbspropertiesdialog.h
     defaultpropertyprovider.cpp defaultpropertyprovider.h
     propertyprovider.h
     qbsbuildconfiguration.cpp qbsbuildconfiguration.h

@@ -21,7 +21,6 @@ QtcPlugin {
     files: [
         "customqbspropertiesdialog.h",
         "customqbspropertiesdialog.cpp",
-        "customqbspropertiesdialog.ui",
         "defaultpropertyprovider.cpp",
         "defaultpropertyprovider.h",
         "propertyprovider.h",
