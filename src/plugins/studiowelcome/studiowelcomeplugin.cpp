@@ -733,10 +733,10 @@ void WelcomeMode::setupQuickWidget(const QString &welcomePagePath)
     if (!useNewWelcomePage()) {
 
 #ifdef QT_DEBUG
-        m_modeWidget->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH)
-                                              + "welcomepage/imports");
-        m_modeWidget->setSource(QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH)
-                                                    + "welcomepage/main.qml"));
+        m_quickWidget->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH)
+                                               + "welcomepage/imports");
+        m_quickWidget->setSource(
+            QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH) + "welcomepage/main.qml"));
 #else
         m_quickWidget->engine()->addImportPath("qrc:/qml/welcomepage/imports");
         m_quickWidget->setSource(QUrl("qrc:/qml/welcomepage/main.qml"));
