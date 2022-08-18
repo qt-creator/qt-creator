@@ -17,7 +17,6 @@ add_qtc_plugin(QbsProjectManager
     qbspmlogging.cpp qbspmlogging.h
     qbsprofilemanager.cpp qbsprofilemanager.h
     qbsprofilessettingspage.cpp qbsprofilessettingspage.h
-    qbsprofilessettingswidget.ui
     qbsproject.cpp qbsproject.h
     qbsprojectimporter.cpp qbsprojectimporter.h
     qbsprojectmanager.qrc
