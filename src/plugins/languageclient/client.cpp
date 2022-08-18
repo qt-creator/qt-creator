@@ -278,7 +278,17 @@ public:
     QString m_displayName;
     LanguageFilter m_languagFilter;
     QJsonObject m_initializationOptions;
-    QMap<TextEditor::TextDocument *, QString> m_openedDocument;
+    class OpenedDocument
+    {
+    public:
+        ~OpenedDocument()
+        {
+            QObject::disconnect(contentsChangedConnection);
+        }
+        QMetaObject::Connection contentsChangedConnection;
+        QString documentContents;
+    };
+    QMap<TextEditor::TextDocument *, OpenedDocument> m_openedDocument;
 
     // Used for build system artifacts (e.g. UI headers) that Qt Creator "live-generates" ahead of
     // the build.
@@ -610,11 +620,14 @@ void Client::openDocument(TextEditor::TextDocument *document)
         }
     }
 
-    d->m_openedDocument[document] = document->plainText();
-    connect(document, &TextDocument::contentsChangedWithPosition, this,
-            [this, document](int position, int charsRemoved, int charsAdded) {
-        documentContentsChanged(document, position, charsRemoved, charsAdded);
-    });
+    d->m_openedDocument[document].documentContents = document->plainText();
+    d->m_openedDocument[document].contentsChangedConnection
+        = connect(document,
+                  &TextDocument::contentsChangedWithPosition,
+                  this,
+                  [this, document](int position, int charsRemoved, int charsAdded) {
+                      documentContentsChanged(document, position, charsRemoved, charsAdded);
+                  });
     if (!d->m_documentVersions.contains(filePath))
         d->m_documentVersions[filePath] = 0;
     d->sendOpenNotification(filePath, document->mimeType(), document->plainText(),
@@ -1075,7 +1088,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
                 }
             }
             if (append) {
-                QTextDocument oldDoc(d->m_openedDocument[document]);
+                QTextDocument oldDoc(d->m_openedDocument[document].documentContents);
                 QTextCursor cursor(&oldDoc);
                 // Workaround https://bugreports.qt.io/browse/QTBUG-80662
                 // The contentsChanged gives a character count that can be wrong for QTextCursor
@@ -1096,7 +1109,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
             d->m_documentsToUpdate[document] = {
                 DidChangeTextDocumentParams::TextDocumentContentChangeEvent(document->plainText())};
         }
-        d->m_openedDocument[document] = document->plainText();
+        d->m_openedDocument[document].documentContents = document->plainText();
     }
 
     ++d->m_documentVersions[document->filePath()];
@@ -1521,8 +1534,6 @@ bool ClientPrivate::reset()
     m_dynamicCapabilities.reset();
     if (m_diagnosticManager)
         m_diagnosticManager->clearDiagnostics();
-    for (auto it = m_openedDocument.cbegin(); it != m_openedDocument.cend(); ++it)
-        it.key()->disconnect(this);
     m_openedDocument.clear();
     // temporary container needed since m_resetAssistProvider is changed in resetAssistProviders
     for (TextEditor::TextDocument *document : m_resetAssistProvider.keys())
