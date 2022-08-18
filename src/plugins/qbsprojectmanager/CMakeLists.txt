@@ -10,7 +10,6 @@ add_qtc_plugin(QbsProjectManager
     qbsbuildconfiguration.cpp qbsbuildconfiguration.h
     qbsbuildstep.cpp qbsbuildstep.h
     qbscleanstep.cpp qbscleanstep.h
-    qbscleanstepconfigwidget.ui
     qbsinstallstep.cpp qbsinstallstep.h
     qbskitinformation.cpp qbskitinformation.h
     qbsnodes.cpp qbsnodes.h
