@@ -158,18 +158,14 @@ void GitSubmitEditorWidget::setHasUnmerged(bool e)
     m_hasUnmerged = e;
 }
 
-void GitSubmitEditorWidget::initialize(CommitType commitType,
-                                       const FilePath &repository,
-                                       const GitSubmitEditorPanelData &data,
-                                       const GitSubmitEditorPanelInfo &info,
-                                       bool enablePush)
+void GitSubmitEditorWidget::initialize(const FilePath &repository, const CommitData &data)
 {
     if (m_isInitialized)
         return;
     m_isInitialized = true;
-    if (commitType != AmendCommit)
+    if (data.commitType != AmendCommit)
         m_gitSubmitPanel->showHeadLabel->hide();
-    if (commitType == FixupCommit) {
+    if (data.commitType == FixupCommit) {
         auto logChangeGroupBox = new QGroupBox(tr("Select Change"));
         auto logChangeLayout = new QVBoxLayout;
         logChangeGroupBox->setLayout(logChangeLayout);
@@ -182,10 +178,10 @@ void GitSubmitEditorWidget::initialize(CommitType commitType,
         hideDescription();
     }
     insertTopWidget(m_gitSubmitPanel);
-    setPanelData(data);
-    setPanelInfo(info);
+    setPanelData(data.panelData);
+    setPanelInfo(data.panelInfo);
 
-    if (enablePush) {
+    if (data.enablePush) {
         auto menu = new QMenu(this);
         connect(menu->addAction(tr("&Commit only")), &QAction::triggered,
                 this, &GitSubmitEditorWidget::commitOnlySlot);

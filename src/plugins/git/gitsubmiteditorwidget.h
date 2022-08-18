@@ -64,11 +64,7 @@ public:
     GitSubmitEditorPanelData panelData() const;
     QString amendSHA1() const;
     void setHasUnmerged(bool e);
-    void initialize(CommitType commitType,
-                    const Utils::FilePath &repository,
-                    const GitSubmitEditorPanelData &data,
-                    const GitSubmitEditorPanelInfo &info,
-                    bool enablePush);
+    void initialize(const Utils::FilePath &repository, const CommitData &data);
     void refreshLog(const Utils::FilePath &repository);
 
 protected:
