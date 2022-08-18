@@ -135,7 +135,8 @@ public:
     ExtraHighlightingResultsCollector(QFutureInterface<HighlightingResult> &future,
                                       HighlightingResults &results,
                                       const Utils::FilePath &filePath, const ClangdAstNode &ast,
-                                      const QTextDocument *doc, const QString &docContent);
+                                      const QTextDocument *doc, const QString &docContent,
+                                      const QVersionNumber &clangdVersion);
 
     void collect();
 private:
@@ -156,6 +157,7 @@ private:
     const ClangdAstNode &m_ast;
     const QTextDocument * const m_doc;
     const QString &m_docContent;
+    const int m_clangdVersion;
     ClangdAstNode::FileStatus m_currentFileStatus = ClangdAstNode::FileStatus::Unknown;
 };
 
@@ -351,9 +353,12 @@ void doSemanticHighlighting(
         if (token.modifiers.contains(QLatin1String("declaration")))
             styles.mixinStyles.push_back(C_DECLARATION);
         if (token.modifiers.contains(QLatin1String("static"))) {
-            if (styles.mainStyle != C_FIELD && styles.mainStyle != C_TEXT)
-                styles.mixinStyles.push_back(styles.mainStyle);
-            styles.mainStyle = C_STATIC_MEMBER;
+            if (styles.mainStyle == C_FUNCTION) {
+                styles.mainStyle = C_STATIC_MEMBER;
+                styles.mixinStyles.push_back(C_FUNCTION);
+            } else if (styles.mainStyle == C_FIELD) {
+                styles.mainStyle = C_STATIC_MEMBER;
+            }
         }
         if (isOutputParameter(token))
             styles.mixinStyles.push_back(C_OUTPUT_ARGUMENT);
@@ -364,7 +369,8 @@ void doSemanticHighlighting(
 
     auto results = QtConcurrent::blockingMapped<HighlightingResults>(tokens, toResult);
     const QList<BlockRange> ifdefedOutBlocks = cleanupDisabledCode(results, &doc, docContents);
-    ExtraHighlightingResultsCollector(future, results, filePath, ast, &doc, docContents).collect();
+    ExtraHighlightingResultsCollector(future, results, filePath, ast, &doc, docContents,
+                                      clangdVersion).collect();
     if (!future.isCanceled()) {
         qCInfo(clangdLogHighlight) << "reporting" << results.size() << "highlighting results";
         QMetaObject::invokeMethod(textDocument, [textDocument, ifdefedOutBlocks, docRevision] {
@@ -391,9 +397,9 @@ void doSemanticHighlighting(
 ExtraHighlightingResultsCollector::ExtraHighlightingResultsCollector(
         QFutureInterface<HighlightingResult> &future, HighlightingResults &results,
         const Utils::FilePath &filePath, const ClangdAstNode &ast, const QTextDocument *doc,
-        const QString &docContent)
+        const QString &docContent, const QVersionNumber &clangdVersion)
     : m_future(future), m_results(results), m_filePath(filePath), m_ast(ast), m_doc(doc),
-      m_docContent(docContent)
+      m_docContent(docContent), m_clangdVersion(clangdVersion.majorVersion())
 {
 }
 
@@ -583,8 +589,8 @@ void ExtraHighlightingResultsCollector::collectFromNode(const ClangdAstNode &nod
     }
 
     const bool isExpression = node.role() == "expression";
-    if (isExpression && node.kind() == "Predefined") {
-        insertResult(node, C_MACRO);
+    if (m_clangdVersion < 16 && isExpression && node.kind() == "Predefined") {
+        insertResult(node, C_LOCAL);
         return;
     }
 
