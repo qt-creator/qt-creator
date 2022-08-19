@@ -181,7 +181,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             Tr::tr("Detection log:"),
             logView
         }
-    }.attachTo(this);
+    }.attachTo(this, WithoutMargins);
 
     searchDirsLineEdit->setVisible(false);
     auto updateDirectoriesLineEdit = [searchDirsLineEdit](int index) {
