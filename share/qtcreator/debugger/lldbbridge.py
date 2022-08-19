@@ -719,7 +719,18 @@ class Dumper(DumperBase):
             pass
         return '0x%x' % address
 
-    def qtVersionAndNamespace(self):
+    def fetchInternalFunctions(self):
+        funcs = self.target.FindFunctions('QObject::customEvent')
+        if len(funcs):
+            symbol = funcs[0].GetSymbol()
+            self.qtCustomEventFunc = symbol.GetStartAddress().GetLoadAddress(self.target)
+
+        funcs = self.target.FindFunctions('QObject::property')
+        if len(funcs):
+            symbol = funcs[0].GetSymbol()
+            self.qtPropertyFunc = symbol.GetStartAddress().GetLoadAddress(self.target)
+
+    def fetchQtVersionAndNamespace(self):
         for func in self.target.FindFunctions('qVersion'):
             name = func.GetSymbol().GetName()
             if name.endswith('()'):
@@ -755,24 +766,41 @@ class Dumper(DumperBase):
             qtVersion = 0x10000 * int(major) + 0x100 * int(minor) + int(patch)
             self.qtVersion = lambda: qtVersion
 
-            funcs = self.target.FindFunctions('QObject::customEvent')
-            if len(funcs):
-                symbol = funcs[0].GetSymbol()
-                self.qtCustomEventFunc = symbol.GetStartAddress().GetLoadAddress(self.target)
-
-            funcs = self.target.FindFunctions('QObject::property')
-            if len(funcs):
-                symbol = funcs[0].GetSymbol()
-                self.qtPropertyFunc = symbol.GetStartAddress().GetLoadAddress(self.target)
             return (qtNamespace, qtVersion)
 
-        return ('', 0x50200)
+        try:
+            versionValue = self.target.EvaluateExpression('qtHookData[2]')
+            if versionValue.IsValid():
+                return ('', versionValue.unsigned)
+        except:
+            pass
+
+        return ('', self.fallbackQtVersion)
+
+    def qtVersionAndNamespace(self):
+        qtVersionAndNamespace = None
+        try:
+            qtVersionAndNamespace = self.fetchQtVersionAndNamespace()
+            DumperBase.warn("Detected Qt Version: 0x%0x (namespace='%s')" %
+                            (qtVersionAndNamespace[1], qtVersionAndNamespace[0] or "no namespace"))
+        except Exception as e:
+            DumperBase.warn('[lldb] Error detecting Qt version: %s' % e)
+
+        try:
+            self.fetchInternalFunctions()
+            DumperBase.warn('Found function QObject::property: 0x%0x' % self.qtPropertyFunc)
+            DumperBase.warn('Found function QObject::customEvent: 0x%0x' % self.qtCustomEventFunc)
+        except Exception as e:
+            DumperBase.warn('[lldb] Error fetching internal Qt functions: %s' % e)
+
+        # Cache version information by overriding this function.
+        self.qtVersionAndNamespace = lambda: qtVersionAndNamespace
+        return qtVersionAndNamespace
 
     def qtNamespace(self):
         return self.qtVersionAndNamespace()[0]
 
     def qtVersion(self):
-        self.qtVersionAndNamespace()
         return self.qtVersionAndNamespace()[1]
 
     def handleCommand(self, command):
