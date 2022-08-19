@@ -46,7 +46,6 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/editorconfiguration.h>
-#include <projectexplorer/session.h>
 
 #include <texteditor/displaysettings.h>
 #include <texteditor/icodestylepreferences.h>
@@ -88,8 +87,6 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
     m_config = std::make_unique<ClangFormatFile>(filePathToCurrentSettings(codeStyle->currentPreferences()));
 
     resize(489, 305);
-    m_projectHasClangFormat = new QLabel(this);
-    m_overrideDefault = new QCheckBox(tr("Override Clang Format configuration file"));
     m_fallbackConfig = new QLabel(tr("Clang-Format Style"));
     m_checksScrollArea = new QScrollArea();
     m_checksWidget = new QWidget;
@@ -118,13 +115,9 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
     using namespace Layouting;
 
     Column {
-        m_projectHasClangFormat,
-        m_overrideDefault,
         m_fallbackConfig,
         Row { m_checksScrollArea, m_preview }
     }.attachTo(this);
-
-    initOverrideCheckBox();
 
     connect(codeStyle, &TextEditor::ICodeStylePreferences::currentPreferencesChanged,
             this, &ClangFormatConfigWidget::slotCodeStyleChanged);
@@ -155,29 +148,6 @@ void ClangFormatConfigWidget::slotCodeStyleChanged(
     updatePreview();
 }
 
-void ClangFormatConfigWidget::initOverrideCheckBox()
-{
-    if (m_project) {
-        m_overrideDefault->setChecked(
-            m_project->namedSettings(Constants::OVERRIDE_FILE_ID).toBool());
-    } else {
-        m_overrideDefault->setChecked(ClangFormatSettings::instance().overrideDefaultFile());
-        m_overrideDefault->setToolTip(
-            tr("Override Clang Format configuration file with the fallback configuration."));
-    }
-
-    connect(m_overrideDefault, &QCheckBox::toggled,
-            this, &ClangFormatConfigWidget::showOrHideWidgets);
-    connect(m_overrideDefault, &QCheckBox::toggled, this, [this](bool checked) {
-        if (m_project)
-            m_project->setNamedSettings(Constants::OVERRIDE_FILE_ID, checked);
-        else {
-            ClangFormatSettings::instance().setOverrideDefaultFile(checked);
-            ClangFormatSettings::instance().write();
-        }
-    });
-}
-
 void ClangFormatConfigWidget::connectChecks()
 {
     auto doSaveChanges = [this](QObject *sender) {
@@ -200,19 +170,8 @@ void ClangFormatConfigWidget::connectChecks()
     }
 }
 
-static bool projectConfigExists()
-{
-    return Core::ICore::userResourcePath()
-        .pathAppended("clang-format")
-        .pathAppended(currentProjectUniqueId())
-        .pathAppended(Constants::SETTINGS_FILE_NAME)
-        .exists();
-}
-
 void ClangFormatConfigWidget::showOrHideWidgets()
 {
-    m_projectHasClangFormat->hide();
-
     auto verticalLayout = qobject_cast<QVBoxLayout *>(layout());
     QTC_ASSERT(verticalLayout, return);
 
@@ -220,31 +179,10 @@ void ClangFormatConfigWidget::showOrHideWidgets()
     if (lastItem->spacerItem())
         verticalLayout->removeItem(lastItem);
 
-    if (!m_overrideDefault->isChecked() && m_project) {
-        // Show the fallback configuration only globally.
-        m_fallbackConfig->hide();
-        m_checksScrollArea->hide();
-        m_preview->hide();
-        verticalLayout->addStretch(1);
-        return;
-    }
-
     createStyleFileIfNeeded(!m_project);
     m_fallbackConfig->show();
     m_checksScrollArea->show();
     m_preview->show();
-
-    if (!m_project) {
-        const Project *currentProject = SessionManager::startupProject();
-        if (!currentProject || !projectConfigExists()) {
-            m_projectHasClangFormat->hide();
-        } else {
-            m_projectHasClangFormat->show();
-            m_projectHasClangFormat->setText(
-                tr("Current project has its own overridden .clang-format file "
-                   "and can be configured in Projects > Code Style > C++."));
-        }
-    }
 }
 
 void ClangFormatConfigWidget::updatePreview()

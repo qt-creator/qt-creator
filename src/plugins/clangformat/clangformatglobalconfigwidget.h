@@ -52,11 +52,18 @@ public:
 private:
     void initCheckBoxes();
     void initIndentationOrFormattingCombobox();
+    void initOverrideCheckBox();
 
+    bool projectClangFormatFileExists();
+
+    ProjectExplorer::Project *m_project;
+
+    QLabel *m_projectHasClangFormat;
     QLabel *m_formattingModeLabel;
     QComboBox *m_indentingOrFormatting;
     QCheckBox *m_formatWhileTyping;
     QCheckBox *m_formatOnSave;
+    QCheckBox *m_overrideDefault;
 };
 
 } // namespace ClangFormat

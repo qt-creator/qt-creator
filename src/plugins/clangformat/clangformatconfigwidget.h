@@ -71,7 +71,6 @@ private:
 
     void showOrHideWidgets();
     void initChecksAndPreview();
-    void initOverrideCheckBox();
     void connectChecks();
 
     void fillTable();
@@ -90,8 +89,6 @@ private:
 
     Utils::Guard m_ignoreChanges;
 
-    QLabel *m_projectHasClangFormat;
-    QCheckBox *m_overrideDefault;
     QLabel *m_fallbackConfig;
 };
 
