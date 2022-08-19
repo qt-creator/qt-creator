@@ -39,6 +39,8 @@ Item {
     property var currentMaterial: null
     property int currentMaterialIdx: 0
 
+    property var matSectionsModel: []
+
     // Called also from C++ to close context menu on focus out
     function closeContextMenu()
     {
@@ -67,8 +69,10 @@ Item {
         acceptedButtons: Qt.RightButton
 
         onClicked: {
-            root.currentMaterial = null
-            contextMenu.popup()
+            if (!materialBrowserModel.hasMaterialRoot) {
+                root.currentMaterial = null
+                contextMenu.popup()
+            }
         }
     }
 
@@ -92,27 +96,77 @@ Item {
 
         StudioControls.MenuItem {
             text: qsTr("Apply to selected (replace)")
-            enabled: currentMaterial && materialBrowserModel.hasModelSelection
-            onTriggered: materialBrowserModel.applyToSelected(currentMaterial.materialInternalId, false)
+            enabled: root.currentMaterial && materialBrowserModel.hasModelSelection
+            onTriggered: materialBrowserModel.applyToSelected(root.currentMaterial.materialInternalId, false)
         }
 
         StudioControls.MenuItem {
             text: qsTr("Apply to selected (add)")
-            enabled: currentMaterial && materialBrowserModel.hasModelSelection
-            onTriggered: materialBrowserModel.applyToSelected(currentMaterial.materialInternalId, true)
+            enabled: root.currentMaterial && materialBrowserModel.hasModelSelection
+            onTriggered: materialBrowserModel.applyToSelected(root.currentMaterial.materialInternalId, true)
+        }
+
+        StudioControls.MenuSeparator {
+            height: StudioTheme.Values.border
+        }
+
+        StudioControls.Menu {
+            title: qsTr("Copy properties")
+            enabled: root.currentMaterial
+
+            width: parent.width
+
+            onAboutToShow: {
+                root.matSectionsModel = ["All"];
+
+                switch (root.currentMaterial.materialType) {
+                case "DefaultMaterial":
+                    root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.defaultMaterialSections);
+                    break;
+
+                case "PrincipledMaterial":
+                    root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.principledMaterialSections);
+                    break;
+
+                case "CustomMaterial":
+                    root.matSectionsModel = root.matSectionsModel.concat(materialBrowserModel.customMaterialSections);
+                    break;
+                }
+            }
+
+            Repeater {
+                model: root.matSectionsModel
+
+                StudioControls.MenuItem {
+                    text: modelData
+                    enabled: root.currentMaterial
+                    onTriggered: materialBrowserModel.copyMaterialProperties(root.currentMaterialIdx, modelData)
+                }
+            }
+        }
+
+        StudioControls.MenuItem {
+            text: qsTr("Paste properties")
+            enabled: root.currentMaterial && root.currentMaterial.materialType
+                                             === materialBrowserModel.copiedMaterialType
+            onTriggered: materialBrowserModel.pasteMaterialProperties(root.currentMaterialIdx)
+        }
+
+        StudioControls.MenuSeparator {
+            height: StudioTheme.Values.border
         }
 
         StudioControls.MenuItem {
             text: qsTr("Duplicate")
-            enabled: currentMaterial
-            onTriggered: materialBrowserModel.duplicateMaterial(currentMaterialIdx)
+            enabled: root.currentMaterial
+            onTriggered: materialBrowserModel.duplicateMaterial(root.currentMaterialIdx)
         }
 
         StudioControls.MenuItem {
             text: qsTr("Rename")
-            enabled: currentMaterial
+            enabled: root.currentMaterial
             onTriggered: {
-                var item = gridRepeater.itemAt(currentMaterialIdx);
+                var item = gridRepeater.itemAt(root.currentMaterialIdx);
                 if (item)
                     item.startRename();
             }
@@ -120,9 +174,9 @@ Item {
 
         StudioControls.MenuItem {
             text: qsTr("Delete")
-            enabled: currentMaterial
+            enabled: root.currentMaterial
 
-            onTriggered: materialBrowserModel.deleteMaterial(currentMaterialIdx)
+            onTriggered: materialBrowserModel.deleteMaterial(root.currentMaterialIdx)
         }
 
         StudioControls.MenuSeparator {}
@@ -141,6 +195,7 @@ Item {
 
         Row {
             width: root.width
+            enabled: !materialBrowserModel.hasMaterialRoot && materialBrowserModel.hasQuick3DImport
 
             SearchBox {
                 id: searchBox
@@ -165,22 +220,22 @@ Item {
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.baseFontSize
             leftPadding: 10
-            visible: materialBrowserModel.hasQuick3DImport && materialBrowserModel.isEmpty && !searchBox.isEmpty()
+            visible: materialBrowserModel.hasQuick3DImport && materialBrowserModel.isEmpty
+                     && !searchBox.isEmpty() && !materialBrowserModel.hasMaterialRoot
         }
 
         Text {
-            text: qsTr("There are no materials in this project.<br>Select '<b>+</b>' to create one.")
-            textFormat: Text.RichText
-            color: StudioTheme.Values.themeTextColor
-            font.pixelSize: StudioTheme.Values.mediumFontSize
-            horizontalAlignment: Text.AlignHCenter
-            topPadding: 30
-            anchors.horizontalCenter: parent.horizontalCenter
-            visible: materialBrowserModel.hasQuick3DImport && materialBrowserModel.isEmpty && searchBox.isEmpty()
-        }
+            text: {
+                if (materialBrowserModel.hasMaterialRoot)
+                    qsTr("<b>Material Browser</b> is disabled inside a material component.")
+                else if (!materialBrowserModel.hasQuick3DImport)
+                    qsTr("To use <b>Material Browser</b>, first add the QtQuick3D module in the <b>Components</b> view.")
+                else if (materialBrowserModel.isEmpty && searchBox.isEmpty())
+                    qsTr("There are no materials in this project.<br>Select '<b>+</b>' to create one.")
+                else
+                    ""
+            }
 
-        Text {
-            text: qsTr("To use <b>Material Browser</b>, first add the QtQuick3D module in the <b>Components</b> view.");
             textFormat: Text.RichText
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.mediumFontSize
@@ -188,8 +243,7 @@ Item {
             horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.WordWrap
             width: root.width
-            anchors.horizontalCenter: parent.horizontalCenter
-            visible: !materialBrowserModel.hasQuick3DImport
+            visible: text !== ""
         }
 
         ScrollView {

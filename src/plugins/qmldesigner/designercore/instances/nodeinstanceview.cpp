@@ -1044,6 +1044,18 @@ bool shouldSendAuxiliary(const AuxiliaryDataKey &key)
 }
 } // namespace
 
+bool parentIsBehavior(ModelNode node)
+{
+    while (node.isValid() && !node.isRootNode()) {
+        if (!node.behaviorPropertyName().isEmpty())
+            return true;
+
+        node = node.parentProperty().parentModelNode();
+    }
+
+    return false;
+}
+
 CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 {
     QList<ModelNode> nodeList = allModelNodes();
@@ -1103,7 +1115,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
                                     nodeMetaType,
                                     nodeFlags);
 
-        if (instance.modelNode().behaviorPropertyName().isEmpty())
+        if (!parentIsBehavior(instance.modelNode()))
             instanceContainerList.append(container);
     }
 

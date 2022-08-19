@@ -163,7 +163,7 @@ class DataModelDownloader : public QObject
 
 public:
     explicit DataModelDownloader(QObject *parent = nullptr);
-    void start();
+    bool start();
     bool exists() const;
     bool available() const;
     Utils::FilePath targetFolder() const;
@@ -174,6 +174,7 @@ signals:
     void finished();
     void availableChanged();
     void progressChanged();
+    void downloadFailed();
 
 private:
     FileDownloader m_fileDownloader;

@@ -66,7 +66,6 @@ void adjustFormatStyleForLineBreak(clang::format::FormatStyle &style,
     if (replacementsToKeep == ReplacementsToKeep::IndentAndBefore)
         return;
 
-    style.DisableFormat = false;
     style.ColumnLimit = 0;
 #ifdef KEEP_LINE_BREAKS_FOR_NON_EMPTY_LINES_BACKPORTED
     style.KeepLineBreaksForNonEmptyLines = true;

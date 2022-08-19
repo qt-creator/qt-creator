@@ -30,10 +30,10 @@
 
     \title Setting Up \QBSK
 
-    You can purchase a \QBSK license from the \l{https://marketplace.qt.io/}
-    {Qt Marketplace}, and then use the Qt Installer to have the \QBSK
-    plugin package copied to the following path in your Qt installation
-    folder:
+    \QBSK is included in the
+    \l{https://www.qt.io/pricing}{Qt Design Studio Enterprise license}.
+    You can use the Qt Installer to have the \QBSK plugin package copied to the
+    following path in your Qt installation folder:
 
     \list
         \li On Windows:

@@ -612,7 +612,7 @@ class UnsupportedTypesByVisualDesigner : public QStringList
 {
 public:
     UnsupportedTypesByVisualDesigner()
-        : QStringList({"Timer", "Package", "Particles", "ApplicationWindow"})
+        : QStringList({"Package", "Particles", "ApplicationWindow"})
     {}
 };
 

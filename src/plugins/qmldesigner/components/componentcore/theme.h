@@ -130,6 +130,8 @@ public:
         listView,
         lockOff,
         lockOn,
+        materialPreviewEnvironment,
+        materialPreviewModel,
         mergeCells,
         minus,
         mirror,

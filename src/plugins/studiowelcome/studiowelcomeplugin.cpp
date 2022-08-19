@@ -453,7 +453,11 @@ public:
     ~WelcomeMode() override;
 
 private:
-    QQuickWidget *m_modeWidget = nullptr;
+    void setupQuickWidget(const QString &welcomePagePath);
+    void createQuickWidget();
+
+    QQuickWidget *m_quickWidget = nullptr;
+    QWidget *m_modeWidget = nullptr;
     DataModelDownloader *m_dataModelDownloader = nullptr;
 };
 
@@ -637,31 +641,31 @@ WelcomeMode::WelcomeMode()
     QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
     ExampleCheckout::registerTypes();
 
-    m_modeWidget = new QQuickWidget;
-    m_modeWidget->setMinimumSize(640, 480);
-    m_modeWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    QmlDesigner::Theme::setupTheme(m_modeWidget->engine());
-    m_modeWidget->engine()->addImportPath("qrc:/studiofonts");
-
-    QmlDesigner::QmlDesignerPlugin::registerPreviewImageProvider(m_modeWidget->engine());
-
-    m_modeWidget->engine()->setOutputWarningsToStandardError(false);
+    createQuickWidget();
 
     if (forceDownLoad() || !readme.exists()) // Only downloads contain the readme
         m_dataModelDownloader->setForceDownload(true);
 
     connect(m_dataModelDownloader, &DataModelDownloader::progressChanged, this, [this](){
-        m_modeWidget->rootObject()->setProperty("loadingProgress", m_dataModelDownloader->progress());
+        m_quickWidget->rootObject()->setProperty("loadingProgress", m_dataModelDownloader->progress());
     });
 
-    connect(m_dataModelDownloader, &DataModelDownloader::finished, this, [this](){
-        auto source = m_modeWidget->source();
-        m_modeWidget->engine()->clearComponentCache();
-        m_modeWidget->setSource(source);
-        m_modeWidget->rootObject()->setProperty("loadingProgress", 100);
+    m_quickWidget->setEnabled(false);
+
+    connect(m_dataModelDownloader, &DataModelDownloader::finished, this, [this, welcomePagePath]() {
+        delete m_quickWidget;
+        createQuickWidget();
+        setupQuickWidget(welcomePagePath);
+        m_modeWidget->layout()->addWidget(m_quickWidget);
     });
 
-    m_dataModelDownloader->start();
+    connect(m_dataModelDownloader, &DataModelDownloader::downloadFailed, this, [this]() {
+        m_quickWidget->setEnabled(true);
+    });
+
+
+    if (m_dataModelDownloader->start())
+        m_quickWidget->setEnabled(false);
 
 /*
     connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged, this, [this](Utils::Id mode){
@@ -669,36 +673,14 @@ WelcomeMode::WelcomeMode()
        m_modeWidget->rootObject()->setProperty("active", active);
     });
 */
+    setupQuickWidget(welcomePagePath);
 
-    if (!useNewWelcomePage()) {
+    QVBoxLayout *boxLayout = new QVBoxLayout();
+    boxLayout->setContentsMargins(0, 0, 0, 0);
 
-#ifdef QT_DEBUG
-        m_modeWidget->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH)
-                                              + "welcomepage/imports");
-        m_modeWidget->setSource(QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH)
-                                                    + "welcomepage/main.qml"));
-#else
-        m_modeWidget->engine()->addImportPath("qrc:/qml/welcomepage/imports");
-        m_modeWidget->setSource(QUrl("qrc:/qml/welcomepage/main.qml"));
-#endif
-    } else {
-
-        m_modeWidget->engine()->addImportPath(Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources/imports").toString());
-
-        m_modeWidget->engine()->addImportPath(welcomePagePath + "/imports");
-        m_modeWidget->engine()->addImportPath(m_dataModelDownloader->targetFolder().toString());
-        m_modeWidget->setSource(QUrl::fromLocalFile(welcomePagePath + "/main.qml"));
-
-        QShortcut *updateShortcut = nullptr;
-        if (Utils::HostOsInfo::isMacHost())
-            updateShortcut = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_F5), m_modeWidget);
-        else
-            updateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F5), m_modeWidget);
-        connect(updateShortcut, &QShortcut::activated, this, [this, welcomePagePath](){
-            m_modeWidget->setSource(QUrl::fromLocalFile(welcomePagePath + "/main.qml"));
-        });
-    }
-
+    m_modeWidget = new QWidget;
+    m_modeWidget->setLayout(boxLayout);
+    boxLayout->addWidget(m_quickWidget);
     setWidget(m_modeWidget);
 
     QStringList designStudioQchPathes
@@ -747,6 +729,51 @@ void setSettingIfDifferent(const QString &key, bool value, bool &dirty)
 WelcomeMode::~WelcomeMode()
 {
     delete m_modeWidget;
+}
+
+void WelcomeMode::setupQuickWidget(const QString &welcomePagePath)
+{
+    if (!useNewWelcomePage()) {
+
+#ifdef QT_DEBUG
+        m_quickWidget->engine()->addImportPath(QLatin1String(STUDIO_QML_PATH)
+                                               + "welcomepage/imports");
+        m_quickWidget->setSource(
+            QUrl::fromLocalFile(QLatin1String(STUDIO_QML_PATH) + "welcomepage/main.qml"));
+#else
+        m_quickWidget->engine()->addImportPath("qrc:/qml/welcomepage/imports");
+        m_quickWidget->setSource(QUrl("qrc:/qml/welcomepage/main.qml"));
+#endif
+    } else {
+
+        m_quickWidget->engine()->addImportPath(Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources/imports").toString());
+
+        m_quickWidget->engine()->addImportPath(welcomePagePath + "/imports");
+        m_quickWidget->engine()->addImportPath(m_dataModelDownloader->targetFolder().toString());
+        m_quickWidget->setSource(QUrl::fromLocalFile(welcomePagePath + "/main.qml"));
+
+        QShortcut *updateShortcut = nullptr;
+        if (Utils::HostOsInfo::isMacHost())
+            updateShortcut = new QShortcut(QKeySequence(Qt::ALT | Qt::Key_F5), m_quickWidget);
+        else
+            updateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F5), m_quickWidget);
+        connect(updateShortcut, &QShortcut::activated, this, [this, welcomePagePath](){
+            m_quickWidget->setSource(QUrl::fromLocalFile(welcomePagePath + "/main.qml"));
+        });
+    }
+}
+
+void WelcomeMode::createQuickWidget()
+{
+    m_quickWidget = new QQuickWidget;
+    m_quickWidget->setMinimumSize(640, 480);
+    m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    QmlDesigner::Theme::setupTheme(m_quickWidget->engine());
+    m_quickWidget->engine()->addImportPath("qrc:/studiofonts");
+
+    QmlDesigner::QmlDesignerPlugin::registerPreviewImageProvider(m_quickWidget->engine());
+
+    m_quickWidget->engine()->setOutputWarningsToStandardError(false);
 }
 
 StudioSettingsPage::StudioSettingsPage()

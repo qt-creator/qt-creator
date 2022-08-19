@@ -421,6 +421,7 @@ namespace ADS {
         d->m_lastLocation = InvalidDockWidgetArea;
 
         // Move it over the target.
+        hide();
         resize(target->size());
         QPoint topLeft = target->mapToGlobal(target->rect().topLeft());
         move(topLeft);

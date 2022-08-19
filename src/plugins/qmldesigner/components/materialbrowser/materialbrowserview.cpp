@@ -24,12 +24,17 @@
 ****************************************************************************/
 
 #include "materialbrowserview.h"
+
+#include "bindingproperty.h"
 #include "materialbrowserwidget.h"
 #include "materialbrowsermodel.h"
 #include "nodeabstractproperty.h"
+#include "nodemetainfo.h"
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
+
 #include <coreplugin/icore.h>
+#include <designmodecontext.h>
 #include <nodeinstanceview.h>
 #include <qmldesignerconstants.h>
 
@@ -39,7 +44,6 @@ namespace QmlDesigner {
 
 MaterialBrowserView::MaterialBrowserView(QObject *parent)
     : AbstractView(parent)
-
 {}
 
 MaterialBrowserView::~MaterialBrowserView()
@@ -53,7 +57,11 @@ bool MaterialBrowserView::hasWidget() const
 WidgetInfo MaterialBrowserView::widgetInfo()
 {
     if (m_widget.isNull()) {
-        m_widget = new MaterialBrowserWidget;
+        m_widget = new MaterialBrowserWidget(this);
+
+        auto matEditorContext = new Internal::MaterialBrowserContext(m_widget.data());
+        Core::ICore::addContextObject(matEditorContext);
+
         MaterialBrowserModel *matBrowserModel = m_widget->materialBrowserModel().data();
 
         // custom notifications below are sent to the MaterialEditor
@@ -81,6 +89,32 @@ WidgetInfo MaterialBrowserView::widgetInfo()
                 [&] (const ModelNode &material) {
             emitCustomNotification("duplicate_material", {material});
         });
+
+        connect(matBrowserModel, &MaterialBrowserModel::pasteMaterialPropertiesTriggered, this,
+                [&] (const ModelNode &material, const QList<AbstractProperty> &props, bool all) {
+            QmlObjectNode mat(material);
+            executeInTransaction(__FUNCTION__, [&] {
+                if (all) { // all material properties copied
+                    // remove current properties
+                    const PropertyNameList propNames = material.propertyNames();
+                    for (const PropertyName &propName : propNames) {
+                        if (propName != "objectName")
+                            mat.removeProperty(propName);
+                    }
+                }
+
+                // apply pasted properties
+                for (const AbstractProperty &prop : props) {
+                    if (prop.name() == "objectName")
+                        continue;
+
+                    if (prop.isVariantProperty())
+                        mat.setVariantProperty(prop.name(), prop.toVariantProperty().value());
+                    else if (prop.isBindingProperty())
+                        mat.setBindingProperty(prop.name(), prop.toBindingProperty().expression());
+                }
+            });
+        });
     }
 
     return createWidgetInfo(m_widget.data(),
@@ -94,7 +128,12 @@ void MaterialBrowserView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
 
+    QString matPropsPath = model->metaInfo("QtQuick3D.Material").importDirectoryPath()
+                           + "/designer/propertyGroups.json";
+    m_widget->materialBrowserModel()->loadPropertyGroups(matPropsPath);
+
     m_widget->clearSearchFilter();
+    m_widget->materialBrowserModel()->setHasMaterialRoot(rootModelNode().isSubclassOf("QtQuick3D.Material"));
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
 
     // Project load is already very busy and may even trigger puppet reset, so let's wait a moment
@@ -130,7 +169,7 @@ void MaterialBrowserView::refreshModel(bool updateImages)
 
 bool MaterialBrowserView::isMaterial(const ModelNode &node) const
 {
-    if (!node.isValid() || node.isComponent())
+    if (!node.isValid())
         return false;
 
     return node.isSubclassOf("QtQuick3D.Material");
@@ -273,6 +312,12 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
         int idx = m_widget->materialBrowserModel()->materialIndex(nodeList.first());
         if (idx != -1)
             m_widget->materialBrowserModel()->selectMaterial(idx);
+    } else if (identifier == "refresh_material_browser") {
+        QTimer::singleShot(0, this, [this]() {
+            refreshModel(true);
+        });
+    } else if (identifier == "delete_selected_material") {
+        m_widget->materialBrowserModel()->deleteSelectedMaterial();
     }
 }
 

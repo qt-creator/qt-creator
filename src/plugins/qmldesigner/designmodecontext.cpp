@@ -28,6 +28,7 @@
 #include "designmodewidget.h"
 #include "formeditorwidget.h"
 #include "edit3dwidget.h"
+#include "materialbrowserwidget.h"
 #include "navigatorwidget.h"
 #include "texteditorwidget.h"
 
@@ -68,6 +69,18 @@ Editor3DContext::Editor3DContext(QWidget *widget)
 void Editor3DContext::contextHelp(const HelpCallback &callback) const
 {
     qobject_cast<Edit3DWidget *>(m_widget)->contextHelp(callback);
+}
+
+MaterialBrowserContext::MaterialBrowserContext(QWidget *widget)
+  : IContext(widget)
+{
+    setWidget(widget);
+    setContext(Core::Context(Constants::C_QMLMATERIALBROWSER, Constants::C_QT_QUICK_TOOLS_MENU));
+}
+
+void MaterialBrowserContext::contextHelp(const HelpCallback &callback) const
+{
+    qobject_cast<MaterialBrowserWidget *>(m_widget)->contextHelp(callback);
 }
 
 NavigatorContext::NavigatorContext(QWidget *widget)

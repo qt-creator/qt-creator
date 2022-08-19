@@ -456,21 +456,28 @@ DataModelDownloader::DataModelDownloader(QObject * /* parent */)
             &FileDownloader::progressChanged,
             this,
             &DataModelDownloader::progressChanged);
+
+    connect(&m_fileDownloader,
+            &FileDownloader::downloadFailed,
+            this,
+            &DataModelDownloader::downloadFailed);
 }
 
-void DataModelDownloader::start()
+bool DataModelDownloader::start()
 {
 
     if (!enableDownload()) {
         m_available = false;
         emit availableChanged();
-        return;
+        return false;
     }
 
     m_fileDownloader.setUrl(QUrl::fromUserInput(
         "https://download.qt.io/learning/examples/qtdesignstudio/dataImports.zip"));
 
-    connect(&m_fileDownloader, &FileDownloader::availableChanged, this, [this]() {
+    bool started = false;
+
+    connect(&m_fileDownloader, &FileDownloader::availableChanged, this, [this, &started]() {
 
         m_available = m_fileDownloader.available();
 
@@ -483,6 +490,8 @@ void DataModelDownloader::start()
 
         if (!m_forceDownload && (m_fileDownloader.lastModified() <= m_birthTime))
             return;
+
+        started = true;
 
         m_fileDownloader.start();
         connect(&m_fileDownloader, &FileDownloader::finishedChanged, this, [this]() {
@@ -501,6 +510,7 @@ void DataModelDownloader::start()
             }
         });
     });
+    return started;
 }
 
 bool DataModelDownloader::exists() const

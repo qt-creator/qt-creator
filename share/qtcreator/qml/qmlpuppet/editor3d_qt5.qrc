@@ -16,6 +16,8 @@
         <file>mockfiles/images/static_floor.png</file>
         <file>mockfiles/images/spot.png</file>
         <file>mockfiles/images/spot@2x.png</file>
+        <file>mockfiles/images/preview_landscape.hdr</file>
+        <file>mockfiles/images/preview_studio.hdr</file>
         <file>mockfiles/qt5/AdjustableArrow.qml</file>
         <file>mockfiles/qt5/AreaLightHandle.qml</file>
         <file>mockfiles/qt5/Arrow.qml</file>

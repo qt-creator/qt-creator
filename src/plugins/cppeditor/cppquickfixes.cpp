@@ -5247,10 +5247,12 @@ ExtractFunction::ExtractFunction(FunctionNameGetter functionNameGetter)
 void ExtractFunction::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
     const CppRefactoringFilePtr file = interface.currentFile();
-    if (CppModelManager::usesClangd(file->editor()->textDocument())
-            && file->cppDocument()->languageFeatures().cxxEnabled) {
-        return;
-    }
+
+    // TODO: Fix upstream and uncomment; see QTCREATORBUG-28030.
+//    if (CppModelManager::usesClangd(file->editor()->textDocument())
+//            && file->cppDocument()->languageFeatures().cxxEnabled) {
+//        return;
+//    }
 
     QTextCursor cursor = file->cursor();
     if (!cursor.hasSelection())

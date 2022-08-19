@@ -145,6 +145,7 @@ private:
     void updateLockedAndHiddenStates(const QSet<ServerNodeInstance> &instances);
     void handleInputEvents();
     void resolveImportSupport();
+    void updateMaterialPreviewData(const QVector<PropertyValueContainer> &valueChanges);
     void updateRotationBlocks(const QVector<PropertyValueContainer> &valueChanges);
     void removeRotationBlocks(const QVector<qint32> &instanceIds);
 
@@ -191,6 +192,13 @@ private:
     QObject *m_3dHelper = nullptr;
     int m_need3DEditViewRender = 0;
     QSet<QObject *> m_dynamicObjectConstructors;
+
+    struct PreviewData {
+        QString env;
+        QString envValue;
+        QString model;
+    };
+    PreviewData m_materialPreviewData;
 };
 
 } // namespace QmlDesigner

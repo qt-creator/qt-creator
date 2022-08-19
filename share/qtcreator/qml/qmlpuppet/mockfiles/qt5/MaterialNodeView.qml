@@ -29,8 +29,12 @@ View3D {
     id: root
     anchors.fill: parent
     environment: sceneEnv
+    camera: envMode === "SkyBox" && envValue === "preview_studio" ? studioCamera : defaultCamera
 
     property Material previewMaterial
+    property string envMode
+    property string envValue
+    property string modelSrc: "#Sphere"
 
     function fitToViewPort(closeUp)
     {
@@ -41,28 +45,59 @@ View3D {
         id: sceneEnv
         antialiasingMode: SceneEnvironment.MSAA
         antialiasingQuality: SceneEnvironment.High
+        backgroundMode: envMode === "Color" ? SceneEnvironment.Color
+                                            : envMode === "SkyBox" ? SceneEnvironment.SkyBox
+                                                                   : SceneEnvironment.Transparent
+        clearColor: envMode === "Color" ? envValue : "#000000"
+        lightProbe: envMode === "SkyBox" ? skyBoxTex : null
+
+        Texture {
+            id: skyBoxTex
+            source: envMode === "SkyBox" ? "../images/" + envValue + ".hdr"
+                                         : ""
+        }
     }
 
     Node {
         DirectionalLight {
             eulerRotation.x: -26
-            eulerRotation.y: -57
+            eulerRotation.y: modelSrc === "#Cube" ? -10 : -50
+            brightness: envMode !== "SkyBox" ? 100 : 0
         }
 
         PerspectiveCamera {
-            y: 125.331
-            z: 120
-            eulerRotation.x: -31
+            id: defaultCamera
+            y: 70
+            z: 200
+            eulerRotation.x: -5.71
             clipNear: 1
             clipFar: 1000
         }
 
-        Model {
-            id: model
+        PerspectiveCamera {
+            id: studioCamera
+            y: 232
+            z: 85
+            eulerRotation.x: -64.98
+            clipNear: 1
+            clipFar: 1000
+        }
 
+        Node {
+            rotation: root.camera.rotation
             y: 50
-            source: "#Sphere"
-            materials: previewMaterial
+            Node {
+                y: modelSrc === "#Cone" ? -40 : 10
+                eulerRotation.x: 35
+                Model {
+                    id: model
+                    source: modelSrc ? modelSrc : "#Sphere"
+                    eulerRotation.y: 45
+                    materials: previewMaterial
+                    scale: !modelSrc || modelSrc === "#Sphere"
+                           ? Qt.vector3d(1.7, 1.7, 1.7) : Qt.vector3d(1.2, 1.2, 1.2)
+                }
+            }
         }
     }
 }
