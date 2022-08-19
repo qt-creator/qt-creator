@@ -78,16 +78,16 @@ public:
          * The client will send the `textDocument/semanticTokens/range` request
          * if the server provides a corresponding handler.
          */
-        Utils::optional<Utils::variant<bool, QJsonObject>> range() const;
-        void setRange(const Utils::variant<bool, QJsonObject> &range);
+        Utils::optional<std::variant<bool, QJsonObject>> range() const;
+        void setRange(const std::variant<bool, QJsonObject> &range);
         void clearRange() { remove(rangeKey); }
 
         /**
          * The client will send the `textDocument/semanticTokens/full` request
          * if the server provides a corresponding handler.
          */
-        Utils::optional<Utils::variant<bool, FullSemanticTokenOptions>> full() const;
-        void setFull(const Utils::variant<bool, FullSemanticTokenOptions> &full);
+        Utils::optional<std::variant<bool, FullSemanticTokenOptions>> full() const;
+        void setFull(const std::variant<bool, FullSemanticTokenOptions> &full);
         void clearFull() { remove(fullKey); }
     };
 

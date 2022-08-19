@@ -33,6 +33,7 @@
 
 #include <clangtools/clangtoolsdiagnostic.h>
 #include <debugger/analyzer/diagnosticlocation.h>
+#include <imagecacheauxiliarydata.h>
 #include <modelnode.h>
 #include <projectstorage/filestatus.h>
 #include <projectstorage/projectstoragepathwatchertypes.h>
@@ -54,6 +55,12 @@ template <typename T> ostream &operator<<(ostream &out, const QVector<T> &vector
     out << "]";
     return out;
 }
+
+std::ostream &operator<<(std::ostream &out, const monostate &)
+{
+    return out << "monostate";
+}
+
 } // namespace std
 
 namespace Utils {
@@ -739,6 +746,7 @@ std::ostream &operator<<(std::ostream &out, const QualifiedImportedType &importe
 
 std::ostream &operator<<(std::ostream &out, const Type &type)
 {
+    using std::operator<<;
     using Utils::operator<<;
     return out << "( typename: \"" << type.typeName << "\", prototype: " << type.prototype << ", "
                << type.prototypeId << ", " << type.traits << ", source: " << type.sourceId
@@ -812,5 +820,21 @@ std::ostream &operator<<(std::ostream &out, const ModuleExportedImport &import)
 }
 
 } // namespace Storage::Synchronization
+
+namespace ImageCache {
+
+std::ostream &operator<<(std::ostream &out, const LibraryIconAuxiliaryData &data)
+{
+    return out << "(" << data.enable << ")";
+}
+std::ostream &operator<<(std::ostream &out, const FontCollectorSizeAuxiliaryData &data)
+{
+    return out << "(" << data.text << ", " << data.size << ", " << data.colorName << ")";
+}
+std::ostream &operator<<(std::ostream &out, const FontCollectorSizesAuxiliaryData &data)
+{
+    return out << "(" << data.text << ", " << data.colorName << ")";
+}
+} // namespace ImageCache
 
 } // namespace QmlDesigner

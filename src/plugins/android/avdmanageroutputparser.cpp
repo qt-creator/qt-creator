@@ -30,11 +30,12 @@
 #include <utils/fileutils.h>
 #include <utils/optional.h>
 #include <utils/qtcassert.h>
-#include <utils/variant.h>
 
 #include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QSettings>
+
+#include <variant>
 
 namespace {
 Q_LOGGING_CATEGORY(avdOutputParserLog, "qtc.android.avdOutputParser", QtWarningMsg)
@@ -113,7 +114,7 @@ AndroidDeviceInfoList parseAvdList(const QString &output, QStringList *avdErrorP
     AndroidDeviceInfoList avdList;
     QStringList avdInfo;
     using ErrorPath = QString;
-    using AvdResult = Utils::variant<std::monostate, AndroidDeviceInfo, ErrorPath>;
+    using AvdResult = std::variant<std::monostate, AndroidDeviceInfo, ErrorPath>;
     const auto parseAvdInfo = [](const QStringList &avdInfo) {
         if (!avdInfo.filter(avdManufacturerError).isEmpty()) {
             for (const QString &line : avdInfo) {
@@ -138,9 +139,9 @@ AndroidDeviceInfoList parseAvdList(const QString &output, QStringList *avdErrorP
     for (const QString &line : lines) {
         if (line.startsWith("---------") || line.isEmpty()) {
             const AvdResult result = parseAvdInfo(avdInfo);
-            if (auto info = Utils::get_if<AndroidDeviceInfo>(&result))
+            if (auto info = std::get_if<AndroidDeviceInfo>(&result))
                 avdList << *info;
-            else if (auto errorPath = Utils::get_if<ErrorPath>(&result))
+            else if (auto errorPath = std::get_if<ErrorPath>(&result))
                 *avdErrorPaths << *errorPath;
             avdInfo.clear();
         } else {

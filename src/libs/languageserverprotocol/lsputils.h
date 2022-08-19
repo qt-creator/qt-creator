@@ -30,11 +30,12 @@
 #include <utils/algorithm.h>
 #include <utils/optional.h>
 #include <utils/qtcassert.h>
-#include <utils/variant.h>
 
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLoggingCategory>
+
+#include <variant>
 
 namespace LanguageServerProtocol {
 
@@ -73,11 +74,11 @@ template<>
 LANGUAGESERVERPROTOCOL_EXPORT QJsonValue fromJsonValue<QJsonValue>(const QJsonValue &value);
 
 template <typename T>
-class LanguageClientArray : public Utils::variant<QList<T>, std::nullptr_t>
+class LanguageClientArray : public std::variant<QList<T>, std::nullptr_t>
 {
 public:
-    using Utils::variant<QList<T>, std::nullptr_t>::variant;
-    using Utils::variant<QList<T>, std::nullptr_t>::operator=;
+    using std::variant<QList<T>, std::nullptr_t>::variant;
+    using std::variant<QList<T>, std::nullptr_t>::operator=;
 
     LanguageClientArray() {}
 
@@ -99,7 +100,7 @@ public:
 
     QJsonValue toJson() const
     {
-        if (const auto list = Utils::get_if<QList<T>>(this)) {
+        if (const auto list = std::get_if<QList<T>>(this)) {
             QJsonArray array;
             for (const T &value : *list)
                 array.append(QJsonValue(value));
@@ -110,20 +111,20 @@ public:
 
     QList<T> toList() const
     {
-        QTC_ASSERT(Utils::holds_alternative<QList<T>>(*this), return {});
-        return Utils::get<QList<T>>(*this);
+        QTC_ASSERT(std::holds_alternative<QList<T>>(*this), return {});
+        return std::get<QList<T>>(*this);
     }
-    bool isNull() const { return Utils::holds_alternative<std::nullptr_t>(*this); }
+    bool isNull() const { return std::holds_alternative<std::nullptr_t>(*this); }
 };
 
 template <typename T>
-class LanguageClientValue : public Utils::variant<T, std::nullptr_t>
+class LanguageClientValue : public std::variant<T, std::nullptr_t>
 {
 public:
-    using Utils::variant<T, std::nullptr_t>::operator=;
+    using std::variant<T, std::nullptr_t>::operator=;
 
-    LanguageClientValue() : Utils::variant<T, std::nullptr_t>(nullptr) { }
-    LanguageClientValue(const T &value) : Utils::variant<T, std::nullptr_t>(value) { }
+    LanguageClientValue() : std::variant<T, std::nullptr_t>(nullptr) { }
+    LanguageClientValue(const T &value) : std::variant<T, std::nullptr_t>(value) { }
     LanguageClientValue(const QJsonValue &value)
     {
         if (!QTC_GUARD(!value.isUndefined()) || value.isNull())
@@ -134,25 +135,25 @@ public:
 
     operator const QJsonValue() const
     {
-        if (auto val = Utils::get_if<T>(this))
+        if (auto val = std::get_if<T>(this))
             return QJsonValue(*val);
         return QJsonValue();
     }
 
     T value(const T &defaultValue = T()) const
     {
-        QTC_ASSERT(Utils::holds_alternative<T>(*this), return defaultValue);
-        return Utils::get<T>(*this);
+        QTC_ASSERT(std::holds_alternative<T>(*this), return defaultValue);
+        return std::get<T>(*this);
     }
 
     template<typename Type>
     LanguageClientValue<Type> transform()
     {
-        QTC_ASSERT(!Utils::holds_alternative<T>(*this), return LanguageClientValue<Type>());
-        return Type(Utils::get<T>(*this));
+        QTC_ASSERT(!std::holds_alternative<T>(*this), return LanguageClientValue<Type>());
+        return Type(std::get<T>(*this));
     }
 
-    bool isNull() const { return Utils::holds_alternative<std::nullptr_t>(*this); }
+    bool isNull() const { return std::holds_alternative<std::nullptr_t>(*this); }
 };
 
 template <typename T>

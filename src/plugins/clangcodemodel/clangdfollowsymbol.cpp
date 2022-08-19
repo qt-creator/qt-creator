@@ -399,9 +399,9 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
 {
     if (const optional<GotoResult> &result = response.result()) {
         QList<Link> newLinks;
-        if (const auto ploc = get_if<Location>(&*result))
+        if (const auto ploc = std::get_if<Location>(&*result))
             newLinks = {ploc->toLink()};
-        if (const auto plloc = get_if<QList<Location>>(&*result))
+        if (const auto plloc = std::get_if<QList<Location>>(&*result))
             newLinks = transform(*plloc, &Location::toLink);
         for (const Link &link : qAsConst(newLinks)) {
             if (!allLinks.contains(link)) {
@@ -475,9 +475,9 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
             Link newLink;
             if (optional<GotoResult> _result = response.result()) {
                 const GotoResult result = _result.value();
-                if (const auto ploc = get_if<Location>(&result)) {
+                if (const auto ploc = std::get_if<Location>(&result)) {
                     newLink = ploc->toLink();
-                } else if (const auto plloc = get_if<QList<Location>>(&result)) {
+                } else if (const auto plloc = std::get_if<QList<Location>>(&result)) {
                     if (!plloc->isEmpty())
                         newLink = plloc->value(0).toLink();
                 }

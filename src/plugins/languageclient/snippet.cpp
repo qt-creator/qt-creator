@@ -263,11 +263,11 @@ void LanguageClient::LanguageClientPlugin::testSnippetParsing()
     QFETCH(Parts, parts);
 
     SnippetParseResult result = LanguageClient::parseSnippet(input);
-    QCOMPARE(Utils::holds_alternative<ParsedSnippet>(result), success);
+    QCOMPARE(std::holds_alternative<ParsedSnippet>(result), success);
     if (!success)
         return;
 
-    ParsedSnippet snippet = Utils::get<ParsedSnippet>(result);
+    ParsedSnippet snippet = std::get<ParsedSnippet>(result);
 
     auto rangesCompare = [&](const ParsedSnippet::Part &actual, const SnippetPart &expected) {
         QCOMPARE(actual.text, expected.text);

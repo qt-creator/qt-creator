@@ -362,10 +362,10 @@ ClangdCompletionItem::SpecialQtType ClangdCompletionItem::getQtType(const Comple
     if (!doc)
         return SpecialQtType::None;
     QString docText;
-    if (Utils::holds_alternative<QString>(*doc))
-        docText = Utils::get<QString>(*doc);
-    else if (Utils::holds_alternative<MarkupContent>(*doc))
-        docText = Utils::get<MarkupContent>(*doc).content();
+    if (std::holds_alternative<QString>(*doc))
+        docText = std::get<QString>(*doc);
+    else if (std::holds_alternative<MarkupContent>(*doc))
+        docText = std::get<MarkupContent>(*doc).content();
     if (docText.contains("Annotation: qt_signal"))
         return SpecialQtType::Signal;
     if (docText.contains("Annotation: qt_slot"))

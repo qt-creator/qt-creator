@@ -47,10 +47,10 @@ WorkspaceClientCapabilities::WorkspaceClientCapabilities()
     setWorkspaceFolders(true);
 }
 
-Utils::optional<Utils::variant<bool, QJsonObject>> SemanticTokensClientCapabilities::Requests::range()
+Utils::optional<std::variant<bool, QJsonObject>> SemanticTokensClientCapabilities::Requests::range()
     const
 {
-    using RetType = Utils::variant<bool, QJsonObject>;
+    using RetType = std::variant<bool, QJsonObject>;
     const QJsonValue &rangeOptions = value(rangeKey);
     if (rangeOptions.isBool())
         return RetType(rangeOptions.toBool());
@@ -60,15 +60,15 @@ Utils::optional<Utils::variant<bool, QJsonObject>> SemanticTokensClientCapabilit
 }
 
 void SemanticTokensClientCapabilities::Requests::setRange(
-    const Utils::variant<bool, QJsonObject> &range)
+    const std::variant<bool, QJsonObject> &range)
 {
     insertVariant<bool, QJsonObject>(rangeKey, range);
 }
 
-Utils::optional<Utils::variant<bool, FullSemanticTokenOptions>>
+Utils::optional<std::variant<bool, FullSemanticTokenOptions>>
 SemanticTokensClientCapabilities::Requests::full() const
 {
-    using RetType = Utils::variant<bool, FullSemanticTokenOptions>;
+    using RetType = std::variant<bool, FullSemanticTokenOptions>;
     const QJsonValue &fullOptions = value(fullKey);
     if (fullOptions.isBool())
         return RetType(fullOptions.toBool());
@@ -78,7 +78,7 @@ SemanticTokensClientCapabilities::Requests::full() const
 }
 
 void SemanticTokensClientCapabilities::Requests::setFull(
-    const Utils::variant<bool, FullSemanticTokenOptions> &full)
+    const std::variant<bool, FullSemanticTokenOptions> &full)
 {
     insertVariant<bool, FullSemanticTokenOptions>(fullKey, full);
 }

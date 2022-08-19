@@ -31,7 +31,6 @@
 
 #include <utils/optional.h>
 #include <utils/qtcassert.h>
-#include <utils/variant.h>
 
 #include <QDebug>
 #include <QElapsedTimer>
@@ -41,11 +40,13 @@
 #include <QCoreApplication>
 #include <QUuid>
 
+#include <variant>
+
 namespace LanguageServerProtocol {
 
 class JsonRpcMessage;
 
-class LANGUAGESERVERPROTOCOL_EXPORT MessageId : public Utils::variant<int, QString>
+class LANGUAGESERVERPROTOCOL_EXPORT MessageId : public std::variant<int, QString>
 {
 public:
     MessageId() : variant(QString()) {}
@@ -61,37 +62,37 @@ public:
 
     operator QJsonValue() const
     {
-        if (auto id = Utils::get_if<int>(this))
+        if (auto id = std::get_if<int>(this))
             return *id;
-        if (auto id = Utils::get_if<QString>(this))
+        if (auto id = std::get_if<QString>(this))
             return *id;
         return QJsonValue();
     }
 
     bool isValid() const
     {
-        if (Utils::holds_alternative<int>(*this))
+        if (std::holds_alternative<int>(*this))
             return true;
-        const QString *id = Utils::get_if<QString>(this);
+        const QString *id = std::get_if<QString>(this);
         QTC_ASSERT(id, return false);
         return !id->isEmpty();
     }
 
     QString toString() const
     {
-        if (auto id = Utils::get_if<QString>(this))
+        if (auto id = std::get_if<QString>(this))
             return *id;
-        if (auto id = Utils::get_if<int>(this))
+        if (auto id = std::get_if<int>(this))
             return QString::number(*id);
         return {};
     }
 
     friend auto qHash(const MessageId &id)
     {
-        if (Utils::holds_alternative<int>(id))
-            return QT_PREPEND_NAMESPACE(qHash(Utils::get<int>(id)));
-        if (Utils::holds_alternative<QString>(id))
-            return QT_PREPEND_NAMESPACE(qHash(Utils::get<QString>(id)));
+        if (std::holds_alternative<int>(id))
+            return QT_PREPEND_NAMESPACE(qHash(std::get<int>(id)));
+        if (std::holds_alternative<QString>(id))
+            return QT_PREPEND_NAMESPACE(qHash(std::get<QString>(id)));
         return QT_PREPEND_NAMESPACE(qHash(0));
     }
 };
@@ -99,10 +100,10 @@ public:
 template <typename Error>
 inline QDebug operator<<(QDebug stream, const LanguageServerProtocol::MessageId &id)
 {
-    if (Utils::holds_alternative<int>(id))
-        stream << Utils::get<int>(id);
+    if (std::holds_alternative<int>(id))
+        stream << std::get<int>(id);
     else
-        stream << Utils::get<QString>(id);
+        stream << std::get<QString>(id);
     return stream;
 }
 

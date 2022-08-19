@@ -110,7 +110,7 @@ public:
     Utils::optional<bool> hasVirtualFunctionAt(TextEditor::TextDocument *doc, int revision,
                                                const LanguageServerProtocol::Range &range);
 
-    using TextDocOrFile = Utils::variant<const TextEditor::TextDocument *, Utils::FilePath>;
+    using TextDocOrFile = std::variant<const TextEditor::TextDocument *, Utils::FilePath>;
     using AstHandler = std::function<void(const ClangdAstNode &ast,
                                                 const LanguageServerProtocol::MessageId &)>;
     enum class AstCallbackMode { SyncIfPossible, AlwaysAsync };

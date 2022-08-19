@@ -66,7 +66,7 @@ void HoverHandler::setHelpItem(const LanguageServerProtocol::MessageId &msgId,
 {
     if (msgId == m_response.id()) {
         if (Utils::optional<HoverResult> result = m_response.result()) {
-            if (auto hover = Utils::get_if<Hover>(&(*result)))
+            if (auto hover = std::get_if<Hover>(&(*result)))
                 setContent(hover->content());
         }
         m_response = {};
@@ -107,11 +107,11 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
     if (m_preferDiagnostics && reportDiagnostics(cursor))
         return;
 
-    const Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> &provider
+    const Utils::optional<std::variant<bool, WorkDoneProgressOptions>> &provider
         = m_client->capabilities().hoverProvider();
     bool sendMessage = provider.has_value();
-    if (sendMessage && Utils::holds_alternative<bool>(*provider))
-        sendMessage = Utils::get<bool>(*provider);
+    if (sendMessage && std::holds_alternative<bool>(*provider))
+        sendMessage = std::get<bool>(*provider);
     if (Utils::optional<bool> registered = m_client->dynamicCapabilities().isRegistered(
             HoverRequest::methodName)) {
         sendMessage = *registered;
@@ -146,7 +146,7 @@ void HoverHandler::handleResponse(const HoverRequest::Response &response, const 
             m_client->log(*error);
     }
     if (Utils::optional<HoverResult> result = response.result()) {
-        if (auto hover = Utils::get_if<Hover>(&(*result))) {
+        if (auto hover = std::get_if<Hover>(&(*result))) {
             if (m_helpItemProvider) {
                 m_response = response;
                 m_helpItemProvider(response, m_uri);
@@ -166,9 +166,9 @@ static QString toolTipForMarkedStrings(const QList<MarkedString> &markedStrings)
     for (const MarkedString &markedString : markedStrings) {
         if (!tooltip.isEmpty())
             tooltip += '\n';
-        if (auto string = Utils::get_if<QString>(&markedString))
+        if (auto string = std::get_if<QString>(&markedString))
             tooltip += *string;
-        else if (auto string = Utils::get_if<MarkedLanguageString>(&markedString))
+        else if (auto string = std::get_if<MarkedLanguageString>(&markedString))
             tooltip += string->value() + " [" + string->language() + ']';
     }
     return tooltip;
@@ -176,11 +176,11 @@ static QString toolTipForMarkedStrings(const QList<MarkedString> &markedStrings)
 
 void HoverHandler::setContent(const HoverContent &hoverContent)
 {
-    if (auto markupContent = Utils::get_if<MarkupContent>(&hoverContent))
+    if (auto markupContent = std::get_if<MarkupContent>(&hoverContent))
         setToolTip(markupContent->content(), markupContent->textFormat());
-    else if (auto markedString = Utils::get_if<MarkedString>(&hoverContent))
+    else if (auto markedString = std::get_if<MarkedString>(&hoverContent))
         setToolTip(toolTipForMarkedStrings({*markedString}));
-    else if (auto markedStrings = Utils::get_if<QList<MarkedString>>(&hoverContent))
+    else if (auto markedStrings = std::get_if<QList<MarkedString>>(&hoverContent))
         setToolTip(toolTipForMarkedStrings(*markedStrings));
 }
 

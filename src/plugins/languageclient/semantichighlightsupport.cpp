@@ -356,7 +356,7 @@ void SemanticTokenSupport::handleSemanticTokens(const Utils::FilePath &filePath,
                                                 const SemanticTokensResult &result,
                                                 int documentVersion)
 {
-    if (auto tokens = Utils::get_if<SemanticTokens>(&result)) {
+    if (auto tokens = std::get_if<SemanticTokens>(&result)) {
         const bool force = !m_tokens.contains(filePath);
         m_tokens[filePath] = {*tokens, documentVersion};
         highlight(filePath, force);
@@ -369,10 +369,10 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
     int documentVersion)
 {
     qCDebug(LOGLSPHIGHLIGHT) << "Handle Tokens for " << filePath;
-    if (auto tokens = Utils::get_if<SemanticTokens>(&result)) {
+    if (auto tokens = std::get_if<SemanticTokens>(&result)) {
         m_tokens[filePath] = {*tokens, documentVersion};
         qCDebug(LOGLSPHIGHLIGHT) << "New Data " << tokens->data();
-    } else if (auto tokensDelta = Utils::get_if<SemanticTokensDelta>(&result)) {
+    } else if (auto tokensDelta = std::get_if<SemanticTokensDelta>(&result)) {
         m_tokens[filePath].version = documentVersion;
         QList<SemanticTokensEdit> edits = tokensDelta->edits();
         if (edits.isEmpty()) {

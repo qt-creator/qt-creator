@@ -34,7 +34,6 @@
 #include <utils/mimeutils.h>
 #include <utils/optional.h>
 #include <utils/textutils.h>
-#include <utils/variant.h>
 
 #include <QTextCursor>
 #include <QJsonObject>
@@ -42,6 +41,7 @@
 #include <QList>
 
 #include <functional>
+#include <variant>
 
 namespace LanguageServerProtocol {
 
@@ -190,7 +190,7 @@ public:
     void clearSeverity() { remove(severityKey); }
 
     // The diagnostic's code, which might appear in the user interface.
-    using Code = Utils::variant<int, QString>;
+    using Code = std::variant<int, QString>;
     Utils::optional<Code> code() const;
     void setCode(const Code &code);
     void clearCode() { remove(codeKey); }
@@ -456,11 +456,11 @@ public:
     { return contains(kindKey) && contains(contentKey); }
 };
 
-class LANGUAGESERVERPROTOCOL_EXPORT MarkupOrString : public Utils::variant<QString, MarkupContent>
+class LANGUAGESERVERPROTOCOL_EXPORT MarkupOrString : public std::variant<QString, MarkupContent>
 {
 public:
     MarkupOrString() = default;
-    explicit MarkupOrString(const Utils::variant<QString, MarkupContent> &val);
+    explicit MarkupOrString(const std::variant<QString, MarkupContent> &val);
     explicit MarkupOrString(const QString &val);
     explicit MarkupOrString(const MarkupContent &val);
     MarkupOrString(const QJsonValue &val);

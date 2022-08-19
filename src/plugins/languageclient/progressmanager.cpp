@@ -45,11 +45,11 @@ void ProgressManager::handleProgress(const LanguageServerProtocol::ProgressParam
 {
     const ProgressToken &token = params.token();
     ProgressParams::ProgressType value = params.value();
-    if (auto begin = Utils::get_if<WorkDoneProgressBegin>(&value))
+    if (auto begin = std::get_if<WorkDoneProgressBegin>(&value))
         beginProgress(token, *begin);
-    else if (auto report = Utils::get_if<WorkDoneProgressReport>(&value))
+    else if (auto report = std::get_if<WorkDoneProgressReport>(&value))
         reportProgress(token, *report);
-    else if (auto end = Utils::get_if<WorkDoneProgressEnd>(&value))
+    else if (auto end = std::get_if<WorkDoneProgressEnd>(&value))
         endProgress(token, *end);
 }
 
@@ -68,16 +68,16 @@ void ProgressManager::reset()
 
 bool ProgressManager::isProgressEndMessage(const LanguageServerProtocol::ProgressParams &params)
 {
-    return Utils::holds_alternative<WorkDoneProgressEnd>(params.value());
+    return std::holds_alternative<WorkDoneProgressEnd>(params.value());
 }
 
 Utils::Id languageClientProgressId(const ProgressToken &token)
 {
     constexpr char k_LanguageClientProgressId[] = "LanguageClient.ProgressId.";
     auto toString = [](const ProgressToken &token){
-        if (Utils::holds_alternative<int>(token))
-            return QString::number(Utils::get<int>(token));
-        return Utils::get<QString>(token);
+        if (std::holds_alternative<int>(token))
+            return QString::number(std::get<int>(token));
+        return std::get<QString>(token);
     };
     return Utils::Id(k_LanguageClientProgressId).withSuffix(toString(token));
 }

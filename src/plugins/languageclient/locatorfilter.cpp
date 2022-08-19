@@ -211,9 +211,9 @@ QList<Core::LocatorFilterEntry> DocumentLocatorFilter::matchesFor(
 
     QTC_ASSERT(m_currentSymbols.has_value(), return {});
 
-    if (auto list = Utils::get_if<QList<DocumentSymbol>>(&*m_currentSymbols))
+    if (auto list = std::get_if<QList<DocumentSymbol>>(&*m_currentSymbols))
         return generateEntries(*list, entry);
-    else if (auto list = Utils::get_if<QList<SymbolInformation>>(&*m_currentSymbols))
+    else if (auto list = std::get_if<QList<SymbolInformation>>(&*m_currentSymbols))
         return generateEntries(*list, entry);
 
     return {};
@@ -277,11 +277,11 @@ void WorkspaceLocatorFilter::prepareSearch(const QString &entry,
             continue;
         if (!(force || client->locatorsEnabled()))
             continue;
-        Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> capability
+        Utils::optional<std::variant<bool, WorkDoneProgressOptions>> capability
             = client->capabilities().workspaceSymbolProvider();
         if (!capability.has_value())
             continue;
-        if (Utils::holds_alternative<bool>(*capability) && !Utils::get<bool>(*capability))
+        if (std::holds_alternative<bool>(*capability) && !std::get<bool>(*capability))
             continue;
         WorkspaceSymbolRequest request(params);
         request.setResponseCallback(

@@ -124,12 +124,12 @@ void LanguageClientQuickFixAssistProcessor::handleCodeActionResponse(const CodeA
 
 GenericProposal *LanguageClientQuickFixAssistProcessor::handleCodeActionResult(const CodeActionResult &result)
 {
-    if (auto list = Utils::get_if<QList<Utils::variant<Command, CodeAction>>>(&result)) {
+    if (auto list = std::get_if<QList<std::variant<Command, CodeAction>>>(&result)) {
         QuickFixOperations ops;
-        for (const Utils::variant<Command, CodeAction> &item : *list) {
-            if (auto action = Utils::get_if<CodeAction>(&item))
+        for (const std::variant<Command, CodeAction> &item : *list) {
+            if (auto action = std::get_if<CodeAction>(&item))
                 ops << new CodeActionQuickFixOperation(*action, m_client);
-            else if (auto command = Utils::get_if<Command>(&item))
+            else if (auto command = std::get_if<Command>(&item))
                 ops << new CommandQuickFixOperation(*command, m_client);
         }
         return GenericProposal::createProposal(m_assistInterface.data(), ops);

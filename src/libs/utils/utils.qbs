@@ -327,8 +327,6 @@ Project {
             "utilsicons.cpp",
             "variablechooser.cpp",
             "variablechooser.h",
-            "variant.h",
-            "../3rdparty/variant/variant.hpp",
             "winutils.cpp",
             "winutils.h",
             "wizard.cpp",

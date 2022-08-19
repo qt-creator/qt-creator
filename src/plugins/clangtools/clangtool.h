@@ -35,7 +35,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <cppeditor/projectinfo.h>
 
-#include <utils/variant.h>
+#include <variant>
 
 QT_BEGIN_NAMESPACE
 class QFrame;
@@ -87,7 +87,7 @@ public:
         AskUser,
     };
 
-    using FileSelection = Utils::variant<FileSelectionType, Utils::FilePath>;
+    using FileSelection = std::variant<FileSelectionType, Utils::FilePath>;
 
     void startTool(FileSelection fileSelection);
     void startTool(FileSelection fileSelection,

@@ -2761,13 +2761,13 @@ void TextEditorWidget::insertCodeSnippet(const QTextCursor &cursor_arg,
                                          const SnippetParser &parse)
 {
     SnippetParseResult result = parse(snippet);
-    if (Utils::holds_alternative<SnippetParseError>(result)) {
-        const auto &error = Utils::get<SnippetParseError>(result);
+    if (std::holds_alternative<SnippetParseError>(result)) {
+        const auto &error = std::get<SnippetParseError>(result);
         QMessageBox::warning(this, tr("Snippet Parse Error"), error.htmlMessage());
         return;
     }
-    QTC_ASSERT(Utils::holds_alternative<ParsedSnippet>(result), return);
-    ParsedSnippet data = Utils::get<ParsedSnippet>(result);
+    QTC_ASSERT(std::holds_alternative<ParsedSnippet>(result), return);
+    ParsedSnippet data = std::get<ParsedSnippet>(result);
 
     QTextCursor cursor = cursor_arg;
     cursor.beginEditBlock();

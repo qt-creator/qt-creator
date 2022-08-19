@@ -233,7 +233,7 @@ ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src, const FilePath &f
     if (src.severity())
         target.severity = convertSeverity(*src.severity());
     const Diagnostic::Code code = src.code().value_or(Diagnostic::Code());
-    const QString * const codeString = Utils::get_if<QString>(&code);
+    const QString * const codeString = std::get_if<QString>(&code);
     if (codeString && codeString->startsWith("-W"))
         target.enableOption = *codeString;
     for (const CodeAction &codeAction : src.codeActions().value_or(QList<CodeAction>())) {

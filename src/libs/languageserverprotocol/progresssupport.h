@@ -27,13 +27,13 @@
 
 #include "jsonrpcmessages.h"
 
-#include <utils/variant.h>
-
 #include <QJsonValue>
+
+#include <variant>
 
 namespace LanguageServerProtocol {
 
-class LANGUAGESERVERPROTOCOL_EXPORT ProgressToken : public Utils::variant<int, QString>
+class LANGUAGESERVERPROTOCOL_EXPORT ProgressToken : public std::variant<int, QString>
 {
 public:
     using variant::variant;
@@ -124,7 +124,7 @@ public:
     void setToken(const ProgressToken &token) { insert(tokenKey, token); }
 
     using ProgressType
-        = Utils::variant<WorkDoneProgressBegin, WorkDoneProgressReport, WorkDoneProgressEnd>;
+        = std::variant<WorkDoneProgressBegin, WorkDoneProgressReport, WorkDoneProgressEnd>;
     ProgressType value() const;
     void setValue(const ProgressType &value);
 

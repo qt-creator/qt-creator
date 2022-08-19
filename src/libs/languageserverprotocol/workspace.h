@@ -30,7 +30,7 @@
 namespace LanguageServerProtocol {
 
 class LANGUAGESERVERPROTOCOL_EXPORT WorkSpaceFolderResult
-    : public Utils::variant<QList<WorkSpaceFolder>, std::nullptr_t>
+    : public std::variant<QList<WorkSpaceFolder>, std::nullptr_t>
 {
 public:
     using variant::variant;

@@ -62,7 +62,7 @@ TEST_F(AsynchronousImageFactory, RequestImageRequestImageFromCollector)
     EXPECT_CALL(collectorMock,
                 start(Eq("/path/to/Component.qml"),
                       IsEmpty(),
-                      VariantWith<Utils::monostate>(Utils::monostate{}),
+                      VariantWith<std::monostate>(std::monostate{}),
                       _,
                       _))
         .WillRepeatedly([&](auto, auto, auto, auto, auto) { notification.notify(); });
@@ -76,7 +76,7 @@ TEST_F(AsynchronousImageFactory, RequestImageWithExtraIdRequestImageFromCollecto
     EXPECT_CALL(collectorMock,
                 start(Eq("/path/to/Component.qml"),
                       Eq("foo"),
-                      VariantWith<Utils::monostate>(Utils::monostate{}),
+                      VariantWith<std::monostate>(std::monostate{}),
                       _,
                       _))
         .WillRepeatedly([&](auto, auto, auto, auto, auto) { notification.notify(); });
@@ -162,7 +162,7 @@ TEST_F(AsynchronousImageFactory, AfterCleanNewJobsWorks)
     EXPECT_CALL(collectorMock,
                 start(Eq("/path/to/Component.qml"),
                       IsEmpty(),
-                      VariantWith<Utils::monostate>(Utils::monostate{}),
+                      VariantWith<std::monostate>(std::monostate{}),
                       _,
                       _))
         .WillRepeatedly([&](auto, auto, auto, auto, auto) { notification.notify(); });
@@ -181,7 +181,7 @@ TEST_F(AsynchronousImageFactory, CaptureImageCallbackStoresImage)
     ON_CALL(collectorMock,
             start(Eq("/path/to/Component.qml"),
                   Eq("id"),
-                  VariantWith<Utils::monostate>(Utils::monostate{}),
+                  VariantWith<std::monostate>(std::monostate{}),
                   _,
                   _))
         .WillByDefault([&](auto, auto, auto, auto capture, auto) { capture(image1, smallImage1); });

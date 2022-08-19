@@ -30,7 +30,6 @@
 #include <utils/mimeutils.h>
 #include <utils/optional.h>
 #include <utils/qtcassert.h>
-#include <utils/variant.h>
 
 #include <QApplication>
 #include <QStyle>
@@ -42,6 +41,8 @@
 #include <QFileIconProvider>
 #include <QIcon>
 #include <QLoggingCategory>
+
+#include <variant>
 
 using namespace Utils;
 
@@ -65,7 +66,7 @@ Q_LOGGING_CATEGORY(fileIconProvider, "qtc.core.fileiconprovider", QtWarningMsg)
   retrieve icons via the icon() function.
   */
 
-using Item = Utils::variant<QIcon, QString>; // icon or filename for the icon
+using Item = std::variant<QIcon, QString>; // icon or filename for the icon
 
 namespace Utils {
 namespace FileIconProvider {
@@ -75,10 +76,10 @@ static Utils::optional<QIcon> getIcon(QHash<QString, Item> &cache, const QString
     auto it = cache.constFind(key);
     if (it == cache.constEnd())
         return {};
-    if (const QIcon *icon = Utils::get_if<QIcon>(&*it))
+    if (const QIcon *icon = std::get_if<QIcon>(&*it))
         return *icon;
     // need to create icon from file name first
-    const QString *fileName = Utils::get_if<QString>(&*it);
+    const QString *fileName = std::get_if<QString>(&*it);
     QTC_ASSERT(fileName, return {});
     const QIcon icon = QIcon(
         FileIconProvider::overlayIcon(QStyle::SP_FileIcon, QIcon(*fileName), QSize(16, 16)));

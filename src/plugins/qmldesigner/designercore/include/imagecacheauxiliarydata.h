@@ -26,13 +26,13 @@
 #pragma once
 
 #include <utils/span.h>
-#include <utils/variant.h>
 
 #include <QImage>
 #include <QSize>
 #include <QString>
 
 #include <functional>
+#include <variant>
 
 namespace QmlDesigner {
 
@@ -60,10 +60,10 @@ public:
     bool enable;
 };
 
-using AuxiliaryData = Utils::variant<Utils::monostate,
-                                     LibraryIconAuxiliaryData,
-                                     FontCollectorSizeAuxiliaryData,
-                                     FontCollectorSizesAuxiliaryData>;
+using AuxiliaryData = std::variant<std::monostate,
+                                   LibraryIconAuxiliaryData,
+                                   FontCollectorSizeAuxiliaryData,
+                                   FontCollectorSizesAuxiliaryData>;
 
 enum class AbortReason : char { Abort, Failed };
 

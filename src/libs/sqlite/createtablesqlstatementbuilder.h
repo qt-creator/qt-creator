@@ -294,7 +294,7 @@ private:
             ContraintsVisiter visiter{columnDefinitionString};
 
             for (const Constraint &constraint : column.constraints)
-                Utils::visit(visiter, constraint);
+                std::visit(visiter, constraint);
 
             columnDefinitionStrings.push_back(std::move(columnDefinitionString));
         }
@@ -303,7 +303,7 @@ private:
             Utils::SmallString columnDefinitionString;
 
             TableContraintsVisiter visiter{columnDefinitionString};
-            Utils::visit(visiter, constraint);
+            std::visit(visiter, constraint);
 
             columnDefinitionStrings.push_back(std::move(columnDefinitionString));
         }

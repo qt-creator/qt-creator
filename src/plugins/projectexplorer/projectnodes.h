@@ -34,9 +34,9 @@
 #include <utils/fileutils.h>
 #include <utils/id.h>
 #include <utils/optional.h>
-#include <utils/variant.h>
 
 #include <functional>
+#include <variant>
 
 namespace Utils { class MimeType; }
 
@@ -354,7 +354,7 @@ private:
 
     QString m_displayName;
     QString m_addFileFilter;
-    mutable Utils::variant<QIcon, DirectoryIcon, QString, IconCreator> m_icon;
+    mutable std::variant<QIcon, DirectoryIcon, QString, IconCreator> m_icon;
     bool m_showWhenEmpty = false;
 };
 

@@ -680,8 +680,8 @@ void ClangTool::startTool(ClangTool::FileSelection fileSelection,
     connect(m_runControl, &RunControl::stopped, this, &ClangTool::onRunControlStopped);
 
     // Run worker
-    const bool preventBuild = holds_alternative<FilePath>(fileSelection)
-                              || get<FileSelectionType>(fileSelection)
+    const bool preventBuild = std::holds_alternative<FilePath>(fileSelection)
+                              || std::get<FileSelectionType>(fileSelection)
                                      == FileSelectionType::CurrentFile;
     const bool buildBeforeAnalysis = !preventBuild && runSettings.buildBeforeAnalysis();
     m_runWorker = new ClangToolRunWorker(m_runControl,
@@ -730,7 +730,7 @@ Diagnostics ClangTool::read(OutputFileFormat outputFileFormat,
 
 FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelection)
 {
-    FileSelectionType *selectionType = get_if<FileSelectionType>(&fileSelection);
+    FileSelectionType *selectionType = std::get_if<FileSelectionType>(&fileSelection);
     // early bailout
     if (selectionType && *selectionType == FileSelectionType::CurrentFile
         && !EditorManager::currentDocument()) {
@@ -759,8 +759,8 @@ FileInfos ClangTool::collectFileInfos(Project *project, FileSelection fileSelect
         return dialog.fileInfos();
     }
 
-    const FilePath filePath = holds_alternative<FilePath>(fileSelection)
-                                  ? get<FilePath>(fileSelection)
+    const FilePath filePath = std::holds_alternative<FilePath>(fileSelection)
+                                  ? std::get<FilePath>(fileSelection)
                                   : EditorManager::currentDocument()->filePath(); // see early bailout
     if (!filePath.isEmpty()) {
         const FileInfo fileInfo = Utils::findOrDefault(allFileInfos, [&](const FileInfo &fi) {

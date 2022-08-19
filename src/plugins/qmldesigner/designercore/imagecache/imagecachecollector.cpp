@@ -108,7 +108,7 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
     }
 
     if (is3DRoot) {
-        if (auto libIcon = Utils::get_if<ImageCache::LibraryIconAuxiliaryData>(&auxiliaryData))
+        if (auto libIcon = std::get_if<ImageCache::LibraryIconAuxiliaryData>(&auxiliaryData))
             rewriterView.rootModelNode().setAuxiliaryData(AuxiliaryDataType::NodeInstancePropertyOverwrite,
                                                           "isLibraryIcon",
                                                           libIcon->enable);

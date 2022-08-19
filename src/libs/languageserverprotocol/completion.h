@@ -263,7 +263,7 @@ public:
 
 /// The result of a completion is CompletionItem[] | CompletionList | null
 class LANGUAGESERVERPROTOCOL_EXPORT CompletionResult
-        : public Utils::variant<QList<CompletionItem>, CompletionList, std::nullptr_t>
+        : public std::variant<QList<CompletionItem>, CompletionList, std::nullptr_t>
 {
 public:
     using variant::variant;

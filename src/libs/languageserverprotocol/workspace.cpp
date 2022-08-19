@@ -86,10 +86,10 @@ ExecuteCommandParams::ExecuteCommandParams(const Command &command)
 
 LanguageServerProtocol::WorkSpaceFolderResult::operator const QJsonValue() const
 {
-    if (!Utils::holds_alternative<QList<WorkSpaceFolder>>(*this))
+    if (!std::holds_alternative<QList<WorkSpaceFolder>>(*this))
         return QJsonValue::Null;
     QJsonArray array;
-    for (const auto &folder : Utils::get<QList<WorkSpaceFolder>>(*this))
+    for (const auto &folder : std::get<QList<WorkSpaceFolder>>(*this))
         array.append(QJsonValue(folder));
     return array;
 }

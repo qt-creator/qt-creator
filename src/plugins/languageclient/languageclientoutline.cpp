@@ -296,10 +296,10 @@ void LanguageClientOutlineWidget::handleResponse(const DocumentUri &uri,
 {
     if (uri != m_uri)
         return;
-    if (Utils::holds_alternative<QList<SymbolInformation>>(result))
-        m_model.setInfo(Utils::get<QList<SymbolInformation>>(result));
-    else if (Utils::holds_alternative<QList<DocumentSymbol>>(result))
-        m_model.setInfo(Utils::get<QList<DocumentSymbol>>(result));
+    if (std::holds_alternative<QList<SymbolInformation>>(result))
+        m_model.setInfo(std::get<QList<SymbolInformation>>(result));
+    else if (std::holds_alternative<QList<DocumentSymbol>>(result))
+        m_model.setInfo(std::get<QList<DocumentSymbol>>(result));
     else
         m_model.clear();
 
@@ -440,10 +440,10 @@ void OutlineComboBox::updateModel(const DocumentUri &resultUri, const DocumentSy
 {
     if (m_uri != resultUri)
         return;
-    if (Utils::holds_alternative<QList<SymbolInformation>>(result))
-        m_model.setInfo(Utils::get<QList<SymbolInformation>>(result));
-    else if (Utils::holds_alternative<QList<DocumentSymbol>>(result))
-        m_model.setInfo(Utils::get<QList<DocumentSymbol>>(result));
+    if (std::holds_alternative<QList<SymbolInformation>>(result))
+        m_model.setInfo(std::get<QList<SymbolInformation>>(result));
+    else if (std::holds_alternative<QList<DocumentSymbol>>(result))
+        m_model.setInfo(std::get<QList<DocumentSymbol>>(result));
     else
         m_model.clear();
 

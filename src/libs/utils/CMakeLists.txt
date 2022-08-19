@@ -5,7 +5,6 @@ add_qtc_library(Utils
     Qt6Core5Compat
   SOURCES
     ../3rdparty/optional/optional.hpp
-    ../3rdparty/variant/variant.hpp
     ../3rdparty/span/span.hpp
     QtConcurrentTools
     algorithm.h
@@ -182,7 +181,6 @@ add_qtc_library(Utils
     utils_global.h
     utilsicons.cpp utilsicons.h
     variablechooser.cpp variablechooser.h
-    variant.h
     winutils.cpp winutils.h
     wizard.cpp wizard.h
     wizardpage.cpp wizardpage.h

@@ -28,11 +28,11 @@
 #include <utils/cpplanguage_details.h>
 #include <utils/optional.h>
 #include <utils/smallstringio.h>
-#include <utils/variant.h>
 
 #include <QtGlobal>
 
 #include <iosfwd>
+#include <variant>
 
 #include <gtest/gtest-printers.h>
 
@@ -77,6 +77,18 @@ std::ostream &operator<<(std::ostream &out, const ValueViews &valueViews);
 } // namespace SessionChangeSetInternal
 } // namespace Sqlite
 
+namespace std {
+
+template<typename Type, typename... Types>
+std::ostream &operator<<(std::ostream &out, const variant<Type, Types...> &v)
+{
+    return visit([&](auto &&value) -> std::ostream & { return out << value; }, v);
+}
+
+std::ostream &operator<<(std::ostream &out, const monostate &);
+
+} // namespace std
+
 namespace Utils {
 class LineColumn;
 class SmallStringView;
@@ -101,12 +113,6 @@ template<typename Type>
 void PrintTo(const optional<Type> &optional, ::std::ostream *os)
 {
     *os << optional;
-}
-
-template<typename... Type>
-std::ostream &operator<<(std::ostream &out, const variant<Type...> &variant)
-{
-    return Utils::visit([&](auto &&value) -> std::ostream & { return out << value; }, variant);
 }
 
 void PrintTo(Utils::SmallStringView text, ::std::ostream *os);
@@ -151,6 +157,16 @@ class SourceContext;
 
 std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext);
 } // namespace Cache
+
+namespace ImageCache {
+class LibraryIconAuxiliaryData;
+class FontCollectorSizeAuxiliaryData;
+class FontCollectorSizesAuxiliaryData;
+
+std::ostream &operator<<(std::ostream &out, const LibraryIconAuxiliaryData &date);
+std::ostream &operator<<(std::ostream &out, const FontCollectorSizeAuxiliaryData &sourceContext);
+std::ostream &operator<<(std::ostream &out, const FontCollectorSizesAuxiliaryData &sourceContext);
+} // namespace ImageCache
 
 namespace Storage {
 enum class PropertyDeclarationTraits : int;

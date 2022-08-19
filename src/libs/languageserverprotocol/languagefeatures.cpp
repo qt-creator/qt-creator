@@ -57,11 +57,11 @@ HoverContent LanguageServerProtocol::Hover::content() const
 
 void Hover::setContent(const HoverContent &content)
 {
-    if (auto val = Utils::get_if<MarkedString>(&content))
+    if (auto val = std::get_if<MarkedString>(&content))
         insert(contentsKey, *val);
-    else if (auto val = Utils::get_if<MarkupContent>(&content))
+    else if (auto val = std::get_if<MarkupContent>(&content))
         insert(contentsKey, *val);
-    else if (auto val = Utils::get_if<QList<MarkedString>>(&content))
+    else if (auto val = std::get_if<QList<MarkedString>>(&content))
         insert(contentsKey, LanguageClientArray<MarkedString>(*val).toJson());
     else
         QTC_ASSERT_STRING("LanguageClient Using unknown type Hover::setContent");
@@ -160,7 +160,7 @@ QHash<QString, DocumentFormattingProperty> FormattingOptions::properties() const
 
 void FormattingOptions::setProperty(const QString &key, const DocumentFormattingProperty &property)
 {
-    using namespace Utils;
+    using namespace std;
     if (auto val = get_if<double>(&property))
         insert(key, *val);
     else if (auto val = get_if<QString>(&property))
@@ -293,16 +293,16 @@ MarkedString::MarkedString(const QJsonValue &value)
 
 bool MarkedString::isValid() const
 {
-    if (auto markedLanguageString = Utils::get_if<MarkedLanguageString>(this))
+    if (auto markedLanguageString = std::get_if<MarkedLanguageString>(this))
         return markedLanguageString->isValid();
     return true;
 }
 
 LanguageServerProtocol::MarkedString::operator QJsonValue() const
 {
-    if (auto val = Utils::get_if<QString>(this))
+    if (auto val = std::get_if<QString>(this))
         return *val;
-    if (auto val = Utils::get_if<MarkedLanguageString>(this))
+    if (auto val = std::get_if<MarkedLanguageString>(this))
         return QJsonValue(*val);
     return {};
 }
@@ -325,8 +325,8 @@ HoverContent::HoverContent(const QJsonValue &value)
 
 bool HoverContent::isValid() const
 {
-    if (Utils::holds_alternative<MarkedString>(*this))
-        return Utils::get<MarkedString>(*this).isValid();
+    if (std::holds_alternative<MarkedString>(*this))
+        return std::get<MarkedString>(*this).isValid();
     return true;
 }
 
@@ -346,7 +346,7 @@ SignatureHelpRequest::SignatureHelpRequest(const TextDocumentPositionParams &par
 
 CodeActionResult::CodeActionResult(const QJsonValue &val)
 {
-    using ResultArray = QList<Utils::variant<Command, CodeAction>>;
+    using ResultArray = QList<std::variant<Command, CodeAction>>;
     if (val.isArray()) {
         const QJsonArray array = val.toArray();
         ResultArray result;
@@ -368,21 +368,21 @@ CodeActionResult::CodeActionResult(const QJsonValue &val)
 }
 
 PrepareRenameResult::PrepareRenameResult()
-    : Utils::variant<PlaceHolderResult, Range, std::nullptr_t>(nullptr)
+    : std::variant<PlaceHolderResult, Range, std::nullptr_t>(nullptr)
 {}
 
 PrepareRenameResult::PrepareRenameResult(
-    const Utils::variant<PlaceHolderResult, Range, std::nullptr_t> &val)
-    : Utils::variant<PlaceHolderResult, Range, std::nullptr_t>(val)
+    const std::variant<PlaceHolderResult, Range, std::nullptr_t> &val)
+    : std::variant<PlaceHolderResult, Range, std::nullptr_t>(val)
 {}
 
 PrepareRenameResult::PrepareRenameResult(const PlaceHolderResult &val)
-    : Utils::variant<PlaceHolderResult, Range, std::nullptr_t>(val)
+    : std::variant<PlaceHolderResult, Range, std::nullptr_t>(val)
 
 {}
 
 PrepareRenameResult::PrepareRenameResult(const Range &val)
-    : Utils::variant<PlaceHolderResult, Range, std::nullptr_t>(val)
+    : std::variant<PlaceHolderResult, Range, std::nullptr_t>(val)
 {}
 
 PrepareRenameResult::PrepareRenameResult(const QJsonValue &val)
@@ -413,7 +413,7 @@ HoverResult::HoverResult(const QJsonValue &value)
 
 bool HoverResult::isValid() const
 {
-    if (auto hover = Utils::get_if<Hover>(this))
+    if (auto hover = std::get_if<Hover>(this))
         return hover->isValid();
     return true;
 }

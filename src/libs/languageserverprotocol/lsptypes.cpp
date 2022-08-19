@@ -95,16 +95,16 @@ WorkSpaceFolder::WorkSpaceFolder(const DocumentUri &uri, const QString &name)
     setName(name);
 }
 
-MarkupOrString::MarkupOrString(const Utils::variant<QString, MarkupContent> &val)
-    : Utils::variant<QString, MarkupContent>(val)
+MarkupOrString::MarkupOrString(const std::variant<QString, MarkupContent> &val)
+    : std::variant<QString, MarkupContent>(val)
 { }
 
 MarkupOrString::MarkupOrString(const QString &val)
-    : Utils::variant<QString, MarkupContent>(val)
+    : std::variant<QString, MarkupContent>(val)
 { }
 
 MarkupOrString::MarkupOrString(const MarkupContent &val)
-    : Utils::variant<QString, MarkupContent>(val)
+    : std::variant<QString, MarkupContent>(val)
 { }
 
 MarkupOrString::MarkupOrString(const QJsonValue &val)
@@ -120,10 +120,10 @@ MarkupOrString::MarkupOrString(const QJsonValue &val)
 
 QJsonValue MarkupOrString::toJson() const
 {
-    if (Utils::holds_alternative<QString>(*this))
-        return Utils::get<QString>(*this);
-    if (Utils::holds_alternative<MarkupContent>(*this))
-        return QJsonValue(Utils::get<MarkupContent>(*this));
+    if (std::holds_alternative<QString>(*this))
+        return std::get<QString>(*this);
+    if (std::holds_alternative<MarkupContent>(*this))
+        return QJsonValue(std::get<MarkupContent>(*this));
     return {};
 }
 

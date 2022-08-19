@@ -623,7 +623,7 @@ void Client::openDocument(TextEditor::TextDocument *document)
         }
     } else if (Utils::optional<ServerCapabilities::TextDocumentSync> _sync
                = d->m_serverCapabilities.textDocumentSync()) {
-        if (auto options = Utils::get_if<TextDocumentSyncOptions>(&*_sync)) {
+        if (auto options = std::get_if<TextDocumentSyncOptions>(&*_sync)) {
             if (!options->openClose().value_or(true))
                 return;
         }
@@ -791,11 +791,11 @@ void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *w
         if (!option.filterApplies(widget->textDocument()->filePath()))
             return;
     } else {
-        Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> provider
+        Utils::optional<std::variant<bool, WorkDoneProgressOptions>> provider
             = m_serverCapabilities.documentHighlightProvider();
         if (!provider.has_value())
             return;
-        if (Utils::holds_alternative<bool>(*provider) && !Utils::get<bool>(*provider))
+        if (std::holds_alternative<bool>(*provider) && !std::get<bool>(*provider))
             return;
     }
 
@@ -819,7 +819,7 @@ void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *w
             const Id &id = TextEditor::TextEditorWidget::CodeSemanticsSelection;
             QList<QTextEdit::ExtraSelection> selections;
             const Utils::optional<DocumentHighlightsResult> &result = response.result();
-            if (!result.has_value() || holds_alternative<std::nullptr_t>(*result)) {
+            if (!result.has_value() || std::holds_alternative<std::nullptr_t>(*result)) {
                 widget->setExtraSelections(id, selections);
                 return;
             }
@@ -827,7 +827,7 @@ void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *w
             const QTextCharFormat &format =
                 widget->textDocument()->fontSettings().toTextCharFormat(TextEditor::C_OCCURRENCES);
             QTextDocument *document = widget->document();
-            for (const auto &highlight : get<QList<DocumentHighlight>>(*result)) {
+            for (const auto &highlight : std::get<QList<DocumentHighlight>>(*result)) {
                 QTextEdit::ExtraSelection selection{widget->textCursor(), format};
                 const int &start = highlight.range().start().toPositionInDocument(document);
                 const int &end = highlight.range().end().toPositionInDocument(document);
@@ -1013,7 +1013,7 @@ void Client::documentContentsSaved(TextEditor::TextDocument *document)
         }
     } else if (Utils::optional<ServerCapabilities::TextDocumentSync> _sync
                = d->m_serverCapabilities.textDocumentSync()) {
-        if (auto options = Utils::get_if<TextDocumentSyncOptions>(&*_sync)) {
+        if (auto options = std::get_if<TextDocumentSyncOptions>(&*_sync)) {
             if (Utils::optional<SaveOptions> saveOptions = options->save())
                 includeText = saveOptions->includeText().value_or(includeText);
         }
@@ -1047,7 +1047,7 @@ void Client::documentWillSave(Core::IDocument *document)
         }
     } else if (Utils::optional<ServerCapabilities::TextDocumentSync> _sync
                = d->m_serverCapabilities.textDocumentSync()) {
-        if (auto options = Utils::get_if<TextDocumentSyncOptions>(&*_sync))
+        if (auto options = std::get_if<TextDocumentSyncOptions>(&*_sync))
             send = options->willSave().value_or(send);
     }
     if (!send)
@@ -1285,9 +1285,9 @@ void Client::requestCodeActions(const CodeActionRequest &request)
         if (option.isValid() && !option.filterApplies(fileName))
             return;
     } else {
-        Utils::variant<bool, CodeActionOptions> provider
+        std::variant<bool, CodeActionOptions> provider
             = d->m_serverCapabilities.codeActionProvider().value_or(false);
-        if (!(Utils::holds_alternative<CodeActionOptions>(provider) || Utils::get<bool>(provider)))
+        if (!(std::holds_alternative<CodeActionOptions>(provider) || std::get<bool>(provider)))
             return;
     }
 
@@ -1300,12 +1300,12 @@ void Client::handleCodeActionResponse(const CodeActionRequest::Response &respons
     if (const Utils::optional<CodeActionRequest::Response::Error> &error = response.error())
         log(*error);
     if (const Utils::optional<CodeActionResult> &result = response.result()) {
-        if (auto list = Utils::get_if<QList<Utils::variant<Command, CodeAction>>>(&*result)) {
+        if (auto list = std::get_if<QList<std::variant<Command, CodeAction>>>(&*result)) {
             QList<CodeAction> codeActions;
-            for (const Utils::variant<Command, CodeAction> &item : *list) {
-                if (auto action = Utils::get_if<CodeAction>(&item))
+            for (const std::variant<Command, CodeAction> &item : *list) {
+                if (auto action = std::get_if<CodeAction>(&item))
                     codeActions << *action;
-                else if (auto command = Utils::get_if<Command>(&item))
+                else if (auto command = std::get_if<Command>(&item))
                     Q_UNUSED(command) // todo
             }
             updateCodeActionRefactoringMarker(this, codeActions, uri);
@@ -1506,12 +1506,12 @@ bool Client::supportsDocumentSymbols(const TextEditor::TextDocument *doc) const
         return !options.isValid()
                || options.filterApplies(doc->filePath(), Utils::mimeTypeForName(doc->mimeType()));
     }
-    const Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> &provider
+    const Utils::optional<std::variant<bool, WorkDoneProgressOptions>> &provider
         = capabilities().documentSymbolProvider();
     if (!provider.has_value())
         return false;
-    if (Utils::holds_alternative<bool>(*provider))
-        return Utils::get<bool>(*provider);
+    if (std::holds_alternative<bool>(*provider))
+        return std::get<bool>(*provider);
     return true;
 }
 
@@ -1998,11 +1998,11 @@ void ClientPrivate::initializeCallback(const InitializeRequest::Response &initRe
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " initialized";
     m_state = Client::Initialized;
     q->sendMessage(InitializeNotification(InitializedParams()));
-    Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> documentSymbolProvider
+    Utils::optional<std::variant<bool, WorkDoneProgressOptions>> documentSymbolProvider
         = q->capabilities().documentSymbolProvider();
     if (documentSymbolProvider.has_value()) {
-        if (!Utils::holds_alternative<bool>(*documentSymbolProvider)
-            || Utils::get<bool>(*documentSymbolProvider)) {
+        if (!std::holds_alternative<bool>(*documentSymbolProvider)
+            || std::get<bool>(*documentSymbolProvider)) {
             TextEditor::IOutlineWidgetFactory::updateOutline();
         }
     }
@@ -2044,8 +2044,9 @@ bool ClientPrivate::sendWorkspceFolderChanges() const
             if (folder->supported().value_or(false)) {
                 // holds either the Id for deregistration or whether it is registered
                 auto notification = folder->changeNotifications().value_or(false);
-                return holds_alternative<QString>(notification)
-                        || (holds_alternative<bool>(notification) && get<bool>(notification));
+                return std::holds_alternative<QString>(notification)
+                       || (std::holds_alternative<bool>(notification)
+                           && std::get<bool>(notification));
             }
         }
     }

@@ -33,12 +33,10 @@
 #  define NANOTRACESHARED_EXPORT Q_DECL_IMPORT
 #endif
 
-#include <utils/variant.h> // revert when macos minimum target is >= 10.14
-
 #include <chrono>
 #include <string>
+#include <variant>
 #include <vector>
-
 
 #ifdef NANOTRACE_ENABLED
 
@@ -81,7 +79,7 @@ using TimePoint = std::chrono::time_point< Clock >;
 class NANOTRACESHARED_EXPORT Arg
 {
 public:
-    using SupportedType = Utils::variant<int, int64_t, double, std::string>;
+    using SupportedType = std::variant<int, int64_t, double, std::string>;
 
     Arg(const std::string &name, const SupportedType &val);
     std::string name() const;

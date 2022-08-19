@@ -152,7 +152,7 @@ QTextCursor ClangdSwitchDeclDef::Private::cursorForFunctionName(const ClangdAstN
 {
     QTC_ASSERT(docSymbols, return {});
 
-    const auto symbolList = Utils::get_if<QList<DocumentSymbol>>(&*docSymbols);
+    const auto symbolList = std::get_if<QList<DocumentSymbol>>(&*docSymbols);
     if (!symbolList)
         return {};
     const Range &astRange = functionNode.range();

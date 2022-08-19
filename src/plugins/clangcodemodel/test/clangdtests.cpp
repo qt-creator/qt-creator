@@ -1464,7 +1464,7 @@ public:
     void insertCodeSnippet(int pos, const QString &text, const SnippetParser &parser) override
     {
         const auto parseResult = parser(text);
-        if (const auto snippet = Utils::get_if<ParsedSnippet>(&parseResult)) {
+        if (const auto snippet = std::get_if<ParsedSnippet>(&parseResult)) {
             if (!snippet->parts.isEmpty())
                 textCursorAt(pos).insertText(snippet->parts.first().text);
         }

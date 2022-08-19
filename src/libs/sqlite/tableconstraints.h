@@ -29,7 +29,8 @@
 
 #include <sqlitevalue.h>
 #include <utils/smallstringvector.h>
-#include <utils/variant.h>
+
+#include <variant>
 
 namespace Sqlite {
 class TablePrimaryKey
@@ -43,7 +44,7 @@ public:
     Utils::SmallStringVector columns;
 };
 
-using TableConstraint = Utils::variant<TablePrimaryKey>;
+using TableConstraint = std::variant<TablePrimaryKey>;
 using TableConstraints = std::vector<TableConstraint>;
 
 } // namespace Sqlite

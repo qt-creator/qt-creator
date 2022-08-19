@@ -28,7 +28,8 @@
 #include <texteditor/texteditor_global.h>
 
 #include <utils/id.h>
-#include <utils/variant.h>
+
+#include <variant>
 
 namespace TextEditor {
 
@@ -67,7 +68,7 @@ public:
     QString htmlMessage() const;
 };
 
-using SnippetParseResult = Utils::variant<ParsedSnippet, SnippetParseError>;
+using SnippetParseResult = std::variant<ParsedSnippet, SnippetParseError>;
 using SnippetParser = std::function<SnippetParseResult (const QString &)>;
 
 } // namespace TextEditor

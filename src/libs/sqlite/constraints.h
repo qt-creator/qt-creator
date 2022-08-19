@@ -29,7 +29,8 @@
 
 #include <sqlitevalue.h>
 #include <utils/smallstring.h>
-#include <utils/variant.h>
+
+#include <variant>
 
 namespace Sqlite {
 
@@ -179,7 +180,7 @@ public:
     GeneratedAlwaysStorage storage = {};
 };
 
-using Constraint = Utils::variant<Unique,
+using Constraint = std::variant<Unique,
                                   PrimaryKey,
                                   ForeignKey,
                                   NotNull,

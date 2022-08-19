@@ -182,10 +182,10 @@ QString Snippet::generateTip() const
 {
     SnippetParseResult result = Snippet::parse(m_content);
 
-    if (Utils::holds_alternative<SnippetParseError>(result))
-        return Utils::get<SnippetParseError>(result).htmlMessage();
-    QTC_ASSERT(Utils::holds_alternative<ParsedSnippet>(result), return {});
-    const ParsedSnippet parsedSnippet = Utils::get<ParsedSnippet>(result);
+    if (std::holds_alternative<SnippetParseError>(result))
+        return std::get<SnippetParseError>(result).htmlMessage();
+    QTC_ASSERT(std::holds_alternative<ParsedSnippet>(result), return {});
+    const ParsedSnippet parsedSnippet = std::get<ParsedSnippet>(result);
 
     QString tip("<nobr>");
     for (const ParsedSnippet::Part &part : parsedSnippet.parts)
@@ -407,11 +407,11 @@ void Internal::TextEditorPlugin::testSnippetParsing()
     QFETCH(Parts, parts);
 
     SnippetParseResult result = Snippet::parse(input);
-    QCOMPARE(Utils::holds_alternative<ParsedSnippet>(result), success);
+    QCOMPARE(std::holds_alternative<ParsedSnippet>(result), success);
     if (!success)
         return;
 
-    ParsedSnippet snippet = Utils::get<ParsedSnippet>(result);
+    ParsedSnippet snippet = std::get<ParsedSnippet>(result);
 
     auto rangesCompare = [&](const ParsedSnippet::Part &actual, const SnippetPart &expected) {
         QCOMPARE(actual.text, expected.text);

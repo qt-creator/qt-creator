@@ -470,18 +470,18 @@ QIcon FolderNode::icon() const
     QTC_CHECK(QThread::currentThread() == QCoreApplication::instance()->thread());
 
     // Instantiating the Icon provider is expensive.
-    if (auto strPtr = Utils::get_if<QString>(&m_icon)) {
+    if (auto strPtr = std::get_if<QString>(&m_icon)) {
         m_icon = QIcon(*strPtr);
-    } else if (auto directoryIconPtr = Utils::get_if<DirectoryIcon>(&m_icon)) {
+    } else if (auto directoryIconPtr = std::get_if<DirectoryIcon>(&m_icon)) {
         m_icon = directoryIconPtr->icon();
-    } else if (auto creatorPtr = Utils::get_if<IconCreator>(&m_icon)) {
+    } else if (auto creatorPtr = std::get_if<IconCreator>(&m_icon)) {
         m_icon = (*creatorPtr)();
     } else {
-        auto iconPtr = Utils::get_if<QIcon>(&m_icon);
+        auto iconPtr = std::get_if<QIcon>(&m_icon);
         if (!iconPtr || iconPtr->isNull())
             m_icon = Utils::FileIconProvider::icon(QFileIconProvider::Folder);
     }
-    return Utils::get<QIcon>(m_icon);
+    return std::get<QIcon>(m_icon);
 }
 
 Node *FolderNode::findNode(const std::function<bool(Node *)> &filter)

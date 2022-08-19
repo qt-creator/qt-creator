@@ -411,7 +411,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
 
     connect(this, &Client::workDone, this,
             [this, p = QPointer(project)](const ProgressToken &token) {
-        const QString * const val = Utils::get_if<QString>(&token);
+        const QString * const val = std::get_if<QString>(&token);
         if (val && *val == indexingToken()) {
             d->isFullyIndexed = true;
             emit indexingFinished();
@@ -511,7 +511,7 @@ void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
             // We know that there's only one kind of diagnostic for which clangd has
             // a quickfix tweak, so let's not be wasteful.
             const Diagnostic::Code code = diagnostic.code().value_or(Diagnostic::Code());
-            const QString * const codeString = Utils::get_if<QString>(&code);
+            const QString * const codeString = std::get_if<QString>(&code);
             if (codeString && *codeString == "-Wswitch")
                 requestCodeActions(uri, diagnostic);
         }
@@ -577,7 +577,7 @@ class ClangdDiagnosticManager : public LanguageClient::DiagnosticManager
     {
         return Utils::filtered(diagnostics, [](const Diagnostic &diag){
             const Diagnostic::Code code = diag.code().value_or(Diagnostic::Code());
-            const QString * const codeString = Utils::get_if<QString>(&code);
+            const QString * const codeString = std::get_if<QString>(&code);
             return !codeString || *codeString != "drv_unknown_argument";
         });
     }
@@ -809,7 +809,7 @@ MessageId ClangdClient::requestSymbolInfo(const Utils::FilePath &filePath, const
         // According to the documentation, we should receive a single
         // object here, but it's a list. No idea what it means if there's
         // more than one entry. We choose the first one.
-        const auto list = Utils::get_if<QList<SymbolDetails>>(&result.value());
+        const auto list = std::get_if<QList<SymbolDetails>>(&result.value());
         if (!list || list->isEmpty()) {
             handler({}, {}, reqId);
             return;
@@ -922,9 +922,9 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                                             const DocumentUri &uri)
 {
     if (const Utils::optional<HoverResult> result = hoverResponse.result()) {
-        if (auto hover = Utils::get_if<Hover>(&(*result))) {
+        if (auto hover = std::get_if<Hover>(&(*result))) {
             const HoverContent content = hover->content();
-            const MarkupContent *const markup = Utils::get_if<MarkupContent>(&content);
+            const MarkupContent *const markup = std::get_if<MarkupContent>(&content);
             if (markup) {
                 const QString markupString = markup->content();
 
@@ -964,7 +964,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
         const MessageId id = hoverResponse.id();
         Range range;
         if (const Utils::optional<HoverResult> result = hoverResponse.result()) {
-            if (auto hover = Utils::get_if<Hover>(&(*result)))
+            if (auto hover = std::get_if<Hover>(&(*result)))
                 range = hover->range().value_or(Range());
         }
         const ClangdAstPath path = getAstPath(ast, range);
@@ -1340,10 +1340,10 @@ MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,
                                                  const AstHandler &astHandler,
                                                  AstCallbackMode callbackMode, const Range &range)
 {
-    const auto textDocPtr = Utils::get_if<const TextDocument *>(&doc);
+    const auto textDocPtr = std::get_if<const TextDocument *>(&doc);
     const TextDocument * const textDoc = textDocPtr ? *textDocPtr : nullptr;
     const Utils::FilePath filePath = textDoc ? textDoc->filePath()
-                                             : Utils::get<Utils::FilePath>(doc);
+                                             : std::get<Utils::FilePath>(doc);
 
     // If the entire AST is requested and the document's AST is in the cache and it is up to date,
     // call the handler.

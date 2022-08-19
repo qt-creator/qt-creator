@@ -29,9 +29,9 @@
 #include "projectstorageids.h"
 
 #include <utils/smallstring.h>
-#include <utils/variant.h>
 
 #include <tuple>
+#include <variant>
 #include <vector>
 
 namespace QmlDesigner {
@@ -425,7 +425,7 @@ public:
     ExportedTypeNameId exportedTypeNameId;
 };
 
-using ImportedTypeName = Utils::variant<ImportedType, QualifiedImportedType>;
+using ImportedTypeName = std::variant<ImportedType, QualifiedImportedType>;
 
 class EnumeratorDeclaration
 {

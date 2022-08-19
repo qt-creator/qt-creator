@@ -164,7 +164,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT SemanticTokensResult
-    : public Utils::variant<SemanticTokens, std::nullptr_t>
+    : public std::variant<SemanticTokens, std::nullptr_t>
 {
 public:
     using variant::variant;
@@ -215,7 +215,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT SemanticTokensDeltaResult
-    : public Utils::variant<SemanticTokens, SemanticTokensDelta, std::nullptr_t>
+    : public std::variant<SemanticTokens, SemanticTokensDelta, std::nullptr_t>
 {
 public:
     using variant::variant;

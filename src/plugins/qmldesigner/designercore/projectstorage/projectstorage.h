@@ -1910,7 +1910,7 @@ private:
         if (type.changeLevel == Storage::Synchronization::ChangeLevel::Minimal)
             return;
 
-        if (Utils::visit([](auto &&typeName) -> bool { return typeName.name.isEmpty(); },
+        if (std::visit([](auto &&typeName) -> bool { return typeName.name.isEmpty(); },
                          type.prototype)) {
             updatePrototypeStatement.write(type.typeId, Sqlite::NullValue{}, Sqlite::NullValue{});
         } else {
@@ -1981,7 +1981,7 @@ private:
             SourceId sourceId;
         };
 
-        return Utils::visit(Inspect{*this, sourceId}, name);
+        return std::visit(Inspect{*this, sourceId}, name);
     }
 
     template<typename Id>

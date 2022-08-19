@@ -58,7 +58,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT MarkedString
-    : public Utils::variant<QString, MarkedLanguageString>
+    : public std::variant<QString, MarkedLanguageString>
 {
 public:
     MarkedString() = default;
@@ -75,7 +75,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT HoverContent
-    : public Utils::variant<MarkedString, QList<MarkedString>, MarkupContent>
+    : public std::variant<MarkedString, QList<MarkedString>, MarkupContent>
 {
 public:
     HoverContent() = default;
@@ -101,7 +101,7 @@ public:
     bool isValid() const override { return contains(contentsKey); }
 };
 
-class LANGUAGESERVERPROTOCOL_EXPORT HoverResult : public Utils::variant<Hover, std::nullptr_t>
+class LANGUAGESERVERPROTOCOL_EXPORT HoverResult : public std::variant<Hover, std::nullptr_t>
 {
 public:
     HoverResult() : variant(nullptr) {}
@@ -216,7 +216,7 @@ public:
 
 /// The result of a goto request can either be a location, a list of locations or null
 class LANGUAGESERVERPROTOCOL_EXPORT GotoResult
-        : public Utils::variant<Location, QList<Location>, std::nullptr_t>
+        : public std::variant<Location, QList<Location>, std::nullptr_t>
 {
 public:
     explicit GotoResult(const QJsonValue &value);
@@ -307,7 +307,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentHighlightsResult
-        : public Utils::variant<QList<DocumentHighlight>, std::nullptr_t>
+        : public std::variant<QList<DocumentHighlight>, std::nullptr_t>
 {
 public:
     using variant::variant;
@@ -343,7 +343,7 @@ public:
 using DocumentSymbolParams = TextDocumentParams;
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentSymbolsResult
-        : public Utils::variant<QList<SymbolInformation>, QList<DocumentSymbol>, std::nullptr_t>
+        : public std::variant<QList<SymbolInformation>, QList<DocumentSymbol>, std::nullptr_t>
 {
 public:
     using variant::variant;
@@ -468,7 +468,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT CodeActionResult
-    : public Utils::variant<QList<Utils::variant<Command, CodeAction>>, std::nullptr_t>
+    : public std::variant<QList<std::variant<Command, CodeAction>>, std::nullptr_t>
 {
 public:
     using variant::variant;
@@ -658,13 +658,13 @@ public:
     constexpr static const char methodName[] = "textDocument/colorPresentation";
 };
 
-class DocumentFormattingProperty : public Utils::variant<bool, double, QString>
+class DocumentFormattingProperty : public std::variant<bool, double, QString>
 {
 public:
     DocumentFormattingProperty() = default;
     explicit DocumentFormattingProperty(const QJsonValue &value);
     explicit DocumentFormattingProperty(const DocumentFormattingProperty &other)
-        : Utils::variant<bool, double, QString>(other) {}
+        : std::variant<bool, double, QString>(other) {}
 
     using variant::variant;
     using variant::operator=;
@@ -806,11 +806,11 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT PrepareRenameResult
-    : public Utils::variant<PlaceHolderResult, Range, std::nullptr_t>
+    : public std::variant<PlaceHolderResult, Range, std::nullptr_t>
 {
 public:
     PrepareRenameResult();
-    PrepareRenameResult(const Utils::variant<PlaceHolderResult, Range, std::nullptr_t> &val);
+    PrepareRenameResult(const std::variant<PlaceHolderResult, Range, std::nullptr_t> &val);
     explicit PrepareRenameResult(const PlaceHolderResult &val);
     explicit PrepareRenameResult(const Range &val);
     explicit PrepareRenameResult(const QJsonValue &val);

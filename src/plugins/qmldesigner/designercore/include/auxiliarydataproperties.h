@@ -26,20 +26,20 @@
 #pragma once
 
 #include <auxiliarydata.h>
-#include <utils/variant.h>
 
 #include <QColor>
 #include <QVariant>
 
 #include <type_traits>
+#include <variant>
 
 namespace QmlDesigner {
 
-using PropertyValue = Utils::variant<int, long long, double, bool, QColor, QStringView, Qt::Corner>;
+using PropertyValue = std::variant<int, long long, double, bool, QColor, QStringView, Qt::Corner>;
 
 inline QVariant toQVariant(const PropertyValue &variant)
 {
-    return Utils::visit([](const auto &value) { return QVariant::fromValue(value); }, variant);
+    return std::visit([](const auto &value) { return QVariant::fromValue(value); }, variant);
 }
 
 class AuxiliaryDataKeyDefaultValue : public AuxiliaryDataKeyView

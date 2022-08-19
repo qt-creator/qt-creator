@@ -64,11 +64,11 @@ static void sendTextDocumentPositionParamsRequest(Client *client,
         else
             sendMessage = supportedFile;
     } else {
-        const Utils::optional<Utils::variant<bool, WorkDoneProgressOptions>> &provider
+        const Utils::optional<std::variant<bool, WorkDoneProgressOptions>> &provider
             = serverCapability.referencesProvider();
         sendMessage = provider.has_value();
-        if (sendMessage && Utils::holds_alternative<bool>(*provider))
-            sendMessage = Utils::get<bool>(*provider);
+        if (sendMessage && std::holds_alternative<bool>(*provider))
+            sendMessage = std::get<bool>(*provider);
     }
     if (sendMessage)
         client->sendMessage(request);
@@ -79,11 +79,11 @@ static void handleGotoDefinitionResponse(const GotoDefinitionRequest::Response &
                                          Utils::optional<Utils::Link> linkUnderCursor)
 {
     if (Utils::optional<GotoResult> result = response.result()) {
-        if (Utils::holds_alternative<std::nullptr_t>(*result)) {
+        if (std::holds_alternative<std::nullptr_t>(*result)) {
             callback({});
-        } else if (auto ploc = Utils::get_if<Location>(&*result)) {
+        } else if (auto ploc = std::get_if<Location>(&*result)) {
             callback(linkUnderCursor.value_or(ploc->toLink()));
-        } else if (auto plloc = Utils::get_if<QList<Location>>(&*result)) {
+        } else if (auto plloc = std::get_if<QList<Location>>(&*result)) {
             if (!plloc->isEmpty())
                 callback(linkUnderCursor.value_or(plloc->value(0).toLink()));
             else
@@ -260,11 +260,11 @@ static bool supportsRename(Client *client,
         }
     }
     if (auto renameProvider = client->capabilities().renameProvider()) {
-        if (Utils::holds_alternative<bool>(*renameProvider)) {
-            if (!Utils::get<bool>(*renameProvider))
+        if (std::holds_alternative<bool>(*renameProvider)) {
+            if (!std::get<bool>(*renameProvider))
                 return false;
-        } else if (Utils::holds_alternative<ServerCapabilities::RenameOptions>(*renameProvider)) {
-            prepareSupported = Utils::get<ServerCapabilities::RenameOptions>(*renameProvider)
+        } else if (std::holds_alternative<ServerCapabilities::RenameOptions>(*renameProvider)) {
+            prepareSupported = std::get<ServerCapabilities::RenameOptions>(*renameProvider)
                                    .prepareProvider()
                                    .value_or(false);
         }
@@ -306,11 +306,11 @@ void SymbolSupport::requestPrepareRename(const TextDocumentPositionParams &param
 
         const Utils::optional<PrepareRenameResult> &result = response.result();
         if (result.has_value()) {
-            if (Utils::holds_alternative<PlaceHolderResult>(*result)) {
-                auto placeHolderResult = Utils::get<PlaceHolderResult>(*result);
+            if (std::holds_alternative<PlaceHolderResult>(*result)) {
+                auto placeHolderResult = std::get<PlaceHolderResult>(*result);
                 startRenameSymbol(params, placeHolderResult.placeHolder());
-            } else if (Utils::holds_alternative<Range>(*result)) {
-                auto range = Utils::get<Range>(*result);
+            } else if (std::holds_alternative<Range>(*result)) {
+                auto range = std::get<Range>(*result);
                 startRenameSymbol(params, placeholder);
             }
         }

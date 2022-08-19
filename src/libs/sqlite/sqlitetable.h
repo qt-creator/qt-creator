@@ -201,8 +201,8 @@ public:
         return std::find_if(constraints.begin(),
                             constraints.end(),
                             [](const Constraint &constraint) {
-                                return Utils::holds_alternative<Unique>(constraint)
-                                       || Utils::holds_alternative<PrimaryKey>(constraint);
+                                return std::holds_alternative<Unique>(constraint)
+                                       || std::holds_alternative<PrimaryKey>(constraint);
                             })
                != constraints.end();
     }

@@ -112,7 +112,7 @@ private:
 template<typename T, typename V>
 JsonObject::iterator JsonObject::insertVariant(const QStringView key, const V &variant)
 {
-    return Utils::holds_alternative<T>(variant) ? insert(key, Utils::get<T>(variant)) : end();
+    return std::holds_alternative<T>(variant) ? insert(key, std::get<T>(variant)) : end();
 }
 
 template<typename T1, typename T2, typename... Args, typename V>

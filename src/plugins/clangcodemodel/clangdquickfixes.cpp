@@ -85,20 +85,20 @@ private:
     TextEditor::GenericProposal *handleCodeActionResult(const CodeActionResult &result) override
     {
         auto toOperation =
-            [=](const Utils::variant<Command, CodeAction> &item) -> QuickFixOperation * {
-            if (auto action = Utils::get_if<CodeAction>(&item)) {
+            [=](const std::variant<Command, CodeAction> &item) -> QuickFixOperation * {
+            if (auto action = std::get_if<CodeAction>(&item)) {
                 const Utils::optional<QList<Diagnostic>> diagnostics = action->diagnostics();
                 if (!diagnostics.has_value() || diagnostics->isEmpty())
                     return new CodeActionQuickFixOperation(*action, client());
             }
-            if (auto command = Utils::get_if<Command>(&item))
+            if (auto command = std::get_if<Command>(&item))
                 return new CommandQuickFixOperation(*command, client());
             return nullptr;
         };
 
-        if (auto list = Utils::get_if<QList<Utils::variant<Command, CodeAction>>>(&result)) {
+        if (auto list = std::get_if<QList<std::variant<Command, CodeAction>>>(&result)) {
             QuickFixOperations ops;
-            for (const Utils::variant<Command, CodeAction> &item : *list) {
+            for (const std::variant<Command, CodeAction> &item : *list) {
                 if (QuickFixOperation *op = toOperation(item)) {
                     op->setDescription("clangd: " + op->description());
                     ops << op;

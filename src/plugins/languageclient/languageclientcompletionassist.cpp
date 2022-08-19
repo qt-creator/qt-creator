@@ -144,11 +144,11 @@ QString LanguageClientCompletionItem::detail() const
     if (auto _doc = m_item.documentation()) {
         auto doc = *_doc;
         QString detailDocText;
-        if (Utils::holds_alternative<QString>(doc)) {
-            detailDocText = Utils::get<QString>(doc);
-        } else if (Utils::holds_alternative<MarkupContent>(doc)) {
+        if (std::holds_alternative<QString>(doc)) {
+            detailDocText = std::get<QString>(doc);
+        } else if (std::holds_alternative<MarkupContent>(doc)) {
             // TODO markdown parser?
-            detailDocText = Utils::get<MarkupContent>(doc).content();
+            detailDocText = std::get<MarkupContent>(doc).content();
         }
         if (!detailDocText.isEmpty())
             return detailDocText;
@@ -425,18 +425,18 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
         m_client->log(*error);
 
     const Utils::optional<CompletionResult> &result = response.result();
-    if (!result || Utils::holds_alternative<std::nullptr_t>(*result)) {
+    if (!result || std::holds_alternative<std::nullptr_t>(*result)) {
         setAsyncProposalAvailable(nullptr);
         m_client->removeAssistProcessor(this);
         return;
     }
 
     QList<CompletionItem> items;
-    if (Utils::holds_alternative<CompletionList>(*result)) {
-        const auto &list = Utils::get<CompletionList>(*result);
+    if (std::holds_alternative<CompletionList>(*result)) {
+        const auto &list = std::get<CompletionList>(*result);
         items = list.items().value_or(QList<CompletionItem>());
-    } else if (Utils::holds_alternative<QList<CompletionItem>>(*result)) {
-        items = Utils::get<QList<CompletionItem>>(*result);
+    } else if (std::holds_alternative<QList<CompletionItem>>(*result)) {
+        items = std::get<QList<CompletionItem>>(*result);
     }
     auto proposalItems = generateCompletionItems(items);
     if (!m_snippetsGroup.isEmpty()) {
