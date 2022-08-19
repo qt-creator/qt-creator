@@ -32,6 +32,7 @@
 #include <qmlmodelnodeproxy.h>
 #include <qmlobjectnode.h>
 #include <qmltimeline.h>
+#include <documentmanager.h>
 
 #include <coreplugin/messagebox.h>
 #include <utils/algorithm.h>
@@ -47,10 +48,22 @@
 
 namespace QmlDesigner {
 
-MaterialEditorContextObject::MaterialEditorContextObject(QObject *parent)
+MaterialEditorContextObject::MaterialEditorContextObject(QQmlContext *context, QObject *parent)
     : QObject(parent)
+    , m_qmlContext(context)
 {
     qmlRegisterUncreatableType<MaterialEditorContextObject>("ToolBarAction", 1, 0, "ToolBarAction", "Enum type");
+}
+
+QQmlComponent *MaterialEditorContextObject::specificQmlComponent()
+{
+    if (m_specificQmlComponent)
+        return m_specificQmlComponent;
+
+    m_specificQmlComponent = new QQmlComponent(m_qmlContext->engine(), this);
+    m_specificQmlComponent->setData(m_specificQmlData.toUtf8(), QUrl::fromLocalFile("specifics.qml"));
+
+    return m_specificQmlComponent;
 }
 
 QString MaterialEditorContextObject::convertColorToString(const QVariant &color)
@@ -159,8 +172,10 @@ void MaterialEditorContextObject::changeTypeName(const QString &typeName)
             msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
             msgBox.setDefaultButton(QMessageBox::Ok);
 
-            if (msgBox.exec() == QMessageBox::Cancel)
+            if (msgBox.exec() == QMessageBox::Cancel) {
+                updatePossibleTypeIndex();
                 return;
+            }
 
             for (const auto &p : std::as_const(incompatibleProperties))
                 m_selectedMaterial.removeProperty(p);
@@ -234,6 +249,20 @@ void MaterialEditorContextObject::setHasQuick3DImport(bool b)
     emit hasQuick3DImportChanged();
 }
 
+bool MaterialEditorContextObject::hasMaterialRoot() const
+{
+    return m_hasMaterialRoot;
+}
+
+void MaterialEditorContextObject::setHasMaterialRoot(bool b)
+{
+    if (b == m_hasMaterialRoot)
+        return;
+
+    m_hasMaterialRoot = b;
+    emit hasMaterialRootChanged();
+}
+
 bool MaterialEditorContextObject::hasModelSelection() const
 {
     return m_hasModelSelection;
@@ -262,6 +291,20 @@ void MaterialEditorContextObject::setSpecificsUrl(const QUrl &newSpecificsUrl)
     emit specificsUrlChanged();
 }
 
+void MaterialEditorContextObject::setSpecificQmlData(const QString &newSpecificQmlData)
+{
+    if (newSpecificQmlData == m_specificQmlData)
+        return;
+
+    m_specificQmlData = newSpecificQmlData;
+
+    delete m_specificQmlComponent;
+    m_specificQmlComponent = nullptr;
+
+    emit specificQmlComponentChanged();
+    emit specificQmlDataChanged();
+}
+
 void MaterialEditorContextObject::setStateName(const QString &newStateName)
 {
     if (newStateName == m_stateName)
@@ -278,6 +321,23 @@ void MaterialEditorContextObject::setAllStateNames(const QStringList &allStates)
 
     m_allStateNames = allStates;
     emit allStateNamesChanged();
+}
+
+void MaterialEditorContextObject::setPossibleTypes(const QStringList &types)
+{
+    if (types == m_possibleTypes)
+        return;
+
+    m_possibleTypes = types;
+    emit possibleTypesChanged();
+
+    updatePossibleTypeIndex();
+}
+
+void MaterialEditorContextObject::setCurrentType(const QString &type)
+{
+    m_currentType = type.split('.').last();
+    updatePossibleTypeIndex();
 }
 
 void MaterialEditorContextObject::setIsBaseState(bool newIsBaseState)
@@ -324,6 +384,20 @@ void MaterialEditorContextObject::setHasAliasExport(bool hasAliasExport)
 
     m_aliasExport = hasAliasExport;
     emit hasAliasExportChanged();
+}
+
+void MaterialEditorContextObject::updatePossibleTypeIndex()
+{
+    int newIndex = -1;
+    if (!m_currentType.isEmpty())
+        newIndex = m_possibleTypes.indexOf(m_currentType);
+
+    // Emit valid possible type index change even if the index doesn't change, as currentIndex on
+    // QML side will change to default internally if model is updated
+    if (m_possibleTypeIndex != -1 || m_possibleTypeIndex != newIndex) {
+        m_possibleTypeIndex = newIndex;
+        emit possibleTypeIndexChanged();
+    }
 }
 
 void MaterialEditorContextObject::hideCursor()
@@ -388,6 +462,12 @@ bool MaterialEditorContextObject::isBlocked(const QString &propName) const
         return true;
 
     return false;
+}
+
+void MaterialEditorContextObject::goIntoComponent()
+{
+    QTC_ASSERT(m_model, return);
+    DocumentManager::goIntoComponent(m_selectedMaterial);
 }
 
 } // QmlDesigner

@@ -32,11 +32,12 @@ const char C_BACKSPACE[] = "QmlDesigner.Backspace";
 const char C_DELETE[]    = "QmlDesigner.Delete";
 
 // Context
-const char C_QMLDESIGNER[]   = "QmlDesigner::QmlDesignerMain";
-const char C_QMLFORMEDITOR[] = "QmlDesigner::FormEditor";
-const char C_QMLEDITOR3D[]   = "QmlDesigner::Editor3D";
-const char C_QMLNAVIGATOR[]  = "QmlDesigner::Navigator";
-const char C_QMLTEXTEDITOR[] = "QmlDesigner::TextEditor";
+const char C_QMLDESIGNER[]        = "QmlDesigner::QmlDesignerMain";
+const char C_QMLFORMEDITOR[]      = "QmlDesigner::FormEditor";
+const char C_QMLEDITOR3D[]        = "QmlDesigner::Editor3D";
+const char C_QMLNAVIGATOR[]       = "QmlDesigner::Navigator";
+const char C_QMLTEXTEDITOR[]      = "QmlDesigner::TextEditor";
+const char C_QMLMATERIALBROWSER[] = "QmlDesigner::MaterialBrowser";
 
 // Special context for preview menu, shared b/w designer and text editor
 const char C_QT_QUICK_TOOLS_MENU[] = "QmlDesigner::ToolsMenu";

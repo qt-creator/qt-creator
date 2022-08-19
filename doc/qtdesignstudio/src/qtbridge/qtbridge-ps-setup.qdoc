@@ -30,10 +30,10 @@
 
     \title Setting Up \QBPS
 
-    You can purchase a \QBPS license from the \l{https://marketplace.qt.io/}
-    {Qt Marketplace}, and then use the Qt Installer to have the \QBPS
-    installation package copied to the following path in your Qt installation
-    folder:
+    \QBPS is included in the
+    \l{https://www.qt.io/pricing}{Qt Design Studio Enterprise license}.
+    You can use the Qt Installer to have the \QBPS plugin package copied to the
+    following path in your Qt installation folder:
 
     \list
         \li On Windows: \c {Tools\QtDesignStudio\photoshop_bridge}

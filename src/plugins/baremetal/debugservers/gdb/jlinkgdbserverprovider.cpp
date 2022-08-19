@@ -175,6 +175,11 @@ bool JLinkGdbServerProvider::operator==(const IDebugServerProvider &other) const
 
     const auto p = static_cast<const JLinkGdbServerProvider *>(&other);
     return m_executableFile == p->m_executableFile
+            && m_jlinkDevice == p->m_jlinkDevice
+            && m_jlinkHost == p->m_jlinkHost
+            && m_jlinkHostAddr == p->m_jlinkHostAddr
+            && m_jlinkTargetIface == p->m_jlinkTargetIface
+            && m_jlinkTargetIfaceSpeed == p->m_jlinkTargetIfaceSpeed
             && m_additionalArguments == p->m_additionalArguments;
 }
 

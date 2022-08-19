@@ -1011,7 +1011,6 @@ Project {
                 "timelineeditor/preseteditor.h",
                 "timelineeditor/setframevaluedialog.cpp",
                 "timelineeditor/setframevaluedialog.h",
-                "timelineeditor/setframevaluedialog.ui",
                 "timelineeditor/splineeditor.cpp",
                 "timelineeditor/splineeditor.h",
                 "timelineeditor/timeline.qrc",

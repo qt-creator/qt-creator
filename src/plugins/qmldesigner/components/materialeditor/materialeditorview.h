@@ -26,13 +26,17 @@
 #pragma once
 
 #include <abstractview.h>
+#include <itemlibraryinfo.h>
+
 #include <QHash>
+#include <QPointer>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QShortcut;
 class QStackedWidget;
 class QTimer;
+class QColorDialog;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -70,6 +74,7 @@ public:
     void instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList) override;
 
     void nodeTypeChanged(const ModelNode& node, const TypeName &type, int majorVersion, int minorVersion) override;
+    void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
     void modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap) override;
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
     void customNotification(const AbstractView *view, const QString &identifier,
@@ -89,10 +94,13 @@ public:
 
 public slots:
     void handleToolBarAction(int action);
+    void handlePreviewEnvChanged(const QString &envAndValue);
+    void handlePreviewModelChanged(const QString &modelStr);
 
 protected:
     void timerEvent(QTimerEvent *event) override;
     void setValue(const QmlObjectNode &fxObjectNode, const PropertyName &name, const QVariant &value);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     static QString materialEditorResourcesPath();
@@ -115,8 +123,13 @@ private:
 
     bool noValidSelection() const;
 
+    void initPreviewData();
+    void delayedTypeUpdate();
+    void updatePossibleTypes();
+
     ModelNode m_selectedMaterial;
     QTimer m_ensureMatLibTimer;
+    QTimer m_typeUpdateTimer;
     QShortcut *m_updateShortcut = nullptr;
     int m_timerId = 0;
     QStackedWidget *m_stackedWidget = nullptr;
@@ -126,6 +139,11 @@ private:
     bool m_locked = false;
     bool m_setupCompleted = false;
     bool m_hasQuick3DImport = false;
+    bool m_hasMaterialRoot = false;
+    bool m_initializingPreviewData = false;
+
+    QPointer<QColorDialog> m_colorDialog;
+    QPointer<ItemLibraryInfo> m_itemLibraryInfo;
 };
 
 } // namespace QmlDesigner

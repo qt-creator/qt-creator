@@ -25,20 +25,19 @@
 
 #pragma once
 
-#include "itemlibraryinfo.h"
-#include "import.h"
 #include "modelnode.h"
 
-#include <utils/fancylineedit.h>
+#include <coreplugin/icontext.h>
 #include <utils/dropsupport.h>
+#include <utils/fancylineedit.h>
 
-#include <QFrame>
-#include <QToolButton>
 #include <QFileIconProvider>
-#include <QQuickWidget>
-#include <QQmlPropertyMap>
-#include <QTimer>
+#include <QFrame>
 #include <QPointF>
+#include <QQmlPropertyMap>
+#include <QQuickWidget>
+#include <QTimer>
+#include <QToolButton>
 
 #include <memory>
 
@@ -49,6 +48,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
+class MaterialBrowserView;
 class MaterialBrowserModel;
 class PreviewImageProvider;
 
@@ -57,10 +57,11 @@ class MaterialBrowserWidget : public QFrame
     Q_OBJECT
 
 public:
-    MaterialBrowserWidget();
+    MaterialBrowserWidget(MaterialBrowserView *view);
     ~MaterialBrowserWidget() = default;
 
     QList<QToolButton *> createToolBarWidgets();
+    void contextHelp(const Core::IContext::HelpCallback &callback) const;
 
     static QString qmlSourcesPath();
     void clearSearchFilter();
@@ -80,11 +81,13 @@ private:
     void reloadQmlSource();
     void updateSearch();
 
+    QPointer<MaterialBrowserView>  m_materialBrowserView;
     QPointer<MaterialBrowserModel> m_materialBrowserModel;
     QScopedPointer<QQuickWidget> m_quickWidget;
 
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
     PreviewImageProvider *m_previewImageProvider = nullptr;
+    Core::IContext *m_context = nullptr;
 
     QString m_filterText;
 

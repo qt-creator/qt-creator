@@ -408,8 +408,12 @@ void ModelPrivate::notifyNodeInstanceViewLast(Callable call)
     }
 
     for (const QPointer<AbstractView> &view : enabledViews()) {
-        if (!view->isBlockingNotifications())
-            call(view.data());
+         try {
+             if (!view->isBlockingNotifications())
+                 call(view.data());
+         } catch (const Exception &e) {
+             e.showException(tr("Exception thrown by view %1.").arg(view->widgetInfo().tabName));
+         }
     }
 
     if (nodeInstanceView() && !nodeInstanceView()->isBlockingNotifications())

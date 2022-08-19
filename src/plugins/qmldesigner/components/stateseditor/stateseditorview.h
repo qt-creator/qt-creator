@@ -55,7 +55,7 @@ public:
     QString currentStateName() const;
     void setCurrentState(const QmlModelState &state);
     QmlModelState baseState() const;
-    QmlModelStateGroup rootStateGroup() const;
+    QmlModelStateGroup activeStateGroup() const;
 
     // AbstractView
     void modelAttached(Model *model) override;
@@ -87,6 +87,10 @@ public:
 
     void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;
 
+    ModelNode acitveStatesGroupNode() const;
+    void setAcitveStatesGroupNode(const ModelNode &modelNode);
+
+
 public slots:
     void synchonizeCurrentStateFromWidget();
     void createNewState();
@@ -105,6 +109,7 @@ private:
     int m_lastIndex;
     bool m_block = false;
     QPointer<AnnotationEditor> m_editor;
+    ModelNode m_activeStatesGroupNode;
 };
 
 } // namespace QmlDesigner

@@ -165,6 +165,16 @@
     To disable the Python language server, deselect
     \uicontrol {Use Python Language Server}.
 
+    \section2 Qml Language Server
+
+    Qt 6.4 ships with the qmlls language server that provides completions and warnings for QML.
+    It can be set up as a \l {Generic StdIO Language Server}, selecting \c {text/x-qml} and
+    \c {application/x-qt.ui+qml} as MIME Types, and \c {<Qt Installation>/bin/qmlls} as executable.
+
+    If the language server is used together with the QmlJSEditor plugin duplicate suggestions and
+    warnings might be shown. To avoid this you might want to disable it as described in
+    \l {Enabling and Disabling Plugins}.
+
     \section1 Supported Locator Filters
 
     The locator enables you to browse not only files, but any items defined by

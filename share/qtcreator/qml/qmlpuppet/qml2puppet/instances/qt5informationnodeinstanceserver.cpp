@@ -339,6 +339,22 @@ void Qt5InformationNodeInstanceServer::resolveImportSupport()
 #endif
 }
 
+void Qt5InformationNodeInstanceServer::updateMaterialPreviewData(
+    const QVector<PropertyValueContainer> &valueChanges)
+{
+    const PropertyName matPrevPrefix("matPrev");
+    for (const auto &container : valueChanges) {
+        if (container.instanceId() == 0) {
+            if (container.name() == "matPrevEnv")
+                m_materialPreviewData.env = container.value().toString();
+            else if (container.name() == "matPrevEnvValue")
+                m_materialPreviewData.envValue = container.value().toString();
+            else if (container.name() == "matPrevModel")
+                m_materialPreviewData.model = container.value().toString();
+        }
+    }
+}
+
 void Qt5InformationNodeInstanceServer::updateRotationBlocks(
     [[maybe_unused]] const QVector<PropertyValueContainer> &valueChanges)
 {
@@ -1176,7 +1192,10 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView(
             } else {
                 QMetaObject::invokeMethod(
                             m_modelNode3DImageViewData.rootItem, "createViewForObject",
-                            Q_ARG(QVariant, objectToVariant(instanceObj)));
+                            Q_ARG(QVariant, objectToVariant(instanceObj)),
+                            Q_ARG(QVariant, m_materialPreviewData.env),
+                            Q_ARG(QVariant, m_materialPreviewData.envValue),
+                            Q_ARG(QVariant, m_materialPreviewData.model));
             }
 
             // Need to render twice, first render updates spatial nodes
@@ -2010,6 +2029,7 @@ void Qt5InformationNodeInstanceServer::createScene(const CreateSceneCommand &com
     if (ViewConfig::isQuick3DMode()) {
         setup3DEditView(instanceList, command);
         updateRotationBlocks(command.auxiliaryChanges);
+        updateMaterialPreviewData(command.auxiliaryChanges);
     }
 
     QObject::connect(&m_renderModelNodeImageViewTimer, &QTimer::timeout,
@@ -2414,6 +2434,7 @@ void Qt5InformationNodeInstanceServer::requestModelNodePreviewImage(const Reques
 void Qt5InformationNodeInstanceServer::changeAuxiliaryValues(const ChangeAuxiliaryCommand &command)
 {
     updateRotationBlocks(command.auxiliaryChanges);
+    updateMaterialPreviewData(command.auxiliaryChanges);
     Qt5NodeInstanceServer::changeAuxiliaryValues(command);
     render3DEditView();
 }
