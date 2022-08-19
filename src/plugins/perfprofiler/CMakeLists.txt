@@ -36,7 +36,7 @@ set(PERFPROFILER_CPP_SOURCES
   perftimelinemodel.cpp perftimelinemodel.h
   perftimelinemodelmanager.cpp perftimelinemodelmanager.h
   perftimelineresourcesrenderpass.cpp perftimelineresourcesrenderpass.h
-  perftracepointdialog.cpp perftracepointdialog.h perftracepointdialog.ui
+  perftracepointdialog.cpp perftracepointdialog.h
 )
 
 add_qtc_plugin(PerfProfiler

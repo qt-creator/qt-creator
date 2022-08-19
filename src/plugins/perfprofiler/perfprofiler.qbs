@@ -65,7 +65,6 @@ QtcPlugin {
         "perfsettings.h",
         "perftracepointdialog.cpp",
         "perftracepointdialog.h",
-        "perftracepointdialog.ui",
         "perfprofiler.qrc",
     ]
 

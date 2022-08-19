@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "perftracepointdialog.h"
-#include "ui_perftracepointdialog.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitinformation.h>
@@ -14,9 +13,18 @@
 
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/layoutbuilder.h>
 
+#include <QComboBox>
+#include <QDialogButtonBox>
+#include <QLabel>
 #include <QPushButton>
+#include <QTextEdit>
 #include <QTimer>
+
+const char ELEVATE_METHOD_NA[] = "n.a";
+const char ELEVATE_METHOD_PKEXEC[] = "pkexec";
+const char ELEVATE_METHOD_SUDO[] = "sudo";
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -24,10 +32,24 @@ using namespace Utils;
 namespace PerfProfiler {
 namespace Internal {
 
-PerfTracePointDialog::PerfTracePointDialog() :
-    m_ui(new Ui::PerfTracePointDialog)
+PerfTracePointDialog::PerfTracePointDialog()
 {
-    m_ui->setupUi(this);
+    resize(400, 300);
+    m_label = new QLabel(tr("Run the following script as root to create trace points?"));
+    m_textEdit = new QTextEdit;
+    m_privilegesChooser = new QComboBox;
+    m_privilegesChooser->addItems({ELEVATE_METHOD_NA, ELEVATE_METHOD_PKEXEC, ELEVATE_METHOD_SUDO});
+    m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+
+    using namespace Utils::Layouting;
+    Column {
+        m_label,
+        m_textEdit,
+        Form {
+            tr("Elevate privileges using:"), m_privilegesChooser, br,
+        },
+        m_buttonBox,
+    }.attachTo(this);
 
     if (const Target *target = SessionManager::startupTarget()) {
         const Kit *kit = target->kit();
@@ -35,7 +57,7 @@ PerfTracePointDialog::PerfTracePointDialog() :
 
         m_device = DeviceKitAspect::device(kit);
         if (!m_device) {
-            m_ui->textEdit->setPlainText(tr("Error: No device available for active target."));
+            m_textEdit->setPlainText(tr("Error: No device available for active target."));
             return;
         }
     }
@@ -48,31 +70,35 @@ PerfTracePointDialog::PerfTracePointDialog() :
 
     QFile file(":/perfprofiler/tracepoints.sh");
     if (file.open(QIODevice::ReadOnly)) {
-        m_ui->textEdit->setPlainText(QString::fromUtf8(file.readAll()));
+        m_textEdit->setPlainText(QString::fromUtf8(file.readAll()));
     } else {
-        m_ui->textEdit->setPlainText(tr("Error: Failed to load trace point script %1: %2.")
+        m_textEdit->setPlainText(tr("Error: Failed to load trace point script %1: %2.")
                                          .arg(file.fileName()).arg(file.errorString()));
     }
 
-    m_ui->privilegesChooser->setCurrentText(m_device->type() == Constants::DESKTOP_DEVICE_TYPE
-                                            ? QLatin1String("pkexec") : QLatin1String("n.a."));
+    m_privilegesChooser->setCurrentText(
+                QLatin1String(m_device->type() == Constants::DESKTOP_DEVICE_TYPE
+                              ? ELEVATE_METHOD_PKEXEC : ELEVATE_METHOD_NA));
+
+    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &PerfTracePointDialog::accept);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &PerfTracePointDialog::reject);
 }
 
 PerfTracePointDialog::~PerfTracePointDialog() = default;
 
 void PerfTracePointDialog::runScript()
 {
-    m_ui->label->setText(tr("Executing script..."));
-    m_ui->textEdit->setReadOnly(true);
-    m_ui->privilegesChooser->setEnabled(false);
-    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    m_label->setText(tr("Executing script..."));
+    m_textEdit->setReadOnly(true);
+    m_privilegesChooser->setEnabled(false);
+    m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
     m_process.reset(new QtcProcess(this));
-    m_process->setWriteData(m_ui->textEdit->toPlainText().toUtf8());
-    m_ui->textEdit->clear();
+    m_process->setWriteData(m_textEdit->toPlainText().toUtf8());
+    m_textEdit->clear();
 
-    const QString elevate = m_ui->privilegesChooser->currentText();
-    if (elevate != QLatin1String("n.a."))
+    const QString elevate = m_privilegesChooser->currentText();
+    if (elevate != QLatin1String(ELEVATE_METHOD_NA))
         m_process->setCommand({m_device->filePath(elevate), {"sh"}});
     else
         m_process->setCommand({m_device->filePath("sh"), {}});
@@ -93,10 +119,10 @@ void PerfTracePointDialog::handleProcessDone()
         message = tr("Created trace points for: %1").arg(QString::fromUtf8(
             m_process->readAllStandardOutput().trimmed().replace('\n', ", ")));
     }
-    m_ui->label->setText(message);
-    m_ui->textEdit->setHtml(QString::fromUtf8(m_process->readAllStandardError()));
-    m_ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
-    m_ui->buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(false);
+    m_label->setText(message);
+    m_textEdit->setHtml(QString::fromUtf8(m_process->readAllStandardError()));
+    m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+    m_buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(false);
 }
 
 void PerfTracePointDialog::accept()

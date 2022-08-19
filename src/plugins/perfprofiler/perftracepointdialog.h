@@ -8,6 +8,13 @@
 #include <QDialog>
 #include <QProcess>
 
+QT_BEGIN_NAMESPACE
+class QComboBox;
+class QDialogButtonBox;
+class QLabel;
+class QTextEdit;
+QT_END_NAMESPACE
+
 namespace Utils { class QtcProcess; }
 
 namespace PerfProfiler {
@@ -28,7 +35,10 @@ private:
     void handleProcessDone();
     void finish();
 
-    Ui::PerfTracePointDialog *m_ui;
+    QLabel *m_label;
+    QTextEdit *m_textEdit;
+    QComboBox *m_privilegesChooser;
+    QDialogButtonBox *m_buttonBox;
     ProjectExplorer::IDeviceConstPtr m_device;
     std::unique_ptr<Utils::QtcProcess> m_process;
 
