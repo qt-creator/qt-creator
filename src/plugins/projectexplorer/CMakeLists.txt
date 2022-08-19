@@ -50,7 +50,7 @@ add_qtc_plugin(ProjectExplorer
     devicesupport/desktopdevicefactory.cpp devicesupport/desktopdevicefactory.h
     devicesupport/desktopprocesssignaloperation.cpp devicesupport/desktopprocesssignaloperation.h
     devicesupport/devicecheckbuildstep.cpp devicesupport/devicecheckbuildstep.h
-    devicesupport/devicefactoryselectiondialog.cpp devicesupport/devicefactoryselectiondialog.h devicesupport/devicefactoryselectiondialog.ui
+    devicesupport/devicefactoryselectiondialog.cpp devicesupport/devicefactoryselectiondialog.h
     devicesupport/devicefilesystemmodel.cpp devicesupport/devicefilesystemmodel.h
     devicesupport/devicemanager.cpp devicesupport/devicemanager.h
     devicesupport/devicemanagermodel.cpp devicesupport/devicemanagermodel.h
