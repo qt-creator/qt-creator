@@ -2,13 +2,15 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "devicetestdialog.h"
-#include "ui_devicetestdialog.h"
 
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 
 #include <QBrush>
 #include <QColor>
+#include <QDialogButtonBox>
 #include <QFont>
+#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QTextCharFormat>
 
@@ -23,9 +25,10 @@ public:
     {
     }
 
-    Ui::DeviceTestDialog ui;
     DeviceTester * const deviceTester;
     bool finished;
+    QPlainTextEdit *textEdit;
+    QDialogButtonBox *buttonBox;
 };
 
 DeviceTestDialog::DeviceTestDialog(const IDevice::Ptr &deviceConfiguration,
@@ -33,9 +36,19 @@ DeviceTestDialog::DeviceTestDialog(const IDevice::Ptr &deviceConfiguration,
     : QDialog(parent)
     , d(std::make_unique<DeviceTestDialogPrivate>(deviceConfiguration->createDeviceTester()))
 {
-    d->ui.setupUi(this);
+    resize(620, 580);
+    d->textEdit = new QPlainTextEdit;
+    d->textEdit->setReadOnly(true);
+    d->buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel);
+
+    using namespace Utils::Layouting;
+    Column {
+        d->textEdit,
+        d->buttonBox,
+    }.attachTo(this);
 
     d->deviceTester->setParent(this);
+    connect(d->buttonBox, &QDialogButtonBox::rejected, this, &DeviceTestDialog::reject);
     connect(d->deviceTester, &DeviceTester::progressMessage,
             this, &DeviceTestDialog::handleProgressMessage);
     connect(d->deviceTester, &DeviceTester::errorMessage,
@@ -69,7 +82,7 @@ void DeviceTestDialog::handleErrorMessage(const QString &message)
 void DeviceTestDialog::handleTestFinished(DeviceTester::TestResult result)
 {
     d->finished = true;
-    d->ui.buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Close"));
+    d->buttonBox->button(QDialogButtonBox::Cancel)->setText(tr("Close"));
 
     if (result == DeviceTester::TestSuccess)
         addText(tr("Device test finished successfully."),
@@ -82,13 +95,13 @@ void DeviceTestDialog::addText(const QString &text, Utils::Theme::Color color, b
 {
     Utils::Theme *theme = Utils::creatorTheme();
 
-    QTextCharFormat format = d->ui.textEdit->currentCharFormat();
+    QTextCharFormat format = d->textEdit->currentCharFormat();
     format.setForeground(QBrush(theme->color(color)));
     QFont font = format.font();
     font.setBold(bold);
     format.setFont(font);
-    d->ui.textEdit->setCurrentCharFormat(format);
-    d->ui.textEdit->appendPlainText(text);
+    d->textEdit->setCurrentCharFormat(format);
+    d->textEdit->appendPlainText(text);
 }
 
 } // namespace Internal
