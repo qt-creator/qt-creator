@@ -50,10 +50,6 @@
 #include <shlobj.h>
 #endif
 
-#ifdef Q_OS_OSX
-#include "fileutils_mac.h"
-#endif
-
 namespace Utils {
 
 static DeviceFileHooks s_deviceHooks;
