@@ -16,19 +16,10 @@ class NewClassWidget : public QWidget
 {
     Q_OBJECT
 public:
-    enum ClassType { NoClassType,
-                     ClassInheritsQObject,
-                     ClassInheritsQWidget,
-                     ClassInheritsQDeclarativeItem,
-                     ClassInheritsQQuickItem,
-                     SharedDataClass
-                   };
-    Q_ENUM(ClassType)
     explicit NewClassWidget(QWidget *parent = nullptr);
     ~NewClassWidget() override;
 
     QString className() const;
-    QString baseClassName() const;
     QString sourceFileName() const;
     QString headerFileName() const;
     QString formFileName() const;
@@ -56,15 +47,7 @@ public slots:
     void setSourceExtension(const QString &e);
     void setHeaderExtension(const QString &e);
     void setLowerCaseFiles(bool v);
-    void setClassType(ClassType ct);
     void setNamesDelimiter(const QString &delimiter);
-
-    /**
-     * Suggest a class name from the base class by stripping the leading 'Q'
-     * character. This will happen automagically if the base class combo
-     * changes until the class line edited is manually edited.
-     */
-    void suggestClassNameFromBase();
 
 private:
     void slotUpdateFileNames(const QString &t);

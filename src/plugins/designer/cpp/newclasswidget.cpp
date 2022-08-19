@@ -48,11 +48,6 @@ NewClassWidget::NewClassWidget(QWidget *parent) :
 {
     d->m_ui.setupUi(this);
 
-    d->m_ui.baseClassLabel->setVisible(false);
-    d->m_ui.baseClassComboBox->setVisible(false);
-    d->m_ui.classTypeLabel->setVisible(false);
-    d->m_ui.classTypeComboBox->setVisible(false);
-
     d->m_ui.classLineEdit->setNamespacesEnabled(true);
     setNamesDelimiter(QLatin1String("::"));
 
@@ -60,10 +55,6 @@ NewClassWidget::NewClassWidget(QWidget *parent) :
             this, &NewClassWidget::slotUpdateFileNames);
     connect(d->m_ui.classLineEdit, &QLineEdit::textEdited,
             this, &NewClassWidget::classNameEdited);
-    connect(d->m_ui.baseClassComboBox, &QComboBox::currentIndexChanged,
-            this, &NewClassWidget::suggestClassNameFromBase);
-    connect(d->m_ui.baseClassComboBox, &QComboBox::editTextChanged,
-            this, &NewClassWidget::slotValidChanged);
     connect(d->m_ui.classLineEdit, &Utils::FancyLineEdit::validChanged,
             this, &NewClassWidget::slotValidChanged);
     connect(d->m_ui.headerFileLineEdit, &Utils::FancyLineEdit::validChanged,
@@ -87,8 +78,6 @@ NewClassWidget::NewClassWidget(QWidget *parent) :
             this, &NewClassWidget::slotActivated);
     connect(d->m_ui.pathChooser, &Utils::PathChooser::returnPressed,
              this, &NewClassWidget::slotActivated);
-
-    setClassType(NoClassType);
 }
 
 NewClassWidget::~NewClassWidget()
@@ -103,20 +92,6 @@ void NewClassWidget::classNameEdited()
     d->m_classEdited = true;
 }
 
-void NewClassWidget::suggestClassNameFromBase()
-{
-    if (debugNewClassWidget)
-        qDebug() << Q_FUNC_INFO << d->m_headerExtension << d->m_sourceExtension;
-    if (d->m_classEdited)
-        return;
-    // Suggest a class unless edited ("QMainWindow"->"MainWindow")
-    QString base = baseClassName();
-    if (base.startsWith(QLatin1Char('Q'))) {
-        base.remove(0, 1);
-        setClassName(base);
-    }
-}
-
 void NewClassWidget::setClassName(const QString &suggestedName)
 {
     if (debugNewClassWidget)
@@ -128,11 +103,6 @@ void NewClassWidget::setClassName(const QString &suggestedName)
 QString NewClassWidget::className() const
 {
     return d->m_ui.classLineEdit->text();
-}
-
-QString NewClassWidget::baseClassName() const
-{
-    return d->m_ui.baseClassComboBox->currentText();
 }
 
 QString NewClassWidget::sourceFileName() const
@@ -193,11 +163,6 @@ QString NewClassWidget::formExtension() const
 void NewClassWidget::setLowerCaseFiles(bool v)
 {
     d->m_ui.classLineEdit->setLowerCaseFileName(v);
-}
-
-void NewClassWidget::setClassType(ClassType ct)
-{
-    d->m_ui.classTypeComboBox->setCurrentIndex(ct);
 }
 
 void NewClassWidget::setNamesDelimiter(const QString &delimiter)
