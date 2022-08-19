@@ -24,11 +24,13 @@
 ****************************************************************************/
 #pragma once
 
-#include <QtWidgets/qwidget.h>
-#include <QtWidgets/qlabel.h>
-#include <QtWidgets/qmenu.h>
-#include <QtCore/qpointer.h>
+#include <QLabel>
+#include <QMenu>
+#include <QPointer>
+#include <QWidget>
+
 #include <coreplugin/icontext.h>
+#include <modelnode.h>
 
 namespace QmlDesigner {
 
@@ -54,12 +56,15 @@ public:
     QMenu *backgroundColorMenu() const;
     void showBackgroundColorMenu(bool show, const QPoint &pos);
 
+    void showContextMenu(const QPoint &pos, const ModelNode &modelNode);
+
 protected:
     void dragEnterEvent(QDragEnterEvent *dragEnterEvent) override;
     void dropEvent(QDropEvent *dropEvent) override;
 
 private:
     void linkActivated(const QString &link);
+    void createContextMenu();
 
     QPointer<Edit3DView> m_edit3DView;
     QPointer<Edit3DView> m_view;
@@ -69,6 +74,9 @@ private:
     Core::IContext *m_context = nullptr;
     QPointer<QMenu> m_visibilityTogglesMenu;
     QPointer<QMenu> m_backgroundColorMenu;
+    QPointer<QMenu> m_contextMenu;
+    QPointer<QAction> m_editMaterialAction;
+    ModelNode m_contextMenuTarget;
 };
 
 } // namespace QmlDesigner

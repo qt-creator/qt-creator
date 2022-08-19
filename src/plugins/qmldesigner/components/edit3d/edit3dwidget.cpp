@@ -30,6 +30,7 @@
 #include "edit3dwidget.h"
 #include "edit3dvisibilitytogglesmenu.h"
 #include "metainfo.h"
+#include "modelnodeoperations.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
 #include "qmlvisualnode.h"
@@ -49,8 +50,8 @@
 
 namespace QmlDesigner {
 
-Edit3DWidget::Edit3DWidget(Edit3DView *view) :
-    m_view(view)
+Edit3DWidget::Edit3DWidget(Edit3DView *view)
+    : m_view(view)
 {
     setAcceptDrops(true);
 
@@ -146,6 +147,8 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
 
     handleActions(view->backgroundColorActions(), m_backgroundColorMenu, false);
 
+    createContextMenu();
+
     view->setSeeker(seeker);
     seeker->setToolTip(QLatin1String("Seek particle system time when paused."));
 
@@ -171,6 +174,18 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view) :
     m_canvas = new Edit3DCanvas(this);
     fillLayout->addWidget(m_canvas.data());
     showCanvas(false);
+}
+
+void Edit3DWidget::createContextMenu()
+{
+    m_contextMenu = new QMenu(this);
+    m_editMaterialAction = m_contextMenu->addAction(tr("Edit Material"), [&] {
+        SelectionContext selCtx(m_view);
+        selCtx.setTargetNode(m_contextMenuTarget);
+        ModelNodeOperations::editMaterial(selCtx);
+    });
+
+    // TODO: add more actions: delete, create, etc
 }
 
 void Edit3DWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
@@ -219,6 +234,15 @@ void Edit3DWidget::showBackgroundColorMenu(bool show, const QPoint &pos)
         m_backgroundColorMenu->popup(pos);
     else
         m_backgroundColorMenu->close();
+}
+
+void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode)
+{
+    m_contextMenuTarget = modelNode;
+
+    m_editMaterialAction->setEnabled(modelNode.isValid());
+
+    m_contextMenu->popup(mapToGlobal(pos));
 }
 
 void Edit3DWidget::linkActivated(const QString &link)

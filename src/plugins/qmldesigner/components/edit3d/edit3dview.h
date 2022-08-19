@@ -79,9 +79,16 @@ public:
     void setSeeker(SeekerSlider *slider);
 
     void addQuick3DImport();
+    void startContextMenu(const QPoint &pos);
     void dropMaterial(const ModelNode &matNode, const QPointF &pos);
 
 private:
+    enum class ModelAtPosReqType {
+        MaterialDrop,
+        ContextMenu,
+        None
+    };
+
     void createEdit3DWidget();
     void checkImports();
 
@@ -120,6 +127,8 @@ private:
     int particlemode;
     ModelCache<QImage> m_canvasCache;
     ModelNode m_droppedMaterial;
+    ModelAtPosReqType m_modelAtPosReqType;
+    QPoint m_contextMenuPos;
 };
 
 } // namespace QmlDesigner

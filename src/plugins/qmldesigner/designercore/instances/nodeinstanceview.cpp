@@ -1707,8 +1707,7 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
         emitImport3DSupportChanged(supportMap);
     } else if (command.type() == PuppetToCreatorCommand::ModelAtPos) {
         ModelNode modelNode = modelNodeForInternalId(command.data().toUInt());
-        if (modelNode.isValid())
-            emitModelAtPosResult(modelNode);
+        emitModelAtPosResult(modelNode);
     }
 }
 

@@ -102,6 +102,9 @@ QWidget *Edit3DCanvas::busyIndicator() const
 
 void Edit3DCanvas::mousePressEvent(QMouseEvent *e)
 {
+    if (e->button() == Qt::RightButton && e->modifiers() == Qt::NoModifier)
+        m_parent->view()->startContextMenu(e->pos());
+
     m_parent->view()->sendInputEvent(e);
     QWidget::mousePressEvent(e);
 }
