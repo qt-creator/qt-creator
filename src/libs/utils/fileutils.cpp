@@ -34,6 +34,7 @@
 #include "fsengine/fsengine.h"
 
 #include <QDataStream>
+#include <QDateTime>
 #include <QDebug>
 #include <QOperatingSystemVersion>
 #include <QRegularExpression>
