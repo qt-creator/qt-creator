@@ -42,7 +42,6 @@ class BaseHoverHandler;
 
 namespace CppEditor {
 
-class OverviewModel;
 class BaseEditorDocumentProcessor;
 class CppCompletionAssistProvider;
 class ProjectPart;

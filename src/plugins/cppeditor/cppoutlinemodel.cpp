@@ -23,7 +23,7 @@
 **
 ****************************************************************************/
 
-#include "cppoverviewmodel.h"
+#include "cppoutlinemodel.h"
 
 #include <cplusplus/Icons.h>
 #include <cplusplus/Literals.h>
@@ -60,13 +60,13 @@ public:
             }
         }
 
-        auto overviewModel = qobject_cast<const OverviewModel*>(model());
-        if (!symbol || !overviewModel)
+        auto outlineModel = qobject_cast<const OutlineModel*>(model());
+        if (!symbol || !outlineModel)
             return QVariant();
 
         switch (role) {
         case Qt::DisplayRole: {
-            QString name = overviewModel->m_overview.prettyName(symbol->name());
+            QString name = outlineModel->m_overview.prettyName(symbol->name());
             if (name.isEmpty())
                 name = QLatin1String("anonymous");
             if (symbol->asObjCForwardClassDeclaration())
@@ -81,8 +81,8 @@ public:
                     name = QLatin1String("@implementation ") + name;
 
                 if (clazz->isCategory()) {
-                    name += QString(" (%1)").arg(overviewModel->m_overview.prettyName(
-                                                     clazz->categoryName()));
+                    name += QString(" (%1)").arg(
+                        outlineModel->m_overview.prettyName(clazz->categoryName()));
                 }
             }
             if (symbol->asObjCPropertyDeclaration())
@@ -94,7 +94,7 @@ public:
                     QStringList parameters;
                     parameters.reserve(t->templateParameterCount());
                     for (int i = 0; i < t->templateParameterCount(); ++i) {
-                        parameters.append(overviewModel->m_overview.prettyName(
+                        parameters.append(outlineModel->m_overview.prettyName(
                                               t->templateParameterAt(i)->name()));
                     }
                     name += QString("<%1>").arg(parameters.join(QLatin1String(", ")));
@@ -107,10 +107,10 @@ public:
                 else
                     name = QLatin1Char('-') + name;
             } else if (! symbl->asScope() || symbl->asFunction()) {
-                QString type = overviewModel->m_overview.prettyType(symbl->type());
+                QString type = outlineModel->m_overview.prettyType(symbl->type());
                 if (Function *f = symbl->type()->asFunctionType()) {
                     name += type;
-                    type = overviewModel->m_overview.prettyType(f->returnType());
+                    type = outlineModel->m_overview.prettyType(f->returnType());
                 }
                 if (! type.isEmpty())
                     name += QLatin1String(": ") + type;
@@ -119,7 +119,7 @@ public:
         }
 
         case Qt::EditRole: {
-            QString name = overviewModel->m_overview.prettyName(symbol->name());
+            QString name = outlineModel->m_overview.prettyName(symbol->name());
             if (name.isEmpty())
                 name = QLatin1String("anonymous");
             return name;
@@ -128,10 +128,10 @@ public:
         case Qt::DecorationRole:
             return Icons::iconForSymbol(symbol);
 
-        case OverviewModel::FileNameRole:
+        case OutlineModel::FileNameRole:
             return QString::fromUtf8(symbol->fileName(), symbol->fileNameLength());
 
-        case OverviewModel::LineNumberRole:
+        case OutlineModel::LineNumberRole:
             return symbol->line();
 
         default:
@@ -142,7 +142,7 @@ public:
     CPlusPlus::Symbol *symbol = nullptr; // not owned
 };
 
-int OverviewModel::globalSymbolCount() const
+int OutlineModel::globalSymbolCount() const
 {
     int count = 0;
     if (m_cppDocument)
@@ -150,10 +150,10 @@ int OverviewModel::globalSymbolCount() const
     return count;
 }
 
-Symbol *OverviewModel::globalSymbolAt(int index) const
+Symbol *OutlineModel::globalSymbolAt(int index) const
 { return m_cppDocument->globalSymbolAt(index); }
 
-Symbol *OverviewModel::symbolFromIndex(const QModelIndex &index) const
+Symbol *OutlineModel::symbolFromIndex(const QModelIndex &index) const
 {
     if (!index.isValid())
         return nullptr;
@@ -161,16 +161,16 @@ Symbol *OverviewModel::symbolFromIndex(const QModelIndex &index) const
     return item ? item->symbol : nullptr;
 }
 
-OverviewModel::OverviewModel(QObject *parent)
+OutlineModel::OutlineModel(QObject *parent)
     : Utils::TreeModel<>(parent)
 {
     m_updateTimer = new QTimer(this);
     m_updateTimer->setSingleShot(true);
     m_updateTimer->setInterval(500);
-    connect(m_updateTimer, &QTimer::timeout, this, &OverviewModel::rebuild);
+    connect(m_updateTimer, &QTimer::timeout, this, &OutlineModel::rebuild);
 }
 
-Qt::ItemFlags OverviewModel::flags(const QModelIndex &index) const
+Qt::ItemFlags OutlineModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
         return Qt::NoItemFlags;
@@ -178,17 +178,17 @@ Qt::ItemFlags OverviewModel::flags(const QModelIndex &index) const
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
 }
 
-Qt::DropActions OverviewModel::supportedDragActions() const
+Qt::DropActions OutlineModel::supportedDragActions() const
 {
     return Qt::MoveAction;
 }
 
-QStringList OverviewModel::mimeTypes() const
+QStringList OutlineModel::mimeTypes() const
 {
     return Utils::DropSupport::mimeTypesForFilePaths();
 }
 
-QMimeData *OverviewModel::mimeData(const QModelIndexList &indexes) const
+QMimeData *OutlineModel::mimeData(const QModelIndexList &indexes) const
 {
     auto mimeData = new Utils::DropMimeData;
     for (const QModelIndex &index : indexes) {
@@ -204,18 +204,18 @@ QMimeData *OverviewModel::mimeData(const QModelIndexList &indexes) const
     return mimeData;
 }
 
-void OverviewModel::update(CPlusPlus::Document::Ptr doc)
+void OutlineModel::update(CPlusPlus::Document::Ptr doc)
 {
     m_candidate = doc;
     m_updateTimer->start();
 }
 
-int OverviewModel::editorRevision()
+int OutlineModel::editorRevision()
 {
     return m_cppDocument ? m_cppDocument->editorRevision() : -1;
 }
 
-void OverviewModel::rebuild()
+void OutlineModel::rebuild()
 {
     beginResetModel();
     m_cppDocument = m_candidate;
@@ -227,13 +227,13 @@ void OverviewModel::rebuild()
     endResetModel();
 }
 
-bool OverviewModel::isGenerated(const QModelIndex &sourceIndex) const
+bool OutlineModel::isGenerated(const QModelIndex &sourceIndex) const
 {
     CPlusPlus::Symbol *symbol = symbolFromIndex(sourceIndex);
     return symbol && symbol->isGenerated();
 }
 
-Utils::Link OverviewModel::linkFromIndex(const QModelIndex &sourceIndex) const
+Utils::Link OutlineModel::linkFromIndex(const QModelIndex &sourceIndex) const
 {
     CPlusPlus::Symbol *symbol = symbolFromIndex(sourceIndex);
     if (!symbol)
@@ -242,7 +242,7 @@ Utils::Link OverviewModel::linkFromIndex(const QModelIndex &sourceIndex) const
     return symbol->toLink();
 }
 
-Utils::LineColumn OverviewModel::lineColumnFromIndex(const QModelIndex &sourceIndex) const
+Utils::LineColumn OutlineModel::lineColumnFromIndex(const QModelIndex &sourceIndex) const
 {
     Utils::LineColumn lineColumn;
     CPlusPlus::Symbol *symbol = symbolFromIndex(sourceIndex);
@@ -253,13 +253,13 @@ Utils::LineColumn OverviewModel::lineColumnFromIndex(const QModelIndex &sourceIn
     return lineColumn;
 }
 
-OverviewModel::Range OverviewModel::rangeFromIndex(const QModelIndex &sourceIndex) const
+OutlineModel::Range OutlineModel::rangeFromIndex(const QModelIndex &sourceIndex) const
 {
     Utils::LineColumn lineColumn = lineColumnFromIndex(sourceIndex);
     return std::make_pair(lineColumn, lineColumn);
 }
 
-void OverviewModel::buildTree(SymbolItem *root, bool isRoot)
+void OutlineModel::buildTree(SymbolItem *root, bool isRoot)
 {
     if (!root)
         return;
@@ -291,7 +291,7 @@ void OverviewModel::buildTree(SymbolItem *root, bool isRoot)
     }
 }
 
-static bool contains(const OverviewModel::Range &range, int line, int column)
+static bool contains(const OutlineModel::Range &range, int line, int column)
 {
     if (line < range.first.line || line > range.second.line)
         return false;
@@ -302,14 +302,14 @@ static bool contains(const OverviewModel::Range &range, int line, int column)
     return true;
 }
 
-QModelIndex OverviewModel::indexForPosition(int line, int column,
-                                            const QModelIndex &rootIndex) const
+QModelIndex OutlineModel::indexForPosition(int line, int column,
+                                           const QModelIndex &rootIndex) const
 {
     QModelIndex lastIndex = rootIndex;
     const int rowCount = this->rowCount(rootIndex);
     for (int row = 0; row < rowCount; ++row) {
         const QModelIndex index = this->index(row, 0, rootIndex);
-        const OverviewModel::Range range = rangeFromIndex(index);
+        const OutlineModel::Range range = rangeFromIndex(index);
         if (range.first.line > line)
             break;
         // Skip ranges that do not include current line and column.

@@ -28,7 +28,7 @@
 #include "cppeditoroutline.h"
 #include "cppeditordocument.h"
 #include "cppmodelmanager.h"
-#include "cppoverviewmodel.h"
+#include "cppoutlinemodel.h"
 
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -69,7 +69,7 @@ void CppOutlineTreeView::contextMenuEvent(QContextMenuEvent *event)
     event->accept();
 }
 
-CppOutlineFilterModel::CppOutlineFilterModel(OverviewModel &sourceModel,
+CppOutlineFilterModel::CppOutlineFilterModel(OutlineModel &sourceModel,
                                              QObject *parent)
     : QSortFilterProxyModel(parent)
     , m_sourceModel(sourceModel)

@@ -43,12 +43,12 @@ class Link;
 namespace CppEditor::Internal {
 class SymbolItem;
 
-class OverviewModel : public Utils::TreeModel<>
+class OutlineModel : public Utils::TreeModel<>
 {
     Q_OBJECT
 
 public:
-    explicit OverviewModel(QObject *parent = nullptr);
+    explicit OutlineModel(QObject *parent = nullptr);
 
     enum Role {
         FileNameRole = Qt::UserRole + 1,

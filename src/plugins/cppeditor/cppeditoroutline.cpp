@@ -28,7 +28,7 @@
 #include "cppeditordocument.h"
 #include "cppeditorwidget.h"
 #include "cppmodelmanager.h"
-#include "cppoverviewmodel.h"
+#include "cppoutlinemodel.h"
 #include "cpptoolssettings.h"
 
 #include <texteditor/texteditor.h>
@@ -54,12 +54,12 @@ enum { UpdateOutlineIntervalInMs = 500 };
 
 namespace {
 
-class OverviewProxyModel : public QSortFilterProxyModel
+class OutlineProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 
 public:
-    OverviewProxyModel(CppEditor::Internal::OverviewModel &sourceModel, QObject *parent)
+    OutlineProxyModel(CppEditor::Internal::OutlineModel &sourceModel, QObject *parent)
         : QSortFilterProxyModel(parent)
         , m_sourceModel(sourceModel)
     {
@@ -75,7 +75,7 @@ public:
         return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
     }
 private:
-    CppEditor::Internal::OverviewModel &m_sourceModel;
+    CppEditor::Internal::OutlineModel &m_sourceModel;
 };
 
 QTimer *newSingleShotTimer(QObject *parent, int msInternal, const QString &objectName)
@@ -97,7 +97,7 @@ CppEditorOutline::CppEditorOutline(CppEditorWidget *editorWidget)
     , m_combo(new Utils::TreeViewComboBox)
 {
     m_model = &editorWidget->cppEditorDocument()->outlineModel();
-    m_proxyModel = new OverviewProxyModel(*m_model, this);
+    m_proxyModel = new OutlineProxyModel(*m_model, this);
     m_proxyModel->setSourceModel(m_model);
 
     // Set up proxy model
@@ -128,7 +128,7 @@ CppEditorOutline::CppEditorOutline(CppEditorWidget *editorWidget)
     connect(m_combo, &QComboBox::activated, this, &CppEditorOutline::gotoSymbolInEditor);
     connect(m_combo, &QComboBox::currentIndexChanged, this, &CppEditorOutline::updateToolTip);
 
-    connect(m_model, &OverviewModel::modelReset, this, &CppEditorOutline::updateNow);
+    connect(m_model, &OutlineModel::modelReset, this, &CppEditorOutline::updateNow);
     // Set up timers
     m_updateIndexTimer = newSingleShotTimer(this, UpdateOutlineIntervalInMs,
                                             QLatin1String("CppEditorOutline::m_updateIndexTimer"));

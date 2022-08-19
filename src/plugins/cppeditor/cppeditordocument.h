@@ -27,7 +27,7 @@
 
 #include "baseeditordocumentprocessor.h"
 #include "cppcompletionassistprovider.h"
-#include "cppoverviewmodel.h"
+#include "cppoutlinemodel.h"
 #include "cppparsecontext.h"
 #include "cppsemanticinfo.h"
 #include "editordocumenthandle.h"
@@ -63,7 +63,7 @@ public:
     void scheduleProcessDocument();
 
     ParseContextModel &parseContextModel();
-    OverviewModel &outlineModel();
+    OutlineModel &outlineModel();
     void updateOutline();
 
     QFuture<CursorInfo> cursorInfo(const CursorInfoParams &params);
@@ -137,7 +137,7 @@ private:
     QScopedPointer<CppEditorDocumentHandle> m_editorDocumentHandle;
 
     ParseContextModel m_parseContextModel;
-    OverviewModel m_overviewModel;
+    OutlineModel m_overviewModel;
 };
 
 } // namespace Internal

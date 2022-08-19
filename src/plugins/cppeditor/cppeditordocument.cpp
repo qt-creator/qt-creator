@@ -393,7 +393,7 @@ ParseContextModel &CppEditorDocument::parseContextModel()
     return m_parseContextModel;
 }
 
-OverviewModel &CppEditorDocument::outlineModel()
+OutlineModel &CppEditorDocument::outlineModel()
 {
     return m_overviewModel;
 }

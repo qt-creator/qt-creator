@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "cppoverviewmodel.h"
+#include "cppoutlinemodel.h"
 
 #include <QModelIndex>
 #include <QObject>
@@ -68,7 +68,7 @@ private:
 
     bool isSorted() const;
 
-    OverviewModel *m_model = nullptr; // Not owned
+    OutlineModel *m_model = nullptr; // Not owned
 
     CppEditorWidget *m_editorWidget = nullptr;
 

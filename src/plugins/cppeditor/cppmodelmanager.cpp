@@ -26,7 +26,7 @@
 #include "cppmodelmanager.h"
 
 #include "abstracteditorsupport.h"
-#include "cppoverviewmodel.h"
+#include "cppoutlinemodel.h"
 #include "baseeditordocumentprocessor.h"
 #include "builtinindexingsupport.h"
 #include "cppcodemodelinspectordumper.h"

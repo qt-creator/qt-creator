@@ -31,7 +31,7 @@
 #include "cppeditorwidget.h"
 #include "cppelementevaluator.h"
 #include "cppfollowsymbolundercursor.h"
-#include "cppoverviewmodel.h"
+#include "cppoutlinemodel.h"
 #include "cpptoolsreuse.h"
 #include "symbolfinder.h"
 
