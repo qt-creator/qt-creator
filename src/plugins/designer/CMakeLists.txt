@@ -12,7 +12,7 @@ add_qtc_plugin(Designer
     cpp/formclasswizarddialog.cpp cpp/formclasswizarddialog.h
     cpp/formclasswizardpage.cpp cpp/formclasswizardpage.h
     cpp/formclasswizardparameters.cpp cpp/formclasswizardparameters.h
-    cpp/newclasswidget.cpp cpp/newclasswidget.h cpp/newclasswidget.ui
+    cpp/newclasswidget.cpp cpp/newclasswidget.h
     designer_export.h
     designerconstants.h
     designercontext.cpp designercontext.h

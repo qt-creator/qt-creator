@@ -72,7 +72,7 @@ QtcPlugin {
             "formclasswizarddialog.cpp", "formclasswizarddialog.h",
             "formclasswizardpage.cpp", "formclasswizardpage.h",
             "formclasswizardparameters.cpp", "formclasswizardparameters.h",
-            "newclasswidget.cpp", "newclasswidget.h", "newclasswidget.ui",
+            "newclasswidget.cpp", "newclasswidget.h",
         ]
     }
 

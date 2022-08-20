@@ -2,7 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "newclasswidget.h"
-#include "ui_newclasswidget.h"
+
+#include <utils/classnamevalidatinglineedit.h>
+#include <utils/filenamevalidatinglineedit.h>
+#include <utils/layoutbuilder.h>
+#include <utils/pathchooser.h>
 
 #include <QFileDialog>
 #include <QDebug>
@@ -26,12 +30,17 @@ namespace Internal {
 struct NewClassWidgetPrivate {
     NewClassWidgetPrivate();
 
-    Ui::NewClassWidget m_ui;
     QString m_headerExtension;
     QString m_sourceExtension;
     QString m_formExtension;
     bool m_valid = false;
     bool m_classEdited = false;
+
+    ClassNameValidatingLineEdit *m_classLineEdit;
+    FileNameValidatingLineEdit *m_headerFileLineEdit;
+    FileNameValidatingLineEdit *m_sourceFileLineEdit;
+    FileNameValidatingLineEdit *m_formFileLineEdit;
+    PathChooser *m_pathChooser;
 };
 
 NewClassWidgetPrivate:: NewClassWidgetPrivate() :
@@ -46,37 +55,50 @@ NewClassWidget::NewClassWidget(QWidget *parent) :
     QWidget(parent),
     d(new NewClassWidgetPrivate)
 {
-    d->m_ui.setupUi(this);
+    d->m_classLineEdit = new ClassNameValidatingLineEdit;
+    d->m_classLineEdit->setNamespacesEnabled(true);
+    d->m_headerFileLineEdit = new FileNameValidatingLineEdit;
+    d->m_sourceFileLineEdit = new FileNameValidatingLineEdit;
+    d->m_formFileLineEdit = new FileNameValidatingLineEdit;
+    d->m_pathChooser = new PathChooser;
 
-    d->m_ui.classLineEdit->setNamespacesEnabled(true);
     setNamesDelimiter(QLatin1String("::"));
 
-    connect(d->m_ui.classLineEdit, &Utils::ClassNameValidatingLineEdit::updateFileName,
+    using namespace Utils::Layouting;
+    Form {
+        tr("&Class name:"), d->m_classLineEdit, br,
+        tr("&Header file:"), d->m_headerFileLineEdit, br,
+        tr("&Source file:"), d->m_sourceFileLineEdit, br,
+        tr("&Form file:"), d->m_formFileLineEdit, br,
+        tr("&Path:"), d->m_pathChooser, br,
+    }.attachTo(this, WithoutMargins);
+
+    connect(d->m_classLineEdit, &ClassNameValidatingLineEdit::updateFileName,
             this, &NewClassWidget::slotUpdateFileNames);
-    connect(d->m_ui.classLineEdit, &QLineEdit::textEdited,
+    connect(d->m_classLineEdit, &QLineEdit::textEdited,
             this, &NewClassWidget::classNameEdited);
-    connect(d->m_ui.classLineEdit, &Utils::FancyLineEdit::validChanged,
+    connect(d->m_classLineEdit, &FancyLineEdit::validChanged,
             this, &NewClassWidget::slotValidChanged);
-    connect(d->m_ui.headerFileLineEdit, &Utils::FancyLineEdit::validChanged,
+    connect(d->m_headerFileLineEdit, &FancyLineEdit::validChanged,
             this, &NewClassWidget::slotValidChanged);
-    connect(d->m_ui.sourceFileLineEdit, &Utils::FancyLineEdit::validChanged,
+    connect(d->m_sourceFileLineEdit, &FancyLineEdit::validChanged,
             this, &NewClassWidget::slotValidChanged);
-    connect(d->m_ui.formFileLineEdit, &Utils::FancyLineEdit::validChanged,
+    connect(d->m_formFileLineEdit, &FancyLineEdit::validChanged,
             this, &NewClassWidget::slotValidChanged);
-    connect(d->m_ui.pathChooser, &Utils::PathChooser::validChanged,
+    connect(d->m_pathChooser, &PathChooser::validChanged,
             this, &NewClassWidget::slotValidChanged);
 
-    connect(d->m_ui.classLineEdit, &Utils::FancyLineEdit::validReturnPressed,
+    connect(d->m_classLineEdit, &FancyLineEdit::validReturnPressed,
             this, &NewClassWidget::slotActivated);
-    connect(d->m_ui.headerFileLineEdit, &Utils::FancyLineEdit::validReturnPressed,
+    connect(d->m_headerFileLineEdit, &FancyLineEdit::validReturnPressed,
             this, &NewClassWidget::slotActivated);
-    connect(d->m_ui.sourceFileLineEdit, &Utils::FancyLineEdit::validReturnPressed,
+    connect(d->m_sourceFileLineEdit, &FancyLineEdit::validReturnPressed,
             this, &NewClassWidget::slotActivated);
-    connect(d->m_ui.formFileLineEdit, &Utils::FancyLineEdit::validReturnPressed,
+    connect(d->m_formFileLineEdit, &FancyLineEdit::validReturnPressed,
             this, &NewClassWidget::slotActivated);
-    connect(d->m_ui.formFileLineEdit, &Utils::FancyLineEdit::validReturnPressed,
+    connect(d->m_formFileLineEdit, &FancyLineEdit::validReturnPressed,
             this, &NewClassWidget::slotActivated);
-    connect(d->m_ui.pathChooser, &Utils::PathChooser::returnPressed,
+    connect(d->m_pathChooser, &PathChooser::returnPressed,
              this, &NewClassWidget::slotActivated);
 }
 
@@ -96,38 +118,38 @@ void NewClassWidget::setClassName(const QString &suggestedName)
 {
     if (debugNewClassWidget)
         qDebug() << Q_FUNC_INFO << suggestedName << d->m_headerExtension << d->m_sourceExtension;
-    d->m_ui.classLineEdit->setText(
+    d->m_classLineEdit->setText(
                 Utils::ClassNameValidatingLineEdit::createClassName(suggestedName));
 }
 
 QString NewClassWidget::className() const
 {
-    return d->m_ui.classLineEdit->text();
+    return d->m_classLineEdit->text();
 }
 
 QString NewClassWidget::sourceFileName() const
 {
-    return d->m_ui.sourceFileLineEdit->text();
+    return d->m_sourceFileLineEdit->text();
 }
 
 QString NewClassWidget::headerFileName() const
 {
-    return d->m_ui.headerFileLineEdit->text();
+    return d->m_headerFileLineEdit->text();
 }
 
 QString NewClassWidget::formFileName() const
 {
-    return d->m_ui.formFileLineEdit->text();
+    return d->m_formFileLineEdit->text();
 }
 
 FilePath NewClassWidget::filePath() const
 {
-    return d->m_ui.pathChooser->filePath();
+    return d->m_pathChooser->filePath();
 }
 
 void NewClassWidget::setFilePath(const FilePath &path)
 {
-     d->m_ui.pathChooser->setFilePath(path);
+     d->m_pathChooser->setFilePath(path);
 }
 
 QString NewClassWidget::sourceExtension() const
@@ -162,12 +184,12 @@ QString NewClassWidget::formExtension() const
 
 void NewClassWidget::setLowerCaseFiles(bool v)
 {
-    d->m_ui.classLineEdit->setLowerCaseFileName(v);
+    d->m_classLineEdit->setLowerCaseFileName(v);
 }
 
 void NewClassWidget::setNamesDelimiter(const QString &delimiter)
 {
-    d->m_ui.classLineEdit->setNamespaceDelimiter(delimiter);
+    d->m_classLineEdit->setNamespaceDelimiter(delimiter);
 }
 
 void NewClassWidget::slotValidChanged()
@@ -181,33 +203,36 @@ void NewClassWidget::slotValidChanged()
 
 bool NewClassWidget::isValid(QString *error) const
 {
-    if (!d->m_ui.classLineEdit->isValid()) {
+    if (!d->m_classLineEdit->isValid()) {
         if (error)
-            *error = d->m_ui.classLineEdit->errorMessage();
+            *error = d->m_classLineEdit->errorMessage();
         return false;
     }
 
-    if (!d->m_ui.headerFileLineEdit->isValid()) {
+    if (!d->m_headerFileLineEdit->isValid()) {
         if (error)
-            *error = tr("Invalid header file name: \"%1\"").arg(d->m_ui.headerFileLineEdit->errorMessage());
+            *error = tr("Invalid header file name: \"%1\"").
+                arg(d->m_headerFileLineEdit->errorMessage());
         return false;
     }
 
-    if (!d->m_ui.sourceFileLineEdit->isValid()) {
+    if (!d->m_sourceFileLineEdit->isValid()) {
         if (error)
-            *error = tr("Invalid source file name: \"%1\"").arg(d->m_ui.sourceFileLineEdit->errorMessage());
+            *error = tr("Invalid source file name: \"%1\"").
+                arg(d->m_sourceFileLineEdit->errorMessage());
         return false;
     }
 
-    if (!d->m_ui.formFileLineEdit->isValid()) {
+    if (!d->m_formFileLineEdit->isValid()) {
         if (error)
-            *error = tr("Invalid form file name: \"%1\"").arg(d->m_ui.formFileLineEdit->errorMessage());
+            *error = tr("Invalid form file name: \"%1\"").
+                arg(d->m_formFileLineEdit->errorMessage());
         return false;
     }
 
-    if (!d->m_ui.pathChooser->isValid()) {
+    if (!d->m_pathChooser->isValid()) {
         if (error)
-            *error =  d->m_ui.pathChooser->errorMessage();
+            *error =  d->m_pathChooser->errorMessage();
         return false;
     }
     return true;
@@ -218,9 +243,9 @@ void NewClassWidget::slotUpdateFileNames(const QString &baseName)
     if (debugNewClassWidget)
         qDebug() << Q_FUNC_INFO << baseName << d->m_headerExtension << d->m_sourceExtension;
     const QChar dot = QLatin1Char('.');
-    d->m_ui.sourceFileLineEdit->setText(baseName + dot + d->m_sourceExtension);
-    d->m_ui.headerFileLineEdit->setText(baseName + dot + d->m_headerExtension);
-    d->m_ui.formFileLineEdit->setText(baseName + dot + d->m_formExtension);
+    d->m_sourceFileLineEdit->setText(baseName + dot + d->m_sourceExtension);
+    d->m_headerFileLineEdit->setText(baseName + dot + d->m_headerExtension);
+    d->m_formFileLineEdit->setText(baseName + dot + d->m_formExtension);
 }
 
 void NewClassWidget::slotActivated()
