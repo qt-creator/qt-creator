@@ -313,11 +313,12 @@ void DebugView::selectedNodesChanged(const QList<ModelNode> &selectedNodes /*sel
         }
 
         auto auxiliaryData = selectedNode.auxiliaryData();
+        AuxiliaryDatas sortedaAuxiliaryData{auxiliaryData.begin(), auxiliaryData.end()};
 
-        Utils::sort(auxiliaryData, [](const auto &first, const auto &second) {
+        Utils::sort(sortedaAuxiliaryData, [](const auto &first, const auto &second) {
             return first.first < second.first;
         });
-        for (const auto &element : auxiliaryData) {
+        for (const auto &element : sortedaAuxiliaryData) {
             message << element.first.type << ' ' << element.first.name.data() << ' '
                     << element.second.toString() << lineBreak;
         }

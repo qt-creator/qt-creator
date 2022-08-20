@@ -1136,7 +1136,7 @@ AuxiliaryDatasForType ModelNode::auxiliaryData(AuxiliaryDataType type) const
     return m_internalNode->auxiliaryData(type);
 }
 
-const AuxiliaryDatas &ModelNode::auxiliaryData() const
+AuxiliaryDatasView ModelNode::auxiliaryData() const
 {
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);

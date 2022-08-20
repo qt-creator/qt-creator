@@ -214,7 +214,7 @@ public:
     bool hasAuxiliaryData(AuxiliaryDataKeyView key) const;
     bool hasAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const;
     AuxiliaryDatasForType auxiliaryData(AuxiliaryDataType type) const;
-    const AuxiliaryDatas &auxiliaryData() const;
+    AuxiliaryDatasView auxiliaryData() const;
 
     QString customId() const;
     bool hasCustomId() const;

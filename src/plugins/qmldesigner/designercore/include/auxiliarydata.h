@@ -28,6 +28,7 @@
 #include <nodeinstanceglobal.h>
 
 #include <utils/smallstring.h>
+#include <utils/span.h>
 
 #include <vector>
 
@@ -75,5 +76,6 @@ bool operator!=(const BasicAuxiliaryDataKey<First> &first, const BasicAuxiliaryD
 using AuxiliaryDataKey = BasicAuxiliaryDataKey<Utils::SmallString>;
 using AuxiliaryDataKeyView = BasicAuxiliaryDataKey<Utils::SmallStringView>;
 using AuxiliaryDatas = std::vector<std::pair<AuxiliaryDataKey, QVariant>>;
+using AuxiliaryDatasView = Utils::span<const std::pair<AuxiliaryDataKey, QVariant>>;
 using AuxiliaryDatasForType = std::vector<std::pair<Utils::SmallString, QVariant>>;
 } // namespace QmlDesigner

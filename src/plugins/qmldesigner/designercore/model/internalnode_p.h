@@ -87,7 +87,7 @@ public:
     bool removeAuxiliaryData(AuxiliaryDataKeyView key);
     bool hasAuxiliaryData(AuxiliaryDataKeyView key) const;
     AuxiliaryDatasForType auxiliaryData(AuxiliaryDataType type) const;
-    const AuxiliaryDatas &auxiliaryData() const { return m_auxiliaryDatas; }
+    AuxiliaryDatasView auxiliaryData() const { return std::as_const(m_auxiliaryDatas); }
 
     InternalProperty::Pointer property(const PropertyName &name) const;
     InternalBindingProperty::Pointer bindingProperty(const PropertyName &name) const;
