@@ -64,17 +64,17 @@ ConnectableItem::~ConnectableItem()
 {
     setBlockUpdates(true);
 
-    const QList<ConnectableItem *> overlappedItems = m_overlappedItems;
+    const QVector<ConnectableItem *> overlappedItems = m_overlappedItems;
     for (ConnectableItem *item : overlappedItems)
         item->removeOverlappingItem(this);
     m_overlappedItems.clear();
 
-    const QList<TransitionItem *> outputTransitions = m_outputTransitions;
+    const QVector<TransitionItem *> outputTransitions = m_outputTransitions;
     for (TransitionItem *transition : outputTransitions)
         transition->disconnectItem(this);
     m_outputTransitions.clear();
 
-    const QList<TransitionItem *> inputTransitions = m_inputTransitions;
+    const QVector<TransitionItem *> inputTransitions = m_inputTransitions;
     for (TransitionItem *transition : inputTransitions)
         transition->disconnectItem(this);
     m_inputTransitions.clear();
