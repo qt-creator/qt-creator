@@ -298,7 +298,7 @@ QmlModelState QmlModelState::duplicate(const QString &name) const
 
 QmlModelStateGroup QmlModelState::stateGroup() const
 {
-    QmlVisualNode parentNode(modelNode().parentProperty().parentModelNode());
+    QmlObjectNode parentNode(modelNode().parentProperty().parentModelNode());
     return parentNode.states();
 }
 
