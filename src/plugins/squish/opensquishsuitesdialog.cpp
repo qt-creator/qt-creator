@@ -43,8 +43,6 @@
 namespace Squish {
 namespace Internal {
 
-static QString previousPath;
-
 OpenSquishSuitesDialog::OpenSquishSuitesDialog(QWidget *parent)
     : QDialog(parent)
 {
@@ -53,7 +51,7 @@ OpenSquishSuitesDialog::OpenSquishSuitesDialog(QWidget *parent)
     setModal(true);
 
     m_directoryLineEdit = new Utils::PathChooser;
-    m_directoryLineEdit->setPath(previousPath);
+    m_directoryLineEdit->setHistoryCompleter("Squish.SuitesBase", true);
 
     m_suitesListWidget = new QListWidget;
 
@@ -98,6 +96,8 @@ OpenSquishSuitesDialog::OpenSquishSuitesDialog(QWidget *parent)
 
     connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    onDirectoryChanged();
 }
 
 OpenSquishSuitesDialog::~OpenSquishSuitesDialog() = default;
@@ -156,8 +156,7 @@ void OpenSquishSuitesDialog::deselectAll()
 void OpenSquishSuitesDialog::setChosenSuites()
 {
     const int count = m_suitesListWidget->count();
-    previousPath = m_directoryLineEdit->path();
-    const QDir baseDir(previousPath);
+    const QDir baseDir(m_directoryLineEdit->path());
     for (int row = 0; row < count; ++row) {
         QListWidgetItem *item = m_suitesListWidget->item(row);
         if (item->checkState() == Qt::Checked)
