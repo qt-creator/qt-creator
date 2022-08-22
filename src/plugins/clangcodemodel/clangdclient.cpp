@@ -82,6 +82,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/itemviews.h>
 #include <utils/runextensions.h>
@@ -275,7 +276,8 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
             + (settings.autoIncludeHeaders() ? "iwyu" : "never");
 
     bool ok = false;
-    const int userValue = qEnvironmentVariableIntValue("QTC_CLANGD_COMPLETION_RESULTS", &ok);
+    const int userValue
+        = Utils::Environment::systemEnvironment().value("QTC_CLANGD_COMPLETION_RESULTS").toInt(&ok);
     const QString limitResults = QString("--limit-results=%1").arg(ok ? userValue : 0);
 
     Utils::CommandLine cmd{settings.clangdFilePath(), {indexingOption, headerInsertionOption,
