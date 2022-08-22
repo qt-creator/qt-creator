@@ -33,7 +33,6 @@
 
 #include <cplusplus/LookupContext.h>
 
-
 namespace CppEditor {
 class CppEditorWidget;
 class CppRefactoringFile;
@@ -59,6 +58,8 @@ public:
     bool isBaseObject() const override { return false; }
 
 private:
+    QTextCursor adjustedCursor();
+
     CppEditorWidget *m_editor;
     SemanticInfo m_semanticInfo;
     CPlusPlus::Snapshot m_snapshot;

@@ -28,6 +28,10 @@
 #include <unordered_map>
 #include <vector>
 
+QT_BEGIN_NAMESPACE
+class QTextDocument;
+QT_END_NAMESPACE
+
 namespace CPlusPlus {
 
 class CPLUSPLUS_EXPORT TranslationUnit
@@ -123,6 +127,8 @@ public:
                           int *line,
                           int *column = nullptr,
                           const StringLiteral **fileName = nullptr) const;
+
+    int getTokenPositionInDocument(int index, const QTextDocument *doc) const;
 
     void pushLineOffset(int offset);
     void pushPreprocessorLine(int utf16charOffset,

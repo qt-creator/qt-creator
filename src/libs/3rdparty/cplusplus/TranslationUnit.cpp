@@ -26,6 +26,9 @@
 #include "AST.h"
 #include "Literals.h"
 #include "DiagnosticClient.h"
+
+#include <utils/textutils.h>
+
 #include <stack>
 #include <vector>
 #include <cstdarg>
@@ -381,6 +384,13 @@ void TranslationUnit::getTokenPosition(int index,
                                        int *column,
                                        const StringLiteral **fileName) const
 { return getPosition(tokenAt(index).utf16charsBegin(), line, column, fileName); }
+
+int TranslationUnit::getTokenPositionInDocument(int index, const QTextDocument *doc) const
+{
+    int line, column;
+    getTokenPosition(index, &line, &column);
+    return Utils::Text::positionInText(doc, line, column);
+}
 
 void TranslationUnit::getTokenStartPosition(int index, int *line,
                                             int *column,

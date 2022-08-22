@@ -86,7 +86,7 @@ CppQuickFixInterface::CppQuickFixInterface(CppEditorWidget *editor, AssistReason
     QTC_CHECK(m_semanticInfo.doc->translationUnit());
     QTC_CHECK(m_semanticInfo.doc->translationUnit()->ast());
     ASTPath astPath(m_semanticInfo.doc);
-    m_path = astPath(editor->textCursor());
+    m_path = astPath(adjustedCursor());
 }
 
 const QList<AST *> &CppQuickFixInterface::path() const
@@ -127,6 +127,50 @@ bool CppQuickFixInterface::isCursorOn(unsigned tokenIndex) const
 bool CppQuickFixInterface::isCursorOn(const AST *ast) const
 {
     return currentFile()->isCursorOn(ast);
+}
+
+// Some users like to select identifiers and expect the quickfix to apply to the selection.
+// However, as the cursor position is at the end of the selection, it can happen that
+// the quickfix is applied to the following token instead; see e.g. QTCREATORBUG-27886.
+// We try to detect this condition: If there is a selection *and* this selection
+// corresponds to a C++ token, we move the cursor to that token's position.
+QTextCursor CppQuickFixInterface::adjustedCursor()
+{
+    QTextCursor cursor = this->cursor();
+    if (!cursor.hasSelection())
+        return cursor;
+
+    const TranslationUnit * const tu = m_semanticInfo.doc->translationUnit();
+    const int selStart = cursor.selectionStart();
+    const int selEnd = cursor.selectionEnd();
+    const QTextDocument * const doc = m_editor->textDocument()->document();
+
+    // Binary search for matching token.
+    for (int l = 0, u = tu->tokenCount() - 1; l <= u; ) {
+        const int i = (l + u) / 2;
+        const int tokenPos = tu->getTokenPositionInDocument(i, doc);
+        if (selStart < tokenPos) {
+            u = i - 1;
+            continue;
+        }
+        if (selStart > tokenPos) {
+            l = i + 1;
+            continue;
+        }
+
+        // Selection does not end at token end.
+        if (tokenPos + tu->tokenAt(i).utf16chars() != selEnd)
+            break;
+
+        cursor.setPosition(selStart);
+
+        // Try not to have the cursor "at the edge", in order to prevent potential ambiguities.
+        if (selEnd - selStart > 1)
+            cursor.setPosition(cursor.position() + 1);
+
+        return cursor;
+    }
+    return cursor;
 }
 
 QuickFixOperations quickFixOperations(const TextEditor::AssistInterface *interface)
