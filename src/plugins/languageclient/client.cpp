@@ -774,9 +774,13 @@ void ClientPrivate::requestDocumentHighlights(TextEditor::TextEditorWidget *widg
             delete m_documentHighlightsTimer.take(widget);
         });
         connect(timer, &QTimer::timeout, this, [this, widget, connection]() {
-            disconnect(connection);
-            requestDocumentHighlightsNow(widget);
-            m_documentHighlightsTimer.take(widget)->deleteLater();
+            if (q->reachable()) {
+                disconnect(connection);
+                requestDocumentHighlightsNow(widget);
+                m_documentHighlightsTimer.take(widget)->deleteLater();
+            } else {
+                m_documentHighlightsTimer[widget]->start(250);
+            }
         });
     }
     timer->start(250);
@@ -784,6 +788,7 @@ void ClientPrivate::requestDocumentHighlights(TextEditor::TextEditorWidget *widg
 
 void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *widget)
 {
+    QTC_ASSERT(q->reachable(), return);
     const auto uri = DocumentUri::fromFilePath(widget->textDocument()->filePath());
     if (m_dynamicCapabilities.isRegistered(DocumentHighlightsRequest::methodName).value_or(false)) {
         TextDocumentRegistrationOptions option(
