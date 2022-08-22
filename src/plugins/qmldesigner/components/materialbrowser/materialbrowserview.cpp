@@ -128,13 +128,11 @@ void MaterialBrowserView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
 
-    QString matPropsPath = model->metaInfo("QtQuick3D.Material").importDirectoryPath()
-                           + "/designer/propertyGroups.json";
-    m_widget->materialBrowserModel()->loadPropertyGroups(matPropsPath);
-
     m_widget->clearSearchFilter();
     m_widget->materialBrowserModel()->setHasMaterialRoot(rootModelNode().isSubclassOf("QtQuick3D.Material"));
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
+
+    loadPropertyGroups();
 
     // Project load is already very busy and may even trigger puppet reset, so let's wait a moment
     // before refreshing the model
@@ -295,6 +293,16 @@ void MaterialBrowserView::nodeRemoved(const ModelNode &removedNode,
     m_widget->materialBrowserModel()->updateSelectedMaterial();
 }
 
+void QmlDesigner::MaterialBrowserView::loadPropertyGroups()
+{
+    if (!m_hasQuick3DImport || m_propertyGroupsLoaded)
+        return;
+
+    QString matPropsPath = model()->metaInfo("QtQuick3D.Material").importDirectoryPath()
+                               + "/designer/propertyGroups.json";
+    m_propertyGroupsLoaded = m_widget->materialBrowserModel()->loadPropertyGroups(matPropsPath);
+}
+
 void MaterialBrowserView::importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports)
 {
     Q_UNUSED(addedImports)
@@ -306,6 +314,8 @@ void MaterialBrowserView::importsChanged(const QList<Import> &addedImports, cons
         return;
 
     m_hasQuick3DImport = hasQuick3DImport;
+
+    loadPropertyGroups();
 
     // Import change will trigger puppet reset, so we don't want to update previews immediately
     refreshModel(false);
