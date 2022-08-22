@@ -164,8 +164,7 @@ void CppEditorOutline::updateIndex()
 
 void CppEditorOutline::updateIndexNow()
 {
-    const auto revision = static_cast<unsigned>(m_editorWidget->document()->revision());
-    if (m_model->editorRevision() != revision) {
+    if (m_model->editorRevision() != m_editorWidget->document()->revision()) {
         m_updateIndexTimer->start();
         return;
     }
