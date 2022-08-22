@@ -360,13 +360,13 @@ void MaterialBrowserModel::copyMaterialProperties(int idx, const QString &sectio
         if (propsSpecObj.contains(section)) { // should always be true
            m_copiedMaterialProps.clear();
            const QJsonArray propNames = propsSpecObj.value(section).toArray();
-           for (const QJsonValueRef &propName : propNames)
+           for (const QJsonValueConstRef &propName : propNames)
                m_copiedMaterialProps.append(mat.property(propName.toString().toLatin1()));
 
            if (section == "Base") { // add QtQuick3D.Material base props as well
                QJsonObject propsMatObj = m_propertyGroupsObj.value("Material").toObject();
                const QJsonArray propNames = propsMatObj.value("Base").toArray();
-               for (const QJsonValueRef &propName : propNames)
+               for (const QJsonValueConstRef &propName : propNames)
                    m_copiedMaterialProps.append(mat.property(propName.toString().toLatin1()));
            }
         }
