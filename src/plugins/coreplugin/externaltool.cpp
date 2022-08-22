@@ -634,7 +634,11 @@ void ExternalToolRunner::run()
         m_process->setWorkingDirectory(m_resolvedWorkingDirectory);
     const CommandLine cmd{m_resolvedExecutable, m_resolvedArguments, CommandLine::Raw};
     m_process->setCommand(cmd);
-    m_process->setEnvironment(m_resolvedEnvironment);
+    Environment env = m_resolvedEnvironment;
+    // force Qt to log to std streams, if it's not explicitly been set differently
+    if (!env.hasKey("QT_LOGGING_TO_CONSOLE"))
+        env.set("QT_LOGGING_TO_CONSOLE", "1");
+    m_process->setEnvironment(env);
     const auto write = m_tool->outputHandling() == ExternalTool::ShowInPane
                            ? QOverload<const QString &>::of(MessageManager::writeDisrupting)
                            : QOverload<const QString &>::of(MessageManager::writeSilently);
