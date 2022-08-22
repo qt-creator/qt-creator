@@ -39,7 +39,6 @@
 #include "nodeproperty.h"
 #include "annotation.h"
 
-#include <abstractproperty.h>
 #include <auxiliarydataproperties.h>
 #include <model.h>
 #include <nodemetainfo.h>
