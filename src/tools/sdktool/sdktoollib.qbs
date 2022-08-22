@@ -24,8 +24,12 @@ QtcLibrary {
         return defines;
     }
     cpp.dynamicLibraries: {
+        var libs = [];
         if (qbs.targetOS.contains("windows"))
-            return ["user32", "shell32"]
+            libs.push("user32", "shell32");
+        if (qbs.toolchainType === "msvc")
+            libs.push("dbghelp");
+        return libs;
     }
     Properties {
         condition: qbs.targetOS.contains("macos")

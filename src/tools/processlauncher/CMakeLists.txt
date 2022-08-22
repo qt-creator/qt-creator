@@ -22,3 +22,11 @@ add_qtc_executable(qtcreator_processlauncher
     ${UTILSDIR}/singleton.cpp
     ${UTILSDIR}/singleton.h
     )
+
+if (MSVC)
+    find_library(DbgHelpLib dbghelp)
+endif()
+
+extend_qtc_executable(qtcreator_processlauncher CONDITION MSVC
+  DEPENDS ${DbgHelpLib}
+)

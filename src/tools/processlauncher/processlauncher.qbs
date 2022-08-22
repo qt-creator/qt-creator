@@ -11,7 +11,9 @@ QtcTool {
 
     Properties {
         condition: qbs.targetOS.contains("windows")
-        cpp.dynamicLibraries: "user32"
+        cpp.dynamicLibraries: {
+            return qbs.toolchainType === "msvc" ? ["user32", "dbghelp"] : ["user32"];
+        }
     }
 
     files: [

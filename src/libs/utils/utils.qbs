@@ -17,6 +17,8 @@ Project {
                 libs.push("user32", "iphlpapi", "ws2_32", "shell32", "ole32");
                 if (qbs.toolchainType === "mingw")
                     libs.push("uuid");
+                else if (qbs.toolchainType === "msvc")
+                    libs.push("dbghelp");
             } else if (qbs.targetOS.contains("unix")) {
                 if (!qbs.targetOS.contains("macos"))
                     libs.push("X11");

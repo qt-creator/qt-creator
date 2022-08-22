@@ -217,6 +217,14 @@ extend_qtc_library(Utils
     mimeutils.cpp
 )
 
+if (MSVC)
+    find_library(DbgHelpLib dbghelp)
+endif()
+
+extend_qtc_library(Utils CONDITION MSVC
+  DEPENDS ${DbgHelpLib}
+)
+
 extend_qtc_library(Utils CONDITION WIN32
   SOURCES
     touchbar/touchbar.cpp

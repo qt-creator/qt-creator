@@ -90,6 +90,13 @@ extend_qtc_library(sdktoolLib CONDITION APPLE
     ${FWFoundation}
 )
 
+if (MSVC)
+    find_library(DbgHelpLib dbghelp)
+endif()
+
+extend_qtc_library(sdktoolLib CONDITION MSVC
+  DEPENDS ${DbgHelpLib}
+)
 extend_qtc_library(sdktoolLib CONDITION WIN32
   PUBLIC_DEPENDS
     user32 iphlpapi ws2_32 shell32
