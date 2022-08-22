@@ -24,20 +24,20 @@
 ****************************************************************************/
 
 #include "resourceeditorfactory.h"
-#include "resourceeditorw.h"
-#include "resourceeditorplugin.h"
+
 #include "resourceeditorconstants.h"
+#include "resourceeditorplugin.h"
+#include "resourceeditorw.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/fsengine/fileiconprovider.h>
 
 #include <QCoreApplication>
-#include <QFileInfo>
-#include <qdebug.h>
 
-using namespace ResourceEditor::Internal;
 using namespace ResourceEditor::Constants;
+
+namespace ResourceEditor::Internal {
 
 ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin)
 {
@@ -52,3 +52,5 @@ ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin)
         return new ResourceEditorW(Core::Context(C_RESOURCEEDITOR), plugin);
     });
 }
+
+} // ResourceEditor::Internal

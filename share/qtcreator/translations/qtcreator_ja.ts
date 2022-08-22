@@ -31946,7 +31946,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::QrcEditor</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>ファイルを追加</translation>
@@ -31997,7 +31997,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>ResourceFile</name>
+    <name>ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>ファイル名が未入力です。</translation>
@@ -32012,18 +32012,14 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceView</name>
-    <message>
-        <source>Open File</source>
-        <translation>ファイルを開く</translation>
-    </message>
+    <name>ResourceEditor</name>
     <message>
         <source>All files (*)</source>
         <translation>すべてのファイル (*)</translation>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
+    <name>ResourceEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>元に戻す(&amp;U)</translation>
@@ -32065,20 +32061,12 @@ In addition, device connectivity will be tested.</source>
         <translation>エディタで開く</translation>
     </message>
     <message>
-        <source>Open With</source>
-        <translation>エディタを指定して開く</translation>
-    </message>
-    <message>
         <source>Copy path &quot;%1&quot;</source>
         <translation>パス &quot;%1&quot; をコピー</translation>
     </message>
     <message>
         <source>Copy url &quot;%1&quot;</source>
         <translation>URL &quot;%1&quot; をコピー</translation>
-    </message>
-    <message>
-        <source>Add Prefix</source>
-        <translation>プレフィックスの追加</translation>
     </message>
     <message>
         <source>Remove Prefix</source>
@@ -32102,7 +32090,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorW</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>ファイルを開く</translation>
@@ -45229,7 +45217,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::PrefixLangDialog</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Prefix:</source>
         <translation>プレフィックス:</translation>

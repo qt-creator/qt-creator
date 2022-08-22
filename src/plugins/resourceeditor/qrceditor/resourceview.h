@@ -35,8 +35,7 @@ QT_BEGIN_NAMESPACE
 class QUndoStack;
 QT_END_NAMESPACE
 
-namespace ResourceEditor {
-namespace Internal {
+namespace ResourceEditor::Internal {
 
 class RelativeResourceModel;
 
@@ -106,5 +105,4 @@ private:
     int m_mergeId;
 };
 
-} // namespace Internal
-} // namespace ResourceEditor
+} // ResourceEditor::Internal

@@ -9182,7 +9182,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Qt Resource file</source>
         <translation>Datoteka z viri za Qt</translation>
@@ -9205,7 +9205,7 @@ Preselects a desktop Qt for building the application if available.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorW</name>
+    <name>ResourceEditor</name>
     <message>
         <source>untitled</source>
         <translation>neimenovana</translation>

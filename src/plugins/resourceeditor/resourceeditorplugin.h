@@ -27,8 +27,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace ResourceEditor {
-namespace Internal {
+namespace ResourceEditor::Internal {
 
 class ResourceEditorW;
 
@@ -49,5 +48,4 @@ private:
     class ResourceEditorPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace ResourceEditor
+} // ResourceEditor::Internal

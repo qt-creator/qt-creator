@@ -27,8 +27,7 @@
 
 #include <coreplugin/editormanager/ieditorfactory.h>
 
-namespace ResourceEditor {
-namespace Internal {
+namespace ResourceEditor::Internal {
 
 class ResourceEditorPlugin;
 
@@ -38,5 +37,4 @@ public:
     explicit ResourceEditorFactory(ResourceEditorPlugin *plugin);
 };
 
-} // namespace Internal
-} // namespace ResourceEditor
+} // ResourceEditor::Internal

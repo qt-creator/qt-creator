@@ -34,8 +34,7 @@ QT_BEGIN_NAMESPACE
 class QModelIndex;
 QT_END_NAMESPACE
 
-namespace ResourceEditor {
-namespace Internal {
+namespace ResourceEditor::Internal {
 
 /*!
     \class ViewCommand
@@ -170,5 +169,4 @@ private:
     void undo() override;
 };
 
-} // namespace Internal
-} // namespace ResourceEditor
+} // ResourceEditor::Internal

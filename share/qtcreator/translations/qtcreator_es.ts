@@ -9813,7 +9813,7 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Create a Qt Resource file (.qrc).</source>
         <translation type="obsolete">Crear un archivo de recursos Qt (.qrc).</translation>
@@ -9840,7 +9840,7 @@ Para hacerlo, introduzca el atajo y un espacio en el campo Localización, y lueg
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorW</name>
+    <name>ResourceEditor</name>
     <message>
         <source>untitled</source>
         <translation>sin título</translation>

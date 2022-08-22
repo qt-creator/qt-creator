@@ -25,9 +25,12 @@
 
 #include "resourcefile_p.h"
 
+#include "../resourceeditortr.h"
+
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/vcsmanager.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
@@ -39,21 +42,18 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
+#include <QDomDocument>
 #include <QFile>
-#include <QMimeData>
-#include <QtAlgorithms>
-#include <QTextCodec>
-#include <QTextStream>
-
 #include <QIcon>
 #include <QImageReader>
-
-#include <QDomDocument>
+#include <QMimeData>
+#include <QTextCodec>
+#include <QTextStream>
+#include <QtAlgorithms>
 
 using namespace Utils;
 
-namespace ResourceEditor {
-namespace Internal {
+namespace ResourceEditor::Internal {
 
 File::File(Prefix *prefix, const QString &_name, const QString &_alias)
     : Node(this, prefix)
@@ -116,7 +116,7 @@ Core::IDocument::OpenResult ResourceFile::load()
     m_error_message.clear();
 
     if (m_filePath.isEmpty()) {
-        m_error_message = tr("The file name is empty.");
+        m_error_message = Tr::tr("The file name is empty.");
         return Core::IDocument::OpenResult::ReadError;
     }
 
@@ -142,7 +142,7 @@ Core::IDocument::OpenResult ResourceFile::load()
         QString error_msg;
         int error_line, error_col;
         if (!doc.setContent(data, &error_msg, &error_line, &error_col)) {
-            m_error_message = tr("XML error on line %1, col %2: %3")
+            m_error_message = Tr::tr("XML error on line %1, col %2: %3")
                         .arg(error_line).arg(error_col).arg(error_msg);
             return Core::IDocument::OpenResult::CannotHandle;
         }
@@ -153,7 +153,7 @@ Core::IDocument::OpenResult ResourceFile::load()
         QString error_msg;
         int error_line, error_col;
         if (!doc.setContent(m_contents, &error_msg, &error_line, &error_col)) {
-            m_error_message = tr("XML error on line %1, col %2: %3")
+            m_error_message = Tr::tr("XML error on line %1, col %2: %3")
                         .arg(error_line).arg(error_col).arg(error_msg);
             return Core::IDocument::OpenResult::CannotHandle;
         }
@@ -162,7 +162,7 @@ Core::IDocument::OpenResult ResourceFile::load()
 
     QDomElement root = doc.firstChildElement(QLatin1String("RCC"));
     if (root.isNull()) {
-        m_error_message = tr("The <RCC> root element is missing.");
+        m_error_message = Tr::tr("The <RCC> root element is missing.");
         return Core::IDocument::OpenResult::CannotHandle;
     }
 
@@ -241,7 +241,7 @@ bool ResourceFile::save()
     m_error_message.clear();
 
     if (m_filePath.isEmpty()) {
-        m_error_message = tr("The file name is empty.");
+        m_error_message = Tr::tr("The file name is empty.");
         return false;
     }
 
@@ -461,7 +461,7 @@ void ResourceFile::orderList()
     }
 
     if (!save())
-        m_error_message = tr("Cannot save file.");
+        m_error_message = Tr::tr("Cannot save file.");
 }
 
 bool ResourceFile::contains(const QString &prefix, const QString &lang, const QString &file) const
@@ -1268,5 +1268,4 @@ EntryBackup * RelativeResourceModel::removeEntry(const QModelIndex &index)
     }
 }
 
-} // Internal
-} // ResourceEditor
+} // ResourceEditor::Internal

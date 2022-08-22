@@ -15496,7 +15496,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Creates a Qt Resource file (.qrc).</source>
         <translation type="obsolete">Crée une fichier ressource Qt (.qrc).</translation>
@@ -15531,11 +15531,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorW</name>
-    <message>
-        <source>Open File</source>
-        <translation>Ouvrir le fichier</translation>
-    </message>
+    <name>ResourceEditor</name>
     <message>
         <source>Open With</source>
         <translation>Ouvrir avec</translation>
@@ -52965,7 +52961,7 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::QrcEditor</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>Ajouter des fichiers</translation>
@@ -53016,7 +53012,7 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceFile</name>
+    <name>ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>Le nom de fichier est vide.</translation>
@@ -53035,7 +53031,7 @@ n&apos;a pas pu être trouvé dans le dossier.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceView</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Ouvrir le fichier</translation>

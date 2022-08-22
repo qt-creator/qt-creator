@@ -36,8 +36,7 @@ class QLineEdit;
 class QPushButton;
 QT_END_NAMESPACE
 
-namespace ResourceEditor {
-namespace Internal {
+namespace ResourceEditor::Internal {
 
 class QrcEditor : public Core::MiniSplitter
 {
@@ -99,5 +98,4 @@ private:
     QLineEdit *m_languageText;
 };
 
-} // namespace Internal
-} // namespace ResourceEditor
+} // ResourceEditor::Internal

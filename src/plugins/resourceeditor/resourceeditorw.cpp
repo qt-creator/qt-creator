@@ -27,9 +27,9 @@
 
 #include "resourceeditorconstants.h"
 #include "resourceeditorplugin.h"
-
-#include <resourceeditor/qrceditor/qrceditor.h>
-#include <resourceeditor/qrceditor/resourcefile_p.h>
+#include "resourceeditortr.h"
+#include "qrceditor/qrceditor.h"
+#include "qrceditor/resourcefile_p.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/commandbutton.h>
@@ -46,8 +46,7 @@
 
 using namespace Utils;
 
-namespace ResourceEditor {
-namespace Internal {
+namespace ResourceEditor::Internal {
 
 enum { debugResourceEditorW = 0 };
 
@@ -85,13 +84,13 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
     m_toolBar->addWidget(refreshButton);
 
     m_resourceEditor->setResourceDragEnabled(true);
-    m_contextMenu->addAction(tr("Open File"), this, &ResourceEditorW::openCurrentFile);
-    m_openWithMenu = m_contextMenu->addMenu(tr("Open With"));
-    m_renameAction = m_contextMenu->addAction(tr("Rename File..."), this,
+    m_contextMenu->addAction(Tr::tr("Open File"), this, &ResourceEditorW::openCurrentFile);
+    m_openWithMenu = m_contextMenu->addMenu(Tr::tr("Open With"));
+    m_renameAction = m_contextMenu->addAction(Tr::tr("Rename File..."), this,
                                               &ResourceEditorW::renameCurrentFile);
-    m_copyFileNameAction = m_contextMenu->addAction(tr("Copy Resource Path to Clipboard"),
+    m_copyFileNameAction = m_contextMenu->addAction(Tr::tr("Copy Resource Path to Clipboard"),
                                                     this, &ResourceEditorW::copyCurrentResourcePath);
-    m_orderList = m_contextMenu->addAction(tr("Sort Alphabetically"), this, &ResourceEditorW::orderList);
+    m_orderList = m_contextMenu->addAction(Tr::tr("Sort Alphabetically"), this, &ResourceEditorW::orderList);
 
     connect(m_resourceDocument, &ResourceEditorDocument::loaded,
             m_resourceEditor, &QrcEditor::loaded);
@@ -335,5 +334,4 @@ void ResourceEditorW::onRedo()
     m_resourceEditor->onRedo();
 }
 
-} // namespace Internal
-} // namespace ResourceEditor
+} // ResourceEditor::Internal

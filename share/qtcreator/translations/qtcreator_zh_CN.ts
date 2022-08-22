@@ -14336,7 +14336,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Creates a Qt Resource file (.qrc).</source>
         <translation type="obsolete">创建一个Qt 资源文件(.qrc).</translation>
@@ -14371,15 +14371,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorW</name>
-    <message>
-        <source>Open File</source>
-        <translation>打开文件</translation>
-    </message>
-    <message>
-        <source>Open With</source>
-        <translation>用...打开</translation>
-    </message>
+    <name>ResourceEditor</name>
     <message>
         <source>Rename File...</source>
         <translation>重命名文件...</translation>
@@ -49372,7 +49364,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::QrcEditor</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>添加文件</translation>
@@ -49423,7 +49415,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>ResourceFile</name>
+    <name>ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>文件名为空。</translation>
@@ -49442,7 +49434,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceView</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>打开文件</translation>

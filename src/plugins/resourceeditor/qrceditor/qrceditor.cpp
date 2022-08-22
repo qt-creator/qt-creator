@@ -24,6 +24,8 @@
 ****************************************************************************/
 
 #include "qrceditor.h"
+
+#include "resourceeditortr.h"
 #include "undocommands_p.h"
 
 #include <aggregation/aggregate.h>
@@ -39,8 +41,7 @@
 #include <QPushButton>
 #include <QScopedPointer>
 
-using namespace ResourceEditor;
-using namespace ResourceEditor::Internal;
+namespace ResourceEditor::Internal {
 
 QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
   : Core::MiniSplitter(Qt::Vertical, parent),
@@ -52,16 +53,16 @@ QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
     m_treeview->setFrameStyle(QFrame::NoFrame);
     m_treeview->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
-    auto addPrefixButton = new QPushButton(tr("Add Prefix"));
-    m_addFilesButton = new QPushButton(tr("Add Files"));
-    m_removeButton = new QPushButton(tr("Remove"));
-    m_removeNonExistingButton = new QPushButton(tr("Remove Missing Files"));
+    auto addPrefixButton = new QPushButton(Tr::tr("Add Prefix"));
+    m_addFilesButton = new QPushButton(Tr::tr("Add Files"));
+    m_removeButton = new QPushButton(Tr::tr("Remove"));
+    m_removeNonExistingButton = new QPushButton(Tr::tr("Remove Missing Files"));
 
-    m_aliasLabel = new QLabel(tr("Alias:"));
+    m_aliasLabel = new QLabel(Tr::tr("Alias:"));
     m_aliasText = new QLineEdit;
-    m_prefixLabel = new QLabel(tr("Prefix:"));
+    m_prefixLabel = new QLabel(Tr::tr("Prefix:"));
     m_prefixText = new QLineEdit;
-    m_languageLabel = new QLabel(tr("Language:"));
+    m_languageLabel = new QLabel(Tr::tr("Language:"));
     m_languageText = new QLineEdit;
 
     using namespace Utils::Layouting;
@@ -74,7 +75,7 @@ QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
             st,
         },
         Group {
-            title(tr("Properties")),
+            title(Tr::tr("Properties")),
             Form {
                 m_aliasLabel, m_aliasText, br,
                 m_prefixLabel, m_prefixText, br,
@@ -206,17 +207,18 @@ QAbstractButton *ResolveLocationContext::execLocationMessageBox(QWidget *parent,
 {
     if (messageBox.isNull()) {
         messageBox.reset(new QMessageBox(QMessageBox::Warning,
-                                         QrcEditor::tr("Invalid file location"),
+                                         Tr::tr("Invalid file location"),
                                          QString(), QMessageBox::NoButton, parent));
-        copyButton = messageBox->addButton(QrcEditor::tr("Copy"), QMessageBox::ActionRole);
-        abortButton = messageBox->addButton(QrcEditor::tr("Abort"), QMessageBox::RejectRole);
+        copyButton = messageBox->addButton(Tr::tr("Copy"), QMessageBox::ActionRole);
+        abortButton = messageBox->addButton(Tr::tr("Abort"), QMessageBox::RejectRole);
         messageBox->setDefaultButton(copyButton);
     }
     if (wantSkipButton && !skipButton) {
-        skipButton = messageBox->addButton(QrcEditor::tr("Skip"), QMessageBox::DestructiveRole);
+        skipButton = messageBox->addButton(Tr::tr("Skip"), QMessageBox::DestructiveRole);
         messageBox->setEscapeButton(skipButton);
     }
-    messageBox->setText(QrcEditor::tr("The file %1 is not in a subdirectory of the resource file. You now have the option to copy this file to a valid location.")
+    messageBox->setText(Tr::tr("The file %1 is not in a subdirectory of the resource file. "
+                               "You now have the option to copy this file to a valid location.")
                     .arg(QDir::toNativeSeparators(file)));
     messageBox->exec();
     return messageBox->clickedButton();
@@ -226,7 +228,7 @@ QString ResolveLocationContext::execCopyFileDialog(QWidget *parent, const QDir &
 {
     // Delayed creation of file dialog.
     if (copyFileDialog.isNull()) {
-        copyFileDialog.reset(new QFileDialog(parent, QrcEditor::tr("Choose Copy Location")));
+        copyFileDialog.reset(new QFileDialog(parent, Tr::tr("Choose Copy Location")));
         copyFileDialog->setFileMode(QFileDialog::AnyFile);
         copyFileDialog->setAcceptMode(QFileDialog::AcceptSave);
     }
@@ -251,15 +253,15 @@ static inline bool copyFile(const QString &file, const QString &copyName, QWidge
 {
     if (QFile::exists(copyName)) {
         if (!QFile::remove(copyName)) {
-            QMessageBox::critical(parent, QrcEditor::tr("Overwriting Failed"),
-                                  QrcEditor::tr("Could not overwrite file %1.")
+            QMessageBox::critical(parent, Tr::tr("Overwriting Failed"),
+                                  Tr::tr("Could not overwrite file %1.")
                                   .arg(QDir::toNativeSeparators(copyName)));
             return false;
         }
     }
     if (!QFile::copy(file, copyName)) {
-        QMessageBox::critical(parent, QrcEditor::tr("Copying Failed"),
-                              QrcEditor::tr("Could not copy the file to %1.")
+        QMessageBox::critical(parent, Tr::tr("Copying Failed"),
+                              Tr::tr("Could not copy the file to %1.")
                               .arg(QDir::toNativeSeparators(copyName)));
         return false;
     }
@@ -446,3 +448,5 @@ void QrcEditor::onRedo()
     updateCurrent();
     updateHistoryControls();
 }
+
+} // ResourceEditor::Internal

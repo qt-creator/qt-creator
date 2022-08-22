@@ -15796,7 +15796,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::0</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Resource file</source>
         <translation type="obsolete">Forrás fájl</translation>
@@ -15831,7 +15831,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Creates a Qt Resource file (.qrc).</source>
         <translation>Egy Qt forrásfájl létrehozása (.qrc).</translation>
@@ -15854,7 +15854,7 @@ Hogy ezt megtehesse, gépelje be ezt a gyorsbillentyűt és egy szóközt a Lok�
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorW</name>
+    <name>ResourceEditor</name>
     <message>
         <source>untitled</source>
         <translation>címtelen</translation>

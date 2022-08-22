@@ -35739,7 +35739,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::PrefixLangDialog</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Prefix:</source>
         <translation>Præfiks:</translation>
@@ -35750,7 +35750,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::QrcEditor</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>Tilføj filer</translation>
@@ -35801,7 +35801,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
+    <name>ResourceEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Fortryd</translation>
@@ -35863,10 +35863,6 @@ Derudover testes enhedens forbindelse.</translation>
         <translation>Kopiér URL&apos;en &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>Add Prefix</source>
-        <translation>Tilføj præfiks</translation>
-    </message>
-    <message>
         <source>Remove Prefix</source>
         <translation>Fjern præfiks</translation>
     </message>
@@ -35888,14 +35884,10 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorW</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Åbn fil</translation>
-    </message>
-    <message>
-        <source>Open With</source>
-        <translation>Åbn med</translation>
     </message>
     <message>
         <source>Rename File...</source>
@@ -35907,18 +35899,14 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceView</name>
-    <message>
-        <source>Open File</source>
-        <translation>Åbn fil</translation>
-    </message>
+    <name>ResourceEditor</name>
     <message>
         <source>All files (*)</source>
         <translation>Alle filer (*)</translation>
     </message>
 </context>
 <context>
-    <name>ResourceFile</name>
+    <name>ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>Filnavnet er tomt.</translation>

@@ -14154,7 +14154,7 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Creates a Qt Resource file (.qrc).</source>
         <translation type="obsolete">Vytvoří zdrojový soubor Qt (.qrc).</translation>
@@ -14216,10 +14216,6 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
         <translation>Otevřít v textovém editoru</translation>
     </message>
     <message>
-        <source>Add Prefix</source>
-        <translation>Přidat předponu</translation>
-    </message>
-    <message>
         <source>Remove Prefix</source>
         <translation>Odstranit předponu</translation>
     </message>
@@ -14245,7 +14241,7 @@ Další podrobnosti hledejte v /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorW</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Otevřít soubor</translation>
@@ -54428,7 +54424,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::QrcEditor</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>Přidat soubory</translation>
@@ -54479,7 +54475,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceFile</name>
+    <name>ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>Název souboru je prázdný.</translation>
@@ -54498,11 +54494,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceView</name>
-    <message>
-        <source>Open File</source>
-        <translation>Otevřít soubor</translation>
-    </message>
+    <name>ResourceEditor</name>
     <message>
         <source>All files (*)</source>
         <translation>Všechny soubory (*)</translation>
@@ -64132,14 +64124,7 @@ Tento průvodce vás provede základními kroky, které jsou nutné pro nasazen�
     </message>
 </context>
 <context>
-    <name>ResourceEditor::ResourceTopLevelNode</name>
-    <message>
-        <source>%1 Prefix: %2</source>
-        <translation>%1 Předpona: %2</translation>
-    </message>
-</context>
-<context>
-    <name>ResourceEditor::Internal::ResourceFolderNode</name>
+    <name>ResourceEditor</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation>%1 Předpona: %2</translation>

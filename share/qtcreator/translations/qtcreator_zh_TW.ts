@@ -8865,7 +8865,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Qt Resource file</source>
         <translation>Qt 資源檔</translation>
@@ -8888,7 +8888,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorW</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation type="unfinished">開啟檔案</translation>
@@ -33725,7 +33725,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::QrcEditor</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation type="unfinished">新增檔案</translation>
@@ -33776,7 +33776,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>ResourceFile</name>
+    <name>ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation type="unfinished">檔名為空。</translation>
@@ -33795,11 +33795,7 @@ Do you want to retry?</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceView</name>
-    <message>
-        <source>Open File</source>
-        <translation type="unfinished">開啟檔案</translation>
-    </message>
+    <name>ResourceEditor</name>
     <message>
         <source>All files (*)</source>
         <translation type="unfinished">所有檔案 (*)</translation>

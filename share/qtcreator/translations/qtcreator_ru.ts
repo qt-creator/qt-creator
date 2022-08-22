@@ -45697,7 +45697,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::PrefixLangDialog</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Prefix:</source>
         <translation>Префикс:</translation>
@@ -45708,7 +45708,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::QrcEditor</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Invalid file location</source>
         <translation>Неверное размещение файла</translation>
@@ -45751,7 +45751,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
+    <name>ResourceEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>От&amp;менить</translation>
@@ -45838,15 +45838,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorW</name>
-    <message>
-        <source>Open File</source>
-        <translation>Открыть файл</translation>
-    </message>
-    <message>
-        <source>Open With</source>
-        <translation>Открыть с помощью</translation>
-    </message>
+    <name>ResourceEditor</name>
     <message>
         <source>Rename File...</source>
         <translation>Переименовать файл...</translation>
@@ -45861,7 +45853,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceView</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Открытие файла</translation>
@@ -45872,7 +45864,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>ResourceFile</name>
+    <name>ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>Пустое имя файла.</translation>

@@ -21457,7 +21457,7 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Creates a Qt Resource file (.qrc) that you can add to a Qt Widget Project.</source>
         <translation type="vanished">Створення файлу ресурсів Qt (.qrc), який ви можете додати до проекту Qt Widget.</translation>
@@ -21523,10 +21523,6 @@ Remote stderr was: &apos;%1&apos;</source>
         <translation>Копіювати URL &quot;%1&quot;</translation>
     </message>
     <message>
-        <source>Add Prefix</source>
-        <translation>Додати префікс</translation>
-    </message>
-    <message>
         <source>Remove Prefix</source>
         <translation>Видалити префікс</translation>
     </message>
@@ -21552,15 +21548,7 @@ Remote stderr was: &apos;%1&apos;</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorW</name>
-    <message>
-        <source>Open File</source>
-        <translation>Відкрити файл</translation>
-    </message>
-    <message>
-        <source>Open With</source>
-        <translation>Відкрити за допомогою</translation>
-    </message>
+    <name>ResourceEditor</name>
     <message>
         <source>Rename File...</source>
         <translation>Перейменувати файл...</translation>
@@ -33801,7 +33789,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::QrcEditor</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>Додати файли</translation>
@@ -33852,7 +33840,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>ResourceFile</name>
+    <name>ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>Порожнє ім&apos;я файлу.</translation>
@@ -33871,7 +33859,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceView</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Відкрити файл</translation>
@@ -42929,14 +42917,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>ResourceEditor::ResourceTopLevelNode</name>
-    <message>
-        <source>%1 Prefix: %2</source>
-        <translation type="vanished">%1 Префікс: %2</translation>
-    </message>
-</context>
-<context>
-    <name>ResourceEditor::Internal::ResourceFolderNode</name>
+    <name>ResourceEditor</name>
     <message>
         <source>%1 Prefix: %2</source>
         <translation type="vanished">%1 Префікс: %2</translation>
@@ -48109,7 +48090,7 @@ The files in the Android package source directory are copied to the build direct
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::PrefixLangDialog</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Prefix:</source>
         <translation>Префікс:</translation>

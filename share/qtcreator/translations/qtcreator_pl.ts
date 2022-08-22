@@ -8922,7 +8922,7 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
+    <name>ResourceEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Cofnij</translation>
@@ -8964,10 +8964,6 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
         <translation>Otwórz w edytorze</translation>
     </message>
     <message>
-        <source>Open With</source>
-        <translation>Otwórz przy pomocy</translation>
-    </message>
-    <message>
         <source>Copy Path</source>
         <translation>Skopiuj ścieżkę</translation>
     </message>
@@ -8982,10 +8978,6 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     <message>
         <source>Copy URL &quot;%1&quot;</source>
         <translation>Skopiuj URL &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>Add Prefix</source>
-        <translation>Dodaj przedrostek</translation>
     </message>
     <message>
         <source>Remove Prefix</source>
@@ -9009,11 +9001,7 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorW</name>
-    <message>
-        <source>Open File</source>
-        <translation>Otwórz plik</translation>
-    </message>
+    <name>ResourceEditor</name>
     <message>
         <source>Open With</source>
         <translation>Otwórz przy pomocy</translation>
@@ -22944,7 +22932,7 @@ poinstruuje Qt Creatora o URI.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::QrcEditor</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation>Dodaj pliki</translation>
@@ -22995,7 +22983,7 @@ poinstruuje Qt Creatora o URI.</translation>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceView</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Otwórz plik</translation>
@@ -23700,7 +23688,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>ResourceFile</name>
+    <name>ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation>Nazwa pliku jest pusta.</translation>
@@ -33926,7 +33914,7 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::PrefixLangDialog</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Prefix:</source>
         <translation>Przedrostek:</translation>

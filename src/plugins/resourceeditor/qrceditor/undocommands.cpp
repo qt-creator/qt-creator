@@ -27,8 +27,7 @@
 
 #include <QModelIndex>
 
-using namespace ResourceEditor;
-using namespace ResourceEditor::Internal;
+namespace ResourceEditor::Internal {
 
 ViewCommand::ViewCommand(ResourceView *view)
         : m_view(view)
@@ -207,3 +206,5 @@ void AddEmptyPrefixCommand::undo()
             m_prefixArrayIndex, 0, QModelIndex());
     delete m_view->removeEntry(prefixModelIndex);
 }
+
+} // ResourceEditor::Internal

@@ -25,18 +25,18 @@
 
 #pragma once
 
+#include <coreplugin/idocument.h>
+
+#include <utils/textfileformat.h>
+
 #include <QAbstractItemModel>
 #include <QCoreApplication>
+#include <QIcon>
 #include <QMap>
 #include <QString>
 #include <QStringList>
-#include <QIcon>
 
-#include <coreplugin/idocument.h>
-#include <utils/textfileformat.h>
-
-namespace ResourceEditor {
-namespace Internal {
+namespace ResourceEditor::Internal {
 
 class File;
 struct Prefix;
@@ -126,8 +126,6 @@ using PrefixList = QList<Prefix *>;
 */
 class ResourceFile
 {
-    Q_DECLARE_TR_FUNCTIONS(ResourceFile)
-
 public:
     ResourceFile(const Utils::FilePath &filePath = {}, const QString &contents = {});
     ~ResourceFile();
@@ -332,5 +330,4 @@ private:
     bool m_resourceDragEnabled;
 };
 
-} // namespace Internal
-} // namespace ResourceEditor
+} // ResourceEditor::Internal

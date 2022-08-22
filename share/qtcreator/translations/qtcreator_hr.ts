@@ -37379,14 +37379,10 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::QrcEditor</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Add Files</source>
         <translation type="unfinished">Dodaj datoteke</translation>
-    </message>
-    <message>
-        <source>Add Prefix</source>
-        <translation type="unfinished">Dodaj prefiks</translation>
     </message>
     <message>
         <source>Invalid file location</source>
@@ -37430,7 +37426,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>ResourceFile</name>
+    <name>ResourceEditor</name>
     <message>
         <source>The file name is empty.</source>
         <translation type="unfinished"></translation>
@@ -37445,7 +37441,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceView</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Open File</source>
         <translation>Otvori datoteku</translation>
@@ -37456,7 +37452,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::PrefixLangDialog</name>
+    <name>ResourceEditor</name>
     <message>
         <source>Prefix:</source>
         <translation>Prefiks:</translation>
@@ -37467,7 +37463,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorPlugin</name>
+    <name>ResourceEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Poništi</translation>
@@ -37506,10 +37502,6 @@ Saving failed.</source>
     </message>
     <message>
         <source>Open in Editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Open With</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -37554,11 +37546,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>ResourceEditor::Internal::ResourceEditorW</name>
-    <message>
-        <source>Open File</source>
-        <translation>Otvori datoteku</translation>
-    </message>
+    <name>ResourceEditor</name>
     <message>
         <source>Open With</source>
         <translation type="unfinished"></translation>

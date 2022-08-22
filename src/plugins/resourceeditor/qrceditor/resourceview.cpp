@@ -25,15 +25,15 @@
 
 #include "resourceview.h"
 
+#include "../resourceeditortr.h"
 #include "undocommands_p.h"
 
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
 
-#include <QDebug>
-
 #include <QAction>
 #include <QApplication>
+#include <QDebug>
 #include <QFileDialog>
 #include <QHeaderView>
 #include <QInputDialog>
@@ -41,8 +41,7 @@
 #include <QMouseEvent>
 #include <QUndoStack>
 
-namespace ResourceEditor {
-namespace Internal {
+namespace ResourceEditor::Internal {
 
 ResourceView::ResourceView(RelativeResourceModel *model, QUndoStack *history, QWidget *parent) :
     Utils::TreeView(parent),
@@ -205,9 +204,9 @@ void ResourceView::refresh()
 
 QStringList ResourceView::fileNamesToAdd()
 {
-    return QFileDialog::getOpenFileNames(this, tr("Open File"),
+    return QFileDialog::getOpenFileNames(this, Tr::tr("Open File"),
             m_qrcModel->absolutePath(QString()),
-            tr("All files (*)"));
+            Tr::tr("All files (*)"));
 }
 
 QString ResourceView::currentAlias() const
@@ -359,5 +358,4 @@ bool ResourceView::resourceDragEnabled() const
     return m_qrcModel->resourceDragEnabled();
 }
 
-} // Internal
-} // ResourceEditor
+} // ResourceEditor::Internal

@@ -33,8 +33,7 @@ class QMenu;
 class QToolBar;
 QT_END_NAMESPACE
 
-namespace ResourceEditor {
-namespace Internal {
+namespace ResourceEditor::Internal {
 
 class RelativeResourceModel;
 class ResourceEditorPlugin;
@@ -125,5 +124,4 @@ public:
     friend class ResourceEditorDocument;
 };
 
-} // namespace Internal
-} // namespace ResourceEditor
+} // ResourceEditor::Internal
