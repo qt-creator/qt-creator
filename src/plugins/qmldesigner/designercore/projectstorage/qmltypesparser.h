@@ -24,10 +24,15 @@ public:
     using ProjectStorage = QmlDesigner::ProjectStorage<Sqlite::Database>;
     using PathCache = QmlDesigner::SourcePathCache<ProjectStorage, NonLockingMutex>;
 
+#ifdef QDS_HAS_QMLDOM
     QmlTypesParser(PathCache &pathCache, ProjectStorage &storage)
         : m_pathCache{pathCache}
         , m_storage{storage}
     {}
+#else
+    QmlTypesParser(PathCache &, ProjectStorage &)
+    {}
+#endif
 
     void parse(const QString &sourceContent,
                Storage::Synchronization::Imports &imports,
@@ -36,7 +41,10 @@ public:
 
 private:
     // m_pathCache and m_storage are only used when compiled for QDS
-    [[maybe_unused]] PathCache &m_pathCache;
-    [[maybe_unused]] ProjectStorage &m_storage;
+#ifdef QDS_HAS_QMLDOM
+    PathCache &m_pathCache;
+    ProjectStorage &m_storage;
+#endif
 };
+
 } // namespace QmlDesigner
