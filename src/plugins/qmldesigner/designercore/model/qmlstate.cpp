@@ -316,15 +316,15 @@ ModelNode QmlModelState::createQmlState(AbstractView *view, const PropertyListTy
 void QmlModelState::setAsDefault()
 {
     if ((!isBaseState()) && (modelNode().isValid())) {
-        view()->rootModelNode().variantProperty("state").setValue(name());
+        stateGroup().modelNode().variantProperty("state").setValue(name());
     }
 }
 
 bool QmlModelState::isDefault() const
 {
     if ((!isBaseState()) && (modelNode().isValid())) {
-        if (view()->rootModelNode().hasProperty("state")) {
-            return (view()->rootModelNode().variantProperty("state").value() == name());
+        if (stateGroup().modelNode().hasProperty("state")) {
+            return (stateGroup().modelNode().variantProperty("state").value() == name());
         }
     }
 
