@@ -181,12 +181,12 @@ OptionsPageWidget::OptionsPageWidget(const std::function<void()> &onApply, Fossi
                 s.logCount,
                 s.timelineWidth,
                 s.timeout,
-                Stretch()
+                st
                 },
                 s.disableAutosync
             },
         },
-        Stretch()
+        st
 
     }.attachTo(this);
 }
