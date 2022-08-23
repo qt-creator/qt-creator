@@ -25,7 +25,7 @@
 
 #include "qrceditor.h"
 
-#include "resourceeditortr.h"
+#include "../resourceeditortr.h"
 #include "undocommands_p.h"
 
 #include <aggregation/aggregate.h>

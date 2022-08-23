@@ -19,6 +19,7 @@ Project {
                 "resourceeditorconstants.h",
                 "resourceeditorfactory.cpp", "resourceeditorfactory.h",
                 "resourceeditorplugin.cpp", "resourceeditorplugin.h",
+                "resourceeditortr.h",
                 "resourceeditorw.cpp", "resourceeditorw.h",
                 "resource_global.h", "resourcenode.cpp", "resourcenode.h"
             ]
