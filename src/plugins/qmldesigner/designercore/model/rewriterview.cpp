@@ -486,6 +486,9 @@ void RewriterView::auxiliaryDataChanged(const ModelNode &node, const PropertyNam
             return;
     }
 
+    if (name == "matPrevEnv" || name == "matPrevEnvValue" || name == "matPrevModel")
+        return;
+
     m_textModifier->textDocument()->setModified(true);
 }
 
