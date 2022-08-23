@@ -40,6 +40,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QSpinBox>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -52,6 +53,7 @@ class GenericLinuxDeviceConfigurationWizardSetupPagePrivate
 public:
     QLineEdit *nameLineEdit;
     QLineEdit *hostNameLineEdit;
+    QSpinBox *sshPortSpinBox;
     QLineEdit *userNameLineEdit;
 
     LinuxDevice::Ptr device;
@@ -74,18 +76,21 @@ GenericLinuxDeviceConfigurationWizardSetupPage::GenericLinuxDeviceConfigurationW
 
     d->nameLineEdit = new QLineEdit(this);
     d->hostNameLineEdit = new QLineEdit(this);
+    d->sshPortSpinBox = new QSpinBox(this);
     d->userNameLineEdit = new QLineEdit(this);
 
     using namespace Layouting;
     Form {
         Tr::tr("The name to identify this configuration:"), d->nameLineEdit, br,
         Tr::tr("The device's host name or IP address:"), d->hostNameLineEdit, st, br,
+        Tr::tr("The device's SSH port number:"), d->sshPortSpinBox, st, br,
         Tr::tr("The username to log into the device:"), d->userNameLineEdit, st, br
     }.attachTo(this);
 
     setSubTitle(QLatin1String(" ")); // For Qt bug (background color)
     connect(d->nameLineEdit, &QLineEdit::textChanged, this, &QWizardPage::completeChanged);
     connect(d->hostNameLineEdit, &QLineEdit::textChanged, this, &QWizardPage::completeChanged);
+    connect(d->sshPortSpinBox, &QSpinBox::valueChanged, this, &QWizardPage::completeChanged);
     connect(d->userNameLineEdit, &QLineEdit::textChanged, this, &QWizardPage::completeChanged);
 }
 
@@ -98,6 +103,8 @@ void GenericLinuxDeviceConfigurationWizardSetupPage::initializePage()
 {
     d->nameLineEdit->setText(d->device->displayName());
     d->hostNameLineEdit->setText(d->device->sshParameters().host());
+    d->sshPortSpinBox->setValue(22);
+    d->sshPortSpinBox->setRange(1, 65535);
     d->userNameLineEdit->setText(d->device->sshParameters().userName());
 }
 
@@ -127,7 +134,7 @@ QUrl GenericLinuxDeviceConfigurationWizardSetupPage::url() const
     QUrl url;
     url.setHost(d->hostNameLineEdit->text().trimmed());
     url.setUserName(d->userNameLineEdit->text().trimmed());
-    url.setPort(22);
+    url.setPort(d->sshPortSpinBox->value());
     return url;
 }
 
