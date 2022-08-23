@@ -131,8 +131,11 @@ void LanguageClientManager::clientFinished(Client *client)
                 client->log(
                     tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS));
                 QTimer::singleShot(restartTimeoutS * 1000, client, [client]() { client->start(); });
-                for (TextEditor::TextDocument *document : clientDocs)
+                for (TextEditor::TextDocument *document : clientDocs) {
                     client->deactivateDocument(document);
+                    if (Core::EditorManager::currentEditor()->document() == document)
+                        TextEditor::IOutlineWidgetFactory::updateOutline();
+                }
                 return;
             }
             qCDebug(Log) << "client finished unexpectedly: " << client->name() << client;
@@ -401,8 +404,9 @@ void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *doc
             client->openDocument(document);
         else
             client->activateDocument(document);
+    } else if (Core::EditorManager::currentEditor()->document() == document) {
+        TextEditor::IOutlineWidgetFactory::updateOutline();
     }
-    TextEditor::IOutlineWidgetFactory::updateOutline();
 }
 
 void LanguageClientManager::logJsonRpcMessage(const LspLogMessage::MessageSender sender,

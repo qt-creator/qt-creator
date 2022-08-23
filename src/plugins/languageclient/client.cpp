@@ -843,6 +843,8 @@ void Client::activateDocument(TextEditor::TextDocument *document)
     document->setFormatter(new LanguageClientFormatter(document, this));
     for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
         updateEditorToolBar(editor);
+        if (editor == Core::EditorManager::currentEditor())
+            TextEditor::IOutlineWidgetFactory::updateOutline();
         if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
             TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
             widget->addHoverHandler(&d->m_hoverHandler);
@@ -1481,7 +1483,7 @@ void Client::setQuickFixAssistProvider(LanguageClientQuickFixProvider *provider)
 
 bool Client::supportsDocumentSymbols(const TextEditor::TextDocument *doc) const
 {
-    if (!doc)
+    if (!doc || !reachable())
         return false;
     DynamicCapabilities dc = dynamicCapabilities();
     if (dc.isRegistered(DocumentSymbolsRequest::methodName).value_or(false)) {
@@ -1981,14 +1983,6 @@ void ClientPrivate::initializeCallback(const InitializeRequest::Response &initRe
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " initialized";
     m_state = Client::Initialized;
     q->sendMessage(InitializeNotification(InitializedParams()));
-    std::optional<std::variant<bool, WorkDoneProgressOptions>> documentSymbolProvider
-        = q->capabilities().documentSymbolProvider();
-    if (documentSymbolProvider.has_value()) {
-        if (!std::holds_alternative<bool>(*documentSymbolProvider)
-            || std::get<bool>(*documentSymbolProvider)) {
-            TextEditor::IOutlineWidgetFactory::updateOutline();
-        }
-    }
 
     q->updateConfiguration(m_configuration);
 
