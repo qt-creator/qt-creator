@@ -206,9 +206,8 @@ QMimeData *OverviewModel::mimeData(const QModelIndexList &indexes) const
 
 void OverviewModel::update(CPlusPlus::Document::Ptr doc)
 {
-    m_cppDocument = doc;
-    if (doc)
-        m_updateTimer->start();
+    m_candidate = doc;
+    m_updateTimer->start();
 }
 
 int OverviewModel::editorRevision()
@@ -219,6 +218,8 @@ int OverviewModel::editorRevision()
 void OverviewModel::rebuild()
 {
     beginResetModel();
+    m_cppDocument = m_candidate;
+    m_candidate.reset();
     auto root = new SymbolItem;
     if (m_cppDocument)
         buildTree(root, true);

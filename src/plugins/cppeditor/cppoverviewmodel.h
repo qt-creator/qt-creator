@@ -80,6 +80,7 @@ private:
     void buildTree(SymbolItem *root, bool isRoot);
 
 private:
+    CPlusPlus::Document::Ptr m_candidate;
     CPlusPlus::Document::Ptr m_cppDocument;
     CPlusPlus::Overview m_overview;
     friend class SymbolItem;
