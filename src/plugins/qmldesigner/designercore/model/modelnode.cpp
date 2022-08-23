@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "modelnode.h"
-#include <abstractproperty.h>
 #include <model.h>
 #include <nodemetainfo.h>
 #include "internalnode_p.h"

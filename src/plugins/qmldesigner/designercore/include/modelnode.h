@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "abstractproperty.h"
 #include "qmldesignercorelib_global.h"
 #include <QPointer>
 #include <QList>
@@ -47,7 +48,6 @@ namespace Internal {
     using InternalPropertyPointer = QSharedPointer<InternalProperty>;
 }
 class NodeMetaInfo;
-class AbstractProperty;
 class BindingProperty;
 class VariantProperty;
 class SignalHandlerProperty;
