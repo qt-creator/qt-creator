@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "structuremodel.h"
 #include "scxmldocument.h"
+#include "scxmleditortr.h"
 #include "scxmltag.h"
+#include "structuremodel.h"
 
 #include <QMimeData>
 #include <QUndoStack>
@@ -200,7 +201,7 @@ bool StructureModel::dropMimeData(const QMimeData *data, Qt::DropAction action, 
 
     ScxmlTag *tag = getItem(p);
     if (tag && m_dragTag && tag != m_dragTag && (tag->tagType() == State || tag->tagType() == Parallel || tag->tagType() == Scxml)) {
-        m_document->undoStack()->beginMacro(tr("Change parent"));
+        m_document->undoStack()->beginMacro(Tr::tr("Change parent"));
         m_document->changeParent(m_dragTag, tag);
         m_document->undoStack()->endMacro();
         m_dragTag = nullptr;

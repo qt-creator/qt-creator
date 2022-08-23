@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "searchmodel.h"
+#include "scxmleditortr.h"
 #include "scxmltagutils.h"
+#include "searchmodel.h"
 
 using namespace ScxmlEditor::PluginInterface;
 using namespace ScxmlEditor::Common;
@@ -15,7 +16,7 @@ SearchModel::SearchModel(QObject *parent)
 QVariant SearchModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return section == 0 ? tr("Type") : tr("Name");
+        return section == 0 ? Tr::tr("Type") : Tr::tr("Name");
 
     return QVariant();
 }

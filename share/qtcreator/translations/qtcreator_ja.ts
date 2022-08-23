@@ -48040,14 +48040,11 @@ Output:
     </message>
 </context>
 <context>
-    <name>ScxmlEditor::Common::ColorSettings</name>
+    <name>ScxmlEditor</name>
     <message>
         <source>+</source>
         <translation>+</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorThemeDialog</name>
     <message>
         <source>Dialog</source>
         <translation>ダイアログ</translation>
@@ -48064,30 +48061,14 @@ Output:
         <source>Apply</source>
         <translation type="unfinished">適用</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::NavigatorSlider</name>
-    <message>
-        <source>+</source>
-        <translation>+</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Search</name>
     <message>
         <source>Search</source>
         <translation>検索</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StateView</name>
     <message>
         <source>Back</source>
         <translation>戻る</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Statistics</name>
     <message>
         <source>Time</source>
         <translation>タイム</translation>
@@ -48099,17 +48080,6 @@ Output:
     <message>
         <source>File</source>
         <translation>ファイル</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StatisticsDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>ダイアログ</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -55748,7 +55718,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>ScxmlEditor::Common::ColorThemes</name>
+    <name>ScxmlEditor</name>
     <message>
         <source>Modify Color Themes...</source>
         <translation>色のテーマを変更する...</translation>
@@ -55769,16 +55739,10 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Colors from SCXML Document</source>
         <translation>SCXML ドキュメントからの色</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorThemeItem</name>
     <message>
         <source>Pick Color</source>
         <translation>色を選ぶ</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorToolButton</name>
     <message>
         <source>Automatic Color</source>
         <translation>自動カラー</translation>
@@ -55787,9 +55751,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>More Colors...</source>
         <translation>他の色...</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::GraphicsView</name>
     <message>
         <source>SCXML Generation Failed</source>
         <translation>SCXML の生成に失敗しました</translation>
@@ -55798,9 +55759,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Loading document...</source>
         <translation>ドキュメントの読み込み...</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::MainWidget</name>
     <message>
         <source>State Color</source>
         <translation>状態の色</translation>
@@ -55857,16 +55815,10 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Could not save the screenshot.</source>
         <translation>スクリーンショットを保存できませんでした。</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Navigator</name>
     <message>
         <source>Navigator</source>
         <translation>ナビゲータ</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::SearchModel</name>
     <message>
         <source>Type</source>
         <translation>型</translation>
@@ -55875,9 +55827,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Name</source>
         <translation>名前</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StateProperties</name>
     <message>
         <source>Attributes</source>
         <translation>属性</translation>
@@ -55886,9 +55835,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Content</source>
         <translation>コンテンツ</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StatisticsModel</name>
     <message>
         <source>Tag</source>
         <translation>タグ</translation>
@@ -55897,9 +55843,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Count</source>
         <translation>カウント</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Structure</name>
     <message>
         <source>Common states</source>
         <translation>共通する状態</translation>
@@ -55936,16 +55879,10 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Add child</source>
         <translation>子を追加する</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StructureModel</name>
     <message>
         <source>Change parent</source>
         <translation>親を変更する</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::OutputPane::ErrorWidget</name>
     <message>
         <source>Errors(%1) / Warnings(%2) / Info(%3)</source>
         <translation>エラー(%1) / 警告(%2) / 情報(%3)</translation>
@@ -55959,23 +55896,12 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <translation>CSV ファイル (*.csv)</translation>
     </message>
     <message>
-        <source>Export Failed</source>
-        <translation>エクスポートに失敗しました</translation>
-    </message>
-    <message>
         <source>Cannot open file %1.</source>
         <translation>ファイル %1 を開けません。</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::OutputPane::WarningModel</name>
     <message>
         <source>Severity</source>
         <translation>重要度</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>型</translation>
     </message>
     <message>
         <source>Reason</source>
@@ -56011,9 +55937,6 @@ Description:	%4</source>
 理由: 	%3
 説明:	%4</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ActionHandler</name>
     <message>
         <source>Zoom In</source>
         <translation>拡大</translation>
@@ -56021,10 +55944,6 @@ Description:	%4</source>
     <message>
         <source>Zoom Out</source>
         <translation>縮小</translation>
-    </message>
-    <message>
-        <source>Navigator</source>
-        <translation>ナビゲータ</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -56039,10 +55958,6 @@ Description:	%4</source>
         <translation>貼り付け</translation>
     </message>
     <message>
-        <source>Align Left</source>
-        <translation>左揃え</translation>
-    </message>
-    <message>
         <source>Align Right</source>
         <translation>右揃え</translation>
     </message>
@@ -56055,20 +55970,6 @@ Description:	%4</source>
         <translation>下揃え</translation>
     </message>
     <message>
-        <source>Adjust Width</source>
-        <translation type="unfinished">幅の調整</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::BaseItem</name>
-    <message>
-        <source>Add child</source>
-        <translation>子を追加する</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ConnectableItem</name>
-    <message>
         <source>Add new state</source>
         <translation>新しい状態を追加します</translation>
     </message>
@@ -56076,9 +55977,6 @@ Description:	%4</source>
         <source>Move State</source>
         <translation>状態を遷移する</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::GraphicsScene</name>
     <message>
         <source>Align states</source>
         <translation>状態を揃える</translation>
@@ -56088,24 +55986,9 @@ Description:	%4</source>
         <translation>状態を調整する</translation>
     </message>
     <message>
-        <source>Cut</source>
-        <translation>切り取り</translation>
-    </message>
-    <message>
-        <source>Remove items</source>
-        <translation>項目を削除する</translation>
-    </message>
-    <message>
         <source>Re-layout</source>
         <translation>リレイアウト</translation>
     </message>
-    <message>
-        <source>Add new state</source>
-        <translation>新しい状態を追加します</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::IdWarningItem</name>
     <message>
         <source>State</source>
         <translation>状態</translation>
@@ -56122,9 +56005,6 @@ Description:	%4</source>
         <source>Duplicate ID (%1).</source>
         <translation>重複したID (%1)。</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::InitialWarningItem</name>
     <message>
         <source>Initial</source>
         <translation>初期</translation>
@@ -56137,19 +56017,9 @@ Description:	%4</source>
         <source>Too many initial states at the same level.</source>
         <translation>同じレベルの初期状態が多すぎます。</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::QuickTransitionItem</name>
     <message>
         <source>H</source>
         <translation>H</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::SCAttributeItemModel</name>
-    <message>
-        <source>Name</source>
-        <translation>名前</translation>
     </message>
     <message>
         <source>Value</source>
@@ -56163,24 +56033,13 @@ Description:	%4</source>
         <source> - value -</source>
         <translation> - 値 -</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::SCShapeProvider</name>
     <message>
         <source>Common States</source>
         <translation>共通する状態</translation>
     </message>
     <message>
-        <source>Initial</source>
-        <translation>初期</translation>
-    </message>
-    <message>
         <source>Final</source>
         <translation>最終</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation>状態</translation>
     </message>
     <message>
         <source>Parallel</source>
@@ -56190,9 +56049,6 @@ Description:	%4</source>
         <source>History</source>
         <translation>履歴</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ScxmlDocument</name>
     <message>
         <source>Unexpected element.</source>
         <translation>予想外のエレメント。</translation>
@@ -56240,10 +56096,6 @@ Row: %4, Column: %5
         <translation>XML をファイル %1 に保存できません。</translation>
     </message>
     <message>
-        <source>Cannot open file %1.</source>
-        <translation>ファイル %1. を開けません.</translation>
-    </message>
-    <message>
         <source>Add Tag</source>
         <translation>タグを追加する</translation>
     </message>
@@ -56251,23 +56103,6 @@ Row: %4, Column: %5
         <source>Remove Tag</source>
         <translation>タグを削除する</translation>
     </message>
-</context>
-<context>
-    <name>SXCMLTag::UnknownAttributeValue</name>
-    <message>
-        <source>Unknown</source>
-        <translation>不明</translation>
-    </message>
-</context>
-<context>
-    <name>SXCMLTag::UnknownAttributeName</name>
-    <message>
-        <source>Unknown</source>
-        <translation>不明</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ScxmlTag</name>
     <message>
         <source>Error in reading XML </source>
         <translation>XML の読み込みに失敗 </translation>
@@ -56281,16 +56116,9 @@ Row: %4, Column: %5
         <translation>アイテム</translation>
     </message>
     <message>
-        <source>Metadata</source>
-        <translation>メタデータ</translation>
-    </message>
-    <message>
         <source>Remove</source>
         <translation>削除</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ScxmlUiFactory</name>
     <message>
         <source>Created editor-instance.</source>
         <translation>エディタインスタンスを作成しました。</translation>
@@ -56299,9 +56127,6 @@ Row: %4, Column: %5
         <source>Editor-instance is not of the type ISCEditor.</source>
         <translation>エディタインスタンスは ISCEditor 型ではありません。</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::StateItem</name>
     <message>
         <source>Set as Initial</source>
         <translation>初期設定</translation>
@@ -56317,13 +56142,6 @@ Row: %4, Column: %5
     <message>
         <source>Change initial state</source>
         <translation>初期状態を変更する</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::StateWarningItem</name>
-    <message>
-        <source>State</source>
-        <translation>状態</translation>
     </message>
     <message>
         <source>Draw some transitions to state.</source>
@@ -56353,16 +56171,10 @@ Row: %4, Column: %5
         <source>No input connections (%1).</source>
         <translation>入力の接続がありません (%1)。</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::TransitionItem</name>
     <message>
         <source>Remove Point</source>
         <translation>ポイントを削除</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::TransitionWarningItem</name>
     <message>
         <source>Transition</source>
         <translation>トランジション</translation>
@@ -56375,9 +56187,6 @@ Row: %4, Column: %5
         <source>Not connected (%1).</source>
         <translation>接続されていません(%1)。</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Internal::ScxmlEditorData</name>
     <message>
         <source>Undo (Ctrl + Z)</source>
         <translation>元に戻す(Ctrl + Z)</translation>

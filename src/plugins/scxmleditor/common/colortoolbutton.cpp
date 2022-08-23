@@ -3,6 +3,8 @@
 
 #include "colortoolbutton.h"
 #include "colorpicker.h"
+#include "scxmleditortr.h"
+
 #include <QColorDialog>
 #include <QPainter>
 
@@ -42,11 +44,11 @@ ColorToolButton::ColorToolButton(const QString &key, const QString &iconName, co
     connect(this, &ColorToolButton::colorSelected, m_colorPickerAction, &ColorPickerAction::lastUsedColor);
 
     m_menu = new QMenu(this);
-    m_menu->addAction(QIcon(p), tr("Automatic Color"), this, &ColorToolButton::autoColorSelected);
+    m_menu->addAction(QIcon(p), Tr::tr("Automatic Color"), this, &ColorToolButton::autoColorSelected);
     m_menu->addSeparator();
     m_menu->addAction(m_colorPickerAction);
     m_menu->addSeparator();
-    m_menu->addAction(QIcon(QPixmap(":/scxmleditor/images/more_colors.png")), tr("More Colors..."), this, &ColorToolButton::showColorDialog);
+    m_menu->addAction(QIcon(QPixmap(":/scxmleditor/images/more_colors.png")), Tr::tr("More Colors..."), this, &ColorToolButton::showColorDialog);
     setMenu(m_menu);
 }
 

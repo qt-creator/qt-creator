@@ -1,13 +1,14 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "baseitem.h"
 #include "actionhandler.h"
 #include "actionprovider.h"
+#include "baseitem.h"
 #include "graphicsscene.h"
 #include "sceneutils.h"
 #include "scxmldocument.h"
 #include "scxmleditorconstants.h"
+#include "scxmleditortr.h"
 #include "scxmltagutils.h"
 #include "scxmluifactory.h"
 #include "stateitem.h"
@@ -185,7 +186,7 @@ void BaseItem::selectedMenuAction(const QAction *action)
         case TagUtils::AddChild: {
             const ScxmlDocument *document = tag->document();
             if (m_scene && document) {
-                document->undoStack()->beginMacro(tr("Add child"));
+                document->undoStack()->beginMacro(Tr::tr("Add child"));
                 SceneUtils::addChild(tag, data, m_scene);
                 document->undoStack()->endMacro();
             }

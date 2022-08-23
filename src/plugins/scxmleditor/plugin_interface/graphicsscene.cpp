@@ -1,14 +1,15 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "graphicsscene.h"
 #include "actionhandler.h"
 #include "actionprovider.h"
 #include "finalstateitem.h"
+#include "graphicsscene.h"
 #include "initialstateitem.h"
 #include "parallelitem.h"
 #include "sceneutils.h"
 #include "scxmleditorconstants.h"
+#include "scxmleditortr.h"
 #include "scxmltagutils.h"
 #include "scxmluifactory.h"
 #include "snapline.h"
@@ -96,7 +97,7 @@ qreal GraphicsScene::selectedMaxHeight() const
 void GraphicsScene::alignStates(int alignType)
 {
     if (alignType >= ActionAlignLeft && alignType <= ActionAlignVertical) {
-        m_document->undoStack()->beginMacro(tr("Align states"));
+        m_document->undoStack()->beginMacro(Tr::tr("Align states"));
         QRectF r = selectedBoundingRect();
 
         if (r.isValid()) {
@@ -149,7 +150,7 @@ void GraphicsScene::alignStates(int alignType)
 void GraphicsScene::adjustStates(int adjustType)
 {
     if (adjustType >= ActionAdjustWidth && adjustType <= ActionAdjustSize) {
-        m_document->undoStack()->beginMacro(tr("Adjust states"));
+        m_document->undoStack()->beginMacro(Tr::tr("Adjust states"));
         qreal maxw = selectedMaxWidth();
         qreal maxh = selectedMaxHeight();
 
@@ -170,7 +171,7 @@ void GraphicsScene::adjustStates(int adjustType)
 }
 void GraphicsScene::cut()
 {
-    m_document->undoStack()->beginMacro(tr("Cut"));
+    m_document->undoStack()->beginMacro(Tr::tr("Cut"));
     copy();
     removeSelectedItems();
     m_document->undoStack()->endMacro();
@@ -180,7 +181,7 @@ void GraphicsScene::removeSelectedItems()
 {
     QVector<ScxmlTag*> tags = SceneUtils::findRemovedTags(m_baseItems);
     if (!tags.isEmpty()) {
-        m_document->undoStack()->beginMacro(tr("Remove items"));
+        m_document->undoStack()->beginMacro(Tr::tr("Remove items"));
 
         // Then remove found tags
         for (int i = tags.count(); i--;) {
@@ -346,7 +347,7 @@ void GraphicsScene::init()
 
 void GraphicsScene::runLayoutToSelectedStates()
 {
-    m_document->undoStack()->beginMacro(tr("Re-layout"));
+    m_document->undoStack()->beginMacro(Tr::tr("Re-layout"));
 
     QVector<BaseItem*> selectedItems;
     for (BaseItem *node : qAsConst(m_baseItems)) {
@@ -625,7 +626,7 @@ ScxmlUiFactory *GraphicsScene::uiFactory() const
 
 void GraphicsScene::addConnectableItem(ItemType type, const QPointF &pos, BaseItem *parentItem)
 {
-    m_document->undoStack()->beginMacro(tr("Add new state"));
+    m_document->undoStack()->beginMacro(Tr::tr("Add new state"));
     ConnectableItem *newItem = SceneUtils::createItem(type, pos);
 
     if (newItem) {

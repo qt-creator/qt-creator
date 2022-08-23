@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "quicktransitionitem.h"
+#include "scxmleditortr.h"
+
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
 
@@ -100,7 +102,7 @@ void QuickTransitionItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
             painter->setPen(m_pen);
             painter->setBrush(Qt::white);
             painter->drawEllipse(m_stateRect.center(), 7, 7);
-            painter->drawText(m_stateRect, Qt::AlignCenter, tr("H"));
+            painter->drawText(m_stateRect, Qt::AlignCenter, Tr::tr("H"));
             break;
         default:
             break;

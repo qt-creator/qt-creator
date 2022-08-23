@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "scxmleditorconstants.h"
+#include "scxmleditortr.h"
 #include "warningmodel.h"
 
 #include <utils/algorithm.h>
@@ -77,13 +78,13 @@ QVariant WarningModel::headerData(int section, Qt::Orientation orientation, int 
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
         case 0:
-            return tr("Severity");
+            return Tr::tr("Severity");
         case 1:
-            return tr("Type");
+            return Tr::tr("Type");
         case 2:
-            return tr("Reason");
+            return Tr::tr("Reason");
         case 3:
-            return tr("Description");
+            return Tr::tr("Description");
         default:
             break;
         }
@@ -96,13 +97,13 @@ QString WarningModel::severityName(Warning::Severity severity) const
 {
     switch (severity) {
     case Warning::ErrorType:
-        return tr("Error");
+        return Tr::tr("Error");
     case Warning::WarningType:
-        return tr("Warning");
+        return Tr::tr("Warning");
     case Warning::InfoType:
-        return tr("Info");
+        return Tr::tr("Info");
     default:
-        return tr("Unknown");
+        return Tr::tr("Unknown");
     }
 }
 
@@ -144,7 +145,7 @@ QVariant WarningModel::data(const QModelIndex &index, int role) const
             break;
         }
         case Qt::ToolTipRole: {
-            return tr("Severity:\t%1\nType:     \t%2\nReason: \t%3\nDescription:\t%4")
+            return Tr::tr("Severity:\t%1\nType:     \t%2\nReason: \t%3\nDescription:\t%4")
                 .arg(severityName(it->severity()))
                 .arg(it->typeName())
                 .arg(it->reason())

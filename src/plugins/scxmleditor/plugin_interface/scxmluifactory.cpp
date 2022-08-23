@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "scxmluifactory.h"
 #include "genericscxmlplugin.h"
 #include "isceditor.h"
+#include "scxmleditortr.h"
+#include "scxmluifactory.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -90,10 +91,10 @@ void ScxmlUiFactory::initPlugins()
         if (instance) {
             auto scEditorInstance = qobject_cast<ISCEditor*>(instance);
             if (scEditorInstance) {
-                qDebug() << tr("Created editor-instance.");
+                qDebug() << Tr::tr("Created editor-instance.");
                 m_plugins << scEditorInstance;
             } else {
-                qWarning() << tr("Editor-instance is not of the type ISCEditor.");
+                qWarning() << Tr::tr("Editor-instance is not of the type ISCEditor.");
                 loader.unload();
             }
         }

@@ -37538,7 +37538,7 @@ Fehler: %5</translation>
     </message>
 </context>
 <context>
-    <name>ScxmlEditor::Common::ColorPicker</name>
+    <name>ScxmlEditor</name>
     <message>
         <source>Frame</source>
         <translation>Rahmen</translation>
@@ -37551,9 +37551,6 @@ Fehler: %5</translation>
         <source>Last used colors</source>
         <translation>Zuletzt benutzte Farben</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorSettings</name>
     <message>
         <source>+</source>
         <translation>+</translation>
@@ -37586,9 +37583,6 @@ Fehler: %5</translation>
         <source>Are you sure you want to delete color theme %1?</source>
         <translation>Sind Sie sicher, dass Sie das Farbschema %1 entfernen wollen?</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorThemeDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -37605,24 +37599,6 @@ Fehler: %5</translation>
         <source>Apply</source>
         <translation>Anwenden</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::NavigatorSlider</name>
-    <message>
-        <source>Frame</source>
-        <translation>Rahmen</translation>
-    </message>
-    <message>
-        <source>-</source>
-        <translation>-</translation>
-    </message>
-    <message>
-        <source>+</source>
-        <translation>+</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Search</name>
     <message>
         <source>Enter search term</source>
         <translation>Suchbegriff eingeben</translation>
@@ -37631,23 +37607,10 @@ Fehler: %5</translation>
         <source>Search</source>
         <translation>Suche</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ShapesToolbox</name>
-    <message>
-        <source>Frame</source>
-        <translation>Rahmen</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StateView</name>
     <message>
         <source>Back</source>
         <translation>Zurück</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Statistics</name>
     <message>
         <source>Time</source>
         <translation>Zeit</translation>
@@ -37667,17 +37630,6 @@ Fehler: %5</translation>
     <message>
         <source>yyyy/MM/dd hh:mm:ss</source>
         <translation>dd.MM.yyyy hh:mm:ss</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StatisticsDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>OK</translation>
     </message>
     <message>
         <source>Document Statistics</source>
@@ -39331,7 +39283,7 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
     </message>
 </context>
 <context>
-    <name>ScxmlEditor::Common::ColorThemes</name>
+    <name>ScxmlEditor</name>
     <message>
         <source>Modify Color Themes...</source>
         <translation>Farbschemata anpassen...</translation>
@@ -39352,16 +39304,10 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
         <source>Colors from SCXML Document</source>
         <translation>Farben aus SCXML-Dokument</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorThemeItem</name>
     <message>
         <source>Pick Color</source>
         <translation>Farbe auswählen</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorToolButton</name>
     <message>
         <source>Automatic Color</source>
         <translation>Automatische Farbe</translation>
@@ -39370,9 +39316,6 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
         <source>More Colors...</source>
         <translation>Mehr Farben...</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::GraphicsView</name>
     <message>
         <source>SCXML Generation Failed</source>
         <translation>SCXML-Erzeugung gescheitert</translation>
@@ -39381,9 +39324,6 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
         <source>Loading document...</source>
         <translation>Lade Dokument...</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::MainWidget</name>
     <message>
         <source>State Color</source>
         <translation>Zustandsfarbe</translation>
@@ -39440,16 +39380,10 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
         <source>Could not save the screenshot.</source>
         <translation>Screenshot konnte nicht gespeichert werden.</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Navigator</name>
     <message>
         <source>Navigator</source>
         <translation>Navigator</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::SearchModel</name>
     <message>
         <source>Type</source>
         <translation>Typ</translation>
@@ -39458,9 +39392,6 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
         <source>Name</source>
         <translation>Name</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StateProperties</name>
     <message>
         <source>Attributes</source>
         <translation>Attribute</translation>
@@ -39469,9 +39400,6 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
         <source>Content</source>
         <translation>Inhalt</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StatisticsModel</name>
     <message>
         <source>Tag</source>
         <translation>Tag</translation>
@@ -39480,9 +39408,6 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
         <source>Count</source>
         <translation>Anzahl</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Structure</name>
     <message>
         <source>Common states</source>
         <translation>Allgemeine Zustände</translation>
@@ -39519,16 +39444,10 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
         <source>Add child</source>
         <translation>Kindelement hinzufügen</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StructureModel</name>
     <message>
         <source>Change parent</source>
         <translation>Elternelement ändern</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::OutputPane::ErrorWidget</name>
     <message>
         <source>Errors(%1) / Warnings(%2) / Info(%3)</source>
         <translation>Fehler(%1) / Warnungen(%2) / Info(%3)</translation>
@@ -39542,23 +39461,12 @@ Bitte aktualisieren Sie Ihr Kit (%3) oder wählen Sie eine mkspec für qmake, di
         <translation>CSV-Dateien (*.csv)</translation>
     </message>
     <message>
-        <source>Export Failed</source>
-        <translation>Export gescheitert</translation>
-    </message>
-    <message>
         <source>Cannot open file %1.</source>
         <translation>Die Datei %1 kann nicht geöffnet werden.</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::OutputPane::WarningModel</name>
     <message>
         <source>Severity</source>
         <translation>Schwere</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Typ</translation>
     </message>
     <message>
         <source>Reason</source>
@@ -39594,9 +39502,6 @@ Typ:                	%2
 Grund:            	%3
 Beschreibung:	%4</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ActionHandler</name>
     <message>
         <source>Zoom In</source>
         <translation>Vergrößern</translation>
@@ -39636,10 +39541,6 @@ Beschreibung:	%4</translation>
     <message>
         <source>Magnifier Tool (Alt)</source>
         <translation>Vergrößerungswerkzeug (Alt)</translation>
-    </message>
-    <message>
-        <source>Navigator</source>
-        <translation>Navigator</translation>
     </message>
     <message>
         <source>Navigator (Ctrl+E)</source>
@@ -39686,10 +39587,6 @@ Beschreibung:	%4</translation>
         <translation>Vollständigen Namensraum umschalten</translation>
     </message>
     <message>
-        <source>Align Left</source>
-        <translation>Links ausrichten</translation>
-    </message>
-    <message>
         <source>Align Left (Ctrl+L,1)</source>
         <translation>Links ausrichten (Strg+L,1)</translation>
     </message>
@@ -39734,10 +39631,6 @@ Beschreibung:	%4</translation>
         <translation>Vertikal ausrichten (Strg+L,6)</translation>
     </message>
     <message>
-        <source>Adjust Width</source>
-        <translation>Breite anpassen</translation>
-    </message>
-    <message>
         <source>Adjust Width (Ctrl+L,7)</source>
         <translation>Breite anpassen (Strg+L,7)</translation>
     </message>
@@ -39765,16 +39658,6 @@ Beschreibung:	%4</translation>
         <source>Show Statistics</source>
         <translation>Statistiken anzeigen</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::BaseItem</name>
-    <message>
-        <source>Add child</source>
-        <translation>Kindelement hinzufügen</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ConnectableItem</name>
     <message>
         <source>Add new state</source>
         <translation>Einen neuen Zustand hinzufügen</translation>
@@ -39783,9 +39666,6 @@ Beschreibung:	%4</translation>
         <source>Move State</source>
         <translation>Zustand verschieben</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::GraphicsScene</name>
     <message>
         <source>Align states</source>
         <translation>Zustände ausrichten</translation>
@@ -39795,24 +39675,9 @@ Beschreibung:	%4</translation>
         <translation>Zustände anpassen</translation>
     </message>
     <message>
-        <source>Cut</source>
-        <translation>Ausschneiden</translation>
-    </message>
-    <message>
-        <source>Remove items</source>
-        <translation>Elemente entfernen</translation>
-    </message>
-    <message>
         <source>Re-layout</source>
         <translation>Neu anordnen</translation>
     </message>
-    <message>
-        <source>Add new state</source>
-        <translation>Einen neuen Zustand hinzufügen</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::IdWarningItem</name>
     <message>
         <source>State</source>
         <translation>Zustand</translation>
@@ -39829,9 +39694,6 @@ Beschreibung:	%4</translation>
         <source>Duplicate ID (%1).</source>
         <translation>Doppelte ID (%1).</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::InitialWarningItem</name>
     <message>
         <source>Initial</source>
         <translation>Ausgangszustand</translation>
@@ -39844,19 +39706,9 @@ Beschreibung:	%4</translation>
         <source>Too many initial states at the same level.</source>
         <translation>Zu viele Ausgangszustände auf der gleichen Ebene.</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::QuickTransitionItem</name>
     <message>
         <source>H</source>
         <translation>H</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::SCAttributeItemModel</name>
-    <message>
-        <source>Name</source>
-        <translation>Name</translation>
     </message>
     <message>
         <source>Value</source>
@@ -39870,24 +39722,13 @@ Beschreibung:	%4</translation>
         <source> - value -</source>
         <translation> - Wert -</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::SCShapeProvider</name>
     <message>
         <source>Common States</source>
         <translation>Allgemeine Zustände</translation>
     </message>
     <message>
-        <source>Initial</source>
-        <translation>Ausgangszustand</translation>
-    </message>
-    <message>
         <source>Final</source>
         <translation>Endzustand</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation>Zustand</translation>
     </message>
     <message>
         <source>Parallel</source>
@@ -39897,9 +39738,6 @@ Beschreibung:	%4</translation>
         <source>History</source>
         <translation>Verlauf</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ScxmlDocument</name>
     <message>
         <source>Unexpected element.</source>
         <translation>Unerwartetes Element.</translation>
@@ -39947,10 +39785,6 @@ Zeile: %4, Spalte: %5
         <translation>In die Datei %1 kann kein XML geschrieben werden.</translation>
     </message>
     <message>
-        <source>Cannot open file %1.</source>
-        <translation>Die Datei %1 kann nicht geöffnet werden.</translation>
-    </message>
-    <message>
         <source>Add Tag</source>
         <translation>Tag hinzufügen</translation>
     </message>
@@ -39958,23 +39792,6 @@ Zeile: %4, Spalte: %5
         <source>Remove Tag</source>
         <translation>Tag entfernen</translation>
     </message>
-</context>
-<context>
-    <name>SXCMLTag::UnknownAttributeValue</name>
-    <message>
-        <source>Unknown</source>
-        <translation>Unbekannt</translation>
-    </message>
-</context>
-<context>
-    <name>SXCMLTag::UnknownAttributeName</name>
-    <message>
-        <source>Unknown</source>
-        <translation>Unbekannt</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ScxmlTag</name>
     <message>
         <source>Error in reading XML </source>
         <translation>Fehler beim Lesen von XML </translation>
@@ -39988,16 +39805,9 @@ Zeile: %4, Spalte: %5
         <translation>Element</translation>
     </message>
     <message>
-        <source>Metadata</source>
-        <translation>Metadaten</translation>
-    </message>
-    <message>
         <source>Remove</source>
         <translation>Entfernen</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ScxmlUiFactory</name>
     <message>
         <source>Created editor-instance.</source>
         <translation>Editorinstanz erzeugt.</translation>
@@ -40006,9 +39816,6 @@ Zeile: %4, Spalte: %5
         <source>Editor-instance is not of the type ISCEditor.</source>
         <translation>Die Editorinstanz ist nicht vom Typ ISCEditor.</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::StateItem</name>
     <message>
         <source>Set as Initial</source>
         <translation>Als Ausgangszustand festlegen</translation>
@@ -40024,13 +39831,6 @@ Zeile: %4, Spalte: %5
     <message>
         <source>Change initial state</source>
         <translation>Ausgangszustand ändern</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::StateWarningItem</name>
-    <message>
-        <source>State</source>
-        <translation>Zustand</translation>
     </message>
     <message>
         <source>Draw some transitions to state.</source>
@@ -40060,16 +39860,10 @@ Zeile: %4, Spalte: %5
         <source>Draw some transitions from state.</source>
         <translation>Einige Übergänge vom Zustand zeichnen.</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::TransitionItem</name>
     <message>
         <source>Remove Point</source>
         <translation>Punkt entfernen</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::TransitionWarningItem</name>
     <message>
         <source>Transition</source>
         <translation>Übergang</translation>
@@ -40082,9 +39876,6 @@ Zeile: %4, Spalte: %5
         <source>Not connected (%1).</source>
         <translation>Nicht verbunden (%1).</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Internal::ScxmlEditorData</name>
     <message>
         <source>Undo (Ctrl + Z)</source>
         <translation>Rückgängig machen (Strg + Z)</translation>

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "scshapeprovider.h"
+#include "scxmleditortr.h"
 #include "scxmltag.h"
 
 #include <QDebug>
@@ -32,24 +33,24 @@ void SCShapeProvider::initGroups()
 
 void SCShapeProvider::init()
 {
-    ShapeGroup *group = addGroup(tr("Common States"));
-    group->addShape(createShape(tr("Initial"), QIcon(":/scxmleditor/images/initial.png"), QStringList() << "scxml"
+    ShapeGroup *group = addGroup(Tr::tr("Common States"));
+    group->addShape(createShape(Tr::tr("Initial"), QIcon(":/scxmleditor/images/initial.png"), QStringList() << "scxml"
                                                                                                         << "state"
                                                                                                         << "parallel",
         "<initial/>"));
-    group->addShape(createShape(tr("Final"), QIcon(":/scxmleditor/images/final.png"), QStringList() << "scxml"
+    group->addShape(createShape(Tr::tr("Final"), QIcon(":/scxmleditor/images/final.png"), QStringList() << "scxml"
                                                                                                     << "state"
                                                                                                     << "parallel",
         "<final/>"));
-    group->addShape(createShape(tr("State"), QIcon(":/scxmleditor/images/state.png"), QStringList() << "scxml"
+    group->addShape(createShape(Tr::tr("State"), QIcon(":/scxmleditor/images/state.png"), QStringList() << "scxml"
                                                                                                     << "state"
                                                                                                     << "parallel",
         "<state/>"));
-    group->addShape(createShape(tr("Parallel"), QIcon(":/scxmleditor/images/parallel.png"), QStringList() << "scxml"
+    group->addShape(createShape(Tr::tr("Parallel"), QIcon(":/scxmleditor/images/parallel.png"), QStringList() << "scxml"
                                                                                                           << "state"
                                                                                                           << "parallel",
         "<parallel/>"));
-    group->addShape(createShape(tr("History"), QIcon(":/scxmleditor/images/history.png"), QStringList() << "state"
+    group->addShape(createShape(Tr::tr("History"), QIcon(":/scxmleditor/images/history.png"), QStringList() << "state"
                                                                                                         << "parallel",
         "<history/>"));
 }

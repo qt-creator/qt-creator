@@ -4,6 +4,7 @@
 #pragma once
 
 #include "outputpane.h"
+#include "scxmleditortr.h"
 
 #include <utils/utilsicons.h>
 
@@ -39,7 +40,7 @@ public:
 
     QString title() const override
     {
-        return tr("Search");
+        return Tr::tr("Search");
     }
 
     QIcon icon() const override

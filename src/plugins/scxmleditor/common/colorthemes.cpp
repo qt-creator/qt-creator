@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "colorthemes.h"
 #include "colorthemedialog.h"
+#include "colorthemes.h"
 #include "colorthemeview.h"
 #include "scxmldocument.h"
 #include "scxmleditorconstants.h"
+#include "scxmleditortr.h"
 #include "scxmltag.h"
 
 #include <coreplugin/icore.h>
@@ -19,12 +20,12 @@ using namespace ScxmlEditor::Common;
 ColorThemes::ColorThemes(QObject *parent)
     : QObject(parent)
 {
-    m_modifyAction = new QAction(QIcon(":/scxmleditor/images/colorthemes.png"), tr("Modify Color Themes..."), this);
-    m_modifyAction->setToolTip(tr("Modify Color Theme"));
+    m_modifyAction = new QAction(QIcon(":/scxmleditor/images/colorthemes.png"), Tr::tr("Modify Color Themes..."), this);
+    m_modifyAction->setToolTip(Tr::tr("Modify Color Theme"));
 
     m_toolButton = new QToolButton;
     m_toolButton->setIcon(QIcon(":/scxmleditor/images/colorthemes.png"));
-    m_toolButton->setToolTip(tr("Select Color Theme"));
+    m_toolButton->setToolTip(Tr::tr("Select Color Theme"));
     m_toolButton->setPopupMode(QToolButton::InstantPopup);
 
     m_menu = new QMenu;
@@ -78,8 +79,8 @@ void ColorThemes::updateColorThemeMenu()
 
     for (const QString &key: keys) {
         const QString actionText = key == Constants::C_COLOR_SCHEME_DEFAULT
-                ? tr("Factory Default") : key == Constants::C_COLOR_SCHEME_SCXMLDOCUMENT
-                  ? tr("Colors from SCXML Document")
+                ? Tr::tr("Factory Default") : key == Constants::C_COLOR_SCHEME_SCXMLDOCUMENT
+                  ? Tr::tr("Colors from SCXML Document")
                   : key;
         QAction *action = m_menu->addAction(actionText, this, [this, key]() {
             selectColorTheme(key);

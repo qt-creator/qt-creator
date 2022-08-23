@@ -3,6 +3,7 @@
 
 #include "colorpicker.h"
 #include "scxmleditorconstants.h"
+#include "scxmleditortr.h"
 
 #include <utils/layoutbuilder.h>
 
@@ -47,9 +48,9 @@ ColorPicker::ColorPicker(const QString &key, QWidget *parent)
     }
     colorGrid.attachTo(basicColorContentFrame, WithoutMargins);
     Column {
-        tr("Basic Colors"),
+        Tr::tr("Basic Colors"),
         basicColorContentFrame,
-        tr("Last used colors"),
+        Tr::tr("Last used colors"),
         lastUsedColorContainer,
     }.attachTo(this);
 

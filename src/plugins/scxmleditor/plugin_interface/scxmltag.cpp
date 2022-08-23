@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "scxmltag.h"
 #include "scxmldocument.h"
 #include "scxmleditorconstants.h"
+#include "scxmleditortr.h"
+#include "scxmltag.h"
 #include "scxmltagutils.h"
 
 #include <QCoreApplication>
@@ -348,8 +349,7 @@ void ScxmlTag::setAttributeName(int ind, const QString &name)
         m_attributeNames[ind] = name;
     } else {
         m_attributeNames << name;
-        m_attributeValues << QCoreApplication::translate(
-            "SXCMLTag::UnknownAttributeValue", "Unknown");
+        m_attributeValues << Tr::tr("Unknown");
     }
 }
 
@@ -358,8 +358,7 @@ void ScxmlTag::setAttribute(int ind, const QString &value)
     if (ind >= 0 && ind < m_attributeNames.count())
         setAttribute(m_attributeNames[ind], value);
     else {
-        m_attributeNames << QCoreApplication::translate(
-            "SXCMLTag::UnknownAttributeName", "Unknown");
+        m_attributeNames << Tr::tr("Unknown");
         m_attributeValues << value;
     }
 }
@@ -641,7 +640,7 @@ void ScxmlTag::readXml(QXmlStreamReader &xml, bool checkCopyId)
                 childTag->readXml(xml, checkCopyId);
             }
         } else if (token == QXmlStreamReader::Invalid) {
-            qDebug() << ScxmlTag::tr("Error in reading XML ") << xml.error() << ":"
+            qDebug() << Tr::tr("Error in reading XML ") << xml.error() << ":"
                      << xml.errorString();
             break;
         }

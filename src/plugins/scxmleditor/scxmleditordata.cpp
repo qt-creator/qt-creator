@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "scxmleditordata.h"
 #include "mainwidget.h"
 #include "scxmleditorconstants.h"
+#include "scxmleditordata.h"
 #include "scxmleditordocument.h"
 #include "scxmleditorstack.h"
+#include "scxmleditortr.h"
 #include "scxmltexteditor.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -110,11 +111,11 @@ void ScxmlEditorData::fullInit()
     m_undoGroup = new QUndoGroup(m_widgetToolBar);
     m_undoAction = m_undoGroup->createUndoAction(m_widgetToolBar);
     m_undoAction->setIcon(Utils::Icons::UNDO_TOOLBAR.icon());
-    m_undoAction->setToolTip(tr("Undo (Ctrl + Z)"));
+    m_undoAction->setToolTip(Tr::tr("Undo (Ctrl + Z)"));
 
     m_redoAction = m_undoGroup->createRedoAction(m_widgetToolBar);
     m_redoAction->setIcon(Utils::Icons::REDO_TOOLBAR.icon());
-    m_redoAction->setToolTip(tr("Redo (Ctrl + Y)"));
+    m_redoAction->setToolTip(Tr::tr("Redo (Ctrl + Y)"));
 
     ActionManager::registerAction(m_undoAction, Core::Constants::UNDO, m_contexts);
     ActionManager::registerAction(m_redoAction, Core::Constants::REDO, m_contexts);
@@ -140,8 +141,8 @@ IEditor *ScxmlEditorData::createEditor()
 
     if (xmlEditor) {
         Utils::InfoBarEntry info(Id(Constants::INFO_READ_ONLY),
-                                 tr("This file can only be edited in <b>Design</b> mode."));
-        info.addCustomButton(tr("Switch Mode"), []() { ModeManager::activateMode(Core::Constants::MODE_DESIGN); });
+                                 Tr::tr("This file can only be edited in <b>Design</b> mode."));
+        info.addCustomButton(Tr::tr("Switch Mode"), []() { ModeManager::activateMode(Core::Constants::MODE_DESIGN); });
         xmlEditor->document()->infoBar()->addInfo(info);
     }
 

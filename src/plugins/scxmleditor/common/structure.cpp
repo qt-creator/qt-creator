@@ -1,16 +1,17 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "structure.h"
 #include "actionhandler.h"
 #include "actionprovider.h"
 #include "graphicsscene.h"
 #include "sceneutils.h"
-#include "scxmleditorconstants.h"
 #include "scxmldocument.h"
+#include "scxmleditorconstants.h"
+#include "scxmleditortr.h"
 #include "scxmlnamespace.h"
 #include "scxmltagutils.h"
 #include "scxmluifactory.h"
+#include "structure.h"
 #include "structuremodel.h"
 #include "treeview.h"
 
@@ -86,10 +87,10 @@ Structure::Structure(QWidget *parent)
 {
     createUi();
 
-    addCheckbox(tr("Common states"), State);
-    addCheckbox(tr("Metadata"), Metadata);
-    addCheckbox(tr("Other tags"), OnEntry);
-    addCheckbox(tr("Unknown tags"), UnknownTag);
+    addCheckbox(Tr::tr("Common states"), State);
+    addCheckbox(Tr::tr("Metadata"), Metadata);
+    addCheckbox(Tr::tr("Other tags"), OnEntry);
+    addCheckbox(Tr::tr("Unknown tags"), UnknownTag);
 
     m_tagVisibilityFrame->setVisible(false);
     connect(m_checkboxButton, &QToolButton::toggled, m_tagVisibilityFrame, &QFrame::setVisible);
@@ -220,7 +221,7 @@ void Structure::keyPressEvent(QKeyEvent *e)
         QModelIndex ind = m_proxyModel->mapToSource(m_structureView->currentIndex());
         auto tag = static_cast<ScxmlTag*>(ind.internalPointer());
         if (tag && m_currentDocument) {
-            m_currentDocument->undoStack()->beginMacro(tr("Remove items"));
+            m_currentDocument->undoStack()->beginMacro(Tr::tr("Remove items"));
             m_currentDocument->removeTag(tag);
             m_currentDocument->undoStack()->endMacro();
         }
@@ -230,7 +231,7 @@ void Structure::keyPressEvent(QKeyEvent *e)
 
 void Structure::createUi()
 {
-    auto titleLabel = new QLabel(tr("Structure"));
+    auto titleLabel = new QLabel(Tr::tr("Structure"));
     titleLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
     m_checkboxButton = new QToolButton;
@@ -278,8 +279,8 @@ void Structure::showMenu(const QModelIndex &index, const QPoint &globalPos)
         auto tag = static_cast<ScxmlTag*>(ind.internalPointer());
         if (tag) {
             auto menu = new QMenu;
-            menu->addAction(tr("Expand All"), m_structureView, &TreeView::expandAll);
-            menu->addAction(tr("Collapse All"), m_structureView, &TreeView::collapseAll);
+            menu->addAction(Tr::tr("Expand All"), m_structureView, &TreeView::expandAll);
+            menu->addAction(Tr::tr("Collapse All"), m_structureView, &TreeView::collapseAll);
             menu->addSeparator();
             menu->addAction(m_scene->actionHandler()->action(ActionCopy));
             menu->addAction(m_scene->actionHandler()->action(ActionPaste));
@@ -299,13 +300,13 @@ void Structure::showMenu(const QModelIndex &index, const QPoint &globalPos)
                 QVariantMap data = selectedAction->data().toMap();
                 int actionType = data.value(Constants::C_SCXMLTAG_ACTIONTYPE, -1).toInt();
                 if (actionType == TagUtils::Remove) {
-                    m_currentDocument->undoStack()->beginMacro(tr("Remove items"));
+                    m_currentDocument->undoStack()->beginMacro(Tr::tr("Remove items"));
                     m_currentDocument->setCurrentTag(tag);
                     m_currentDocument->removeTag(tag);
                     m_currentDocument->setCurrentTag(nullptr);
                     m_currentDocument->undoStack()->endMacro();
                 } else if (actionType == TagUtils::AddChild) {
-                    tag->document()->undoStack()->beginMacro(tr("Add child"));
+                    tag->document()->undoStack()->beginMacro(Tr::tr("Add child"));
                     ScxmlTag *childTag = (tag->tagType() == TagType::Else
                                           || tag->tagType() == TagType::ElseIf)
                             ? SceneUtils::addSibling(tag, data, m_scene)

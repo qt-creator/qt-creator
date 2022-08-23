@@ -1,7 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "transitionitem.h"
 #include "connectableitem.h"
 #include "cornergrabberitem.h"
 #include "finalstateitem.h"
@@ -11,11 +10,13 @@
 #include "sceneutils.h"
 #include "scxmldocument.h"
 #include "scxmleditorconstants.h"
+#include "scxmleditortr.h"
 #include "scxmltagutils.h"
 #include "scxmluifactory.h"
 #include "serializer.h"
 #include "stateitem.h"
 #include "tagtextitem.h"
+#include "transitionitem.h"
 
 #include <QBrush>
 #include <QDebug>
@@ -395,7 +396,7 @@ void TransitionItem::createContextMenu(QMenu *menu)
     if (m_selectedGrabberIndex > 0) {
         data[Constants::C_SCXMLTAG_ACTIONTYPE] = TagUtils::RemovePoint;
         data["cornerIndex"] = m_selectedGrabberIndex;
-        menu->addAction(tr("Remove Point"))->setData(data);
+        menu->addAction(Tr::tr("Remove Point"))->setData(data);
     }
 
     menu->addSeparator();

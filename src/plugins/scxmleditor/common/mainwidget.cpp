@@ -13,6 +13,7 @@
 #include "navigator.h"
 #include "outputtabwidget.h"
 #include "scxmleditorconstants.h"
+#include "scxmleditortr.h"
 #include "scxmltagutils.h"
 #include "scxmluifactory.h"
 #include "search.h"
@@ -326,10 +327,10 @@ void MainWidget::init()
     });
 
     // Init ToolButtons
-    auto stateColorButton = new ColorToolButton("StateColor", ":/scxmleditor/images/state_color.png", tr("State Color"));
-    auto fontColorButton = new ColorToolButton("FontColor", ":/scxmleditor/images/font_color.png", tr("Font Color"));
-    QToolButton *alignToolButton = createToolButton(toolButtonIcon(ActionAlignLeft), tr("Align Left"), QToolButton::MenuButtonPopup);
-    QToolButton *adjustToolButton = createToolButton(toolButtonIcon(ActionAdjustWidth), tr("Adjust Width"), QToolButton::MenuButtonPopup);
+    auto stateColorButton = new ColorToolButton("StateColor", ":/scxmleditor/images/state_color.png", Tr::tr("State Color"));
+    auto fontColorButton = new ColorToolButton("FontColor", ":/scxmleditor/images/font_color.png", Tr::tr("Font Color"));
+    QToolButton *alignToolButton = createToolButton(toolButtonIcon(ActionAlignLeft), Tr::tr("Align Left"), QToolButton::MenuButtonPopup);
+    QToolButton *adjustToolButton = createToolButton(toolButtonIcon(ActionAdjustWidth), Tr::tr("Adjust Width"), QToolButton::MenuButtonPopup);
 
     // Connect state color change
     connect(stateColorButton, &ColorToolButton::colorSelected, [this](const QString &color) {
@@ -361,12 +362,12 @@ void MainWidget::init()
             view->scene()->adjustStates(adjustToolButton->property("currentAdjustment").toInt());
     });
 
-    auto alignmentMenu = new QMenu(tr("Alignment"), this);
+    auto alignmentMenu = new QMenu(Tr::tr("Alignment"), this);
     for (int i = ActionAlignLeft; i <= ActionAlignVertical; ++i)
         alignmentMenu->addAction(m_actionHandler->action(ActionType(i)));
     alignToolButton->setMenu(alignmentMenu);
 
-    auto adjustmentMenu = new QMenu(tr("Adjustment"), this);
+    auto adjustmentMenu = new QMenu(Tr::tr("Adjustment"), this);
     for (int i = ActionAdjustWidth; i <= ActionAdjustSize; ++i)
         adjustmentMenu->addAction(m_actionHandler->action(ActionType(i)));
     adjustToolButton->setMenu(adjustmentMenu);
@@ -400,7 +401,7 @@ QString saveImageFileFilter()
     const auto imageFormats = QImageWriter::supportedImageFormats();
     const QByteArrayList supportedFormats = Utils::transform(imageFormats, [](const QByteArray &in)
         { return QByteArray{"*." + in}; });
-    return MainWidget::tr("Images (%1)").arg(QString::fromUtf8(supportedFormats.join(' ')));
+    return ScxmlEditor::Tr::tr("Images (%1)").arg(QString::fromUtf8(supportedFormats.join(' ')));
 }
 
 void MainWidget::exportToImage()
@@ -411,7 +412,7 @@ void MainWidget::exportToImage()
 
     QString suggestedFileName = QFileInfo(m_document->fileName()).baseName();
     if (suggestedFileName.isEmpty())
-        suggestedFileName = tr("Untitled");
+        suggestedFileName = Tr::tr("Untitled");
 
     QSettings *s = Core::ICore::settings();
     const QString documentsLocation = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
@@ -422,7 +423,7 @@ void MainWidget::exportToImage()
             .arg(suggestedFileName)
             .arg(QDateTime::currentDateTime().toString("yyyyMMddhhmmss"));
     const FilePath filePath = FileUtils::getSaveFilePath(this,
-                                                         tr("Export Canvas to Image"),
+                                                         Tr::tr("Export Canvas to Image"),
                                                          FilePath::fromString(suggestedFileName),
                                                          saveImageFileFilter());
     if (!filePath.isEmpty()) {
@@ -436,7 +437,7 @@ void MainWidget::exportToImage()
         if (image.save(filePath.toString())) {
             s->setValue(Constants::C_SETTINGS_LASTEXPORTFOLDER, filePath.parentDir().toString());
         } else {
-            QMessageBox::warning(this, tr("Export Failed"), tr("Could not export to image."));
+            QMessageBox::warning(this, Tr::tr("Export Failed"), Tr::tr("Could not export to image."));
         }
     }
 }
@@ -452,7 +453,7 @@ void MainWidget::saveScreenShot()
     const FilePath lastFolder = FilePath::fromVariant(
             s->value(Constants::C_SETTINGS_LASTSAVESCREENSHOTFOLDER, documentsLocation));
     const FilePath filePath = FileUtils::getSaveFilePath(this,
-                                                         tr("Save Screenshot"),
+                                                         Tr::tr("Save Screenshot"),
                                                          lastFolder / "scxml_screenshot.png",
                                                          saveImageFileFilter());
     if (!filePath.isEmpty()) {
@@ -461,7 +462,7 @@ void MainWidget::saveScreenShot()
         if (image.save(filePath.toString())) {
             s->setValue(Constants::C_SETTINGS_LASTSAVESCREENSHOTFOLDER, filePath.parentDir().toVariant());
         } else {
-            QMessageBox::warning(this, tr("Saving Failed"), tr("Could not save the screenshot."));
+            QMessageBox::warning(this, Tr::tr("Saving Failed"), Tr::tr("Could not save the screenshot."));
         }
     }
 }

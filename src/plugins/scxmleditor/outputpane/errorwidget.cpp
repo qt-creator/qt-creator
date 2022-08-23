@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "errorwidget.h"
-#include "tableview.h"
 #include "scxmleditorconstants.h"
+#include "scxmleditortr.h"
+#include "tableview.h"
 
 #include <QLayout>
 #include <QFile>
@@ -142,7 +143,7 @@ void ErrorWidget::updateWarnings()
     int warningCount = m_warningModel->count(Warning::WarningType);
     int infoCount = m_warningModel->count(Warning::InfoType);
 
-    m_title = tr("Errors(%1) / Warnings(%2) / Info(%3)").arg(errorCount).arg(warningCount).arg(infoCount);
+    m_title = Tr::tr("Errors(%1) / Warnings(%2) / Info(%3)").arg(errorCount).arg(warningCount).arg(infoCount);
     if (errorCount > 0)
         m_icon = m_showErrors->icon();
     else if (warningCount > 0)
@@ -184,13 +185,13 @@ QString ErrorWidget::modifyExportedValue(const QString &val)
 
 void ErrorWidget::exportWarnings()
 {
-    FilePath fileName = FileUtils::getSaveFilePath(this, tr("Export to File"), {}, tr("CSV files (*.csv)"));
+    FilePath fileName = FileUtils::getSaveFilePath(this, Tr::tr("Export to File"), {}, Tr::tr("CSV files (*.csv)"));
     if (fileName.isEmpty())
         return;
 
     QFile file(fileName.toString());
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, tr("Export Failed"), tr("Cannot open file %1.").arg(fileName.toUserOutput()));
+        QMessageBox::warning(this, Tr::tr("Export Failed"), Tr::tr("Cannot open file %1.").arg(fileName.toUserOutput()));
         file.close();
         return;
     }

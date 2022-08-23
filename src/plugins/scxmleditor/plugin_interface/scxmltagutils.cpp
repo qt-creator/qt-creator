@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "scxmltagutils.h"
 #include "scxmldocument.h"
 #include "scxmleditorconstants.h"
+#include "scxmleditortr.h"
+#include "scxmltagutils.h"
 #include "serializer.h"
 
 #include <utils/qtcassert.h>
@@ -55,20 +56,20 @@ void createChildMenu(const ScxmlTag *tag, QMenu *menu, bool addRemove)
 
     if (tag->tagType() == UnknownTag) {
         data[Constants::C_SCXMLTAG_TAGTYPE] = UnknownTag;
-        menu->addAction(ScxmlTag::tr("New Tag"))->setData(data);
+        menu->addAction(Tr::tr("New Tag"))->setData(data);
     } else if (tag->tagType() == Metadata) {
         data[Constants::C_SCXMLTAG_TAGTYPE] = MetadataItem;
-        menu->addAction(ScxmlTag::tr("Item"))->setData(data);
+        menu->addAction(Tr::tr("Item"))->setData(data);
     } else {
         data[Constants::C_SCXMLTAG_PARENTTAG] = Metadata;
         data[Constants::C_SCXMLTAG_TAGTYPE] = MetadataItem;
-        menu->addAction(ScxmlTag::tr("Metadata"))->setData(data);
+        menu->addAction(Tr::tr("Metadata"))->setData(data);
     }
 
     if (addRemove) {
         menu->addSeparator();
         data[Constants::C_SCXMLTAG_ACTIONTYPE] = Remove;
-        QAction *act = menu->addAction(ScxmlTag::tr("Remove"));
+        QAction *act = menu->addAction(Tr::tr("Remove"));
         act->setData(data);
         act->setEnabled(!tag->isRootTag());
     }

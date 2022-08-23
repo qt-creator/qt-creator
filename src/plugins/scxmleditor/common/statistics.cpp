@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "scxmldocument.h"
+#include "scxmleditortr.h"
 #include "scxmltag.h"
 #include "statistics.h"
 #include "warningmodel.h"
@@ -82,9 +83,9 @@ QVariant StatisticsModel::headerData(int section, Qt::Orientation orientation, i
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch (section) {
         case 0:
-            return tr("Tag");
+            return Tr::tr("Tag");
         case 1:
-            return tr("Count");
+            return Tr::tr("Count");
         default:
             break;
         }
@@ -123,7 +124,7 @@ Statistics::Statistics(QWidget *parent)
     m_levels = new QLabel;
 
     m_timeLabel = new QLabel;
-    m_timeLabel->setText(QDateTime::currentDateTime().toString(tr("yyyy/MM/dd hh:mm:ss")));
+    m_timeLabel->setText(QDateTime::currentDateTime().toString(Tr::tr("yyyy/MM/dd hh:mm:ss")));
 
     m_proxyModel = new QSortFilterProxyModel(this);
     m_proxyModel->setFilterKeyColumn(-1);
@@ -136,9 +137,9 @@ Statistics::Statistics(QWidget *parent)
 
     using namespace Utils::Layouting;
     Grid {
-        tr("File"), m_fileNameLabel, br,
-        tr("Time"), m_timeLabel, br,
-        tr("Max. levels"), m_levels, br,
+        Tr::tr("File"), m_fileNameLabel, br,
+        Tr::tr("Time"), m_timeLabel, br,
+        Tr::tr("Max. levels"), m_levels, br,
         Span(2, m_statisticsView), br
     }.attachTo(this, WithoutMargins);
 }

@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "stateproperties.h"
 #include "attributeitemdelegate.h"
 #include "attributeitemmodel.h"
 #include "scxmleditorconstants.h"
+#include "scxmleditortr.h"
 #include "scxmluifactory.h"
+#include "stateproperties.h"
 
 #include <coreplugin/minisplitter.h>
 
@@ -99,7 +100,7 @@ void StateProperties::setUIFactory(ScxmlUiFactory *factory)
 
 void StateProperties::createUi()
 {
-    auto titleLabel = new QLabel(tr("Attributes"));
+    auto titleLabel = new QLabel(Tr::tr("Attributes"));
     titleLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
     m_currentTagName = new QLabel;
@@ -123,7 +124,7 @@ void StateProperties::createUi()
 
     m_contentFrame = new QWidget;
     m_contentFrame->setLayout(new QVBoxLayout);
-    m_contentFrame->layout()->addWidget(new QLabel(tr("Content")));
+    m_contentFrame->layout()->addWidget(new QLabel(Tr::tr("Content")));
     m_contentFrame->layout()->addWidget(m_contentEdit);
 
     auto splitter = new Core::MiniSplitter;

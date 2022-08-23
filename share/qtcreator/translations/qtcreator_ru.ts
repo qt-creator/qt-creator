@@ -45926,14 +45926,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>SXCMLTag::UnknownAttributeName</name>
-    <message>
-        <source>Unknown</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>SXCMLTag::UnknownAttributeValue</name>
+    <name>ScxmlEditor</name>
     <message>
         <source>Unknown</source>
         <translation>Неизвестное</translation>
@@ -45947,7 +45940,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>ScxmlEditor::Common::ColorPicker</name>
+    <name>ScxmlEditor</name>
     <message>
         <source>Frame</source>
         <translation>Рамка</translation>
@@ -45960,9 +45953,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Last used colors</source>
         <translation>Недавние использованные цвета</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorSettings</name>
     <message>
         <source>+</source>
         <translation>+</translation>
@@ -45995,9 +45985,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Are you sure you want to delete color theme %1?</source>
         <translation>Удалить цветовую тему %1?</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorThemeDialog</name>
     <message>
         <source>Dialog</source>
         <translation></translation>
@@ -46014,16 +46001,10 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Apply</source>
         <translation>Применить</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorThemeItem</name>
     <message>
         <source>Pick Color</source>
         <translation>Захватить цвет</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorThemes</name>
     <message>
         <source>Modify Color Themes...</source>
         <translation>Изменить цветовые схемы...</translation>
@@ -46044,9 +46025,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Colors from SCXML Document</source>
         <translation>Цвета из документа SCXML</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorToolButton</name>
     <message>
         <source>Automatic Color</source>
         <translation>Автоматический цвет</translation>
@@ -46055,9 +46033,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>More Colors...</source>
         <translation>Больше цветов...</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::GraphicsView</name>
     <message>
         <source>SCXML Generation Failed</source>
         <translation>Не удалось создать SCXML</translation>
@@ -46066,9 +46041,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Loading document...</source>
         <translation>Загрузка документа...</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::MainWidget</name>
     <message>
         <source>State Color</source>
         <translation>Цвет состояния</translation>
@@ -46125,31 +46097,10 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Could not save the screenshot.</source>
         <translation>Не удалось сохранить снимок экрана.</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Navigator</name>
     <message>
         <source>Navigator</source>
         <translation>Навигатор</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::NavigatorSlider</name>
-    <message>
-        <source>Frame</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>-</source>
-        <translation>-</translation>
-    </message>
-    <message>
-        <source>+</source>
-        <translation>+</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Search</name>
     <message>
         <source>Enter search term</source>
         <translation>Введите термин для поиска</translation>
@@ -46158,9 +46109,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Search</source>
         <translation>Поиск</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::SearchModel</name>
     <message>
         <source>Type</source>
         <translation>Тип</translation>
@@ -46169,16 +46117,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Name</source>
         <translation>Имя</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ShapesToolbox</name>
-    <message>
-        <source>Frame</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StateProperties</name>
     <message>
         <source>Attributes</source>
         <translation>Атрибуты</translation>
@@ -46187,16 +46125,10 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Content</source>
         <translation>Содержимое</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StateView</name>
     <message>
         <source>Back</source>
         <translation>Назад</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Statistics</name>
     <message>
         <source>Time</source>
         <translation>Время</translation>
@@ -46217,24 +46149,10 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>yyyy/MM/dd hh:mm:ss</source>
         <translation>yyyy/MM/dd hh:mm:ss</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StatisticsDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>OK</translation>
-    </message>
     <message>
         <source>Document Statistics</source>
         <translation>Статистика документа</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StatisticsModel</name>
     <message>
         <source>Tag</source>
         <translation>Тег</translation>
@@ -46243,9 +46161,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Count</source>
         <translation>Число</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Structure</name>
     <message>
         <source>Common states</source>
         <translation>Общие состояния</translation>
@@ -46282,16 +46197,10 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Add child</source>
         <translation>Добавить потомка</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StructureModel</name>
     <message>
         <source>Change parent</source>
         <translation>Сменить родителя</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Internal::ScxmlEditorData</name>
     <message>
         <source>Undo (Ctrl + Z)</source>
         <translation>Отменить (Ctrl+Z)</translation>
@@ -46308,9 +46217,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <source>Switch Mode</source>
         <translation>Переключить режим</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::OutputPane::ErrorWidget</name>
     <message>
         <source>Errors(%1) / Warnings(%2) / Info(%3)</source>
         <translation>Ошибки(%1) / Предупреждения(%2) / Информация(%3)</translation>
@@ -46324,23 +46230,12 @@ If you do not have a private key yet, you can also create one here.</source>
         <translation>Экспорт в файл</translation>
     </message>
     <message>
-        <source>Export Failed</source>
-        <translation>Ошибка экспорта</translation>
-    </message>
-    <message>
         <source>Cannot open file %1.</source>
         <translation>Невозможно открыть файл %1.</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::OutputPane::WarningModel</name>
     <message>
         <source>Severity</source>
         <translation>Строгость</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Тип</translation>
     </message>
     <message>
         <source>Reason</source>
@@ -46363,10 +46258,6 @@ If you do not have a private key yet, you can also create one here.</source>
         <translation>Информация</translation>
     </message>
     <message>
-        <source>Unknown</source>
-        <translation>Неизвестно</translation>
-    </message>
-    <message>
         <source>Severity:	%1
 Type:     	%2
 Reason: 	%3
@@ -46376,9 +46267,6 @@ Description:	%4</source>
 Причина: 	%3
 Описание:	%4</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ActionHandler</name>
     <message>
         <source>Zoom In</source>
         <translation>Увеличить</translation>
@@ -46418,10 +46306,6 @@ Description:	%4</source>
     <message>
         <source>Magnifier Tool (Alt)</source>
         <translation>Лупа (Alt)</translation>
-    </message>
-    <message>
-        <source>Navigator</source>
-        <translation>Навигатор</translation>
     </message>
     <message>
         <source>Navigator (Ctrl+E)</source>
@@ -46468,10 +46352,6 @@ Description:	%4</source>
         <translation>Переключить пространство имён</translation>
     </message>
     <message>
-        <source>Align Left</source>
-        <translation>По левому краю</translation>
-    </message>
-    <message>
         <source>Align Left (Ctrl+L,1)</source>
         <translation>По левому краю (Ctrl + L,1)</translation>
     </message>
@@ -46516,10 +46396,6 @@ Description:	%4</source>
         <translation>Выровнить горизонтально (Ctrl+L,6)</translation>
     </message>
     <message>
-        <source>Adjust Width</source>
-        <translation>Подогнать ширину</translation>
-    </message>
-    <message>
         <source>Adjust Width (Ctrl+L,7)</source>
         <translation>Подогнать ширину (Ctrl+L,7)</translation>
     </message>
@@ -46547,16 +46423,6 @@ Description:	%4</source>
         <source>Show Statistics</source>
         <translation>Показать статистику</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::BaseItem</name>
-    <message>
-        <source>Add child</source>
-        <translation>Добавить потомка</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ConnectableItem</name>
     <message>
         <source>Add new state</source>
         <translation>Добавление нового состояния</translation>
@@ -46565,9 +46431,6 @@ Description:	%4</source>
         <source>Move State</source>
         <translation>Переместить состояние</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::GraphicsScene</name>
     <message>
         <source>Align states</source>
         <translation>Выровнить состояния</translation>
@@ -46577,24 +46440,9 @@ Description:	%4</source>
         <translation>Подогнать состояния</translation>
     </message>
     <message>
-        <source>Cut</source>
-        <translation>Вырезать</translation>
-    </message>
-    <message>
-        <source>Remove items</source>
-        <translation>Удаление элементов</translation>
-    </message>
-    <message>
         <source>Re-layout</source>
         <translation>Перекомпоновка</translation>
     </message>
-    <message>
-        <source>Add new state</source>
-        <translation>Добавление нового состояния</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::IdWarningItem</name>
     <message>
         <source>State</source>
         <translation>Состояние</translation>
@@ -46611,9 +46459,6 @@ Description:	%4</source>
         <source>Duplicate ID (%1).</source>
         <translation>Повторный ID (%1).</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::InitialWarningItem</name>
     <message>
         <source>Initial</source>
         <translation>Начало</translation>
@@ -46626,20 +46471,10 @@ Description:	%4</source>
         <source>Too many initial states at the same level.</source>
         <translation>Слишком много начальных состояний на одном уровне.</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::QuickTransitionItem</name>
     <message>
         <source>H</source>
         <translatorcomment>История</translatorcomment>
         <translation>И</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::SCAttributeItemModel</name>
-    <message>
-        <source>Name</source>
-        <translation>Имя</translation>
     </message>
     <message>
         <source>Value</source>
@@ -46653,24 +46488,13 @@ Description:	%4</source>
         <source> - value -</source>
         <translation> - значение -</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::SCShapeProvider</name>
     <message>
         <source>Common States</source>
         <translation>Общие состояния</translation>
     </message>
     <message>
-        <source>Initial</source>
-        <translation>Начало</translation>
-    </message>
-    <message>
         <source>Final</source>
         <translation>Конец</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation>Состояние</translation>
     </message>
     <message>
         <source>Parallel</source>
@@ -46680,9 +46504,6 @@ Description:	%4</source>
         <source>History</source>
         <translation>История</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ScxmlDocument</name>
     <message>
         <source>Error in reading XML.
 Type: %1 (%2)
@@ -46730,10 +46551,6 @@ Row: %4, Column: %5
         <translation>Невозможно сохранить XML в файл %1.</translation>
     </message>
     <message>
-        <source>Cannot open file %1.</source>
-        <translation>Невозможно открыть файл %1.</translation>
-    </message>
-    <message>
         <source>Add Tag</source>
         <translation>Добавить тег</translation>
     </message>
@@ -46741,9 +46558,6 @@ Row: %4, Column: %5
         <source>Remove Tag</source>
         <translation>Удалить тег</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ScxmlTag</name>
     <message>
         <source>Error in reading XML </source>
         <translation>Ошибка чтения XML </translation>
@@ -46757,16 +46571,9 @@ Row: %4, Column: %5
         <translation>Элемент</translation>
     </message>
     <message>
-        <source>Metadata</source>
-        <translation>Метаданные</translation>
-    </message>
-    <message>
         <source>Remove</source>
         <translation>Удалить</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ScxmlUiFactory</name>
     <message>
         <source>Created editor-instance.</source>
         <translation>Создан экземпляр редактора.</translation>
@@ -46775,9 +46582,6 @@ Row: %4, Column: %5
         <source>Editor-instance is not of the type ISCEditor.</source>
         <translation>Экземпляр редактора не типа ISCEditor.</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::StateItem</name>
     <message>
         <source>Set as Initial</source>
         <translation>Сделать началом</translation>
@@ -46793,13 +46597,6 @@ Row: %4, Column: %5
     <message>
         <source>Change initial state</source>
         <translation>Сменить начальное состояние</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::StateWarningItem</name>
-    <message>
-        <source>State</source>
-        <translation>Состояние</translation>
     </message>
     <message>
         <source>Draw some transitions to state.</source>
@@ -46829,16 +46626,10 @@ Row: %4, Column: %5
         <source>Draw some transitions from state.</source>
         <translation>Нарисуйте переходы из состояния.</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::TransitionItem</name>
     <message>
         <source>Remove Point</source>
         <translation>Удалить узел</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::TransitionWarningItem</name>
     <message>
         <source>Transition</source>
         <translation>Переход</translation>

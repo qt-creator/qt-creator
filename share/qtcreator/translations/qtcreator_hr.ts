@@ -8172,7 +8172,7 @@ Sigurno želiš nastaviti?</translation>
     </message>
 </context>
 <context>
-    <name>ScxmlEditor::Common::ColorPicker</name>
+    <name>ScxmlEditor</name>
     <message>
         <source>Frame</source>
         <translation>Okvir</translation>
@@ -8185,9 +8185,6 @@ Sigurno želiš nastaviti?</translation>
         <source>Last used colors</source>
         <translation>Posljednja korištena boja</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorSettings</name>
     <message>
         <source>+</source>
         <translation>+</translation>
@@ -8220,9 +8217,6 @@ Sigurno želiš nastaviti?</translation>
         <source>Are you sure you want to delete color theme %1?</source>
         <translation>Sigurno želiš ukloniti temu boje %1?</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorThemeDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Dijalog</translation>
@@ -8239,24 +8233,6 @@ Sigurno želiš nastaviti?</translation>
         <source>Apply</source>
         <translation>Primijeni</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::NavigatorSlider</name>
-    <message>
-        <source>Frame</source>
-        <translation>Okvir</translation>
-    </message>
-    <message>
-        <source>-</source>
-        <translation>−</translation>
-    </message>
-    <message>
-        <source>+</source>
-        <translation>+</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Search</name>
     <message>
         <source>Enter search term</source>
         <translation>Upiši izraz za pretraživanje</translation>
@@ -8265,23 +8241,10 @@ Sigurno želiš nastaviti?</translation>
         <source>Search</source>
         <translation>Traži</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ShapesToolbox</name>
-    <message>
-        <source>Frame</source>
-        <translation>Okvir</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StateView</name>
     <message>
         <source>Back</source>
         <translation>Natrag</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Statistics</name>
     <message>
         <source>Time</source>
         <translation>Vrijeme</translation>
@@ -8301,17 +8264,6 @@ Sigurno želiš nastaviti?</translation>
     <message>
         <source>yyyy/MM/dd hh:mm:ss</source>
         <translation>dd. MM. yyyy. hh:mm:ss</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StatisticsDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dijalog</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>U redu</translation>
     </message>
     <message>
         <source>Document Statistics</source>
@@ -37568,7 +37520,7 @@ Saving failed.</source>
     </message>
 </context>
 <context>
-    <name>ScxmlEditor::Common::ColorThemes</name>
+    <name>ScxmlEditor</name>
     <message>
         <source>Modify Color Themes...</source>
         <translation>Promijeni teme boja …</translation>
@@ -37589,16 +37541,10 @@ Saving failed.</source>
         <source>Colors from SCXML Document</source>
         <translation>Boje iz SCXML dokumenta</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorThemeItem</name>
     <message>
         <source>Pick Color</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorToolButton</name>
     <message>
         <source>Automatic Color</source>
         <translation type="unfinished"></translation>
@@ -37607,9 +37553,6 @@ Saving failed.</source>
         <source>More Colors...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::GraphicsView</name>
     <message>
         <source>SCXML Generation Failed</source>
         <translation type="unfinished"></translation>
@@ -37618,9 +37561,6 @@ Saving failed.</source>
         <source>Loading document...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::MainWidget</name>
     <message>
         <source>State Color</source>
         <translation type="unfinished"></translation>
@@ -37677,16 +37617,10 @@ Saving failed.</source>
         <source>Could not save the screenshot.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Navigator</name>
     <message>
         <source>Navigator</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::SearchModel</name>
     <message>
         <source>Type</source>
         <translation>Vrsta</translation>
@@ -37695,9 +37629,6 @@ Saving failed.</source>
         <source>Name</source>
         <translation>Naziv</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StateProperties</name>
     <message>
         <source>Attributes</source>
         <translation>Svojstva</translation>
@@ -37706,9 +37637,6 @@ Saving failed.</source>
         <source>Content</source>
         <translation>Sadržaj</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StatisticsModel</name>
     <message>
         <source>Tag</source>
         <translation>Oznaka</translation>
@@ -37717,15 +37645,8 @@ Saving failed.</source>
         <source>Count</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Structure</name>
     <message>
         <source>Common states</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Metadata</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -37756,16 +37677,10 @@ Saving failed.</source>
         <source>Add child</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StructureModel</name>
     <message>
         <source>Change parent</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::OutputPane::ErrorWidget</name>
     <message>
         <source>Errors(%1) / Warnings(%2) / Info(%3)</source>
         <translation type="unfinished"></translation>
@@ -37779,23 +37694,12 @@ Saving failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Export Failed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Cannot open file %1.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::OutputPane::WarningModel</name>
     <message>
         <source>Severity</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Vrsta</translation>
     </message>
     <message>
         <source>Reason</source>
@@ -37828,9 +37732,6 @@ Reason: 	%3
 Description:	%4</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ActionHandler</name>
     <message>
         <source>Zoom In</source>
         <translation>Uvećaj</translation>
@@ -37869,10 +37770,6 @@ Description:	%4</source>
     </message>
     <message>
         <source>Magnifier Tool (Alt)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Navigator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -37920,10 +37817,6 @@ Description:	%4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Align Left</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Align Left (Ctrl+L,1)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -37968,10 +37861,6 @@ Description:	%4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Adjust Width</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Adjust Width (Ctrl+L,7)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -37999,16 +37888,6 @@ Description:	%4</source>
         <source>Show Statistics</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::BaseItem</name>
-    <message>
-        <source>Add child</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ConnectableItem</name>
     <message>
         <source>Add new state</source>
         <translation type="unfinished"></translation>
@@ -38017,9 +37896,6 @@ Description:	%4</source>
         <source>Move State</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::GraphicsScene</name>
     <message>
         <source>Align states</source>
         <translation type="unfinished"></translation>
@@ -38029,24 +37905,9 @@ Description:	%4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Cut</source>
-        <translation>Izreži</translation>
-    </message>
-    <message>
-        <source>Remove items</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Re-layout</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Add new state</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::IdWarningItem</name>
     <message>
         <source>State</source>
         <translation>Stanje</translation>
@@ -38063,9 +37924,6 @@ Description:	%4</source>
         <source>Duplicate ID (%1).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::InitialWarningItem</name>
     <message>
         <source>Initial</source>
         <translation type="unfinished"></translation>
@@ -38078,19 +37936,9 @@ Description:	%4</source>
         <source>Too many initial states at the same level.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::QuickTransitionItem</name>
     <message>
         <source>H</source>
         <translation type="unfinished">H</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::SCAttributeItemModel</name>
-    <message>
-        <source>Name</source>
-        <translation>Naziv</translation>
     </message>
     <message>
         <source>Value</source>
@@ -38104,24 +37952,13 @@ Description:	%4</source>
         <source> - value -</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::SCShapeProvider</name>
     <message>
         <source>Common States</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Initial</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Final</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation>Stanje</translation>
     </message>
     <message>
         <source>Parallel</source>
@@ -38131,9 +37968,6 @@ Description:	%4</source>
         <source>History</source>
         <translation type="unfinished">Povijest</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ScxmlDocument</name>
     <message>
         <source>Unexpected element.</source>
         <translation type="unfinished"></translation>
@@ -38176,10 +38010,6 @@ Row: %4, Column: %5
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Cannot open file %1.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Add Tag</source>
         <translation type="unfinished"></translation>
     </message>
@@ -38187,23 +38017,6 @@ Row: %4, Column: %5
         <source>Remove Tag</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>SXCMLTag::UnknownAttributeValue</name>
-    <message>
-        <source>Unknown</source>
-        <translation>Nepoznato</translation>
-    </message>
-</context>
-<context>
-    <name>SXCMLTag::UnknownAttributeName</name>
-    <message>
-        <source>Unknown</source>
-        <translation>Nepoznato</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ScxmlTag</name>
     <message>
         <source>Error in reading XML </source>
         <translation>Greška u čitanju XML-a </translation>
@@ -38224,9 +38037,6 @@ Row: %4, Column: %5
         <source>Remove</source>
         <translation>Ukloni</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ScxmlUiFactory</name>
     <message>
         <source>Created editor-instance.</source>
         <translation type="unfinished"></translation>
@@ -38235,9 +38045,6 @@ Row: %4, Column: %5
         <source>Editor-instance is not of the type ISCEditor.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::StateItem</name>
     <message>
         <source>Set as Initial</source>
         <translation>Postavi kao izvorno</translation>
@@ -38253,13 +38060,6 @@ Row: %4, Column: %5
     <message>
         <source>Change initial state</source>
         <translation>Promijeni izvorno stanje</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::StateWarningItem</name>
-    <message>
-        <source>State</source>
-        <translation>Stanje</translation>
     </message>
     <message>
         <source>Draw some transitions to state.</source>
@@ -38289,16 +38089,10 @@ Row: %4, Column: %5
         <source>No input connections (%1).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::TransitionItem</name>
     <message>
         <source>Remove Point</source>
         <translation>Ukloni točku</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::TransitionWarningItem</name>
     <message>
         <source>Transition</source>
         <translation>Tranzicija</translation>
@@ -38311,9 +38105,6 @@ Row: %4, Column: %5
         <source>Not connected (%1).</source>
         <translation>Ne spojeno (%1).</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Internal::ScxmlEditorData</name>
     <message>
         <source>Undo (Ctrl + Z)</source>
         <translation>Poništi (Ctrl + Z)</translation>

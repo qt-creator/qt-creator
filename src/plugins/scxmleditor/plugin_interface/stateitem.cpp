@@ -1,7 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "stateitem.h"
 #include "finalstateitem.h"
 #include "graphicsitemprovider.h"
 #include "graphicsscene.h"
@@ -11,8 +10,10 @@
 #include "parallelitem.h"
 #include "sceneutils.h"
 #include "scxmleditorconstants.h"
+#include "scxmleditortr.h"
 #include "scxmltagutils.h"
 #include "scxmluifactory.h"
+#include "stateitem.h"
 #include "statewarningitem.h"
 #include "textitem.h"
 #include "transitionitem.h"
@@ -279,15 +280,15 @@ void StateItem::createContextMenu(QMenu *menu)
     QVariantMap data;
     if (!m_parallelState) {
         data[Constants::C_SCXMLTAG_ACTIONTYPE] = TagUtils::SetAsInitial;
-        menu->addAction(tr("Set as Initial"))->setData(data);
+        menu->addAction(Tr::tr("Set as Initial"))->setData(data);
     }
 
     data[Constants::C_SCXMLTAG_ACTIONTYPE] = TagUtils::ZoomToState;
-    menu->addAction(tr("Zoom to State"))->setData(data);
+    menu->addAction(Tr::tr("Zoom to State"))->setData(data);
 
     if (type() == ParallelType) {
         data[Constants::C_SCXMLTAG_ACTIONTYPE] = TagUtils::Relayout;
-        menu->addAction(tr("Re-Layout"))->setData(data);
+        menu->addAction(Tr::tr("Re-Layout"))->setData(data);
     }
 
     menu->addSeparator();
@@ -310,7 +311,7 @@ void StateItem::selectedMenuAction(const QAction *action)
         case TagUtils::SetAsInitial: {
             ScxmlTag *parentTag = tag->parentTag();
             if (parentTag) {
-                document->undoStack()->beginMacro(tr("Change initial state"));
+                document->undoStack()->beginMacro(Tr::tr("Change initial state"));
 
                 ScxmlTag *initialTag = parentTag->child("initial");
                 if (initialTag) {
@@ -331,7 +332,7 @@ void StateItem::selectedMenuAction(const QAction *action)
             break;
         }
         case TagUtils::Relayout: {
-            document->undoStack()->beginMacro(tr("Re-Layout"));
+            document->undoStack()->beginMacro(Tr::tr("Re-Layout"));
             doLayout(depth());
             document->undoStack()->endMacro();
             break;

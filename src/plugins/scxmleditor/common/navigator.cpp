@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "navigator.h"
 #include "graphicsscene.h"
 #include "graphicsview.h"
+#include "navigator.h"
 #include "navigatorgraphicsview.h"
 #include "navigatorslider.h"
+#include "scxmleditortr.h"
 #include "sizegrip.h"
 
 #include <utils/utilsicons.h>
@@ -60,7 +61,7 @@ void Navigator::resizeEvent(QResizeEvent *e)
 
 void Navigator::createUi()
 {
-    auto titleLabel = new QLabel(tr("Navigator"));
+    auto titleLabel = new QLabel(Tr::tr("Navigator"));
     titleLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
     m_closeButton = new QToolButton;

@@ -1,11 +1,13 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "graphicsview.h"
 #include "baseitem.h"
 #include "connectableitem.h"
 #include "graphicsscene.h"
+#include "graphicsview.h"
 #include "sceneutils.h"
+#include "scxmleditortr.h"
+#include "scxmleditortr.h"
 #include "scxmluifactory.h"
 #include "shapeprovider.h"
 
@@ -225,7 +227,7 @@ void GraphicsView::dropEvent(QDropEvent *event)
             m_document->setCurrentTag(targetTag);
             QByteArray scxmlData = m_shapeProvider->scxmlCode(groupIndex, shapeIndex, targetTag);
             if (!scxmlData.isEmpty() && !m_document->pasteData(scxmlData, targetPos, targetPos))
-                QMessageBox::warning(Core::ICore::dialogParent(), tr("SCXML Generation Failed"),
+                QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("SCXML Generation Failed"),
                                      m_document->lastError());
         }
     } else {
@@ -240,7 +242,7 @@ void GraphicsView::paintEvent(QPaintEvent *event)
     } else {
         QPainter painter(viewport());
         painter.save();
-        painter.drawText(rect(), Qt::AlignCenter, tr("Loading document..."));
+        painter.drawText(rect(), Qt::AlignCenter, Tr::tr("Loading document..."));
         painter.restore();
     }
 }

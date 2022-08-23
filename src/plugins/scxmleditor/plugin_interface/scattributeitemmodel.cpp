@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "scattributeitemmodel.h"
 #include "mytypes.h"
+#include "scattributeitemmodel.h"
+#include "scxmleditortr.h"
 
 #include <QBrush>
 
@@ -16,7 +17,7 @@ SCAttributeItemModel::SCAttributeItemModel(QObject *parent)
 QVariant SCAttributeItemModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return section == 0 ? tr("Name") : tr("Value");
+        return section == 0 ? Tr::tr("Name") : Tr::tr("Value");
 
     return QVariant();
 }
@@ -68,7 +69,7 @@ QVariant SCAttributeItemModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::DisplayRole:
         if (bExtraRow)
-            return index.column() == 0 ? tr("- name -") : tr(" - value -");
+            return index.column() == 0 ? Tr::tr("- name -") : Tr::tr(" - value -");
         Q_FALLTHROUGH();
     case Qt::EditRole: {
         if (index.column() == 0) {

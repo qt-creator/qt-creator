@@ -8,6 +8,7 @@
 #include "quicktransitionitem.h"
 #include "sceneutils.h"
 #include "scxmleditorconstants.h"
+#include "scxmleditortr.h"
 #include "serializer.h"
 #include "stateitem.h"
 
@@ -198,7 +199,7 @@ bool ConnectableItem::sceneEventFilter(QGraphicsItem *watched, QEvent *event)
 
         if (event->type() == QEvent::GraphicsSceneMousePress) {
             m_newTransitionStartedPoint = mouseEvent->pos();
-            tag()->document()->undoStack()->beginMacro(tr("Add new state"));
+            tag()->document()->undoStack()->beginMacro(Tr::tr("Add new state"));
 
             m_newTransition = new TransitionItem;
             scene()->addItem(m_newTransition);
@@ -370,7 +371,7 @@ void ConnectableItem::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
     if (!m_moveMacroStarted) {
         m_moveMacroStarted = true;
-        tag()->document()->undoStack()->beginMacro(tr("Move State"));
+        tag()->document()->undoStack()->beginMacro(Tr::tr("Move State"));
     }
 
     //Restore old behavior if ctrl & alt modifiers are present

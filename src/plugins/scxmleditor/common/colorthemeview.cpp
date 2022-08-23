@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "colorthemeview.h"
+#include "scxmleditortr.h"
 
 #include <coreplugin/icore.h>
 
@@ -39,7 +40,7 @@ void ColorThemeItem::openColorDialog()
     QColor oldColor = m_color;
 
     QColorDialog dialog(oldColor, Core::ICore::dialogParent());
-    dialog.setWindowTitle(tr("Pick Color"));
+    dialog.setWindowTitle(Tr::tr("Pick Color"));
     connect(&dialog, &QColorDialog::currentColorChanged, this, &ColorThemeItem::setColor);
     QPoint topRight = parentWidget()->mapToGlobal(parentWidget()->rect().topRight());
     dialog.move(topRight.x(), topRight.y());

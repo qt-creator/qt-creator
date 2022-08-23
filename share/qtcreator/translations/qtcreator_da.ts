@@ -35950,21 +35950,11 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>SXCMLTag::UnknownAttributeName</name>
+    <name>ScxmlEditor</name>
     <message>
         <source>Unknown</source>
         <translation>Ukendt</translation>
     </message>
-</context>
-<context>
-    <name>SXCMLTag::UnknownAttributeValue</name>
-    <message>
-        <source>Unknown</source>
-        <translation>Ukendt</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorPicker</name>
     <message>
         <source>Frame</source>
         <translation>Ramme</translation>
@@ -35977,9 +35967,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Last used colors</source>
         <translation>Sidste brugte farver</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorSettings</name>
     <message>
         <source>+</source>
         <translation>+</translation>
@@ -36012,9 +35999,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Are you sure you want to delete color theme %1?</source>
         <translation>Er du sikker på, at du vil slette farvetema %1?</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorThemeDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -36031,16 +36015,10 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Apply</source>
         <translation>Anvend</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorThemeItem</name>
     <message>
         <source>Pick Color</source>
         <translation>Vælg farve</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorThemes</name>
     <message>
         <source>Modify Color Themes...</source>
         <translation>Rediger farvetemaer...</translation>
@@ -36061,9 +36039,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Colors from SCXML Document</source>
         <translation>Farver fra SCXML-dokument</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ColorToolButton</name>
     <message>
         <source>Automatic Color</source>
         <translation>Automatisk farve</translation>
@@ -36072,9 +36047,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>More Colors...</source>
         <translation>Flere farver...</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::GraphicsView</name>
     <message>
         <source>SCXML Generation Failed</source>
         <translation>SCXML-generering mislykkedes</translation>
@@ -36083,9 +36055,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Loading document...</source>
         <translation>Indlæser dokument...</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::MainWidget</name>
     <message>
         <source>State Color</source>
         <translation>Tilstandsfarve</translation>
@@ -36142,31 +36111,10 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Could not save the screenshot.</source>
         <translation>Kunne ikke gemme skærmbilledet.</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Navigator</name>
     <message>
         <source>Navigator</source>
         <translation>Navigator</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::NavigatorSlider</name>
-    <message>
-        <source>Frame</source>
-        <translation>Ramme</translation>
-    </message>
-    <message>
-        <source>-</source>
-        <translation>-</translation>
-    </message>
-    <message>
-        <source>+</source>
-        <translation>+</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Search</name>
     <message>
         <source>Enter search term</source>
         <translation>Indtast søgeterm</translation>
@@ -36175,9 +36123,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Search</source>
         <translation>Søgning</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::SearchModel</name>
     <message>
         <source>Type</source>
         <translation>Type</translation>
@@ -36186,16 +36131,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Name</source>
         <translation>Navn</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::ShapesToolbox</name>
-    <message>
-        <source>Frame</source>
-        <translation>Ramme</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StateProperties</name>
     <message>
         <source>Attributes</source>
         <translation>Attributter</translation>
@@ -36204,16 +36139,10 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Content</source>
         <translation>Indhold</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StateView</name>
     <message>
         <source>Back</source>
         <translation>Tilbage</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Statistics</name>
     <message>
         <source>Time</source>
         <translation>Tid</translation>
@@ -36234,24 +36163,10 @@ Derudover testes enhedens forbindelse.</translation>
         <source>yyyy/MM/dd hh:mm:ss</source>
         <translation>åååå/MM/dd tt:mm:ss</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StatisticsDialog</name>
-    <message>
-        <source>Dialog</source>
-        <translation>Dialog</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation>OK</translation>
-    </message>
     <message>
         <source>Document Statistics</source>
         <translation>Dokumentstatistik</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StatisticsModel</name>
     <message>
         <source>Tag</source>
         <translation>Tag</translation>
@@ -36260,9 +36175,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Count</source>
         <translation>Antal</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::Structure</name>
     <message>
         <source>Common states</source>
         <translation>Almene tilstande</translation>
@@ -36299,16 +36211,10 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Add child</source>
         <translation>Tilføj barn</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Common::StructureModel</name>
     <message>
         <source>Change parent</source>
         <translation>Skift forælder</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::Internal::ScxmlEditorData</name>
     <message>
         <source>Undo (Ctrl + Z)</source>
         <translation>Fortryd (Ctrl + Z)</translation>
@@ -36325,9 +36231,6 @@ Derudover testes enhedens forbindelse.</translation>
         <source>Switch Mode</source>
         <translation>Skift tilstand</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::OutputPane::ErrorWidget</name>
     <message>
         <source>Errors(%1) / Warnings(%2) / Info(%3)</source>
         <translation>Fejl(%1)/Advarsler(%2)/Info(%3)</translation>
@@ -36341,23 +36244,12 @@ Derudover testes enhedens forbindelse.</translation>
         <translation>CSV-filer (*.csv)</translation>
     </message>
     <message>
-        <source>Export Failed</source>
-        <translation>Eksport mislykkedes</translation>
-    </message>
-    <message>
         <source>Cannot open file %1.</source>
         <translation>Kan ikke åbne filen %1.</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::OutputPane::WarningModel</name>
     <message>
         <source>Severity</source>
         <translation>Alvor</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Type</translation>
     </message>
     <message>
         <source>Reason</source>
@@ -36380,10 +36272,6 @@ Derudover testes enhedens forbindelse.</translation>
         <translation>Info</translation>
     </message>
     <message>
-        <source>Unknown</source>
-        <translation>Ukendt</translation>
-    </message>
-    <message>
         <source>Severity:	%1
 Type:     	%2
 Reason: 	%3
@@ -36393,9 +36281,6 @@ Type:     	%2
 Årsag: 	%3
 Beskrivelse:	%4</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ActionHandler</name>
     <message>
         <source>Zoom In</source>
         <translation>Zoom ind</translation>
@@ -36435,10 +36320,6 @@ Beskrivelse:	%4</translation>
     <message>
         <source>Magnifier Tool (Alt)</source>
         <translation>Forstørrelsesglas-værktøj (Alt)</translation>
-    </message>
-    <message>
-        <source>Navigator</source>
-        <translation>Navigator</translation>
     </message>
     <message>
         <source>Navigator (Ctrl+E)</source>
@@ -36485,10 +36366,6 @@ Beskrivelse:	%4</translation>
         <translation>Fuld navnerum til/fra</translation>
     </message>
     <message>
-        <source>Align Left</source>
-        <translation>Juster til venstre</translation>
-    </message>
-    <message>
         <source>Align Left (Ctrl+L,1)</source>
         <translation>Juster til venstre (Ctrl+L,1)</translation>
     </message>
@@ -36533,10 +36410,6 @@ Beskrivelse:	%4</translation>
         <translation>Juster lodret (Ctrl+L,6)</translation>
     </message>
     <message>
-        <source>Adjust Width</source>
-        <translation>Juster bredde</translation>
-    </message>
-    <message>
         <source>Adjust Width (Ctrl+L,7)</source>
         <translation>Juster bredde (Ctrl+L,7)</translation>
     </message>
@@ -36564,16 +36437,6 @@ Beskrivelse:	%4</translation>
         <source>Show Statistics</source>
         <translation>Vis statistik</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::BaseItem</name>
-    <message>
-        <source>Add child</source>
-        <translation>Tilføj barn</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ConnectableItem</name>
     <message>
         <source>Add new state</source>
         <translation>Tilføj ny tilstand</translation>
@@ -36582,9 +36445,6 @@ Beskrivelse:	%4</translation>
         <source>Move State</source>
         <translation>Flyt tilstand</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::GraphicsScene</name>
     <message>
         <source>Align states</source>
         <translation>Juster tilstande</translation>
@@ -36594,24 +36454,9 @@ Beskrivelse:	%4</translation>
         <translation>Juster tilstande</translation>
     </message>
     <message>
-        <source>Cut</source>
-        <translation>Klip</translation>
-    </message>
-    <message>
-        <source>Remove items</source>
-        <translation>Fjern poster</translation>
-    </message>
-    <message>
         <source>Re-layout</source>
         <translation>Genlayout</translation>
     </message>
-    <message>
-        <source>Add new state</source>
-        <translation>Tilføj ny tilstand</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::IdWarningItem</name>
     <message>
         <source>State</source>
         <translation>Tilstand</translation>
@@ -36628,9 +36473,6 @@ Beskrivelse:	%4</translation>
         <source>Duplicate ID (%1).</source>
         <translation>Dupliker ID (%1).</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::InitialWarningItem</name>
     <message>
         <source>Initial</source>
         <translation>Indledende</translation>
@@ -36643,19 +36485,9 @@ Beskrivelse:	%4</translation>
         <source>Too many initial states at the same level.</source>
         <translation>For mange indledende tilstande ved det samme niveau.</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::QuickTransitionItem</name>
     <message>
         <source>H</source>
         <translation>H</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::SCAttributeItemModel</name>
-    <message>
-        <source>Name</source>
-        <translation>Navn</translation>
     </message>
     <message>
         <source>Value</source>
@@ -36669,24 +36501,13 @@ Beskrivelse:	%4</translation>
         <source> - value -</source>
         <translation> - værdi -</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::SCShapeProvider</name>
     <message>
         <source>Common States</source>
         <translation>Almene tilstande</translation>
     </message>
     <message>
-        <source>Initial</source>
-        <translation>Indledende</translation>
-    </message>
-    <message>
         <source>Final</source>
         <translation>Endelige</translation>
-    </message>
-    <message>
-        <source>State</source>
-        <translation>Tilstand</translation>
     </message>
     <message>
         <source>Parallel</source>
@@ -36696,9 +36517,6 @@ Beskrivelse:	%4</translation>
         <source>History</source>
         <translation>Historik</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ScxmlDocument</name>
     <message>
         <source>Unexpected element.</source>
         <translation>Uventet element.</translation>
@@ -36746,10 +36564,6 @@ Række: %4, Kolonne: %5
         <translation>Kan ikke gemme XML til filen %1.</translation>
     </message>
     <message>
-        <source>Cannot open file %1.</source>
-        <translation>Kan ikke åbne filen %1.</translation>
-    </message>
-    <message>
         <source>Add Tag</source>
         <translation>Tilføj tag</translation>
     </message>
@@ -36757,9 +36571,6 @@ Række: %4, Kolonne: %5
         <source>Remove Tag</source>
         <translation>Fjern tag</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ScxmlTag</name>
     <message>
         <source>Error in reading XML </source>
         <translation>Fejl ved læsning af XML </translation>
@@ -36773,16 +36584,9 @@ Række: %4, Kolonne: %5
         <translation>Post</translation>
     </message>
     <message>
-        <source>Metadata</source>
-        <translation>Metadata</translation>
-    </message>
-    <message>
         <source>Remove</source>
         <translation>Fjern</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::ScxmlUiFactory</name>
     <message>
         <source>Created editor-instance.</source>
         <translation>Oprettede redigeringsinstans.</translation>
@@ -36791,9 +36595,6 @@ Række: %4, Kolonne: %5
         <source>Editor-instance is not of the type ISCEditor.</source>
         <translation>Redigeringsinstans er ikke af typen ISCEditor.</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::StateItem</name>
     <message>
         <source>Set as Initial</source>
         <translation>Sæt som indledende</translation>
@@ -36809,13 +36610,6 @@ Række: %4, Kolonne: %5
     <message>
         <source>Change initial state</source>
         <translation>Skift indledende tilstand</translation>
-    </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::StateWarningItem</name>
-    <message>
-        <source>State</source>
-        <translation>Tilstand</translation>
     </message>
     <message>
         <source>Draw some transitions to state.</source>
@@ -36845,16 +36639,10 @@ Række: %4, Kolonne: %5
         <source>Draw some transitions from state.</source>
         <translation>Tegn nogle overgange fra tilstand.</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::TransitionItem</name>
     <message>
         <source>Remove Point</source>
         <translation>Fjern punkt</translation>
     </message>
-</context>
-<context>
-    <name>ScxmlEditor::PluginInterface::TransitionWarningItem</name>
     <message>
         <source>Transition</source>
         <translation>Overgang</translation>

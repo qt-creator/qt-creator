@@ -4,6 +4,7 @@
 #include "colorsettings.h"
 #include "colorthemeview.h"
 #include "scxmleditorconstants.h"
+#include "scxmleditortr.h"
 
 #include <QComboBox>
 #include <QInputDialog>
@@ -81,10 +82,10 @@ void ColorSettings::selectTheme(int index)
 
 void ColorSettings::createTheme()
 {
-    QString name = QInputDialog::getText(this, tr("Create New Color Theme"), tr("Theme ID"));
+    QString name = QInputDialog::getText(this, Tr::tr("Create New Color Theme"), Tr::tr("Theme ID"));
     if (!name.isEmpty()) {
         if (m_colorThemes.contains(name)) {
-            QMessageBox::warning(this, tr("Cannot Create Theme"), tr("Theme %1 is already available.").arg(name));
+            QMessageBox::warning(this, Tr::tr("Cannot Create Theme"), Tr::tr("Theme %1 is already available.").arg(name));
         } else {
             m_colorThemeView->reset();
             m_colorThemes[name] = QVariantMap();
@@ -97,8 +98,8 @@ void ColorSettings::createTheme()
 void ColorSettings::removeTheme()
 {
     const QString name = m_comboColorThemes->currentText();
-    const QMessageBox::StandardButton result = QMessageBox::question(this, tr("Remove Color Theme"),
-        tr("Are you sure you want to delete color theme %1?").arg(name),
+    const QMessageBox::StandardButton result = QMessageBox::question(this, Tr::tr("Remove Color Theme"),
+        Tr::tr("Are you sure you want to delete color theme %1?").arg(name),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if (result == QMessageBox::Yes) {
         m_comboColorThemes->removeItem(m_comboColorThemes->currentIndex());

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "scxmldocument.h"
+#include "scxmleditortr.h"
 #include "scxmlnamespace.h"
 #include "scxmltagutils.h"
 #include "undocommands.h"
@@ -236,16 +237,16 @@ void ScxmlDocument::initErrorMessage(const QXmlStreamReader &xml, QIODevice *io)
     QString errorString;
     switch (xml.error()) {
     case QXmlStreamReader::Error::UnexpectedElementError:
-        errorString = tr("Unexpected element.");
+        errorString = Tr::tr("Unexpected element.");
         break;
     case QXmlStreamReader::Error::NotWellFormedError:
-        errorString = tr("Not well formed.");
+        errorString = Tr::tr("Not well formed.");
         break;
     case QXmlStreamReader::Error::PrematureEndOfDocumentError:
-        errorString = tr("Premature end of document.");
+        errorString = Tr::tr("Premature end of document.");
         break;
     case QXmlStreamReader::Error::CustomError:
-        errorString = tr("Custom error.");
+        errorString = Tr::tr("Custom error.");
         break;
     default:
         break;
@@ -257,7 +258,7 @@ void ScxmlDocument::initErrorMessage(const QXmlStreamReader &xml, QIODevice *io)
         io->readLine();
     lineString = QLatin1String(io->readLine());
 
-    m_lastError = tr("Error in reading XML.\nType: %1 (%2)\nDescription: %3\n\nRow: %4, Column: %5\n%6")
+    m_lastError = Tr::tr("Error in reading XML.\nType: %1 (%2)\nDescription: %3\n\nRow: %4, Column: %5\n%6")
                       .arg(xml.error())
                       .arg(errorString)
                       .arg(xml.errorString())
@@ -273,18 +274,18 @@ bool ScxmlDocument::pasteData(const QByteArray &data, const QPointF &minPos, con
 
     if (!m_currentTag) {
         m_hasError = true;
-        m_lastError = tr("Current tag is not selected.");
+        m_lastError = Tr::tr("Current tag is not selected.");
         return false;
     }
 
     if (data.trimmed().isEmpty()) {
         m_hasError = true;
-        m_lastError = tr("Pasted data is empty.");
+        m_lastError = Tr::tr("Pasted data is empty.");
         return false;
     }
 
     bool ok = true;
-    m_undoStack->beginMacro(tr("Paste items"));
+    m_undoStack->beginMacro(Tr::tr("Paste items"));
 
     QByteArray d(data);
     QBuffer buffer(&d);
@@ -432,10 +433,10 @@ bool ScxmlDocument::save(const QString &fileName)
         }
         file.close();
         if (!ok)
-            m_lastError = tr("Cannot save XML to the file %1.").arg(fileName);
+            m_lastError = Tr::tr("Cannot save XML to the file %1.").arg(fileName);
     } else {
         ok = false;
-        m_lastError = tr("Cannot open file %1.").arg(fileName);
+        m_lastError = Tr::tr("Cannot open file %1.").arg(fileName);
     }
 
     return ok;
@@ -518,7 +519,7 @@ void ScxmlDocument::addTag(ScxmlTag *parent, ScxmlTag *child)
         parent = rootTag();
 
     if (parent && child) {
-        m_undoStack->beginMacro(tr("Add Tag"));
+        m_undoStack->beginMacro(Tr::tr("Add Tag"));
         addTagRecursive(parent, child);
         m_undoStack->endMacro();
     }
@@ -528,7 +529,7 @@ void ScxmlDocument::removeTag(ScxmlTag *tag)
 {
     if (tag && !m_undoRedoRunning) {
         // Create undo/redo -macro, because state can includes lot of child-states
-        m_undoStack->beginMacro(tr("Remove Tag"));
+        m_undoStack->beginMacro(Tr::tr("Remove Tag"));
         removeTagRecursive(tag);
         m_undoStack->endMacro();
     }
