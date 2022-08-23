@@ -285,12 +285,12 @@ void Qt5InformationNodeInstanceServer::handleInputEvents()
                         continue;
                     }
                 }
-                auto me = new QMouseEvent(command.type(), command.pos(), command.button(),
-                                          command.buttons(), command.modifiers());
+                QMouseEvent me(command.type(), command.pos(), command.button(), command.buttons(),
+                               command.modifiers());
                 // We must use sendEvent in Qt 6, as using postEvent allows the associated position
                 // data stored internally in QMutableEventPoint to potentially be updated by system
                 // before the event is delivered.
-                QGuiApplication::sendEvent(m_editView3DData.window, me);
+                QGuiApplication::sendEvent(m_editView3DData.window, &me);
 
                 // Context menu requested
                 if (command.button() == Qt::RightButton && command.modifiers() == Qt::NoModifier)
@@ -428,7 +428,8 @@ void Qt5InformationNodeInstanceServer::getModelAtPos(const QPointF &pos)
 
     QVariant instance = resolvedPick ? instanceForObject(resolvedPick).instanceId() : -1;
     nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::ModelAtPos, instance});
-    return;
+#else
+    Q_UNUSED(pos)
 #endif
 }
 

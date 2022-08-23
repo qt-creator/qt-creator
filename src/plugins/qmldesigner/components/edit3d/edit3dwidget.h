@@ -76,6 +76,7 @@ private:
     QPointer<QMenu> m_backgroundColorMenu;
     QPointer<QMenu> m_contextMenu;
     QPointer<QAction> m_editMaterialAction;
+    QPointer<QAction> m_deleteAction;
     ModelNode m_contextMenuTarget;
 };
 

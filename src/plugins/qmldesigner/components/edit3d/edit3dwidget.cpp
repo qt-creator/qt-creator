@@ -185,7 +185,12 @@ void Edit3DWidget::createContextMenu()
         ModelNodeOperations::editMaterial(selCtx);
     });
 
-    // TODO: add more actions: delete, create, etc
+    m_deleteAction = m_contextMenu->addAction(tr("Delete"), [&] {
+        view()->executeInTransaction("Edit3DWidget::createContextMenu", [&] {
+            for (ModelNode &node : m_view->selectedModelNodes())
+                node.destroy();
+        });
+    });
 }
 
 void Edit3DWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
@@ -241,6 +246,7 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     m_contextMenuTarget = modelNode;
 
     m_editMaterialAction->setEnabled(modelNode.isValid());
+    m_deleteAction->setEnabled(modelNode.isValid());
 
     m_contextMenu->popup(mapToGlobal(pos));
 }

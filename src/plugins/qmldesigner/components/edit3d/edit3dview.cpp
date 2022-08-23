@@ -249,6 +249,10 @@ void Edit3DView::customNotification(const AbstractView *view, const QString &ide
 void Edit3DView::modelAtPosReady(const ModelNode &modelNode)
 {
     if (m_modelAtPosReqType == ModelAtPosReqType::ContextMenu) {
+        // Make sure right-clicked item is selected. Due to a bug in puppet side right-clicking an item
+        // while the context-menu is shown doesn't select the item.
+        if (modelNode.isValid() && !modelNode.isSelected())
+            setSelectedModelNode(modelNode);
         m_edit3DWidget->showContextMenu(m_contextMenuPos, modelNode);
     } else if (m_modelAtPosReqType == ModelAtPosReqType::MaterialDrop) {
         if (m_droppedMaterial.isValid() && modelNode.isValid()) {
