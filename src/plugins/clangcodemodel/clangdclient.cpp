@@ -1116,14 +1116,10 @@ QTextCursor ClangdClient::Private::adjustedCursor(const QTextCursor &cursor,
         return cursor;
     const TranslationUnit * const tu = cppDoc->translationUnit();
     const auto posForToken = [doc, tu](int tok) {
-        int line, column;
-        tu->getTokenPosition(tok, &line, &column);
-        return Utils::Text::positionInText(doc->document(), line, column);
+        return tu->getTokenPositionInDocument(tok, doc->document());
     };
     const auto endPosForToken = [doc, tu](int tok) {
-        int line, column;
-        tu->getTokenEndPosition(tok, &line, &column);
-        return Utils::Text::positionInText(doc->document(), line, column);
+        return tu->getTokenEndPositionInDocument(tok, doc->document());
     };
     const auto leftMovedCursor = [cursor] {
         QTextCursor c = cursor;

@@ -392,6 +392,13 @@ int TranslationUnit::getTokenPositionInDocument(int index, const QTextDocument *
     return Utils::Text::positionInText(doc, line, column);
 }
 
+int TranslationUnit::getTokenEndPositionInDocument(int index, const QTextDocument *doc) const
+{
+    int line, column;
+    getTokenEndPosition(index, &line, &column);
+    return Utils::Text::positionInText(doc, line, column);
+}
+
 void TranslationUnit::getTokenStartPosition(int index, int *line,
                                             int *column,
                                             const StringLiteral **fileName) const

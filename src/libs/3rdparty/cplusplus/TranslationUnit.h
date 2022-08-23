@@ -129,6 +129,7 @@ public:
                           const StringLiteral **fileName = nullptr) const;
 
     int getTokenPositionInDocument(int index, const QTextDocument *doc) const;
+    int getTokenEndPositionInDocument(int index, const QTextDocument *doc) const;
 
     void pushLineOffset(int offset);
     void pushPreprocessorLine(int utf16charOffset,
