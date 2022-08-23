@@ -111,6 +111,7 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
       m_defaultImportPaths(environmentImportPaths()),
       m_pluginDumper(new PluginDumper(this))
 {
+    m_threadPool.setMaxThreadCount(4);
     m_futureSynchronizer.setCancelOnWait(false);
     m_indexerDisabled = qEnvironmentVariableIsSet("QTC_NO_CODE_INDEXER");
 
@@ -326,6 +327,11 @@ Snapshot ModelManagerInterface::newestSnapshot() const
     return m_newestSnapshot;
 }
 
+QThreadPool *ModelManagerInterface::threadPool()
+{
+    return &m_threadPool;
+}
+
 void ModelManagerInterface::updateSourceFiles(const QStringList &files,
                                               bool emitDocumentOnDiskChanged)
 {
@@ -340,7 +346,8 @@ QFuture<void> ModelManagerInterface::refreshSourceFiles(const QStringList &sourc
     if (sourceFiles.isEmpty())
         return QFuture<void>();
 
-    QFuture<void> result = Utils::runAsync(&ModelManagerInterface::parse,
+    QFuture<void> result = Utils::runAsync(&m_threadPool,
+                                           &ModelManagerInterface::parse,
                                            workingCopyInternal(), sourceFiles,
                                            this, Dialect(Dialect::Qml),
                                            emitDocumentOnDiskChanged);
@@ -368,9 +375,13 @@ QFuture<void> ModelManagerInterface::refreshSourceFiles(const QStringList &sourc
 
 void ModelManagerInterface::fileChangedOnDisk(const QString &path)
 {
-    addFuture(Utils::runAsync(&ModelManagerInterface::parse,
-                    workingCopyInternal(), QStringList(path),
-                    this, Dialect(Dialect::AnyLanguage), true));
+    addFuture(Utils::runAsync(&m_threadPool,
+                              &ModelManagerInterface::parse,
+                              workingCopyInternal(),
+                              QStringList(path),
+                              this,
+                              Dialect(Dialect::AnyLanguage),
+                              true));
 }
 
 void ModelManagerInterface::removeFiles(const QStringList &files)
@@ -1191,7 +1202,8 @@ void ModelManagerInterface::maybeScan(const PathsAndLanguages &importPaths)
     }
 
     if (pathToScan.length() >= 1) {
-        QFuture<void> result = Utils::runAsync(&ModelManagerInterface::importScan,
+        QFuture<void> result = Utils::runAsync(&m_threadPool,
+                                               &ModelManagerInterface::importScan,
                                                workingCopyInternal(), pathToScan,
                                                this, true, true, false);
         addFuture(result);

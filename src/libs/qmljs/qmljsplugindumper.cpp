@@ -290,7 +290,8 @@ void PluginDumper::qmlPluginTypeDumpDone(QtcProcess *process)
             QStringList dependencies;
         };
 
-        auto future = Utils::runAsync([output, libraryPath](QFutureInterface<CppQmlTypesInfo>& future)
+        auto future = Utils::runAsync(m_modelManager->threadPool(),
+                                      [output, libraryPath](QFutureInterface<CppQmlTypesInfo>& future)
         {
             CppQmlTypesInfo infos;
             CppQmlTypesLoader::parseQmlTypeDescriptions(output, &infos.objectsList, &infos.moduleApis, &infos.dependencies,
@@ -343,7 +344,7 @@ void PluginDumper::pluginChanged(const QString &pluginLibrary)
 
 QFuture<PluginDumper::QmlTypeDescription> PluginDumper::loadQmlTypeDescription(const FilePaths &paths) const
 {
-    auto future = Utils::runAsync([=](QFutureInterface<PluginDumper::QmlTypeDescription> &future)
+    auto future = Utils::runAsync(m_modelManager->threadPool(), [=](QFutureInterface<PluginDumper::QmlTypeDescription> &future)
     {
         PluginDumper::QmlTypeDescription result;
 

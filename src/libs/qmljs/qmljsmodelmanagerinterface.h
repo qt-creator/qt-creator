@@ -133,6 +133,7 @@ public:
 
     QmlJS::Snapshot snapshot() const;
     QmlJS::Snapshot newestSnapshot() const;
+    QThreadPool *threadPool();
 
     void activateScan();
     void updateSourceFiles(const QStringList &files,
@@ -287,6 +288,7 @@ private:
     Utils::FutureSynchronizer m_futureSynchronizer;
 
     bool m_indexerDisabled = false;
+    QThreadPool m_threadPool;
 };
 
 } // namespace QmlJS
