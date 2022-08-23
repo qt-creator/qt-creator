@@ -77,13 +77,23 @@ void Qt5PreviewNodeInstanceServer::collectItemChangesAndSendChangeCommands()
         QVector<ImageContainer> imageContainerVector;
         imageContainerVector.append(ImageContainer(0, renderPreviewImage(), -1));
 
-        foreach (ServerNodeInstance instance,  rootNodeInstance().stateInstances()) {
-            instance.activateState();
-            QImage previewImage = renderPreviewImage();
-            if (!previewImage.isNull())
-                imageContainerVector.append(ImageContainer(instance.instanceId(), renderPreviewImage(), instance.instanceId()));
-            instance.deactivateState();
-        }
+          QList<ServerNodeInstance> stateInstances = rootNodeInstance().stateInstances();
+
+          const QList<ServerNodeInstance> groupInstances = allGroupStateInstances();
+
+          for (ServerNodeInstance instance : groupInstances) {
+              stateInstances.append(instance.stateInstances());
+          }
+
+          for (ServerNodeInstance instance : qAsConst(stateInstances)) {
+              instance.activateState();
+              QImage previewImage = renderPreviewImage();
+              if (!previewImage.isNull())
+                  imageContainerVector.append(ImageContainer(instance.instanceId(),
+                                                             renderPreviewImage(),
+                                                             instance.instanceId()));
+              instance.deactivateState();
+          }
 
         nodeInstanceClient()->statePreviewImagesChanged(
             StatePreviewImageChangedCommand(imageContainerVector));
