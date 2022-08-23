@@ -162,13 +162,11 @@ class Dumper(DumperBase):
                     return self.createArrayType(targetType, nativeType.arrayElements())
             code = TypeCode.Struct
 
-        tdata = self.TypeData(self)
+        tdata = self.TypeData(self, typeId)
         tdata.name = nativeType.name()
-        tdata.typeId = typeId
         tdata.lbitsize = nativeType.bitsize()
         tdata.code = code
         tdata.moduleName = nativeType.module()
-        self.registerType(typeId, tdata)  # Prevent recursion in fields.
         if code == TypeCode.Struct:
             tdata.lfields = lambda value: \
                 self.listFields(nativeType, value)
@@ -179,7 +177,6 @@ class Dumper(DumperBase):
                 self.nativeTypeEnumDisplay(nativeType, intval, form)
         tdata.templateArguments = lambda: \
             self.listTemplateParameters(nativeType.name())
-        self.registerType(typeId, tdata)  # Fix up fields and template args
         return self.Type(self, typeId)
 
     def listFields(self, nativeType, value):
@@ -388,8 +385,8 @@ class Dumper(DumperBase):
             if nativeType is None:
                 return None
             _type = self.fromNativeType(nativeType)
-            if _type.name != typeName:
-                self.registerType(typeName, _type.tdata)
+            if _type.typeId != typeName:
+                self.registerTypeAlias(_type.typeId, typeName)
             return _type
         return self.Type(self, typeName)
 

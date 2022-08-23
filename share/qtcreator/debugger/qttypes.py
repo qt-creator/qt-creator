@@ -234,14 +234,14 @@ def qdump__QStandardItem(d, value):
     vtable, dptr = value.split('pp')
     if d.qtVersion() >= 0x060000:
         model, parent, values, children, rows, cols, item = \
-            d.split('pp{@QList<@QStandardItemData>}{@QList<@QStandardItem*>}IIp', dptr)
+            d.split('pp{@QList<@QStandardItemData>}{@QList<@QStandardItem *>}IIp', dptr)
     else:
         # There used to be a virtual destructor that got removed in
         # 88b6abcebf29b455438 on Apr 18 17:01:22 2017
         if d.qtVersion() < 0x050900 and not d.isMsvcTarget():
             dptr += d.ptrSize();
         model, parent, values, children, rows, cols, item = \
-            d.split('pp{@QVector<@QStandardItemData>}{@QVector<@QStandardItem*>}IIp', dptr)
+            d.split('pp{@QVector<@QStandardItemData>}{@QVector<@QStandardItem *>}IIp', dptr)
 
     d.putEmptyValue()
     d.putExpandable()

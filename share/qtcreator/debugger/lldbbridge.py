@@ -434,8 +434,7 @@ class Dumper(DumperBase):
         if res is None:
             #  # This strips typedefs for pointers. We don't want that.
             #  typeobj.nativeType = nativeType.GetUnqualifiedType()
-            tdata = self.TypeData(self)
-            tdata.typeId = typeId
+            tdata = self.TypeData(self, typeId)
             tdata.name = typeName
             tdata.lbitsize = nativeType.GetByteSize() * 8
             if code == lldb.eTypeClassBuiltin:
@@ -471,8 +470,6 @@ class Dumper(DumperBase):
                 tdata.code = TypeCode.Function
             elif code == lldb.eTypeClassMemberPointer:
                 tdata.code = TypeCode.MemberPointer
-
-            self.registerType(typeId, tdata)  # Fix up fields and template args
         #    warn('CREATE TYPE: %s' % typeId)
         #else:
         #    warn('REUSE TYPE: %s' % typeId)
