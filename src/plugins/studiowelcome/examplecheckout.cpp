@@ -424,7 +424,7 @@ void FileExtractor::extract()
     });
 
     QObject::connect(archive, &Utils::Archive::finished, this, [this, archive](bool ret) {
-        delete archive;
+        archive->deleteLater();
         m_finished = ret;
         m_timer.stop();
 
