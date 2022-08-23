@@ -495,4 +495,59 @@ void EnvironmentChange::applyToEnvironment(Environment &env) const
     }
 }
 
+/*!
+    Returns the value of \a key in \QC's modified system environment.
+    \sa Utils::Environment::systemEnvironment
+    \sa qEnvironmentVariable
+*/
+QString qtcEnvironmentVariable(const QString &key)
+{
+    return Environment::systemEnvironment().value(key);
+}
+
+/*!
+    Returns the value of \a key in \QC's modified system environment if it is set,
+    or otherwise \a defaultValue.
+    \sa Utils::Environment::systemEnvironment
+    \sa qEnvironmentVariable
+*/
+QString qtcEnvironmentVariable(const QString &key, const QString &defaultValue)
+{
+    if (Environment::systemEnvironment().hasKey(key))
+        return Environment::systemEnvironment().value(key);
+    return defaultValue;
+}
+
+/*!
+    Returns if the environment variable \a key is set \QC's modified system environment.
+    \sa Utils::Environment::systemEnvironment
+    \sa qEnvironmentVariableIsSet
+*/
+bool qtcEnvironmentVariableIsSet(const QString &key)
+{
+    return Environment::systemEnvironment().hasKey(key);
+}
+
+/*!
+    Returns if the environment variable \a key is not set or empty in \QC's modified system
+    environment.
+    \sa Utils::Environment::systemEnvironment
+    \sa qEnvironmentVariableIsEmpty
+*/
+bool qtcEnvironmentVariableIsEmpty(const QString &key)
+{
+    return Environment::systemEnvironment().value(key).isEmpty();
+}
+
+/*!
+    Returns the value of \a key in \QC's modified system environment, converted to an int.
+    If \a ok is not null, sets \c{*ok} to true or false depending on the success of the conversion
+    \sa Utils::Environment::systemEnvironment
+    \sa qEnvironmentVariableIntValue
+*/
+int qtcEnvironmentVariableIntValue(const QString &key, bool *ok)
+{
+    return Environment::systemEnvironment().value(key).toInt(ok);
+}
+
 } // namespace Utils

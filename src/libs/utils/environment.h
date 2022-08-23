@@ -175,6 +175,12 @@ public:
     static optional<EnvironmentProvider> provider(const QByteArray &id);
 };
 
+QString qtcEnvironmentVariable(const QString &key);
+QString qtcEnvironmentVariable(const QString &key, const QString &defaultValue);
+bool qtcEnvironmentVariableIsSet(const QString &key);
+bool qtcEnvironmentVariableIsEmpty(const QString &key);
+int qtcEnvironmentVariableIntValue(const QString &key, bool *ok = nullptr);
+
 } // namespace Utils
 
 Q_DECLARE_METATYPE(Utils::Environment)
