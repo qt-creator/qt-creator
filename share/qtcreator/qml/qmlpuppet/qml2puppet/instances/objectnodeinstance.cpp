@@ -456,6 +456,10 @@ QVariant ObjectNodeInstance::convertEnumToValue(const QVariant &value, const Pro
 
 void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
+    if (name == "state" && object() && object()->metaObject()
+        && object()->metaObject()->className() == QByteArrayLiteral("QQuickStateGroup"))
+        return;
+
     if (ignoredProperties().contains(name))
         return;
 
