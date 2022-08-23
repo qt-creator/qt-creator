@@ -71,7 +71,7 @@ public:
     static QString propertyEditorResourcesPath();
     static QString templateGeneration(const NodeMetaInfo &type, const NodeMetaInfo &superType, const QmlObjectNode &node);
 
-    static QUrl getQmlFileUrl(const TypeName &relativeTypeName, const NodeMetaInfo &info = NodeMetaInfo());
+    static QUrl getQmlFileUrl(const TypeName &relativeTypeName, const NodeMetaInfo &info);
     static QUrl getQmlUrlForMetaInfo(const NodeMetaInfo &modelNode, TypeName &className);
 
     static bool checkIfUrlExists(const QUrl &url);

@@ -562,14 +562,9 @@ const char *typeTraitsToString(TypeTraits traits)
     return "";
 }
 
-bool operator&(TypeTraits first, TypeTraits second)
-{
-    return static_cast<int>(first) & static_cast<int>(second);
-}
-
 const char *typeTraitsFlagsToString(TypeTraits traits)
 {
-    if (traits & TypeTraits::IsEnum)
+    if (bool(traits & TypeTraits::IsEnum))
         return "(IsEnum)";
 
     return "";

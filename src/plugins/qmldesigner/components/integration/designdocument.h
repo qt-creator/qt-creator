@@ -25,13 +25,13 @@
 
 #pragma once
 
-#include <model.h>
-#include <rewriterview.h>
 #include <basetexteditmodifier.h>
 #include <componenttextmodifier.h>
-#include <subcomponentmanager.h>
-
 #include <coreplugin/icontext.h>
+#include <model.h>
+#include <projectstorage/projectstoragefwd.h>
+#include <rewriterview.h>
+#include <subcomponentmanager.h>
 
 #include <QObject>
 #include <QString>
@@ -46,10 +46,6 @@ namespace ProjectExplorer {
 class Target;
 }
 
-namespace Sqlite {
-class Database;
-}
-
 namespace QmlDesigner {
 
 class ModelNode;
@@ -58,8 +54,6 @@ class QmlObjectNode;
 class CrumbleBarInfo;
 class ViewManager;
 class AbstractView;
-template<typename Database>
-class ProjectStorage;
 
 class QMLDESIGNERCORE_EXPORT DesignDocument: public QObject
 {

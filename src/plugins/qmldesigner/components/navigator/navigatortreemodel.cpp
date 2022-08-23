@@ -1040,7 +1040,9 @@ bool NavigatorTreeModel::dropAsImage3dTexture(const ModelNode &targetNode,
         || targetNode.isSubclassOf("QtQuick3D.PrincipledMaterial")) {
         // if dropping an image on a material, create a texture instead of image
         // Show texture property selection dialog
-        auto dialog = ChooseFromPropertyListDialog::createIfNeeded(targetNode, "QtQuick3D.Texture",
+        auto dialog = ChooseFromPropertyListDialog::createIfNeeded(targetNode,
+                                                                   m_view->model()->metaInfo(
+                                                                       "QtQuick3D.Texture"),
                                                                    Core::ICore::dialogParent());
         if (!dialog)
             return false;
@@ -1103,10 +1105,12 @@ ModelNode NavigatorTreeModel::createTextureNode(const NodeAbstractProperty &targ
     return {};
 }
 
-TypeName propertyType(const NodeAbstractProperty &property)
+namespace {
+NodeMetaInfo propertyType(const NodeAbstractProperty &property)
 {
-    return property.parentModelNode().metaInfo().property(property.name()).propertyTypeName();
+    return property.parentModelNode().metaInfo().property(property.name()).propertyType();
 }
+} // namespace
 
 void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProperty,
                                               const QList<ModelNode> &modelNodes,
@@ -1115,18 +1119,17 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
 {
     QTC_ASSERT(m_view, return);
 
-    auto doMoveNodesInteractive = [&parentProperty, modelNodes, targetIndex](){
-        const TypeName propertyQmlType = propertyType(parentProperty);
+    auto doMoveNodesInteractive = [&parentProperty, modelNodes, targetIndex]() {
+        const auto propertyQmlType = propertyType(parentProperty);
         int idx = targetIndex;
         for (const ModelNode &modelNode : modelNodes) {
-            if (modelNode.isValid()
-                    && modelNode != parentProperty.parentModelNode()
-                    && !modelNode.isAncestorOf(parentProperty.parentModelNode())
-                    && (modelNode.metaInfo().isSubclassOf(propertyQmlType)
-                        || propertyQmlType == "alias"
-                        || parentProperty.name() == "data"
-                        || (parentProperty.parentModelNode().metaInfo().defaultPropertyName() == parentProperty.name()
-                            && propertyQmlType == "<cpp>.QQmlComponent"))) {
+            if (modelNode.isValid() && modelNode != parentProperty.parentModelNode()
+                && !modelNode.isAncestorOf(parentProperty.parentModelNode())
+                && (modelNode.metaInfo().isSubclassOf(propertyQmlType) || propertyQmlType.isAlias()
+                    || parentProperty.name() == "data"
+                    || (parentProperty.parentModelNode().metaInfo().defaultPropertyName()
+                            == parentProperty.name()
+                        && propertyQmlType.isQmlComponent()))) {
                 //### todo: allowing alias is just a heuristic
                 //once the MetaInfo is part of instances we can do this right
 

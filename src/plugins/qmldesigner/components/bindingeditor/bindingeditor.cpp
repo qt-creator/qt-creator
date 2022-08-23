@@ -113,7 +113,10 @@ void BindingEditor::setBackendValue(const QVariant &backendValue)
         const ModelNode node = propertyEditorValue->modelNode();
 
         if (node.isValid()) {
-            m_backendValueTypeName = node.metaInfo().property(propertyEditorValue->name()).propertyTypeName();
+            m_backendValueTypeName = node.metaInfo()
+                                         .property(propertyEditorValue->name())
+                                         .propertyType()
+                                         .typeName();
 
             QString nodeId = node.id();
             if (nodeId.isEmpty())
@@ -206,7 +209,7 @@ void BindingEditor::prepareBindings()
     for (const auto &objnode : allNodes) {
         BindingEditorDialog::BindingOption binding;
         for (const auto &property : objnode.metaInfo().properties()) {
-            const TypeName &propertyTypeName = property.propertyTypeName();
+            const TypeName &propertyTypeName = property.propertyType().typeName();
 
             if (skipTypeFiltering
                     || (m_backendValueTypeName == propertyTypeName)
@@ -260,7 +263,7 @@ void BindingEditor::prepareBindings()
                     BindingEditorDialog::BindingOption binding;
 
                     for (const auto &property : metaInfo.properties()) {
-                        TypeName propertyTypeName = property.propertyTypeName();
+                        TypeName propertyTypeName = property.propertyType().typeName();
 
                         if (skipTypeFiltering
                                 || (m_backendValueTypeName == propertyTypeName)

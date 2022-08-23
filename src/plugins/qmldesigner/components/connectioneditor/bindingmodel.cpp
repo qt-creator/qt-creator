@@ -157,10 +157,10 @@ QStringList BindingModel::possibleSourceProperties(const BindingProperty &bindin
     const QStringList stringlist = expression.split(QLatin1String("."));
     QStringList possibleProperties;
 
-    TypeName typeName;
+    NodeMetaInfo type;
 
     if (auto metaInfo = bindingProperty.parentModelNode().metaInfo(); metaInfo.isValid())
-        typeName = metaInfo.property(bindingProperty.name()).propertyTypeName();
+        type = metaInfo.property(bindingProperty.name()).propertyType();
     else
         qWarning() << " BindingModel::possibleSourcePropertiesForRow no meta info for target node";
 
@@ -172,18 +172,16 @@ QStringList BindingModel::possibleSourceProperties(const BindingProperty &bindin
         //if it's not a valid model node, maybe it's a singleton
         if (RewriterView* rv = connectionView()->rewriterView()) {
             for (const QmlTypeData &data : rv->getQMLTypes()) {
-                if (!data.typeName.isEmpty()) {
-                    if (data.typeName == id) {
-                        NodeMetaInfo metaInfo = connectionView()->model()->metaInfo(data.typeName.toUtf8());
+                if (!data.typeName.isEmpty() && data.typeName == id) {
+                    NodeMetaInfo metaInfo = connectionView()->model()->metaInfo(data.typeName.toUtf8());
 
-                        if (metaInfo.isValid()) {
-                            for (const auto &property : metaInfo.properties()) {
-                                //without check for now
-                                possibleProperties.push_back(QString::fromUtf8(property.name()));
-                            }
-
-                            return possibleProperties;
+                    if (metaInfo.isValid()) {
+                        for (const auto &property : metaInfo.properties()) {
+                            //without check for now
+                            possibleProperties.push_back(QString::fromUtf8(property.name()));
                         }
+
+                        return possibleProperties;
                     }
                 }
             }
@@ -207,7 +205,7 @@ QStringList BindingModel::possibleSourceProperties(const BindingProperty &bindin
 
     if (metaInfo.isValid())  {
         for (const auto &property : metaInfo.properties()) {
-            if (property.propertyTypeName() == typeName) //### todo proper check
+            if (property.propertyType() == type) //### todo proper check
                 possibleProperties.push_back(QString::fromUtf8(property.name()));
         }
     } else {

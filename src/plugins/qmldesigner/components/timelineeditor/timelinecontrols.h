@@ -51,7 +51,7 @@ public:
     virtual void setSize(int width, int height) = 0;
 };
 
-TimelineControl *createTimelineControl(const TypeName &name);
+TimelineControl *createTimelineControl(const NodeMetaInfo &metaInfo);
 
 class FloatControl : public QDoubleSpinBox, public TimelineControl
 {

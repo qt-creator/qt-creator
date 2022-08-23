@@ -201,7 +201,7 @@ void PropertyEditorView::changeValue(const QString &name)
     bool propertyTypeUrl = false;
 
     if (metaInfo.isValid() && metaInfo.hasProperty(propertyName)
-        && metaInfo.property(propertyName).propertyTypeNameIsUrl()) {
+        && metaInfo.property(propertyName).propertyType().isUrl()) {
         // turn absolute local file paths into relative paths
         propertyTypeUrl = true;
         QString filePath = castedValue.toUrl().toString();
@@ -272,13 +272,13 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
 
         if (auto metaInfo = qmlObjectNode->modelNode().metaInfo();
             metaInfo.isValid() && metaInfo.hasProperty(name)) {
-            const auto &propertTypeName = metaInfo.property(name).propertyTypeName();
-            if (propertTypeName == "QColor") {
+            const auto &propertType = metaInfo.property(name).propertyType();
+            if (propertType.isColor()) {
                 if (QColor(value->expression().remove('"')).isValid()) {
                     qmlObjectNode->setVariantProperty(name, QColor(value->expression().remove('"')));
                     return;
                 }
-            } else if (propertTypeName == "bool") {
+            } else if (propertType.isBool()) {
                 if (isTrueFalseLiteral(value->expression())) {
                     if (value->expression().compare("true", Qt::CaseInsensitive) == 0)
                         qmlObjectNode->setVariantProperty(name, true);
@@ -286,21 +286,21 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
                         qmlObjectNode->setVariantProperty(name, false);
                     return;
                 }
-            } else if (propertTypeName == "int") {
+            } else if (propertType.isInteger()) {
                 bool ok;
                 int intValue = value->expression().toInt(&ok);
                 if (ok) {
                     qmlObjectNode->setVariantProperty(name, intValue);
                     return;
                 }
-            } else if (propertTypeName == "qreal") {
+            } else if (propertType.isFloat()) {
                 bool ok;
                 qreal realValue = value->expression().toDouble(&ok);
                 if (ok) {
                     qmlObjectNode->setVariantProperty(name, realValue);
                     return;
                 }
-            } else if (propertTypeName == "QVariant") {
+            } else if (propertType.isVariant()) {
                 bool ok;
                 qreal realValue = value->expression().toDouble(&ok);
                 if (ok) {
@@ -464,7 +464,7 @@ void PropertyEditorView::setupQmlBackend()
     TypeName diffClassName;
     if (commonAncestor.isValid()) {
         diffClassName = commonAncestor.typeName();
-        const QList<NodeMetaInfo> hierarchy = commonAncestor.classHierarchy();
+        const NodeMetaInfos hierarchy = commonAncestor.classHierarchy();
         for (const NodeMetaInfo &metaInfo : hierarchy) {
             if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsFile))
                 break;

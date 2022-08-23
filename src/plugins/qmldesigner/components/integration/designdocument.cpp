@@ -617,12 +617,13 @@ void DesignDocument::paste()
             const double scatterRange = 20.;
             int offset = QRandomGenerator::global()->generateDouble() * scatterRange - scatterRange / 2;
 
+            const auto defaultPropertyName = targetNode.metaInfo().defaultPropertyName();
+            auto parentProperty = targetNode.nodeListProperty(defaultPropertyName);
             for (const ModelNode &node : qAsConst(selectedNodes)) {
-                PropertyName defaultProperty(targetNode.metaInfo().defaultPropertyName());
                 ModelNode pastedNode(view.insertModel(node));
                 pastedNodeList.append(pastedNode);
                 scatterItem(pastedNode, targetNode, offset);
-                targetNode.nodeListProperty(defaultProperty).reparentHere(pastedNode);
+                parentProperty.reparentHere(pastedNode);
             }
 
             view.setSelectedModelNodes(pastedNodeList);

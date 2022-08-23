@@ -67,4 +67,12 @@ enum AnchorLineType {
     AnchorLineAllMask = AnchorLineVerticalMask | AnchorLineHorizontalMask
 };
 
+constexpr bool useProjectStorage()
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+    return true;
+#else
+    return false;
+#endif
+}
 } // namespace QmlDesigner

@@ -195,6 +195,10 @@ void ActionEditor::prepareConnections()
     constexpr auto typeWhiteList = std::make_tuple(
         "string", "real", "int", "double", "bool", "QColor", "color", "QtQuick.Item", "QQuickItem");
 
+    auto isSkippedType = [](auto &&type) {
+        return !(type.isString() || type.isInteger() || type.isBool() || type.isColor()
+                 || type.isFloat() || type.isQmlItem());
+    };
     static QList<PropertyName> methodBlackList({"toString", "destroy"});
 
     QList<ActionEditorDialog::ConnectionOption> connections;
@@ -210,12 +214,12 @@ void ActionEditor::prepareConnections()
         ActionEditorDialog::ConnectionOption connection(modelNode.id());
 
         for (const auto &property : modelNode.metaInfo().properties()) {
-            if (!property.hasPropertyTypeName(typeWhiteList))
+            if (isSkippedType(property.propertyType()))
                 continue;
 
             connection.properties.append(
                 ActionEditorDialog::PropertyOption(QString::fromUtf8(property.name()),
-                                                   skipCpp(std::move(property.propertyTypeName())),
+                                                   skipCpp(property.propertyType().typeName()),
                                                    property.isWritable()));
         }
 
@@ -270,13 +274,13 @@ void ActionEditor::prepareConnections()
                 if (metaInfo.isValid()) {
                     ActionEditorDialog::SingletonOption singelton;
                     for (const auto &property : metaInfo.properties()) {
-                        if (!property.hasPropertyTypeName(typeWhiteList))
+                        if (isSkippedType(property.propertyType()))
                             continue;
 
-                        singelton.properties.append(
-                            ActionEditorDialog::PropertyOption(QString::fromUtf8(property.name()),
-                                                               skipCpp(property.propertyTypeName()),
-                                                               property.isWritable()));
+                        singelton.properties.append(ActionEditorDialog::PropertyOption(
+                            QString::fromUtf8(property.name()),
+                            skipCpp(property.propertyType().typeName()),
+                            property.isWritable()));
                     }
 
                     if (!singelton.properties.isEmpty()) {

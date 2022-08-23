@@ -184,7 +184,7 @@ public:
                 propertyDeclarationId);
     }
 
-    Utils::optional<Storage::Info::Type> type(TypeId typeId)
+    Utils::optional<Storage::Info::Type> type(TypeId typeId) const
     {
         return selectInfoTypeByTypeIdStatement.template optionalValueWithTransaction<Storage::Info::Type>(
             typeId);

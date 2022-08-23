@@ -515,7 +515,7 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
     for (const auto &property : metaInfo.properties()) {
         setupPropertyEditorValue(property.name(),
                                  propertyEditor,
-                                 QString::fromUtf8(property.propertyTypeName()));
+                                 QString::fromUtf8(property.propertyType().typeName()));
     }
 
     auto valueObject = qobject_cast<PropertyEditorValue *>(variantToQObject(
@@ -579,18 +579,16 @@ inline bool dotPropertyHeuristic(const QmlObjectNode &node, const NodeMetaInfo &
     const PropertyName parentProperty = list.first();
     const PropertyName itemProperty = list.last();
 
-    TypeName typeName = type.property(parentProperty).propertyTypeName();
+    NodeMetaInfo propertyType = type.property(parentProperty).propertyType();
 
     NodeMetaInfo itemInfo = node.view()->model()->metaInfo("QtQuick.Item");
     NodeMetaInfo textInfo = node.view()->model()->metaInfo("QtQuick.Text");
     NodeMetaInfo rectangleInfo = node.view()->model()->metaInfo("QtQuick.Rectangle");
     NodeMetaInfo imageInfo = node.view()->model()->metaInfo("QtQuick.Image");
 
-    if (typeName == "font"
-            || itemInfo.hasProperty(itemProperty)
-            || textInfo.isSubclassOf(typeName)
-            || rectangleInfo.isSubclassOf(typeName)
-            || imageInfo.isSubclassOf(typeName))
+    if (propertyType.isFont() || itemInfo.hasProperty(itemProperty)
+        || textInfo.isSubclassOf(propertyType) || rectangleInfo.isSubclassOf(propertyType)
+        || imageInfo.isSubclassOf(propertyType))
         return false;
 
     return true;
@@ -630,10 +628,10 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
 
         if (!superType.hasProperty(propertyName) // TODO add property.isLocalProperty()
             && property.isWritable() && dotPropertyHeuristic(node, metaType, propertyName)) {
-            QString typeName = QString::fromUtf8(property.propertyTypeName());
+            QString typeName = QString::fromUtf8(property.propertyType().typeName());
 
             if (typeName == "alias" && node.isValid())
-                typeName = QString::fromLatin1(node.instanceType(propertyName));
+                typeName = QString::fromUtf8(node.instanceType(propertyName));
 
             // Check if a template for the type exists
             if (allTypes.contains(typeName)) {
@@ -674,9 +672,9 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
         PropertyName underscoreProperty = propertyName;
         underscoreProperty.replace('.', '_');
 
-        TypeName typeName = property.propertyTypeName();
+        TypeName typeName = property.propertyType().typeName();
         // alias resolution only possible with instance
-        if (typeName == "alias" && node.isValid())
+        if (!useProjectStorage() && typeName == "alias" && node.isValid())
             typeName = node.instanceType(propertyName);
 
         QString filledTemplate;
@@ -743,9 +741,9 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
         emptyTemplate = false;
         for (auto &[property, properties] : propertyMap) {
             //     for (auto it = propertyMap.cbegin(); it != propertyMap.cend(); ++it) {
-            TypeName parentTypeName = property.propertyTypeName();
+            TypeName parentTypeName = property.propertyType().typeName();
             // alias resolution only possible with instance
-            if (parentTypeName == "alias" && node.isValid())
+            if (!useProjectStorage() && parentTypeName == "alias" && node.isValid())
                 parentTypeName = node.instanceType(property.name());
 
             qmlInnerTemplate += "Section {\n";
@@ -817,9 +815,10 @@ static NodeMetaInfo findCommonSuperClass(const NodeMetaInfo &first, const NodeMe
 NodeMetaInfo PropertyEditorQmlBackend::findCommonAncestor(const ModelNode &node)
 {
     if (!node.isValid())
-        return {};
+        return node.metaInfo();
 
-    QTC_ASSERT(node.metaInfo().isValid(), return {});
+    if (auto metaInfo = node.metaInfo(); metaInfo.isValid())
+        return metaInfo;
 
     AbstractView *view = node.view();
 
@@ -910,7 +909,7 @@ void PropertyEditorQmlBackend::setValueforAuxiliaryProperties(const QmlObjectNod
 QUrl PropertyEditorQmlBackend::getQmlUrlForMetaInfo(const NodeMetaInfo &metaInfo, TypeName &className)
 {
     if (metaInfo.isValid()) {
-        const QList<NodeMetaInfo> hierarchy = metaInfo.classHierarchy();
+        const NodeMetaInfos hierarchy = metaInfo.classHierarchy();
         for (const NodeMetaInfo &info : hierarchy) {
             QUrl fileUrl = fileToUrl(locateQmlFile(info, QString::fromUtf8(qmlFileName(info))));
             if (fileUrl.isValid()) {

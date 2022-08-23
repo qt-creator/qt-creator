@@ -36,6 +36,7 @@
 
 #include <bindingproperty.h>
 #include <nodeabstractproperty.h>
+#include <nodemetainfo.h>
 #include <theme.h>
 #include <variantproperty.h>
 
@@ -218,17 +219,13 @@ void CurveEditorModel::reset(const std::vector<TreeItem *> &items)
 
 PropertyTreeItem::ValueType typeFrom(const QmlDesigner::QmlTimelineKeyframeGroup &group)
 {
-    if (group.valueType() == QmlDesigner::TypeName("double")
-        || group.valueType() == QmlDesigner::TypeName("real")
-        || group.valueType() == QmlDesigner::TypeName("float"))
+    if (group.valueType().isFloat())
         return PropertyTreeItem::ValueType::Double;
 
-    if (group.valueType() == QmlDesigner::TypeName("boolean")
-        || group.valueType() == QmlDesigner::TypeName("bool"))
+    if (group.valueType().isBool())
         return PropertyTreeItem::ValueType::Bool;
 
-    if (group.valueType() == QmlDesigner::TypeName("integer")
-        || group.valueType() == QmlDesigner::TypeName("int"))
+    if (group.valueType().isInteger())
         return PropertyTreeItem::ValueType::Integer;
 
     // Ignoring: QColor / HAlignment / VAlignment

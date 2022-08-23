@@ -34,8 +34,9 @@
 #include "internalvariantproperty.h"
 
 #include <auxiliarydata.h>
-
 #include <utils/optional.h>
+#include <projectstorageids.h>
+#include <utils/smallstring.h>
 
 #include <QHash>
 #include <QMap>
@@ -149,6 +150,9 @@ public:
     int nodeSourceType = 0;
     QString behaviorPropertyName;
     QStringList scriptFunctions;
+    ModuleId moduleId;                   // is invalid if type is implicit
+    Utils::SmallString documentTypeName; // how the type is written in den Document
+    TypeId typeId;
 
 private:
     AuxiliaryDatas m_auxiliaryDatas;

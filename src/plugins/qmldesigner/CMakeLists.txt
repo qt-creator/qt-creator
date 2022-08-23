@@ -3,6 +3,15 @@ if (APPLE)
   set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/QmlDesigner")
 endif()
 
+
+env_with_default("QDS_USE_PROJECTSTORAGE" ENV_QDS_USE_PROJECTSTORAGE OFF)
+option(USE_PROJECTSTORAGE "Build uses ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
+add_feature_info("Build uses ProjectStorage" ${USE_PROJECTSTORAGE} "")
+
+env_with_default("QDS_WITH_QMLDOM" ENV_QDS_WITH_QMLDOM OFF)
+option(WITH_QMLDOM "Build with QmlDom" ${ENV_QDS_WITH_QMLDOM})
+add_feature_info("Build with QmlDom" ${WITH_QMLDOM} "")
+
 add_qtc_plugin(QmlDesigner
   CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0 AND TARGET Qt5::QuickWidgets AND TARGET Qt5::Svg
   DEPENDS
@@ -11,6 +20,7 @@ add_qtc_plugin(QmlDesigner
   DEFINES
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
     SHARE_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../../share/qtcreator/qmldesigner"
+    $<$<BOOL:${USE_PROJECTSTORAGE}>:QDS_USE_PROJECTSTORAGE>
   PUBLIC_INCLUDES
     "${CMAKE_CURRENT_LIST_DIR}"
     "${CMAKE_CURRENT_LIST_DIR}/designercore/include"
@@ -49,10 +59,6 @@ add_qtc_plugin(QmlDesigner
 
 include(qmldesignercore.cmake)
 extend_with_qmldesigner_core(QmlDesigner)
-
-env_with_default("QDS_WITH_QMLDOM" ENV_QDS_WITH_QMLDOM OFF)
-option(WITH_QMLDOM "Build with QmlDom" ${ENV_QDS_WITH_QMLDOM})
-add_feature_info("Build with QmlDom" ${WITH_QMLDOM} "")
 
 function(get_and_add_as_subdirectory name repository git_tag build_dir source_dir source_subdir)
     # make the configuration in the build dir
@@ -458,6 +464,7 @@ extend_qtc_plugin(QmlDesigner
     nonlockingmutex.h
     projectstorageinterface.h
     projectstorage.cpp projectstorage.h
+    projectstoragefwd.h
     projectstoragepathwatcher.h
     projectstoragepathwatcherinterface.h
     projectstoragepathwatchernotifierinterface.h

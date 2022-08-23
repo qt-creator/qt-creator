@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <projectstoragefwd.h>
+
 #include <QList>
 #include <QObject>
 
@@ -42,14 +44,7 @@ class Project;
 class Target;
 } // namespace ProjectExplorer
 
-namespace Sqlite {
-class Database;
-}
-
 namespace QmlDesigner {
-
-template<typename Database>
-class ProjectStorage;
 
 class QmlDesignerProjectManager : public QObject
 {

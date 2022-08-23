@@ -28,6 +28,7 @@
 #include <qmldesignercorelib_global.h>
 
 #include <documentmessage.h>
+#include <projectstorage/projectstoragefwd.h>
 
 #include <QMimeData>
 #include <QObject>
@@ -39,10 +40,6 @@ QT_BEGIN_NAMESPACE
 class QPixmap;
 class QUrl;
 QT_END_NAMESPACE
-
-namespace Sqlite {
-class Database;
-}
 
 namespace QmlDesigner {
 
@@ -64,8 +61,6 @@ class AbstractProperty;
 class RewriterView;
 class NodeInstanceView;
 class TextModifier;
-template<typename Database>
-class ProjectStorage;
 
 using PropertyListType = QList<QPair<PropertyName, QVariant> >;
 
@@ -106,8 +101,8 @@ public:
 
     const MetaInfo metaInfo() const;
     MetaInfo metaInfo();
-    NodeMetaInfo metaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1);
-    bool hasNodeMetaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1);
+    NodeMetaInfo metaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
+    bool hasNodeMetaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
     void setMetaInfo(const MetaInfo &metaInfo);
 
     void attachView(AbstractView *view);
@@ -134,7 +129,7 @@ public:
     NodeInstanceView *nodeInstanceView() const;
     void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
 
-    Model *metaInfoProxyModel();
+    Model *metaInfoProxyModel() const;
 
     TextModifier *textModifier() const;
     void setTextModifier(TextModifier *textModifier);
@@ -153,6 +148,8 @@ public:
 
     void startDrag(QMimeData *mimeData, const QPixmap &icon);
     void endDrag();
+
+    NotNullPointer<const ProjectStorage<Sqlite::Database>> projectStorage() const;
 
 private:
     std::unique_ptr<Internal::ModelPrivate> d;

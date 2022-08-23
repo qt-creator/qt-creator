@@ -299,20 +299,12 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
         auto addMetaInfoProperties = [&](const NodeMetaInfo& itemMetaInfo, QString itemName){
             if (itemMetaInfo.isValid()) {
                 for (const auto &property : itemMetaInfo.properties()) {
-                    TypeName propertyType = property.propertyTypeName();
-                    if (!propertyType.isEmpty()) {
-                        //first letter is a reliable item indicator
-                        QChar firstLetter = QString::fromUtf8(propertyType).at(0);
-                        if (firstLetter.isLetter() && firstLetter.isUpper()) {
-                            if (!property.isEnumType() && !property.isPrivate()
-                                && !property.isListProperty() && !property.isPointer()) {
-                                NodeMetaInfo propertyMetaInfo =
-                                        connectionModel->connectionView()->model()->metaInfo(propertyType);
-                                if (propertyMetaInfo.isValid()) {
-                                    if (propertyMetaInfo.isQmlItem()) {
-                                        connectionComboBox->addItem(itemName + "." + property.name());
-                                    }
-                                }
+                    NodeMetaInfo propertyType = property.propertyType();
+                    if (propertyType.isValid() && propertyType.isFileComponent()) {
+                        if (!property.isEnumType() && !property.isPrivate()
+                            && !property.isListProperty() && !property.isPointer()) {
+                            if (propertyType.isQmlItem()) {
+                                connectionComboBox->addItem(itemName + "." + property.name());
                             }
                         }
                     }

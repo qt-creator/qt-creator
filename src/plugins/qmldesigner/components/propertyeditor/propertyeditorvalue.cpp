@@ -63,7 +63,7 @@ QVariant PropertyEditorValue::value() const
     if (modelNode().isValid()) {
         if (auto metaInfo = modelNode().metaInfo();
             metaInfo.isValid() && metaInfo.hasProperty(name())
-            && metaInfo.property(name()).propertyTypeNameIsUrl()) {
+            && metaInfo.property(name()).propertyType().isUrl()) {
             returnValue = returnValue.toUrl().toString();
         }
     }
@@ -106,7 +106,7 @@ static void fixAmbigousColorNames(const QmlDesigner::ModelNode &modelNode,
 {
     if (modelNode.isValid()) {
         if (auto metaInfo = modelNode.metaInfo();
-            metaInfo.isValid() && metaInfo.property(name).propertyTypeNameIsColor()) {
+            metaInfo.isValid() && metaInfo.property(name).propertyType().isColor()) {
             if ((value->type() == QVariant::Color)) {
                 QColor color = value->value<QColor>();
                 int alpha = color.alpha();
@@ -124,7 +124,7 @@ static void fixUrl(const QmlDesigner::ModelNode &modelNode, const QmlDesigner::P
 {
     if (modelNode.isValid()) {
         if (auto metaInfo = modelNode.metaInfo();
-            metaInfo.isValid() && metaInfo.property(name).propertyTypeNameIsUrl())
+            metaInfo.isValid() && metaInfo.property(name).propertyType().isUrl())
 
             if (!value->isValid())
                 *value = QStringLiteral("");
@@ -149,7 +149,7 @@ void PropertyEditorValue::setValueWithEmit(const QVariant &value)
         if (modelNode().isValid()) {
             if (auto metaInfo = modelNode().metaInfo();
                 metaInfo.isValid() && metaInfo.hasProperty(name())
-                && metaInfo.property(name()).propertyTypeNameIsUrl()) {
+                && metaInfo.property(name()).propertyType().isUrl()) {
                 newValue = QUrl(newValue.toString());
             }
         }
@@ -268,7 +268,7 @@ bool PropertyEditorValue::isTranslated() const
     if (modelNode().isValid()) {
         if (auto metaInfo = modelNode().metaInfo();
             metaInfo.isValid() && metaInfo.hasProperty(name())
-            && metaInfo.property(name()).propertyTypeNameIsString()) {
+            && metaInfo.property(name()).propertyType().isString()) {
             const QmlDesigner::QmlObjectNode objectNode(modelNode());
             if (objectNode.isValid() && objectNode.hasBindingProperty(name())) {
                 const QRegularExpression rx(
@@ -438,7 +438,7 @@ QString PropertyEditorValue::getTranslationContext() const
     if (modelNode().isValid()) {
         if (auto metaInfo = modelNode().metaInfo();
             metaInfo.isValid() && metaInfo.hasProperty(name())
-            && metaInfo.property(name()).propertyTypeNameIsString()) {
+            && metaInfo.property(name()).propertyType().isString()) {
             const QmlDesigner::QmlObjectNode objectNode(modelNode());
             if (objectNode.isValid() && objectNode.hasBindingProperty(name())) {
                 const QRegularExpression rx(QRegularExpression::anchoredPattern(
@@ -532,7 +532,7 @@ bool PropertyEditorValue::idListReplace(int idx, const QString &value)
 void PropertyEditorValue::commitDrop(const QString &path)
 {
     if (m_modelNode.isSubclassOf("QtQuick3D.Material")
-        && m_modelNode.metaInfo().property(m_name).hasPropertyTypeName("QtQuick3D.Texture")) {
+        && m_modelNode.metaInfo().property(m_name).propertyType().isQtQuick3DTexture()) {
         // create a texture node
         QmlDesigner::NodeMetaInfo metaInfo = m_modelNode.view()->model()->metaInfo("QtQuick3D.Texture");
         QmlDesigner::ModelNode texture = m_modelNode.view()->createModelNode("QtQuick3D.Texture",
@@ -635,7 +635,8 @@ void PropertyEditorNodeWrapper::add(const QString &type)
             propertyType = m_editorValue->modelNode()
                                .metaInfo()
                                .property(m_editorValue->name())
-                               .propertyTypeName();
+                               .propertyType()
+                               .typeName();
         }
         while (propertyType.contains('*')) //strip star
             propertyType.chop(1);

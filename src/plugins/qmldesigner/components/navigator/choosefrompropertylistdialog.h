@@ -58,7 +58,7 @@ public:
                                                         const ModelNode &newNode,
                                                         QWidget *parent = 0);
     static ChooseFromPropertyListDialog *createIfNeeded(const ModelNode &targetNode,
-                                                        TypeName type,
+                                                        const NodeMetaInfo &propertyType,
                                                         QWidget *parent = 0);
 
 private:

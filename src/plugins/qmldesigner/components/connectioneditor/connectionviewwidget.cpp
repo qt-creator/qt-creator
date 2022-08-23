@@ -216,9 +216,11 @@ void ConnectionViewWidget::contextMenuEvent(QContextMenuEvent *event)
                     return;
 
                 const ModelNode node = property.parentModelNode();
-                const TypeName typeName = property.isDynamic()
-                                              ? property.dynamicTypeName()
-                                              : node.metaInfo().property(property.name()).propertyTypeName();
+                const TypeName typeName = property.isDynamic() ? property.dynamicTypeName()
+                                                               : node.metaInfo()
+                                                                     .property(property.name())
+                                                                     .propertyType()
+                                                                     .typeName();
 
                 const QString targetName = node.displayName() + "." + property.name();
 

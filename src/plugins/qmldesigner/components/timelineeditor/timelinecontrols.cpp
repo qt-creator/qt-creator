@@ -40,11 +40,11 @@
 
 namespace QmlDesigner {
 
-TimelineControl *createTimelineControl(const TypeName &name)
+TimelineControl *createTimelineControl(const NodeMetaInfo &metaInfo)
 {
-    if (name == "real" || name == "double" || name == "float")
+    if (metaInfo.isFloat())
         return new FloatControl;
-    if (name == "QColor" || name == "color")
+    if (metaInfo.isColor())
         return new ColorControl;
 
     return nullptr;

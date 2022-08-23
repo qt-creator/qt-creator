@@ -268,6 +268,9 @@ public:
 
     void updateEnabledViews();
 
+public:
+    NotNullPointer<ProjectStorage<Sqlite::Database>> projectStorage = nullptr;
+
 private:
     void removePropertyWithoutNotification(const InternalPropertyPointer &property);
     void removeAllSubNodes(const InternalNodePointer &node);
@@ -298,7 +301,6 @@ private:
     QPointer<TextModifier> m_textModifier;
     QPointer<Model> m_metaInfoProxyModel;
     QHash<TypeName, QSharedPointer<NodeMetaInfoPrivate>> m_nodeMetaInfoCache;
-    ProjectStorage<Sqlite::Database> *m_projectStorage = nullptr;
     bool m_writeLock = false;
     qint32 m_internalIdCounter = 1;
 };

@@ -998,7 +998,7 @@ static int getMajorVersionFromNode(const ModelNode &modelNode)
 static int getMinorVersionFromNode(const ModelNode &modelNode)
 {
     if (modelNode.metaInfo().isValid()) {
-        const QList<NodeMetaInfo> infos =  modelNode.metaInfo().classHierarchy();
+        const NodeMetaInfos infos =  modelNode.metaInfo().classHierarchy();
         for (const NodeMetaInfo &info :  infos) {
             if (info.typeName() == "QtQuick.QtObject" || info.typeName() == "QtQuick.Item")
                 return info.minorVersion();

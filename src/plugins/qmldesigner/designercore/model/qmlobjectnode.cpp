@@ -252,7 +252,7 @@ QVariant QmlObjectNode::modelValue(const PropertyName &name) const
 bool QmlObjectNode::isTranslatableText(const PropertyName &name) const
 {
     if (modelNode().metaInfo().isValid() && modelNode().metaInfo().hasProperty(name)
-        && modelNode().metaInfo().property(name).propertyTypeNameIsString()) {
+        && modelNode().metaInfo().property(name).propertyType().isString()) {
         if (modelNode().hasBindingProperty(name)) {
             static QRegularExpression regularExpressionPattern(
                 QLatin1String("^qsTr(|Id|anslate)\\(\".*\"\\)$"));

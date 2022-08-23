@@ -870,7 +870,17 @@ NodeMetaInfo ModelNode::metaInfo() const
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
     }
 
-    return NodeMetaInfo(model()->metaInfoProxyModel(), type(), majorVersion(), minorVersion());
+    if (!m_internalNode->typeId)
+        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+
+    if constexpr (useProjectStorage()) {
+        return NodeMetaInfo(m_internalNode->typeId, m_model->projectStorage());
+    } else {
+        return NodeMetaInfo(m_model->metaInfoProxyModel(),
+                            m_internalNode->typeName,
+                            m_internalNode->majorVersion,
+                            m_internalNode->minorVersion);
+    }
 }
 
 bool ModelNode::hasMetaInfo() const
@@ -948,20 +958,23 @@ bool ModelNode::hasNodeAbstractProperty(const PropertyName &name) const
 
 bool ModelNode::hasDefaultNodeAbstractProperty() const
 {
-    return hasProperty(metaInfo().defaultPropertyName())
-           && m_internalNode->property(metaInfo().defaultPropertyName())->isNodeAbstractProperty();
+    auto defaultPropertyName = metaInfo().defaultPropertyName();
+    return hasProperty(defaultPropertyName)
+           && m_internalNode->property(defaultPropertyName)->isNodeAbstractProperty();
 }
 
 bool ModelNode::hasDefaultNodeListProperty() const
 {
-    return hasProperty(metaInfo().defaultPropertyName())
-           && m_internalNode->property(metaInfo().defaultPropertyName())->isNodeListProperty();
+    auto defaultPropertyName = metaInfo().defaultPropertyName();
+    return hasProperty(defaultPropertyName)
+           && m_internalNode->property(defaultPropertyName)->isNodeListProperty();
 }
 
 bool ModelNode::hasDefaultNodeProperty() const
 {
-    return hasProperty(metaInfo().defaultPropertyName())
-           && m_internalNode->property(metaInfo().defaultPropertyName())->isNodeProperty();
+    auto defaultPropertyName = metaInfo().defaultPropertyName();
+    return hasProperty(defaultPropertyName)
+           && m_internalNode->property(defaultPropertyName)->isNodeProperty();
 }
 
 bool ModelNode::hasNodeProperty(const PropertyName &name) const

@@ -145,7 +145,7 @@ void MaterialEditorView::changeValue(const QString &name)
     bool propertyTypeUrl = false;
 
     if (metaInfo.isValid() && metaInfo.hasProperty(propertyName)) {
-        if (metaInfo.property(propertyName).propertyTypeNameIsUrl()) {
+        if (metaInfo.property(propertyName).propertyType().isUrl()) {
             // turn absolute local file paths into relative paths
             propertyTypeUrl = true;
             QString filePath = castedValue.toUrl().toString();
@@ -209,7 +209,7 @@ void MaterialEditorView::changeExpression(const QString &propertyName)
 
         if (auto metaInfo = m_selectedMaterial.metaInfo();
             metaInfo.isValid() && metaInfo.hasProperty(name)) {
-            auto propertyTypeName = metaInfo.property(name).propertyTypeName();
+            auto propertyTypeName = metaInfo.property(name).propertyType().typeName();
             if (propertyTypeName == "QColor") {
                 if (QColor(value->expression().remove('"')).isValid()) {
                     qmlObjectNode.setVariantProperty(name, QColor(value->expression().remove('"')));
@@ -542,8 +542,7 @@ void MaterialEditorView::setupQmlBackend()
         NodeMetaInfo metaInfo = m_selectedMaterial.metaInfo();
         if (metaInfo.isValid()) {
             diffClassName = metaInfo.typeName();
-            const QList<NodeMetaInfo> hierarchy = metaInfo.classHierarchy();
-            for (const NodeMetaInfo &metaInfo : hierarchy) {
+            for (const NodeMetaInfo &metaInfo : metaInfo.classHierarchy()) {
                 if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsUrl))
                     break;
                 qmlSpecificsUrl = PropertyEditorQmlBackend::getQmlFileUrl(metaInfo.typeName()
@@ -1022,7 +1021,7 @@ void QmlDesigner::MaterialEditorView::highlightSupportedProperties(bool highligh
     QTC_ASSERT(metaInfo.isValid(), return);
 
     for (const QString &propName : propNames) {
-        if (metaInfo.property(propName.toUtf8()).hasPropertyTypeName("QtQuick3D.Texture")) {
+        if (metaInfo.property(propName.toUtf8()).propertyType().isQtQuick3DTexture()) {
             QObject *propEditorValObj = propMap.value(propName).value<QObject *>();
             PropertyEditorValue *propEditorVal = qobject_cast<PropertyEditorValue *>(propEditorValObj);
             propEditorVal->setHasActiveDrag(highlight);

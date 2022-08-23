@@ -235,11 +235,11 @@ TimelinePropertyItem *TimelinePropertyItem::create(const QmlTimelineKeyframeGrou
     if (!objectNode.isValid())
         return item;
 
-    auto nameOfType = objectNode.modelNode()
-                          .metaInfo()
-                          .property(item->m_frames.propertyName())
-                          .propertyTypeName();
-    item->m_control = createTimelineControl(nameOfType);
+    auto propertyType = objectNode.modelNode()
+                            .metaInfo()
+                            .property(item->m_frames.propertyName())
+                            .propertyType();
+    item->m_control = createTimelineControl(propertyType);
     if (item->m_control) {
         item->m_control->setSize((TimelineConstants::sectionWidth / 2.6) - 10,
                                  item->size().height() - 2 + 1);

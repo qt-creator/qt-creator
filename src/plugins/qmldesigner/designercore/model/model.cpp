@@ -30,11 +30,7 @@
 #include "model_p.h"
 #include <modelnode.h>
 
-#include <QFileInfo>
-#include <QHashIterator>
-#include <QPointer>
 
-#include <utils/algorithm.h>
 
 #include "abstractview.h"
 #include "internalnodeabstractproperty.h"
@@ -57,6 +53,8 @@
 #include "textmodifier.h"
 #include "variantproperty.h"
 
+#include <projectstorage/projectstorage.h>
+
 #ifndef QMLDESIGNER_TEST
 #include <qmldesignerplugin.h>
 #include <viewmanager.h>
@@ -68,6 +66,9 @@
 #include <utils/algorithm.h>
 
 #include <QDrag>
+#include <QFileInfo>
+#include <QHashIterator>
+#include <QPointer>
 #include <QRegularExpression>
 
 /*!
@@ -95,8 +96,8 @@ ModelPrivate::ModelPrivate(Model *model,
                            int major,
                            int minor,
                            Model *metaInfoProxyModel)
-    : m_model{model}
-    , m_projectStorage{&projectStorage}
+    : projectStorage{&projectStorage}
+    , m_model{model}
 {
     m_metaInfoProxyModel = metaInfoProxyModel;
 
@@ -1578,6 +1579,11 @@ void Model::endDrag()
     d->notifyDragEnded();
 }
 
+NotNullPointer<const ProjectStorage<Sqlite::Database>> Model::projectStorage() const
+{
+    return d->projectStorage;
+}
+
 QString Model::generateNewId(const QString &prefixName) const
 {
     return generateNewId(prefixName, QStringLiteral("element"));
@@ -1666,12 +1672,12 @@ void Model::setNodeInstanceView(NodeInstanceView *nodeInstanceView)
  \brief Returns the model that is used for metainfo
  \return Returns itself if other metaInfoProxyModel does not exist
 */
-Model *Model::metaInfoProxyModel()
+Model *Model::metaInfoProxyModel() const
 {
     if (d->m_metaInfoProxyModel)
         return d->m_metaInfoProxyModel->metaInfoProxyModel();
 
-    return this;
+    return const_cast<Model *>(this);
 }
 
 TextModifier *Model::textModifier() const
@@ -1740,7 +1746,7 @@ const MetaInfo Model::metaInfo() const
     return d->metaInfo();
 }
 
-bool Model::hasNodeMetaInfo(const TypeName &typeName, int majorVersion, int minorVersion)
+bool Model::hasNodeMetaInfo(const TypeName &typeName, int majorVersion, int minorVersion) const
 {
     return metaInfo(typeName, majorVersion, minorVersion).isValid();
 }
@@ -1750,9 +1756,33 @@ void Model::setMetaInfo(const MetaInfo &metaInfo)
     d->setMetaInfo(metaInfo);
 }
 
-NodeMetaInfo Model::metaInfo(const TypeName &typeName, int majorVersion, int minorVersion)
+namespace {
+[[maybe_unused]] std::pair<Utils::SmallStringView, Utils::SmallStringView> moduleTypeName(
+    const TypeName &typeName)
 {
-    return NodeMetaInfo(metaInfoProxyModel(), typeName, majorVersion, minorVersion);
+    auto foundDot = std::find(typeName.begin(), typeName.end(), '.');
+
+    if (foundDot == typeName.end())
+        return {"", typeName};
+
+    return {{typeName.begin(), foundDot}, {std::next(foundDot), typeName.end()}};
+}
+} // namespace
+
+NodeMetaInfo Model::metaInfo(const TypeName &typeName, int majorVersion, int minorVersion) const
+{
+    if constexpr (useProjectStorage()) {
+        auto [module, componentName] = moduleTypeName(typeName);
+
+        ModuleId moduleId = d->projectStorage->moduleId(module);
+        TypeId typeId = d->projectStorage->typeId(moduleId,
+                                                  componentName,
+                                                  Storage::Synchronization::Version{majorVersion,
+                                                                                    minorVersion});
+        return NodeMetaInfo(typeId, d->projectStorage);
+    } else {
+        return NodeMetaInfo(metaInfoProxyModel(), typeName, majorVersion, minorVersion);
+    }
 }
 
 /*!

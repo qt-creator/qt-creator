@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <sqliteids.h>
+#include <sqlite/sqliteids.h>
 
 namespace QmlDesigner {
 

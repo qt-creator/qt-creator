@@ -54,7 +54,7 @@ public:
     void setValue(const QVariant &value, qreal frame);
     QVariant value(qreal frame) const;
 
-    TypeName valueType() const;
+    NodeMetaInfo valueType() const;
 
     qreal currentFrame() const;
 

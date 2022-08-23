@@ -383,10 +383,10 @@ QStringList DynamicPropertiesModel::possibleSourceProperties(const BindingProper
     const QString expression = bindingProperty.expression();
     const QStringList stringlist = expression.split(QLatin1String("."));
 
-    PropertyName typeName;
+    NodeMetaInfo type;
 
     if (auto metaInfo = bindingProperty.parentModelNode().metaInfo(); metaInfo.isValid()) {
-        typeName = metaInfo.property(bindingProperty.name()).propertyTypeName();
+        type = metaInfo.property(bindingProperty.name()).propertyType();
     } else {
         qWarning() << " BindingModel::possibleSourcePropertiesForRow no meta info for target node";
     }
@@ -405,7 +405,7 @@ QStringList DynamicPropertiesModel::possibleSourceProperties(const BindingProper
     if (metaInfo.isValid())  {
         QStringList possibleProperties;
         for (const auto &property : metaInfo.properties()) {
-            if (property.propertyTypeName() == typeName) //### todo proper check
+            if (property.propertyType() == type) //### todo proper check
                 possibleProperties.push_back(QString::fromUtf8(property.name()));
         }
         return possibleProperties;

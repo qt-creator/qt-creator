@@ -206,21 +206,16 @@ QVariant QmlTimelineKeyframeGroup::value(qreal frame) const
     return QVariant();
 }
 
-TypeName QmlTimelineKeyframeGroup::valueType() const
+NodeMetaInfo QmlTimelineKeyframeGroup::valueType() const
 {
     QTC_ASSERT(isValid(), return {});
 
     const ModelNode targetNode = target();
 
-    TypeName typeName;
-
     if (targetNode.isValid() && targetNode.hasMetaInfo())
-        typeName = targetNode.metaInfo().property(propertyName()).propertyTypeName();
+        return targetNode.metaInfo().property(propertyName()).propertyType();
 
-    if (typeName.startsWith("<cpp>."))
-        typeName.remove(0, 6);
-
-    return typeName;
+    return {};
 }
 
 bool QmlTimelineKeyframeGroup::hasKeyframe(qreal frame)

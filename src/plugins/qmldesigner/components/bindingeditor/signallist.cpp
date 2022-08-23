@@ -169,7 +169,7 @@ void SignalList::prepareSignals()
 
         // Gather valid properties and aliases from components
         for (const auto &property : node.metaInfo().properties()) {
-            const NodeMetaInfo info = m_modelNode.model()->metaInfo(property.propertyTypeName());
+            const NodeMetaInfo info = property.propertyType();
 
             callOnlyMouseSignalNames(info.signalNames(),
                                      QmlFlowViewNode::mouseSignals(),

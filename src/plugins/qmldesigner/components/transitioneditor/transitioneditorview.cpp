@@ -218,8 +218,6 @@ ModelNode TransitionEditorView::addNewTransition()
 
     QHash<QString, QStringList> idPropertyList;
 
-    const QVector<TypeName> validProperties = {"int", "real", "double", "qreal", "color", "QColor", "float"};
-
     for (const QmlModelState &state : qAsConst(states)) {
         for (const QmlPropertyChanges & change : state.propertyChanges()) {
             QStringList locList;
@@ -227,11 +225,9 @@ ModelNode TransitionEditorView::addNewTransition()
             if (target.isValid() && target.hasMetaInfo()) {
                 const QString targetId = target.id();
                 for (const VariantProperty &property : change.modelNode().variantProperties()) {
-                    TypeName typeName = target.metaInfo().property(property.name()).propertyTypeName();
-                    if (typeName.startsWith("<cpp>."))
-                        typeName.remove(0, 6);
+                    auto type = target.metaInfo().property(property.name()).propertyType();
 
-                    if (validProperties.contains(typeName))
+                    if (type.isInteger() || type.isColor() || type.isFloat())
                         locList.append(QString::fromUtf8(property.name()));
                 }
                 if (idPropertyList.contains(targetId)) {
@@ -303,6 +299,8 @@ ModelNode TransitionEditorView::addNewTransition()
             });
     } else {
         QString properties;
+        const QVector<TypeName> validProperties = {
+            "int", "real", "double", "qreal", "color", "QColor", "float"};
         for (const PropertyName &property : validProperties)
             properties.append(QString::fromUtf8(property) + ", ");
         if (!properties.isEmpty())

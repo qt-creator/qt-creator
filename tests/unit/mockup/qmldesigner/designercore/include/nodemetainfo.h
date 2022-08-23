@@ -27,6 +27,9 @@
 
 #include "propertymetainfo.h"
 
+#include <projectstorage/projectstoragefwd.h>
+#include <projectstorageids.h>
+
 #include <QIcon>
 #include <QList>
 #include <QString>
@@ -49,6 +52,8 @@ class NodeMetaInfo
 public:
     NodeMetaInfo() {}
     NodeMetaInfo(Model *, const TypeName &, int, int) {}
+    NodeMetaInfo(TypeId, NotNullPointer<const ProjectStorage<Sqlite::Database>>) {}
+    NodeMetaInfo(NotNullPointer<const ProjectStorage<Sqlite::Database>>) {}
 
     bool isValid() const { return {}; }
     bool isFileComponent() const { return {}; }
@@ -62,8 +67,8 @@ public:
     PropertyName defaultPropertyName() const { return "data"; }
     bool hasDefaultProperty() const { return {}; }
 
-    QList<NodeMetaInfo> classHierarchy() const { return {}; }
-    QList<NodeMetaInfo> superClasses() const { return {}; }
+    std::vector<NodeMetaInfo> classHierarchy() const { return {}; }
+    std::vector<NodeMetaInfo> superClasses() const { return {}; }
     NodeMetaInfo directSuperClass() const { return {}; }
 
     bool defaultPropertyIsComponent() const { return {}; }
@@ -90,5 +95,7 @@ public:
 
     static void clearCache() {}
 };
+
+using NodeMetaInfos = std::vector<NodeMetaInfo>;
 
 } // namespace QmlDesigner
