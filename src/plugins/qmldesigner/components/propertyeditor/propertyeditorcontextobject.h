@@ -28,12 +28,14 @@
 #include <model.h>
 #include <modelnode.h>
 
-#include <QObject>
-#include <QUrl>
-#include <QQmlPropertyMap>
-#include <QQmlComponent>
 #include <QColor>
+#include <QObject>
 #include <QPoint>
+#include <QPointer>
+#include <QQmlComponent>
+#include <QQmlPropertyMap>
+#include <QUrl>
+
 #include <QMouseEvent>
 
 namespace QmlDesigner {
@@ -183,7 +185,7 @@ private:
 
     QPoint m_lastPos;
 
-    Model *m_model = nullptr;
+    QPointer<Model> m_model;
 
     bool m_aliasExport = false;
 
