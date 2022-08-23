@@ -256,11 +256,13 @@ protected:
     Storage::Synchronization::Type objectType{
         "QObject",
         Storage::Synchronization::ImportedType{},
+        Storage::Synchronization::ImportedType{},
         Storage::TypeTraits::Reference,
         qmltypesPathSourceId,
         {Storage::Synchronization::ExportedType{exampleModuleId, "Object"},
          Storage::Synchronization::ExportedType{exampleModuleId, "Obj"}}};
     Storage::Synchronization::Type itemType{"QItem",
+                                            Storage::Synchronization::ImportedType{},
                                             Storage::Synchronization::ImportedType{},
                                             Storage::TypeTraits::Reference,
                                             qmltypes2PathSourceId,

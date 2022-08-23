@@ -689,6 +689,7 @@ public:
     explicit Type() = default;
     explicit Type(Utils::SmallStringView typeName,
                   ImportedTypeName prototype,
+                  ImportedTypeName extension,
                   TypeTraits traits,
                   SourceId sourceId,
                   ExportedTypes exportedTypes = {},
@@ -701,6 +702,7 @@ public:
         : typeName{typeName}
         , defaultPropertyName{defaultPropertyName}
         , prototype{std::move(prototype)}
+        , extension{std::move(extension)}
         , exportedTypes{std::move(exportedTypes)}
         , propertyDeclarations{std::move(propertyDeclarations)}
         , functionDeclarations{std::move(functionDeclarations)}
@@ -711,11 +713,16 @@ public:
         , changeLevel{changeLevel}
     {}
 
-    explicit Type(Utils::SmallStringView typeName, TypeId prototypeId, TypeTraits traits, SourceId sourceId)
+    explicit Type(Utils::SmallStringView typeName,
+                  TypeId prototypeId,
+                  TypeId extensionId,
+                  TypeTraits traits,
+                  SourceId sourceId)
         : typeName{typeName}
         , traits{traits}
         , sourceId{sourceId}
         , prototypeId{prototypeId}
+        , extensionId{extensionId}
     {}
 
     explicit Type(Utils::SmallStringView typeName,
@@ -732,10 +739,12 @@ public:
 
     explicit Type(Utils::SmallStringView typeName,
                   Utils::SmallStringView prototype,
+                  Utils::SmallStringView extension,
                   TypeTraits traits,
                   SourceId sourceId)
         : typeName{typeName}
         , prototype{ImportedType{prototype}}
+        , extension{ImportedType{extension}}
         , traits{traits}
         , sourceId{sourceId}
 
@@ -745,6 +754,7 @@ public:
                   Utils::SmallStringView typeName,
                   TypeId typeId,
                   TypeId prototypeId,
+                  TypeId extensionId,
                   TypeTraits traits,
                   Utils::SmallStringView defaultPropertyName)
         : typeName{typeName}
@@ -753,13 +763,15 @@ public:
         , sourceId{sourceId}
         , typeId{typeId}
         , prototypeId{prototypeId}
+        , extensionId{extensionId}
     {}
 
     friend bool operator==(const Type &first, const Type &second) noexcept
     {
         return first.typeName == second.typeName
                && first.defaultPropertyName == second.defaultPropertyName
-               && first.prototype == second.prototype && first.exportedTypes == second.exportedTypes
+               && first.prototype == second.prototype && first.extension == second.extension
+               && first.exportedTypes == second.exportedTypes
                && first.propertyDeclarations == second.propertyDeclarations
                && first.functionDeclarations == second.functionDeclarations
                && first.signalDeclarations == second.signalDeclarations
@@ -770,6 +782,7 @@ public:
     TypeNameString typeName;
     Utils::SmallString defaultPropertyName;
     ImportedTypeName prototype;
+    ImportedTypeName extension;
     ExportedTypes exportedTypes;
     PropertyDeclarations propertyDeclarations;
     FunctionDeclarations functionDeclarations;
@@ -779,6 +792,7 @@ public:
     SourceId sourceId;
     TypeId typeId;
     TypeId prototypeId;
+    TypeId extensionId;
     ChangeLevel changeLevel = ChangeLevel::Full;
 };
 

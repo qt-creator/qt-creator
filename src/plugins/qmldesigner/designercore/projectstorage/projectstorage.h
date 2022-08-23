@@ -75,6 +75,7 @@ public:
         AliasPropertyDeclarations relinkableAliasPropertyDeclarations;
         PropertyDeclarations relinkablePropertyDeclarations;
         Prototypes relinkablePrototypes;
+        Prototypes relinkableExtensions;
         TypeIds deletedTypeIds;
 
         TypeIds updatedTypeIds;
@@ -98,6 +99,7 @@ public:
                          relinkableAliasPropertyDeclarations,
                          relinkablePropertyDeclarations,
                          relinkablePrototypes,
+                         relinkableExtensions,
                          package.updatedSourceIds);
 
         deleteNotUpdatedTypes(updatedTypeIds,
@@ -106,11 +108,13 @@ public:
                               relinkableAliasPropertyDeclarations,
                               relinkablePropertyDeclarations,
                               relinkablePrototypes,
+                              relinkableExtensions,
                               deletedTypeIds);
 
         relink(relinkableAliasPropertyDeclarations,
                relinkablePropertyDeclarations,
                relinkablePrototypes,
+               relinkableExtensions,
                deletedTypeIds);
 
         linkAliases(insertedAliasPropertyDeclarations, updatedAliasPropertyDeclarations);
@@ -228,6 +232,8 @@ public:
     {
         return commonTypeCache.template builtinTypeId<builtinType>();
     }
+
+    auto prototypes(TypeId type) const {}
 
     PropertyDeclarationId fetchPropertyDeclarationByTypeIdAndName(TypeId typeId,
                                                                   Utils::SmallStringView name)
@@ -640,6 +646,7 @@ private:
                           AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                           PropertyDeclarations &relinkablePropertyDeclarations,
                           Prototypes &relinkablePrototypes,
+                          Prototypes &relinkableExtensions,
                           const SourceIds &updatedSourceIds)
     {
         Storage::Synchronization::ExportedTypes exportedTypes;
@@ -680,9 +687,10 @@ private:
                                  exportedTypes,
                                  relinkableAliasPropertyDeclarations,
                                  relinkablePropertyDeclarations,
-                                 relinkablePrototypes);
+                                 relinkablePrototypes,
+                                 relinkableExtensions);
 
-        syncPrototypes(types, relinkablePrototypes);
+        syncPrototypesAndExtensions(types, relinkablePrototypes, relinkableExtensions);
         resetDefaultPropertiesIfChanged(types);
         resetRemovedAliasPropertyDeclarationsToNull(types, relinkableAliasPropertyDeclarations);
         syncDeclarations(types,
@@ -930,14 +938,27 @@ private:
         updatePrototypeIdToNullStatement.readCallback(callback, prototypeId);
     }
 
+    void handleExtensions(TypeId extensionId, Prototypes &relinkableExtensions)
+    {
+        auto callback = [&](TypeId typeId, ImportedTypeNameId extensionNameId) {
+            relinkableExtensions.emplace_back(typeId, extensionNameId);
+
+            return Sqlite::CallbackControl::Continue;
+        };
+
+        updateExtensionIdToNullStatement.readCallback(callback, extensionId);
+    }
+
     void deleteType(TypeId typeId,
                     AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                     PropertyDeclarations &relinkablePropertyDeclarations,
-                    Prototypes &relinkablePrototypes)
+                    Prototypes &relinkablePrototypes,
+                    Prototypes &relinkableExtensions)
     {
         handlePropertyDeclarationWithPropertyType(typeId, relinkablePropertyDeclarations);
         handleAliasPropertyDeclarationsWithPropertyType(typeId, relinkableAliasPropertyDeclarations);
         handlePrototypes(typeId, relinkablePrototypes);
+        handleExtensions(typeId, relinkableExtensions);
         deleteTypeNamesByTypeIdStatement.write(typeId);
         deleteEnumerationDeclarationByTypeIdStatement.write(typeId);
         deletePropertyDeclarationByTypeIdStatement.write(typeId);
@@ -995,8 +1016,10 @@ private:
             },
             TypeCompare<PropertyDeclaration>{});
     }
-
-    void relinkPrototypes(Prototypes &relinkablePrototypes, const TypeIds &deletedTypeIds)
+    template<typename Callable>
+    void relinkPrototypes(Prototypes &relinkablePrototypes,
+                          const TypeIds &deletedTypeIds,
+                          Callable updateStatement)
     {
         std::sort(relinkablePrototypes.begin(), relinkablePrototypes.end());
 
@@ -1011,7 +1034,7 @@ private:
                 if (!prototypeId)
                     throw TypeNameDoesNotExists{};
 
-                updateTypePrototypeStatement.write(prototype.typeId, prototypeId);
+                updateStatement(prototype.typeId, prototypeId);
                 checkForPrototypeChainCycle(prototype.typeId);
             },
             TypeCompare<Prototype>{});
@@ -1023,6 +1046,7 @@ private:
                                AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                                PropertyDeclarations &relinkablePropertyDeclarations,
                                Prototypes &relinkablePrototypes,
+                               Prototypes &relinkableExtensions,
                                TypeIds &deletedTypeIds)
     {
         auto callback = [&](TypeId typeId) {
@@ -1030,7 +1054,8 @@ private:
             deleteType(typeId,
                        relinkableAliasPropertyDeclarations,
                        relinkablePropertyDeclarations,
-                       relinkablePrototypes);
+                       relinkablePrototypes,
+                       relinkableExtensions);
             return Sqlite::CallbackControl::Continue;
         };
 
@@ -1044,11 +1069,17 @@ private:
     void relink(AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                 PropertyDeclarations &relinkablePropertyDeclarations,
                 Prototypes &relinkablePrototypes,
+                Prototypes &relinkableExtensions,
                 TypeIds &deletedTypeIds)
     {
         std::sort(deletedTypeIds.begin(), deletedTypeIds.end());
 
-        relinkPrototypes(relinkablePrototypes, deletedTypeIds);
+        relinkPrototypes(relinkablePrototypes, deletedTypeIds, [&](TypeId typeId, TypeId prototypeId) {
+            updateTypePrototypeStatement.write(typeId, prototypeId);
+        });
+        relinkPrototypes(relinkableExtensions, deletedTypeIds, [&](TypeId typeId, TypeId prototypeId) {
+            updateTypeExtensionStatement.write(typeId, prototypeId);
+        });
         relinkPropertyDeclarations(relinkablePropertyDeclarations, deletedTypeIds);
         relinkAliasPropertyDeclarations(relinkableAliasPropertyDeclarations, deletedTypeIds);
     }
@@ -1119,7 +1150,8 @@ private:
                                   Storage::Synchronization::ExportedTypes &exportedTypes,
                                   AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                                   PropertyDeclarations &relinkablePropertyDeclarations,
-                                  Prototypes &relinkablePrototypes)
+                                  Prototypes &relinkablePrototypes,
+                                  Prototypes &relinkableExtensions)
     {
         std::sort(exportedTypes.begin(), exportedTypes.end(), [](auto &&first, auto &&second) {
             if (first.moduleId < second.moduleId)
@@ -1192,6 +1224,7 @@ private:
                 handleAliasPropertyDeclarationsWithPropertyType(view.typeId,
                                                                 relinkableAliasPropertyDeclarations);
                 handlePrototypes(view.typeId, relinkablePrototypes);
+                handleExtensions(view.typeId, relinkableExtensions);
                 updateExportedTypeNameTypeIdStatement.write(view.exportedTypeNameId, type.typeId);
                 return Sqlite::UpdateChange::Update;
             }
@@ -1203,6 +1236,7 @@ private:
             handleAliasPropertyDeclarationsWithPropertyType(view.typeId,
                                                             relinkableAliasPropertyDeclarations);
             handlePrototypes(view.typeId, relinkablePrototypes);
+            handleExtensions(view.typeId, relinkableExtensions);
             deleteExportedTypeNameStatement.write(view.exportedTypeNameId);
         };
 
@@ -1926,39 +1960,57 @@ private:
                                                                         propertyDeclarationId);
     }
 
-    void syncPrototype(Storage::Synchronization::Type &type, TypeIds &typeIds)
+    std::pair<TypeId, ImportedTypeNameId> fetchImportedTypeNameIdAndTypeId(
+        const Storage::Synchronization::ImportedTypeName &typeName, SourceId sourceId)
+    {
+        TypeId typeId;
+        ImportedTypeNameId typeNameId;
+        if (!std::visit([](auto &&typeName) -> bool { return typeName.name.isEmpty(); }, typeName)) {
+            typeNameId = fetchImportedTypeNameId(typeName, sourceId);
+
+            typeId = fetchTypeId(typeNameId);
+
+            if (!typeId)
+                throw TypeNameDoesNotExists{};
+        }
+
+        return {typeId, typeNameId};
+    }
+
+    void syncPrototypeAndExtension(Storage::Synchronization::Type &type, TypeIds &typeIds)
     {
         if (type.changeLevel == Storage::Synchronization::ChangeLevel::Minimal)
             return;
 
-        if (std::visit([](auto &&typeName) -> bool { return typeName.name.isEmpty(); },
-                         type.prototype)) {
-            updatePrototypeStatement.write(type.typeId, Sqlite::NullValue{}, Sqlite::NullValue{});
-        } else {
-            ImportedTypeNameId prototypeTypeNameId = fetchImportedTypeNameId(type.prototype,
-                                                                             type.sourceId);
+        auto [prototypeId, prototypeTypeNameId] = fetchImportedTypeNameIdAndTypeId(type.prototype,
+                                                                                   type.sourceId);
+        auto [extensionId, extensionTypeNameId] = fetchImportedTypeNameIdAndTypeId(type.extension,
+                                                                                   type.sourceId);
 
-            TypeId prototypeId = fetchTypeId(prototypeTypeNameId);
+        updatePrototypeAndExtensionStatement.write(type.typeId,
+                                                   prototypeId,
+                                                   prototypeTypeNameId,
+                                                   extensionId,
+                                                   extensionTypeNameId);
 
-            if (!prototypeId)
-                throw TypeNameDoesNotExists{};
-
-            updatePrototypeStatement.write(type.typeId, prototypeId, prototypeTypeNameId);
+        if (prototypeId || extensionId)
             checkForPrototypeChainCycle(type.typeId);
-        }
 
         typeIds.push_back(type.typeId);
     }
 
-    void syncPrototypes(Storage::Synchronization::Types &types, Prototypes &relinkablePrototypes)
+    void syncPrototypesAndExtensions(Storage::Synchronization::Types &types,
+                                     Prototypes &relinkablePrototypes,
+                                     Prototypes &relinkableExtensions)
     {
         TypeIds typeIds;
         typeIds.reserve(types.size());
 
         for (auto &type : types)
-            syncPrototype(type, typeIds);
+            syncPrototypeAndExtension(type, typeIds);
 
         removeRelinkableEntries(relinkablePrototypes, typeIds, TypeCompare<Prototype>{});
+        removeRelinkableEntries(relinkableExtensions, typeIds, TypeCompare<Prototype>{});
     }
 
     ImportId fetchImportId(SourceId sourceId, const Storage::Synchronization::Import &import) const
@@ -2257,6 +2309,11 @@ private:
                                            Sqlite::ForeignKeyAction::NoAction,
                                            Sqlite::ForeignKeyAction::Restrict);
             typesTable.addColumn("prototypeNameId", Sqlite::StrictColumnType::Integer);
+            typesTable.addForeignKeyColumn("extensionId",
+                                           typesTable,
+                                           Sqlite::ForeignKeyAction::NoAction,
+                                           Sqlite::ForeignKeyAction::Restrict);
+            typesTable.addColumn("extensionNameId", Sqlite::StrictColumnType::Integer);
             auto &defaultPropertyIdColumn = typesTable.addColumn("defaultPropertyId",
                                                                  Sqlite::StrictColumnType::Integer);
 
@@ -2543,9 +2600,10 @@ public:
         "UPDATE SET traits=excluded.traits WHERE traits IS NOT "
         "excluded.traits RETURNING typeId",
         database};
-    WriteStatement<3> updatePrototypeStatement{
-        "UPDATE types SET prototypeId=?2, prototypeNameId=?3 WHERE typeId=?1 AND (prototypeId IS "
-        "NOT ?2 OR prototypeNameId IS NOT ?3)",
+    WriteStatement<5> updatePrototypeAndExtensionStatement{
+        "UPDATE types SET prototypeId=?2, prototypeNameId=?3, extensionId=?4, extensionNameId=?5 "
+        "WHERE typeId=?1 AND (prototypeId IS NOT ?2 OR extensionId IS NOT ?3 AND prototypeId "
+        "IS NOT ?4 OR extensionNameId IS NOT ?5)",
         database};
     mutable ReadStatement<1, 1> selectTypeIdByExportedNameStatement{
         "SELECT typeId FROM exportedTypeNames WHERE name=?1", database};
@@ -2570,41 +2628,57 @@ public:
 
     mutable ReadStatement<1, 2> selectPrototypeIdStatement{
         "WITH RECURSIVE "
+        "  all_prototype_and_extension(typeId, prototypeId) AS ("
+        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "    UNION ALL "
+        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
         "  typeSelection(typeId) AS ("
         "      VALUES(?1) "
         "    UNION ALL "
-        "      SELECT prototypeId FROM types JOIN typeSelection USING(typeId) WHERE prototypeId "
-        "        IS NOT NULL)"
+        "      SELECT prototypeId FROM all_prototype_and_extension JOIN typeSelection "
+        "        USING(typeId))"
         "SELECT typeId FROM typeSelection WHERE typeId=?2 LIMIT 1",
         database};
     mutable ReadStatement<1, 2> selectPropertyDeclarationIdByTypeIdAndNameStatement{
         "WITH RECURSIVE "
+        "  all_prototype_and_extension(typeId, prototypeId) AS ("
+        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "    UNION ALL "
+        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
         "  typeSelection(typeId, level) AS ("
         "      VALUES(?1, 0) "
         "    UNION ALL "
-        "      SELECT prototypeId, typeSelection.level+1 FROM types JOIN typeSelection "
-        "        USING(typeId) WHERE prototypeId IS NOT NULL) "
+        "      SELECT prototypeId, typeSelection.level+1 FROM all_prototype_and_extension JOIN "
+        "        typeSelection USING(typeId)) "
         "SELECT propertyDeclarationId FROM propertyDeclarations JOIN typeSelection USING(typeId) "
         "  WHERE name=?2 ORDER BY level LIMIT 1",
         database};
     mutable ReadStatement<3, 2> selectPropertyDeclarationByTypeIdAndNameStatement{
         "WITH RECURSIVE "
+        "  all_prototype_and_extension(typeId, prototypeId) AS ("
+        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "    UNION ALL "
+        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
         "  typeSelection(typeId, level) AS ("
         "      VALUES(?1, 0) "
         "    UNION ALL "
-        "      SELECT prototypeId, typeSelection.level+1 FROM types JOIN typeSelection "
-        "        USING(typeId) WHERE prototypeId IS NOT NULL)"
+        "      SELECT prototypeId, typeSelection.level+1 FROM all_prototype_and_extension JOIN "
+        "        typeSelection USING(typeId))"
         "SELECT propertyTypeId, propertyDeclarationId, propertyTraits "
         "  FROM propertyDeclarations JOIN typeSelection USING(typeId) "
         "  WHERE name=?2 ORDER BY level LIMIT 1",
         database};
     mutable ReadStatement<1, 1> selectPrototypeIdsStatement{
         "WITH RECURSIVE "
+        "  all_prototype_and_extension(typeId, prototypeId) AS ("
+        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "    UNION ALL "
+        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
         "  typeSelection(typeId, level) AS ("
         "      VALUES(?1, 0) "
         "    UNION ALL "
-        "      SELECT prototypeId, typeSelection.level+1 FROM types JOIN typeSelection "
-        "        USING(typeId) WHERE prototypeId IS NOT NULL) "
+        "      SELECT prototypeId, typeSelection.level+1 FROM all_prototype_and_extension JOIN "
+        "        typeSelection USING(typeId) WHERE prototypeId IS NOT NULL) "
         "SELECT typeId FROM typeSelection ORDER BY level DESC",
         database};
     mutable ReadStatement<1, 1> selectSourceContextIdFromSourceContextsBySourceContextPathStatement{
@@ -2625,8 +2699,8 @@ public:
         "INSERT INTO sources(sourceContextId, sourceName) VALUES (?,?)", database};
     mutable ReadStatement<3> selectAllSourcesStatement{
         "SELECT sourceName, sourceContextId, sourceId  FROM sources", database};
-    mutable ReadStatement<6, 1> selectTypeByTypeIdStatement{
-        "SELECT sourceId, t.name, t.typeId, prototypeId, traits, pd.name "
+    mutable ReadStatement<7, 1> selectTypeByTypeIdStatement{
+        "SELECT sourceId, t.name, t.typeId, prototypeId, extensionId, traits, pd.name "
         "FROM types AS t LEFT JOIN propertyDeclarations AS pd "
         "  ON defaultPropertyId=propertyDeclarationId WHERE t.typeId=?",
         database};
@@ -2634,8 +2708,8 @@ public:
         "SELECT moduleId, name, majorVersion, minorVersion FROM "
         "exportedTypeNames WHERE typeId=?",
         database};
-    mutable ReadStatement<6> selectTypesStatement{
-        "SELECT sourceId, t.name, t.typeId, prototypeId, traits, pd.name "
+    mutable ReadStatement<7> selectTypesStatement{
+        "SELECT sourceId, t.name, t.typeId, prototypeId, extensionId, traits, pd.name "
         "FROM types AS t LEFT JOIN propertyDeclarations AS pd "
         "  ON defaultPropertyId=propertyDeclarationId",
         database};
@@ -2816,11 +2890,15 @@ public:
         "DELETE FROM documentImports WHERE sourceId IN carray(?1)", database};
     ReadStatement<1, 2> selectPropertyDeclarationIdPrototypeChainDownStatement{
         "WITH RECURSIVE "
+        "  all_prototype_and_extension(typeId, prototypeId) AS ("
+        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "    UNION ALL "
+        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
         "  typeSelection(typeId, level) AS ("
         "      SELECT prototypeId, 0 FROM types WHERE typeId=?1 AND prototypeId IS NOT NULL"
         "    UNION ALL "
-        "      SELECT prototypeId, typeSelection.level+1 FROM types JOIN typeSelection "
-        "        USING(typeId) WHERE prototypeId IS NOT NULL)"
+        "      SELECT prototypeId, typeSelection.level+1 FROM all_prototype_and_extension JOIN "
+        "        typeSelection USING(typeId))"
         "SELECT propertyDeclarationId FROM typeSelection JOIN propertyDeclarations "
         "  USING(typeId) WHERE name=?2 ORDER BY level LIMIT 1",
         database};
@@ -2876,16 +2954,26 @@ public:
         "UPDATE types SET prototypeId=NULL WHERE prototypeId=?1 RETURNING "
         "typeId, prototypeNameId",
         database};
+    ReadWriteStatement<2, 1> updateExtensionIdToNullStatement{
+        "UPDATE types SET extensionId=NULL WHERE extensionId=?1 RETURNING "
+        "typeId, extensionNameId",
+        database};
     WriteStatement<2> updateTypePrototypeStatement{
         "UPDATE types SET prototypeId=?2 WHERE typeId=?1", database};
+    WriteStatement<2> updateTypeExtensionStatement{
+        "UPDATE types SET extensionId=?2 WHERE typeId=?1", database};
     mutable ReadStatement<1, 1> selectTypeIdsForPrototypeChainIdStatement{
         "WITH RECURSIVE "
-        "  prototypes(typeId) AS ("
-        "       SELECT prototypeId FROM types WHERE typeId=? AND prototypeId IS NOT NULL"
+        "  all_prototype_and_extension(typeId, prototypeId) AS ("
+        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
         "    UNION ALL "
-        "      SELECT prototypeId FROM types JOIN prototypes USING(typeId) WHERE prototypeId "
-        "        IS NOT NULL)"
-        "SELECT typeId FROM prototypes",
+        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
+        "  prototype_and_extension(typeId) AS ("
+        "       SELECT prototypeId FROM all_prototype_and_extension WHERE typeId=?"
+        "    UNION ALL "
+        "      SELECT prototypeId FROM all_prototype_and_extension JOIN prototype_and_extension "
+        "          USING(typeId)) "
+        "SELECT typeId FROM prototype_and_extension",
         database};
     WriteStatement<3> updatePropertyDeclarationAliasIdAndTypeNameIdStatement{
         "UPDATE propertyDeclarations SET aliasPropertyDeclarationId=?2, "
@@ -3057,11 +3145,15 @@ public:
         database};
     mutable ReadStatement<1, 1> selectPropertyDeclarationIdsForTypeStatement{
         "WITH RECURSIVE "
+        "  all_prototype_and_extension(typeId, prototypeId) AS ("
+        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "    UNION ALL "
+        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
         "  typeChain(typeId) AS ("
         "      VALUES(?1)"
         "    UNION ALL "
-        "      SELECT prototypeId FROM types JOIN typeChain "
-        "        USING(typeId) WHERE prototypeId IS NOT NULL)"
+        "      SELECT prototypeId FROM all_prototype_and_extension JOIN typeChain "
+        "        USING(typeId))"
         "SELECT propertyDeclarationId FROM typeChain JOIN propertyDeclarations "
         "  USING(typeId) ORDER BY propertyDeclarationId",
         database};
@@ -3073,11 +3165,15 @@ public:
         database};
     mutable ReadStatement<1, 2> selectPropertyDeclarationIdForTypeAndPropertyNameStatement{
         "WITH RECURSIVE "
+        "  all_prototype_and_extension(typeId, prototypeId) AS ("
+        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "    UNION ALL "
+        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
         "  typeChain(typeId, level) AS ("
         "      VALUES(?1, 0)"
         "    UNION ALL "
-        "      SELECT prototypeId, typeChain.level + 1 FROM types JOIN typeChain "
-        "        USING(typeId) WHERE prototypeId IS NOT NULL)"
+        "      SELECT prototypeId, typeChain.level + 1 FROM all_prototype_and_extension JOIN "
+        "        typeChain USING(typeId))"
         "SELECT propertyDeclarationId FROM typeChain JOIN propertyDeclarations "
         "  USING(typeId) WHERE name=?2 ORDER BY level LIMIT 1",
         database};
@@ -3093,21 +3189,29 @@ public:
         database};
     mutable ReadStatement<1, 1> selectSignalDeclarationNamesForTypeStatement{
         "WITH RECURSIVE "
+        "  all_prototype_and_extension(typeId, prototypeId) AS ("
+        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "    UNION ALL "
+        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
         "  typeChain(typeId) AS ("
         "      VALUES(?1)"
         "    UNION ALL "
-        "      SELECT prototypeId FROM types JOIN typeChain "
-        "        USING(typeId) WHERE prototypeId IS NOT NULL)"
+        "      SELECT prototypeId FROM all_prototype_and_extension JOIN typeChain "
+        "        USING(typeId)) "
         "SELECT name FROM typeChain JOIN signalDeclarations "
         "  USING(typeId) ORDER BY name",
         database};
     mutable ReadStatement<1, 1> selectFuncionDeclarationNamesForTypeStatement{
         "WITH RECURSIVE "
+        "  all_prototype_and_extension(typeId, prototypeId) AS ("
+        "       SELECT typeId, prototypeId FROM types WHERE prototypeId IS NOT NULL"
+        "    UNION ALL "
+        "       SELECT typeId, extensionId FROM types WHERE extensionId IS NOT NULL),"
         "  typeChain(typeId) AS ("
         "      VALUES(?1)"
         "    UNION ALL "
-        "      SELECT prototypeId FROM types JOIN typeChain "
-        "        USING(typeId) WHERE prototypeId IS NOT NULL)"
+        "      SELECT prototypeId FROM all_prototype_and_extension JOIN typeChain "
+        "        USING(typeId))"
         "SELECT name FROM typeChain JOIN functionDeclarations "
         "  USING(typeId) ORDER BY name",
         database};
