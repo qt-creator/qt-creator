@@ -3,6 +3,7 @@
 
 #include "loggingmanager.h"
 
+#include <utils/environment.h>
 #include <utils/filepath.h>
 
 #include <QCoreApplication>
@@ -17,6 +18,8 @@
 //             same applies for indirect usages (e.g. QTC_ASSERT() and the like).
 //             Using static functions of QLoggingCategory may cause dead locks as well.
 //
+
+using namespace Utils;
 
 namespace Core {
 namespace Internal {
@@ -111,12 +114,12 @@ static QList<FilterRuleSpec> fetchOriginalRules()
     if (!qtProjectString.isEmpty())
         appendRulesFromFile(qtProjectString);
 
-    iniFile = Utils::FilePath::fromString(qEnvironmentVariable("QT_LOGGING_CONF"));
+    iniFile = Utils::FilePath::fromString(qtcEnvironmentVariable("QT_LOGGING_CONF"));
     if (iniFile.exists())
         appendRulesFromFile(iniFile.toString());
 
-    if (qEnvironmentVariableIsSet("QT_LOGGING_RULES")) {
-        const QStringList rulesStrings = qEnvironmentVariable("QT_LOGGING_RULES").split(';');
+    if (qtcEnvironmentVariableIsSet("QT_LOGGING_RULES")) {
+        const QStringList rulesStrings = qtcEnvironmentVariable("QT_LOGGING_RULES").split(';');
         for (const QString &rule : rulesStrings) {
             FilterRuleSpec filterRule;
             if (parseLine(rule, &filterRule))
@@ -128,7 +131,7 @@ static QList<FilterRuleSpec> fetchOriginalRules()
 
 LoggingViewManager::LoggingViewManager(QObject *parent)
     : QObject(parent)
-    , m_originalLoggingRules(qEnvironmentVariable("QT_LOGGING_RULES"))
+    , m_originalLoggingRules(qtcEnvironmentVariable("QT_LOGGING_RULES"))
 {
     qRegisterMetaType<Core::Internal::LoggingCategoryEntry>();
     s_instance = this;

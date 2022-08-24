@@ -12,8 +12,9 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/qtcassert.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/qtcassert.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -856,9 +857,9 @@ QString ICore::systemInformation()
      return result;
 }
 
-static const QByteArray &screenShotsPath()
+static const QString &screenShotsPath()
 {
-    static const QByteArray path = qgetenv("QTC_SCREENSHOTS_PATH");
+    static const QString path = qtcEnvironmentVariable("QTC_SCREENSHOTS_PATH");
     return path;
 }
 

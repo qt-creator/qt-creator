@@ -138,7 +138,7 @@ static void startTerminalEmulator(const QString &workingDir, const Environment &
         }
         return programName;
     };
-    const QString cmdLine = quoteWinCommand(QString::fromLocal8Bit(qgetenv("COMSPEC")));
+    const QString cmdLine = quoteWinCommand(qtcEnvironmentVariable("COMSPEC"));
     // cmdLine is assumed to be detached -
     // https://blogs.msdn.microsoft.com/oldnewthing/20090601-00/?p=18083
 
