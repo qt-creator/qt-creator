@@ -17,6 +17,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/cpplanguage_details.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -378,7 +379,7 @@ void CompilerOptionsBuilder::addPrecompiledHeaderOptions(UsePrecompiledHeaders u
 
 void CompilerOptionsBuilder::addProjectMacros()
 {
-    static const int useMacros = qEnvironmentVariableIntValue("QTC_CLANG_USE_TOOLCHAIN_MACROS");
+    const int useMacros = qtcEnvironmentVariableIntValue("QTC_CLANG_USE_TOOLCHAIN_MACROS");
 
     if (m_projectPart.toolchainType == ProjectExplorer::Constants::CUSTOM_TOOLCHAIN_TYPEID
         || m_projectPart.toolchainType == Qnx::Constants::QNX_TOOLCHAIN_ID
@@ -772,8 +773,7 @@ void CompilerOptionsBuilder::reset()
 //  QMakeProject: -pipe -Whello -g -std=gnu++11 -Wall -W -D_REENTRANT -fPIC
 void CompilerOptionsBuilder::evaluateCompilerFlags()
 {
-    static QStringList userBlackList = QString::fromLocal8Bit(
-                                           qgetenv("QTC_CLANG_CMD_OPTIONS_BLACKLIST"))
+    const QStringList userBlackList = qtcEnvironmentVariable("QTC_CLANG_CMD_OPTIONS_BLACKLIST")
                                            .split(';', Qt::SkipEmptyParts);
 
     const Id toolChain = m_projectPart.toolchainType;

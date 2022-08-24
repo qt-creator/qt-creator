@@ -24,6 +24,7 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/TranslationUnit.h>
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -123,7 +124,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
 {
     QVERIFY(succeededSoFar());
 
-    if (qgetenv("QTC_TEST_WAIT_FOR_LOADED_PROJECT") != "1")
+    if (Utils::qtcEnvironmentVariable("QTC_TEST_WAIT_FOR_LOADED_PROJECT") != "1")
         QSKIP("Environment variable QTC_TEST_WAIT_FOR_LOADED_PROJECT=1 not set.");
     QVERIFY(waitUntilAProjectIsLoaded());
 

@@ -38,6 +38,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
@@ -148,7 +149,8 @@ ClangToolRunWorker::ClangToolRunWorker(RunControl *runControl,
     , m_fileInfos(fileInfos)
     , m_temporaryDir("clangtools-XXXXXX")
 {
-    m_temporaryDir.setAutoRemove(qEnvironmentVariable("QTC_CLANG_DONT_DELETE_OUTPUT_FILES") != "1");
+    m_temporaryDir.setAutoRemove(qtcEnvironmentVariable("QTC_CLANG_DONT_DELETE_OUTPUT_FILES")
+                                 != "1");
     setId("ClangTidyClazyRunner");
     setSupportsReRunning(false);
 

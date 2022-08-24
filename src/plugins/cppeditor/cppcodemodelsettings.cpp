@@ -493,7 +493,7 @@ int ClangdSettings::Data::defaultCompletionResults()
 {
     // Default clangd --limit-results value is 100
     bool ok = false;
-    const int userValue = qEnvironmentVariableIntValue("QTC_CLANGD_COMPLETION_RESULTS", &ok);
+    const int userValue = qtcEnvironmentVariableIntValue("QTC_CLANGD_COMPLETION_RESULTS", &ok);
     return ok ? userValue : 100;
 }
 

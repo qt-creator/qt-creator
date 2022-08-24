@@ -22,6 +22,7 @@
 
 #include <qtsupport/qtkitinformation.h>
 
+#include <utils/environment.h>
 #include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
 
@@ -166,7 +167,7 @@ void ClangToolsUnitTests::addTestRow(const QByteArray &relativeFilePath,
 
 int ClangToolsUnitTests::getTimeout()
 {
-    const int t = qEnvironmentVariableIntValue("QTC_CLANGTOOLS_TEST_TIMEOUT");
+    const int t = qtcEnvironmentVariableIntValue("QTC_CLANGTOOLS_TEST_TIMEOUT");
     return t > 0 ? t : 480000;
 }
 

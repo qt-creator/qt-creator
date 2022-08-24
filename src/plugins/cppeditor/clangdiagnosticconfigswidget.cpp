@@ -7,6 +7,7 @@
 #include "ui_clangdiagnosticconfigswidget.h"
 #include "ui_clangbasechecks.h"
 
+#include <utils/environment.h>
 #include <utils/executeondestruction.h>
 #include <utils/stringutils.h>
 #include <utils/treemodel.h>
@@ -220,7 +221,7 @@ static bool isValidOption(const QString &option)
 static QString validateDiagnosticOptions(const QStringList &options)
 {
     // This is handy for testing, allow disabling validation.
-    if (qEnvironmentVariableIntValue("QTC_CLANG_NO_DIAGNOSTIC_CHECK"))
+    if (Utils::qtcEnvironmentVariableIntValue("QTC_CLANG_NO_DIAGNOSTIC_CHECK"))
         return QString();
 
     for (const QString &option : options) {

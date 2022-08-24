@@ -7,23 +7,24 @@
 #include "../clangdclient.h"
 #include "../clangmodelmanagersupport.h"
 
+#include <coreplugin/editormanager/editormanager.h>
 #include <cplusplus/FindUsages.h>
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/cpptoolstestcase.h>
 #include <cppeditor/semantichighlighter.h>
-#include <coreplugin/editormanager/editormanager.h>
 #include <languageclient/languageclientmanager.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/target.h>
-#include <qtsupport/qtkitinformation.h>
 #include <texteditor/codeassist/assistproposaliteminterface.h>
 #include <texteditor/codeassist/textdocumentmanipulatorinterface.h>
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/textutils.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <QElapsedTimer>
 #include <QEventLoop>
@@ -113,7 +114,7 @@ void ClangdTest::waitForNewClient(bool withIndex)
 
 void ClangdTest::initTestCase()
 {
-    const QString clangdFromEnv = qEnvironmentVariable("QTC_CLANGD");
+    const QString clangdFromEnv = Utils::qtcEnvironmentVariable("QTC_CLANGD");
     if (!clangdFromEnv.isEmpty())
         CppEditor::ClangdSettings::setClangdFilePath(Utils::FilePath::fromString(clangdFromEnv));
     const auto clangd = CppEditor::ClangdSettings::instance().clangdFilePath();

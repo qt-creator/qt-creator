@@ -25,6 +25,7 @@
 #include <texteditor/codeassist/iassistproposalmodel.h>
 #include <texteditor/storagesettings.h>
 
+#include <utils/environment.h>
 #include <utils/executeondestruction.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -482,9 +483,9 @@ QString TemporaryCopiedDir::absolutePath(const QByteArray &relativePath) const
 
 int clangdIndexingTimeout()
 {
-    const QByteArray timeoutAsByteArray = qgetenv("QTC_CLANGD_INDEXING_TIMEOUT");
     bool isConversionOk = false;
-    const int intervalAsInt = timeoutAsByteArray.toInt(&isConversionOk);
+    const int intervalAsInt = qtcEnvironmentVariableIntValue("QTC_CLANGD_INDEXING_TIMEOUT",
+                                                             &isConversionOk);
     if (!isConversionOk)
         return Utils::HostOsInfo::isWindowsHost() ? 20000 : 10000;
     return intervalAsInt;

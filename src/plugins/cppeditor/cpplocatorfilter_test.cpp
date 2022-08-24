@@ -9,9 +9,10 @@
 #include "cpptoolstestcase.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/locator/locatorfiltertest.h>
 #include <coreplugin/testdatadir.h>
 #include <extensionsystem/pluginmanager.h>
-#include <coreplugin/locator/locatorfiltertest.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 
 #include <QDebug>
@@ -26,7 +27,7 @@ using namespace Utils;
 namespace CppEditor::Internal {
 namespace {
 
-const bool debug = qEnvironmentVariable("QTC_DEBUG_CPPLOCATORFILTERTESTCASE") == "1";
+const bool debug = qtcEnvironmentVariable("QTC_DEBUG_CPPLOCATORFILTERTESTCASE") == "1";
 
 QTC_DECLARE_MYTESTDATADIR("../../../tests/cpplocators/")
 

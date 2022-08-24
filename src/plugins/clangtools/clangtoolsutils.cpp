@@ -287,11 +287,11 @@ ClangDiagnosticConfig diagnosticConfig(const Utils::Id &diagConfigId)
     return configs.configWithId(diagConfigId);
 }
 
-static QStringList extraOptions(const char *envVar)
+static QStringList extraOptions(const QString &envVar)
 {
-    if (!qEnvironmentVariableIsSet(envVar))
+    if (!qtcEnvironmentVariableIsSet(envVar))
         return QStringList();
-    QString arguments = qEnvironmentVariable(envVar);
+    QString arguments = qtcEnvironmentVariable(envVar);
     return Utils::ProcessArgs::splitArgs(arguments);
 }
 
