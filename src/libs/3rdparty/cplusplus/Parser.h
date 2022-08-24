@@ -79,7 +79,7 @@ public:
     bool parseSimpleDeclaration(DeclarationAST *&node, ClassSpecifierAST *declaringClass = nullptr);
     bool parseDeclarationStatement(StatementAST *&node);
     bool parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, ClassSpecifierAST *declaringClass);
-    DecompositionDeclaratorAST *parseDecompositionDeclarator();
+    DecompositionDeclaratorAST *parseDecompositionDeclarator(SpecifierListAST *decl_specifier_list);
     bool parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, ClassSpecifierAST *declaringClass = nullptr);
     bool parseDeleteExpression(ExpressionAST *&node);
     bool parseDoStatement(StatementAST *&node);
@@ -317,6 +317,8 @@ public:
     void clearTemplateArgumentList() { _templateArgumentList.clear(); }
 
 private:
+    bool hasAuto(SpecifierListAST *decl_specifier_list) const;
+
     TranslationUnit *_translationUnit;
     Control *_control;
     MemoryPool *_pool;

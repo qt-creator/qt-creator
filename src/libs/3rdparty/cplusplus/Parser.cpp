@@ -1618,7 +1618,7 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
             node = ast;
             return true;
         }
-    } else if (const auto decl = parseDecompositionDeclarator()) {
+    } else if (const auto decl = parseDecompositionDeclarator(decl_specifier_list)) {
         DeclaratorAST *ast = new (_pool) DeclaratorAST;
         ast->attribute_list = attributes;
         ast->ptr_operator_list = ptr_operators;
@@ -1630,19 +1630,21 @@ bool Parser::parseCoreDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
     return false;
 }
 
-DecompositionDeclaratorAST *Parser::parseDecompositionDeclarator()
+DecompositionDeclaratorAST *Parser::parseDecompositionDeclarator(
+        SpecifierListAST *decl_specifier_list)
 {
-    if (LA() != T_LBRACKET)
+    if (!_languageFeatures.cxx11Enabled || LA() != T_LBRACKET || !hasAuto(decl_specifier_list))
         return nullptr;
     consumeToken();
 
     const auto decl = new (_pool) DecompositionDeclaratorAST;
     for (NameListAST **iter = &decl->identifiers; ; iter = &(*iter)->next) {
-        NameAST *name_ast = nullptr;
-        if (!parseName(name_ast)) {
+        if (LA() != T_IDENTIFIER) {
             error(cursor(), "expected an identifier");
             return nullptr;
         }
+        SimpleNameAST * const name_ast = new (_pool) SimpleNameAST;
+        name_ast->identifier_token = consumeToken();
         *iter = new (_pool) NameListAST;
         (*iter)->value = name_ast;
 
@@ -1679,6 +1681,18 @@ static bool maybeCppInitializer(DeclaratorAST *declarator)
         return false;
 
     return true;
+}
+
+bool Parser::hasAuto(SpecifierListAST *decl_specifier_list) const
+{
+    for (SpecifierListAST *iter = decl_specifier_list; iter; iter = iter->next) {
+        SpecifierAST *spec = iter->value;
+        if (SimpleSpecifierAST *simpleSpec = spec->asSimpleSpecifier()) {
+            if (_translationUnit->tokenKind(simpleSpec->specifier_token) == T_AUTO)
+                return true;
+        }
+    }
+    return false;
 }
 
 bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specifier_list, ClassSpecifierAST *declaringClass)
@@ -1753,19 +1767,9 @@ bool Parser::parseDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_specif
             parseRefQualifier(ast->ref_qualifier_token);
             parseExceptionSpecification(ast->exception_specification);
 
-            if (_languageFeatures.cxx11Enabled && ! node->ptr_operator_list && LA() == T_ARROW) {
-                // only allow if there is 1 type spec, which has to be 'auto'
-                bool hasAuto = false;
-                for (SpecifierListAST *iter = decl_specifier_list; !hasAuto && iter; iter = iter->next) {
-                    SpecifierAST *spec = iter->value;
-                    if (SimpleSpecifierAST *simpleSpec = spec->asSimpleSpecifier()) {
-                        if (_translationUnit->tokenKind(simpleSpec->specifier_token) == T_AUTO)
-                            hasAuto = true;
-                    }
-                }
-
-                if (hasAuto)
-                    parseTrailingReturnType(ast->trailing_return_type);
+            if (_languageFeatures.cxx11Enabled && ! node->ptr_operator_list && LA() == T_ARROW
+                    && hasAuto(decl_specifier_list)) {
+                parseTrailingReturnType(ast->trailing_return_type);
             }
 
             parseOverrideFinalQualifiers(ast->cv_qualifier_list);
@@ -2809,6 +2813,9 @@ bool Parser::parseInitDeclarator(DeclaratorAST *&node, SpecifierListAST *decl_sp
         }
     } else if (node->core_declarator && (LA() == T_EQUAL || (_languageFeatures.cxx11Enabled && !isFunctionDeclarator && LA() == T_LBRACE) || (! declaringClass && LA() == T_LPAREN))) {
         parseInitializer(node->initializer, &node->equal_token);
+    } else if (node->core_declarator && node->core_declarator->asDecompositionDeclarator()) {
+        error(cursor(), "structured binding needs initializer");
+        return false;
     }
     return true;
 }

@@ -3343,7 +3343,8 @@ bool Bind::visit(DecompositionDeclaratorAST *ast)
 {
     for (auto it = ast->identifiers->begin(); it != ast->identifiers->end(); ++it)
         name(*it);
-    *_decompositionDeclarator = ast;
+    if (_decompositionDeclarator)
+        *_decompositionDeclarator = ast;
     return false;
 }
 
