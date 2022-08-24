@@ -175,11 +175,12 @@ public:
     static optional<EnvironmentProvider> provider(const QByteArray &id);
 };
 
-QString qtcEnvironmentVariable(const QString &key);
-QString qtcEnvironmentVariable(const QString &key, const QString &defaultValue);
-bool qtcEnvironmentVariableIsSet(const QString &key);
-bool qtcEnvironmentVariableIsEmpty(const QString &key);
-int qtcEnvironmentVariableIntValue(const QString &key, bool *ok = nullptr);
+QTCREATOR_UTILS_EXPORT QString qtcEnvironmentVariable(const QString &key);
+QTCREATOR_UTILS_EXPORT QString qtcEnvironmentVariable(const QString &key,
+                                                      const QString &defaultValue);
+QTCREATOR_UTILS_EXPORT bool qtcEnvironmentVariableIsSet(const QString &key);
+QTCREATOR_UTILS_EXPORT bool qtcEnvironmentVariableIsEmpty(const QString &key);
+QTCREATOR_UTILS_EXPORT int qtcEnvironmentVariableIntValue(const QString &key, bool *ok = nullptr);
 
 } // namespace Utils
 
