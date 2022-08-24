@@ -815,6 +815,7 @@ void TaskDelegate::emitSizeHintChanged(const QModelIndex &index)
 
 void TaskDelegate::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
+    m_hrefs.clear();
     emit sizeHintChanged(current);
     emit sizeHintChanged(previous);
 }
