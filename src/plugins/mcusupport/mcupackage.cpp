@@ -15,6 +15,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/infolabel.h>
 #include <utils/pathchooser.h>
 #include <utils/utilsicons.h>
@@ -53,8 +54,7 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
     , m_downloadUrl(downloadUrl)
     , m_addToSystemPath(addToSystemPath)
 {
-    m_path = FilePath::fromUserInput(
-        qEnvironmentVariable(m_environmentVariableName.toStdString().c_str()));
+    m_path = FilePath::fromUserInput(qtcEnvironmentVariable(m_environmentVariableName));
     if (!m_path.exists()) {
         m_path = this->settingsHandler->getPath(settingsKey, QSettings::UserScope, m_defaultPath);
     }
