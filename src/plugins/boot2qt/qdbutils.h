@@ -16,7 +16,7 @@ enum class QdbTool {
 };
 
 Utils::FilePath findTool(QdbTool tool);
-const char *overridingEnvironmentVariable(QdbTool tool);
+QString overridingEnvironmentVariable(QdbTool tool);
 void showMessage(const QString &message, bool important = false);
 QString settingsGroupKey();
 QString settingsKey(QdbTool tool);

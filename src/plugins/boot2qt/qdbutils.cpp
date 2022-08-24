@@ -5,8 +5,9 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
-#include <utils/hostosinfo.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -28,7 +29,7 @@ static QString executableBaseName(QdbTool tool)
 
 Utils::FilePath findTool(QdbTool tool)
 {
-    QString filePath = QString::fromLocal8Bit(qgetenv(overridingEnvironmentVariable(tool)));
+    QString filePath = Utils::qtcEnvironmentVariable(overridingEnvironmentVariable(tool));
 
     if (filePath.isEmpty()) {
         QSettings * const settings = Core::ICore::settings();
@@ -51,7 +52,7 @@ Utils::FilePath findTool(QdbTool tool)
     return Utils::FilePath::fromString(QDir::cleanPath(filePath));
 }
 
-const char *overridingEnvironmentVariable(QdbTool tool)
+QString overridingEnvironmentVariable(QdbTool tool)
 {
     switch (tool) {
     case QdbTool::FlashingWizard:
@@ -59,7 +60,7 @@ const char *overridingEnvironmentVariable(QdbTool tool)
     case QdbTool::Qdb:
         return "BOOT2QT_QDB_FILEPATH";
     }
-    QTC_ASSERT(false, return "");
+    QTC_ASSERT(false, return {});
 }
 
 void showMessage(const QString &message, bool important)

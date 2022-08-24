@@ -114,7 +114,7 @@ void QdbWatcher::forkHostServer()
     if (!executable.exists()) {
         const QString message = tr("Could not find QDB host server executable. "
                                    "You can set the location with environment variable %1.")
-                .arg(QLatin1String(overridingEnvironmentVariable(QdbTool::Qdb)));
+                                    .arg(overridingEnvironmentVariable(QdbTool::Qdb));
         showMessage(message, true);
         return;
     }
