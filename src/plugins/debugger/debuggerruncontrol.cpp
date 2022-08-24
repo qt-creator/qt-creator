@@ -31,6 +31,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>
@@ -891,9 +892,9 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
 
     setUseTerminal(allowTerminal == DoAllowTerminal && m_runParameters.useTerminal);
 
-    const QByteArray envBinary = qgetenv("QTC_DEBUGGER_PATH");
+    const QString envBinary = qtcEnvironmentVariable("QTC_DEBUGGER_PATH");
     if (!envBinary.isEmpty())
-        m_runParameters.debugger.command.setExecutable(FilePath::fromString(QString::fromLocal8Bit(envBinary)));
+        m_runParameters.debugger.command.setExecutable(FilePath::fromString(envBinary));
 
     if (Project *project = runControl->project()) {
         m_runParameters.projectSourceDirectory = project->projectDirectory();
@@ -903,7 +904,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     m_runParameters.toolChainAbi = ToolChainKitAspect::targetAbi(kit);
 
     bool ok = false;
-    const int nativeMixedOverride = qEnvironmentVariableIntValue("QTC_DEBUGGER_NATIVE_MIXED", &ok);
+    const int nativeMixedOverride = qtcEnvironmentVariableIntValue("QTC_DEBUGGER_NATIVE_MIXED", &ok);
     if (ok)
         m_runParameters.nativeMixedEnabled = bool(nativeMixedOverride);
 

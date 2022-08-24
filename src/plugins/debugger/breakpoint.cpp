@@ -7,6 +7,7 @@
 
 #include <projectexplorer/abi.h>
 
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -130,7 +131,7 @@ bool BreakpointParameters::isQmlFileAndLineBreakpoint() const
     if (type != BreakpointByFileAndLine)
         return false;
 
-    QString qmlExtensionString = QString::fromLocal8Bit(qgetenv("QTC_QMLDEBUGGER_FILEEXTENSIONS"));
+    QString qmlExtensionString = Utils::qtcEnvironmentVariable("QTC_QMLDEBUGGER_FILEEXTENSIONS");
     if (qmlExtensionString.isEmpty())
         qmlExtensionString = ".qml;.js;.mjs";
 

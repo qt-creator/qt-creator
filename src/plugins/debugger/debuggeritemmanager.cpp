@@ -592,11 +592,9 @@ void DebuggerItemManagerPrivate::autoDetectCdbDebuggers()
 {
     FilePaths cdbs;
 
-    const QStringList programDirs = {
-        QString::fromLocal8Bit(qgetenv("ProgramFiles")),
-        QString::fromLocal8Bit(qgetenv("ProgramFiles(x86)")),
-        QString::fromLocal8Bit(qgetenv("ProgramW6432"))
-    };
+    const QStringList programDirs = {qtcEnvironmentVariable("ProgramFiles"),
+                                     qtcEnvironmentVariable("ProgramFiles(x86)"),
+                                     qtcEnvironmentVariable("ProgramW6432")};
 
     QFileInfoList kitFolders;
 

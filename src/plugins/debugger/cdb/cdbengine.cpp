@@ -42,6 +42,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/checkablemessagebox.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/processinterface.h>
@@ -421,12 +422,9 @@ void CdbEngine::setupEngine()
 
     static const char cdbExtensionPathVariableC[] = "_NT_DEBUGGER_EXTENSION_PATH";
     inferiorEnvironment.prependOrSet(cdbExtensionPathVariableC, extensionFi.absolutePath(), {";"});
-    const QByteArray oldCdbExtensionPath = qgetenv(cdbExtensionPathVariableC);
-    if (!oldCdbExtensionPath.isEmpty()) {
-        inferiorEnvironment.appendOrSet(cdbExtensionPathVariableC,
-                                        QString::fromLocal8Bit(oldCdbExtensionPath),
-                                        {";"});
-    }
+    const QString oldCdbExtensionPath = qtcEnvironmentVariable(cdbExtensionPathVariableC);
+    if (!oldCdbExtensionPath.isEmpty())
+        inferiorEnvironment.appendOrSet(cdbExtensionPathVariableC, oldCdbExtensionPath, {";"});
 
     m_process.setEnvironment(inferiorEnvironment);
     if (!sp.inferior.workingDirectory.isEmpty())
@@ -1051,7 +1049,7 @@ void CdbEngine::doUpdateLocals(const UpdateParameters &updateParameters)
         watchHandler()->appendFormatRequests(&cmd);
         watchHandler()->appendWatchersAndTooltipRequests(&cmd);
 
-        const static bool alwaysVerbose = qEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE");
+        const bool alwaysVerbose = qtcEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE");
         cmd.arg("passexceptions", alwaysVerbose);
         cmd.arg("fancy", s.useDebuggingHelpers.value());
         cmd.arg("autoderef", s.autoDerefPointers.value());

@@ -20,6 +20,7 @@
 
 #include <qtsupport/qtbuildaspects.h>
 
+#include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>
@@ -156,7 +157,7 @@ DebuggerRunConfigurationAspect::DebuggerRunConfigurationAspect(Target *target)
         builder.addRow(m_qmlAspect);
         builder.addRow(m_overrideStartupAspect);
 
-        static const QByteArray env = qgetenv("QTC_DEBUGGER_MULTIPROCESS");
+        static const QString env = qtcEnvironmentVariable("QTC_DEBUGGER_MULTIPROCESS");
         if (env.toInt())
             builder.addRow(m_multiProcessAspect);
         return builder.emerge(Layouting::WithoutMargins);

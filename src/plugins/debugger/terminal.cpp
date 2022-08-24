@@ -9,6 +9,7 @@
 
 #include <projectexplorer/runconfiguration.h>
 
+#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -51,7 +52,7 @@ Terminal::Terminal(QObject *parent)
 void Terminal::setup()
 {
 #ifdef DEBUGGER_USE_TERMINAL
-    if (!qEnvironmentVariableIsSet("QTC_USE_PTY"))
+    if (!qtcEnvironmentVariableIsSet("QTC_USE_PTY"))
         return;
 
     m_masterFd = ::open("/dev/ptmx", O_RDWR);
