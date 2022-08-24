@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "materialbrowserview.h"
-
 #include "bindingproperty.h"
-#include "materialbrowserwidget.h"
 #include "materialbrowsermodel.h"
+#include "materialbrowserwidget.h"
 #include "nodeabstractproperty.h"
 #include "nodemetainfo.h"
 #include "qmlobjectnode.h"
@@ -14,6 +13,7 @@
 #include <coreplugin/icore.h>
 #include <designmodecontext.h>
 #include <nodeinstanceview.h>
+#include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
 
 #include <QQuickItem>
@@ -107,7 +107,8 @@ void MaterialBrowserView::modelAttached(Model *model)
     AbstractView::modelAttached(model);
 
     m_widget->clearSearchFilter();
-    m_widget->materialBrowserModel()->setHasMaterialRoot(rootModelNode().isSubclassOf("QtQuick3D.Material"));
+    m_widget->materialBrowserModel()->setHasMaterialRoot(
+        rootModelNode().metaInfo().isQtQuick3DMaterial());
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
 
     loadPropertyGroups();
@@ -148,7 +149,7 @@ bool MaterialBrowserView::isMaterial(const ModelNode &node) const
     if (!node.isValid())
         return false;
 
-    return node.isSubclassOf("QtQuick3D.Material");
+    return node.metaInfo().isQtQuick3DMaterial();
 }
 
 void MaterialBrowserView::modelAboutToBeDetached(Model *model)
@@ -164,7 +165,7 @@ void MaterialBrowserView::selectedNodesChanged(const QList<ModelNode> &selectedN
     ModelNode selectedModel;
 
     for (const ModelNode &node : selectedNodeList) {
-        if (node.isSubclassOf("QtQuick3D.Model")) {
+        if (node.metaInfo().isQtQuick3DModel()) {
             selectedModel = node;
             break;
         }

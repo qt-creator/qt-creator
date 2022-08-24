@@ -76,10 +76,12 @@ void ItemFilterModel::setupModel()
     m_lock = true;
     m_model.clear();
 
-    const auto nodes = m_selectionOnly ? m_modelNode.view()->selectedModelNodes() : m_modelNode.view()->allModelNodes();
+    const auto nodes = m_selectionOnly ? m_modelNode.view()->selectedModelNodes()
+                                       : m_modelNode.view()->allModelNodes();
 
+    auto base = m_modelNode.model()->metaInfo(m_typeFilter.toUtf8());
     for (const QmlDesigner::ModelNode &node : nodes) {
-        if (node.hasId() && node.metaInfo().isValid() && node.metaInfo().isSubclassOf(m_typeFilter.toUtf8()))
+        if (node.hasId() && node.metaInfo().isBasedOn(base))
             m_model.append(node.id());
     }
 

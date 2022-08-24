@@ -142,8 +142,7 @@ void TimelineActions::copyKeyframes(const QList<ModelNode> &keyframes)
 
 bool isKeyframe(const ModelNode &node)
 {
-    return node.isValid() && node.metaInfo().isValid()
-           && node.metaInfo().isSubclassOf("QtQuick.Timeline.Keyframe");
+    return node.isValid() && node.metaInfo().isQtQuickTimelineKeyframe();
 }
 
 QVariant getValue(const ModelNode &node)

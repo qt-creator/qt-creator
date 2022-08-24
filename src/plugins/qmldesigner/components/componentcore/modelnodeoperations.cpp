@@ -845,8 +845,7 @@ void addItemToStackedContainer(const SelectionContext &selectionContext)
         if (bindingTarget.isValid()) { // In this case the stacked container might be hooked up to a TabBar
             potentialTabBar = bindingTarget.parentModelNode();
 
-            if (!(potentialTabBar.metaInfo().isValid()
-                  && potentialTabBar.metaInfo().isSubclassOf("QtQuick.Controls.TabBar")))
+            if (!potentialTabBar.metaInfo().isQtQuickControlsTabBar())
                 potentialTabBar = ModelNode();
         }
     }

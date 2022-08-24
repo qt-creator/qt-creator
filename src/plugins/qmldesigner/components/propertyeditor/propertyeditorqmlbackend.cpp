@@ -559,14 +559,13 @@ inline bool dotPropertyHeuristic(const QmlObjectNode &node, const NodeMetaInfo &
 
     NodeMetaInfo propertyType = type.property(parentProperty).propertyType();
 
-    NodeMetaInfo itemInfo = node.view()->model()->metaInfo("QtQuick.Item");
-    NodeMetaInfo textInfo = node.view()->model()->metaInfo("QtQuick.Text");
-    NodeMetaInfo rectangleInfo = node.view()->model()->metaInfo("QtQuick.Rectangle");
-    NodeMetaInfo imageInfo = node.view()->model()->metaInfo("QtQuick.Image");
+    NodeMetaInfo itemInfo = node.view()->model()->qtQuickItemMetaInfo();
+    NodeMetaInfo textInfo = node.view()->model()->qtQuickTextMetaInfo();
+    NodeMetaInfo rectangleInfo = node.view()->model()->qtQuickRectangleMetaInfo();
+    NodeMetaInfo imageInfo = node.view()->model()->qtQuickImageMetaInfo();
 
     if (propertyType.isFont() || itemInfo.hasProperty(itemProperty)
-        || textInfo.isSubclassOf(propertyType) || rectangleInfo.isSubclassOf(propertyType)
-        || imageInfo.isSubclassOf(propertyType))
+        || propertyType.isBasedOn(textInfo, rectangleInfo, imageInfo))
         return false;
 
     return true;
@@ -783,11 +782,9 @@ TypeName PropertyEditorQmlBackend::fixTypeNameForPanes(const TypeName &typeName)
 
 static NodeMetaInfo findCommonSuperClass(const NodeMetaInfo &first, const NodeMetaInfo &second)
 {
-    for (const NodeMetaInfo &info : first.superClasses()) {
-        if (second.isSubclassOf(info.typeName()))
-            return info;
-    }
-    return first;
+    auto commonBase = first.commonBase(second);
+
+    return commonBase.isValid() ? commonBase : first;
 }
 
 NodeMetaInfo PropertyEditorQmlBackend::findCommonAncestor(const ModelNode &node)
@@ -803,8 +800,8 @@ NodeMetaInfo PropertyEditorQmlBackend::findCommonAncestor(const ModelNode &node)
     if (view->selectedModelNodes().count() > 1) {
         NodeMetaInfo commonClass = node.metaInfo();
         for (const ModelNode &currentNode :  view->selectedModelNodes()) {
-            if (currentNode.metaInfo().isValid() && !currentNode.isSubclassOf(commonClass.typeName(), -1, -1))
-              commonClass = findCommonSuperClass(currentNode.metaInfo(), commonClass);
+            if (currentNode.metaInfo().isValid() && !currentNode.metaInfo().isBasedOn(commonClass))
+                commonClass = findCommonSuperClass(currentNode.metaInfo(), commonClass);
         }
         return commonClass;
     }

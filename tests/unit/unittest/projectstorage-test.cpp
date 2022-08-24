@@ -6792,7 +6792,7 @@ TEST_F(ProjectStorage, GetPrototypeAndSelfIdsWithExtension)
                             fetchTypeId(sourceId1, "QObject")));
 }
 
-TEST_F(ProjectStorage, IsBaseOfForDirectPrototype)
+TEST_F(ProjectStorage, IsBasedOnForDirectPrototype)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6805,7 +6805,7 @@ TEST_F(ProjectStorage, IsBaseOfForDirectPrototype)
     ASSERT_TRUE(isBasedOn);
 }
 
-TEST_F(ProjectStorage, IsBaseOfForIndirectPrototype)
+TEST_F(ProjectStorage, IsBasedOnForIndirectPrototype)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6817,7 +6817,7 @@ TEST_F(ProjectStorage, IsBaseOfForIndirectPrototype)
     ASSERT_TRUE(isBasedOn);
 }
 
-TEST_F(ProjectStorage, IsBaseOfForDirectExtension)
+TEST_F(ProjectStorage, IsBasedOnForDirectExtension)
 {
     auto package{createPackageWithProperties()};
     std::swap(package.types[1].extension, package.types[1].prototype);
@@ -6830,7 +6830,7 @@ TEST_F(ProjectStorage, IsBaseOfForDirectExtension)
     ASSERT_TRUE(isBasedOn);
 }
 
-TEST_F(ProjectStorage, IsBaseOfForIndirectExtension)
+TEST_F(ProjectStorage, IsBasedOnForIndirectExtension)
 {
     auto package{createPackageWithProperties()};
     std::swap(package.types[1].extension, package.types[1].prototype);
@@ -6843,7 +6843,7 @@ TEST_F(ProjectStorage, IsBaseOfForIndirectExtension)
     ASSERT_TRUE(isBasedOn);
 }
 
-TEST_F(ProjectStorage, IsBaseOfForSelf)
+TEST_F(ProjectStorage, IsBasedOnForSelf)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6855,7 +6855,7 @@ TEST_F(ProjectStorage, IsBaseOfForSelf)
     ASSERT_TRUE(isBasedOn);
 }
 
-TEST_F(ProjectStorage, IsNotBaseOf)
+TEST_F(ProjectStorage, IsNotBasedOn)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);
@@ -6868,7 +6868,7 @@ TEST_F(ProjectStorage, IsNotBaseOf)
     ASSERT_FALSE(isBasedOn);
 }
 
-TEST_F(ProjectStorage, IsNotBaseOfIfNoBaseTypeIsGiven)
+TEST_F(ProjectStorage, IsNotBasedOnIfNoBaseTypeIsGiven)
 {
     auto package{createPackageWithProperties()};
     storage.synchronize(package);

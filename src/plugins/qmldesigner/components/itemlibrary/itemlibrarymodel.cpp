@@ -388,13 +388,11 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
                      && (metaInfo.majorVersion() >= entry.majorVersion()
                          || metaInfo.majorVersion() < 0);
 
-        bool isItem = valid && metaInfo.isSubclassOf("QtQuick.Item");
+        bool isItem = valid && metaInfo.isQtQuickItem();
         bool forceVisibility = valid && NodeHints::fromItemLibraryEntry(entry).visibleInLibrary();
 
-        if (m_flowMode && metaInfo.isValid()) {
-            isItem = metaInfo.isSubclassOf("FlowView.FlowItem")
-                    || metaInfo.isSubclassOf("FlowView.FlowWildcard")
-                    || metaInfo.isSubclassOf("FlowView.FlowDecision");
+        if (m_flowMode) {
+            isItem = metaInfo.isFlowViewItem();
             forceVisibility = isItem;
         }
 

@@ -8,23 +8,6 @@
 namespace QmlDesigner {
 namespace FormatOperation {
 
-struct StylePropertyStruct
-{
-QString id;
-QStringList subclasses;
-QStringList properties;
-};
-
-struct StyleProperties
-{
-    QmlDesigner::PropertyName propertyName;
-    QVariant value;
-};
-
-static QList<StylePropertyStruct> copyableProperties = {};
-static QList<StyleProperties> applyableProperties = {};
-static StylePropertyStruct chosenItem = {};
-
 bool propertiesCopyable(const SelectionContext &selectionState);
 bool propertiesApplyable(const SelectionContext &selectionState);
 void copyFormat(const SelectionContext &selectionState);

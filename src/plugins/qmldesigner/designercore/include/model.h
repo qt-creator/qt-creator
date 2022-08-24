@@ -83,6 +83,23 @@ public:
     bool hasNodeMetaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
     void setMetaInfo(const MetaInfo &metaInfo);
 
+    NodeMetaInfo flowViewFlowDecisionMetaInfo() const;
+    NodeMetaInfo flowViewFlowTransitionMetaInfo() const;
+    NodeMetaInfo flowViewFlowWildcardMetaInfo() const;
+    NodeMetaInfo qtQuick3DDefaultMaterialMetaInfo() const;
+    NodeMetaInfo qtQuick3DMaterialMetaInfo() const;
+    NodeMetaInfo qtQuick3DModelMetaInfo() const;
+    NodeMetaInfo qtQuick3DNodeMetaInfo() const;
+    NodeMetaInfo qtQuickControlsTextAreaMetaInfo() const;
+    NodeMetaInfo qtQuickImageMetaInfo() const;
+    NodeMetaInfo qtQuickItemMetaInfo() const;
+    NodeMetaInfo qtQuickPropertyAnimationMetaInfo() const;
+    NodeMetaInfo qtQuickRectangleMetaInfo() const;
+    NodeMetaInfo qtQuickTextEditMetaInfo() const;
+    NodeMetaInfo qtQuickTextMetaInfo() const;
+    NodeMetaInfo qtQuickTimelineKeyframeGroupMetaInfo() const;
+    NodeMetaInfo qtQuickTimelineTimelineMetaInfo() const;
+
     void attachView(AbstractView *view);
     void detachView(AbstractView *view, ViewNotification emitDetachNotify = NotifyView);
 
@@ -128,6 +145,10 @@ public:
     void endDrag();
 
     NotNullPointer<const ProjectStorage<Sqlite::Database>> projectStorage() const;
+
+private:
+    template<const auto &moduleName, const auto &typeName>
+    NodeMetaInfo createNodeMetaInfo() const;
 
 private:
     std::unique_ptr<Internal::ModelPrivate> d;

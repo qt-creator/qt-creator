@@ -103,7 +103,7 @@ QJsonObject Component::nodeToJson(const ModelNode &node)
     QJsonObject jsonObject;
 
     // Don't export States, Connection, Timeline etc nodes.
-    if (!node.isSubclassOf("QtQuick.Item"))
+    if (!node.metaInfo().isQtQuickItem())
         return {};
 
     std::unique_ptr<NodeDumper> dumper(createNodeDumper(node));

@@ -257,7 +257,7 @@ void NodeInstanceView::modelAttached(Model *model)
     }
 
     ModelNode stateNode = currentStateNode();
-    if (stateNode.isValid() && stateNode.metaInfo().isSubclassOf("QtQuick.State", 1, 0)) {
+    if (stateNode.isValid() && stateNode.metaInfo().isQtQuickState()) {
         NodeInstance newStateInstance = instanceForModelNode(stateNode);
         activateState(newStateInstance);
     }
@@ -369,7 +369,7 @@ void NodeInstanceView::restartProcess()
         }
 
         ModelNode stateNode = currentStateNode();
-        if (stateNode.isValid() && stateNode.metaInfo().isSubclassOf("QtQuick.State", 1, 0)) {
+        if (stateNode.isValid() && stateNode.metaInfo().isQtQuickState()) {
             NodeInstance newStateInstance = instanceForModelNode(stateNode);
             activateState(newStateInstance);
         }
@@ -581,9 +581,10 @@ void NodeInstanceView::nodeReparented(const ModelNode &node, const NodeAbstractP
 
         // Reset puppet when particle emitter/affector is reparented to work around issue in
         // autodetecting the particle system it belongs to. QTBUG-101157
-        if ((node.isSubclassOf("QtQuick.Particles3D.ParticleEmitter3D")
-              || node.isSubclassOf("QtQuick.Particles3D.Affector3D"))
-             && node.property("system").toBindingProperty().expression().isEmpty()) {
+        if (auto metaInfo = node.metaInfo();
+            (metaInfo.isQtQuick3DParticles3DParticleEmitter3D()
+             || metaInfo.isQtQuick3DParticles3DAffector3D())
+            && node.property("system").toBindingProperty().expression().isEmpty()) {
             resetPuppet();
         }
     }
@@ -741,7 +742,7 @@ void NodeInstanceView::currentStateChanged(const ModelNode &node)
 {
     NodeInstance newStateInstance = instanceForModelNode(node);
 
-    if (newStateInstance.isValid() && node.metaInfo().isSubclassOf("QtQuick.State", 1, 0))
+    if (newStateInstance.isValid() && node.metaInfo().isQtQuickState())
         nodeInstanceView()->activateState(newStateInstance);
     else
         nodeInstanceView()->activateBaseState();
@@ -1075,7 +1076,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         InstanceContainer::NodeSourceType nodeSourceType = static_cast<InstanceContainer::NodeSourceType>(instance.modelNode().nodeSourceType());
 
         InstanceContainer::NodeMetaType nodeMetaType = InstanceContainer::ObjectMetaType;
-        if (instance.modelNode().metaInfo().isSubclassOf("QtQuick.Item"))
+        if (instance.modelNode().metaInfo().isQtQuickItem())
             nodeMetaType = InstanceContainer::ItemMetaType;
 
         InstanceContainer::NodeFlags nodeFlags;
@@ -1182,7 +1183,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 
     ModelNode stateNode = currentStateNode();
     qint32 stateInstanceId = 0;
-    if (stateNode.isValid() && stateNode.metaInfo().isSubclassOf("QtQuick.State", 1, 0))
+    if (stateNode.isValid() && stateNode.metaInfo().isQtQuickState())
         stateInstanceId = stateNode.internalId();
 
     QColor gridColor;
@@ -1254,7 +1255,7 @@ CreateInstancesCommand NodeInstanceView::createCreateInstancesCommand(const QLis
         InstanceContainer::NodeSourceType nodeSourceType = static_cast<InstanceContainer::NodeSourceType>(instance.modelNode().nodeSourceType());
 
         InstanceContainer::NodeMetaType nodeMetaType = InstanceContainer::ObjectMetaType;
-        if (instance.modelNode().metaInfo().isSubclassOf("QtQuick.Item"))
+        if (instance.modelNode().metaInfo().isQtQuickItem())
             nodeMetaType = InstanceContainer::ItemMetaType;
 
         InstanceContainer::NodeFlags nodeFlags;
@@ -1839,12 +1840,12 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
     imageData.id = modelNode.id();
     imageData.type = QString::fromLatin1(modelNode.type());
 #ifndef QMLDESIGNER_TEST
-                const double ratio = QmlDesignerPlugin::formEditorDevicePixelRatio();
+    const double ratio = QmlDesignerPlugin::formEditorDevicePixelRatio();
 #else
-                const double ratio = 1;
+    const double ratio = 1;
 #endif
 
-    if (imageSource.isEmpty() && modelNode.isSubclassOf("QtQuick3D.Texture")) {
+    if (imageSource.isEmpty() && modelNode.metaInfo().isQtQuick3DTexture()) {
         // Texture node may have sourceItem instead
         BindingProperty binding = modelNode.bindingProperty("sourceItem");
         if (binding.isValid()) {
@@ -1858,9 +1859,10 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
                 } else {
                     QmlItemNode itemNode(boundNode);
                     const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
-                    imageData.pixmap = itemNode.instanceRenderPixmap().scaled(dim, dim, Qt::KeepAspectRatio);
+                    imageData.pixmap = itemNode.instanceRenderPixmap().scaled(dim,
+                                                                              dim,
+                                                                              Qt::KeepAspectRatio);
                     imageData.pixmap.setDevicePixelRatio(ratio);
-
                 }
                 imageData.info = ::QmlDesigner::NodeInstanceView::tr("Source item: %1")
                                      .arg(boundNode.id());
@@ -1875,7 +1877,9 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
 
         QFileInfo imageFi(imageSource);
         if (imageFi.isRelative())
-            imageSource = QFileInfo(modelNode.model()->fileUrl().toLocalFile()).dir().absoluteFilePath(imageSource);
+            imageSource = QFileInfo(modelNode.model()->fileUrl().toLocalFile())
+                              .dir()
+                              .absoluteFilePath(imageSource);
 
         imageFi = QFileInfo(imageSource);
         QDateTime modified = imageFi.lastModified();
@@ -1889,7 +1893,7 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
 
         if (reload) {
             QPixmap originalPixmap;
-            if (modelNode.isSubclassOf("Qt.SafeRenderer.SafeRendererPicture")) {
+            if (modelNode.metaInfo().isQtSafeRendererSafeRendererPicture()) {
                 QPicture picture;
                 picture.load(imageSource);
                 if (!picture.isNull()) {
@@ -1923,8 +1927,12 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
                     ++unitIndex;
                     imgSize /= 1024.;
                 }
-                imageData.info = QStringLiteral("%1 x %2\n%3%4 (%5)").arg(originalPixmap.width()).arg(originalPixmap.height())
-                        .arg(QString::number(imgSize, 'g', 3)).arg(units[unitIndex]).arg(imageFi.suffix());
+                imageData.info = QStringLiteral("%1 x %2\n%3%4 (%5)")
+                                     .arg(originalPixmap.width())
+                                     .arg(originalPixmap.height())
+                                     .arg(QString::number(imgSize, 'g', 3))
+                                     .arg(units[unitIndex])
+                                     .arg(imageFi.suffix());
                 m_imageDataMap.insert(imageData.id, imageData);
             }
         }
@@ -2207,7 +2215,8 @@ void NodeInstanceView::updateRotationBlocks()
     for (const auto &node : selectedNodes) {
         if (Qml3DNode::isValidQml3DNode(node)) {
             if (!groupsResolved) {
-                const QList<ModelNode> keyframeGroups = allModelNodesOfType("KeyframeGroup");
+                const QList<ModelNode> keyframeGroups = allModelNodesOfType(
+                    model()->qtQuickTimelineKeyframeGroupMetaInfo());
                 for (const auto &kfgNode : keyframeGroups) {
                     if (kfgNode.isValid()) {
                         VariantProperty varProp = kfgNode.variantProperty(propertyPropName);
@@ -2240,13 +2249,13 @@ void NodeInstanceView::maybeResetOnPropertyChange(const PropertyName &name, cons
                                                   PropertyChangeFlags flags)
 {
     bool reset = false;
-    if (flags & AbstractView::PropertiesAdded
-            && name == "model" && node.isSubclassOf("QtQuick.Repeater")) {
+    if (flags & AbstractView::PropertiesAdded && name == "model"
+        && node.metaInfo().isQtQuickRepeater()) {
         // TODO: This is a workaround for QTBUG-97583:
         //       Reset puppet when repeater model is first added, if there is already a delegate
         if (node.hasProperty("delegate"))
             reset = true;
-    } else if (name == "shader" && node.isSubclassOf("QtQuick3D.Shader")) {
+    } else if (name == "shader" && node.metaInfo().isQtQuick3DShader()) {
         reset = true;
     }
     if (reset)

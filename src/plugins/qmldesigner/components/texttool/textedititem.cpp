@@ -4,6 +4,7 @@
 #include "textedititem.h"
 
 #include <formeditorscene.h>
+#include <model.h>
 #include <nodemetainfo.h>
 #include <rewritingexception.h>
 
@@ -50,9 +51,9 @@ void TextEditItem::setFormEditorItem(FormEditorItem *formEditorItem)
     NodeMetaInfo metaInfo = m_formEditorItem->qmlItemNode().modelNode().metaInfo();
     auto node = m_formEditorItem->qmlItemNode();
     auto font = node.instanceValue("font").value<QFont>();
-    if (metaInfo.isValid() &&
-            (metaInfo.isSubclassOf("QtQuick.TextEdit")
-             || metaInfo.isSubclassOf("QtQuick.Controls.TextArea"))) {
+    auto model = node.modelNode().model();
+    if (metaInfo.isBasedOn(model->qtQuickTextEditMetaInfo(),
+                           model->qtQuickControlsTextAreaMetaInfo())) {
         QSize maximumSize = rect.size().toSize();
         textEdit()->setFont(font);
         activateTextEdit(maximumSize);

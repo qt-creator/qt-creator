@@ -10,6 +10,7 @@
 
 #include <bindingproperty.h>
 #include <nodeabstractproperty.h>
+#include <nodemetainfo.h>
 #include <rewritertransaction.h>
 #include <rewritingexception.h>
 #include <theme.h>
@@ -166,7 +167,7 @@ void TransitionEditorPropertyItem::invalidateBar()
     const ModelNode parent = m_animation.parentProperty().parentModelNode();
 
     for (const ModelNode &child : parent.directSubModelNodes())
-        if (child.hasMetaInfo() && child.isSubclassOf("QtQuick.PauseAnimation"))
+        if (child.metaInfo().isQtQuickPauseAnimation())
             min = child.variantProperty("duration").value().toDouble();
 
     max = m_animation.variantProperty("duration").value().toDouble() + min;
@@ -199,7 +200,7 @@ ModelNode TransitionEditorPropertyItem::pauseAnimation() const
     const ModelNode parent = m_animation.parentProperty().parentModelNode();
 
     for (const ModelNode &child : parent.directSubModelNodes())
-        if (child.hasMetaInfo() && child.isSubclassOf("QtQuick.PauseAnimation"))
+        if (child.metaInfo().isQtQuickPauseAnimation())
             return child;
 
     return {};

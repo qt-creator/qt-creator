@@ -203,8 +203,10 @@ bool DesignerActionManager::hasModelNodePreviewHandler(const ModelNode &node) co
 {
     const bool isComponent = node.isComponent();
     for (const auto &handler : qAsConst(m_modelNodePreviewImageHandlers)) {
-        if ((isComponent || !handler.componentOnly) && node.isSubclassOf(handler.type))
-            return true;
+        if ((isComponent || !handler.componentOnly)) {
+            if (auto base = node.model()->metaInfo(handler.type); node.metaInfo().isBasedOn(base))
+                return true;
+        }
     }
     return false;
 }
@@ -215,10 +217,11 @@ ModelNodePreviewImageOperation DesignerActionManager::modelNodePreviewOperation(
     int prio = -1;
     const bool isComponent = node.isComponent();
     for (const auto &handler : qAsConst(m_modelNodePreviewImageHandlers)) {
-        if ((isComponent || !handler.componentOnly) && handler.priority > prio
-                && node.isSubclassOf(handler.type)) {
-            op = handler.operation;
-            prio = handler.priority;
+        if ((isComponent || !handler.componentOnly) && handler.priority > prio) {
+            if (auto base = node.model()->metaInfo(handler.type); node.metaInfo().isBasedOn(base)) {
+                op = handler.operation;
+                prio = handler.priority;
+            }
         }
     }
     return op;
@@ -454,10 +457,7 @@ public:
     static bool isListViewInBaseState(const SelectionContext &selectionState)
     {
         return selectionState.isInBaseState() && selectionState.singleNodeIsSelected()
-               && (selectionState.currentSingleSelectedNode().metaInfo().isSubclassOf(
-                       "QtQuick.ListView")
-                   || selectionState.currentSingleSelectedNode().metaInfo().isSubclassOf(
-                       "QtQuick.GridView"));
+               && selectionState.currentSingleSelectedNode().metaInfo().isListOrGridView();
     }
 
     bool isEnabled(const SelectionContext &) const override { return true; }
@@ -729,7 +729,7 @@ bool singleSelectionAndInQtQuickLayout(const SelectionContext &context)
     if (!metaInfo.isValid())
         return false;
 
-    return metaInfo.isSubclassOf("QtQuick.Layouts.Layout");
+    return metaInfo.isQtQuickLayoutsLayout();
 }
 
 bool isStackedContainer(const SelectionContext &context)
@@ -823,7 +823,7 @@ bool isGroup(const SelectionContext &context)
     if (!metaInfo.isValid())
         return false;
 
-    return metaInfo.isSubclassOf("QtQuick.Studio.Components.GroupItem");
+    return metaInfo.isQtQuickStudioComponentsGroupItem();
 }
 
 bool isLayout(const SelectionContext &context)
@@ -848,7 +848,7 @@ bool isLayout(const SelectionContext &context)
     if (isStackedContainer(context))
             return false;
 
-    return metaInfo.isSubclassOf("QtQuick.Layouts.Layout");
+    return metaInfo.isQtQuickLayoutsLayout();
 }
 
 bool isPositioner(const SelectionContext &context)
@@ -866,11 +866,7 @@ bool isPositioner(const SelectionContext &context)
 
     NodeMetaInfo metaInfo = currentSelectedNode.metaInfo();
 
-    if (!metaInfo.isValid())
-        return false;
-
-    return metaInfo.isSubclassOf("<cpp>.QDeclarativeBasePositioner")
-            || metaInfo.isSubclassOf("QtQuick.Positioner");
+    return metaInfo.isQtQuickPositioner();
 }
 
 bool layoutOptionVisible(const SelectionContext &context)

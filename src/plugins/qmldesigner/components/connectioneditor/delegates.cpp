@@ -281,7 +281,7 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent, const QStyleOptionVie
                     if (propertyType.isValid() && propertyType.isFileComponent()) {
                         if (!property.isEnumType() && !property.isPrivate()
                             && !property.isListProperty() && !property.isPointer()) {
-                            if (propertyType.isQmlItem()) {
+                            if (propertyType.isQtObject()) {
                                 connectionComboBox->addItem(itemName + "." + property.name());
                             }
                         }

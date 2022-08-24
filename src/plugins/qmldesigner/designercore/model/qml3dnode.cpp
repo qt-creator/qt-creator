@@ -32,18 +32,13 @@ bool Qml3DNode::isValid() const
 
 bool Qml3DNode::isValidQml3DNode(const ModelNode &modelNode)
 {
-    return isValidQmlObjectNode(modelNode)
-            && modelNode.metaInfo().isValid()
-            && (modelNode.metaInfo().isSubclassOf("QtQuick3D.Node"));
+    return isValidQmlObjectNode(modelNode) && (modelNode.metaInfo().isQtQuick3DNode());
 }
 
 bool Qml3DNode::isValidVisualRoot(const ModelNode &modelNode)
 {
     return isValidQmlObjectNode(modelNode)
-            && modelNode.metaInfo().isValid()
-            && ((modelNode.metaInfo().isSubclassOf("QtQuick3D.Node"))
-                || (modelNode.metaInfo().isSubclassOf("QtQuick3D.Material")));
-
+           && (modelNode.metaInfo().isQtQuick3DNode() || modelNode.metaInfo().isQtQuick3DMaterial());
 }
 
 void Qml3DNode::setVariantProperty(const PropertyName &name, const QVariant &value)
@@ -82,7 +77,7 @@ void Qml3DNode::handleEulerRotationSet()
     // The rotation property is quaternion, which is difficult to deal with for users, so QDS
     // only supports eulerRotation. Since having both on the same object isn't supported,
     // remove the rotation property if eulerRotation is set.
-    if (node.isValid() && node.isSubclassOf("QtQuick3D.Node")) {
+    if (node.isValid() && node.metaInfo().isQtQuick3DNode()) {
         if (!isInBaseState()) {
             QmlPropertyChanges changeSet(currentState().propertyChanges(node));
             Q_ASSERT(changeSet.isValid());

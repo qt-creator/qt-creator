@@ -672,7 +672,7 @@ void MaterialEditorView::updatePossibleTypes()
         bool valid = metaInfo.isValid()
                      && (metaInfo.majorVersion() >= entry.majorVersion()
                          || metaInfo.majorVersion() < 0);
-        if (valid && metaInfo.isSubclassOf("QtQuick3D.Material")) {
+        if (valid && metaInfo.isQtQuick3DMaterial()) {
             bool addImport = entry.requiredImport().isEmpty();
             if (!addImport) {
                 Import import = entryToImport(entry);
@@ -695,7 +695,7 @@ void MaterialEditorView::modelAttached(Model *model)
     m_locked = true;
 
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
-    m_hasMaterialRoot = rootModelNode().isSubclassOf("QtQuick3D.Material");
+    m_hasMaterialRoot = rootModelNode().metaInfo().isQtQuick3DMaterial();
 
     if (m_hasMaterialRoot) {
         m_selectedMaterial = rootModelNode();
@@ -838,7 +838,7 @@ void MaterialEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNo
     m_selectedModels.clear();
 
     for (const ModelNode &node : selectedNodeList) {
-        if (node.isSubclassOf("QtQuick3D.Model"))
+        if (node.metaInfo().isQtQuick3DModel())
             m_selectedModels.append(node);
     }
 

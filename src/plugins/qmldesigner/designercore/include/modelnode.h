@@ -105,8 +105,8 @@ public:
     bool hasParentProperty() const;
 
     QList<ModelNode> directSubModelNodes() const;
-    QList<ModelNode> directSubModelNodesOfType(const TypeName &typeName) const;
-    QList<ModelNode> subModelNodesOfType(const TypeName &typeName) const;
+    QList<ModelNode> directSubModelNodesOfType(const NodeMetaInfo &type) const;
+    QList<ModelNode> subModelNodesOfType(const NodeMetaInfo &type) const;
 
     QList<ModelNode> allSubModelNodes() const;
     QList<ModelNode> allSubModelNodesAndThisNode() const;
@@ -236,7 +236,6 @@ public:
     NodeSourceType nodeSourceType() const;
 
     bool isComponent() const;
-    bool isSubclassOf(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
     QIcon typeIcon() const;
     QString behaviorPropertyName() const;
 

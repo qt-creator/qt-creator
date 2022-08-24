@@ -24,7 +24,7 @@ static bool isInEditedPath(const NodeAbstractProperty &propertyParent, const Mod
     if (editingPathViewModelNode.isValid()) {
         if (editingPathViewModelNode.hasNodeProperty("path")) {
             ModelNode pathModelNode = editingPathViewModelNode.nodeProperty("path").modelNode();
-            if (pathModelNode.metaInfo().isSubclassOf("QtQuick.Path")) {
+            if (pathModelNode.metaInfo().isQtQuickPath()) {
                 if (propertyParent.name() == "pathElements" && propertyParent.parentModelNode() == pathModelNode)
                     return true;
             }

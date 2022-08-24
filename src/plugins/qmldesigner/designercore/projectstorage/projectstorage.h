@@ -193,7 +193,7 @@ public:
             propertyDeclarationId);
     }
 
-    template<const auto &moduleName, const auto &typeName>
+    template<const char *moduleName, const char *typeName>
     TypeId commonTypeId() const
     {
         return commonTypeCache.template typeId<moduleName, typeName>();
@@ -205,7 +205,7 @@ public:
         return commonTypeCache.template builtinTypeId<BuiltinType>();
     }
 
-    template<const auto &builtinType>
+    template<const char *builtinType>
     TypeId builtinTypeId() const
     {
         return commonTypeCache.template builtinTypeId<builtinType>();
@@ -230,7 +230,7 @@ public:
 
         auto range = selectPrototypeAndSelfIdsStatement.template rangeWithTransaction<TypeId>(typeId);
 
-        for (TypeId currentTypeId : range) {
+        for ([[maybe_unused]] TypeId currentTypeId : range) {
             if (((currentTypeId == baseTypeIds) || ...))
                 return true;
         }

@@ -61,9 +61,9 @@ void EnterTabDesignerAction::updateContext()
         if (action()->isEnabled()) {
             const ModelNode selectedModelNode = selectionContext().currentSingleSelectedNode();
             if (selectedModelNode.metaInfo().isValid()
-                    && selectedModelNode.metaInfo().isSubclassOf("QtQuick.Controls.TabView")) {
-
-                const NodeAbstractProperty defaultProperty = selectedModelNode.defaultNodeAbstractProperty();
+                && selectedModelNode.metaInfo().isQtQuickControlsTabView()) {
+                const NodeAbstractProperty defaultProperty = selectedModelNode
+                                                                 .defaultNodeAbstractProperty();
                 const QList<QmlDesigner::ModelNode> childModelNodes = defaultProperty.directSubNodes();
                 for (const QmlDesigner::ModelNode &childModelNode : childModelNodes) {
                     createActionForTab(childModelNode);
@@ -77,7 +77,7 @@ bool EnterTabDesignerAction::isVisible(const SelectionContext &selectionContext)
 {
     if (selectionContext.singleNodeIsSelected()) {
         ModelNode selectedModelNode = selectionContext.currentSingleSelectedNode();
-        return selectedModelNode.metaInfo().isValid() && selectedModelNode.metaInfo().isTabView();
+        return selectedModelNode.metaInfo().isQtQuickControlsTabView();
     }
 
     return false;
@@ -95,9 +95,7 @@ bool EnterTabDesignerAction::isEnabled(const SelectionContext &selectionContext)
 
 void EnterTabDesignerAction::createActionForTab(const ModelNode &modelNode)
 {
-    if (modelNode.metaInfo().isValid()
-            && modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab")) {
-
+    if (modelNode.metaInfo().isQtQuickControlsTab()) {
         QmlDesigner::QmlItemNode itemNode(modelNode);
 
         if (itemNode.isValid()) {

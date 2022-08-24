@@ -45,7 +45,7 @@ inline bool singleSelection(const SelectionContext &selectionState)
 inline bool isModel(const SelectionContext &selectionState)
 {
     ModelNode node = selectionState.currentSingleSelectedNode();
-    return node.isValid() && node.isSubclassOf("QtQuick3D.Model");
+    return node.isValid() && node.metaInfo().isQtQuick3DModel();
 }
 
 inline bool modelHasMaterial(const SelectionContext &selectionState)

@@ -32,8 +32,7 @@ bool QmlTimelineKeyframeGroup::isValid() const
 
 bool QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(const ModelNode &modelNode)
 {
-    return modelNode.isValid() && modelNode.metaInfo().isValid()
-           && modelNode.metaInfo().isSubclassOf("QtQuick.Timeline.KeyframeGroup");
+    return modelNode.isValid() && modelNode.metaInfo().isQtQuickTimelineKeyframeGroup();
 }
 
 void QmlTimelineKeyframeGroup::destroy()
@@ -263,8 +262,7 @@ QList<ModelNode> QmlTimelineKeyframeGroup::keyframePositions() const
 
 bool QmlTimelineKeyframeGroup::isValidKeyframe(const ModelNode &node)
 {
-    return isValidQmlModelNodeFacade(node) && node.metaInfo().isValid()
-           && node.metaInfo().isSubclassOf("QtQuick.Timeline.Keyframe");
+    return isValidQmlModelNodeFacade(node) && node.metaInfo().isQtQuickTimelineKeyframe();
 }
 
 bool QmlTimelineKeyframeGroup::checkKeyframesType(const ModelNode &node)
@@ -291,7 +289,8 @@ QList<QmlTimelineKeyframeGroup> QmlTimelineKeyframeGroup::allInvalidTimelineKeyf
     QTC_ASSERT(view->model(), return ret);
     QTC_ASSERT(view->rootModelNode().isValid(), return ret);
 
-    const auto groups = view->rootModelNode().subModelNodesOfType("QtQuick.Timeline.KeyframeGroup");
+    const auto groups = view->rootModelNode().subModelNodesOfType(
+        view->model()->qtQuickTimelineKeyframeGroupMetaInfo());
     for (const QmlTimelineKeyframeGroup group : groups) {
         if (group.isDangling())
             ret.append(group);

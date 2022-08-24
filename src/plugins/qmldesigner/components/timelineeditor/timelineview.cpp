@@ -495,8 +495,7 @@ QList<ModelNode> TimelineView::getAnimations(const QmlTimeline &timeline)
                                    if (node.metaInfo().isValid() && node.hasParentProperty()
                                        && (node.parentProperty().parentModelNode()
                                            == timeline.modelNode()))
-                                       return node.metaInfo().isSubclassOf(
-                                           "QtQuick.Timeline.TimelineAnimation");
+                                       return node.metaInfo().isQtQuickTimelineTimelineAnimation();
                                    return false;
                                });
     }

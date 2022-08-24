@@ -37,54 +37,51 @@ ChooseFromPropertyListFilter::ChooseFromPropertyListFilter(const NodeMetaInfo &i
     // Material
     //  -> Model
 
-    const TypeName textureType = "QtQuick3D.Texture";
-    if (insertInfo.isSubclassOf(textureType)) {
-        const TypeName textureTypeCpp = "<cpp>.QQuick3DTexture";
-        if (parentInfo.isSubclassOf("QtQuick3D.DefaultMaterial")
-            || parentInfo.isSubclassOf("QtQuick3D.PrincipledMaterial")) {
+    if (insertInfo.isQtQuick3DTexture()) {
+        if (parentInfo.isQtQuick3DDefaultMaterial() || parentInfo.isQtQuick3DPrincipledMaterial()) {
             // All texture properties are valid targets
             for (const auto &property : parentInfo.properties()) {
-                const TypeName &propType = property.propertyType().typeName();
-                if (propType == textureType || propType == textureTypeCpp) {
+                const auto &propType = property.propertyType();
+                if (propType.isQtQuick3DTexture()) {
                     propertyList.append(QString::fromUtf8(property.name()));
                     if (breakOnFirst)
                         return;
                 }
             }
-        } else if (parentInfo.isSubclassOf("QtQuick3D.Particles3D.SpriteParticle3D")) {
+        } else if (parentInfo.isQtQuick3DParticles3DSpriteParticle3D()) {
             propertyList.append("sprite");
-        } else if (parentInfo.isSubclassOf("QtQuick3D.TextureInput")) {
+        } else if (parentInfo.isQtQuick3DTextureInput()) {
             propertyList.append("texture");
-        } else if (parentInfo.isSubclassOf("QtQuick3D.SceneEnvironment")) {
+        } else if (parentInfo.isQtQuick3DSceneEnvironment()) {
             propertyList.append("lightProbe");
         }
-    } else if (insertInfo.isSubclassOf("QtQuick3D.Effect")) {
-        if (parentInfo.isSubclassOf("QtQuick3D.SceneEnvironment"))
+    } else if (insertInfo.isQtQuick3DEffect()) {
+        if (parentInfo.isQtQuick3DSceneEnvironment())
             propertyList.append("effects");
-    } else if (insertInfo.isSubclassOf("QtQuick3D.Shader")) {
-        if (parentInfo.isSubclassOf("QtQuick3D.Pass"))
+    } else if (insertInfo.isQtQuick3DShader()) {
+        if (parentInfo.isQtQuick3DPass())
             propertyList.append("shaders");
-    } else if (insertInfo.isSubclassOf("QtQuick3D.Command")) {
-        if (parentInfo.isSubclassOf("QtQuick3D.Pass"))
+    } else if (insertInfo.isQtQuick3DCommand()) {
+        if (parentInfo.isQtQuick3DPass())
             propertyList.append("commands");
-    } else if (insertInfo.isSubclassOf("QtQuick3D.Buffer")) {
-        if (parentInfo.isSubclassOf("QtQuick3D.Pass"))
+    } else if (insertInfo.isQtQuick3DBuffer()) {
+        if (parentInfo.isQtQuick3DPass())
             propertyList.append("output");
-    } else if (insertInfo.isSubclassOf("QtQuick3D.InstanceListEntry")) {
-        if (parentInfo.isSubclassOf("QtQuick3D.InstanceList"))
+    } else if (insertInfo.isQtQuick3DInstanceListEntry()) {
+        if (parentInfo.isQtQuick3DInstanceList())
             propertyList.append("instances");
-    } else if (insertInfo.isSubclassOf("QtQuick3D.Pass")) {
-        if (parentInfo.isSubclassOf("QtQuick3D.Effect"))
+    } else if (insertInfo.isQtQuick3DPass()) {
+        if (parentInfo.isQtQuick3DEffect())
             propertyList.append("passes");
-    } else if (insertInfo.isSubclassOf("QtQuick3D.Particles3D.Particle3D")) {
-        if (parentInfo.isSubclassOf("QtQuick3D.Particles3D.ParticleEmitter3D"))
+    } else if (insertInfo.isQtQuick3DParticles3DParticle3D()) {
+        if (parentInfo.isQtQuick3DParticles3DParticleEmitter3D())
             propertyList.append("particle");
-    } else if (insertInfo.isSubclassOf("QQuick3DParticleAbstractShape")) {
-        if (parentInfo.isSubclassOf("QtQuick3D.Particles3D.ParticleEmitter3D")
-                || parentInfo.isSubclassOf("QtQuick3D.Particles3D.Attractor3D"))
+    } else if (insertInfo.isQuick3DParticleAbstractShape()) {
+        if (parentInfo.isQtQuick3DParticles3DParticleEmitter3D()
+            || parentInfo.isQtQuick3DParticles3DAttractor3D())
             propertyList.append("shape");
-    } else if (insertInfo.isSubclassOf("QtQuick3D.Material")) {
-        if (parentInfo.isSubclassOf("QtQuick3D.Particles3D.Model"))
+    } else if (insertInfo.isQtQuick3DMaterial()) {
+        if (parentInfo.isQtQuick3DParticles3DModel())
             propertyList.append("materials");
     }
 }

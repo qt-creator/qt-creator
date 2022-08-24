@@ -672,9 +672,9 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
             newQmlObjectNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, QPointF(), targetProperty, false);
             ModelNode newModelNode = newQmlObjectNode.modelNode();
             if (newModelNode.isValid()) {
-                if (newModelNode.isSubclassOf("QtQuick3D.Material")) {
+                if (newModelNode.metaInfo().isQtQuick3DMaterial()) {
                     // Don't allow dropping materials on any node but Models
-                    if (!targetNode.isSubclassOf("QtQuick3D.Model")) {
+                    if (!targetNode.metaInfo().isQtQuick3DModel()) {
                         newQmlObjectNode.destroy();
                         return;
                     }
@@ -691,12 +691,12 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                         TypeName selectedProp = dialog->selectedProperty();
 
                         // Pass and TextureInput can't have children, so we have to move nodes under parent
-                        if (((newModelNode.isSubclassOf("QtQuick3D.Shader")
-                              || newModelNode.isSubclassOf("QtQuick3D.Command")
-                              || newModelNode.isSubclassOf("QtQuick3D.Buffer"))
-                             && targetProperty.parentModelNode().isSubclassOf("QtQuick3D.Pass"))
-                            || (newModelNode.isSubclassOf("QtQuick3D.Texture")
-                                && targetProperty.parentModelNode().isSubclassOf("QtQuick3D.TextureInput"))) {
+                        if (((newModelNode.metaInfo().isQtQuick3DShader()
+                              || newModelNode.metaInfo().isQtQuick3DCommand()
+                              || newModelNode.metaInfo().isQtQuick3DBuffer())
+                             && targetProperty.parentModelNode().metaInfo().isQtQuick3DPass())
+                            || (newModelNode.metaInfo().isQtQuick3DTexture()
+                                && targetProperty.parentModelNode().metaInfo().isQtQuick3DTextureInput())) {
                             if (moveNodeToParent(targetProperty, newQmlObjectNode)) {
                                 targetProperty = targetProperty.parentProperty();
                                 moveNodesAfter = false;
@@ -715,11 +715,12 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                     delete dialog;
                 }
 
-                if (newModelNode.isSubclassOf("QtQuick3D.View3D")) {
-                    const QList<ModelNode> models = newModelNode.subModelNodesOfType("QtQuick3D.Model");
+                if (newModelNode.metaInfo().isQtQuick3DView3D()) {
+                    const QList<ModelNode> models = newModelNode.subModelNodesOfType(
+                        m_view->model()->qtQuick3DModelMetaInfo());
                     QTC_ASSERT(models.size() == 1, return);
                     m_view->assignMaterialTo3dModel(models.at(0));
-                } else if (newModelNode.isSubclassOf("QtQuick3D.Model")) {
+                } else if (newModelNode.metaInfo().isQtQuick3DModel()) {
                     m_view->assignMaterialTo3dModel(newModelNode);
                 }
 
@@ -773,7 +774,7 @@ void NavigatorTreeModel::handleMaterialDrop(const QMimeData *mimeData, int rowNu
         return;
 
     ModelNode targetNode = targetProperty.parentModelNode();
-    if (!targetNode.isSubclassOf("QtQuick3D.Model"))
+    if (!targetNode.metaInfo().isQtQuick3DModel())
         return;
 
     QByteArray data = mimeData->data(Constants::MIME_TYPE_MATERIAL);
@@ -801,7 +802,7 @@ ModelNode NavigatorTreeModel::handleItemLibraryImageDrop(const QString &imagePat
     ModelNode newModelNode;
 
     if (!dropAsImage3dTexture(targetNode, targetProperty, imagePathRelative, newModelNode, outMoveNodesAfter)) {
-        if (targetNode.isSubclassOf("QtQuick.Image") || targetNode.isSubclassOf("QtQuick.BorderImage")) {
+        if (targetNode.metaInfo().isQtQuickImage() || targetNode.metaInfo().isQtQuickBorderImage()) {
             // if dropping an image on an existing image, set the source
             targetNode.variantProperty("source").setValue(imagePathRelative);
         } else {
@@ -827,7 +828,7 @@ ModelNode NavigatorTreeModel::handleItemLibraryFontDrop(const QString &fontFamil
 
     ModelNode newModelNode;
 
-    if (targetNode.isSubclassOf("QtQuick.Text")) {
+    if (targetNode.metaInfo().isQtQuickText()) {
         // if dropping into an existing Text, update font
         targetNode.variantProperty("font.family").setValue(fontFamily);
     } else {
@@ -883,7 +884,7 @@ ModelNode NavigatorTreeModel::handleItemLibraryShaderDrop(const QString &shaderP
 
     const QString relPath = DocumentManager::currentFilePath().toFileInfo().dir().relativeFilePath(shaderPath);
 
-    if (targetNode.isSubclassOf("QtQuick3D.Shader")) {
+    if (targetNode.metaInfo().isQtQuick3DShader()) {
         // if dropping into an existing Shader, update
         targetNode.variantProperty("stage").setEnumeration(isFragShader ? "Shader.Fragment"
                                                                         : "Shader.Vertex");
@@ -914,7 +915,7 @@ ModelNode NavigatorTreeModel::handleItemLibraryShaderDrop(const QString &shaderP
             newModelNode.setIdWithoutRefactoring(
                 m_view->model()->generateNewId(fi.baseName(), "shader"));
             // Passes can't have children, so move shader node under parent
-            if (targetProperty.parentModelNode().isSubclassOf("QtQuick3D.Pass")) {
+            if (targetProperty.parentModelNode().metaInfo().isQtQuick3DPass()) {
                 BindingProperty listProp = targetNode.bindingProperty("shaders");
                 listProp.addModelNodeToArray(newModelNode);
                 outMoveNodesAfter = !moveNodeToParent(targetProperty, newModelNode);
@@ -936,7 +937,7 @@ ModelNode NavigatorTreeModel::handleItemLibrarySoundDrop(const QString &soundPat
 
     const QString relPath = DocumentManager::currentFilePath().toFileInfo().dir().relativeFilePath(soundPath);
 
-    if (targetNode.isSubclassOf("QtMultimedia.SoundEffect")) {
+    if (targetNode.metaInfo().isQtMultimediaSoundEffect()) {
         // if dropping into on an existing SoundEffect, update
         targetNode.variantProperty("source").setValue(relPath);
     } else {
@@ -1014,8 +1015,8 @@ bool NavigatorTreeModel::dropAsImage3dTexture(const ModelNode &targetNode,
         });
     };
 
-    if (targetNode.isSubclassOf("QtQuick3D.DefaultMaterial")
-        || targetNode.isSubclassOf("QtQuick3D.PrincipledMaterial")) {
+    if (targetNode.metaInfo().isQtQuick3DDefaultMaterial()
+        || targetNode.metaInfo().isQtQuick3DPrincipledMaterial()) {
         // if dropping an image on a material, create a texture instead of image
         // Show texture property selection dialog
         auto dialog = ChooseFromPropertyListDialog::createIfNeeded(targetNode,
@@ -1037,16 +1038,16 @@ bool NavigatorTreeModel::dropAsImage3dTexture(const ModelNode &targetNode,
 
         delete dialog;
         return true;
-    } else if (targetNode.isSubclassOf("QtQuick3D.TextureInput")) {
+    } else if (targetNode.metaInfo().isQtQuick3DTextureInput()) {
         bindToProperty("texture", true);
         return newNode.isValid();
-    } else if (targetNode.isSubclassOf("QtQuick3D.Particles3D.SpriteParticle3D")) {
+    } else if (targetNode.metaInfo().isQtQuick3DParticles3DSpriteParticle3D()) {
         bindToProperty("sprite", false);
         return newNode.isValid();
-    } else if (targetNode.isSubclassOf("QtQuick3D.SceneEnvironment")) {
+    } else if (targetNode.metaInfo().isQtQuick3DSceneEnvironment()) {
         bindToProperty("lightProbe", false);
         return newNode.isValid();
-    } else if (targetNode.isSubclassOf("QtQuick3D.Texture")) {
+    } else if (targetNode.metaInfo().isQtQuick3DTexture()) {
         // if dropping an image on an existing texture, set the source
         targetNode.variantProperty("source").setValue(imagePath);
         return true;
@@ -1103,7 +1104,7 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
         for (const ModelNode &modelNode : modelNodes) {
             if (modelNode.isValid() && modelNode != parentProperty.parentModelNode()
                 && !modelNode.isAncestorOf(parentProperty.parentModelNode())
-                && (modelNode.metaInfo().isSubclassOf(propertyQmlType) || propertyQmlType.isAlias()
+                && (modelNode.metaInfo().isBasedOn(propertyQmlType) || propertyQmlType.isAlias()
                     || parentProperty.name() == "data"
                     || (parentProperty.parentModelNode().metaInfo().defaultPropertyName()
                             == parentProperty.name()

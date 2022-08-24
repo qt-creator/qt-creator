@@ -33,9 +33,7 @@ bool QmlTimeline::isValid() const
 
 bool QmlTimeline::isValidQmlTimeline(const ModelNode &modelNode)
 {
-    return isValidQmlModelNodeFacade(modelNode)
-               && modelNode.metaInfo().isValid()
-               && modelNode.metaInfo().isSubclassOf("QtQuick.Timeline.Timeline");
+    return isValidQmlModelNodeFacade(modelNode) && modelNode.metaInfo().isQtQuickTimelineTimeline();
 }
 
 void QmlTimeline::destroy()

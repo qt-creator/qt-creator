@@ -276,12 +276,16 @@ void PropertyEditorValue::setHasActiveDrag(bool val)
     }
 }
 
-static bool isAllowedSubclassType(const QString &type, const QmlDesigner::NodeMetaInfo &metaInfo)
+static bool isAllowedSubclassType(const QString &type,
+                                  const QmlDesigner::NodeMetaInfo &metaInfo,
+                                  QmlDesigner::Model *model)
 {
     if (!metaInfo.isValid())
         return false;
 
-    return (metaInfo.isSubclassOf(type.toUtf8()));
+    auto base = model->metaInfo(type.toUtf8());
+
+    return metaInfo.isBasedOn(base);
 }
 
 bool PropertyEditorValue::isAvailable() const
@@ -306,7 +310,7 @@ bool PropertyEditorValue::isAvailable() const
         //allowed item properties:
         const auto itemTypes = mcuAllowedItemProperties.keys();
         for (const auto &itemType : itemTypes) {
-            if (isAllowedSubclassType(itemType, m_modelNode.metaInfo())) {
+            if (isAllowedSubclassType(itemType, m_modelNode.metaInfo(), m_modelNode.model())) {
                 const QmlDesigner::DesignerMcuManager::ItemProperties allowedItemProps =
                         mcuAllowedItemProperties.value(itemType);
                 if (allowedItemProps.properties.contains(pureNameStr)) {
@@ -509,7 +513,7 @@ bool PropertyEditorValue::idListReplace(int idx, const QString &value)
 
 void PropertyEditorValue::commitDrop(const QString &path)
 {
-    if (m_modelNode.isSubclassOf("QtQuick3D.Material")
+    if (m_modelNode.metaInfo().isQtQuick3DMaterial()
         && m_modelNode.metaInfo().property(m_name).propertyType().isQtQuick3DTexture()) {
         // create a texture node
         QmlDesigner::NodeMetaInfo metaInfo = m_modelNode.view()->model()->metaInfo("QtQuick3D.Texture");

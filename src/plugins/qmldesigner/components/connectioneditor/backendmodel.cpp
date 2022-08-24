@@ -55,31 +55,32 @@ void BackendModel::resetModel()
     if (rewriterView)
         for (const QmlTypeData &cppTypeData : rewriterView->getQMLTypes())
             if (cppTypeData.isSingleton) {
-                NodeMetaInfo metaInfo = m_connectionView->model()->metaInfo(cppTypeData.typeName.toUtf8());
-                  if (metaInfo.isValid() && !metaInfo.isSubclassOf("QtQuick.Item")) {
-                      auto type = new QStandardItem(cppTypeData.typeName);
-                      type->setData(cppTypeData.typeName, Qt::UserRole + 1);
-                      type->setData(true, Qt::UserRole + 2);
-                      type->setEditable(false);
+                NodeMetaInfo metaInfo = m_connectionView->model()->metaInfo(
+                    cppTypeData.typeName.toUtf8());
+                if (metaInfo.isValid() && !metaInfo.isQtQuickItem()) {
+                    auto type = new QStandardItem(cppTypeData.typeName);
+                    type->setData(cppTypeData.typeName, Qt::UserRole + 1);
+                    type->setData(true, Qt::UserRole + 2);
+                    type->setEditable(false);
 
-                      auto name = new QStandardItem(cppTypeData.typeName);
-                      name->setEditable(false);
+                    auto name = new QStandardItem(cppTypeData.typeName);
+                    name->setEditable(false);
 
-                      QStandardItem *singletonItem = new QStandardItem("");
-                      singletonItem->setCheckState(Qt::Checked);
+                    QStandardItem *singletonItem = new QStandardItem("");
+                    singletonItem->setCheckState(Qt::Checked);
 
-                      singletonItem->setCheckable(true);
-                      singletonItem->setEnabled(false);
+                    singletonItem->setCheckable(true);
+                    singletonItem->setEnabled(false);
 
-                      QStandardItem *inlineItem = new QStandardItem("");
+                    QStandardItem *inlineItem = new QStandardItem("");
 
-                      inlineItem->setCheckState(Qt::Unchecked);
+                    inlineItem->setCheckState(Qt::Unchecked);
 
-                      inlineItem->setCheckable(true);
-                      inlineItem->setEnabled(false);
+                    inlineItem->setCheckable(true);
+                    inlineItem->setEnabled(false);
 
-                      appendRow({ type, name, singletonItem, inlineItem });
-                  }
+                    appendRow({type, name, singletonItem, inlineItem});
+                }
             }
 
     if (rootNode.isValid()) {
@@ -88,7 +89,7 @@ void BackendModel::resetModel()
             if (property.isDynamic() && !simpleTypes.contains(property.dynamicTypeName())) {
 
                 NodeMetaInfo metaInfo = m_connectionView->model()->metaInfo(property.dynamicTypeName());
-                if (metaInfo.isValid() && !metaInfo.isSubclassOf("QtQuick.Item")) {
+                if (metaInfo.isValid() && !metaInfo.isQtQuickItem()) {
                     QStandardItem *type = new QStandardItem(QString::fromUtf8(property.dynamicTypeName()));
                     type->setEditable(false);
 

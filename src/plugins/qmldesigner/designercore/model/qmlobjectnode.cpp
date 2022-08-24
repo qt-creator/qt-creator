@@ -323,10 +323,11 @@ static void removeStateOperationsForChildren(const QmlObjectNode &node)
 
 static void removeAnimationsFromAnimation(const ModelNode &animation)
 {
-    QTC_ASSERT(animation.isValid(), return);
+    QTC_ASSERT(animation.isValid(), return );
 
+    auto model = animation.model();
     const QList<ModelNode> propertyAnimations = animation.subModelNodesOfType(
-        "QtQuick.PropertyAnimation");
+        model->qtQuickPropertyAnimationMetaInfo());
 
     for (const ModelNode &child : propertyAnimations) {
         if (!child.hasBindingProperty("target")) {
@@ -808,7 +809,7 @@ QmlObjectNode *QmlObjectNode::getQmlObjectNodeOfCorrectType(const ModelNode &mod
     // Create QmlObjectNode of correct type for the modelNode
     // Note: Currently we are only interested in differentiating 3D nodes, so no check for
     // visual nodes is done for efficiency reasons
-    if (modelNode.isValid() && modelNode.isSubclassOf("QtQuick3D.Node"))
+    if (modelNode.isValid() && modelNode.metaInfo().isQtQuick3DNode())
         return new Qml3DNode(modelNode);
     return new QmlObjectNode(modelNode);
 }

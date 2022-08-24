@@ -1734,6 +1734,174 @@ void Model::setMetaInfo(const MetaInfo &metaInfo)
     d->setMetaInfo(metaInfo);
 }
 
+template<const auto &moduleName, const auto &typeName>
+NodeMetaInfo Model::createNodeMetaInfo() const
+{
+    auto typeId = d->projectStorage->commonTypeCache.typeId<moduleName, typeName>();
+
+    return {typeId, d->projectStorage};
+}
+
+NodeMetaInfo Model::qtQuickItemMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, Item>();
+    } else {
+        return metaInfo("QtQuick.Item");
+    }
+}
+
+NodeMetaInfo Model::qtQuickRectangleMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, Rectangle>();
+    } else {
+        return metaInfo("QtQuick.Rectangle");
+    }
+}
+
+NodeMetaInfo Model::qtQuickImageMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, Image>();
+    } else {
+        return metaInfo("QtQuick.Image");
+    }
+}
+
+NodeMetaInfo Model::qtQuickTextMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, Text>();
+    } else {
+        return metaInfo("QtQuick.Text");
+    }
+}
+
+NodeMetaInfo Model::qtQuickPropertyAnimationMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, PropertyAnimation>();
+    } else {
+        return metaInfo("QtQuick.PropertyAnimation");
+    }
+}
+
+NodeMetaInfo Model::flowViewFlowDecisionMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<FlowView, FlowDecision>();
+    } else {
+        return metaInfo("FlowView.FlowDecision");
+    }
+}
+
+NodeMetaInfo Model::flowViewFlowWildcardMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<FlowView, FlowWildcard>();
+    } else {
+        return metaInfo("FlowView.FlowWildcard");
+    }
+}
+
+NodeMetaInfo Model::flowViewFlowTransitionMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<FlowView, FlowTransition>();
+    } else {
+        return metaInfo("FlowView.FlowTransition");
+    }
+}
+
+NodeMetaInfo Model::qtQuickTextEditMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, TextEdit>();
+    } else {
+        return metaInfo("QtQuick.TextEdit");
+    }
+}
+
+NodeMetaInfo Model::qtQuickControlsTextAreaMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick_Controls, TextArea>();
+    } else {
+        return metaInfo("QtQuick.Controls.TextArea");
+    }
+}
+
+NodeMetaInfo Model::qtQuick3DNodeMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, Node>();
+    } else {
+        return metaInfo("QtQuick3D.Node");
+    }
+}
+
+NodeMetaInfo Model::qtQuick3DMaterialMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, Material>();
+    } else {
+        return metaInfo("QtQuick3D.Material");
+    }
+}
+
+NodeMetaInfo Model::qtQuick3DDefaultMaterialMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, DefaultMaterial>();
+    } else {
+        return metaInfo("QtQuick3D.DefaultMaterial");
+    }
+}
+
+NodeMetaInfo Model::qtQuickTimelineTimelineMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick_Timeline, Timeline>();
+    } else {
+        return metaInfo("QtQuick.Timeline.Timeline");
+    }
+}
+
+NodeMetaInfo Model::qtQuickTimelineKeyframeGroupMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick_Timeline, KeyframeGroup>();
+    } else {
+        return metaInfo("QtQuick.Timeline.KeyframeGroup");
+    }
+}
+
+NodeMetaInfo Model::qtQuick3DModelMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, Storage::Info::Model>();
+    } else {
+        return metaInfo("QtQuick3D.Model");
+    }
+}
+
 namespace {
 [[maybe_unused]] std::pair<Utils::SmallStringView, Utils::SmallStringView> moduleTypeName(
     const TypeName &typeName)

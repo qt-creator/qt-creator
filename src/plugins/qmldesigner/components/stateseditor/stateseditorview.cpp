@@ -82,7 +82,7 @@ void StatesEditorView::removeState(int nodeId)
     try {
         if (nodeId > 0 && hasModelNodeForInternalId(nodeId)) {
             ModelNode stateNode(modelNodeForInternalId(nodeId));
-            Q_ASSERT(stateNode.metaInfo().isSubclassOf("QtQuick.State"));
+            Q_ASSERT(stateNode.metaInfo().isQtQuickState());
 
             QmlModelState modelState(stateNode);
             if (modelState.isValid()) {

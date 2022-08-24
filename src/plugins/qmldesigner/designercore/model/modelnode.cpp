@@ -795,17 +795,17 @@ QList<ModelNode> ModelNode::directSubModelNodes() const
     return toModelNodeList(m_internalNode->allDirectSubNodes(), view());
 }
 
-QList<ModelNode> ModelNode::directSubModelNodesOfType(const TypeName &typeName) const
+QList<ModelNode> ModelNode::directSubModelNodesOfType(const NodeMetaInfo &type) const
 {
-    return Utils::filtered(directSubModelNodes(), [typeName](const ModelNode &node){
-        return node.metaInfo().isValid() && node.metaInfo().isSubclassOf(typeName);
+    return Utils::filtered(directSubModelNodes(), [&](const ModelNode &node) {
+        return node.metaInfo().isValid() && node.metaInfo().isBasedOn(type);
     });
 }
 
-QList<ModelNode> ModelNode::subModelNodesOfType(const TypeName &typeName) const
+QList<ModelNode> ModelNode::subModelNodesOfType(const NodeMetaInfo &type) const
 {
-    return Utils::filtered(allSubModelNodes(), [typeName](const ModelNode &node){
-        return node.metaInfo().isValid() && node.metaInfo().isSubclassOf(typeName);
+    return Utils::filtered(allSubModelNodes(), [&](const ModelNode &node) {
+        return node.metaInfo().isValid() && node.metaInfo().isBasedOn(type);
     });
 }
 
@@ -843,13 +843,8 @@ bool ModelNode::hasAnySubModelNodes() const
 
 NodeMetaInfo ModelNode::metaInfo() const
 {
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
-
-    if (!m_internalNode->typeId)
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+    if (!isValid())
+        return {};
 
     if constexpr (useProjectStorage()) {
         return NodeMetaInfo(m_internalNode->typeId, m_model->projectStorage());
@@ -1433,8 +1428,7 @@ bool ModelNode::isComponent() const
         }
     }
 
-    if (metaInfo().isSubclassOf("QtQuick.Loader")) {
-
+    if (metaInfo().isQtQuickLoader()) {
         if (hasNodeListProperty("component")) {
 
         /*
@@ -1459,14 +1453,6 @@ bool ModelNode::isComponent() const
         if (hasVariantProperty("source"))
             return true;
     }
-
-    return false;
-}
-
-bool ModelNode::isSubclassOf(const TypeName &typeName, int majorVersion, int minorVersion) const
-{
-    if (metaInfo().isValid())
-        return metaInfo().isSubclassOf(typeName, majorVersion, minorVersion);
 
     return false;
 }

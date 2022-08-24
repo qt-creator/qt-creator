@@ -175,7 +175,7 @@ void ActionEditor::prepareConnections()
 
     auto isSkippedType = [](auto &&type) {
         return !(type.isString() || type.isInteger() || type.isBool() || type.isColor()
-                 || type.isFloat() || type.isQmlItem());
+                 || type.isFloat() || type.isQtObject());
     };
     static QList<PropertyName> methodBlackList({"toString", "destroy"});
 

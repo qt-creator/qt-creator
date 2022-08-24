@@ -22,14 +22,13 @@ namespace QmlDesigner {
 
 bool isTabView(const ModelNode &modelNode)
 {
-    return modelNode.metaInfo().isSubclassOf("QtQuick.Controls.TabView");
+    return modelNode.metaInfo().isQtQuickControlsTabView();
 }
 
 bool isTabAndParentIsTabView(const ModelNode &modelNode)
 {
-    return modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab")
-            && modelNode.hasParentProperty()
-            && modelNode.parentProperty().parentModelNode().metaInfo().isSubclassOf("QtQuick.Controls.TabView");
+    return modelNode.metaInfo().isQtQuickControlsTab() && modelNode.hasParentProperty()
+           && modelNode.parentProperty().parentModelNode().metaInfo().isQtQuickControlsTabView();
 }
 
 AddTabDesignerAction::AddTabDesignerAction()
@@ -75,7 +74,7 @@ bool AddTabDesignerAction::isEnabled(const SelectionContext &selectionContext) c
 
 static ModelNode findTabViewModelNode(const ModelNode &currentModelNode)
 {
-    if (currentModelNode.metaInfo().isSubclassOf("QtQuick.Controls.TabView"))
+    if (currentModelNode.metaInfo().isQtQuickControlsTabView())
         return currentModelNode;
     else
         return findTabViewModelNode(currentModelNode.parentProperty().parentModelNode());

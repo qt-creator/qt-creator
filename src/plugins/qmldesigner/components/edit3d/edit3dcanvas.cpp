@@ -173,7 +173,7 @@ void Edit3DCanvas::dropEvent(QDropEvent *e)
         m_parent->view()->setSelectedModelNode(modelNode);
 
         // if added node is a Model, assign it a material
-        if (modelNode.isSubclassOf("QtQuick3D.Model"))
+        if (modelNode.metaInfo().isQtQuick3DModel())
             m_parent->view()->assignMaterialTo3dModel(modelNode);
     });
 }

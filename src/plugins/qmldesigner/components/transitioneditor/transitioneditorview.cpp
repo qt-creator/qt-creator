@@ -79,7 +79,7 @@ void TransitionEditorView::nodeRemoved(const ModelNode & removedNode,
         widget()->updateData(removedNode);
 
     const ModelNode parent = parentProperty.parentModelNode();
-    if (parent.isValid() && parent.metaInfo().isSubclassOf("QtQuick.Transition"))
+    if (parent.isValid() && parent.metaInfo().isQtQuickTransition())
         asyncUpdate(parent);
 }
 
@@ -93,8 +93,7 @@ void TransitionEditorView::nodeReparented(const ModelNode &node,
 
     const ModelNode parent = newPropertyParent.parentModelNode();
 
-    if (parent.isValid() && parent.metaInfo().isValid()
-        && parent.metaInfo().isSubclassOf("QtQuick.Transition")) {
+    if (parent.isValid() && parent.metaInfo().isValid() && parent.metaInfo().isQtQuickTransition()) {
         asyncUpdate(parent);
     }
 }
@@ -158,7 +157,7 @@ bool TransitionEditorView::hasWidget() const
 
 void TransitionEditorView::nodeIdChanged(const ModelNode &node, const QString &, const QString &)
 {
-    if (node.metaInfo().isValid() && node.metaInfo().isSubclassOf("QtQuick.Transition"))
+    if (node.metaInfo().isValid() && node.metaInfo().isQtQuickTransition())
         widget()->init();
 }
 

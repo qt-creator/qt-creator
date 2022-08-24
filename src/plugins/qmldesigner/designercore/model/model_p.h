@@ -259,6 +259,7 @@ private:
     QVector<InternalNodePointer> toInternalNodeVector(const QVector<ModelNode> &modelNodeVector) const;
     const QList<QPointer<AbstractView>> enabledViews() const;
 
+private:
     Model *m_model = nullptr;
     MetaInfo m_metaInfo;
     QList<Import> m_imports;

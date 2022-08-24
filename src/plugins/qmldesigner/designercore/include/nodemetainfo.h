@@ -52,11 +52,12 @@ public:
     PropertyNameList signalNames() const;
     PropertyNameList slotNames() const;
     PropertyName defaultPropertyName() const;
+    PropertyMetaInfo defaultProperty() const;
     bool hasDefaultProperty() const;
 
     std::vector<NodeMetaInfo> classHierarchy() const;
     std::vector<NodeMetaInfo> superClasses() const;
-    NodeMetaInfo directSuperClass() const;
+    NodeMetaInfo commonBase(const NodeMetaInfo &metaInfo) const;
 
     bool defaultPropertyIsComponent() const;
 
@@ -68,25 +69,88 @@ public:
     QString componentFileName() const;
 
     bool availableInVersion(int majorVersion, int minorVersion) const;
-    bool isSubclassOf(const TypeName &type, int majorVersion = -1, int minorVersion = -1) const;
-    bool isSubclassOf(const NodeMetaInfo &metaInfo) const;
 
-    bool isGraphicalItem() const;
-    bool isQmlItem() const;
-    bool isLayoutable() const;
-    bool isView() const;
-    bool isTabView() const;
+    bool isBasedOn(const NodeMetaInfo &metaInfo) const;
+    bool isBasedOn(const NodeMetaInfo &metaInfo1, const NodeMetaInfo &metaInfo2) const;
+    bool isBasedOn(const NodeMetaInfo &metaInfo1,
+                   const NodeMetaInfo &metaInfo2,
+                   const NodeMetaInfo &metaInfo3) const;
+
     bool isAlias() const;
-    bool isQmlComponent() const;
-    bool isFont() const;
-    bool isColor() const;
     bool isBool() const;
-    bool isInteger() const;
+    bool isColor() const;
     bool isFloat() const;
-    bool isVariant() const;
+    bool isFlowViewFlowActionArea() const;
+    bool isFlowViewFlowDecision() const;
+    bool isFlowViewFlowItem() const;
+    bool isFlowViewFlowTransition() const;
+    bool isFlowViewFlowView() const;
+    bool isFlowViewFlowWildcard() const;
+    bool isFlowViewItem() const;
+    bool isFont() const;
+    bool isGraphicalItem() const;
+    bool isInteger() const;
+    bool isLayoutable() const;
+    bool isListOrGridView() const;
+    bool isQmlComponent() const;
+    bool isQtMultimediaSoundEffect() const;
+    bool isQtObject() const;
+    bool isQtQuick3D() const;
+    bool isQtQuick3DBuffer() const;
+    bool isQtQuick3DCamera() const;
+    bool isQtQuick3DCommand() const;
+    bool isQtQuick3DDefaultMaterial() const;
+    bool isQtQuick3DEffect() const;
+    bool isQtQuick3DInstanceList() const;
+    bool isQtQuick3DInstanceListEntry() const;
+    bool isQtQuick3DMaterial() const;
+    bool isQtQuick3DModel() const;
+    bool isQtQuick3DNode() const;
+    bool isQtQuick3DParticles3DAffector3D() const;
+    bool isQtQuick3DParticles3DAttractor3D() const;
+    bool isQtQuick3DParticles3DModel() const;
+    bool isQtQuick3DParticles3DParticle3D() const;
+    bool isQtQuick3DParticles3DParticleEmitter3D() const;
+    bool isQtQuick3DParticles3DSpriteParticle3D() const;
+    bool isQtQuick3DPass() const;
+    bool isQtQuick3DPrincipledMaterial() const;
+    bool isQtQuick3DSceneEnvironment() const;
+    bool isQtQuick3DShader() const;
+    bool isQtQuick3DTexture() const;
+    bool isQtQuick3DTextureInput() const;
+    bool isQtQuick3DView3D() const;
+    bool isQtQuickBorderImage() const;
+    bool isQtQuickControlsSwipeView() const;
+    bool isQtQuickControlsTab() const;
+    bool isQtQuickControlsTabBar() const;
+    bool isQtQuickControlsTabView() const;
+    bool isQtQuickExtrasPicture() const;
+    bool isQtQuickImage() const;
+    bool isQtQuickItem() const;
+    bool isQtQuickLayoutsLayout() const;
+    bool isQtQuickLoader() const;
+    bool isQtQuickPath() const;
+    bool isQtQuickPauseAnimation() const;
+    bool isQtQuickPositioner() const;
+    bool isQtQuickPropertyAnimation() const;
+    bool isQtQuickPropertyChanges() const;
+    bool isQtQuickRepeater() const;
+    bool isQtQuickState() const;
+    bool isQtQuickStudioComponentsGroupItem() const;
+    bool isQtQuickText() const;
+    bool isQtQuickTimelineKeyframe() const;
+    bool isQtQuickTimelineKeyframeGroup() const;
+    bool isQtQuickTimelineTimeline() const;
+    bool isQtQuickTimelineTimelineAnimation() const;
+    bool isQtQuickTransition() const;
+    bool isQtSafeRendererSafeRendererPicture() const;
+    bool isQtSafeRendererSafePicture() const;
+    bool isQuick3DParticleAbstractShape() const;
+    bool isQuickStateOperation() const;
     bool isString() const;
     bool isUrl() const;
-    bool isQtQuick3DTexture() const;
+    bool isVariant() const;
+    bool isView() const;
 
     bool isEnumeration() const;
     QString importDirectoryPath() const;
@@ -101,6 +165,7 @@ public:
 
 private:
     const Storage::Info::Type &typeData() const;
+    bool isSubclassOf(const TypeName &type, int majorVersion = -1, int minorVersion = -1) const;
 
 private:
     TypeId m_typeId;

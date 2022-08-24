@@ -47,7 +47,6 @@ public:
 
     std::vector<NodeMetaInfo> classHierarchy() const { return {}; }
     std::vector<NodeMetaInfo> superClasses() const { return {}; }
-    NodeMetaInfo directSuperClass() const { return {}; }
 
     bool defaultPropertyIsComponent() const { return {}; }
 
@@ -62,12 +61,21 @@ public:
     bool hasCustomParser() const { return {}; }
 
     bool availableInVersion(int, int) const { return {}; }
-    bool isSubclassOf(const TypeName &, int = -1, int = -1) const { return {}; }
+    bool isBasedOn(const NodeMetaInfo &) const { return {}; }
+    bool isBasedOn(const NodeMetaInfo &, const NodeMetaInfo &) const { return {}; }
+    bool isBasedOn(const NodeMetaInfo &, const NodeMetaInfo &, const NodeMetaInfo &) const
+    {
+        return {};
+    }
 
     bool isGraphicalItem() const { return {}; }
     bool isLayoutable() const { return {}; }
     bool isView() const { return {}; }
     bool isTabView() const { return {}; }
+    bool isQtQuick3DNode() const { return {}; }
+    bool isQtQuick3DModel() const { return {}; }
+    bool isQtQuick3DMaterial() const { return {}; }
+    bool isQtQuickLoader() const { return {}; }
 
     QString importDirectoryPath() const { return {}; }
 

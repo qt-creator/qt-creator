@@ -69,8 +69,7 @@ void ContentNotEditableIndicator::addAddiationEntries(const QList<FormEditorItem
 {
     for (FormEditorItem *formEditorItem : itemList) {
         const ModelNode modelNode = formEditorItem->qmlItemNode().modelNode();
-        if (modelNode.metaInfo().isValid() && modelNode.metaInfo().isSubclassOf("QtQuick.Loader")) {
-
+        if (modelNode.metaInfo().isValid() && modelNode.metaInfo().isQtQuickLoader()) {
             if (!m_entryList.contains(EntryPair(formEditorItem, 0))) {
                 auto indicatorShape = new QGraphicsRectItem(m_layerItem);
                 QPen linePen;
@@ -84,7 +83,6 @@ void ContentNotEditableIndicator::addAddiationEntries(const QList<FormEditorItem
 
                 m_entryList.append(EntryPair(formEditorItem, indicatorShape));
             }
-
         }
     }
 }

@@ -564,8 +564,11 @@ void DesignDocument::paste()
             targetNode = targetNode.parentProperty().parentModelNode();
         } else if (view.selectedModelNodes().isEmpty()) {
             // if selection is empty and copied nodes are all 3D nodes, paste them under the active scene
-            bool all3DNodes = std::find_if(selectedNodes.cbegin(), selectedNodes.cend(),
-                                           [](const ModelNode &node) { return !node.isSubclassOf("QtQuick3D.Node"); })
+            bool all3DNodes = std::find_if(selectedNodes.cbegin(),
+                                           selectedNodes.cend(),
+                                           [](const ModelNode &node) {
+                                               return !node.metaInfo().isQtQuick3DNode();
+                                           })
                               == selectedNodes.cend();
             if (all3DNodes) {
                 auto data = rootModelNode().auxiliaryData(active3dSceneProperty);
@@ -617,7 +620,7 @@ void DesignDocument::paste()
                 targetNode = view.firstSelectedModelNode();
             } else {
                 // if selection is empty and this is a 3D Node, paste it under the active scene
-                if (pastedNode.isSubclassOf("QtQuick3D.Node")) {
+                if (pastedNode.metaInfo().isQtQuick3DNode()) {
                     auto data = rootModelNode().auxiliaryData(active3dSceneProperty);
                     if (data) {
                         if (int activeSceneId = data->toInt(); activeSceneId != -1) {

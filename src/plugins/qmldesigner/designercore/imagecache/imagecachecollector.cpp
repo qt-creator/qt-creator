@@ -74,9 +74,10 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
 
     model->setRewriterView(&rewriterView);
 
+    auto rootModelNodeMetaInfo = rewriterView.rootModelNode().metaInfo();
     bool is3DRoot = rewriterView.errors().isEmpty()
-            && (rewriterView.rootModelNode().isSubclassOf("QtQuick3D.Node")
-                || rewriterView.rootModelNode().isSubclassOf("QtQuick3D.Material"));
+                    && (rootModelNodeMetaInfo.isQtQuick3DNode()
+                        || rootModelNodeMetaInfo.isQtQuick3DMaterial());
 
     if (!rewriterView.errors().isEmpty() || (!rewriterView.rootModelNode().metaInfo().isGraphicalItem()
                                         && !is3DRoot)) {

@@ -359,7 +359,7 @@ void TransitionEditorWidget::updateData(const ModelNode &transition)
     }
 
     if (transition.metaInfo().isValid()
-        && transition.metaInfo().isSubclassOf("QtQuick.Transition")) {
+        && transition.metaInfo().isQtQuickTransition()) {
         if (transition.id() == m_toolbar->currentTransitionId()) {
             m_graphicsScene->setTransition(transition);
         } else {

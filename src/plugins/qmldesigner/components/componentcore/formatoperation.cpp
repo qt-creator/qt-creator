@@ -14,6 +14,25 @@
 namespace QmlDesigner {
 namespace FormatOperation{
 
+namespace {
+struct StylePropertyStruct
+{
+    QString id;
+    QStringList subclasses;
+    QStringList properties;
+};
+
+struct StyleProperties
+{
+    QmlDesigner::PropertyName propertyName;
+    QVariant value;
+};
+
+QList<StylePropertyStruct> copyableProperties = {};
+QList<StyleProperties> applyableProperties = {};
+StylePropertyStruct chosenItem = {};
+} // namespace
+
 void readFormatConfiguration(){
 
     if (copyableProperties.isEmpty()){
@@ -69,10 +88,11 @@ bool propertiesCopyable(const SelectionContext &selectionState)
     ModelNode modelNode = selectionState.currentSingleSelectedNode();
 
     for (StylePropertyStruct copyable : copyableProperties)
-        for (QString copyableSubclass : copyable.subclasses)
-            if (modelNode.metaInfo().isSubclassOf(copyableSubclass.toUtf8()))
+        for (QString copyableSubclass : copyable.subclasses) {
+            auto base = modelNode.model()->metaInfo(copyableSubclass.toUtf8());
+            if (modelNode.metaInfo().isBasedOn(base))
                 return true;
-
+        }
     return false;
 }
 
@@ -87,8 +107,9 @@ bool propertiesApplyable(const SelectionContext &selectionState)
     const ModelNode firstSelectedNode = selectionState.firstSelectedModelNode();
     bool found = false;
 
-    for (QString copyableSubclass : chosenItem.subclasses){
-        if (firstSelectedNode.metaInfo().isSubclassOf(copyableSubclass.toUtf8())){
+    for (QString copyableSubclass : chosenItem.subclasses) {
+        auto base = firstSelectedNode.model()->metaInfo(copyableSubclass.toUtf8());
+        if (firstSelectedNode.metaInfo().isBasedOn(base)) {
             found = true;
             break;
         }
@@ -100,11 +121,13 @@ bool propertiesApplyable(const SelectionContext &selectionState)
     for (const ModelNode &modelNode : selectionState.selectedModelNodes()){
         found = false;
 
-        for (QString subclass : chosenItem.subclasses)
-            if (modelNode.metaInfo().isSubclassOf(subclass.toUtf8())){
+        for (QString subclass : chosenItem.subclasses) {
+            auto base = modelNode.model()->metaInfo(subclass.toUtf8());
+            if (modelNode.metaInfo().isBasedOn(base)) {
                 found = true;
                 break;
             }
+        }
 
         if (found)
             continue;
@@ -120,28 +143,29 @@ void copyFormat(const SelectionContext &selectionState)
     if (!selectionState.view())
         return;
 
-    selectionState.view()->executeInTransaction("DesignerActionManager|copyFormat",[selectionState](){
-
+    selectionState.view()->executeInTransaction("DesignerActionManager|copyFormat", [selectionState]() {
         applyableProperties.clear();
 
         ModelNode node = selectionState.currentSingleSelectedNode();
         QStringList propertyList;
         for (StylePropertyStruct copyable : copyableProperties){
             bool found = false;
-            for (QString copyableSubclass : copyable.subclasses)
-                if (node.metaInfo().isSubclassOf(copyableSubclass.toUtf8())){
+            for (QString copyableSubclass : copyable.subclasses) {
+                auto base = node.model()->metaInfo(copyableSubclass.toUtf8());
+                if (node.metaInfo().isBasedOn(base)) {
                     propertyList = copyable.properties;
                     chosenItem = copyable;
                     found = true;
                     break;
                 }
+            }
             if (found)
                 break;
-         }
+        }
 
         QmlObjectNode qmlObjectNode(node);
 
-        for (auto propertyName : propertyList){
+        for (auto propertyName : propertyList) {
             if (qmlObjectNode.propertyAffectedByCurrentState(propertyName.toUtf8())) {
                 StyleProperties property;
                 property.propertyName = propertyName.toUtf8();
@@ -165,12 +189,14 @@ void applyFormat(const SelectionContext &selectionState)
 
             for (StylePropertyStruct copyable : copyableProperties){
                 bool found = false;
-                for (QString copyableSubclass : copyable.subclasses)
-                    if (node.metaInfo().isSubclassOf(copyableSubclass.toUtf8())){
+                for (QString copyableSubclass : copyable.subclasses) {
+                    auto base = node.model()->metaInfo(copyableSubclass.toUtf8());
+                    if (node.metaInfo().isBasedOn(base)) {
                         propertyList = copyable.properties;
                         found = true;
                         break;
                     }
+                }
                 if (found)
                     break;
             }

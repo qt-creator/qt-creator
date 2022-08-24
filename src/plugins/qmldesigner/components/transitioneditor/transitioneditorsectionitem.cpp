@@ -102,8 +102,9 @@ TransitionEditorSectionItem *TransitionEditorSectionItem::create(const ModelNode
     ModelNode target;
 
     if (animation.isValid()) {
+        auto model = target.model();
         const QList<ModelNode> propertyAnimations = animation.subModelNodesOfType(
-            "QtQuick.PropertyAnimation");
+            model->qtQuickPropertyAnimationMetaInfo());
 
         for (const ModelNode &child : propertyAnimations) {
             if (child.hasBindingProperty("target"))
@@ -141,9 +142,9 @@ void TransitionEditorSectionItem::invalidateBar()
         qreal locMax = 0;
 
         for (const ModelNode &child : sequential.directSubModelNodes()) {
-            if (child.hasMetaInfo() && child.isSubclassOf("QtQuick.PropertyAnimation"))
+            if (child.metaInfo().isQtQuickPropertyAnimation())
                 locMax = child.variantProperty("duration").value().toDouble();
-            else if (child.hasMetaInfo() && child.isSubclassOf("QtQuick.PauseAnimation"))
+            else if (child.metaInfo().isQtQuickPauseAnimation())
                 locMin = child.variantProperty("duration").value().toDouble();
         }
 
@@ -211,7 +212,7 @@ void TransitionEditorSectionItem::moveAllDurations(qreal offset)
 {
     for (const ModelNode &sequential : m_animationNode.directSubModelNodes()) {
         for (const ModelNode &child : sequential.directSubModelNodes()) {
-            if (child.hasMetaInfo() && child.isSubclassOf("QtQuick.PauseAnimation"))
+            if (child.metaInfo().isQtQuickPauseAnimation())
                 moveDuration(child, offset);
         }
     }
@@ -221,7 +222,7 @@ void TransitionEditorSectionItem::scaleAllDurations(qreal scale)
 {
     for (const ModelNode &sequential : m_animationNode.directSubModelNodes()) {
         for (const ModelNode &child : sequential.directSubModelNodes()) {
-            if (child.hasMetaInfo() && child.isSubclassOf("QtQuick.PropertyAnimation"))
+            if (child.metaInfo().isQtQuickPropertyAnimation())
                 scaleDuration(child, scale);
         }
     }
@@ -436,8 +437,9 @@ void TransitionEditorSectionItem::invalidateHeight()
         height = TimelineConstants::sectionHeight;
         visible = false;
     } else {
+        auto model = m_animationNode.model();
         const QList<ModelNode> propertyAnimations = m_animationNode.subModelNodesOfType(
-            "QtQuick.PropertyAnimation");
+            model->qtQuickPropertyAnimationMetaInfo());
 
         height = TimelineConstants::sectionHeight
                  + propertyAnimations.count() * TimelineConstants::sectionHeight;
@@ -458,8 +460,9 @@ void TransitionEditorSectionItem::invalidateHeight()
 void TransitionEditorSectionItem::createPropertyItems()
 {
     int yPos = TimelineConstants::sectionHeight;
+    auto model = m_animationNode.model();
     const QList<ModelNode> propertyAnimations = m_animationNode.subModelNodesOfType(
-        "QtQuick.PropertyAnimation");
+        model->qtQuickPropertyAnimationMetaInfo());
     for (const auto &anim : propertyAnimations) {
         auto item = TransitionEditorPropertyItem::create(anim, this);
         item->setY(yPos);

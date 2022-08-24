@@ -12,6 +12,7 @@
 #include <easingcurve.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
+#include <nodemetainfo.h>
 #include <variantproperty.h>
 #include <qmlstate.h>
 #include <qmltimeline.h>
@@ -181,7 +182,7 @@ QmlTimeline CurveEditorView::activeTimeline() const
 
     QmlModelState state = currentState();
     if (state.isBaseState()) {
-        for (const ModelNode &node : allModelNodesOfType("QtQuick.Timeline.Timeline")) {
+        for (const ModelNode &node : allModelNodesOfType(model()->qtQuickTimelineTimelineMetaInfo())) {
             if (QmlTimeline::isValidQmlTimeline(node)) {
                 if (node.hasVariantProperty("enabled")
                     && node.variantProperty("enabled").value().toBool())
@@ -191,7 +192,7 @@ QmlTimeline CurveEditorView::activeTimeline() const
         return {};
     }
 
-    for (const ModelNode &node : allModelNodesOfType("QtQuick.Timeline.Timeline")) {
+    for (const ModelNode &node : allModelNodesOfType(model()->qtQuickTimelineTimelineMetaInfo())) {
         if (QmlTimeline::isValidQmlTimeline(node) && state.affectsModelNode(node)) {
             QmlPropertyChanges propertyChanges(state.propertyChanges(node));
             if (!propertyChanges.isValid())

@@ -30,13 +30,13 @@ static char imagePlaceHolder[] = "qrc:/qtquickplugin/images/template_image.png";
 
 bool QmlVisualNode::isItemOr3DNode(const ModelNode &modelNode)
 {
-    if (modelNode.metaInfo().isSubclassOf("QtQuick.Item"))
+    auto metaInfo = modelNode.metaInfo();
+    auto model = modelNode.model();
+
+    if (metaInfo.isBasedOn(model->qtQuickItemMetaInfo(), model->qtQuick3DNodeMetaInfo()))
         return true;
 
-    if (modelNode.metaInfo().isSubclassOf("QtQuick3D.Node"))
-        return true;
-
-    if (modelNode.metaInfo().isGraphicalItem() && modelNode.isRootNode())
+    if (metaInfo.isGraphicalItem() && modelNode.isRootNode())
         return true;
 
     return false;
@@ -49,11 +49,15 @@ bool QmlVisualNode::isValid() const
 
 bool QmlVisualNode::isValidQmlVisualNode(const ModelNode &modelNode)
 {
-    return isValidQmlObjectNode(modelNode)
-            && modelNode.metaInfo().isValid()
-           && (isItemOr3DNode(modelNode) || modelNode.metaInfo().isSubclassOf("FlowView.FlowTransition")
-               || modelNode.metaInfo().isSubclassOf("FlowView.FlowDecision")
-               || modelNode.metaInfo().isSubclassOf("FlowView.FlowWildcard"));
+    if (!isValidQmlObjectNode(modelNode))
+        return false;
+
+    auto metaInfo = modelNode.metaInfo();
+    auto model = modelNode.model();
+
+    return metaInfo.isBasedOn(model->flowViewFlowTransitionMetaInfo(),
+                              model->flowViewFlowDecisionMetaInfo(),
+                              model->flowViewFlowWildcardMetaInfo());
 }
 
 bool QmlVisualNode::isRootNode() const
@@ -370,23 +374,17 @@ NodeListProperty QmlVisualNode::findSceneNodeProperty(AbstractView *view, qint32
 
 bool QmlVisualNode::isFlowTransition(const ModelNode &node)
 {
-    return node.isValid()
-            && node.metaInfo().isValid()
-            && node.metaInfo().isSubclassOf("FlowView.FlowTransition");
+    return node.isValid() && node.metaInfo().isFlowViewFlowTransition();
 }
 
 bool QmlVisualNode::isFlowDecision(const ModelNode &node)
 {
-    return node.isValid()
-            && node.metaInfo().isValid()
-            && node.metaInfo().isSubclassOf("FlowView.FlowDecision");
+    return node.isValid() && node.metaInfo().isFlowViewFlowDecision();
 }
 
 bool QmlVisualNode::isFlowWildcard(const ModelNode &node)
 {
-    return node.isValid()
-            && node.metaInfo().isValid()
-            && node.metaInfo().isSubclassOf("FlowView.FlowWildcard");
+    return node.isValid() && node.metaInfo().isFlowViewFlowWildcard();
 }
 
 bool QmlVisualNode::isFlowTransition() const

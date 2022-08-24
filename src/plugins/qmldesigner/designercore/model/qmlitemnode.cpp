@@ -34,16 +34,16 @@ namespace QmlDesigner {
 
 bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode)
 {
-    if (modelNode.metaInfo().isSubclassOf("QtQuick.Item"))
-        return true;
+    auto metaInfo = modelNode.metaInfo();
+    auto model = modelNode.model();
 
-    if (modelNode.metaInfo().isSubclassOf("FlowView.FlowDecision"))
+    if (metaInfo.isBasedOn(model->qtQuickItemMetaInfo(),
+                           model->flowViewFlowDecisionMetaInfo(),
+                           model->flowViewFlowWildcardMetaInfo())) {
         return true;
+    }
 
-    if (modelNode.metaInfo().isSubclassOf("FlowView.FlowWildcard"))
-        return true;
-
-    if (modelNode.metaInfo().isGraphicalItem()  && modelNode.isRootNode())
+    if (metaInfo.isGraphicalItem() && modelNode.isRootNode())
         return true;
 
     return false;
@@ -264,10 +264,9 @@ bool QmlItemNode::instanceIsAnchoredByChildren() const
 
 bool QmlItemNode::instanceIsMovable() const
 {
-    if (modelNode().metaInfo().isValid()
-            &&  (modelNode().metaInfo().isSubclassOf("FlowView.FlowDecision")
-                 || modelNode().metaInfo().isSubclassOf("FlowView.FlowWildcard")
-                 ))
+    auto metaInfo = modelNode().metaInfo();
+    auto m = model();
+    if (metaInfo.isBasedOn(m->flowViewFlowDecisionMetaInfo(), m->flowViewFlowWildcardMetaInfo()))
         return true;
 
     return nodeInstance().isMovable();
@@ -290,7 +289,7 @@ bool QmlItemNode::instanceHasScaleOrRotationTransform() const
 
 bool itemIsMovable(const ModelNode &modelNode)
 {
-    if (modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab"))
+    if (modelNode.metaInfo().isQtQuickControlsTab())
         return false;
 
     if (!modelNode.hasParentProperty())
@@ -304,7 +303,7 @@ bool itemIsMovable(const ModelNode &modelNode)
 
 bool itemIsResizable(const ModelNode &modelNode)
 {
-    if (modelNode.metaInfo().isSubclassOf("QtQuick.Controls.Tab"))
+    if (modelNode.metaInfo().isQtQuickControlsTab())
         return false;
 
     return NodeHints::fromModelNode(modelNode).isResizable();
@@ -559,7 +558,7 @@ bool QmlItemNode::isInLayout() const
         ModelNode parent = modelNode().parentProperty().parentModelNode();
 
         if (parent.isValid() && parent.metaInfo().isValid())
-            return parent.metaInfo().isSubclassOf("QtQuick.Layouts.Layout");
+            return parent.metaInfo().isQtQuickLayoutsLayout();
     }
 
     return false;
@@ -581,20 +580,17 @@ bool QmlItemNode::isInStackedContainer() const
 
 bool QmlItemNode::isFlowView() const
 {
-    return modelNode().isValid()
-            && modelNode().metaInfo().isSubclassOf("FlowView.FlowView");
+    return modelNode().isValid() && modelNode().metaInfo().isFlowViewFlowView();
 }
 
 bool QmlItemNode::isFlowItem() const
 {
-    return modelNode().isValid()
-            && modelNode().metaInfo().isSubclassOf("FlowView.FlowItem");
+    return modelNode().isValid() && modelNode().metaInfo().isFlowViewFlowItem();
 }
 
 bool QmlItemNode::isFlowActionArea() const
 {
-    return modelNode().isValid()
-            && modelNode().metaInfo().isSubclassOf("FlowView.FlowActionArea");
+    return modelNode().isValid() && modelNode().metaInfo().isFlowViewFlowActionArea();
 }
 
 ModelNode QmlItemNode::rootModelNode() const
@@ -646,8 +642,7 @@ bool QmlFlowItemNode::isValid() const
 
 bool QmlFlowItemNode::isValidQmlFlowItemNode(const ModelNode &modelNode)
 {
-    return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isValid()
-            && modelNode.metaInfo().isSubclassOf("FlowView.FlowItem");
+    return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isFlowViewFlowItem();
 }
 
 QList<QmlFlowActionAreaNode> QmlFlowItemNode::flowActionAreas() const
@@ -673,8 +668,7 @@ bool QmlFlowActionAreaNode::isValid() const
 
 bool QmlFlowActionAreaNode::isValidQmlFlowActionAreaNode(const ModelNode &modelNode)
 {
-    return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isValid()
-           && modelNode.metaInfo().isSubclassOf("FlowView.FlowActionArea");
+    return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isFlowViewFlowActionArea();
 }
 
 ModelNode QmlFlowActionAreaNode::targetTransition() const
@@ -730,7 +724,7 @@ bool QmlFlowViewNode::isValid() const
 bool QmlFlowViewNode::isValidQmlFlowViewNode(const ModelNode &modelNode)
 {
     return isValidQmlObjectNode(modelNode) && modelNode.metaInfo().isValid()
-           && modelNode.metaInfo().isSubclassOf("FlowView.FlowView");
+           && modelNode.metaInfo().isFlowViewFlowView();
 }
 
 QList<QmlFlowItemNode> QmlFlowViewNode::flowItems() const

@@ -17,6 +17,11 @@ AbstractView *QmlModelNodeFacade::view() const
         return nullptr;
 }
 
+Model *QmlModelNodeFacade::model() const
+{
+    return m_modelNode.model();
+}
+
 NodeInstanceView *QmlModelNodeFacade::nodeInstanceView(const ModelNode &modelNode)
 {
     return modelNode.model()->nodeInstanceView();

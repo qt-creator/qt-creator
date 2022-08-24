@@ -123,7 +123,7 @@ public:
     bool hasModelNodeForInternalId(qint32 internalId) const;
 
     QList<ModelNode> allModelNodes() const;
-    QList<ModelNode> allModelNodesOfType(const TypeName &typeName) const;
+    QList<ModelNode> allModelNodesOfType(const NodeMetaInfo &typeName) const;
 
     void emitDocumentMessage(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings = QList<DocumentMessage>());
     void emitDocumentMessage(const QString &error);

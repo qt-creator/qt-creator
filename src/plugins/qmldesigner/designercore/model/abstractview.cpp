@@ -665,11 +665,10 @@ QList<ModelNode> AbstractView::allModelNodes() const
     return toModelNodeList(model()->d->allNodes());
 }
 
-QList<ModelNode> AbstractView::allModelNodesOfType(const TypeName &typeName) const
+QList<ModelNode> AbstractView::allModelNodesOfType(const NodeMetaInfo &type) const
 {
-    return Utils::filtered(allModelNodes(), [typeName](const ModelNode &node){
-        return node.metaInfo().isValid() && node.metaInfo().isSubclassOf(typeName);
-    });
+    return Utils::filtered(allModelNodes(),
+                           [&](const ModelNode &node) { return node.metaInfo().isBasedOn(type); });
 }
 
 void AbstractView::emitDocumentMessage(const QString &error)
@@ -814,19 +813,19 @@ void AbstractView::changeRootNodeType(const TypeName &type, int majorVersion, in
 void AbstractView::ensureMaterialLibraryNode()
 {
     ModelNode matLib = modelNodeForId(Constants::MATERIAL_LIB_ID);
-    if (matLib.isValid() || rootModelNode().isSubclassOf("QtQuick3D.Material"))
+    if (matLib.isValid() || rootModelNode().metaInfo().isQtQuick3DMaterial())
         return;
 
     // Create material library node
-    TypeName nodeType = rootModelNode().isSubclassOf("QtQuick3D.Node") ? "QtQuick3D.Node"
-                                                                       : "QtQuick.Item";
-    NodeMetaInfo metaInfo = model()->metaInfo(nodeType);
-    matLib = createModelNode(nodeType, metaInfo.majorVersion(), metaInfo.minorVersion());
+    auto nodeType = rootModelNode().metaInfo().isQtQuick3DNode() ? model()->qtQuick3DNodeMetaInfo()
+                                                                 : model()->qtQuickItemMetaInfo();
+    matLib = createModelNode(nodeType.typeName(), nodeType.majorVersion(), nodeType.minorVersion());
 
     matLib.setIdWithoutRefactoring(Constants::MATERIAL_LIB_ID);
     rootModelNode().defaultNodeListProperty().reparentHere(matLib);
 
-    const QList<ModelNode> materials = rootModelNode().subModelNodesOfType("QtQuick3D.Material");
+    const QList<ModelNode> materials = rootModelNode().subModelNodesOfType(
+        model()->qtQuick3DMaterialMetaInfo());
     if (!materials.isEmpty()) {
         // Move all materials to under material library node
         for (const ModelNode &node : materials) {
@@ -859,7 +858,7 @@ ModelNode AbstractView::materialLibraryNode()
 // changes to model.
 void AbstractView::assignMaterialTo3dModel(const ModelNode &modelNode, const ModelNode &materialNode)
 {
-    QTC_ASSERT(modelNode.isValid() && modelNode.isSubclassOf("QtQuick3D.Model"), return);
+    QTC_ASSERT(modelNode.isValid() && modelNode.metaInfo().isQtQuick3DModel(), return );
 
     ModelNode matLib = materialLibraryNode();
 
@@ -868,13 +867,13 @@ void AbstractView::assignMaterialTo3dModel(const ModelNode &modelNode, const Mod
 
     ModelNode newMaterialNode;
 
-    if (materialNode.isValid() && materialNode.isSubclassOf("QtQuick3D.Material")) {
+    if (materialNode.isValid() && materialNode.metaInfo().isQtQuick3DMaterial()) {
         newMaterialNode = materialNode;
     } else {
         const QList<ModelNode> materials = matLib.directSubModelNodes();
         if (materials.size() > 0) {
             for (const ModelNode &mat : materials) {
-                if (mat.isSubclassOf("QtQuick3D.Material")) {
+                if (mat.metaInfo().isQtQuick3DMaterial()) {
                     newMaterialNode = mat;
                     break;
                 }
@@ -883,7 +882,7 @@ void AbstractView::assignMaterialTo3dModel(const ModelNode &modelNode, const Mod
 
         // if no valid material, create a new default material
         if (!newMaterialNode.isValid()) {
-            NodeMetaInfo metaInfo = model()->metaInfo("QtQuick3D.DefaultMaterial");
+            NodeMetaInfo metaInfo = model()->qtQuick3DDefaultMaterialMetaInfo();
             newMaterialNode = createModelNode("QtQuick3D.DefaultMaterial", metaInfo.majorVersion(),
                                               metaInfo.minorVersion());
             newMaterialNode.validId();

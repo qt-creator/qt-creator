@@ -4764,7 +4764,7 @@ void tst_TestCore::testMetaInfoSimpleType()
     QCOMPARE(itemMetaInfo.minorVersion(), 1);
 
     // super classes
-    NodeMetaInfo qobject = itemMetaInfo.directSuperClass();
+    NodeMetaInfo qobject = itemMetaInfo.superClasses().front();
     QVERIFY(qobject.isValid());
     QVERIFY(qobject.isSubclassOf("<cpp>.QObject"));
 
@@ -4793,7 +4793,7 @@ void tst_TestCore::testMetaInfoUncreatableType()
     QCOMPARE(animationTypeInfo.majorVersion(), 2);
     QCOMPARE(animationTypeInfo.minorVersion(), 1);
 
-    NodeMetaInfo qObjectTypeInfo = animationTypeInfo.directSuperClass();
+    NodeMetaInfo qObjectTypeInfo = animationTypeInfo.superClass().front();
     QVERIFY(qObjectTypeInfo.isValid());
     QCOMPARE(qObjectTypeInfo.simplifiedTypeName(), QmlDesigner::TypeName("QtObject"));
 
@@ -4811,7 +4811,7 @@ void tst_TestCore::testMetaInfoExtendedType()
     QVERIFY(typeInfo.hasProperty("font")); // from QGraphicsWidget
     QVERIFY(typeInfo.hasProperty("enabled")); // from QGraphicsItem
 
-    NodeMetaInfo graphicsObjectTypeInfo = typeInfo.directSuperClass();
+    NodeMetaInfo graphicsObjectTypeInfo = typeInfo.superClass().front();
     QVERIFY(graphicsObjectTypeInfo.isValid());
 }
 
@@ -4833,7 +4833,7 @@ void tst_TestCore::testMetaInfoCustomType()
     QVERIFY(propertyChangesInfo.hasProperty("restoreEntryValues"));
     QVERIFY(propertyChangesInfo.hasProperty("explicit"));
 
-    NodeMetaInfo stateOperationInfo = propertyChangesInfo.directSuperClass();
+    NodeMetaInfo stateOperationInfo = propertyChangesInfo.superClass().front();
     QVERIFY(stateOperationInfo.isValid());
     QCOMPARE(stateOperationInfo.typeName(), QmlDesigner::TypeName("QtQuick.QQuickStateOperation"));
     QCOMPARE(stateOperationInfo.majorVersion(), -1);

@@ -23,6 +23,7 @@ public:
     QmlModelNodeFacade();
 
     AbstractView *view() const;
+    Model *model() const;
     static NodeInstanceView *nodeInstanceView(const ModelNode &modelNode);
     NodeInstanceView *nodeInstanceView() const;
     bool isRootNode() const;
