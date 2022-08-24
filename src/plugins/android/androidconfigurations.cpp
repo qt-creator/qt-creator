@@ -31,7 +31,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
@@ -1513,7 +1512,7 @@ static FilePath androidStudioPath()
 
 FilePath AndroidConfig::getJdkPath()
 {
-    FilePath jdkHome = FilePath::fromString(qEnvironmentVariable(Constants::JAVA_HOME_ENV_VAR));
+    FilePath jdkHome = FilePath::fromString(qtcEnvironmentVariable(Constants::JAVA_HOME_ENV_VAR));
     if (jdkHome.exists())
         return jdkHome;
 

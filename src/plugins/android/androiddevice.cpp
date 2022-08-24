@@ -651,11 +651,11 @@ void AndroidDeviceManager::setupDevicesWatcher()
 
     // Setup AVD filesystem watcher to listen for changes when an avd is created/deleted,
     // or started/stopped
-    QString avdEnvVar = qEnvironmentVariable("ANDROID_AVD_HOME");
+    QString avdEnvVar = qtcEnvironmentVariable("ANDROID_AVD_HOME");
     if (avdEnvVar.isEmpty()) {
-        avdEnvVar = qEnvironmentVariable("ANDROID_SDK_HOME");
+        avdEnvVar = qtcEnvironmentVariable("ANDROID_SDK_HOME");
         if (avdEnvVar.isEmpty())
-            avdEnvVar = qEnvironmentVariable("HOME");
+            avdEnvVar = qtcEnvironmentVariable("HOME");
         avdEnvVar.append("/.android/avd");
     }
     const FilePath avdPath = FilePath::fromUserInput(avdEnvVar);
