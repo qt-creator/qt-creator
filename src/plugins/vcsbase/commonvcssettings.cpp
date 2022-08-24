@@ -47,9 +47,9 @@ namespace Internal {
 // Return default for the ssh-askpass command (default to environment)
 static QString sshPasswordPromptDefault()
 {
-    const QByteArray envSetting = qgetenv("SSH_ASKPASS");
+    const QString envSetting = qtcEnvironmentVariable("SSH_ASKPASS");
     if (!envSetting.isEmpty())
-        return QString::fromLocal8Bit(envSetting);
+        return envSetting;
     if (HostOsInfo::isWindowsHost())
         return QLatin1String("win-ssh-askpass");
     return QLatin1String("ssh-askpass");

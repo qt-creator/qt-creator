@@ -79,14 +79,14 @@ GitSettings::GitSettings()
     winSetHomeEnvironment.setDefaultValue(true);
     winSetHomeEnvironment.setLabelText(tr("Set \"HOME\" environment variable"));
     if (HostOsInfo::isWindowsHost()) {
-        const QByteArray currentHome = qgetenv("HOME");
+        const QString currentHome = qtcEnvironmentVariable("HOME");
         const QString toolTip
-                = tr("Set the environment variable HOME to \"%1\"\n(%2).\n"
-                     "This causes Git to look for the SSH-keys in that location\n"
-                     "instead of its installation directory when run outside git bash.").
-                arg(QDir::homePath(),
-                    currentHome.isEmpty() ? tr("not currently set") :
-                            tr("currently set to \"%1\"").arg(QString::fromLocal8Bit(currentHome)));
+            = tr("Set the environment variable HOME to \"%1\"\n(%2).\n"
+                 "This causes Git to look for the SSH-keys in that location\n"
+                 "instead of its installation directory when run outside git bash.")
+                  .arg(QDir::homePath(),
+                       currentHome.isEmpty() ? tr("not currently set")
+                                             : tr("currently set to \"%1\"").arg(currentHome));
         winSetHomeEnvironment.setToolTip(toolTip);
     } else {
         winSetHomeEnvironment.setVisible(false);

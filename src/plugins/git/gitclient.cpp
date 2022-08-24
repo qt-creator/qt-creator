@@ -2244,11 +2244,10 @@ Environment GitClient::processEnvironment() const
     environment.prependOrSetPath(FilePath::fromUserInput(gitPath));
     if (HostOsInfo::isWindowsHost() && settings().winSetHomeEnvironment.value()) {
         QString homePath;
-        if (qEnvironmentVariableIsEmpty("HOMESHARE")) {
+        if (qtcEnvironmentVariableIsEmpty("HOMESHARE")) {
             homePath = QDir::toNativeSeparators(QDir::homePath());
         } else {
-            homePath = QString::fromLocal8Bit(qgetenv("HOMEDRIVE"))
-                    + QString::fromLocal8Bit(qgetenv("HOMEPATH"));
+            homePath = qtcEnvironmentVariable("HOMEDRIVE") + qtcEnvironmentVariable("HOMEPATH");
         }
         environment.set("HOME", homePath);
     }

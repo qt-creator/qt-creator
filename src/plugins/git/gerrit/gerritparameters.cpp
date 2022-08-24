@@ -27,6 +27,7 @@
 #include "gerritplugin.h"
 
 #include <utils/commandline.h>
+#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
 
@@ -81,7 +82,7 @@ static FilePath detectApp(const QString &defaultExe)
 
 static FilePath detectSsh()
 {
-    const QString gitSsh = qEnvironmentVariable("GIT_SSH");
+    const QString gitSsh = qtcEnvironmentVariable("GIT_SSH");
     if (!gitSsh.isEmpty())
         return FilePath::fromString(gitSsh);
     return detectApp("ssh");
