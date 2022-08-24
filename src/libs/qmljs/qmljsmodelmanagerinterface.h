@@ -41,6 +41,7 @@
 #include <QObject>
 #include <QPointer>
 #include <QStringList>
+#include <QThreadPool>
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
