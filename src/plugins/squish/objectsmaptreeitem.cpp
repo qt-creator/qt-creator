@@ -418,9 +418,9 @@ void ObjectsMapModel::onPropertyChanged(
             QTC_ASSERT(foundItem, return ); // could not find new parent should not happen
             foundItem->appendChild(item);
             emit requestSelection(indexForItem(item));
-            emit modelChanged();
         }
     }
+    emit modelChanged();
 }
 
 void ObjectsMapModel::onPropertyRemoved(ObjectsMapTreeItem *item, const Property &property)
@@ -432,8 +432,8 @@ void ObjectsMapModel::onPropertyRemoved(ObjectsMapTreeItem *item, const Property
         QTC_ASSERT(rootItem(), return );
         rootItem()->appendChild(item);
         emit requestSelection(indexForItem(item));
-        emit modelChanged();
     }
+    emit modelChanged();
 }
 
 /***************************** SortFilterModel **********************************************/
