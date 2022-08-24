@@ -40,6 +40,7 @@
 #include <languageserverprotocol/progresssupport.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/session.h>
 #include <projectexplorer/taskhub.h>
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
@@ -372,10 +373,9 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     setClientCapabilities(caps);
     setLocatorsEnabled(false);
     setAutoRequestCodeActions(false); // clangd sends code actions inside diagnostics
-    if (project) {
-        setProgressTitleForToken(indexingToken(),
-                                 tr("Indexing %1 with clangd").arg(project->displayName()));
-    }
+    setProgressTitleForToken(indexingToken(),
+                             project ? tr("Indexing %1 with clangd").arg(project->displayName())
+                                     : tr("Indexing session with clangd"));
     setCurrentProject(project);
     setDocumentChangeUpdateThreshold(d->settings.documentUpdateThreshold);
     setSymbolStringifier(displayNameFromDocumentSymbol);
@@ -585,6 +585,15 @@ bool ClangdClient::referencesShadowFile(const TextEditor::TextDocument *doc,
     const QRegularExpression includeRex("#include.*" + candidate.fileName() + R"([>"])");
     const QTextCursor includePos = doc->document()->find(includeRex);
     return !includePos.isNull();
+}
+
+bool ClangdClient::fileBelongsToProject(const Utils::FilePath &filePath) const
+{
+    if (CppEditor::ClangdSettings::instance().granularity()
+            == CppEditor::ClangdSettings::Granularity::Session) {
+        return SessionManager::projectForFile(filePath);
+    }
+    return Client::fileBelongsToProject(filePath);
 }
 
 RefactoringChangesData *ClangdClient::createRefactoringChangesBackend() const

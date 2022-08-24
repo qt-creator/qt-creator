@@ -946,7 +946,7 @@ QFuture<void> CppModelManager::updateSourceFiles(const QSet<QString> &sourceFile
     return d->m_internalIndexingSupport->refreshSourceFiles(filteredFiles, mode);
 }
 
-QList<ProjectInfo::ConstPtr> CppModelManager::projectInfos() const
+ProjectInfoList CppModelManager::projectInfos() const
 {
     QReadLocker locker(&d->m_projectLock);
     return Utils::transform<QList<ProjectInfo::ConstPtr>>(d->m_projectData,

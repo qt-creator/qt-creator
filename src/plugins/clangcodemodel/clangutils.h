@@ -65,10 +65,10 @@ public:
 };
 
 enum class CompilationDbPurpose { Project, CodeModel };
-GenerateCompilationDbResult generateCompilationDB(const CppEditor::ProjectInfo::ConstPtr projectInfo,
-        const Utils::FilePath &baseDir, CompilationDbPurpose purpose,
-        const CppEditor::ClangDiagnosticConfig &warningsConfig, const QStringList &projectOptions,
-        const Utils::FilePath &clangIncludeDir);
+GenerateCompilationDbResult generateCompilationDB(QList<CppEditor::ProjectInfo::ConstPtr> projectInfo,
+        Utils::FilePath baseDir, CompilationDbPurpose purpose,
+        CppEditor::ClangDiagnosticConfig warningsConfig, QStringList projectOptions,
+        Utils::FilePath clangIncludeDir);
 
 class DiagnosticTextInfo
 {

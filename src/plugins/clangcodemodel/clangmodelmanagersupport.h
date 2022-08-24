@@ -81,11 +81,11 @@ private:
     void connectTextDocumentToTranslationUnit(TextEditor::TextDocument *textDocument);
     void connectToWidgetsMarkContextMenuRequested(QWidget *editorWidget);
 
-    void updateLanguageClient(ProjectExplorer::Project *project,
-                              const CppEditor::ProjectInfo::ConstPtr &projectInfo);
+    void updateLanguageClient(ProjectExplorer::Project *project);
     void claimNonProjectSources(ClangdClient *client);
     void watchForExternalChanges();
     void watchForInternalChanges();
+    static ClangdClient *clientWithProject(const ProjectExplorer::Project *project);
 
     Utils::FutureSynchronizer m_generatorSynchronizer;
     QList<QPointer<ClangdClient>> m_clientsToRestart;

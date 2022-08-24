@@ -272,6 +272,10 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         innerSessionsLayout->addLayout(buttonsLayout);
         outerSessionsLayout->addWidget(d->sessionsGroupBox);
         outerSessionsLayout->addStretch(1);
+
+        const auto separator = new QFrame;
+        separator->setFrameShape(QFrame::HLine);
+        layout->addWidget(separator);
         layout->addLayout(outerSessionsLayout);
 
         const auto updateRemoveButtonState = [removeButton, sessionsView] {
@@ -303,9 +307,6 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
                 d->sessionsModel.sort(0);
             }
         });
-
-        // TODO: Remove once the concept is functional.
-        d->sessionsGroupBox->hide();
     }
 
     const auto configFilesHelpLabel = new QLabel;

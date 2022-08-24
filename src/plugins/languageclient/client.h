@@ -163,6 +163,7 @@ public:
     void setCompletionAssistProvider(LanguageClientCompletionAssistProvider *provider);
     void setQuickFixAssistProvider(LanguageClientQuickFixProvider *provider);
     virtual bool supportsDocumentSymbols(const TextEditor::TextDocument *doc) const;
+    virtual bool fileBelongsToProject(const Utils::FilePath &filePath) const;
 
     // logging
     enum class LogTarget { Console, Ui };

@@ -2051,6 +2051,11 @@ bool Client::referencesShadowFile(const TextEditor::TextDocument *doc,
     return false;
 }
 
+bool Client::fileBelongsToProject(const Utils::FilePath &filePath) const
+{
+    return project() && project()->isKnownFile(filePath);
+}
+
 } // namespace LanguageClient
 
 #include <client.moc>

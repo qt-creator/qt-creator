@@ -126,6 +126,7 @@ private:
     LanguageClient::DiagnosticManager *createDiagnosticManager() override;
     bool referencesShadowFile(const TextEditor::TextDocument *doc,
                               const Utils::FilePath &candidate) override;
+    bool fileBelongsToProject(const Utils::FilePath &filePath) const override;
 
     class Private;
     class VirtualFunctionAssistProcessor;

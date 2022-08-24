@@ -99,7 +99,7 @@ public:
 
     const QList<Document::DiagnosticMessage> diagnosticMessages();
 
-    QList<ProjectInfo::ConstPtr> projectInfos() const;
+    ProjectInfoList projectInfos() const;
     ProjectInfo::ConstPtr projectInfo(ProjectExplorer::Project *project) const;
     QFuture<void> updateProjectInfo(const ProjectInfo::ConstPtr &newProjectInfo,
                                     const QSet<QString> &additionalFiles = {});

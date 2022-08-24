@@ -59,7 +59,7 @@ void ClangCodeModelPlugin::generateCompilationDB()
         baseDir = TemporaryDirectory::masterDirectoryFilePath();
 
     QFuture<GenerateCompilationDbResult> task
-            = Utils::runAsync(&Internal::generateCompilationDB, projectInfo,
+            = Utils::runAsync(&Internal::generateCompilationDB, ProjectInfoList{projectInfo},
                               baseDir, CompilationDbPurpose::Project,
                               warningsConfigForProject(target->project()),
                               globalClangOptions(),

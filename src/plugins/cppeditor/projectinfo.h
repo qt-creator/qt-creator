@@ -13,6 +13,7 @@
 #include <utils/fileutils.h>
 
 #include <QHash>
+#include <QList>
 #include <QSet>
 #include <QVector>
 
@@ -53,5 +54,7 @@ private:
     const QSet<QString> m_sourceFiles;
     const ProjectExplorer::Macros m_defines;
 };
+
+using ProjectInfoList = QList<ProjectInfo::ConstPtr>;
 
 } // namespace CppEditor

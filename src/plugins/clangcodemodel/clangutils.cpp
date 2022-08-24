@@ -143,17 +143,17 @@ static QJsonObject createFileObject(const FilePath &buildDir,
     return fileObject;
 }
 
-GenerateCompilationDbResult generateCompilationDB(const CppEditor::ProjectInfo::ConstPtr projectInfo,
-                                                  const Utils::FilePath &baseDir,
+GenerateCompilationDbResult generateCompilationDB(QList<ProjectInfo::ConstPtr> projectInfoList,
+                                                  FilePath baseDir,
                                                   CompilationDbPurpose purpose,
-                                                  const ClangDiagnosticConfig &warningsConfig,
-                                                  const QStringList &projectOptions,
-                                                  const FilePath &clangIncludeDir)
+                                                  ClangDiagnosticConfig warningsConfig,
+                                                  QStringList projectOptions,
+                                                  FilePath clangIncludeDir)
 {
     QTC_ASSERT(!baseDir.isEmpty(), return GenerateCompilationDbResult(QString(),
         QCoreApplication::translate("ClangUtils", "Could not retrieve build directory.")));
-    QTC_ASSERT(projectInfo, return GenerateCompilationDbResult(QString(),
-        "Could not retrieve project info."));
+    QTC_ASSERT(!projectInfoList.isEmpty(),
+               return GenerateCompilationDbResult(QString(), "Could not retrieve project info."));
     QTC_CHECK(baseDir.ensureWritableDir());
     QFile compileCommandsFile(baseDir.toString() + "/compile_commands.json");
     const bool fileOpened = compileCommandsFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
@@ -166,23 +166,27 @@ GenerateCompilationDbResult generateCompilationDB(const CppEditor::ProjectInfo::
 
     const UsePrecompiledHeaders usePch = getPchUsage();
     const QJsonArray jsonProjectOptions = QJsonArray::fromStringList(projectOptions);
-    for (ProjectPart::ConstPtr projectPart : projectInfo->projectParts()) {
-        QStringList args;
-        const CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
-                    *projectPart, warningsConfig, clangIncludeDir);
-        QJsonArray ppOptions;
-        if (purpose == CompilationDbPurpose::Project) {
-            args = projectPartArguments(*projectPart);
-        } else {
-            ppOptions = fullProjectPartOptions(projectPartOptions(optionsBuilder), jsonProjectOptions);
-        }
-        for (const ProjectFile &projFile : projectPart->files) {
-            const QJsonObject json = createFileObject(baseDir, args, *projectPart, projFile,
-                                                      purpose, ppOptions, usePch,
-                                                      optionsBuilder.isClStyle());
-            if (compileCommandsFile.size() > 1)
-                compileCommandsFile.write(",");
-            compileCommandsFile.write('\n' + QJsonDocument(json).toJson().trimmed());
+    for (const ProjectInfo::ConstPtr &projectInfo : qAsConst(projectInfoList)) {
+        for (ProjectPart::ConstPtr projectPart : projectInfo->projectParts()) {
+            QTC_ASSERT(projectInfo, continue);
+            QStringList args;
+            const CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
+                        *projectPart, warningsConfig, clangIncludeDir);
+            QJsonArray ppOptions;
+            if (purpose == CompilationDbPurpose::Project) {
+                args = projectPartArguments(*projectPart);
+            } else {
+                ppOptions = fullProjectPartOptions(projectPartOptions(optionsBuilder),
+                                                   jsonProjectOptions);
+            }
+            for (const ProjectFile &projFile : projectPart->files) {
+                const QJsonObject json = createFileObject(baseDir, args, *projectPart, projFile,
+                                                          purpose, ppOptions, usePch,
+                                                          optionsBuilder.isClStyle());
+                if (compileCommandsFile.size() > 1)
+                    compileCommandsFile.write(",");
+                compileCommandsFile.write('\n' + QJsonDocument(json).toJson().trimmed());
+            }
         }
     }
 

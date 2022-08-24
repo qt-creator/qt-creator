@@ -98,8 +98,7 @@ void DiagnosticManager::showDiagnostics(const DocumentUri &uri, int version)
         if (versionedDiagnostics.version.value_or(version) == version
             && !versionedDiagnostics.diagnostics.isEmpty()) {
             Marks &marks = m_marks[filePath];
-            const bool isProjectFile = m_client->project()
-                                       && m_client->project()->isKnownFile(filePath);
+            const bool isProjectFile = m_client->fileBelongsToProject(filePath);
             for (const Diagnostic &diagnostic : versionedDiagnostics.diagnostics) {
                 const QTextEdit::ExtraSelection selection
                     = createDiagnosticSelection(diagnostic, doc->document());
