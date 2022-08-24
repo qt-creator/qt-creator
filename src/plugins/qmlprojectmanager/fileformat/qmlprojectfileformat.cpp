@@ -28,8 +28,10 @@
 #include "filefilteritems.h"
 #include <qmljs/qmljssimplereader.h>
 
-#include <QVariant>
 #include <QDebug>
+#include <QVariant>
+
+#include <memory>
 
 enum {
     debug = false
@@ -37,7 +39,9 @@ enum {
 
 namespace   {
 
-QmlProjectManager::FileFilterBaseItem *setupFileFilterItem(QmlProjectManager::FileFilterBaseItem *fileFilterItem, const QmlJS::SimpleReaderNode::Ptr &node)
+std::unique_ptr<QmlProjectManager::FileFilterBaseItem> setupFileFilterItem(
+    std::unique_ptr<QmlProjectManager::FileFilterBaseItem> fileFilterItem,
+    const QmlJS::SimpleReaderNode::Ptr &node)
 {
     const auto directoryProperty = node->property(QLatin1String("directory"));
     if (directoryProperty.isValid())
@@ -148,17 +152,24 @@ QmlProjectItem *QmlProjectFileFormat::parseProjectFile(const Utils::FilePath &fi
                 qDebug() << "reading type:" << childNode->name();
 
             if (childNode->name() == QLatin1String("QmlFiles")) {
-                projectItem->appendContent(setupFileFilterItem(new FileFilterItem("*.qml"), childNode));
+                projectItem->appendContent(
+                    setupFileFilterItem(std::make_unique<FileFilterItem>("*.qml"), childNode));
             } else if (childNode->name() == QLatin1String("JavaScriptFiles")) {
-                projectItem->appendContent(setupFileFilterItem(new FileFilterItem("*.js"), childNode));
+                projectItem->appendContent(
+                    setupFileFilterItem(std::make_unique<FileFilterItem>("*.js"), childNode));
             } else if (childNode->name() == QLatin1String("ImageFiles")) {
-                projectItem->appendContent(setupFileFilterItem(new ImageFileFilterItem(projectItem), childNode));
+                projectItem->appendContent(
+                    setupFileFilterItem(std::make_unique<ImageFileFilterItem>(projectItem),
+                                        childNode));
             } else if (childNode->name() == QLatin1String("CssFiles")) {
-                projectItem->appendContent(setupFileFilterItem(new FileFilterItem("*.css"), childNode));
+                projectItem->appendContent(
+                    setupFileFilterItem(std::make_unique<FileFilterItem>("*.css"), childNode));
             } else if (childNode->name() == QLatin1String("FontFiles")) {
-                projectItem->appendContent(setupFileFilterItem(new FileFilterItem("*.ttf;*.otf"), childNode));
+                projectItem->appendContent(
+                    setupFileFilterItem(std::make_unique<FileFilterItem>("*.ttf;*.otf"), childNode));
             } else if (childNode->name() == QLatin1String("Files")) {
-                projectItem->appendContent(setupFileFilterItem(new FileFilterBaseItem(), childNode));
+                projectItem->appendContent(
+                    setupFileFilterItem(std::make_unique<FileFilterBaseItem>(), childNode));
             } else if (childNode->name() == "Environment") {
                 const auto properties = childNode->properties();
                 auto i = properties.constBegin();

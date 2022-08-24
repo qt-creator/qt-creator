@@ -25,8 +25,6 @@
 
 #pragma once
 
-#include "qmlprojectitem.h"
-
 #include <QObject>
 #include <QRegularExpression>
 #include <QSet>
@@ -37,6 +35,17 @@ QT_FORWARD_DECLARE_CLASS(QDir)
 namespace Utils { class FileSystemWatcher; }
 
 namespace QmlProjectManager {
+
+class QmlProjectContentItem : public QObject
+{
+    // base class for all elements that should be direct children of Project element
+    Q_OBJECT
+
+public:
+    QmlProjectContentItem(QObject *parent = nullptr)
+        : QObject(parent)
+    {}
+};
 
 class FileFilterBaseItem : public QmlProjectContentItem {
     Q_OBJECT

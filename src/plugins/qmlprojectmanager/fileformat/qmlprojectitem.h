@@ -25,21 +25,18 @@
 
 #pragma once
 
+#include "filefilteritems.h"
+
 #include <utils/environment.h>
 
 #include <QObject>
 #include <QSet>
 #include <QStringList>
 
+#include <memory>
+#include <vector>
+
 namespace QmlProjectManager {
-
-class QmlProjectContentItem : public QObject {
-    // base class for all elements that should be direct children of Project element
-    Q_OBJECT
-
-public:
-    QmlProjectContentItem(QObject *parent = nullptr) : QObject(parent) {}
-};
 
 class QmlProjectItem : public QObject
 {
@@ -91,9 +88,12 @@ public:
     void setShaderToolArgs(const QStringList &args) {m_shaderToolArgs = args; }
 
     QStringList shaderToolFiles() const { return m_shaderToolFiles; }
-    void setShaderToolFiles(const QStringList &files) {m_shaderToolFiles = files; }
+    void setShaderToolFiles(const QStringList &files) { m_shaderToolFiles = files; }
 
-    void appendContent(QmlProjectContentItem *item) { m_content.append(item); }
+    void appendContent(std::unique_ptr<FileFilterBaseItem> item)
+    {
+        m_content.push_back(std::move(item));
+    }
 
     Utils::EnvironmentItems environment() const;
     void addToEnviroment(const QString &key, const QString &value);
@@ -112,7 +112,7 @@ protected:
     QString m_mainFile;
     QString m_mainUiFile;
     Utils::EnvironmentItems m_environment;
-    QVector<QmlProjectContentItem *> m_content; // content property
+    std::vector<std::unique_ptr<FileFilterBaseItem>> m_content; // content property
     bool m_forceFreeType = false;
     bool m_qtForMCUs = false;
     bool m_qt6Project = false;

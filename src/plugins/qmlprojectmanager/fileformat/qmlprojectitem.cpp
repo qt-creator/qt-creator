@@ -40,13 +40,12 @@ void QmlProjectItem::setSourceDirectory(const QString &directoryPath)
 
     m_sourceDirectory = directoryPath;
 
-    for (auto contentElement : qAsConst(m_content)) {
-        auto fileFilter = qobject_cast<FileFilterBaseItem*>(contentElement);
-        if (fileFilter) {
-            fileFilter->setDefaultDirectory(directoryPath);
-            connect(fileFilter, &FileFilterBaseItem::filesChanged,
-                    this, &QmlProjectItem::qmlFilesChanged);
-        }
+    for (auto &fileFilter : m_content) {
+        fileFilter->setDefaultDirectory(directoryPath);
+        connect(fileFilter.get(),
+                &FileFilterBaseItem::filesChanged,
+                this,
+                &QmlProjectItem::qmlFilesChanged);
     }
 }
 
@@ -99,12 +98,10 @@ QStringList QmlProjectItem::files() const
 {
     QSet<QString> files;
 
-    for (const auto contentElement : qAsConst(m_content)) {
-        if (auto fileFilter = qobject_cast<const FileFilterBaseItem *>(contentElement)) {
-            const QStringList fileList = fileFilter->files();
-            for (const QString &file : fileList) {
-                files.insert(file);
-            }
+    for (const auto &fileFilter : m_content) {
+        const QStringList fileList = fileFilter->files();
+        for (const QString &file : fileList) {
+            files.insert(file);
         }
     }
     return Utils::toList(files);
@@ -118,9 +115,8 @@ QStringList QmlProjectItem::files() const
   */
 bool QmlProjectItem::matchesFile(const QString &filePath) const
 {
-    return Utils::contains(m_content, [&filePath](const QmlProjectContentItem *item) {
-        auto fileFilter = qobject_cast<const FileFilterBaseItem *>(item);
-        return fileFilter && fileFilter->matchesFile(filePath);
+    return Utils::contains(m_content, [&filePath](const auto &fileFilter) {
+        return fileFilter->matchesFile(filePath);
     });
 }
 
