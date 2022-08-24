@@ -27,9 +27,12 @@
 
 #include "objectsmaptreeitem.h"
 #include "squishconstants.h"
+#include "squishplugin.h"
+#include "squishsettings.h"
 #include "squishtr.h"
 
 #include <utils/fileutils.h>
+#include <utils/qtcprocess.h>
 
 #include <QDir>
 
@@ -206,11 +209,35 @@ Core::IDocument::OpenResult ObjectsMapDocument::openImpl(QString *error,
     if (fileName.isEmpty())
         return OpenResult::CannotHandle;
 
-    Utils::FileReader reader;
-    if (!reader.fetch(realFileName, QIODevice::Text, error))
-        return OpenResult::ReadError;
+    QString text;
+    if (realFileName.fileName() == "objects.map") {
+        Utils::FileReader reader;
+        if (!reader.fetch(realFileName, QIODevice::Text, error))
+            return OpenResult::ReadError;
 
-    const QString text = QString::fromLocal8Bit(reader.data());
+        text = QString::fromLocal8Bit(reader.data());
+    } else {
+        const Utils::FilePath base = SquishPlugin::squishSettings()->squishPath.filePath();
+        if (base.isEmpty()) {
+            if (error)
+                error->append(Tr::tr("Incomplete Squish settings. "
+                                     "Missing Squish installation path."));
+            return OpenResult::ReadError;
+        }
+        const Utils::FilePath exe = base.pathAppended("lib/exec/objectmaptool").withExecutableSuffix();
+        if (!exe.isExecutableFile()) {
+            if (error)
+                error->append(Tr::tr("objectmaptool not found."));
+            return OpenResult::ReadError;
+        }
+
+        Utils::QtcProcess objectMapReader;
+        objectMapReader.setCommand({exe, {"--scriptMap", "--mode", "read",
+                                          "--scriptedObjectMapPath", realFileName.toUserOutput()}});
+        objectMapReader.start();
+        objectMapReader.waitForFinished();
+        text = objectMapReader.cleanedStdOut();
+    }
     if (!setContents(text.toUtf8())) {
         if (error)
             error->append(Tr::tr("Failure while parsing objects.map content."));
@@ -221,8 +248,26 @@ Core::IDocument::OpenResult ObjectsMapDocument::openImpl(QString *error,
 
 bool ObjectsMapDocument::writeFile(const Utils::FilePath &fileName) const
 {
-    Utils::FileSaver saver(fileName);
-    return saver.write(contents()) && saver.finalize();
+    if (fileName.endsWith("object.map")) {
+        Utils::FileSaver saver(fileName);
+        return saver.write(contents()) && saver.finalize();
+    }
+
+    // otherwise we need the objectmaptool to write the scripted object map again
+    const Utils::FilePath base = SquishPlugin::squishSettings()->squishPath.filePath();
+    if (base.isEmpty())
+        return false;
+    const Utils::FilePath exe = base.pathAppended("lib/exec/objectmaptool").withExecutableSuffix();
+    if (!exe.isExecutableFile())
+        return false;
+
+    Utils::QtcProcess objectMapWriter;
+    objectMapWriter.setCommand({exe, {"--scriptMap", "--mode", "write",
+                                      "--scriptedObjectMapPath", fileName.toUserOutput()}});
+    objectMapWriter.setWriteData(contents());
+    objectMapWriter.start();
+    objectMapWriter.waitForFinished();
+    return objectMapWriter.result() == Utils::ProcessResult::FinishedWithSuccess;
 }
 
 } // namespace Internal

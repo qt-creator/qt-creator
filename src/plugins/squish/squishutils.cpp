@@ -37,6 +37,7 @@ namespace Internal {
 const char squishLanguageKey[] = "LANGUAGE";
 const char squishTestCasesKey[] = "TEST_CASES";
 const char objectsMapKey[] = "OBJECTMAP";
+const char objectMapStyleKey[] = "OBJECTMAPSTYLE";
 
 QStringList SquishUtils::validTestCases(const QString &baseDirectory)
 {
@@ -77,7 +78,15 @@ QString SquishUtils::objectsMapPath(const QString &suitePath)
 {
     const QString suiteDir = QFileInfo(suitePath).absolutePath();
     const QSettings suiteConf(suitePath, QSettings::IniFormat);
-    const QString objMapPath = suiteConf.value(objectsMapKey).toString();
+
+    const QString style = suiteConf.value(objectMapStyleKey).toString();
+    if (style == "script") {
+        const QString language = suiteConf.value(squishLanguageKey).toString();
+        return QFileInfo(suiteDir, "shared/scripts/names" + extensionForLanguage(language))
+                .canonicalFilePath();
+    }
+
+    const QString objMapPath = suiteConf.value(objectsMapKey, "objects.map").toString();
     return QFileInfo(suiteDir, objMapPath).canonicalFilePath();
 }
 
