@@ -4341,7 +4341,7 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
     if (currentDepth < 0)
         currentDepth = tabSettings.indentationColumn(text);
 
-    if (currentDepth <= tabSettings.m_indentSize || blockData.layout->lineCount() < 1)
+    if (currentDepth == 0 || blockData.layout->lineCount() < 1)
         return;
 
     const qreal horizontalAdvance = QFontMetricsF(q->font()).horizontalAdvance(
@@ -4352,11 +4352,10 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
 
     const QTextLine textLine = blockData.layout->lineAt(0);
     const QRectF rect = textLine.naturalTextRect();
-    qreal x = textLine.cursorToX(0) + data.offset.x();
-    int paintColumn = tabSettings.m_indentSize;
+    qreal x = textLine.cursorToX(0) + data.offset.x() + qMax(0, q->cursorWidth() - 1);
+    int paintColumn = 0;
 
     while (paintColumn < currentDepth) {
-        x += horizontalAdvance;
         if (x >= 0) {
             int paintPosition = tabSettings.positionAtColumn(text, paintColumn);
             if (blockData.layout->lineForTextPosition(paintPosition).lineNumber() != 0)
@@ -4366,6 +4365,7 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
             const QLineF line(top, bottom);
             painter.drawLine(line);
         }
+        x += horizontalAdvance;
         paintColumn += tabSettings.m_indentSize;
     }
     painter.restore();
