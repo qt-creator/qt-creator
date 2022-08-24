@@ -39,6 +39,7 @@
 #include <QElapsedTimer>
 #include <QHash>
 #include <QImage>
+#include <QPointer>
 #include <QRectF>
 #include <QTime>
 #include <QTimer>
@@ -277,7 +278,7 @@ private:
     std::unique_ptr<NodeInstanceServerProxy> m_nodeInstanceServer;
     QImage m_baseStatePreviewImage;
     QElapsedTimer m_lastCrashTime;
-    ProjectExplorer::Target *m_currentTarget = nullptr;
+    QPointer<ProjectExplorer::Target> m_currentTarget;
     int m_restartProcessTimerId;
     RewriterTransaction m_puppetTransaction;
 
