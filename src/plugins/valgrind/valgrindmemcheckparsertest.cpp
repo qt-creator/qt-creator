@@ -91,7 +91,7 @@ static QString dataFile(const QString &file)
 static QString extraDataFile(const QString &file)
 {
     // Clone test data from: https://git.qt.io/chstenge/creator-test-data
-    static QString prefix = QString::fromLocal8Bit(qgetenv("QTC_TEST_EXTRADATALOCATION"));
+    static QString prefix = qtcEnvironmentVariable("QTC_TEST_EXTRADATALOCATION");
     if (prefix.isEmpty())
         return QString();
 

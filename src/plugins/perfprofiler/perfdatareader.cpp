@@ -21,8 +21,9 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <utils/environment.h>
 #include <utils/qtcassert.h>
+#include <qtsupport/qtkitinformation.h>
 
 #include <QDateTime>
 #include <QDebug>
@@ -381,7 +382,7 @@ QStringList PerfDataReader::findTargetArguments(const ProjectExplorer::RunContro
 
 QString PerfDataReader::findPerfParser()
 {
-    QString filePath = QString::fromLocal8Bit(qgetenv("PERFPROFILER_PARSER_FILEPATH"));
+    QString filePath = Utils::qtcEnvironmentVariable("PERFPROFILER_PARSER_FILEPATH");
     if (filePath.isEmpty())
         filePath = Core::ICore::libexecPath("perfparser" QTC_HOST_EXE_SUFFIX).toString();
     return QDir::toNativeSeparators(QDir::cleanPath(filePath));

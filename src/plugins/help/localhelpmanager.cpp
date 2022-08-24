@@ -25,6 +25,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/optional.h>
 #include <utils/qtcassert.h>
@@ -291,14 +292,14 @@ static Utils::optional<HelpViewerFactory> backendForId(const QByteArray &id)
 
 HelpViewerFactory LocalHelpManager::defaultViewerBackend()
 {
-    const QByteArray backend = qgetenv("QTC_HELPVIEWER_BACKEND");
+    const QString backend = Utils::qtcEnvironmentVariable("QTC_HELPVIEWER_BACKEND");
     if (!backend.isEmpty()) {
-        const Utils::optional<HelpViewerFactory> factory = backendForId(backend);
+        const Utils::optional<HelpViewerFactory> factory = backendForId(backend.toLatin1());
         if (factory)
             return *factory;
     }
     if (!backend.isEmpty())
-        qWarning("Help viewer backend \"%s\" not found, using default.", backend.constData());
+        qWarning("Help viewer backend \"%s\" not found, using default.", qPrintable(backend));
     const QVector<HelpViewerFactory> backends = viewerBackends();
     return backends.isEmpty() ? HelpViewerFactory() : backends.first();
 }

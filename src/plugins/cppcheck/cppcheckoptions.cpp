@@ -6,6 +6,7 @@
 #include "cppchecktool.h"
 #include "cppchecktrigger.h"
 
+#include <utils/environment.h>
 #include <utils/flowlayout.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
@@ -131,7 +132,7 @@ CppcheckOptionsPage::CppcheckOptionsPage(CppcheckTool &tool, CppcheckTrigger &tr
     if (HostOsInfo::isAnyUnixHost()) {
         options.binary = "cppcheck";
     } else {
-        FilePath programFiles = FilePath::fromUserInput(qEnvironmentVariable("PROGRAMFILES"));
+        FilePath programFiles = FilePath::fromUserInput(qtcEnvironmentVariable("PROGRAMFILES"));
         if (programFiles.isEmpty())
             programFiles = "C:/Program Files";
         options.binary = programFiles / "Cppcheck/cppcheck.exe";

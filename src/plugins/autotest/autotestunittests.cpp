@@ -17,6 +17,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/toolchain.h>
 
+#include <utils/environment.h>
+
 #include <QFileInfo>
 #include <QProcess>
 #include <QSignalSpy>
@@ -60,7 +62,7 @@ void AutoTestUnitTests::initTestCase()
 
     m_tmpDir = new CppEditor::Tests::TemporaryCopiedDir(":/unit_test");
 
-    if (!qEnvironmentVariableIsEmpty("BOOST_INCLUDE_DIR")) {
+    if (!qtcEnvironmentVariableIsEmpty("BOOST_INCLUDE_DIR")) {
         m_checkBoost = true;
     } else {
         if (Utils::HostOsInfo::isLinuxHost()
@@ -178,7 +180,7 @@ void AutoTestUnitTests::testCodeParserSwitchStartup_data()
 
 void AutoTestUnitTests::testCodeParserGTest()
 {
-    if (qEnvironmentVariableIsEmpty("GOOGLETEST_DIR"))
+    if (qtcEnvironmentVariableIsEmpty("GOOGLETEST_DIR"))
         QSKIP("This test needs googletest - set GOOGLETEST_DIR (point to googletest repository)");
 
     QFETCH(QString, projectFilePath);
