@@ -17,6 +17,7 @@
 #include <theme.h>
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
@@ -42,7 +43,7 @@ namespace QmlDesigner {
 static QString propertyEditorResourcesPath()
 {
 #ifdef SHARE_QML_PATH
-    if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
 #endif
     return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
@@ -231,7 +232,7 @@ void MaterialBrowserWidget::startDragBundleMaterial(QmlDesigner::BundleMaterial 
 QString MaterialBrowserWidget::qmlSourcesPath()
 {
 #ifdef SHARE_QML_PATH
-    if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/materialBrowserQmlSource";
 #endif
     return Core::ICore::resourcePath("qmldesigner/materialBrowserQmlSource").toString();

@@ -29,10 +29,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 #include <designmodewidget.h>
-#include <qmldesignerplugin.h>
+#include <propertyeditorqmlbackend.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-#include <propertyeditorqmlbackend.h>
+#include <qmldesignerplugin.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -363,7 +364,7 @@ void MaterialEditorView::resetView()
 QString MaterialEditorView::materialEditorResourcesPath()
 {
 #ifdef SHARE_QML_PATH
-    if (qEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
         return QLatin1String(SHARE_QML_PATH) + "/materialEditorQmlSources";
 #endif
     return Core::ICore::resourcePath("qmldesigner/materialEditorQmlSources").toString();
