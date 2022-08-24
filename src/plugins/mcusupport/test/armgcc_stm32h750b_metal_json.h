@@ -18,8 +18,8 @@ constexpr auto armgcc_stm32h750b_metal_json = R"({
         "label": "STM32CubeProgrammer",
         "type": "path",
         "defaultValue": {
-          "windows": "$PROGRAMSANDFILES/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
-          "unix": "$HOME/STMicroelectronics/STM32Cube/STM32CubeProgrammer/"
+          "windows": "%{Env:PROGRAMSANDFILES}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
+          "unix": "%{Env:HOME}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/"
         },
         "optional": false
       }
@@ -30,6 +30,7 @@ constexpr auto armgcc_stm32h750b_metal_json = R"({
         "id": "Qul_DIR",
         "label": "Qt for MCUs SDK",
         "type": "path",
+        "setting": "QtForMCUsSdk",
         "cmakeVar": "Qul_ROOT",
         "optional": false
       }
@@ -59,7 +60,7 @@ constexpr auto armgcc_stm32h750b_metal_json = R"({
         "label": "CMake Toolchain File",
         "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
         "type": "file",
-        "defaultValue": "/opt/qtformcu/2.2//lib/cmake/Qul/toolchain/armgcc.cmake",
+        "defaultValue": "%{Qul_ROOT}//lib/cmake/Qul/toolchain/armgcc.cmake",
         "visible": false,
         "optional": false
       }

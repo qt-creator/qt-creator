@@ -15,12 +15,11 @@ constexpr auto armgcc_stm32f769i_freertos_json = R"({
     "pathEntries": [
       {
         "id": "STM32CubeProgrammer_PATH",
-        "id": "STM32CubeProgrammer_PATH",
         "label": "STM32CubeProgrammer",
         "type": "path",
         "defaultValue": {
-          "windows": "$PROGRAMSANDFILES/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
-          "unix": "$HOME/STMicroelectronics/STM32Cube/STM32CubeProgrammer/"
+          "windows": "%{Env:PROGRAMSANDFILES}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
+          "unix": "%{Env:HOME}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/"
         },
         "optional": false
       }
@@ -62,7 +61,7 @@ constexpr auto armgcc_stm32f769i_freertos_json = R"({
         "label": "CMake Toolchain File",
         "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
         "type": "file",
-        "defaultValue": "$Qul_ROOT//lib/cmake/Qul/toolchain/armgcc.cmake",
+        "defaultValue": "%{Qul_ROOT}//lib/cmake/Qul/toolchain/armgcc.cmake",
         "visible": false,
         "optional": false
       }

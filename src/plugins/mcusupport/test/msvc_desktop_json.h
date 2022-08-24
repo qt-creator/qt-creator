@@ -19,7 +19,7 @@ constexpr auto msvc_desktop_json = R"({
       ],
       "cmakeEntries": [
          {
-              "id": "Qul_DIR",
+              "envVar": "Qul_DIR",
               "label": "Qt for MCUs SDK",
               "type": "path",
               "cmakeVar": "Qul_ROOT",

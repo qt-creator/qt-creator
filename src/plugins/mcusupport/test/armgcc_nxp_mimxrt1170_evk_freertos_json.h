@@ -28,7 +28,7 @@ constexpr auto armgcc_nxp_mimxrt1170_evk_freertos_json = R"({
         "type": "path",
         "cmakeVar": "MCUXPRESSO_IDE_PATH",
         "defaultValue": {
-          "windows": "$ROOT/nxp/MCUXpressoIDE*",
+          "windows": "%{Env:ROOT}/nxp/MCUXpressoIDE*",
           "unix": "/usr/local/mcuxpressoide/"
         },
         "optional": false
@@ -56,7 +56,7 @@ constexpr auto armgcc_nxp_mimxrt1170_evk_freertos_json = R"({
         "description": "CMake Toolchain File",
         "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
         "type": "file",
-        "defaultValue": "/opt/qtformcu/2.2//lib/cmake/Qul/toolchain/armgcc.cmake",
+        "defaultValue": "%{Qul_ROOT}//lib/cmake/Qul/toolchain/armgcc.cmake",
         "visible": false,
         "optional": false
       }
@@ -83,7 +83,7 @@ constexpr auto armgcc_nxp_mimxrt1170_evk_freertos_json = R"({
         "id": "NXP_FREERTOS_DIR",
         "description": "FreeRTOS SDK for MIMXRT1170-EVK",
         "cmakeVar": "FREERTOS_DIR",
-        "defaultValue": "$QUL_BOARD_SDK_DIR/rtos/freertos/freertos_kernel",
+        "defaultValue": "%{QUL_BOARD_SDK_DIR}/rtos/freertos/freertos_kernel",
         "type": "path",
         "optional": false
       }

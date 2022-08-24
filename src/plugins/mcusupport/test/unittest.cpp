@@ -82,7 +82,8 @@ const char armGccSuffix[]{"bin/arm-none-eabi-g++"};
 const char armGccToolchainFilePath[]{"/opt/toolchain/armgcc.cmake"};
 const char armGccToolchainFileDefaultPath[]{
     "/opt/qtformcu/2.2/lib/cmake/Qul/toolchain/armgcc.cmake"};
-const char armGccToolchainFilePathWithVariable[]{"$Qul_ROOT/lib/cmake/Qul/toolchain/armgcc.cmake"};
+const char armGccToolchainFilePathWithVariable[]{
+    "%{Qul_ROOT}/lib/cmake/Qul/toolchain/armgcc.cmake"};
 const char armGccVersion[]{"9.3.1"};
 const char armGccNewVersion[]{"10.3.1"};
 const char msvcVersion[]{"14.29"};
@@ -407,18 +408,18 @@ void McuSupportTest::test_parseToolchainFromJSON_data()
 
     //TODO(me): Add ghs nxp 1064 nxp 1070.
     QTest::newRow("armgcc_nxp_1050_json") << armgcc_nxp_1050_json << armGccEnvVar << armGccLabel
-                                          << armGccToolchainFileDefaultPath << armGcc;
+                                          << armGccToolchainFilePathWithVariable << armGcc;
     QTest::newRow("armgcc_stm32f769i_freertos_json")
         << armgcc_stm32f769i_freertos_json << armGccEnvVar << armGccLabel
         << armGccToolchainFilePathWithVariable << armGcc;
 
     QTest::newRow("armgcc_stm32h750b_metal_json")
         << armgcc_stm32h750b_metal_json << armGccEnvVar << armGccLabel
-        << armGccToolchainFileDefaultPath << armGcc;
+        << armGccToolchainFilePathWithVariable << armGcc;
 
     QTest::newRow("armgcc_nxp_mimxrt1170_evk_freertos_json")
         << armgcc_nxp_mimxrt1170_evk_freertos_json << armGccEnvVar << armGccLabel
-        << armGccToolchainFileDefaultPath << armGcc;
+        << armGccToolchainFilePathWithVariable << armGcc;
 
     QTest::newRow("iar_stm32f469i_metal_json")
         << iar_stm32f469i_metal_json << iarEnvVar << iarLabel << iarToolchainFileDefaultPath << iar;
@@ -1227,8 +1228,9 @@ void McuSupportTest::test_resolveEnvironmentVariablesInDefaultPath()
     QVERIFY(qputenv(QUL_ENV_VAR, qtForMcuSdkPath));
     QCOMPARE(qEnvironmentVariable(QUL_ENV_VAR), qtForMcuSdkPath);
 
+    const QString qulEnvVariable = QString("%{Env:") + QUL_ENV_VAR + "}";
     toochainFileDescription.defaultPath = FilePath::fromUserInput(
-        QString{"$"} + QUL_ENV_VAR + "/lib/cmake/Qul/toolchain/iar.cmake");
+        qulEnvVariable + "/lib/cmake/Qul/toolchain/iar.cmake");
     targetDescription.toolchain.file = toochainFileDescription;
 
     auto [targets, packages] = targetFactory.createTargets(targetDescription, qtForMcuSdkPath);
@@ -1256,8 +1258,9 @@ void McuSupportTest::test_resolveEnvironmentVariablesInDefaultPath()
 
 void McuSupportTest::test_resolveCmakeVariablesInDefaultPath()
 {
+    const QString qulCmakeVariable = QString("%{") + QUL_CMAKE_VAR + "}";
     toochainFileDescription.defaultPath = FilePath::fromUserInput(
-        QString{"$"} + QUL_CMAKE_VAR + "/lib/cmake/Qul/toolchain/iar.cmake");
+        qulCmakeVariable + "/lib/cmake/Qul/toolchain/iar.cmake");
     targetDescription.toolchain.file = toochainFileDescription;
 
     auto [targets, packages] = targetFactory.createTargets(targetDescription, qtForMcuSdkPath);

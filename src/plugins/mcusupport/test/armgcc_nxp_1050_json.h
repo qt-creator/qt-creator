@@ -21,6 +21,7 @@ constexpr auto armgcc_nxp_1050_json = R"({
         "type": "path",
         "cmakeVar": "Qul_ROOT",
         "envVar": "Qul_DIR",
+        "setting": "QtForMCUsSdk",
         "optional": false
       },
       {
@@ -29,7 +30,7 @@ constexpr auto armgcc_nxp_1050_json = R"({
         "type": "path",
         "cmakeVar": "MCUXPRESSO_IDE_PATH",
         "defaultValue": {
-          "windows": "$ROOT/nxp/MCUXpressoIDE*",
+          "windows": "%{Env:ROOT}/nxp/MCUXpressoIDE*",
           "unix": "/usr/local/mcuxpressoide/"
         },
         "optional": false
@@ -59,7 +60,7 @@ constexpr auto armgcc_nxp_1050_json = R"({
         "label": "CMake Toolchain File",
         "cmakeVar": "CMAKE_TOOLCHAIN_FILE",
         "type": "file",
-        "defaultValue": "/opt/qtformcu/2.2/lib/cmake/Qul/toolchain/armgcc.cmake",
+        "defaultValue": "%{Qul_ROOT}/lib/cmake/Qul/toolchain/armgcc.cmake",
         "visible": false,
         "optional": false
       }

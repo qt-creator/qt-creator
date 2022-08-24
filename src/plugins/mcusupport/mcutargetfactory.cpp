@@ -10,6 +10,7 @@
 #include "mcutargetdescription.h"
 
 #include <utils/algorithm.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
 #include <QVersionNumber>
@@ -45,32 +46,16 @@ McuPackageVersionDetector *createVersionDetection(const VersionDetection &versio
                                                       versionDetection.isFile);
 }
 
-static void evaluateVariables(McuTarget &target)
+static void expandVariables(Packages &packages)
 {
-    const static QRegularExpression variableRegex{R"(\${*\w+}*)",
-                                                  QRegularExpression::CaseInsensitiveOption};
-
-    for (const auto &package : target.packages()) {
-        const QRegularExpressionMatch match{variableRegex.match(package->path().toString())};
-        if (!match.hasMatch())
-            continue;
-        const QString variable{match.captured(0).remove(0, 1)};
-
-        McuPackagePtr packageDefiningVariable{
-            Utils::findOrDefault(target.packages(), [variable](const McuPackagePtr &pkg) {
-                return pkg->cmakeVariableName() == variable
-                       || pkg->environmentVariableName() == variable;
-            })};
-
-        if (packageDefiningVariable == nullptr) // nothing provides the variable
-            continue;
-
-        const auto evaluatedPath{Utils::FilePath::fromUserInput(
-            package->path().toString().replace(match.capturedStart(),
-                                               match.capturedLength(),
-                                               packageDefiningVariable->path().toString()))};
-        package->setPath(evaluatedPath);
+    Utils::MacroExpander macroExpander;
+    for (const auto &package : packages) {
+        macroExpander.registerVariable(package->cmakeVariableName().toLocal8Bit(),
+                                       package->label(),
+                                       [package] { return package->path().toString(); });
     }
+    for (const auto &package : packages)
+        package->setPath(macroExpander.expand(package->path()));
 }
 
 McuTargetFactory::McuTargetFactory(const SettingsHandler::Ptr &settingsHandler)
@@ -96,6 +81,9 @@ QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescript
         McuToolChainPackagePtr toolchainPtr{toolchain};
         targetPackages.insert({toolchainPtr});
         targetPackages.unite({toolchainFile});
+
+        expandVariables(targetPackages);
+
         packages.unite(targetPackages);
 
         McuTargetPtr target{new McuTarget{QVersionNumber::fromString(desc.qulVersion),
@@ -106,7 +94,6 @@ QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescript
                                           toolchainFile,
                                           colorDepth}};
 
-        evaluateVariables(*target);
         mcuTargets.append(target);
     }
     return {mcuTargets, packages};
