@@ -34,6 +34,7 @@
 #include <QDialogButtonBox>
 #include <QHeaderView>
 #include <QString>
+#include <QTextDocument>
 #include <QVBoxLayout>
 
 using namespace Utils;
@@ -47,7 +48,16 @@ public:
     FilterTreeItem(const KitAspect *aspect, bool enabled) : m_aspect(aspect), m_enabled(enabled)
     { }
 
-    QString displayName() const { return m_aspect->displayName(); }
+    QString displayName() const {
+        if (m_aspect->displayName().indexOf('<') < 0)
+            return m_aspect->displayName();
+
+        // removing HTML tag because KitAspect::displayName could contain html
+        // e.g. "CMake <a href=\"generator\">generator</a>" (CMakeGeneratorKitAspect)
+        QTextDocument html;
+        html.setHtml(m_aspect->displayName());
+        return html.toPlainText();
+    }
     Utils::Id id() const { return m_aspect->id(); }
     bool enabled() const { return m_enabled; }
 
