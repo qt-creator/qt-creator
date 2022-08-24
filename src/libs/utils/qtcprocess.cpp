@@ -4,6 +4,7 @@
 #include "qtcprocess.h"
 
 #include "algorithm.h"
+#include "environment.h"
 #include "guard.h"
 #include "hostosinfo.h"
 #include "launcherinterface.h"
@@ -50,7 +51,7 @@ class MeasureAndRun
 public:
     MeasureAndRun(const char *functionName)
         : m_functionName(functionName)
-        , m_measureProcess(qEnvironmentVariableIsSet("QTC_MEASURE_PROCESS"))
+        , m_measureProcess(qtcEnvironmentVariableIsSet("QTC_MEASURE_PROCESS"))
     {}
     template <typename Function, typename... Args>
     std::invoke_result_t<Function, Args...> measureAndRun(Function &&function, Args&&... args)
@@ -507,7 +508,7 @@ private:
 
 static ProcessImpl defaultProcessImpl()
 {
-    if (qEnvironmentVariableIsSet("QTC_USE_QPROCESS"))
+    if (qtcEnvironmentVariableIsSet("QTC_USE_QPROCESS"))
         return ProcessImpl::QProcess;
     return ProcessImpl::ProcessLauncher;
 }

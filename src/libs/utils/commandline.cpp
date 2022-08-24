@@ -644,13 +644,13 @@ bool ProcessArgs::prepareCommand(const CommandLine &cmdLine, QString *outCmd, Pr
         *outCmd = executable.toString();
     } else {
         if (executable.osType() == OsTypeWindows) {
-            *outCmd = QString::fromLatin1(qgetenv("COMSPEC"));
+            *outCmd = qtcEnvironmentVariable("COMSPEC");
             *outArgs = ProcessArgs::createWindowsArgs(QLatin1String("/v:off /s /c \"")
                     + quoteArg(executable.toUserOutput()) + ' ' + arguments + '"');
         } else {
             if (err != ProcessArgs::FoundMeta)
                 return false;
-            *outCmd = qEnvironmentVariable("SHELL", "/bin/sh");
+            *outCmd = qtcEnvironmentVariable("SHELL", "/bin/sh");
             *outArgs = ProcessArgs::createUnixArgs({"-c", quoteArg(executable.toString()) + ' ' + arguments});
         }
     }

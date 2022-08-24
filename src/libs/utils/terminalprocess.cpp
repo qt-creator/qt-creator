@@ -182,15 +182,15 @@ void TerminalImpl::start()
             QStringList envStrings = env;
             // add PATH if necessary (for DLL loading)
             if (envStrings.filter(QRegularExpression("^PATH=.*", QRegularExpression::CaseInsensitiveOption)).isEmpty()) {
-                QByteArray path = qgetenv("PATH");
+                const QString path = qtcEnvironmentVariable("PATH");
                 if (!path.isEmpty())
-                    envStrings.prepend(QString::fromLatin1("PATH=%1").arg(QString::fromLocal8Bit(path)));
+                    envStrings.prepend(QString::fromLatin1("PATH=%1").arg(path));
             }
             // add systemroot if needed
             if (envStrings.filter(QRegularExpression("^SystemRoot=.*", QRegularExpression::CaseInsensitiveOption)).isEmpty()) {
-                QByteArray systemRoot = qgetenv("SystemRoot");
+                const QString systemRoot = qtcEnvironmentVariable("SystemRoot");
                 if (!systemRoot.isEmpty())
-                    envStrings.prepend(QString::fromLatin1("SystemRoot=%1").arg(QString::fromLocal8Bit(systemRoot)));
+                    envStrings.prepend(QString::fromLatin1("SystemRoot=%1").arg(systemRoot));
             }
             return envStrings;
         }();
@@ -324,7 +324,7 @@ void TerminalImpl::start()
                                      " is currently not supported."));
             return;
         }
-        pcmd = qEnvironmentVariable("SHELL", "/bin/sh");
+        pcmd = qtcEnvironmentVariable("SHELL", "/bin/sh");
         pargs = ProcessArgs::createUnixArgs(
                         {"-c", (ProcessArgs::quoteArg(m_setup.m_commandLine.executable().toString())
                          + ' ' + m_setup.m_commandLine.arguments())});

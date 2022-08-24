@@ -3,6 +3,7 @@
 
 #include "filesystemmodel.h"
 
+#include "environment.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
 
@@ -432,7 +433,8 @@ ExtendedInformation FileInfoGatherer::getInfo(const QFileInfo &fileInfo) const
     info.displayType = m_iconProvider->type(fileInfo);
     if (useFileSystemWatcher()) {
         // ### Not ready to listen all modifications by default
-        static const bool watchFiles = qEnvironmentVariableIsSet("QT_FILESYSTEMMODEL_WATCH_FILES");
+        static const bool watchFiles = qtcEnvironmentVariableIsSet(
+            "QT_FILESYSTEMMODEL_WATCH_FILES");
         if (watchFiles) {
             if (!fileInfo.exists() && !fileInfo.isSymLink()) {
                 const_cast<FileInfoGatherer *>(this)->
