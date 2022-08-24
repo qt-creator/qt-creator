@@ -18,6 +18,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -492,7 +493,7 @@ static QStringList environmentTemplatesPaths()
 {
     QStringList paths;
 
-    QString envTempPath = QString::fromLocal8Bit(qgetenv("QTCREATOR_TEMPLATES_PATH"));
+    QString envTempPath = qtcEnvironmentVariable("QTCREATOR_TEMPLATES_PATH");
 
     if (!envTempPath.isEmpty()) {
         for (const QString &path : envTempPath

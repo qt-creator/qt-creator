@@ -13,13 +13,14 @@
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/optional.h>
+#include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
 #include <utils/temporarydirectory.h>
-#include <utils/pathchooser.h>
 #include <utils/winutils.h>
 
 #include <QDir>
@@ -196,7 +197,7 @@ static QString windowsProgramFilesDir()
 #else
     const char programFilesC[] = "ProgramFiles";
 #endif
-    return QDir::fromNativeSeparators(QFile::decodeName(qgetenv(programFilesC)));
+    return QDir::fromNativeSeparators(qtcEnvironmentVariable(programFilesC));
 }
 
 static Utils::optional<VisualStudioInstallation> installationFromPathAndVersion(
@@ -2110,8 +2111,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
     runEnv.unset(QLatin1String("ORIGINALPATH"));
     run.setEnvironment(runEnv);
     run.setTimeoutS(60);
-    Utils::FilePath cmdPath = Utils::FilePath::fromUserInput(
-        QString::fromLocal8Bit(qgetenv("COMSPEC")));
+    Utils::FilePath cmdPath = Utils::FilePath::fromUserInput(qtcEnvironmentVariable("COMSPEC"));
     if (cmdPath.isEmpty())
         cmdPath = env.searchInPath(QLatin1String("cmd.exe"));
     // Windows SDK setup scripts require command line switches for environment expansion.

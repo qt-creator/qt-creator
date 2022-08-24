@@ -53,9 +53,9 @@ static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools()
     path = Utils::filteredUnique(path);
 
     if (HostOsInfo::isWindowsHost()) {
-        for (auto envVar : {"ProgramFiles", "ProgramFiles(x86)", "ProgramW6432"}) {
-            if (qEnvironmentVariableIsSet(envVar)) {
-                const QString progFiles = qEnvironmentVariable(envVar);
+        for (const auto &envVar : QStringList{"ProgramFiles", "ProgramFiles(x86)", "ProgramW6432"}) {
+            if (qtcEnvironmentVariableIsSet(envVar)) {
+                const QString progFiles = qtcEnvironmentVariable(envVar);
                 path.append(FilePath::fromUserInput(progFiles + "/CMake"));
                 path.append(FilePath::fromUserInput(progFiles + "/CMake/bin"));
             }

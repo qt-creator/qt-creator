@@ -247,10 +247,10 @@ void QbsSession::sendRequest(const QJsonObject &request)
                qDebug() << request.value("type").toString()
                << d->currentRequest.value("type").toString(); return);
     d->currentRequest = request;
-    const QString logLevelFromEnv = qEnvironmentVariable("QBS_LOG_LEVEL");
+    const QString logLevelFromEnv = qtcEnvironmentVariable("QBS_LOG_LEVEL");
     if (!logLevelFromEnv.isEmpty())
         d->currentRequest.insert("log-level", logLevelFromEnv);
-    if (!qEnvironmentVariableIsEmpty(Constants::QBS_PROFILING_ENV))
+    if (!qtcEnvironmentVariableIsEmpty(Constants::QBS_PROFILING_ENV))
         d->currentRequest.insert("log-time", true);
     if (d->state == State::Active)
         sendQueuedRequest();

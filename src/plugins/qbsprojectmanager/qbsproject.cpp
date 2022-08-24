@@ -40,6 +40,7 @@
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>
@@ -80,7 +81,7 @@ public:
     }
     ~OpTimer()
     {
-        if (qEnvironmentVariableIsSet(Constants::QBS_PROFILING_ENV)) {
+        if (qtcEnvironmentVariableIsSet(Constants::QBS_PROFILING_ENV)) {
             MessageManager::writeSilently(
                 QString("operation %1 took %2ms").arg(QLatin1String(m_name)).arg(m_timer.elapsed()));
         }

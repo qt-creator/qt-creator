@@ -15,6 +15,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -37,7 +38,7 @@ const char configFileC[] = "wizard.xml";
 static bool enableLoadTemplateFiles()
 {
 #ifdef WITH_TESTS
-    static bool value = qEnvironmentVariableIsEmpty("QTC_DISABLE_LOAD_TEMPLATES_FOR_TEST");
+    static bool value = qtcEnvironmentVariableIsEmpty("QTC_DISABLE_LOAD_TEMPLATES_FOR_TEST");
 #else
     static bool value = true;
 #endif

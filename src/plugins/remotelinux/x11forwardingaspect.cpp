@@ -5,6 +5,7 @@
 
 #include "remotelinuxtr.h"
 
+#include <utils/environment.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
@@ -12,7 +13,10 @@ using namespace Utils;
 
 namespace RemoteLinux {
 
-static QString defaultDisplay() { return qEnvironmentVariable("DISPLAY"); }
+static QString defaultDisplay()
+{
+    return qtcEnvironmentVariable("DISPLAY");
+}
 
 X11ForwardingAspect::X11ForwardingAspect(const MacroExpander *expander)
     : m_macroExpander(expander)

@@ -20,6 +20,7 @@
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -35,8 +36,7 @@ namespace Internal {
 
 static bool debugExamples()
 {
-    static bool isDebugging = qEnvironmentVariableIsSet("QTC_DEBUG_EXAMPLESMODEL");
-    return isDebugging;
+    return qtcEnvironmentVariableIsSet("QTC_DEBUG_EXAMPLESMODEL");
 }
 
 static const char kSelectedExampleSetKey[] = "WelcomePage/SelectedExampleSet";

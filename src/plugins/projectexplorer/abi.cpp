@@ -4,6 +4,7 @@
 #include "abi.h"
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -1273,7 +1274,7 @@ void ProjectExplorer::ProjectExplorerPlugin::testAbiOfBinary_data()
 
     // Clone test data from: https://git.qt.io/chstenge/creator-test-data
     // Set up prefix for test data now that we can be sure to have some tests to run:
-    QString prefix = QString::fromLocal8Bit(qgetenv("QTC_TEST_EXTRADATALOCATION"));
+    QString prefix = Utils::qtcEnvironmentVariable("QTC_TEST_EXTRADATALOCATION");
     if (prefix.isEmpty())
         return;
     prefix += "/projectexplorer/abi";

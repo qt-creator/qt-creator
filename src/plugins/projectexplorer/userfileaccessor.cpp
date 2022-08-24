@@ -15,8 +15,9 @@
 
 #include <app/app_version.h>
 #include <coreplugin/icore.h>
-#include <utils/persistentsettings.h>
+#include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -184,10 +185,10 @@ static QString generateSuffix(const QString &suffix)
 // Return path to shared directory for .user files, create if necessary.
 static inline Utils::optional<QString> defineExternalUserFileDir()
 {
-    static const char userFilePathVariable[] = "QTC_USER_FILE_PATH";
-    if (Q_LIKELY(!qEnvironmentVariableIsSet(userFilePathVariable)))
+    const char userFilePathVariable[] = "QTC_USER_FILE_PATH";
+    if (Q_LIKELY(!qtcEnvironmentVariableIsSet(userFilePathVariable)))
         return nullopt;
-    const QFileInfo fi(QFile::decodeName(qgetenv(userFilePathVariable)));
+    const QFileInfo fi(qtcEnvironmentVariable(userFilePathVariable));
     const QString path = fi.absoluteFilePath();
     if (fi.isDir() || fi.isSymLink())
         return path;
@@ -379,21 +380,21 @@ QVariant UserFileAccessor::retrieveSharedSettings() const
 
 FilePath UserFileAccessor::projectUserFile() const
 {
-    static const QString qtcExt = QLatin1String(qgetenv("QTC_EXTENSION"));
+    static const QString qtcExt = qtcEnvironmentVariable("QTC_EXTENSION");
     return m_project->projectFilePath()
             .stringAppended(generateSuffix(qtcExt.isEmpty() ? FILE_EXTENSION_STR : qtcExt));
 }
 
 FilePath UserFileAccessor::externalUserFile() const
 {
-    static const QString qtcExt = QFile::decodeName(qgetenv("QTC_EXTENSION"));
+    static const QString qtcExt = qtcEnvironmentVariable("QTC_EXTENSION");
     return externalUserFilePath(m_project->projectFilePath(),
                                 generateSuffix(qtcExt.isEmpty() ? FILE_EXTENSION_STR : qtcExt));
 }
 
 FilePath UserFileAccessor::sharedFile() const
 {
-    static const QString qtcExt = QLatin1String(qgetenv("QTC_SHARED_EXTENSION"));
+    static const QString qtcExt = qtcEnvironmentVariable("QTC_SHARED_EXTENSION");
     return m_project->projectFilePath()
             .stringAppended(generateSuffix(qtcExt.isEmpty() ? ".shared" : qtcExt));
 }

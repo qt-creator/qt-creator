@@ -106,29 +106,29 @@ bool operator!=(const SshParameters &p1, const SshParameters &p2)
 namespace SshTest {
 const QString getHostFromEnvironment()
 {
-    const QString host = QString::fromLocal8Bit(qgetenv("QTC_SSH_TEST_HOST"));
-    if (host.isEmpty() && qEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS"))
+    const QString host = qtcEnvironmentVariable("QTC_SSH_TEST_HOST");
+    if (host.isEmpty() && qtcEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS"))
         return QString("127.0.0.1");
     return host;
 }
 
 quint16 getPortFromEnvironment()
 {
-    const int port = qEnvironmentVariableIntValue("QTC_SSH_TEST_PORT");
+    const int port = qtcEnvironmentVariableIntValue("QTC_SSH_TEST_PORT");
     return port != 0 ? quint16(port) : 22;
 }
 
 const QString getUserFromEnvironment()
 {
-    return QString::fromLocal8Bit(qgetenv("QTC_SSH_TEST_USER"));
+    return qtcEnvironmentVariable("QTC_SSH_TEST_USER");
 }
 
 const QString getKeyFileFromEnvironment()
 {
     const FilePath defaultKeyFile = FileUtils::homePath() / ".ssh/id_rsa";
-    const QString keyFile = QString::fromLocal8Bit(qgetenv("QTC_SSH_TEST_KEYFILE"));
+    const QString keyFile = qtcEnvironmentVariable("QTC_SSH_TEST_KEYFILE");
     if (keyFile.isEmpty()) {
-        if (qEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS"))
+        if (qtcEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS"))
             return defaultKeyFile.toString();
     }
     return keyFile;
@@ -145,7 +145,7 @@ const QString userAtHost()
 SshParameters getParameters()
 {
     SshParameters params;
-    if (!qEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS")) {
+    if (!qtcEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS")) {
         params.setUserName(getUserFromEnvironment());
         params.privateKeyFile = FilePath::fromUserInput(getKeyFileFromEnvironment());
     }
@@ -160,7 +160,7 @@ SshParameters getParameters()
 
 bool checkParameters(const SshParameters &params)
 {
-    if (qEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS"))
+    if (qtcEnvironmentVariableIsSet("QTC_SSH_TEST_DEFAULTS"))
         return true;
     if (params.host().isEmpty()) {
         qWarning("No hostname provided. Set QTC_SSH_TEST_HOST.");

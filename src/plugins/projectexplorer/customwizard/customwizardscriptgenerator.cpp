@@ -5,6 +5,7 @@
 #include "customwizard.h"
 #include "customwizardparameters.h"
 
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcprocess.h>
@@ -46,7 +47,7 @@ QStringList fixGeneratorScript(const QString &configFile, QString binary)
         if (!extension.isEmpty() && extension.compare(QLatin1String("exe"),
                                                       Qt::CaseInsensitive) != 0) {
             rc.push_front(QLatin1String("/C"));
-            rc.push_front(QString::fromLocal8Bit(qgetenv("COMSPEC")));
+            rc.push_front(qtcEnvironmentVariable("COMSPEC"));
             if (rc.front().isEmpty())
                 rc.front() = QLatin1String("cmd.exe");
         }
