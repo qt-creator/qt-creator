@@ -50,6 +50,7 @@ private slots:
     void testCreateDir();
     void testWindowsPaths();
     void testUrl();
+    void testBrokenWindowsPath();
 
 private:
     QString makeTestPath(QString path, bool asUrl = false);
@@ -288,6 +289,19 @@ void tst_fsengine::testUrl()
     FilePath p = FilePath::fromString(makeTestPath("", true));
 
     QVERIFY(p.needsDevice());
+}
+
+void tst_fsengine::testBrokenWindowsPath()
+{
+    QTemporaryFile tmp;
+    QVERIFY(tmp.open());
+
+    QString localFileName = tmp.fileName();
+    localFileName.insert(HostOsInfo::isWindowsHost() ? 2 : 0, '/');
+
+    QFile file(localFileName);
+    QVERIFY(file.open(QIODevice::ReadOnly));
+    QCOMPARE(tmp.fileName(), QFileInfo(localFileName).canonicalFilePath());
 }
 
 QTEST_GUILESS_MAIN(tst_fsengine)

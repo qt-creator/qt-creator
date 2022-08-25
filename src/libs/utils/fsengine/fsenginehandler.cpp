@@ -47,10 +47,7 @@ QAbstractFileEngine *FSEngineHandler::create(const QString &fileName) const
     static const FilePath rootFilePath =
         FilePath::specialFilePath(FilePath::SpecialPathComponent::RootPath);
 
-    QString fixedFileName = fileName;
-
-    if (fileName.startsWith("//"))
-        fixedFileName = fixedFileName.mid(1);
+    const QString fixedFileName = QDir::cleanPath(fileName);
 
     if (fixedFileName == rootPath) {
         const FilePaths paths
