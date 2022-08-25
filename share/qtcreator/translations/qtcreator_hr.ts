@@ -12156,7 +12156,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
+    <name>QmlJSTools</name>
     <message>
         <source>The type will only be available in the QML editors when the type name is a string literal</source>
         <translation type="unfinished"></translation>
@@ -35020,14 +35020,11 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
+    <name>QmlJSTools</name>
     <message>
         <source>QML Functions</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools</name>
     <message>
         <source>Code Style</source>
         <translation type="unfinished"></translation>
@@ -35036,9 +35033,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Qt Quick</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
     <message>
         <source>Reset Code Model</source>
         <translation type="unfinished"></translation>
@@ -35047,9 +35041,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>&amp;QML/JS</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>

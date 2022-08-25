@@ -33688,7 +33688,7 @@ QML component instance objects and properties directly.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
+    <name>QmlJSTools</name>
     <message>
         <source>Functions</source>
         <translation type="obsolete">功能</translation>
@@ -33701,16 +33701,10 @@ QML component instance objects and properties directly.</source>
         <source>Methods and Functions</source>
         <translation>方法和函数</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::ModelManager</name>
     <message>
         <source>Indexing</source>
         <translation>索引中</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::PluginDumper</name>
     <message>
         <source>Type dump of QML plugin in %1 failed.
 Errors:
@@ -36382,9 +36376,6 @@ These files are preserved.</source>
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation>&amp;QML/JS</translation>
@@ -36393,9 +36384,6 @@ These files are preserved.</source>
         <source>Reset Code Model</source>
         <translation>重置代码模型</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global Qt Quick</source>
         <comment>Settings</comment>
@@ -46974,7 +46962,7 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::QmlConsoleEdit</name>
+    <name>QmlJSTools</name>
     <message>
         <source>Cu&amp;t</source>
         <translation type="obsolete">剪切</translation>
@@ -46983,23 +46971,14 @@ Remote stderr was: %1</source>
         <source>Select &amp;All</source>
         <translation type="obsolete">全选</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsolePane</name>
     <message>
         <source>Console</source>
         <translation type="obsolete">控制台</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsoleView</name>
     <message>
         <source>&amp;Show in Editor</source>
         <translation type="obsolete">在编辑器中显示(&amp;S)</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation>仅在类型名称为字符串时该类型才能在Qt Creator 中的 QML编辑器中使用</translation>

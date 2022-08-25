@@ -1,14 +1,15 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "qmljstoolsplugin.h"
-#include "qmljsmodelmanager.h"
+#include "qmljsbundleprovider.h"
+#include "qmljscodestylesettingspage.h"
 #include "qmljsfunctionfilter.h"
 #include "qmljslocatordata.h"
-#include "qmljscodestylesettingspage.h"
+#include "qmljsmodelmanager.h"
 #include "qmljstoolsconstants.h"
+#include "qmljstoolsplugin.h"
 #include "qmljstoolssettings.h"
-#include "qmljsbundleprovider.h"
+#include "qmljstoolstr.h"
 
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -34,7 +35,7 @@ public:
     QmlJSToolsSettings settings;
     ModelManager modelManager;
 
-    QAction resetCodeModelAction{QmlJSToolsPlugin::tr("Reset Code Model"), nullptr};
+    QAction resetCodeModelAction{Tr::tr("Reset Code Model"), nullptr};
 
     LocatorData locatorData;
     FunctionFilter functionFilter{&locatorData};
@@ -70,7 +71,7 @@ QmlJSToolsPluginPrivate::QmlJSToolsPluginPrivate()
     ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
     ActionContainer *mqmljstools = ActionManager::createMenu(Constants::M_TOOLS_QMLJS);
     QMenu *menu = mqmljstools->menu();
-    menu->setTitle(QmlJSToolsPlugin::tr("&QML/JS"));
+    menu->setTitle(Tr::tr("&QML/JS"));
     menu->setEnabled(true);
     mtools->addMenu(mqmljstools);
 

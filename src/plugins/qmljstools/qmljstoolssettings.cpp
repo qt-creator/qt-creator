@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "qmljstoolssettings.h"
-#include "qmljstoolsconstants.h"
 #include "qmljscodestylepreferences.h"
 #include "qmljscodestylepreferencesfactory.h"
+#include "qmljstoolsconstants.h"
+#include "qmljstoolssettings.h"
+#include "qmljstoolstr.h"
 
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/tabsettings.h>
@@ -48,7 +49,7 @@ QmlJSToolsSettings::QmlJSToolsSettings()
     // Qt style
     auto qtCodeStyle = new QmlJSCodeStylePreferences;
     qtCodeStyle->setId("qt");
-    qtCodeStyle->setDisplayName(tr("Qt"));
+    qtCodeStyle->setDisplayName(Tr::tr("Qt"));
     qtCodeStyle->setReadOnly(true);
     TabSettings qtTabSettings;
     qtTabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
@@ -98,7 +99,7 @@ QmlJSToolsSettings::QmlJSToolsSettings()
 
             // create custom code style out of old settings
             ICodeStylePreferences *oldCreator = pool->createCodeStyle(
-                     "legacy", legacyTabSettings, QVariant(), tr("Old Creator"));
+                     "legacy", legacyTabSettings, QVariant(), Tr::tr("Old Creator"));
 
             // change the current delegate and save
             m_globalCodeStyle->setCurrentDelegate(oldCreator);

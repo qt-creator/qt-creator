@@ -12972,7 +12972,7 @@ Soll es noch einmal versucht werden?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
+    <name>QmlJSTools</name>
     <message>
         <source>QML Functions</source>
         <translation>QML-Funktionen</translation>
@@ -15258,9 +15258,6 @@ Bei vollständiger Cache-Simulation werden weitere Ereigniszähler aktiviert:
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -16026,7 +16023,7 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
+    <name>QmlJSTools</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation>&amp;QML/JS</translation>
@@ -19908,7 +19905,7 @@ gehören nicht zu den verifizierten Remotes in %3. Anderes Verzeichnis angeben?<
     </message>
 </context>
 <context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
+    <name>QmlJSTools</name>
     <message>
         <source>The type will only be available in the QML editors when the type name is a string literal</source>
         <translation>Dieser Typ wird im QML Editor nur sichtbar sein, wenn der Typname ein Zeichenketten-Literal ist</translation>

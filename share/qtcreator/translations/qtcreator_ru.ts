@@ -41654,9 +41654,6 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <source>Qt Quick</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
     <message>
         <source>The type will only be available in the QML editors when the type name is a string literal</source>
         <translation>Имя типа должно быть строковым литералом, чтобы он был доступен в редакторах QML</translation>
@@ -41673,16 +41670,10 @@ the QML editor know about a likely URI.</source>
         <source>must be a string literal to be available in the QML editor</source>
         <translation>должен быть строковым литералом, чтобы быть доступным в редакторе QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
     <message>
         <source>QML Functions</source>
         <translation>Функции QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation></translation>
@@ -41691,9 +41682,6 @@ the QML editor know about a likely URI.</source>
         <source>Reset Code Model</source>
         <translation>Сбросить модель кода</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>

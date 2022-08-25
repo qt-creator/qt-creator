@@ -32093,9 +32093,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
     <message>
         <source>The type will only be available in the QML editors when the type name is a string literal</source>
         <translation>Typen er kun tilgængelig i QML-redigeringerne når typenavnet er en streng-literal</translation>
@@ -32112,16 +32109,10 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
         <source>must be a string literal to be available in the QML editor</source>
         <translation>skal være en streng-literal for at være tilgængelig i QML-redigeringen</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
     <message>
         <source>QML Functions</source>
         <translation>QML-funktioner</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation>&amp;QML/JS</translation>
@@ -32130,9 +32121,6 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
         <source>Reset Code Model</source>
         <translation>Nulstil kodemodel</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>

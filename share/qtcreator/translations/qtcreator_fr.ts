@@ -35669,7 +35669,7 @@ QML component instance objects and properties directly.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
+    <name>QmlJSTools</name>
     <message>
         <source>Functions</source>
         <translation type="obsolete">Fonctions</translation>
@@ -35690,9 +35690,6 @@ QML component instance objects and properties directly.</source>
         <source>QML Functions</source>
         <translation>Fonctions QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::ModelManager</name>
     <message>
         <source>Indexing</source>
         <translation>Indexation</translation>
@@ -35701,9 +35698,6 @@ QML component instance objects and properties directly.</source>
         <source>Qml import scan</source>
         <translation>Analyse de l&apos;import Qml</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::PluginDumper</name>
     <message>
         <source>Type dump of QML plugin in %1 failed.
 Errors:
@@ -39172,9 +39166,6 @@ These files are preserved.</source>
         <source>Code Style</source>
         <translation>Style de code</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation>&amp;QML/JS</translation>
@@ -39183,9 +39174,6 @@ These files are preserved.</source>
         <source>Reset Code Model</source>
         <translation>Restaurer le modèle de code</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global Qt Quick</source>
         <comment>Settings</comment>
@@ -50203,7 +50191,7 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
+    <name>QmlJSTools</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation>Le type sera disponible dans l&apos;éditeur QML de Qt Creator lorsque le nom du type est une chaîne de caractères</translation>
@@ -54625,7 +54613,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::QmlConsoleEdit</name>
+    <name>QmlJSTools</name>
     <message>
         <source>Cu&amp;t</source>
         <translation>Co&amp;uper</translation>
@@ -54646,16 +54634,10 @@ Distant : %4</translation>
         <source>C&amp;lear</source>
         <translation>&amp;Effacer</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsoleModel</name>
     <message>
         <source>Can only evaluate during a QML debug session.</source>
         <translation>Ne peut être évalué que dans une session de débogage QML.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsolePane</name>
     <message>
         <source>Show debug, log, and info messages.</source>
         <translation>Montrer les messages de débogage, de log et d&apos;information.</translation>
@@ -54664,20 +54646,9 @@ Distant : %4</translation>
         <source>QML/JS Console</source>
         <translation>Console QML/JS</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsoleView</name>
-    <message>
-        <source>&amp;Copy</source>
-        <translation>&amp;Copier</translation>
-    </message>
     <message>
         <source>&amp;Show in Editor</source>
         <translation>Montrer dans l&apos;éditeur (&amp;S)</translation>
-    </message>
-    <message>
-        <source>C&amp;lear</source>
-        <translation>&amp;Effacer</translation>
     </message>
 </context>
 <context>

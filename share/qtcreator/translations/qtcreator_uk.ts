@@ -17896,9 +17896,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
     <message>
         <source>QML Methods and Functions</source>
         <translation type="vanished">Методи та функції QML</translation>
@@ -17907,16 +17904,10 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>QML Functions</source>
         <translation>Функцій QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::ModelManager</name>
     <message>
         <source>Indexing</source>
         <translation type="vanished">Індексування</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::PluginDumper</name>
     <message>
         <source>&quot;%1&quot; crashed.</source>
         <translation type="vanished">&quot;%1&quot; завершився аварійно.</translation>
@@ -17925,9 +17916,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Arguments: %1</source>
         <translation type="vanished">Аргументи: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation>&amp;QML/JS</translation>
@@ -17936,9 +17924,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Reset Code Model</source>
         <translation>Скинути модель коду</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -32135,7 +32120,7 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
+    <name>QmlJSTools</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation type="unfinished"></translation>
@@ -34936,7 +34921,7 @@ Remote: %4</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::QmlConsoleEdit</name>
+    <name>QmlJSTools</name>
     <message>
         <source>Cu&amp;t</source>
         <translation type="vanished">Вирі&amp;зати</translation>
@@ -34957,9 +34942,6 @@ Remote: %4</source>
         <source>C&amp;lear</source>
         <translation type="vanished">&amp;Очистити</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsolePane</name>
     <message>
         <source>Show debug, log, and info messages.</source>
         <translation type="vanished">Показувати зневаджувальні, журналу та інформаційні повідомлення.</translation>
@@ -34976,20 +34958,9 @@ Remote: %4</source>
         <source>QML/JS Console</source>
         <translation type="vanished">Консоль QML/JS</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsoleView</name>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="vanished">&amp;Копіювати</translation>
-    </message>
     <message>
         <source>&amp;Show in Editor</source>
         <translation type="vanished">&amp;Показати в редакторі</translation>
-    </message>
-    <message>
-        <source>C&amp;lear</source>
-        <translation type="vanished">&amp;Очистити</translation>
     </message>
 </context>
 <context>

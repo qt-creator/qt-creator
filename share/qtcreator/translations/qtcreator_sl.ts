@@ -25531,21 +25531,15 @@ neposredno dostopati do objektov izvodov komponent QML in lastnosti.</translatio
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
+    <name>QmlJSTools</name>
     <message>
         <source>Methods and functions</source>
         <translation>Metode in funkcije</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::ModelManager</name>
     <message>
         <source>Indexing</source>
         <translation>Indeksiranje</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::PluginDumper</name>
     <message>
         <source>Type dump of QML plugin in %1 failed.
 Errors:
@@ -25592,9 +25586,6 @@ Please build the debugging helpers on the Qt version options page.</source>
         <translation>Pomožnega programa za odlaganje podatkov o tipih iz vstavkov C++ ni bilo moč najti.
 S strani z možnostmi za različice Qt zgradite razhroščevalne pomočnike.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools</name>
     <message>
         <source>Code Style</source>
         <translation>Slog kode</translation>
@@ -25603,9 +25594,6 @@ S strani z možnostmi za različice Qt zgradite razhroščevalne pomočnike.</tr
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation>&amp;QML/JS</translation>
@@ -25614,9 +25602,6 @@ S strani z možnostmi za različice Qt zgradite razhroščevalne pomočnike.</tr
         <source>Reset Code Model</source>
         <translation>Ponastavi model kode</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global Qt Quick</source>
         <comment>Settings</comment>

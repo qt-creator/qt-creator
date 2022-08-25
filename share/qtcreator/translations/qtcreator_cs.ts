@@ -36343,7 +36343,7 @@ a vlastností součástek QML přímo.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
+    <name>QmlJSTools</name>
     <message>
         <source>Methods and functions</source>
         <translation type="obsolete">Metody a funkce</translation>
@@ -36360,16 +36360,10 @@ a vlastností součástek QML přímo.</translation>
         <source>QML Functions</source>
         <translation>Funkce QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::ModelManager</name>
     <message>
         <source>Indexing</source>
         <translation>Rejstříkování</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::PluginDumper</name>
     <message>
         <source>Type dump of QML plugin in %1 failed.
 Errors:
@@ -36492,9 +36486,6 @@ Please build the debugging helpers on the Qt version options page.</source>
         <translation type="obsolete">Pomocný program ke sdělení informací o typu přídavného modulu C++ se nepodařilo najít.
 Vytvořte, prosím, součástky pomocné knihovny pro výstup dat o ladění na stránce pro nastavení verzí Qt.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools</name>
     <message>
         <source>Code Style</source>
         <translation>Styl kódování</translation>
@@ -36503,9 +36494,6 @@ Vytvořte, prosím, součástky pomocné knihovny pro výstup dat o ladění na 
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation>&amp;QML/JS</translation>
@@ -36514,9 +36502,6 @@ Vytvořte, prosím, součástky pomocné knihovny pro výstup dat o ladění na 
         <source>Reset Code Model</source>
         <translation>Nastavit model kódu znovu</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global Qt Quick</source>
         <comment>Settings</comment>
@@ -51783,7 +51768,7 @@ Vzdálený chybový výstup byl: &apos;%1&apos;</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
+    <name>QmlJSTools</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation>Tento typ bude v editoru QML Qt Creatoru viditelný jen tehdy, když je název typu řetězec znaků tvořený písmeny (literal)</translation>
@@ -54958,7 +54943,7 @@ Commit now?</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::QmlConsoleEdit</name>
+    <name>QmlJSTools</name>
     <message>
         <source>Cu&amp;t</source>
         <translation>Vyj&amp;mout</translation>
@@ -54979,16 +54964,10 @@ Commit now?</source>
         <source>C&amp;lear</source>
         <translation>Sma&amp;zat</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsoleModel</name>
     <message>
         <source>Can only evaluate during a QML debug session.</source>
         <translation>Vyhodnocovat lze jen během sezení ladění QML.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsolePane</name>
     <message>
         <source>Show debug, log, and info messages.</source>
         <translation>Ukázat ladění, záznamy a informační zprávy.</translation>
@@ -54997,20 +54976,9 @@ Commit now?</source>
         <source>QML/JS Console</source>
         <translation>Konzole QML/JS</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlConsoleView</name>
-    <message>
-        <source>&amp;Copy</source>
-        <translation>&amp;Kopírovat</translation>
-    </message>
     <message>
         <source>&amp;Show in Editor</source>
         <translation>&amp;Ukázat v editoru</translation>
-    </message>
-    <message>
-        <source>C&amp;lear</source>
-        <translation>Sma&amp;zat</translation>
     </message>
 </context>
 <context>

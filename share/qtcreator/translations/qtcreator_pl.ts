@@ -15998,7 +15998,7 @@ Ponowić próbę?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
+    <name>QmlJSTools</name>
     <message>
         <source>QML Functions</source>
         <translation>Funkcje QML</translation>
@@ -17474,9 +17474,6 @@ With cache simulation, further event counters are enabled:
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
@@ -18085,7 +18082,7 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
 </context>
 <context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
+    <name>QmlJSTools</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation>&amp;QML/JS</translation>
@@ -22328,7 +22325,7 @@ were not verified among remotes in %3. Select different folder?</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
+    <name>QmlJSTools</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation>Typ będzie tylko wtedy dostępny w edytorach QML, gdy jego nazwa będzie literałem łańcuchowym</translation>

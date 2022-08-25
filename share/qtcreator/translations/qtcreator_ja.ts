@@ -29271,7 +29271,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSTools::FindExportedCppTypes</name>
+    <name>QmlJSTools</name>
     <message>
         <source>The type will only be available in Qt Creator&apos;s QML editors when the type name is a string literal</source>
         <translation>この型は型名が文字列リテラルであるため、Qt Creator の QML エディタでのみ利用可能できます</translation>
@@ -29298,16 +29298,10 @@ the QML editor know about a likely URI.</source>
         <source>must be a string literal to be available in the QML editor</source>
         <translation>QML エディタ内では文字列リテラルでなければなりません</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::FunctionFilter</name>
     <message>
         <source>QML Functions</source>
         <translation>QML 関数</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools</name>
     <message>
         <source>Code Style</source>
         <translation>コードスタイル</translation>
@@ -29316,9 +29310,6 @@ the QML editor know about a likely URI.</source>
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::Internal::QmlJSToolsPlugin</name>
     <message>
         <source>&amp;QML/JS</source>
         <translation>&amp;QML/JS</translation>
@@ -29327,9 +29318,6 @@ the QML editor know about a likely URI.</source>
         <source>Reset Code Model</source>
         <translation>コードモデルのリセット</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSTools::QmlJSToolsSettings</name>
     <message>
         <source>Global</source>
         <comment>Settings</comment>
