@@ -1284,4 +1284,78 @@ void McuSupportTest::test_resolveCmakeVariablesInDefaultPath()
     QCOMPARE(toolchainFilePkg->defaultPath().toString(), expectedPkgPath);
 }
 
+void McuSupportTest::test_legacy_createThirdPartyPackage_data()
+{
+    const QString defaultToolPath{"/opt/biz/foo"};
+
+    const char xpressoIdeSetting[]{"MCUXpressoIDE"};
+    const char xpressoIdeCmakeVar[]{"MCUXPRESSO_IDE_PATH"};
+    const char xpressoIdeEnvVar[]{"MCUXpressoIDE_PATH"};
+
+    const char stmCubeProgrammerSetting[]{"Stm32CubeProgrammer"};
+    const QString stmCubeProgrammerPath{defaultToolPath + "/bin"};
+
+    const char renesasProgrammerSetting[]{"RenesasFlashProgrammer"};
+    const char renesasProgrammerCmakeVar[]{"RENESAS_FLASH_PROGRAMMER_PATH"};
+    const QString renesasProgrammerEnvVar{renesasProgrammerCmakeVar};
+
+    const char cypressProgrammerSetting[]{"CypressAutoFlashUtil"};
+    const char cypressProgrammerCmakeVar[]{"INFINEON_AUTO_FLASH_UTILITY_DIR"};
+    const char cypressProgrammerEnvVar[]{"CYPRESS_AUTO_FLASH_UTILITY_DIR"};
+
+    QTest::addColumn<PackageCreator>("creator");
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<QString>("defaultPath");
+    QTest::addColumn<QString>("setting");
+    QTest::addColumn<QString>("cmakeVar");
+    QTest::addColumn<QString>("envVar");
+
+    QTest::newRow("mcuXpresso") << PackageCreator{[this]() {
+        return Legacy::createMcuXpressoIdePackage(settingsMockPtr);
+    }} << defaultToolPath << defaultToolPath
+                                << xpressoIdeSetting << xpressoIdeCmakeVar << xpressoIdeEnvVar;
+    QTest::newRow("stmCubeProgrammer") << PackageCreator{[this]() {
+        return Legacy::createStm32CubeProgrammerPackage(settingsMockPtr);
+    }} << stmCubeProgrammerPath << defaultToolPath
+                                       << stmCubeProgrammerSetting << empty << empty;
+
+    QTest::newRow("renesasProgrammer") << PackageCreator{[this]() {
+        return Legacy::createRenesasProgrammerPackage(settingsMockPtr);
+    }} << defaultToolPath << defaultToolPath
+                                       << renesasProgrammerSetting << renesasProgrammerCmakeVar
+                                       << renesasProgrammerEnvVar;
+
+    QTest::newRow("cypressProgrammer") << PackageCreator{[this]() {
+        return Legacy::createCypressProgrammerPackage(settingsMockPtr);
+    }} << defaultToolPath << defaultToolPath
+                                       << cypressProgrammerSetting << cypressProgrammerCmakeVar
+                                       << cypressProgrammerEnvVar;
+}
+
+void McuSupportTest::test_legacy_createThirdPartyPackage()
+{
+    QFETCH(PackageCreator, creator);
+    QFETCH(QString, path);
+    QFETCH(QString, defaultPath);
+    QFETCH(QString, setting);
+    QFETCH(QString, cmakeVar);
+    QFETCH(QString, envVar);
+
+    if (!envVar.isEmpty())
+        QVERIFY(qputenv(envVar.toLocal8Bit(), defaultPath.toLocal8Bit()));
+
+    EXPECT_CALL(*settingsMockPtr, getPath(QString{setting}, _, _))
+        .Times(2)
+        .WillRepeatedly(Return(FilePath::fromUserInput(defaultPath)));
+
+    McuPackagePtr thirdPartyPacakge{creator()};
+    QVERIFY(thirdPartyPacakge);
+    QCOMPARE(thirdPartyPacakge->settingsKey(), setting);
+    QCOMPARE(thirdPartyPacakge->environmentVariableName(), envVar);
+    QCOMPARE(thirdPartyPacakge->path().toString(), path);
+
+    if (!envVar.isEmpty())
+        QVERIFY(qunsetenv(envVar.toLocal8Bit()));
+}
+
 } // namespace McuSupport::Internal::Test

@@ -54,5 +54,10 @@ McuPackagePtr createFreeRTOSSourcesPackage(const SettingsHandler::Ptr &settingsH
                                            const QString &envVar,
                                            const Utils::FilePath &boardSdkDir);
 
+McuPackagePtr createStm32CubeProgrammerPackage(const SettingsHandler::Ptr &);
+McuPackagePtr createRenesasProgrammerPackage(const SettingsHandler::Ptr &);
+McuPackagePtr createCypressProgrammerPackage(const SettingsHandler::Ptr &);
+McuPackagePtr createMcuXpressoIdePackage(const SettingsHandler::Ptr &);
+
 } // namespace Legacy
 } // namespace McuSupport::Internal

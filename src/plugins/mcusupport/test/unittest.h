@@ -92,6 +92,9 @@ private slots:
     void test_resolveEnvironmentVariablesInDefaultPath();
     void test_resolveCmakeVariablesInDefaultPath();
 
+    void test_legacy_createThirdPartyPackage_data();
+    void test_legacy_createThirdPartyPackage();
+
 private:
     QVersionNumber currentQulVersion{2, 0};
     PackageMock *freeRtosPackage{new PackageMock};
@@ -112,6 +115,10 @@ private:
     McuTarget::Platform platform;
     McuTarget mcuTarget;
     ProjectExplorer::Kit kit;
+
 }; // class McuSupportTest
 
+using PackageCreator = std::function<McuPackagePtr()>;
 } // namespace McuSupport::Internal::Test
+
+Q_DECLARE_METATYPE(McuSupport::Internal::Test::PackageCreator);

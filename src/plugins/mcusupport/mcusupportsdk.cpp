@@ -358,7 +358,7 @@ McuToolChainPackagePtr createIarToolChainPackage(const SettingsHandler::Ptr &set
                                 versionDetector)};
 }
 
-static McuPackagePtr createStm32CubeProgrammerPackage(const SettingsHandler::Ptr &settingsHandler)
+McuPackagePtr createStm32CubeProgrammerPackage(const SettingsHandler::Ptr &settingsHandler)
 {
     FilePath defaultPath;
     const QString cubePath = "STMicroelectronics/STM32Cube/STM32CubeProgrammer";
@@ -392,7 +392,7 @@ static McuPackagePtr createStm32CubeProgrammerPackage(const SettingsHandler::Ptr
                        )};
 }
 
-static McuPackagePtr createMcuXpressoIdePackage(const SettingsHandler::Ptr &settingsHandler)
+McuPackagePtr createMcuXpressoIdePackage(const SettingsHandler::Ptr &settingsHandler)
 {
     const char envVar[] = "MCUXpressoIDE_PATH";
 
@@ -427,7 +427,7 @@ static McuPackagePtr createMcuXpressoIdePackage(const SettingsHandler::Ptr &sett
                                         "https://www.nxp.com/mcuxpresso/ide")}; // download url
 }
 
-static McuPackagePtr createCypressProgrammerPackage(const SettingsHandler::Ptr &settingsHandler)
+McuPackagePtr createCypressProgrammerPackage(const SettingsHandler::Ptr &settingsHandler)
 {
     const char envVar[] = "CYPRESS_AUTO_FLASH_UTILITY_DIR";
 
@@ -455,7 +455,7 @@ static McuPackagePtr createCypressProgrammerPackage(const SettingsHandler::Ptr &
                        envVar)};                          // env var
 }
 
-static McuPackagePtr createRenesasProgrammerPackage(const SettingsHandler::Ptr &settingsHandler)
+McuPackagePtr createRenesasProgrammerPackage(const SettingsHandler::Ptr &settingsHandler)
 {
     const char envVar[] = "RENESAS_FLASH_PROGRAMMER_PATH";
 
@@ -704,8 +704,7 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
              toolchainPackage,
              toolchainFilePackage},
             boardSdkPackage,
-            {freeRTOS.value("envVar").toString(),
-             freeRtosPackage}};
+            {freeRTOS.value("envVar").toString(), freeRtosPackage}};
 }
 
 // https://doc.qt.io/qtcreator/creator-developing-mcu.html#supported-qt-for-mcus-sdks
