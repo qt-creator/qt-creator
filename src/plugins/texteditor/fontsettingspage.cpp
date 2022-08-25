@@ -547,9 +547,6 @@ void FontSettingsPageWidget::importScheme()
     if (importedFile.isEmpty())
         return;
 
-    Utils::FilePath fileName = createColorSchemeFileName(importedFile.baseName() + "%1."
-                                                         + importedFile.suffix());
-
     // Ask about saving any existing modifications
     maybeSaveColorScheme();
 
@@ -560,16 +557,25 @@ void FontSettingsPageWidget::importScheme()
     dialog->setLabelText(tr("Color scheme name:"));
     dialog->setTextValue(importedFile.baseName());
 
-    connect(dialog, &QInputDialog::textValueSelected, this, [this, fileName](const QString &name) {
-        m_value.setColorScheme(m_ui.schemeEdit->colorScheme());
+    connect(dialog,
+            &QInputDialog::textValueSelected,
+            this,
+            [this, importedFile](const QString &name) {
+                const Utils::FilePath saveFileName = createColorSchemeFileName(
+                    importedFile.baseName() + "%1." + importedFile.suffix());
 
-        ColorScheme scheme = m_value.colorScheme();
-        scheme.setDisplayName(name);
-        if (scheme.save(fileName.path(), Core::ICore::dialogParent()))
-            m_value.setColorSchemeFileName(fileName.path());
+                ColorScheme scheme;
+                if (scheme.load(importedFile.path())) {
+                    scheme.setDisplayName(name);
+                    scheme.save(saveFileName.path(), Core::ICore::dialogParent());
+                    m_value.loadColorScheme(saveFileName.path(), m_descriptions);
+                } else {
+                    qWarning() << "Failed to import color scheme:" << importedFile;
+                }
 
-        refreshColorSchemeList();
-    });
+                refreshColorSchemeList();
+            });
+
     dialog->open();
 }
 
