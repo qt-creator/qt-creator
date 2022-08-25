@@ -5,10 +5,8 @@
 
 #include "vcsbaseplugin.h"
 #include "vcsoutputwindow.h"
-#include "vcsplugin.h"
 
 #include <coreplugin/icore.h>
-#include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <utils/environment.h>
@@ -87,6 +85,9 @@ public:
     void setupSynchronous(QtcProcess *process);
     bool isFullySynchronous() const;
     void handleDone(QtcProcess *process);
+    void startAll();
+    void startNextJob();
+    void processDone();
 
     VcsCommand *q = nullptr;
 
@@ -96,8 +97,13 @@ public:
     QTextCodec *m_codec = nullptr;
     ProgressParser *m_progressParser = nullptr;
     QFutureWatcher<void> m_watcher;
-    FutureProgress *m_futureProgress = nullptr;
     QList<Job> m_jobs;
+
+    int m_currentJob = 0;
+    std::unique_ptr<QtcProcess> m_process;
+    QString m_stdOut;
+    QString m_stdErr;
+    QFutureInterface<void> m_futureInterface;
 
     unsigned m_flags = 0;
 
@@ -194,6 +200,73 @@ void VcsCommandPrivate::handleDone(QtcProcess *process)
     emit q->runCommandFinished(process->workingDirectory());
 }
 
+void VcsCommandPrivate::startAll()
+{
+    // Check that the binary path is not empty
+    QTC_ASSERT(!m_jobs.isEmpty(), return);
+    QTC_ASSERT(!m_process, return);
+    m_futureInterface.reportStarted();
+    if (m_flags & VcsCommand::ExpectRepoChanges) {
+        QMetaObject::invokeMethod(this, [] {
+            GlobalFileChangeBlocker::instance()->forceBlocked(true);
+        });
+    }
+    if (m_progressParser)
+        m_progressParser->setFuture(&m_futureInterface);
+    else
+        m_futureInterface.setProgressRange(0, 1);
+    m_currentJob = 0;
+    startNextJob();
+}
+
+void VcsCommandPrivate::startNextJob()
+{
+    QTC_ASSERT(m_currentJob < m_jobs.count(), return);
+    m_process.reset(new QtcProcess);
+    connect(m_process.get(), &QtcProcess::done, this, &VcsCommandPrivate::processDone);
+    setupProcess(m_process.get(), m_jobs.at(m_currentJob));
+    if (!isFullySynchronous())
+        setupSynchronous(m_process.get());
+    m_process->start();
+}
+
+void VcsCommandPrivate::processDone()
+{
+    handleDone(m_process.get());
+    m_stdOut += m_process->cleanedStdOut();
+    m_stdErr += m_process->cleanedStdErr();
+    ++m_currentJob;
+    const bool success = m_process->result() == ProcessResult::FinishedWithSuccess;
+    if (m_currentJob < m_jobs.count() && success) {
+        m_process.release()->deleteLater();
+        startNextJob();
+        return;
+    }
+    if (m_flags & VcsCommand::ExpectRepoChanges) {
+        QMetaObject::invokeMethod(this, [] {
+            GlobalFileChangeBlocker::instance()->forceBlocked(false);
+        });
+    }
+    if (m_aborted) {
+        m_futureInterface.reportCanceled();
+        m_futureInterface.reportFinished();
+    } else {
+        if (!m_progressiveOutput) {
+            emit q->stdOutText(m_stdOut);
+            if (!m_stdErr.isEmpty())
+                emit q->stdErrText(m_stdErr);
+        }
+        emit q->finished(success);
+        if (!success)
+            m_futureInterface.reportCanceled();
+        m_futureInterface.reportFinished();
+    }
+    if (m_progressParser)
+        m_progressParser->setFuture(nullptr);
+    // As it is used asynchronously, we need to delete ourselves
+    q->deleteLater();
+}
+
 } // namespace Internal
 
 VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &environment) :
@@ -218,17 +291,6 @@ VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &envi
     });
 }
 
-void VcsCommand::addTask(const QFuture<void> &future)
-{
-    if ((d->m_flags & VcsCommand::SuppressCommandLogging))
-        return;
-
-    const QString name = d->displayName();
-    const auto id = Id::fromString(name + QLatin1String(".action"));
-    d->m_futureProgress = ProgressManager::addTask(future, name, id);
-    Internal::VcsPlugin::addFuture(future);
-}
-
 void VcsCommand::postRunCommand(const FilePath &workingDirectory)
 {
     if (!(d->m_flags & VcsCommand::ExpectRepoChanges))
@@ -240,8 +302,10 @@ void VcsCommand::postRunCommand(const FilePath &workingDirectory)
 
 VcsCommand::~VcsCommand()
 {
-    if (!d->m_watcher.future().isFinished())
-        d->m_watcher.future().cancel();
+    if (d->m_futureInterface.isRunning()) {
+        d->m_futureInterface.reportCanceled();
+        d->m_futureInterface.reportFinished();
+    }
     delete d;
 }
 
@@ -259,6 +323,7 @@ void VcsCommand::addJob(const CommandLine &command, int timeoutS,
                         const FilePath &workingDirectory,
                         const ExitCodeInterpreter &interpreter)
 {
+    QTC_ASSERT(!command.executable().isEmpty(), return);
     d->m_jobs.push_back({command, timeoutS, !workingDirectory.isEmpty()
                          ? workingDirectory : d->m_defaultWorkingDirectory, interpreter});
 }
@@ -268,9 +333,17 @@ void VcsCommand::execute()
     if (d->m_jobs.empty())
         return;
 
-    QFuture<void> task = runAsync(&VcsCommand::run, this);
-    d->m_watcher.setFuture(task);
-    addTask(task);
+    d->startAll();
+    d->m_watcher.setFuture(d->m_futureInterface.future());
+    if ((d->m_flags & VcsCommand::SuppressCommandLogging))
+        return;
+
+    const QString name = d->displayName();
+    const auto id = Id::fromString(name + QLatin1String(".action"));
+    if (d->m_progressParser)
+        ProgressManager::addTask(d->m_futureInterface.future(), name, id);
+    else
+        ProgressManager::addTimedTask(d->m_futureInterface, name, id, qMax(2, d->timeoutS() / 5));
 }
 
 void VcsCommand::abort()
@@ -281,66 +354,16 @@ void VcsCommand::abort()
 
 void VcsCommand::cancel()
 {
+    d->m_futureInterface.reportCanceled();
+    if (d->m_process) {
+        // TODO: we may want to call cancel here...
+        d->m_process->stop();
+        // TODO: we may want to not wait here...
+        // However, VcsBaseDiffEditorController::runCommand() relies on getting finished() signal
+        d->m_process->waitForFinished();
+        d->m_process.reset();
+    }
     emit terminate();
-}
-
-void VcsCommand::run(QFutureInterface<void> &future)
-{
-    // Check that the binary path is not empty
-    QTC_ASSERT(!d->m_jobs.isEmpty(), return);
-
-    QString stdOut;
-    QString stdErr;
-
-    if (d->m_flags & VcsCommand::ExpectRepoChanges) {
-        QMetaObject::invokeMethod(this, [] {
-            GlobalFileChangeBlocker::instance()->forceBlocked(true);
-        });
-    }
-    if (d->m_progressParser) {
-        d->m_progressParser->setFuture(&future);
-    } else {
-        QMetaObject::invokeMethod(this, [this, future] {
-            (void) new ProgressTimer(future, qMax(2, d->timeoutS() / 5), d->m_futureProgress);
-        });
-    }
-
-    const int count = d->m_jobs.size();
-    bool lastExecSuccess = true;
-    for (int j = 0; j < count; j++) {
-        const Internal::VcsCommandPrivate::Job &job = d->m_jobs.at(j);
-        const CommandResult result = runCommand(job.command, job.timeoutS,
-                                                job.workingDirectory, job.exitCodeInterpreter);
-        stdOut += result.cleanedStdOut();
-        stdErr += result.cleanedStdErr();
-        lastExecSuccess = result.result() == ProcessResult::FinishedWithSuccess;
-        if (!lastExecSuccess)
-            break;
-    }
-
-    if (!d->m_aborted) {
-        if (!d->m_progressiveOutput) {
-            emit stdOutText(stdOut);
-            if (!stdErr.isEmpty())
-                emit stdErrText(stdErr);
-        }
-
-        if (d->m_flags & VcsCommand::ExpectRepoChanges) {
-            QMetaObject::invokeMethod(this, [] {
-                GlobalFileChangeBlocker::instance()->forceBlocked(false);
-            });
-        }
-        emit finished(lastExecSuccess);
-        if (lastExecSuccess)
-            future.setProgressValue(future.progressMaximum());
-        else
-            future.cancel(); // sets the progress indicator red
-    }
-
-    if (d->m_progressParser)
-        d->m_progressParser->setFuture(nullptr);
-    // As it is used asynchronously, we need to delete ourselves
-    this->deleteLater();
 }
 
 CommandResult VcsCommand::runCommand(const Utils::CommandLine &command, int timeoutS)

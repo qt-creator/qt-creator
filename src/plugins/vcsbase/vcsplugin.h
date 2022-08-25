@@ -31,7 +31,6 @@ public:
     bool initialize(const QStringList &arguments, QString *errorMessage) override;
 
     static VcsPlugin *instance();
-    static void addFuture(const QFuture<void> &future);
 
     CommonVcsSettings &settings() const;
 
