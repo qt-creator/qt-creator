@@ -5,16 +5,17 @@
 
 #include "qmljsautocompleter.h"
 #include "qmljscompletionassist.h"
+#include "qmljseditingsettingspage.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
 #include "qmljseditorplugin.h"
+#include "qmljseditortr.h"
 #include "qmljsfindreferences.h"
 #include "qmljshighlighter.h"
 #include "qmljshoverhandler.h"
 #include "qmljsquickfixassist.h"
 #include "qmloutlinemodel.h"
 #include "quicktoolbar.h"
-#include "qmljseditingsettingspage.h"
 
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsevaluate.h>
@@ -317,7 +318,7 @@ void QmlJSEditorWidget::updateContextPane()
                             QTextCursor tc(document());
                             tc.setPosition(end);
                             marker.cursor = tc;
-                            marker.tooltip = tr("Show Qt Quick ToolBar");
+                            marker.tooltip = Tr::tr("Show Qt Quick ToolBar");
                             marker.type = QT_QUICK_TOOLBAR_MARKER_ID;
                             marker.callback = [this](TextEditorWidget *) {
                                 showContextPane();
@@ -700,15 +701,15 @@ void QmlJSEditorWidget::inspectElementUnderCursor() const
 
     const CppComponentValue *cppValue = findCppComponentToInspect(semanticInfo, cursorPosition);
     if (!cppValue) {
-        QString title = tr("Code Model Not Available");
+        QString title = Tr::tr("Code Model Not Available");
         const QString documentId = QML_JS_EDITOR_PLUGIN + QStringLiteral(".NothingToShow");
         EditorManager::openEditorWithContents(Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title,
-                                              tr("Code model not available.").toUtf8(), documentId,
+                                              Tr::tr("Code model not available.").toUtf8(), documentId,
                                               EditorManager::IgnoreNavigationHistory);
         return;
     }
 
-    QString title = tr("Code Model of %1").arg(cppValue->metaObject()->className());
+    QString title = Tr::tr("Code Model of %1").arg(cppValue->metaObject()->className());
     const QString documentId = QML_JS_EDITOR_PLUGIN + QStringLiteral(".Class.")
                                + cppValue->metaObject()->className();
     IEditor *outputEditor = EditorManager::openEditorWithContents(
@@ -851,7 +852,7 @@ void QmlJSEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     QPointer<QMenu> menu(new QMenu(this));
 
-    QMenu *refactoringMenu = new QMenu(tr("Refactoring"), menu);
+    QMenu *refactoringMenu = new QMenu(Tr::tr("Refactoring"), menu);
 
     if (!m_qmlJsEditorDocument->isSemanticInfoOutdated()) {
         AssistInterface *interface = createAssistInterface(QuickFix, ExplicitlyInvoked);

@@ -3,6 +3,7 @@
 
 #include "qmljscomponentfromobjectdef.h"
 #include "qmljscomponentnamedialog.h"
+#include "qmljseditortr.h"
 #include "qmljsquickfixassist.h"
 
 #include <coreplugin/icore.h>
@@ -54,8 +55,7 @@ public:
             m_componentName.prepend("My");
         }
 
-        setDescription(QCoreApplication::translate("QmlJSEditor::ComponentFromObjectDef",
-                                                   "Move Component into Separate File"));
+        setDescription(Tr::tr("Move Component into Separate File"));
     }
 
     Operation(const QSharedPointer<const QmlJSQuickFixAssistInterface> &interface,

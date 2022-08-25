@@ -1,6 +1,7 @@
 // Copyright (C) 2017 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include "qmljseditortr.h"
 #include "qmljstextmark.h"
 
 #include <utils/qtcassert.h>
@@ -70,8 +71,8 @@ void QmlJSTextMark::init(bool warning, const QString &message)
                     : Utils::Icons::CODEMODEL_ERROR.icon());
     setColor(warning ? Utils::Theme::CodeModel_Warning_TextMarkColor
                      : Utils::Theme::CodeModel_Error_TextMarkColor);
-    setDefaultToolTip(warning ? QApplication::translate("QmlJS Code Model Marks", "Code Model Warning")
-                              : QApplication::translate("QmlJS Code Model Marks", "Code Model Error"));
+    setDefaultToolTip(warning ? Tr::tr("Code Model Warning")
+                              : Tr::tr("Code Model Error"));
     setToolTip(message);
     setPriority(warning ? TextEditor::TextMark::NormalPriority
                         : TextEditor::TextMark::HighPriority);

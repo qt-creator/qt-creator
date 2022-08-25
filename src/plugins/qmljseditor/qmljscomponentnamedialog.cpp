@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "qmljscomponentnamedialog.h"
+#include "qmljseditortr.h"
 
 #include <utils/classnamevalidatinglineedit.h>
 #include <utils/layoutbuilder.h>
@@ -21,23 +22,23 @@ using namespace QmlJSEditor::Internal;
 ComponentNameDialog::ComponentNameDialog(QWidget *parent) :
     QDialog(parent)
 {
-    setWindowTitle(tr("Move Component into Separate File"));
+    setWindowTitle(Tr::tr("Move Component into Separate File"));
     m_componentNameEdit = new Utils::ClassNameValidatingLineEdit;
-    m_componentNameEdit->setPlaceholderText(tr("Component Name"));
+    m_componentNameEdit->setPlaceholderText(Tr::tr("Component Name"));
     m_messageLabel = new QLabel;
     m_pathEdit = new Utils::PathChooser;
     m_label = new QLabel;
     m_listWidget = new QListWidget;
     m_plainTextEdit = new QPlainTextEdit;
-    m_checkBox = new QCheckBox(tr("ui.qml file"));
+    m_checkBox = new QCheckBox(Tr::tr("ui.qml file"));
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
     using namespace Utils::Layouting;
     Column {
         Form {
-            tr("Component name:"), m_componentNameEdit, br,
+            Tr::tr("Component name:"), m_componentNameEdit, br,
             empty, m_messageLabel, br,
-            tr("Path:"), m_pathEdit, br,
+            Tr::tr("Path:"), m_pathEdit, br,
         },
         m_label,
         Row { m_listWidget, m_plainTextEdit },
@@ -76,7 +77,7 @@ bool ComponentNameDialog::go(QString *proposedName,
     d.m_pathEdit->setExpectedKind(Utils::PathChooser::ExistingDirectory);
     d.m_pathEdit->setHistoryCompleter(QLatin1String("QmlJs.Component.History"));
     d.m_pathEdit->setPath(*proposedPath);
-    d.m_label->setText(tr("Property assignments for %1:").arg(oldFileName));
+    d.m_label->setText(Tr::tr("Property assignments for %1:").arg(oldFileName));
     d.m_checkBox->setChecked(isUiFile);
     d.m_checkBox->setVisible(isUiFile);
     d.m_sourcePreview = sourcePreview;
@@ -166,13 +167,13 @@ QString ComponentNameDialog::isValid() const
 
     QString compName = m_componentNameEdit->text();
     if (compName.isEmpty() || !compName[0].isUpper())
-        return tr("Invalid component name.");
+        return Tr::tr("Invalid component name.");
 
     if (!m_pathEdit->isValid())
-        return tr("Invalid path.");
+        return Tr::tr("Invalid path.");
 
     if (m_pathEdit->filePath().pathAppended(compName + ".qml").exists())
-        return tr("Component already exists.");
+        return Tr::tr("Component already exists.");
 
     return QString();
 }

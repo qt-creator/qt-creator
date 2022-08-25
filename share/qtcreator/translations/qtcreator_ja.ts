@@ -5879,7 +5879,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::ComponentNameDialog</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Move Component into Separate File</source>
         <translation>コンポーネントを別のファイルに移動する</translation>
@@ -5924,9 +5924,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>ui.qml file</source>
         <translation>ui.qml ファイル</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QuickToolBarSettingsPage</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -29726,21 +29723,11 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::ComponentFromObjectDef</name>
-    <message>
-        <source>Move Component into Separate File</source>
-        <translation>コンポーネントを分割ファイルに移動する</translation>
-    </message>
-</context>
-<context>
     <name>QmlJSEditor</name>
     <message>
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
     <message>
         <source>Find Usages</source>
         <translation>出現箇所の検索</translation>
@@ -29790,9 +29777,6 @@ Ids must begin with a lowercase letter.</source>
         <source>QML Analysis</source>
         <translation>QML 解析</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::FindReferences</name>
     <message>
         <source>QML/JS Usages:</source>
         <translation>QML/JS 出現箇所:</translation>
@@ -29801,16 +29785,10 @@ Ids must begin with a lowercase letter.</source>
         <source>Searching for Usages</source>
         <translation>使用方法の検索中</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineWidget</name>
     <message>
         <source>Show All Bindings</source>
         <translation>すべてのバインドを表示</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>すべて展開</translation>
@@ -29819,9 +29797,6 @@ Ids must begin with a lowercase letter.</source>
         <source>Collapse All</source>
         <translation>すべて折りたたむ</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSPreviewRunner</name>
     <message>
         <source>No file specified.</source>
         <translation>ファイルが指定されていません。</translation>
@@ -29836,30 +29811,14 @@ Ids must begin with a lowercase letter.</source>
         <translation>以下の理由で Qt Quick (QML) ファイルをプレビューできませんでした。
 %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QuickFix</name>
     <message>
         <source>Split Initializer</source>
         <translation>初期化子を分割</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::AddAnalysisMessageSuppressionComment</name>
     <message>
         <source>Add a Comment to Suppress This Message</source>
         <translation>このメッセージを抑止する為のコメントを追加します</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSSnippetProvider</name>
-    <message>
-        <source>QML</source>
-        <translation>QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::Operation</name>
     <message>
         <source>Wrap Component in Loader</source>
         <translation>Loader で Component をラップする</translation>
@@ -44408,7 +44367,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSEditorWidget</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Show Qt Quick ToolBar</source>
         <translation>Qt Quick ツールバーを表示します</translation>
@@ -44430,9 +44389,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Refactoring</source>
         <translation>リファクタリング</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSEditorDocumentPrivate</name>
     <message>
         <source>This file should only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation>このファイルは&lt;b&gt;デザイン&lt;/b&gt;モードでのみ編集することを推奨します。</translation>
@@ -44441,9 +44397,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Switch Mode</source>
         <translation>モード切替</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSHoverHandler</name>
     <message>
         <source>Library at %1</source>
         <translation>%1 のライブラリ</translation>
@@ -47335,23 +47288,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJsEditingSettingsPage</name>
-    <message>
-        <source>Qt Quick Toolbars</source>
-        <translation>Qt Quick ツールバー</translation>
-    </message>
-    <message>
-        <source>If enabled, the toolbar will remain pinned to an absolute position.</source>
-        <translation>有効になっている場合、ツールバーは絶対位置に固定されたままになります。</translation>
-    </message>
-    <message>
-        <source>Pin Qt Quick Toolbar</source>
-        <translation>Qt Quick ツールバーを固定する</translation>
-    </message>
-    <message>
-        <source>Always show Qt Quick Toolbar</source>
-        <translation>常に Qt Quick ツールバーを表示する</translation>
-    </message>
+    <name>QmlJSEditor</name>
     <message>
         <source>Automatic Formatting on File Save</source>
         <translation>ファイル保存時に自動的に整形する</translation>
@@ -54485,40 +54422,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::QmlJSEditorWidget</name>
-    <message>
-        <source>Show Qt Quick ToolBar</source>
-        <translation>Qt Quick ツールバーを表示します</translation>
-    </message>
-    <message>
-        <source>Code Model Not Available</source>
-        <translation>コードモデル利用不能</translation>
-    </message>
-    <message>
-        <source>Code model not available.</source>
-        <translation>コードモデルが見つかりません。</translation>
-    </message>
-    <message>
-        <source>Code Model of %1</source>
-        <translation>%1 のコードモデル</translation>
-    </message>
-    <message>
-        <source>Refactoring</source>
-        <translation>リファクタリング</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::QmlJSEditorDocument</name>
-    <message>
-        <source>This file should only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
-        <translation>このファイルは&lt;b&gt;デザイン&lt;/b&gt;モードでのみ編集することを推奨します。</translation>
-    </message>
-    <message>
-        <source>Switch Mode</source>
-        <translation>モード切替</translation>
-    </message>
-</context>
-<context>
     <name>QmlJSHoverHandler</name>
     <message>
         <source>Library at %1</source>
@@ -54541,7 +54444,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QmlJS Code Model Marks</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Code Model Warning</source>
         <translation type="unfinished">コードモデルの警告</translation>

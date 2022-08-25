@@ -24590,11 +24590,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSTextEditor</name>
-    <message>
-        <source>Show Qt Quick ToolBar</source>
-        <translation type="obsolete">显示Qt Quick工具栏</translation>
-    </message>
+    <name>QmlJSEditor</name>
     <message>
         <source>Rename...</source>
         <translation type="obsolete">重命名...</translation>
@@ -24604,14 +24600,6 @@ Ids must begin with a lowercase letter.</source>
         <translation type="obsolete">新ID:</translation>
     </message>
     <message>
-        <source>Unused variable</source>
-        <translation type="obsolete">未使用的变量</translation>
-    </message>
-    <message>
-        <source>Refactoring</source>
-        <translation type="obsolete">重构</translation>
-    </message>
-    <message>
         <source>Rename id &apos;%1&apos;...</source>
         <translation type="obsolete">重命名ID &apos;%1&apos; ...</translation>
     </message>
@@ -24619,9 +24607,6 @@ Ids must begin with a lowercase letter.</source>
         <source>&lt;Select Symbol&gt;</source>
         <translation type="obsolete">&lt;选择符号&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSEditorFactory</name>
     <message>
         <source>Enable Qt Quick Designer</source>
         <translation type="obsolete">启用Qt Quick 设计器</translation>
@@ -24650,9 +24635,6 @@ Ids must begin with a lowercase letter.</source>
         <source>Please restart Qt Creator to make the change effective.</source>
         <translation type="obsolete">请重新启动Qt Creator使配置生效.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
     <message>
         <source>Creates a Qt QML file.</source>
         <translation type="obsolete">创建一个Qt QML 文件.</translation>
@@ -24721,9 +24703,6 @@ Ids must begin with a lowercase letter.</source>
         <source>Show Qt Quick Toolbar</source>
         <translation>显示Qt Quick工具栏</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::HoverHandler</name>
     <message>
         <source>Unfiltered</source>
         <translation type="obsolete">未过滤</translation>
@@ -24741,9 +24720,6 @@ Ids must begin with a lowercase letter.</source>
         <source>Read typeinfo files successfully.</source>
         <translation>读取typeinfo文件成功。</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::ModelManager</name>
     <message>
         <source>Indexing</source>
         <translation type="obsolete">索引中</translation>
@@ -26444,7 +26420,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSPreviewRunner</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Failed to preview Qt Quick file</source>
         <translation>预览Qt Quick文件失败</translation>
@@ -27911,7 +27887,7 @@ Id必须以小写字母开头。</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QuickToolBarSettingsPage</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Form</source>
         <translation>界面</translation>
@@ -29709,7 +29685,7 @@ import QtQuick 1.0 use import Qt 4.7 instead</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::ComponentFromObjectDef</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Move Component into separate file</source>
         <translation type="obsolete">将组件移到独立文件中</translation>
@@ -29722,9 +29698,6 @@ import QtQuick 1.0 use import Qt 4.7 instead</source>
         <source>Move Component into Separate File</source>
         <translation>将组件移到独立文件中</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::ComponentNameDialog</name>
     <message>
         <source>Choose a path</source>
         <translation>选择路径</translation>
@@ -29736,10 +29709,6 @@ import QtQuick 1.0 use import Qt 4.7 instead</source>
     <message>
         <source>Invalid path</source>
         <translation>非法路径</translation>
-    </message>
-    <message>
-        <source>Move Component into Separate File</source>
-        <translation>将组件移到独立文件中</translation>
     </message>
     <message>
         <source>Path:</source>
@@ -29758,7 +29727,7 @@ import QtQuick 1.0 use import Qt 4.7 instead</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::FindReferences</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>QML/JS Usages:</source>
         <translation>QML/JS 使用:</translation>
@@ -29767,16 +29736,10 @@ import QtQuick 1.0 use import Qt 4.7 instead</source>
         <source>Searching</source>
         <translation>搜索中</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineWidget</name>
     <message>
         <source>Show All Bindings</source>
         <translation>显示所有绑定</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QuickFix</name>
     <message>
         <source>Split initializer</source>
         <translation type="obsolete">分离初始化</translation>
@@ -34471,25 +34434,14 @@ QML component instance objects and properties directly.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::JsFileWizard</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>New %1</source>
         <translation>新建 %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QmlJSTextEditorWidget</name>
     <message>
         <source>Show Qt Quick ToolBar</source>
         <translation>显示Qt Quick工具栏</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation type="obsolete">重命名...</translation>
-    </message>
-    <message>
-        <source>New id:</source>
-        <translation type="obsolete">新ID:</translation>
     </message>
     <message>
         <source>Unused variable</source>
@@ -34500,26 +34452,12 @@ QML component instance objects and properties directly.</source>
         <translation>重构</translation>
     </message>
     <message>
-        <source>Rename id &apos;%1&apos;...</source>
-        <translation type="obsolete">重命名ID &apos;%1&apos; ...</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineTreeView</name>
-    <message>
         <source>Expand All</source>
         <translation>展开全部</translation>
     </message>
     <message>
         <source>Collapse All</source>
         <translation>折叠全部</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSSnippetProvider</name>
-    <message>
-        <source>QML</source>
-        <translation>QML</translation>
     </message>
 </context>
 <context>
@@ -48228,14 +48166,11 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::AddAnalysisMessageSuppressionComment</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Add a Comment to Suppress This Message</source>
         <translation>添加一个说明掩盖此消息</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::Operation</name>
     <message>
         <source>Wrap Component in Loader</source>
         <translation>在加载器中包含组件</translation>

@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "qmljswrapinloader.h"
+#include "qmljseditortr.h"
 #include "qmljsquickfixassist.h"
+#include "qmljswrapinloader.h"
 
 #include <coreplugin/idocument.h>
 
@@ -73,7 +74,7 @@ public:
     {
         Q_ASSERT(m_objDef);
 
-        setDescription(tr("Wrap Component in Loader"));
+        setDescription(Tr::tr("Wrap Component in Loader"));
     }
 
     QString findFreeName(const QString &base)
@@ -113,11 +114,11 @@ public:
         FindIds::Result innerIds = FindIds()(m_objDef);
         innerIds.remove(id);
 
-        QString comment = tr("// TODO: Move position bindings from the component to the Loader.\n"
+        QString comment = Tr::tr("// TODO: Move position bindings from the component to the Loader.\n"
                              "//       Check all uses of 'parent' inside the root element of the component.")
                           + QLatin1Char('\n');
         if (idBinding) {
-            comment += tr("//       Rename all outer uses of the id \"%1\" to \"%2.item\".").arg(
+            comment += Tr::tr("//       Rename all outer uses of the id \"%1\" to \"%2.item\".").arg(
                         id, loaderId) + QLatin1Char('\n');
         }
 
@@ -125,7 +126,7 @@ public:
         QString innerIdForwarders;
         for (auto it = innerIds.cbegin(), end = innerIds.cend(); it != end; ++it) {
             const QString innerId = it.key();
-            comment += tr("//       Rename all outer uses of the id \"%1\" to \"%2.item.%1\".\n").arg(
+            comment += Tr::tr("//       Rename all outer uses of the id \"%1\" to \"%2.item.%1\".\n").arg(
                         innerId, loaderId);
             changes.replace(it.value().begin(), it.value().end(), QString::fromLatin1("inner_%1").arg(innerId));
             innerIdForwarders += QString::fromLatin1("\nproperty alias %1: inner_%1").arg(innerId);

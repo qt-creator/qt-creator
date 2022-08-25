@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "qmljsoutline.h"
-#include "qmloutlinemodel.h"
 #include "qmljseditor.h"
+#include "qmljseditortr.h"
+#include "qmljsoutline.h"
 #include "qmljsoutlinetreeview.h"
+#include "qmloutlinemodel.h"
 
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icore.h>
@@ -113,7 +114,7 @@ QmlJSOutlineWidget::QmlJSOutlineWidget(QWidget *parent)
     layout->addWidget(Core::ItemViewFind::createSearchableWrapper(m_treeView));
 
     m_showBindingsAction = new QAction(this);
-    m_showBindingsAction->setText(tr("Show All Bindings"));
+    m_showBindingsAction->setText(Tr::tr("Show All Bindings"));
     m_showBindingsAction->setCheckable(true);
     m_showBindingsAction->setChecked(true);
     connect(m_showBindingsAction, &QAction::toggled, this, &QmlJSOutlineWidget::setShowBindings);

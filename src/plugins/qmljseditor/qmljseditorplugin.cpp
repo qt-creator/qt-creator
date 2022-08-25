@@ -6,6 +6,7 @@
 #include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
 #include "qmljseditorplugin.h"
+#include "qmljseditortr.h"
 #include "qmljshighlighter.h"
 #include "qmljsoutline.h"
 #include "qmljsquickfixassist.h"
@@ -109,7 +110,7 @@ bool QmlJSEditorPlugin::initialize(const QStringList &arguments, QString *errorM
 QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
 {
     TextEditor::SnippetProvider::registerGroup(Constants::QML_SNIPPETS_GROUP_ID,
-                                               QmlJSEditorPlugin::tr("QML", "SnippetProvider"),
+                                               Tr::tr("QML", "SnippetProvider"),
                                                &QmlJSEditorFactory::decorateEditor);
 
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
@@ -148,20 +149,20 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
     contextMenu->addAction(cmd);
     qmlToolsMenu->addAction(cmd);
 
-    QAction *semanticScan = new QAction(QmlJSEditorPlugin::tr("Run Checks"), this);
+    QAction *semanticScan = new QAction(Tr::tr("Run Checks"), this);
     cmd = ActionManager::registerAction(semanticScan, Id("QmlJSEditor.RunSemanticScan"));
-    cmd->setDefaultKeySequence(QKeySequence(QmlJSEditorPlugin::tr("Ctrl+Shift+C")));
+    cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Shift+C")));
     connect(semanticScan, &QAction::triggered, this, &QmlJSEditorPluginPrivate::runSemanticScan);
     qmlToolsMenu->addAction(cmd);
 
-    m_reformatFileAction = new QAction(QmlJSEditorPlugin::tr("Reformat File"), this);
+    m_reformatFileAction = new QAction(Tr::tr("Reformat File"), this);
     cmd = ActionManager::registerAction(m_reformatFileAction,
                                         Id("QmlJSEditor.ReformatFile"),
                                         context);
     connect(m_reformatFileAction, &QAction::triggered, this, &QmlJSEditorPluginPrivate::reformatFile);
     qmlToolsMenu->addAction(cmd);
 
-    QAction *inspectElementAction = new QAction(QmlJSEditorPlugin::tr("Inspect API for Element Under Cursor"), this);
+    QAction *inspectElementAction = new QAction(Tr::tr("Inspect API for Element Under Cursor"), this);
     cmd = ActionManager::registerAction(inspectElementAction,
                                         Id("QmlJSEditor.InspectElementUnderCursor"),
                                         context);
@@ -171,7 +172,7 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
     });
     qmlToolsMenu->addAction(cmd);
 
-    QAction *showQuickToolbar = new QAction(QmlJSEditorPlugin::tr("Show Qt Quick Toolbar"), this);
+    QAction *showQuickToolbar = new QAction(Tr::tr("Show Qt Quick Toolbar"), this);
     cmd = ActionManager::registerAction(showQuickToolbar, Constants::SHOW_QT_QUICK_HELPER, context);
     cmd->setDefaultKeySequence(useMacShortcuts ? QKeySequence(Qt::META | Qt::ALT | Qt::Key_Space)
                                                : QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Space));
@@ -204,8 +205,8 @@ void QmlJSEditorPlugin::extensionsInitialized()
     FileIconProvider::registerIconOverlayForMimeType(ProjectExplorer::Constants::FILEOVERLAY_UI,
                                                      "application/x-qt.ui+qml");
 
-    TaskHub::addCategory(Constants::TASK_CATEGORY_QML, tr("QML"));
-    TaskHub::addCategory(Constants::TASK_CATEGORY_QML_ANALYSIS, tr("QML Analysis"), false);
+    TaskHub::addCategory(Constants::TASK_CATEGORY_QML, Tr::tr("QML"));
+    TaskHub::addCategory(Constants::TASK_CATEGORY_QML_ANALYSIS, Tr::tr("QML Analysis"), false);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlJSEditorPlugin::aboutToShutdown()

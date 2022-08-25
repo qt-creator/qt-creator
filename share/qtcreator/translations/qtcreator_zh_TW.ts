@@ -14336,7 +14336,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Creates a QML file.</source>
         <translation>建立一個 QML 檔案。</translation>
@@ -14397,9 +14397,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Show Qt Quick Toolbar</source>
         <translation>顯示 Qt Quick 工具列</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::HoverHandler</name>
     <message>
         <source>Library at %1</source>
         <translation>在 %1 的函式庫</translation>
@@ -15016,7 +15013,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSPreviewRunner</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Failed to preview Qt Quick file</source>
         <translation>預覽 Qt Quick 檔案失敗</translation>
@@ -16032,7 +16029,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QuickToolBarSettingsPage</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -17420,7 +17417,7 @@ instead of its installation directory when run outside git bash.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::ComponentFromObjectDef</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Move Component into separate file</source>
         <translation type="obsolete">將組件移到分離的檔案中</translation>
@@ -17429,9 +17426,6 @@ instead of its installation directory when run outside git bash.</source>
         <source>Move Component into Separate File</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::ComponentNameDialog</name>
     <message>
         <source>Choose a path</source>
         <translation>選擇路徑</translation>
@@ -17461,13 +17455,6 @@ instead of its installation directory when run outside git bash.</source>
         <translation type="obsolete">選擇...</translation>
     </message>
     <message>
-        <source>Move Component into Separate File</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::FindReferences</name>
-    <message>
         <source>QML/JS Usages:</source>
         <translation>QML/JS 用法：</translation>
     </message>
@@ -17475,16 +17462,10 @@ instead of its installation directory when run outside git bash.</source>
         <source>Searching</source>
         <translation>搜尋中</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineWidget</name>
     <message>
         <source>Show All Bindings</source>
         <translation>顯示所有綁定</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QuickFix</name>
     <message>
         <source>Split initializer</source>
         <translation type="obsolete">分割初始器</translation>
@@ -20973,14 +20954,11 @@ QML component instance objects and properties directly.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::JsFileWizard</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>New %1</source>
         <translation>新增 %1 </translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QmlJSTextEditorWidget</name>
     <message>
         <source>Show Qt Quick ToolBar</source>
         <translation>顯示 Qt Quick 工具列</translation>
@@ -20993,9 +20971,6 @@ QML component instance objects and properties directly.</source>
         <source>Refactoring</source>
         <translation>重構中</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>全部展開</translation>
@@ -21003,13 +20978,6 @@ QML component instance objects and properties directly.</source>
     <message>
         <source>Collapse All</source>
         <translation>全部摺疊</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSSnippetProvider</name>
-    <message>
-        <source>QML</source>
-        <translation>QML</translation>
     </message>
 </context>
 <context>
@@ -29246,7 +29214,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::AddAnalysisMessageSuppressionComment</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Add a comment to suppress this message</source>
         <translation type="obsolete">新增註解以抑制此訊息</translation>
@@ -29255,9 +29223,6 @@ Do you want to kill it?</source>
         <source>Add a Comment to Suppress This Message</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::Operation</name>
     <message>
         <source>Wrap Component in Loader</source>
         <translation type="unfinished"></translation>

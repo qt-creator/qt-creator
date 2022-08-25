@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "qmljshoverhandler.h"
+#include "qmlexpressionundercursor.h"
 #include "qmljseditor.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
-#include "qmlexpressionundercursor.h"
+#include "qmljseditortr.h"
+#include "qmljshoverhandler.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -342,14 +343,14 @@ void QmlJSHoverHandler::handleImport(const ScopeChain &scopeChain, AST::UiImport
         if (import.info.ast() == node) {
             if (import.info.type() == ImportType::Library
                     && !import.libraryPath.isEmpty()) {
-                QString msg = tr("Library at %1").arg(import.libraryPath.toString());
+                QString msg = Tr::tr("Library at %1").arg(import.libraryPath.toString());
                 const LibraryInfo &libraryInfo = scopeChain.context()->snapshot().libraryInfo(import.libraryPath);
                 if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::DumpDone) {
                     msg += QLatin1Char('\n');
-                    msg += tr("Dumped plugins successfully.");
+                    msg += Tr::tr("Dumped plugins successfully.");
                 } else if (libraryInfo.pluginTypeInfoStatus() == LibraryInfo::TypeInfoFileDone) {
                     msg += QLatin1Char('\n');
-                    msg += tr("Read typeinfo files successfully.");
+                    msg += Tr::tr("Read typeinfo files successfully.");
                 }
                 setToolTip(msg);
             } else {

@@ -32435,17 +32435,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::ComponentFromObjectDef</name>
-    <message>
-        <source>Move Component into Separate File</source>
-        <translatorcomment> </translatorcomment>
-        <translation>Flyt komponent ind i separat fil</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::FindReferences</name>
     <message>
         <source>QML/JS Usages:</source>
         <translation>QML/JS-anvendelser:</translation>
@@ -32454,9 +32443,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <source>Searching for Usages</source>
         <translation>Søger efter anvendelser</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::ComponentNameDialog</name>
     <message>
         <source>Move Component into Separate File</source>
         <translation>Flyt komponent ind i separat fil</translation>
@@ -32493,9 +32479,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <source>ui.qml file</source>
         <translation>ui.qml-fil</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::Operation</name>
     <message>
         <source>Wrap Component in Loader</source>
         <translation>Svøb komponent i indlæser</translation>
@@ -32516,9 +32499,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <translation>//       Omdøb alle ydre brugere af id&apos;et &quot;%1&quot; til &quot;%2.punkt.%1&quot;.
 </translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSEditorDocumentPrivate</name>
     <message>
         <source>This file should only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation>Denne fil bør kun redigeres i &lt;b&gt;Design&lt;/b&gt;-tilstand.</translation>
@@ -32527,9 +32507,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <source>Switch Mode</source>
         <translation>Skift tilstand</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
     <message>
         <source>QML</source>
         <comment>SnippetProvider</comment>
@@ -32579,9 +32556,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <source>QML Analysis</source>
         <translation>QML-analyse</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSEditorWidget</name>
     <message>
         <source>Show Qt Quick ToolBar</source>
         <translation>Vis Qt Quick-værktøjslinje</translation>
@@ -32602,9 +32576,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <source>Refactoring</source>
         <translation>Genfaktoring</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>Udfold alle</translation>
@@ -32613,16 +32584,10 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <source>Collapse All</source>
         <translation>Sammenfold alle</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineWidget</name>
     <message>
         <source>Show All Bindings</source>
         <translation>Vis alle bindinger</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSPreviewRunner</name>
     <message>
         <source>No file specified.</source>
         <translation>Ingen fil angivet.</translation>
@@ -32637,9 +32602,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <translation>Kunne ikke forhåndsvise Qt Quick-fil (QML). Årsag:
 %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJsEditingSettingsPage</name>
     <message>
         <source>Qt Quick Toolbars</source>
         <translation>Qt Quick-værktøjslinjer</translation>
@@ -32672,9 +32634,6 @@ Se &quot;Checking Code Syntax&quot;-dokumentation for mere information.</transla
         <source>QML/JS Editing</source>
         <translation>QML/JS-redigering</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QuickFix</name>
     <message>
         <source>Split Initializer</source>
         <translation>Opdel initialiserer</translation>
@@ -44140,7 +44099,7 @@ Vil du overskrive dem?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS Code Model Marks</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Code Model Warning</source>
         <translation>Kodemodel advarsel</translation>

@@ -12043,7 +12043,7 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Rename Symbol Under Cursor</source>
         <translation>Zmień nazwę symbolu pod kursorem</translation>
@@ -12523,7 +12523,7 @@ które można ustawić poniżej.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSPreviewRunner</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>No file specified.</source>
         <translation>Nie podano pliku.</translation>
@@ -13759,14 +13759,11 @@ zamiast w jego katalogu instalacyjnym.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::ComponentFromObjectDef</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Move Component into Separate File</source>
         <translation>Przenieś komponent do oddzielnego pliku</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::ComponentNameDialog</name>
     <message>
         <source>Property assignments for %1:</source>
         <translation>Przypisanie właściwości dla %1:</translation>
@@ -13778,10 +13775,6 @@ zamiast w jego katalogu instalacyjnym.</translation>
     <message>
         <source>Invalid path</source>
         <translation>Niepoprawna ścieżka</translation>
-    </message>
-    <message>
-        <source>Move Component into Separate File</source>
-        <translation>Przenieś komponent do oddzielnego pliku</translation>
     </message>
     <message>
         <source>Path:</source>
@@ -13803,9 +13796,6 @@ zamiast w jego katalogu instalacyjnym.</translation>
         <source>ui.qml file</source>
         <translation>plik ui.qml</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::FindReferences</name>
     <message>
         <source>QML/JS Usages:</source>
         <translation>Użycia QML/JS:</translation>
@@ -13814,9 +13804,6 @@ zamiast w jego katalogu instalacyjnym.</translation>
         <source>Searching for Usages</source>
         <translation>Wyszukiwanie użyć</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QuickFix</name>
     <message>
         <source>Split Initializer</source>
         <translation>Podziel inicjalizator</translation>
@@ -14124,7 +14111,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineWidget</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Show All Bindings</source>
         <translation>Pokaż wszystkie powiązania</translation>
@@ -16183,7 +16170,7 @@ Ponowić próbę?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineTreeView</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Expand All</source>
         <translation>Rozwiń wszystko</translation>
@@ -22612,14 +22599,11 @@ were not verified among remotes in %3. Select different folder?</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::AddAnalysisMessageSuppressionComment</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Add a Comment to Suppress This Message</source>
         <translation>Dodaj komentarz aby zlikwidować ten komunikat</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::Operation</name>
     <message>
         <source>Wrap Component in Loader</source>
         <translation type="unfinished"></translation>
@@ -33706,7 +33690,7 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSEditorWidget</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Show Qt Quick ToolBar</source>
         <translation>Pokaż pasek narzędzi Qt Quick</translation>
@@ -37096,7 +37080,7 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSEditorDocumentPrivate</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>This file should only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation>Ten plik powinien być modyfikowany jedynie w trybie &lt;b&gt;Design&lt;/b&gt;.</translation>
@@ -41697,7 +41681,7 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJsEditingSettingsPage</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>

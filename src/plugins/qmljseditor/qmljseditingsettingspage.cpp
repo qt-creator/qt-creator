@@ -3,6 +3,7 @@
 
 #include "qmljseditingsettingspage.h"
 #include "qmljseditorconstants.h"
+#include "qmljseditortr.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -140,22 +141,22 @@ public:
     QmlJsEditingSettingsPageWidget()
     {
         auto s = QmlJsEditingSettings::get();
-        autoFormatOnSave = new QCheckBox(tr("Enable auto format on file save"));
+        autoFormatOnSave = new QCheckBox(Tr::tr("Enable auto format on file save"));
         autoFormatOnSave->setChecked(s.autoFormatOnSave());
         autoFormatOnlyCurrentProject =
-                new QCheckBox(tr("Restrict to files contained in the current project"));
+                new QCheckBox(Tr::tr("Restrict to files contained in the current project"));
         autoFormatOnlyCurrentProject->setChecked(s.autoFormatOnlyCurrentProject());
         autoFormatOnlyCurrentProject->setEnabled(autoFormatOnSave->isChecked());
-        pinContextPane = new QCheckBox(tr("Pin Qt Quick Toolbar"));
+        pinContextPane = new QCheckBox(Tr::tr("Pin Qt Quick Toolbar"));
         pinContextPane->setChecked(s.pinContextPane());
-        enableContextPane = new QCheckBox(tr("Always show Qt Quick Toolbar"));
+        enableContextPane = new QCheckBox(Tr::tr("Always show Qt Quick Toolbar"));
         enableContextPane->setChecked(s.enableContextPane());
-        foldAuxData = new QCheckBox(tr("Auto-fold auxiliary data"));
+        foldAuxData = new QCheckBox(Tr::tr("Auto-fold auxiliary data"));
         foldAuxData->setChecked(s.foldAuxData());
         uiQmlOpenComboBox = new QComboBox;
-        uiQmlOpenComboBox->addItem(tr("Always Ask"), "");
-        uiQmlOpenComboBox->addItem(tr("Qt Design Studio"), Core::Constants::MODE_DESIGN);
-        uiQmlOpenComboBox->addItem(tr("Qt Creator"), Core::Constants::MODE_EDIT);
+        uiQmlOpenComboBox->addItem(Tr::tr("Always Ask"), "");
+        uiQmlOpenComboBox->addItem(Tr::tr("Qt Design Studio"), Core::Constants::MODE_DESIGN);
+        uiQmlOpenComboBox->addItem(Tr::tr("Qt Creator"), Core::Constants::MODE_EDIT);
         const int comboIndex = qMax(0, uiQmlOpenComboBox->findData(s.uiQmlOpenMode()));
         uiQmlOpenComboBox->setCurrentIndex(comboIndex);
         uiQmlOpenComboBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
@@ -164,18 +165,18 @@ public:
         using namespace Utils::Layouting;
         Column {
             Group {
-                title(tr("Automatic Formatting on File Save")),
+                title(Tr::tr("Automatic Formatting on File Save")),
                 Column { autoFormatOnSave, autoFormatOnlyCurrentProject },
             },
             Group {
-                title(tr("Qt Quick Toolbars")),
+                title(Tr::tr("Qt Quick Toolbars")),
                 Column { pinContextPane, enableContextPane },
             },
             Group {
-                title(tr("Features")),
+                title(Tr::tr("Features")),
                 Column {
                     foldAuxData,
-                    Form { tr("Open .ui.qml files with:"), uiQmlOpenComboBox },
+                    Form { Tr::tr("Open .ui.qml files with:"), uiQmlOpenComboBox },
                 },
             },
             st,
@@ -217,7 +218,7 @@ QmlJsEditingSettings QmlJsEditingSettings::get()
 QmlJsEditingSettingsPage::QmlJsEditingSettingsPage()
 {
     setId("C.QmlJsEditing");
-    setDisplayName(QmlJsEditingSettingsPageWidget::tr("QML/JS Editing"));
+    setDisplayName(Tr::tr("QML/JS Editing"));
     setCategory(Constants::SETTINGS_CATEGORY_QML);
     setWidgetCreator([] { return new QmlJsEditingSettingsPageWidget; });
 }

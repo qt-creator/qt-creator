@@ -7991,10 +7991,6 @@ Rebuilding the project might help.</source>
         <translation>%1 - Помилка</translation>
     </message>
     <message>
-        <source>Switch mode</source>
-        <translation type="vanished">Перемкнути режим</translation>
-    </message>
-    <message>
         <source>Switch Source/Form</source>
         <translation>Перемкнути код/форма</translation>
     </message>
@@ -17961,9 +17957,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::FindReferences</name>
     <message>
         <source>QML/JS Usages:</source>
         <translation>Вживання QML/JS:</translation>
@@ -17976,9 +17969,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Searching</source>
         <translation type="vanished">Пошук</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::ComponentNameDialog</name>
     <message>
         <source>Choose a path</source>
         <translation>Виберіть шлях</translation>
@@ -18003,16 +17993,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Move Component into Separate File</source>
         <translation>Перенести компонент в окремий файл</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::HoverHandler</name>
-    <message>
-        <source>Library at %1</source>
-        <translation type="vanished">Бібліотека в %1</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
     <message>
         <source>JS File</source>
         <translation type="vanished">Файл JS</translation>
@@ -18069,9 +18049,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>QML Analysis</source>
         <translation>Аналіз QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>Розгорнути все</translation>
@@ -18080,16 +18057,10 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Collapse All</source>
         <translation>Згорнути все</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineWidget</name>
     <message>
         <source>Show All Bindings</source>
         <translation>Показати усі прив&apos;язки</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSPreviewRunner</name>
     <message>
         <source>No file specified.</source>
         <translation>Файл не вказано.</translation>
@@ -18104,16 +18075,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <translation>Не вдалось здійснити попередній перегляд файлу Qt Quick (QML). Причина:
 %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSSnippetProvider</name>
-    <message>
-        <source>QML</source>
-        <translation>QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QuickToolBarSettingsPage</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
@@ -18138,19 +18099,9 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Pin Qt Quick Toolbar</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::JsFileWizard</name>
     <message>
         <source>New %1</source>
         <translation type="vanished">Новий %1</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::QmlJSTextEditorWidget</name>
-    <message>
-        <source>Show Qt Quick ToolBar</source>
-        <translation type="vanished">Показати панель інструментів Qt Quick</translation>
     </message>
     <message>
         <source>Unused variable</source>
@@ -27814,7 +27765,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::Operation</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Wrap Component in Loader</source>
         <translation type="unfinished"></translation>
@@ -32961,21 +32912,11 @@ Remote stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::ComponentFromObjectDef</name>
-    <message>
-        <source>Move Component into Separate File</source>
-        <translation>Перенести компонент в окремий файл</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::QuickFix</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Split Initializer</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::AddAnalysisMessageSuppressionComment</name>
     <message>
         <source>Add a Comment to Suppress This Message</source>
         <translation>Додайте коментар, щоб відключити це повідомлення</translation>
@@ -42076,17 +42017,6 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSTextEditorWidget</name>
-    <message>
-        <source>Show Qt Quick ToolBar</source>
-        <translation type="vanished">Показати панель інструментів Qt Quick</translation>
-    </message>
-    <message>
-        <source>Refactoring</source>
-        <translation type="vanished">Рефакторинг</translation>
-    </message>
-</context>
-<context>
     <name>QmlProfiler</name>
     <message>
         <source>&lt;bytecode&gt;</source>
@@ -47393,7 +47323,7 @@ The files in the Android package source directory are copied to the build direct
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSEditorWidget</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Show Qt Quick ToolBar</source>
         <translation>Показати панель інструментів Qt Quick</translation>
@@ -47414,17 +47344,6 @@ The files in the Android package source directory are copied to the build direct
         <source>Refactoring</source>
         <translation>Рефакторинг</translation>
     </message>
-    <message>
-        <source>This file should only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
-        <translation type="vanished">Це файл можна редагувати лише в режимі &lt;b&gt;дизайну&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>Switch Mode</source>
-        <translation type="vanished">Перемкнути режим</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSHoverHandler</name>
     <message>
         <source>Library at %1</source>
         <translation>Бібліотека в %1</translation>
@@ -51341,7 +51260,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSEditorDocumentPrivate</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>This file should only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation>Це файл можна редагувати лише в режимі &lt;b&gt;дизайну&lt;/b&gt;.</translation>

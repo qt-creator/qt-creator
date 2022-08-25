@@ -28048,11 +28048,7 @@ Merci de vérifier vos paramètres de projet.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSTextEditor</name>
-    <message>
-        <source>Show Qt Quick ToolBar</source>
-        <translation type="obsolete">Montrer la barre d&apos;outils Qt Quick</translation>
-    </message>
+    <name>QmlJSEditor</name>
     <message>
         <source>Rename...</source>
         <translation type="obsolete">Renommer...</translation>
@@ -28062,14 +28058,6 @@ Merci de vérifier vos paramètres de projet.</translation>
         <translation type="obsolete">Nouvel identifiant :</translation>
     </message>
     <message>
-        <source>Unused variable</source>
-        <translation type="obsolete">Variable inutilisée</translation>
-    </message>
-    <message>
-        <source>Refactoring</source>
-        <translation type="obsolete">Refactoriser</translation>
-    </message>
-    <message>
         <source>Rename id &apos;%1&apos;...</source>
         <translation type="obsolete">Renommer l&apos;identifiant &quot;%1&quot;...</translation>
     </message>
@@ -28077,9 +28065,6 @@ Merci de vérifier vos paramètres de projet.</translation>
         <source>&lt;Select Symbol&gt;</source>
         <translation type="obsolete">&lt;Selectionner un symbole&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSEditorFactory</name>
     <message>
         <source>Do you want to enable the experimental Qt Quick Designer?</source>
         <translation type="obsolete">Voulez-vous activer le designer expérimental pour Qt Quick ?</translation>
@@ -28116,9 +28101,6 @@ Merci de vérifier vos paramètres de projet.</translation>
         <source>Please restart Qt Creator to make the change effective.</source>
         <translation type="obsolete">Veuillez redémarrer Qt Creator pour rendre les changements actifs.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
     <message>
         <source>Creates a Qt QML file.</source>
         <translation type="obsolete">Créer un fichier QML.</translation>
@@ -28126,10 +28108,6 @@ Merci de vérifier vos paramètres de projet.</translation>
     <message>
         <source>Qt QML File</source>
         <translation type="obsolete">Fichier QML</translation>
-    </message>
-    <message>
-        <source>Qt Quick</source>
-        <translation type="obsolete">Qt Quick</translation>
     </message>
     <message>
         <source>Ctrl+Alt+R</source>
@@ -28211,9 +28189,6 @@ Merci de vérifier vos paramètres de projet.</translation>
         <source>Show Qt Quick Toolbar</source>
         <translation>Montrer la barre d&apos;outils Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::HoverHandler</name>
     <message>
         <source>Unfiltered</source>
         <translation type="obsolete">Sans filtre</translation>
@@ -28230,9 +28205,6 @@ Merci de vérifier vos paramètres de projet.</translation>
         <source>Read typeinfo files successfully.</source>
         <translation>Lecture du fichier typeinfo avec succès.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::ModelManager</name>
     <message>
         <source>Indexing</source>
         <translation type="obsolete">Indexation</translation>
@@ -28248,9 +28220,6 @@ Erreurs :
 %1
 </translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSPreviewRunner</name>
     <message>
         <source>No file specified.</source>
         <translation>Aucun fichier spécifié.</translation>
@@ -29467,7 +29436,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QuickToolBarSettingsPage</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -31272,7 +31241,7 @@ utilisez import Qt 4.7 au lieu de import QtQuick 1.0</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::ComponentFromObjectDef</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Move Component into separate file</source>
         <translatorcomment>déplacer ou déplace ? John : Difficle sans context, allons pour déplace. dourouc : en voyant l&apos;autre, le contexte doit être fort semblable, donc indicatif. </translatorcomment>
@@ -31286,9 +31255,6 @@ utilisez import Qt 4.7 au lieu de import QtQuick 1.0</translation>
         <source>Move Component into Separate File</source>
         <translation>Déplace le composant dans un fichier séparé</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::ComponentNameDialog</name>
     <message>
         <source>Choose a path</source>
         <translation>Choisir un chemin</translation>
@@ -31317,10 +31283,6 @@ utilisez import Qt 4.7 au lieu de import QtQuick 1.0</translation>
         <source>Choose...</source>
         <translation type="obsolete">Choisir...</translation>
     </message>
-    <message>
-        <source>Move Component into Separate File</source>
-        <translation>Déplace le composant dans un fichier séparé</translation>
-    </message>
 </context>
 <context>
     <name>QmlJsEditor</name>
@@ -31330,7 +31292,7 @@ utilisez import Qt 4.7 au lieu de import QtQuick 1.0</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::FindReferences</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>QML/JS Usages:</source>
         <translation>Utilisations QML/JS :</translation>
@@ -31339,17 +31301,11 @@ utilisez import Qt 4.7 au lieu de import QtQuick 1.0</translation>
         <source>Searching</source>
         <translation>Recherche</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineWidget</name>
     <message>
         <source>Show All Bindings</source>
         <translatorcomment>myzu : faut-il traduire binding ? John : Non </translatorcomment>
         <translation>Montrer tous les bindings</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QuickFix</name>
     <message>
         <source>Split initializer</source>
         <translation type="obsolete">Fractionner l&apos;initialisation</translation>
@@ -36811,25 +36767,14 @@ QML component instance objects and properties directly.</source>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::JsFileWizard</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>New %1</source>
         <translation>Nouveau %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QmlJSTextEditorWidget</name>
     <message>
         <source>Show Qt Quick ToolBar</source>
         <translation>Montrer la barre d&apos;outils Qt Quick</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation type="obsolete">Renommer...</translation>
-    </message>
-    <message>
-        <source>New id:</source>
-        <translation type="obsolete">Nouvel identifiant :</translation>
     </message>
     <message>
         <source>Unused variable</source>
@@ -36840,26 +36785,12 @@ QML component instance objects and properties directly.</source>
         <translation>Refactoriser</translation>
     </message>
     <message>
-        <source>Rename id &apos;%1&apos;...</source>
-        <translation type="obsolete">Renommer l&apos;identifiant &quot;%1&quot;...</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineTreeView</name>
-    <message>
         <source>Expand All</source>
         <translation>Développer tout</translation>
     </message>
     <message>
         <source>Collapse All</source>
         <translation>Réduire tout</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSSnippetProvider</name>
-    <message>
-        <source>QML</source>
-        <translation>QML</translation>
     </message>
 </context>
 <context>
@@ -40652,10 +40583,6 @@ These files are preserved.</source>
     <message>
         <source>Code Style</source>
         <translation>Style de code</translation>
-    </message>
-    <message>
-        <source>Qt Quick</source>
-        <translation>Qt Quick</translation>
     </message>
 </context>
 <context>
@@ -47203,7 +47130,7 @@ Voulez-vous la tuer ?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::AddAnalysisMessageSuppressionComment</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Add a comment to suppress this message</source>
         <translation type="obsolete">Ajouter un commentaire pour supprimer ce message</translation>
@@ -47212,9 +47139,6 @@ Voulez-vous la tuer ?</translation>
         <source>Add a Comment to Suppress This Message</source>
         <translation>Ajouter un commentaire pour supprimer ce message</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::Operation</name>
     <message>
         <source>Wrap Component in Loader</source>
         <translatorcomment>wrap en &quot;enveloppez&quot; = bof ; Component et Loader en majuscule = correspond à des noms de modules ? (et ne pas traduire alors ?)</translatorcomment>

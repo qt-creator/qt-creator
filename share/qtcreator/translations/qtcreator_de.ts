@@ -9835,7 +9835,7 @@ Dies ist unabhängig vom Wert der Eigenschaft &quot;visible&quot; in QML.</trans
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Show Qt Quick Toolbar</source>
         <translation>Qt Quick-Werkzeugleiste anzeigen</translation>
@@ -11849,21 +11849,15 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::ComponentFromObjectDef</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Move Component into Separate File</source>
         <translation>Verschiebe Komponente in separate Datei</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineWidget</name>
     <message>
         <source>Show All Bindings</source>
         <translation>Alle Bindings anzeigen</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QuickFix</name>
     <message>
         <source>Split Initializer</source>
         <translation>Initalisierung aufspalten</translation>
@@ -12011,7 +12005,7 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::ComponentNameDialog</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Property assignments for %1:</source>
         <translation>Eigenschaftszuweisungen für %1:</translation>
@@ -12031,10 +12025,6 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     <message>
         <source>Path:</source>
         <translation>Pfad:</translation>
-    </message>
-    <message>
-        <source>Move Component into Separate File</source>
-        <translation>Verschiebe Komponente in separate Datei</translation>
     </message>
     <message>
         <source>Property assignments for</source>
@@ -12099,7 +12089,7 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::FindReferences</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>QML/JS Usages:</source>
         <translation>QML/JS Referenzen:</translation>
@@ -13021,7 +13011,7 @@ Soll es noch einmal versucht werden?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineTreeView</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Expand All</source>
         <translation>Alles aufklappen</translation>
@@ -18409,7 +18399,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::Operation</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Wrap Component in Loader</source>
         <translation>Komponente in Loader einbetten</translation>
@@ -37060,7 +37050,7 @@ Fehler: %5</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJsEditingSettingsPage</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Qt Quick Toolbars</source>
         <translation>Qt Quick-Werkzeugleisten</translation>
@@ -40810,7 +40800,7 @@ Breche ausstehende Operationen ab...
     </message>
 </context>
 <context>
-    <name>QmlJS Code Model Marks</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Code Model Warning</source>
         <translation>Codemodell-Warnung</translation>
@@ -47948,14 +47938,11 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>QmlDesigner::Internal::QmlJsEditingSettingsPage</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>QML/JS Editing</source>
         <translation>QML/JS-Bearbeitung</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QmlJSEditorWidget</name>
     <message>
         <source>Show Qt Quick ToolBar</source>
         <translation>Qt-Quick-Werkzeugleiste anzeigen</translation>
@@ -47976,9 +47963,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Refactoring</source>
         <translation>Refactoring</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QmlJSEditorDocument</name>
     <message>
         <source>This file should only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation>Diese Datei sollte nur im &lt;b&gt;Design&lt;/b&gt;-Modus bearbeitet werden.</translation>

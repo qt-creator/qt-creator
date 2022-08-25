@@ -1,6 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include "qmljseditortr.h"
 #include "qmljsfindreferences.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -992,7 +993,7 @@ void FindReferences::displayResults(int first, int last)
         Usage dummy = m_watcher.future().resultAt(0);
         const QString replacement = dummy.path.toString();
         const QString symbolName = dummy.lineText;
-        const QString label = tr("QML/JS Usages:");
+        const QString label = Tr::tr("QML/JS Usages:");
 
         if (replacement.isEmpty()) {
             m_currentSearch = SearchResultWindow::instance()->startNewSearch(
@@ -1014,7 +1015,7 @@ void FindReferences::displayResults(int first, int last)
         SearchResultWindow::instance()->popup(IOutputPane::Flags(IOutputPane::ModeSwitch | IOutputPane::WithFocus));
 
         FutureProgress *progress = ProgressManager::addTask(m_watcher.future(),
-                                                            tr("Searching for Usages"),
+                                                            Tr::tr("Searching for Usages"),
                                                             "QmlJSEditor.TaskSearch");
         connect(progress, &FutureProgress::clicked, m_currentSearch.data(), &SearchResult::popup);
 

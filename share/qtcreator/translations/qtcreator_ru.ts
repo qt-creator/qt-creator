@@ -39357,7 +39357,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
 </context>
 <context>
-    <name>QmlDesigner::Internal::QmlJsEditingSettingsPage</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>QML/JS Editing</source>
         <translation>Редактирование QML/JS</translation>
@@ -41189,7 +41189,7 @@ This is independent of the visibility property in QML.</source>
     </message>
 </context>
 <context>
-    <name>QmlJS Code Model Marks</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Code Model Warning</source>
         <translation>Предупреждение модели кода</translation>
@@ -41869,16 +41869,10 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <source>Qt Quick</source>
         <translation>Qt Quick</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::ComponentFromObjectDef</name>
     <message>
         <source>Move Component into Separate File</source>
         <translation>Переместить компоненту в отдельный файл</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::FindReferences</name>
     <message>
         <source>QML/JS Usages:</source>
         <translation>Использование QML/JS:</translation>
@@ -41887,9 +41881,6 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <source>Searching for Usages</source>
         <translation>Поиск использований</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::ComponentNameDialog</name>
     <message>
         <source>Property assignments for %1:</source>
         <translation>Назначение свойств для %1:</translation>
@@ -41911,10 +41902,6 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <translation>Путь:</translation>
     </message>
     <message>
-        <source>Move Component into Separate File</source>
-        <translation>Перемещение компоненты в отдельный файл</translation>
-    </message>
-    <message>
         <source>Property assignments for</source>
         <translation>Назначение свойств</translation>
     </message>
@@ -41926,9 +41913,6 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <source>ui.qml file</source>
         <translation>Файл ui.qml</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::Operation</name>
     <message>
         <source>Wrap Component in Loader</source>
         <translation>Выделить часть компонента в загрузчик</translation>
@@ -41950,9 +41934,6 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <translation>//       Переименовать все внешние использования id «%1» в «%2.item.%1».
 </translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
     <message>
         <source>QML</source>
         <comment>SnippetProvider</comment>
@@ -41986,9 +41967,6 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <source>QML Analysis</source>
         <translation>Анализ QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>Развернуть всё</translation>
@@ -41997,16 +41975,10 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <source>Collapse All</source>
         <translation>Свернуть всё</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineWidget</name>
     <message>
         <source>Show All Bindings</source>
         <translation>Показать все привязки</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJsEditingSettingsPage</name>
     <message>
         <source>Qt Quick Toolbars</source>
         <translation>Панели Qt Quick</translation>
@@ -42043,9 +42015,6 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <source>Auto-fold auxiliary data</source>
         <translation>Сворачивать вспомогательные данные</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QmlJSEditorDocument</name>
     <message>
         <source>This file should only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation>Этот файл можно редактировать только в режиме &lt;b&gt;дизайна&lt;/b&gt;.</translation>
@@ -42054,9 +42023,6 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <source>Switch Mode</source>
         <translation>Переключить режим</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QmlJSEditorWidget</name>
     <message>
         <source>Show Qt Quick ToolBar</source>
         <translation>Показать панель Qt Quick</translation>
@@ -42077,9 +42043,6 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
         <source>Refactoring</source>
         <translation>Рефакторинг</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QuickFix</name>
     <message>
         <source>Split Initializer</source>
         <translation>Разделить инициализатор</translation>

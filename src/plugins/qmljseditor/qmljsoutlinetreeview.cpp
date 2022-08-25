@@ -1,6 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include "qmljseditortr.h"
 #include "qmljsoutlinetreeview.h"
 #include "qmloutlinemodel.h"
 
@@ -35,9 +36,9 @@ void QmlJSOutlineTreeView::contextMenuEvent(QContextMenuEvent *event)
 
     QMenu contextMenu;
 
-    connect(contextMenu.addAction(tr("Expand All")), &QAction::triggered,
+    connect(contextMenu.addAction(Tr::tr("Expand All")), &QAction::triggered,
             this, &QmlJSOutlineTreeView::expandAll);
-    connect(contextMenu.addAction(tr("Collapse All")), &QAction::triggered,
+    connect(contextMenu.addAction(Tr::tr("Collapse All")), &QAction::triggered,
             this, &QmlJSOutlineTreeView::collapseAllExceptRoot);
 
     contextMenu.exec(event->globalPos());

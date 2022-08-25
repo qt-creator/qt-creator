@@ -7599,7 +7599,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::ComponentNameDialog</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Move Component into Separate File</source>
         <translation>Premjesti komponentu u odvojenu datoteku</translation>
@@ -7636,9 +7636,6 @@ Greška: %5</translation>
         <source>Invalid path</source>
         <translation>Neispravna staza</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJsEditingSettingsPage</name>
     <message>
         <source>Qt Quick Toolbars</source>
         <translation>Qt Quick altne trake</translation>
@@ -35453,14 +35450,7 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::ComponentFromObjectDef</name>
-    <message>
-        <source>Move Component into Separate File</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSEditorWidget</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Show Qt Quick ToolBar</source>
         <translation type="unfinished"></translation>
@@ -35481,9 +35471,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Refactoring</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSEditorDocumentPrivate</name>
     <message>
         <source>This file should only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation type="unfinished"></translation>
@@ -35492,9 +35479,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Switch Mode</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
     <message>
         <source>QML</source>
         <comment>SnippetProvider</comment>
@@ -35536,9 +35520,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>QML Analysis</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::FindReferences</name>
     <message>
         <source>QML/JS Usages:</source>
         <translation type="unfinished"></translation>
@@ -35564,14 +35545,11 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineWidget</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Show All Bindings</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation type="unfinished"></translation>
@@ -35580,9 +35558,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Collapse All</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QuickFix</name>
     <message>
         <source>Split Initializer</source>
         <translation type="unfinished"></translation>
@@ -35596,7 +35571,7 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJS Code Model Marks</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Code Model Warning</source>
         <translation type="unfinished"></translation>
@@ -35605,9 +35580,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Code Model Error</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::Operation</name>
     <message>
         <source>Wrap Component in Loader</source>
         <translation type="unfinished"></translation>
@@ -35626,9 +35598,6 @@ ID oznake moraju započeti malim slovom.</translation>
 </source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor</name>
     <message>
         <source>Qt Quick</source>
         <translation type="unfinished"></translation>

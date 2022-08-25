@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "qmljsquickfix.h"
 #include "qmljscomponentfromobjectdef.h"
-#include "qmljswrapinloader.h"
 #include "qmljseditor.h"
+#include "qmljseditortr.h"
+#include "qmljsquickfix.h"
 #include "qmljsquickfixassist.h"
+#include "qmljswrapinloader.h"
 
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
@@ -46,8 +47,7 @@ public:
         : QmlJSQuickFixOperation(interface, 0)
         , _objectInitializer(objectInitializer)
     {
-        setDescription(QApplication::translate("QmlJSEditor::QuickFix",
-                                               "Split Initializer"));
+        setDescription(Tr::tr("Split Initializer"));
     }
 
     void performChanges(QmlJSRefactoringFilePtr currentFile,
@@ -113,7 +113,7 @@ public:
         : QmlJSQuickFixOperation(interface, 0)
         , _message(message)
     {
-        setDescription(tr("Add a Comment to Suppress This Message"));
+        setDescription(Tr::tr("Add a Comment to Suppress This Message"));
     }
 
     void performChanges(QmlJSRefactoringFilePtr currentFile,

@@ -27819,7 +27819,7 @@ Ověřte, prosím, nastavení svého projektu.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSTextEditor</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Rename...</source>
         <translation type="obsolete">Přejmenovat...</translation>
@@ -27829,10 +27829,6 @@ Ověřte, prosím, nastavení svého projektu.</translation>
         <translation type="obsolete">Nové ID:</translation>
     </message>
     <message>
-        <source>Unused variable</source>
-        <translation type="obsolete">Nepoužívaná proměnná</translation>
-    </message>
-    <message>
         <source>Rename id &apos;%1&apos;...</source>
         <translation type="obsolete">Přejmenovat ID &apos;%1&apos;...</translation>
     </message>
@@ -27840,9 +27836,6 @@ Ověřte, prosím, nastavení svého projektu.</translation>
         <source>&lt;Select Symbol&gt;</source>
         <translation type="obsolete">&lt;Vybrat symbol&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSEditorFactory</name>
     <message>
         <source>Do you want to enable the experimental Qt Quick Designer?</source>
         <translation type="obsolete">Chcete zapnout pokusný Qt Quick Designer?</translation>
@@ -27879,9 +27872,6 @@ Ověřte, prosím, nastavení svého projektu.</translation>
         <source>Please restart Qt Creator to make the change effective.</source>
         <translation type="obsolete">Spusťte, prosím, Qt Creator znovu, aby se změny projevily.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
     <message>
         <source>Creates a Qt QML file.</source>
         <translation type="obsolete">Vytvoří soubor Qt QML.</translation>
@@ -27889,10 +27879,6 @@ Ověřte, prosím, nastavení svého projektu.</translation>
     <message>
         <source>Qt QML File</source>
         <translation type="obsolete">Soubor Qt QML</translation>
-    </message>
-    <message>
-        <source>Qt Quick</source>
-        <translation type="obsolete">Qt Quick</translation>
     </message>
     <message>
         <source>Ctrl+Alt+R</source>
@@ -27974,16 +27960,10 @@ Ověřte, prosím, nastavení svého projektu.</translation>
         <source>QML Analysis</source>
         <translation>Rozbor QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::ModelManager</name>
     <message>
         <source>Indexing</source>
         <translation type="obsolete">Rejstříkování</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSPreviewRunner</name>
     <message>
         <source>No file specified.</source>
         <translation>Nebyl zadán žádný soubor.</translation>
@@ -30621,7 +30601,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QuickToolBarSettingsPage</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -36978,14 +36958,11 @@ a vlastností součástek QML přímo.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::JsFileWizard</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>New %1</source>
         <translation>Nový %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::ComponentFromObjectDef</name>
     <message>
         <source>Move Component into separate file</source>
         <translation type="obsolete">Přesunout součástku do odděleného souboru</translation>
@@ -36998,9 +36975,6 @@ a vlastností součástek QML přímo.</translation>
         <source>Move Component into Separate File</source>
         <translation>Přesunout součástku do odděleného souboru</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::ComponentNameDialog</name>
     <message>
         <source>Choose a path</source>
         <translation>Vybrat cestu</translation>
@@ -37012,10 +36986,6 @@ a vlastností součástek QML přímo.</translation>
     <message>
         <source>Invalid path</source>
         <translation>Neplatná cesta</translation>
-    </message>
-    <message>
-        <source>Move Component into Separate File</source>
-        <translation>Přesunout součástku do odděleného souboru</translation>
     </message>
     <message>
         <source>Path:</source>
@@ -37033,20 +37003,9 @@ a vlastností součástek QML přímo.</translation>
         <source>Choose...</source>
         <translation type="obsolete">Vybrat...</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QmlJSTextEditorWidget</name>
     <message>
         <source>Show Qt Quick ToolBar</source>
         <translation>Ukázat nástrojový pruh Qt Quick</translation>
-    </message>
-    <message>
-        <source>Rename...</source>
-        <translation type="obsolete">Přejmenovat...</translation>
-    </message>
-    <message>
-        <source>New id:</source>
-        <translation type="obsolete">Nové ID:</translation>
     </message>
     <message>
         <source>Unused variable</source>
@@ -37055,10 +37014,6 @@ a vlastností součástek QML přímo.</translation>
     <message>
         <source>Refactoring</source>
         <translation>Refactoring</translation>
-    </message>
-    <message>
-        <source>Rename id &apos;%1&apos;...</source>
-        <translation type="obsolete">Přejmenovat ID &apos;%1&apos;...</translation>
     </message>
 </context>
 <context>
@@ -37069,7 +37024,7 @@ a vlastností součástek QML přímo.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::FindReferences</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>QML/JS Usages:</source>
         <translation>Použití QML/JS:</translation>
@@ -37078,9 +37033,6 @@ a vlastností součástek QML přímo.</translation>
         <source>Searching</source>
         <translation>Hledání</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::HoverHandler</name>
     <message>
         <source>Library at %1</source>
         <translation>Knihovna při %1</translation>
@@ -37093,16 +37045,10 @@ a vlastností součástek QML přímo.</translation>
         <source>Read typeinfo files successfully.</source>
         <translation>Soubory typeinfo úspěšně přečteny.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineWidget</name>
     <message>
         <source>Show All Bindings</source>
         <translation>Ukázat všechny vazby</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>Rozbalit vše</translation>
@@ -37111,9 +37057,6 @@ a vlastností součástek QML přímo.</translation>
         <source>Collapse All</source>
         <translation>Složit vše</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QuickFix</name>
     <message>
         <source>Split initializer</source>
         <translation type="obsolete">Rozdělit inicializaci</translation>
@@ -37121,13 +37064,6 @@ a vlastností součástek QML přímo.</translation>
     <message>
         <source>Split Initializer</source>
         <translation>Rozdělit inicializaci</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSSnippetProvider</name>
-    <message>
-        <source>QML</source>
-        <translation>QML</translation>
     </message>
 </context>
 <context>
@@ -50178,7 +50114,7 @@ Chcete jej ukončit?</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::AddAnalysisMessageSuppressionComment</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Add a comment to suppress this message</source>
         <translation type="obsolete">Přidat poznámku pro potlačení této zprávy</translation>
@@ -50187,9 +50123,6 @@ Chcete jej ukončit?</translation>
         <source>Add a Comment to Suppress This Message</source>
         <translation>Přidat poznámku pro potlačení této zprávy</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::Operation</name>
     <message>
         <source>Wrap Component in Loader</source>
         <translation>Zabalit součástku do nahrávače (loader)</translation>
@@ -63179,15 +63112,7 @@ Tyto soubory jsou zachovány.</numerusform>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSTextEditorWidget</name>
-    <message>
-        <source>Show Qt Quick ToolBar</source>
-        <translation>Ukázat nástrojový pruh Qt Quick</translation>
-    </message>
-    <message>
-        <source>Refactoring</source>
-        <translation>Refactoring</translation>
-    </message>
+    <name>QmlJSEditor</name>
 </context>
 <context>
     <name>QmlProfiler</name>

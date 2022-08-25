@@ -6,6 +6,7 @@
 #include "qmljseditorconstants.h"
 #include "qmljseditordocument_p.h"
 #include "qmljseditorplugin.h"
+#include "qmljseditortr.h"
 #include "qmljshighlighter.h"
 #include "qmljsquickfixassist.h"
 #include "qmljssemantichighlighter.h"
@@ -690,8 +691,8 @@ void QmlJSEditorDocument::setIsDesignModePreferred(bool value)
     if (value) {
         if (infoBar()->canInfoBeAdded(QML_UI_FILE_WARNING)) {
             Utils::InfoBarEntry info(QML_UI_FILE_WARNING,
-                                     tr("This file should only be edited in <b>Design</b> mode."));
-            info.addCustomButton(tr("Switch Mode"), []() {
+                                     Tr::tr("This file should only be edited in <b>Design</b> mode."));
+            info.addCustomButton(Tr::tr("Switch Mode"), []() {
                 Core::ModeManager::activateMode(Core::Constants::MODE_DESIGN);
             });
             infoBar()->addInfo(info);

@@ -17595,7 +17595,7 @@ ID-ji se morajo začeti z malo črko.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSEditorFactory</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Do you want to enable the experimental Qt Quick Designer?</source>
         <translation>Ali želite omogočiti preizkusni Qt Quick Designer?</translation>
@@ -17632,9 +17632,6 @@ ID-ji se morajo začeti z malo črko.</translation>
         <source>Please restart Qt Creator to make the change effective.</source>
         <translation>Da bi spremembe stopile v veljavo je potrebno znova zagnati Qt Creator.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSEditorPlugin</name>
     <message>
         <source>Creates a QML file.</source>
         <translation>Ustvari datoteko QML.</translation>
@@ -18407,7 +18404,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSPreviewRunner</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Failed to preview Qt Quick file</source>
         <translation>Prikaz datoteke Qt Quick ni uspel</translation>
@@ -19994,7 +19991,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QuickToolBarSettingsPage</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -25693,14 +25690,11 @@ neposredno dostopati do objektov izvodov komponent QML in lastnosti.</translatio
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::JsFileWizard</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>New %1</source>
         <translation>Nov %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::ComponentFromObjectDef</name>
     <message>
         <source>Move Component into separate file</source>
         <translation>Komponento premakni v ločeno datoteko</translation>
@@ -25709,9 +25703,6 @@ neposredno dostopati do objektov izvodov komponent QML in lastnosti.</translatio
         <source>Move Component into &apos;%1.qml&apos;</source>
         <translation>Komponento premakni v »%1.qml«</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::ComponentNameDialog</name>
     <message>
         <source>Choose a path</source>
         <translation>Izberite pot</translation>
@@ -25724,9 +25715,6 @@ neposredno dostopati do objektov izvodov komponent QML in lastnosti.</translatio
         <source>Invalid path</source>
         <translation>Neveljavna pot</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QmlJSTextEditorWidget</name>
     <message>
         <source>Show Qt Quick ToolBar</source>
         <translation>Prikaži orodjarno Qt Quick</translation>
@@ -25760,14 +25748,11 @@ neposredno dostopati do objektov izvodov komponent QML in lastnosti.</translatio
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::FindReferences</name>
+    <name>QmlJSEditor</name>
     <message>
         <source>Searching</source>
         <translation>Iskanje</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::HoverHandler</name>
     <message>
         <source>Library at %1</source>
         <translation>Knjižnica v %1</translation>
@@ -25780,16 +25765,10 @@ neposredno dostopati do objektov izvodov komponent QML in lastnosti.</translatio
         <source>Read typeinfo files successfully.</source>
         <translation>Datoteke s podatki o tipih so bile uspešno prebrane.</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineWidget</name>
     <message>
         <source>Show All Bindings</source>
         <translation>Prikaži vse vezave</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSOutlineTreeView</name>
     <message>
         <source>Expand All</source>
         <translation>Razširi vse</translation>
@@ -25798,19 +25777,9 @@ neposredno dostopati do objektov izvodov komponent QML in lastnosti.</translatio
         <source>Collapse All</source>
         <translation>Skrči vse</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::QuickFix</name>
     <message>
         <source>Split initializer</source>
         <translation>Razdeli inicializator</translation>
-    </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::QmlJSSnippetProvider</name>
-    <message>
-        <source>QML</source>
-        <translation>QML</translation>
     </message>
 </context>
 <context>
@@ -33486,30 +33455,11 @@ Preverite nastavitve projekta.</translation>
     </message>
 </context>
 <context>
-    <name>QmlJSEditor::Internal::QmlJSTextEditor</name>
-    <message>
-        <source>Rename...</source>
-        <translation type="obsolete">Preimenuj …</translation>
-    </message>
-    <message>
-        <source>New id:</source>
-        <translation type="obsolete">Novi ID:</translation>
-    </message>
-    <message>
-        <source>Unused variable</source>
-        <translation type="obsolete">Neuporabljena spremenljivka</translation>
-    </message>
-    <message>
-        <source>Rename id &apos;%1&apos;...</source>
-        <translation type="obsolete">Preimenuj ID »%1« …</translation>
-    </message>
+    <name>QmlJSEditor</name>
     <message>
         <source>&lt;Select Symbol&gt;</source>
         <translation type="obsolete">&lt;izberite simbol&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmlJSEditor::Internal::ModelManager</name>
     <message>
         <source>Indexing</source>
         <translation type="obsolete">Indeksiranje</translation>
