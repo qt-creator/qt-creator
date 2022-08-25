@@ -1980,10 +1980,15 @@ Toolchains MingwToolChainFactory::autoDetect(const ToolchainDetector &detector) 
 Toolchains MingwToolChainFactory::detectForImport(const ToolChainDescription &tcd) const
 {
     const QString fileName = tcd.compilerPath.completeBaseName();
-    if ((tcd.language == Constants::C_LANGUAGE_ID && (fileName.startsWith("gcc")
-                                                      || fileName.endsWith("gcc")))
-            || (tcd.language == Constants::CXX_LANGUAGE_ID && (fileName.startsWith("g++")
-                                                               || fileName.endsWith("g++")))) {
+
+    const bool cCompiler = tcd.language == Constants::C_LANGUAGE_ID
+                           && (fileName.startsWith("gcc") || fileName.endsWith("gcc"));
+
+    const bool cxxCompiler = tcd.language == Constants::CXX_LANGUAGE_ID
+                             && ((fileName.startsWith("g++") || fileName.endsWith("g++"))
+                                 || (fileName.startsWith("c++") || fileName.endsWith("c++")));
+
+    if (cCompiler || cxxCompiler) {
         return autoDetectToolChain(tcd, [](const ToolChain *tc) {
             return tc->targetAbi().osFlavor() == Abi::WindowsMSysFlavor;
         });
