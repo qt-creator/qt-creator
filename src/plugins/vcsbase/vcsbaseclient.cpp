@@ -115,9 +115,7 @@ VcsCommand *VcsBaseClientImpl::execBgCommand(const FilePath &workingDirectory,
                                              unsigned flags) const
 {
     VcsCommand *cmd = createCommand(workingDirectory);
-    cmd->addFlags(flags | VcsCommand::SuppressCommandLogging
-                        | VcsCommand::SuppressStdErr
-                        | VcsCommand::SuppressFailMessage);
+    cmd->addFlags(flags | VcsCommand::NoOutput);
     cmd->addJob({vcsBinary(), args}, vcsTimeoutS());
     connect(cmd, &VcsCommand::stdOutText, this, outputCallback);
     cmd->execute();
