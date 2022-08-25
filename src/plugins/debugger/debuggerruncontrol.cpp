@@ -583,7 +583,7 @@ void DebuggerRunTool::start()
         ++d->engineStopsNeeded;
     }
 
-    if (m_runParameters.startMode == StartInternal) {
+    if (m_runParameters.startMode != AttachToCore) {
         QStringList unhandledIds;
         bool hasQmlBreakpoints = false;
         for (const GlobalBreakpoint &gbp : BreakpointManager::globalBreakpoints()) {
@@ -597,16 +597,15 @@ void DebuggerRunTool::start()
             }
         }
         if (!unhandledIds.isEmpty()) {
-            QString warningMessage =
-                    Tr::tr("Some breakpoints cannot be handled by the debugger "
-                                       "languages currently active, and will be ignored.<p>"
-                                       "Affected are breakpoints %1")
-                    .arg(unhandledIds.join(", "));
+            QString warningMessage = Tr::tr("Some breakpoints cannot be handled by the debugger "
+                                            "languages currently active, and will be ignored.<p>"
+                                            "Affected are breakpoints %1")
+                                         .arg(unhandledIds.join(", "));
 
             if (hasQmlBreakpoints) {
-                warningMessage += "<p>" +
-                    Tr::tr("QML debugging needs to be enabled both in the Build "
-                                       "and the Run settings.");
+                warningMessage += "<p>"
+                                  + Tr::tr("QML debugging needs to be enabled both in the Build "
+                                           "and the Run settings.");
             }
 
             showMessage(warningMessage, LogWarning);
@@ -617,7 +616,8 @@ void DebuggerRunTool::start()
                                                  Tr::tr("Debugger"),
                                                  warningMessage,
                                                  Tr::tr("&Show this message again."),
-                                                 &checked, QDialogButtonBox::Ok);
+                                                 &checked,
+                                                 QDialogButtonBox::Ok);
         }
     }
 
