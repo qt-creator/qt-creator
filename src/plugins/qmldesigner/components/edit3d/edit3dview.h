@@ -35,6 +35,7 @@
 #include <QtCore/qvector.h>
 #include <QtCore/qvariant.h>
 #include <QtCore/qsize.h>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 QT_END_NAMESPACE
@@ -82,6 +83,9 @@ public:
     void startContextMenu(const QPoint &pos);
     void dropMaterial(const ModelNode &matNode, const QPointF &pos);
 
+private slots:
+    void onEntriesChanged();
+
 private:
     enum class ModelAtPosReqType {
         MaterialDrop,
@@ -91,6 +95,7 @@ private:
 
     void createEdit3DWidget();
     void checkImports();
+    void handleEntriesChanged();
 
     Edit3DAction *createSelectBackgrounColorAction();
     Edit3DAction *createGridColorSelectionAction();
@@ -129,6 +134,7 @@ private:
     ModelNode m_droppedMaterial;
     ModelAtPosReqType m_modelAtPosReqType;
     QPoint m_contextMenuPos;
+    QTimer m_compressionTimer;
 };
 
 } // namespace QmlDesigner

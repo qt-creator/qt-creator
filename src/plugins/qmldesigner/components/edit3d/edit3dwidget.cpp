@@ -23,7 +23,6 @@
 **
 ****************************************************************************/
 
-#include "designersettings.h"
 #include "edit3dactions.h"
 #include "edit3dcanvas.h"
 #include "edit3dview.h"
@@ -42,6 +41,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
 #include <toolbox.h>
+#include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QActionGroup>
@@ -190,6 +190,57 @@ void Edit3DWidget::createContextMenu()
             for (ModelNode &node : m_view->selectedModelNodes())
                 node.destroy();
         });
+    });
+}
+
+// Called by the view to update the "create" sub-menu when the Quick3D entries are ready
+void Edit3DWidget::updateCreateSubMenu(const QMap<QString, QList<ItemLibraryEntry>> &entriesMap)
+{
+    if (!m_contextMenu)
+        return;
+
+    if (m_createSubMenu) {
+        m_contextMenu->removeAction(m_createSubMenu->menuAction());
+        m_createSubMenu.clear();
+    }
+
+    m_nameToEntry.clear();
+    m_createSubMenu = m_contextMenu->addMenu(tr("Create"));
+
+    const QStringList categories = entriesMap.keys();
+    for (const QString &cat : categories) {
+        QMenu *catMenu = m_createSubMenu->addMenu(cat);
+
+        QList<ItemLibraryEntry> entries = entriesMap.value(cat);
+        std::sort(entries.begin(), entries.end(), [](const ItemLibraryEntry &a, const ItemLibraryEntry &b) {
+            return a.name() < b.name();
+        });
+        for (const ItemLibraryEntry &entry : std::as_const(entries)) {
+            QAction *action = catMenu->addAction(entry.name(), this, &Edit3DWidget::onCreateAction);
+            action->setData(entry.name());
+            m_nameToEntry.insert(entry.name(), entry);
+        }
+    }
+}
+
+// Action triggered from the "create" sub-menu
+void Edit3DWidget::onCreateAction()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (!action)
+        return;
+
+    m_view->executeInTransaction(__FUNCTION__, [&] {
+        int activeScene = m_view->rootModelNode().auxiliaryData("active3dScene@Internal").toInt();
+
+        auto modelNode = QmlVisualNode::createQml3DNode(m_view, m_nameToEntry.value(action->data().toString()),
+                                                        activeScene).modelNode();
+        QTC_ASSERT(modelNode.isValid(), return);
+        m_view->setSelectedModelNode(modelNode);
+
+        // if added node is a Model, assign it a material
+        if (modelNode.isSubclassOf("QtQuick3D.Model"))
+            m_view->assignMaterialTo3dModel(modelNode);
     });
 }
 

@@ -23,13 +23,13 @@
 **
 ****************************************************************************/
 
-#include "designmodewidget.h"
 #include "edit3dactions.h"
 #include "edit3dcanvas.h"
 #include "edit3dview.h"
 #include "edit3dwidget.h"
 #include "edit3dviewconfig.h"
 #include "backgroundcolorselection.h"
+#include "metainfo.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -52,11 +52,13 @@ namespace QmlDesigner {
 Edit3DView::Edit3DView(QObject *parent)
     : AbstractView(parent)
 {
+    m_compressionTimer.setInterval(1000);
+    m_compressionTimer.setSingleShot(true);
+    connect(&m_compressionTimer, &QTimer::timeout, this, &Edit3DView::handleEntriesChanged);
 }
 
 Edit3DView::~Edit3DView()
-{
-}
+{}
 
 void Edit3DView::createEdit3DWidget()
 {
@@ -206,6 +208,31 @@ void Edit3DView::modelAttached(Model *model)
     }
 
     edit3DWidget()->canvas()->busyIndicator()->show();
+
+    connect(model->metaInfo().itemLibraryInfo(), &ItemLibraryInfo::entriesChanged, this,
+            &Edit3DView::onEntriesChanged, Qt::UniqueConnection);
+}
+
+void Edit3DView::onEntriesChanged()
+{
+    m_compressionTimer.start();
+}
+
+void Edit3DView::handleEntriesChanged()
+{
+    QMap<QString, QList<ItemLibraryEntry>> entriesMap {
+        {"Camera", {}},
+        {"Lights", {}},
+        {"Models", {}}
+    };
+
+    const QList<ItemLibraryEntry> itemLibEntries = model()->metaInfo().itemLibraryInfo()->entries();
+    for (const ItemLibraryEntry &entry : itemLibEntries) {
+        if (entry.typeName().startsWith("QtQuick3D.") && entriesMap.contains(entry.category()))
+            entriesMap[entry.category()].append(entry);
+    }
+
+    m_edit3DWidget->updateCreateSubMenu(entriesMap);
 }
 
 void Edit3DView::modelAboutToBeDetached(Model *model)
