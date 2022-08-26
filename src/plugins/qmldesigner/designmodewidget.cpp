@@ -450,8 +450,13 @@ void DesignModeWidget::aboutToShowWorkspaces()
     });
 
     QAction *action = menu->addAction(tr("Manage..."));
-    connect(action, &QAction::triggered,
-            m_dockManager, &ADS::DockManager::showWorkspaceMananger);
+    connect(action, &QAction::triggered, m_dockManager, &ADS::DockManager::showWorkspaceMananger);
+
+    QAction *resetWorkspace = menu->addAction(tr("Reset Active"));
+    connect(resetWorkspace, &QAction::triggered, this, [this]() {
+        if (m_dockManager->resetWorkspacePreset(m_dockManager->activeWorkspace()))
+            m_dockManager->reloadActiveWorkspace();
+    });
 
     menu->addSeparator();
 
@@ -459,8 +464,7 @@ void DesignModeWidget::aboutToShowWorkspaces()
     auto sortedWorkspaces = m_dockManager->workspaces();
     Utils::sort(sortedWorkspaces);
 
-    for (const auto &workspace : qAsConst(sortedWorkspaces))
-    {
+    for (const auto &workspace : qAsConst(sortedWorkspaces)) {
         QAction *action = ag->addAction(workspace);
         action->setData(workspace);
         action->setCheckable(true);
