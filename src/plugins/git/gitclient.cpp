@@ -3678,13 +3678,13 @@ void GitClient::StashInfo::stashPrompt(const QString &command, const QString &st
 
     msgBox.setDetailedText(statusOutput);
 
-    QPushButton *stashAndPopButton = msgBox.addButton(tr("Stash && Pop"), QMessageBox::AcceptRole);
+    QPushButton *stashAndPopButton = msgBox.addButton(tr("Stash && &Pop"), QMessageBox::AcceptRole);
     stashAndPopButton->setToolTip(tr("Stash local changes and pop when %1 finishes.").arg(command));
 
-    QPushButton *stashButton = msgBox.addButton(tr("Stash"), QMessageBox::AcceptRole);
+    QPushButton *stashButton = msgBox.addButton(tr("&Stash"), QMessageBox::AcceptRole);
     stashButton->setToolTip(tr("Stash local changes and execute %1.").arg(command));
 
-    QPushButton *discardButton = msgBox.addButton(tr("Discard"), QMessageBox::AcceptRole);
+    QPushButton *discardButton = msgBox.addButton(tr("&Discard"), QMessageBox::AcceptRole);
     discardButton->setToolTip(tr("Discard (reset) local changes and execute %1.").arg(command));
 
     QPushButton *ignoreButton = nullptr;
