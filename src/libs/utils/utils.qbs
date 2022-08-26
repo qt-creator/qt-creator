@@ -202,8 +202,6 @@ Project {
             "navigationtreeview.h",
             "networkaccessmanager.cpp",
             "networkaccessmanager.h",
-            "optional.h",
-            "../3rdparty/optional/optional.hpp",
             "osspecificaspects.h",
             "outputformat.h",
             "outputformatter.cpp",

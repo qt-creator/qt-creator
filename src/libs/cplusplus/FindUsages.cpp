@@ -16,10 +16,9 @@
 #include <cplusplus/TranslationUnit.h>
 #include <cplusplus/TypeOfExpression.h>
 
-#include <utils/optional.h>
-
 #include <QDebug>
 
+#include <optional>
 
 using namespace CPlusPlus;
 
@@ -189,8 +188,8 @@ public:
             if (const auto binExpr = (*it)->asBinaryExpression()) {
                 if (binExpr->left_expression == *(it - 1) && isAssignment(binExpr->binary_op_token))
                     return checkPotentialWrite(Usage::Type::Write, it + 1);
-                const Utils::optional<LookupItem> item = getTypeOfExpr(binExpr->left_expression,
-                                                                       it + 1);
+                const std::optional<LookupItem> item = getTypeOfExpr(binExpr->left_expression,
+                                                                     it + 1);
                 if (!item)
                     return Usage::Type::Other;
                 return checkPotentialWrite(getUsageTypeFromLhsAndRhs(
@@ -349,12 +348,12 @@ private:
         return m_findUsages->typeofExpression(expr, m_findUsages->_doc, scope);
     }
 
-    Utils::optional<LookupItem> getTypeOfExpr(ExpressionAST *expr, Iterator scopeSearchPos) const
+    std::optional<LookupItem> getTypeOfExpr(ExpressionAST *expr, Iterator scopeSearchPos) const
     {
         const QList<LookupItem> items = getTypesOfExpr(expr, scopeSearchPos);
         if (items.isEmpty())
             return {};
-        return Utils::optional<LookupItem>(items.first());
+        return std::optional<LookupItem>(items.first());
     }
 
     Usage::Type getUsageTypeFromLhsAndRhs(const FullySpecifiedType &lhsType, ExpressionAST *rhs,
@@ -365,7 +364,7 @@ private:
             return usageType;
 
         // If the lhs has type auto, we use the RHS type.
-        const Utils::optional<LookupItem> item = getTypeOfExpr(rhs, scopeSearchPos);
+        const std::optional<LookupItem> item = getTypeOfExpr(rhs, scopeSearchPos);
         if (!item)
             return Usage::Type::Other;
         return getUsageTypeFromDataType(item->type());
@@ -385,8 +384,8 @@ private:
                     continue;
                 if (memberAccess->member_name == *(it - 1))
                     return Usage::Type::Other;
-                const Utils::optional<LookupItem> item
-                        = getTypeOfExpr(memberAccess->base_expression, it);
+                const std::optional<LookupItem> item = getTypeOfExpr(memberAccess->base_expression,
+                                                                     it);
                 if (!item)
                     return Usage::Type::Other;
                 FullySpecifiedType baseExprType = item->type();

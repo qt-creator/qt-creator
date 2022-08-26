@@ -43,7 +43,7 @@ void HoverHandler::setHelpItem(const LanguageServerProtocol::MessageId &msgId,
                                const Core::HelpItem &help)
 {
     if (msgId == m_response.id()) {
-        if (Utils::optional<HoverResult> result = m_response.result()) {
+        if (std::optional<HoverResult> result = m_response.result()) {
             if (auto hover = std::get_if<Hover>(&(*result)))
                 setContent(hover->content());
         }
@@ -85,12 +85,12 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
     if (m_preferDiagnostics && reportDiagnostics(cursor))
         return;
 
-    const Utils::optional<std::variant<bool, WorkDoneProgressOptions>> &provider
+    const std::optional<std::variant<bool, WorkDoneProgressOptions>> &provider
         = m_client->capabilities().hoverProvider();
     bool sendMessage = provider.has_value();
     if (sendMessage && std::holds_alternative<bool>(*provider))
         sendMessage = std::get<bool>(*provider);
-    if (Utils::optional<bool> registered = m_client->dynamicCapabilities().isRegistered(
+    if (std::optional<bool> registered = m_client->dynamicCapabilities().isRegistered(
             HoverRequest::methodName)) {
         sendMessage = *registered;
         if (sendMessage) {
@@ -119,11 +119,11 @@ void HoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget,
 void HoverHandler::handleResponse(const HoverRequest::Response &response, const QTextCursor &cursor)
 {
     m_currentRequest.reset();
-    if (Utils::optional<HoverRequest::Response::Error> error = response.error()) {
+    if (std::optional<HoverRequest::Response::Error> error = response.error()) {
         if (m_client)
             m_client->log(*error);
     }
-    if (Utils::optional<HoverResult> result = response.result()) {
+    if (std::optional<HoverResult> result = response.result()) {
         if (auto hover = std::get_if<Hover>(&(*result))) {
             if (m_helpItemProvider) {
                 m_response = response;

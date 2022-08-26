@@ -7,7 +7,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <utils/optional.h>
+#include <optional>
 
 namespace Docker::Internal {
 

@@ -5,9 +5,9 @@
 
 #include "utils_global.h"
 
-#include "optional.h"
-
 #include <QMetaType>
+
+#include <optional>
 
 namespace Utils {
 
@@ -39,7 +39,7 @@ public:
     int column = -1;
 };
 
-using OptionalLineColumn = optional<LineColumn>;
+using OptionalLineColumn = std::optional<LineColumn>;
 
 } // namespace Utils
 

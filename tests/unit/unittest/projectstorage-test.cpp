@@ -6295,7 +6295,7 @@ TEST_F(ProjectStorage, GetInvalidOptionalPropertyDeclarationForInvalidPropertyDe
 
     auto property = storage.propertyDeclaration(PropertyDeclarationId{});
 
-    ASSERT_THAT(property, Eq(Utils::nullopt));
+    ASSERT_THAT(property, Eq(std::nullopt));
 }
 
 TEST_F(ProjectStorage, GetSignalDeclarationNames)
@@ -6603,7 +6603,7 @@ TEST_F(ProjectStorage, DontGetTypeForInvalidId)
 
     auto type = storage.type(TypeId());
 
-    ASSERT_THAT(type, Eq(Utils::nullopt));
+    ASSERT_THAT(type, Eq(std::nullopt));
 }
 
 TEST_F(ProjectStorage, GetCommonType)

@@ -5,9 +5,9 @@
 
 #include "qmljstools_global.h"
 
-#include <utils/optional.h>
-
 #include <QVariantMap>
+
+#include <optional>
 
 namespace TextEditor { class TabSettings; }
 

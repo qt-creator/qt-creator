@@ -194,7 +194,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
 void DockerDeviceWidget::updateDaemonStateTexts()
 {
-    Utils::optional<bool> daemonState = DockerApi::instance()->dockerDaemonAvailable();
+    std::optional<bool> daemonState = DockerApi::instance()->dockerDaemonAvailable();
     if (!daemonState.has_value()) {
         m_daemonReset->setIcon(Icons::INFO.icon());
         m_daemonState->setText(Tr::tr("Daemon state not evaluated."));

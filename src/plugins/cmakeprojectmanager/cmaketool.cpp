@@ -49,7 +49,7 @@ namespace Internal {
 
 const char READER_TYPE_FILEAPI[] = "fileapi";
 
-static Utils::optional<CMakeTool::ReaderType> readerTypeFromString(const QString &input)
+static std::optional<CMakeTool::ReaderType> readerTypeFromString(const QString &input)
 {
     // Do not try to be clever here, just use whatever is in the string!
     if (input == READER_TYPE_FILEAPI)
@@ -331,7 +331,7 @@ CMakeTool::PathMapper CMakeTool::pathMapper() const
     return [](const FilePath &fn) { return fn; };
 }
 
-Utils::optional<CMakeTool::ReaderType> CMakeTool::readerType() const
+std::optional<CMakeTool::ReaderType> CMakeTool::readerType() const
 {
     if (m_readerType)
         return m_readerType; // Allow overriding the auto-detected value via .user files

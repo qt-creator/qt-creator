@@ -7,11 +7,11 @@
 #include "id.h"
 #include "infolabel.h"
 #include "macroexpander.h"
-#include "optional.h"
 #include "pathchooser.h"
 
 #include <functional>
 #include <memory>
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -337,7 +337,7 @@ public:
     void emitChangedValue() override;
 
     // Hook between UI and StringAspect:
-    using ValueAcceptor = std::function<Utils::optional<QString>(const QString &, const QString &)>;
+    using ValueAcceptor = std::function<std::optional<QString>(const QString &, const QString &)>;
     void setValueAcceptor(ValueAcceptor &&acceptor);
     QString value() const;
     void setValue(const QString &val);

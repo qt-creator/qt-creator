@@ -2080,7 +2080,7 @@ int FakeVimPluginPrivate::currentFile() const
 {
     IEditor *editor = EditorManager::currentEditor();
     if (editor) {
-        const Utils::optional<int> index = DocumentModel::indexOfDocument(editor->document());
+        const std::optional<int> index = DocumentModel::indexOfDocument(editor->document());
         if (QTC_GUARD(index))
             return index.value();
     }

@@ -493,7 +493,7 @@ void JsonWizard::openProjectForNode(Node *node)
     }
     QTC_ASSERT(projNode, return);
 
-    Utils::optional<FilePath> projFilePath = projNode->visibleAfterAddFileAction();
+    std::optional<FilePath> projFilePath = projNode->visibleAfterAddFileAction();
 
     if (projFilePath && !Core::EditorManager::openEditor(projFilePath.value())) {
             auto errorMessage = QCoreApplication::translate("ProjectExplorer::JsonWizard",

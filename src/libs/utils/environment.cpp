@@ -406,12 +406,12 @@ const QVector<EnvironmentProvider> EnvironmentProvider::providers()
     return *environmentProviders;
 }
 
-optional<EnvironmentProvider> EnvironmentProvider::provider(const QByteArray &id)
+std::optional<EnvironmentProvider> EnvironmentProvider::provider(const QByteArray &id)
 {
     const int index = indexOf(*environmentProviders, equal(&EnvironmentProvider::id, id));
     if (index >= 0)
-        return make_optional(environmentProviders->at(index));
-    return nullopt;
+        return std::make_optional(environmentProviders->at(index));
+    return std::nullopt;
 }
 
 void EnvironmentChange::addSetValue(const QString &key, const QString &value)

@@ -7,7 +7,8 @@
 
 #include <utils/filepath.h>
 #include <utils/id.h>
-#include <utils/optional.h>
+
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
@@ -52,12 +53,12 @@ public:
     };
 
     static Entry *entryAtRow(int row);
-    static Utils::optional<int> rowOfDocument(IDocument *document);
+    static std::optional<int> rowOfDocument(IDocument *document);
 
     static int entryCount();
     static QList<Entry *> entries();
-    static Utils::optional<int> indexOfDocument(IDocument *document);
-    static Utils::optional<int> indexOfFilePath(const Utils::FilePath &filePath);
+    static std::optional<int> indexOfDocument(IDocument *document);
+    static std::optional<int> indexOfFilePath(const Utils::FilePath &filePath);
     static Entry *entryForDocument(IDocument *document);
     static Entry *entryForFilePath(const Utils::FilePath &filePath);
     static QList<IDocument *> openedDocuments();

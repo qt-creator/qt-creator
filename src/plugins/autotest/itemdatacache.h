@@ -6,10 +6,10 @@
 #include "itestframework.h"
 #include "testtreeitem.h"
 
-#include <utils/optional.h>
-
 #include <QRegularExpression>
 #include <QVariantHash>
+
+#include <optional>
 
 namespace Autotest {
 namespace Internal {
@@ -35,13 +35,13 @@ public:
         }
     }
 
-    Utils::optional<T> get(ITestTreeItem *item)
+    std::optional<T> get(ITestTreeItem *item)
     {
         auto entry = m_cache.find(item->cacheName());
         if (entry == m_cache.end())
-            return Utils::nullopt;
+            return std::nullopt;
         entry->generation = 0;
-        return Utils::make_optional(entry->value);
+        return std::make_optional(entry->value);
     };
 
     void clear() { m_cache.clear(); }

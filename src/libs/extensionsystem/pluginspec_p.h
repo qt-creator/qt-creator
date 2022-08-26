@@ -6,8 +6,6 @@
 #include "pluginspec.h"
 #include "iplugin.h"
 
-#include <utils/optional.h>
-
 #include <QJsonObject>
 #include <QObject>
 #include <QPluginLoader>
@@ -15,6 +13,8 @@
 #include <QStringList>
 #include <QVector>
 #include <QXmlStreamReader>
+
+#include <optional>
 
 namespace ExtensionSystem {
 
@@ -47,8 +47,8 @@ public:
     void setForceEnabled(bool value);
     void setForceDisabled(bool value);
 
-    Utils::optional<QPluginLoader> loader;
-    Utils::optional<QStaticPlugin> staticPlugin;
+    std::optional<QPluginLoader> loader;
+    std::optional<QStaticPlugin> staticPlugin;
 
     QString name;
     QString version;

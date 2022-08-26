@@ -6,8 +6,6 @@
 #include "languageclient_global.h"
 #include "languageclientutils.h"
 
-#include "utils/optional.h"
-
 #include <languageserverprotocol/languagefeatures.h>
 #include <languageserverprotocol/lsptypes.h>
 
@@ -15,6 +13,8 @@
 #include <QObject>
 #include <QSet>
 #include <QTimer>
+
+#include <optional>
 
 namespace LanguageClient {
 

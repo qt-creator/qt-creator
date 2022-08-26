@@ -323,7 +323,7 @@ SemanticRequestTypes SemanticTokenSupport::supportedSemanticRequests(TextDocumen
             return SemanticRequestType::None;
         return supportedRequests(dynamicCapabilities.option(dynamicMethod).toObject());
     }
-    if (Utils::optional<SemanticTokensOptions> provider = m_client->capabilities()
+    if (std::optional<SemanticTokensOptions> provider = m_client->capabilities()
                                                               .semanticTokensProvider()) {
         return supportedRequests(*provider);
     }
@@ -378,7 +378,7 @@ void SemanticTokenSupport::handleSemanticTokensDelta(
                 return;
             for (const auto start = data.begin() + edit.start(); it < start; ++it)
                 newData.append(*it);
-            if (const Utils::optional<QList<int>> editData = edit.data()) {
+            if (const std::optional<QList<int>> editData = edit.data()) {
                 newData.append(*editData);
                 qCDebug(LOGLSPHIGHLIGHT) << edit.start() << edit.deleteCount() << *editData;
             } else {

@@ -40,11 +40,11 @@ public:
     QString kind() const;
 
     // Brief additional details, such as ‘||’. Information present here depends on the node kind.
-    Utils::optional<QString> detail() const;
+    std::optional<QString> detail() const;
 
     // One line dump of information, similar to that printed by clang -Xclang -ast-dump.
     // Only available for certain types of nodes.
-    Utils::optional<QString> arcana() const;
+    std::optional<QString> arcana() const;
 
     // The part of the code that produced this node. Missing for implicit nodes, nodes produced
     // by macro expansion, etc.
@@ -52,7 +52,7 @@ public:
 
     // Descendants describing the internal structure. The tree of nodes is similar to that printed
     // by clang -Xclang -ast-dump, or that traversed by clang::RecursiveASTVisitor.
-    Utils::optional<QList<ClangdAstNode>> children() const;
+    std::optional<QList<ClangdAstNode>> children() const;
 
     bool hasRange() const;
     bool arcanaContains(const QString &s) const;

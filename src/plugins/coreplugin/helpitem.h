@@ -5,12 +5,11 @@
 
 #include "core_global.h"
 
-#include <utils/optional.h>
-
 #include <QString>
 #include <QUrl>
 #include <QVariant>
 
+#include <optional>
 #include <vector>
 
 namespace Core {
@@ -70,8 +69,8 @@ private:
     QStringList m_helpIds;
     QString m_docMark;
     Category m_category = Unknown;
-    mutable Utils::optional<Links> m_helpLinks; // cached help links
-    mutable Utils::optional<QString> m_firstParagraph;
+    mutable std::optional<Links> m_helpLinks; // cached help links
+    mutable std::optional<QString> m_firstParagraph;
     mutable QString m_keyword;
     mutable bool m_isFuzzyMatch = false;
 };

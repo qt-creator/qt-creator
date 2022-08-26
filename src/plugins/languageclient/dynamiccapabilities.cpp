@@ -27,10 +27,10 @@ void DynamicCapabilities::unregisterCapability(const QList<Unregistration> &unre
     }
 }
 
-Utils::optional<bool> DynamicCapabilities::isRegistered(const QString &method) const
+std::optional<bool> DynamicCapabilities::isRegistered(const QString &method) const
 {
     if (!m_capability.contains(method))
-        return Utils::nullopt;
+        return std::nullopt;
     return m_capability[method].enabled();
 }
 

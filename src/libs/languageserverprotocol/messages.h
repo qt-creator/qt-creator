@@ -55,7 +55,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT ShowMessageRequestParams : public ShowMessag
 public:
     using ShowMessageParams::ShowMessageParams;
 
-    Utils::optional<QList<MessageActionItem>> actions() const
+    std::optional<QList<MessageActionItem>> actions() const
     { return optionalArray<MessageActionItem>(actionsKey); }
     void setActions(const QList<MessageActionItem> &actions) { insertArray(actionsKey, actions); }
     void clearActions() { remove(actionsKey); }

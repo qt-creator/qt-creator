@@ -10,7 +10,7 @@ namespace Internal {
 
 NinjaParser::NinjaParser() {}
 
-Utils::optional<int> NinjaParser::extractProgress(const QString &line)
+std::optional<int> NinjaParser::extractProgress(const QString &line)
 {
     auto progress = m_progressRegex.match(line);
     if (progress.hasMatch()) {
@@ -18,7 +18,7 @@ Utils::optional<int> NinjaParser::extractProgress(const QString &line)
         auto pos = progress.captured(1).toInt();
         return pos * 100 / total;
     }
-    return Utils::nullopt;
+    return std::nullopt;
 }
 
 void NinjaParser::setSourceDirectory(const Utils::FilePath &sourceDir)

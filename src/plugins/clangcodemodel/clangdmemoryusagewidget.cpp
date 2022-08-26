@@ -131,7 +131,7 @@ public:
     const QPointer<ClangdClient> client;
     MemoryTreeModel model;
     TreeView view;
-    Utils::optional<MessageId> currentRequest;
+    std::optional<MessageId> currentRequest;
 };
 
 ClangdMemoryUsageWidget::ClangdMemoryUsageWidget(ClangdClient *client)

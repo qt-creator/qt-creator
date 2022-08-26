@@ -58,7 +58,7 @@ static QIcon testResultIcon(ResultType result) {
     return icons[int(result)];
 }
 
-static QIcon testSummaryIcon(const Utils::optional<TestResultItem::SummaryEvaluation> &summary)
+static QIcon testSummaryIcon(const std::optional<TestResultItem::SummaryEvaluation> &summary)
 {
     if (!summary)
         return QIcon();
@@ -114,7 +114,7 @@ static bool isSignificant(ResultType type)
 }
 
 void TestResultItem::updateResult(bool &changed, ResultType addedChildType,
-                                  const Utils::optional<SummaryEvaluation> &summary)
+                                  const std::optional<SummaryEvaluation> &summary)
 {
     changed = false;
     if (m_testResult->result() != ResultType::TestStart)

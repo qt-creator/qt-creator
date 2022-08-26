@@ -15,7 +15,6 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
-#include <utils/optional.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -38,6 +37,8 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QFormLayout>
+
+#include <optional>
 
 using namespace Utils;
 
@@ -200,7 +201,7 @@ static QString windowsProgramFilesDir()
     return QDir::fromNativeSeparators(qtcEnvironmentVariable(programFilesC));
 }
 
-static Utils::optional<VisualStudioInstallation> installationFromPathAndVersion(
+static std::optional<VisualStudioInstallation> installationFromPathAndVersion(
     const QString &installationPath, const QVersionNumber &version)
 {
     QString vcVarsPath = QDir::fromNativeSeparators(installationPath);
@@ -215,7 +216,7 @@ static Utils::optional<VisualStudioInstallation> installationFromPathAndVersion(
     if (!QFileInfo(vcVarsAllPath).isFile()) {
         qWarning().noquote() << "Unable to find MSVC setup script "
                              << QDir::toNativeSeparators(vcVarsPath) << " in version " << version;
-        return Utils::nullopt;
+        return std::nullopt;
     }
 
     const QString versionString = version.toString();
@@ -229,7 +230,7 @@ static Utils::optional<VisualStudioInstallation> installationFromPathAndVersion(
 }
 
 // Detect build tools introduced with MSVC2017
-static Utils::optional<VisualStudioInstallation> detectCppBuildTools2017()
+static std::optional<VisualStudioInstallation> detectCppBuildTools2017()
 {
     const QString installPath = windowsProgramFilesDir()
                                 + "/Microsoft Visual Studio/2017/BuildTools";
@@ -237,7 +238,7 @@ static Utils::optional<VisualStudioInstallation> detectCppBuildTools2017()
     const QString vcVarsAllPath = vcVarsPath + "/vcvarsall.bat";
 
     if (!QFileInfo::exists(vcVarsAllPath))
-        return Utils::nullopt;
+        return std::nullopt;
 
     VisualStudioInstallation installation;
     installation.path = installPath;
@@ -314,7 +315,7 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
             continue;
         }
         const QString installationPath = value.toString();
-        Utils::optional<VisualStudioInstallation> installation
+        std::optional<VisualStudioInstallation> installation
             = installationFromPathAndVersion(installationPath, version);
 
         if (installation)
@@ -341,7 +342,7 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromRegistry()
         if (!version.isNull()) {
             const QString installationPath = fixRegistryPath(vsRegistry.value(vsName).toString());
 
-            Utils::optional<VisualStudioInstallation> installation
+            std::optional<VisualStudioInstallation> installation
                 = installationFromPathAndVersion(installationPath, version);
             if (installation)
                 result.append(*installation);
@@ -747,7 +748,7 @@ void MsvcToolChain::environmentModifications(
     Utils::Environment outEnv;
     QMap<QString, QString> envPairs;
     Utils::EnvironmentItems diff;
-    Utils::optional<QString> error = generateEnvironmentSettings(inEnv,
+    std::optional<QString> error = generateEnvironmentSettings(inEnv,
                                                                  vcvarsBat,
                                                                  varsBatArg,
                                                                  envPairs);
@@ -1034,7 +1035,7 @@ ToolChain::MacroInspectionRunner MsvcToolChain::createMacroInspectionRunner() co
             return hasFlagEffectOnMacros(arg);
         });
 
-        const Utils::optional<MacroInspectionReport> cachedMacros = macroCache->check(filteredFlags);
+        const std::optional<MacroInspectionReport> cachedMacros = macroCache->check(filteredFlags);
         if (cachedMacros)
             return cachedMacros.value();
 
@@ -2072,7 +2073,7 @@ void MsvcToolChain::cancelMsvcToolChainDetection()
     envModThreadPool()->clear();
 }
 
-Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils::Environment &env,
+std::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils::Environment &env,
                                                                     const QString &batchFile,
                                                                     const QString &batchArgs,
                                                                     QMap<QString, QString> &envPairs)
@@ -2163,7 +2164,7 @@ Utils::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils:
         }
     }
 
-    return Utils::nullopt;
+    return std::nullopt;
 }
 
 bool MsvcToolChainFactory::canCreate() const

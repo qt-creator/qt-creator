@@ -27,7 +27,6 @@
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
-#include <utils/optional.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -35,6 +34,8 @@
 #include <QFontDatabase>
 #include <QHelpEngine>
 #include <QMutexLocker>
+
+#include <optional>
 
 using namespace Help::Internal;
 
@@ -279,7 +280,7 @@ void LocalHelpManager::setLastSelectedTab(int index)
     Core::ICore::settings()->setValueWithDefault(kLastSelectedTabKey, index, -1);
 }
 
-static Utils::optional<HelpViewerFactory> backendForId(const QByteArray &id)
+static std::optional<HelpViewerFactory> backendForId(const QByteArray &id)
 {
     const QVector<HelpViewerFactory> factories = LocalHelpManager::viewerBackends();
     const auto backend = std::find_if(std::begin(factories),
@@ -294,7 +295,7 @@ HelpViewerFactory LocalHelpManager::defaultViewerBackend()
 {
     const QString backend = Utils::qtcEnvironmentVariable("QTC_HELPVIEWER_BACKEND");
     if (!backend.isEmpty()) {
-        const Utils::optional<HelpViewerFactory> factory = backendForId(backend.toLatin1());
+        const std::optional<HelpViewerFactory> factory = backendForId(backend.toLatin1());
         if (factory)
             return *factory;
     }

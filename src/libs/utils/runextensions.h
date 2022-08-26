@@ -6,7 +6,6 @@
 #include "utils_global.h"
 
 #include "functiontraits.h"
-#include "optional.h"
 
 #include <QCoreApplication>
 #include <QFuture>
@@ -17,6 +16,7 @@
 #include <QThreadPool>
 
 #include <functional>
+#include <optional>
 
 // hasCallOperator & Co must be outside of any namespace
 // because of internal compiler error with MSVC2015 Update 2
@@ -38,7 +38,7 @@ struct hasCallOperator
 
 namespace Utils {
 
-using StackSizeInBytes = optional<uint>;
+using StackSizeInBytes = std::optional<uint>;
 
 namespace Internal {
 

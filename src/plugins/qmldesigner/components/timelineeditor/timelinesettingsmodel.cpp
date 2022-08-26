@@ -9,7 +9,6 @@
 #include <variantproperty.h>
 #include <qmlvisualnode.h>
 
-#include <utils/optional.h>
 #include <utils/qtcassert.h>
 
 #include <QComboBox>
@@ -19,9 +18,11 @@
 #include <QStyledItemDelegate>
 #include <QTimer>
 
+#include <optional>
+
 namespace QmlDesigner {
 
-static void setDataForFixedFrame(QStandardItem *item, Utils::optional<int> fixedValue)
+static void setDataForFixedFrame(QStandardItem *item, std::optional<int> fixedValue)
 {
     if (fixedValue)
         item->setData(fixedValue.value(), Qt::EditRole);
@@ -172,7 +173,7 @@ void TimelineSettingsModel::setupDelegates(QAbstractItemView *view)
     view->setItemDelegate(new TimelineEditorDelegate);
 }
 
-static Utils::optional<int> propertyValueForState(const ModelNode &modelNode,
+static std::optional<int> propertyValueForState(const ModelNode &modelNode,
                                  QmlModelState state,
                                  const PropertyName &propertyName)
 {

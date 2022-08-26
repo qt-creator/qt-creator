@@ -767,7 +767,7 @@ bool isWindowsDriveLetter(QChar ch) {
 
 using RootAndPath = QPair<QStringView, QStringView>;
 
-optional<RootAndPath> windowsRootAndPath(const QStringView path)
+std::optional<RootAndPath> windowsRootAndPath(const QStringView path)
 {
     const QChar slash('/');
     QStringView workPath = path;
@@ -799,7 +799,9 @@ optional<RootAndPath> windowsRootAndPath(const QStringView path)
 
 void FilePath::setRootAndPath(QStringView path, OsType osType)
 {
-    optional<RootAndPath> windowsDriveAndPath = osType == OsType::OsTypeWindows ? windowsRootAndPath(path) : nullopt;
+    std::optional<RootAndPath> windowsDriveAndPath = osType == OsType::OsTypeWindows
+                                                         ? windowsRootAndPath(path)
+                                                         : std::nullopt;
 
     if (path.startsWith(QLatin1String("/./"))) {
         m_root = "";

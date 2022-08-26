@@ -271,7 +271,7 @@ void UpdateInfoPlugin::checkForUpdatesFinished()
                                << "prerelease:" << p.isPrerelease;
         }
     }
-    Utils::optional<QtPackage> qtToNag = qtToNagAbout(qtPackages, &d->m_lastMaxQtVersion);
+    std::optional<QtPackage> qtToNag = qtToNagAbout(qtPackages, &d->m_lastMaxQtVersion);
 
     if (!updates.isEmpty() || qtToNag) {
         // progress details are shown until user interaction for the "no updates" case,

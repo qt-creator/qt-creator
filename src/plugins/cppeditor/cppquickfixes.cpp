@@ -3346,7 +3346,7 @@ void InsertDefsFromDecls::match(const CppQuickFixInterface &interface, QuickFixO
 
 namespace {
 
-Utils::optional<FullySpecifiedType> getFirstTemplateParameter(const Name *name)
+std::optional<FullySpecifiedType> getFirstTemplateParameter(const Name *name)
 {
     if (const QualifiedNameId *qualifiedName = name->asQualifiedNameId())
         return getFirstTemplateParameter(qualifiedName->name());
@@ -3358,7 +3358,7 @@ Utils::optional<FullySpecifiedType> getFirstTemplateParameter(const Name *name)
     return {};
 }
 
-Utils::optional<FullySpecifiedType> getFirstTemplateParameter(Type *type)
+std::optional<FullySpecifiedType> getFirstTemplateParameter(Type *type)
 {
     if (NamedType *namedType = type->asNamedType())
         return getFirstTemplateParameter(namedType->name());
@@ -3366,7 +3366,7 @@ Utils::optional<FullySpecifiedType> getFirstTemplateParameter(Type *type)
     return {};
 }
 
-Utils::optional<FullySpecifiedType> getFirstTemplateParameter(FullySpecifiedType type)
+std::optional<FullySpecifiedType> getFirstTemplateParameter(FullySpecifiedType type)
 {
     return getFirstTemplateParameter(type.type());
 }
@@ -3870,7 +3870,7 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
     getSetTemplate.replacePlaceholders(data.memberVariableName, parameterName);
 
     using Pattern = CppQuickFixSettings::GetterSetterTemplate;
-    Utils::optional<FullySpecifiedType> returnTypeTemplateParameter;
+    std::optional<FullySpecifiedType> returnTypeTemplateParameter;
     if (getSetTemplate.returnTypeTemplate.has_value()) {
         QString returnTypeTemplate = getSetTemplate.returnTypeTemplate.value();
         if (returnTypeTemplate.contains(Pattern::TEMPLATE_PARAMETER_PATTERN)) {

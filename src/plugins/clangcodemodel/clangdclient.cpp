@@ -99,7 +99,7 @@ public:
     QString usr() const { return typedValue<QString>(usrKey); }
 
     // the clangd-specific opaque symbol ID
-    Utils::optional<QString> id() const { return optionalValue<QString>(idKey); }
+    std::optional<QString> id() const { return optionalValue<QString>(idKey); }
 
     bool isValid() const override
     {
@@ -206,7 +206,7 @@ public:
         m_data.emplace(std::make_pair(doc, VersionedDocData(doc, data)));
     }
     void remove(const DocType &doc) { m_data.erase(doc); }
-    Utils::optional<VersionedDocData<DocType, DataType>> take(const DocType &doc)
+    std::optional<VersionedDocData<DocType, DataType>> take(const DocType &doc)
     {
         const auto it = m_data.find(doc);
         if (it == m_data.end())
@@ -215,7 +215,7 @@ public:
         m_data.erase(it);
         return data;
     }
-    Utils::optional<DataType> get(const DocType &doc)
+    std::optional<DataType> get(const DocType &doc)
     {
         const auto it = m_data.find(doc);
         if (it == m_data.end())
@@ -251,7 +251,7 @@ public:
         : q(q), settings(CppEditor::ClangdProjectSettings(project).settings()) {}
 
     void findUsages(TextDocument *document, const QTextCursor &cursor,
-                    const QString &searchTerm, const Utils::optional<QString> &replacement,
+                    const QString &searchTerm, const std::optional<QString> &replacement,
                     bool categorize);
 
     void handleDeclDefSwitchReplies();
@@ -275,7 +275,7 @@ public:
     ClangdFollowSymbol *followSymbol = nullptr;
     ClangdSwitchDeclDef *switchDeclDef = nullptr;
     ClangdFindLocalReferences *findLocalRefs = nullptr;
-    Utils::optional<QVersionNumber> versionNumber;
+    std::optional<QVersionNumber> versionNumber;
 
     QHash<TextDocument *, HighlightingData> highlightingData;
     QHash<Utils::FilePath, CppEditor::BaseEditorDocumentParser::Configuration> parserConfigs;
@@ -354,7 +354,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
     for (const Client *client : clients)
         qCWarning(clangdLog) << client->name() << client->stateString();
     ClientCapabilities caps = Client::defaultClientCapabilities();
-    Utils::optional<TextDocumentClientCapabilities> textCaps = caps.textDocument();
+    std::optional<TextDocumentClientCapabilities> textCaps = caps.textDocument();
     if (textCaps) {
         ClangdTextDocumentClientCapabilities clangdTextCaps(*textCaps);
         clangdTextCaps.clearDocumentHighlight();
@@ -362,7 +362,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
         diagnostics.enableCategorySupport();
         diagnostics.enableCodeActionsInline();
         clangdTextCaps.setPublishDiagnostics(diagnostics);
-        Utils::optional<TextDocumentClientCapabilities::CompletionCapabilities> completionCaps
+        std::optional<TextDocumentClientCapabilities::CompletionCapabilities> completionCaps
                 = textCaps->completion();
         if (completionCaps)
             clangdTextCaps.setCompletion(ClangdCompletionCapabilities(*completionCaps));
@@ -441,7 +441,7 @@ void ClangdClient::closeExtraFile(const Utils::FilePath &filePath)
 }
 
 void ClangdClient::findUsages(TextDocument *document, const QTextCursor &cursor,
-                              const Utils::optional<QString> &replacement)
+                              const std::optional<QString> &replacement)
 {
     // Quick check: Are we even on anything searchable?
     const QTextCursor adjustedCursor = d->adjustedCursor(cursor, document);
@@ -615,7 +615,7 @@ CppEditor::ClangdSettings::Data ClangdClient::settingsData() const { return d->s
 
 void ClangdClient::Private::findUsages(TextDocument *document,
         const QTextCursor &cursor, const QString &searchTerm,
-        const Utils::optional<QString> &replacement, bool categorize)
+        const std::optional<QString> &replacement, bool categorize)
 {
     const auto findRefs = new ClangdFindReferences(q, document, cursor, searchTerm, replacement,
                                                    categorize);
@@ -753,7 +753,7 @@ void ClangdClient::clearTasks(const Utils::FilePath &filePath)
     d->issuePaneEntries[filePath].clear();
 }
 
-Utils::optional<bool> ClangdClient::hasVirtualFunctionAt(TextDocument *doc, int revision,
+std::optional<bool> ClangdClient::hasVirtualFunctionAt(TextDocument *doc, int revision,
                                                          const Range &range)
 {
     const auto highlightingData = d->highlightingData.constFind(doc);
@@ -860,7 +860,7 @@ void ClangdClient::switchHeaderSource(const Utils::FilePath &filePath, bool inNe
     };
     SwitchSourceHeaderRequest req(filePath);
     req.setResponseCallback([inNextSplit](const SwitchSourceHeaderRequest::Response &response) {
-        if (const Utils::optional<QJsonValue> result = response.result()) {
+        if (const std::optional<QJsonValue> result = response.result()) {
             const DocumentUri uri = DocumentUri::fromProtocol(result->toString());
             const Utils::FilePath filePath = uri.toFilePath();
             if (!filePath.isEmpty())
@@ -900,7 +900,7 @@ void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cu
 void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverResponse,
                                             const DocumentUri &uri)
 {
-    if (const Utils::optional<HoverResult> result = hoverResponse.result()) {
+    if (const std::optional<HoverResult> result = hoverResponse.result()) {
         if (auto hover = std::get_if<Hover>(&(*result))) {
             const HoverContent content = hover->content();
             const MarkupContent *const markup = std::get_if<MarkupContent>(&content);
@@ -942,7 +942,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
     const auto astHandler = [this, uri, hoverResponse](const ClangdAstNode &ast, const MessageId &) {
         const MessageId id = hoverResponse.id();
         Range range;
-        if (const Utils::optional<HoverResult> result = hoverResponse.result()) {
+        if (const std::optional<HoverResult> result = hoverResponse.result()) {
             if (auto hover = std::get_if<Hover>(&(*result)))
                 range = hover->range().value_or(Range());
         }
@@ -953,12 +953,12 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
         }
         ClangdAstNode node = path.last();
         if (node.role() == "expression" && node.kind() == "ImplicitCast") {
-            const Utils::optional<QList<ClangdAstNode>> children = node.children();
+            const std::optional<QList<ClangdAstNode>> children = node.children();
             if (children && !children->isEmpty())
                 node = children->first();
         }
         while (node.kind() == "Qualified") {
-            const Utils::optional<QList<ClangdAstNode>> children = node.children();
+            const std::optional<QList<ClangdAstNode>> children = node.children();
             if (children && !children->isEmpty())
                 node = children->first();
         }
@@ -1120,7 +1120,7 @@ QTextCursor ClangdClient::Private::adjustedCursor(const QTextCursor &cursor,
             case T_DOT:
                 break;
             case T_ARROW: {
-                const Utils::optional<ClangdAstNode> clangdAst = astCache.get(doc);
+                const std::optional<ClangdAstNode> clangdAst = astCache.get(doc);
                 if (!clangdAst)
                     return cursor;
                 const ClangdAstPath clangdAstPath = getAstPath(*clangdAst, Range(cursor));
@@ -1289,7 +1289,7 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
     getAndHandleAst(doc, astHandler, AstCallbackMode::SyncIfPossible);
 }
 
-Utils::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const
+std::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const
 {
     auto actions = optionalArray<LanguageServerProtocol::CodeAction>(u"codeActions");
     if (!actions)

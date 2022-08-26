@@ -23,20 +23,26 @@ static constexpr char16_t arcanaKey[] = u"arcana";
 
 QString ClangdAstNode::role() const { return typedValue<QString>(roleKey); }
 QString ClangdAstNode::kind() const { return typedValue<QString>(kindKey); }
-optional<QString> ClangdAstNode::detail() const { return optionalValue<QString>(detailKey); }
-optional<QString> ClangdAstNode::arcana() const { return optionalValue<QString>(arcanaKey); }
+std::optional<QString> ClangdAstNode::detail() const
+{
+    return optionalValue<QString>(detailKey);
+}
+std::optional<QString> ClangdAstNode::arcana() const
+{
+    return optionalValue<QString>(arcanaKey);
+}
 Range ClangdAstNode::range() const { return typedValue<Range>(rangeKey); }
 bool ClangdAstNode::hasRange() const { return contains(rangeKey); }
 bool ClangdAstNode::isValid() const { return contains(roleKey) && contains(kindKey); }
 
-optional<QList<ClangdAstNode> > ClangdAstNode::children() const
+std::optional<QList<ClangdAstNode>> ClangdAstNode::children() const
 {
     return optionalArray<ClangdAstNode>(childrenKey);
 }
 
 bool ClangdAstNode::arcanaContains(const QString &s) const
 {
-    const optional<QString> arcanaString = arcana();
+    const std::optional<QString> arcanaString = arcana();
     return arcanaString && arcanaString->contains(s);
 }
 
@@ -88,7 +94,7 @@ bool ClangdAstNode::isTemplateParameterDeclaration() const
 
 QString ClangCodeModel::Internal::ClangdAstNode::type() const
 {
-    const optional<QString> arcanaString = arcana();
+    const std::optional<QString> arcanaString = arcana();
     if (!arcanaString)
         return {};
     return typeFromPos(*arcanaString, 0);
@@ -156,7 +162,7 @@ bool ClangdAstNode::hasConstType() const
 
 bool ClangdAstNode::childContainsRange(int index, const LanguageServerProtocol::Range &range) const
 {
-    const optional<QList<ClangdAstNode>> childList = children();
+    const std::optional<QList<ClangdAstNode>> childList = children();
     return childList && childList->size() > index && childList->at(index).range().contains(range);
 }
 
@@ -171,7 +177,7 @@ QString ClangdAstNode::operatorString() const
     if (kind() == "BinaryOperator")
         return detail().value_or(QString());
     QTC_ASSERT(kind() == "CXXOperatorCall", return {});
-    const optional<QString> arcanaString = arcana();
+    const std::optional<QString> arcanaString = arcana();
     if (!arcanaString)
         return {};
     const int closingQuoteOffset = arcanaString->lastIndexOf('\'');
@@ -186,7 +192,7 @@ QString ClangdAstNode::operatorString() const
 
 ClangdAstNode::FileStatus ClangdAstNode::fileStatus(const FilePath &thisFile) const
 {
-    const optional<QString> arcanaString = arcana();
+    const std::optional<QString> arcanaString = arcana();
     if (!arcanaString)
         return FileStatus::Unknown;
 
@@ -368,7 +374,7 @@ MessageId requestAst(Client *client, const FilePath &filePath, const Range range
 
         // The region of the source code whose AST is fetched. The highest-level node that entirely
         // contains the range is returned.
-        optional<Range> range() const { return optionalValue<Range>(rangeKey); }
+        std::optional<Range> range() const { return optionalValue<Range>(rangeKey); }
         void setRange(const Range &range) { insert(rangeKey, range); }
 
         bool isValid() const override { return contains(textDocumentKey); }

@@ -210,7 +210,7 @@ static void configureOverviewWithCodeStyleSettings(CPlusPlus::Overview &overview
 CPlusPlus::Overview CppCodeStyleSettings::currentProjectCodeStyleOverview()
 {
     CPlusPlus::Overview overview;
-    const Utils::optional<CppCodeStyleSettings> codeStyleSettings = currentProjectCodeStyle();
+    const std::optional<CppCodeStyleSettings> codeStyleSettings = currentProjectCodeStyle();
     configureOverviewWithCodeStyleSettings(overview,
                                            codeStyleSettings.value_or(currentGlobalCodeStyle()));
     return overview;

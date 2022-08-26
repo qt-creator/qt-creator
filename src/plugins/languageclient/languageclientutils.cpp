@@ -170,17 +170,17 @@ void updateCodeActionRefactoringMarker(Client *client,
 
     for (const CodeAction &action : actions) {
         const QList<Diagnostic> &diagnostics = action.diagnostics().value_or(QList<Diagnostic>());
-        if (Utils::optional<WorkspaceEdit> edit = action.edit()) {
+        if (std::optional<WorkspaceEdit> edit = action.edit()) {
             if (diagnostics.isEmpty()) {
                 QList<TextEdit> edits;
-                if (optional<QList<TextDocumentEdit>> documentChanges = edit->documentChanges()) {
+                if (std::optional<QList<TextDocumentEdit>> documentChanges = edit->documentChanges()) {
                     QList<TextDocumentEdit> changesForUri = Utils::filtered(
                                 *documentChanges, [uri](const TextDocumentEdit &edit) {
                         return edit.textDocument().uri() == uri;
                     });
                     for (const TextDocumentEdit &edit : changesForUri)
                         edits << edit.edits();
-                } else if (optional<WorkspaceEdit::Changes> localChanges = edit->changes()) {
+                } else if (std::optional<WorkspaceEdit::Changes> localChanges = edit->changes()) {
                     edits = (*localChanges)[uri];
                 }
                 for (const TextEdit &edit : qAsConst(edits))

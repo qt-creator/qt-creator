@@ -5,14 +5,13 @@
 
 namespace LanguageServerProtocol {
 
-Utils::optional<QList<SymbolKind> > SymbolCapabilities::SymbolKindCapabilities::valueSet() const
+std::optional<QList<SymbolKind>> SymbolCapabilities::SymbolKindCapabilities::valueSet() const
 {
-    if (Utils::optional<QList<int>> array = optionalArray<int>(valueSetKey)) {
-        return Utils::make_optional(Utils::transform(*array, [] (int value) {
-            return static_cast<SymbolKind>(value);
-        }));
+    if (std::optional<QList<int>> array = optionalArray<int>(valueSetKey)) {
+        return std::make_optional(
+            Utils::transform(*array, [](int value) { return static_cast<SymbolKind>(value); }));
     }
-    return Utils::nullopt;
+    return std::nullopt;
 }
 
 void SymbolCapabilities::SymbolKindCapabilities::setValueSet(const QList<SymbolKind> &valueSet)
@@ -25,7 +24,7 @@ WorkspaceClientCapabilities::WorkspaceClientCapabilities()
     setWorkspaceFolders(true);
 }
 
-Utils::optional<std::variant<bool, QJsonObject>> SemanticTokensClientCapabilities::Requests::range()
+std::optional<std::variant<bool, QJsonObject>> SemanticTokensClientCapabilities::Requests::range()
     const
 {
     using RetType = std::variant<bool, QJsonObject>;
@@ -34,7 +33,7 @@ Utils::optional<std::variant<bool, QJsonObject>> SemanticTokensClientCapabilitie
         return RetType(rangeOptions.toBool());
     if (rangeOptions.isObject())
         return RetType(rangeOptions.toObject());
-    return Utils::nullopt;
+    return std::nullopt;
 }
 
 void SemanticTokensClientCapabilities::Requests::setRange(
@@ -43,7 +42,7 @@ void SemanticTokensClientCapabilities::Requests::setRange(
     insertVariant<bool, QJsonObject>(rangeKey, range);
 }
 
-Utils::optional<std::variant<bool, FullSemanticTokenOptions>>
+std::optional<std::variant<bool, FullSemanticTokenOptions>>
 SemanticTokensClientCapabilities::Requests::full() const
 {
     using RetType = std::variant<bool, FullSemanticTokenOptions>;
@@ -52,7 +51,7 @@ SemanticTokensClientCapabilities::Requests::full() const
         return RetType(fullOptions.toBool());
     if (fullOptions.isObject())
         return RetType(FullSemanticTokenOptions(fullOptions.toObject()));
-    return Utils::nullopt;
+    return std::nullopt;
 }
 
 void SemanticTokensClientCapabilities::Requests::setFull(
@@ -61,8 +60,7 @@ void SemanticTokensClientCapabilities::Requests::setFull(
     insertVariant<bool, FullSemanticTokenOptions>(fullKey, full);
 }
 
-Utils::optional<SemanticTokensClientCapabilities> TextDocumentClientCapabilities::semanticTokens()
-    const
+std::optional<SemanticTokensClientCapabilities> TextDocumentClientCapabilities::semanticTokens() const
 {
     return optionalValue<SemanticTokensClientCapabilities>(semanticTokensKey);
 }

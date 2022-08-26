@@ -336,7 +336,7 @@ void ClangdCompletionItem::apply(TextDocumentManipulatorInterface &manipulator,
 
 ClangdCompletionItem::SpecialQtType ClangdCompletionItem::getQtType(const CompletionItem &item)
 {
-    const Utils::optional<MarkupOrString> doc = item.documentation();
+    const std::optional<MarkupOrString> doc = item.documentation();
     if (!doc)
         return SpecialQtType::None;
     QString docText;
@@ -612,7 +612,7 @@ ClangdCompletionCapabilities::ClangdCompletionCapabilities(const JsonObject &obj
     : TextDocumentClientCapabilities::CompletionCapabilities(object)
 {
     insert(u"editsNearCursor", true); // For dot-to-arrow correction.
-    if (Utils::optional<CompletionItemCapbilities> completionItemCaps = completionItem()) {
+    if (std::optional<CompletionItemCapbilities> completionItemCaps = completionItem()) {
         completionItemCaps->setSnippetSupport(false);
         setCompletionItem(*completionItemCaps);
     }

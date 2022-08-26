@@ -12,7 +12,8 @@
 #include "target.h"
 
 #include <utils/fileutils.h>
-#include <utils/optional.h>
+
+#include <optional>
 
 namespace MesonProjectManager {
 namespace Internal {
@@ -26,7 +27,7 @@ struct Result
     TargetsList targets;
     BuildOptionsList buildOptions;
     std::vector<Utils::FilePath> buildSystemFiles;
-    Utils::optional<MesonInfo> mesonInfo;
+    std::optional<MesonInfo> mesonInfo;
 };
 
 inline Result parse(const QString &buildDir)
@@ -43,7 +44,7 @@ inline Result parse(const QByteArray &data)
     return {TargetParser{json}.targetList(),
             BuildOptionsParser{json}.takeBuildOptions(),
             BuildSystemFilesParser{json}.files(),
-            Utils::nullopt};
+            std::nullopt};
 }
 
 inline Result parse(QIODevice *introFile)
@@ -57,7 +58,7 @@ inline Result parse(QIODevice *introFile)
     }
     return {};
 }
-inline Utils::optional<MesonInfo> mesonInfo(const QString &buildDir)
+inline std::optional<MesonInfo> mesonInfo(const QString &buildDir)
 {
     return InfoParser{buildDir}.info();
 }

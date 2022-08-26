@@ -8,7 +8,7 @@
 #include <QPair>
 #include <QVector>
 
-#include <utils/optional.h>
+#include <optional>
 
 namespace ProjectExplorer {
 
@@ -56,7 +56,7 @@ public:
         }
     }
 
-    Utils::optional<T> check(const K &key)
+    std::optional<T> check(const K &key)
     {
         QMutexLocker locker(&m_mutex);
         return checkImpl(key);
@@ -69,7 +69,7 @@ public:
     }
 
 private:
-    Utils::optional<T> checkImpl(const K &key)
+    std::optional<T> checkImpl(const K &key)
     {
         auto it = std::stable_partition(m_cache.begin(), m_cache.end(), [&](const CacheItem &ci) {
             return ci.first != key;

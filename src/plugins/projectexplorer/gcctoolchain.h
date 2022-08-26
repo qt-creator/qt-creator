@@ -11,10 +11,10 @@
 #include "headerpath.h"
 
 #include <utils/fileutils.h>
-#include <utils/optional.h>
 
 #include <functional>
 #include <memory>
+#include <optional>
 
 namespace ProjectExplorer {
 
@@ -222,7 +222,7 @@ protected:
 private:
     // "resolved" on macOS from /usr/bin/clang(++) etc to <DeveloperDir>/usr/bin/clang(++)
     // which is used for comparison with matchesCompileCommand
-    mutable Utils::optional<Utils::FilePath> m_resolvedCompilerCommand;
+    mutable std::optional<Utils::FilePath> m_resolvedCompilerCommand;
     QByteArray m_parentToolChainId;
     QMetaObject::Connection m_mingwToolchainAddedConnection;
     QMetaObject::Connection m_thisToolchainRemovedConnection;

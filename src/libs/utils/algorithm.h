@@ -4,7 +4,6 @@
 #pragma once
 
 #include "predicates.h"
-#include "optional.h"
 
 #include <qcompilerdetection.h> // for Q_REQUIRED_RESULT
 
@@ -22,6 +21,7 @@
 #include <QStringList>
 
 #include <memory>
+#include <optional>
 #include <type_traits>
 
 namespace Utils
@@ -187,7 +187,7 @@ auto toConstReferences(const SourceContainer &sources);
 // take
 /////////////////////////
 template<class C, typename P>
-Q_REQUIRED_RESULT optional<typename C::value_type> take(C &container, P predicate);
+Q_REQUIRED_RESULT std::optional<typename C::value_type> take(C &container, P predicate);
 template<typename C, typename R, typename S>
 Q_REQUIRED_RESULT decltype(auto) take(C &container, R S::*member);
 template<typename C, typename R, typename S>
@@ -1066,15 +1066,15 @@ auto toConstReferences(const SourceContainer &sources)
 /////////////////
 
 template<class C, typename P>
-Q_REQUIRED_RESULT optional<typename C::value_type> take(C &container, P predicate)
+Q_REQUIRED_RESULT std::optional<typename C::value_type> take(C &container, P predicate)
 {
     const auto end = std::end(container);
 
     const auto it = std::find_if(std::begin(container), end, predicate);
     if (it == end)
-        return nullopt;
+        return std::nullopt;
 
-    optional<typename C::value_type> result = Utils::make_optional(std::move(*it));
+    std::optional<typename C::value_type> result = std::make_optional(std::move(*it));
     container.erase(it);
     return result;
 }

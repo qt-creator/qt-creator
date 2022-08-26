@@ -583,7 +583,7 @@ public:
 
     void transformSelectedLines(ListTransformationMethod method);
 
-    void slotUpdateExtraAreaWidth(Utils::optional<int> width = {});
+    void slotUpdateExtraAreaWidth(std::optional<int> width = {});
     void slotUpdateRequest(const QRect &r, int dy);
     void slotUpdateBlockNotify(const QTextBlock &);
     void updateTabStops();
@@ -4840,7 +4840,7 @@ int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
     return space;
 }
 
-void TextEditorWidgetPrivate::slotUpdateExtraAreaWidth(optional<int> width)
+void TextEditorWidgetPrivate::slotUpdateExtraAreaWidth(std::optional<int> width)
 {
     if (!width.has_value())
         width = q->extraAreaWidth();
@@ -5389,7 +5389,7 @@ void TextEditorWidget::mouseMoveEvent(QMouseEvent *e)
         }
     }
 
-    static Utils::optional<MultiTextCursor> startMouseMoveCursor;
+    static std::optional<MultiTextCursor> startMouseMoveCursor;
     if (e->buttons() == Qt::LeftButton && e->modifiers() & Qt::AltModifier) {
         if (!startMouseMoveCursor.has_value()) {
             startMouseMoveCursor = multiTextCursor();

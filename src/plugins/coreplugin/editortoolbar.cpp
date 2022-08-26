@@ -296,7 +296,7 @@ void EditorToolBar::setMenuProvider(const EditorToolBar::MenuProvider &provider)
 void EditorToolBar::setCurrentEditor(IEditor *editor)
 {
     IDocument *document = editor ? editor->document() : nullptr;
-    const Utils::optional<int> index = DocumentModel::rowOfDocument(document);
+    const std::optional<int> index = DocumentModel::rowOfDocument(document);
     if (QTC_GUARD(index))
         d->m_editorList->setCurrentIndex(*index);
 

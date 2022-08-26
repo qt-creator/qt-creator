@@ -4,11 +4,12 @@
 #pragma once
 
 #include <utils/fileutils.h>
-#include <utils/optional.h>
 #include <utils/textutils.h>
 
 #include <QMap>
 #include <QTextBlock>
+
+#include <optional>
 #include <vector>
 
 namespace Utils {
@@ -75,7 +76,7 @@ public:
                                                      const TabSettings &tabSettings,
                                                      int cursorPositionInEditor = -1)
         = 0;
-    virtual Utils::optional<TabSettings> tabSettings() const = 0;
+    virtual std::optional<TabSettings> tabSettings() const = 0;
 
     // Indent a text block based on previous line. Default does nothing
     virtual void indentBlock(const QTextBlock &block,
@@ -98,7 +99,7 @@ public:
                           int cursorPositionInEditor = -1)
         = 0;
 
-    virtual Utils::optional<int> margin() const { return Utils::nullopt; }
+    virtual std::optional<int> margin() const { return std::nullopt; }
 
 protected:
     QTextDocument *m_doc;

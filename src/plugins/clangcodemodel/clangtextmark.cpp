@@ -215,10 +215,10 @@ ClangDiagnostic convertDiagnostic(const ClangdDiagnostic &src, const FilePath &f
     if (codeString && codeString->startsWith("-W"))
         target.enableOption = *codeString;
     for (const CodeAction &codeAction : src.codeActions().value_or(QList<CodeAction>())) {
-        const Utils::optional<WorkspaceEdit> edit = codeAction.edit();
+        const std::optional<WorkspaceEdit> edit = codeAction.edit();
         if (!edit)
             continue;
-        const Utils::optional<WorkspaceEdit::Changes> changes = edit->changes();
+        const std::optional<WorkspaceEdit::Changes> changes = edit->changes();
         if (!changes)
             continue;
         ClangDiagnostic fixItDiag;

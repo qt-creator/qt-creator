@@ -543,8 +543,8 @@ PeripheralRegisterHandler::PeripheralRegisterHandler(DebuggerEngine *engine)
 static void handleField(QXmlStreamReader &in, PeripheralRegister &reg)
 {
     PeripheralRegisterField fld;
-    Utils::optional<int> from;
-    Utils::optional<int> to;
+    std::optional<int> from;
+    std::optional<int> to;
     while (in.readNextStartElement()) {
         const auto elementName = in.name();
         if (elementName == QLatin1String(kName)) {

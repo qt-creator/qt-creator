@@ -33,7 +33,7 @@ public:
                     const bool resolveTarget);
 
     using ResultHandler = std::function<void(const QList<LanguageServerProtocol::Location> &)>;
-    Utils::optional<LanguageServerProtocol::MessageId> findUsages(
+    std::optional<LanguageServerProtocol::MessageId> findUsages(
             TextEditor::TextDocument *document,
             const QTextCursor &cursor,
             const ResultHandler &handler = {});

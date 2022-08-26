@@ -5,12 +5,12 @@
 
 #include "imagecacheauxiliarydata.h"
 
-#include <utils/optional.h>
 #include <utils/smallstring.h>
 
 #include <condition_variable>
 #include <deque>
 #include <mutex>
+#include <optional>
 #include <thread>
 
 namespace QmlDesigner {
@@ -55,7 +55,7 @@ private:
                   ImageCache::AuxiliaryData &&auxiliaryData);
     bool isRunning();
     void waitForEntries();
-    Utils::optional<Entry> getEntry();
+    std::optional<Entry> getEntry();
     void request(Utils::SmallStringView name,
                  Utils::SmallStringView extraId,
                  ImageCache::AuxiliaryData auxiliaryData,

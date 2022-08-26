@@ -7,12 +7,13 @@
 
 #include <utils/fileutils.h>
 #include <utils/id.h>
-#include <utils/optional.h>
 #include <utils/theme/theme.h>
 
 #include <QCoreApplication>
 #include <QIcon>
 #include <QVector>
+
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -90,7 +91,7 @@ public:
     void setVisible(bool isVisible);
     Utils::Id category() const { return m_category; }
 
-    Utils::optional<Utils::Theme::Color> color() const;
+    std::optional<Utils::Theme::Color> color() const;
     void setColor(const Utils::Theme::Color &color);
 
     QString defaultToolTip() const { return m_defaultToolTip; }
@@ -122,7 +123,7 @@ private:
     Priority m_priority = LowPriority;
     QIcon m_icon;
     std::function<QIcon()> m_iconProvider;
-    Utils::optional<Utils::Theme::Color> m_color;
+    std::optional<Utils::Theme::Color> m_color;
     bool m_visible = false;
     Utils::Id m_category;
     QString m_lineAnnotation;

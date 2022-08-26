@@ -135,7 +135,7 @@ public:
     QEventLoop eventLoop;
     QJsonObject reply;
     QHash<QString, QStringList> generatedFilesForSources;
-    optional<Error> lastError;
+    std::optional<Error> lastError;
     State state = State::Inactive;
 };
 
@@ -215,7 +215,7 @@ QbsSession::~QbsSession()
     delete d;
 }
 
-optional<QbsSession::Error> QbsSession::lastError() const
+std::optional<QbsSession::Error> QbsSession::lastError() const
 {
     return d->lastError;
 }

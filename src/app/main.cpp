@@ -15,7 +15,6 @@
 #include <utils/fileutils.h>
 #include <utils/fsengine/fsengine.h>
 #include <utils/hostosinfo.h>
-#include <utils/optional.h>
 #include <utils/qtcsettings.h>
 #include <utils/singleton.h>
 #include <utils/temporarydirectory.h>
@@ -47,9 +46,10 @@
 #include <QTemporaryDir>
 #include <QTextCodec>
 
+#include <iterator>
+#include <optional>
 #include <string>
 #include <vector>
-#include <iterator>
 
 #ifdef ENABLE_QT_BREAKPAD
 #include <qtsystemexceptionhandler.h>
@@ -295,7 +295,7 @@ struct Options
     QStringList preAppArguments;
     // list of arguments to be passed to the application or plugin manager
     std::vector<char *> appArguments;
-    Utils::optional<QString> userLibraryPath;
+    std::optional<QString> userLibraryPath;
     bool hasTestOption = false;
     bool wantsCleanSettings = false;
 };

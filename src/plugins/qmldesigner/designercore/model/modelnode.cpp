@@ -1038,7 +1038,7 @@ QVariant ModelNode::toVariant() const
     return QVariant::fromValue(*this);
 }
 
-Utils::optional<QVariant> ModelNode::auxiliaryData(AuxiliaryDataKeyView key) const
+std::optional<QVariant> ModelNode::auxiliaryData(AuxiliaryDataKeyView key) const
 {
     if (!isValid())
         throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
@@ -1046,7 +1046,7 @@ Utils::optional<QVariant> ModelNode::auxiliaryData(AuxiliaryDataKeyView key) con
     return m_internalNode->auxiliaryData(key);
 }
 
-Utils::optional<QVariant> ModelNode::auxiliaryData(AuxiliaryDataType type,
+std::optional<QVariant> ModelNode::auxiliaryData(AuxiliaryDataType type,
                                                    Utils::SmallStringView name) const
 {
     return auxiliaryData({type, name});

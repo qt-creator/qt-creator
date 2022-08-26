@@ -6,9 +6,9 @@
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/task.h>
 
-#include <utils/optional.h>
-
 #include <QRegularExpression>
+
+#include <optional>
 
 namespace MesonProjectManager {
 namespace Internal {
@@ -17,7 +17,7 @@ class NinjaParser final : public ProjectExplorer::OutputTaskParser
 {
     Q_OBJECT
     QRegularExpression m_progressRegex{R"(^\[(\d+)/(\d+)\])"};
-    Utils::optional<int> extractProgress(const QString &line);
+    std::optional<int> extractProgress(const QString &line);
 
 public:
     NinjaParser();

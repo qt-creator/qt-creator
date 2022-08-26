@@ -3,11 +3,10 @@
 
 #pragma once
 
-#include <utils/optional.h>
-
 #include <QString>
 #include <QStringList>
 
+#include <optional>
 #include <vector>
 
 QT_BEGIN_NAMESPACE
@@ -48,7 +47,7 @@ public:
         QString assignment = "<cur> = <new>";
         const static inline QString TYPE_PATTERN = "<type>";
         const static inline QString TEMPLATE_PARAMETER_PATTERN = "<T>";
-        Utils::optional<QString> returnTypeTemplate;
+        std::optional<QString> returnTypeTemplate;
         void replacePlaceholders(QString currentValueVariableName, QString newValueVariableName);
     };
 

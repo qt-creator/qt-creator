@@ -119,11 +119,11 @@ class CocoDiagnostic : public Diagnostic
 {
 public:
     using Diagnostic::Diagnostic;
-    optional<CocoDiagnosticSeverity> cocoSeverity() const
+    std::optional<CocoDiagnosticSeverity> cocoSeverity() const
     {
         if (auto val = optionalValue<int>(severityKey))
-            return Utils::make_optional(static_cast<CocoDiagnosticSeverity>(*val));
-        return Utils::nullopt;
+            return std::make_optional(static_cast<CocoDiagnosticSeverity>(*val));
+        return std::nullopt;
     }
 };
 
@@ -154,7 +154,7 @@ public:
         }
     }
 
-    optional<CocoDiagnosticSeverity> m_severity;
+    std::optional<CocoDiagnosticSeverity> m_severity;
     QColor m_annotationColor;
 };
 
@@ -185,7 +185,7 @@ private:
                                          bool /*isProjectFile*/) const override
     {
         const CocoDiagnostic cocoDiagnostic(diagnostic);
-        if (optional<CocoDiagnosticSeverity> severity = cocoDiagnostic.cocoSeverity())
+        if (std::optional<CocoDiagnosticSeverity> severity = cocoDiagnostic.cocoSeverity())
             return new CocoTextMark(filePath, cocoDiagnostic, client()->id());
         return nullptr;
     }
@@ -193,7 +193,8 @@ private:
     QTextEdit::ExtraSelection createDiagnosticSelection(const Diagnostic &diagnostic,
                                                         QTextDocument *textDocument) const override
     {
-        if (optional<CocoDiagnosticSeverity> severity = CocoDiagnostic(diagnostic).cocoSeverity()) {
+        if (std::optional<CocoDiagnosticSeverity> severity = CocoDiagnostic(diagnostic)
+                                                                 .cocoSeverity()) {
             QTextCursor cursor(textDocument);
             cursor.setPosition(diagnostic.range().start().toPositionInDocument(textDocument));
             cursor.setPosition(diagnostic.range().end().toPositionInDocument(textDocument),
@@ -210,7 +211,7 @@ private:
 
     void setDiagnostics(const DocumentUri &uri,
                         const QList<Diagnostic> &diagnostics,
-                        const Utils::optional<int> &version) override
+                        const std::optional<int> &version) override
     {
         DiagnosticManager::setDiagnostics(uri, diagnostics, version);
         showDiagnostics(uri, client()->documentVersion(uri.toFilePath()));

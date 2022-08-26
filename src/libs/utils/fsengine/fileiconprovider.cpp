@@ -6,7 +6,6 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeutils.h>
-#include <utils/optional.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -20,6 +19,7 @@
 #include <QIcon>
 #include <QLoggingCategory>
 
+#include <optional>
 #include <variant>
 
 using namespace Utils;
@@ -49,7 +49,7 @@ using Item = std::variant<QIcon, QString>; // icon or filename for the icon
 namespace Utils {
 namespace FileIconProvider {
 
-static Utils::optional<QIcon> getIcon(QHash<QString, Item> &cache, const QString &key)
+static std::optional<QIcon> getIcon(QHash<QString, Item> &cache, const QString &key)
 {
     auto it = cache.constFind(key);
     if (it == cache.constEnd())
@@ -188,14 +188,14 @@ QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
     // Check for cached overlay icons by file suffix.
     const QString filename = !isDir ? filePath.fileName() : QString();
     if (!filename.isEmpty()) {
-        const Utils::optional<QIcon> icon = getIcon(m_filenameCache, filename);
+        const std::optional<QIcon> icon = getIcon(m_filenameCache, filename);
         if (icon)
             return *icon;
     }
 
     const QString suffix = !isDir ? filePath.suffix() : QString();
     if (!suffix.isEmpty()) {
-        const Utils::optional<QIcon> icon = getIcon(m_suffixCache, suffix);
+        const std::optional<QIcon> icon = getIcon(m_suffixCache, suffix);
         if (icon)
             return *icon;
     }

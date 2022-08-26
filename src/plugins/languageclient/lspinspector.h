@@ -31,8 +31,8 @@ public:
     QString displayText() const;
 
 private:
-    mutable Utils::optional<LanguageServerProtocol::MessageId> m_id;
-    mutable Utils::optional<QString> m_displayText;
+    mutable std::optional<LanguageServerProtocol::MessageId> m_id;
+    mutable std::optional<QString> m_displayText;
 };
 
 struct Capabilities

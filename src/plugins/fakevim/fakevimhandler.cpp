@@ -36,7 +36,6 @@
 #include "fakevimactions.h"
 #include "fakevimtr.h"
 
-#include <utils/optional.h>
 #include <utils/qtcprocess.h>
 
 #include <QDebug>
@@ -67,6 +66,7 @@
 #include <climits>
 #include <ctype.h>
 #include <functional>
+#include <optional>
 
 //#define DEBUG_KEY  1
 #if DEBUG_KEY
@@ -2400,7 +2400,7 @@ public:
 
         // If empty, cx{motion} will store the range defined by {motion} here.
         // If non-empty, cx{motion} replaces the {motion} with selectText(*exchangeData)
-        Utils::optional<Range> exchangeRange;
+        std::optional<Range> exchangeRange;
 
         bool surroundUpperCaseS; // True for yS and cS, false otherwise
         QString surroundFunction; // Used for storing the function name provided to ys{motion}f

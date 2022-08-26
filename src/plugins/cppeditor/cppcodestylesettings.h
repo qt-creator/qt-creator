@@ -5,9 +5,9 @@
 
 #include "cppeditor_global.h"
 
-#include <utils/optional.h>
-
 #include <QVariantMap>
+
+#include <optional>
 
 namespace CPlusPlus { class Overview; }
 namespace TextEditor { class TabSettings; }

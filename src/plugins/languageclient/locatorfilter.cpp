@@ -83,7 +83,7 @@ static Core::LocatorFilterEntry generateLocatorEntry(const SymbolInformation &in
     Core::LocatorFilterEntry entry;
     entry.filter = filter;
     entry.displayName = info.name();
-    if (Utils::optional<QString> container = info.containerName())
+    if (std::optional<QString> container = info.containerName())
         entry.extraInfo = container.value_or(QString());
     entry.displayIcon = symbolIcon(info.kind());
     entry.internalData = QVariant::fromValue(info.location().toLink());
@@ -114,7 +114,7 @@ Core::LocatorFilterEntry DocumentLocatorFilter::generateLocatorEntry(
     Core::LocatorFilterEntry entry;
     entry.filter = this;
     entry.displayName = info.name();
-    if (Utils::optional<QString> detail = info.detail())
+    if (std::optional<QString> detail = info.detail())
         entry.extraInfo = detail.value_or(QString());
     entry.displayIcon = symbolIcon(info.kind());
     const Position &pos = info.range().start();
@@ -255,7 +255,7 @@ void WorkspaceLocatorFilter::prepareSearch(const QString &entry,
             continue;
         if (!(force || client->locatorsEnabled()))
             continue;
-        Utils::optional<std::variant<bool, WorkDoneProgressOptions>> capability
+        std::optional<std::variant<bool, WorkDoneProgressOptions>> capability
             = client->capabilities().workspaceSymbolProvider();
         if (!capability.has_value())
             continue;

@@ -449,7 +449,7 @@ void KeyframeItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
     bool ok;
     m_firstPos = m_transform.inverted(&ok).map(event->scenePos());
     if (!ok)
-        m_firstPos = Utils::nullopt;
+        m_firstPos = std::nullopt;
 
     SelectableItem::mousePressEvent(event);
     if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(parentItem()))
@@ -458,7 +458,7 @@ void KeyframeItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void KeyframeItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
-    m_firstPos = Utils::nullopt;
+    m_firstPos = std::nullopt;
     SelectableItem::mouseReleaseEvent(event);
     if (auto *curveItem = qgraphicsitem_cast<CurveItem *>(parentItem()))
         curveItem->setHandleVisibility(true);

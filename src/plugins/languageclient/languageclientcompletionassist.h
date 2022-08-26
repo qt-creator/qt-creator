@@ -10,11 +10,10 @@
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 
-#include <utils/optional.h>
-
 #include <QPointer>
 
 #include <functional>
+#include <optional>
 
 namespace TextEditor {
 class IAssistProposal;
@@ -40,7 +39,7 @@ public:
     bool isActivationCharSequence(const QString &sequence) const override;
     bool isContinuationChar(const QChar &) const override { return true; }
 
-    void setTriggerCharacters(const Utils::optional<QList<QString>> triggerChars);
+    void setTriggerCharacters(const std::optional<QList<QString>> triggerChars);
 
     void setSnippetsGroup(const QString &group) { m_snippetsGroup = group; }
 
@@ -78,7 +77,7 @@ private:
     QPointer<QTextDocument> m_document;
     Utils::FilePath m_filePath;
     QPointer<Client> m_client;
-    Utils::optional<LanguageServerProtocol::MessageId> m_currentRequest;
+    std::optional<LanguageServerProtocol::MessageId> m_currentRequest;
     QMetaObject::Connection m_postponedUpdateConnection;
     const QString m_snippetsGroup;
     int m_pos = -1;

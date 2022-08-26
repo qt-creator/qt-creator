@@ -319,7 +319,7 @@ public:
         m_environmentChanges = CorePlugin::environmentChanges();
         updateEnvironmentChangesLabel();
         connect(environmentButton, &QPushButton::clicked, this, [this, environmentButton] {
-            Utils::optional<EnvironmentItems> changes
+            std::optional<EnvironmentItems> changes
                 = Utils::EnvironmentDialog::getEnvironmentItems(environmentButton,
                                                                 m_environmentChanges);
             if (!changes)

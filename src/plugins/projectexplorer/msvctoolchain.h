@@ -11,7 +11,8 @@
 #include <QFutureWatcher>
 
 #include <utils/environment.h>
-#include <utils/optional.h>
+
+#include <optional>
 
 QT_FORWARD_DECLARE_CLASS(QLabel)
 QT_FORWARD_DECLARE_CLASS(QComboBox)
@@ -78,7 +79,7 @@ public:
     int priority() const override;
 
     static void cancelMsvcToolChainDetection();
-    static Utils::optional<QString> generateEnvironmentSettings(const Utils::Environment &env,
+    static std::optional<QString> generateEnvironmentSettings(const Utils::Environment &env,
                                                                 const QString &batchFile,
                                                                 const QString &batchArgs,
                                                                 QMap<QString, QString> &envPairs);
@@ -109,7 +110,7 @@ protected:
 
     struct GenerateEnvResult
     {
-        Utils::optional<QString> error;
+        std::optional<QString> error;
         Utils::EnvironmentItems environmentItems;
     };
     static void environmentModifications(QFutureInterface<GenerateEnvResult> &future,

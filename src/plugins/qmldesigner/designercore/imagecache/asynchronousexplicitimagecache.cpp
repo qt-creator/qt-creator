@@ -93,7 +93,7 @@ void AsynchronousExplicitImageCache::clean()
     clearEntries();
 }
 
-Utils::optional<AsynchronousExplicitImageCache::RequestEntry> AsynchronousExplicitImageCache::getEntry()
+std::optional<AsynchronousExplicitImageCache::RequestEntry> AsynchronousExplicitImageCache::getEntry()
 {
     std::unique_lock lock{m_mutex};
 

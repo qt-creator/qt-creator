@@ -5,10 +5,11 @@
 
 #include "cmake_global.h"
 
-#include <utils/optional.h>
 
 #include <QByteArray>
 #include <QStringList>
+
+#include <optional>
 
 namespace Utils {
 class FilePath;
@@ -33,7 +34,7 @@ public:
     static QStringList cmakeSplitValue(const QString &in, bool keepEmpty = false);
     static Type typeStringToType(const QByteArray &typeString);
     static QString typeToTypeString(const Type t);
-    static Utils::optional<bool> toBool(const QString &value);
+    static std::optional<bool> toBool(const QString &value);
     bool isNull() const { return key.isEmpty(); }
 
     QString expandedValue(const ProjectExplorer::Kit *k) const;

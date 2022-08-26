@@ -89,20 +89,20 @@ static QVector<Tool> toolsForFilePath(const FilePath &fp)
     return toolsForMimeType(mimeTypeForFile(fp));
 }
 
-static Utils::optional<Tool> resolveTool(const Tool &tool)
+static std::optional<Tool> resolveTool(const Tool &tool)
 {
     const FilePath executable =
         tool.command.executable().withExecutableSuffix().searchInPath(tool.additionalSearchDirs);
     Tool resolvedTool = tool;
     resolvedTool.command.setExecutable(executable);
-    return executable.isEmpty() ? Utils::nullopt : Utils::make_optional(resolvedTool);
+    return executable.isEmpty() ? std::nullopt : std::make_optional(resolvedTool);
 }
 
-static Utils::optional<Tool> unzipTool(const FilePath &src, const FilePath &dest)
+static std::optional<Tool> unzipTool(const FilePath &src, const FilePath &dest)
 {
     const QVector<Tool> tools = toolsForFilePath(src);
     for (const Tool &tool : tools) {
-        const Utils::optional<Tool> resolvedTool = resolveTool(tool);
+        const std::optional<Tool> resolvedTool = resolveTool(tool);
         if (resolvedTool) {
             Tool result = *resolvedTool;
             const QString srcStr = src.toString();
@@ -138,7 +138,7 @@ bool Archive::supportsFile(const FilePath &filePath, QString *reason)
 
 Archive::Archive(const FilePath &src, const FilePath &dest)
 {
-    const Utils::optional<Tool> tool = unzipTool(src, dest);
+    const std::optional<Tool> tool = unzipTool(src, dest);
     if (!tool)
         return;
     m_commandLine = tool->command;

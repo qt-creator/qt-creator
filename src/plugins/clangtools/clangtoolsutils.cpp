@@ -54,7 +54,7 @@ static QString fixitStatus(FixitStatus status)
 
 QString createDiagnosticToolTipString(
     const Diagnostic &diagnostic,
-    Utils::optional<FixitStatus> status,
+    std::optional<FixitStatus> status,
     bool showSteps)
 {
     using StringPair = QPair<QString, QString>;

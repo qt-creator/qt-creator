@@ -55,7 +55,7 @@ bool ClangFormatIndenter::formatCodeInsteadOfIndent() const
     return ClangFormatSettings::instance().mode() == ClangFormatSettings::Mode::Formatting;
 }
 
-Utils::optional<TabSettings> ClangFormatIndenter::tabSettings() const
+std::optional<TabSettings> ClangFormatIndenter::tabSettings() const
 {
     FormatStyle style = styleForFile();
     TabSettings tabSettings;

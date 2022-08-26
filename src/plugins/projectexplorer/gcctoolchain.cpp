@@ -469,7 +469,7 @@ ToolChain::MacroInspectionRunner GccToolChain::createMacroInspectionRunner() con
         QStringList allFlags = platformCodeGenFlags + flags;  // add only cxxflags is empty?
         QStringList arguments = gccPredefinedMacrosOptions(lang) + filteredFlags(allFlags, true);
         arguments = reinterpretOptions(arguments);
-        const Utils::optional<MacroInspectionReport> cachedMacros = macroCache->check(arguments);
+        const std::optional<MacroInspectionReport> cachedMacros = macroCache->check(arguments);
         if (cachedMacros)
             return cachedMacros.value();
 
@@ -616,7 +616,7 @@ HeaderPaths GccToolChain::builtInHeaderPaths(const Utils::Environment &env,
     if (!originalTargetTriple.isEmpty())
         arguments << "-target" << originalTargetTriple;
 
-    const Utils::optional<HeaderPaths> cachedPaths = headerCache->check(qMakePair(env, arguments));
+    const std::optional<HeaderPaths> cachedPaths = headerCache->check(qMakePair(env, arguments));
     if (cachedPaths)
         return cachedPaths.value();
 

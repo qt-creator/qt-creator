@@ -72,7 +72,7 @@ public:
     HoverContent content() const;
     void setContent(const HoverContent &content);
 
-    Utils::optional<Range> range() const { return optionalValue<Range>(rangeKey); }
+    std::optional<Range> range() const { return optionalValue<Range>(rangeKey); }
     void setRange(const Range &range) { insert(rangeKey, range); }
     void clearRange() { remove(rangeKey); }
 
@@ -109,7 +109,7 @@ public:
     QString label() const { return typedValue<QString>(labelKey); }
     void setLabel(const QString &label) { insert(labelKey, label); }
 
-    Utils::optional<MarkupOrString> documentation() const;
+    std::optional<MarkupOrString> documentation() const;
     void setDocumentation(const MarkupOrString &documentation)
     { insert(documentationKey, documentation.toJson()); }
     void clearDocumentation() { remove(documentationKey); }
@@ -127,13 +127,13 @@ class LANGUAGESERVERPROTOCOL_EXPORT SignatureInformation : public ParameterInfor
 public:
     using ParameterInformation::ParameterInformation;
 
-    Utils::optional<QList<ParameterInformation>> parameters() const
+    std::optional<QList<ParameterInformation>> parameters() const
     { return optionalArray<ParameterInformation>(parametersKey); }
     void setParameters(const QList<ParameterInformation> &parameters)
     { insertArray(parametersKey, parameters); }
     void clearParameters() { remove(parametersKey); }
 
-    Utils::optional<int> activeParameter() const { return optionalValue<int>(activeParameterKey); }
+    std::optional<int> activeParameter() const { return optionalValue<int>(activeParameterKey); }
     void setActiveParameter(int activeParameter) { insert(activeParameterKey, activeParameter); }
     void clearActiveParameter() { remove(activeParameterKey); }
 };
@@ -163,7 +163,7 @@ public:
      * In future version of the protocol this property might become
      * mandatory to better express this.
      */
-    Utils::optional<int> activeSignature() const { return optionalValue<int>(activeSignatureKey); }
+    std::optional<int> activeSignature() const { return optionalValue<int>(activeSignatureKey); }
     void setActiveSignature(int activeSignature) { insert(activeSignatureKey, activeSignature); }
     void clearActiveSignature() { remove(activeSignatureKey); }
 
@@ -176,7 +176,7 @@ public:
      * mandatory to better express the active parameter if the
      * active signature does have any.
      */
-    Utils::optional<int> activeParameter() const { return optionalValue<int>(activeParameterKey); }
+    std::optional<int> activeParameter() const { return optionalValue<int>(activeParameterKey); }
     void setActiveParameter(int activeParameter) { insert(activeParameterKey, activeParameter); }
     void clearActiveParameter() { remove(activeParameterKey); }
 
@@ -277,7 +277,7 @@ public:
     Range range() const { return typedValue<Range>(rangeKey); }
     void setRange(const Range &range) { insert(rangeKey, range); }
 
-    Utils::optional<int> kind() const { return optionalValue<int>(kindKey); }
+    std::optional<int> kind() const { return optionalValue<int>(kindKey); }
     void setKind(int kind) { insert(kindKey, kind); }
     void clearKind() { remove(kindKey); }
 
@@ -394,7 +394,7 @@ public:
         void setDiagnostics(const QList<Diagnostic> &diagnostics)
         { insertArray(diagnosticsKey, diagnostics); }
 
-        Utils::optional<QList<CodeActionKind>> only() const;
+        std::optional<QList<CodeActionKind>> only() const;
         void setOnly(const QList<CodeActionKind> &only);
         void clearOnly() { remove(onlyKey); }
 
@@ -424,21 +424,21 @@ public:
     QString title() const { return typedValue<QString>(titleKey); }
     void setTitle(QString title) { insert(titleKey, title); }
 
-    Utils::optional<CodeActionKind> kind() const { return optionalValue<CodeActionKind>(kindKey); }
+    std::optional<CodeActionKind> kind() const { return optionalValue<CodeActionKind>(kindKey); }
     void setKind(const CodeActionKind &kind) { insert(kindKey, kind); }
     void clearKind() { remove(kindKey); }
 
-    Utils::optional<QList<Diagnostic>> diagnostics() const
+    std::optional<QList<Diagnostic>> diagnostics() const
     { return optionalArray<Diagnostic>(diagnosticsKey); }
     void setDiagnostics(const QList<Diagnostic> &diagnostics)
     { insertArray(diagnosticsKey, diagnostics); }
     void clearDiagnostics() { remove(diagnosticsKey); }
 
-    Utils::optional<WorkspaceEdit> edit() const { return optionalValue<WorkspaceEdit>(editKey); }
+    std::optional<WorkspaceEdit> edit() const { return optionalValue<WorkspaceEdit>(editKey); }
     void setEdit(const WorkspaceEdit &edit) { insert(editKey, edit); }
     void clearEdit() { remove(editKey); }
 
-    Utils::optional<Command> command() const { return optionalValue<Command>(commandKey); }
+    std::optional<Command> command() const { return optionalValue<Command>(commandKey); }
     void setCommand(const Command &command) { insert(commandKey, command); }
     void clearCommand() { remove(commandKey); }
 
@@ -472,11 +472,11 @@ public:
     Range range() const { return typedValue<Range>(rangeKey); }
     void setRange(const Range &range) { insert(rangeKey, range); }
 
-    Utils::optional<Command> command() const { return optionalValue<Command>(commandKey); }
+    std::optional<Command> command() const { return optionalValue<Command>(commandKey); }
     void setCommand(const Command &command) { insert(commandKey, command); }
     void clearCommand() { remove(commandKey); }
 
-    Utils::optional<QJsonValue> data() const;
+    std::optional<QJsonValue> data() const;
     void setData(const QJsonValue &data) { insert(dataKey, data); }
     void clearData() { remove(dataKey); }
 
@@ -509,11 +509,11 @@ public:
     Range range() const { return typedValue<Range>(rangeKey); }
     void setRange(const Range &range) { insert(rangeKey, range); }
 
-    Utils::optional<DocumentUri> target() const;
+    std::optional<DocumentUri> target() const;
     void setTarget(const DocumentUri &target) { insert(targetKey, target.toString()); }
     void clearTarget() { remove(targetKey); }
 
-    Utils::optional<QJsonValue> data() const;
+    std::optional<QJsonValue> data() const;
     void setData(const QJsonValue &data) { insert(dataKey, data); }
     void clearData() { remove(dataKey); }
 
@@ -614,11 +614,11 @@ public:
     QString label() const { return typedValue<QString>(labelKey); }
     void setLabel(const QString &label) { insert(labelKey, label); }
 
-    Utils::optional<TextEdit> textEdit() const { return optionalValue<TextEdit>(textEditKey); }
+    std::optional<TextEdit> textEdit() const { return optionalValue<TextEdit>(textEditKey); }
     void setTextEdit(const TextEdit &textEdit) { insert(textEditKey, textEdit); }
     void clearTextEdit() { remove(textEditKey); }
 
-    Utils::optional<QList<TextEdit>> additionalTextEdits() const
+    std::optional<QList<TextEdit>> additionalTextEdits() const
     { return optionalArray<TextEdit>(additionalTextEditsKey); }
     void setAdditionalTextEdits(const QList<TextEdit> &additionalTextEdits)
     { insertArray(additionalTextEditsKey, additionalTextEdits); }
@@ -659,19 +659,19 @@ public:
     bool insertSpace() const { return typedValue<bool>(insertSpaceKey); }
     void setInsertSpace(bool insertSpace) { insert(insertSpaceKey, insertSpace); }
 
-    Utils::optional<bool> trimTrailingWhitespace() const
+    std::optional<bool> trimTrailingWhitespace() const
     { return optionalValue<bool>(trimTrailingWhitespaceKey); }
     void setTrimTrailingWhitespace(bool trimTrailingWhitespace)
     { insert(trimTrailingWhitespaceKey, trimTrailingWhitespace); }
     void clearTrimTrailingWhitespace() { remove(trimTrailingWhitespaceKey); }
 
-    Utils::optional<bool> insertFinalNewline() const
+    std::optional<bool> insertFinalNewline() const
     { return optionalValue<bool>(insertFinalNewlineKey); }
     void setInsertFinalNewline(bool insertFinalNewline)
     { insert(insertFinalNewlineKey, insertFinalNewline); }
     void clearInsertFinalNewline() { remove(insertFinalNewlineKey); }
 
-    Utils::optional<bool> trimFinalNewlines() const
+    std::optional<bool> trimFinalNewlines() const
     { return optionalValue<bool>(trimFinalNewlinesKey); }
     void setTrimFinalNewlines(bool trimFinalNewlines)
     { insert(trimFinalNewlinesKey, trimFinalNewlines); }

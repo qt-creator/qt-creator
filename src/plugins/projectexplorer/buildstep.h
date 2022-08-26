@@ -8,7 +8,6 @@
 #include "buildconfiguration.h"
 #include "projectexplorer_export.h"
 
-#include <utils/optional.h>
 #include <utils/qtcassert.h>
 
 #include <QWidget>
@@ -16,6 +15,7 @@
 #include <atomic>
 #include <functional>
 #include <memory>
+#include <optional>
 
 namespace Utils {
 class Environment;
@@ -134,7 +134,7 @@ private:
     bool m_widgetExpandedByDefault = true;
     bool m_runInGuiThread = true;
     bool m_addMacroExpander = false;
-    Utils::optional<bool> m_wasExpanded;
+    std::optional<bool> m_wasExpanded;
     std::function<QString()> m_summaryUpdater;
 
     QString m_summaryText;

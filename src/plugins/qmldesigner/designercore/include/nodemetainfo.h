@@ -11,12 +11,11 @@
 #include <projectstorage/projectstoragetypes.h>
 #include <projectstorageids.h>
 
-#include <utils/optional.h>
-
 #include <QList>
 #include <QString>
 #include <QIcon>
 
+#include <optional>
 #include <vector>
 
 QT_BEGIN_NAMESPACE
@@ -170,7 +169,7 @@ private:
 private:
     TypeId m_typeId;
     NotNullPointer<const ProjectStorage<Sqlite::Database>> m_projectStorage = {};
-    mutable Utils::optional<Storage::Info::Type> m_typeData;
+    mutable std::optional<Storage::Info::Type> m_typeData;
     QSharedPointer<class NodeMetaInfoPrivate> m_privateData;
 };
 

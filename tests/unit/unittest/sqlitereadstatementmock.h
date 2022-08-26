@@ -11,12 +11,12 @@
 #include <projectstorageids.h>
 #include <sqliteblob.h>
 #include <sqlitetimestamp.h>
-#include <utils/optional.h>
 #include <utils/smallstring.h>
 
 #include <QImage>
 
 #include <cstdint>
+#include <optional>
 #include <tuple>
 #include <vector>
 
@@ -33,25 +33,25 @@ public:
     MOCK_METHOD(std::vector<Utils::SmallString>, valuesReturnStringVector, (std::size_t), ());
 
     MOCK_METHOD(std::vector<long long>, valuesReturnRowIds, (std::size_t), ());
-    MOCK_METHOD(Utils::optional<long long>, valueReturnInt64, (), ());
-    MOCK_METHOD(Utils::optional<Sqlite::ByteArrayBlob>,
+    MOCK_METHOD(std::optional<long long>, valueReturnInt64, (), ());
+    MOCK_METHOD(std::optional<Sqlite::ByteArrayBlob>,
                 valueReturnBlob,
                 (Utils::SmallStringView, long long),
                 ());
 
-    MOCK_METHOD(Utils::optional<int>, valueReturnInt32, (Utils::SmallStringView), ());
+    MOCK_METHOD(std::optional<int>, valueReturnInt32, (Utils::SmallStringView), ());
 
-    MOCK_METHOD(Utils::optional<int>, valueReturnInt32, (int, Utils::SmallStringView), ());
+    MOCK_METHOD(std::optional<int>, valueReturnInt32, (int, Utils::SmallStringView), ());
 
-    MOCK_METHOD(Utils::optional<int>, valueReturnInt32, (int), ());
+    MOCK_METHOD(std::optional<int>, valueReturnInt32, (int), ());
 
-    MOCK_METHOD(Utils::optional<long long>, valueReturnInt64, (int), ());
+    MOCK_METHOD(std::optional<long long>, valueReturnInt64, (int), ());
 
-    MOCK_METHOD(Utils::optional<Utils::PathString>, valueReturnPathString, (int), ());
+    MOCK_METHOD(std::optional<Utils::PathString>, valueReturnPathString, (int), ());
 
-    MOCK_METHOD(Utils::optional<Utils::PathString>, valueReturnPathString, (Utils::SmallStringView), ());
+    MOCK_METHOD(std::optional<Utils::PathString>, valueReturnPathString, (Utils::SmallStringView), ());
 
-    MOCK_METHOD(Utils::optional<Utils::SmallString>, valueReturnSmallString, (int), ());
+    MOCK_METHOD(std::optional<Utils::SmallString>, valueReturnSmallString, (int), ());
 
     MOCK_METHOD(QmlDesigner::TypeId, valueReturnsTypeId, (long long, Utils::SmallStringView name), ());
     MOCK_METHOD(QmlDesigner::TypeId, valueWithTransactionReturnsTypeId, (long long, long long), ());

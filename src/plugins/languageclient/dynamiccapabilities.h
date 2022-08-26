@@ -45,7 +45,7 @@ public:
     void registerCapability(const QList<LanguageServerProtocol::Registration> &registrations);
     void unregisterCapability(const QList<LanguageServerProtocol::Unregistration> &unregistrations);
 
-    Utils::optional<bool> isRegistered(const QString &method) const;
+    std::optional<bool> isRegistered(const QString &method) const;
     QJsonValue option(const QString &method) const { return m_capability.value(method).options(); }
     QStringList registeredMethods() const;
 

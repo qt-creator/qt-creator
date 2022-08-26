@@ -122,7 +122,7 @@ void TextIndenter::reindent(const QTextCursor &cursor,
     }
 }
 
-Utils::optional<TabSettings> TextIndenter::tabSettings() const
+std::optional<TabSettings> TextIndenter::tabSettings() const
 {
-    return Utils::optional<TabSettings>();
+    return std::optional<TabSettings>();
 }

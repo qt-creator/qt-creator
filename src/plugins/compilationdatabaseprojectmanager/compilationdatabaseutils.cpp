@@ -8,12 +8,13 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
-#include <utils/optional.h>
 #include <utils/stringutils.h>
 
 #include <QDir>
 #include <QRegularExpression>
 #include <QSet>
+
+#include <optional>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -100,8 +101,8 @@ void filteredFlags(const QString &fileName,
     bool skipNext = Utils::HostOsInfo::isWindowsHost()
                 ? (!flags.front().startsWith('/') && !flags.front().startsWith('-'))
                 : (!flags.front().startsWith('-'));
-    Utils::optional<HeaderPathType> includePathType;
-    Utils::optional<MacroType> macroType;
+    std::optional<HeaderPathType> includePathType;
+    std::optional<MacroType> macroType;
     bool fileKindIsNext = false;
 
     QStringList filtered;

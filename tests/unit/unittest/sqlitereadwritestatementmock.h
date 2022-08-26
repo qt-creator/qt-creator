@@ -8,10 +8,10 @@
 #include <projectstorageids.h>
 
 #include <sqlite/sqlitevalue.h>
-#include <utils/optional.h>
 #include <utils/smallstring.h>
 
 #include <cstdint>
+#include <optional>
 #include <tuple>
 #include <vector>
 

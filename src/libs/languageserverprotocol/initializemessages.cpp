@@ -32,7 +32,7 @@ QString Trace::toString() const
 }
 #undef RETURN_CASE
 
-Utils::optional<QList<MarkupKind>>
+std::optional<QList<MarkupKind>>
 TextDocumentClientCapabilities::CompletionCapabilities::CompletionItemCapbilities::
 documentationFormat() const
 {
@@ -59,16 +59,16 @@ TextDocumentClientCapabilities::CompletionCapabilities::CompletionItemKindCapabi
                  CompletionItemKind::TypeParameter});
 }
 
-Utils::optional<QList<CompletionItemKind::Kind>>
+std::optional<QList<CompletionItemKind::Kind>>
 TextDocumentClientCapabilities::CompletionCapabilities::CompletionItemKindCapabilities::
 valueSet() const
 {
-    if (Utils::optional<QList<int>> array = optionalArray<int>(valueSetKey)) {
-        return Utils::make_optional(Utils::transform(*array, [] (int value) {
+    if (std::optional<QList<int>> array = optionalArray<int>(valueSetKey)) {
+        return std::make_optional(Utils::transform(*array, [](int value) {
             return static_cast<CompletionItemKind::Kind>(value);
         }));
     }
-    return Utils::nullopt;
+    return std::nullopt;
 }
 
 void
@@ -78,7 +78,7 @@ setValueSet(const QList<CompletionItemKind::Kind> &valueSet)
     insert(valueSetKey, enumArrayToJsonArray<CompletionItemKind::Kind>(valueSet));
 }
 
-Utils::optional<QList<MarkupKind> > TextDocumentClientCapabilities::HoverCapabilities::contentFormat() const
+std::optional<QList<MarkupKind> > TextDocumentClientCapabilities::HoverCapabilities::contentFormat() const
 {
     return optionalArray<MarkupKind>(contentFormatKey);
 }
@@ -88,7 +88,7 @@ void TextDocumentClientCapabilities::HoverCapabilities::setContentFormat(const Q
     insertArray(contentFormatKey, contentFormat);
 }
 
-Utils::optional<QList<MarkupKind>>
+std::optional<QList<MarkupKind>>
 TextDocumentClientCapabilities::SignatureHelpCapabilities::SignatureInformationCapabilities::
 documentationFormat() const
 {
@@ -110,20 +110,20 @@ InitializeParams::InitializeParams()
     setTrace(s_trace);
 }
 
-Utils::optional<QJsonObject> InitializeParams::initializationOptions() const
+std::optional<QJsonObject> InitializeParams::initializationOptions() const
 {
     const QJsonValue &optionsValue = value(initializationOptionsKey);
     if (optionsValue.isObject())
         return optionsValue.toObject();
-    return Utils::nullopt;
+    return std::nullopt;
 }
 
-Utils::optional<Trace> InitializeParams::trace() const
+std::optional<Trace> InitializeParams::trace() const
 {
     const QJsonValue &traceValue = value(traceKey);
     if (traceValue.isUndefined())
-        return Utils::nullopt;
-    return Utils::make_optional(Trace(traceValue.toString()));
+        return std::nullopt;
+    return std::make_optional(Trace(traceValue.toString()));
 }
 
 InitializeRequest::InitializeRequest(const InitializeParams &params)

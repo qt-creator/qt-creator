@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <utils/optional.h>
 #include <utils/smallstringview.h>
 
+#include <optional>
 #include <type_traits>
 
 namespace Sqlite {
@@ -34,7 +34,7 @@ void insertUpdateDelete(SqliteRange &&sqliteRange,
     auto endSqliteIterator = sqliteRange.end();
     auto currentValueIterator = values.begin();
     auto endValueIterator = values.end();
-    Utils::optional<std::decay_t<decltype(*currentValueIterator)>> lastValue;
+    std::optional<std::decay_t<decltype(*currentValueIterator)>> lastValue;
 
     while (true) {
         bool hasMoreValues = currentValueIterator != endValueIterator;

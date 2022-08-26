@@ -79,7 +79,7 @@ private:
 
     QSharedPointer<const TextEditor::AssistInterface> m_assistInterface;
     Client *m_client = nullptr; // not owned
-    Utils::optional<LanguageServerProtocol::MessageId> m_currentRequest;
+    std::optional<LanguageServerProtocol::MessageId> m_currentRequest;
 };
 
 } // namespace LanguageClient

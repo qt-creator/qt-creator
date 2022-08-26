@@ -272,12 +272,12 @@ const char CUSTOM_PARSER_PREFIX_KEY[] = "ProjectExplorer/Settings/CustomParser";
 } // namespace Constants
 
 
-static Utils::optional<Environment> sysEnv(const Project *)
+static std::optional<Environment> sysEnv(const Project *)
 {
     return Environment::systemEnvironment();
 }
 
-static Utils::optional<Environment> buildEnv(const Project *project)
+static std::optional<Environment> buildEnv(const Project *project)
 {
     if (!project || !project->activeTarget() || !project->activeTarget()->activeBuildConfiguration())
         return {};
@@ -500,7 +500,7 @@ public:
     void openRecentProject(const FilePath &filePath);
     void removeFromRecentProjects(const FilePath &filePath);
     void updateUnloadProjectMenu();
-    using EnvironmentGetter = std::function<Utils::optional<Environment>(const Project *project)>;
+    using EnvironmentGetter = std::function<std::optional<Environment>(const Project *project)>;
     void openTerminalHere(const EnvironmentGetter &env);
     void openTerminalHereWithRunEnv();
 

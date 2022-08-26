@@ -9,12 +9,13 @@
 
 #include <coreplugin/icore.h>
 
-#include <utils/optional.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
 #include <QFile>
 #include <QRegularExpression>
+
+#include <optional>
 
 namespace MesonProjectManager {
 namespace Internal {

@@ -203,14 +203,14 @@ QIcon DocumentModelPrivate::pinnedIcon()
     return icon;
 }
 
-Utils::optional<int> DocumentModelPrivate::indexOfFilePath(const Utils::FilePath &filePath) const
+std::optional<int> DocumentModelPrivate::indexOfFilePath(const Utils::FilePath &filePath) const
 {
     if (filePath.isEmpty())
-        return Utils::nullopt;
+        return std::nullopt;
     const FilePath fixedPath = DocumentManager::filePathKey(filePath, DocumentManager::ResolveLinks);
     const int index = m_entries.indexOf(m_entryByFixedPath.value(fixedPath));
     if (index < 0)
-        return Utils::nullopt;
+        return std::nullopt;
     return index;
 }
 
@@ -233,13 +233,13 @@ void DocumentModelPrivate::removeDocument(int idx)
     delete entry;
 }
 
-Utils::optional<int> DocumentModelPrivate::indexOfDocument(IDocument *document) const
+std::optional<int> DocumentModelPrivate::indexOfDocument(IDocument *document) const
 {
     const int index = Utils::indexOf(m_entries, [&document](DocumentModel::Entry *entry) {
         return entry->document == document;
     });
     if (index < 0)
-        return Utils::nullopt;
+        return std::nullopt;
     return index;
 }
 
@@ -320,7 +320,7 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
 
 void DocumentModelPrivate::itemChanged(IDocument *document)
 {
-    const Utils::optional<int> idx = indexOfDocument(document);
+    const std::optional<int> idx = indexOfDocument(document);
     if (!idx)
         return;
     const FilePath fixedPath = DocumentManager::filePathKey(document->filePath(),
@@ -582,12 +582,12 @@ QList<IEditor *> DocumentModel::editorsForDocuments(const QList<IDocument *> &do
     return result;
 }
 
-Utils::optional<int> DocumentModel::indexOfDocument(IDocument *document)
+std::optional<int> DocumentModel::indexOfDocument(IDocument *document)
 {
     return d->indexOfDocument(document);
 }
 
-Utils::optional<int> DocumentModel::indexOfFilePath(const Utils::FilePath &filePath)
+std::optional<int> DocumentModel::indexOfFilePath(const Utils::FilePath &filePath)
 {
     return d->indexOfFilePath(filePath);
 }
@@ -638,14 +638,14 @@ int DocumentModel::entryCount()
     return d->m_entries.count();
 }
 
-Utils::optional<int> DocumentModel::rowOfDocument(IDocument *document)
+std::optional<int> DocumentModel::rowOfDocument(IDocument *document)
 {
     if (!document)
         return 0 /*<no document>*/;
-    const Utils::optional<int> index = indexOfDocument(document);
+    const std::optional<int> index = indexOfDocument(document);
     if (index)
         return *index + 1/*correction for <no document>*/;
-    return Utils::nullopt;
+    return std::nullopt;
 }
 
 QList<DocumentModel::Entry *> DocumentModel::entries()

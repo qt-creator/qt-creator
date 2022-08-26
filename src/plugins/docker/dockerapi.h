@@ -7,10 +7,11 @@
 
 #include <utils/filepath.h>
 #include <utils/guard.h>
-#include <utils/optional.h>
 
 #include <QMutex>
 #include <QObject>
+
+#include <optional>
 
 namespace Docker::Internal {
 
@@ -31,13 +32,13 @@ signals:
     void dockerDaemonAvailableChanged();
 
 public:
-    Utils::optional<bool> dockerDaemonAvailable(bool async = true);
-    static Utils::optional<bool> isDockerDaemonAvailable(bool async = true);
+    std::optional<bool> dockerDaemonAvailable(bool async = true);
+    static std::optional<bool> isDockerDaemonAvailable(bool async = true);
 
 private:
     Utils::FilePath dockerClient();
 
-    Utils::optional<bool> m_dockerDaemonAvailable;
+    std::optional<bool> m_dockerDaemonAvailable;
     QMutex m_daemonCheckGuard;
     DockerSettings *m_settings;
 };

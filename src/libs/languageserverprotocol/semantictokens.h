@@ -125,7 +125,7 @@ public:
      * A server can then instead of computing all semantic tokens again simply
      * send a delta.
      */
-    Utils::optional<QString> resultId() const { return optionalValue<QString>(resultIdKey); }
+    std::optional<QString> resultId() const { return optionalValue<QString>(resultIdKey); }
     void setResultId(const QString &resultId) { insert(resultIdKey, resultId); }
     void clearResultId() { remove(resultIdKey); }
 
@@ -169,7 +169,7 @@ public:
     int deleteCount() const { return typedValue<int>(deleteCountKey); }
     void setDeleteCount(int deleteCount) { insert(deleteCountKey, deleteCount); }
 
-    Utils::optional<QList<int>> data() const { return optionalArray<int>(dataKey); }
+    std::optional<QList<int>> data() const { return optionalArray<int>(dataKey); }
     void setData(const QList<int> &value) { insertArray(dataKey, value); }
     void clearData() { remove(dataKey); }
 

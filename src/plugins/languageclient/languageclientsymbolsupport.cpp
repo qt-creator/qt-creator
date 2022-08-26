@@ -42,7 +42,7 @@ static void sendTextDocumentPositionParamsRequest(Client *client,
         else
             sendMessage = supportedFile;
     } else {
-        const Utils::optional<std::variant<bool, WorkDoneProgressOptions>> &provider
+        const std::optional<std::variant<bool, WorkDoneProgressOptions>> &provider
             = serverCapability.referencesProvider();
         sendMessage = provider.has_value();
         if (sendMessage && std::holds_alternative<bool>(*provider))
@@ -54,9 +54,9 @@ static void sendTextDocumentPositionParamsRequest(Client *client,
 
 static void handleGotoDefinitionResponse(const GotoDefinitionRequest::Response &response,
                                          Utils::LinkHandler callback,
-                                         Utils::optional<Utils::Link> linkUnderCursor)
+                                         std::optional<Utils::Link> linkUnderCursor)
 {
-    if (Utils::optional<GotoResult> result = response.result()) {
+    if (std::optional<GotoResult> result = response.result()) {
         if (std::holds_alternative<std::nullptr_t>(*result)) {
             callback({});
         } else if (auto ploc = std::get_if<Location>(&*result)) {
@@ -89,7 +89,7 @@ void SymbolSupport::findLinkAt(TextEditor::TextDocument *document,
     if (!m_client->reachable())
         return;
     GotoDefinitionRequest request(generateDocPosParams(document, cursor));
-    Utils::optional<Utils::Link> linkUnderCursor;
+    std::optional<Utils::Link> linkUnderCursor;
     if (!resolveTarget) {
         QTextCursor linkCursor = cursor;
         linkCursor.select(QTextCursor::WordUnderCursor);
@@ -196,7 +196,7 @@ void SymbolSupport::handleFindReferencesResponse(const FindReferencesRequest::Re
     }
 }
 
-Utils::optional<MessageId> SymbolSupport::findUsages(
+std::optional<MessageId> SymbolSupport::findUsages(
         TextEditor::TextDocument *document, const QTextCursor &cursor, const ResultHandler &handler)
 {
     if (!m_client->reachable())
@@ -278,11 +278,11 @@ void SymbolSupport::requestPrepareRename(const TextDocumentPositionParams &param
     PrepareRenameRequest request(params);
     request.setResponseCallback([this, params, placeholder](
                                     const PrepareRenameRequest::Response &response) {
-        const Utils::optional<PrepareRenameRequest::Response::Error> &error = response.error();
+        const std::optional<PrepareRenameRequest::Response::Error> &error = response.error();
         if (error.has_value())
             m_client->log(*error);
 
-        const Utils::optional<PrepareRenameResult> &result = response.result();
+        const std::optional<PrepareRenameResult> &result = response.result();
         if (result.has_value()) {
             if (std::holds_alternative<PlaceHolderResult>(*result)) {
                 auto placeHolderResult = std::get<PlaceHolderResult>(*result);
@@ -372,11 +372,11 @@ void SymbolSupport::startRenameSymbol(const TextDocumentPositionParams &position
 void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
                                          const RenameRequest::Response &response)
 {
-    const Utils::optional<PrepareRenameRequest::Response::Error> &error = response.error();
+    const std::optional<PrepareRenameRequest::Response::Error> &error = response.error();
     if (error.has_value())
         m_client->log(*error);
 
-    const Utils::optional<WorkspaceEdit> &edits = response.result();
+    const std::optional<WorkspaceEdit> &edits = response.result();
     if (edits.has_value()) {
         search->addResults(generateReplaceItems(*edits), Core::SearchResult::AddOrdered);
         search->additionalReplaceWidget()->setVisible(false);

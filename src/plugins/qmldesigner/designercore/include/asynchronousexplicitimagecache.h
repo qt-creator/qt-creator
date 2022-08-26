@@ -5,12 +5,11 @@
 
 #include "asynchronousimagecacheinterface.h"
 
-#include <utils/optional.h>
-
 #include <condition_variable>
 #include <deque>
 #include <functional>
 #include <mutex>
+#include <optional>
 #include <thread>
 
 namespace QmlDesigner {
@@ -59,7 +58,7 @@ private:
         RequestType requestType = RequestType::Image;
     };
 
-    Utils::optional<RequestEntry> getEntry();
+    std::optional<RequestEntry> getEntry();
     void addEntry(Utils::PathString &&name,
                   Utils::SmallString &&extraId,
                   ImageCache::CaptureImageCallback &&captureCallback,

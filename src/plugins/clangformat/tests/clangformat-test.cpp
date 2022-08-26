@@ -7,11 +7,12 @@
 
 #include <texteditor/tabsettings.h>
 #include <utils/fileutils.h>
-#include <utils/optional.h>
 
 #include <QTextCursor>
 #include <QTextDocument>
 #include <QtTest>
+
+#include <optional>
 
 namespace ClangFormat::Internal {
 
@@ -21,7 +22,7 @@ public:
     ClangFormatTestIndenter(QTextDocument *doc) : ClangFormatBaseIndenter(doc) {}
 
 private:
-    Utils::optional<TextEditor::TabSettings> tabSettings() const override { return {}; }
+    std::optional<TextEditor::TabSettings> tabSettings() const override { return {}; }
 };
 
 class ClangFormatExtendedTestIndenter : public ClangFormatTestIndenter

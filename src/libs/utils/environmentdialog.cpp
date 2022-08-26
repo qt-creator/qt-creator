@@ -7,7 +7,7 @@
 
 namespace Utils {
 
-Utils::optional<EnvironmentItems> EnvironmentDialog::getEnvironmentItems(
+std::optional<EnvironmentItems> EnvironmentDialog::getEnvironmentItems(
     QWidget *parent, const EnvironmentItems &initial, const QString &placeholderText, Polisher polisher)
 {
     return getNameValueItems(

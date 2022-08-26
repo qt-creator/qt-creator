@@ -93,7 +93,7 @@ void DocumentSymbolCache::handleResponse(const DocumentUri &uri,
                                          const DocumentSymbolsRequest::Response &response)
 {
     m_runningRequests.remove(uri);
-    if (Utils::optional<DocumentSymbolsRequest::Response::Error> error = response.error()) {
+    if (std::optional<DocumentSymbolsRequest::Response::Error> error = response.error()) {
         if (m_client)
             m_client->log(*error);
     }

@@ -31,14 +31,14 @@ ToolItemSettings::~ToolItemSettings()
 void ToolItemSettings::load(ToolTreeItem *item)
 {
     if (item) {
-        m_currentId = Utils::nullopt;
+        m_currentId = std::nullopt;
         ui->mesonNameLineEdit->setDisabled(item->isAutoDetected());
         ui->mesonNameLineEdit->setText(item->name());
         ui->mesonPathChooser->setDisabled(item->isAutoDetected());
         ui->mesonPathChooser->setFilePath(item->executable());
         m_currentId = item->id();
     } else {
-        m_currentId = Utils::nullopt;
+        m_currentId = std::nullopt;
     }
 }
 

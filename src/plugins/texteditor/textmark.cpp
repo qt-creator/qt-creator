@@ -354,7 +354,7 @@ const QIcon TextMark::icon() const
     return m_iconProvider ? m_iconProvider() : m_icon;
 }
 
-Utils::optional<Theme::Color> TextMark::color() const
+std::optional<Theme::Color> TextMark::color() const
 {
     return m_color;
 }

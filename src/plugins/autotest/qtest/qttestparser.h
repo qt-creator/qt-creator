@@ -8,7 +8,7 @@
 #include "qttest_utils.h"
 #include "qttesttreeitem.h"
 
-#include <utils/optional.h>
+#include <optional>
 
 namespace CppEditor { class CppModelManager; }
 
@@ -53,7 +53,7 @@ private:
         bool valid = false;
     };
 
-    Utils::optional<bool> fillTestCaseData(const QString &testCaseName,
+    std::optional<bool> fillTestCaseData(const QString &testCaseName,
                                            const CPlusPlus::Document::Ptr &doc,
                                            TestCaseData &data) const;
     QtTestParseResult *createParseResult(const QString &testCaseName, const TestCaseData &data,

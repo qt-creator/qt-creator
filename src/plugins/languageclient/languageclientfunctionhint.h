@@ -8,9 +8,10 @@
 #include <languageserverprotocol/languagefeatures.h>
 #include <texteditor/codeassist/completionassistprovider.h>
 #include <texteditor/codeassist/iassistprocessor.h>
-#include <utils/optional.h>
 
 #include <QPointer>
+
+#include <optional>
 
 namespace TextEditor { class IAssistProposal; }
 
@@ -32,7 +33,7 @@ public:
     bool isActivationCharSequence(const QString &sequence) const override;
     bool isContinuationChar(const QChar &c) const override;
 
-    void setTriggerCharacters(const Utils::optional<QList<QString>> &triggerChars);
+    void setTriggerCharacters(const std::optional<QList<QString>> &triggerChars);
 
 private:
     QList<QString> m_triggerChars;
@@ -54,7 +55,7 @@ private:
         const LanguageServerProtocol::SignatureHelpRequest::Response &response);
 
     QPointer<Client> m_client;
-    Utils::optional<LanguageServerProtocol::MessageId> m_currentRequest;
+    std::optional<LanguageServerProtocol::MessageId> m_currentRequest;
     int m_pos = -1;
 };
 

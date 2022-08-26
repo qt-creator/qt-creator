@@ -6,12 +6,12 @@
 #include "utils_global.h"
 
 #include "filepath.h"
-#include "optional.h"
 #include "outputformat.h"
 
 #include <QObject>
 
 #include <functional>
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
@@ -44,13 +44,19 @@ public:
     using LinkSpecs = QList<LinkSpec>;
     class Result {
     public:
-        Result(Status s, const LinkSpecs &l = {}, const optional<QString> &c = {},
-               const optional<OutputFormat> &f = {})
-            : status(s), linkSpecs(l), newContent(c), formatOverride(f) {}
+        Result(Status s,
+               const LinkSpecs &l = {},
+               const std::optional<QString> &c = {},
+               const std::optional<OutputFormat> &f = {})
+            : status(s)
+            , linkSpecs(l)
+            , newContent(c)
+            , formatOverride(f)
+        {}
         Status status;
         LinkSpecs linkSpecs;
-        optional<QString> newContent; // Hard content override. Only to be used in extreme cases.
-        optional<OutputFormat> formatOverride;
+        std::optional<QString> newContent; // Hard content override. Only to be used in extreme cases.
+        std::optional<OutputFormat> formatOverride;
     };
 
     static bool isLinkTarget(const QString &target);

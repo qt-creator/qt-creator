@@ -17,7 +17,6 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
-#include <utils/optional.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
@@ -28,6 +27,8 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QThread>
+
+#include <optional>
 
 using namespace Core;
 using namespace Utils;
@@ -197,12 +198,12 @@ bool MakeStep::jobCountOverridesMakeflags() const
     return m_overrideMakeflagsAspect->value();
 }
 
-static Utils::optional<int> argsJobCount(const QString &str)
+static std::optional<int> argsJobCount(const QString &str)
 {
     const QStringList args = ProcessArgs::splitArgs(str, HostOsInfo::hostOs());
     const int argIndex = Utils::indexOf(args, [](const QString &arg) { return arg.startsWith("-j"); });
     if (argIndex == -1)
-        return Utils::nullopt;
+        return std::nullopt;
     QString arg = args.at(argIndex);
     bool requireNumber = false;
     // -j [4] as separate arguments (or no value)
@@ -217,8 +218,8 @@ static Utils::optional<int> argsJobCount(const QString &str)
     bool ok = false;
     const int res = arg.toInt(&ok);
     if (!ok && requireNumber)
-        return Utils::nullopt;
-    return Utils::make_optional(ok && res > 0 ? res : 1000);
+        return std::nullopt;
+    return std::make_optional(ok && res > 0 ? res : 1000);
 }
 
 bool MakeStep::makeflagsJobCountMismatch() const
@@ -226,7 +227,7 @@ bool MakeStep::makeflagsJobCountMismatch() const
     const Environment env = makeEnvironment();
     if (!env.hasKey(MAKEFLAGS))
         return false;
-    Utils::optional<int> makeFlagsJobCount = argsJobCount(env.expandedValueForKey(MAKEFLAGS));
+    std::optional<int> makeFlagsJobCount = argsJobCount(env.expandedValueForKey(MAKEFLAGS));
     return makeFlagsJobCount.has_value() && *makeFlagsJobCount != m_userJobCountAspect->value();
 }
 

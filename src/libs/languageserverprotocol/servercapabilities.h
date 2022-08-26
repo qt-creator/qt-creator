@@ -13,7 +13,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT WorkDoneProgressOptions : public JsonObject
 public:
     using JsonObject::JsonObject;
 
-    Utils::optional<bool> workDoneProgress() const { return optionalValue<bool>(workDoneProgressKey); }
+    std::optional<bool> workDoneProgress() const { return optionalValue<bool>(workDoneProgressKey); }
     void setWorkDoneProgress(bool workDoneProgress) { insert(workDoneProgressKey, workDoneProgress); }
     void clearWorkDoneProgress() { remove(workDoneProgressKey); }
 };
@@ -23,7 +23,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT ResolveProviderOption : public JsonObject
 public:
     using JsonObject::JsonObject;
 
-    Utils::optional<bool> resolveProvider() const { return optionalValue<bool>(resolveProviderKey); }
+    std::optional<bool> resolveProvider() const { return optionalValue<bool>(resolveProviderKey); }
     void setResolveProvider(bool resolveProvider) { insert(resolveProviderKey, resolveProvider); }
     void clearResolveProvider() { remove(resolveProviderKey); }
 };
@@ -50,7 +50,7 @@ public:
     using JsonObject::JsonObject;
 
     // The client is supposed to include the content on save.
-    Utils::optional<bool> includeText() const { return optionalValue<bool>(includeTextKey); }
+    std::optional<bool> includeText() const { return optionalValue<bool>(includeTextKey); }
     void setIncludeText(bool includeText) { insert(includeTextKey, includeText); }
     void clearIncludeText() { remove(includeTextKey); }
 };
@@ -61,30 +61,30 @@ public:
     using JsonObject::JsonObject;
 
     // Open and close notifications are sent to the server.
-    Utils::optional<bool> openClose() const { return optionalValue<bool>(openCloseKey); }
+    std::optional<bool> openClose() const { return optionalValue<bool>(openCloseKey); }
     void setOpenClose(bool openClose) { insert(openCloseKey, openClose); }
     void clearOpenClose() { remove(openCloseKey); }
 
     // Change notifications are sent to the server. See TextDocumentSyncKind.None,
     // TextDocumentSyncKind.Full and TextDocumentSyncKind.Incremental.
-    Utils::optional<int> change() const { return optionalValue<int>(changeKey); }
+    std::optional<int> change() const { return optionalValue<int>(changeKey); }
     void setChange(int change) { insert(changeKey, change); }
     void clearChange() { remove(changeKey); }
 
     // Will save notifications are sent to the server.
-    Utils::optional<bool> willSave() const { return optionalValue<bool>(willSaveKey); }
+    std::optional<bool> willSave() const { return optionalValue<bool>(willSaveKey); }
     void setWillSave(bool willSave) { insert(willSaveKey, willSave); }
     void clearWillSave() { remove(willSaveKey); }
 
     // Will save wait until requests are sent to the server.
-    Utils::optional<bool> willSaveWaitUntil() const
+    std::optional<bool> willSaveWaitUntil() const
     { return optionalValue<bool>(willSaveWaitUntilKey); }
     void setWillSaveWaitUntil(bool willSaveWaitUntil)
     { insert(willSaveWaitUntilKey, willSaveWaitUntil); }
     void clearWillSaveWaitUntil() { remove(willSaveWaitUntilKey); }
 
     // Save notifications are sent to the server.
-    Utils::optional<SaveOptions> save() const { return optionalValue<SaveOptions>(saveKey); }
+    std::optional<SaveOptions> save() const { return optionalValue<SaveOptions>(saveKey); }
     void setSave(const SaveOptions &save) { insert(saveKey, save); }
     void clearSave() { remove(saveKey); }
 };
@@ -130,7 +130,7 @@ public:
     void setLegend(const SemanticTokensLegend &legend) { insert(legendKey, legend); }
 
     /// Server supports providing semantic tokens for a specific range of a document.
-    Utils::optional<std::variant<bool, QJsonObject>> range() const;
+    std::optional<std::variant<bool, QJsonObject>> range() const;
     void setRange(const std::variant<bool, QJsonObject> &range);
     void clearRange() { remove(rangeKey); }
 
@@ -140,13 +140,13 @@ public:
         using JsonObject::JsonObject;
 
         /// The server supports deltas for full documents.
-        Utils::optional<bool> delta() const { return optionalValue<bool>(deltaKey); }
+        std::optional<bool> delta() const { return optionalValue<bool>(deltaKey); }
         void setDelta(bool delta) { insert(deltaKey, delta); }
         void clearDelta() { remove(deltaKey); }
     };
 
     /// Server supports providing semantic tokens for a full document.
-    Utils::optional<std::variant<bool, FullSemanticTokenOptions>> full() const;
+    std::optional<std::variant<bool, FullSemanticTokenOptions>> full() const;
     void setFull(const std::variant<bool, FullSemanticTokenOptions> &full);
     void clearFull() { remove(fullKey); }
 
@@ -168,13 +168,13 @@ public:
         using WorkDoneProgressOptions::WorkDoneProgressOptions;
 
         // The characters that trigger completion automatically.
-        Utils::optional<QList<QString>> triggerCharacters() const
+        std::optional<QList<QString>> triggerCharacters() const
         { return optionalArray<QString>(triggerCharactersKey); }
         void setTriggerCharacters(const QList<QString> &triggerCharacters)
         { insertArray(triggerCharactersKey, triggerCharacters); }
         void clearTriggerCharacters() { remove(triggerCharactersKey); }
 
-        Utils::optional<bool> resolveProvider() const { return optionalValue<bool>(resolveProviderKey); }
+        std::optional<bool> resolveProvider() const { return optionalValue<bool>(resolveProviderKey); }
         void setResolveProvider(bool resolveProvider) { insert(resolveProviderKey, resolveProvider); }
         void clearResolveProvider() { remove(resolveProviderKey); }
     };
@@ -185,7 +185,7 @@ public:
         using WorkDoneProgressOptions::WorkDoneProgressOptions;
 
         // The characters that trigger signature help automatically.
-        Utils::optional<QList<QString>> triggerCharacters() const
+        std::optional<QList<QString>> triggerCharacters() const
         { return optionalArray<QString>(triggerCharactersKey); }
         void setTriggerCharacters(const QList<QString> &triggerCharacters)
         { insertArray(triggerCharactersKey, triggerCharacters); }
@@ -205,7 +205,7 @@ public:
         { insert(firstTriggerCharacterKey, firstTriggerCharacter); }
 
         // More trigger characters.
-        Utils::optional<QList<QString>> moreTriggerCharacter() const
+        std::optional<QList<QString>> moreTriggerCharacter() const
         { return optionalArray<QString>(moreTriggerCharacterKey); }
         void setMoreTriggerCharacter(const QList<QString> &moreTriggerCharacter)
         { insertArray(moreTriggerCharacterKey, moreTriggerCharacter); }
@@ -236,7 +236,7 @@ public:
 
         // The id used to register the request. The id can be used to deregister
         // the request again. See also Registration#id.
-        Utils::optional<QString> id() const { return optionalValue<QString>(idKey); }
+        std::optional<QString> id() const { return optionalValue<QString>(idKey); }
         void setId(const QString &id) { insert(idKey, id); }
         void clearId() { remove(idKey); }
     };
@@ -244,33 +244,33 @@ public:
     // Defines how text documents are synced. Is either a detailed structure defining each
     // notification or for backwards compatibility the TextDocumentSyncKind number.
     using TextDocumentSync = std::variant<TextDocumentSyncOptions, int>;
-    Utils::optional<TextDocumentSync> textDocumentSync() const;
+    std::optional<TextDocumentSync> textDocumentSync() const;
     void setTextDocumentSync(const TextDocumentSync &textDocumentSync);
     void clearTextDocumentSync() { remove(textDocumentSyncKey); }
 
     TextDocumentSyncKind textDocumentSyncKindHelper();
 
     // The server provides hover support.
-    Utils::optional<std::variant<bool, WorkDoneProgressOptions>> hoverProvider() const;
+    std::optional<std::variant<bool, WorkDoneProgressOptions>> hoverProvider() const;
     void setHoverProvider(const std::variant<bool, WorkDoneProgressOptions> &hoverProvider);
     void clearHoverProvider() { remove(hoverProviderKey); }
 
     // The server provides completion support.
-    Utils::optional<CompletionOptions> completionProvider() const
+    std::optional<CompletionOptions> completionProvider() const
     { return optionalValue<CompletionOptions>(completionProviderKey); }
     void setCompletionProvider(const CompletionOptions &completionProvider)
     { insert(completionProviderKey, completionProvider); }
     void clearCompletionProvider() { remove(completionProviderKey); }
 
     // The server provides signature help support.
-    Utils::optional<SignatureHelpOptions> signatureHelpProvider() const
+    std::optional<SignatureHelpOptions> signatureHelpProvider() const
     { return optionalValue<SignatureHelpOptions>(signatureHelpProviderKey); }
     void setSignatureHelpProvider(const SignatureHelpOptions &signatureHelpProvider)
     { insert(signatureHelpProviderKey, signatureHelpProvider); }
     void clearSignatureHelpProvider() { remove(signatureHelpProviderKey); }
 
     // The server provides goto definition support.
-    Utils::optional<bool> definitionProvider() const
+    std::optional<bool> definitionProvider() const
     { return optionalValue<bool>(definitionProviderKey); }
     void setDefinitionProvider(bool definitionProvider)
     { insert(definitionProviderKey, definitionProvider); }
@@ -291,7 +291,7 @@ public:
 
         // The id used to register the request. The id can be used to deregister
         // the request again. See also Registration#id.
-        Utils::optional<QString> id() const { return optionalValue<QString>(idKey); }
+        std::optional<QString> id() const { return optionalValue<QString>(idKey); }
         void setId(const QString &id) { insert(idKey, id); }
         void clearId() { remove(idKey); }
 
@@ -299,42 +299,42 @@ public:
     };
 
     // The server provides Goto Type Definition support.
-    Utils::optional<std::variant<bool, RegistrationOptions>> typeDefinitionProvider() const;
+    std::optional<std::variant<bool, RegistrationOptions>> typeDefinitionProvider() const;
     void setTypeDefinitionProvider(const std::variant<bool, RegistrationOptions> &typeDefinitionProvider);
     void clearTypeDefinitionProvider() { remove(typeDefinitionProviderKey); }
 
     // The server provides Goto Implementation support.
-    Utils::optional<std::variant<bool, RegistrationOptions>> implementationProvider() const;
+    std::optional<std::variant<bool, RegistrationOptions>> implementationProvider() const;
     void setImplementationProvider(const std::variant<bool, RegistrationOptions> &implementationProvider);
     void clearImplementationProvider() { remove(implementationProviderKey); }
 
     // The server provides find references support.
-    Utils::optional<std::variant<bool, WorkDoneProgressOptions>> referencesProvider() const;
+    std::optional<std::variant<bool, WorkDoneProgressOptions>> referencesProvider() const;
     void setReferencesProvider(const std::variant<bool, WorkDoneProgressOptions> &referencesProvider);
     void clearReferencesProvider() { remove(referencesProviderKey); }
 
     // The server provides document highlight support.
-    Utils::optional<std::variant<bool, WorkDoneProgressOptions>> documentHighlightProvider() const;
+    std::optional<std::variant<bool, WorkDoneProgressOptions>> documentHighlightProvider() const;
     void setDocumentHighlightProvider(
         const std::variant<bool, WorkDoneProgressOptions> &documentHighlightProvider);
     void clearDocumentHighlightProvider() { remove(documentHighlightProviderKey); }
 
     // The server provides document symbol support.
-    Utils::optional<std::variant<bool, WorkDoneProgressOptions>> documentSymbolProvider() const;
+    std::optional<std::variant<bool, WorkDoneProgressOptions>> documentSymbolProvider() const;
     void setDocumentSymbolProvider(std::variant<bool, WorkDoneProgressOptions> documentSymbolProvider);
     void clearDocumentSymbolProvider() { remove(documentSymbolProviderKey); }
 
-    Utils::optional<SemanticTokensOptions> semanticTokensProvider() const;
+    std::optional<SemanticTokensOptions> semanticTokensProvider() const;
     void setSemanticTokensProvider(const SemanticTokensOptions &semanticTokensProvider);
     void clearSemanticTokensProvider() { remove(semanticTokensProviderKey); }
 
     // The server provides workspace symbol support.
-    Utils::optional<std::variant<bool, WorkDoneProgressOptions>> workspaceSymbolProvider() const;
+    std::optional<std::variant<bool, WorkDoneProgressOptions>> workspaceSymbolProvider() const;
     void setWorkspaceSymbolProvider(std::variant<bool, WorkDoneProgressOptions> workspaceSymbolProvider);
     void clearWorkspaceSymbolProvider() { remove(workspaceSymbolProviderKey); }
 
     // The server provides code actions.
-    Utils::optional<std::variant<bool, CodeActionOptions>> codeActionProvider() const;
+    std::optional<std::variant<bool, CodeActionOptions>> codeActionProvider() const;
     void setCodeActionProvider(bool codeActionProvider)
     { insert(codeActionProviderKey, codeActionProvider); }
     void setCodeActionProvider(CodeActionOptions options)
@@ -342,20 +342,20 @@ public:
     void clearCodeActionProvider() { remove(codeActionProviderKey); }
 
     // The server provides code lens.
-    Utils::optional<CodeLensOptions> codeLensProvider() const
+    std::optional<CodeLensOptions> codeLensProvider() const
     { return optionalValue<CodeLensOptions>(codeLensProviderKey); }
     void setCodeLensProvider(CodeLensOptions codeLensProvider)
     { insert(codeLensProviderKey, codeLensProvider); }
     void clearCodeLensProvider() { remove(codeLensProviderKey); }
 
     // The server provides document formatting.
-    Utils::optional<std::variant<bool, WorkDoneProgressOptions>> documentFormattingProvider() const;
+    std::optional<std::variant<bool, WorkDoneProgressOptions>> documentFormattingProvider() const;
     void setDocumentFormattingProvider(
         const std::variant<bool, WorkDoneProgressOptions> &documentFormattingProvider);
     void clearDocumentFormattingProvider() { remove(documentFormattingProviderKey); }
 
     // The server provides document formatting on typing.
-    Utils::optional<std::variant<bool, WorkDoneProgressOptions>> documentRangeFormattingProvider() const;
+    std::optional<std::variant<bool, WorkDoneProgressOptions>> documentRangeFormattingProvider() const;
     void setDocumentRangeFormattingProvider(std::variant<bool, WorkDoneProgressOptions> documentRangeFormattingProvider);
     void clearDocumentRangeFormattingProvider() { remove(documentRangeFormattingProviderKey); }
 
@@ -365,30 +365,30 @@ public:
         using WorkDoneProgressOptions::WorkDoneProgressOptions;
 
         // Renames should be checked and tested before being executed.
-        Utils::optional<bool> prepareProvider() const { return optionalValue<bool>(prepareProviderKey); }
+        std::optional<bool> prepareProvider() const { return optionalValue<bool>(prepareProviderKey); }
         void setPrepareProvider(bool prepareProvider) { insert(prepareProviderKey, prepareProvider); }
         void clearPrepareProvider() { remove(prepareProviderKey); }
     };
 
     // The server provides rename support.
-    Utils::optional<std::variant<RenameOptions, bool>> renameProvider() const;
+    std::optional<std::variant<RenameOptions, bool>> renameProvider() const;
     void setRenameProvider(std::variant<RenameOptions,bool> renameProvider);
     void clearRenameProvider() { remove(renameProviderKey); }
 
     // The server provides document link support.
-    Utils::optional<DocumentLinkOptions> documentLinkProvider() const
+    std::optional<DocumentLinkOptions> documentLinkProvider() const
     { return optionalValue<DocumentLinkOptions>(documentLinkProviderKey); }
     void setDocumentLinkProvider(const DocumentLinkOptions &documentLinkProvider)
     { insert(documentLinkProviderKey, documentLinkProvider); }
     void clearDocumentLinkProvider() { remove(documentLinkProviderKey); }
 
     // The server provides color provider support.
-    Utils::optional<std::variant<bool, JsonObject>> colorProvider() const;
+    std::optional<std::variant<bool, JsonObject>> colorProvider() const;
     void setColorProvider(std::variant<bool, JsonObject> colorProvider);
     void clearColorProvider() { remove(colorProviderKey); }
 
     // The server provides execute command support.
-    Utils::optional<ExecuteCommandOptions> executeCommandProvider() const
+    std::optional<ExecuteCommandOptions> executeCommandProvider() const
     { return optionalValue<ExecuteCommandOptions>(executeCommandProviderKey); }
     void setExecuteCommandProvider(ExecuteCommandOptions executeCommandProvider)
     { insert(executeCommandProviderKey, executeCommandProvider); }
@@ -405,29 +405,29 @@ public:
             using JsonObject::JsonObject;
 
             // The server has support for workspace folders
-            Utils::optional<bool> supported() const { return optionalValue<bool>(supportedKey); }
+            std::optional<bool> supported() const { return optionalValue<bool>(supportedKey); }
             void setSupported(bool supported) { insert(supportedKey, supported); }
             void clearSupported() { remove(supportedKey); }
 
-            Utils::optional<std::variant<QString, bool>> changeNotifications() const;
+            std::optional<std::variant<QString, bool>> changeNotifications() const;
             void setChangeNotifications(std::variant<QString, bool> changeNotifications);
             void clearChangeNotifications() { remove(changeNotificationsKey); }
         };
 
-        Utils::optional<WorkspaceFoldersCapabilities> workspaceFolders() const
+        std::optional<WorkspaceFoldersCapabilities> workspaceFolders() const
         { return optionalValue<WorkspaceFoldersCapabilities>(workspaceFoldersKey); }
         void setWorkspaceFolders(const WorkspaceFoldersCapabilities &workspaceFolders)
         { insert(workspaceFoldersKey, workspaceFolders); }
         void clearWorkspaceFolders() { remove(workspaceFoldersKey); }
     };
 
-    Utils::optional<WorkspaceServerCapabilities> workspace() const
+    std::optional<WorkspaceServerCapabilities> workspace() const
     { return optionalValue<WorkspaceServerCapabilities>(workspaceKey); }
     void setWorkspace(const WorkspaceServerCapabilities &workspace)
     { insert(workspaceKey, workspace); }
     void clearWorkspace() { remove(workspaceKey); }
 
-    Utils::optional<JsonObject> experimental() const { return optionalValue<JsonObject>(experimentalKey); }
+    std::optional<JsonObject> experimental() const { return optionalValue<JsonObject>(experimentalKey); }
     void setExperimental(const JsonObject &experimental) { insert(experimentalKey, experimental); }
     void clearExperimental() { remove(experimentalKey); }
 };

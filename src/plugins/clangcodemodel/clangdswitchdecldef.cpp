@@ -10,11 +10,12 @@
 #include <languageclient/documentsymbolcache.h>
 #include <languageserverprotocol/lsptypes.h>
 #include <texteditor/textdocument.h>
-#include <utils/optional.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
 #include <QTextCursor>
+
+#include <optional>
 
 using namespace CppEditor;
 using namespace LanguageClient;
@@ -33,7 +34,7 @@ public:
           cursor(cursor), editorWidget(editorWidget), callback(callback)
     {}
 
-    optional<ClangdAstNode> getFunctionNode() const;
+    std::optional<ClangdAstNode> getFunctionNode() const;
     QTextCursor cursorForFunctionName(const ClangdAstNode &functionNode) const;
     void handleDeclDefSwitchReplies();
 
@@ -44,8 +45,8 @@ public:
     const QTextCursor cursor;
     const QPointer<CppEditorWidget> editorWidget;
     const LinkHandler callback;
-    optional<ClangdAstNode> ast;
-    optional<DocumentSymbolsResult> docSymbols;
+    std::optional<ClangdAstNode> ast;
+    std::optional<DocumentSymbolsResult> docSymbols;
     bool done = false;
 };
 
@@ -110,7 +111,7 @@ void ClangdSwitchDeclDef::emitDone()
     emit done();
 }
 
-optional<ClangdAstNode> ClangdSwitchDeclDef::Private::getFunctionNode() const
+std::optional<ClangdAstNode> ClangdSwitchDeclDef::Private::getFunctionNode() const
 {
     QTC_ASSERT(ast, return {});
 
@@ -157,7 +158,7 @@ void ClangdSwitchDeclDef::Private::handleDeclDefSwitchReplies()
     // on a function return type, or ...
     if (clangdLogAst().isDebugEnabled())
         ast->print(0);
-    const Utils::optional<ClangdAstNode> functionNode = getFunctionNode();
+    const std::optional<ClangdAstNode> functionNode = getFunctionNode();
     if (!functionNode) {
         q->emitDone();
         return;

@@ -1467,7 +1467,7 @@ public:
                + ".lock";
     }
 
-    static Utils::optional<QString> lockedPluginName(PluginManagerPrivate *pm)
+    static std::optional<QString> lockedPluginName(PluginManagerPrivate *pm)
     {
         const QString lockFilePath = LockFile::filePath(pm);
         if (QFile::exists(lockFilePath)) {
@@ -1507,7 +1507,7 @@ void PluginManagerPrivate::checkForProblematicPlugins()
 {
     if (!enableCrashCheck)
         return;
-    const Utils::optional<QString> pluginName = LockFile::lockedPluginName(this);
+    const std::optional<QString> pluginName = LockFile::lockedPluginName(this);
     if (pluginName) {
         PluginSpec *spec = pluginByName(*pluginName);
         if (spec && !spec->isRequired()) {

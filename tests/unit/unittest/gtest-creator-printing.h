@@ -4,12 +4,12 @@
 #pragma once
 
 #include <utils/cpplanguage_details.h>
-#include <utils/optional.h>
 #include <utils/smallstringio.h>
 
 #include <QtGlobal>
 
 #include <iosfwd>
+#include <optional>
 #include <variant>
 
 #include <gtest/gtest-printers.h>
@@ -79,7 +79,7 @@ std::ostream &operator<<(std::ostream &out, const Utils::LanguageExtension &lang
 std::ostream &operator<<(std::ostream &out, const FilePath &filePath);
 
 template<typename Type>
-std::ostream &operator<<(std::ostream &out, const optional<Type> &optional)
+std::ostream &operator<<(std::ostream &out, const std::optional<Type> &optional)
 {
     if (optional)
         return out << "optional " << optional.value();
@@ -88,7 +88,7 @@ std::ostream &operator<<(std::ostream &out, const optional<Type> &optional)
 }
 
 template<typename Type>
-void PrintTo(const optional<Type> &optional, ::std::ostream *os)
+void PrintTo(const std::optional<Type> &optional, ::std::ostream *os)
 {
     *os << optional;
 }

@@ -14,7 +14,7 @@ class NinjaWrapper final : public ToolWrapper
 public:
     using ToolWrapper::ToolWrapper;
 
-    static inline Utils::optional<Utils::FilePath> find()
+    static inline std::optional<Utils::FilePath> find()
     {
         return ToolWrapper::findTool({"ninja", "ninja-build"});
     }

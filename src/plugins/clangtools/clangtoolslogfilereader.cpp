@@ -31,7 +31,7 @@ static bool checkFilePath(const Utils::FilePath &filePath, QString *errorMessage
     return true;
 }
 
-Utils::optional<LineColumnInfo> byteOffsetInUtf8TextToLineColumn(const char *text,
+std::optional<LineColumnInfo> byteOffsetInUtf8TextToLineColumn(const char *text,
                                                                  int offset,
                                                                  int startLine)
 {

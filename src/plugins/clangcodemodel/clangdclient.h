@@ -9,9 +9,10 @@
 #include <cppeditor/cursorineditor.h>
 #include <languageclient/client.h>
 #include <utils/link.h>
-#include <utils/optional.h>
 
 #include <QVersionNumber>
+
+#include <optional>
 
 namespace CppEditor { class CppEditorWidget; }
 namespace LanguageServerProtocol { class Range; }
@@ -48,7 +49,7 @@ public:
     void closeExtraFile(const Utils::FilePath &filePath);
 
     void findUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
-                    const Utils::optional<QString> &replacement);
+                    const std::optional<QString> &replacement);
     void followSymbol(TextEditor::TextDocument *document,
             const QTextCursor &cursor,
             CppEditor::CppEditorWidget *editorWidget,
@@ -85,7 +86,7 @@ public:
     void switchIssuePaneEntries(const Utils::FilePath &filePath);
     void addTask(const ProjectExplorer::Task &task);
     void clearTasks(const Utils::FilePath &filePath);
-    Utils::optional<bool> hasVirtualFunctionAt(TextEditor::TextDocument *doc, int revision,
+    std::optional<bool> hasVirtualFunctionAt(TextEditor::TextDocument *doc, int revision,
                                                const LanguageServerProtocol::Range &range);
 
     using TextDocOrFile = std::variant<const TextEditor::TextDocument *, Utils::FilePath>;
@@ -136,7 +137,7 @@ class ClangdDiagnostic : public LanguageServerProtocol::Diagnostic
 {
 public:
     using Diagnostic::Diagnostic;
-    Utils::optional<QList<LanguageServerProtocol::CodeAction>> codeActions() const;
+    std::optional<QList<LanguageServerProtocol::CodeAction>> codeActions() const;
     QString category() const;
 };
 

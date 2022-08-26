@@ -34,7 +34,7 @@ class MesonFileNode : public ProjectExplorer::ProjectNode
 public:
     MesonFileNode(const Utils::FilePath &file);
     bool showInSimpleTree() const final { return false; }
-    Utils::optional<Utils::FilePath> visibleAfterAddFileAction() const override
+    std::optional<Utils::FilePath> visibleAfterAddFileAction() const override
     {
         return filePath().pathAppended("meson.build");
     }

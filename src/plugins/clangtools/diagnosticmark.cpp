@@ -30,7 +30,7 @@ DiagnosticMark::DiagnosticMark(const Diagnostic &diagnostic)
     setPriority(TextEditor::TextMark::HighPriority);
     QIcon markIcon = diagnostic.icon();
     setIcon(markIcon.isNull() ? Utils::Icons::CODEMODEL_WARNING.icon() : markIcon);
-    setToolTip(createDiagnosticToolTipString(diagnostic, Utils::nullopt,  true));
+    setToolTip(createDiagnosticToolTipString(diagnostic, std::nullopt, true));
     setLineAnnotation(diagnostic.description);
     setActionsProvider([diagnostic] {
         // Copy to clipboard action

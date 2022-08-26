@@ -13,7 +13,8 @@
 #include <QDebug>
 
 #include <utils/algorithm.h>
-#include <utils/optional.h>
+
+#include <optional>
 
 using namespace CPlusPlus;
 
@@ -157,7 +158,7 @@ static bool isCursorAtEndOfLineButMaybeBeforeComment(const QTextCursor &cursor)
     return Utils::allOf(tokens, [](const Token &token) { return token.isComment(); });
 }
 
-using TokenIndexResult = Utils::optional<int>;
+using TokenIndexResult = std::optional<int>;
 
 // 10.6.1 Attribute syntax and semantics
 // This does not handle alignas() since it is not needed for the namespace case.

@@ -12,13 +12,13 @@
 #include <projectexplorer/treescanner.h>
 
 #include <utils/filesystemwatcher.h>
-#include <utils/optional.h>
 
 #include <QDateTime>
 #include <QFuture>
 #include <QObject>
 
 #include <memory>
+#include <optional>
 
 namespace ProjectExplorer {
 class ProjectNode;
@@ -92,7 +92,7 @@ private:
     bool m_usesAllCapsTargets = false;
     int m_lastCMakeExitCode = 0;
 
-    Utils::optional<QFuture<std::shared_ptr<FileApiQtcData>>> m_future;
+    std::optional<QFuture<std::shared_ptr<FileApiQtcData>>> m_future;
 
     // Update related:
     bool m_isParsing = false;

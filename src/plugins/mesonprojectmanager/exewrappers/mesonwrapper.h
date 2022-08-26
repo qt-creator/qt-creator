@@ -9,13 +9,13 @@
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/id.h>
-#include <utils/optional.h>
 #include <utils/qtcprocess.h>
 
 #include <QFile>
 #include <QFileInfo>
 #include <QTemporaryFile>
 
+#include <optional>
 #include <tuple>
 
 namespace MesonProjectManager {
@@ -78,7 +78,7 @@ public:
 
     Command introspect(const Utils::FilePath &sourceDirectory) const;
 
-    static inline Utils::optional<Utils::FilePath> find()
+    static inline std::optional<Utils::FilePath> find()
     {
         return ToolWrapper::findTool({"meson.py", "meson"});
     }

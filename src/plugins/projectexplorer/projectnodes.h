@@ -11,9 +11,9 @@
 
 #include <utils/fileutils.h>
 #include <utils/id.h>
-#include <utils/optional.h>
 
 #include <functional>
+#include <optional>
 #include <variant>
 
 namespace Utils { class MimeType; }
@@ -361,8 +361,8 @@ public:
     virtual bool addSubProject(const Utils::FilePath &proFile);
     virtual QStringList subProjectFileNamePatterns() const;
     virtual bool removeSubProject(const Utils::FilePath &proFilePath);
-    virtual Utils::optional<Utils::FilePath> visibleAfterAddFileAction() const {
-        return Utils::nullopt;
+    virtual std::optional<Utils::FilePath> visibleAfterAddFileAction() const {
+        return std::nullopt;
     }
 
     bool isFolderNodeType() const override { return false; }

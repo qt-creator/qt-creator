@@ -107,7 +107,7 @@ public:
     Link defLink;
     Links allLinks;
     QHash<Link, Link> declDefMap;
-    optional<ClangdAstNode> cursorNode;
+    std::optional<ClangdAstNode> cursorNode;
     ClangdAstNode defLinkNode;
     SymbolDataList symbolsToDisplay;
     std::set<FilePath> openedFiles;
@@ -375,7 +375,7 @@ void ClangdFollowSymbol::Private::handleGotoDefinitionResult()
 void ClangdFollowSymbol::Private::handleGotoImplementationResult(
         const GotoImplementationRequest::Response &response)
 {
-    if (const optional<GotoResult> &result = response.result()) {
+    if (const std::optional<GotoResult> &result = response.result()) {
         QList<Link> newLinks;
         if (const auto ploc = std::get_if<Location>(&*result))
             newLinks = {ploc->toLink()};
@@ -451,7 +451,7 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
             if (!sentinel)
                 return;
             Link newLink;
-            if (optional<GotoResult> _result = response.result()) {
+            if (std::optional<GotoResult> _result = response.result()) {
                 const GotoResult result = _result.value();
                 if (const auto ploc = std::get_if<Location>(&result)) {
                     newLink = ploc->toLink();

@@ -318,7 +318,8 @@ void TestNavigationWidget::reapplyCachedExpandedState()
     using namespace Utils;
     for (TreeItem *rootNode : *m_model->rootItem()) {
         rootNode->forAllChildren([this](TreeItem *child) {
-            optional<bool> cached = m_expandedStateCache.get(static_cast<ITestTreeItem *>(child));
+            std::optional<bool> cached = m_expandedStateCache.get(
+                static_cast<ITestTreeItem *>(child));
             if (cached.has_value()) {
                 QModelIndex index = child->index();
                 if (m_view->isExpanded(index) != cached.value())

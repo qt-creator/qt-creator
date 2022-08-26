@@ -10,14 +10,14 @@ namespace Utils {
 
 //////// FIND
 template<typename C, typename F>
-[[nodiscard]] typename Utils::optional<typename C::value_type> findOptional(const C &container,
+[[nodiscard]] typename std::optional<typename C::value_type> findOptional(const C &container,
                                                                             F function)
 {
     auto begin = std::cbegin(container);
     auto end = std::cend(container);
 
     auto it = std::find_if(begin, end, function);
-    return it == end ? nullopt : make_optional(*it);
+    return it == end ? std::nullopt : std::make_optional(*it);
 }
 
 template<typename C>

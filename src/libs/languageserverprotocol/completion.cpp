@@ -12,22 +12,22 @@ CompletionRequest::CompletionRequest(const CompletionParams &params)
     : Request(methodName, params)
 { }
 
-Utils::optional<MarkupOrString> CompletionItem::documentation() const
+std::optional<MarkupOrString> CompletionItem::documentation() const
 {
     QJsonValue documentation = value(documentationKey);
     if (documentation.isUndefined())
-        return Utils::nullopt;
+        return std::nullopt;
     return MarkupOrString(documentation);
 }
 
-Utils::optional<CompletionItem::InsertTextFormat> CompletionItem::insertTextFormat() const
+std::optional<CompletionItem::InsertTextFormat> CompletionItem::insertTextFormat() const
 {
-    if (Utils::optional<int> value = optionalValue<int>(insertTextFormatKey))
-        return Utils::make_optional(CompletionItem::InsertTextFormat(*value));
-    return Utils::nullopt;
+    if (std::optional<int> value = optionalValue<int>(insertTextFormatKey))
+        return std::make_optional(CompletionItem::InsertTextFormat(*value));
+    return std::nullopt;
 }
 
-Utils::optional<QList<CompletionItem::CompletionItemTag>> CompletionItem::tags() const
+std::optional<QList<CompletionItem::CompletionItemTag>> CompletionItem::tags() const
 {
     if (const auto value = optionalValue<QJsonArray>(tagsKey)) {
         QList<CompletionItemTag> tags;

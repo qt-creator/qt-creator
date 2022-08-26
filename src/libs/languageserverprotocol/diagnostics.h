@@ -20,7 +20,7 @@ public:
     void setDiagnostics(const QList<Diagnostic> &diagnostics)
     { insertArray(diagnosticsKey, diagnostics); }
 
-    Utils::optional<int> version() const { return optionalValue<int>(versionKey); }
+    std::optional<int> version() const { return optionalValue<int>(versionKey); }
     void setVersion(int version) { insert(versionKey, version); }
     void clearVersion() { remove(versionKey); }
 

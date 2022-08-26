@@ -27,9 +27,9 @@ void CodeActionQuickFixOperation::perform()
 {
     if (!m_client)
         return;
-    if (Utils::optional<WorkspaceEdit> edit = m_action.edit())
+    if (std::optional<WorkspaceEdit> edit = m_action.edit())
         applyWorkspaceEdit(m_client, *edit);
-    else if (Utils::optional<Command> command = m_action.command())
+    else if (std::optional<Command> command = m_action.command())
         m_client->executeCommand(*command);
 }
 
@@ -91,11 +91,11 @@ void LanguageClientQuickFixAssistProcessor::cancel()
 void LanguageClientQuickFixAssistProcessor::handleCodeActionResponse(const CodeActionRequest::Response &response)
 {
     m_currentRequest.reset();
-    if (const Utils::optional<CodeActionRequest::Response::Error> &error = response.error())
+    if (const std::optional<CodeActionRequest::Response::Error> &error = response.error())
         m_client->log(*error);
     m_client->removeAssistProcessor(this);
     GenericProposal *proposal = nullptr;
-    if (const Utils::optional<CodeActionResult> &result = response.result())
+    if (const std::optional<CodeActionResult> &result = response.result())
         proposal = handleCodeActionResult(*result);
     setAsyncProposalAvailable(proposal);
 }

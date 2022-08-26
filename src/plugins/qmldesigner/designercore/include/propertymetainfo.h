@@ -9,11 +9,10 @@
 #include <projectstorage/projectstoragetypes.h>
 #include <projectstorageids.h>
 
-#include <utils/optional.h>
-
 #include <QSharedPointer>
 #include <QString>
 
+#include <optional>
 #include <vector>
 
 namespace QmlDesigner {
@@ -50,7 +49,7 @@ private:
     PropertyName m_propertyName;
     PropertyDeclarationId m_id;
     NotNullPointer<const ProjectStorage<Sqlite::Database>> m_projectStorage;
-    mutable Utils::optional<Storage::Info::PropertyDeclaration> m_propertyData;
+    mutable std::optional<Storage::Info::PropertyDeclaration> m_propertyData;
 };
 
 using PropertyMetaInfos = std::vector<PropertyMetaInfo>;

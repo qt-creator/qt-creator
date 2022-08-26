@@ -49,7 +49,7 @@ public:
     inline const QString &name() const { return m_currentValue->name; }
     inline const QString &section() const { return m_currentValue->section; }
     inline const QString &description() const { return m_currentValue->description; }
-    inline const Utils::optional<QString> &subproject() const
+    inline const std::optional<QString> &subproject() const
     {
         return m_currentValue->subproject;
     };

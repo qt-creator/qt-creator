@@ -6,13 +6,13 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
-#include <utils/optional.h>
 #include <utils/qtcassert.h>
 
 #include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QSettings>
 
+#include <optional>
 #include <variant>
 
 namespace {
@@ -44,7 +44,7 @@ static bool valueForKey(QString key, const QString &line, QString *value = nullp
     return false;
 }
 
-static Utils::optional<AndroidDeviceInfo> parseAvd(const QStringList &deviceInfo)
+static std::optional<AndroidDeviceInfo> parseAvd(const QStringList &deviceInfo)
 {
     AndroidDeviceInfo avd;
     for (const QString &line : deviceInfo) {
@@ -100,7 +100,7 @@ AndroidDeviceInfoList parseAvdList(const QString &output, QStringList *avdErrorP
                 if (valueForKey(avdInfoPathKey, line, &value))
                     return AvdResult(value); // error path
             }
-        } else if (Utils::optional<AndroidDeviceInfo> avd = parseAvd(avdInfo)) {
+        } else if (std::optional<AndroidDeviceInfo> avd = parseAvd(avdInfo)) {
             // armeabi-v7a devices can also run armeabi code
             if (avd->cpuAbi.contains(Constants::ANDROID_ABI_ARMEABI_V7A))
                 avd->cpuAbi << Constants::ANDROID_ABI_ARMEABI;

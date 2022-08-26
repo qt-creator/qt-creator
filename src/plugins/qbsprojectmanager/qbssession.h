@@ -4,7 +4,6 @@
 #pragma once
 
 #include <utils/fileutils.h>
-#include <utils/optional.h>
 
 #include <QHash>
 #include <QJsonObject>
@@ -14,6 +13,7 @@
 #include <QVariant>
 
 #include <functional>
+#include <optional>
 
 namespace ProjectExplorer { class Target; }
 
@@ -102,7 +102,7 @@ public:
     enum class State { Initializing, Active, Inactive };
     enum class Error { QbsFailedToStart, QbsQuit, ProtocolError, VersionMismatch };
 
-    Utils::optional<Error> lastError() const;
+    std::optional<Error> lastError() const;
     static QString errorString(Error error);
     QJsonObject projectData() const;
 

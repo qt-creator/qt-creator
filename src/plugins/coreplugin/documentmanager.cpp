@@ -30,7 +30,6 @@
 #include <utils/globalfilechangeblocker.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeutils.h>
-#include <utils/optional.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/reloadpromptutils.h>
@@ -51,6 +50,8 @@
 #include <QSettings>
 #include <QStringList>
 #include <QTimer>
+
+#include <optional>
 
 static const bool kUseProjectsDirectoryDefault = true;
 static Q_LOGGING_CATEGORY(log, "qtc.core.documentmanager", QtWarningMsg)
@@ -1131,7 +1132,7 @@ void DocumentManager::checkForReload()
     QStringList filesToDiff;
     for (IDocument *document : qAsConst(changedIDocuments)) {
         IDocument::ChangeTrigger trigger = IDocument::TriggerInternal;
-        optional<IDocument::ChangeType> type;
+        std::optional<IDocument::ChangeType> type;
         bool changed = false;
         // find out the type & behavior from the two possible files
         // behavior is internal if all changes are expected (and none removed)

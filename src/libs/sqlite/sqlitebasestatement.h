@@ -14,13 +14,13 @@
 
 #include <utils/smallstringvector.h>
 
-#include <utils/optional.h>
 #include <utils/span.h>
 
 #include <cstdint>
 #include <exception>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <tuple>
 #include <type_traits>
 
@@ -225,12 +225,12 @@ public:
     auto optionalValue(const QueryTypes &...queryValues)
     {
         Resetter resetter{this};
-        Utils::optional<ResultType> resultValue;
+        std::optional<ResultType> resultValue;
 
         bindValues(queryValues...);
 
         if (BaseStatement::next())
-            resultValue = createOptionalValue<Utils::optional<ResultType>>();
+            resultValue = createOptionalValue<std::optional<ResultType>>();
 
         return resultValue;
     }
@@ -495,7 +495,7 @@ private:
     template<typename ResultOptionalType, int... ColumnIndices>
     ResultOptionalType createOptionalValue(std::integer_sequence<int, ColumnIndices...>)
     {
-        return ResultOptionalType(Utils::in_place, ValueGetter(*this, ColumnIndices)...);
+        return ResultOptionalType(std::in_place, ValueGetter(*this, ColumnIndices)...);
     }
 
     template<typename ResultOptionalType>

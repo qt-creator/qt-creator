@@ -5,11 +5,12 @@
 
 #include "utils_global.h"
 
-#include "optional.h"
 
 #include <QList>
 #include <QString>
 #include <QVariant>
+
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 class QLayout;
@@ -143,7 +144,7 @@ protected:
 
     LayoutItems m_items;
     LayoutType m_layoutType;
-    Utils::optional<int> m_spacing;
+    std::optional<int> m_spacing;
 };
 
 class QTCREATOR_UTILS_EXPORT LayoutExtender : public LayoutBuilder

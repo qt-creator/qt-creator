@@ -8,10 +8,10 @@
 #include <projectexplorer/ioutputparser.h>
 #include <projectexplorer/task.h>
 
-#include <utils/optional.h>
-
 #include <QDir>
 #include <QRegularExpression>
+
+#include <optional>
 
 namespace CMakeProjectManager {
 
@@ -31,7 +31,7 @@ private:
 
     TripleLineError m_expectTripleLineErrorData = NONE;
 
-    Utils::optional<QDir> m_sourceDirectory;
+    std::optional<QDir> m_sourceDirectory;
     ProjectExplorer::Task m_lastTask;
     QRegularExpression m_commonError;
     QRegularExpression m_nextSubError;

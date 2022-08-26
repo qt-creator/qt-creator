@@ -706,7 +706,7 @@ bool ClangFormatBaseIndenter::isElectricCharacter(const QChar &ch) const
     return false;
 }
 
-Utils::optional<int> ClangFormat::ClangFormatBaseIndenter::margin() const
+std::optional<int> ClangFormat::ClangFormatBaseIndenter::margin() const
 {
     return styleForFile().ColumnLimit;
 }

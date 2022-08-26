@@ -70,12 +70,12 @@ public:
         using JsonObject::JsonObject;
 
         // The range of the document that changed.
-        Utils::optional<Range> range() const { return optionalValue<Range>(rangeKey); }
+        std::optional<Range> range() const { return optionalValue<Range>(rangeKey); }
         void setRange(Range range) { insert(rangeKey, range); }
         void clearRange() { remove(rangeKey); }
 
         // The length of the range that got replaced.
-        Utils::optional<int> rangeLength() const { return optionalValue<int>(rangeLengthKey); }
+        std::optional<int> rangeLength() const { return optionalValue<int>(rangeLengthKey); }
         void setRangeLength(int rangeLength) { insert(rangeLengthKey, rangeLength); }
         void clearRangeLength() { remove(rangeLengthKey); }
 
@@ -155,7 +155,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT TextDocumentSaveRegistrationOptions
 public:
     using TextDocumentRegistrationOptions::TextDocumentRegistrationOptions;
 
-    Utils::optional<bool> includeText() const { return optionalValue<bool>(includeTextKey); }
+    std::optional<bool> includeText() const { return optionalValue<bool>(includeTextKey); }
     void setIncludeText(bool includeText) { insert(includeTextKey, includeText); }
     void clearIncludeText() { remove(includeTextKey); }
 };
@@ -172,7 +172,7 @@ public:
     void setTextDocument(TextDocumentIdentifier textDocument)
     { insert(textDocumentKey, textDocument); }
 
-    Utils::optional<QString> text() const { return optionalValue<QString>(textKey); }
+    std::optional<QString> text() const { return optionalValue<QString>(textKey); }
     void setText(const QString &text) { insert(textKey, text); }
     void clearText() { remove(textKey); }
 

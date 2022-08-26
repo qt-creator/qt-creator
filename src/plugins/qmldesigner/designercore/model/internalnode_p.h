@@ -12,7 +12,6 @@
 #include "internalvariantproperty.h"
 
 #include <auxiliarydata.h>
-#include <utils/optional.h>
 #include <projectstorageids.h>
 #include <utils/smallstring.h>
 
@@ -22,10 +21,10 @@
 #include <QStringList>
 #include <QWeakPointer>
 
+#include <memory>
+#include <optional>
 #include <type_traits>
 #include <vector>
-
-#include <memory>
 
 namespace QmlDesigner {
 
@@ -61,7 +60,7 @@ public:
     void setParentProperty(const InternalNodeAbstractProperty::Pointer &parent);
     void resetParentProperty();
 
-    Utils::optional<QVariant> auxiliaryData(AuxiliaryDataKeyView key) const;
+    std::optional<QVariant> auxiliaryData(AuxiliaryDataKeyView key) const;
     bool setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data);
     bool removeAuxiliaryData(AuxiliaryDataKeyView key);
     bool hasAuxiliaryData(AuxiliaryDataKeyView key) const;

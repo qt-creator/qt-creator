@@ -9,11 +9,11 @@
 #include "storagecachefwd.h"
 
 #include <utils/algorithm.h>
-#include <utils/optional.h>
 #include <utils/set_algorithm.h>
 #include <utils/smallstringfwd.h>
 
 #include <algorithm>
+#include <optional>
 #include <shared_mutex>
 #include <vector>
 

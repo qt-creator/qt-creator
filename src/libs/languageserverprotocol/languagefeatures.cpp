@@ -49,11 +49,11 @@ HoverRequest::HoverRequest(const TextDocumentPositionParams &params)
     : Request(methodName, params)
 { }
 
-Utils::optional<MarkupOrString> ParameterInformation::documentation() const
+std::optional<MarkupOrString> ParameterInformation::documentation() const
 {
     QJsonValue documentation = value(documentationKey);
     if (documentation.isUndefined())
-        return Utils::nullopt;
+        return std::nullopt;
     return MarkupOrString(documentation);
 }
 
@@ -81,7 +81,7 @@ DocumentSymbolsRequest::DocumentSymbolsRequest(const DocumentSymbolParams &param
     : Request(methodName, params)
 { }
 
-Utils::optional<QList<CodeActionKind> > CodeActionParams::CodeActionContext::only() const
+std::optional<QList<CodeActionKind> > CodeActionParams::CodeActionContext::only() const
 {
     return optionalArray<CodeActionKind>(onlyKey);
 }
@@ -180,16 +180,16 @@ RenameRequest::RenameRequest(const RenameParams &params)
     : Request(methodName, params)
 { }
 
-Utils::optional<DocumentUri> DocumentLink::target() const
+std::optional<DocumentUri> DocumentLink::target() const
 {
-    if (Utils::optional<QString> optionalTarget = optionalValue<QString>(targetKey))
-        return Utils::make_optional(DocumentUri::fromProtocol(*optionalTarget));
-    return Utils::nullopt;
+    if (std::optional<QString> optionalTarget = optionalValue<QString>(targetKey))
+        return std::make_optional(DocumentUri::fromProtocol(*optionalTarget));
+    return std::nullopt;
 }
 
-Utils::optional<QJsonValue> DocumentLink::data() const
+std::optional<QJsonValue> DocumentLink::data() const
 {
-    return contains(dataKey) ? Utils::make_optional(value(dataKey)) : Utils::nullopt;
+    return contains(dataKey) ? std::make_optional(value(dataKey)) : std::nullopt;
 }
 
 TextDocumentParams::TextDocumentParams()
@@ -376,9 +376,9 @@ PrepareRenameResult::PrepareRenameResult(const QJsonValue &val)
     }
 }
 
-Utils::optional<QJsonValue> CodeLens::data() const
+std::optional<QJsonValue> CodeLens::data() const
 {
-    return contains(dataKey) ? Utils::make_optional(value(dataKey)) : Utils::nullopt;
+    return contains(dataKey) ? std::make_optional(value(dataKey)) : std::nullopt;
 }
 
 HoverResult::HoverResult(const QJsonValue &value)

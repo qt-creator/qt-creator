@@ -81,7 +81,7 @@ public:
     QStringList extraFlags;
     bool isMsvc2015 = false;
 
-    Utils::optional<CompilerOptionsBuilder> compilerOptionsBuilder;
+    std::optional<CompilerOptionsBuilder> compilerOptionsBuilder;
 
 private:
     ProjectPart::ConstPtr projectPart;

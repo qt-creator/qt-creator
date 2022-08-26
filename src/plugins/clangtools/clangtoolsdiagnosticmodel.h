@@ -10,7 +10,6 @@
 
 #include <debugger/analyzer/detailederrorview.h>
 #include <utils/fileutils.h>
-#include <utils/optional.h>
 #include <utils/treemodel.h>
 
 #include <QFileSystemWatcher>
@@ -21,6 +20,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <optional>
 
 namespace ProjectExplorer { class Project; }
 
@@ -127,7 +127,7 @@ class FilterOptions {
 public:
     QSet<QString> checks;
 };
-using OptionalFilterOptions = Utils::optional<FilterOptions>;
+using OptionalFilterOptions = std::optional<FilterOptions>;
 
 class DiagnosticFilterModel : public QSortFilterProxyModel
 {

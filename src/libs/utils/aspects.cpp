@@ -656,8 +656,8 @@ public:
 class IntegerAspectPrivate
 {
 public:
-    Utils::optional<qint64> m_minimumValue;
-    Utils::optional<qint64> m_maximumValue;
+    std::optional<qint64> m_minimumValue;
+    std::optional<qint64> m_maximumValue;
     int m_displayIntegerBase = 10;
     qint64 m_displayScaleFactor = 1;
     QString m_prefix;
@@ -670,8 +670,8 @@ public:
 class DoubleAspectPrivate
 {
 public:
-    Utils::optional<double> m_minimumValue;
-    Utils::optional<double> m_maximumValue;
+    std::optional<double> m_minimumValue;
+    std::optional<double> m_maximumValue;
     QString m_prefix;
     QString m_suffix;
     QString m_specialValueText;
@@ -784,7 +784,7 @@ void StringAspect::setValue(const QString &val)
 
     QString processedValue = val;
     if (d->m_valueAcceptor) {
-        const Utils::optional<QString> tmp = d->m_valueAcceptor(value(), val);
+        const std::optional<QString> tmp = d->m_valueAcceptor(value(), val);
         if (!tmp) {
             update(); // Make sure the original value is retained in the UI
             return;

@@ -68,7 +68,7 @@ QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
  */
 bool SettingsAccessor::saveSettings(const QVariantMap &data, QWidget *parent) const
 {
-    const optional<Issue> result = writeData(m_baseFilePath, data, parent);
+    const std::optional<Issue> result = writeData(m_baseFilePath, data, parent);
 
     const ProceedInfo pi = result ? reportIssues(result.value(), m_baseFilePath, parent) : ProceedInfo::Continue;
     return pi == ProceedInfo::Continue;
@@ -89,8 +89,9 @@ SettingsAccessor::RestoreData SettingsAccessor::readData(const FilePath &path, Q
 /*!
  * Store the \a data in \a path on disk. Do all the necessary preprocessing of the data.
  */
-optional<SettingsAccessor::Issue>
-SettingsAccessor::writeData(const FilePath &path, const QVariantMap &data, QWidget *parent) const
+std::optional<SettingsAccessor::Issue> SettingsAccessor::writeData(const FilePath &path,
+                                                                   const QVariantMap &data,
+                                                                   QWidget *parent) const
 {
     Q_UNUSED(parent)
     return writeFile(path, prepareToWriteSettings(data));
@@ -134,8 +135,8 @@ SettingsAccessor::RestoreData SettingsAccessor::readFile(const FilePath &path) c
  *
  * This method does not do *any* processing of the file contents.
  */
-optional<SettingsAccessor::Issue>
-SettingsAccessor::writeFile(const FilePath &path, const QVariantMap &data) const
+std::optional<SettingsAccessor::Issue> SettingsAccessor::writeFile(const FilePath &path,
+                                                                   const QVariantMap &data) const
 {
     if (data.isEmpty()) {
         return Issue(QCoreApplication::translate("Utils::SettingsAccessor", "Failed to Write File"),
@@ -216,11 +217,12 @@ int BackUpStrategy::compare(const SettingsAccessor::RestoreData &data1,
     return 0;
 }
 
-optional<FilePath>
-BackUpStrategy::backupName(const QVariantMap &oldData, const FilePath &path, const QVariantMap &data) const
+std::optional<FilePath> BackUpStrategy::backupName(const QVariantMap &oldData,
+                                                   const FilePath &path,
+                                                   const QVariantMap &data) const
 {
     if (oldData == data)
-        return nullopt;
+        return std::nullopt;
     return path.stringAppended(".bak");
 }
 
@@ -266,9 +268,9 @@ BackingUpSettingsAccessor::readData(const FilePath &path, QWidget *parent) const
     return result;
 }
 
-optional<SettingsAccessor::Issue>
-BackingUpSettingsAccessor::writeData(const FilePath &path, const QVariantMap &data,
-                                     QWidget *parent) const
+std::optional<SettingsAccessor::Issue> BackingUpSettingsAccessor::writeData(const FilePath &path,
+                                                                            const QVariantMap &data,
+                                                                            QWidget *parent) const
 {
     if (data.isEmpty())
         return {};
@@ -307,8 +309,11 @@ void BackingUpSettingsAccessor::backupFile(const FilePath &path, const QVariantM
         return;
 
     // Do we need to do a backup?
-    if (optional<FilePath> backupFileName = m_strategy->backupName(oldSettings.data, path, data))
+    if (std::optional<FilePath> backupFileName = m_strategy->backupName(oldSettings.data,
+                                                                        path,
+                                                                        data)) {
         path.copyFile(backupFileName.value());
+    }
 }
 
 // --------------------------------------------------------------------
@@ -337,8 +342,9 @@ int VersionedBackUpStrategy::compare(const SettingsAccessor::RestoreData &data1,
     return -1;
 }
 
-optional<FilePath>
-VersionedBackUpStrategy::backupName(const QVariantMap &oldData, const FilePath &path, const QVariantMap &data) const
+std::optional<FilePath> VersionedBackUpStrategy::backupName(const QVariantMap &oldData,
+                                                            const FilePath &path,
+                                                            const QVariantMap &data) const
 {
     Q_UNUSED(data)
     FilePath backupName = path;
@@ -356,7 +362,7 @@ VersionedBackUpStrategy::backupName(const QVariantMap &oldData, const FilePath &
             backupName = backupName.stringAppended('.' + QString::number(oldVersion));
     }
     if (backupName == path)
-        return nullopt;
+        return std::nullopt;
     return backupName;
 }
 
@@ -590,7 +596,7 @@ SettingsAccessor::RestoreData MergingSettingsAccessor::readData(const FilePath &
     if (mainData.hasIssue()) {
         if (reportIssues(mainData.issue.value(), mainData.path, parent) == DiscardAndContinue)
             mainData.data.clear();
-        mainData.issue = nullopt;
+        mainData.issue = std::nullopt;
     }
 
     RestoreData secondaryData
@@ -628,7 +634,7 @@ SettingsAccessor::RestoreData MergingSettingsAccessor::readData(const FilePath &
     if (secondaryData.hasIssue()) {
         if (reportIssues(secondaryData.issue.value(), secondaryData.path, parent) == DiscardAndContinue)
             secondaryData.data.clear();
-        secondaryData.issue = nullopt;
+        secondaryData.issue = std::nullopt;
     }
 
     if (!secondaryData.data.isEmpty())
@@ -736,7 +742,7 @@ static QVariant mergeQVariantMapsRecursion(const QVariantMap &mainTree, const QV
         global.key = keyPrefix + key;
         local.key = key;
 
-        optional<QPair<QString, QVariant>> mergeResult = merge(global, local);
+        std::optional<QPair<QString, QVariant>> mergeResult = merge(global, local);
         if (!mergeResult)
             continue;
 

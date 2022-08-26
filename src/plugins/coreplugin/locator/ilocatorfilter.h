@@ -7,12 +7,13 @@
 
 #include <utils/filepath.h>
 #include <utils/id.h>
-#include <utils/optional.h>
 
 #include <QFutureInterface>
 #include <QIcon>
 #include <QMetaType>
 #include <QVariant>
+
+#include <optional>
 
 namespace Core {
 
@@ -45,8 +46,10 @@ struct LocatorFilterEntry
 
     LocatorFilterEntry() = default;
 
-    LocatorFilterEntry(ILocatorFilter *fromFilter, const QString &name, const QVariant &data,
-                Utils::optional<QIcon> icon = Utils::nullopt)
+    LocatorFilterEntry(ILocatorFilter *fromFilter,
+                       const QString &name,
+                       const QVariant &data,
+                       std::optional<QIcon> icon = std::nullopt)
         : filter(fromFilter)
         , displayName(name)
         , internalData(data)
@@ -64,7 +67,7 @@ struct LocatorFilterEntry
     /* can be used by the filter to save more information about the entry */
     QVariant internalData;
     /* icon to display along with the entry */
-    Utils::optional<QIcon> displayIcon;
+    std::optional<QIcon> displayIcon;
     /* file path, if the entry is related to a file, is used e.g. for resolving a file icon */
     Utils::FilePath filePath;
     /* highlighting support */

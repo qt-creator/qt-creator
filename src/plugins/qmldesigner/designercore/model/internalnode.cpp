@@ -52,7 +52,7 @@ auto find(Type &&auxiliaryDatas, AuxiliaryDataKeyView key)
 
 } // namespace
 
-Utils::optional<QVariant> InternalNode::auxiliaryData(AuxiliaryDataKeyView key) const
+std::optional<QVariant> InternalNode::auxiliaryData(AuxiliaryDataKeyView key) const
 {
     auto found = find(m_auxiliaryDatas, key);
 

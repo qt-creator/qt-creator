@@ -16,6 +16,8 @@
 #include <QVariant>
 #include <QVariantMap>
 
+#include <optional>
+
 namespace MesonProjectManager {
 namespace Internal {
 
@@ -64,7 +66,7 @@ public:
 
     static Version read_version(const Utils::FilePath &toolPath);
 
-    static Utils::optional<Utils::FilePath> findTool(const QStringList &exeNames);
+    static std::optional<Utils::FilePath> findTool(const QStringList &exeNames);
 
     template<typename T>
     friend QVariantMap toVariantMap(const T &);

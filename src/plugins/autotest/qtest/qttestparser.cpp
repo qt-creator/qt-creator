@@ -314,7 +314,7 @@ bool QtTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureI
     for (const TestCase &testCase : testCaseList) {
         if (!testCase.name.isEmpty()) {
             TestCaseData data;
-            Utils::optional<bool> earlyReturn = fillTestCaseData(testCase.name, doc, data);
+            std::optional<bool> earlyReturn = fillTestCaseData(testCase.name, doc, data);
             if (earlyReturn.has_value() || !data.valid)
                 continue;
 
@@ -333,7 +333,7 @@ bool QtTestParser::processDocument(QFutureInterface<TestParseResultPtr> &futureI
     return reported;
 }
 
-Utils::optional<bool> QtTestParser::fillTestCaseData(
+std::optional<bool> QtTestParser::fillTestCaseData(
         const QString &testCaseName, const CPlusPlus::Document::Ptr &doc,
         TestCaseData &data) const
 {
@@ -366,7 +366,7 @@ Utils::optional<bool> QtTestParser::fillTestCaseData(
 
     data.fileName = Utils::FilePath::fromString(declaringDoc->fileName());
     data.valid = true;
-    return Utils::optional<bool>();
+    return std::optional<bool>();
 }
 
 QtTestParseResult *QtTestParser::createParseResult(

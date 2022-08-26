@@ -39,7 +39,7 @@ public:
     QString name() const { return typedValue<QString>(nameKey); }
     void setName(const QString &name) { insert(nameKey, name); }
 
-    Utils::optional<QString> version() const { return optionalValue<QString>(versionKey); }
+    std::optional<QString> version() const { return optionalValue<QString>(versionKey); }
     void setVersion(const QString &version) { insert(versionKey, version); }
     void clearVersion() { remove(versionKey); }
 };
@@ -65,7 +65,7 @@ public:
      *
      * @deprecated in favor of rootUri.
      */
-    Utils::optional<LanguageClientValue<QString>> rootPath() const
+    std::optional<LanguageClientValue<QString>> rootPath() const
     { return optionalClientValue<QString>(rootPathKey); }
     void setRootPath(const LanguageClientValue<QString> &path)
     { insert(rootPathKey, path); }
@@ -82,7 +82,7 @@ public:
     { insert(rootUriKey, uri); }
 
     // User provided initialization options.
-    Utils::optional<QJsonObject> initializationOptions() const;
+    std::optional<QJsonObject> initializationOptions() const;
     void setInitializationOptions(const QJsonObject &options)
     { insert(initializationOptionsKey, options); }
     void clearInitializationOptions() { remove(initializationOptionsKey); }
@@ -93,7 +93,7 @@ public:
     { insert(capabilitiesKey, capabilities); }
 
     // The initial trace setting. If omitted trace is disabled ('off').
-    Utils::optional<Trace> trace() const;
+    std::optional<Trace> trace() const;
     void setTrace(Trace trace) { insert(traceKey, trace.toString()); }
     void clearTrace() { remove(traceKey); }
 
@@ -105,13 +105,13 @@ public:
      *
      * Since 3.6.0
      */
-    Utils::optional<LanguageClientArray<WorkSpaceFolder>> workspaceFolders() const
+    std::optional<LanguageClientArray<WorkSpaceFolder>> workspaceFolders() const
     { return optionalClientArray<WorkSpaceFolder>(workspaceFoldersKey); }
     void setWorkSpaceFolders(const LanguageClientArray<WorkSpaceFolder> &folders)
     { insert(workspaceFoldersKey, folders.toJson()); }
     void clearWorkSpaceFolders() { remove(workspaceFoldersKey); }
 
-    Utils::optional<ClientInfo> clientInfo() const { return optionalValue<ClientInfo>(clientInfoKey); }
+    std::optional<ClientInfo> clientInfo() const { return optionalValue<ClientInfo>(clientInfoKey); }
     void setClientInfo(const ClientInfo &clientInfo) { insert(clientInfoKey, clientInfo); }
     void clearClientInfo() { remove(clientInfoKey); }
 
@@ -137,7 +137,7 @@ public:
     using JsonObject::JsonObject;
 
     QString name() const { return typedValue<QString>(nameKey); }
-    Utils::optional<QString> version() const { return optionalValue<QString>(versionKey); }
+    std::optional<QString> version() const { return optionalValue<QString>(versionKey); }
 
     bool isValid() const override { return contains(nameKey); }
 };
@@ -152,7 +152,7 @@ public:
     void setCapabilities(const ServerCapabilities &capabilities)
     { insert(capabilitiesKey, capabilities); }
 
-    Utils::optional<ServerInfo> serverInfo() const
+    std::optional<ServerInfo> serverInfo() const
     { return optionalValue<ServerInfo>(serverInfoKey); }
 
     bool isValid() const override { return contains(capabilitiesKey); }

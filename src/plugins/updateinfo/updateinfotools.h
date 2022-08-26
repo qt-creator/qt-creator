@@ -4,13 +4,14 @@
 #pragma once
 
 #include <utils/algorithm.h>
-#include <utils/optional.h>
 
 #include <QDomDocument>
 #include <QList>
 #include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QVersionNumber>
+
+#include <optional>
 
 Q_DECLARE_LOGGING_CATEGORY(updateLog)
 
@@ -90,7 +91,7 @@ QList<QtPackage> availableQtPackages(const QString &packageXml)
 }
 
 // Expects packages to be sorted, high version first.
-Utils::optional<QtPackage> highestInstalledQt(const QList<QtPackage> &packages)
+std::optional<QtPackage> highestInstalledQt(const QList<QtPackage> &packages)
 {
     const auto highestInstalledIt = std::find_if(packages.cbegin(),
                                                  packages.cend(),
@@ -101,7 +102,7 @@ Utils::optional<QtPackage> highestInstalledQt(const QList<QtPackage> &packages)
 }
 
 // Expects packages to be sorted, high version first.
-Utils::optional<QtPackage> qtToNagAbout(const QList<QtPackage> &allPackages,
+std::optional<QtPackage> qtToNagAbout(const QList<QtPackage> &allPackages,
                                         QVersionNumber *highestSeen)
 {
     // Filter out any Qt prereleases
@@ -119,7 +120,7 @@ Utils::optional<QtPackage> qtToNagAbout(const QList<QtPackage> &allPackages,
         *highestSeen = highest.version;
     if (!isNew)
         return {};
-    const Utils::optional<QtPackage> highestInstalled = highestInstalledQt(packages);
+    const std::optional<QtPackage> highestInstalled = highestInstalledQt(packages);
     qCDebug(updateLog) << "Highest installed Qt:"
                        << qPrintable(highestInstalled ? highestInstalled->version.toString()
                                                       : QString("none"));

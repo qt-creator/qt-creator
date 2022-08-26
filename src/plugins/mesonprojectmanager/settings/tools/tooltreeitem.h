@@ -8,11 +8,12 @@
 
 #include <utils/fileutils.h>
 #include <utils/id.h>
-#include <utils/optional.h>
 #include <utils/treemodel.h>
 
 #include <QCoreApplication>
 #include <QString>
+
+#include <optional>
 
 namespace MesonProjectManager {
 namespace Internal {

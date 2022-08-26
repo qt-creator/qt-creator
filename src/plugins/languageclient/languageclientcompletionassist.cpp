@@ -402,7 +402,7 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     if (auto error = response.error())
         m_client->log(*error);
 
-    const Utils::optional<CompletionResult> &result = response.result();
+    const std::optional<CompletionResult> &result = response.result();
     if (!result || std::holds_alternative<std::nullptr_t>(*result)) {
         setAsyncProposalAvailable(nullptr);
         m_client->removeAssistProcessor(this);
@@ -464,7 +464,7 @@ bool LanguageClientCompletionAssistProvider::isActivationCharSequence(const QStr
 }
 
 void LanguageClientCompletionAssistProvider::setTriggerCharacters(
-    const Utils::optional<QList<QString>> triggerChars)
+    const std::optional<QList<QString>> triggerChars)
 {
     m_activationCharSequenceLength = 0;
     m_triggerChars = triggerChars.value_or(QList<QString>());

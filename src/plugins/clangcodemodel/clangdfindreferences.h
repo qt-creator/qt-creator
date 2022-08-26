@@ -5,9 +5,10 @@
 
 #include <coreplugin/find/searchresultitem.h>
 #include <cppeditor/cursorineditor.h>
-#include <utils/optional.h>
 
 #include <QObject>
+
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 class QTextCursor;
@@ -24,7 +25,7 @@ class ClangdFindReferences : public QObject
 public:
     explicit ClangdFindReferences(ClangdClient *client, TextEditor::TextDocument *document,
                                   const QTextCursor &cursor, const QString &searchTerm,
-                                  const Utils::optional<QString> &replacement, bool categorize);
+                                  const std::optional<QString> &replacement, bool categorize);
     ~ClangdFindReferences();
 
 signals:

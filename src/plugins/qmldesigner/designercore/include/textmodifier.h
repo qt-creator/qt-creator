@@ -7,11 +7,12 @@
 
 #include <qmljs/qmljsdocument.h>
 #include <texteditor/tabsettings.h>
-#include <utils/optional.h>
 
 #include <QObject>
 #include <QTextCursor>
 #include <QTextDocument>
+
+#include <optional>
 
 namespace TextEditor { class TabSettings; }
 

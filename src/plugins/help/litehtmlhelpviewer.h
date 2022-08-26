@@ -6,11 +6,11 @@
 #include "helpviewer.h"
 #include "openpagesmanager.h"
 
-#include <utils/optional.h>
-
 #include <qlitehtmlwidget.h>
 
 #include <QTextBrowser>
+
+#include <optional>
 
 namespace Help {
 namespace Internal {
@@ -54,7 +54,7 @@ public:
 private:
     void goForward(int count);
     void goBackward(int count);
-    void setSourceInternal(const QUrl &url, Utils::optional<int> vscroll = Utils::nullopt);
+    void setSourceInternal(const QUrl &url, std::optional<int> vscroll = std::nullopt);
     void showContextMenu(const QPoint &pos, const QUrl &url);
 
     struct HistoryItem

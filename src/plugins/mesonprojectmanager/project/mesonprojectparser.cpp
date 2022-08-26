@@ -13,11 +13,12 @@
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/fileinprojectfinder.h>
-#include <utils/optional.h>
 #include <utils/runextensions.h>
 
 #include <QStringList>
 #include <QTextStream>
+
+#include <optional>
 
 namespace MesonProjectManager {
 namespace Internal {
@@ -29,21 +30,21 @@ struct CompilerArgs
     ProjectExplorer::Macros macros;
 };
 
-inline Utils::optional<QString> extractValueIfMatches(const QString &arg,
+inline std::optional<QString> extractValueIfMatches(const QString &arg,
                                                       const QStringList &candidates)
 {
     for (const auto &flag : candidates) {
         if (arg.startsWith(flag))
             return arg.mid(flag.length());
     }
-    return Utils::nullopt;
+    return std::nullopt;
 }
 
-inline Utils::optional<QString> extractInclude(const QString &arg)
+inline std::optional<QString> extractInclude(const QString &arg)
 {
     return extractValueIfMatches(arg, {"-I", "/I", "-isystem", "-imsvc", "/imsvc"});
 }
-inline Utils::optional<ProjectExplorer::Macro> extractMacro(const QString &arg)
+inline std::optional<ProjectExplorer::Macro> extractMacro(const QString &arg)
 {
     auto define = extractValueIfMatches(arg, {"-D", "/D"});
     if (define)
@@ -51,7 +52,7 @@ inline Utils::optional<ProjectExplorer::Macro> extractMacro(const QString &arg)
     auto undef = extractValueIfMatches(arg, {"-U", "/U"});
     if (undef)
         return ProjectExplorer::Macro(undef->toLatin1(), ProjectExplorer::MacroType::Undefine);
-    return Utils::nullopt;
+    return std::nullopt;
 }
 
 CompilerArgs splitArgs(const QStringList &args)

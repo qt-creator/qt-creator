@@ -75,9 +75,9 @@ static bool parseLine(const QString &line, FilterRuleSpec *filterRule)
     filterRule->category = categoryName;
 
     if (match.capturedLength(2) == 0)
-        filterRule->level = Utils::nullopt;
+        filterRule->level = std::nullopt;
     else
-        filterRule->level = Utils::make_optional(parseLevel(match.captured(2).mid(1)));
+        filterRule->level = std::make_optional(parseLevel(match.captured(2).mid(1)));
 
     const QString enabled = parts.at(1);
     if (enabled == "true" || enabled == "false") {

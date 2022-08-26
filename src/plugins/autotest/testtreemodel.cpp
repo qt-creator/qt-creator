@@ -259,7 +259,7 @@ void TestTreeModel::onBuildSystemTestsUpdated()
     for (const auto &tci : bs->testcasesInfo()) {
         ITestTreeItem *item = testTool->createItemFromTestCaseInfo(tci);
         QTC_ASSERT(item, continue);
-        if (Utils::optional<Qt::CheckState> cached = m_checkStateCache->get(item))
+        if (std::optional<Qt::CheckState> cached = m_checkStateCache->get(item))
             item->setData(0, cached.value(), Qt::CheckStateRole);
         m_checkStateCache->insert(item, item->checked());
         rootNode->appendChild(item);
@@ -393,7 +393,7 @@ void TestTreeModel::synchronizeTestTools()
                 for (const auto &tci : bs->testcasesInfo()) {
                     ITestTreeItem *item = testTool->createItemFromTestCaseInfo(tci);
                     QTC_ASSERT(item, continue);
-                    if (Utils::optional<Qt::CheckState> cached = m_checkStateCache->get(item))
+                    if (std::optional<Qt::CheckState> cached = m_checkStateCache->get(item))
                         item->setData(0, cached.value(), Qt::CheckStateRole);
                     m_checkStateCache->insert(item, item->checked());
                     rootNode->appendChild(item);
@@ -592,13 +592,13 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
         delete item;
     } else {
         // restore former check state if available
-        Utils::optional<Qt::CheckState> cached = m_checkStateCache->get(item);
+        std::optional<Qt::CheckState> cached = m_checkStateCache->get(item);
         if (cached.has_value())
             item->setData(0, cached.value(), Qt::CheckStateRole);
         else
             applyParentCheckState(parentNode, item);
         // ..and the failed state if available
-        Utils::optional<bool> failed = m_failedStateCache.get(item);
+        std::optional<bool> failed = m_failedStateCache.get(item);
         if (failed.has_value())
             item->setData(0, *failed, FailedRole);
         parentNode->appendChild(item);
@@ -717,10 +717,10 @@ void TestTreeModel::handleParseResult(const TestParseResult *result, TestTreeIte
     newItem->forAllChildItems([this](TestTreeItem *childItem) {
         if (!m_checkStateCache) // parse results may arrive after session switch / project close
             return;
-        Utils::optional<Qt::CheckState> cached = m_checkStateCache->get(childItem);
+        std::optional<Qt::CheckState> cached = m_checkStateCache->get(childItem);
         if (cached.has_value())
             childItem->setData(0, cached.value(), Qt::CheckStateRole);
-        Utils::optional<bool> failed = m_failedStateCache.get(childItem);
+        std::optional<bool> failed = m_failedStateCache.get(childItem);
         if (failed.has_value())
             childItem->setData(0, *failed, FailedRole);
     });

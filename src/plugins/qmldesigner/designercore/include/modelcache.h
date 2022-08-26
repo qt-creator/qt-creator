@@ -7,10 +7,10 @@
 
 #include <model.h>
 
-#include <utils/optional.h>
-
 #include <QHash>
 #include <QQueue>
+
+#include <optional>
 
 namespace QmlDesigner {
 
@@ -42,7 +42,7 @@ public:
         }
     }
 
-    Utils::optional<DataType> take(Model *model)
+    std::optional<DataType> take(Model *model)
     {
         if (!m_content.contains(model))
             return {};

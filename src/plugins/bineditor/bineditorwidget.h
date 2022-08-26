@@ -8,7 +8,6 @@
 #include "bineditorservice.h"
 
 #include <utils/filepath.h>
-#include <utils/optional.h>
 
 #include <QAbstractScrollArea>
 #include <QBasicTimer>
@@ -18,6 +17,8 @@
 #include <QString>
 #include <QTextDocument>
 #include <QTextFormat>
+
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 class QHelpEvent;
@@ -194,7 +195,7 @@ private:
     QBasicTimer m_cursorBlinkTimer;
 
     void init();
-    Utils::optional<qint64> posAt(const QPoint &pos, bool includeEmptyArea = true) const;
+    std::optional<qint64> posAt(const QPoint &pos, bool includeEmptyArea = true) const;
     bool inTextArea(const QPoint &pos) const;
     QRect cursorRect() const;
     void updateLines();

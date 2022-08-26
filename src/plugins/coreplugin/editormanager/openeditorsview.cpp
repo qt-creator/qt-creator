@@ -53,7 +53,7 @@ void OpenEditorsWidget::updateCurrentItem(IEditor *editor)
         clearSelection();
         return;
     }
-    const Utils::optional<int> index = DocumentModel::indexOfDocument(editor->document());
+    const std::optional<int> index = DocumentModel::indexOfDocument(editor->document());
     if (QTC_GUARD(index))
         setCurrentIndex(m_model->index(index.value(), 0));
     selectionModel()->select(currentIndex(),

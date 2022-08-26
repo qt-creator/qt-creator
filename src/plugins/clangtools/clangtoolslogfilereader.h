@@ -3,9 +3,10 @@
 
 #pragma once
 
-#include <utils/optional.h>
 
 #include "clangtoolsdiagnostic.h"
+
+#include <optional>
 
 namespace Utils { class FilePath; }
 
@@ -27,7 +28,7 @@ struct LineColumnInfo {
     int column = 1; // 1-based
     int lineStartOffset = 0; // for optimiation/caching purposes
 };
-using OptionalLineColumnInfo = Utils::optional<LineColumnInfo>;
+using OptionalLineColumnInfo = std::optional<LineColumnInfo>;
 OptionalLineColumnInfo byteOffsetInUtf8TextToLineColumn(const char *text,
                                                         int offset,
                                                         int startLine = 1);

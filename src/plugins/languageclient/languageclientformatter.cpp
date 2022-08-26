@@ -55,7 +55,7 @@ QFutureWatcher<ChangeSet> *LanguageClientFormatter::format(
     const FilePath &filePath = m_document->filePath();
     const DynamicCapabilities dynamicCapabilities = m_client->dynamicCapabilities();
     const QString method(DocumentRangeFormattingRequest::methodName);
-    if (optional<bool> registered = dynamicCapabilities.isRegistered(method)) {
+    if (std::optional<bool> registered = dynamicCapabilities.isRegistered(method)) {
         if (!*registered)
             return nullptr;
         const TextDocumentRegistrationOptions option(dynamicCapabilities.option(method).toObject());
@@ -64,7 +64,7 @@ QFutureWatcher<ChangeSet> *LanguageClientFormatter::format(
             return nullptr;
         }
     } else {
-        const Utils::optional<std::variant<bool, WorkDoneProgressOptions>> &provider
+        const std::optional<std::variant<bool, WorkDoneProgressOptions>> &provider
             = m_client->capabilities().documentRangeFormattingProvider();
         if (!provider.has_value())
             return nullptr;
@@ -106,17 +106,18 @@ void LanguageClientFormatter::cancelCurrentRequest()
         m_progress.reportFinished();
         m_client->cancelRequest(*m_currentRequest);
         m_ignoreCancel = false;
-        m_currentRequest = nullopt;
+        m_currentRequest = std::nullopt;
     }
 }
 
 void LanguageClientFormatter::handleResponse(const DocumentRangeFormattingRequest::Response &response)
 {
-    m_currentRequest = nullopt;
-    if (const optional<DocumentRangeFormattingRequest::Response::Error> &error = response.error())
+    m_currentRequest = std::nullopt;
+    if (const std::optional<DocumentRangeFormattingRequest::Response::Error> &error = response
+                                                                                          .error())
         m_client->log(*error);
     ChangeSet changeSet;
-    if (optional<LanguageClientArray<TextEdit>> result = response.result()) {
+    if (std::optional<LanguageClientArray<TextEdit>> result = response.result()) {
         if (!result->isNull())
             changeSet = editsToChangeSet(result->toList(), m_document->document());
     }

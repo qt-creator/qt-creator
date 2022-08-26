@@ -15,10 +15,10 @@
 #include <sqlitetransaction.h>
 
 #include <utils/algorithm.h>
-#include <utils/optional.h>
 #include <utils/set_algorithm.h>
 
 #include <algorithm>
+#include <optional>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -161,7 +161,7 @@ public:
             .template valueWithTransaction<PropertyDeclarationId>(typeId, propertyName);
     }
 
-    Utils::optional<Storage::Info::PropertyDeclaration> propertyDeclaration(
+    std::optional<Storage::Info::PropertyDeclaration> propertyDeclaration(
         PropertyDeclarationId propertyDeclarationId) const
     {
         return selectPropertyDeclarationForPropertyDeclarationIdStatement
@@ -169,7 +169,7 @@ public:
                 propertyDeclarationId);
     }
 
-    Utils::optional<Storage::Info::Type> type(TypeId typeId) const
+    std::optional<Storage::Info::Type> type(TypeId typeId) const
     {
         return selectInfoTypeByTypeIdStatement.template optionalValueWithTransaction<Storage::Info::Type>(
             typeId);
@@ -187,7 +187,7 @@ public:
             .template valuesWithTransaction<Utils::SmallString>(32, typeId);
     }
 
-    Utils::optional<Utils::SmallString> propertyName(PropertyDeclarationId propertyDeclarationId) const
+    std::optional<Utils::SmallString> propertyName(PropertyDeclarationId propertyDeclarationId) const
     {
         return selectPropertyNameStatement.template optionalValueWithTransaction<Utils::SmallString>(
             propertyDeclarationId);

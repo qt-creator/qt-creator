@@ -183,11 +183,11 @@ static QString generateSuffix(const QString &suffix)
 }
 
 // Return path to shared directory for .user files, create if necessary.
-static inline Utils::optional<QString> defineExternalUserFileDir()
+static inline std::optional<QString> defineExternalUserFileDir()
 {
     const char userFilePathVariable[] = "QTC_USER_FILE_PATH";
     if (Q_LIKELY(!qtcEnvironmentVariableIsSet(userFilePathVariable)))
-        return nullopt;
+        return std::nullopt;
     const QFileInfo fi(qtcEnvironmentVariable(userFilePathVariable));
     const QString path = fi.absoluteFilePath();
     if (fi.isDir() || fi.isSymLink())
@@ -195,12 +195,12 @@ static inline Utils::optional<QString> defineExternalUserFileDir()
     if (fi.exists()) {
         qWarning() << userFilePathVariable << '=' << QDir::toNativeSeparators(path)
             << " points to an existing file";
-        return nullopt;
+        return std::nullopt;
     }
     QDir dir;
     if (!dir.mkpath(path)) {
         qWarning() << "Cannot create: " << QDir::toNativeSeparators(path);
-        return nullopt;
+        return std::nullopt;
     }
     return path;
 }
@@ -235,7 +235,7 @@ static QString makeRelative(QString path)
 // Return complete file path of the .user file.
 static FilePath externalUserFilePath(const Utils::FilePath &projectFilePath, const QString &suffix)
 {
-    static const optional<QString> externalUserFileDir = defineExternalUserFileDir();
+    static const std::optional<QString> externalUserFileDir = defineExternalUserFileDir();
 
     if (externalUserFileDir) {
         // Recreate the relative project file hierarchy under the shared directory.
@@ -328,7 +328,7 @@ UserFileAccessor::merge(const MergingSettingsAccessor::SettingsMergeData &global
     const QVariant secondaryValue = local.secondary.value(key);
 
     if (mainValue.isNull() && secondaryValue.isNull())
-        return nullopt;
+        return std::nullopt;
 
     if (isHouseKeepingKey(key) || global.key == USER_STICKY_KEYS_KEY)
         return qMakePair(key, mainValue);
@@ -357,14 +357,14 @@ SettingsMergeFunction UserFileAccessor::userStickyTrackerFunction(QStringList &s
         const QVariant secondary = local.secondary.value(key);
 
         if (main.isNull()) // skip stuff not in main!
-            return nullopt;
+            return std::nullopt;
 
         if (isHouseKeepingKey(key))
             return qMakePair(key, main);
 
         // Ignore house keeping keys:
         if (key == USER_STICKY_KEYS_KEY)
-            return nullopt;
+            return std::nullopt;
 
         // Track keys that changed in main from the value in secondary:
         if (main != secondary && !secondary.isNull() && !stickyKeys.contains(global.key))

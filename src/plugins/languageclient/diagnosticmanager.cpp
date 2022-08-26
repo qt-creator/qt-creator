@@ -58,7 +58,7 @@ DiagnosticManager::~DiagnosticManager()
 
 void DiagnosticManager::setDiagnostics(const DocumentUri &uri,
                                        const QList<Diagnostic> &diagnostics,
-                                       const Utils::optional<int> &version)
+                                       const std::optional<int> &version)
 {
     hideDiagnostics(uri.toFilePath());
     m_diagnostics[uri] = {version, filteredDiagnostics(diagnostics)};

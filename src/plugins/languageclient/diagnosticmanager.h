@@ -32,7 +32,7 @@ public:
 
     virtual void setDiagnostics(const LanguageServerProtocol::DocumentUri &uri,
                                 const QList<LanguageServerProtocol::Diagnostic> &diagnostics,
-                                const Utils::optional<int> &version);
+                                const std::optional<int> &version);
 
     virtual void showDiagnostics(const LanguageServerProtocol::DocumentUri &uri, int version);
     virtual void hideDiagnostics(const Utils::FilePath &filePath);
@@ -68,7 +68,7 @@ protected:
 private:
     struct VersionedDiagnostics
     {
-        Utils::optional<int> version;
+        std::optional<int> version;
         QList<LanguageServerProtocol::Diagnostic> diagnostics;
     };
     QMap<LanguageServerProtocol::DocumentUri, VersionedDiagnostics> m_diagnostics;

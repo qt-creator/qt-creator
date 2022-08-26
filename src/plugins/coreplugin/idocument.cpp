@@ -6,13 +6,13 @@
 #include <utils/filepath.h>
 #include <utils/infobar.h>
 #include <utils/minimizableinfobars.h>
-#include <utils/optional.h>
 #include <utils/qtcassert.h>
 
 #include <QFile>
 #include <QFileInfo>
 
 #include <memory>
+#include <optional>
 
 /*!
     \class Core::IDocument
@@ -209,7 +209,7 @@ public:
     Utils::InfoBar *infoBar = nullptr;
     std::unique_ptr<MinimizableInfoBars> minimizableInfoBars;
     Id id;
-    optional<bool> fileIsReadOnly;
+    std::optional<bool> fileIsReadOnly;
     bool temporary = false;
     bool hasWriteWarning = false;
     bool restored = false;

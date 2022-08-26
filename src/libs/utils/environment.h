@@ -8,9 +8,9 @@
 #include "environmentfwd.h"
 #include "filepath.h"
 #include "namevaluedictionary.h"
-#include "optional.h"
 
 #include <functional>
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 class QProcessEnvironment;
@@ -150,7 +150,7 @@ public:
 
     static void addProvider(EnvironmentProvider &&provider);
     static const QVector<EnvironmentProvider> providers();
-    static optional<EnvironmentProvider> provider(const QByteArray &id);
+    static std::optional<EnvironmentProvider> provider(const QByteArray &id);
 };
 
 QTCREATOR_UTILS_EXPORT QString qtcEnvironmentVariable(const QString &key);

@@ -94,7 +94,7 @@ bool HostOsInfo::canCreateOpenGLContext(QString *errorMessage)
 #endif
 }
 
-optional<quint64> HostOsInfo::totalMemoryInstalledInBytes()
+std::optional<quint64> HostOsInfo::totalMemoryInstalledInBytes()
 {
 #ifdef Q_OS_LINUX
     struct sysinfo info;

@@ -10,8 +10,9 @@
 #include <QSet>
 #include <QSortFilterProxyModel>
 
-#include <utils/optional.h>
 #include <utils/treemodel.h>
+
+#include <optional>
 
 namespace Autotest {
 namespace Internal {
@@ -36,16 +37,16 @@ public:
     };
 
     void updateResult(bool &changed, ResultType addedChildType,
-                      const Utils::optional<SummaryEvaluation> &summary);
+                      const std::optional<SummaryEvaluation> &summary);
 
     TestResultItem *intermediateFor(const TestResultItem *item) const;
     TestResultItem *createAndAddIntermediateFor(const TestResultItem *child);
     QString resultString() const;
-    Utils::optional<SummaryEvaluation> summaryResult() const { return m_summaryResult; }
+    std::optional<SummaryEvaluation> summaryResult() const { return m_summaryResult; }
 
 private:
     TestResultPtr m_testResult;
-    Utils::optional<SummaryEvaluation> m_summaryResult;
+    std::optional<SummaryEvaluation> m_summaryResult;
 };
 
 class TestResultModel : public Utils::TreeModel<TestResultItem>

@@ -48,7 +48,7 @@ private:
     bool reportDiagnostics(const QTextCursor &cursor);
 
     QPointer<Client> m_client;
-    Utils::optional<LanguageServerProtocol::MessageId> m_currentRequest;
+    std::optional<LanguageServerProtocol::MessageId> m_currentRequest;
     LanguageServerProtocol::DocumentUri m_uri;
     LanguageServerProtocol::HoverRequest::Response m_response;
     TextEditor::BaseHoverHandler::ReportPriority m_report;

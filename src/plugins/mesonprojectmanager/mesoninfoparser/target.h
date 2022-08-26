@@ -5,10 +5,11 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
-#include <utils/optional.h>
 
 #include <QDir>
 #include <QVariant>
+
+#include <optional>
 
 namespace MesonProjectManager {
 namespace Internal {
@@ -56,7 +57,7 @@ struct Target
     const QString definedIn;
     const QStringList fileName;
     const QStringList extraFiles;
-    const Utils::optional<QString> subproject;
+    const std::optional<QString> subproject;
     const SourceGroupList sources;
 
     static inline QString fullName(const Utils::FilePath &srcDir, const Target &target)
@@ -104,8 +105,8 @@ struct Target
         , definedIn{QDir::cleanPath(definedIn)}
         , fileName{cleanPath(std::move(fileName))}
         , extraFiles{cleanPath(std::move(extraFiles))}
-        , subproject{subproject.isNull() ? Utils::nullopt
-                                         : Utils::optional<QString>{std::move(subproject)}}
+        , subproject{subproject.isNull() ? std::nullopt
+                                         : std::optional<QString>{std::move(subproject)}}
         , sources{std::move(sources)}
     {}
 };

@@ -6,12 +6,12 @@
 #include "utils_global.h"
 
 #include "namevalueitem.h"
-#include "optional.h"
 
 #include <QDialog>
 
 #include <functional>
 #include <memory>
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
@@ -46,7 +46,7 @@ public:
     void setPlaceholderText(const QString &text);
 
     using Polisher = std::function<void(QWidget *)>;
-    static Utils::optional<NameValueItems> getNameValueItems(QWidget *parent = nullptr,
+    static std::optional<NameValueItems> getNameValueItems(QWidget *parent = nullptr,
                                                              const NameValueItems &initial = {},
                                                              const QString &placeholderText = {},
                                                              Polisher polish = {},

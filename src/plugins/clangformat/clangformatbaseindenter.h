@@ -44,7 +44,7 @@ public:
 
     bool isElectricCharacter(const QChar &ch) const override;
 
-    Utils::optional<int> margin() const override;
+    std::optional<int> margin() const override;
 
     clang::format::FormatStyle styleForFile() const;
 

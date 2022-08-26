@@ -65,7 +65,7 @@ private:
         auto toOperation =
             [=](const std::variant<Command, CodeAction> &item) -> QuickFixOperation * {
             if (auto action = std::get_if<CodeAction>(&item)) {
-                const Utils::optional<QList<Diagnostic>> diagnostics = action->diagnostics();
+                const std::optional<QList<Diagnostic>> diagnostics = action->diagnostics();
                 if (!diagnostics.has_value() || diagnostics->isEmpty())
                     return new CodeActionQuickFixOperation(*action, client());
             }

@@ -4,7 +4,6 @@
 #pragma once
 
 #include <utils/fileutils.h>
-#include <utils/optional.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -12,6 +11,8 @@
 #include <QLineEdit>
 #include <QSpinBox>
 #include <QVariant>
+
+#include <optional>
 
 namespace MesonProjectManager {
 namespace Internal {
@@ -58,7 +59,7 @@ struct BuildOption
     const QString name;
     const QString section;
     const QString description;
-    const Utils::optional<QString> subproject;
+    const std::optional<QString> subproject;
     virtual ~BuildOption() {}
     virtual QVariant value() const = 0;
     virtual QString valueStr() const = 0;
@@ -79,8 +80,8 @@ struct BuildOption
         : name{name.contains(":") ? name.split(":").last() : name}
         , section{section}
         , description{description}
-        , subproject{name.contains(":") ? Utils::optional<QString>(name.split(":").first())
-                                        : Utils::nullopt}
+        , subproject{name.contains(":") ? std::optional<QString>(name.split(":").first())
+                                        : std::nullopt}
     {}
 }; // namespace Internal
 

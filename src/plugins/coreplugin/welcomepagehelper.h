@@ -6,13 +6,13 @@
 #include "core_global.h"
 #include "iwelcomepage.h"
 
-#include <utils/optional.h>
-
 #include <QElapsedTimer>
 #include <QPointer>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
 #include <QListView>
+
+#include <optional>
 
 namespace Utils { class FancyLineEdit; }
 
@@ -43,7 +43,7 @@ protected:
     void leaveEvent(QEvent *) final;
 };
 
-using OptModelIndex = Utils::optional<QModelIndex>;
+using OptModelIndex = std::optional<QModelIndex>;
 
 class CORE_EXPORT ListItem
 {

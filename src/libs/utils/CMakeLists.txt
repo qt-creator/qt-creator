@@ -4,7 +4,6 @@ add_qtc_library(Utils
     Qt5::Concurrent Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets
     Qt6Core5Compat
   SOURCES
-    ../3rdparty/optional/optional.hpp
     ../3rdparty/span/span.hpp
     QtConcurrentTools
     algorithm.h
@@ -103,7 +102,6 @@ add_qtc_library(Utils
     namevaluevalidator.cpp namevaluevalidator.h
     navigationtreeview.cpp navigationtreeview.h
     networkaccessmanager.cpp networkaccessmanager.h
-    optional.h
     osspecificaspects.h
     outputformat.h
     outputformatter.cpp outputformatter.h

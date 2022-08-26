@@ -7,7 +7,6 @@
 #include "lsptypes.h"
 #include "jsonkeys.h"
 
-#include <utils/optional.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -18,6 +17,7 @@
 #include <QCoreApplication>
 #include <QUuid>
 
+#include <optional>
 #include <variant>
 
 namespace LanguageServerProtocol {
@@ -112,8 +112,7 @@ public:
 
     const QString parseError() { return m_parseError; }
 
-    virtual Utils::optional<ResponseHandler> responseHandler() const
-    { return Utils::nullopt; }
+    virtual std::optional<ResponseHandler> responseHandler() const { return std::nullopt; }
 
     BaseMessage toBaseMessage() const
     { return BaseMessage(jsonRpcMimeType(), toRawData()); }
@@ -143,10 +142,10 @@ public:
     void setMethod(const QString &method)
     { m_jsonObject.insert(methodKey, method); }
 
-    Utils::optional<Params> params() const
+    std::optional<Params> params() const
     {
         const QJsonValue &params = m_jsonObject.value(paramsKey);
-        return params.isUndefined() ? Utils::nullopt : Utils::make_optional(Params(params));
+        return params.isUndefined() ? std::nullopt : std::make_optional(Params(params));
     }
     void setParams(const Params &params)
     { m_jsonObject.insert(paramsKey, QJsonValue(params)); }
@@ -187,7 +186,7 @@ public:
     void setMethod(const QString &method)
     { m_jsonObject.insert(methodKey, method); }
 
-    Utils::optional<std::nullptr_t> params() const
+    std::optional<std::nullptr_t> params() const
     { return nullptr; }
     void setParams(const std::nullptr_t &/*params*/)
     { m_jsonObject.insert(paramsKey, QJsonValue::Null); }
@@ -216,7 +215,7 @@ public:
     QString message() const { return typedValue<QString>(messageKey); }
     void setMessage(const QString &message) { insert(messageKey, message); }
 
-    Utils::optional<Error> data() const { return optionalValue<Error>(dataKey); }
+    std::optional<Error> data() const { return optionalValue<Error>(dataKey); }
     void setData(const Error &data) { insert(dataKey, data); }
     void clearData() { remove(dataKey); }
 
@@ -275,22 +274,21 @@ public:
     void setId(MessageId id)
     { this->m_jsonObject.insert(idKey, id); }
 
-    Utils::optional<Result> result() const
+    std::optional<Result> result() const
     {
         const QJsonValue &result = m_jsonObject.value(resultKey);
         if (result.isUndefined())
-            return Utils::nullopt;
-        return Utils::make_optional(Result(result));
+            return std::nullopt;
+        return std::make_optional(Result(result));
     }
     void setResult(const Result &result) { m_jsonObject.insert(resultKey, QJsonValue(result)); }
     void clearResult() { m_jsonObject.remove(resultKey); }
 
     using Error = ResponseError<ErrorDataType>;
-    Utils::optional<Error> error() const
+    std::optional<Error> error() const
     {
         const QJsonValue &val = m_jsonObject.value(errorKey);
-        return val.isUndefined() ? Utils::nullopt
-                                 : Utils::make_optional(fromJsonValue<Error>(val));
+        return val.isUndefined() ? std::nullopt : std::make_optional(fromJsonValue<Error>(val));
     }
     void setError(const Error &error)
     { m_jsonObject.insert(errorKey, QJsonValue(error)); }
@@ -312,20 +310,18 @@ public:
     void setId(MessageId id)
     { this->m_jsonObject.insert(idKey, id); }
 
-    Utils::optional<std::nullptr_t> result() const
+    std::optional<std::nullptr_t> result() const
     {
-        return m_jsonObject.value(resultKey).isNull() ? Utils::make_optional(nullptr)
-                                                      : Utils::nullopt;
+        return m_jsonObject.value(resultKey).isNull() ? std::make_optional(nullptr) : std::nullopt;
     }
     void setResult(const std::nullptr_t &) { m_jsonObject.insert(resultKey, QJsonValue::Null); }
     void clearResult() { m_jsonObject.remove(resultKey); }
 
     using Error = ResponseError<ErrorDataType>;
-    Utils::optional<Error> error() const
+    std::optional<Error> error() const
     {
         const QJsonValue &val = m_jsonObject.value(errorKey);
-        return val.isUndefined() ? Utils::nullopt
-                                 : Utils::make_optional(fromJsonValue<Error>(val));
+        return val.isUndefined() ? std::nullopt : std::make_optional(fromJsonValue<Error>(val));
     }
     void setError(const Error &error)
     { m_jsonObject.insert(errorKey, QJsonValue(error)); }
@@ -357,7 +353,7 @@ public:
     void setResponseCallback(const ResponseCallback &callback)
     { m_callBack = callback; }
 
-    Utils::optional<ResponseHandler> responseHandler() const final
+    std::optional<ResponseHandler> responseHandler() const final
     {
         QElapsedTimer timer;
         timer.start();
@@ -369,7 +365,7 @@ public:
 
             callback(Response(message.toJsonObject()));
         };
-        return Utils::make_optional(ResponseHandler{id(), callback});
+        return std::make_optional(ResponseHandler{id(), callback});
     }
 
     bool isValid(QString *errorMessage) const override

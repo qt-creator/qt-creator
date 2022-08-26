@@ -244,7 +244,7 @@ bool LiteHtmlHelpViewer::eventFilter(QObject *src, QEvent *e)
     return HelpViewer::eventFilter(src, e);
 }
 
-void LiteHtmlHelpViewer::setSourceInternal(const QUrl &url, Utils::optional<int> vscroll)
+void LiteHtmlHelpViewer::setSourceInternal(const QUrl &url, std::optional<int> vscroll)
 {
     slotLoadStarted();
     QUrl currentUrlWithoutFragment = m_viewer->url();

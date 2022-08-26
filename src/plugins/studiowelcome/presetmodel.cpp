@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "presetmodel.h"
-#include <utils/optional.h>
 
 #include "algorithm.h"
+
+#include <optional>
 
 using namespace StudioWelcome;
 

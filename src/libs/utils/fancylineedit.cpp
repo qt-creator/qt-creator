@@ -7,7 +7,6 @@
 #include "execmenu.h"
 #include "historycompleter.h"
 #include "hostosinfo.h"
-#include "optional.h"
 #include "qtcassert.h"
 #include "utilsicons.h"
 
@@ -21,6 +20,8 @@
 #include <QStyleOptionFocusRect>
 #include <QValidator>
 #include <QWindow>
+
+#include <optional>
 
 /*!
     \class Utils::FancyLineEdit
@@ -202,7 +203,7 @@ FancyLineEdit::~FancyLineEdit()
 
 void FancyLineEdit::setTextKeepingActiveCursor(const QString &text)
 {
-    optional<int> cursor = hasFocus() ? make_optional(cursorPosition()) : nullopt;
+    std::optional<int> cursor = hasFocus() ? std::make_optional(cursorPosition()) : std::nullopt;
     setText(text);
     if (cursor)
         setCursorPosition(*cursor);

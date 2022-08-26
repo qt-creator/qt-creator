@@ -5,8 +5,9 @@
 
 #include "utils_global.h"
 
-#include "optional.h"
 #include "osspecificaspects.h"
+
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 class QString;
@@ -83,7 +84,7 @@ public:
 
     static bool canCreateOpenGLContext(QString *errorMessage);
 
-    static optional<quint64> totalMemoryInstalledInBytes();
+    static std::optional<quint64> totalMemoryInstalledInBytes();
 
 private:
     static Qt::CaseSensitivity m_overrideFileNameCaseSensitivity;

@@ -62,7 +62,7 @@ void DockerApi::checkCanConnect(bool async)
         if (!lk.owns_lock())
             return;
 
-        m_dockerDaemonAvailable = nullopt;
+        m_dockerDaemonAvailable = std::nullopt;
         emit dockerDaemonAvailableChanged();
 
         auto future = Utils::runAsync([lk = std::move(lk), this] {
@@ -88,16 +88,16 @@ void DockerApi::recheckDockerDaemon()
     s_instance->checkCanConnect();
 }
 
-Utils::optional<bool> DockerApi::dockerDaemonAvailable(bool async)
+std::optional<bool> DockerApi::dockerDaemonAvailable(bool async)
 {
     if (!m_dockerDaemonAvailable.has_value())
         checkCanConnect(async);
     return m_dockerDaemonAvailable;
 }
 
-Utils::optional<bool> DockerApi::isDockerDaemonAvailable(bool async)
+std::optional<bool> DockerApi::isDockerDaemonAvailable(bool async)
 {
-    QTC_ASSERT(s_instance, return nullopt);
+    QTC_ASSERT(s_instance, return std::nullopt);
     return s_instance->dockerDaemonAvailable(async);
 }
 

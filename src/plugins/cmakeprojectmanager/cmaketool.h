@@ -9,7 +9,8 @@
 
 #include <utils/fileutils.h>
 #include <utils/id.h>
-#include <utils/optional.h>
+
+#include <optional>
 
 namespace Utils { class QtcProcess; }
 
@@ -83,7 +84,7 @@ public:
     void setPathMapper(const PathMapper &includePathMapper);
     PathMapper pathMapper() const;
 
-    Utils::optional<ReaderType> readerType() const;
+    std::optional<ReaderType> readerType() const;
 
     static Utils::FilePath searchQchFile(const Utils::FilePath &executable);
 
@@ -115,7 +116,7 @@ private:
     QString m_detectionSource;
     bool m_autoCreateBuildDirectory = false;
 
-    Utils::optional<ReaderType> m_readerType;
+    std::optional<ReaderType> m_readerType;
 
     std::unique_ptr<Internal::IntrospectionData> m_introspection;
 

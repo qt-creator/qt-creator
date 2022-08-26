@@ -39,7 +39,7 @@ bool CMakeListsNode::showInSimpleTree() const
     return false;
 }
 
-Utils::optional<Utils::FilePath> CMakeListsNode::visibleAfterAddFileAction() const
+std::optional<Utils::FilePath> CMakeListsNode::visibleAfterAddFileAction() const
 {
     return filePath().pathAppended("CMakeLists.txt");
 }
@@ -169,7 +169,7 @@ void CMakeTargetNode::setConfig(const CMakeConfig &config)
     m_config = config;
 }
 
-Utils::optional<Utils::FilePath> CMakeTargetNode::visibleAfterAddFileAction() const
+std::optional<Utils::FilePath> CMakeTargetNode::visibleAfterAddFileAction() const
 {
     return filePath().pathAppended("CMakeLists.txt");
 }

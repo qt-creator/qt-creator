@@ -13,7 +13,7 @@
 
 #include <debugger/analyzer/analyzericons.h>
 
-#include <utils/optional.h>
+#include <optional>
 
 using namespace Utils;
 

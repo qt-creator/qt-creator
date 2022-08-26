@@ -1188,7 +1188,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
     const auto buildDirAspect = aspect<BuildDirectoryAspect>();
     buildDirAspect->setValueAcceptor(
-        [](const QString &oldDir, const QString &newDir) -> Utils::optional<QString> {
+        [](const QString &oldDir, const QString &newDir) -> std::optional<QString> {
             if (oldDir.isEmpty())
                 return newDir;
 
@@ -1204,7 +1204,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                     == QMessageBox::Ok) {
                     return newDir;
                 }
-                return Utils::nullopt;
+                return std::nullopt;
             }
             return newDir;
         });

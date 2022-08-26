@@ -536,12 +536,12 @@ QChar BinEditorWidget::displayChar(char ch) const
     return uc.at(0);
 }
 
-Utils::optional<qint64> BinEditorWidget::posAt(const QPoint &pos, bool includeEmptyArea) const
+std::optional<qint64> BinEditorWidget::posAt(const QPoint &pos, bool includeEmptyArea) const
 {
     const int xoffset = horizontalScrollBar()->value();
     int x = xoffset + pos.x() - m_margin - m_labelWidth;
     if (!includeEmptyArea && x < 0)
-        return Utils::nullopt;
+        return std::nullopt;
     int column = qMin(15, qMax(0,x) / m_columnWidth);
     const qint64 topLine = verticalScrollBar()->value();
     const qint64 line = topLine + pos.y() / m_lineHeight;
@@ -559,12 +559,12 @@ Utils::optional<qint64> BinEditorWidget::posAt(const QPoint &pos, bool includeEm
                 break;
         }
         if (!includeEmptyArea && x > 0) // right of the text area
-            return Utils::nullopt;
+            return std::nullopt;
     }
 
     const qint64 bytePos = line * m_bytesPerLine + column;
     if (!includeEmptyArea && bytePos >= m_size)
-        return Utils::nullopt;
+        return std::nullopt;
     return qMin(m_size - 1, bytePos);
 }
 
@@ -1163,7 +1163,7 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
     } while (startInLine <= selEnd);
     if (!insideSelection) {
         // show popup for byte under cursor
-        Utils::optional<qint64> pos = posAt(helpEvent->pos(), /*includeEmptyArea*/false);
+        std::optional<qint64> pos = posAt(helpEvent->pos(), /*includeEmptyArea*/false);
         if (!pos)
             return QString();
         selStart = pos.value();

@@ -175,7 +175,7 @@ public:
 
     const Utils::MacroExpander *macroExpander = nullptr;
 
-    Utils::optional<int> exitCode = {};
+    std::optional<int> exitCode = {};
 
     // For Debugger testing.
     int testCase = 0;

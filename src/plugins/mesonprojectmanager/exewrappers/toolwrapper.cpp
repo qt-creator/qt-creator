@@ -49,7 +49,7 @@ Version ToolWrapper::read_version(const Utils::FilePath &toolPath)
     return {};
 }
 
-Utils::optional<Utils::FilePath> ToolWrapper::findTool(const QStringList &exeNames)
+std::optional<Utils::FilePath> ToolWrapper::findTool(const QStringList &exeNames)
 {
     using namespace Utils;
     Environment systemEnvironment = Environment::systemEnvironment();
@@ -58,7 +58,7 @@ Utils::optional<Utils::FilePath> ToolWrapper::findTool(const QStringList &exeNam
         if (exe_path.exists())
             return exe_path;
     }
-    return Utils::nullopt;
+    return std::nullopt;
 }
 
 } // namespace Internal

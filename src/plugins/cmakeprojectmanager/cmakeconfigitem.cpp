@@ -166,7 +166,7 @@ QString CMakeConfigItem::typeToTypeString(const CMakeConfigItem::Type t)
     return {};
 }
 
-Utils::optional<bool> CMakeConfigItem::toBool(const QString &value)
+std::optional<bool> CMakeConfigItem::toBool(const QString &value)
 {
     // Taken from CMakes if(<constant>) documentation:
     // "Named boolean constants are case-insensitive."

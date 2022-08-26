@@ -197,7 +197,7 @@ public:
     QTextCursor cursor;
     AnsiEscapeCodeHandler escapeCodeHandler;
     QPair<QString, OutputFormat> incompleteLine;
-    optional<QTextCharFormat> formatOverride;
+    std::optional<QTextCharFormat> formatOverride;
     QList<OutputLineParser *> lineParsers;
     OutputLineParser *nextParser = nullptr;
     FileInProjectFinder fileFinder;

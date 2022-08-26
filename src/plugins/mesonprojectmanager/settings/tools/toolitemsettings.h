@@ -5,9 +5,10 @@
 
 #include <utils/id.h>
 #include <utils/fileutils.h>
-#include <utils/optional.h>
 
 #include <QWidget>
+
+#include <optional>
 
 namespace MesonProjectManager {
 namespace Internal {
@@ -29,7 +30,7 @@ public:
 
 private:
     Ui::ToolItemSettings *ui;
-    Utils::optional<Utils::Id> m_currentId{Utils::nullopt};
+    std::optional<Utils::Id> m_currentId{std::nullopt};
 };
 
 } // namespace Internal

@@ -228,7 +228,7 @@ void BranchView::slotCustomContextMenu(const QPoint &point)
 
     QMenu contextMenu;
     contextMenu.addAction(tr("&Add..."), this, &BranchView::add);
-    const Utils::optional<QString> remote = m_model->remoteName(index);
+    const std::optional<QString> remote = m_model->remoteName(index);
     if (remote.has_value()) {
         contextMenu.addAction(tr("&Fetch"), this, [this, &remote]() {
             GitClient::instance()->fetch(m_repository, *remote);

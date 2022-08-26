@@ -324,24 +324,6 @@ we thank the authors who made this possible:
 
   With backported/additional patches from https://code.qt.io/cgit/clang/llvm-project.git
 
-### Optional
-
-  A single-header header-only library for representing optional (nullable)
-  objects for C++14 (and C++11 to some extent) and passing them by value.
-
-  https://github.com/akrzemi1/Optional
-
-  QtCreator/src/libs/3rdparty/optional
-
-  Copyright (C) 2011-2012 Andrzej Krzemienski
-
-  Distributed under the Boost Software License, Version 1.0
-  (see accompanying file LICENSE_1_0.txt or a copy at
-  http://www.boost.org/LICENSE_1_0.txt)
-
-  The idea and interface is based on Boost.Optional library
-  authored by Fernando Luis Cacciola Carballal
-
 ### std::span implementation for C++11 and later
 
   A single-header implementation of C++20's std::span, conforming to the C++20

@@ -144,7 +144,7 @@ bool FunctionHintAssistProvider::isContinuationChar(const QChar &/*c*/) const
 }
 
 void FunctionHintAssistProvider::setTriggerCharacters(
-    const Utils::optional<QList<QString>> &triggerChars)
+    const std::optional<QList<QString>> &triggerChars)
 {
     m_triggerChars = triggerChars.value_or(QList<QString>());
     for (const QString &trigger : qAsConst(m_triggerChars)) {

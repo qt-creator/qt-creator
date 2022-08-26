@@ -42,7 +42,7 @@ public:
     void reindent(const QTextCursor &cursor,
                   const TabSettings &tabSettings,
                   int cursorPositionInEditor = -1) override;
-    Utils::optional<TabSettings> tabSettings() const override;
+    std::optional<TabSettings> tabSettings() const override;
 };
 
 } // namespace TextEditor

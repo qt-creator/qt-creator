@@ -6,9 +6,10 @@
 #include <cppeditor/clangdiagnosticconfig.h>
 
 #include <utils/id.h>
-#include <utils/optional.h>
 
 #include <QtGlobal>
+
+#include <optional>
 
 namespace CppEditor { class ClangDiagnosticConfigsModel; }
 namespace Debugger { class DiagnosticLocation; }
@@ -31,10 +32,9 @@ enum class FixitStatus {
     Invalidated,
 };
 
-QString createDiagnosticToolTipString(
-    const Diagnostic &diagnostic,
-    Utils::optional<FixitStatus> status = Utils::nullopt,
-    bool showSteps = true);
+QString createDiagnosticToolTipString(const Diagnostic &diagnostic,
+                                      std::optional<FixitStatus> status = std::nullopt,
+                                      bool showSteps = true);
 
 CppEditor::ClangDiagnosticConfig builtinConfig();
 

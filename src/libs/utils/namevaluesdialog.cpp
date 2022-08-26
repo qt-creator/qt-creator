@@ -106,7 +106,7 @@ void NameValuesDialog::setPlaceholderText(const QString &text)
     m_editor->setPlaceholderText(text);
 }
 
-Utils::optional<NameValueItems> NameValuesDialog::getNameValueItems(QWidget *parent,
+std::optional<NameValueItems> NameValuesDialog::getNameValueItems(QWidget *parent,
                                                                     const NameValueItems &initial,
                                                                     const QString &placeholderText,
                                                                     Polisher polisher,

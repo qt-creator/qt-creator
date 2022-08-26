@@ -92,11 +92,11 @@ public:
     public:
         using JsonObject::JsonObject;
 
-        Utils::optional<QString> scopeUri() const { return optionalValue<QString>(scopeUriKey); }
+        std::optional<QString> scopeUri() const { return optionalValue<QString>(scopeUriKey); }
         void setScopeUri(const QString &scopeUri) { insert(scopeUriKey, scopeUri); }
         void clearScopeUri() { remove(scopeUriKey); }
 
-        Utils::optional<QString> section() const { return optionalValue<QString>(sectionKey); }
+        std::optional<QString> section() const { return optionalValue<QString>(sectionKey); }
         void setSection(const QString &section) { insert(sectionKey, section); }
         void clearSection() { remove(sectionKey); }
 
@@ -191,7 +191,7 @@ public:
     void setCommand(const QString &command) { insert(commandKey, command); }
     void clearCommand() { remove(commandKey); }
 
-    Utils::optional<QJsonArray> arguments() const { return typedValue<QJsonArray>(argumentsKey); }
+    std::optional<QJsonArray> arguments() const { return typedValue<QJsonArray>(argumentsKey); }
     void setArguments(const QJsonArray &arguments) { insert(argumentsKey, arguments); }
     void clearArguments() { remove(argumentsKey); }
 
@@ -212,7 +212,7 @@ class LANGUAGESERVERPROTOCOL_EXPORT ApplyWorkspaceEditParams : public JsonObject
 public:
     using JsonObject::JsonObject;
 
-    Utils::optional<QString> label() const { return optionalValue<QString>(labelKey); }
+    std::optional<QString> label() const { return optionalValue<QString>(labelKey); }
     void setLabel(const QString &label) { insert(labelKey, label); }
     void clearLabel() { remove(labelKey); }
 

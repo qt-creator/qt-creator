@@ -31,7 +31,7 @@ public:
      * long running operation.
      * Clients that don't support cancellation can ignore the setting.
      */
-    Utils::optional<bool> cancellable() const { return optionalValue<bool>(cancellableKey); }
+    std::optional<bool> cancellable() const { return optionalValue<bool>(cancellableKey); }
     void setCancellable(bool cancellable) { insert(cancellableKey, cancellable); }
     void clearCancellable() { remove(cancellableKey); }
 
@@ -42,7 +42,7 @@ public:
      * Examples: "3/25 files", "project/src/module2", "node_modules/some_dep".
      * If unset, the previous progress message (if any) is still valid.
      */
-    Utils::optional<QString> message() const { return optionalValue<QString>(messageKey); }
+    std::optional<QString> message() const { return optionalValue<QString>(messageKey); }
     void setMessage(const QString &message) { insert(messageKey, message); }
     void clearMessage() { remove(messageKey); }
 
@@ -58,7 +58,7 @@ public:
     // Allthough percentage is defined as an uint by the protocol some server
     // return a double here. Be less strict and also use a double.
     // CAUTION: the range is still 0 - 100 and not 0 - 1
-    Utils::optional<double> percentage() const { return optionalValue<double>(percentageKey); }
+    std::optional<double> percentage() const { return optionalValue<double>(percentageKey); }
     void setPercentage(double percentage) { insert(percentageKey, percentage); }
     void clearPercentage() { remove(percentageKey); }
 };
@@ -88,7 +88,7 @@ public:
      * Optional, a final message indicating to for example indicate the outcome
      * of the operation.
      */
-    Utils::optional<QString> message() const { return optionalValue<QString>(messageKey); }
+    std::optional<QString> message() const { return optionalValue<QString>(messageKey); }
     void setMessage(const QString &message) { insert(messageKey, message); }
     void clearMessage() { remove(messageKey); }
 };

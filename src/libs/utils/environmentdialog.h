@@ -15,7 +15,7 @@ class QTCREATOR_UTILS_EXPORT EnvironmentDialog : public NameValuesDialog
 {
     Q_OBJECT
 public:
-    static Utils::optional<EnvironmentItems> getEnvironmentItems(QWidget *parent = nullptr,
+    static std::optional<EnvironmentItems> getEnvironmentItems(QWidget *parent = nullptr,
                                                                  const EnvironmentItems &initial = {},
                                                                  const QString &placeholderText = {},
                                                                  Polisher polish = {});

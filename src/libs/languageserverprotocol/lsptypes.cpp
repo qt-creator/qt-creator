@@ -17,24 +17,24 @@
 
 namespace LanguageServerProtocol {
 
-Utils::optional<DiagnosticSeverity> Diagnostic::severity() const
+std::optional<DiagnosticSeverity> Diagnostic::severity() const
 {
     if (auto val = optionalValue<int>(severityKey))
-        return Utils::make_optional(static_cast<DiagnosticSeverity>(*val));
-    return Utils::nullopt;
+        return std::make_optional(static_cast<DiagnosticSeverity>(*val));
+    return std::nullopt;
 }
 
-Utils::optional<Diagnostic::Code> Diagnostic::code() const
+std::optional<Diagnostic::Code> Diagnostic::code() const
 {
     QJsonValue codeValue = value(codeKey);
     auto it = find(codeKey);
     if (codeValue.isUndefined())
-        return Utils::nullopt;
+        return std::nullopt;
     QJsonValue::Type type = it.value().type();
     if (type != QJsonValue::String && type != QJsonValue::Double)
-        return Utils::make_optional(Code(QString()));
-    return Utils::make_optional(codeValue.isDouble() ? Code(codeValue.toInt())
-                                                     : Code(codeValue.toString()));
+        return std::make_optional(Code(QString()));
+    return std::make_optional(codeValue.isDouble() ? Code(codeValue.toInt())
+                                                   : Code(codeValue.toString()));
 }
 
 void Diagnostic::setCode(const Diagnostic::Code &code)
@@ -42,16 +42,16 @@ void Diagnostic::setCode(const Diagnostic::Code &code)
     insertVariant<int, QString>(codeKey, code);
 }
 
-Utils::optional<WorkspaceEdit::Changes> WorkspaceEdit::changes() const
+std::optional<WorkspaceEdit::Changes> WorkspaceEdit::changes() const
 {
     auto it = find(changesKey);
     if (it == end())
-        return Utils::nullopt;
+        return std::nullopt;
     const QJsonObject &changesObject = it.value().toObject();
     Changes changesResult;
     for (const QString &key : changesObject.keys())
         changesResult[DocumentUri::fromProtocol(key)] = LanguageClientArray<TextEdit>(changesObject.value(key)).toList();
-    return Utils::make_optional(changesResult);
+    return std::make_optional(changesResult);
 }
 
 void WorkspaceEdit::setChanges(const Changes &changes)
@@ -325,7 +325,7 @@ QString expressionForGlob(QString globPattern)
 
 bool DocumentFilter::applies(const Utils::FilePath &fileName, const Utils::MimeType &mimeType) const
 {
-    if (Utils::optional<QString> _pattern = pattern()) {
+    if (std::optional<QString> _pattern = pattern()) {
         QRegularExpression::PatternOption option = QRegularExpression::NoPatternOption;
         if (fileName.caseSensitivity() == Qt::CaseInsensitive)
             option = QRegularExpression::CaseInsensitiveOption;
@@ -333,7 +333,7 @@ bool DocumentFilter::applies(const Utils::FilePath &fileName, const Utils::MimeT
         if (regexp.isValid() && regexp.match(fileName.toString()).hasMatch())
             return true;
     }
-    if (Utils::optional<QString> _lang = language()) {
+    if (std::optional<QString> _lang = language()) {
         auto match = [&_lang](const Utils::MimeType &mimeType){
             return *_lang == TextDocumentItem::mimeTypeToLanguageId(mimeType);
         };

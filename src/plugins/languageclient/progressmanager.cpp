@@ -77,7 +77,7 @@ void ProgressManager::reportProgress(const ProgressToken &token,
 {
     const LanguageClientProgress &progress = m_progress.value(token);
     if (progress.progressInterface) {
-        const Utils::optional<QString> &message = report.message();
+        const std::optional<QString> &message = report.message();
         if (message.has_value()) {
             progress.progressInterface->setSubtitle(*message);
             const bool showSubtitle = !message->isEmpty();
@@ -85,7 +85,7 @@ void ProgressManager::reportProgress(const ProgressToken &token,
         }
     }
     if (progress.futureInterface) {
-        if (const Utils::optional<double> &percentage = report.percentage(); percentage.has_value())
+        if (const std::optional<double> &percentage = report.percentage(); percentage.has_value())
             progress.futureInterface->setProgressValue(*percentage);
     }
 }

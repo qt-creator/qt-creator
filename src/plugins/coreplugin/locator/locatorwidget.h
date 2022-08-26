@@ -6,13 +6,13 @@
 #include "locator.h"
 
 #include <extensionsystem/iplugin.h>
-#include <utils/optional.h>
 
 #include <QFutureWatcher>
 #include <QPointer>
 #include <QWidget>
 
 #include <functional>
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 class QAbstractItemModel;
@@ -94,7 +94,7 @@ private:
     bool m_possibleToolTipRequest = false;
     QWidget *m_progressIndicator = nullptr;
     QTimer m_showProgressTimer;
-    Utils::optional<int> m_rowRequestedForAccept;
+    std::optional<int> m_rowRequestedForAccept;
     QPointer<QWidget> m_previousFocusWidget;
 };
 

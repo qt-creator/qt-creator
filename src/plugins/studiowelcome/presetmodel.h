@@ -8,10 +8,11 @@
 #include <QUrl>
 
 #include <utils/filepath.h>
-#include <utils/optional.h>
 #include <utils/qtcassert.h>
 
 #include "userpresets.h"
+
+#include <optional>
 
 namespace Utils {
 class Wizard;

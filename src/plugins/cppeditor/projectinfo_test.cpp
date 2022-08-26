@@ -513,7 +513,7 @@ public:
         user("/projectb/user_path"),
         user("/project/user_path")};
 
-    Utils::optional<HeaderPathFilter> filter;
+    std::optional<HeaderPathFilter> filter;
 
 private:
     ProjectPart::ConstPtr projectPart;

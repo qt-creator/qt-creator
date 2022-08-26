@@ -66,7 +66,7 @@ private:
     QMutex m_mutex;
     QMetaObject::Connection m_updateSymbolsConnection;
     QMetaObject::Connection m_resetSymbolsConnection;
-    Utils::optional<LanguageServerProtocol::DocumentSymbolsResult> m_currentSymbols;
+    std::optional<LanguageServerProtocol::DocumentSymbolsResult> m_currentSymbols;
     bool m_forced = false;
 };
 

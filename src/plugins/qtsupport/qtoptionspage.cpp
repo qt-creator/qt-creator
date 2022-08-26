@@ -814,7 +814,7 @@ static QString qtVersionsFile(const QString &baseDir)
            + Core::Constants::IDE_ID + '/' + "qtversion.xml";
 }
 
-static Utils::optional<FilePath> currentlyLinkedQtDir(bool *hasInstallSettings)
+static std::optional<FilePath> currentlyLinkedQtDir(bool *hasInstallSettings)
 {
     const QString installSettingsFilePath = settingsFile(Core::ICore::resourcePath().toString());
     const bool installSettingsExist = QFile::exists(installSettingsFilePath);
@@ -841,7 +841,7 @@ static bool canLinkWithQt(QString *toolTip)
 {
     bool canLink = true;
     bool installSettingsExist;
-    const Utils::optional<FilePath> installSettingsValue = currentlyLinkedQtDir(
+    const std::optional<FilePath> installSettingsValue = currentlyLinkedQtDir(
         &installSettingsExist);
     QStringList tip;
     tip << linkingPurposeText();
@@ -929,7 +929,7 @@ static QStringList qtversionFilesToCheck()
     return Utils::transform(kSubdirsToCheck, [](const QString &dir) { return qtVersionsFile(dir); });
 }
 
-static Utils::optional<QString> settingsDirForQtDir(const QString &qtDir)
+static std::optional<QString> settingsDirForQtDir(const QString &qtDir)
 {
     const QStringList dirsToCheck = Utils::transform(kSubdirsToCheck, [qtDir](const QString &dir) {
         return QString(qtDir + '/' + dir);
@@ -995,7 +995,7 @@ void QtOptionsPageWidget::linkWithQt()
             return false;
         return validateQtInstallDir(input, errorString);
     });
-    const Utils::optional<FilePath> currentLink = currentlyLinkedQtDir(nullptr);
+    const std::optional<FilePath> currentLink = currentlyLinkedQtDir(nullptr);
     pathInput->setFilePath(currentLink ? *currentLink : defaultQtInstallationPath());
     pathInput->setAllowPathFromDevice(true);
     auto buttons = new QDialogButtonBox;
@@ -1026,7 +1026,7 @@ void QtOptionsPageWidget::linkWithQt()
 
     dialog.exec();
     if (dialog.result() == QDialog::Accepted) {
-        const Utils::optional<QString> settingsDir = settingsDirForQtDir(pathInput->rawFilePath().toString());
+        const std::optional<QString> settingsDir = settingsDirForQtDir(pathInput->rawFilePath().toString());
         if (QTC_GUARD(settingsDir)) {
             QSettings(settingsFile(Core::ICore::resourcePath().toString()), QSettings::IniFormat)
                 .setValue(kInstallSettingsKey, *settingsDir);

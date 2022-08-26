@@ -15,7 +15,6 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/infobar.h>
-#include <utils/optional.h>
 #include <utils/qtcassert.h>
 #include <vcsbase/vcsbaseconstants.h>
 
@@ -26,6 +25,8 @@
 
 #include <QFileInfo>
 #include <QMessageBox>
+
+#include <optional>
 
 using namespace Utils;
 
@@ -57,14 +58,14 @@ public:
         QString topLevel;
     };
 
-    Utils::optional<VcsInfo> findInCache(const QString &dir) const
+    std::optional<VcsInfo> findInCache(const QString &dir) const
     {
-        QTC_ASSERT(QDir(dir).isAbsolute(), return Utils::nullopt);
-        QTC_ASSERT(!dir.endsWith(QLatin1Char('/')), return Utils::nullopt);
-        QTC_ASSERT(QDir::fromNativeSeparators(dir) == dir, return Utils::nullopt);
+        QTC_ASSERT(QDir(dir).isAbsolute(), return std::nullopt);
+        QTC_ASSERT(!dir.endsWith(QLatin1Char('/')), return std::nullopt);
+        QTC_ASSERT(QDir::fromNativeSeparators(dir) == dir, return std::nullopt);
 
         const auto it = m_cachedMatches.constFind(dir);
-        return it == m_cachedMatches.constEnd() ? Utils::nullopt : Utils::make_optional(it.value());
+        return it == m_cachedMatches.constEnd() ? std::nullopt : std::make_optional(it.value());
     }
 
     void clearCache()

@@ -3,12 +3,12 @@
 
 #pragma once
 
-#include <utils/optional.h>
-
 #include <QColor>
 #include <QLoggingCategory>
 #include <QMap>
 #include <QObject>
+
+#include <optional>
 
 namespace Core {
 namespace Internal {
@@ -16,7 +16,7 @@ namespace Internal {
 struct FilterRuleSpec
 {
     QString category;
-    Utils::optional<QtMsgType> level;
+    std::optional<QtMsgType> level;
     bool enabled;
 };
 

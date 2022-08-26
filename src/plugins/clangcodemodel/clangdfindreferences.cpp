@@ -65,21 +65,21 @@ public:
     void finishSearch();
     void reportAllSearchResultsAndFinish();
     void addSearchResultsForFile(const FilePath &file, const ReferencesFileData &fileData);
-    Utils::optional<QString> getContainingFunctionName(const ClangdAstPath &astPath,
+    std::optional<QString> getContainingFunctionName(const ClangdAstPath &astPath,
                                                        const Range& range);
 
     ClangdFindReferences * const q;
     QMap<DocumentUri, ReferencesFileData> fileData;
     QList<MessageId> pendingAstRequests;
     QPointer<SearchResult> search;
-    Utils::optional<ReplacementData> replacementData;
+    std::optional<ReplacementData> replacementData;
     bool canceled = false;
     bool categorize = false;
 };
 
 ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *document,
         const QTextCursor &cursor, const QString &searchTerm,
-        const Utils::optional<QString> &replacement, bool categorize)
+        const std::optional<QString> &replacement, bool categorize)
     : QObject(client), d(new ClangdFindReferences::Private(this))
 {
     d->categorize = categorize;
@@ -121,7 +121,7 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *d
     });
     SearchResultWindow::instance()->popup(IOutputPane::ModeSwitch | IOutputPane::WithFocus);
 
-    const Utils::optional<MessageId> requestId = client->symbolSupport().findUsages(
+    const std::optional<MessageId> requestId = client->symbolSupport().findUsages(
                 document, cursor, [self = QPointer(this)](const QList<Location> &locations) {
         if (self)
             self->d->handleFindUsagesResult(locations);
@@ -324,7 +324,7 @@ void ClangdFindReferences::Private::addSearchResultsForFile(const FilePath &file
         search->addResults(items, SearchResult::AddOrdered);
 }
 
-Utils::optional<QString> ClangdFindReferences::Private::getContainingFunctionName(
+std::optional<QString> ClangdFindReferences::Private::getContainingFunctionName(
     const ClangdAstPath &astPath, const Range& range)
 {
     const ClangdAstNode* containingFuncNode{nullptr};
@@ -344,7 +344,7 @@ Utils::optional<QString> ClangdFindReferences::Private::getContainingFunctionNam
     }
 
     if (!containingFuncNode || !containingFuncNode->isValid())
-        return Utils::nullopt;
+        return std::nullopt;
 
     return containingFuncNode->detail();
 }

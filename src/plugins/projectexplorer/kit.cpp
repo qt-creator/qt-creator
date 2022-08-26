@@ -16,7 +16,6 @@
 #include <utils/filepath.h>
 #include <utils/icon.h>
 #include <utils/macroexpander.h>
-#include <utils/optional.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
@@ -26,6 +25,7 @@
 #include <QUuid>
 
 #include <numeric>
+#include <optional>
 
 using namespace Core;
 using namespace Utils;
@@ -118,7 +118,7 @@ public:
     QHash<Id, QVariant> m_data;
     QSet<Id> m_sticky;
     QSet<Id> m_mutable;
-    optional<QSet<Id>> m_irrelevantAspects;
+    std::optional<QSet<Id>> m_irrelevantAspects;
     MacroExpander m_macroExpander;
 };
 

@@ -141,7 +141,7 @@ SnippetParseResult parseSnippet(const QString &snippet)
     ParsedSnippet result;
     ParsedSnippet::Part currentPart;
 
-    Utils::optional<QString> error;
+    std::optional<QString> error;
     auto it = snippet.begin();
     const auto end = snippet.end();
 

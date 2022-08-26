@@ -7,14 +7,13 @@
 #include "abstractproperty.h"
 #include "qmldesignercorelib_global.h"
 
-#include <utils/optional.h>
-
 #include <QPointer>
 #include <QList>
 #include <QVector>
 #include <QVariant>
 
 #include <memory>
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 class QTextStream;
@@ -178,8 +177,8 @@ public:
     static int variantUserType();
     QVariant toVariant() const;
 
-    Utils::optional<QVariant> auxiliaryData(AuxiliaryDataKeyView key) const;
-    Utils::optional<QVariant> auxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const;
+    std::optional<QVariant> auxiliaryData(AuxiliaryDataKeyView key) const;
+    std::optional<QVariant> auxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const;
     QVariant auxiliaryDataWithDefault(AuxiliaryDataType type, Utils::SmallStringView name) const;
     QVariant auxiliaryDataWithDefault(AuxiliaryDataKeyView key) const;
     void setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data) const;

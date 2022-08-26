@@ -511,7 +511,7 @@ void Client::initialize()
     initRequest.setResponseCallback([this](const InitializeRequest::Response &initResponse){
         d->initializeCallback(initResponse);
     });
-    if (Utils::optional<ResponseHandler> responseHandler = initRequest.responseHandler())
+    if (std::optional<ResponseHandler> responseHandler = initRequest.responseHandler())
         d->m_responseHandlers[responseHandler->id] = responseHandler->callback;
 
     // directly send content now otherwise the state check of sendContent would fail
@@ -590,7 +590,7 @@ void Client::openDocument(TextEditor::TextDocument *document)
     d->openRequiredShadowDocuments(document);
 
     const QString method(DidOpenTextDocumentNotification::methodName);
-    if (Utils::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
+    if (std::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
         if (!*registered)
             return;
         const TextDocumentRegistrationOptions option(
@@ -599,7 +599,7 @@ void Client::openDocument(TextEditor::TextDocument *document)
             && !option.filterApplies(filePath, Utils::mimeTypeForName(document->mimeType()))) {
             return;
         }
-    } else if (Utils::optional<ServerCapabilities::TextDocumentSync> _sync
+    } else if (std::optional<ServerCapabilities::TextDocumentSync> _sync
                = d->m_serverCapabilities.textDocumentSync()) {
         if (auto options = std::get_if<TextDocumentSyncOptions>(&*_sync)) {
             if (!options->openClose().value_or(true))
@@ -638,7 +638,7 @@ void Client::sendMessage(const JsonRpcMessage &message, SendDocUpdates sendUpdat
     QTC_ASSERT(d->m_state == Initialized, return);
     if (sendUpdates == SendDocUpdates::Send)
         d->sendPostponedDocumentUpdates(semanticTokensSchedule);
-    if (Utils::optional<ResponseHandler> responseHandler = message.responseHandler())
+    if (std::optional<ResponseHandler> responseHandler = message.responseHandler())
         d->m_responseHandlers[responseHandler->id] = responseHandler->callback;
     QString error;
     if (!QTC_GUARD(message.isValid(&error)))
@@ -774,7 +774,7 @@ void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *w
         if (!option.filterApplies(widget->textDocument()->filePath()))
             return;
     } else {
-        Utils::optional<std::variant<bool, WorkDoneProgressOptions>> provider
+        std::optional<std::variant<bool, WorkDoneProgressOptions>> provider
             = m_serverCapabilities.documentHighlightProvider();
         if (!provider.has_value())
             return;
@@ -801,7 +801,7 @@ void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *w
             disconnect(connection);
             const Id &id = TextEditor::TextEditorWidget::CodeSemanticsSelection;
             QList<QTextEdit::ExtraSelection> selections;
-            const Utils::optional<DocumentHighlightsResult> &result = response.result();
+            const std::optional<DocumentHighlightsResult> &result = response.result();
             if (!result.has_value() || std::holds_alternative<std::nullptr_t>(*result)) {
                 widget->setExtraSelections(id, selections);
                 return;
@@ -983,7 +983,7 @@ void Client::documentContentsSaved(TextEditor::TextDocument *document)
     bool send = true;
     bool includeText = false;
     const QString method(DidSaveTextDocumentNotification::methodName);
-    if (Utils::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
+    if (std::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
         send = *registered;
         if (send) {
             const TextDocumentSaveRegistrationOptions option(
@@ -994,10 +994,10 @@ void Client::documentContentsSaved(TextEditor::TextDocument *document)
                 includeText = option.includeText().value_or(includeText);
             }
         }
-    } else if (Utils::optional<ServerCapabilities::TextDocumentSync> _sync
+    } else if (std::optional<ServerCapabilities::TextDocumentSync> _sync
                = d->m_serverCapabilities.textDocumentSync()) {
         if (auto options = std::get_if<TextDocumentSyncOptions>(&*_sync)) {
-            if (Utils::optional<SaveOptions> saveOptions = options->save())
+            if (std::optional<SaveOptions> saveOptions = options->save())
                 includeText = saveOptions->includeText().value_or(includeText);
         }
     }
@@ -1019,7 +1019,7 @@ void Client::documentWillSave(Core::IDocument *document)
         return;
     bool send = false;
     const QString method(WillSaveTextDocumentNotification::methodName);
-    if (Utils::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
+    if (std::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
         send = *registered;
         if (send) {
             const TextDocumentRegistrationOptions option(d->m_dynamicCapabilities.option(method));
@@ -1028,7 +1028,7 @@ void Client::documentWillSave(Core::IDocument *document)
                                                    Utils::mimeTypeForName(document->mimeType()));
             }
         }
-    } else if (Utils::optional<ServerCapabilities::TextDocumentSync> _sync
+    } else if (std::optional<ServerCapabilities::TextDocumentSync> _sync
                = d->m_serverCapabilities.textDocumentSync()) {
         if (auto options = std::get_if<TextDocumentSyncOptions>(&*_sync))
             send = options->willSave().value_or(send);
@@ -1051,7 +1051,7 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
         d->m_diagnosticManager->disableDiagnostics(document);
     const QString method(DidChangeTextDocumentNotification::methodName);
     TextDocumentSyncKind syncKind = d->m_serverCapabilities.textDocumentSyncKindHelper();
-    if (Utils::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
+    if (std::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
         syncKind = *registered ? TextDocumentSyncKind::Full : TextDocumentSyncKind::None;
         if (syncKind != TextDocumentSyncKind::None) {
             const TextDocumentChangeRegistrationOptions option(
@@ -1260,7 +1260,7 @@ void Client::requestCodeActions(const CodeActionRequest &request)
         = request.params().value_or(CodeActionParams()).textDocument().uri().toFilePath();
 
     const QString method(CodeActionRequest::methodName);
-    if (Utils::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
+    if (std::optional<bool> registered = d->m_dynamicCapabilities.isRegistered(method)) {
         if (!*registered)
             return;
         const TextDocumentRegistrationOptions option(
@@ -1280,9 +1280,9 @@ void Client::requestCodeActions(const CodeActionRequest &request)
 void Client::handleCodeActionResponse(const CodeActionRequest::Response &response,
                                           const DocumentUri &uri)
 {
-    if (const Utils::optional<CodeActionRequest::Response::Error> &error = response.error())
+    if (const std::optional<CodeActionRequest::Response::Error> &error = response.error())
         log(*error);
-    if (const Utils::optional<CodeActionResult> &result = response.result()) {
+    if (const std::optional<CodeActionResult> &result = response.result()) {
         if (auto list = std::get_if<QList<std::variant<Command, CodeAction>>>(&*result)) {
             QList<CodeAction> codeActions;
             for (const std::variant<Command, CodeAction> &item : *list) {
@@ -1489,7 +1489,7 @@ bool Client::supportsDocumentSymbols(const TextEditor::TextDocument *doc) const
         return !options.isValid()
                || options.filterApplies(doc->filePath(), Utils::mimeTypeForName(doc->mimeType()));
     }
-    const Utils::optional<std::variant<bool, WorkDoneProgressOptions>> &provider
+    const std::optional<std::variant<bool, WorkDoneProgressOptions>> &provider
         = capabilities().documentSymbolProvider();
     if (!provider.has_value())
         return false;
@@ -1644,7 +1644,7 @@ LanguageClientValue<MessageActionItem> ClientPrivate::showMessageBox(
     case Log: box->setIcon(QMessageBox::NoIcon); break;
     }
     QHash<QAbstractButton *, MessageActionItem> itemForButton;
-    if (const Utils::optional<QList<MessageActionItem>> actions = message.actions()) {
+    if (const std::optional<QList<MessageActionItem>> actions = message.actions()) {
         for (const MessageActionItem &action : *actions)
             itemForButton.insert(box->addButton(action.title(), QMessageBox::InvalidRole), action);
     }
@@ -1856,7 +1856,7 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
         m_tokenSupport.refresh();
         sendResponse(createDefaultResponse());
     } else if (method == ProgressNotification::methodName) {
-        if (Utils::optional<ProgressParams> params
+        if (std::optional<ProgressParams> params
             = ProgressNotification(message.toJsonObject()).params()) {
             if (!params->isValid())
                 q->log(invalidParamsErrorMessage(*params));
@@ -1917,8 +1917,8 @@ void Client::setDocumentChangeUpdateThreshold(int msecs)
 void ClientPrivate::initializeCallback(const InitializeRequest::Response &initResponse)
 {
     QTC_ASSERT(m_state == Client::InitializeRequested, return);
-    if (optional<ResponseError<InitializeError>> error = initResponse.error()) {
-        if (Utils::optional<InitializeError> data = error->data()) {
+    if (std::optional<ResponseError<InitializeError>> error = initResponse.error()) {
+        if (std::optional<InitializeError> data = error->data()) {
             if (data->retry()) {
                 const QString title(tr("Language Server \"%1\" Initialize Error").arg(m_displayName));
                 auto result = QMessageBox::warning(Core::ICore::dialogParent(),
@@ -1937,19 +1937,19 @@ void ClientPrivate::initializeCallback(const InitializeRequest::Response &initRe
         emit q->finished();
         return;
     }
-    if (const optional<InitializeResult> &result = initResponse.result()) {
+    if (const std::optional<InitializeResult> &result = initResponse.result()) {
         if (!result->isValid()) { // continue on ill formed result
             q->log(QJsonDocument(*result).toJson(QJsonDocument::Indented) + '\n'
                 + tr("Initialize result is invalid."));
         }
-        const Utils::optional<ServerInfo> serverInfo = result->serverInfo();
+        const std::optional<ServerInfo> serverInfo = result->serverInfo();
         if (serverInfo) {
             if (!serverInfo->isValid()) {
                 q->log(QJsonDocument(*result).toJson(QJsonDocument::Indented) + '\n'
                     + tr("Server Info is invalid."));
             } else {
                 m_serverName = serverInfo->name();
-                if (const Utils::optional<QString> version = serverInfo->version())
+                if (const std::optional<QString> version = serverInfo->version())
                     m_serverVersion = *version;
             }
         }
@@ -1981,7 +1981,7 @@ void ClientPrivate::initializeCallback(const InitializeRequest::Response &initRe
     qCDebug(LOGLSPCLIENT) << "language server " << m_displayName << " initialized";
     m_state = Client::Initialized;
     q->sendMessage(InitializeNotification(InitializedParams()));
-    Utils::optional<std::variant<bool, WorkDoneProgressOptions>> documentSymbolProvider
+    std::optional<std::variant<bool, WorkDoneProgressOptions>> documentSymbolProvider
         = q->capabilities().documentSymbolProvider();
     if (documentSymbolProvider.has_value()) {
         if (!std::holds_alternative<bool>(*documentSymbolProvider)
@@ -2005,7 +2005,7 @@ void ClientPrivate::shutDownCallback(const ShutdownRequest::Response &shutdownRe
     m_shutdownTimer.stop();
     QTC_ASSERT(m_state == Client::ShutdownRequested, return);
     QTC_ASSERT(m_clientInterface, return);
-    if (optional<ShutdownRequest::Response::Error> error = shutdownResponse.error())
+    if (std::optional<ShutdownRequest::Response::Error> error = shutdownResponse.error())
         q->log(*error);
     // directly send content now otherwise the state check of sendContent would fail
     sendMessageNow(ExitNotification());
