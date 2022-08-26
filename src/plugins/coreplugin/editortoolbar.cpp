@@ -119,6 +119,7 @@ EditorToolBar::EditorToolBar(QWidget *parent) :
 
     d->m_editorList->setProperty("hideicon", true);
     d->m_editorList->setProperty("notelideasterisk", true);
+    d->m_editorList->setProperty("elidemode", Qt::ElideMiddle);
     d->m_editorList->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     d->m_editorList->setMinimumContentsLength(20);
     d->m_editorList->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);

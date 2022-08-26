@@ -886,7 +886,10 @@ void ManhattanStyle::drawControl(ControlElement element, const QStyleOption *opt
                     elideWidth -= option->fontMetrics.horizontalAdvance(asterisk);
                     text = asterisk;
                 }
-                text.prepend(option->fontMetrics.elidedText(cb->currentText, Qt::ElideRight, elideWidth));
+                Qt::TextElideMode elideMode = Qt::ElideRight;
+                if (widget && widget->dynamicPropertyNames().contains("elidemode"))
+                    elideMode = widget->property("elidemode").value<Qt::TextElideMode>();
+                text.prepend(option->fontMetrics.elidedText(cb->currentText, elideMode, elideWidth));
 
                 if (creatorTheme()->flag(Theme::ComboBoxDrawTextShadow)
                     && (option->state & State_Enabled))
