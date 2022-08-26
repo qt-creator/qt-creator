@@ -58,7 +58,8 @@ public:
     void showBackgroundColorMenu(bool show, const QPoint &pos);
 
     void showContextMenu(const QPoint &pos, const ModelNode &modelNode);
-    void updateCreateSubMenu(const QMap<QString, QList<ItemLibraryEntry>> &entriesMap);
+    void updateCreateSubMenu(const QStringList &keys,
+                             const QHash<QString, QList<ItemLibraryEntry>> &entriesMap);
 
 private slots:
     void onCreateAction();

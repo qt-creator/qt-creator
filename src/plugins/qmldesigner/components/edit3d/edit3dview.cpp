@@ -32,6 +32,7 @@
 #include "metainfo.h"
 #include "seekerslider.h"
 #include "view3dactioncommand.h"
+#include "nodehints.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -46,7 +47,6 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-#include <QDebug>
 #include <QToolButton>
 
 namespace QmlDesigner {
@@ -222,19 +222,40 @@ void Edit3DView::onEntriesChanged()
 
 void Edit3DView::handleEntriesChanged()
 {
-    QMap<QString, QList<ItemLibraryEntry>> entriesMap {
-        {"Camera", {}},
-        {"Lights", {}},
-        {"Models", {}}
+    if (!model())
+        return;
+
+    const QString cameras = tr("Cameras");
+    const QString lights = tr("Lights");
+    const QString primitives = tr("Primitives");
+    const QString importedModels = tr("Imported Models");
+    const QStringList keys {cameras, lights, primitives, importedModels}; // used to maintain order
+
+    QHash<QString, QList<ItemLibraryEntry>> entriesMap {
+        {cameras, {}},
+        {lights, {}},
+        {primitives, {}},
+        {importedModels, {}}
     };
 
     const QList<ItemLibraryEntry> itemLibEntries = model()->metaInfo().itemLibraryInfo()->entries();
     for (const ItemLibraryEntry &entry : itemLibEntries) {
-        if (entry.typeName().startsWith("QtQuick3D.") && entriesMap.contains(entry.category()))
-            entriesMap[entry.category()].append(entry);
+        if (entry.typeName() == "QtQuick3D.Model") {
+            entriesMap[primitives].append(entry);
+        } else if (entry.typeName() == "QtQuick3D.DirectionalLight"
+                || entry.typeName() == "QtQuick3D.PointLight"
+                || entry.typeName() == "QtQuick3D.SpotLight") {
+            entriesMap[lights].append(entry);
+        } else if (entry.typeName() == "QtQuick3D.OrthographicCamera"
+                || entry.typeName() == "QtQuick3D.PerspectiveCamera") {
+            entriesMap[cameras].append(entry);
+        } else if (entry.typeName().startsWith("Quick3DAssets.")
+                   && NodeHints::fromItemLibraryEntry(entry).canBeDroppedInView3D()) {
+            entriesMap[importedModels].append(entry);
+        }
     }
 
-    m_edit3DWidget->updateCreateSubMenu(entriesMap);
+    m_edit3DWidget->updateCreateSubMenu(keys, entriesMap);
 }
 
 void Edit3DView::modelAboutToBeDetached(Model *model)

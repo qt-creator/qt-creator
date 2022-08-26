@@ -193,8 +193,9 @@ void Edit3DWidget::createContextMenu()
     });
 }
 
-// Called by the view to update the "create" sub-menu when the Quick3D entries are ready
-void Edit3DWidget::updateCreateSubMenu(const QMap<QString, QList<ItemLibraryEntry>> &entriesMap)
+// Called by the view to update the "create" sub-menu when the Quick3D entries are ready.
+void Edit3DWidget::updateCreateSubMenu(const QStringList &keys,
+                                       const QHash<QString, QList<ItemLibraryEntry>> &entriesMap)
 {
     if (!m_contextMenu)
         return;
@@ -207,14 +208,17 @@ void Edit3DWidget::updateCreateSubMenu(const QMap<QString, QList<ItemLibraryEntr
     m_nameToEntry.clear();
     m_createSubMenu = m_contextMenu->addMenu(tr("Create"));
 
-    const QStringList categories = entriesMap.keys();
-    for (const QString &cat : categories) {
+    for (const QString &cat : keys) {
+        QList<ItemLibraryEntry> entries = entriesMap.value(cat);
+        if (entries.isEmpty())
+            continue;
+
         QMenu *catMenu = m_createSubMenu->addMenu(cat);
 
-        QList<ItemLibraryEntry> entries = entriesMap.value(cat);
         std::sort(entries.begin(), entries.end(), [](const ItemLibraryEntry &a, const ItemLibraryEntry &b) {
             return a.name() < b.name();
         });
+
         for (const ItemLibraryEntry &entry : std::as_const(entries)) {
             QAction *action = catMenu->addAction(entry.name(), this, &Edit3DWidget::onCreateAction);
             action->setData(entry.name());
