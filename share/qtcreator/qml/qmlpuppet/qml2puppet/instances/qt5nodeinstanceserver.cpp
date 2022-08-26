@@ -489,7 +489,7 @@ QImage Qt5NodeInstanceServer::grabItem(QQuickItem *item)
         layer->scheduleUpdate();
 
         if (layer->updateTexture())
-            renderImage = layer->toImage();
+            renderImage = layer->toImage().convertToFormat(QImage::Format_ARGB32);
         else
             qWarning() << __FUNCTION__ << "Failed to update layer texture";
 
