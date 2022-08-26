@@ -30,6 +30,8 @@
 #include "edit3dviewconfig.h"
 #include "backgroundcolorselection.h"
 #include "metainfo.h"
+#include "seekerslider.h"
+#include "view3dactioncommand.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>

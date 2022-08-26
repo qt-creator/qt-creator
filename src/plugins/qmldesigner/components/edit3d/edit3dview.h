@@ -24,20 +24,17 @@
 ****************************************************************************/
 #pragma once
 
-#include "view3dactioncommand.h"
-#include "seekerslider.h"
-
+#include <abstractview.h>
 #include <modelcache.h>
 
-#include <abstractview.h>
-#include <QtGui/qevent.h>
-#include <QtGui/qimage.h>
-#include <QtCore/qvector.h>
-#include <QtCore/qvariant.h>
-#include <QtCore/qsize.h>
+#include <QImage>
+#include <QSize>
 #include <QTimer>
+#include <QVariant>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
+class QInputEvent;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -45,6 +42,7 @@ namespace QmlDesigner {
 class Edit3DWidget;
 class Edit3DAction;
 class Edit3DCameraAction;
+class SeekerSlider;
 
 class QMLDESIGNERCORE_EXPORT Edit3DView : public AbstractView
 {
