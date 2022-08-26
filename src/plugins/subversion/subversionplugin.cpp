@@ -108,8 +108,6 @@ const char CMD_ID_UPDATE[]             = "Subversion.Update";
 const char CMD_ID_COMMIT_PROJECT[]     = "Subversion.CommitProject";
 const char CMD_ID_DESCRIBE[]           = "Subversion.Describe";
 
-const int s_defaultFlags = VcsCommand::SshPasswordPrompt | VcsCommand::ShowStdOut;
-
 struct SubversionResponse
 {
     bool error = false;
@@ -694,7 +692,7 @@ void SubversionPluginPrivate::revertAll()
     args << QLatin1String("revert");
     args << SubversionClient::addAuthenticationOptions(m_settings);
     args << QLatin1String("--recursive") << state.topLevel().toString();
-    const auto revertResponse = runSvn(state.topLevel(), args, s_defaultFlags);
+    const auto revertResponse = runSvn(state.topLevel(), args, VcsCommand::ShowStdOut);
     if (revertResponse.error)
         QMessageBox::warning(ICore::dialogParent(), title,
                              tr("Revert failed: %1").arg(revertResponse.message), QMessageBox::Ok);
@@ -731,7 +729,7 @@ void SubversionPluginPrivate::revertCurrentFile()
     args << SubversionClient::addAuthenticationOptions(m_settings);
     args << SubversionClient::escapeFile(state.relativeCurrentFile());
 
-    const auto revertResponse = runSvn(state.currentFileTopLevel(), args, s_defaultFlags);
+    const auto revertResponse = runSvn(state.currentFileTopLevel(), args, VcsCommand::ShowStdOut);
 
     if (!revertResponse.error)
         emit filesChanged(QStringList(state.currentFile()));
@@ -900,7 +898,7 @@ void SubversionPluginPrivate::svnUpdate(const FilePath &workingDir, const QStrin
     args.push_back(QLatin1String(Constants::NON_INTERACTIVE_OPTION));
     if (!relativePath.isEmpty())
         args.append(relativePath);
-    const auto response = runSvn(workingDir, args, s_defaultFlags, 10);
+    const auto response = runSvn(workingDir, args, VcsCommand::ShowStdOut, 10);
     if (!response.error)
         emit repositoryChanged(workingDir);
 }
@@ -928,8 +926,7 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, cons
     args.push_back(QLatin1String("-v"));
     args.append(QDir::toNativeSeparators(SubversionClient::escapeFile(file)));
 
-    const auto response = runSvn(workingDir, args,
-                          VcsCommand::SshPasswordPrompt | VcsCommand::ForceCLocale, 1, codec);
+    const auto response = runSvn(workingDir, args, VcsCommand::ForceCLocale, 1, codec);
     if (response.error)
         return;
 
@@ -1086,7 +1083,7 @@ bool SubversionPluginPrivate::vcsAdd(const FilePath &workingDir, const QString &
     args << QLatin1String("add")
          << SubversionClient::addAuthenticationOptions(m_settings)
          << QLatin1String("--parents") << file;
-    const auto response = runSvn(workingDir, args, s_defaultFlags);
+    const auto response = runSvn(workingDir, args, VcsCommand::ShowStdOut);
     return !response.error;
 }
 
@@ -1099,7 +1096,7 @@ bool SubversionPluginPrivate::vcsDelete(const FilePath &workingDir, const QStrin
     args << SubversionClient::addAuthenticationOptions(m_settings)
          << QLatin1String("--force") << file;
 
-    const auto response = runSvn(workingDir, args, s_defaultFlags);
+    const auto response = runSvn(workingDir, args, VcsCommand::ShowStdOut);
     return !response.error;
 }
 
@@ -1110,7 +1107,7 @@ bool SubversionPluginPrivate::vcsMove(const FilePath &workingDir, const QString 
     args << QDir::toNativeSeparators(SubversionClient::escapeFile(from))
          << QDir::toNativeSeparators(SubversionClient::escapeFile(to));
     const auto response = runSvn(workingDir, args,
-                                 s_defaultFlags | VcsCommand::FullySynchronously);
+                                 VcsCommand::ShowStdOut | VcsCommand::FullySynchronously);
     return !response.error;
 }
 
@@ -1136,7 +1133,7 @@ bool SubversionPluginPrivate::vcsCheckout(const FilePath &directory, const QByte
 
     args << QLatin1String(tempUrl.toEncoded()) << directory.toString();
 
-    const auto response = runSvn(directory, args, VcsCommand::SshPasswordPrompt, 10);
+    const auto response = runSvn(directory, args, 0, 10);
     return !response.error;
 
 }

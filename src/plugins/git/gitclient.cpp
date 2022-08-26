@@ -2500,11 +2500,9 @@ void GitClient::continuePreviousGitCommand(const FilePath &workingDirectory,
 QStringList GitClient::synchronousRepositoryBranches(const QString &repositoryURL,
                                                      const FilePath &workingDirectory) const
 {
-    const unsigned flags = VcsCommand::SshPasswordPrompt
-                         | VcsCommand::SuppressStdErr
-                         | VcsCommand::SuppressFailMessage;
     const CommandResult result = vcsSynchronousExec(workingDirectory,
-                                 {"ls-remote", repositoryURL, HEAD, "refs/heads/*"}, flags);
+                                 {"ls-remote", repositoryURL, HEAD, "refs/heads/*"},
+                                 VcsCommand::SuppressStdErr | VcsCommand::SuppressFailMessage);
     QStringList branches;
     branches << tr("<Detached HEAD>");
     QString headSha;
@@ -3121,9 +3119,7 @@ bool GitClient::executeAndHandleConflicts(const FilePath &workingDirectory,
                                           const QStringList &arguments,
                                           const QString &abortCommand) const
 {
-    // Disable UNIX terminals to suppress SSH prompting.
-    const unsigned flags = VcsCommand::SshPasswordPrompt
-                         | VcsCommand::ShowStdOut
+    const unsigned flags = VcsCommand::ShowStdOut
                          | VcsCommand::ExpectRepoChanges
                          | VcsCommand::ShowSuccessMessage;
     const CommandResult result = vcsSynchronousExec(workingDirectory, arguments, flags);
@@ -3254,11 +3250,8 @@ void GitClient::addFuture(const QFuture<void> &future)
 // Subversion: git svn
 void GitClient::synchronousSubversionFetch(const FilePath &workingDirectory) const
 {
-    // Disable UNIX terminals to suppress SSH prompting.
-    const unsigned flags = VcsCommand::SshPasswordPrompt
-                         | VcsCommand::ShowStdOut
-                         | VcsCommand::ShowSuccessMessage;
-    vcsSynchronousExec(workingDirectory, {"svn", "fetch"}, flags);
+    vcsSynchronousExec(workingDirectory, {"svn", "fetch"},
+                       VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage);
 }
 
 void GitClient::subversionLog(const FilePath &workingDirectory) const
@@ -3427,9 +3420,7 @@ VcsCommand *GitClient::vcsExecAbortable(const FilePath &workingDirectory,
     if (abortCommand.isEmpty())
         abortCommand = arguments.at(0);
     VcsCommand *command = createCommand(workingDirectory, nullptr, VcsWindowOutputBind);
-    command->addFlags(VcsCommand::SshPasswordPrompt
-                      | VcsCommand::ShowStdOut
-                      | VcsCommand::ShowSuccessMessage);
+    command->addFlags(VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage);
     // For rebase, Git might request an editor (which means the process keeps running until the
     // user closes it), so run without timeout.
     command->addJob({vcsBinary(), arguments}, isRebase ? 0 : vcsTimeoutS());

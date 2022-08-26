@@ -329,10 +329,7 @@ bool VcsBaseClient::synchronousPull(const FilePath &workingDir,
 {
     QStringList args;
     args << vcsCommandString(PullCommand) << extraOptions << srcLocation;
-    // Disable UNIX terminals to suppress SSH prompting
-    const unsigned flags = VcsCommand::SshPasswordPrompt
-                         | VcsCommand::ShowStdOut
-                         | VcsCommand::ShowSuccessMessage;
+    const unsigned flags = VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage;
     const bool ok = vcsSynchronousExec(workingDir, args, flags).result()
             == ProcessResult::FinishedWithSuccess;
     if (ok)
@@ -346,10 +343,7 @@ bool VcsBaseClient::synchronousPush(const FilePath &workingDir,
 {
     QStringList args;
     args << vcsCommandString(PushCommand) << extraOptions << dstLocation;
-    // Disable UNIX terminals to suppress SSH prompting
-    const unsigned flags = VcsCommand::SshPasswordPrompt
-                         | VcsCommand::ShowStdOut
-                         | VcsCommand::ShowSuccessMessage;
+    const unsigned flags = VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage;
     return vcsSynchronousExec(workingDir, args, flags).result()
             == ProcessResult::FinishedWithSuccess;
 }

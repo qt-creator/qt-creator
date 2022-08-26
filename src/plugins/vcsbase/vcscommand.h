@@ -114,8 +114,7 @@ public:
                                    // triggered by file watchers).
         SilentOutput = 0x100, // Suppress user notifications about the output happening.
         NoFullySync = 0x200, // Avoid fully synchronous execution even in UI thread.
-        SshPasswordPrompt = 0x400, // Disable terminal on UNIX to force graphical prompt.
-        ExpectRepoChanges = 0x800, // Expect changes in repository by the command
+        ExpectRepoChanges = 0x400, // Expect changes in repository by the command
         NoOutput = SuppressStdErr | SuppressFailMessage | SuppressCommandLogging
     };
 

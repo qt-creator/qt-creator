@@ -222,7 +222,7 @@ void SubversionDiffEditorController::requestDescription()
     args << m_authenticationOptions;
     args << QLatin1String("-r");
     args << QString::number(m_changeNumber);
-    runCommand(QList<QStringList>() << args, VcsCommand::SshPasswordPrompt);
+    runCommand(QList<QStringList>() << args, 0);
 }
 
 void SubversionDiffEditorController::requestDiff()
