@@ -209,13 +209,15 @@ public:
 
     inline bool operator==(const Interpreter &other) const
     {
-        return id == other.id && name == other.name && command == other.command;
+        return id == other.id && name == other.name && command == other.command
+               && detectionSource == other.detectionSource;
     }
 
     QString id;
     QString name;
     Utils::FilePath command;
     bool autoDetected = true;
+    QString detectionSource;
 };
 
 class PROJECTEXPLORER_EXPORT InterpreterAspect : public Utils::BaseAspect

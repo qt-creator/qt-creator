@@ -47,6 +47,7 @@ public:
 private:
     QtVersions autoDetectQtVersions() const;
     QList<ToolChain *> autoDetectToolChains();
+    void autoDetectPython();
     QList<Id> autoDetectCMake();
     void autoDetectDebugger();
 
@@ -133,6 +134,16 @@ void KitDetectorPrivate::undoAutoDetect() const
         emit q->logOutput('\n' + logMessage);
     }
 
+    if (auto pythonSettings = ExtensionSystem::PluginManager::getObjectByName("PythonSettings")) {
+        QString logMessage;
+        const bool res = QMetaObject::invokeMethod(pythonSettings,
+                                                   "removeDetectedPython",
+                                                   Q_ARG(QString, m_sharedId),
+                                                   Q_ARG(QString *, &logMessage));
+        QTC_CHECK(res);
+        emit q->logOutput('\n' + logMessage);
+    }
+
     emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Removal of previously auto-detected kit items finished.") + "\n\n");
 }
 
@@ -174,6 +185,16 @@ void KitDetectorPrivate::listAutoDetected() const
         QString logMessage;
         const bool res = QMetaObject::invokeMethod(debuggerPlugin,
                                                    "listDetectedDebuggers",
+                                                   Q_ARG(QString, m_sharedId),
+                                                   Q_ARG(QString *, &logMessage));
+        QTC_CHECK(res);
+        emit q->logOutput('\n' + logMessage);
+    }
+
+    if (auto pythonSettings = ExtensionSystem::PluginManager::getObjectByName("PythonSettings")) {
+        QString logMessage;
+        const bool res = QMetaObject::invokeMethod(pythonSettings,
+                                                   "listDetectedPython",
                                                    Q_ARG(QString, m_sharedId),
                                                    Q_ARG(QString *, &logMessage));
         QTC_CHECK(res);
@@ -252,6 +273,23 @@ Toolchains KitDetectorPrivate::autoDetectToolChains()
     return allNewToolChains;
 }
 
+void KitDetectorPrivate::autoDetectPython()
+{
+    QObject *pythonSettings = ExtensionSystem::PluginManager::getObjectByName("PythonSettings");
+    if (!pythonSettings)
+        return;
+
+    QString logMessage;
+    const bool res = QMetaObject::invokeMethod(pythonSettings,
+                                               "detectPythonOnDevice",
+                                               Q_ARG(Utils::FilePaths, m_searchPaths),
+                                               Q_ARG(QString, m_device->displayName()),
+                                               Q_ARG(QString, m_sharedId),
+                                               Q_ARG(QString *, &logMessage));
+    QTC_CHECK(res);
+    emit q->logOutput('\n' + logMessage);
+}
+
 QList<Id> KitDetectorPrivate::autoDetectCMake()
 {
     QList<Id> result;
@@ -302,6 +340,7 @@ void KitDetectorPrivate::autoDetect()
     const QList<Id> cmakeIds = autoDetectCMake();
     const Id cmakeId = cmakeIds.empty() ? Id() : cmakeIds.first();
     autoDetectDebugger();
+    autoDetectPython();
 
     const auto initializeKit = [this, toolchains, qtVersions, cmakeId](Kit *k) {
         k->setAutoDetected(false);

@@ -52,7 +52,7 @@ namespace Python::Internal {
 
 static Interpreter createInterpreter(const FilePath &python,
                                      const QString &defaultName,
-                                     bool windowedSuffix = false)
+                                     const QString &suffix = {})
 {
     Interpreter result;
     result.id = QUuid::createUuid().toString();
@@ -67,11 +67,11 @@ static Interpreter createInterpreter(const FilePath &python,
         result.name = pythonProcess.cleanedStdOut().trimmed();
     if (result.name.isEmpty())
         result.name = defaultName;
-    if (windowedSuffix)
-        result.name += " (Windowed)";
     QDir pythonDir(python.parentDir().toString());
     if (pythonDir.exists() && pythonDir.exists("activate") && pythonDir.cdUp())
         result.name += QString(" (%1 Virtual Environment)").arg(pythonDir.dirName());
+    if (!suffix.isEmpty())
+        result.name += ' ' + suffix;
 
     return result;
 }
@@ -124,6 +124,11 @@ public:
     InterpreterOptionsWidget();
 
     void apply() override;
+
+    void addInterpreter(const Interpreter &interpreter);
+    void removeInterpreterFrom(const QString &detectionSource);
+    QList<Interpreter> interpreters() const;
+    QList<Interpreter> interpreterFrom(const QString &detectionSource) const;
 
 private:
     QTreeView m_view;
@@ -219,10 +224,30 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
 
 void InterpreterOptionsWidget::apply()
 {
+    PythonSettings::setInterpreter(interpreters(), m_defaultId);
+}
+
+void InterpreterOptionsWidget::addInterpreter(const Interpreter &interpreter)
+{
+    m_model.appendItem(interpreter);
+}
+
+void InterpreterOptionsWidget::removeInterpreterFrom(const QString &detectionSource)
+{
+    m_model.destroyItems(Utils::equal(&Interpreter::detectionSource, detectionSource));
+}
+
+QList<Interpreter> InterpreterOptionsWidget::interpreters() const
+{
     QList<Interpreter> interpreters;
     for (const TreeItem *treeItem : m_model)
         interpreters << static_cast<const ListItem<Interpreter> *>(treeItem)->itemData;
-    PythonSettings::setInterpreter(interpreters, m_defaultId);
+    return interpreters;
+}
+
+QList<Interpreter> InterpreterOptionsWidget::interpreterFrom(const QString &detectionSource) const
+{
+    return m_model.allData(Utils::equal(&Interpreter::detectionSource, detectionSource));
 }
 
 void InterpreterOptionsWidget::currentChanged(const QModelIndex &index, const QModelIndex &previous)
@@ -286,6 +311,32 @@ public:
         setDisplayCategory(Tr::tr("Python"));
         setCategoryIconPath(":/python/images/settingscategory_python.png");
         setWidgetCreator([]() { return new InterpreterOptionsWidget(); });
+    }
+
+    QList<Interpreter> interpreters()
+    {
+        if (auto w = static_cast<InterpreterOptionsWidget *>(widget()))
+            return w->interpreters();
+        return {};
+    }
+
+    void addInterpreter(const Interpreter &interpreter)
+    {
+        if (auto w = static_cast<InterpreterOptionsWidget *>(widget()))
+            w->addInterpreter(interpreter);
+    }
+
+    void removeInterpreterFrom(const QString &detectionSource)
+    {
+        if (auto w = static_cast<InterpreterOptionsWidget *>(widget()))
+            w->removeInterpreterFrom(detectionSource);
+    }
+
+    QList<Interpreter> interpreterFrom(const QString &detectionSource)
+    {
+        if (auto w = static_cast<InterpreterOptionsWidget *>(widget()))
+            return w->interpreterFrom(detectionSource);
+        return {};
     }
 };
 
@@ -582,7 +633,7 @@ static void addPythonsFromRegistry(QList<Interpreter> &pythons)
                 pythons << createInterpreter(python, "Python " + versionGroup);
             const FilePath pythonw = path.pathAppended("pythonw").withExecutableSuffix();
             if (pythonw.exists() && !alreadyRegistered(pythons, pythonw))
-                pythons << createInterpreter(pythonw, "Python " + versionGroup, true);
+                pythons << createInterpreter(pythonw, "Python " + versionGroup, "(Windowed)");
         }
         pythonRegistry.endGroup();
     }
@@ -602,7 +653,7 @@ static void addPythonsFromPath(QList<Interpreter> &pythons)
         }
         for (const FilePath &executable : env.findAllInPath("pythonw")) {
             if (executable.exists() && !alreadyRegistered(pythons, executable))
-                pythons << createInterpreter(executable, "Python from Path", true);
+                pythons << createInterpreter(executable, "Python from Path", "(Windowed)");
         }
     } else {
         const QStringList filters = {"python",
@@ -639,6 +690,9 @@ static PythonSettings *settingsInstance = nullptr;
 PythonSettings::PythonSettings()
     : QObject(PythonPlugin::instance())
 {
+    setObjectName("PythonSettings");
+    ExtensionSystem::PluginManager::addObject(this);
+
     initFromSettings(Core::ICore::settings());
 
     if (HostOsInfo::isWindowsHost())
@@ -811,6 +865,45 @@ void PythonSettings::writeToSettings(QSettings *settings)
     settings->setValue(pylsConfigurationKey, m_pylsConfiguration);
     settings->setValue(pylsEnabledKey, m_pylsEnabled);
     settings->endGroup();
+}
+
+void PythonSettings::detectPythonOnDevice(const Utils::FilePaths &searchPaths,
+                                          const QString &deviceName,
+                                          const QString &detectionSource,
+                                          QString *logMessage)
+{
+    QStringList messages{tr("Searching Python binaries...")};
+    auto alreadyConfigured = interpreterOptionsPage().interpreters();
+    for (const FilePath &path : searchPaths) {
+        const FilePath python = path.pathAppended("python3").withExecutableSuffix();
+        if (!python.isExecutableFile())
+            continue;
+        if (Utils::contains(alreadyConfigured, Utils::equal(&Interpreter::command, python)))
+            continue;
+        auto interpreter = createInterpreter(python, "Python on", "on " + deviceName);
+        interpreter.detectionSource = detectionSource;
+        interpreterOptionsPage().addInterpreter(interpreter);
+        messages.append(tr("Found \"%1\" (%2)").arg(interpreter.name, python.toUserOutput()));
+    }
+    if (logMessage)
+        *logMessage = messages.join('\n');
+}
+
+void PythonSettings::removeDetectedPython(const QString &detectionSource, QString *logMessage)
+{
+    if (logMessage)
+        logMessage->append(Tr::tr("Removing Python") + '\n');
+
+    interpreterOptionsPage().removeInterpreterFrom(detectionSource);
+}
+
+void PythonSettings::listDetectedPython(const QString &detectionSource, QString *logMessage)
+{
+    if (!logMessage)
+        return;
+    logMessage->append(Tr::tr("Python:") + '\n');
+    for (Interpreter &interpreter: interpreterOptionsPage().interpreterFrom(detectionSource))
+        logMessage->append(interpreter.name + '\n');
 }
 
 void PythonSettings::saveSettings()

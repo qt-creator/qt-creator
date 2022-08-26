@@ -110,6 +110,16 @@ public:
         return res;
     }
 
+    QList<ItemData> allData(const std::function<bool(const ItemData &)> &pred) const
+    {
+        QList<ItemData> res;
+        BaseModel::rootItem()->forFirstLevelChildren([pred, &res](ChildType *item) {
+            if (pred(item->itemData))
+                res.append(item->itemData);
+        });
+        return res;
+    }
+
     void setAllData(const QList<ItemData> &items)
     {
         BaseModel::rootItem()->removeChildren();

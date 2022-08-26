@@ -36,6 +36,14 @@ signals:
     void pylsConfigurationChanged(const QString &configuration);
     void pylsEnabledChanged(const bool enabled);
 
+public slots:
+    void detectPythonOnDevice(const Utils::FilePaths &searchPaths,
+                              const QString &deviceName,
+                              const QString &detectionSource,
+                              QString *logMessage);
+    void removeDetectedPython(const QString &detectionSource, QString *logMessage);
+    void listDetectedPython(const QString &detectionSource, QString *logMessage);
+
 private:
     PythonSettings();
 
