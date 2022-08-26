@@ -71,10 +71,6 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     box->addWidget(m_statusLine);
     setLayout(box);
 
-    connect(m_toolbar, &CurveEditorToolBar::defaultClicked, [this]() {
-        m_view->setDefaultInterpolation();
-    });
-
     connect(m_toolbar, &CurveEditorToolBar::unifyClicked, [this]() {
         m_view->toggleUnified();
     });
@@ -99,6 +95,13 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
         m_view->viewport()->update();
     });
 
+    connect(m_toolbar, &CurveEditorToolBar::zoomChanged, [this](double zoom) {
+        const bool wasBlocked = m_view->blockSignals(true);
+        m_view->setZoomX(zoom);
+        m_view->blockSignals(wasBlocked);
+        m_view->viewport()->update();
+    });
+
     connect(
         m_view, &GraphicsView::currentFrameChanged,
         m_toolbar, &CurveEditorToolBar::setCurrentFrame);
@@ -109,6 +112,11 @@ CurveEditor::CurveEditor(CurveEditorModel *model, QWidget *parent)
     connect(
         m_tree->selectionModel(), &SelectionModel::curvesSelected,
         m_view, &GraphicsView::updateSelection);
+
+    connect(m_view, &GraphicsView::zoomChanged, [this](double x, double y) {
+        Q_UNUSED(y);
+        m_toolbar->setZoom(x);
+    });
 
     auto updateTimeline = [this, model](bool validTimeline) {
         if (validTimeline) {

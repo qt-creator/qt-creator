@@ -87,8 +87,7 @@ void QmlStateNodeInstance::deactivateState()
 
 void QmlStateNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
-    bool isStateOfTheRootModelNode = parentInstance() && parentInstance()->isRootNodeInstance();
-    if (name == "when" && (isStateOfTheRootModelNode))
+    if (name == "when")
         return;
 
     ObjectNodeInstance::setPropertyVariant(name, value);

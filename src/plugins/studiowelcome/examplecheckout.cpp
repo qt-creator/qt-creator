@@ -424,7 +424,7 @@ void FileExtractor::extract()
     });
 
     QObject::connect(archive, &Utils::Archive::finished, this, [this, archive](bool ret) {
-        delete archive;
+        archive->deleteLater();
         m_finished = ret;
         m_timer.stop();
 
@@ -503,7 +503,7 @@ bool DataModelDownloader::start()
                 QTC_ASSERT(archive->isValid(), delete archive; return );
                 QObject::connect(archive, &Utils::Archive::finished, this, [this, archive](bool ret) {
                     QTC_CHECK(ret);
-                    delete archive;
+                    archive->deleteLater();
                     emit finished();
                 });
                 archive->unarchive();

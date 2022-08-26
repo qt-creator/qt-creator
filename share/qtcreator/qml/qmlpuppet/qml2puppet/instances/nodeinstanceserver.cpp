@@ -1050,6 +1050,21 @@ ServerNodeInstance NodeInstanceServer::rootNodeInstance() const
     return m_rootNodeInstance;
 }
 
+QList<ServerNodeInstance> NodeInstanceServer::allGroupStateInstances() const
+{
+    QList<ServerNodeInstance> groups;
+    std::copy_if(nodeInstances().cbegin(),
+                 nodeInstances().cend(),
+                 std::back_inserter(groups),
+                 [](const ServerNodeInstance &instance) {
+                     return instance.isValid() && instance.internalObject()->metaObject()
+                            && instance.internalObject()->metaObject()->className()
+                                   == QByteArrayLiteral("QQuickStateGroup");
+                 });
+
+    return groups;
+}
+
 void NodeInstanceServer::setStateInstance(const ServerNodeInstance &stateInstance)
 {
     m_activeStateInstance = stateInstance;

@@ -67,11 +67,6 @@ View3D {
         id: model
         source: _generalHelper.resolveAbsoluteSourceUrl(sourceModel)
         geometry: sourceModel.geometry
-
-        materials: [
-            DefaultMaterial {
-                diffuseColor: "#999999"
-            }
-        ]
+        materials: sourceModel.materials
     }
 }

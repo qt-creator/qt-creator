@@ -815,7 +815,11 @@ void addNewSignalHandler(const SelectionContext &selectionState)
 // Open a model's material in the material editor
 void editMaterial(const SelectionContext &selectionContext)
 {
-    ModelNode modelNode = selectionContext.currentSingleSelectedNode();
+    ModelNode modelNode = selectionContext.targetNode();
+
+    if (!modelNode.isValid())
+        modelNode = selectionContext.currentSingleSelectedNode();
+
     QTC_ASSERT(modelNode.isValid(), return);
 
     BindingProperty prop = modelNode.bindingProperty("materials");

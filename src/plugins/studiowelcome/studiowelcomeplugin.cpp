@@ -650,8 +650,6 @@ WelcomeMode::WelcomeMode()
         m_quickWidget->rootObject()->setProperty("loadingProgress", m_dataModelDownloader->progress());
     });
 
-    m_quickWidget->setEnabled(false);
-
     connect(m_dataModelDownloader, &DataModelDownloader::finished, this, [this, welcomePagePath]() {
         delete m_quickWidget;
         createQuickWidget();

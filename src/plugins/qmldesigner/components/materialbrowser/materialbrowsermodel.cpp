@@ -95,8 +95,9 @@ bool MaterialBrowserModel::isValidIndex(int idx) const
  * propertyGroups.json contains lists of QtQuick3D objects' properties grouped by sections
  *
  * @param path path to propertyGroups.json file
+ * @return load successful
  */
-void MaterialBrowserModel::loadPropertyGroups(const QString &path)
+bool MaterialBrowserModel::loadPropertyGroups(const QString &path)
 {
     bool ok = true;
 
@@ -131,6 +132,8 @@ void MaterialBrowserModel::loadPropertyGroups(const QString &path)
             m_customMaterialSections.append(customMatSections);
     }
     emit materialSectionsChanged();
+
+    return ok;
 }
 
 QHash<int, QByteArray> MaterialBrowserModel::roleNames() const

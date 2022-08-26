@@ -32,7 +32,8 @@ import QtQuick.Shapes 1.0
 
 Rectangle {
     id: welcome_splash
-    anchors.fill: parent
+    width: 600
+    height: 720
     clip: true
 
     gradient: Gradient {
@@ -55,8 +56,6 @@ Rectangle {
     property bool doNotShowAgain: true
     property bool loadingPlugins: true
 
-    width: 600
-    height: 720
     visible: true
     color: "#1d212a"
 

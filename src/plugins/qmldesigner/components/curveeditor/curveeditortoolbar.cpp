@@ -67,7 +67,6 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
     QAction *tangentSplineAction = addAction(
         QIcon(":/curveeditor/images/tangetToolsSplineIcon.png"), "Spline");
 
-    QAction *tangentDefaultAction = addAction(tr("Set Default"));
     QAction *tangentUnifyAction = addAction(tr("Unify"));
 
     auto setLinearInterpolation = [this]() {
@@ -79,9 +78,6 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
     auto setSplineInterpolation = [this]() {
         emit interpolationClicked(Keyframe::Interpolation::Bezier);
     };
-    auto setDefaultKeyframe = [this]() {
-        emit defaultClicked();
-    };
     auto toggleUnifyKeyframe = [this]() {
         emit unifyClicked();
     };
@@ -89,7 +85,6 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
     connect(tangentLinearAction, &QAction::triggered, setLinearInterpolation);
     connect(tangentStepAction, &QAction::triggered, setStepInterpolation);
     connect(tangentSplineAction, &QAction::triggered, setSplineInterpolation);
-    connect(tangentDefaultAction, &QAction::triggered, setDefaultKeyframe);
     connect(tangentUnifyAction, &QAction::triggered, toggleUnifyKeyframe);
 
     auto validateStart = [this](int val) -> bool {
@@ -100,6 +95,7 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
     m_startSpin = new ValidatableSpinBox(validateStart);
     m_startSpin->setRange(std::numeric_limits<int>::lowest(), std::numeric_limits<int>::max());
     m_startSpin->setValue(model->minimumTime());
+    m_startSpin->setFixedWidth(70);
 
     connect(m_startSpin, &QSpinBox::valueChanged, this, &CurveEditorToolBar::startFrameChanged);
     connect(model, &CurveEditorModel::commitStartFrame,
@@ -113,6 +109,7 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
     m_endSpin = new ValidatableSpinBox(validateEnd);
     m_endSpin->setRange(std::numeric_limits<int>::lowest(), std::numeric_limits<int>::max());
     m_endSpin->setValue(model->maximumTime());
+    m_endSpin->setFixedWidth(70);
 
     connect(m_endSpin, &QSpinBox::valueChanged, this, &CurveEditorToolBar::endFrameChanged);
     connect(model, &CurveEditorModel::commitEndFrame,
@@ -120,6 +117,7 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
 
     m_currentSpin->setMinimum(0);
     m_currentSpin->setMaximum(std::numeric_limits<int>::max());
+    m_currentSpin->setFixedWidth(70);
 
     connect(m_currentSpin, &QSpinBox::valueChanged, this, &CurveEditorToolBar::currentFrameChanged);
 
@@ -140,6 +138,19 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
     auto *positionWidget = new QWidget;
     positionWidget->setLayout(positionBox);
     addWidget(positionWidget);
+
+    m_zoomSlider = new QSlider(Qt::Horizontal);
+    m_zoomSlider->setRange(0, 100);
+    connect(m_zoomSlider, &QSlider::valueChanged, [this](int value) {
+        emit zoomChanged(static_cast<double>(value)/100.0f);
+    });
+    addWidget(m_zoomSlider);
+}
+
+void CurveEditorToolBar::setZoom(double zoom)
+{
+    QSignalBlocker blocker(m_zoomSlider);
+    m_zoomSlider->setValue( static_cast<int>(zoom*100));
 }
 
 void CurveEditorToolBar::setCurrentFrame(int current, bool notify)

@@ -70,6 +70,8 @@ private:
     bool m_hasQuick3DImport = false;
     bool m_autoSelectModelMaterial = false; // TODO: wire this to some action
     bool m_puppetResetPending = false;
+    bool m_propertyGroupsLoaded = false;
+    void loadPropertyGroups();
 };
 
 } // namespace QmlDesigner

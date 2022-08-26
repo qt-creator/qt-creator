@@ -122,11 +122,10 @@ PublicKeyDeploymentDialog::PublicKeyDeploymentDialog(const IDevice::ConstPtr &de
     args << params.host();
     cmd.addArgs(args);
 
-    CommandLine execCmd;
-    execCmd.addArg("exec");
-    execCmd.addCommandLineAsArgs({"/bin/sh", {"-c", command}}, CommandLine::Raw);
+    QString execCommandString("exec /bin/sh -c");
+    ProcessArgs::addArg(&execCommandString, command, OsType::OsTypeLinux);
+    cmd.addArg(execCommandString);
 
-    cmd.addArg(execCmd.arguments());
     d->m_process.setCommand(cmd);
     SshParameters::setupSshEnvironment(&d->m_process);
     d->m_process.start();

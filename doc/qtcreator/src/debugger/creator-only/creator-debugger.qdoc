@@ -456,16 +456,16 @@
             The installation folder contains the CDB command line executable
             (\c cdb.exe).
 
-        \li Copy the \QC CDB extension library from the Qt installation
-            directory to the a new folder on the remote machine (32 or 64 bit
+        \li Copy the \QC CDB extension library and the dependencies from the Qt installation
+            directory to a new folder on the remote machine (32 or 64 bit
             version depending on the version of the Debugging Tools for Windows
             used):
 
         \list
 
-            \li \c {\lib\qtcreatorcdbext32\qtcreatorcdbext.dll} (32 bit)
+            \li \c {\lib\qtcreatorcdbext32} (32 bit)
 
-            \li \c {\lib\qtcreatorcdbext64\qtcreatorcdbext.dll} (64 bit)
+            \li \c {\lib\qtcreatorcdbext64} (64 bit)
 
         \endlist
 

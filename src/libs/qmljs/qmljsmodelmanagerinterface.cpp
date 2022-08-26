@@ -111,6 +111,7 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
       m_defaultImportPaths(environmentImportPaths()),
       m_pluginDumper(new PluginDumper(this))
 {
+    m_threadPool.setMaxThreadCount(4);
     m_futureSynchronizer.setCancelOnWait(false);
     m_indexerDisabled = qEnvironmentVariableIsSet("QTC_NO_CODE_INDEXER");
 
@@ -325,6 +326,11 @@ Snapshot ModelManagerInterface::newestSnapshot() const
     return m_newestSnapshot;
 }
 
+QThreadPool *ModelManagerInterface::threadPool()
+{
+    return &m_threadPool;
+}
+
 void ModelManagerInterface::updateSourceFiles(const QList<Utils::FilePath> &files,
                                               bool emitDocumentOnDiskChanged)
 {
@@ -339,7 +345,8 @@ QFuture<void> ModelManagerInterface::refreshSourceFiles(const QList<Utils::FileP
     if (sourceFiles.isEmpty())
         return QFuture<void>();
 
-    QFuture<void> result = Utils::runAsync(&ModelManagerInterface::parse,
+    QFuture<void> result = Utils::runAsync(&m_threadPool,
+                                           &ModelManagerInterface::parse,
                                            workingCopyInternal(), sourceFiles,
                                            this, Dialect(Dialect::Qml),
                                            emitDocumentOnDiskChanged);
@@ -366,7 +373,8 @@ QFuture<void> ModelManagerInterface::refreshSourceFiles(const QList<Utils::FileP
 
 void ModelManagerInterface::fileChangedOnDisk(const Utils::FilePath &path)
 {
-    addFuture(Utils::runAsync(&ModelManagerInterface::parse,
+    addFuture(Utils::runAsync(&m_threadPool,
+                              &ModelManagerInterface::parse,
                               workingCopyInternal(),
                               FilePaths({path}),
                               this,
@@ -1199,7 +1207,8 @@ void ModelManagerInterface::maybeScan(const PathsAndLanguages &importPaths)
     }
 
     if (pathToScan.length() >= 1) {
-        QFuture<void> result = Utils::runAsync(&ModelManagerInterface::importScan,
+        QFuture<void> result = Utils::runAsync(&m_threadPool,
+                                               &ModelManagerInterface::importScan,
                                                workingCopyInternal(), pathToScan,
                                                this, true, true, false);
         addFuture(result);
