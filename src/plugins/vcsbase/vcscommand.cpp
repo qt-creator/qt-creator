@@ -64,6 +64,7 @@ public:
         , m_environment(environment)
     {
         VcsBase::setProcessEnvironment(&m_environment);
+        m_futureInterface.setProgressRange(0, 1);
     }
 
     ~VcsCommandPrivate() { delete m_progressParser; }
@@ -81,6 +82,8 @@ public:
     QString displayName() const;
     int timeoutS() const;
 
+    void setup();
+    void cleanup();
     void setupProcess(QtcProcess *process, const Job &job);
     void setupSynchronous(QtcProcess *process);
     bool isFullySynchronous() const;
@@ -132,6 +135,31 @@ int VcsCommandPrivate::timeoutS() const
 {
     return std::accumulate(m_jobs.cbegin(), m_jobs.cend(), 0,
         [](int sum, const Job &job) { return sum + job.timeoutS; });
+}
+
+void VcsCommandPrivate::setup()
+{
+    m_futureInterface.reportStarted();
+    if (m_flags & VcsCommand::ExpectRepoChanges) {
+        QMetaObject::invokeMethod(GlobalFileChangeBlocker::instance(), [] {
+            GlobalFileChangeBlocker::instance()->forceBlocked(true);
+        });
+    }
+    if (m_progressParser)
+        m_progressParser->setFuture(&m_futureInterface);
+}
+
+void VcsCommandPrivate::cleanup()
+{
+    QTC_ASSERT(m_futureInterface.isRunning(), return);
+    m_futureInterface.reportFinished();
+    if (m_flags & VcsCommand::ExpectRepoChanges) {
+        QMetaObject::invokeMethod(GlobalFileChangeBlocker::instance(), [] {
+            GlobalFileChangeBlocker::instance()->forceBlocked(false);
+        });
+    }
+    if (m_progressParser)
+        m_progressParser->setFuture(nullptr);
 }
 
 void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
@@ -205,16 +233,7 @@ void VcsCommandPrivate::startAll()
     // Check that the binary path is not empty
     QTC_ASSERT(!m_jobs.isEmpty(), return);
     QTC_ASSERT(!m_process, return);
-    m_futureInterface.reportStarted();
-    if (m_flags & VcsCommand::ExpectRepoChanges) {
-        QMetaObject::invokeMethod(this, [] {
-            GlobalFileChangeBlocker::instance()->forceBlocked(true);
-        });
-    }
-    if (m_progressParser)
-        m_progressParser->setFuture(&m_futureInterface);
-    else
-        m_futureInterface.setProgressRange(0, 1);
+    setup();
     m_currentJob = 0;
     startNextJob();
 }
@@ -242,14 +261,8 @@ void VcsCommandPrivate::processDone()
         startNextJob();
         return;
     }
-    if (m_flags & VcsCommand::ExpectRepoChanges) {
-        QMetaObject::invokeMethod(this, [] {
-            GlobalFileChangeBlocker::instance()->forceBlocked(false);
-        });
-    }
     if (m_aborted) {
         m_futureInterface.reportCanceled();
-        m_futureInterface.reportFinished();
     } else {
         if (!m_progressiveOutput) {
             emit q->stdOutText(m_stdOut);
@@ -259,10 +272,8 @@ void VcsCommandPrivate::processDone()
         emit q->finished(success);
         if (!success)
             m_futureInterface.reportCanceled();
-        m_futureInterface.reportFinished();
     }
-    if (m_progressParser)
-        m_progressParser->setFuture(nullptr);
+    cleanup();
     // As it is used asynchronously, we need to delete ourselves
     q->deleteLater();
 }
@@ -304,7 +315,7 @@ VcsCommand::~VcsCommand()
 {
     if (d->m_futureInterface.isRunning()) {
         d->m_futureInterface.reportCanceled();
-        d->m_futureInterface.reportFinished();
+        d->cleanup();
     }
     delete d;
 }
