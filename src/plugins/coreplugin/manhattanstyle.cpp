@@ -390,6 +390,10 @@ int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const 
         if (widget && widget->inherits("QTreeView"))
             ret = 0;
         break;
+    case QStyle::SH_ComboBox_AllowWheelScrolling:
+        // Turn this off completely to prevent accidental current index change on a scroll view
+        ret = false;
+        break;
     default:
         break;
     }
