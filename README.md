@@ -342,19 +342,6 @@ we thank the authors who made this possible:
   The idea and interface is based on Boost.Optional library
   authored by Fernando Luis Cacciola Carballal
 
-### MPark.Variant
-
-  MPark.Variant is an implementation of C++17 std::variant for C++11/14/17.
-
-  https://github.com/mpark/variant
-
-  QtCreator/src/libs/3rdparty/variant
-
-  Copyright Michael Park, 2015-2017
-
-  Distributed under the Boost Software License, Version 1.0.
-  (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
-
 ### std::span implementation for C++11 and later
 
   A single-header implementation of C++20's std::span, conforming to the C++20
