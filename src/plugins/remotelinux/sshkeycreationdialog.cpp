@@ -37,6 +37,7 @@
 #include <QApplication>
 #include <QComboBox>
 #include <QDialog>
+#include <QDialogButtonBox>
 #include <QGroupBox>
 #include <QLabel>
 #include <QMessageBox>
@@ -67,9 +68,12 @@ SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
     m_publicKeyFileLabel = new QLabel;
 
     auto privateKeyFileButton = new QPushButton(PathChooser::browseButtonLabel());
-    m_generateButton = new QPushButton(Tr::tr("&Generate And Save Key Pair"));
-    auto closeButton = new QPushButton(Tr::tr("&Cancel"));
+    auto buttonBox = new QDialogButtonBox;
+    m_generateButton = buttonBox->addButton(Tr::tr("&Generate And Save Key Pair"),
+                                            QDialogButtonBox::AcceptRole);
+    buttonBox->addButton(QDialogButtonBox::Cancel);
 
+    // clang-format off
     using namespace Layouting;
     Column {
         Group {
@@ -82,21 +86,19 @@ SshKeyCreationDialog::SshKeyCreationDialog(QWidget *parent)
             }
         },
         st,
-        Row { m_generateButton, closeButton, st }
+        buttonBox
     }.attachTo(this);
+    // clang-format on
 
     const QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
         + QLatin1String("/.ssh/qtc_id");
     setPrivateKeyFile(FilePath::fromString(defaultPath));
 
-    connect(closeButton, &QPushButton::clicked,
-            this, &QDialog::close);
-    connect(m_rsa, &QRadioButton::toggled,
-            this, &SshKeyCreationDialog::keyTypeChanged);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::close);
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &SshKeyCreationDialog::generateKeys);
+    connect(m_rsa, &QRadioButton::toggled, this, &SshKeyCreationDialog::keyTypeChanged);
     connect(privateKeyFileButton, &QPushButton::clicked,
             this, &SshKeyCreationDialog::handleBrowseButtonClicked);
-    connect(m_generateButton, &QPushButton::clicked,
-            this, &SshKeyCreationDialog::generateKeys);
     keyTypeChanged();
 }
 
