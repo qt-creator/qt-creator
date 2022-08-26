@@ -156,10 +156,6 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
     mainLayout->addWidget(errorText);
     mainLayout->addWidget(buttonBox);
 
-//    QFrame *line = new QFrame(this);
-//    line->setFrameShape(QFrame::HLine);
-//    line->setFrameShadow(QFrame::Sunken);
-
     proxyModel.setFilterRegularExpression(processFilterLineEdit->text());
 
     connect(processFilterLineEdit, &FancyLineEdit::textChanged,

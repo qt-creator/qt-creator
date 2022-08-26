@@ -19,7 +19,6 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QDateTime>
-#include <QFrame>
 #include <QGroupBox>
 #include <QHeaderView>
 #include <QInputDialog>
@@ -71,10 +70,6 @@ IosSettingsWidget::IosSettingsWidget()
     m_resetButton->setEnabled(false);
     m_resetButton->setToolTip(tr("Reset contents and settings of simulator devices."));
 
-    auto line = new QFrame;
-    line->setFrameShadow(QFrame::Raised);
-    line->setFrameShape(QFrame::HLine);
-
     auto createButton = new QPushButton(tr("Create"));
     createButton->setToolTip(tr("Create a new simulator device."));
 
@@ -121,7 +116,7 @@ IosSettingsWidget::IosSettingsWidget()
                         st
                     },
                 },
-                line,
+                HorizontalRule {},
                 Row { tr("Screenshot directory:"), m_pathWidget }
             }
         }

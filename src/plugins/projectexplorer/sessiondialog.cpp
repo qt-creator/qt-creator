@@ -11,7 +11,6 @@
 
 #include <QCheckBox>
 #include <QDialogButtonBox>
-#include <QFrame>
 #include <QInputDialog>
 #include <QLabel>
 #include <QPushButton>
@@ -127,10 +126,6 @@ SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
 
     m_autoLoadCheckBox = new QCheckBox(tr("Restore last session on startup"));
 
-    auto line = new QFrame(this);
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-
     auto buttonBox = new QDialogButtonBox(this);
     buttonBox->setStandardButtons(QDialogButtonBox::Close);
 
@@ -157,7 +152,7 @@ SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
             }
         },
         m_autoLoadCheckBox,
-        line,
+        HorizontalRule {},
         Row { whatsASessionLabel, buttonBox },
     }.attachTo(this);
 

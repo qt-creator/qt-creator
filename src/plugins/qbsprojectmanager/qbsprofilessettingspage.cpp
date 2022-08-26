@@ -134,17 +134,13 @@ QbsProfilesSettingsWidget::QbsProfilesSettingsWidget()
     m_profileValueLabel = new QLabel;
     m_propertiesView = new QTreeView;
 
-    auto line = new QFrame;
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-
     using namespace Utils::Layouting;
     Column {
         Form {
             tr("Kit:"), m_kitsComboBox, br,
             tr("Associated profile:"), m_profileValueLabel, br,
         },
-        line,
+        HorizontalRule {},
         tr("Profile properties:"),
         Row {
             m_propertiesView,

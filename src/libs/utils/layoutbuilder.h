@@ -159,6 +159,7 @@ QTCREATOR_UTILS_EXPORT LayoutBuilder::Setter text(const QString &text);
 QTCREATOR_UTILS_EXPORT LayoutBuilder::Setter tooltip(const QString &toolTip);
 QTCREATOR_UTILS_EXPORT LayoutBuilder::Setter onClicked(const std::function<void()> &func,
                                                        QObject *guard = nullptr);
+QTCREATOR_UTILS_EXPORT QWidget *createHr(QWidget *parent = nullptr);
 
 class QTCREATOR_UTILS_EXPORT Group : public LayoutBuilder::LayoutItem
 {
@@ -170,6 +171,12 @@ class QTCREATOR_UTILS_EXPORT PushButton : public LayoutBuilder::LayoutItem
 {
 public:
     PushButton(std::initializer_list<LayoutItem> items);
+};
+
+class QTCREATOR_UTILS_EXPORT HorizontalRule : public LayoutBuilder::LayoutItem
+{
+public:
+    HorizontalRule(std::initializer_list<LayoutItem> items);
 };
 
 class QTCREATOR_UTILS_EXPORT Column : public LayoutBuilder

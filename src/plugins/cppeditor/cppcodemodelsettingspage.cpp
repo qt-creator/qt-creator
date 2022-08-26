@@ -322,9 +322,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         else
             Core::EditorManager::openEditor(Utils::FilePath::fromString(link));
     });
-    const auto separator = new QFrame;
-    separator->setFrameShape(QFrame::HLine);
-    layout->addWidget(separator);
+    layout->addWidget(Utils::Layouting::createHr());
     layout->addWidget(configFilesHelpLabel);
 
     layout->addStretch(1);

@@ -18,6 +18,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <utils/fancylineedit.h>
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
@@ -262,14 +263,6 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
         "If empty, $SYSROOT/usr/lib/debug will be chosen."));
     d->debuginfoPathChooser->setHistoryCompleter("Debugger.DebugLocation.History");
 
-    auto line = new QFrame(this);
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-
-    auto line2 = new QFrame(this);
-    line2->setFrameShape(QFrame::HLine);
-    line2->setFrameShadow(QFrame::Sunken);
-
     d->historyComboBox = new QComboBox(this);
 
     d->buttonBox = new QDialogButtonBox(this);
@@ -292,13 +285,13 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     formLayout->addRow(Tr::tr("Debug &information:"), d->debuginfoPathChooser);
     formLayout->addRow(d->channelOverrideHintLabel);
     formLayout->addRow(d->channelOverrideLabel, d->channelOverrideEdit);
-    formLayout->addRow(line2);
+    formLayout->addRow(Layouting::createHr());
     formLayout->addRow(Tr::tr("&Recent:"), d->historyComboBox);
 
     auto verticalLayout = new QVBoxLayout(this);
     verticalLayout->addLayout(formLayout);
     verticalLayout->addStretch();
-    verticalLayout->addWidget(line);
+    verticalLayout->addWidget(Layouting::createHr());
     verticalLayout->addWidget(d->buttonBox);
 
     connect(d->localExecutablePathChooser, &PathChooser::rawPathChanged,

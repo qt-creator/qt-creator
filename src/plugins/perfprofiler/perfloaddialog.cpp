@@ -15,7 +15,6 @@
 #include <utils/layoutbuilder.h>
 
 #include <QDialogButtonBox>
-#include <QFrame>
 #include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
@@ -46,10 +45,6 @@ PerfLoadDialog::PerfLoadDialog(QWidget *parent)
     m_kitChooser = new ProjectExplorer::KitChooser(this);
     m_kitChooser->populate();
 
-    auto line = new QFrame(this);
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-
     auto buttonBox = new QDialogButtonBox(this);
     buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
@@ -62,7 +57,7 @@ PerfLoadDialog::PerfLoadDialog(QWidget *parent)
             label3, Span(2, m_kitChooser)
         },
         st,
-        line,
+        HorizontalRule {},
         buttonBox
     }.attachTo(this);
 

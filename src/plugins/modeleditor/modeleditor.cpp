@@ -55,6 +55,7 @@
 #include <coreplugin/actionmanager/commandbutton.h>
 #include <utils/fadingindicator.h>
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 #include <utils/styledbar.h>
 #include <utils/qtcassert.h>
 
@@ -1120,9 +1121,7 @@ void ModelEditor::initToolbars()
             }
             case qmt::Toolbar::TooltypeSeparator:
             {
-                auto horizLine1 = new QFrame(d->leftToolBox);
-                horizLine1->setFrameShape(QFrame::HLine);
-                toolBarLayout->addWidget(horizLine1);
+                toolBarLayout->addWidget(Layouting::createHr(d->leftToolBox));
                 break;
             }
             }
@@ -1155,9 +1154,7 @@ void ModelEditor::initToolbars()
                     new DragTool(QIcon(":/modelinglib/48x48/item.png"),
                                  tr("Item"), tr("New Item"), QLatin1String(qmt::ELEMENT_TYPE_ITEM),
                                  QString(), toolBar));
-        auto horizLine1 = new QFrame(d->leftToolBox);
-        horizLine1->setFrameShape(QFrame::HLine);
-        toolBarLayout->addWidget(horizLine1);
+        toolBarLayout->addWidget(Layouting::createHr(d->leftToolBox));
         toolBarLayout->addWidget(
                     new DragTool(QIcon(":/modelinglib/48x48/annotation.png"),
                                  tr("Annotation"), QString(), QLatin1String(qmt::ELEMENT_TYPE_ANNOTATION),

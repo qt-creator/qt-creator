@@ -4,6 +4,7 @@
 #include "panelswidget.h"
 
 #include <coreplugin/icore.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
@@ -103,13 +104,7 @@ void PanelsWidget::addPropertiesPanel(const QString &displayName)
     f.setPointSizeF(f.pointSizeF() * 1.6);
     nameLabel->setFont(f);
     m_layout->addWidget(nameLabel);
-
-    // line:
-    auto line = new QFrame(m_root);
-    line->setFrameShape(QFrame::HLine);
-    line->setForegroundRole(QPalette::Midlight);
-    line->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    m_layout->addWidget(line);
+    m_layout->addWidget(Layouting::createHr());
 }
 
 void PanelsWidget::addWidget(QWidget *widget)
@@ -160,10 +155,7 @@ void PanelsWidget::addGlobalSettingsProperties(ProjectSettingsWidget *widget)
     }
     horizontalLayout->addStretch(1);
     m_layout->addLayout(horizontalLayout);
-
-    auto separator = new QFrame(m_root);
-    separator->setFrameShape(QFrame::HLine);
-    m_layout->addWidget(separator);
+    m_layout->addWidget(Layouting::createHr());
 }
 
 } // ProjectExplorer

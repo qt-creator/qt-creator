@@ -25,6 +25,7 @@
 #include <utils/filepath.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/removefiledialog.h>
@@ -84,13 +85,6 @@ FolderNavigationWidgetFactory *FolderNavigationWidgetFactory::instance()
 }
 
 namespace Internal {
-
-static QWidget *createHLine()
-{
-    auto widget = new QFrame;
-    widget->setFrameStyle(QFrame::Plain | QFrame::HLine);
-    return widget;
-}
 
 // Call delayLayoutOnce to delay reporting the new heightForWidget by the double-click interval.
 // Call setScrollBarOnce to set a scroll bar's value once during layouting (where heightForWidget
@@ -318,7 +312,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     crumbLayout->setContentsMargins(4, 4, 4, 4);
     crumbLayout->addWidget(m_crumbLabel);
     crumbContainerLayout->addLayout(crumbLayout);
-    crumbContainerLayout->addWidget(createHLine());
+    crumbContainerLayout->addWidget(Layouting::createHr(this));
     m_crumbLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
     auto layout = new QVBoxLayout();

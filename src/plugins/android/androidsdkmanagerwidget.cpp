@@ -11,8 +11,8 @@
 
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
-#include <utils/runextensions.h>
 #include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 #include <utils/utilsicons.h>
 
 #include <QDialogButtonBox>
@@ -76,10 +76,6 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
 
     auto obsoleteCheckBox = new QCheckBox(tr("Include obsolete"));
 
-    auto line = new QFrame;
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-
     auto showAvailableRadio = new QRadioButton(tr("Available"));
     auto showInstalledRadio = new QRadioButton(tr("Installed"));
     auto showAllRadio = new QRadioButton(tr("All"));
@@ -141,7 +137,7 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
                 Column {
                     Row { tr("Channel:"), channelCheckbox },
                     obsoleteCheckBox,
-                    line,
+                    HorizontalRule {},
                     showAvailableRadio,
                     showInstalledRadio,
                     showAllRadio,

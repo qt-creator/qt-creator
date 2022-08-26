@@ -60,10 +60,6 @@ BookmarkDialog::BookmarkDialog(BookmarkManager *manager, const QString &title,
 
     m_toolButton = new QToolButton;
     m_toolButton->setFixedSize(24, 24);
-    auto line = new QFrame;
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    line->setForegroundRole(QPalette::Midlight);
 
     m_treeView = new QTreeView;
     m_treeView->setModel(proxyModel);
@@ -83,7 +79,7 @@ BookmarkDialog::BookmarkDialog(BookmarkManager *manager, const QString &title,
             tr("Bookmark:"), m_bookmarkEdit, br,
             tr("Add in folder:"), m_bookmarkFolders, br,
         },
-        Row { m_toolButton, line, },
+        Row { m_toolButton, HorizontalRule {}, },
         m_treeView,
         Row { m_newFolderButton, m_buttonBox, }
     }.attachTo(this);

@@ -113,7 +113,7 @@ private:
     QStackedWidget *m_container;
     Utils::InfoBarDisplay *m_infoBarDisplay;
     QString m_statusWidgetId;
-    QFrame *m_statusHLine;
+    QWidget *m_statusHLine;
     QFrame *m_statusWidget;
     QLabel *m_statusWidgetLabel;
     QToolButton *m_statusWidgetButton;

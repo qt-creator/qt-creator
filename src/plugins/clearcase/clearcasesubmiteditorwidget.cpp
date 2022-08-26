@@ -5,8 +5,9 @@
 
 #include "activityselector.h"
 
+#include <utils/layoutbuilder.h>
+
 #include <QCheckBox>
-#include <QFrame>
 #include <QVBoxLayout>
 
 using namespace ClearCase::Internal;
@@ -67,11 +68,7 @@ void ClearCaseSubmitEditorWidget::addActivitySelector(bool isUcm)
 
     m_actSelector = new ActivitySelector;
     m_verticalLayout->insertWidget(0, m_actSelector);
-
-    auto line = new QFrame;
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    m_verticalLayout->insertWidget(1, line);
+    m_verticalLayout->insertWidget(1, Utils::Layouting::createHr());
 }
 
 QString ClearCaseSubmitEditorWidget::commitName() const

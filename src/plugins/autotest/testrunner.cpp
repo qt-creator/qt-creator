@@ -34,6 +34,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 #include <utils/outputformat.h>
 #include <utils/qtcprocess.h>
 
@@ -820,14 +821,6 @@ void TestRunner::reportResult(ResultType type, const QString &description)
 
 /*************************************************************************************************/
 
-static QFrame *createLine(QWidget *parent)
-{
-    QFrame *line = new QFrame(parent);
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-    return line;
-}
-
 RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &buildTargetKey,
                                                                  QWidget *parent)
     : QDialog(parent)
@@ -853,7 +846,7 @@ RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &
     formLayout->addRow(m_details);
     formLayout->addRow(Tr::tr("Run Configuration:"), m_rcCombo);
     formLayout->addRow(m_rememberCB);
-    formLayout->addRow(createLine(this));
+    formLayout->addRow(Layouting::createHr(this));
     formLayout->addRow(Tr::tr("Executable:"), m_executable);
     formLayout->addRow(Tr::tr("Arguments:"), m_arguments);
     formLayout->addRow(Tr::tr("Working Directory:"), m_workingDir);
@@ -861,7 +854,7 @@ RunConfigurationSelectionDialog::RunConfigurationSelectionDialog(const QString &
     auto vboxLayout = new QVBoxLayout(this);
     vboxLayout->addLayout(formLayout);
     vboxLayout->addStretch();
-    vboxLayout->addWidget(createLine(this));
+    vboxLayout->addWidget(Layouting::createHr(this));
     vboxLayout->addWidget(m_buttonBox);
 
     connect(m_rcCombo, &QComboBox::currentTextChanged,

@@ -13,6 +13,7 @@
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
@@ -258,17 +259,12 @@ AttachCoreDialog::AttachCoreDialog(QWidget *parent)
     formLayout->addRow(Tr::tr("&Executable or symbol file:"), d->symbolFileName);
     formLayout->addRow(Tr::tr("Override &start script:"), d->overrideStartScriptFileName);
     formLayout->addRow(Tr::tr("Override S&ysRoot:"), d->sysRootDirectory);
-
-    auto line = new QFrame(this);
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-
     formLayout->addRow(d->buttonBox);
 
     auto vboxLayout = new QVBoxLayout(this);
     vboxLayout->addLayout(formLayout);
     vboxLayout->addStretch();
-    vboxLayout->addWidget(line);
+    vboxLayout->addWidget(Layouting::createHr());
     vboxLayout->addWidget(d->buttonBox);
 }
 

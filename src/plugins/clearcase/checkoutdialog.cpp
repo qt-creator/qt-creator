@@ -6,6 +6,8 @@
 #include "activityselector.h"
 #include "ui_checkoutdialog.h"
 
+#include <utils/layoutbuilder.h>
+
 #include <QPushButton>
 
 namespace ClearCase {
@@ -22,12 +24,7 @@ CheckOutDialog::CheckOutDialog(const QString &fileName, bool isUcm, bool showCom
         m_actSelector = new ActivitySelector(this);
 
         ui->verticalLayout->insertWidget(0, m_actSelector);
-
-        auto line = new QFrame(this);
-        line->setFrameShape(QFrame::HLine);
-        line->setFrameShadow(QFrame::Sunken);
-
-        ui->verticalLayout->insertWidget(1, line);
+        ui->verticalLayout->insertWidget(1, Utils::Layouting::createHr());
     }
 
     if (!showComment)

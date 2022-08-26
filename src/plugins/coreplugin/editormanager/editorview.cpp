@@ -19,6 +19,7 @@
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
+#include <utils/layoutbuilder.h>
 #include <utils/link.h>
 #include <utils/utilsicons.h>
 
@@ -47,7 +48,7 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     m_toolBar(new EditorToolBar(this)),
     m_container(new QStackedWidget(this)),
     m_infoBarDisplay(new InfoBarDisplay(this)),
-    m_statusHLine(new QFrame(this)),
+    m_statusHLine(Layouting::createHr(this)),
     m_statusWidget(new QFrame(this))
 {
     auto tl = new QVBoxLayout(this);
@@ -79,8 +80,6 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     tl->addWidget(new FindToolBarPlaceHolder(this));
 
     {
-        m_statusHLine->setFrameStyle(QFrame::HLine);
-
         m_statusWidget->setFrameStyle(QFrame::NoFrame);
         m_statusWidget->setLineWidth(0);
         m_statusWidget->setAutoFillBackground(true);

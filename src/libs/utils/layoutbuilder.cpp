@@ -472,6 +472,12 @@ PushButton::PushButton(std::initializer_list<LayoutBuilder::LayoutItem> items)
     applyItems(widget, items);
 }
 
+HorizontalRule::HorizontalRule(std::initializer_list<LayoutItem> items)
+{
+    widget = createHr();
+    applyItems(widget, items);
+}
+
 // "Properties"
 
 LayoutBuilder::Setter title(const QString &title, BoolAspect *checker)
@@ -522,6 +528,14 @@ LayoutBuilder::Setter tooltip(const QString &toolTip)
             QTC_CHECK(false);
         }
     };
+}
+
+QWidget *createHr(QWidget *parent)
+{
+    auto frame = new QFrame(parent);
+    frame->setFrameShape(QFrame::HLine);
+    frame->setFrameShadow(QFrame::Sunken);
+    return frame;
 }
 
 LayoutBuilder::Break br;

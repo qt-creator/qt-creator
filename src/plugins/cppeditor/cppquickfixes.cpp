@@ -38,6 +38,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
+#include <utils/layoutbuilder.h>
 #include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -3152,9 +3153,7 @@ public:
         defaultImplTargetComboBox->setCurrentIndex(implTargetStrings.size() - 1);
         const auto mainLayout = new QVBoxLayout(this);
         mainLayout->addLayout(defaultImplTargetLayout);
-        const auto separator = new QFrame();
-        separator->setFrameShape(QFrame::HLine);
-        mainLayout->addWidget(separator);
+        mainLayout->addWidget(Utils::Layouting::createHr(this));
         mainLayout->addLayout(candidatesLayout);
         mainLayout->addWidget(buttonBox);
     }
