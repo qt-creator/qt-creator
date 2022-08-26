@@ -587,6 +587,13 @@ QList<QmlModelStateOperation> QmlObjectNode::allInvalidStateOperations() const
     return result;
 }
 
+QmlModelStateGroup QmlObjectNode::states() const
+{
+    if (isValid())
+        return QmlModelStateGroup(modelNode());
+    else
+        return QmlModelStateGroup();
+}
 
 /*!
     Removes a variant property of the object specified by \a name from the

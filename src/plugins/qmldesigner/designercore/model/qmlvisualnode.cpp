@@ -191,14 +191,6 @@ void QmlVisualNode::initializePosition(const QmlVisualNode::Position &position)
     }
 }
 
-QmlModelStateGroup QmlVisualNode::states() const
-{
-    if (isValid())
-        return QmlModelStateGroup(modelNode());
-    else
-        return QmlModelStateGroup();
-}
-
 QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                                                  const ItemLibraryEntry &itemLibraryEntry,
                                                  const Position &position,

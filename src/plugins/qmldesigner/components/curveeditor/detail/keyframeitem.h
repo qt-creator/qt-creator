@@ -92,8 +92,6 @@ public:
 
     void setKeyframe(const Keyframe &keyframe);
 
-    void setDefaultInterpolation();
-
     void toggleUnified();
 
     void setActivated(bool active, HandleItem::Slot slot);

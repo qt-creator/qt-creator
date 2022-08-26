@@ -363,7 +363,7 @@ Item {
         }
     }
 
-    function handleObjectClicked(object, multi)
+    function handleObjectClicked(object, button, multi)
     {
         if (object instanceof View3D) {
             // View3D can be the resolved pick target in case the 3D editor is showing content
@@ -393,7 +393,14 @@ Item {
         // Null object always clears entire selection
         var newSelection = [];
         if (clickedObject) {
-            if (multi && selectedNodes.length > 0) {
+            if (button === Qt.RightButton) {
+                // Right-clicking does only single selection (when clickedObject is unselected)
+                // This is needed for selecting a target for the context menu
+                if (!selectedNodes.includes(clickedObject))
+                    newSelection[0] = clickedObject;
+                else
+                    newSelection = selectedNodes;
+            } else if (multi && selectedNodes.length > 0) {
                 var deselect = false;
                 for (var i = 0; i < selectedNodes.length; ++i) {
                     // Multiselecting already selected object clears that object from selection
@@ -697,10 +704,10 @@ Item {
             view3D: overlayView
             dragHelper: gizmoDragHelper
 
-            onPropertyValueCommit: (propName)=> {
+            onPropertyValueCommit: (propName) => {
                 viewRoot.commitObjectProperty([targetNode], [propName]);
             }
-            onPropertyValueChange: (propName)=> {
+            onPropertyValueChange: (propName) => {
                 viewRoot.changeObjectProperty([targetNode], [propName]);
             }
         }
@@ -772,17 +779,17 @@ Item {
 
             MouseArea {
                 anchors.fill: parent
-                acceptedButtons: Qt.LeftButton
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
                 hoverEnabled: false
 
                 property MouseArea3D freeDraggerArea
                 property point pressPoint
                 property bool initialMoveBlock: false
 
-                onPressed: (mouse)=> {
+                onPressed: (mouse) => {
                     if (viewRoot.editView) {
                         var pickResult = viewRoot.editView.pick(mouse.x, mouse.y);
-                        handleObjectClicked(_generalHelper.resolvePick(pickResult.objectHit),
+                        handleObjectClicked(_generalHelper.resolvePick(pickResult.objectHit), mouse.button,
                                             mouse.modifiers & Qt.ControlModifier);
 
                         if (pickResult.objectHit && pickResult.objectHit instanceof Node) {
@@ -800,7 +807,7 @@ Item {
                         }
                     }
                 }
-                onPositionChanged: (mouse)=> {
+                onPositionChanged: (mouse) => {
                     if (freeDraggerArea) {
                         if (initialMoveBlock && Math.abs(pressPoint.x - mouse.x) + Math.abs(pressPoint.y - mouse.y) > 10) {
                             // Don't force press event at actual press, as that puts the gizmo
@@ -825,10 +832,10 @@ Item {
                     }
                 }
 
-                onReleased: (mouse)=> {
+                onReleased: (mouse) => {
                     handleRelease(mouse);
                 }
-                onCanceled: (mouse)=> {
+                onCanceled: (mouse) => {
                     handleRelease(mouse);
                 }
             }

@@ -207,7 +207,8 @@ void StatesEditorView::createNewState()
 void StatesEditorView::addState()
 {
     // can happen when root node is e.g. a ListModel
-    if (!QmlVisualNode::isValidQmlVisualNode(acitveStatesGroupNode()))
+    if (!QmlVisualNode::isValidQmlVisualNode(acitveStatesGroupNode())
+        && m_activeStatesGroupNode.type() != "QtQuick.StateGroup")
         return;
 
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_STATE_ADDED);
@@ -508,7 +509,7 @@ void StatesEditorView::modelAboutToBeDetached(Model *model)
 void StatesEditorView::propertiesRemoved(const QList<AbstractProperty>& propertyList)
 {
     for (const AbstractProperty &property : propertyList) {
-        if (property.name() == "states" && property.parentModelNode().isRootNode())
+        if (property.name() == "states" && property.parentModelNode() == activeStateGroup().modelNode())
             resetModel();
         if (property.name() == "when" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
             resetModel();
@@ -519,7 +520,7 @@ void StatesEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
     if (removedNode.hasParentProperty()) {
         const NodeAbstractProperty propertyParent = removedNode.parentProperty();
-        if (propertyParent.parentModelNode().isRootNode() && propertyParent.name() == "states")
+        if (propertyParent.parentModelNode() == activeStateGroup().modelNode() && propertyParent.name() == "states")
             m_lastIndex = propertyParent.indexOf(removedNode);
     }
     if (currentState().isValid() && removedNode == currentState())
@@ -528,7 +529,7 @@ void StatesEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 
 void StatesEditorView::nodeRemoved(const ModelNode & /*removedNode*/, const NodeAbstractProperty &parentProperty, PropertyChangeFlags /*propertyChange*/)
 {
-    if (parentProperty.isValid() && parentProperty.parentModelNode().isRootNode() && parentProperty.name() == "states") {
+    if (parentProperty.isValid() && parentProperty.parentModelNode() == activeStateGroup().modelNode() && parentProperty.name() == "states") {
         m_statesEditorModel->removeState(m_lastIndex);
         m_lastIndex = -1;
     }
@@ -536,19 +537,25 @@ void StatesEditorView::nodeRemoved(const ModelNode & /*removedNode*/, const Node
 
 void StatesEditorView::nodeAboutToBeReparented(const ModelNode &node, const NodeAbstractProperty &/*newPropertyParent*/, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
-    if (oldPropertyParent.isValid() && oldPropertyParent.parentModelNode().isRootNode() && oldPropertyParent.name() == "states")
+    if (oldPropertyParent.isValid()
+        && oldPropertyParent.parentModelNode() == activeStateGroup().modelNode()
+        && oldPropertyParent.name() == "states")
         m_lastIndex = oldPropertyParent.indexOf(node);
 }
 
 
 void StatesEditorView::nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags /*propertyChange*/)
 {
-    if (oldPropertyParent.isValid() && oldPropertyParent.parentModelNode().isRootNode() && oldPropertyParent.name() == "states")
+    if (oldPropertyParent.isValid()
+        && oldPropertyParent.parentModelNode() == activeStateGroup().modelNode()
+        && oldPropertyParent.name() == "states")
         m_statesEditorModel->removeState(m_lastIndex);
 
     m_lastIndex = -1;
 
-    if (newPropertyParent.isValid() && newPropertyParent.parentModelNode().isRootNode() && newPropertyParent.name() == "states") {
+    if (newPropertyParent.isValid()
+        && newPropertyParent.parentModelNode() == activeStateGroup().modelNode()
+        && newPropertyParent.name() == "states") {
         int index = newPropertyParent.indexOf(node);
         m_statesEditorModel->insertState(index);
     }
@@ -556,7 +563,8 @@ void StatesEditorView::nodeReparented(const ModelNode &node, const NodeAbstractP
 
 void StatesEditorView::nodeOrderChanged(const NodeListProperty &listProperty)
 {
-    if (listProperty.isValid() && listProperty.parentModelNode().isRootNode() && listProperty.name() == "states")
+    if (listProperty.isValid() && listProperty.parentModelNode() == activeStateGroup().modelNode()
+        && listProperty.name() == "states")
         resetModel();
 }
 
@@ -582,7 +590,8 @@ void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &pr
     for (const VariantProperty &property : propertyList) {
         if (property.name() == "name" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
             resetModel();
-        else if (property.name() == "state" && property.parentModelNode().isRootNode())
+        else if (property.name() == "state"
+                 && property.parentModelNode() == activeStateGroup().modelNode())
             resetModel();
     }
 }

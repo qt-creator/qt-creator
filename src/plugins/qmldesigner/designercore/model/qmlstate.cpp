@@ -274,9 +274,6 @@ QmlModelState QmlModelState::duplicate(const QString &name) const
     if (!isValid())
         throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
 
-    if (!QmlVisualNode::isValidQmlVisualNode(modelNode().parentProperty().parentModelNode()))
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-
 //    QmlModelState newState(stateGroup().addState(name));
     QmlModelState newState(createQmlState(view(), {{PropertyName("name"), QVariant(name)}}));
     const QList<ModelNode> nodes = modelNode().nodeListProperty("changes").toModelNodeList();
@@ -298,7 +295,7 @@ QmlModelState QmlModelState::duplicate(const QString &name) const
 
 QmlModelStateGroup QmlModelState::stateGroup() const
 {
-    QmlVisualNode parentNode(modelNode().parentProperty().parentModelNode());
+    QmlObjectNode parentNode(modelNode().parentProperty().parentModelNode());
     return parentNode.states();
 }
 
@@ -319,15 +316,15 @@ ModelNode QmlModelState::createQmlState(AbstractView *view, const PropertyListTy
 void QmlModelState::setAsDefault()
 {
     if ((!isBaseState()) && (modelNode().isValid())) {
-        view()->rootModelNode().variantProperty("state").setValue(name());
+        stateGroup().modelNode().variantProperty("state").setValue(name());
     }
 }
 
 bool QmlModelState::isDefault() const
 {
     if ((!isBaseState()) && (modelNode().isValid())) {
-        if (view()->rootModelNode().hasProperty("state")) {
-            return (view()->rootModelNode().variantProperty("state").value() == name());
+        if (stateGroup().modelNode().hasProperty("state")) {
+            return (stateGroup().modelNode().variantProperty("state").value() == name());
         }
     }
 

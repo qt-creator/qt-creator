@@ -131,6 +131,8 @@ public:
     QList<QmlModelState> allDefinedStates() const;
     QList<QmlModelStateOperation> allInvalidStateOperations() const;
 
+    QmlModelStateGroup states() const;
+
 protected:
     NodeInstance nodeInstance() const;
     QmlObjectNode nodeForInstance(const NodeInstance &instance) const;

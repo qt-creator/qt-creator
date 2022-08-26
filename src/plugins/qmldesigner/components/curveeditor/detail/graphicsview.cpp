@@ -336,18 +336,6 @@ void GraphicsView::setInterpolation(Keyframe::Interpolation interpol)
     viewport()->update();
 }
 
-void GraphicsView::setDefaultInterpolation()
-{
-    const auto selectedCurves = m_scene->selectedCurves();
-    for (auto *curve : selectedCurves)
-        curve->setDefaultInterpolation();
-
-    m_scene->setDirty(true);
-
-    applyZoom(m_zoomX, m_zoomY);
-    viewport()->update();
-}
-
 void GraphicsView::toggleUnified()
 {
     const auto selectedCurves = m_scene->selectedCurves();
@@ -569,7 +557,10 @@ void GraphicsView::applyZoom(double x, double y, const QPoint &pivot)
     }
 
     m_scene->doNotMoveItems(false);
-    this->update();
+
+    viewport()->update();
+
+    emit zoomChanged(m_zoomX, m_zoomY);
 }
 
 void GraphicsView::drawGrid(QPainter *painter)

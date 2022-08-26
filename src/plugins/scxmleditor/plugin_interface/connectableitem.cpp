@@ -64,15 +64,18 @@ ConnectableItem::~ConnectableItem()
 {
     setBlockUpdates(true);
 
-    for (ConnectableItem *item : qAsConst(m_overlappedItems))
+    const QVector<ConnectableItem *> overlappedItems = m_overlappedItems;
+    for (ConnectableItem *item : overlappedItems)
         item->removeOverlappingItem(this);
     m_overlappedItems.clear();
 
-    for (TransitionItem *transition : qAsConst(m_outputTransitions))
+    const QVector<TransitionItem *> outputTransitions = m_outputTransitions;
+    for (TransitionItem *transition : outputTransitions)
         transition->disconnectItem(this);
     m_outputTransitions.clear();
 
-    for (TransitionItem *transition : qAsConst(m_inputTransitions))
+    const QVector<TransitionItem *> inputTransitions = m_inputTransitions;
+    for (TransitionItem *transition : inputTransitions)
         transition->disconnectItem(this);
     m_inputTransitions.clear();
 
@@ -310,7 +313,8 @@ void ConnectableItem::updateTransitions(bool allChildren)
     updateInputTransitions();
 
     if (allChildren) {
-        for (QGraphicsItem *it : childItems()) {
+        const QList<QGraphicsItem *> items = childItems();
+        for (QGraphicsItem *it : items) {
             auto item = static_cast<ConnectableItem*>(it);
             if (item && item->type() >= InitialStateType)
                 item->updateTransitions(allChildren);

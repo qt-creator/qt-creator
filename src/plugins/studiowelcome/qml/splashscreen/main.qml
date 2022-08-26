@@ -27,8 +27,13 @@ import QtQuick 2.0
 
 Item {
     id: root
-    width: 600
-    height: 720
+    width: 600 * root.mainScale
+    height: 720 * root.mainScale
+
+    property int maxHeight: Screen.desktopAvailableHeight - 100
+
+    property real mainScale: root.maxHeight > 720 ? 1 : root.maxHeight / 720
+
 
     signal closeClicked
     signal checkBoxToggled
@@ -42,9 +47,10 @@ Item {
     }
 
     Welcome_splash {
+        scale: root.mainScale
         id: welcome_splash
-        x: 0
-        y: 0
+
+        transformOrigin: Item.TopLeft
         antialiasing: true
         onCloseClicked: root.closeClicked()
         onConfigureClicked: root.configureClicked()

@@ -73,7 +73,6 @@ public:
     static bool isValidQmlVisualNode(const ModelNode &modelNode);
     bool isRootNode() const;
 
-    QmlModelStateGroup states() const;
     QList<QmlVisualNode> children() const;
     QList<QmlObjectNode> resources() const;
     QList<QmlObjectNode> allDirectSubNodes() const;
@@ -123,7 +122,7 @@ private:
 
 class QMLDESIGNERCORE_EXPORT QmlModelStateGroup
 {
-    friend class QmlVisualNode;
+    friend class QmlObjectNode;
     friend class StatesEditorView;
 
 public:

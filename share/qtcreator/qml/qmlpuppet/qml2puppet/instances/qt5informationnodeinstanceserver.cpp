@@ -285,12 +285,16 @@ void Qt5InformationNodeInstanceServer::handleInputEvents()
                         continue;
                     }
                 }
-                auto me = new QMouseEvent(command.type(), command.pos(), command.button(),
-                                          command.buttons(), command.modifiers());
+                QMouseEvent me(command.type(), command.pos(), command.button(), command.buttons(),
+                               command.modifiers());
                 // We must use sendEvent in Qt 6, as using postEvent allows the associated position
                 // data stored internally in QMutableEventPoint to potentially be updated by system
                 // before the event is delivered.
-                QGuiApplication::sendEvent(m_editView3DData.window, me);
+                QGuiApplication::sendEvent(m_editView3DData.window, &me);
+
+                // Context menu requested
+                if (command.button() == Qt::RightButton && command.modifiers() == Qt::NoModifier)
+                    getModelAtPos(command.pos());
             }
         }
 
@@ -402,6 +406,30 @@ void Qt5InformationNodeInstanceServer::removeRotationBlocks(
         }
         helper->removeRotationBlocks(unblockedNodes);
     }
+#endif
+}
+
+void Qt5InformationNodeInstanceServer::getModelAtPos(const QPointF &pos)
+{
+#ifdef QUICK3D_MODULE
+    // pick a Quick3DModel at view position
+    auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+    if (!helper)
+        return;
+
+    QQmlProperty editViewProp(m_editView3DData.rootItem, "editView", context());
+    QObject *obj = qvariant_cast<QObject *>(editViewProp.read());
+    QQuick3DViewport *editView = qobject_cast<QQuick3DViewport *>(obj);
+
+    QQuick3DModel *hitModel = helper->pickViewAt(editView, pos.x(), pos.y()).objectHit();
+
+    // filter out picks of models created dynamically or inside components
+    QQuick3DModel *resolvedPick = qobject_cast<QQuick3DModel *>(helper->resolvePick(hitModel));
+
+    QVariant instance = resolvedPick ? instanceForObject(resolvedPick).instanceId() : -1;
+    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::ModelAtPos, instance});
+#else
+    Q_UNUSED(pos)
 #endif
 }
 
@@ -2383,26 +2411,7 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
 #endif
 #ifdef QUICK3D_MODULE
     case View3DActionCommand::GetModelAtPos: {
-        // pick a Quick3DModel at view position
-        auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
-        if (!helper)
-            return;
-
-        QQmlProperty editViewProp(m_editView3DData.rootItem, "editView", context());
-        QObject *obj = qvariant_cast<QObject *>(editViewProp.read());
-        QQuick3DViewport *editView = qobject_cast<QQuick3DViewport *>(obj);
-
-        QPointF pos = command.value().toPointF();
-        QQuick3DModel *hitModel = helper->pickViewAt(editView, pos.x(), pos.y()).objectHit();
-
-        // filter out picks of models created dynamically or inside components
-        QQuick3DModel *resolvedPick = qobject_cast<QQuick3DModel *>(helper->resolvePick(hitModel));
-
-        if (resolvedPick) {
-            ServerNodeInstance instance = instanceForObject(resolvedPick);
-            nodeInstanceClient()->handlePuppetToCreatorCommand(
-                        {PuppetToCreatorCommand::ModelAtPos, QVariant(instance.instanceId())});
-        }
+        getModelAtPos(command.value().toPointF());
         return;
     }
 #endif

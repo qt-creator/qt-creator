@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2021 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Creator documentation.
@@ -154,7 +154,7 @@
 
         \li Start the application with the following arguments:
 
-            \c {qmljsdebugger=port:<port>[,host:<ip address>][,block]}
+            \c {-qmljsdebugger=port:<port>[,host:<ip address>][,block]}
 
             Where \c port (mandatory) specifies the debugging port,
             \c {ip address} (optional) specifies the IP address of the host

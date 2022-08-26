@@ -46,6 +46,10 @@
 #include <QLibraryInfo>
 #include <QJSValue>
 
+#include <private/qquickstategroup_p.h>
+
+#include <qquickitem.h>
+
 static bool isSimpleExpression(const QString &expression)
 {
     if (expression.startsWith(QStringLiteral("{")))
@@ -456,6 +460,10 @@ QVariant ObjectNodeInstance::convertEnumToValue(const QVariant &value, const Pro
 
 void ObjectNodeInstance::setPropertyVariant(const PropertyName &name, const QVariant &value)
 {
+    if (name == "state" && object() && object()->metaObject()
+        && object()->metaObject()->className() == QByteArrayLiteral("QQuickStateGroup"))
+        return;
+
     if (ignoredProperties().contains(name))
         return;
 
@@ -652,8 +660,18 @@ QList<QQuickItem *> ObjectNodeInstance::allItemsRecursive() const
     return QList<QQuickItem *>();
 }
 
-QList<ServerNodeInstance>  ObjectNodeInstance::stateInstances() const
+QList<ServerNodeInstance> ObjectNodeInstance::stateInstances() const
 {
+    if (auto group = qobject_cast<QQuickStateGroup*>(object())) {
+        QList<ServerNodeInstance> instanceList;
+        const QList<QQuickState *> stateList = group->states();
+        for (QQuickState *state : stateList) {
+            if (state && nodeInstanceServer()->hasInstanceForObject(state))
+                instanceList.append(nodeInstanceServer()->instanceForObject(state));
+        }
+        return instanceList;
+    }
+
     return QList<ServerNodeInstance>();
 }
 

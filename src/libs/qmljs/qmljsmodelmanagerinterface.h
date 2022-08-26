@@ -41,6 +41,7 @@
 #include <QObject>
 #include <QPointer>
 #include <QStringList>
+#include <QThreadPool>
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
@@ -133,6 +134,7 @@ public:
 
     QmlJS::Snapshot snapshot() const;
     QmlJS::Snapshot newestSnapshot() const;
+    QThreadPool *threadPool();
 
     void activateScan();
     void updateSourceFiles(const QList<Utils::FilePath> &files, bool emitDocumentOnDiskChanged);
@@ -292,6 +294,7 @@ private:
     Utils::FutureSynchronizer m_futureSynchronizer;
 
     bool m_indexerDisabled = false;
+    QThreadPool m_threadPool;
 };
 
 } // namespace QmlJS

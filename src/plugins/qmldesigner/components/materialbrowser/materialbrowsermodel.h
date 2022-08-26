@@ -79,7 +79,7 @@ public:
     void updateSelectedMaterial();
     int materialIndex(const ModelNode &material) const;
     ModelNode materialAt(int idx) const;
-    void loadPropertyGroups(const QString &path);
+    bool loadPropertyGroups(const QString &path);
 
     void resetModel();
 

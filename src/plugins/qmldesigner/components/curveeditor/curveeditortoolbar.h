@@ -26,6 +26,7 @@
 #pragma once
 
 #include <QSpinBox>
+#include <QSlider>
 #include <QToolBar>
 #include <QValidator>
 #include <QWidget>
@@ -53,8 +54,6 @@ class CurveEditorToolBar : public QToolBar
     Q_OBJECT
 
 signals:
-    void defaultClicked();
-
     void unifyClicked();
 
     void interpolationClicked(Keyframe::Interpolation interpol);
@@ -65,8 +64,12 @@ signals:
 
     void currentFrameChanged(int current);
 
+    void zoomChanged(double zoom);
+
 public:
     CurveEditorToolBar(CurveEditorModel *model, QWidget* parent = nullptr);
+
+    void setZoom(double zoom);
 
     void setCurrentFrame(int current, bool notify);
 
@@ -76,6 +79,7 @@ private:
     ValidatableSpinBox *m_startSpin;
     ValidatableSpinBox *m_endSpin;
     QSpinBox *m_currentSpin;
+    QSlider *m_zoomSlider;
 };
 
 } // End namespace QmlDesigner.
