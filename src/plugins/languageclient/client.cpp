@@ -177,7 +177,7 @@ public:
         });
 
         m_restartCountResetTimer.setSingleShot(true);
-        m_restartCountResetTimer.setInterval(5 * 60 * 1000);
+        m_restartCountResetTimer.setInterval(2 * 60 * 1000);
         connect(&m_restartCountResetTimer, &QTimer::timeout,
                 this, [this] { m_restartsLeft = MaxRestarts; });
     }
@@ -301,7 +301,7 @@ public:
     AssistProviders m_clientProviders;
     QMap<TextEditor::TextDocument *, AssistProviders> m_resetAssistProvider;
     QHash<TextEditor::TextEditorWidget *, LanguageServerProtocol::MessageId> m_highlightRequests;
-    static const int MaxRestarts = 2;
+    static const int MaxRestarts = 5;
     int m_restartsLeft = MaxRestarts;
     QTimer m_restartCountResetTimer;
     InterfaceController *m_clientInterface = nullptr;
