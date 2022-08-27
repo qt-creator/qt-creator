@@ -18,8 +18,8 @@ constexpr auto iar_stm32f469i_metal_json = R"({
         "label": "STM32CubeProgrammer",
         "type": "path",
         "defaultValue": {
-          "windows": "$PROGRAMSANDFILES/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
-          "unix": "$HOME/STMicroelectronics/STM32Cube/STM32CubeProgrammer/"
+          "windows": "%{Env:PROGRAMSANDFILES}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
+          "unix": "%{Env:HOME}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/"
         },
         "optional": false
       }

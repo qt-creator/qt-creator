@@ -8,7 +8,6 @@ constexpr auto armgcc_nxp_1064_json = R"(
     "boardSdk": {
         "cmakeVar": "QUL_BOARD_SDK_DIR",
         "envVar": "EVK_MIMXRT1064_SDK_PATH",
-        "id": "NXP_SDK_DIR",
         "label": "Board SDK for MIMXRT1064-EVK",
         "optional": false,
         "setting": "EVK_MIMXRT1064_SDK_PATH",
@@ -18,9 +17,8 @@ constexpr auto armgcc_nxp_1064_json = R"(
     "compatVersion": "1",
     "freeRTOS": {
         "cmakeVar": "FREERTOS_DIR",
-        "defaultValue": "$QUL_BOARD_SDK_DIR/rtos/freertos/freertos_kernel",
+        "defaultValue": "%{QUL_BOARD_SDK_DIR}/rtos/freertos/freertos_kernel",
         "envVar": "IMXRT1064_FREERTOS_DIR",
-        "id": "NXP_FREERTOS_DIR",
         "label": "FreeRTOS SDK for MIMXRT1064-EVK",
         "optional": false,
         "setting": "FreeRTOSSourcePackage_IMXRT1064",
@@ -30,7 +28,7 @@ constexpr auto armgcc_nxp_1064_json = R"(
         "cmakeCacheEntries": [
             {
                 "camekVar": "Qul_ROOT",
-                "id": "Qul_DIR",
+                "envVar": "Qul_DIR",
                 "label": "Qt for MCUs SDK",
                 "optional": false,
                 "type": "path"
@@ -39,7 +37,7 @@ constexpr auto armgcc_nxp_1064_json = R"(
                 "camekVar": "MCUXPRESSO_IDE_PATH",
                 "defaultValue": {
                     "unix": "/usr/local/mcuxpressoide/",
-                    "windows": "$ROOT/nxp/MCUXpressoIDE*"
+                    "windows": "%{Env:ROOT}/nxp/MCUXpressoIDE*"
                 },
                 "id": "MCU_XPRESSO_PATH",
                 "label": "MCUXpresso IDE",
@@ -64,8 +62,7 @@ constexpr auto armgcc_nxp_1064_json = R"(
         },
         "file": {
             "camekVar": "CMAKE_TOOLCHAIN_FILE",
-            "defaultValue": "$Qul_ROOT/lib/cmake/Qul/toolchain/armgcc.cmake",
-            "id": "ARMGCC_CMAKE_TOOLCHAIN_FILE",
+            "defaultValue": "%{Qul_ROOT}/lib/cmake/Qul/toolchain/armgcc.cmake",
             "label": "CMake Toolchain File",
             "optional": false,
             "type": "file",

@@ -24,7 +24,7 @@ constexpr auto iar_nxp_1064_json = R"({
     },
     "freeRTOS": {
         "cmakeVar": "FREERTOS_DIR",
-        "defaultValue": "$QUL_BOARD_SDK_DIR/rtos/freertos/freertos_kernel",
+        "defaultValue": "%{QUL_BOARD_SDK_DIR}/rtos/freertos/freertos_kernel",
         "envVar": "IMXRT1064_FREERTOS_DIR",
         "id": "NXP_FREERTOS_DIR",
         "label": "FreeRTOS SDK for MIMXRT1064-EVK",
@@ -45,7 +45,7 @@ constexpr auto iar_nxp_1064_json = R"({
                 "cmakeVar": "MCUXPRESSO_IDE_PATH",
                 "defaultValue": {
                     "unix": "/usr/local/mcuxpressoide/",
-                    "windows": "$ROOT/nxp/MCUXpressoIDE*"
+                    "windows": "%{Env:ROOT}/nxp/MCUXpressoIDE*"
                 }
             }
         ],

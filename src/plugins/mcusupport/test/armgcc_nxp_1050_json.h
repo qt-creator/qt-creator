@@ -12,11 +12,8 @@ constexpr auto armgcc_nxp_1050_json = R"({
     "colorDepths": [
       16
     ],
-    "pathEntries": [],
-    "environmentEntries": [],
     "cmakeEntries": [
       {
-        "id": "Qul_DIR",
         "label": "Qt for MCUs SDK",
         "type": "path",
         "cmakeVar": "Qul_ROOT",
@@ -68,7 +65,6 @@ constexpr auto armgcc_nxp_1050_json = R"({
     "boardSdk": {
         "cmakeVar": "QUL_BOARD_SDK_DIR",
         "envVar": "EVKB_IMXRT1050_SDK_PATH",
-        "id": "NXP_SDK_DIR",
         "label": "Board SDK for MIMXRT1050-EVK",
         "optional": false,
         "setting": "EVKB_IMXRT1050_SDK_PATH",
@@ -83,7 +79,7 @@ constexpr auto armgcc_nxp_1050_json = R"({
     },
     "freeRTOS": {
         "cmakeVar": "FREERTOS_DIR",
-        "defaultValue": "$QUL_BOARD_SDK_DIR/rtos/freertos/freertos_kernel",
+        "defaultValue": "%{QUL_BOARD_SDK_DIR}/rtos/freertos/freertos_kernel",
         "envVar": "IMXRT1050_FREERTOS_DIR",
         "label": "FreeRTOS SDK for MIMXRT1050-EVK",
         "optional": false,

@@ -34,7 +34,7 @@ constexpr auto msvc_desktop_json = R"({
         "19.25","19.26","19.27","19.28","19.29"
     ],
     "compiler": {
-      "defaultValue": "$MSVC_COMPILER_DIR",
+      "defaultValue": "%{Env:MSVC_COMPILER_DIR}",
       "versionDetection" : {
             "filePattern": "cl.exe",
             "executableArgs": "--version",
