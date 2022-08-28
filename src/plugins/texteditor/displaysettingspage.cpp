@@ -10,11 +10,13 @@
 
 #include <coreplugin/icore.h>
 
+
 #include <utils/layoutbuilder.h>
 
 #include <QApplication>
 #include <QCheckBox>
 #include <QGroupBox>
+#include <QLabel>
 #include <QRadioButton>
 #include <QSpinBox>
 
@@ -46,6 +48,31 @@ public:
         resize(452, 458);
 
         enableTextWrapping = new QCheckBox(tr("Enable text &wrapping"));
+
+        enableTextWrappingHintLabel = new QLabel(tr("<i>Set <a href=\"font zoom\">font line spacing</a> "
+                                                    "to 100% to enable text wrapping option.</i>"));
+
+        fontSettingsPageLineSpacing = fontSettingsPageLineSpacingLink();
+
+        if (fontSettingsPageLineSpacing) {
+            connect(fontSettingsPageLineSpacing, QOverload<int>::of(&QSpinBox::valueChanged),
+                [=](const int &value) {
+                    if (value != 100)
+                        enableTextWrapping->setChecked(false);
+                    enableTextWrapping->setEnabled(value == 100);
+                    enableTextWrappingHintLabel->setVisible(value != 100); } );
+
+            if (fontSettingsPageLineSpacing->value() != 100)
+                enableTextWrapping->setChecked(false);
+
+            enableTextWrapping->setEnabled(fontSettingsPageLineSpacing->value() == 100);
+            enableTextWrappingHintLabel->setVisible(fontSettingsPageLineSpacing->value() != 100);
+        }
+
+        connect(enableTextWrappingHintLabel, &QLabel::linkActivated, []() {
+            Core::ICore::showOptionsDialog(Constants::TEXT_EDITOR_FONT_SETTINGS); } );
+
+
         showWrapColumn = new QCheckBox(tr("Display right &margin at column:"));
         tintMarginArea = new QCheckBox(tr("Tint whole margin area"));
 
@@ -98,13 +125,19 @@ public:
 
         Column {
             Group {
-                title(tr("Text Wrapping")),
+                title(tr("Margin")),
                 Column {
-                    enableTextWrapping,
-                    Row { showWrapColumn, wrapColumn, useIndenter, tintMarginArea, st }
+                    Row { showWrapColumn, wrapColumn, st },
+                    Row { useIndenter, tintMarginArea, st }
                 }
             },
-
+            Group {
+                title(tr("Wrapping")),
+                Column {
+                    enableTextWrapping,
+                    Row { enableTextWrappingHintLabel, st}
+                }
+            },
             Group {
                 title(tr("Display")),
                 Row {
@@ -145,9 +178,12 @@ public:
     void settingsToUI();
     void setDisplaySettings(const DisplaySettings &, const MarginSettings &newMarginSettings);
 
+    QSpinBox *fontSettingsPageLineSpacingLink();
+
     DisplaySettingsPagePrivate *m_data = nullptr;
 
     QCheckBox *enableTextWrapping;
+    QLabel *enableTextWrappingHintLabel;
     QCheckBox *showWrapColumn;
     QCheckBox *tintMarginArea;
     QSpinBox *wrapColumn;
@@ -173,6 +209,8 @@ public:
     QRadioButton *atMargin;
     QRadioButton *rightAligned;
     QRadioButton *betweenLines;
+
+    QSpinBox *fontSettingsPageLineSpacing = nullptr;
 };
 
 void DisplaySettingsWidget::apply()
@@ -189,6 +227,10 @@ void DisplaySettingsWidget::settingsFromUI(DisplaySettings &displaySettings,
 {
     displaySettings.m_displayLineNumbers = displayLineNumbers->isChecked();
     displaySettings.m_textWrapping = enableTextWrapping->isChecked();
+    if (fontSettingsPageLineSpacing) {
+        if (fontSettingsPageLineSpacing->value() != 100)
+            displaySettings.m_textWrapping = false;
+    }
     marginSettings.m_showMargin = showWrapColumn->isChecked();
     marginSettings.m_tintMarginArea = tintMarginArea->isChecked();
     marginSettings.m_useIndenter = useIndenter->isChecked();
@@ -280,6 +322,23 @@ void DisplaySettingsWidget::setDisplaySettings(const DisplaySettings &newDisplay
         emit TextEditorSettings::instance()->marginSettingsChanged(newMarginSettings);
     }
 }
+
+ QSpinBox *DisplaySettingsWidget::fontSettingsPageLineSpacingLink()
+ {
+     for (const auto &page : Core::IOptionsPage::allOptionsPages()) {
+         QWidget *widget = page->widget();
+
+         if (!widget)
+             continue;
+
+         for (QSpinBox *spinBox : widget->findChildren<QSpinBox *>()) {
+             if (spinBox->objectName() == QLatin1String("FontSettingsPage.LineSpacingSpinBox"))
+                return spinBox;
+         }
+     }
+
+     return nullptr;
+ }
 
 DisplaySettingsPage::DisplaySettingsPage()
   : d(new DisplaySettingsPagePrivate)

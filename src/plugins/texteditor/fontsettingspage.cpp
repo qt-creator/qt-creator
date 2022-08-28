@@ -15,6 +15,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 
 #include <QAbstractItemModel>
 #include <QDebug>
@@ -124,6 +125,19 @@ public:
         m_zoomSpinBox->setSingleStep(10);
         m_zoomSpinBox->setValue(m_value.fontZoom());
 
+        m_lineSpacingSpinBox = new QSpinBox;
+        m_lineSpacingSpinBox->setObjectName(QLatin1String("FontSettingsPage.LineSpacingSpinBox"));
+        m_lineSpacingSpinBox->setSuffix(tr("%"));
+        m_lineSpacingSpinBox->setRange(50, 3000);
+        m_lineSpacingSpinBox->setValue(m_value.relativeLineSpacing());
+
+        m_lineSpacingWarningLabel = new QLabel;
+        m_lineSpacingWarningLabel->setPixmap(Utils::Icons::WARNING.pixmap());
+        m_lineSpacingWarningLabel->setToolTip(tr("A line spacing value other than 100% disables "
+                                                 "text wrapping.\nA value less than 100% can result "
+                                                 "in overlapping and misaligned graphics."));
+        m_lineSpacingWarningLabel->setVisible(m_value.relativeLineSpacing() != 100);
+
         m_fontComboBox = new QFontComboBox;
         m_fontComboBox->setCurrentFont(m_value.family());
 
@@ -159,7 +173,8 @@ public:
                     Row {
                         tr("Family:"), m_fontComboBox, Space(20),
                         tr("Size:"), m_sizeComboBox, Space(20),
-                        tr("Zoom:"), m_zoomSpinBox, st
+                        tr("Zoom:"), m_zoomSpinBox, Space(20),
+                        tr("Line spacing:"), m_lineSpacingSpinBox, m_lineSpacingWarningLabel, st
                     },
                     m_antialias
                 }
@@ -183,6 +198,8 @@ public:
                 this, &FontSettingsPageWidget::fontZoomChanged);
         connect(m_antialias, &QCheckBox::toggled,
                 this, &FontSettingsPageWidget::antialiasChanged);
+        connect(m_lineSpacingSpinBox, QOverload<int>::of(&QSpinBox::valueChanged),
+                this, &FontSettingsPageWidget::lineSpacingChanged);
         connect(m_schemeComboBox, &QComboBox::currentIndexChanged,
                 this, &FontSettingsPageWidget::colorSchemeSelected);
         connect(m_copyButton, &QPushButton::clicked,
@@ -207,6 +224,7 @@ public:
     void fontSelected(const QFont &font);
     void fontSizeSelected(int index);
     void fontZoomChanged();
+    void lineSpacingChanged(const int &value);
     void antialiasChanged();
     void colorSchemeSelected(int index);
     void openCopyColorSchemeDialog();
@@ -230,6 +248,8 @@ public:
 
     QCheckBox *m_antialias;
     QSpinBox *m_zoomSpinBox;
+    QSpinBox *m_lineSpacingSpinBox;
+    QLabel *m_lineSpacingWarningLabel;
     QFontComboBox *m_fontComboBox;
     QComboBox *m_sizeComboBox;
     QComboBox *m_schemeComboBox;
@@ -476,6 +496,12 @@ void FontSettingsPageWidget::antialiasChanged()
 {
     m_value.setAntialias(m_antialias->isChecked());
     m_schemeEdit->setBaseFont(m_value.font());
+}
+
+void FontSettingsPageWidget::lineSpacingChanged(const int &value)
+{
+    m_value.setRelativeLineSpacing(value);
+    m_lineSpacingWarningLabel->setVisible(value != 100);
 }
 
 void FontSettingsPageWidget::colorSchemeSelected(int index)

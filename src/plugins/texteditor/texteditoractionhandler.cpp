@@ -5,9 +5,11 @@
 
 #include "texteditor.h"
 #include "displaysettings.h"
+#include "fontsettings.h"
 #include "linenumberfilter.h"
 #include "texteditorconstants.h"
 #include "texteditorplugin.h"
+#include "texteditorsettings.h"
 
 #include <aggregation/aggregate.h>
 
@@ -134,6 +136,8 @@ TextEditorActionHandlerPrivate::TextEditorActionHandlerPrivate
     createActions();
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
         this, &TextEditorActionHandlerPrivate::updateCurrentEditor);
+    connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
+        this, &TextEditorActionHandlerPrivate::updateActions);
 }
 
 void TextEditorActionHandlerPrivate::createActions()
@@ -448,7 +452,12 @@ void TextEditorActionHandlerPrivate::updateActions()
         a->setEnabled(isWritable);
     m_unCommentSelectionAction->setEnabled((m_optionalActions & TextEditorActionHandler::UnCommentSelection) && isWritable);
     m_visualizeWhitespaceAction->setEnabled(m_currentEditorWidget);
-    m_textWrappingAction->setEnabled(m_currentEditorWidget);
+    if (TextEditorSettings::fontSettings().relativeLineSpacing() == 100) {
+        m_textWrappingAction->setEnabled(m_currentEditorWidget);
+    } else {
+        m_textWrappingAction->setEnabled(false);
+        m_textWrappingAction->setChecked(false);
+    }
     if (m_currentEditorWidget) {
         m_visualizeWhitespaceAction->setChecked(
                     m_currentEditorWidget->displaySettings().m_visualizeWhitespace);

@@ -53,6 +53,10 @@ public:
     int fontZoom() const;
     void setFontZoom(int zoom);
 
+    qreal lineSpacing() const;
+    int relativeLineSpacing() const;
+    void setRelativeLineSpacing(int relativeLineSpacing);
+
     QFont font() const;
 
     bool antialias() const;
@@ -81,16 +85,19 @@ public:
 
 private:
     void addMixinStyle(QTextCharFormat &textCharFormat, const MixinTextStyles &mixinStyles) const;
+    void clearCaches();
 
 private:
     QString m_family;
     QString m_schemeFileName;
     int m_fontSize;
     int m_fontZoom;
+    int m_lineSpacing;
     bool m_antialias;
     ColorScheme m_scheme;
     mutable QHash<TextStyle, QTextCharFormat> m_formatCache;
     mutable QHash<TextStyles, QTextCharFormat> m_textCharFormatCache;
+    mutable qreal m_lineSpacingCache;
 };
 
 } // namespace TextEditor

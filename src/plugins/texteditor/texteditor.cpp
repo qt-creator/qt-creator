@@ -1227,6 +1227,12 @@ static int foldBoxWidth(const QFontMetrics &fm)
     return lineSpacing + lineSpacing % 2 + 1;
 }
 
+static int foldBoxWidth()
+{
+    const int lineSpacing = TextEditorSettings::fontSettings().lineSpacing();
+    return lineSpacing + lineSpacing % 2 + 1;
+}
+
 static void printPage(int index, QPainter *painter, const QTextDocument *doc,
                       const QRectF &body, const QRectF &titleBox,
                       const QString &title)
@@ -3657,9 +3663,17 @@ QRect TextEditorWidgetPrivate::foldBox()
     QRectF br = q->blockBoundingGeometry(begin).translated(q->contentOffset());
     QRectF er = q->blockBoundingGeometry(end).translated(q->contentOffset());
 
-    return QRect(m_extraArea->width() - foldBoxWidth(q->fontMetrics()),
+
+    if (TextEditorSettings::fontSettings().relativeLineSpacing() == 100) {
+        return QRect(m_extraArea->width() - foldBoxWidth(q->fontMetrics()),
+                     int(br.top()),
+                     foldBoxWidth(q->fontMetrics()),
+                     int(er.bottom() - br.top()));
+    }
+
+    return QRect(m_extraArea->width() - foldBoxWidth(),
                  int(br.top()),
-                 foldBoxWidth(q->fontMetrics()),
+                 foldBoxWidth(),
                  int(er.bottom() - br.top()));
 }
 
@@ -3950,7 +3964,15 @@ bool TextEditorWidgetPrivate::updateAnnotationBounds(TextBlockUserData *blockUse
 {
     const bool additionalHeightNeeded = annotationsVisible
             && m_displaySettings.m_annotationAlignment == AnnotationAlignment::BetweenLines;
-    const int additionalHeight = additionalHeightNeeded ? q->fontMetrics().lineSpacing() : 0;
+
+    int additionalHeight = 0;
+    if (additionalHeightNeeded) {
+        if (TextEditorSettings::fontSettings().relativeLineSpacing() == 100)
+            additionalHeight = q->fontMetrics().lineSpacing();
+        else
+            TextEditorSettings::fontSettings().lineSpacing();
+    }
+
     if (blockUserData->additionalAnnotationHeight() == additionalHeight)
         return false;
     blockUserData->setAdditionalAnnotationHeight(additionalHeight);
@@ -3991,7 +4013,13 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
         return mark1->priority() > mark2->priority();
     });
 
-    const qreal itemOffset = q->fontMetrics().lineSpacing();
+    qreal itemOffset = 0.0;
+    if (TextEditorSettings::fontSettings().relativeLineSpacing() == 100)
+        itemOffset = q->fontMetrics().lineSpacing();
+    else
+        itemOffset = blockData.boundingRect.height();
+
+
     const qreal initialOffset = m_displaySettings.m_annotationAlignment == AnnotationAlignment::BetweenLines ? itemOffset / 2 : itemOffset * 2;
     const qreal minimalContentWidth = q->fontMetrics().horizontalAdvance('X')
             * m_displaySettings.m_minimalAnnotationContent;
@@ -4821,7 +4849,10 @@ int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
     int markWidth = 0;
 
     if (d->m_marksVisible) {
-        markWidth += fm.lineSpacing() + 2;
+        if (TextEditorSettings::fontSettings().relativeLineSpacing() == 100)
+            markWidth += fm.lineSpacing() + 2;
+        else
+            markWidth += TextEditorSettings::fontSettings().lineSpacing() + 2;
 
 //     if (documentLayout->doubleMarkCount)
 //         markWidth += fm.lineSpacing() / 3;
@@ -4835,8 +4866,12 @@ int TextEditorWidget::extraAreaWidth(int *markWidthPtr) const
 
     space += 4;
 
-    if (d->m_codeFoldingVisible)
-        space += foldBoxWidth(fm);
+    if (d->m_codeFoldingVisible) {
+        if (TextEditorSettings::fontSettings().relativeLineSpacing() == 100)
+            space += foldBoxWidth(fm);
+        else
+            space += foldBoxWidth();
+    }
 
     if (viewportMargins() != QMargins{isLeftToRight() ? space : 0, 0, isLeftToRight() ? 0 : space, 0})
         d->slotUpdateExtraAreaWidth(space);
@@ -4870,6 +4905,11 @@ struct Internal::ExtraAreaPaintEventData
               editor->textDocument()->fontSettings().toTextCharFormat(C_CURRENT_LINE_NUMBER))
         , palette(d->m_extraArea->palette())
     {
+        if (TextEditorSettings::fontSettings().relativeLineSpacing() != 100) {
+            lineSpacing = TextEditorSettings::fontSettings().lineSpacing();
+            collapseColumnWidth = d->m_codeFoldingVisible ? foldBoxWidth() : 0;
+            markWidth = d->m_marksVisible ? lineSpacing : 0;
+        }
         palette.setCurrentColorGroup(QPalette::Active);
     }
     QTextBlock block;
@@ -4878,9 +4918,9 @@ struct Internal::ExtraAreaPaintEventData
     const int selectionStart;
     const int selectionEnd;
     const QFontMetrics fontMetrics;
-    const int lineSpacing;
-    const int markWidth;
-    const int collapseColumnWidth;
+    int lineSpacing;
+    int markWidth;
+    int collapseColumnWidth;
     const int extraAreaWidth;
     const QTextCharFormat currentLineNumberFormat;
     QPalette palette;
@@ -5029,7 +5069,12 @@ void TextEditorWidgetPrivate::paintCodeFolding(QPainter &painter,
     bool hovered = blockNumber >= extraAreaHighlightFoldBlockNumber
             && blockNumber <= extraAreaHighlightFoldEndBlockNumber;
 
-    int boxWidth = foldBoxWidth(data.fontMetrics);
+    int boxWidth = 0;
+    if (TextEditorSettings::fontSettings().relativeLineSpacing() == 100)
+        boxWidth = foldBoxWidth(data.fontMetrics);
+    else
+        boxWidth = foldBoxWidth();
+
     if (hovered) {
         int itop = qRound(blockBoundingRect.top());
         int ibottom = qRound(blockBoundingRect.bottom());
@@ -5725,7 +5770,13 @@ void TextEditorWidget::updateFoldingHighlight(const QPoint &pos)
     const int highlightBlockNumber = d->extraAreaHighlightFoldedBlockNumber;
     d->extraAreaHighlightFoldedBlockNumber = -1;
 
-    if (pos.x() > extraArea()->width() - foldBoxWidth(fontMetrics())) {
+    int boxWidth = 0;
+    if (TextEditorSettings::fontSettings().relativeLineSpacing() == 100)
+        boxWidth = foldBoxWidth(fontMetrics());
+    else
+        boxWidth = foldBoxWidth();
+
+    if (pos.x() > extraArea()->width() - boxWidth) {
         d->extraAreaHighlightFoldedBlockNumber = cursor.blockNumber();
     } else if (d->m_displaySettings.m_highlightBlocks) {
         QTextCursor cursor = textCursor();
@@ -5785,7 +5836,11 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
 
     if (e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonDblClick) {
         if (e->button() == Qt::LeftButton) {
-            int boxWidth = foldBoxWidth(fontMetrics());
+            int boxWidth = 0;
+            if (TextEditorSettings::fontSettings().relativeLineSpacing() == 100)
+                boxWidth = foldBoxWidth(fontMetrics());
+            else
+                boxWidth = foldBoxWidth();
             if (d->m_codeFoldingVisible && e->pos().x() > extraArea()->width() - boxWidth) {
                 if (!cursor.block().next().isVisible()) {
                     d->toggleBlockVisible(cursor.block());
@@ -6330,7 +6385,7 @@ void TextEditorWidgetPrivate::adjustScrollBarRanges()
 {
     if (!m_highlightScrollBarController)
         return;
-    const double lineSpacing = QFontMetricsF(q->font()).lineSpacing();
+    const double lineSpacing = TextEditorSettings::fontSettings().lineSpacing();
     if (lineSpacing == 0)
         return;
 
@@ -7320,7 +7375,15 @@ void TextEditorWidget::applyFontSettings()
 
 void TextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
 {
-    setLineWrapMode(ds.m_textWrapping ? QPlainTextEdit::WidgetWidth : QPlainTextEdit::NoWrap);
+    const TextEditor::FontSettings &fs = TextEditorSettings::fontSettings();
+    if (fs.relativeLineSpacing() == 100)
+        setLineWrapMode(ds.m_textWrapping ? QPlainTextEdit::WidgetWidth : QPlainTextEdit::NoWrap);
+    else
+        setLineWrapMode(QPlainTextEdit::NoWrap);
+
+    QTC_ASSERT((fs.relativeLineSpacing() == 100) || (fs.relativeLineSpacing() != 100
+        && lineWrapMode() == QPlainTextEdit::NoWrap), setLineWrapMode(QPlainTextEdit::NoWrap));
+
     setLineNumbersVisible(ds.m_displayLineNumbers);
     setHighlightCurrentLine(ds.m_highlightCurrentLine);
     setRevisionsVisible(ds.m_markTextChanges);
