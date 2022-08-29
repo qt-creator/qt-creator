@@ -4922,31 +4922,62 @@ void TextEditorWidgetPrivate::paintTextMarks(QPainter &painter, const ExtraAreaP
     auto userData = static_cast<TextBlockUserData*>(data.block.userData());
     if (!userData || !m_marksVisible)
         return;
-    int xoffset = 0;
     TextMarks marks = userData->marks();
-    TextMarks::const_iterator it = marks.constBegin();
-    if (marks.size() > 3) {
-        // We want the 3 with the highest priority that have an icon so iterate from the back
-        int count = 0;
-        it = marks.constEnd() - 1;
-        while (it != marks.constBegin()) {
-            if ((*it)->isVisible() && !(*it)->icon().isNull())
-                ++count;
-            if (count == 3)
-                break;
-            --it;
+    QList<QIcon> icons;
+    auto end = marks.crend();
+    int marksWithIconCount = 0;
+    for (auto it = marks.crbegin(); it != end; ++it) {
+        if ((*it)->isVisible()) {
+            const QIcon icon = (*it)->icon();
+            if (!icon.isNull()) {
+                if (icons.size() < 3
+                    && !Utils::contains(icons, Utils::equal(&QIcon::cacheKey, icon.cacheKey()))) {
+                    icons << icon;
+                }
+                ++marksWithIconCount;
+            }
         }
     }
-    TextMarks::const_iterator end = marks.constEnd();
-    for ( ; it != end; ++it) {
-        TextMark *mark = *it;
-        if (!mark->isVisible() && !mark->icon().isNull())
-            continue;
-        const int height = data.lineSpacing - 1;
-        const QRect r(xoffset, int(blockBoundingRect.top()), height, height);
-        mark->paintIcon(&painter, r);
-        xoffset += 2;
+
+    if (icons.isEmpty())
+        return;
+
+    painter.save();
+    Utils::ExecuteOnDestruction painterRestore([&]() { painter.restore(); });
+
+    int size = data.lineSpacing - 1;
+    int xoffset = 0;
+    int yoffset = blockBoundingRect.top();
+
+    if (icons.size() == 1) {
+        const QRect r(xoffset, yoffset, size, size);
+        icons.first().paint(&painter, r, Qt::AlignCenter);
+        return;
     }
+
+    size = size / 2;
+    for (const QIcon &icon : qAsConst(icons)) {
+        const QRect r(xoffset, yoffset, size, size);
+        icon.paint(&painter, r, Qt::AlignCenter);
+        if (xoffset != 0) {
+            yoffset += size;
+            xoffset = 0;
+        } else {
+            xoffset = size;
+        }
+    }
+    QFont font = painter.font();
+    font.setPixelSize(size);
+    painter.setFont(font);
+
+    const QColor color = data.currentLineNumberFormat.foreground().color();
+    if (color.isValid())
+        painter.setPen(color);
+
+    const QRect r(size, blockBoundingRect.top() + size, size, size);
+    const QString detail = marksWithIconCount > 9 ? QString("+")
+                                                  : QString::number(marksWithIconCount);
+    painter.drawText(r, Qt::AlignRight, detail);
 }
 
 static void drawRectBox(QPainter *painter, const QRect &rect, const QPalette &pal)
