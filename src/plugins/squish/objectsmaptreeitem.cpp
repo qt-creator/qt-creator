@@ -214,7 +214,7 @@ bool ObjectsMapTreeItem::parseProperties(const QByteArray &properties)
             }
             break;
         default:
-            if (isspace(c)) {
+            if (QChar::isSpace(c)) {
                 if (state == Value) {
                     value.append(c);
                 } else if (state == Name) {
