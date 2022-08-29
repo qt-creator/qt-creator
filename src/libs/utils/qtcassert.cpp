@@ -98,7 +98,7 @@ void dumpBacktrace(int maxdepth)
                            .arg(QString::fromLatin1(lineInfo.FileName),
                                 QString::number(lineInfo.LineNumber)));
         }
-        qDebug() << out;
+        qDebug().noquote() << out;
         if (++depth == maxdepth)
             break;
     }
