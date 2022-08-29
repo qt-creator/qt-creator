@@ -69,14 +69,14 @@
 
     To preview the changes that you make to the UI while you make
     them, select the \inlineimage icons/live_preview.png
-    (\uicontrol {Show Live Preview}) button on the \l {Form Editor}
+    (\uicontrol {Show Live Preview}) button on the \l {2D} view
     toolbar or press \key {Alt+P}.
 
     To anchor component instances on a page:
 
     \list 1
         \li Open \e {Screen01.ui.qml} for editing in the
-            \uicontrol {Form Editor} view.
+            \uicontrol {2D} view.
         \li Select \e adventurePage in the \l Navigator view to display its
             properties in the \l Properties view.
         \li In \uicontrol Properties > \uicontrol Layout, select
@@ -85,8 +85,8 @@
             parent in the \uicontrol Target field. This attaches the background
             image to the rectangle on all sides.
             Note: Selecting the anchor button should automatically select the
-            four buttons on the left side of it. If it doesn't, refresh
-            \uicontrol{Form Editor}.
+            four buttons on the left side of it. If it doesn't, refresh the
+            \uicontrol{2D} view.
             \image loginui2-layout.png "Layout properties"
         \li Select \e qt_logo_green_128x128px in \l Navigator.
         \li In \uicontrol Properties > \uicontrol Layout, select the
@@ -152,8 +152,8 @@
             \l {Multiselection}{multiple selection}), and right-click
             either of them to open a context menu.
         \li Select \uicontrol Position > \uicontrol {Position in Column}
-            to position the fields on top of each other in
-            \uicontrol {Form Editor}.
+            to position the fields on top of each other in the
+            \uicontrol {2D} view.
         \li Select the column in \uicontrol Navigator and change its ID
             to \e fields in \uicontrol Properties.
         \li In \uicontrol Column > \uicontrol Spacing, set the spacing between

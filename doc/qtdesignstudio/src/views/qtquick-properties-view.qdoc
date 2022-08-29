@@ -141,8 +141,8 @@
     \section1 Multiselection
 
     To modify the values of common properties of multiple components
-    simultaneously, select the components in \l Navigator, \l {Form Editor}
-    or \uicontrol {3D Editor}:
+    simultaneously, select the components in the \l Navigator, \l {2D}
+    or \uicontrol{3D} view:
 
     \list
         \li On Windows, press and hold \key Ctrl and \key Shift, and then click

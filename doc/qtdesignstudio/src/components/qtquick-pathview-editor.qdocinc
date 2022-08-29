@@ -32,14 +32,14 @@
     on a \l{Path}.
 
     A graphical spline editor enables you to specify path view paths, which
-    is a non-trivial task to do in \uicontrol {Text Editor}.
+    is a non-trivial task to do in the \uicontrol {Code} view.
 
     \image qmldesigner-pathview-editor.png "Path View editor"
 
-    To start editing the path, double-click the path view in
-    \l {Form Editor}. The editor composes the path of PathCubic path
+    To start editing the path, double-click the path view in the
+    \l {2D} view. The editor composes the path of PathCubic path
     objects. They are cubic Bezier curves to a given position with two control
-    points. Drag and drop the control points in \uicontrol {Form Editor} to
+    points. Drag and drop the control points in the \uicontrol {2D} view to
     construct the curve.
 
     In addition, PathLine and PathQuad path objects are supported indirectly.

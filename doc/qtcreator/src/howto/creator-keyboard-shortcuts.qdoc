@@ -604,8 +604,8 @@
             \li  Open the QML file that defines the selected component
             \li  F2
         \row
-            \li  Move between \uicontrol {Text Editor} and
-                 \uicontrol {Form Editor}
+            \li  Move between \uicontrol the {Code} and
+                 \uicontrol {2D} views
             \li  F4
         \row
             \li  Toggle left sidebar

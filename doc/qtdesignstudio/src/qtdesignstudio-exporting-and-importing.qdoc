@@ -62,10 +62,10 @@
         \li \l{Creating Projects}{Create a project} in \QDS and import the
             metadata file to it.
         \li Edit the imported components and create more components in
-            \l {Form Editor} and \l {3D Editor}.
-        \li Animate your design in \l {Transition Editor} or \l Timeline
-            and \l {Curve Editor}.
-        \li Create interactions in \l States and \l {Connection View}.
+            the \l {2D} and \l {3D} view.
+        \li Animate your design in \l {Transitions} or \l Timeline
+            and \l {Curves}.
+        \li Create interactions in \l States and \l {Connections}.
         \li \l{Validating with Target Hardware}{Preview} your design in
             real time, on the desktop or on a mobile or an embedded device.
         \li Optionally, export your components back into the metadata format

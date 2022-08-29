@@ -83,7 +83,7 @@
 
     \list 1
         \li Double-click \e Screen01.ui.qml in \l Projects to open it
-            in \l {Form Editor}.
+            in the \l {2D} view.
         \li In the \l States view, select \e login, and then select
             \inlineimage icons/close.png
             to remove the state. Repeat for the \e createAccount state.
@@ -130,7 +130,7 @@
     would probably stay the same, even if the positions of the fields on the
     page would change.
 
-    \e Screen01 should not display visible changes in \uicontrol {Form Editor}:
+    \e Screen01 should not display visible changes in the \uicontrol {2D} view:
 
     \image loginui3-base-state.jpg "UI with all the buttons and fields in the Design mode"
 

@@ -28,15 +28,15 @@
     \previouspage creator-using-qt-quick-designer.html
     \nextpage studio-3d-editor.html
 
-    \title Form Editor
+    \title 2D
 
-    You design applications in the \uicontrol {Form Editor} view by opening
+    You design applications in the \uicontrol {2D} view by opening
     component files and placing instances of \l{Component Types}{2D components}
     and \l{Assets}{assets} into them.
 
-    \image qmldesigner-form-editor.png "Form Editor view"
+    \image qmldesigner-form-editor.png "The 2D view"
 
-    When you select component instances in \uicontrol {Form Editor}, markers
+    When you select component instances in the \uicontrol {2D} view, markers
     appear around their edges and in their corners. Depending on the shape of
     the cursor, you can apply the following actions to the component instances
     by dragging them:
@@ -47,9 +47,9 @@
         \li \l{Rotating 2D Components}{Rotate}
     \endlist
 
-    \section1 Summary of Form Editor Buttons
+    \section1 Summary of 2D View Buttons
 
-    The \uicontrol {Form Editor} toolbar contains the following buttons and
+    The \uicontrol {2D} view toolbar contains the following buttons and
     fields.
 
     \table
@@ -85,7 +85,7 @@
         \li \l{Previewing Component Size}
     \row
         \li \inlineimage icons/canvas-color.png
-        \li Sets the color of the \uicontrol {Form Editor} working area.
+        \li Sets the color of the the \uicontrol {2D} view working area.
         \li \l{Setting Canvas Color}
     \row
         \li \inlineimage icons/zoomIn.png
@@ -109,16 +109,16 @@
         \li \l{Zooming}
     \row
         \li \inlineimage icons/reset.png
-        \li Refreshes the contents of \uicontrol {Form Editor}.
-        \li \l{Refreshing Form Editor Contents}
+        \li Refreshes the contents of the \uicontrol {2D} view.
+        \li \l{Refreshing 2D View Contents}
     \endtable
 
     \section1 Moving Components
 
     When the move cursor is displayed, you can move the selected component
-    instance to any position in \uicontrol {Form Editor}.
+    instance to any position in the \uicontrol {2D} view.
 
-    \image qmldesigner-form-editor-move-cursor.png "Move cursor in Form Editor view"
+    \image qmldesigner-form-editor-move-cursor.png "Move cursor in the 2D view"
 
     For more information about alternative ways of positioning component
     instances in UIs, see \l{Scalable Layouts}.
@@ -128,7 +128,7 @@
     When the resize cursor is displayed, you can drag the markers to resize
     component instances.
 
-    \image qtquick-designer-scaling-items.png "Form Editor view"
+    \image qtquick-designer-scaling-items.png "The 2D view"
 
     To have the resizing done from the center of the selected component instance
     rather than from its edges, press \key Alt (or \key Opt on \macos).
@@ -162,16 +162,16 @@
     \section1 Zooming
 
     You can use the zoom buttons on the toolbar to zoom into and out of
-    \uicontrol {Form Editor} or select the zoom level as a percentage
+    the \uicontrol {2D} view or select the zoom level as a percentage
     from a list. More buttons are availabe for zooming to fit all content
     in the view or zooming to fit the currently selected component instances.
 
-    \image qmldesigner-zooming.gif "Zooming in Form Editor"
+    \image qmldesigner-zooming.gif "Zooming in the 2D view"
 
     \section1 Snapping to Parent and Sibling Components
 
     You can use snapping to align component instances in
-    \uicontrol {Form Editor}. Select the \inlineimage icons/snapping.png
+    the \uicontrol {2D} view. Select the \inlineimage icons/snapping.png
     button to have the component instances snap to their parent or siblings.
     Snapping lines automatically appear to help you position the component
     instances. Click the \inlineimage icons/snapping_and_anchoring.png
@@ -198,7 +198,7 @@
 
     \section1 Hiding Component Boundaries
 
-    \uicontrol {Form Editor} displays the boundaries of component instances.
+    The \uicontrol {2D} view displays the boundaries of component instances.
     To hide them, select the \inlineimage icons/boundingrect.png
     button.
 
@@ -213,7 +213,7 @@
 
     To experiment with different component sizes, enter values in the
     \uicontrol {Override Width} and \uicontrol {Override Height} fields (1) on
-    the toolbar. The changes are displayed in the \uicontrol {Form Editor}
+    the toolbar. The changes are displayed in the \uicontrol {2D}
     view (2) and in the \uicontrol States view (3), but the property
     values are not changed permanently in the UI file. You can permanently
     change the property values in the \uicontrol Properties view (4).
@@ -243,17 +243,17 @@
 
     \image qmldesigner-canvas-color.png "Transparent canvas color for a transparent component instance"
 
-    \section1 Refreshing Form Editor Contents
+    \section1 Refreshing 2D View Contents
 
     When you open a UI file, the component defined in the file and the component
-    instances it contains are drawn in \uicontrol {Form Editor}. When you
+    instances it contains are drawn in the \uicontrol {2D} view. When you
     edit component instance properties in \l Properties, the code and its
-    representation in \uicontrol {Form Editor} might get out of sync. For
+    representation in the \uicontrol {2D} view might get out of sync. For
     example, when you change the position of a component instance within a
     column or a row, the new position might not be displayed correctly in
-    \uicontrol {Form Editor}.
+    the \uicontrol {2D} view.
 
-    To refresh the contents of \uicontrol {Form Editor}, press \key R or
+    To refresh the contents of the \uicontrol {2D} view, press \key R or
     select the \inlineimage icons/reset.png
     (\uicontrol {Reset View}) button.
 

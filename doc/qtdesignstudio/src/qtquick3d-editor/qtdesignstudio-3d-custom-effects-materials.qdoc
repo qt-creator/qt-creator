@@ -211,9 +211,10 @@
 
     To use the above fragment shader in a custom effect or material component,
     you must remove the uniforms from the shader code and define them as
-    properties for the component in \l {Connection View} > \uicontrol Properties.
+    properties for the component on the \uicontrol Properties tab in the
+    \l {Connections} view.
 
-    \image studio-custom-material-uniform-properties.png "Uniforms as properties in Connection View Properties tab"
+    \image studio-custom-material-uniform-properties.png "Uniforms as properties in Connections view Properties tab"
 
     For more information about adding properties, see
     \l{Specifying Dynamic Properties}.

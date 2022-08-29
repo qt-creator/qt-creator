@@ -26,7 +26,7 @@
 /*!
     \page state-transition-animations.html
     \ingroup gstutorials
-    \sa States, {Transition Editor}, {Adding States}
+    \sa States, {Transitions}, {Adding States}
 
     \title Animated State Transitions
     \brief Illustrates how to create animated state transitions.
@@ -164,10 +164,10 @@
     The final step of this tutorial is to create animations between the states:
 
     \list 1
-      \li Go to \l{Transition Editor}.
+      \li Go to \l{Transitions}.
       \li Select \inlineimage icons/plus.png
       .
-      \li In the upper right corner of \uicontrol {Transition Editor}, change
+      \li In the upper right corner of \uicontrol {Transitions}, change
       the number 2000 to 1000.
       This sets the length of the animation in milliseconds.
       \li Drag the left end of the timebar for \e car_final to the 0 mark in

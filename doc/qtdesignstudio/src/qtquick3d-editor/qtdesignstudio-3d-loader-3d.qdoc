@@ -73,7 +73,7 @@
     The \uicontrol {Source Component} property defines the component for
     \uicontrol Loader3D to instantiate. Currently, the
     \uicontrol {Source component} needs to be defined in code using the
-    \l {Working in Edit Mode}{Edit} mode or \l {Text Editor}.
+    \l {Working in Edit Mode}{Edit} mode or the \l {Code} view.
 
     \section2 Asynchronous
 
@@ -94,7 +94,7 @@
     To add a Loader3D component and set it to load a QML file:
     \list 1
       \li From \uicontrol {Components}, drag a Loader3D component to
-      \e scene in \uicontrol Navigator or to \uicontrol {3D Editor}.
+      \e scene in the \uicontrol Navigator or \uicontrol{3D} view.
       \li In \uicontrol {Navigator}, select \e{loader3D}.
       \image loader3d-navigator.png
       \li In \uicontrol {Properties}, select \uicontrol{Source} and select a
@@ -107,7 +107,7 @@
     To add a Loader3D component and set it to load a Component3D component:
     \list 1
       \li From \uicontrol {Components}, drag a Loader3D Component to
-      \e scene in \uicontrol Navigator or to \uicontrol {3D Editor}.
+      \e scene in the \uicontrol Navigator or \uicontrol{3D} view.
       \li From \uicontrol {Components}, drag a Component3D component to
       \e scene in \uicontrol {Navigator}.
       \li In \uicontrol {Navigator}, select the filter icon and clear

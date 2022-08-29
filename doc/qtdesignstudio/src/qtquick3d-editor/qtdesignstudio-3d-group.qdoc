@@ -37,7 +37,7 @@
 
     To add a \uicontrol Group component
     to your scene, drag-and-drop it from \uicontrol Components >
-    \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} to the \l {3D Editor}
+    \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} to the \l {3D}
     view or to \l Navigator > \uicontrol View3D > \uicontrol {Scene Environment}
     > \uicontrol Scene.
 

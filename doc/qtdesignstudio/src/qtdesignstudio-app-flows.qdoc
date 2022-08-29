@@ -30,7 +30,7 @@
 
     \title Designing Application Flows
 
-    \image studio-flow-view.png "Application flow in Form Editor"
+    \image studio-flow-view.png "Application flow in the 2D view"
 
     In \QDS, a \e {flow view} represents a schematic diagram. It consists of
     \e {flow items} that represent the screens in the UI and \e {transition
@@ -204,17 +204,17 @@
         \li Add content to the flow item in one of the following ways:
             \list
                 \li Drag-and-drop components from \uicontrol Components to a
-                    flow item in \l {Form Editor} or \l Navigator.
+                    flow item in the \l {2D} view or \l Navigator.
                 \li Drag a screen from \uicontrol Components
                     > \uicontrol {My Components} to a flow item in
-                    \uicontrol {Form Editor} or \uicontrol Navigator.
+                    the \uicontrol {2D} view or \uicontrol Navigator.
             \endlist
         \li In \l Properties, edit the properties of each flow item.
     \endlist
 
     You can now drag the flow items from \uicontrol Components
-    > \uicontrol {My Components} to the flow view in \uicontrol {Form Editor}
-    or \uicontrol Navigator. When you have all the flow items in place, you can
+    > \uicontrol {My Components} to the flow view in the \uicontrol {2D}
+    or \uicontrol Navigator view. When you have all the flow items in place, you can
     \l{Adding Action Areas and Transitions}{add action areas} to them to create
     transitions between them.
 
@@ -266,7 +266,7 @@
     action to the \c onPressed signal of a button in your flow item to
     determine what should happen when users press the button.
 
-    \image studio-flow-action-area.png "Flow Action Area in Form Editor"
+    \image studio-flow-action-area.png "Flow Action Area in the 2D view"
 
     \note To connect components to \l{Connecting and Releasing Signals}
     {signals}, you must first export the components as
@@ -292,7 +292,7 @@
     To create action areas:
 
     \list 1
-        \li Right-click the flow item in \l {Form Editor} and select
+        \li Right-click the flow item in the \l {2D} view and select
             \uicontrol {Flow} > \uicontrol {Create Flow Action} in
             the context menu.
         \li Drag the action area to the UI control that you want to connect
@@ -371,7 +371,7 @@
     \endlist
 
     You can specify the following properties to change the appearance of
-    transition lines in \uicontrol {Form Editor}:
+    transition lines in the \uicontrol {2D} view:
 
     \image studio-flow-transition-line-properties.png "Flow Transition Line properties"
 
@@ -433,7 +433,7 @@
     To add effects:
 
     \list 1
-        \li Select a transition line in \l {Form Editor}.
+        \li Select a transition line in the \l {2D} view.
         \li In the context menu, select \uicontrol {Flow} >
             \uicontrol {Assign Flow Effects}, and then select the effect
             to apply.
@@ -568,16 +568,16 @@
     controls, backend, or sensor data that will be required for the production
     version.
 
-    \image studio-flow-decision.png "Flow Decision in Form Editor"
+    \image studio-flow-decision.png "Flow Decision in the 2D view"
 
     To simulate conditions:
 
     \list 1
         \li Drag a \uicontrol {Flow Decision} component from
             \uicontrol Components \uicontrol {Flow View} to a
-            \l{Adding Flow Views}{flow view} in \l Navigator or \l {Form Editor}.
+            \l{Adding Flow Views}{flow view} in the \l Navigator or \l {2D} view.
         \li Select the flow item where you want the application to start in
-            \uicontrol Navigator or \uicontrol {Form Editor}, and then select
+            the \uicontrol Navigator or \uicontrol {2D} view, and then select
             \uicontrol {Flow} > \uicontrol {Set Flow Start} in the context menu.
         \li Create an \l{Adding Action Areas and Transitions}{action area} for
             the component that will trigger the condition and connect it to the
@@ -588,8 +588,8 @@
         \li In the \l Properties view, \uicontrol {Dialog title} field, enter a
             title for the selection dialog that opens when the condition is
             triggered.
-        \li Select a transition line in \uicontrol Navigator or
-            \uicontrol {Form Editor} and add a descriptive text in the
+        \li Select a transition line in the \uicontrol Navigator or
+            \uicontrol {2D} view and add a descriptive text in the
             \uicontrol {Question} field in \uicontrol Properties to represent
             a choice in the selection dialog.
             \image studio-flow-transition-properties-question.png "Flow Transition properties"
@@ -622,7 +622,7 @@
     \list
         \li Select \inlineimage icons/visibility-off.png
             to display the ID of the \uicontrol {Flow Decision}
-            component in \l {Form Editor}.
+            component in the \l {2D} view.
         \li In the \uicontrol {Label position} field, select the corner of
             the flow decision icon to place the label in.
         \li In the \uicontrol Size field, specify the size of the flow
@@ -654,8 +654,8 @@
             \uicontrol {Flow Item} to create a flow item.
         \li In \l States, add states to the flow item.
         \li Open the .ui.qml file that contains the \l{Adding Flow Views}
-            {flow view} in \l {Form Editor} and drag the flow item to the
-            flow view in \l Navigator or \l {Form Editor}.
+            {flow view} in the \l {2D} view and drag the flow item to the
+            flow view in the \l Navigator or \l {2D} view.
         \li Drag an empty \uicontrol {Flow Item} component from
             \uicontrol Components > \uicontrol {Flow View}
             to the flow for each state that you added.
@@ -696,8 +696,8 @@
     \list 1
         \li Drag a \uicontrol {Flow Wildcard} component from
             \uicontrol Components > \uicontrol {Flow View} to an
-            \l{Adding Action Areas and Transitions}{action area} in \l Navigator
-            or \l {Form Editor}.
+            \l{Adding Action Areas and Transitions}{action area} in
+            the \l Navigator or \l {2D} view.
         \li In \l Properties, select flow items to add them to the
             positive and negative list of the action area.
     \endlist

@@ -40,11 +40,11 @@
     You can select components in the \uicontrol Navigator view to edit their
     properties in the \l Properties view. Components can access the
     properties of their parent component. To select components in the
-    \l {Form Editor} view, right-click a component, and select another
+    \l {2D} view, right-click a component, and select another
     component in the \uicontrol Selection submenu.
 
     Typically, child components are located within the parent component in
-    \uicontrol {Form Editor}. However, they do not necessarily have to
+    the \uicontrol {2D} view. However, they do not necessarily have to
     fit inside the parent component. For example, you might want to make a
     mouse area larger than the rectangle or image beneath it.
 
@@ -96,7 +96,7 @@
         \li \l{Adding Property Aliases}
     \row
         \li \inlineimage icons/visibilityon.png
-        \li Shows and hide components in \uicontrol {Form Editor}.
+        \li Shows and hides components in the \uicontrol {2D} view.
         \li \l{Showing and Hiding Components}
     \row
         \li \inlineimage icons/lockon.png
@@ -106,7 +106,7 @@
 
     \section1 Showing and Hiding Components
 
-    To show and hide components in \uicontrol {Form Editor} when focusing on
+    To show and hide components in the \uicontrol {2D} view when focusing on
     specific parts of the application, click \inlineimage icons/visibilityon.png
     in \uicontrol Navigator.
 
@@ -130,7 +130,7 @@
 
     When designing complex applications, it is easy to accidentally modify
     the properties of a component in one of the \QC views in ways that lead to
-    surprising results. For example, \uicontrol {Form Editor} can become
+    surprising results. For example, the \uicontrol {2D} view can become
     crowded and other components can get in the way when you are trying to
     select or transform a particular component, so that you end up transforming
     more components than you wanted to.
@@ -142,39 +142,39 @@
 
     \image qtquick-designer-navigator-lock.gif "Locking components in Navigator"
 
-    You cannot select locked components in \uicontrol {Form Editor} or
-    \l {3D Editor} nor access their properties in
+    You cannot select locked components in the \uicontrol {2D} view or
+    the \l {3D} view nor access their properties in
     \uicontrol Properties.
 
     If you attempt to \l{Adding States}{remove a state} that changes the
     properties of a locked component, you are prompted to confirm the removal.
 
     If you have \l{Editing Animation Curves}{added easing curves} to keyframe
-    animations, you can lock and unlock them in the \l {Curve Editor}
+    animations, you can lock and unlock them in the \l {Curves}
     view. If you lock the components that contain the easing curves, the lock
     status is synchronized between \uicontrol Navigator and
-    \uicontrol {Curve Editor}.
+    \uicontrol {Curves}.
 
     \section1 Arranging Components
 
     You can view the order of components in a component file in \uicontrol Navigator
-    and \l {Text Editor}. The order of components in the file also
-    determines the order in which they are drawn in \uicontrol {Form Editor}.
+    and the \l {Code} view. The order of components in the file also
+    determines the order in which they are drawn in the \uicontrol {2D} view.
     By default, components that are located at the top of the file are listed at
     the bottom of the \uicontrol Navigator tree and behind overlapping
-    components in \uicontrol {Form Editor}. To list the components in the order
+    components in the \uicontrol {2D} view. To list the components in the order
     in which they appear in the file, as some other tools do, click
     \inlineimage icons/filtericon.png
     (\uicontrol {Filter Tree}), and select \uicontrol {Reverse Component Order}.
 
     To move a component to the top or bottom of the tree within its parent,
-    right-click it in \uicontrol Navigator or \uicontrol {Form Editor}
+    right-click it in the \uicontrol Navigator or \uicontrol {2D} view
     and select \uicontrol Arrange > \uicontrol {Bring to Front} or
     \uicontrol {Send to Back}. To move a component up or down, select
     \uicontrol {Bring Forward} or \uicontrol {Send Backward}.
 
-    To reverse the order of the selected components in \uicontrol Navigator and
-    \uicontrol {Text Editor}, select \uicontrol Arrange > \uicontrol Reverse.
+    To reverse the order of the selected components in the \uicontrol Navigator and
+    \uicontrol {Code} views, select \uicontrol Arrange > \uicontrol Reverse.
 
     \image qtquick-designer-navigator-arrange.gif "Reversing component order"
 
@@ -184,7 +184,7 @@
 
     \image qmldesigner-navigator-arrows.png "Navigator buttons"
 
-    When you drag-and-drop instances of components to \uicontrol {Form Editor},
+    When you drag-and-drop instances of components to the \uicontrol {2D} view,
     the new component is added as a child of the component
     beneath it. When you move the components, it is not possible to determine
     whether you want to adjust their position or attach them to a new parent component.
@@ -196,7 +196,7 @@
     \section1 Adding Property Aliases
 
     A \e {property alias} is a property that you can use from outside the
-    component. When you view the code in \l {Text Editor}, a property alias
+    component. When you view the code in the \l {Code} view, a property alias
     declaration looks like an ordinary property definition, except that it
     requires the \e alias keyword instead of a \l{Supported Property Types}
     {property type}, and the right-hand-side of the property declaration must
@@ -244,7 +244,7 @@
     different views:
 
     \list
-        \li In \uicontrol {Form Editor} or \uicontrol Navigator,
+        \li In the \uicontrol {2D} or \uicontrol Navigator view,
             right-click an instance of a component and then select
             \uicontrol {Go into Component} in the context menu or
             press \key F2.

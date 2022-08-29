@@ -32,7 +32,7 @@
 
     \title 3D Effects
 
-    \QDS provides a set of 3D effects, which are visible in \l {Form Editor}.
+    \QDS provides a set of 3D effects, which are visible in the \l {2D} view.
     To apply a visual effect to a scene, drag-and-drop an effect from
     \uicontrol Components > \uicontrol {Qt Quick 3D} >
     \uicontrol {Qt Quick 3D Effects} to a \uicontrol View3D component in

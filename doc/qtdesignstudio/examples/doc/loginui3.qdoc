@@ -64,7 +64,7 @@
 
     To preview the changes that you make to the UI while you make
     them, select the \inlineimage icons/live_preview.png
-    (\uicontrol {Show Live Preview}) button on the \l {Form Editor}
+    (\uicontrol {Show Live Preview}) button on the \l {2D} view
     toolbar or press \key {Alt+P}.
 
     To add the entry field needed on the second page to the \e Screen01
@@ -72,7 +72,7 @@
 
     \list 1
         \li Double-click \e Screen01.ui.qml in \uicontrol Projects to open it
-            in \uicontrol {Form Editor}.
+            in the \uicontrol {2D} view.
         \li Drag-and-drop an instance of the EntryField component from
             \uicontrol Components > \uicontrol {My Components} to \e fields in
             \l Navigator.
@@ -87,7 +87,8 @@
             to save your changes.
     \endlist
 
-    \e Screen01 should now look something like this in \uicontrol {Form Editor}:
+    \e Screen01 should now look something like this in the
+    \uicontrol {2D} view:
 
     \image loginui3-base-state.jpg "Login page with a Repeat Password field"
 
@@ -99,7 +100,7 @@
     \section1 Using States to Simulate Page Changes
 
     You will now add \l{Adding States}{states} to the UI to show and hide UI
-    components in \uicontrol {Form Editor}, depending on the current page:
+    components in the \uicontrol {2D} view, depending on the current page:
 
     \list 1
         \li In the \l States view, select \inlineimage icons/plus.png
@@ -170,13 +171,13 @@
     that has a \e clicked signal. The signal is emitted whenever the mouse
     is clicked within the area.
 
-    You will now use \l {Connection View} to
+    You will now use the \l {Connections} view to
     \l{Connecting Components to Signals}{connect} the clicked signal of the
     \e createAccount button to \e createAccount state:
 
     \list 1
         \li Select \uicontrol View > \uicontrol Views >
-            \uicontrol {Connection View} to open the \uicontrol Connections tab.
+            \uicontrol {Connections} to open the \uicontrol Connections view.
         \li Select \e createAccount in \uicontrol Navigator.
         \li In the \uicontrol Connections tab, select the \inlineimage icons/plus.png
             button to add the action that the \c onClicked signal handler of

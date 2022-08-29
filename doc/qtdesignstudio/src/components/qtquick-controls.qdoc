@@ -86,7 +86,7 @@
     most suitable for a use case and discuss the values you can set for button
     properties in the \uicontrol Properties view.
 
-    \image qtquick-designer-button-types.png "Button controls in Form Editor"
+    \image qtquick-designer-button-types.png "Button controls in the 2D view"
 
     Recommendations for buttons that contain text:
 
@@ -669,7 +669,7 @@
     \section1 Styling Controls
 
     The preset UI controls can be \l {Styling Qt Quick Controls}{styled}.
-    \uicontrol {Form Editor} reads the preferred style from a
+    The \uicontrol {2D} view reads the preferred style from a
     configuration file (\c qtquickcontrols2.conf). To change the
     style, select another style from the list on the main toolbar. This
     enables you to check how your UI looks when using the available

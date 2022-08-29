@@ -28,12 +28,12 @@
     \previouspage qtquick-timeline-view.html
     \nextpage qtquick-text-editor.html
 
-    \title Curve Editor
+    \title Curves
 
-    \uicontrol {Curve Editor} shows the interpolated values of an animated
+    The \uicontrol {Curves} view shows the interpolated values of an animated
     property over the animation range.
 
-    \image studio-curve-editor.png "Curve Editor"
+    \image studio-curve-editor.png "Curves"
 
     When you edit an animation curve, you implicitly edit the
     \l{Editing Easing Curves}{easing curves} that the underlying system uses
@@ -45,7 +45,7 @@
     or \uicontrol Spline interpolation between two keyframes.
 
     When you set interpolation to \uicontrol Spline, handles appear in
-    \uicontrol {Curve Editor} that you can use to modify the curve. Select
+    \uicontrol {Curves} that you can use to modify the curve. Select
     \uicontrol Unify to lock the handle on the left of a keyframe to the one
     on the right of it so that moving the left handle also moves the right
     handle.
@@ -62,9 +62,9 @@
     and then select \inlineimage icons/pin.png
     .
 
-    \section1 Curve Editor Toolbar
+    \section1 Curves Toolbar
 
-    The \uicontrol {Curve Editor} toolbar contains the following buttons and
+    The \uicontrol {Curves} toolbar contains the following buttons and
     fields.
 
     \table
@@ -109,8 +109,8 @@
         \li In the \l Timeline view, animate at least one property value by
             \l{Managing Keyframes}{inserting keyframes} for it.
         \li Select \uicontrol View > \uicontrol Views >
-            \uicontrol {Curve Editor} to open the animation curve editor.
-        \li Right-click in \uicontrol {Curve Editor}, and select
+            \uicontrol {Curves} to open the animation curve editor.
+        \li Right-click in \uicontrol {Curves}, and select
             \uicontrol {Insert Keyframe} to add a keyframe.
         \li Select keyframes to display the easing curves attached to them.
             To select multiple keyframes, press and hold \key Ctrl.
@@ -118,7 +118,7 @@
 
     Your changes are automatically saved when you close the view.
 
-    \section1 Deleting Keyframes in Curve Editor
+    \section1 Deleting Keyframes in Curves
 
     To delete the selected keyframe, select \uicontrol {Delete All Keyframes}
     in the context menu.

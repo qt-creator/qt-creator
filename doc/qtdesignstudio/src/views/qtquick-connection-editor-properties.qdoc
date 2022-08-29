@@ -55,16 +55,15 @@
     should have an \e int or \e real property for speed to which the UI is
     bound.
 
-    You can add properties for components in \l {Connection View} >
-    \uicontrol Properties.
+    You can add properties for components on the \uicontrol Properties tab in
+    in the \l {Connections} view.
 
-    \image qmldesigner-dynamicprops.png "Custom properties in Connection View Custom Properties tab"
+    \image qmldesigner-dynamicprops.png "Custom properties in the Connections view Custom Properties tab"
 
     To add properties for a component:
 
     \list 1
-        \li Select \uicontrol View > \uicontrol Views >
-            \uicontrol {Connection View} > \uicontrol {Properties}.
+        \li Go to the \uicontrol Properties tab in the \l Connections view.
         \li Select the \inlineimage icons/plus.png
             (\uicontrol Add) button to add a dynamic property for the currently
             selected component. The component ID is displayed in the \uicontrol Item
@@ -87,8 +86,8 @@
     \image qmldesigner-binding-editor.png "Binding Editor"
 
     The properties you add for a component are displayed in the \l Properties
-    view when you select a component of that type in \l Navigator or
-    \l {Form Editor}.
+    view when you select a component of that type in the \l Navigator or
+    \l {2D} view.
 
     \image qtquick-custom-properties.png "Custom properties in Properties view"
 

@@ -58,7 +58,7 @@
     visible to users, while others are used behind the scene.
 
     You drag-and-drop the preset components from the \uicontrol Components view
-    to the \l {Form Editor}, \l{3D Editor}, or \l Navigator view to create
+    to the \l {2D}, \l {3D}, or \l Navigator view to create
     instances of them. You then change the instances to your liking by modifying
     their properties in the \l Properties view. The application code is
     generated for you accordingly. For more information about the code, open
@@ -122,8 +122,8 @@
         \li \l{UI Files}
 
             Some of the wizards create projects that contain UI files
-            (.ui.qml). You should always edit UI files in \l{Form Editor}
-            and \l Properties, to avoid breaking the code.
+            (.ui.qml). You should always edit UI files in the \l {2D}
+            and \l Properties view, to avoid breaking the code.
 
         \endif
 

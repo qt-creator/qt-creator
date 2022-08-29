@@ -81,8 +81,8 @@
         have \c CustomMaterial elements.
     \li If custom material uses textures, they are not imported automatically
         and must be manually added to the project structure.
-    \li Many custom materials are not rendered in \uicontrol {3D Editor} or
-        \uicontrol {Form Editor} views due to an open bug in \QDS 1.5. The
+    \li Many custom materials are not rendered in the \uicontrol{3D} or
+        \uicontrol {2D} view due to an open bug in \QDS 1.5. The
         project needs to be run for them to appear.
     \endlist
 
@@ -147,10 +147,10 @@
         \image exporting-from-qt3ds/06-check-screen-size-in-qt3ds-project.png "Check screen size in Qt 3D Studio presentation"
 
     \li Adjust the canvas size of your project in \QDS according to the screen
-        size in \Q3DS presentation by editing the \c Constants.qml file in
-        \l{Text Editor}. If you cannot see the \uicontrol {Text Editor}
+        size in \Q3DS presentation by editing the \c Constants.qml file in the
+        \l{Code} view. If you cannot see the \uicontrol {Code}
         view, select \uicontrol Window > \uicontrol {Views}, and then select the
-        \uicontrol {Text Editor} checkbox. In the \uicontrol Projects view, open
+        \uicontrol {Code} checkbox. In the \uicontrol Projects view, open
         the imports subfolder, then the subfolder named after your project, and
         double-click \c Constants.qml. Edit the values for \e {readonly property
         int width} and \e {readonly property int height} to match the \uicontrol
@@ -196,14 +196,14 @@
 
     \list 1
     \li Drag \uicontrol MyOwnCluster from \uicontrol {My Quick3D Components}
-        in \uicontrol Components to \uicontrol {Form Editor}.
-        \image exporting-from-qt3ds/15-drag-to-project.png "Drag MyOwnCluster to Form Editor"
+        in \uicontrol Components to the \uicontrol {2D} view.
+        \image exporting-from-qt3ds/15-drag-to-project.png "Drag MyOwnCluster to the 2D view"
 
     \li In \uicontrol Navigator, right click on myOwnCluster and select \uicontrol
         {Go into Component}.
         \image exporting-from-qt3ds/16-go-into-component.png "Go into component My Own Cluster"
 
-    \li Find the offending line in \uicontrol {Text Editor}.
+    \li Find the offending line in the \uicontrol {Code} view.
         \image exporting-from-qt3ds/17-offending-line.png
 
     \li Comment out the offending line by placing two slashes in the beginning
@@ -214,8 +214,8 @@
         (or remove) any offending lines you find.
         \image exporting-from-qt3ds/18-repeat-where-needed.png
 
-    \li You should now see some parts of the project in \uicontrol {Form Editor}.
-        \image exporting-from-qt3ds/19-see-form-editor.png "Project in Form Editor"
+    \li You should now see some parts of the project in the \uicontrol {2D} view.
+        \image exporting-from-qt3ds/19-see-form-editor.png "Project in the 2D view"
     \endlist
 
     \section2 Converting 3D Elements
@@ -232,13 +232,13 @@
     \li Go into the component subpresentation_ADAS.
         \image exporting-from-qt3ds/22-go-into-subpresentation-adas.png "Go into component"
 
-    \li Reposition objects and/or camera in \uicontrol {3D Editor} according to
+    \li Reposition objects and/or camera in the \uicontrol{3D} view according to
         the original \Q3DS project. The desired scene may be achieved
         simply by changing the z position sign from positive to negative, or
         vice versa, in some cases.
 
-        See \l{3D Editor} for more information on how to edit 3D scenes.
-        \image exporting-from-qt3ds/23-replace-objects.png "Replace objects in 3D Editor"
+        See the \l {3D} view for more information on how to edit 3D scenes.
+        \image exporting-from-qt3ds/23-replace-objects.png "Replace objects in the 3D view"
 
     \li Recreate animations in subpresentation_ADAS according to the original
         project. For more information on creating animations in \QDS, see
@@ -259,7 +259,7 @@
         original project have rotations, especially in a 3D layer, make sure to
         add rotations that mimic the original ones to the \QDS project. For
         example, rotation on one axis with perspective camera requires rotation
-        on two axes in pure 2D. You may need to use \uicontrol {Text Editor}
+        on two axes in pure 2D. You may need to use the \uicontrol {Code} view
         to achieve rotation similar to the rotation of the object in \Q3DS.
         For more information on specifying advanced transformations on
         \uicontrol Items, see \l Transform.

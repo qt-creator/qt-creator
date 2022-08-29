@@ -53,7 +53,7 @@
             \uicontrol {My Components} only if the filename begins with a
             capital letter.
 
-        \li Click \uicontrol {Design} to edit the file in \l {Form Editor}.
+        \li Click \uicontrol {Design} to edit the file in the \l {2D} view.
 
         \li In \l Navigator, select \uicontrol Item and set the width
             (\uicontrol W) and height (\uicontrol H) of the button in
@@ -152,7 +152,7 @@
     Add a \l {Mouse Area} component that covers the whole area and
     reacts to mouse events.
 
-   \image qmldesigner-borderimage-type.png "Button component in Form Editor and States"
+   \image qmldesigner-borderimage-type.png "Button component in the 2D and States views"
 
     \section1 Creating the Button Component
 
@@ -175,7 +175,7 @@
     To construct the button component:
 
     \list 1
-        \li Click \uicontrol {Design} to edit the UI file in \l {Form Editor}.
+        \li Click \uicontrol {Design} to edit the UI file in the \l {2D} view.
         \li Select \uicontrol Assets > \inlineimage icons/plus.png
             to copy the image files you want to use to the project folder.
         \li In \l Navigator, select the root component and set the
@@ -271,8 +271,8 @@
     When you work on other files in the project to create screens
     or other components for the UI, the button component appears in
     \uicontrol Components > \uicontrol {My Components}.
-    You can drag-and-drop it to \uicontrol {Form Editor} or
-    \uicontrol Navigator to create button instances and modify the values
+    You can drag-and-drop it to the \uicontrol {2D} or
+    \uicontrol Navigator view to create button instances and modify the values
     of their properties to assign them useful IDs, change their appearance,
     and set the button text for each button instance, for example.
 

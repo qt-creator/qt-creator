@@ -88,7 +88,8 @@
     \inlineimage icons/action-icon-binding.png
     . To remove bindings, select \uicontrol Actions > \uicontrol Reset.
 
-    You can set bindings also in \l {Connection View} > \uicontrol Bindings.
+    You can set bindings also on the \uicontrol Bindings tab in the
+    \l Connections view.
     For more information, see \l {Adding Bindings Between Properties}.
 
     For more information on the JavaScript environment provided, see
@@ -121,7 +122,7 @@
     (\uicontrol {Reset Anchors}) button to reset the anchors to their saved
     state.
 
-    You can specify the baseline anchor in \l{Text Editor}.
+    You can specify the baseline anchor in the \l{Code} view.
 
     For performance reasons, you can only anchor a component to its siblings
     and direct parent. By default, a component is anchored to its parent when
@@ -315,7 +316,7 @@
 
     To position several components in a \uicontrol Column, \uicontrol Row,
     \uicontrol Flow, or \uicontrol Grid, select the components in
-    \l {Form Editor}, and then select \uicontrol Position in
+    the \l {2D} view, and then select \uicontrol Position in
     the context menu.
 
     \section3 Column Positioner
@@ -364,7 +365,7 @@
     corner of its cell with position (0, 0).
 
     \QC generates the grid based on the positions of the child components in
-    \l {Form Editor}. You can modify the number of rows and columns in the
+    the \l {2D} view. You can modify the number of rows and columns in the
     \uicontrol Rows and \uicontrol Columns fields.
 
     \image qtquick-positioner-grid-properties.png "Grid properties"
@@ -429,7 +430,7 @@
     do not anchor the child components within layouts.
 
     To arrange several components in a column, row, grid, or
-    \uicontrol {Stack Layout}, select the components in \l {Form Editor},
+    \uicontrol {Stack Layout}, select the components in the \l {2D} view,
     and then select \uicontrol Layout in the context menu.
 
     You can also click the \inlineimage column.png
@@ -439,7 +440,7 @@
     layouts to the selected components.
 
     To make a component within a layout as wide as possible while respecting the
-    given constraints, select the component in \uicontrol {Form Editor}, and
+    given constraints, select the component in the \uicontrol {2D} view, and
     then select \uicontrol Layout > \uicontrol {Fill Width} in the context menu.
     To make the component as high as possible, select \uicontrol {Fill Height}.
 
@@ -485,7 +486,7 @@
 
     To add components to a \uicontrol {Stack Layout}, select the
     \inlineimage icons/plus.png
-    button next to the component name in \l {Form Editor}.
+    button next to the component name in the \l {2D} view.
     To move between components, select the \inlineimage icons/prev.png
     (\uicontrol Previous) and \inlineimage icons/next.png
     (\uicontrol Next) buttons.

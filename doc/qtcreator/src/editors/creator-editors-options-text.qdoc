@@ -38,7 +38,11 @@
     \nextpage creator-editor-fakevim.html
     \endif
 
+    \if defined(qtdesignstudio)
+    \title Specifying Code View Settings
+    \else
     \title Specifying Text Editor Settings
+    \endif
 
     Set the font preferences and apply color schemes for syntax highlighting,
     diff editor, and code analysis results in \uicontrol Edit >

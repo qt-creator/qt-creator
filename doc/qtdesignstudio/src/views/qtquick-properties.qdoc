@@ -97,8 +97,8 @@
 
     In the \uicontrol Size group, you can set the width and height of a
     component. You can also use the resize cursor to \l{Resizing 2D Components}
-    {resize 2D components} in \uicontrol {Form Editor} or the scaling gizmo
-    to \l{Scaling Components}{scale 3D components} in \uicontrol {3D Editor}.
+    {resize 2D components} in the \uicontrol {2D} view or the scaling gizmo
+    to \l{Scaling Components}{scale 3D components} in the \uicontrol{3D} view.
     The values in the \uicontrol X and \uicontrol Y fields change accordingly.
 
     The component size and position can also be managed automatically
@@ -129,16 +129,16 @@
     Set the scale factor in the \uicontrol Scale field. A value of less than
     1.0 makes the component smaller, whereas a value greater than 1.0 makes
     it larger. A negative value causes the component to be mirrored in
-    \uicontrol {Form Editor}.
+    the \uicontrol {2D} view.
 
     In the \uicontrol Rotation field, specify the rotation of the component
     in degrees clockwise around the origin point.
 
     Alternatively, you can move, resize, or rotate components by dragging them
-    in \l{Form Editor}.
+    in the \l {2D} view.
 
     For more information about transforming 3D components, see
-    \l{Managing 3D Transformations} and \l{3D Editor}.
+    \l{Managing 3D Transformations} and \l{3D}{the 3D view}.
 
     \section1 Visibility
 
@@ -475,13 +475,13 @@
     {main toolbar}.
 
     To apply the values to one or several other components, select
-    them in \l Navigator or \l{Form Editor}, and then select
+    them in the \l Navigator or \l {2D} view, and then select
     \inlineimage icons/paste-formatting.png
     .
 
     \section1 Editing Properties Inline
 
-    You can double-click components in \l {Form Editor} to edit their
+    You can double-click components in the \l {2D} view to edit their
     text, color, or source properties inline. Because you can specify several
     of these properties for some components, such as \l {text-edit}{Text Edit},
     you can also right-click components to open the inline editors from the

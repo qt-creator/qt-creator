@@ -28,10 +28,10 @@
     \previouspage studio-translations.html
     \nextpage qtquick-timeline-view.html
 
-    \title Transition Editor
+    \title Transitions
 
     To make movement between states smooth, you can use
-    \uicontrol {Transition Editor} to animate the changes between
+    \uicontrol {Transitions} to animate the changes between
     states.
 
     First, you need to \l{Adding States}{add states} in the \l States view
@@ -39,21 +39,21 @@
     animated, such as colors or numbers, in the \l Properties view. For example,
     you can animate the changes in the position of a component.
 
-    \image qtquick-transition-editor-view.png "Transition Editor view"
+    \image qtquick-transition-editor-view.png "Transitions view"
 
-    In \uicontrol {Transition Editor}, you can set the start frame, end
+    In \uicontrol {Transitions}, you can set the start frame, end
     frame, and duration for the transition of each property. You can also
     set an \l{Editing Easing Curves}{easing curve} for each animation and
     the maximum duration of the whole transition.
 
-    \section1 Zooming in Transition Editor
+    \section1 Zooming in Transitions
 
     Use the slider on the toolbar to set the zooming level in
-    \uicontrol {Transition Editor}. Select the \inlineimage icons/zoom_small.png
+    \uicontrol {Transitions}. Select the \inlineimage icons/zoom_small.png
     and \inlineimage icons/zoom_big.png
     buttons to zoom out of or into the view.
 
-    \section1 Summary of Transition Editor Toolbar Actions
+    \section1 Summary of Transitions Toolbar Actions
 
     \table
     \header
@@ -68,7 +68,7 @@
     \row
         \li Transition ID
         \li Displays a list of transitions that you can open in
-            \uicontrol {Transition Editor}.
+            \uicontrol {Transitions}.
         \li \l{Animating Transitions Between States}
     \row
         \li \inlineimage icons/curve_editor.png
@@ -78,15 +78,15 @@
     \row
         \li \inlineimage icons/zoom_small.png
         \li \uicontrol {Zoom Out} (\key Ctrl+-): zooms out of the view.
-        \li \l{Zooming in Transition Editor}
+        \li \l{Zooming in Transitions}
     \row
         \li Slider
         \li Sets the zooming level.
-        \li \l{Zooming in Transition Editor}
+        \li \l{Zooming in Transitions}
     \row
         \li \inlineimage icons/zoom_big.png
         \li \uicontrol {Zoom In} (\key Ctrl++): zooms into the view.
-        \li \l{Zooming in Transition Editor}
+        \li \l{Zooming in Transitions}
     \row
         \li Maximum Duration
         \li Specifies the maximum duration of the transition.
@@ -100,12 +100,12 @@
     \list 1
         \li Select \uicontrol View > \uicontrol Views >
             \uicontrol {Transition Editor}.
-            \image qmldesigner-transition-editor-startup.png "Empty Transition Editor"
+            \image qmldesigner-transition-editor-startup.png "Empty Transitions view"
         \li Select the \inlineimage icons/plus.png
             (\uicontrol {Add Transition}) button to add a transition. This
             works only if you have added at least one state and modified at
             least one property in it.
-            \image qtquick-transition-editor-view.png "Transition Editor view"
+            \image qtquick-transition-editor-view.png "Transitions view"
         \li Move the blue bar next to the component or property name to set
             the start and end frame of the animation of the property. Pull its
             left and right edges to set the duration of the animation.
@@ -120,7 +120,7 @@
     (\uicontrol {Transition Settings (S)}) button in
     \uicontrol {Transition Editor}.
 
-    \image qtquick-transition-editor-settings.png "Transition settings"
+    \image qtquick-transition-editor-settings.png "Transitions settings"
 
     To add transitions:
 

@@ -37,7 +37,7 @@
     {image-based lighting}.
 
     To add light components to your UI, drag-and-drop them from
-    \uicontrol Components > \uicontrol {Qt Quick 3D} to \l {3D Editor} or to
+    \uicontrol Components > \uicontrol {Qt Quick 3D} to the \l {3D} view or to
     \l Navigator > \uicontrol {Scene Environment} > \uicontrol Scene.
 
     If you cannot find the light components in \uicontrol {Components}, add the
@@ -89,10 +89,10 @@
     Use a \l{SceneEnvironment}{Scene Environment} component to apply image-based
     lighting that can produce soft and subtle lighting.
 
-    To edit light properties, select a light component in \uicontrol Navigator,
-    or \uicontrol {3D Editor}, and then adjust its properties in the
+    To edit light properties, select a light component in the \uicontrol Navigator
+    or \uicontrol{3D} view, and then adjust its properties in the
     \uicontrol Properties view or by dragging the yellow light gizmo handles in
-    \uicontrol {3D Editor}.
+    the \uicontrol{3D} view.
 
     To specify an overall multiplier for a light component's effects, adjust the
     \uicontrol Brightness property. The \uicontrol Scope property specifies which

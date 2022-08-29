@@ -62,7 +62,7 @@
 
     \list 1
         \li Select the component to annotate in \uicontrol Navigator or in
-            \uicontrol {Form Editor}.
+            the \uicontrol {2D} view.
         \li In \uicontrol Properties, select \uicontrol {Add Annotation} to
             open \uicontrol {Annotation Editor}.
             \image qtquick-annotation-editor.png "Annotation Editor"

@@ -35,14 +35,14 @@
     The \l Components view features some built-in primitive 3D models. This allows
     you to add cubes, cones, cylinders, and planes (rectangles) to your scene.
 
-    \image studio-3d-models.png "Various 3D models in 3D Editor"
+    \image studio-3d-models.png "Various 3D models in the 3D view"
 
     A Model component loads mesh data from a file. You can modify how the
     component is shaded by using materials. For more information, see
     \l {Materials and Shaders} and \l {Creating Custom Materials}.
 
     You can drag-and-drop a model from \uicontrol Components
-    > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} to \l {3D Editor} or
+    > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} to the \l {3D} view or
     to \l Navigator > \uicontrol {Scene Environment} > \uicontrol Scene. If the
     models are not displayed in \uicontrol {Components}, you should add the
     \uicontrol QtQuick3D module to your project, as described in

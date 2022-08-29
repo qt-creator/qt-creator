@@ -37,20 +37,20 @@
                         \li \l{Selecting Modes}
                         \li \l{Design Views}
                             \list
-                                \li \l{Form Editor}
-                                \li \l{3D Editor}
+                                \li \l{2D}
+                                \li \l{3D}
                                 \li \l{Material Editor and Browser}
                                 \li \l{Components}
                                 \li \l{Assets}
                                 \li \l{Navigator}
                                 \li \l{Properties}
-                                \li \l{Connection View}
+                                \li \l{Connections}
                                 \li \l{States}
                                 \li \l{Translations}
-                                \li \l{Transition Editor}
+                                \li \l{Transitions}
                                 \li \l{Timeline}
-                                \li \l{Curve Editor}
-                                \li \l{Text Editor}
+                                \li \l{Curves}
+                                \li \l{Code}
                                 \li \l{Projects}
                                 \li \l{File System}
                                 \li \l{Open Documents}
@@ -238,7 +238,7 @@
                         \li \l{Applying Refactoring Actions}
                         \li \l{Configuring the Editor}
                             \list
-                                \li \l{Specifying Text Editor Settings}
+                                \li \l{Specifying Code View Settings}
                             \endlist
                     \endlist
                 \li \l{Debugging and Profiling}

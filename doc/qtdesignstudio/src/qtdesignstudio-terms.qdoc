@@ -137,12 +137,12 @@
     is to create \l{glossary-binding}{bindings} between the values of their
     \l{glossary-property}{properties}.
 
-    \image qmldesigner-connections.png "Connection View"
+    \image qmldesigner-connections.png "The Connections view"
 
     Read more about connections:
 
     \list
-        \li \l{Connection View}
+        \li \l{Connections}
         \li \l{Adding Connections}
     \endlist
 
@@ -236,7 +236,7 @@
     the signal name is \c clicked, the signal handler for receiving this signal
     is named \c onClicked.
 
-    \image washingmachineui-connections.png "Connection View, Connections tab"
+    \image washingmachineui-connections.png "Connections view, Connections tab"
 
     Further, a signal is automatically emitted when the value of a
     \l{glossary-property}{property} changes.
@@ -286,7 +286,7 @@
     Read more about transitions:
 
     \list
-        \li \l{Transition Editor}
+        \li \l{Transitions}
         \li \l{Animating Transitions Between States}
     \endlist
     \omit
