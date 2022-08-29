@@ -45,9 +45,10 @@ public:
         QVector3D m_3dPos;
     };
 
-    QmlVisualNode() : QmlObjectNode() {}
+    QmlVisualNode() = default;
     QmlVisualNode(const ModelNode &modelNode)  : QmlObjectNode(modelNode) {}
     bool isValid() const override;
+    explicit operator bool() const { return isValid(); }
     static bool isValidQmlVisualNode(const ModelNode &modelNode);
     bool isRootNode() const;
 
@@ -104,8 +105,9 @@ class QMLDESIGNERCORE_EXPORT QmlModelStateGroup
     friend class StatesEditorView;
 
 public:
+    QmlModelStateGroup() = default;
 
-    QmlModelStateGroup() : m_modelNode(ModelNode()) {}
+    explicit operator bool() const { return m_modelNode.isValid(); }
 
     ModelNode modelNode() const { return m_modelNode; }
     QStringList names() const;

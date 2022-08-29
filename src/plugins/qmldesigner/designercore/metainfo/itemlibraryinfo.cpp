@@ -4,6 +4,8 @@
 #include "itemlibraryinfo.h"
 #include "nodemetainfo.h"
 
+#include <invalidmetainfoexception.h>
+
 #include <QSharedData>
 
 #include <utils/algorithm.h>

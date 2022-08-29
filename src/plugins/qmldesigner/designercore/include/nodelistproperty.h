@@ -151,7 +151,7 @@ private:
 
 } // namespace Internal
 
-class QMLDESIGNERCORE_EXPORT NodeListProperty : public NodeAbstractProperty
+class QMLDESIGNERCORE_EXPORT NodeListProperty final : public NodeAbstractProperty
 {
     friend ModelNode;
     friend AbstractProperty;

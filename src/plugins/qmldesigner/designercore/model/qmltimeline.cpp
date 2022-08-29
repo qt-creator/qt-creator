@@ -231,7 +231,7 @@ void QmlTimeline::resetGroupRecording() const
 void QmlTimeline::addKeyframeGroupIfNotExists(const ModelNode &node, const PropertyName &propertyName)
 {
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
     if (!hasKeyframeGroup(node, propertyName)) {
         ModelNode frames = modelNode().view()->createModelNode("QtQuick.Timeline.KeyframeGroup", 1, 0);

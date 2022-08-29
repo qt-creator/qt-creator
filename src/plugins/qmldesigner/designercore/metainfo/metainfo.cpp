@@ -7,6 +7,8 @@
 #include "metainforeader.h"
 #include "iwidgetplugin.h"
 
+#include <invalidmetainfoexception.h>
+
 #include <coreplugin/messagebox.h>
 #include <coreplugin/icore.h>
 

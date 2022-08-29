@@ -4,7 +4,6 @@
 #include "nodelistproperty.h"
 #include "internalproperty.h"
 #include "internalnodelistproperty.h"
-#include "invalidpropertyexception.h"
 #include "internalnode_p.h"
 #include "model.h"
 #include "model_p.h"
@@ -63,7 +62,7 @@ static QList<ModelNode> internalNodesToModelNodes(const QList<Internal::Internal
 QList<ModelNode> NodeListProperty::toModelNodeList() const
 {
     if (!isValid())
-        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "<invalid node list property>");
+        return {};
 
     if (internalNodeListProperty())
         return internalNodesToModelNodes(m_internalNodeListProperty->toNodeListProperty()->nodeList(),
@@ -91,11 +90,12 @@ void NodeListProperty::slide(int from, int to) const
 {
     Internal::WriteLocker locker(model());
     if (!isValid())
-        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "<invalid node list property>");
-    if (to < 0 || to > count() - 1 || from < 0 || from > count() - 1)
-        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "<invalid node list sliding>");
+        return;
 
-     privateModel()->changeNodeOrder(internalNode(), name(), from, to);
+    if (to < 0 || to > count() - 1 || from < 0 || from > count() - 1)
+        return;
+
+    privateModel()->changeNodeOrder(internalNode(), name(), from, to);
 }
 
 void NodeListProperty::swap(int from, int to) const
@@ -124,7 +124,7 @@ void NodeListProperty::reparentHere(const ModelNode &modelNode)
 ModelNode NodeListProperty::at(int index) const
 {
     if (!isValid())
-        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "<invalid node list property>");
+        return {};
 
     if (internalNodeListProperty())
         return ModelNode(m_internalNodeListProperty->at(index), model(), view());
@@ -134,6 +134,9 @@ ModelNode NodeListProperty::at(int index) const
 
 void NodeListProperty::iterSwap(NodeListProperty::iterator &first, NodeListProperty::iterator &second)
 {
+    if (!isValid())
+        return;
+
     if (!internalNodeListProperty())
         return;
 
@@ -145,6 +148,9 @@ NodeListProperty::iterator NodeListProperty::rotate(NodeListProperty::iterator f
                                                     NodeListProperty::iterator newFirst,
                                                     NodeListProperty::iterator last)
 {
+    if (!isValid())
+        return {};
+
     if (!internalNodeListProperty())
         return {};
 
@@ -161,6 +167,9 @@ NodeListProperty::iterator NodeListProperty::rotate(NodeListProperty::iterator f
 
 void NodeListProperty::reverse(NodeListProperty::iterator first, NodeListProperty::iterator last)
 {
+    if (!isValid())
+        return;
+
     if (!internalNodeListProperty())
         return;
 

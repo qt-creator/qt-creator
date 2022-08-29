@@ -17,6 +17,7 @@ public:
     ModelNode target() const;
     void setTarget(const ModelNode &target);
     bool isValid() const override;
+    explicit operator bool() const { return isValid(); }
     static bool isValidQmlModelStateOperation(const ModelNode &modelNode);
 };
 
@@ -27,6 +28,7 @@ public:
     QmlPropertyChanges() : QmlModelStateOperation() {}
     QmlPropertyChanges(const ModelNode &modelNode) : QmlModelStateOperation(modelNode) {}
     bool isValid() const override;
+    explicit operator bool() const { return isValid(); }
     static bool isValidQmlPropertyChanges(const ModelNode &modelNode);
     void removeProperty(const PropertyName &name);
 };

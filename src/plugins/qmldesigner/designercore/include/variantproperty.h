@@ -18,7 +18,7 @@ class AbstractView;
 
 namespace Internal { class ModelPrivate; }
 
-class QMLDESIGNERCORE_EXPORT VariantProperty : public AbstractProperty
+class QMLDESIGNERCORE_EXPORT VariantProperty final : public AbstractProperty
 {
     friend ModelNode;
     friend Internal::ModelPrivate;

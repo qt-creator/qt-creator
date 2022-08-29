@@ -34,7 +34,7 @@ namespace QmlDesigner {
 void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant &value)
 {
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
     if (timelineIsActive() && currentTimeline().isRecording()) {
         modelNode().validId();
@@ -47,7 +47,8 @@ void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant 
         timelineFrames.setValue(value, frame);
 
         return;
-    } else if (modelNode().hasId() && timelineIsActive() && currentTimeline().hasKeyframeGroup(modelNode(), name)) {
+    } else if (modelNode().hasId() && timelineIsActive()
+               && currentTimeline().hasKeyframeGroup(modelNode(), name)) {
         QmlTimelineKeyframeGroup timelineFrames(currentTimeline().keyframeGroup(modelNode(), name));
 
         Q_ASSERT(timelineFrames.isValid());
@@ -77,7 +78,7 @@ void QmlObjectNode::setVariantProperty(const PropertyName &name, const QVariant 
 void QmlObjectNode::setBindingProperty(const PropertyName &name, const QString &expression)
 {
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
     if (isInBaseState()) {
         modelNode().bindingProperty(name).setExpression(expression); //basestate
@@ -126,7 +127,7 @@ QVariant  QmlObjectNode::instanceValue(const PropertyName &name) const
 bool QmlObjectNode::hasProperty(const PropertyName &name) const
 {
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return false;
 
     if (currentState().hasPropertyChanges(modelNode())) {
         QmlPropertyChanges propertyChanges = currentState().propertyChanges(modelNode());
@@ -140,7 +141,7 @@ bool QmlObjectNode::hasProperty(const PropertyName &name) const
 bool QmlObjectNode::hasBindingProperty(const PropertyName &name) const
 {
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return false;
 
     if (currentState().hasPropertyChanges(modelNode())) {
         QmlPropertyChanges propertyChanges = currentState().propertyChanges(modelNode());
@@ -179,7 +180,7 @@ bool QmlObjectNode::instanceHasValue(const PropertyName &name) const
 bool QmlObjectNode::propertyAffectedByCurrentState(const PropertyName &name) const
 {
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return false;
 
     if (currentState().isBaseState())
         return modelNode().hasProperty(name);
@@ -196,7 +197,7 @@ bool QmlObjectNode::propertyAffectedByCurrentState(const PropertyName &name) con
 QVariant QmlObjectNode::modelValue(const PropertyName &name) const
 {
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return false;
 
     if (timelineIsActive() && currentTimeline().hasTimeline(modelNode(), name)) {
         QmlTimelineKeyframeGroup timelineFrames(currentTimeline().keyframeGroup(modelNode(), name));
@@ -260,7 +261,7 @@ QString QmlObjectNode::stripedTranslatableText(const PropertyName &name) const
 QString QmlObjectNode::expression(const PropertyName &name) const
 {
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     if (currentState().isBaseState())
         return modelNode().bindingProperty(name).expression();
@@ -297,15 +298,15 @@ bool QmlObjectNode::instanceCanReparent() const
 QmlPropertyChanges QmlObjectNode::propertyChangeForCurrentState() const
 {
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
-     if (currentState().isBaseState())
-         return QmlPropertyChanges();
+    if (currentState().isBaseState())
+        return QmlPropertyChanges();
 
-     if (!currentState().hasPropertyChanges(modelNode()))
-         return QmlPropertyChanges();
+    if (!currentState().hasPropertyChanges(modelNode()))
+        return QmlPropertyChanges();
 
-     return currentState().propertyChanges(modelNode());
+    return currentState().propertyChanges(modelNode());
 }
 
 static void removeStateOperationsForChildren(const QmlObjectNode &node)
@@ -412,7 +413,7 @@ static void deleteAllReferencesToNodeAndChildren(const ModelNode &node)
 void QmlObjectNode::destroy()
 {
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
     removeLayerEnabled(modelNode());
     removeAliasExports(modelNode());
@@ -457,7 +458,7 @@ void QmlObjectNode::destroy()
 void QmlObjectNode::ensureAliasExport()
 {
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
     if (!isAliasExported()) {
         modelNode().validId();
@@ -490,7 +491,7 @@ bool QmlObjectNode::isAliasExported() const
 QList<QmlModelState> QmlObjectNode::allAffectingStates() const
 {
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     QList<QmlModelState> returnList;
 
@@ -509,7 +510,7 @@ QList<QmlModelState> QmlObjectNode::allAffectingStates() const
 QList<QmlModelStateOperation> QmlObjectNode::allAffectingStatesOperations() const
 {
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     QList<QmlModelStateOperation> returnList;
     const QList<QmlModelState> states = allDefinedStates();
@@ -541,7 +542,7 @@ static QList<QmlVisualNode> allQmlVisualNodesRecursive(const QmlItemNode &qmlIte
 QList<QmlModelState> QmlObjectNode::allDefinedStates() const
 {
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     QList<QmlModelState> returnList;
 
@@ -582,7 +583,7 @@ QmlModelStateGroup QmlObjectNode::states() const
 void  QmlObjectNode::removeProperty(const PropertyName &name)
 {
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
     if (isInBaseState()) {
         modelNode().removeProperty(name); //basestate
@@ -686,15 +687,6 @@ QmlObjectNode QmlObjectNode::nodeForInstance(const NodeInstance &instance) const
 QmlItemNode QmlObjectNode::itemForInstance(const NodeInstance &instance) const
 {
     return QmlItemNode(ModelNode(instance.modelNode(), view()));
-}
-
-QmlObjectNode::QmlObjectNode()
-{
-}
-
-QmlObjectNode::QmlObjectNode(const ModelNode &modelNode)
-    : QmlModelNodeFacade(modelNode)
-{
 }
 
 bool QmlObjectNode::isValidQmlObjectNode(const ModelNode &modelNode)

@@ -24,11 +24,14 @@ class QMLDESIGNERCORE_EXPORT QmlObjectNode : public QmlModelNodeFacade
     friend MoveManipulator;
 
 public:
-    QmlObjectNode();
-    QmlObjectNode(const ModelNode &modelNode);
+    QmlObjectNode() = default;
+    QmlObjectNode(const ModelNode &modelNode)
+        : QmlModelNodeFacade(modelNode)
+    {}
 
     static bool isValidQmlObjectNode(const ModelNode &modelNode);
     bool isValid() const override;
+    explicit operator bool() const { return isValid(); }
 
     bool hasError() const;
     QString error() const;

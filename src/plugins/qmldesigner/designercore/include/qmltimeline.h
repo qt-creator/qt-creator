@@ -13,7 +13,7 @@ class QmlObjectNode;
 class QmlModelStateGroup;
 class QmlTimelineKeyframeGroup;
 
-class QMLDESIGNERCORE_EXPORT QmlTimeline : public QmlModelNodeFacade
+class QMLDESIGNERCORE_EXPORT QmlTimeline final : public QmlModelNodeFacade
 {
 
 public:
@@ -21,6 +21,7 @@ public:
     QmlTimeline(const ModelNode &modelNode);
 
     bool isValid() const override;
+    explicit operator bool() const { return isValid(); }
     static bool isValidQmlTimeline(const ModelNode &modelNode);
     void destroy();
 

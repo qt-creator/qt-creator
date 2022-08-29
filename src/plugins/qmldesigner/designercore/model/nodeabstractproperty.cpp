@@ -33,6 +33,9 @@ NodeAbstractProperty::NodeAbstractProperty(const Internal::InternalNodeAbstractP
 
 void NodeAbstractProperty::reparentHere(const ModelNode &modelNode)
 {
+    if (!isValid() || !modelNode.isValid())
+        return;
+
     if (internalNode()->hasProperty(name())
         && !internalNode()->property(name())->isNodeAbstractProperty()) {
         reparentHere(modelNode, isNodeListProperty());
@@ -45,27 +48,27 @@ void NodeAbstractProperty::reparentHere(const ModelNode &modelNode)
 
 void NodeAbstractProperty::reparentHere(const ModelNode &modelNode,  bool isNodeList, const TypeName &dynamicTypeName)
 {
+    if (!isValid() || !modelNode.isValid())
+        return;
+
     if (modelNode.hasParentProperty() && modelNode.parentProperty() == *this
-            && dynamicTypeName == modelNode.parentProperty().dynamicTypeName())
+        && dynamicTypeName == modelNode.parentProperty().dynamicTypeName())
         return;
 
     Internal::WriteLocker locker(model());
-    if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-
     if (isNodeProperty()) {
         NodeProperty nodeProperty(toNodeProperty());
         if (nodeProperty.modelNode().isValid())
-            throw InvalidReparentingException(__LINE__, __FUNCTION__, __FILE__);
+            return;
     }
 
     if (modelNode.isAncestorOf(parentModelNode()))
-        throw InvalidReparentingException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
     /* This is currently not supported and not required. */
     /* Removing the property does work of course. */
     if (modelNode.hasParentProperty() && modelNode.parentProperty().isDynamic())
-        throw InvalidReparentingException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
     if (internalNode()->hasProperty(name()) && !internalNode()->property(name())->isNodeAbstractProperty())
         privateModel()->removeProperty(internalNode()->property(name()));
@@ -85,33 +88,39 @@ void NodeAbstractProperty::reparentHere(const ModelNode &modelNode,  bool isNode
 
 bool NodeAbstractProperty::isEmpty() const
 {
-    Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(name());
-    if (property.isNull())
-        return true;
-    else
-        return property->isEmpty();
+    if (isValid()) {
+        Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(
+            name());
+        if (property.isNull())
+            return true;
+        else
+            return property->isEmpty();
+    }
+
+    return true;
 }
 
 int NodeAbstractProperty::indexOf(const ModelNode &node) const
 {
-    Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(name());
-    if (property.isNull())
-        return 0;
+    if (isValid()) {
+        Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(
+            name());
+        if (property.isNull())
+            return 0;
 
-    return property->indexOf(node.internalNode());
+        return property->indexOf(node.internalNode());
+    }
+
+    return -1;
 }
 
 NodeAbstractProperty NodeAbstractProperty::parentProperty() const
 {
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "property is invalid");
-        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, name());
-    }
+    if (!isValid())
+        return {};
 
-    if (internalNode()->parentProperty().isNull()) {
-        Q_ASSERT_X(internalNode()->parentProperty(), Q_FUNC_INFO, "parentProperty is invalid");
-        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "parent");
-    }
+    if (internalNode()->parentProperty().isNull())
+        return {};
 
     return NodeAbstractProperty(internalNode()->parentProperty()->name(), internalNode()->parentProperty()->propertyOwner(), model(), view());
 }
@@ -129,7 +138,7 @@ QList<ModelNode> NodeAbstractProperty::allSubNodes()
 {
     if (!internalNode() || !internalNode()->isValid || !internalNode()->hasProperty(name())
         || !internalNode()->property(name())->isNodeAbstractProperty())
-        return QList<ModelNode>();
+        return {};
 
     Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(name());
     return QmlDesigner::toModelNodeList(property->allSubNodes(), view());
@@ -139,7 +148,7 @@ QList<ModelNode> NodeAbstractProperty::directSubNodes() const
 {
     if (!internalNode() || !internalNode()->isValid || !internalNode()->hasProperty(name())
         || !internalNode()->property(name())->isNodeAbstractProperty())
-        return QList<ModelNode>();
+        return {};
 
     Internal::InternalNodeAbstractProperty::Pointer property = internalNode()->nodeAbstractProperty(name());
     return QmlDesigner::toModelNodeList(property->directSubNodes(), view());

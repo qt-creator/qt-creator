@@ -6,9 +6,6 @@
 
 namespace QmlDesigner {
 
-QmlModelNodeFacade::QmlModelNodeFacade() : m_modelNode(ModelNode())
-{}
-
 AbstractView *QmlModelNodeFacade::view() const
 {
     if (modelNode().isValid())
@@ -32,16 +29,7 @@ NodeInstanceView *QmlModelNodeFacade::nodeInstanceView() const
     return nodeInstanceView(m_modelNode);
 }
 
-
-QmlModelNodeFacade::QmlModelNodeFacade(const ModelNode &modelNode) : m_modelNode(modelNode)
-{}
-
 QmlModelNodeFacade::~QmlModelNodeFacade() = default;
-
-QmlModelNodeFacade::operator ModelNode() const
-{
-    return m_modelNode;
-}
 
 bool QmlModelNodeFacade::hasModelNode() const
 {

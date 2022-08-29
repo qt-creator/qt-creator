@@ -4,6 +4,8 @@
 #include "metainforeader.h"
 #include "metainfo.h"
 
+#include <invalidmetainfoexception.h>
+
 #include <utils/algorithm.h>
 
 #include <QString>

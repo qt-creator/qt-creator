@@ -49,15 +49,14 @@ class QMLDESIGNERCORE_EXPORT AbstractProperty
     friend QMLDESIGNERCORE_EXPORT bool operator !=(const AbstractProperty &property1, const AbstractProperty &property2);
 
 public:
-    AbstractProperty();
+    AbstractProperty() = default;
     ~AbstractProperty();
-    AbstractProperty(const AbstractProperty &other);
-    AbstractProperty& operator=(const AbstractProperty &other);
     AbstractProperty(const AbstractProperty &property, AbstractView *view);
 
     PropertyName name() const;
 
     bool isValid() const;
+    explicit operator bool() const { return isValid(); }
     bool exists() const;
     ModelNode parentModelNode() const;
     QmlObjectNode parentQmlObjectNode() const;

@@ -4,10 +4,6 @@
 #include "modelnode.h"
 
 #include "internalnode_p.h"
-#include "invalidargumentexception.h"
-#include "invalididexception.h"
-#include "invalidmodelnodeexception.h"
-#include "invalidpropertyexception.h"
 #include "model_p.h"
 #include "variantproperty.h"
 #include "bindingproperty.h"
@@ -74,24 +70,6 @@ ModelNode::ModelNode(const ModelNode &modelNode, AbstractView *view)
 {
 }
 
-ModelNode::ModelNode(ModelNode &&other)
-    : m_internalNode(std::move(other.m_internalNode))
-    , m_model(std::move(other.m_model))
-    , m_view(std::move(other.m_view))
-{
-    other.m_model = {};
-    other.m_view = {};
-}
-
-ModelNode &ModelNode::operator=(ModelNode &&other)
-{
-    ModelNode newNode = std::move(other);
-
-    swap(*this, newNode);
-
-    return *this;
-}
-
 /*! \brief contructs a invalid model node
 \return invalid node
 \see invalid
@@ -100,10 +78,6 @@ ModelNode::ModelNode():
         m_internalNode(new InternalNode)
 {
 }
-
-ModelNode::ModelNode(const ModelNode &other) = default;
-
-ModelNode& ModelNode::operator=(const ModelNode &other) = default;
 
 /*! \brief does nothing
 */
@@ -115,7 +89,7 @@ ModelNode::~ModelNode() = default;
 QString ModelNode::id() const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     return m_internalNode->id;
 }
@@ -221,38 +195,37 @@ QString ModelNode::getIdValidityErrorMessage(const QString &id)
 bool ModelNode::hasId() const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return false;
 
     return !m_internalNode->id.isEmpty();
 }
 
 void ModelNode::setIdWithRefactoring(const QString& id)
 {
-    if (model()->rewriterView() && !id.isEmpty()
-        && !m_internalNode->id.isEmpty()) { // refactor the id if they are not empty
-        model()->rewriterView()->renameId(m_internalNode->id, id);
-    } else {
-        setIdWithoutRefactoring(id);
+    if (isValid()) {
+        if (model()->rewriterView() && !id.isEmpty()
+            && !m_internalNode->id.isEmpty()) { // refactor the id if they are not empty
+            model()->rewriterView()->renameId(m_internalNode->id, id);
+        } else {
+            setIdWithoutRefactoring(id);
+        }
     }
 }
 
 void ModelNode::setIdWithoutRefactoring(const QString &id)
 {
     Internal::WriteLocker locker(m_model.data());
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
+    if (!isValid())
+        return;
 
     if (!isValidId(id))
-        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id.toUtf8(), InvalidIdException::InvalidCharacters);
+        return;
 
     if (id == m_internalNode->id)
         return;
 
-
     if (model()->hasId(id))
-        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id.toUtf8(), InvalidIdException::DuplicateId);
+        return;
 
     m_model.data()->d->changeNodeId(m_internalNode, id);
 }
@@ -262,10 +235,9 @@ void ModelNode::setIdWithoutRefactoring(const QString &id)
 */
 TypeName ModelNode::type() const
 {
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
+    if (!isValid())
+        return {};
+
     return m_internalNode->typeName;
 }
 
@@ -274,10 +246,9 @@ TypeName ModelNode::type() const
 */
 int ModelNode::minorVersion() const
 {
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
+    if (!isValid())
+        return {};
+
     return m_internalNode->minorVersion;
 }
 
@@ -286,20 +257,17 @@ int ModelNode::minorVersion() const
 */
 int ModelNode::majorVersion() const
 {
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
+    if (!isValid())
+        return {};
+
     return m_internalNode->majorVersion;
 }
 
 /*! \return the short-hand type name of the node. */
 QString ModelNode::simplifiedTypeName() const
 {
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
+    if (!isValid())
+        return {};
 
     return QString::fromUtf8(type().split('.').constLast());
 }
@@ -332,10 +300,8 @@ bool ModelNode::isValid() const
   */
 bool ModelNode::isInHierarchy() const
 {
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
+    if (!isValid())
+        return false;
     if (isRootNode())
         return true;
     if (!hasParentProperty())
@@ -354,15 +320,11 @@ bool ModelNode::isInHierarchy() const
   */
 NodeAbstractProperty ModelNode::parentProperty() const
 {
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
+    if (!isValid())
+        return {};
 
-    if (m_internalNode->parentProperty().isNull()) {
-        Q_ASSERT_X(m_internalNode->parentProperty(), Q_FUNC_INFO, "parentProperty is invalid");
-        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "parent");
-    }
+    if (m_internalNode->parentProperty().isNull())
+        return {};
 
     return NodeAbstractProperty(m_internalNode->parentProperty()->name(), m_internalNode->parentProperty()->propertyOwner(), m_model.data(), view());
 }
@@ -388,18 +350,14 @@ parentNode4 == parentNode1; -> true
 
 void ModelNode::setParentProperty(NodeAbstractProperty parent)
 {
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
+    if (!isValid())
+        return;
 
     if (!parent.parentModelNode().isValid())
-        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, "newParentNode");
+        return;
 
-    if (*this == parent.parentModelNode()) {
-        Q_ASSERT_X(*this != parent.parentModelNode(), Q_FUNC_INFO, "cannot set parent to itself");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
+    if (*this == parent.parentModelNode())
+        return;
 
     if (hasParentProperty() && parent == parentProperty())
         return;
@@ -409,10 +367,8 @@ void ModelNode::setParentProperty(NodeAbstractProperty parent)
 
 void ModelNode::changeType(const TypeName &typeName, int majorVersion, int minorVersion)
 {
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
+    if (!isValid())
+        return;
 
     model()->d->changeNodeType(m_internalNode, typeName, majorVersion, minorVersion);
 }
@@ -428,10 +384,8 @@ void ModelNode::setParentProperty(const ModelNode &newParentNode, const Property
 */
 bool ModelNode::hasParentProperty() const
 {
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
+    if (!isValid())
+        return false;
 
     if (m_internalNode->parentProperty().isNull())
         return false;
@@ -452,7 +406,7 @@ bool ModelNode::hasParentProperty() const
 BindingProperty ModelNode::bindingProperty(const PropertyName &name) const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     return BindingProperty(name, m_internalNode, model(), view());
 }
@@ -460,7 +414,7 @@ BindingProperty ModelNode::bindingProperty(const PropertyName &name) const
 SignalHandlerProperty ModelNode::signalHandlerProperty(const PropertyName &name) const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     return SignalHandlerProperty(name, m_internalNode, model(), view());
 }
@@ -468,7 +422,7 @@ SignalHandlerProperty ModelNode::signalHandlerProperty(const PropertyName &name)
 SignalDeclarationProperty ModelNode::signalDeclarationProperty(const PropertyName &name) const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     return SignalDeclarationProperty(name, m_internalNode, model(), view());
 }
@@ -485,12 +439,11 @@ SignalDeclarationProperty ModelNode::signalDeclarationProperty(const PropertyNam
 
 NodeProperty ModelNode::nodeProperty(const PropertyName &name) const
 {
-      if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+    if (!isValid())
+        return {};
 
     return NodeProperty(name, m_internalNode, model(), view());
 }
-
 
 /*!
   \brief Returns a NodeListProperty
@@ -505,17 +458,17 @@ NodeProperty ModelNode::nodeProperty(const PropertyName &name) const
 NodeListProperty ModelNode::nodeListProperty(const PropertyName &name) const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     return NodeListProperty(name, m_internalNode, model(), view());
 }
 
 NodeAbstractProperty ModelNode::nodeAbstractProperty(const PropertyName &name) const
 {
-     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+    if (!isValid())
+        return {};
 
-     return NodeAbstractProperty(name, m_internalNode, model(), view());
+    return NodeAbstractProperty(name, m_internalNode, model(), view());
 }
 
 NodeAbstractProperty ModelNode::defaultNodeAbstractProperty() const
@@ -546,7 +499,7 @@ NodeProperty ModelNode::defaultNodeProperty() const
 VariantProperty ModelNode::variantProperty(const PropertyName &name) const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     return VariantProperty(name, m_internalNode, model(), view());
 }
@@ -554,7 +507,7 @@ VariantProperty ModelNode::variantProperty(const PropertyName &name) const
 AbstractProperty ModelNode::property(const PropertyName &name) const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     return AbstractProperty(name, m_internalNode, model(), view());
 }
@@ -577,7 +530,7 @@ The list of properties
 QList<AbstractProperty> ModelNode::properties() const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     QList<AbstractProperty> propertyList;
 
@@ -681,9 +634,10 @@ Does nothing if the node state does not set this property.
 void ModelNode::removeProperty(const PropertyName &name) const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
-    model()->d->checkPropertyName(name);
+    if (!model()->d->propertyNameIsValid(name))
+        return;
 
     if (m_internalNode->hasProperty(name))
         model()->d->removeProperty(m_internalNode->property(name));
@@ -719,13 +673,11 @@ static void removeModelNodeFromSelection(const ModelNode &node)
 */
 void ModelNode::destroy()
 {
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
+    if (!isValid())
+        return;
 
     if (isRootNode())
-        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, "rootNode");
+        return;
 
     removeModelNodeFromSelection(*this);
     model()->d->removeNode(m_internalNode);
@@ -792,6 +744,9 @@ properties.
 */
 QList<ModelNode> ModelNode::directSubModelNodes() const
 {
+    if (!isValid())
+        return {};
+
     return toModelNodeList(m_internalNode->allDirectSubNodes(), view());
 }
 
@@ -818,6 +773,9 @@ All children in this list will be implicitly removed if this ModelNode is destro
 
 QList<ModelNode> ModelNode::allSubModelNodes() const
 {
+    if (!isValid())
+        return {};
+
     return toModelNodeList(internalNode()->allSubNodes(), view());
 }
 
@@ -858,10 +816,8 @@ NodeMetaInfo ModelNode::metaInfo() const
 
 bool ModelNode::hasMetaInfo() const
 {
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
+    if (!isValid())
+        return false;
 
     return model()->hasNodeMetaInfo(type(), majorVersion(), minorVersion());
 }
@@ -871,10 +827,9 @@ bool ModelNode::hasMetaInfo() const
 */
 bool ModelNode::isSelected() const
 {
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
+    if (!isValid())
+        return false;
+
     return view()->selectedModelNodes().contains(ModelNode(m_internalNode, m_model.data(), view()));
 }
 
@@ -899,7 +854,8 @@ The list of properties set in this state.
 PropertyNameList ModelNode::propertyNames() const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
+
     return m_internalNode->propertyNameList();
 }
 
@@ -908,10 +864,7 @@ PropertyNameList ModelNode::propertyNames() const
 */
 bool ModelNode::hasProperty(const PropertyName &name) const
 {
-    if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-
-    return m_internalNode->hasProperty(name);
+    return isValid() && m_internalNode->hasProperty(name);
 }
 
 bool ModelNode::hasVariantProperty(const PropertyName &name) const
@@ -1009,7 +962,7 @@ QTextStream& operator<<(QTextStream &stream, const ModelNode &modelNode)
 void ModelNode::selectNode()
 {
     if (!isValid())
-            throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
     QList<ModelNode> selectedNodeList;
     selectedNodeList.append(*this);
@@ -1020,7 +973,7 @@ void ModelNode::selectNode()
 void ModelNode::deselectNode()
 {
     if (!isValid())
-            throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
     QList<ModelNode> selectedNodeList(view()->selectedModelNodes());
     selectedNodeList.removeAll(*this);
@@ -1041,7 +994,7 @@ QVariant ModelNode::toVariant() const
 std::optional<QVariant> ModelNode::auxiliaryData(AuxiliaryDataKeyView key) const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     return m_internalNode->auxiliaryData(key);
 }
@@ -1060,7 +1013,7 @@ QVariant ModelNode::auxiliaryDataWithDefault(AuxiliaryDataType type, Utils::Smal
 QVariant ModelNode::auxiliaryDataWithDefault(AuxiliaryDataKeyView key) const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     auto data = m_internalNode->auxiliaryData(key);
 
@@ -1092,21 +1045,26 @@ void ModelNode::setAuxiliaryData(AuxiliaryDataType type,
 
 void ModelNode::setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data) const
 {
-    Internal::WriteLocker locker(m_model.data());
-    m_model->d->setAuxiliaryData(internalNode(), key, data);
+    if (isValid()) {
+        Internal::WriteLocker locker(m_model.data());
+        m_model->d->setAuxiliaryData(internalNode(), key, data);
+    }
 }
 
 void ModelNode::setAuxiliaryDataWithoutLock(AuxiliaryDataType type,
                                             Utils::SmallStringView name,
                                             const QVariant &data) const
 {
-    m_model->d->setAuxiliaryData(internalNode(), {type, name}, data);
+    if (isValid())
+        m_model->d->setAuxiliaryData(internalNode(), {type, name}, data);
 }
 
 void ModelNode::removeAuxiliaryData(AuxiliaryDataKeyView key) const
 {
-    Internal::WriteLocker locker(m_model.data());
-    m_model->d->removeAuxiliaryData(internalNode(), key);
+    if (isValid()) {
+        Internal::WriteLocker locker(m_model.data());
+        m_model->d->removeAuxiliaryData(internalNode(), key);
+    }
 }
 
 void ModelNode::removeAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const
@@ -1117,7 +1075,7 @@ void ModelNode::removeAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringVi
 bool ModelNode::hasAuxiliaryData(AuxiliaryDataKeyView key) const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return false;
 
     return m_internalNode->hasAuxiliaryData(key);
 }
@@ -1130,7 +1088,7 @@ bool ModelNode::hasAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView 
 AuxiliaryDatasForType ModelNode::auxiliaryData(AuxiliaryDataType type) const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     return m_internalNode->auxiliaryData(type);
 }
@@ -1138,7 +1096,7 @@ AuxiliaryDatasForType ModelNode::auxiliaryData(AuxiliaryDataType type) const
 AuxiliaryDatasView ModelNode::auxiliaryData() const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     return m_internalNode->auxiliaryData();
 }
@@ -1360,10 +1318,8 @@ void ModelNode::setNodeSource(const QString &newNodeSource)
 {
     Internal::WriteLocker locker(m_model.data());
 
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
+    if (!isValid())
+        return;
 
     if (m_internalNode->nodeSource == newNodeSource)
         return;
@@ -1375,10 +1331,8 @@ void ModelNode::setNodeSource(const QString &newNodeSource, NodeSourceType type)
 {
     Internal::WriteLocker locker(m_model.data());
 
-    if (!isValid()) {
-        Q_ASSERT_X(isValid(), Q_FUNC_INFO, "model node is invalid");
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
-    }
+    if (!isValid())
+        return;
 
     if (m_internalNode->nodeSourceType == type && m_internalNode->nodeSource == newNodeSource)
         return;
@@ -1390,7 +1344,7 @@ void ModelNode::setNodeSource(const QString &newNodeSource, NodeSourceType type)
 QString ModelNode::nodeSource() const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     return m_internalNode->nodeSource;
 }
@@ -1398,7 +1352,7 @@ QString ModelNode::nodeSource() const
 QString ModelNode::convertTypeToImportAlias() const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     if (model()->rewriterView())
         return model()->rewriterView()->convertTypeToImportAlias(QString::fromLatin1(type()));
@@ -1409,7 +1363,7 @@ QString ModelNode::convertTypeToImportAlias() const
 ModelNode::NodeSourceType ModelNode::nodeSourceType() const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     return static_cast<ModelNode::NodeSourceType>(m_internalNode->nodeSourceType);
 }
@@ -1417,7 +1371,7 @@ ModelNode::NodeSourceType ModelNode::nodeSourceType() const
 bool ModelNode::isComponent() const
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return false;
 
     if (!metaInfo().isValid())
         return false;

@@ -8,7 +8,7 @@
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT BindingProperty : public QmlDesigner::AbstractProperty
+class QMLDESIGNERCORE_EXPORT BindingProperty final : public QmlDesigner::AbstractProperty
 {
     friend ModelNode;
     friend Internal::ModelPrivate;

@@ -16,7 +16,7 @@ class Annotation;
 class AnnotationEditor;
 class StatesEditorView;
 
-class QMLDESIGNERCORE_EXPORT QmlModelState : public QmlModelNodeFacade
+class QMLDESIGNERCORE_EXPORT QmlModelState final : public QmlModelNodeFacade
 {
     friend StatesEditorView;
 
@@ -41,6 +41,7 @@ public:
     QString name() const;
     void setName(const QString &name);
     bool isValid() const override;
+    explicit operator bool() const { return isValid(); }
     static bool isValidQmlModelState(const ModelNode &modelNode);
     void destroy();
 

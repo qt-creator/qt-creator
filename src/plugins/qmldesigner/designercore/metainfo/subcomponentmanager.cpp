@@ -3,6 +3,7 @@
 
 #include "subcomponentmanager.h"
 
+#include <invalidmetainfoexception.h>
 #include <itemlibraryimport.h>
 #include <qmldesignerconstants.h>
 

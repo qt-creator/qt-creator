@@ -2528,12 +2528,8 @@ void tst_TestCore::testModelRemoveNode()
     QVERIFY(!childNode.isValid());
     QVERIFY(!subChildNode.isValid());
 
-    try {
-        view->rootModelNode().destroy();
-        QFAIL("remove the rootModelNode should be throw a exception");
-    } catch (Exception &exception) {
-        QCOMPARE(exception.type(), QString("InvalidArgumentException"));
-    }
+    view->rootModelNode().destroy();
+    QVERIFY(view->rootModelNode().isValid());
 
     QVERIFY(view->rootModelNode().isValid());
 

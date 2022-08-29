@@ -25,9 +25,10 @@ class QMLDESIGNERCORE_EXPORT QmlItemNode : public QmlVisualNode
     friend QmlAnchors;
 
 public:
-    QmlItemNode() : QmlVisualNode() {}
+    QmlItemNode() = default;
     QmlItemNode(const ModelNode &modelNode)  : QmlVisualNode(modelNode) {}
     bool isValid() const override;
+    explicit operator bool() const { return isValid(); }
     static bool isValidQmlItemNode(const ModelNode &modelNode);
 
     static bool isItemOrWindow(const ModelNode &modelNode);
@@ -133,11 +134,12 @@ public:
 class QmlFlowItemNode;
 class QmlFlowViewNode;
 
-class QMLDESIGNERCORE_EXPORT QmlFlowTargetNode : public QmlItemNode
+class QMLDESIGNERCORE_EXPORT QmlFlowTargetNode final : public QmlItemNode
 {
 public:
     QmlFlowTargetNode(const ModelNode &modelNode)  : QmlItemNode(modelNode) {}
     bool isValid() const override;
+    explicit operator bool() const { return isValid(); }
 
     void assignTargetItem(const QmlFlowTargetNode &node);
     void destroyTargets();
@@ -148,11 +150,12 @@ public:
     void removeTransitions();
 };
 
-class QMLDESIGNERCORE_EXPORT QmlFlowActionAreaNode : public QmlItemNode
+class QMLDESIGNERCORE_EXPORT QmlFlowActionAreaNode final : public QmlItemNode
 {
 public:
     QmlFlowActionAreaNode(const ModelNode &modelNode)  : QmlItemNode(modelNode) {}
     bool isValid() const override;
+    explicit operator bool() const { return isValid(); }
     static bool isValidQmlFlowActionAreaNode(const ModelNode &modelNode);
     ModelNode targetTransition() const;
     void assignTargetFlowItem(const QmlFlowTargetNode &flowItem);
@@ -160,11 +163,12 @@ public:
     void destroyTarget();
 };
 
-class QMLDESIGNERCORE_EXPORT QmlFlowItemNode : public QmlItemNode
+class QMLDESIGNERCORE_EXPORT QmlFlowItemNode final : public QmlItemNode
 {
 public:
     QmlFlowItemNode(const ModelNode &modelNode)  : QmlItemNode(modelNode) {}
     bool isValid() const override;
+    explicit operator bool() const { return isValid(); }
     static bool isValidQmlFlowItemNode(const ModelNode &modelNode);
     QList<QmlFlowActionAreaNode> flowActionAreas() const;
     QmlFlowViewNode flowView() const;
@@ -172,11 +176,12 @@ public:
     static ModelNode decisionNodeForTransition(const ModelNode &transition);
 };
 
-class QMLDESIGNERCORE_EXPORT QmlFlowViewNode : public QmlItemNode
+class QMLDESIGNERCORE_EXPORT QmlFlowViewNode final : public QmlItemNode
 {
 public:
     QmlFlowViewNode(const ModelNode &modelNode)  : QmlItemNode(modelNode) {}
     bool isValid() const override;
+    explicit operator bool() const { return isValid(); }
     static bool isValidQmlFlowViewNode(const ModelNode &modelNode);
     QList<QmlFlowItemNode> flowItems() const;
     ModelNode addTransition(const QmlFlowTargetNode &from, const QmlFlowTargetNode &to);

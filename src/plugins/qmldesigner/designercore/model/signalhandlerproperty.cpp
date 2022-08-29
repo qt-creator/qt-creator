@@ -3,9 +3,6 @@
 
 #include "signalhandlerproperty.h"
 #include "internalproperty.h"
-#include "invalidmodelnodeexception.h"
-#include "invalidpropertyexception.h"
-#include "invalidargumentexception.h"
 #include "internalnode_p.h"
 #include "model.h"
 #include "model_p.h"
@@ -27,14 +24,13 @@ void SignalHandlerProperty::setSource(const QString &source)
 {
     Internal::WriteLocker locker(model());
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
-    if (name() == "id") { // the ID for a node is independent of the state, so it has to be set with ModelNode::setId
-        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, name());
-    }
+    if (name() == "id")
+        return;
 
     if (source.isEmpty())
-        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, name());
+        return;
 
     if (internalNode()->hasProperty(name())) { //check if oldValue != value
         Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
@@ -105,14 +101,13 @@ void SignalDeclarationProperty::setSignature(const QString &signature)
 {
     Internal::WriteLocker locker(model());
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
-    if (name() == "id") { // the ID for a node is independent of the state, so it has to be set with ModelNode::setId
-        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, name());
-    }
+    if (name() == "id")
+        return;
 
     if (signature.isEmpty())
-        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, name());
+        return;
 
     if (internalNode()->hasProperty(name())) { //check if oldValue != value
         Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
@@ -130,8 +125,7 @@ void SignalDeclarationProperty::setSignature(const QString &signature)
 
 QString SignalDeclarationProperty::signature() const
 {
-
-    if (internalNode()->hasProperty(name())
+    if (internalNode() && internalNode()->hasProperty(name())
         && internalNode()->property(name())->isSignalDeclarationProperty())
         return internalNode()->signalDeclarationProperty(name())->signature();
 

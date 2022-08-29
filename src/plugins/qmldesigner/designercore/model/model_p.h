@@ -217,7 +217,7 @@ public:
     void reparentNode(const InternalNodePointer &parentNode, const PropertyName &name, const InternalNodePointer &childNode,
                       bool list = true, const TypeName &dynamicTypeName = TypeName());
     void changeNodeOrder(const InternalNodePointer &parentNode, const PropertyName &listPropertyName, int from, int to);
-    void checkPropertyName(const PropertyName &propertyName);
+    bool propertyNameIsValid(const PropertyName &propertyName) const;
     void clearParent(const InternalNodePointer &node);
     void changeRootNodeType(const TypeName &type, int majorVersion, int minorVersion);
     void setScriptFunctions(const InternalNodePointer &node, const QStringList &scriptFunctionList);

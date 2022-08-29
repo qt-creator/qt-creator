@@ -2,9 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "nodeproperty.h"
-#include "invalidmodelnodeexception.h"
-#include "invalidargumentexception.h"
-#include "invalidreparentingexception.h"
 #include "internalnode_p.h"
 #include "model.h"
 #include "model_p.h"
@@ -22,10 +19,10 @@ NodeProperty::NodeProperty(const PropertyName &propertyName, const Internal::Int
 void NodeProperty::setModelNode(const ModelNode &modelNode)
 {
     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
     if (!modelNode.isValid())
-        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, name());
+        return;
 
     if (internalNode()->hasProperty(name())) { //check if oldValue != value
         Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
@@ -42,14 +39,14 @@ void NodeProperty::setModelNode(const ModelNode &modelNode)
 
 ModelNode NodeProperty::modelNode() const
 {
-     if (!isValid())
-        throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+    if (!isValid())
+        return {};
 
-     if (internalNode()->hasProperty(name())) { //check if oldValue != value
-         Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
-         if (internalProperty->isNodeProperty())
-             return ModelNode(internalProperty->toNodeProperty()->node(), model(), view());
-     }
+    if (internalNode()->hasProperty(name())) { //check if oldValue != value
+        Internal::InternalProperty::Pointer internalProperty = internalNode()->property(name());
+        if (internalProperty->isNodeProperty())
+            return ModelNode(internalProperty->toNodeProperty()->node(), model(), view());
+    }
 
     return ModelNode();
 }
@@ -62,10 +59,10 @@ void NodeProperty::reparentHere(const ModelNode &modelNode)
 void NodeProperty::setDynamicTypeNameAndsetModelNode(const TypeName &typeName, const ModelNode &modelNode)
 {
     if (!modelNode.isValid())
-       throw InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
     if (modelNode.hasParentProperty()) /* Not supported */
-        throw InvalidReparentingException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
     NodeAbstractProperty::reparentHere(modelNode, false, typeName);
 }

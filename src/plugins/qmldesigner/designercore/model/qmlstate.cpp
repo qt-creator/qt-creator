@@ -28,7 +28,7 @@ QmlModelState::QmlModelState(const ModelNode &modelNode)
 
 QmlPropertyChanges QmlModelState::propertyChanges(const ModelNode &node)
 {
-    if (!isBaseState()) {
+    if (isValid() && !isBaseState()) {
         addChangeSetIfNotExists(node);
 
         const QList<ModelNode> nodes = modelNode().nodeListProperty("changes").toModelNodeList();
@@ -137,7 +137,7 @@ QList<QmlModelStateOperation> QmlModelState::allInvalidStateOperations() const
 void QmlModelState::addChangeSetIfNotExists(const ModelNode &node)
 {
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
     if (!hasPropertyChanges(node)) {
         ModelNode newChangeSet;
@@ -162,7 +162,7 @@ void QmlModelState::removePropertyChanges(const ModelNode &node)
     //### exception if not valid
 
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
     if (!isBaseState()) {
         QmlPropertyChanges changeSet(propertyChanges(node));
@@ -178,6 +178,9 @@ void QmlModelState::removePropertyChanges(const ModelNode &node)
 */
 bool QmlModelState::affectsModelNode(const ModelNode &node) const
 {
+    if (!isValid())
+        return false;
+
     if (isBaseState())
         return false;
 
@@ -249,7 +252,7 @@ bool QmlModelState::isBaseState(const ModelNode &modelNode)
 QmlModelState QmlModelState::duplicate(const QString &name) const
 {
     if (!isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
 //    QmlModelState newState(stateGroup().addState(name));
     QmlModelState newState(createQmlState(view(), {{PropertyName("name"), QVariant(name)}}));

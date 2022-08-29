@@ -13,13 +13,14 @@ class AbstractViewAbstractVieweGroup;
 class QmlObjectNode;
 class QmlTimeline;
 
-class QMLDESIGNERCORE_EXPORT QmlTimelineKeyframeGroup : public QmlModelNodeFacade
+class QMLDESIGNERCORE_EXPORT QmlTimelineKeyframeGroup final : public QmlModelNodeFacade
 {
 public:
     QmlTimelineKeyframeGroup();
     QmlTimelineKeyframeGroup(const ModelNode &modelNode);
 
     bool isValid() const override;
+    explicit operator bool() const { return isValid(); }
     static bool isValidQmlTimelineKeyframeGroup(const ModelNode &modelNode);
     void destroy();
 

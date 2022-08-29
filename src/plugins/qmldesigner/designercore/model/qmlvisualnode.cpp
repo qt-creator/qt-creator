@@ -9,13 +9,11 @@
 #include "variantproperty.h"
 #include "bindingproperty.h"
 #include "qmlanchors.h"
-#include "invalidmodelnodeexception.h"
 #include "itemlibraryinfo.h"
 
 #include "plaintexteditmodifier.h"
 #include "rewriterview.h"
 #include "modelmerger.h"
-#include "rewritingexception.h"
 
 #include <utils/qtcassert.h>
 
@@ -430,7 +428,7 @@ QStringList QmlModelStateGroup::names() const
     QStringList returnList;
 
     if (!modelNode().isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     if (modelNode().property("states").isNodeListProperty()) {
         for (const ModelNode &node : modelNode().nodeListProperty("states").toModelNodeList()) {
@@ -446,7 +444,7 @@ QList<QmlModelState> QmlModelStateGroup::allStates() const
     QList<QmlModelState> returnList;
 
     if (!modelNode().isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     if (modelNode().property("states").isNodeListProperty()) {
         for (const ModelNode &node : modelNode().nodeListProperty("states").toModelNodeList()) {
@@ -460,7 +458,7 @@ QList<QmlModelState> QmlModelStateGroup::allStates() const
 QmlModelState QmlModelStateGroup::addState(const QString &name)
 {
     if (!modelNode().isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     ModelNode newState = QmlModelState::createQmlState(
                 modelNode().view(), {{PropertyName("name"), QVariant(name)}});
@@ -472,7 +470,7 @@ QmlModelState QmlModelStateGroup::addState(const QString &name)
 void QmlModelStateGroup::removeState(const QString &name)
 {
     if (!modelNode().isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return;
 
     if (state(name).isValid())
         state(name).modelNode().destroy();
@@ -481,7 +479,7 @@ void QmlModelStateGroup::removeState(const QString &name)
 QmlModelState QmlModelStateGroup::state(const QString &name) const
 {
     if (!modelNode().isValid())
-        throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+        return {};
 
     if (modelNode().property("states").isNodeListProperty()) {
         for (const ModelNode &node : modelNode().nodeListProperty("states").toModelNodeList()) {

@@ -3,8 +3,6 @@
 
 #include "model.h"
 #include "internalnode_p.h"
-#include "invalidargumentexception.h"
-#include "invalidpropertyexception.h"
 #include "model_p.h"
 #include <modelnode.h>
 
@@ -15,14 +13,12 @@
 #include "internalnodelistproperty.h"
 #include "internalproperty.h"
 #include "internalsignalhandlerproperty.h"
-#include "invalidmodelnodeexception.h"
 #include "metainfo.h"
 #include "nodeinstanceview.h"
 #include "nodemetainfo.h"
 
 #include "abstractproperty.h"
 #include "bindingproperty.h"
-#include "invalididexception.h"
 #include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
 #include "rewriterview.h"
@@ -222,7 +218,6 @@ void ModelPrivate::changeNodeType(const InternalNodePointer &node, const TypeNam
     try {
         notifyNodeTypeChanged(node, typeName, majorVersion, minorVersion);
     } catch (const RewritingException &e) {
-        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, e.description().toUtf8());
     }
 }
 
@@ -237,7 +232,7 @@ InternalNodePointer ModelPrivate::createNode(const TypeName &typeName,
                                              bool isRootNode)
 {
     if (typeName.isEmpty())
-        throw InvalidArgumentException(__LINE__, __FUNCTION__, __FILE__, tr("invalid type").toUtf8());
+        return {};
 
     qint32 internalId = 0;
 
@@ -355,21 +350,18 @@ void ModelPrivate::changeNodeId(const InternalNodePointer &node, const QString &
     try {
         notifyNodeIdChanged(node, id, oldId);
     } catch (const RewritingException &e) {
-        throw InvalidIdException(__LINE__, __FUNCTION__, __FILE__, id.toUtf8(), e.description().toUtf8());
     }
 }
 
-void ModelPrivate::checkPropertyName(const PropertyName &propertyName)
+bool ModelPrivate::propertyNameIsValid(const PropertyName &propertyName) const
 {
-    if (propertyName.isEmpty()) {
-        Q_ASSERT_X(propertyName.isEmpty(), Q_FUNC_INFO, "empty property name");
-        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, "<empty property name>");
-    }
+    if (propertyName.isEmpty())
+        return false;
 
-    if (propertyName == "id") {
-        Q_ASSERT_X(propertyName != "id", Q_FUNC_INFO, "cannot add property id");
-        throw InvalidPropertyException(__LINE__, __FUNCTION__, __FILE__, propertyName);
-    }
+    if (propertyName == "id")
+        return false;
+
+    return true;
 }
 
 template<typename Callable>
@@ -929,11 +921,13 @@ void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListPropertyPointer 
 
 void ModelPrivate::setSelectedNodes(const QList<InternalNodePointer> &selectedNodeList)
 {
-    auto sortedSelectedList = Utils::filtered(selectedNodeList,
-                                              [](const auto &node) { return node->isValid; });
+    auto sortedSelectedList = Utils::filtered(selectedNodeList, [](const auto &node) {
+        return node && node->isValid;
+    });
 
-    sortedSelectedList = Utils::toList(Utils::toSet(sortedSelectedList));
     Utils::sort(sortedSelectedList);
+    sortedSelectedList.erase(std::unique(sortedSelectedList.begin(), sortedSelectedList.end()),
+                             sortedSelectedList.end());
 
     if (sortedSelectedList == m_selectedInternalNodeList)
         return;
@@ -1017,7 +1011,7 @@ QList<InternalNodePointer> ModelPrivate::selectedNodes() const
 {
     for (const InternalNodePointer &node : std::as_const(m_selectedInternalNodeList)) {
         if (!node->isValid)
-            throw new InvalidModelNodeException(__LINE__, __FUNCTION__, __FILE__);
+            return {};
     }
 
     return m_selectedInternalNodeList;
