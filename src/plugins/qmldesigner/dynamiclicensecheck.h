@@ -102,4 +102,18 @@ inline QString licensee()
     return {};
 }
 
+inline QString licenseeEmail()
+{
+    if (auto plugin = Internal::licenseCheckerPlugin()) {
+        QString retVal;
+        bool success = QMetaObject::invokeMethod(plugin,
+                                                 "licenseeEmail",
+                                                 Qt::DirectConnection,
+                                                 Q_RETURN_ARG(QString, retVal));
+        if (success)
+            return retVal;
+    }
+    return {};
+}
+
 } // namespace Utils
