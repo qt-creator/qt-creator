@@ -12,7 +12,12 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 
 QT_BEGIN_NAMESPACE
+class QComboBox;
+class QGroupBox;
+class QLabel;
+class QLineEdit;
 class QPushButton;
+class QVBoxLayout;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer {
@@ -61,6 +66,20 @@ private:
     NameValidator * const m_nameValidator;
     QList<QPushButton *> m_additionalActionButtons;
     IDeviceWidget *m_configWidget;
+
+    QLabel *m_configurationLabel;
+    QComboBox *m_configurationComboBox;
+    QGroupBox *m_generalGroupBox;
+    QLineEdit *m_nameLineEdit;
+    QLabel *m_osTypeValueLabel;
+    QLabel *m_autoDetectionLabel;
+    QLabel *m_deviceStateIconLabel;
+    QLabel *m_deviceStateTextLabel;
+    QGroupBox *m_osSpecificGroupBox;
+    QPushButton *m_addConfigButton;
+    QPushButton *m_removeConfigButton;
+    QPushButton *m_defaultDeviceButton;
+    QVBoxLayout *m_buttonsLayout;
 };
 
 } // namespace Internal

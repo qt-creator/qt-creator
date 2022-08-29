@@ -217,7 +217,7 @@ Project {
                 "deviceprocessesdialog.cpp", "deviceprocessesdialog.h",
                 "deviceprocesslist.cpp", "deviceprocesslist.h",
                 "devicesettingspage.cpp", "devicesettingspage.h",
-                "devicesettingswidget.cpp", "devicesettingswidget.h", "devicesettingswidget.ui",
+                "devicesettingswidget.cpp", "devicesettingswidget.h",
                 "devicetestdialog.cpp", "devicetestdialog.h",
                 "deviceusedportsgatherer.cpp", "deviceusedportsgatherer.h",
                 "filetransfer.cpp", "filetransfer.h",
