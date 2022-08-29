@@ -152,7 +152,7 @@ SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
             }
         },
         m_autoLoadCheckBox,
-        HorizontalRule {},
+        hr,
         Row { whatsASessionLabel, buttonBox },
     }.attachTo(this);
 

@@ -51,6 +51,7 @@ public:
         Space,
         Stretch,
         Break,
+        HorizontalRule,
     };
 
     using Setter = std::function<void(QObject *target)>;
@@ -128,6 +129,12 @@ public:
         Break();
     };
 
+    class QTCREATOR_UTILS_EXPORT HorizontalRule : public LayoutItem
+    {
+    public:
+        HorizontalRule();
+    };
+
 protected:
     explicit LayoutBuilder(); // Adds to existing layout.
 
@@ -173,12 +180,6 @@ public:
     PushButton(std::initializer_list<LayoutItem> items);
 };
 
-class QTCREATOR_UTILS_EXPORT HorizontalRule : public LayoutBuilder::LayoutItem
-{
-public:
-    HorizontalRule(std::initializer_list<LayoutItem> items);
-};
-
 class QTCREATOR_UTILS_EXPORT Column : public LayoutBuilder
 {
 public:
@@ -213,6 +214,7 @@ using Span = LayoutBuilder::Span;
 QTCREATOR_UTILS_EXPORT extern LayoutBuilder::Break br;
 QTCREATOR_UTILS_EXPORT extern LayoutBuilder::Stretch st;
 QTCREATOR_UTILS_EXPORT extern LayoutBuilder::Space empty;
+QTCREATOR_UTILS_EXPORT extern LayoutBuilder::HorizontalRule hr;
 
 } // Layouting
 } // Utils

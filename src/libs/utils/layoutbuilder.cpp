@@ -142,6 +142,8 @@ static void addItemToBoxLayout(QBoxLayout *layout, const LayoutBuilder::LayoutIt
         layout->addStretch(item.specialValue.toInt());
     } else if (item.specialType == LayoutBuilder::SpecialType::Space) {
         layout->addSpacing(item.specialValue.toInt());
+    } else if (item.specialType == LayoutBuilder::SpecialType::HorizontalRule) {
+        layout->addWidget(Layouting::createHr());
     } else if (!item.text.isEmpty()) {
         layout->addWidget(new QLabel(item.text));
     } else {
@@ -441,6 +443,11 @@ LayoutBuilder::Span::Span(int span_, const LayoutItem &item)
     span = span_;
 }
 
+LayoutBuilder::HorizontalRule::HorizontalRule()
+{
+    specialType = SpecialType::HorizontalRule;
+}
+
 namespace Layouting {
 
 // "Widgets"
@@ -469,12 +476,6 @@ Group::Group(std::initializer_list<LayoutBuilder::LayoutItem> items)
 PushButton::PushButton(std::initializer_list<LayoutBuilder::LayoutItem> items)
 {
     widget = new QPushButton;
-    applyItems(widget, items);
-}
-
-HorizontalRule::HorizontalRule(std::initializer_list<LayoutItem> items)
-{
-    widget = createHr();
     applyItems(widget, items);
 }
 
@@ -541,6 +542,7 @@ QWidget *createHr(QWidget *parent)
 LayoutBuilder::Break br;
 LayoutBuilder::Stretch st;
 LayoutBuilder::Space empty(0);
+LayoutBuilder::HorizontalRule hr;
 
 } // Layouting
 } // Utils

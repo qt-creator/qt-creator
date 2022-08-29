@@ -140,7 +140,7 @@ QbsProfilesSettingsWidget::QbsProfilesSettingsWidget()
             tr("Kit:"), m_kitsComboBox, br,
             tr("Associated profile:"), m_profileValueLabel, br,
         },
-        HorizontalRule {},
+        hr,
         tr("Profile properties:"),
         Row {
             m_propertiesView,

@@ -116,7 +116,7 @@ IosSettingsWidget::IosSettingsWidget()
                         st
                     },
                 },
-                HorizontalRule {},
+                hr,
                 Row { tr("Screenshot directory:"), m_pathWidget }
             }
         }

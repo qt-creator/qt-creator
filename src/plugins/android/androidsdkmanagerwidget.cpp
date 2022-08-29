@@ -137,7 +137,7 @@ AndroidSdkManagerWidget::AndroidSdkManagerWidget(AndroidConfig &config,
                 Column {
                     Row { tr("Channel:"), channelCheckbox },
                     obsoleteCheckBox,
-                    HorizontalRule {},
+                    hr,
                     showAvailableRadio,
                     showInstalledRadio,
                     showAllRadio,

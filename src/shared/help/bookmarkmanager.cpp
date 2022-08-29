@@ -79,7 +79,7 @@ BookmarkDialog::BookmarkDialog(BookmarkManager *manager, const QString &title,
             tr("Bookmark:"), m_bookmarkEdit, br,
             tr("Add in folder:"), m_bookmarkFolders, br,
         },
-        Row { m_toolButton, HorizontalRule {}, },
+        Row { m_toolButton, hr },
         m_treeView,
         Row { m_newFolderButton, m_buttonBox, }
     }.attachTo(this);

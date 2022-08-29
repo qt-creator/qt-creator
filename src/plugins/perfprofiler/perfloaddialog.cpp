@@ -57,7 +57,7 @@ PerfLoadDialog::PerfLoadDialog(QWidget *parent)
             label3, Span(2, m_kitChooser)
         },
         st,
-        HorizontalRule {},
+        hr,
         buttonBox
     }.attachTo(this);
 
