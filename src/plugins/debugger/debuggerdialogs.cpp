@@ -96,14 +96,6 @@ public:
     QDialogButtonBox *buttonBox;
 };
 
-} // namespace Internal
-} // namespace Debugger
-
-Q_DECLARE_METATYPE(Debugger::Internal::StartApplicationParameters)
-
-namespace Debugger {
-namespace Internal {
-
 ///////////////////////////////////////////////////////////////////////
 //
 // StartApplicationParameters
@@ -133,6 +125,14 @@ public:
     QString serverResetCommands;
     FilePath debugInfoLocation;
 };
+
+} // namespace Internal
+} // namespace Debugger
+
+Q_DECLARE_METATYPE(Debugger::Internal::StartApplicationParameters)
+
+namespace Debugger {
+namespace Internal {
 
 bool StartApplicationParameters::equals(const StartApplicationParameters &rhs) const
 {
