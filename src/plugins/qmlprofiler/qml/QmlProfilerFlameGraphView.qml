@@ -24,21 +24,21 @@ FlameGraphView {
     ]
 
     trRoleNames: [
-        QmlProfilerFlameGraphModel.DurationRole,      qsTr("Total Time"),
-        QmlProfilerFlameGraphModel.CallCountRole,     qsTr("Calls"),
-        QmlProfilerFlameGraphModel.DetailsRole,       qsTr("Details"),
-        QmlProfilerFlameGraphModel.TimePerCallRole,   qsTr("Mean Time"),
-        QmlProfilerFlameGraphModel.TimeInPercentRole, qsTr("In Percent"),
-        QmlProfilerFlameGraphModel.LocationRole,      qsTr("Location"),
-        QmlProfilerFlameGraphModel.AllocationsRole,   qsTr("Allocations"),
-        QmlProfilerFlameGraphModel.MemoryRole,        qsTr("Memory")
+        QmlProfilerFlameGraphModel.DurationRole,      qsTranslate("QmlProfiler", "Total Time"),
+        QmlProfilerFlameGraphModel.CallCountRole,     qsTranslate("QmlProfiler", "Calls"),
+        QmlProfilerFlameGraphModel.DetailsRole,       qsTranslate("QmlProfiler", "Details"),
+        QmlProfilerFlameGraphModel.TimePerCallRole,   qsTranslate("QmlProfiler", "Mean Time"),
+        QmlProfilerFlameGraphModel.TimeInPercentRole, qsTranslate("QmlProfiler", "In Percent"),
+        QmlProfilerFlameGraphModel.LocationRole,      qsTranslate("QmlProfiler", "Location"),
+        QmlProfilerFlameGraphModel.AllocationsRole,   qsTranslate("QmlProfiler", "Allocations"),
+        QmlProfilerFlameGraphModel.MemoryRole,        qsTranslate("QmlProfiler", "Memory")
     ].reduce(toMap, {})
 
     details: function(flameGraph) {
         var model = [];
         if (!flameGraph.dataValid) {
             model.push(trRoleNames[QmlProfilerFlameGraphModel.DetailsRole]);
-            model.push(qsTr("Various Events"));
+            model.push(qsTranslate("QmlProfiler", "Various Events"));
         } else {
             function addDetail(role, format) { root.addDetail(role, format, model, flameGraph); }
 
@@ -55,7 +55,7 @@ FlameGraphView {
 
     summary: function(attached) {
         if (!attached.dataValid)
-            return qsTr("others");
+            return qsTranslate("QmlProfiler", "others");
 
         return attached.data(QmlProfilerFlameGraphModel.DetailsRole) + " ("
                 + attached.data(QmlProfilerFlameGraphModel.TypeRole) + ", "

@@ -36256,7 +36256,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerAttachDialog</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">对话框</translation>
@@ -37560,11 +37560,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerEngine</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>QML 分析器(Profiler)</translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source>Application finished before loading profiled data.
  Please use the stop button instead.</source>
@@ -37596,101 +37592,13 @@ These files are preserved.</source>
         <translation>无法连接到进程内(in-process)QML 调试器:
 %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventStatistics</name>
-    <message>
-        <source>Source code not available</source>
-        <translation type="obsolete">源代码不可用</translation>
-    </message>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation type="obsolete">&lt;字节码&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsView</name>
-    <message>
-        <source>Location</source>
-        <translation type="obsolete">位置</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="obsolete">类型</translation>
-    </message>
-    <message>
-        <source>Time in Percent</source>
-        <translation type="obsolete">时间百分比</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation type="obsolete">总时间</translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation type="obsolete">呼叫</translation>
-    </message>
     <message>
         <source>Time per Call</source>
         <translation type="obsolete">呼叫时间比</translation>
     </message>
     <message>
-        <source>Mean Time</source>
-        <translation type="obsolete">平均时间</translation>
-    </message>
-    <message>
-        <source>Median Time</source>
-        <translation type="obsolete">中间时间</translation>
-    </message>
-    <message>
-        <source>Longest Time</source>
-        <translation type="obsolete">最长时间</translation>
-    </message>
-    <message>
-        <source>Shortest Time</source>
-        <translation type="obsolete">最短时间</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation type="obsolete">详情</translation>
-    </message>
-    <message>
-        <source>Paint</source>
-        <translation type="obsolete">画</translation>
-    </message>
-    <message>
-        <source>Compile</source>
-        <translation type="obsolete">编译</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation type="obsolete">创建</translation>
-    </message>
-    <message>
-        <source>Binding</source>
-        <translation type="obsolete">绑定</translation>
-    </message>
-    <message>
-        <source>Signal</source>
-        <translation type="obsolete">信号</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerRunControlFactory</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation type="obsolete">QML审查</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTool</name>
-    <message>
         <source>QML Profiler Options</source>
         <translation>QML 分析器选项</translation>
-    </message>
-    <message>
-        <source>QML Profiler</source>
-        <translation>QML 分析器</translation>
     </message>
     <message>
         <source>The QML Profiler can be used to find performance bottlenecks in applications using QML.</source>
@@ -37727,28 +37635,12 @@ Please use the stop button instead.</source>
         <translation>保存 QML 追踪文件</translation>
     </message>
     <message>
-        <source>Copy Row</source>
-        <translation type="obsolete">复制行</translation>
-    </message>
-    <message>
-        <source>Copy Table</source>
-        <translation type="obsolete">复制表格</translation>
-    </message>
-    <message>
         <source>The QML profiler requires Qt 4.7.4 or newer.
 The Qt version configured in your active build configuration is too old.
 Do you want to continue?</source>
         <translation>QML 分析器需要Qt 4.7.4 或更新版本。
 您在构建配置中设置的Qt 版本太旧。
 您想要继续吗？</translation>
-    </message>
-    <message>
-        <source>Events</source>
-        <translation type="obsolete">项</translation>
-    </message>
-    <message>
-        <source>Timeline</source>
-        <translation type="obsolete">时间轴</translation>
     </message>
     <message>
         <source>Callees</source>
@@ -37779,10 +37671,6 @@ Do you want to continue?</source>
         <translation type="obsolete">逝去: %1 s</translation>
     </message>
     <message>
-        <source>Qt Creator</source>
-        <translation type="obsolete">Qt Creator</translation>
-    </message>
-    <message>
         <source>QML traces (%1)</source>
         <translation type="obsolete">QML 踪迹(%1)</translation>
     </message>
@@ -37790,9 +37678,6 @@ Do you want to continue?</source>
         <source>Detach</source>
         <translation type="obsolete">分离</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::RemoteLinuxQmlProfilerRunner</name>
     <message>
         <source>Gathering ports failed: %1</source>
         <translation>搜集端口失败:%1</translation>
@@ -37823,17 +37708,6 @@ Do you want to continue?</source>
 </source>
         <translation type="obsolete">远程进程运行结束.返回值%1.
 </translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::TraceWindow</name>
-    <message>
-        <source>Jump to previous event</source>
-        <translation type="obsolete">跳到上一个事件</translation>
-    </message>
-    <message>
-        <source>Jump to next event</source>
-        <translation type="obsolete">跳到下一个事件</translation>
     </message>
     <message>
         <source>Zoom in 10%</source>
@@ -40611,7 +40485,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>MainView</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Painting</source>
         <translation type="obsolete">绘制中</translation>
@@ -40623,10 +40497,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     <message>
         <source>Creating</source>
         <translation type="obsolete">创建中</translation>
-    </message>
-    <message>
-        <source>Binding</source>
-        <translation type="obsolete">绑定</translation>
     </message>
     <message>
         <source>Signal Handler</source>
@@ -40983,10 +40853,6 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
 </context>
 <context>
     <name>QmlJsDebugClient::QmlProfilerEventList</name>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation type="obsolete">&lt;字节码&gt;</translation>
-    </message>
     <message>
         <source>Source code not available</source>
         <translation type="obsolete">源代码不可用</translation>
@@ -48487,20 +48353,13 @@ Qt Creator 知道一个相似的URI。</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerClientManager</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source>Could not connect to the in-process QML profiler.
 Do you want to retry?</source>
         <translation>无法连接到进程内的QML分析器。
 您想重试吗？</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerDataModel</name>
     <message>
         <source>Source code not available</source>
         <translation>源代码不可用</translation>
@@ -48549,9 +48408,6 @@ Do you want to retry?</source>
         <source>Invalid version of QML Trace file.</source>
         <translation>QML追踪文件的版本无效。</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsWidget</name>
     <message>
         <source>Trace information from the v8 JavaScript engine. Available only in Qt5 based applications.</source>
         <translation>从v8 JavaScript引擎中追踪信息。仅在基于Qt5的应用程序中可用。</translation>
@@ -48576,9 +48432,6 @@ Do you want to retry?</source>
         <source>Reset Events Pane</source>
         <translation>重置事件窗口</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStatisticsMainView</name>
     <message>
         <source>Location</source>
         <translation>路径</translation>
@@ -48677,9 +48530,6 @@ references to elements in other files, loops, etc.)</source>
         <source>Signal</source>
         <translation>信号</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsParentsAndChildrenView</name>
     <message>
         <source>Part of binding loop.</source>
         <translation>循环绑定的一部分。</translation>
@@ -48693,18 +48543,6 @@ references to elements in other files, loops, etc.)</source>
         <translation>调用者</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>类型</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation>总时间</translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation>调用</translation>
-    </message>
-    <message>
         <source>Callee Description</source>
         <translation>被调用者的说明</translation>
     </message>
@@ -48712,9 +48550,6 @@ references to elements in other files, loops, etc.)</source>
         <source>Caller Description</source>
         <translation>调用者的说明</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStateWidget</name>
     <message>
         <source>Loading data</source>
         <translation>正在载入数据</translation>
@@ -48731,9 +48566,6 @@ references to elements in other files, loops, etc.)</source>
         <source>Application stopped before loading all data</source>
         <translation>在载入数据之前应用程序停止</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTraceView</name>
     <message>
         <source>Jump to previous event</source>
         <translation>跳到上一个事件</translation>
@@ -48755,20 +48587,9 @@ references to elements in other files, loops, etc.)</source>
         <translation>在鼠标悬停时查看事件信息</translation>
     </message>
     <message>
-        <source>Limit Events Pane to Current Range</source>
-        <translation>限制事件窗口为当前的范围</translation>
-    </message>
-    <message>
-        <source>Reset Events Pane</source>
-        <translation>重置事件窗口</translation>
-    </message>
-    <message>
         <source>Reset Zoom</source>
         <translation>重置缩放</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerViewManager</name>
     <message>
         <source>Events</source>
         <translation>事件</translation>

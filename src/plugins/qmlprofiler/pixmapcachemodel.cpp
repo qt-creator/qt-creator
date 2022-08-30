@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "pixmapcachemodel.h"
-#include "qmlprofilermodelmanager.h"
 #include "qmlprofilereventtypes.h"
+#include "qmlprofilermodelmanager.h"
+#include "qmlprofilertr.h"
 
 #include <tracing/timelineformattime.h>
 
@@ -71,7 +72,7 @@ QVariantList PixmapCacheModel::labels() const
 
     // Cache Size
     QVariantMap element;
-    element.insert(QLatin1String("description"), tr("Cache Size"));
+    element.insert(QLatin1String("description"), Tr::tr("Cache Size"));
 
     element.insert(QLatin1String("id"), 0);
     result << element;
@@ -95,19 +96,19 @@ QVariantMap PixmapCacheModel::details(int index) const
     const Item *ev = &m_data[index];
 
     if (ev->pixmapEventType == PixmapCacheCountChanged) {
-        result.insert(QLatin1String("displayName"), tr("Image Cached"));
-        result.insert(tr("Cache Size"), QString::fromLatin1("%1 px").arg(ev->cacheSize));
+        result.insert(QLatin1String("displayName"), Tr::tr("Image Cached"));
+        result.insert(Tr::tr("Cache Size"), QString::fromLatin1("%1 px").arg(ev->cacheSize));
     } else {
-        result.insert(QLatin1String("displayName"), tr("Image Loaded"));
+        result.insert(QLatin1String("displayName"), Tr::tr("Image Loaded"));
         if (m_pixmaps[ev->urlIndex].sizes[ev->sizeIndex].loadState != Finished)
-            result.insert(tr("Result"), tr("Load Error"));
-        result.insert(tr("Duration"), Timeline::formatTime(duration(index)));
+            result.insert(Tr::tr("Result"), Tr::tr("Load Error"));
+        result.insert(Tr::tr("Duration"), Timeline::formatTime(duration(index)));
     }
 
-    result.insert(tr("File"), getFilenameOnly(m_pixmaps[ev->urlIndex].url));
-    result.insert(tr("Width"), QString::fromLatin1("%1 px")
+    result.insert(Tr::tr("File"), getFilenameOnly(m_pixmaps[ev->urlIndex].url));
+    result.insert(Tr::tr("Width"), QString::fromLatin1("%1 px")
                   .arg(m_pixmaps[ev->urlIndex].sizes[ev->sizeIndex].size.width()));
-    result.insert(tr("Height"), QString::fromLatin1("%1 px")
+    result.insert(Tr::tr("Height"), QString::fromLatin1("%1 px")
                   .arg(m_pixmaps[ev->urlIndex].sizes[ev->sizeIndex].size.height()));
     return result;
 }

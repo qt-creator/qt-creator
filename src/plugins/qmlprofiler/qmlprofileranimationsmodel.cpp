@@ -3,6 +3,7 @@
 
 #include "qmlprofileranimationsmodel.h"
 #include "qmlprofilermodelmanager.h"
+#include "qmlprofilertr.h"
 
 #include <utils/qtcassert.h>
 #include <tracing/timelineformattime.h>
@@ -133,16 +134,16 @@ QVariantList QmlProfilerAnimationsModel::labels() const
 
     if (m_maxGuiThreadAnimations > 0) {
         QVariantMap element;
-        element.insert(QLatin1String("displayName"), tr("Animations"));
-        element.insert(QLatin1String("description"), tr("GUI Thread"));
+        element.insert(QLatin1String("displayName"), Tr::tr("Animations"));
+        element.insert(QLatin1String("description"), Tr::tr("GUI Thread"));
         element.insert(QLatin1String("id"), GuiThread);
         result << element;
     }
 
     if (m_maxRenderThreadAnimations > 0) {
         QVariantMap element;
-        element.insert(QLatin1String("displayName"), tr("Animations"));
-        element.insert(QLatin1String("description"), tr("Render Thread"));
+        element.insert(QLatin1String("displayName"), Tr::tr("Animations"));
+        element.insert(QLatin1String("description"), Tr::tr("Render Thread"));
         element.insert(QLatin1String("id"), RenderThread);
         result << element;
     }
@@ -155,11 +156,11 @@ QVariantMap QmlProfilerAnimationsModel::details(int index) const
     QVariantMap result;
 
     result.insert(QStringLiteral("displayName"), displayName());
-    result.insert(tr("Duration"), Timeline::formatTime(duration(index)));
-    result.insert(tr("Framerate"), QString::fromLatin1("%1 FPS").arg(m_data[index].framerate));
-    result.insert(tr("Animations"), QString::number(m_data[index].animationcount));
-    result.insert(tr("Context"), selectionId(index) == GuiThread ? tr("GUI Thread") :
-                                                                   tr("Render Thread"));
+    result.insert(Tr::tr("Duration"), Timeline::formatTime(duration(index)));
+    result.insert(Tr::tr("Framerate"), QString::fromLatin1("%1 FPS").arg(m_data[index].framerate));
+    result.insert(Tr::tr("Animations"), QString::number(m_data[index].animationcount));
+    result.insert(Tr::tr("Context"), selectionId(index) == GuiThread ? Tr::tr("GUI Thread") :
+                                                                   Tr::tr("Render Thread"));
     return result;
 }
 

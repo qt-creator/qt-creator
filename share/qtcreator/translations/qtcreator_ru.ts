@@ -14404,7 +14404,7 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>DebugMessagesModel</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Debug Message</source>
         <translation>Отладочное сообщение</translation>
@@ -26620,7 +26620,7 @@ Error: %5</translation>
     </message>
 </context>
 <context>
-    <name>MainView</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Memory Usage</source>
         <translation>Использование памяти</translation>
@@ -42395,7 +42395,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::DebugMessagesModel</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Unknown Message %1</source>
         <translation>Неизвестное сообщение %1</translation>
@@ -42412,24 +42412,6 @@ the QML editor know about a likely URI.</source>
         <source>Location</source>
         <translation>Размещение</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::DebugMessagesModelTest</name>
-    <message>
-        <source>Timestamp</source>
-        <translation>Время</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Сообщение</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Размещение</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::FlameGraphModel</name>
     <message>
         <source>Could not re-read events from temporary trace file: %1</source>
         <translation>Не удалось перечитать события из временного файла трассировки: %1</translation>
@@ -42443,24 +42425,13 @@ the QML editor know about a likely URI.</source>
         <translation>Создание</translation>
     </message>
     <message>
-        <source>Binding</source>
-        <translation>Привязка</translation>
-    </message>
-    <message>
         <source>Signal</source>
         <translation>Сигналы</translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
     </message>
     <message>
         <source>Source code not available</source>
         <translation>Исходники недоступны</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::FlameGraphView</name>
     <message>
         <source>Flame Graph</source>
         <translatorcomment>непереводимый термин</translatorcomment>
@@ -42474,9 +42445,6 @@ the QML editor know about a likely URI.</source>
         <source>Reset Flame Graph</source>
         <translation>Сбросить Flame Graph</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::InputEventsModel</name>
     <message>
         <source>Mouse Events</source>
         <translation>События мыши</translation>
@@ -42484,10 +42452,6 @@ the QML editor know about a likely URI.</source>
     <message>
         <source>Keyboard Events</source>
         <translation>События клавиатуры</translation>
-    </message>
-    <message>
-        <source>Timestamp</source>
-        <translation>Время</translation>
     </message>
     <message>
         <source>Key Press</source>
@@ -42561,103 +42525,9 @@ the QML editor know about a likely URI.</source>
         <source>Unknown</source>
         <translation>Неизвестное</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::InputEventsModelTest</name>
-    <message>
-        <source>Mouse Events</source>
-        <translation>События мыши</translation>
-    </message>
-    <message>
-        <source>Keyboard Events</source>
-        <translation>События клавиатуры</translation>
-    </message>
-    <message>
-        <source>Timestamp</source>
-        <translation>Время</translation>
-    </message>
-    <message>
-        <source>Key Press</source>
-        <translation>Нажатие клавиши</translation>
-    </message>
-    <message>
-        <source>Key</source>
-        <translation>Клавиша</translation>
-    </message>
-    <message>
-        <source>Modifiers</source>
-        <translation>Модификатор</translation>
-    </message>
-    <message>
-        <source>Key Release</source>
-        <translation>Отжатие клавиши</translation>
-    </message>
-    <message>
-        <source>Keyboard Event</source>
-        <translation>Событие клавиатуры</translation>
-    </message>
-    <message>
-        <source>Mouse Press</source>
-        <translation>Нажатие мыши</translation>
-    </message>
-    <message>
-        <source>Button</source>
-        <translation>Кнопка</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Результат</translation>
-    </message>
-    <message>
-        <source>Mouse Release</source>
-        <translation>Отпускание мыши</translation>
-    </message>
-    <message>
-        <source>Mouse Move</source>
-        <translation>Движение мыши</translation>
-    </message>
-    <message>
-        <source>X</source>
-        <translation>X</translation>
-    </message>
-    <message>
-        <source>Y</source>
-        <translation>Y</translation>
-    </message>
-    <message>
-        <source>Double Click</source>
-        <translation>Двойной щелчок</translation>
-    </message>
-    <message>
-        <source>Mouse Wheel</source>
-        <translation>Колесо мыши</translation>
-    </message>
-    <message>
-        <source>Angle X</source>
-        <translation>Угол X</translation>
-    </message>
-    <message>
-        <source>Angle Y</source>
-        <translation>Угол Y</translation>
-    </message>
-    <message>
-        <source>Mouse Event</source>
-        <translation>Событие мыши</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation>Неизвестное</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::MemoryUsageModel</name>
     <message>
         <source>Memory Allocation</source>
         <translation>Выделение памяти</translation>
-    </message>
-    <message>
-        <source>Memory Usage</source>
-        <translation>Использование памяти</translation>
     </message>
     <message>
         <source>Memory Allocated</source>
@@ -42711,80 +42581,6 @@ the QML editor know about a likely URI.</source>
         <source>Type</source>
         <translation>Тип</translation>
     </message>
-    <message>
-        <source>Location</source>
-        <translation>Размещение</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::MemoryUsageModelTest</name>
-    <message>
-        <source>Memory Allocation</source>
-        <translation>Выделение памяти</translation>
-    </message>
-    <message>
-        <source>Memory Usage</source>
-        <translation>Использование памяти</translation>
-    </message>
-    <message>
-        <source>Memory Allocated</source>
-        <translation>Памяти выделено</translation>
-    </message>
-    <message>
-        <source>Total</source>
-        <translation>Всего</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n byte(s)</source>
-        <translation>
-            <numerusform>%n байт</numerusform>
-            <numerusform>%n байта</numerusform>
-            <numerusform>%n байт</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Allocated</source>
-        <translation>Выделено</translation>
-    </message>
-    <message>
-        <source>Allocations</source>
-        <translation>Выделений</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Тип</translation>
-    </message>
-    <message>
-        <source>Heap Allocation</source>
-        <translation>Выделение в куче</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Размещение</translation>
-    </message>
-    <message>
-        <source>Deallocated</source>
-        <translation>Освобождено</translation>
-    </message>
-    <message>
-        <source>Deallocations</source>
-        <translation>Освобождений</translation>
-    </message>
-    <message>
-        <source>Large Item Allocation</source>
-        <translation>Выделение под большие объекты</translation>
-    </message>
-    <message>
-        <source>Memory Freed</source>
-        <translation>Памяти освобождено</translation>
-    </message>
-    <message>
-        <source>Heap Usage</source>
-        <translation>Использование кучи</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::PixmapCacheModel</name>
     <message>
         <source>Cache Size</source>
         <translation>Размер кэша</translation>
@@ -42796,10 +42592,6 @@ the QML editor know about a likely URI.</source>
     <message>
         <source>Image Loaded</source>
         <translation>Изображение загружено</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Результат</translation>
     </message>
     <message>
         <source>Load Error</source>
@@ -42821,40 +42613,6 @@ the QML editor know about a likely URI.</source>
         <source>Height</source>
         <translation>Высота</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::PixmapCacheModelTest</name>
-    <message>
-        <source>Image Cached</source>
-        <translation>Изображение закэшировано</translation>
-    </message>
-    <message>
-        <source>Image Loaded</source>
-        <translation>Изображение загружено</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>Продолжительность</translation>
-    </message>
-    <message>
-        <source>Cache Size</source>
-        <translation>Размер кэша</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Файл</translation>
-    </message>
-    <message>
-        <source>Width</source>
-        <translation>Ширина</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Высота</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerActions</name>
     <message>
         <source>The QML Profiler can be used to find performance bottlenecks in applications using QML.</source>
         <translation>QML Profiler предназначен для поиска узких мест в приложениях использующих QML.</translation>
@@ -42879,25 +42637,6 @@ the QML editor know about a likely URI.</source>
         <source>QML Profiler Options</source>
         <translation>Настройки профайлера QML</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerAnimationsModel</name>
-    <message>
-        <source>Animations</source>
-        <translation>Анимации</translation>
-    </message>
-    <message>
-        <source>GUI Thread</source>
-        <translation>Поток GUI</translation>
-    </message>
-    <message>
-        <source>Render Thread</source>
-        <translation>Поток рендера</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>Продолжительность</translation>
-    </message>
     <message>
         <source>Framerate</source>
         <translation>Частота кадров</translation>
@@ -42905,13 +42644,6 @@ the QML editor know about a likely URI.</source>
     <message>
         <source>Context</source>
         <translation>Контекст</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerAttachDialog</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>Профайлер QML</translation>
     </message>
     <message>
         <source>&amp;Host:</source>
@@ -42941,9 +42673,6 @@ the QML editor know about a likely URI.</source>
         <source>Kit:</source>
         <translation>Комплект:</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerConfigWidget</name>
     <message>
         <source>Flush data while profiling:</source>
         <translation>Передавать данные при профилировании:</translation>
@@ -42975,31 +42704,13 @@ itself takes time.</source>
 но портит профилирование, так как сброс данных занимает время.</translation>
     </message>
     <message>
-        <source>QML Profiler</source>
-        <translation>Профайлер QML</translation>
-    </message>
-    <message>
         <source>Analyzer</source>
         <translation>Анализатор</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerRangeModel</name>
-    <message>
-        <source>Duration</source>
-        <translation>Продолжительность</translation>
     </message>
     <message>
         <source>Details</source>
         <translation>Подробнее</translation>
     </message>
-    <message>
-        <source>Location</source>
-        <translation>Размещение</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStateWidget</name>
     <message numerus="yes">
         <source>Profiling application: %n events</source>
         <translation>
@@ -43036,9 +42747,6 @@ itself takes time.</source>
         <source>Waiting for data</source>
         <translation>Ожидание данных</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStatisticsView</name>
     <message>
         <source>Statistics</source>
         <translation>Статистика</translation>
@@ -43054,25 +42762,6 @@ itself takes time.</source>
     <message>
         <source>Extended Event Statistics</source>
         <translation>Расширенная статистика событий</translation>
-    </message>
-    <message>
-        <source>Show Full Range</source>
-        <translation>Показать весь диапазон</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTool</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>Профайлер QML</translation>
-    </message>
-    <message>
-        <source>Load QML Trace</source>
-        <translation>Загрузить трассировку QML</translation>
-    </message>
-    <message>
-        <source>Save QML Trace</source>
-        <translation>Сохранить трассировку QML</translation>
     </message>
     <message>
         <source>A QML Profiler analysis is still in progress.</source>
@@ -43152,9 +42841,6 @@ Do you want to save the data first?</source>
         <source>Hide or show event categories.</source>
         <translation>Показ или скрытие категорий событий.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTraceFile</name>
     <message>
         <source>Error while parsing trace data file: %1</source>
         <translation>Ошибка разбора файла данных трассировки: %1</translation>
@@ -43189,9 +42875,6 @@ Saving failed.</source>
         <translation>Не удалось перечитать события из временного файла трассировки: %1
 Сохранение не удалось.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTraceView</name>
     <message>
         <source>Timeline</source>
         <translation>Временная шкала</translation>
@@ -43208,31 +42891,14 @@ Saving failed.</source>
         <source>Reset Zoom</source>
         <translation>Сбросить масштаб</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerViewManager</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>Профайлер QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::SceneGraphTimelineModel</name>
     <message>
         <source>Stage</source>
         <translation>Этап</translation>
     </message>
     <message>
-        <source>Duration</source>
-        <translation>Продолжительность</translation>
-    </message>
-    <message>
         <source>Glyphs</source>
         <translation>Глифы</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerModelManager</name>
     <message>
         <source>Failed to replay QML events from stash file.</source>
         <translation>Не удалось проиграть события QML из файла stash.</translation>
@@ -43249,37 +42915,6 @@ Saving failed.</source>
         <source>Read past end in temporary trace file.</source>
         <translation>Чтение за концом временного файла трассировки.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerStatisticsModel</name>
-    <message>
-        <source>Painting</source>
-        <translation>Отрисовка</translation>
-    </message>
-    <message>
-        <source>Compiling</source>
-        <translation>Компиляция</translation>
-    </message>
-    <message>
-        <source>Creating</source>
-        <translation>Создание</translation>
-    </message>
-    <message>
-        <source>Binding</source>
-        <translation>Привязка</translation>
-    </message>
-    <message>
-        <source>Handling Signal</source>
-        <translation>Обработка сигнала</translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
-    </message>
-    <message>
-        <source>Could not re-read events from temporary trace file: %1</source>
-        <translation>Не удалось перечитать события из временного файла трассировки: %1</translation>
-    </message>
     <message>
         <source>Main program</source>
         <translation>Основная программа</translation>
@@ -43289,24 +42924,8 @@ Saving failed.</source>
         <translation>+%1 в рекурсивных вызовах</translation>
     </message>
     <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;байтовый код&gt;</translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
-        <translation>Исходники недоступны</translation>
-    </message>
-    <message>
         <source>Calls</source>
         <translation>Вызовы</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Подробности</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Размещение</translation>
     </message>
     <message>
         <source>Longest Time</source>
@@ -43337,16 +42956,9 @@ Saving failed.</source>
         <translation>Общее время</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Тип</translation>
-    </message>
-    <message>
         <source>Median Time</source>
         <translation>Медианное время</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerStatisticsRelativesModel</name>
     <message>
         <source>Main Program</source>
         <translation>Основная программа</translation>
@@ -43354,14 +42966,6 @@ Saving failed.</source>
     <message>
         <source>called recursively</source>
         <translation>вызывается рекурсивно</translation>
-    </message>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;байтовый код&gt;</translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
-        <translation>Исходники недоступны</translation>
     </message>
     <message>
         <source>Callee</source>
@@ -43372,18 +42976,6 @@ Saving failed.</source>
         <translation>Вызывающее</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Тип</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation>Общее время</translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation>Вызовы</translation>
-    </message>
-    <message>
         <source>Callee Description</source>
         <translation>Описание вызываемого</translation>
     </message>
@@ -43391,9 +42983,6 @@ Saving failed.</source>
         <source>Caller Description</source>
         <translation>Описание вызывающего</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfilerEventStorage</name>
     <message>
         <source>Cannot open temporary trace file to store events.</source>
         <translation>Не удалось открыть временный файл для хранения событий.</translation>
@@ -43419,39 +43008,8 @@ Saving failed.</source>
         <translation>Не удалось переоткрыть временный файл трассировки.</translation>
     </message>
     <message>
-        <source>Read past end in temporary trace file.</source>
-        <translation>Чтение за концом временного файла трассировки.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerFlameGraphView</name>
-    <message>
-        <source>Total Time</source>
-        <translation>Общее время</translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation>Вызовы</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Подробнее</translation>
-    </message>
-    <message>
-        <source>Mean Time</source>
-        <translation>Среднее время</translation>
-    </message>
-    <message>
         <source>In Percent</source>
         <translation>В процентах</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Размещение</translation>
-    </message>
-    <message>
-        <source>Allocations</source>
-        <translation>Выделений</translation>
     </message>
     <message>
         <source>Memory</source>
@@ -43465,9 +43023,6 @@ Saving failed.</source>
         <source>others</source>
         <translation>другие</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfilerRunConfiguration</name>
     <message>
         <source>QML Profiler Settings</source>
         <translation>Настройки профайлера QML</translation>

@@ -1,10 +1,11 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "quick3dmodel.h"
 #include "qmlprofilerconstants.h"
-#include <tracing/timelineformattime.h>
+#include "qmlprofilertr.h"
+#include "quick3dmodel.h"
 
+#include <tracing/timelineformattime.h>
 
 namespace QmlProfiler {
 namespace Internal {
@@ -22,43 +23,43 @@ QRgb Quick3DModel::color(int index) const
 }
 
 static const char *messageTypes[] = {
-    QT_TRANSLATE_NOOP("Quick3DModel", "Render Frame"),
-    QT_TRANSLATE_NOOP("Quick3DModel", "Synchronize Frame"),
-    QT_TRANSLATE_NOOP("Quick3DModel", "Prepare Frame"),
-    QT_TRANSLATE_NOOP("Quick3DModel", "Mesh Load"),
-    QT_TRANSLATE_NOOP("Quick3DModel", "Custom Mesh Load"),
-    QT_TRANSLATE_NOOP("Quick3DModel", "Texture Load"),
-    QT_TRANSLATE_NOOP("Quick3DModel", "Generate Shader"),
-    QT_TRANSLATE_NOOP("Quick3DModel", "Load Shader"),
-    QT_TRANSLATE_NOOP("Quick3DModel", "Particle Update"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Render Frame"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Synchronize Frame"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Prepare Frame"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Mesh Load"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Custom Mesh Load"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Texture Load"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Generate Shader"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Load Shader"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Particle Update"),
 
-    QT_TRANSLATE_NOOP("Quick3DModel", "Mesh Memory consumption"),
-    QT_TRANSLATE_NOOP("Quick3DModel", "Texture Memory consumption"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Mesh Memory consumption"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Texture Memory consumption"),
 };
 
 static const char *unloadMessageTypes[] = {
-    QT_TRANSLATE_NOOP("Quick3DModel", "Mesh Unload"),
-    QT_TRANSLATE_NOOP("Quick3DModel", "Custom Mesh Unload"),
-    QT_TRANSLATE_NOOP("Quick3DModel", "Texture Unload"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Mesh Unload"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Custom Mesh Unload"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Texture Unload"),
 };
 
 QString Quick3DModel::messageType(uint i)
 {
-    return i < sizeof(messageTypes) / sizeof(char *) ? tr(messageTypes[i]) :
-                                                       tr("Unknown Message %1").arg(i);
+    return i < sizeof(messageTypes) / sizeof(char *) ? Tr::tr(messageTypes[i]) :
+                                                       Tr::tr("Unknown Message %1").arg(i);
 }
 
 QString Quick3DModel::unloadMessageType(uint i)
 {
     switch (i) {
     case MeshLoad:
-        return tr(unloadMessageTypes[0]);
+        return Tr::tr(unloadMessageTypes[0]);
     case CustomMeshLoad:
-        return tr(unloadMessageTypes[1]);
+        return Tr::tr(unloadMessageTypes[1]);
     case TextureLoad:
-        return tr(unloadMessageTypes[2]);
+        return Tr::tr(unloadMessageTypes[2]);
     }
-    return tr("Unknown Unload Message %1").arg(i);
+    return Tr::tr("Unknown Unload Message %1").arg(i);
 }
 
 QVariantList Quick3DModel::labels() const
@@ -67,7 +68,7 @@ QVariantList Quick3DModel::labels() const
     for (int i = 0; i <= m_maximumMsgType; ++i) {
         QVariantMap element;
         element.insert(QLatin1String("displayName"),
-                       i != ParticleUpdate ? tr("Render Thread") : tr("GUI Thread"));
+                       i != ParticleUpdate ? Tr::tr("Render Thread") : Tr::tr("GUI Thread"));
         element.insert(QLatin1String("description"), messageType(i));
         element.insert(QLatin1String("id"), i);
         result << element;
@@ -101,22 +102,22 @@ QVariantMap Quick3DModel::details(int index) const
     bool unload = m_data[index].unload;
     QVariantMap result;
     result.insert(QLatin1String("displayName"),
-                  detailType != ParticleUpdate ? tr("Render Thread") : tr("GUI Thread"));
-    result.insert(tr("Description"),
+                  detailType != ParticleUpdate ? Tr::tr("Render Thread") : Tr::tr("GUI Thread"));
+    result.insert(Tr::tr("Description"),
                   !unload ? messageType(detailType) : unloadMessageType(detailType));
     if (detailType < MeshMemoryConsumption)
-        result.insert(tr("Duration"), Timeline::formatTime(duration(index)));
+        result.insert(Tr::tr("Duration"), Timeline::formatTime(duration(index)));
     if (detailType == ParticleUpdate)
-        result.insert(tr("Count"), m_data[index].data);
+        result.insert(Tr::tr("Count"), m_data[index].data);
     if (detailType == RenderFrame) {
         quint32 calls = m_data[index].data & 0xffffffff;
         quint32 passes = m_data[index].data >> 32;
-        result.insert(tr("Draw Calls"), calls);
-        result.insert(tr("Render Passes"), passes);
+        result.insert(Tr::tr("Draw Calls"), calls);
+        result.insert(Tr::tr("Render Passes"), passes);
     }
     if ((detailType >= MeshLoad && detailType <= TextureLoad)
             || (detailType >= MeshMemoryConsumption && detailType <= TextureMemoryConsumption)) {
-        result.insert(tr("Total Memory Usage"), m_data[index].data);
+        result.insert(Tr::tr("Total Memory Usage"), m_data[index].data);
     }
     return result;
 }

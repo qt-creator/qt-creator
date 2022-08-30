@@ -10855,7 +10855,7 @@ Flag: %3</translation>
     </message>
 </context>
 <context>
-    <name>DebugMessagesModel</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Debug Message</source>
         <translation>Fejlretmeddelelse</translation>
@@ -21008,7 +21008,7 @@ Fejl: %5</translation>
     </message>
 </context>
 <context>
-    <name>MainView</name>
+    <name>QmlProfiler</name>
     <message>
         <source>JavaScript</source>
         <translation>JavaScript</translation>
@@ -32885,7 +32885,7 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::DebugMessagesModel</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Unknown Message %1</source>
         <translation>Ukendt meddelelse %1</translation>
@@ -32902,24 +32902,6 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
         <source>Location</source>
         <translation>Placering</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::DebugMessagesModelTest</name>
-    <message>
-        <source>Timestamp</source>
-        <translation>Tidsstempel</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Meddelelse</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Placering</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::FlameGraphModel</name>
     <message>
         <source>Could not re-read events from temporary trace file: %1</source>
         <translation>Kunne ikke genlæse begivenheder fra midlertidig spor-fil: %1</translation>
@@ -32933,24 +32915,13 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
         <translation>Opret</translation>
     </message>
     <message>
-        <source>Binding</source>
-        <translation>Binding</translation>
-    </message>
-    <message>
         <source>Signal</source>
         <translation>Signal</translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
     </message>
     <message>
         <source>Source code not available</source>
         <translation>Kildekode ikke tilgængelig</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::FlameGraphView</name>
     <message>
         <source>Flame Graph</source>
         <translation>Flammegraf</translation>
@@ -32959,9 +32930,6 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
         <source>Show Full Range</source>
         <translation>Vis fulde område</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::InputEventsModel</name>
     <message>
         <source>Mouse Events</source>
         <translation>Muse-begivenheder</translation>
@@ -32969,10 +32937,6 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
     <message>
         <source>Keyboard Events</source>
         <translation>Tastatur-begivenheder</translation>
-    </message>
-    <message>
-        <source>Timestamp</source>
-        <translation>Tidsstempel</translation>
     </message>
     <message>
         <source>Key Press</source>
@@ -33046,103 +33010,9 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
         <source>Unknown</source>
         <translation>Ukendt</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::InputEventsModelTest</name>
-    <message>
-        <source>Mouse Events</source>
-        <translation>Muse-begivenheder</translation>
-    </message>
-    <message>
-        <source>Keyboard Events</source>
-        <translation>Tastatur-begivenheder</translation>
-    </message>
-    <message>
-        <source>Timestamp</source>
-        <translation>Tidsstempel</translation>
-    </message>
-    <message>
-        <source>Key Press</source>
-        <translation>Tast tryk</translation>
-    </message>
-    <message>
-        <source>Key</source>
-        <translation>Tast</translation>
-    </message>
-    <message>
-        <source>Modifiers</source>
-        <translation>Modifere</translation>
-    </message>
-    <message>
-        <source>Key Release</source>
-        <translation>Tast slip</translation>
-    </message>
-    <message>
-        <source>Keyboard Event</source>
-        <translation>Tastatur-begivenhed</translation>
-    </message>
-    <message>
-        <source>Mouse Press</source>
-        <translation>Mus tryk</translation>
-    </message>
-    <message>
-        <source>Button</source>
-        <translation>Knap</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Resultat</translation>
-    </message>
-    <message>
-        <source>Mouse Release</source>
-        <translation>Mus slip</translation>
-    </message>
-    <message>
-        <source>Mouse Move</source>
-        <translation>Mus flyt</translation>
-    </message>
-    <message>
-        <source>X</source>
-        <translation>X</translation>
-    </message>
-    <message>
-        <source>Y</source>
-        <translation>Y</translation>
-    </message>
-    <message>
-        <source>Double Click</source>
-        <translation>Dobbeltklik</translation>
-    </message>
-    <message>
-        <source>Mouse Wheel</source>
-        <translation>Musehjul</translation>
-    </message>
-    <message>
-        <source>Angle X</source>
-        <translation>Vinkel X</translation>
-    </message>
-    <message>
-        <source>Angle Y</source>
-        <translation>Vinkel Y</translation>
-    </message>
-    <message>
-        <source>Mouse Event</source>
-        <translation>Muse-begivenhed</translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation>Ukendt</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::MemoryUsageModel</name>
     <message>
         <source>Memory Allocation</source>
         <translation>Hukommelsesallokering</translation>
-    </message>
-    <message>
-        <source>Memory Usage</source>
-        <translation>Hukommelsesforbrug</translation>
     </message>
     <message>
         <source>Memory Allocated</source>
@@ -33195,79 +33065,6 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
         <source>Type</source>
         <translation>Type</translation>
     </message>
-    <message>
-        <source>Location</source>
-        <translation>Placering</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::MemoryUsageModelTest</name>
-    <message>
-        <source>Memory Allocation</source>
-        <translation>Hukommelsesallokering</translation>
-    </message>
-    <message>
-        <source>Memory Usage</source>
-        <translation>Hukommelsesforbrug</translation>
-    </message>
-    <message>
-        <source>Memory Allocated</source>
-        <translation>Hukommelse allokeret</translation>
-    </message>
-    <message>
-        <source>Total</source>
-        <translation>Sammenlagt</translation>
-    </message>
-    <message numerus="yes">
-        <source>%1 byte(s)</source>
-        <translation>
-            <numerusform>%1 byte</numerusform>
-            <numerusform>%1 byte</numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Allocated</source>
-        <translation>Allokeret</translation>
-    </message>
-    <message>
-        <source>Allocations</source>
-        <translation>Allokationer</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Type</translation>
-    </message>
-    <message>
-        <source>Heap Allocation</source>
-        <translation>Heap allokering</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Placering</translation>
-    </message>
-    <message>
-        <source>Deallocated</source>
-        <translation>Afallokeret</translation>
-    </message>
-    <message>
-        <source>Deallocations</source>
-        <translation>Afallokeringer</translation>
-    </message>
-    <message>
-        <source>Large Item Allocation</source>
-        <translation>Stor post allokering</translation>
-    </message>
-    <message>
-        <source>Memory Freed</source>
-        <translation>Hukommelse frigivet</translation>
-    </message>
-    <message>
-        <source>Heap Usage</source>
-        <translation>Heap forbrug</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::PixmapCacheModel</name>
     <message>
         <source>Cache Size</source>
         <translation>Mellemlagerstørrelse</translation>
@@ -33279,10 +33076,6 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
     <message>
         <source>Image Loaded</source>
         <translation>Billede indlæst</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Resultat</translation>
     </message>
     <message>
         <source>Load Error</source>
@@ -33304,56 +33097,6 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
         <source>Height</source>
         <translation>Højde</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::PixmapCacheModelTest</name>
-    <message>
-        <source>Image Cached</source>
-        <translation>Billede mellemlagret</translation>
-    </message>
-    <message>
-        <source>Cache Size</source>
-        <translation>Mellemlagerstørrelse</translation>
-    </message>
-    <message>
-        <source>Image Loaded</source>
-        <translation>Billede indlæst</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>Varighed</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Fil</translation>
-    </message>
-    <message>
-        <source>Width</source>
-        <translation>Bredde</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Højde</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerAnimationsModel</name>
-    <message>
-        <source>Animations</source>
-        <translation>Animationer</translation>
-    </message>
-    <message>
-        <source>GUI Thread</source>
-        <translation>GUI-tråd</translation>
-    </message>
-    <message>
-        <source>Render Thread</source>
-        <translation>Renderingstråd</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>Varighed</translation>
-    </message>
     <message>
         <source>Framerate</source>
         <translation>Billedhastighed</translation>
@@ -33362,9 +33105,6 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
         <source>Context</source>
         <translation>Kontekst</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerAttachDialog</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML-profilering</translation>
@@ -33397,9 +33137,6 @@ QML-redigeringen skal kende til en sandsynlig URI.</translation>
         <source>Kit:</source>
         <translation>Kit:</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerConfigWidget</name>
     <message>
         <source>Flush data while profiling:</source>
         <translation>Tøm data under profilering:</translation>
@@ -33430,35 +33167,14 @@ itself takes time.</source>
 og programmets hukommelsesforbrug. Det forvrænger profilen eftersom selve tømningen
 tager tid.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerOptionsPage</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>QML-profilering</translation>
-    </message>
     <message>
         <source>Analyzer</source>
         <translation>Analysator</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerRangeModel</name>
-    <message>
-        <source>Duration</source>
-        <translation>Varighed</translation>
     </message>
     <message>
         <source>Details</source>
         <translation>Detaljer</translation>
     </message>
-    <message>
-        <source>Location</source>
-        <translation>Placering</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStateWidget</name>
     <message numerus="yes">
         <source>Profiling application: %n events</source>
         <translation>
@@ -33492,9 +33208,6 @@ tager tid.</translation>
         <source>Waiting for data</source>
         <translation>Venter på data</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStatisticsView</name>
     <message>
         <source>Statistics</source>
         <translation>Statistik</translation>
@@ -33511,13 +33224,6 @@ tager tid.</translation>
         <source>Extended Event Statistics</source>
         <translation>Udvidet begivenhedsstatisik</translation>
     </message>
-    <message>
-        <source>Show Full Range</source>
-        <translation>Vis fulde område</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTool</name>
     <message>
         <source>Load QML Trace</source>
         <translation>Indlæs QML-spor</translation>
@@ -33537,10 +33243,6 @@ tager tid.</translation>
     <message>
         <source>Hide or show event categories.</source>
         <translation>Skjul eller vis begivenhedskategorier.</translation>
-    </message>
-    <message>
-        <source>QML Profiler</source>
-        <translation>QML-profilering</translation>
     </message>
     <message>
         <source>QML traces (*%1 *%2)</source>
@@ -33608,9 +33310,6 @@ Do you want to save the data first?</source>
         <translation>Start af ny profileringssession vil forkaste de forrige data, inklusiv noter som ikke er gemt.
 Vil du gemme dataene først?</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTraceView</name>
     <message>
         <source>Timeline</source>
         <translation>Tidslinje</translation>
@@ -33627,31 +33326,14 @@ Vil du gemme dataene først?</translation>
         <source>Reset Zoom</source>
         <translation>Nulstil zoom</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerViewManager</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>QML-profilering</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::SceneGraphTimelineModel</name>
     <message>
         <source>Stage</source>
         <translation>Stage</translation>
     </message>
     <message>
-        <source>Duration</source>
-        <translation>Varighed</translation>
-    </message>
-    <message>
         <source>Glyphs</source>
         <translation>Glyffer</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerModelManager</name>
     <message>
         <source>Failed to replay QML events from stash file.</source>
         <translation>Kunne ikke genafspille QML-begivenheder fra stash-fil.</translation>
@@ -33668,37 +33350,6 @@ Vil du gemme dataene først?</translation>
         <source>Read past end in temporary trace file.</source>
         <translation>Læs udover slutningen af midlertidig spor-fil.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerStatisticsModel</name>
-    <message>
-        <source>Painting</source>
-        <translation>Maler</translation>
-    </message>
-    <message>
-        <source>Compiling</source>
-        <translation>Kompilerer</translation>
-    </message>
-    <message>
-        <source>Creating</source>
-        <translation>Opretter</translation>
-    </message>
-    <message>
-        <source>Binding</source>
-        <translation>Binding</translation>
-    </message>
-    <message>
-        <source>Handling Signal</source>
-        <translation>Håndterer signal</translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
-    </message>
-    <message>
-        <source>Could not re-read events from temporary trace file: %1</source>
-        <translation>Kunne ikke genlæse begivenheder fra midlertidig spor-fil: %1</translation>
-    </message>
     <message>
         <source>Main program</source>
         <translation>Hovedprogram</translation>
@@ -33708,24 +33359,8 @@ Vil du gemme dataene først?</translation>
         <translation>+%1 i rekursive kald</translation>
     </message>
     <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;bytekode&gt;</translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
-        <translation>Kildekode ikke tilgængelig</translation>
-    </message>
-    <message>
         <source>Calls</source>
         <translation>Kald</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Detaljer</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Placering</translation>
     </message>
     <message>
         <source>Longest Time</source>
@@ -33756,43 +33391,12 @@ Vil du gemme dataene først?</translation>
         <translation>Sammenlagt tid</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Type</translation>
-    </message>
-    <message>
         <source>Median Time</source>
         <translation>Mediantid</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerFlameGraphView</name>
-    <message>
-        <source>Total Time</source>
-        <translation>Sammenlagt tid</translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation>Kald</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Detaljer</translation>
-    </message>
-    <message>
-        <source>Mean Time</source>
-        <translation>Mean-tid</translation>
     </message>
     <message>
         <source>In Percent</source>
         <translation>I procent</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Placering</translation>
-    </message>
-    <message>
-        <source>Allocations</source>
-        <translation>Allokationer</translation>
     </message>
     <message>
         <source>Memory</source>
@@ -33806,9 +33410,6 @@ Vil du gemme dataene først?</translation>
         <source>others</source>
         <translation>andre</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfilerRunConfiguration</name>
     <message>
         <source>QML Profiler Settings</source>
         <translation>QML-profileringsindstillinger</translation>
@@ -44577,34 +44178,19 @@ Vil du overskrive dem?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerActions</name>
+    <name>QmlProfiler</name>
     <message>
         <source>The QML Profiler can be used to find performance bottlenecks in applications using QML.</source>
         <translation>QML-profileringen kan bruges til at finde ydelsesflaskehalse i programmer som bruger QML.</translation>
-    </message>
-    <message>
-        <source>QML Profiler</source>
-        <translation>QML-profilering</translation>
     </message>
     <message>
         <source>QML Profiler (Attach to Waiting Application)</source>
         <translation>QML-profilering (tilkobl til ventende program)</translation>
     </message>
     <message>
-        <source>Load QML Trace</source>
-        <translation>Indlæs QML-spor</translation>
-    </message>
-    <message>
-        <source>Save QML Trace</source>
-        <translation>Gem QML-spor</translation>
-    </message>
-    <message>
         <source>QML Profiler Options</source>
         <translation>QML-profilering-valgmuligheder</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfilerEventStorage</name>
     <message>
         <source>Cannot open temporary trace file to store events.</source>
         <translation>Kan ikke åbne midlertidig spor-fil til at lagre begivenheder.</translation>
@@ -44622,27 +44208,12 @@ Vil du overskrive dem?</translation>
         <translation>Kunne ikke genåbne midlertidig spor-fil.</translation>
     </message>
     <message>
-        <source>Read past end in temporary trace file.</source>
-        <translation>Læs udover slutningen af midlertidig spor-fil.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerStatisticsRelativesModel</name>
-    <message>
         <source>Main Program</source>
         <translation>Hovedprogram</translation>
     </message>
     <message>
         <source>called recursively</source>
         <translation>kaldt rekursivt</translation>
-    </message>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;bytekode&gt;</translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
-        <translation>Kildekode ikke tilgængelig</translation>
     </message>
     <message>
         <source>Callee</source>
@@ -44653,18 +44224,6 @@ Vil du overskrive dem?</translation>
         <translation>Kalder</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Type</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation>Sammenlagt tid</translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation>Kald</translation>
-    </message>
-    <message>
         <source>Callee Description</source>
         <translation>Modtager-beskrivelse</translation>
     </message>
@@ -44672,9 +44231,6 @@ Vil du overskrive dem?</translation>
         <source>Caller Description</source>
         <translation>Kalder-beskrivelse</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTraceFile</name>
     <message>
         <source>Error while parsing trace data file: %1</source>
         <translation>Fejl under parsing af spordata-fil: %1</translation>

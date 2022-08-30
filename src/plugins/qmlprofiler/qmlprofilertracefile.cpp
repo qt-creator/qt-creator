@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "qmlprofilertracefile.h"
-#include "qmlprofilernotesmodel.h"
 #include "qmlprofilerconstants.h"
+#include "qmlprofilernotesmodel.h"
+#include "qmlprofilertr.h"
+#include "qmlprofilertracefile.h"
 
 #include <utils/qtcassert.h>
 
@@ -169,7 +170,7 @@ void QmlProfilerTraceFile::loadQtd(QIODevice *device)
     }
 
     if (stream.hasError())
-        fail(tr("Error while parsing trace data file: %1").arg(stream.errorString()));
+        fail(Tr::tr("Error while parsing trace data file: %1").arg(stream.errorString()));
     else
         finish();
 }
@@ -182,7 +183,7 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
     QByteArray magic;
     stream >> magic;
     if (magic != QByteArray("QMLPROFILER")) {
-        fail(tr("Invalid magic: %1").arg(QLatin1String(magic)));
+        fail(Tr::tr("Invalid magic: %1").arg(QLatin1String(magic)));
         return;
     }
 
@@ -190,7 +191,7 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
     stream >> dataStreamVersion;
 
     if (dataStreamVersion > QDataStream::Qt_DefaultCompiledVersion) {
-        fail(tr("Unknown data stream version: %1").arg(dataStreamVersion));
+        fail(Tr::tr("Unknown data stream version: %1").arg(dataStreamVersion));
         return;
     }
     stream.setVersion(dataStreamVersion);
@@ -214,7 +215,7 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
         quint32 numEventTypes;
         bufferStream >> numEventTypes;
         if (numEventTypes > quint32(std::numeric_limits<int>::max())) {
-            fail(tr("Excessive number of event types: %1").arg(numEventTypes));
+            fail(Tr::tr("Excessive number of event types: %1").arg(numEventTypes));
             return;
         }
 
@@ -247,7 +248,7 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
             bufferStream >> event;
             if (bufferStream.status() == QDataStream::Ok) {
                 if (event.typeIndex() >= traceManager()->numEventTypes()) {
-                    fail(tr("Invalid type index %1").arg(event.typeIndex()));
+                    fail(Tr::tr("Invalid type index %1").arg(event.typeIndex()));
                     return;
                 }
                 addFeature(manager->eventType(event.typeIndex()).feature());
@@ -256,7 +257,7 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
             } else if (bufferStream.status() == QDataStream::ReadPastEnd) {
                 break; // Apparently EOF is a character so we end up here after the last event.
             } else if (bufferStream.status() == QDataStream::ReadCorruptData) {
-                fail(tr("Corrupt data before position %1.").arg(device->pos()));
+                fail(Tr::tr("Corrupt data before position %1.").arg(device->pos()));
                 return;
             } else {
                 Q_UNREACHABLE();
@@ -766,9 +767,9 @@ void QmlProfilerTraceFile::saveQtd(QIODevice *device)
         stream.writeEndDocument();
 
         if (stream.hasError())
-            fail(tr("Error writing trace file."));
+            fail(Tr::tr("Error writing trace file."));
     }, [this](const QString &message) {
-        fail(tr("Could not re-read events from temporary trace file: %1\nSaving failed.")
+        fail(Tr::tr("Could not re-read events from temporary trace file: %1\nSaving failed.")
              .arg(message));
     }, future());
 }
@@ -836,7 +837,7 @@ void QmlProfilerTraceFile::saveQzt(QIODevice *device)
             addEventsProgress(traceEnd() - lastProgressTimestamp);
         }
     }, [this](const QString &message) {
-        fail(tr("Could not re-read events from temporary trace file: %1\nSaving failed.")
+        fail(Tr::tr("Could not re-read events from temporary trace file: %1\nSaving failed.")
              .arg(message));
     }, future());
 }

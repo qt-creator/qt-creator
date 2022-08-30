@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "memoryusagemodel_test.h"
+#include "qmlprofilertr.h"
 #include <QtTest>
 
 namespace QmlProfiler {
@@ -115,52 +116,52 @@ void MemoryUsageModelTest::testLabels()
     const QVariantList labels = model.labels();
 
     const QVariantMap allocations = labels[0].toMap();
-    QCOMPARE(allocations[QString("description")].toString(), model.tr("Memory Allocation"));
+    QCOMPARE(allocations[QString("description")].toString(), Tr::tr("Memory Allocation"));
     QCOMPARE(allocations[QString("id")].toInt(), static_cast<int>(HeapPage));
 
     const QVariantMap usages = labels[1].toMap();
-    QCOMPARE(usages[QString("description")].toString(), model.tr("Memory Usage"));
+    QCOMPARE(usages[QString("description")].toString(), Tr::tr("Memory Usage"));
     QCOMPARE(usages[QString("id")].toInt(), static_cast<int>(SmallItem));
 }
 
 void MemoryUsageModelTest::testDetails()
 {
     const QVariantMap allocated = model.details(0);
-    QCOMPARE(allocated[QString("displayName")].toString(), model.tr("Memory Allocated"));
-    QCOMPARE(allocated[model.tr("Total")].toString(),
-            model.tr("%n byte(s)", nullptr, 4096));
-    QCOMPARE(allocated[model.tr("Allocated")].toString(),
-            model.tr("%n byte(s)", nullptr, 4096));
-    QCOMPARE(allocated[model.tr("Allocations")].toString(), QString::number(2));
-    QCOMPARE(allocated[model.tr("Type")].toString(), model.tr("Heap Allocation"));
-    QCOMPARE(allocated[model.tr("Location")].toString(), QmlProfilerModelManager::tr("<bytecode>"));
+    QCOMPARE(allocated[QString("displayName")].toString(), Tr::tr("Memory Allocated"));
+    QCOMPARE(allocated[Tr::tr("Total")].toString(),
+            Tr::tr("%n byte(s)", nullptr, 4096));
+    QCOMPARE(allocated[Tr::tr("Allocated")].toString(),
+            Tr::tr("%n byte(s)", nullptr, 4096));
+    QCOMPARE(allocated[Tr::tr("Allocations")].toString(), QString::number(2));
+    QCOMPARE(allocated[Tr::tr("Type")].toString(), Tr::tr("Heap Allocation"));
+    QCOMPARE(allocated[Tr::tr("Location")].toString(), Tr::tr("<bytecode>"));
 
-    QVERIFY(!allocated.contains(model.tr("Deallocated")));
-    QVERIFY(!allocated.contains(model.tr("Deallocations")));
+    QVERIFY(!allocated.contains(Tr::tr("Deallocated")));
+    QVERIFY(!allocated.contains(Tr::tr("Deallocations")));
 
     const QVariantMap large = model.details(2);
-    QCOMPARE(large[QString("displayName")].toString(), model.tr("Memory Allocated"));
-    QCOMPARE(large[model.tr("Total")].toString(),
-            model.tr("%n byte(s)", nullptr, 5120));
-    QCOMPARE(large[model.tr("Allocated")].toString(),
-            model.tr("%n byte(s)", nullptr, 1024));
-    QCOMPARE(large[model.tr("Allocations")].toString(), QString::number(1));
-    QCOMPARE(large[model.tr("Type")].toString(), model.tr("Large Item Allocation"));
-    QCOMPARE(large[model.tr("Location")].toString(), QmlProfilerModelManager::tr("<bytecode>"));
+    QCOMPARE(large[QString("displayName")].toString(), Tr::tr("Memory Allocated"));
+    QCOMPARE(large[Tr::tr("Total")].toString(),
+            Tr::tr("%n byte(s)", nullptr, 5120));
+    QCOMPARE(large[Tr::tr("Allocated")].toString(),
+            Tr::tr("%n byte(s)", nullptr, 1024));
+    QCOMPARE(large[Tr::tr("Allocations")].toString(), QString::number(1));
+    QCOMPARE(large[Tr::tr("Type")].toString(), Tr::tr("Large Item Allocation"));
+    QCOMPARE(large[Tr::tr("Location")].toString(), Tr::tr("<bytecode>"));
 
-    QVERIFY(!large.contains(model.tr("Deallocated")));
-    QVERIFY(!large.contains(model.tr("Deallocations")));
+    QVERIFY(!large.contains(Tr::tr("Deallocated")));
+    QVERIFY(!large.contains(Tr::tr("Deallocations")));
 
     const QVariantMap freed = model.details(9);
-    QCOMPARE(freed[QString("displayName")].toString(), model.tr("Memory Freed"));
-    QCOMPARE(freed[model.tr("Total")].toString(), model.tr("%n byte(s)", nullptr, 2048));
-    QCOMPARE(freed[model.tr("Deallocated")].toString(), model.tr("%n byte(s)", nullptr, 1024));
-    QCOMPARE(freed[model.tr("Deallocations")].toString(), QString::number(1));
-    QCOMPARE(freed[model.tr("Type")].toString(), model.tr("Heap Usage"));
-    QCOMPARE(freed[model.tr("Location")].toString(), QmlProfilerModelManager::tr("<bytecode>"));
+    QCOMPARE(freed[QString("displayName")].toString(), Tr::tr("Memory Freed"));
+    QCOMPARE(freed[Tr::tr("Total")].toString(), Tr::tr("%n byte(s)", nullptr, 2048));
+    QCOMPARE(freed[Tr::tr("Deallocated")].toString(), Tr::tr("%n byte(s)", nullptr, 1024));
+    QCOMPARE(freed[Tr::tr("Deallocations")].toString(), QString::number(1));
+    QCOMPARE(freed[Tr::tr("Type")].toString(), Tr::tr("Heap Usage"));
+    QCOMPARE(freed[Tr::tr("Location")].toString(), Tr::tr("<bytecode>"));
 
-    QVERIFY(!freed.contains(model.tr("Allocated")));
-    QVERIFY(!freed.contains(model.tr("Allocations")));
+    QVERIFY(!freed.contains(Tr::tr("Allocated")));
+    QVERIFY(!freed.contains(Tr::tr("Allocations")));
 }
 
 void MemoryUsageModelTest::testExpandedRow()

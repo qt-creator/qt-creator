@@ -1,9 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "qmlprofilerrangemodel.h"
-#include "qmlprofilermodelmanager.h"
 #include "qmlprofilerbindingloopsrenderpass.h"
+#include "qmlprofilermodelmanager.h"
+#include "qmlprofilerrangemodel.h"
+#include "qmlprofilertr.h"
 
 #include <tracing/timelinenotesrenderpass.h>
 #include <tracing/timelineitemsrenderpass.h>
@@ -202,12 +203,12 @@ QVariantMap QmlProfilerRangeModel::details(int index) const
     int id = selectionId(index);
 
     result.insert(QStringLiteral("displayName"),
-                  tr(QmlProfilerModelManager::featureName(mainFeature())));
-    result.insert(tr("Duration"), Timeline::formatTime(duration(index)));
+                  Tr::tr(QmlProfilerModelManager::featureName(mainFeature())));
+    result.insert(Tr::tr("Duration"), Timeline::formatTime(duration(index)));
 
     const QmlEventType &type = modelManager()->eventType(id);
-    result.insert(tr("Details"), type.data());
-    result.insert(tr("Location"), type.displayName());
+    result.insert(Tr::tr("Details"), type.data());
+    result.insert(Tr::tr("Location"), type.displayName());
     return result;
 }
 

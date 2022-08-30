@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "flamegraphmodel.h"
-
 #include "qmlprofilermodelmanager.h"
+#include "qmlprofilertr.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -149,7 +149,7 @@ void FlameGraphModel::restrictToFeatures(quint64 visibleFeatures)
                                     std::bind(&FlameGraphModel::finalize, this),
                                     [this](const QString &message) {
         if (!message.isEmpty()) {
-            emit m_modelManager->error(tr("Could not re-read events from temporary trace file: %1")
+            emit m_modelManager->error(Tr::tr("Could not re-read events from temporary trace file: %1")
                                            .arg(message));
         }
         endResetModel();
@@ -160,11 +160,11 @@ void FlameGraphModel::restrictToFeatures(quint64 visibleFeatures)
 static QString nameForType(RangeType typeNumber)
 {
     switch (typeNumber) {
-    case Compiling: return FlameGraphModel::tr("Compile");
-    case Creating: return FlameGraphModel::tr("Create");
-    case Binding: return FlameGraphModel::tr("Binding");
-    case HandlingSignal: return FlameGraphModel::tr("Signal");
-    case Javascript: return FlameGraphModel::tr("JavaScript");
+    case Compiling: return Tr::tr("Compile");
+    case Creating: return Tr::tr("Create");
+    case Binding: return Tr::tr("Binding");
+    case HandlingSignal: return Tr::tr("Signal");
+    case Javascript: return Tr::tr("JavaScript");
     default: Q_UNREACHABLE();
     }
 }
@@ -205,7 +205,7 @@ QVariant FlameGraphModel::lookup(const FlameGraphData &stats, int role) const
         case TypeRole: return nameForType(type.rangeType());
         case RangeTypeRole: return type.rangeType();
         case DetailsRole: return type.data().isEmpty() ?
-                        FlameGraphModel::tr("Source code not available") : type.data();
+                        Tr::tr("Source code not available") : type.data();
         case LocationRole: return type.displayName();
         default: return QVariant();
         }

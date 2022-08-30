@@ -22407,7 +22407,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerAttachDialog</name>
+    <name>QmlProfiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML 效能分析器</translation>
@@ -23317,11 +23317,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerEngine</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>QML 效能分析器</translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source>Application finished before loading profiled data.
  Please use the stop button instead.</source>
@@ -23342,13 +23338,6 @@ These files are preserved.</source>
         <extracomment>%1 is detailed error message</extracomment>
         <translation>無法連線到執行中的 QML 除錯工具：
 %1</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTool</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>QML 效能分析器</translation>
     </message>
     <message>
         <source>The QML Profiler can be used to find performance bottlenecks in applications using QML.</source>
@@ -23372,28 +23361,24 @@ Please use the stop button instead.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copy Row</source>
-        <translation type="obsolete">複製列</translation>
-    </message>
-    <message>
         <source>Copy Table</source>
-        <translation type="obsolete">複製表格</translation>
+        <translation>複製表格</translation>
     </message>
     <message>
         <source>Extended Event Statistics</source>
-        <translation type="obsolete">延伸事件統計</translation>
+        <translation>延伸事件統計</translation>
     </message>
     <message>
         <source>Limit Events Pane to Current Range</source>
-        <translation type="obsolete">限制事件窗格到目前的範圍</translation>
+        <translation>限制事件窗格到目前的範圍</translation>
     </message>
     <message>
         <source>Reset Events Pane</source>
-        <translation type="obsolete">重置事件窗格</translation>
+        <translation>重置事件窗格</translation>
     </message>
     <message>
         <source>Reset Zoom</source>
-        <translation type="obsolete">重置縮放</translation>
+        <translation>重置縮放</translation>
     </message>
     <message>
         <source>The QML profiler requires Qt 4.7.4 or newer.
@@ -23405,15 +23390,11 @@ Do you want to continue?</source>
     </message>
     <message>
         <source>Events</source>
-        <translation type="obsolete">事件</translation>
-    </message>
-    <message>
-        <source>Timeline</source>
-        <translation type="obsolete">時間線</translation>
+        <translation>事件</translation>
     </message>
     <message>
         <source>JavaScript</source>
-        <translation type="obsolete">JavaScript</translation>
+        <translation>JavaScript</translation>
     </message>
     <message>
         <source>%1 s</source>
@@ -23440,18 +23421,11 @@ Do you want to continue?</source>
         <translation>開啟效能分析</translation>
     </message>
     <message>
-        <source>Qt Creator</source>
-        <translation type="obsolete">Qt Creator</translation>
-    </message>
-    <message>
         <source>Could not connect to the in-process QML profiler.
 Do you want to retry?</source>
-        <translation type="obsolete">無法連線到進行中的 QML 效能分析器。
+        <translation>無法連線到進行中的 QML 效能分析器。
 您要重試嗎？</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::RemoteLinuxQmlProfilerRunner</name>
     <message>
         <source>Gathering ports failed: %1</source>
         <translation type="unfinished"></translation>
@@ -23484,28 +23458,21 @@ Do you want to retry?</source>
         <translation type="obsolete">遠端行程執行結束。離開代碼為 %1。
 </translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::TraceWindow</name>
     <message>
         <source>Jump to previous event</source>
-        <translation type="obsolete">跳到前一個事件</translation>
+        <translation>跳到前一個事件</translation>
     </message>
     <message>
         <source>Jump to next event</source>
-        <translation type="obsolete">跳到下一個事件</translation>
+        <translation>跳到下一個事件</translation>
     </message>
     <message>
         <source>Show zoom slider</source>
-        <translation type="obsolete">顯示縮放滑動器</translation>
+        <translation>顯示縮放滑動器</translation>
     </message>
     <message>
         <source>Select range</source>
-        <translation type="obsolete">選擇範圍</translation>
-    </message>
-    <message>
-        <source>View event information on mouseover</source>
-        <translation type="obsolete">在滑鼠置於上時檢視事件資訊</translation>
+        <translation>選擇範圍</translation>
     </message>
 </context>
 <context>
@@ -25307,7 +25274,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>MainView</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Painting</source>
         <translation>繪製中</translation>
@@ -29357,7 +29324,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerStatisticsMainView</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -29452,16 +29419,9 @@ references to elements in other files, loops, etc.)</source>
         <translation>建立</translation>
     </message>
     <message>
-        <source>Binding</source>
-        <translation>綁定</translation>
-    </message>
-    <message>
         <source>Signal</source>
         <translation>信號</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsParentsAndChildrenView</name>
     <message>
         <source>Part of binding loop</source>
         <translation type="obsolete">綁定迴圈的部份</translation>
@@ -29477,18 +29437,6 @@ references to elements in other files, loops, etc.)</source>
     <message>
         <source>Caller</source>
         <translation>呼叫者</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>型態</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation>總時間</translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation>呼叫</translation>
     </message>
     <message>
         <source>Callee Description</source>
@@ -33449,20 +33397,7 @@ Qt Creator 知道一個相似的URI.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerClientManager</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="unfinished">Qt Creator</translation>
-    </message>
-    <message>
-        <source>Could not connect to the in-process QML profiler.
-Do you want to retry?</source>
-        <translation type="unfinished">無法連線到進行中的 QML 效能分析器。
-您要重試嗎？</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerDataModel</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Source code not available</source>
         <translation type="unfinished">無法使用源碼</translation>
@@ -33511,36 +33446,14 @@ Do you want to retry?</source>
         <source>Invalid version of QML Trace file.</source>
         <translation type="unfinished">無效的 QML 追蹤檔版本。</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsWidget</name>
     <message>
         <source>Trace information from the v8 JavaScript engine. Available only in Qt5 based applications.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy Row</source>
-        <translation type="unfinished">複製列</translation>
+        <translation>複製列</translation>
     </message>
-    <message>
-        <source>Copy Table</source>
-        <translation type="unfinished">複製表格</translation>
-    </message>
-    <message>
-        <source>Extended Event Statistics</source>
-        <translation type="unfinished">延伸事件統計</translation>
-    </message>
-    <message>
-        <source>Limit Events Pane to Current Range</source>
-        <translation type="unfinished">限制事件窗格到目前的範圍</translation>
-    </message>
-    <message>
-        <source>Reset Events Pane</source>
-        <translation type="unfinished">重置事件窗格</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStateWidget</name>
     <message>
         <source>Loading data</source>
         <translation type="unfinished">載入資料中</translation>
@@ -33557,55 +33470,13 @@ Do you want to retry?</source>
         <source>Application stopped before loading all data</source>
         <translation type="unfinished">載入所有資料前應用程式已停止</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTraceView</name>
-    <message>
-        <source>Jump to previous event</source>
-        <translation type="unfinished">跳到前一個事件</translation>
-    </message>
-    <message>
-        <source>Jump to next event</source>
-        <translation type="unfinished">跳到下一個事件</translation>
-    </message>
-    <message>
-        <source>Show zoom slider</source>
-        <translation type="unfinished">顯示縮放滑動器</translation>
-    </message>
-    <message>
-        <source>Select range</source>
-        <translation type="unfinished">選擇範圍</translation>
-    </message>
     <message>
         <source>View event information on mouseover</source>
-        <translation type="unfinished">在滑鼠置於上時檢視事件資訊</translation>
-    </message>
-    <message>
-        <source>Limit Events Pane to Current Range</source>
-        <translation type="unfinished">限制事件窗格到目前的範圍</translation>
-    </message>
-    <message>
-        <source>Reset Events Pane</source>
-        <translation type="unfinished">重置事件窗格</translation>
-    </message>
-    <message>
-        <source>Reset Zoom</source>
-        <translation type="unfinished">重置縮放</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerViewManager</name>
-    <message>
-        <source>Events</source>
-        <translation type="unfinished">事件</translation>
+        <translation>在滑鼠置於上時檢視事件資訊</translation>
     </message>
     <message>
         <source>Timeline</source>
-        <translation type="unfinished">時間線</translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation type="unfinished">JavaScript</translation>
+        <translation>時間線</translation>
     </message>
 </context>
 <context>

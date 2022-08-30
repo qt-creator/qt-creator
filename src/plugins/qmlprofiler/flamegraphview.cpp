@@ -4,6 +4,7 @@
 #include "flamegraphview.h"
 #include "qmlprofilerconstants.h"
 #include "qmlprofilertool.h"
+#include "qmlprofilertr.h"
 
 #include <tracing/flamegraph.h>
 #include <tracing/timelinetheme.h>
@@ -22,7 +23,7 @@ FlameGraphView::FlameGraphView(QmlProfilerModelManager *manager, QWidget *parent
     m_model(new FlameGraphModel(manager, this))
 {
     setObjectName("QmlProfiler.FlameGraph.Dock");
-    setWindowTitle(tr("Flame Graph"));
+    setWindowTitle(Tr::tr("Flame Graph"));
 
     m_content->engine()->addImportPath(":/qt/qml/");
     Timeline::TimelineTheme::setupTheme(m_content->engine());
@@ -63,9 +64,9 @@ void FlameGraphView::contextMenuEvent(QContextMenuEvent *ev)
 
     menu.addActions(QmlProfilerTool::profilerContextMenuActions());
     menu.addSeparator();
-    QAction *getGlobalStatsAction = menu.addAction(tr("Show Full Range"));
+    QAction *getGlobalStatsAction = menu.addAction(Tr::tr("Show Full Range"));
     getGlobalStatsAction->setEnabled(m_model->modelManager()->isRestrictedToRange());
-    QAction *resetAction = menu.addAction(tr("Reset Flame Graph"));
+    QAction *resetAction = menu.addAction(Tr::tr("Reset Flame Graph"));
     resetAction->setEnabled(m_content->rootObject()->property("zoomed").toBool());
 
     const QAction *selected = menu.exec(position);

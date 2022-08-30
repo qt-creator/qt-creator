@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "inputeventsmodel.h"
-#include "qmlprofilermodelmanager.h"
 #include "qmlprofilereventtypes.h"
+#include "qmlprofilermodelmanager.h"
+#include "qmlprofilertr.h"
 
 #include <tracing/timelineformattime.h>
 
@@ -36,12 +37,12 @@ QVariantList InputEventsModel::labels() const
     QVariantList result;
 
     QVariantMap element;
-    element.insert(QLatin1String("description"), QVariant(tr("Mouse Events")));
+    element.insert(QLatin1String("description"), QVariant(Tr::tr("Mouse Events")));
     element.insert(QLatin1String("id"), QVariant(Mouse));
     result << element;
 
     element.clear();
-    element.insert(QLatin1String("description"), QVariant(tr("Keyboard Events")));
+    element.insert(QLatin1String("description"), QVariant(Tr::tr("Keyboard Events")));
     element.insert(QLatin1String("id"), QVariant(Key));
     result << element;
 
@@ -56,56 +57,56 @@ QMetaEnum InputEventsModel::metaEnum(const char *name)
 QVariantMap InputEventsModel::details(int index) const
 {
     QVariantMap result;
-    result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index),
+    result.insert(Tr::tr("Timestamp"), Timeline::formatTime(startTime(index),
                                                         modelManager()->traceDuration()));
     QString type;
     const Item &event = m_data[index];
     switch (event.type) {
     case InputKeyPress:
-        type = tr("Key Press");
+        type = Tr::tr("Key Press");
         Q_FALLTHROUGH();
     case InputKeyRelease:
         if (type.isEmpty())
-            type = tr("Key Release");
+            type = Tr::tr("Key Release");
         if (event.a != 0) {
-            result.insert(tr("Key"), QLatin1String(metaEnum("Key").valueToKey(event.a)));
+            result.insert(Tr::tr("Key"), QLatin1String(metaEnum("Key").valueToKey(event.a)));
         }
         if (event.b != 0) {
-            result.insert(tr("Modifiers"),
+            result.insert(Tr::tr("Modifiers"),
                           QLatin1String(metaEnum("KeyboardModifiers").valueToKeys(event.b)));
         }
         break;
     case InputMouseDoubleClick:
-        type = tr("Double Click");
+        type = Tr::tr("Double Click");
         Q_FALLTHROUGH();
     case InputMousePress:
         if (type.isEmpty())
-            type = tr("Mouse Press");
+            type = Tr::tr("Mouse Press");
         Q_FALLTHROUGH();
     case InputMouseRelease:
         if (type.isEmpty())
-            type = tr("Mouse Release");
-        result.insert(tr("Button"), QLatin1String(metaEnum("MouseButtons").valueToKey(event.a)));
-        result.insert(tr("Result"), QLatin1String(metaEnum("MouseButtons").valueToKeys(event.b)));
+            type = Tr::tr("Mouse Release");
+        result.insert(Tr::tr("Button"), QLatin1String(metaEnum("MouseButtons").valueToKey(event.a)));
+        result.insert(Tr::tr("Result"), QLatin1String(metaEnum("MouseButtons").valueToKeys(event.b)));
         break;
     case InputMouseMove:
-        type = tr("Mouse Move");
-        result.insert(tr("X"), QString::number(event.a));
-        result.insert(tr("Y"), QString::number(event.b));
+        type = Tr::tr("Mouse Move");
+        result.insert(Tr::tr("X"), QString::number(event.a));
+        result.insert(Tr::tr("Y"), QString::number(event.b));
         break;
     case InputMouseWheel:
-        type = tr("Mouse Wheel");
-        result.insert(tr("Angle X"), QString::number(event.a));
-        result.insert(tr("Angle Y"), QString::number(event.b));
+        type = Tr::tr("Mouse Wheel");
+        result.insert(Tr::tr("Angle X"), QString::number(event.a));
+        result.insert(Tr::tr("Angle Y"), QString::number(event.b));
         break;
     case InputKeyUnknown:
-        type = tr("Keyboard Event");
+        type = Tr::tr("Keyboard Event");
         break;
     case InputMouseUnknown:
-        type = tr("Mouse Event");
+        type = Tr::tr("Mouse Event");
         break;
     default:
-        type = tr("Unknown");
+        type = Tr::tr("Unknown");
         break;
     }
 

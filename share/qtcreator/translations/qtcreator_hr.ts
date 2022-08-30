@@ -7677,7 +7677,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfilerFlameGraphView</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Total Time</source>
         <translation>Cjelokupno vrijeme</translation>
@@ -7718,9 +7718,6 @@ Greška: %5</translation>
         <source>others</source>
         <translation>ostali</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerAttachDialog</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML Profiler</translation>
@@ -7753,9 +7750,6 @@ Greška: %5</translation>
         <source>Kit:</source>
         <translation>Komplet:</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerConfigWidget</name>
     <message>
         <source>Flush data while profiling:</source>
         <translation type="unfinished"></translation>
@@ -28976,7 +28970,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfilerEventStorage</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Failed to reset temporary trace file.</source>
         <translation>Neuspjelo resetiranje privremene trace datoteke.</translation>
@@ -35721,7 +35715,7 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
 </context>
 <context>
-    <name>DebugMessagesModel</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Debug Message</source>
         <translation type="unfinished"></translation>
@@ -35742,9 +35736,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Info Message</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::DebugMessagesModel</name>
     <message>
         <source>Unknown Message %1</source>
         <translation>Nepoznata poruka %1</translation>
@@ -35757,13 +35748,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Message</source>
         <translation>Poruka</translation>
     </message>
-    <message>
-        <source>Location</source>
-        <translation>Mjesto</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::FlameGraphModel</name>
     <message>
         <source>Could not re-read events from temporary trace file: %1</source>
         <translation type="unfinished"></translation>
@@ -35792,9 +35776,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Source code not available</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::FlameGraphView</name>
     <message>
         <source>Flame Graph</source>
         <translation type="unfinished"></translation>
@@ -35807,19 +35788,12 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Reset Flame Graph</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::InputEventsModel</name>
     <message>
         <source>Mouse Events</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Keyboard Events</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Timestamp</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -35894,9 +35868,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Unknown</source>
         <translation>Nepoznato</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::MemoryUsageModel</name>
     <message>
         <source>Memory Allocation</source>
         <translation>Dodijeljivanje memorije</translation>
@@ -35930,10 +35901,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <translation>Dodijeljena</translation>
     </message>
     <message>
-        <source>Allocations</source>
-        <translation>Dodijeljivanja</translation>
-    </message>
-    <message>
         <source>Deallocated</source>
         <translation type="unfinished"></translation>
     </message>
@@ -35958,13 +35925,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <translation>Vrsta</translation>
     </message>
     <message>
-        <source>Location</source>
-        <translation>Mjesto</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::PixmapCacheModel</name>
-    <message>
         <source>Cache Size</source>
         <translation type="unfinished"></translation>
     </message>
@@ -35977,16 +35937,8 @@ ID oznake moraju započeti malim slovom.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Result</source>
-        <translation>Rezultat</translation>
-    </message>
-    <message>
         <source>Load Error</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation type="unfinished">Trajanje</translation>
     </message>
     <message>
         <source>File</source>
@@ -36000,15 +35952,8 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Height</source>
         <translation>Visina</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerActions</name>
     <message>
         <source>The QML Profiler can be used to find performance bottlenecks in applications using QML.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>QML Profiler</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -36027,9 +35972,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>QML Profiler Options</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerAnimationsModel</name>
     <message>
         <source>Animations</source>
         <translation type="unfinished"></translation>
@@ -36043,10 +35985,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Duration</source>
-        <translation type="unfinished">Trajanje</translation>
-    </message>
-    <message>
         <source>Framerate</source>
         <translation type="unfinished"></translation>
     </message>
@@ -36054,27 +35992,12 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Context</source>
         <translation>Sadržaj</translation>
     </message>
-</context>
-<context>
-    <name>MainView</name>
-    <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
-    </message>
-    <message>
-        <source>Memory Usage</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Pixmap Cache</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Scene Graph</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Animations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -36090,10 +36013,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Binding</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Handling Signal</source>
         <translation type="unfinished"></translation>
     </message>
@@ -36103,14 +36022,6 @@ ID oznake moraju započeti malim slovom.</translation>
     </message>
     <message>
         <source>Debug Messages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>GUI Thread</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Render Thread</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -36193,9 +36104,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Texture Delete</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerModelManager</name>
     <message>
         <source>Failed to replay QML events from stash file.</source>
         <translation type="unfinished"></translation>
@@ -36209,45 +36117,17 @@ ID oznake moraju započeti malim slovom.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Read past end in temporary trace file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerOptionsPage</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Analyzer</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerRangeModel</name>
     <message>
         <source>Duration</source>
         <translation>Trajanje</translation>
     </message>
     <message>
-        <source>Details</source>
-        <translation>Detalji</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Mjesto</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerRunConfiguration</name>
-    <message>
         <source>QML Profiler Settings</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStateWidget</name>
     <message numerus="yes">
         <source>Profiling application: %n events</source>
         <translation type="unfinished">
@@ -36284,37 +36164,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Waiting for data</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerStatisticsModel</name>
-    <message>
-        <source>Painting</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Compiling</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Creating</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Binding</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Handling Signal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
-    </message>
-    <message>
-        <source>Could not re-read events from temporary trace file: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Main program</source>
         <translation type="unfinished"></translation>
@@ -36324,32 +36173,8 @@ ID oznake moraju započeti malim slovom.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation>Pozivi</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Detalji</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Mjesto</translation>
-    </message>
-    <message>
         <source>Longest Time</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mean Time</source>
-        <translation type="unfinished">Prosječno vrijeme</translation>
     </message>
     <message>
         <source>Self Time</source>
@@ -36368,34 +36193,15 @@ ID oznake moraju započeti malim slovom.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Total Time</source>
-        <translation type="unfinished">Cjelokupno vrijeme</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Vrsta</translation>
-    </message>
-    <message>
         <source>Median Time</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerStatisticsRelativesModel</name>
     <message>
         <source>Main Program</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>called recursively</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -36407,18 +36213,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Vrsta</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation type="unfinished">Cjelokupno vrijeme</translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation type="unfinished">Pozivi</translation>
-    </message>
-    <message>
         <source>Callee Description</source>
         <translation type="unfinished"></translation>
     </message>
@@ -36426,9 +36220,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Caller Description</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStatisticsView</name>
     <message>
         <source>Statistics</source>
         <translation>Statistika</translation>
@@ -36445,13 +36236,6 @@ ID oznake moraju započeti malim slovom.</translation>
         <source>Extended Event Statistics</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Show Full Range</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTool</name>
     <message>
         <source>Discard data</source>
         <translation type="unfinished"></translation>
@@ -36502,23 +36286,11 @@ Do you want to retry and wait %2 s?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>QML Profiler</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save QML Trace</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>QML traces (*%1 *%2)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Saving Trace Data</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Load QML Trace</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -36539,9 +36311,6 @@ Please use the stop button instead.</source>
 Do you want to save the data first?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTraceFile</name>
     <message>
         <source>Error while parsing trace data file: %1</source>
         <translation type="unfinished"></translation>
@@ -36575,9 +36344,6 @@ Do you want to save the data first?</source>
 Saving failed.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTraceView</name>
     <message>
         <source>Timeline</source>
         <translation type="unfinished"></translation>
@@ -36594,227 +36360,13 @@ Saving failed.</source>
         <source>Reset Zoom</source>
         <translation type="unfinished">Resetiraj zumiranje</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerViewManager</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::SceneGraphTimelineModel</name>
     <message>
         <source>Stage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Duration</source>
-        <translation type="unfinished">Trajanje</translation>
-    </message>
-    <message>
         <source>Glyphs</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::DebugMessagesModelTest</name>
-    <message>
-        <source>Timestamp</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Poruka</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Mjesto</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::InputEventsModelTest</name>
-    <message>
-        <source>Mouse Events</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Keyboard Events</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Timestamp</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Key Press</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Key</source>
-        <translation>Ključ</translation>
-    </message>
-    <message>
-        <source>Modifiers</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Key Release</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Keyboard Event</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mouse Press</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Button</source>
-        <translation>Gumb</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Rezultat</translation>
-    </message>
-    <message>
-        <source>Mouse Release</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mouse Move</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>X</source>
-        <translation>X</translation>
-    </message>
-    <message>
-        <source>Y</source>
-        <translation>Y</translation>
-    </message>
-    <message>
-        <source>Double Click</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mouse Wheel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Angle X</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Angle Y</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mouse Event</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unknown</source>
-        <translation>Nepoznato</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::MemoryUsageModelTest</name>
-    <message>
-        <source>Memory Allocation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Memory Usage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Memory Allocated</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Total</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <source>%n byte(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message>
-        <source>Allocated</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Allocations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Vrsta</translation>
-    </message>
-    <message>
-        <source>Heap Allocation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Mjesto</translation>
-    </message>
-    <message>
-        <source>Deallocated</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Deallocations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Large Item Allocation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Memory Freed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Heap Usage</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::PixmapCacheModelTest</name>
-    <message>
-        <source>Image Cached</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Cache Size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Image Loaded</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation type="unfinished">Trajanje</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Datoteka</translation>
-    </message>
-    <message>
-        <source>Width</source>
-        <translation>Širina</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Visina</translation>
     </message>
 </context>
 <context>

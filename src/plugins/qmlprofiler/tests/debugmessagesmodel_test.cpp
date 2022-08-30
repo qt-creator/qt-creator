@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "debugmessagesmodel_test.h"
+#include "qmlprofilertr.h"
 
 #include <tracing/timelineformattime.h>
 
@@ -49,11 +50,11 @@ void DebugMessagesModelTest::testColor()
 }
 
 static const char *messageTypes[] = {
-    QT_TRANSLATE_NOOP("DebugMessagesModel", "Debug Message"),
-    QT_TRANSLATE_NOOP("DebugMessagesModel", "Warning Message"),
-    QT_TRANSLATE_NOOP("DebugMessagesModel", "Critical Message"),
-    QT_TRANSLATE_NOOP("DebugMessagesModel", "Fatal Message"),
-    QT_TRANSLATE_NOOP("DebugMessagesModel", "Info Message"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Debug Message"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Warning Message"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Critical Message"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Fatal Message"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Info Message"),
 };
 
 void DebugMessagesModelTest::testLabels()
@@ -61,7 +62,7 @@ void DebugMessagesModelTest::testLabels()
     QVariantList labels = model.labels();
     for (int i = 0; i <= QtMsgType::QtInfoMsg; ++i) {
         QVariantMap element = labels[i].toMap();
-        QCOMPARE(element[QLatin1String("description")].toString(), model.tr(messageTypes[i]));
+        QCOMPARE(element[QLatin1String("description")].toString(), Tr::tr(messageTypes[i]));
         QCOMPARE(element[QLatin1String("id")].toInt(), i);
     }
 }
@@ -71,12 +72,12 @@ void DebugMessagesModelTest::testDetails()
     for (int i = 0; i < 10; ++i) {
         QVariantMap details = model.details(i);
         QCOMPARE(details.value(QLatin1String("displayName")).toString(),
-                 model.tr(messageTypes[i % (QtMsgType::QtInfoMsg + 1)]));
-        QCOMPARE(details.value(model.tr("Timestamp")).toString(),
+                 Tr::tr(messageTypes[i % (QtMsgType::QtInfoMsg + 1)]));
+        QCOMPARE(details.value(Tr::tr("Timestamp")).toString(),
                  Timeline::formatTime(i));
-        QCOMPARE(details.value(model.tr("Message")).toString(),
+        QCOMPARE(details.value(Tr::tr("Message")).toString(),
                  QString::fromLatin1("message %1").arg(i));
-        QCOMPARE(details.value(model.tr("Location")).toString(),
+        QCOMPARE(details.value(Tr::tr("Location")).toString(),
                  QString::fromLatin1("somefile.js:%1").arg(i));
     }
 }

@@ -5976,7 +5976,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerAttachDialog</name>
+    <name>QmlProfiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML プロファイラ</translation>
@@ -29976,7 +29976,7 @@ the QML editor know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerClientManager</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
@@ -29999,9 +29999,6 @@ Do you want to retry?</source>
         <source>Failed to connect!</source>
         <translation>接続に失敗しました！</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerModelManager</name>
     <message>
         <source>Could not open %1 for writing.</source>
         <translation>書き込み用に %1 を開けません。</translation>
@@ -30034,9 +30031,6 @@ Do you want to retry?</source>
         <source>anonymous function</source>
         <translation>無名関数</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTool</name>
     <message>
         <source>The QML Profiler can be used to find performance bottlenecks in applications using QML.</source>
         <translation>QML プロファイラは、QML を使っているアプリケーションの性能のボトルネックを探すのに使用する事ができます。</translation>
@@ -30076,10 +30070,6 @@ Do you want to retry and wait %2 s?</source>
         <translation>接続に失敗しました。</translation>
     </message>
     <message>
-        <source>QML Profiler</source>
-        <translation>QML プロファイラ</translation>
-    </message>
-    <message>
         <source>A QML Profiler analysis is still in progress.</source>
         <translation>QML プロファイラは既に実行されています。</translation>
     </message>
@@ -30116,14 +30106,6 @@ Do you want to retry and wait %2 s?</source>
         <translation>経過: %1</translation>
     </message>
     <message>
-        <source>Saving Trace Data</source>
-        <translation>トレースデータの保存中</translation>
-    </message>
-    <message>
-        <source>Loading Trace Data</source>
-        <translation>トレースデータの読込中</translation>
-    </message>
-    <message>
         <source>You are about to discard the profiling data, including unsaved notes. Do you want to continue?</source>
         <translation>未保存のメモを含むプロファイリングデータを破棄しようとしています。継続しますか？</translation>
     </message>
@@ -30139,9 +30121,6 @@ Do you want to save the data first?</source>
         <translation>新しいプロファイリングセッションを開始すると未保存のメモを含む古いデータは破棄されます。
 始めにデータを保存しますか？</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStateWidget</name>
     <message>
         <source>Profiling application: %1 events</source>
         <translation>アプリケーションのプロファイリング: %1 イベント</translation>
@@ -30192,9 +30171,6 @@ Do you want to save the data first?</source>
         <source>Waiting for data</source>
         <translation>データ待機中</translation>
     </message>
-</context>
-<context>
-    <name>MainView</name>
     <message>
         <source>Memory Usage</source>
         <translation>メモリ使用量</translation>
@@ -30331,9 +30307,6 @@ Do you want to save the data first?</source>
         <source>Texture Delete</source>
         <translation>テクスチャを削除する</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerFileReader</name>
     <message>
         <source>Error while parsing trace data file: %1</source>
         <translation>トレースデータファイルの解析中のエラー: %1</translation>
@@ -30354,9 +30327,6 @@ Do you want to save the data first?</source>
         <source>Corrupt data before position %1.</source>
         <translation>位置 %1 以前のデータが壊れています。</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTraceView</name>
     <message>
         <source>Timeline</source>
         <translation>タイムライン</translation>
@@ -30372,17 +30342,6 @@ Do you want to save the data first?</source>
     <message>
         <source>Reset Zoom</source>
         <translation>縮尺を戻す</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerViewManager</name>
-    <message>
-        <source>Timeline</source>
-        <translation>タイムライン</translation>
-    </message>
-    <message>
-        <source>QML Profiler</source>
-        <translation>QML プロファイラ</translation>
     </message>
 </context>
 <context>
@@ -35434,19 +35393,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::QmlProfilerDataModel</name>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;バイトコード&gt;</translation>
-    </message>
-    <message>
-        <source>GUI Thread</source>
-        <translation>GUI スレッド</translation>
-    </message>
-    <message>
-        <source>anonymous function</source>
-        <translation>無名関数</translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source> µs</source>
         <translation> µs</translation>
@@ -37547,7 +37494,7 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerConfigWidget</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Flush data while profiling:</source>
         <translation>プロファイル中にデータを送信する:</translation>
@@ -37577,10 +37524,6 @@ the program.</source>
 プロファイル対象のプロセスが終了した際にデータを処理します。
 この手法では複数のプロファイル結果を一つのトレース結果にまとめることができます。
 例えば単一のプログラム内で複数の QML エンジンを逐次実行する場合などに有効です。</translation>
-    </message>
-    <message>
-        <source>QML Profiler</source>
-        <translation>QML プロファイラ</translation>
     </message>
     <message>
         <source>Analyzer</source>
@@ -44539,19 +44482,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerAnimationsModel</name>
-    <message>
-        <source>Animations</source>
-        <translation>アニメーション</translation>
-    </message>
-    <message>
-        <source>GUI Thread</source>
-        <translation>GUI スレッド</translation>
-    </message>
-    <message>
-        <source>Render Thread</source>
-        <translation>描画スレッド</translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source>Duration</source>
         <translation>持続時間</translation>
@@ -44564,24 +44495,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Context</source>
         <translation>コンテキスト</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerOptionsPage</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>QML プロファイラ</translation>
-    </message>
-    <message>
-        <source>Analyzer</source>
-        <translation>解析</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerRangeModel</name>
-    <message>
-        <source>Duration</source>
-        <translation>持続時間</translation>
-    </message>
     <message>
         <source>Details</source>
         <translation>詳細</translation>
@@ -44590,19 +44503,9 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Location</source>
         <translation>パス</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfilerRunConfiguration</name>
     <message>
         <source>QML Profiler Settings</source>
         <translation>QML プロファイラの設定</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerRunControl</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
     </message>
     <message>
         <source>Could not connect to the in-process QML debugger:
@@ -44611,16 +44514,10 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <translation>プロセス内 QML デバッガに接続できませんでした。
 %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerRunControlFactory</name>
     <message>
         <source>No executable file to launch.</source>
         <translation>起動する実行ファイルがありません。</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStatisticsMainView</name>
     <message>
         <source>&lt;program&gt;</source>
         <translation>&lt;プログラム&gt;</translation>
@@ -44632,10 +44529,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
     <message>
         <source>Binding loop detected.</source>
         <translation>バインディングループが検出されました。</translation>
-    </message>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;バイトコード&gt;</translation>
     </message>
     <message>
         <source>Source code not available</source>
@@ -44654,20 +44547,9 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <translation>生成</translation>
     </message>
     <message>
-        <source>Binding</source>
-        <translation>バインディング</translation>
-    </message>
-    <message>
         <source>Signal</source>
         <translation>シグナル</translation>
     </message>
-    <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStatisticsView</name>
     <message>
         <source>Statistics</source>
         <translation>統計</translation>
@@ -44688,24 +44570,10 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Show Full Range</source>
         <translation>全体を表示</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStatisticsRelativesView</name>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;バイトコード&gt;</translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
-        <translation>ソースコードが見つかりません</translation>
-    </message>
     <message>
         <source>Part of binding loop.</source>
         <translation>バインディングループの一部です。</translation>
     </message>
-</context>
-<context>
-    <name>DebugMessagesModel</name>
     <message>
         <source>Debug Message</source>
         <translation>デバッグメッセージ</translation>
@@ -44726,9 +44594,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Info Message</source>
         <translation>インフォメーション</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::DebugMessagesModel</name>
     <message>
         <source>Unknown Message %1</source>
         <translation>未知のメッセージ %1</translation>
@@ -44742,38 +44607,12 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <translation>メッセージ</translation>
     </message>
     <message>
-        <source>Location</source>
-        <translation>パス</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::DebugMessagesModelTest</name>
-    <message>
-        <source>Timestamp</source>
-        <translation>タイムスタンプ</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>メッセージ</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>パス</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::InputEventsModelTest</name>
-    <message>
         <source>Mouse Events</source>
         <translation>マウスイベント</translation>
     </message>
     <message>
         <source>Keyboard Events</source>
         <translation>キーボードイベント</translation>
-    </message>
-    <message>
-        <source>Timestamp</source>
-        <translation>タイムスタンプ</translation>
     </message>
     <message>
         <source>Key Press</source>
@@ -44843,16 +44682,9 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Mouse Event</source>
         <translation>マウスイベント</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::MemoryUsageModelTest</name>
     <message>
         <source>Memory Allocation</source>
         <translation>メモリ確保</translation>
-    </message>
-    <message>
-        <source>Memory Usage</source>
-        <translation>メモリ使用</translation>
     </message>
     <message>
         <source>Memory Allocated</source>
@@ -44883,10 +44715,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <translation>ヒープメモリ</translation>
     </message>
     <message>
-        <source>Location</source>
-        <translation>パス</translation>
-    </message>
-    <message>
         <source>Deallocated</source>
         <translation>解放済み</translation>
     </message>
@@ -44906,9 +44734,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Heap Usage</source>
         <translation>ヒープ使用</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::PixmapCacheModelTest</name>
     <message>
         <source>Image Cached</source>
         <translation>キャッシュ済み画像</translation>
@@ -44916,10 +44741,6 @@ Android パッケージソースディレクトリのファイルはビルドデ
     <message>
         <source>Image Loaded</source>
         <translation>読込済み画像</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>持続時間</translation>
     </message>
     <message>
         <source>Cache Size</source>
@@ -44937,16 +44758,9 @@ Android パッケージソースディレクトリのファイルはビルドデ
         <source>Height</source>
         <translation>高さ</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::SceneGraphTimelineModel</name>
     <message>
         <source>Stage</source>
         <translation>ステージ</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>持続時間</translation>
     </message>
     <message>
         <source>Glyphs</source>
@@ -46444,41 +46258,10 @@ Output:
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::FlameGraphModel</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Could not re-read events from temporary trace file: %1</source>
         <translation>一時的なトレース・ファイルからイベントを再読み取りできませんでした: %1</translation>
-    </message>
-    <message>
-        <source>Compile</source>
-        <translation>コンパイル</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation>生成</translation>
-    </message>
-    <message>
-        <source>Binding</source>
-        <translation>バインディング</translation>
-    </message>
-    <message>
-        <source>Signal</source>
-        <translation>シグナル</translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
-        <translation>ソースコードが見つかりません</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::FlameGraphView</name>
-    <message>
-        <source>Show Full Range</source>
-        <translation>全体を表示</translation>
     </message>
     <message>
         <source>Flame Graph</source>
@@ -46488,194 +46271,13 @@ Output:
         <source>Reset Flame Graph</source>
         <translation>フレームグラフをリセットする</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::InputEventsModel</name>
-    <message>
-        <source>Mouse Events</source>
-        <translation>マウスイベント</translation>
-    </message>
-    <message>
-        <source>Keyboard Events</source>
-        <translation>キーボードイベント</translation>
-    </message>
-    <message>
-        <source>Timestamp</source>
-        <translation>タイムスタンプ</translation>
-    </message>
-    <message>
-        <source>Key Press</source>
-        <translation>キープレス</translation>
-    </message>
-    <message>
-        <source>Key Release</source>
-        <translation>キーリリース</translation>
-    </message>
-    <message>
-        <source>Key</source>
-        <translation>キー</translation>
-    </message>
-    <message>
-        <source>Modifiers</source>
-        <translation>修飾キー</translation>
-    </message>
-    <message>
-        <source>Double Click</source>
-        <translation>ダブルクリック</translation>
-    </message>
-    <message>
-        <source>Mouse Press</source>
-        <translation>マウスプレス</translation>
-    </message>
-    <message>
-        <source>Mouse Release</source>
-        <translation>マウスリリース</translation>
-    </message>
-    <message>
-        <source>Button</source>
-        <translation>ボタン</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>結果</translation>
-    </message>
-    <message>
-        <source>Mouse Move</source>
-        <translation>マウス移動</translation>
-    </message>
-    <message>
-        <source>X</source>
-        <translation>X</translation>
-    </message>
-    <message>
-        <source>Y</source>
-        <translation>Y</translation>
-    </message>
-    <message>
-        <source>Mouse Wheel</source>
-        <translation>マウスホイール</translation>
-    </message>
-    <message>
-        <source>Angle X</source>
-        <translation>X軸角度</translation>
-    </message>
-    <message>
-        <source>Angle Y</source>
-        <translation>Y軸角度</translation>
-    </message>
-    <message>
-        <source>Keyboard Event</source>
-        <translation>キーボードイベント</translation>
-    </message>
-    <message>
-        <source>Mouse Event</source>
-        <translation>マウスイベント</translation>
-    </message>
     <message>
         <source>Unknown</source>
         <translation>不明</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::MemoryUsageModel</name>
-    <message>
-        <source>Memory Allocation</source>
-        <translation>メモリ確保</translation>
-    </message>
-    <message>
-        <source>Memory Usage</source>
-        <translation>メモリ使用</translation>
-    </message>
-    <message>
-        <source>Memory Allocated</source>
-        <translation>確保済みメモリ</translation>
-    </message>
-    <message>
-        <source>Memory Freed</source>
-        <translation>解放済みメモリ</translation>
-    </message>
-    <message>
-        <source>Total</source>
-        <translation>トータル</translation>
-    </message>
-    <message>
-        <source>%1 bytes</source>
-        <translation>%1 バイト</translation>
-    </message>
-    <message>
-        <source>Allocated</source>
-        <translation>確保済み</translation>
-    </message>
-    <message>
-        <source>Allocations</source>
-        <translation>確保</translation>
-    </message>
-    <message>
-        <source>Deallocated</source>
-        <translation>解放済み</translation>
-    </message>
-    <message>
-        <source>Deallocations</source>
-        <translation>解放</translation>
-    </message>
-    <message>
-        <source>Heap Allocation</source>
-        <translation>ヒープメモリ</translation>
-    </message>
-    <message>
-        <source>Large Item Allocation</source>
-        <translation>巨大アイテム用メモリ</translation>
-    </message>
-    <message>
-        <source>Heap Usage</source>
-        <translation>ヒープ使用</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>型</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>パス</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::PixmapCacheModel</name>
-    <message>
-        <source>Cache Size</source>
-        <translation>キャッシュサイズ</translation>
-    </message>
-    <message>
-        <source>Image Cached</source>
-        <translation>キャッシュ済み画像</translation>
-    </message>
-    <message>
-        <source>Image Loaded</source>
-        <translation>読込済み画像</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>結果</translation>
-    </message>
     <message>
         <source>Load Error</source>
         <translation>読込エラー</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>持続時間</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>ファイル</translation>
-    </message>
-    <message>
-        <source>Width</source>
-        <translation>幅</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>高さ</translation>
     </message>
 </context>
 <context>
@@ -47907,7 +47509,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>QmlProfilerFlameGraphView</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Total Time</source>
         <translation>合計時間</translation>
@@ -47917,24 +47519,12 @@ Output:
         <translation>呼出回数</translation>
     </message>
     <message>
-        <source>Details</source>
-        <translation>詳細</translation>
-    </message>
-    <message>
         <source>Mean Time</source>
         <translation>平均時間</translation>
     </message>
     <message>
         <source>In Percent</source>
         <translation>割合</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>パス</translation>
-    </message>
-    <message>
-        <source>Allocations</source>
-        <translation>確保</translation>
     </message>
     <message>
         <source>Various Events</source>
@@ -55013,101 +54603,7 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerActions</name>
-    <message>
-        <source>The QML Profiler can be used to find performance bottlenecks in applications using QML.</source>
-        <translation>QML プロファイラは、QML を使っているアプリケーションの性能のボトルネックを探すのに使用する事ができます。</translation>
-    </message>
-    <message>
-        <source>QML Profiler</source>
-        <translation>QML プロファイラ</translation>
-    </message>
-    <message>
-        <source>Load QML Trace</source>
-        <translation>QML トレースを読み込む</translation>
-    </message>
-    <message>
-        <source>Save QML Trace</source>
-        <translation>QML トレースを保存</translation>
-    </message>
-    <message>
-        <source>QML Profiler Options</source>
-        <translation>QML プロファイラオプション</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerStatisticsModel</name>
-    <message>
-        <source>Painting</source>
-        <translation>描画</translation>
-    </message>
-    <message>
-        <source>Compiling</source>
-        <translation>コンパイル</translation>
-    </message>
-    <message>
-        <source>Creating</source>
-        <translation>生成</translation>
-    </message>
-    <message>
-        <source>Binding</source>
-        <translation>バインディング</translation>
-    </message>
-    <message>
-        <source>Handling Signal</source>
-        <translation>ハンドリング中のシグナル</translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
-    </message>
-    <message>
-        <source>Could not re-read events from temporary trace file: %1</source>
-        <translation type="unfinished">一時的なトレース・ファイルからイベントを再読み取りできませんでした: %1</translation>
-    </message>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;バイトコード&gt;</translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
-        <translation>ソースコードが見つかりません</translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation>呼出回数</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>詳細</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>パス</translation>
-    </message>
-    <message>
-        <source>Mean Time</source>
-        <translation>平均時間</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation>合計時間</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerStatisticsRelativesModel</name>
-    <message>
-        <source>Main Program</source>
-        <translation>メインプログラム</translation>
-    </message>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;バイトコード&gt;</translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
-        <translation>ソースコードが見つかりません</translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source>Callee</source>
         <translation>呼び出し先</translation>
@@ -55115,37 +54611,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     <message>
         <source>Caller</source>
         <translation>呼び出し元</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation>合計時間</translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation>呼出回数</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTraceFile</name>
-    <message>
-        <source>Error while parsing trace data file: %1</source>
-        <translation>トレースデータファイルの解析中のエラー: %1</translation>
-    </message>
-    <message>
-        <source>Invalid magic: %1</source>
-        <translation>無効なマジック: %1</translation>
-    </message>
-    <message>
-        <source>Unknown data stream version: %1</source>
-        <translation>未知のデータストリームバージョン: %1</translation>
-    </message>
-    <message>
-        <source>Invalid type index %1</source>
-        <translation>無効なタイプインデックス: %1</translation>
-    </message>
-    <message>
-        <source>Corrupt data before position %1.</source>
-        <translation>位置 %1 以前のデータが壊れています。</translation>
     </message>
 </context>
 <context>

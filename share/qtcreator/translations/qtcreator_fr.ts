@@ -36309,12 +36309,6 @@ Do you want to retry?</source>
         <translation type="obsolete">L&apos;application n&apos;est pas configurée pour du débogage QML/JS. </translation>
     </message>
     <message>
-        <source>Could not connect to the in-process QML debugger:
-%1</source>
-        <extracomment>%1 is detailed error message</extracomment>
-        <translation type="obsolete">Impossible de se connecter au processus de débogage QML : %1</translation>
-    </message>
-    <message>
         <source>Starting %1 %2</source>
         <translation>Démarrer %1 %2</translation>
     </message>
@@ -38719,7 +38713,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerAttachDialog</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Boîte de dialogue</translation>
@@ -40744,19 +40738,11 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerEngine</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>Profileur QML</translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source>Application finished before loading profiled data.
  Please use the stop button instead.</source>
         <translation type="obsolete">L&apos;application s&apos;est terminée avant le chargement des données de profilage. Veuillez utiliser le bouton d&apos;arrêt à la place. </translation>
-    </message>
-    <message>
-        <source>No executable file to launch.</source>
-        <translation>Pas de fichier d&apos;exécutable à lancer. </translation>
     </message>
     <message>
         <source>The port seems to be in use.</source>
@@ -40778,35 +40764,9 @@ These files are preserved.</source>
         <extracomment>%1 is detailed error message</extracomment>
         <translation>Impossible de se connecter au processus de débogage QML : %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventStatistics</name>
     <message>
         <source>Source code not available</source>
         <translation type="obsolete">Code source non disponible</translation>
-    </message>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation type="obsolete">&lt;bytecode&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsView</name>
-    <message>
-        <source>Location</source>
-        <translation type="obsolete">Emplacement</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="obsolete">Type</translation>
-    </message>
-    <message>
-        <source>Time in Percent</source>
-        <translation type="obsolete">Temps en pourcent</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation type="obsolete">Temps total</translation>
     </message>
     <message>
         <source>Calls</source>
@@ -40815,60 +40775,6 @@ These files are preserved.</source>
     <message>
         <source>Time per Call</source>
         <translation type="obsolete">Temps par appel</translation>
-    </message>
-    <message>
-        <source>Mean Time</source>
-        <translation type="obsolete">Temps moyen</translation>
-    </message>
-    <message>
-        <source>Median Time</source>
-        <translation type="obsolete">Temps médian</translation>
-    </message>
-    <message>
-        <source>Longest Time</source>
-        <translation type="obsolete">Plus long temps</translation>
-    </message>
-    <message>
-        <source>Shortest Time</source>
-        <translation type="obsolete">Plus court temps</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation type="obsolete">Détails</translation>
-    </message>
-    <message>
-        <source>Paint</source>
-        <translation type="obsolete">Peindre</translation>
-    </message>
-    <message>
-        <source>Compile</source>
-        <translation type="obsolete">Compiler</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation type="obsolete">Créer</translation>
-    </message>
-    <message>
-        <source>Binding</source>
-        <translation type="obsolete">Lier</translation>
-    </message>
-    <message>
-        <source>Signal</source>
-        <translation type="obsolete">Signal</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerRunControlFactory</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation type="obsolete">Profileur QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTool</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>Profileur QML</translation>
     </message>
     <message>
         <source>The QML Profiler can be used to find performance bottlenecks in applications using QML.</source>
@@ -40897,48 +40803,12 @@ Please use the stop button instead.</source>
 Veuillez utiliser le bouton d&apos;arrêt à la place.</translation>
     </message>
     <message>
-        <source>Copy Row</source>
-        <translation type="obsolete">Copier la ligne</translation>
-    </message>
-    <message>
-        <source>Copy Table</source>
-        <translation type="obsolete">Copier la table</translation>
-    </message>
-    <message>
-        <source>Extended Event Statistics</source>
-        <translation type="obsolete">Statistiques d&apos;événements étendues</translation>
-    </message>
-    <message>
-        <source>Limit Events Pane to Current Range</source>
-        <translation type="obsolete">Limiter le panneau d&apos;événements à la portée actuelle</translation>
-    </message>
-    <message>
-        <source>Reset Events Pane</source>
-        <translation type="obsolete">Réinitialisé le panneau d&apos;événements</translation>
-    </message>
-    <message>
-        <source>Reset Zoom</source>
-        <translation type="obsolete">Réinitialiser le zoom</translation>
-    </message>
-    <message>
         <source>The QML profiler requires Qt 4.7.4 or newer.
 The Qt version configured in your active build configuration is too old.
 Do you want to continue?</source>
         <translation>Le profileur QML nécessite Qt 4.7.4 ou supérieur.
 La version de Qt configurée dans votre configuration de compilation active est trop ancienne.
 Voulez vous continuer ?</translation>
-    </message>
-    <message>
-        <source>Events</source>
-        <translation type="obsolete">Événements</translation>
-    </message>
-    <message>
-        <source>Timeline</source>
-        <translation type="obsolete">Ligne du temps</translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation type="obsolete">JavaScript</translation>
     </message>
     <message>
         <source>%1 s</source>
@@ -40981,10 +40851,6 @@ Voulez vous continuer ?</translation>
         <translation type="obsolete">Écoulé : %1 s</translation>
     </message>
     <message>
-        <source>Qt Creator</source>
-        <translation type="obsolete">Qt Creator</translation>
-    </message>
-    <message>
         <source>Could not connect to the in-process QML profiler.
 Do you want to retry?</source>
         <translation type="obsolete">Impossible de connecter au profileur QML du processus.
@@ -40998,9 +40864,6 @@ Souhaitez-vous réessayer ?</translation>
         <source>Detach</source>
         <translation type="obsolete">Détacher</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::RemoteLinuxQmlProfilerRunner</name>
     <message>
         <source>Gathering ports failed: %1</source>
         <translation type="obsolete">Échec de la récupération des ports : %1 </translation>
@@ -41031,7 +40894,7 @@ Souhaitez-vous réessayer ?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::TraceWindow</name>
+    <name>Tracing</name>
     <message>
         <source>Jump to previous event</source>
         <translation type="obsolete">Sauter à l&apos;événement précédent</translation>
@@ -43052,7 +42915,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>MainView</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Painting</source>
         <translation>Dessin</translation>
@@ -43064,10 +42927,6 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     <message>
         <source>Creating</source>
         <translation>Création</translation>
-    </message>
-    <message>
-        <source>Binding</source>
-        <translation>Liaison</translation>
     </message>
     <message>
         <source>Handling Signal</source>
@@ -47438,7 +47297,7 @@ Voulez-vous la tuer ?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsWidget</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Trace information from the v8 JavaScript engine. Available only in Qt5 based applications</source>
         <translation type="obsolete">Suivre les informations à partir du moteur JavaScript V8. Disponible uniquement dans les applications basées sur Qt5</translation>
@@ -47467,9 +47326,6 @@ Voulez-vous la tuer ?</translation>
         <source>Reset Events Pane</source>
         <translation>Réinitialiser le panneau d&apos;événements</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStatisticsMainView</name>
     <message>
         <source>Location</source>
         <translation>Emplacement</translation>
@@ -47495,10 +47351,6 @@ Voulez-vous la tuer ?</translation>
         <source>Self Time</source>
         <translatorcomment>Contexte de &quot;self&quot; ?</translatorcomment>
         <translation>Temps interne</translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation>Appels</translation>
     </message>
     <message>
         <source>Mean Time</source>
@@ -47563,10 +47415,6 @@ des références à des éléments dans d&apos;autres fichiers, des boucles, etc
         <translation>Peindre</translation>
     </message>
     <message>
-        <source>Compile</source>
-        <translation>Compiler</translation>
-    </message>
-    <message>
         <source>Create</source>
         <translation>Créer</translation>
     </message>
@@ -47579,9 +47427,6 @@ des références à des éléments dans d&apos;autres fichiers, des boucles, etc
         <source>Signal</source>
         <translation>Signal</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsParentsAndChildrenView</name>
     <message>
         <source>Part of binding loop</source>
         <translation type="obsolete">Partie de boucle de liaison</translation>
@@ -47597,18 +47442,6 @@ des références à des éléments dans d&apos;autres fichiers, des boucles, etc
     <message>
         <source>Caller</source>
         <translation>Appelant</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Type</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation>Temps total</translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation>Appels</translation>
     </message>
     <message>
         <source>Callee Description</source>
@@ -52220,24 +52053,7 @@ pour donner un indice à Qt Creator à propos d&apos;une URI probable.</translat
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerClientManager</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
-    <message>
-        <source>Could not connect to the in-process QML profiler.
-Do you want to retry?</source>
-        <translation>Impossible de connecter au profileur QML du processus.
-Souhaitez-vous réessayer ?</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerDataModel</name>
-    <message>
-        <source>Source code not available</source>
-        <translation type="obsolete">Code source non disponible</translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source>Source code not available.</source>
         <translation>Code source non disponible.</translation>
@@ -52322,9 +52138,6 @@ Souhaitez-vous réessayer ?</translation>
         <source>Trying to set unknown state in events list</source>
         <translation type="obsolete">Tentative de définition d&apos;état inconnu dans la liste d&apos;évènements</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStateWidget</name>
     <message>
         <source>Loading data</source>
         <translation>Chargement des données</translation>
@@ -52341,9 +52154,6 @@ Souhaitez-vous réessayer ?</translation>
         <source>Application stopped before loading all data</source>
         <translation>L&apos;application a stoppé avant le chargement de toutes les données</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTraceView</name>
     <message>
         <source>Jump to previous event</source>
         <translation>Sauter à l&apos;événement précédent</translation>
@@ -52365,20 +52175,9 @@ Souhaitez-vous réessayer ?</translation>
         <translation>Afficher les informations sur l&apos;événement lorsque du survol de la souris</translation>
     </message>
     <message>
-        <source>Limit Events Pane to Current Range</source>
-        <translation>Limiter le panneau d&apos;événements à la portée actuelle</translation>
-    </message>
-    <message>
-        <source>Reset Events Pane</source>
-        <translation>Réinitialiser le panneau d&apos;événements</translation>
-    </message>
-    <message>
         <source>Reset Zoom</source>
         <translation>Réinitialiser le zoom</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerViewManager</name>
     <message>
         <source>Events</source>
         <translation>Événements</translation>
@@ -59579,202 +59378,26 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::LocalQmlProfilerRunner</name>
+    <name>QmlProfiler</name>
     <message>
         <source>No executable file to launch.</source>
         <translation>Pas de fichier d&apos;exécutable à lancer.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerRunControl</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
-    <message>
-        <source>Could not connect to the in-process QML debugger:
-%1</source>
-        <extracomment>%1 is detailed error message</extracomment>
-        <translation>Impossible de se connecter au processus de débogage QML :
-%1</translation>
-    </message>
-    <message>
-        <source>QML Profiler</source>
-        <translation>Profileur QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsModelProxy</name>
-    <message>
-        <source>&lt;program&gt;</source>
-        <translation>&lt;programme&gt;</translation>
-    </message>
-    <message>
-        <source>Main Program</source>
-        <translation>Programme principal</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventParentsModelProxy</name>
-    <message>
-        <source>&lt;program&gt;</source>
-        <translation>&lt;programme&gt;</translation>
-    </message>
-    <message>
-        <source>Main Program</source>
-        <translation>Programme principal</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventChildrenModelProxy</name>
-    <message>
-        <source>&lt;program&gt;</source>
-        <translation>&lt;programme&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventRelativesView</name>
-    <message>
-        <source>Part of binding loop.</source>
-        <translation>Partie d&apos;une boucle de liaison.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerDataState</name>
-    <message>
-        <source>Trying to set unknown state in events list.</source>
-        <translation>Tentative de définir un état inconnu dans la liste d&apos;évènements.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerModelManager</name>
-    <message>
-        <source>Unexpected complete signal in data model.</source>
-        <translation>Signal complet inattendu dans le modèle de données.</translation>
-    </message>
-    <message>
-        <source>Could not open %1 for writing.</source>
-        <translation>Impossible d&apos;ouvrir %1 en écriture.</translation>
-    </message>
-    <message>
-        <source>Could not open %1 for reading.</source>
-        <translation>Impossible d&apos;ouvrir %1 en lecture.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::PaintEventsModelProxy</name>
-    <message>
-        <source>Painting</source>
-        <translation>Dessin</translation>
-    </message>
-    <message>
-        <source> µs</source>
-        <translation> µs</translation>
-    </message>
-    <message>
-        <source> ms</source>
-        <translation> ms</translation>
-    </message>
-    <message>
-        <source> s</source>
-        <translation> s</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerPlugin</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>Profileur QML</translation>
     </message>
     <message>
         <source>QML Profiler (External)</source>
         <translation>QML Profiler (externe)</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerProcessedModel</name>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;bytecode&gt;</translation>
-    </message>
-    <message>
-        <source>Source code not available.</source>
-        <translation>Code source non disponible.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerSimpleModel</name>
     <message>
         <source>Animations</source>
         <translation>Animations</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::BasicTimelineModel</name>
-    <message>
-        <source> µs</source>
-        <translation> µs</translation>
-    </message>
-    <message>
-        <source> ms</source>
-        <translation> ms</translation>
-    </message>
-    <message>
-        <source> s</source>
-        <translation> s</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerFileReader</name>
     <message>
         <source>Error while parsing trace data file: %1</source>
         <translation>Erreur pendant l&apos;analyse le fichier de données de traçage : %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QV8ProfilerDataModel</name>
-    <message>
-        <source>&lt;program&gt;</source>
-        <translation>&lt;programme&gt;</translation>
-    </message>
-    <message>
-        <source>Main Program</source>
-        <translation>Programme principal</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QV8ProfilerEventsMainView</name>
-    <message>
-        <source> µs</source>
-        <translation> µs</translation>
-    </message>
-    <message>
-        <source> ms</source>
-        <translation> ms</translation>
-    </message>
-    <message>
-        <source> s</source>
-        <translation> s</translation>
-    </message>
-    <message>
-        <source>Paint</source>
-        <translation>Peindre</translation>
-    </message>
     <message>
         <source>Compile</source>
         <translation>Compilation</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation>Créer</translation>
-    </message>
-    <message>
-        <source>Binding</source>
-        <translation>Liaison</translation>
-    </message>
-    <message>
-        <source>Signal</source>
-        <translation>Signal</translation>
     </message>
 </context>
 <context>

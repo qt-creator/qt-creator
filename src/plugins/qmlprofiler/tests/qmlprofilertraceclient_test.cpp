@@ -1,6 +1,7 @@
 // Copyright (C) 2017 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include "qmlprofilertr.h"
 #include "qmlprofilertraceclient_test.h"
 #include <qmldebug/qpacketprotocol.h>
 #include <QtTest>
@@ -66,7 +67,7 @@ void QmlProfilerTraceClientTest::testMessageReceived()
             traceClient.clear();
         }, [this, &lastError](const QString &message) {
             QVERIFY(!message.isEmpty());
-            if (lastError == QmlProfilerModelManager::tr("Read past end in temporary trace file.")) {
+            if (lastError == Tr::tr("Read past end in temporary trace file.")) {
                 // Ignore read-past-end errors: Our test traces are somewhat dirty and don't end on
                 //                              packet boundaries
                 modelManager.clearAll();

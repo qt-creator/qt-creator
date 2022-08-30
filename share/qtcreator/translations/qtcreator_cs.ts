@@ -30733,7 +30733,7 @@ Při GDB může být zadána posloupnost příkazů oddělená oddělovačem &ap
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerAttachDialog</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Dialog</translation>
@@ -37498,7 +37498,7 @@ Vytvořte, prosím, součástky pomocné knihovny pro výstup dat o ladění na 
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerEngine</name>
+    <name>QmlProfiler</name>
     <message>
         <source>No executable file to launch.</source>
         <translation>Nebyl zadán žádný spustitelný soubor ke spuštění.</translation>
@@ -37543,100 +37543,16 @@ Použijte, prosím, místo toho tlačítko Zastavit.</translation>
 %1</translation>
     </message>
     <message>
-        <source>QML Profiler</source>
-        <translation>Profiler QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventStatistics</name>
-    <message>
         <source>Source code not available</source>
         <translation type="obsolete">Není dostupný žádný zdrojový kód</translation>
     </message>
     <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation type="obsolete">&lt;bytecode&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsView</name>
-    <message>
-        <source>Location</source>
-        <translation type="obsolete">Umístění</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="obsolete">Typ</translation>
-    </message>
-    <message>
         <source>Time in Percent</source>
-        <translation type="obsolete">Čas v procentu</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation type="obsolete">Celkový čas</translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation type="obsolete">Volání</translation>
+        <translation>Čas v procentu</translation>
     </message>
     <message>
         <source>Time per Call</source>
         <translation type="obsolete">Čas na volání</translation>
-    </message>
-    <message>
-        <source>Mean Time</source>
-        <translation type="obsolete">Střední čas</translation>
-    </message>
-    <message>
-        <source>Median Time</source>
-        <translation type="obsolete">Střední hodnota času</translation>
-    </message>
-    <message>
-        <source>Longest Time</source>
-        <translation type="obsolete">Nejdelší čas</translation>
-    </message>
-    <message>
-        <source>Shortest Time</source>
-        <translation type="obsolete">Nejkratší čas</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation type="obsolete">Podrobnosti</translation>
-    </message>
-    <message>
-        <source>Paint</source>
-        <translation type="obsolete">Barva</translation>
-    </message>
-    <message>
-        <source>Compile</source>
-        <translation type="obsolete">Sestavit</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation type="obsolete">Vytvořit</translation>
-    </message>
-    <message>
-        <source>Binding</source>
-        <translation type="obsolete">Přiřazená klávesa</translation>
-    </message>
-    <message>
-        <source>Signal</source>
-        <translation type="obsolete">Signál</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerRunControlFactory</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation type="obsolete">Profiler QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTool</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>Profiler QML</translation>
     </message>
     <message>
         <source>The QML Profiler can be used to find performance bottlenecks in applications using QML.</source>
@@ -37661,24 +37577,8 @@ Please use the stop button instead.</source>
 Použijte, prosím, místo toho tlačítko Zastavit.</translation>
     </message>
     <message>
-        <source>Extended Event Statistics</source>
-        <translation type="obsolete">Rozšířená statistika událostí</translation>
-    </message>
-    <message>
-        <source>Limit Events Pane to Current Range</source>
-        <translation type="obsolete">Omezit tabulku na nynější rozsah</translation>
-    </message>
-    <message>
-        <source>Reset Events Pane</source>
-        <translation type="obsolete">Vynulovat tabulku událostí</translation>
-    </message>
-    <message>
         <source>Reset Zoom</source>
         <translation type="obsolete">Nastavit zvětšení znovu</translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation type="obsolete">JavaScript</translation>
     </message>
     <message>
         <source>%1 s</source>
@@ -37693,34 +37593,12 @@ Použijte, prosím, místo toho tlačítko Zastavit.</translation>
         <translation>Výpisy volání QML (*%1)</translation>
     </message>
     <message>
-        <source>Application finished before loading profiled data.
- Please use the stop button instead.</source>
-        <translation type="obsolete">Program byl před nahráním profilovaných dat ukončen.
-Použijte, prosím, místo toho tlačítko Zastavit.</translation>
-    </message>
-    <message>
-        <source>Copy Row</source>
-        <translation type="obsolete">Kopírovat řádek</translation>
-    </message>
-    <message>
-        <source>Copy Table</source>
-        <translation type="obsolete">Kopírovat tabulku</translation>
-    </message>
-    <message>
         <source>The QML profiler requires Qt 4.7.4 or newer.
 The Qt version configured in your active build configuration is too old.
 Do you want to continue?</source>
         <translation>Profiler QML potřebuje Qt 4.7.4 nebo novější.
 Verze Qt, která je nastavena ve vašem současném nastavení sestavování, je příliš stará.
 Chcete pokračovat?</translation>
-    </message>
-    <message>
-        <source>Events</source>
-        <translation type="obsolete">Události</translation>
-    </message>
-    <message>
-        <source>Timeline</source>
-        <translation type="obsolete">Časová přímka</translation>
     </message>
     <message>
         <source>Callees</source>
@@ -37751,22 +37629,9 @@ Chcete pokračovat?</translation>
         <translation type="obsolete">Uplynulo: %1 s</translation>
     </message>
     <message>
-        <source>Qt Creator</source>
-        <translation type="obsolete">Qt Creator</translation>
-    </message>
-    <message>
-        <source>Could not connect to the in-process QML profiler.
-Do you want to retry?</source>
-        <translation type="obsolete">Qt Creatoru se nepodařilo vytvořit žádné spojení s profilerem QML v procesu.
-Má se to zkusit ještě jednou?</translation>
-    </message>
-    <message>
         <source>QML traces (%1)</source>
         <translation type="obsolete">Stopy QML (%1)</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::RemoteLinuxQmlProfilerRunner</name>
     <message>
         <source>Gathering ports failed: %1</source>
         <translation type="obsolete">Chyba při ověřování portů: %1</translation>
@@ -37799,9 +37664,6 @@ Má se to zkusit ještě jednou?</translation>
         <translation type="obsolete">Vzdálený proces byl ukončen. Vrácená hodnota %1.
 </translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::TraceWindow</name>
     <message>
         <source>Jump to previous event</source>
         <translation type="obsolete">Jít na předchozí událost</translation>
@@ -42692,7 +42554,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>MainView</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Painting</source>
         <translation>Vykreslení</translation>
@@ -50428,11 +50290,7 @@ Chcete jej ukončit?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerClientManager</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source>Could not connect to the in-process QML profiler.
 Do you want to retry?</source>
@@ -50446,13 +50304,6 @@ Má se to zkusit ještě jednou?</translation>
     <message>
         <source>QML Profiler: connected and running</source>
         <translation>Profiler QML: Připojujen a běží</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerDataModel</name>
-    <message>
-        <source>Source code not available</source>
-        <translation type="obsolete">Není dostupný žádný zdrojový kód</translation>
     </message>
     <message>
         <source>Source code not available.</source>
@@ -50530,9 +50381,6 @@ Má se to zkusit ještě jednou?</translation>
         <source>Invalid version of QML Trace file.</source>
         <translation>Neplatná verze souboru QML Trace.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsWidget</name>
     <message>
         <source>Trace information from the v8 JavaScript engine. Available only in Qt5 based applications</source>
         <translation type="obsolete">Sledovat informace ze stroje v8 JavaScript. Dostupné pouze v programech založených na Qt5</translation>
@@ -50577,9 +50425,6 @@ Má se to zkusit ještě jednou?</translation>
         <source>Reset Events Pane</source>
         <translation>Vynulovat tabulku událostí</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStatisticsMainView</name>
     <message>
         <source>Location</source>
         <translation>Umístění</translation>
@@ -50587,10 +50432,6 @@ Má se to zkusit ještě jednou?</translation>
     <message>
         <source>Type</source>
         <translation>Typ</translation>
-    </message>
-    <message>
-        <source>Time in Percent</source>
-        <translation>Čas v %</translation>
     </message>
     <message>
         <source>Total Time</source>
@@ -50693,20 +50534,9 @@ reference k prvkům v jiných souborech, smyčkách atd.)</translation>
         <translation>Vytvoření</translation>
     </message>
     <message>
-        <source>Binding</source>
-        <translation>Vázání</translation>
-    </message>
-    <message>
         <source>Signal</source>
         <translation>Signál</translation>
     </message>
-    <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsParentsAndChildrenView</name>
     <message>
         <source>Part of binding loop</source>
         <translation type="obsolete">Část smyčky vázaní</translation>
@@ -50724,18 +50554,6 @@ reference k prvkům v jiných souborech, smyčkách atd.)</translation>
         <translation>Volající</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Typ</translation>
-    </message>
-    <message>
-        <source>Total Time</source>
-        <translation>Celkový čas</translation>
-    </message>
-    <message>
-        <source>Calls</source>
-        <translation>Volání</translation>
-    </message>
-    <message>
         <source>Callee Description</source>
         <translation>Popis volané</translation>
     </message>
@@ -50743,16 +50561,13 @@ reference k prvkům v jiných souborech, smyčkách atd.)</translation>
         <source>Caller Description</source>
         <translation>Popis volající</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStateManager</name>
     <message>
         <source>Switching to unknown state in %1:%2</source>
         <translation type="obsolete">Přepnutí do neznámého stavu v %1:%2</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerTraceView</name>
+    <name>ButtonsBar</name>
     <message>
         <source>Jump to previous event</source>
         <translation>Jít na předchozí událost</translation>
@@ -50811,7 +50626,7 @@ reference k prvkům v jiných souborech, smyčkách atd.)</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerViewManager</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Events</source>
         <translation>Události</translation>
@@ -50819,10 +50634,6 @@ reference k prvkům v jiných souborech, smyčkách atd.)</translation>
     <message>
         <source>Timeline</source>
         <translation>Časová přímka</translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
     </message>
 </context>
 <context>
@@ -53693,7 +53504,7 @@ o pravděpodobném URI.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerStateWidget</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Loading data</source>
         <translation>Nahrávají se data</translation>
@@ -61510,94 +61321,7 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::LocalQmlProfilerRunner</name>
-    <message>
-        <source>No executable file to launch.</source>
-        <translation>Nebyl zadán žádný spustitelný soubor ke spuštění.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerRunControl</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
-    <message>
-        <source>Could not connect to the in-process QML debugger:
-%1</source>
-        <extracomment>%1 is detailed error message</extracomment>
-        <translation>Ladicí program QML: Nepodařilo se vytvořit žádné spojení se součástkou ladění v procesu:
-%1</translation>
-    </message>
-    <message>
-        <source>QML Profiler</source>
-        <translation>Profiler QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsModelProxy</name>
-    <message>
-        <source>&lt;program&gt;</source>
-        <translation>&lt;program&gt;</translation>
-    </message>
-    <message>
-        <source>Main Program</source>
-        <translation>Hlavní program</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventParentsModelProxy</name>
-    <message>
-        <source>&lt;program&gt;</source>
-        <translation>&lt;program&gt;</translation>
-    </message>
-    <message>
-        <source>Main Program</source>
-        <translation>Hlavní program</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventChildrenModelProxy</name>
-    <message>
-        <source>&lt;program&gt;</source>
-        <translation>&lt;program&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventRelativesView</name>
-    <message>
-        <source>Part of binding loop.</source>
-        <translation>Část smyčky vázaní.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerDataState</name>
-    <message>
-        <source>Trying to set unknown state in events list.</source>
-        <translation>Pokus o nastavení neznámého stavu v seznamu událostí.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerModelManager</name>
-    <message>
-        <source>Unexpected complete signal in data model.</source>
-        <translation>Neočekávaný signál v datovém modelu.</translation>
-    </message>
-    <message>
-        <source>Could not open %1 for writing.</source>
-        <translation>Soubor &apos;%1&apos; se nepodařilo otevřít pro zápis.</translation>
-    </message>
-    <message>
-        <source>Could not open %1 for reading.</source>
-        <translation>Soubor %1 se nepodařilo otevřít pro čtení.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::PaintEventsModelProxy</name>
-    <message>
-        <source>Painting</source>
-        <translation>Vykreslení</translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source>Animations</source>
         <translation>Animace</translation>
@@ -61611,113 +61335,12 @@ Zavřete, prosím, všechny běžící instance své aplikace, předtím než za
         <translation>Vlákno vykreslování</translation>
     </message>
     <message>
-        <source> µs</source>
-        <translation> µs</translation>
-    </message>
-    <message>
-        <source> ms</source>
-        <translation> ms</translation>
-    </message>
-    <message>
-        <source> s</source>
-        <translation> s</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerPlugin</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>Profiler QML</translation>
-    </message>
-    <message>
         <source>QML Profiler (External)</source>
         <translation>Profiler QML (externí)</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerProcessedModel</name>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;bytecode&gt;</translation>
-    </message>
-    <message>
-        <source>Source code not available.</source>
-        <translation>Není dostupný žádný zdrojový kód.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerSimpleModel</name>
-    <message>
-        <source>Animations</source>
-        <translation>Animace</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::BasicTimelineModel</name>
-    <message>
-        <source> µs</source>
-        <translation> µs</translation>
-    </message>
-    <message>
-        <source> ms</source>
-        <translation> ms</translation>
-    </message>
-    <message>
-        <source> s</source>
-        <translation> s</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerFileReader</name>
     <message>
         <source>Error while parsing trace data file: %1</source>
         <translation>Chyba při vyhodnocování souboru se sledováním dat %1</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QV8ProfilerDataModel</name>
-    <message>
-        <source>&lt;program&gt;</source>
-        <translation>&lt;program&gt;</translation>
-    </message>
-    <message>
-        <source>Main Program</source>
-        <translation>Hlavní program</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QV8ProfilerEventsMainView</name>
-    <message>
-        <source> µs</source>
-        <translation> µs</translation>
-    </message>
-    <message>
-        <source> ms</source>
-        <translation> ms</translation>
-    </message>
-    <message>
-        <source> s</source>
-        <translation> s</translation>
-    </message>
-    <message>
-        <source>Paint</source>
-        <translation>Vykreslení</translation>
-    </message>
-    <message>
-        <source>Compile</source>
-        <translation>Překlad</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation>Vytvoření</translation>
-    </message>
-    <message>
-        <source>Binding</source>
-        <translation>Vázání</translation>
-    </message>
-    <message>
-        <source>Signal</source>
-        <translation>Signál</translation>
     </message>
 </context>
 <context>
@@ -63626,48 +63249,10 @@ Tyto soubory jsou zachovány.</numerusform>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::QmlProfilerBaseModel</name>
-    <message>
-        <source> µs</source>
-        <translation> µs</translation>
-    </message>
-    <message>
-        <source> ms</source>
-        <translation> ms</translation>
-    </message>
-    <message>
-        <source> s</source>
-        <translation> s</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerDataModel</name>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;bytecode&gt;</translation>
-    </message>
-    <message>
-        <source>Source code not available.</source>
-        <translation>Není dostupný žádný zdrojový kód.</translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source>anonymous function</source>
         <translation>Anonymní funkce</translation>
-    </message>
-    <message>
-        <source>Animations</source>
-        <translation>Animace</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::QV8ProfilerDataModel</name>
-    <message>
-        <source>&lt;program&gt;</source>
-        <translation>&lt;program&gt;</translation>
-    </message>
-    <message>
-        <source>Main Program</source>
-        <translation>Hlavní program</translation>
     </message>
 </context>
 <context>

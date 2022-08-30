@@ -1,10 +1,10 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "qmlprofilerviewmanager.h"
-
 #include "qmlprofilerconstants.h"
 #include "qmlprofilerstatewidget.h"
+#include "qmlprofilertr.h"
+#include "qmlprofilerviewmanager.h"
 
 #include <debugger/analyzer/analyzermanager.h>
 
@@ -32,7 +32,7 @@ QmlProfilerViewManager::QmlProfilerViewManager(QObject *parent,
     QTC_ASSERT(m_profilerModelManager, return);
     QTC_ASSERT(m_profilerState, return);
 
-    m_perspective = new Perspective(Constants::QmlProfilerPerspectiveId, tr("QML Profiler"));
+    m_perspective = new Perspective(Constants::QmlProfilerPerspectiveId, Tr::tr("QML Profiler"));
     m_perspective->setAboutToActivateCallback([this]() { createViews(); });
 }
 

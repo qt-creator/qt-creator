@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "qmlprofilerstatewidget.h"
+#include "qmlprofilertr.h"
 
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
@@ -114,24 +115,24 @@ void QmlProfilerStateWidget::updateDisplay()
         // Heuristic to not show the number if the application will only send the events when it
         // stops. The number is still > 0 then because we get some StartTrace etc.
         const int numEvents = d->m_modelManager->numEvents();
-        showText(numEvents > 256 ? tr("Profiling application: %n events", nullptr, numEvents) :
-                                   tr("Profiling application"));
+        showText(numEvents > 256 ? Tr::tr("Profiling application: %n events", nullptr, numEvents) :
+                                   Tr::tr("Profiling application"));
     } else if (d->m_modelManager->traceDuration() > 0 && d->m_modelManager->isEmpty()) {
         // After profiling, there is an empty trace
-        showText(tr("No QML events recorded"));
+        showText(Tr::tr("No QML events recorded"));
     } else if (!d->m_modelManager->isEmpty()) {
         // When datamodel is acquiring data
         if (d->m_profilerState->currentState() != QmlProfilerStateManager::Idle) {
             // we don't know how much more, so progress numbers are strange here
-            showText(tr("Loading buffered data: %n events", nullptr,
-                        d->m_modelManager->numEvents()));
+            showText(Tr::tr("Loading buffered data: %n events", nullptr,
+                            d->m_modelManager->numEvents()));
         } else {
             // Application died before all data could be read
-            showText(tr("Loading offline data: %n events", nullptr,
-                        d->m_modelManager->numEvents()));
+            showText(Tr::tr("Loading offline data: %n events", nullptr,
+                            d->m_modelManager->numEvents()));
         }
     } else {
-        showText(tr("Waiting for data"));
+        showText(Tr::tr("Waiting for data"));
     }
 }
 

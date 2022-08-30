@@ -20091,7 +20091,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerAttachDialog</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -26069,7 +26069,7 @@ S strani z možnostmi za različice Qt zgradite razhroščevalne pomočnike.</tr
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerEngine</name>
+    <name>QmlProfiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>QML Profiler</translation>
@@ -26104,9 +26104,6 @@ Raje uporabite gumb za ustavitev.</translation>
         <translation>Z razhroščevalnikom QML znotraj procesa se ni bilo moč povezati:
 %1</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventStatistics</name>
     <message>
         <source>Source code not available</source>
         <translation>Izvorna koda ni na voljo</translation>
@@ -26115,9 +26112,6 @@ Raje uporabite gumb za ustavitev.</translation>
         <source>&lt;bytecode&gt;</source>
         <translation>&lt;bajtna koda&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsView</name>
     <message>
         <source>Location</source>
         <translation>Mesto</translation>
@@ -26174,20 +26168,6 @@ Raje uporabite gumb za ustavitev.</translation>
         <source>Signal</source>
         <translation>Signaliziranje</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerRunControlFactory</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>QML Profiler</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTool</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>QML Profiler</translation>
-    </message>
     <message>
         <source>The QML Profiler can be used to find performance bottlenecks in applications using QML.</source>
         <translation>QML Profiler lahko uporabljate za odkrivanje zmogljivostnih ozkih grl v programih, ki uporabljajo QML.</translation>
@@ -26236,9 +26216,6 @@ Raje uporabite gumb za ustavitev.</translation>
         <source>Detach</source>
         <translation>Odklopi</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::RemoteLinuxQmlProfilerRunner</name>
     <message>
         <source>Not enough free ports on device for analyzing.
 </source>
@@ -26257,9 +26234,6 @@ Raje uporabite gumb za ustavitev.</translation>
         <translation>Poganjanje oddaljenega procesa se je zaključilo. Izhodna koda je bila %1.
 </translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::TraceWindow</name>
     <message>
         <source>Jump to previous event</source>
         <translation>Skoči na predhodni dogodek</translation>

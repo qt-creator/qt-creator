@@ -16659,7 +16659,7 @@ if (a &amp;&amp;
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerAttachDialog</name>
+    <name>QmlProfiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>Profiler QML</translation>
@@ -17711,11 +17711,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerTool</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>Profiler QML</translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source>The QML Profiler can be used to find performance bottlenecks in applications using QML.</source>
         <translation>Profiler QML może być używany do znajdowania wąskich gardeł w wydajności aplikacji QML.</translation>
@@ -18452,7 +18448,7 @@ Dodatkowo, przetestowane zostanie połączenie z urządzeniem.</translation>
     </message>
 </context>
 <context>
-    <name>MainView</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Memory Usage</source>
         <translation>Zajętość pamięci</translation>
@@ -22683,7 +22679,7 @@ poinstruuje Qt Creatora o URI.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerClientManager</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Debug connection opened</source>
         <translation>Otwarto połączenie debugowe</translation>
@@ -22696,9 +22692,6 @@ poinstruuje Qt Creatora o URI.</translation>
         <source>Debug connection failed</source>
         <translation>Błąd połączenia debugowego</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStateWidget</name>
     <message numerus="yes">
         <source>Profiling application: %n events</source>
         <translation>
@@ -22743,9 +22736,6 @@ poinstruuje Qt Creatora o URI.</translation>
         <source>Waiting for data</source>
         <translation>Oczekiwanie na dane</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTraceView</name>
     <message>
         <source>Timeline</source>
         <translation>Oś czasu</translation>
@@ -22761,13 +22751,6 @@ poinstruuje Qt Creatora o URI.</translation>
     <message>
         <source>Reset Zoom</source>
         <translation>Zresetuj powiększenie</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerViewManager</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>Profiler QML</translation>
     </message>
 </context>
 <context>
@@ -28474,7 +28457,7 @@ Proszę zamknąć wszystkie instancje tej aplikacji przed uruchomieniem budowani
     </message>
 </context>
 <context>
-    <name>QmlProfiler::QmlProfilerModelManager</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Cannot open temporary trace file to store events.</source>
         <translation type="unfinished"></translation>
@@ -28486,10 +28469,6 @@ Proszę zamknąć wszystkie instancje tej aplikacji przed uruchomieniem budowani
     <message>
         <source>anonymous function</source>
         <translation>anonimowa funkcja</translation>
-    </message>
-    <message>
-        <source>GUI Thread</source>
-        <translation>Wątek GUI</translation>
     </message>
     <message>
         <source>Could not open %1 for writing.</source>
@@ -28515,9 +28494,6 @@ Proszę zamknąć wszystkie instancje tej aplikacji przed uruchomieniem budowani
         <source>Could not re-read events from temporary trace file. The trace data is lost.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerFileReader</name>
     <message>
         <source>Error while parsing trace data file: %1</source>
         <translation>Błąd parsowania pliku z danymi stosu: %1</translation>
@@ -35228,19 +35204,7 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerAnimationsModel</name>
-    <message>
-        <source>Animations</source>
-        <translation>Animacje</translation>
-    </message>
-    <message>
-        <source>GUI Thread</source>
-        <translation>Wątek GUI</translation>
-    </message>
-    <message>
-        <source>Render Thread</source>
-        <translation>Wątek renderingu</translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source>Duration</source>
         <translation>Czas trwania</translation>
@@ -35252,13 +35216,6 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
     <message>
         <source>Context</source>
         <translation>Kontekst</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerRangeModel</name>
-    <message>
-        <source>Duration</source>
-        <translation>Czas trwania</translation>
     </message>
     <message>
         <source>Details</source>
@@ -36087,7 +36044,7 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerConfigWidget</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Flush data while profiling:</source>
         <translation>Przepychaj dane podczas profilowania:</translation>
@@ -37174,18 +37131,11 @@ Te pliki są zabezpieczone.</numerusform>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerOptionsPage</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>Profiler QML</translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source>Analyzer</source>
         <translation>Analizator</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfilerRunConfiguration</name>
     <message>
         <source>QML Profiler Settings</source>
         <translation>Ustawienia profilera QML</translation>
@@ -38630,7 +38580,7 @@ Czy nadpisać go?</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerStatisticsMainView</name>
+    <name>QmlProfiler</name>
     <message>
         <source>&lt;program&gt;</source>
         <translation>&lt;program&gt;</translation>
@@ -38640,44 +38590,13 @@ Czy nadpisać go?</translation>
         <translation>Główny program</translation>
     </message>
     <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;kod bajtowy&gt;</translation>
-    </message>
-    <message>
         <source>Source code not available</source>
         <translation>Kod źródłowy nie jest dostępny</translation>
-    </message>
-    <message>
-        <source>Painting</source>
-        <translation>Rysowanie</translation>
-    </message>
-    <message>
-        <source>Compiling</source>
-        <translation>Kompilacja</translation>
-    </message>
-    <message>
-        <source>Creating</source>
-        <translation>Tworzenie</translation>
-    </message>
-    <message>
-        <source>Handling Signal</source>
-        <translation>Obsługa sygnałów</translation>
-    </message>
-    <message>
-        <source>Binding</source>
-        <translation>Wiązanie</translation>
     </message>
     <message>
         <source>+%1 in recursive calls</source>
         <translation>+%1 w wywołaniach rekurencyjnych</translation>
     </message>
-    <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStatisticsView</name>
     <message>
         <source>Statistics</source>
         <translation>Statystyki</translation>
@@ -38698,24 +38617,10 @@ Czy nadpisać go?</translation>
         <source>Show Full Range</source>
         <translation>Pokaż pełen zakres</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStatisticsRelativesView</name>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;kod bajtowy&gt;</translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
-        <translation>Kod źródłowy nie jest dostępny</translation>
-    </message>
     <message>
         <source>called recursively</source>
         <translation>wywołany rekurencyjnie</translation>
     </message>
-</context>
-<context>
-    <name>DebugMessagesModel</name>
     <message>
         <source>Debug Message</source>
         <translation>Komunikat debugowy</translation>
@@ -39746,7 +39651,7 @@ w ścieżce.</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::DebugMessagesModel</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Unknown Message %1</source>
         <translation>Nieznany komunikat %1</translation>
@@ -39760,13 +39665,6 @@ w ścieżce.</translation>
         <translation>Komunikat</translation>
     </message>
     <message>
-        <source>Location</source>
-        <translation>Położenie</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::FlameGraphModel</name>
-    <message>
         <source>Could not re-read events from temporary trace file.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -39779,35 +39677,13 @@ w ścieżce.</translation>
         <translation>Tworzenie</translation>
     </message>
     <message>
-        <source>Binding</source>
-        <translation>Wiązanie</translation>
-    </message>
-    <message>
         <source>Signal</source>
         <translation>Sygnalizowanie</translation>
     </message>
     <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
-        <translation>Kod źródłowy nie jest dostępny</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::FlameGraphView</name>
-    <message>
         <source>Flame Graph</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Show Full Range</source>
-        <translation>Pokaż pełen zakres</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::InputEventsModel</name>
     <message>
         <source>Mouse Events</source>
         <translation>Zdarzenia myszy</translation>
@@ -39815,10 +39691,6 @@ w ścieżce.</translation>
     <message>
         <source>Keyboard Events</source>
         <translation>Zdarzenia klawiatury</translation>
-    </message>
-    <message>
-        <source>Timestamp</source>
-        <translation>Znacznik czasu</translation>
     </message>
     <message>
         <source>Key Press</source>
@@ -39888,16 +39760,9 @@ w ścieżce.</translation>
         <source>Mouse Event</source>
         <translation>Zdarzenie myszy</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::MemoryUsageModel</name>
     <message>
         <source>Memory Allocation</source>
         <translation>Alokacja pamięci</translation>
-    </message>
-    <message>
-        <source>Memory Usage</source>
-        <translation>Zajętość pamięci</translation>
     </message>
     <message>
         <source>Memory Allocated</source>
@@ -39956,13 +39821,6 @@ w ścieżce.</translation>
         <translation>Typ</translation>
     </message>
     <message>
-        <source>Location</source>
-        <translation>Położenie</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::PixmapCacheModel</name>
-    <message>
         <source>Cache Size</source>
         <translation>Rozmiar cache&apos;a</translation>
     </message>
@@ -39973,20 +39831,12 @@ w ścieżce.</translation>
     <message>
         <source>Image Loaded</source>
         <translation>Załadowano plik graficzny</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Wynik</translation>
     </message>
     <message>
         <source>Load Error</source>
         <translation>Błąd ładowania</translation>
     </message>
     <message>
-        <source>Duration</source>
-        <translation>Czas trwania</translation>
-    </message>
-    <message>
         <source>File</source>
         <translation>Plik</translation>
     </message>
@@ -39998,212 +39848,13 @@ w ścieżce.</translation>
         <source>Height</source>
         <translation>Wysokość</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::SceneGraphTimelineModel</name>
     <message>
         <source>Stage</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Duration</source>
-        <translation>Czas trwania</translation>
-    </message>
-    <message>
         <source>Glyphs</source>
         <translation>Glify</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::DebugMessagesModelTest</name>
-    <message>
-        <source>Timestamp</source>
-        <translation>Znacznik czasu</translation>
-    </message>
-    <message>
-        <source>Message</source>
-        <translation>Komunikat</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Położenie</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::InputEventsModelTest</name>
-    <message>
-        <source>Mouse Events</source>
-        <translation>Zdarzenia myszy</translation>
-    </message>
-    <message>
-        <source>Keyboard Events</source>
-        <translation>Zdarzenia klawiatury</translation>
-    </message>
-    <message>
-        <source>Timestamp</source>
-        <translation>Znacznik czasu</translation>
-    </message>
-    <message>
-        <source>Key Press</source>
-        <translation>Naciśnięcie klawisza</translation>
-    </message>
-    <message>
-        <source>Key</source>
-        <translation>Klucz</translation>
-    </message>
-    <message>
-        <source>Modifiers</source>
-        <translation>Modyfikatory</translation>
-    </message>
-    <message>
-        <source>Key Release</source>
-        <translation>Zwolnienie klawisza</translation>
-    </message>
-    <message>
-        <source>Keyboard Event</source>
-        <translation>Zdarzenie klawiatury</translation>
-    </message>
-    <message>
-        <source>Mouse Press</source>
-        <translation>Naciśnięcie przycisku myszy</translation>
-    </message>
-    <message>
-        <source>Button</source>
-        <translation>Przycisk</translation>
-    </message>
-    <message>
-        <source>Result</source>
-        <translation>Wynik</translation>
-    </message>
-    <message>
-        <source>Mouse Release</source>
-        <translation>Zwolnienie przycisku myszy</translation>
-    </message>
-    <message>
-        <source>Mouse Move</source>
-        <translation>Ruch myszy</translation>
-    </message>
-    <message>
-        <source>X</source>
-        <translation>X</translation>
-    </message>
-    <message>
-        <source>Y</source>
-        <translation>Y</translation>
-    </message>
-    <message>
-        <source>Double Click</source>
-        <translation>Podwójne kliknięcie</translation>
-    </message>
-    <message>
-        <source>Mouse Wheel</source>
-        <translation>Obrót kółka myszy</translation>
-    </message>
-    <message>
-        <source>Angle X</source>
-        <translation>Kąt X</translation>
-    </message>
-    <message>
-        <source>Angle Y</source>
-        <translation>Kąt Y</translation>
-    </message>
-    <message>
-        <source>Mouse Event</source>
-        <translation>Zdarzenie myszy</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::MemoryUsageModelTest</name>
-    <message>
-        <source>Memory Allocation</source>
-        <translation>Alokacja pamięci</translation>
-    </message>
-    <message>
-        <source>Memory Usage</source>
-        <translation>Zajętość pamięci</translation>
-    </message>
-    <message>
-        <source>Memory Allocated</source>
-        <translation>Przydzielona pamięć</translation>
-    </message>
-    <message>
-        <source>Total</source>
-        <translation>Łącznie</translation>
-    </message>
-    <message>
-        <source>%1 bytes</source>
-        <translation>%1 bajtów</translation>
-    </message>
-    <message>
-        <source>Allocated</source>
-        <translation>Przydzielone</translation>
-    </message>
-    <message>
-        <source>Allocations</source>
-        <translation>Liczba przydziałów pamięci</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation>Typ</translation>
-    </message>
-    <message>
-        <source>Heap Allocation</source>
-        <translation>Alokacja na stercie</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Położenie</translation>
-    </message>
-    <message>
-        <source>Deallocated</source>
-        <translation>Zwolnione</translation>
-    </message>
-    <message>
-        <source>Deallocations</source>
-        <translation>Liczba zwolnień pamięci</translation>
-    </message>
-    <message>
-        <source>Large Item Allocation</source>
-        <translation>Alokacja wielkiego elementu</translation>
-    </message>
-    <message>
-        <source>Memory Freed</source>
-        <translation>Zwolniona pamięć</translation>
-    </message>
-    <message>
-        <source>Heap Usage</source>
-        <translation>Zajętość sterty</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::PixmapCacheModelTest</name>
-    <message>
-        <source>Image Cached</source>
-        <translation>Plik graficzny włożono do cache</translation>
-    </message>
-    <message>
-        <source>Image Loaded</source>
-        <translation>Załadowano plik graficzny</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>Czas trwania</translation>
-    </message>
-    <message>
-        <source>Cache Size</source>
-        <translation>Rozmiar cache&apos;a</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation>Plik</translation>
-    </message>
-    <message>
-        <source>Width</source>
-        <translation>Szerokość</translation>
-    </message>
-    <message>
-        <source>Height</source>
-        <translation>Wysokość</translation>
     </message>
 </context>
 <context>
@@ -40386,7 +40037,7 @@ Uwaga: podczas używania zwykłego formatu tekstowego może brakować niektóryc
     </message>
 </context>
 <context>
-    <name>QmlProfilerFlameGraphView</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Total Time</source>
         <translation>Czas całkowity</translation>
@@ -40396,24 +40047,12 @@ Uwaga: podczas używania zwykłego formatu tekstowego może brakować niektóryc
         <translation>Wywołania</translation>
     </message>
     <message>
-        <source>Details</source>
-        <translation>Szczegóły</translation>
-    </message>
-    <message>
         <source>Mean Time</source>
         <translation>Czas średni</translation>
     </message>
     <message>
         <source>In Percent</source>
         <translation>W procentach</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation>Położenie</translation>
-    </message>
-    <message>
-        <source>Allocations</source>
-        <translation>Liczba przydziałów pamięci</translation>
     </message>
     <message>
         <source>Memory</source>
@@ -43111,14 +42750,7 @@ Termin wygaśnięcia: %3</translation>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::QmlProfilerStatisticsModel</name>
-    <message>
-        <source>Could not re-read events from temporary trace file.</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerFileWriter</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Could not re-read events from temporary trace file. Saving failed.</source>
         <translation type="unfinished"></translation>

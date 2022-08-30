@@ -3,6 +3,7 @@
 
 #include "debugmessagesmodel.h"
 #include "qmlprofilerconstants.h"
+#include "qmlprofilertr.h"
 #include <tracing/timelineformattime.h>
 
 namespace QmlProfiler {
@@ -26,17 +27,17 @@ QRgb DebugMessagesModel::color(int index) const
 }
 
 static const char *messageTypes[] = {
-    QT_TRANSLATE_NOOP("DebugMessagesModel", "Debug Message"),
-    QT_TRANSLATE_NOOP("DebugMessagesModel", "Warning Message"),
-    QT_TRANSLATE_NOOP("DebugMessagesModel", "Critical Message"),
-    QT_TRANSLATE_NOOP("DebugMessagesModel", "Fatal Message"),
-    QT_TRANSLATE_NOOP("DebugMessagesModel", "Info Message"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Debug Message"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Warning Message"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Critical Message"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Fatal Message"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Info Message"),
 };
 
 QString DebugMessagesModel::messageType(uint i)
 {
-    return i < sizeof(messageTypes) / sizeof(char *) ? tr(messageTypes[i]) :
-                                                       tr("Unknown Message %1").arg(i);
+    return i < sizeof(messageTypes) / sizeof(char *) ? Tr::tr(messageTypes[i]) :
+                                                       Tr::tr("Unknown Message %1").arg(i);
 }
 
 QVariantList DebugMessagesModel::labels() const
@@ -59,10 +60,10 @@ QVariantMap DebugMessagesModel::details(int index) const
 
     QVariantMap result;
     result.insert(QLatin1String("displayName"), messageType(type.detailType()));
-    result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index),
+    result.insert(Tr::tr("Timestamp"), Timeline::formatTime(startTime(index),
                                                         manager->traceDuration()));
-    result.insert(tr("Message"), m_data[index].text);
-    result.insert(tr("Location"), type.displayName());
+    result.insert(Tr::tr("Message"), m_data[index].text);
+    result.insert(Tr::tr("Location"), type.displayName());
     return result;
 }
 

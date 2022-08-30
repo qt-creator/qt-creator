@@ -12638,7 +12638,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
 </context>
 <context>
-    <name>MainView</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Memory Usage</source>
         <translation>Вживання пам&apos;яті</translation>
@@ -18476,7 +18476,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerAttachDialog</name>
+    <name>QmlProfiler</name>
     <message>
         <source>QML Profiler</source>
         <translation>Профайлер QML</translation>
@@ -18504,30 +18504,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     <message>
         <source>Kit:</source>
         <translation>Комплект:</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEngine</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="vanished">Qt Creator</translation>
-    </message>
-    <message>
-        <source>Could not connect to the in-process QML debugger:
-%1</source>
-        <translation type="vanished">Не вдалось підключитись до вбудованого в процес зневаджувача QML:
-%1</translation>
-    </message>
-    <message>
-        <source>QML Profiler</source>
-        <translation type="vanished">Профайлер QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTool</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>Профайлер QML</translation>
     </message>
     <message>
         <source>The QML Profiler can be used to find performance bottlenecks in applications using QML.</source>
@@ -28036,31 +28012,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerStatisticsMainView</name>
-    <message>
-        <source>Location</source>
-        <translation type="vanished">Розташування</translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="vanished">Тип</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation type="vanished">Деталі</translation>
-    </message>
-    <message>
-        <source> µs</source>
-        <translation type="vanished"> мкс</translation>
-    </message>
-    <message>
-        <source> ms</source>
-        <translation type="vanished"> мс</translation>
-    </message>
-    <message>
-        <source> s</source>
-        <translation type="vanished"> с</translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source>&lt;program&gt;</source>
         <translation type="vanished">&lt;програма&gt;</translation>
@@ -28070,24 +28022,8 @@ Do you want to kill it?</source>
         <translation type="vanished">Основна програма</translation>
     </message>
     <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation type="vanished">&lt;байт-код&gt;</translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
-        <translation type="vanished">Код не доступний</translation>
-    </message>
-    <message>
-        <source>Compile</source>
-        <translation type="vanished">Компіляція</translation>
-    </message>
-    <message>
         <source>Create</source>
-        <translation type="vanished">Створити</translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation type="vanished">JavaScript</translation>
+        <translation>Створити</translation>
     </message>
 </context>
 <context>
@@ -33240,7 +33176,7 @@ Qt Creator know about a likely URI.</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerClientManager</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Qt Creator</source>
         <translation>Qt Creator</translation>
@@ -33262,20 +33198,10 @@ Do you want to retry?</source>
         <source>Failed to connect!</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerDataModel</name>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation type="vanished">&lt;байт-код&gt;</translation>
-    </message>
     <message>
         <source>Error while parsing %1.</source>
         <translation type="vanished">Помилка під час розбору %1.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStateWidget</name>
     <message>
         <source>Profiling application</source>
         <translation type="unfinished"></translation>
@@ -33304,9 +33230,6 @@ Do you want to retry?</source>
         <source>Waiting for data</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerTraceView</name>
     <message>
         <source>Analyze Current Range</source>
         <translation type="unfinished"></translation>
@@ -33319,9 +33242,6 @@ Do you want to retry?</source>
         <source>Reset Zoom</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerViewManager</name>
     <message>
         <source>Events</source>
         <translation type="vanished">Події</translation>
@@ -33333,14 +33253,6 @@ Do you want to retry?</source>
     <message>
         <source>Timeline</source>
         <translation>Часова лінія</translation>
-    </message>
-    <message>
-        <source>QML Profiler</source>
-        <translation>Профайлер QML</translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation type="vanished">JavaScript</translation>
     </message>
 </context>
 <context>
@@ -40391,72 +40303,7 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::LocalQmlProfilerRunner</name>
-    <message>
-        <source>No executable file to launch.</source>
-        <translation type="vanished">Немає виконуваного модуля для запуску.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerRunControl</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation type="vanished">Qt Creator</translation>
-    </message>
-    <message>
-        <source>Could not connect to the in-process QML debugger:
-%1</source>
-        <extracomment>%1 is detailed error message</extracomment>
-        <translation type="vanished">Не вдалось підключитись до вбудованого в процес зневаджувача QML:
-%1</translation>
-    </message>
-    <message>
-        <source>QML Profiler</source>
-        <translation type="vanished">Профайлер QML</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventsModelProxy</name>
-    <message>
-        <source>&lt;program&gt;</source>
-        <translation type="vanished">&lt;програма&gt;</translation>
-    </message>
-    <message>
-        <source>Main Program</source>
-        <translation type="vanished">Основна програма</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventParentsModelProxy</name>
-    <message>
-        <source>&lt;program&gt;</source>
-        <translation type="vanished">&lt;програма&gt;</translation>
-    </message>
-    <message>
-        <source>Main Program</source>
-        <translation type="vanished">Основна програма</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventChildrenModelProxy</name>
-    <message>
-        <source>&lt;program&gt;</source>
-        <translation type="vanished">&lt;програма&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerEventRelativesView</name>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation type="vanished">&lt;байт-код&gt;</translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
-        <translation type="vanished">Код не доступний</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerModelManager</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Could not open %1 for writing.</source>
         <translation>Не вдалось відкрити %1 для запису.</translation>
@@ -40477,113 +40324,13 @@ Please close all running instances of your application before starting a build.<
         <source>Trying to set unknown state in events list.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::PaintEventsModelProxy</name>
-    <message>
-        <source>Animations</source>
-        <translation type="vanished">Анімації</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation type="vanished">Тривалість</translation>
-    </message>
-    <message>
-        <source> µs</source>
-        <translation type="vanished"> мкс</translation>
-    </message>
-    <message>
-        <source> ms</source>
-        <translation type="vanished"> мс</translation>
-    </message>
-    <message>
-        <source> s</source>
-        <translation type="vanished"> с</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerPlugin</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation type="vanished">Профайлер QML</translation>
-    </message>
-    <message>
-        <source>QML Profiler (External)</source>
-        <translation type="vanished">Профайлер QML (зовнішній)</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerProcessedModel</name>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation type="vanished">&lt;байт-код&gt;</translation>
-    </message>
     <message>
         <source>Source code not available.</source>
         <translation type="vanished">Код не доступний.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerSimpleModel</name>
-    <message>
-        <source>Animations</source>
-        <translation type="vanished">Анімації</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::BasicTimelineModel</name>
-    <message>
-        <source> µs</source>
-        <translation type="vanished"> мкс</translation>
-    </message>
-    <message>
-        <source> ms</source>
-        <translation type="vanished"> мс</translation>
-    </message>
-    <message>
-        <source> s</source>
-        <translation type="vanished"> с</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerFileReader</name>
     <message>
         <source>Error while parsing trace data file: %1</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QV8ProfilerDataModel</name>
-    <message>
-        <source>&lt;program&gt;</source>
-        <translation type="vanished">&lt;програма&gt;</translation>
-    </message>
-    <message>
-        <source>Main Program</source>
-        <translation type="vanished">Основна програма</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QV8ProfilerEventsMainView</name>
-    <message>
-        <source> µs</source>
-        <translation type="vanished"> мкс</translation>
-    </message>
-    <message>
-        <source> ms</source>
-        <translation type="vanished"> мс</translation>
-    </message>
-    <message>
-        <source> s</source>
-        <translation type="vanished"> с</translation>
-    </message>
-    <message>
-        <source>Compile</source>
-        <translation type="vanished">Компіляція</translation>
-    </message>
-    <message>
-        <source>Create</source>
-        <translation type="vanished">Створити</translation>
     </message>
 </context>
 <context>
@@ -42517,29 +42264,10 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::QmlProfilerBaseModel</name>
-    <message>
-        <source> µs</source>
-        <translation type="vanished"> мкс</translation>
-    </message>
-    <message>
-        <source> ms</source>
-        <translation type="vanished"> мс</translation>
-    </message>
-    <message>
-        <source> s</source>
-        <translation type="vanished"> с</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerDataModel</name>
+    <name>QmlProfiler</name>
     <message>
         <source>&lt;bytecode&gt;</source>
         <translation>&lt;байт-код&gt;</translation>
-    </message>
-    <message>
-        <source>GUI Thread</source>
-        <translation>Нитка GUI</translation>
     </message>
     <message>
         <source> µs</source>
@@ -42554,23 +42282,8 @@ These files are preserved.</source>
         <translation> с</translation>
     </message>
     <message>
-        <source>Source code not available.</source>
-        <translation type="vanished">Код не доступний.</translation>
-    </message>
-    <message>
         <source>anonymous function</source>
         <translation>анонімна функція</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::QV8ProfilerDataModel</name>
-    <message>
-        <source>&lt;program&gt;</source>
-        <translation type="vanished">&lt;програма&gt;</translation>
-    </message>
-    <message>
-        <source>Main Program</source>
-        <translation type="vanished">Основна програма</translation>
     </message>
 </context>
 <context>
@@ -47907,19 +47620,7 @@ The files in the Android package source directory are copied to the build direct
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::RangeTimelineModel</name>
-    <message>
-        <source>Duration</source>
-        <translation type="vanished">Тривалість</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation type="vanished">Деталі</translation>
-    </message>
-    <message>
-        <source>Location</source>
-        <translation type="vanished">Розташування</translation>
-    </message>
+    <name>QmlProfiler</name>
 </context>
 <context>
     <name>ResourceEditor</name>
@@ -49326,19 +49027,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerAnimationsModel</name>
-    <message>
-        <source>Animations</source>
-        <translation>Анімації</translation>
-    </message>
-    <message>
-        <source>GUI Thread</source>
-        <translation>Нитка GUI</translation>
-    </message>
-    <message>
-        <source>Render Thread</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source>Duration</source>
         <translation>Тривалість</translation>
@@ -49350,13 +49039,6 @@ Setting breakpoints by file name and line number may fail.</source>
     <message>
         <source>Context</source>
         <translation>Контекст</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerRangeModel</name>
-    <message>
-        <source>Duration</source>
-        <translation>Тривалість</translation>
     </message>
     <message>
         <source>Details</source>
@@ -50299,28 +49981,13 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::LocalQmlProfilerRunner</name>
-    <message>
-        <source>No executable file to launch.</source>
-        <translation type="vanished">Немає виконуваного модуля для запуску.</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfiler::QmlProfilerRunControl</name>
-    <message>
-        <source>Qt Creator</source>
-        <translation>Qt Creator</translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source>Could not connect to the in-process QML debugger:
 %1</source>
         <extracomment>%1 is detailed error message</extracomment>
         <translation>Не вдалось підключитись до вбудованого в процес зневаджувача QML:
 %1</translation>
-    </message>
-    <message>
-        <source>QML Profiler</source>
-        <translation type="vanished">Профайлер QML</translation>
     </message>
 </context>
 <context>
@@ -50825,7 +50492,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerConfigWidget</name>
+    <name>QmlProfiler</name>
     <message>
         <source>Flush data while profiling:</source>
         <translation type="unfinished"></translation>
@@ -51866,18 +51533,11 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerOptionsPage</name>
-    <message>
-        <source>QML Profiler</source>
-        <translation>Профайлер QML</translation>
-    </message>
+    <name>QmlProfiler</name>
     <message>
         <source>Analyzer</source>
         <translation>Аналізатор</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfilerRunConfiguration</name>
     <message>
         <source>QML Profiler Settings</source>
         <translation>Налаштування профайлера QML</translation>
@@ -53421,14 +53081,11 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QmlProfiler::Internal::QmlProfilerRunControlFactory</name>
+    <name>QmlProfiler</name>
     <message>
         <source>No executable file to launch.</source>
         <translation>Немає виконуваного модуля для запуску.</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStatisticsMainView</name>
     <message>
         <source>Binding loop detected.</source>
         <translation type="unfinished"></translation>
@@ -53451,16 +53108,9 @@ references to elements in other files, loops, and so on.)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Binding</source>
-        <translation>Зв&apos;язування</translation>
-    </message>
-    <message>
         <source>Signal</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStatisticsView</name>
     <message>
         <source>Statistics</source>
         <translation type="unfinished"></translation>
@@ -53481,13 +53131,6 @@ references to elements in other files, loops, and so on.)</source>
         <source>Show Full Range</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfiler::Internal::QmlProfilerStatisticsRelativesView</name>
-    <message>
-        <source>&lt;bytecode&gt;</source>
-        <translation>&lt;байт-код&gt;</translation>
-    </message>
     <message>
         <source>Source code not available</source>
         <translation>Код не доступний</translation>
@@ -53496,9 +53139,6 @@ references to elements in other files, loops, and so on.)</source>
         <source>Part of binding loop.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>DebugMessagesModel</name>
     <message>
         <source>Debug Message</source>
         <translation>Зневаджувальне повідомлення</translation>
@@ -53519,9 +53159,6 @@ references to elements in other files, loops, and so on.)</source>
         <source>Info Message</source>
         <translation>Інформаційне повідомлення</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::DebugMessagesModel</name>
     <message>
         <source>Unknown Message %1</source>
         <translation type="unfinished"></translation>
@@ -53535,60 +53172,15 @@ references to elements in other files, loops, and so on.)</source>
         <translation>Повідомлення</translation>
     </message>
     <message>
-        <source>Location</source>
-        <translation>Розташування</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::FlameGraphModel</name>
-    <message>
-        <source>Paint</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Compile</source>
         <translation>Компіляція</translation>
     </message>
-    <message>
-        <source>Create</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Binding</source>
-        <translation>Зв&apos;язування</translation>
-    </message>
-    <message>
-        <source>Signal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>JavaScript</source>
-        <translation>JavaScript</translation>
-    </message>
-    <message>
-        <source>Source code not available</source>
-        <translation>Код не доступний</translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::FlameGraphView</name>
-    <message>
-        <source>Show Full Range</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::InputEventsModel</name>
     <message>
         <source>Mouse Events</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Keyboard Events</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Timestamp</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -53659,16 +53251,9 @@ references to elements in other files, loops, and so on.)</source>
         <source>Mouse Event</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::MemoryUsageModel</name>
     <message>
         <source>Memory Allocation</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Memory Usage</source>
-        <translation>Вживання пам&apos;яті</translation>
     </message>
     <message>
         <source>Memory Allocated</source>
@@ -53703,10 +53288,6 @@ references to elements in other files, loops, and so on.)</source>
         <translation>Тип</translation>
     </message>
     <message>
-        <source>Location</source>
-        <translation>Розташування</translation>
-    </message>
-    <message>
         <source>Heap Allocation</source>
         <translation type="unfinished"></translation>
     </message>
@@ -53722,9 +53303,6 @@ references to elements in other files, loops, and so on.)</source>
         <source>Unknown</source>
         <translation>Невідомо</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::PixmapCacheModel</name>
     <message>
         <source>Image Cached</source>
         <translation type="unfinished"></translation>
@@ -53734,16 +53312,8 @@ references to elements in other files, loops, and so on.)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Result</source>
-        <translation>Результат</translation>
-    </message>
-    <message>
         <source>Load Error</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>Тривалість</translation>
     </message>
     <message>
         <source>Cache Size</source>
@@ -53761,9 +53331,6 @@ references to elements in other files, loops, and so on.)</source>
         <source>Height</source>
         <translation>Висота</translation>
     </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::QmlProfilerExtensionPlugin</name>
     <message>
         <source>Action Triggered</source>
         <translation type="unfinished"></translation>
@@ -53772,16 +53339,9 @@ references to elements in other files, loops, and so on.)</source>
         <source>This is an action from QML Profiler Extension.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmlProfilerExtension::Internal::SceneGraphTimelineModel</name>
     <message>
         <source>Stage</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation>Тривалість</translation>
     </message>
     <message>
         <source>Glyphs</source>

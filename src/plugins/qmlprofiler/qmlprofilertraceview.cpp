@@ -1,14 +1,15 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "qmlprofilertraceview.h"
-#include "qmlprofilertool.h"
-#include "qmlprofilerstatemanager.h"
+#include "qmlprofileranimationsmodel.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilernotesmodel.h"
-#include "qmlprofileranimationsmodel.h"
-#include "qmlprofilerrangemodel.h"
 #include "qmlprofilerplugin.h"
+#include "qmlprofilerrangemodel.h"
+#include "qmlprofilerstatemanager.h"
+#include "qmlprofilertool.h"
+#include "qmlprofilertr.h"
+#include "qmlprofilertraceview.h"
 
 #include "quick3dmodel.h"
 #include "inputeventsmodel.h"
@@ -70,7 +71,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
                                            QmlProfilerModelManager *modelManager)
     : QWidget(parent), d(new QmlProfilerTraceViewPrivate(this))
 {
-    setWindowTitle(tr("Timeline"));
+    setWindowTitle(Tr::tr("Timeline"));
     setObjectName("QmlProfiler.Timeline.Dock");
 
     d->m_zoomControl = new Timeline::TimelineZoomControl(this);
@@ -238,17 +239,17 @@ void QmlProfilerTraceView::showContextMenu(QPoint position)
     menu.addActions(QmlProfilerTool::profilerContextMenuActions());
     menu.addSeparator();
 
-    QAction *getLocalStatsAction = menu.addAction(tr("Analyze Current Range"));
+    QAction *getLocalStatsAction = menu.addAction(Tr::tr("Analyze Current Range"));
     if (!hasValidSelection())
         getLocalStatsAction->setEnabled(false);
 
-    QAction *getGlobalStatsAction = menu.addAction(tr("Analyze Full Range"));
+    QAction *getGlobalStatsAction = menu.addAction(Tr::tr("Analyze Full Range"));
     if (!d->m_modelManager->isRestrictedToRange())
         getGlobalStatsAction->setEnabled(false);
 
     if (d->m_zoomControl->traceDuration() > 0) {
         menu.addSeparator();
-        viewAllAction = menu.addAction(tr("Reset Zoom"));
+        viewAllAction = menu.addAction(Tr::tr("Reset Zoom"));
     }
 
     QAction *selectedAction = menu.exec(position);

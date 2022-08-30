@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "flamegraphmodel_test.h"
+#include "qmlprofilertr.h"
 
 #include <qmlprofiler/qmlprofilerrangemodel.h>
 
@@ -111,10 +112,10 @@ void FlameGraphModelTest::testCounts()
 void FlameGraphModelTest::testData()
 {
     const QVector<QString> typeRoles({
-        FlameGraphModel::tr("JavaScript"),
-        FlameGraphModel::tr("Signal"),
-        FlameGraphModel::tr("Binding"),
-        FlameGraphModel::tr("Create")
+        Tr::tr("JavaScript"),
+        Tr::tr("Signal"),
+        Tr::tr("Binding"),
+        Tr::tr("Create")
     });
 
     QModelIndex index = model.index(0, 0);
@@ -122,9 +123,9 @@ void FlameGraphModelTest::testData()
     QCOMPARE(model.data(index, FlameGraphModel::TypeIdRole).toInt(), 0);
     QCOMPARE(model.data(index2, FlameGraphModel::TypeIdRole).toInt(), 4);
     QCOMPARE(model.data(index, FlameGraphModel::TypeRole).toString(),
-             FlameGraphModel::tr("JavaScript"));
+             Tr::tr("JavaScript"));
     QCOMPARE(model.data(index2, FlameGraphModel::TypeRole).toString(),
-             FlameGraphModel::tr("Compile"));
+             Tr::tr("Compile"));
     QCOMPARE(model.data(index, FlameGraphModel::DurationRole).toLongLong(), 21);
     QCOMPARE(model.data(index2, FlameGraphModel::DurationRole).toLongLong(), 13);
     QCOMPARE(model.data(index, FlameGraphModel::CallCountRole).toInt(), 1);
@@ -172,7 +173,7 @@ void FlameGraphModelTest::testData()
 
     index2 = model.index(0, 0, index2);
     QCOMPARE(model.data(index2, FlameGraphModel::TypeRole).toString(),
-             FlameGraphModel::tr("Compile"));
+             Tr::tr("Compile"));
     QCOMPARE(model.data(index2, FlameGraphModel::NoteRole).toString(), QString());
     QCOMPARE(model.data(index2, FlameGraphModel::CallCountRole).toInt(), 1);
 }

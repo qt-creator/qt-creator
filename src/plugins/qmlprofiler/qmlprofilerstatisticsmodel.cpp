@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "qmlprofilerstatisticsmodel.h"
 #include "qmlprofilermodelmanager.h"
+#include "qmlprofilerstatisticsmodel.h"
+#include "qmlprofilertr.h"
 
 #include <tracing/timelineformattime.h>
 #include <utils/algorithm.h>
@@ -15,12 +16,12 @@ namespace QmlProfiler {
 QString nameForType(RangeType typeNumber)
 {
     switch (typeNumber) {
-    case Painting: return QmlProfilerStatisticsModel::tr("Painting");
-    case Compiling: return QmlProfilerStatisticsModel::tr("Compiling");
-    case Creating: return QmlProfilerStatisticsModel::tr("Creating");
-    case Binding: return QmlProfilerStatisticsModel::tr("Binding");
-    case HandlingSignal: return QmlProfilerStatisticsModel::tr("Handling Signal");
-    case Javascript: return QmlProfilerStatisticsModel::tr("JavaScript");
+    case Painting: return Tr::tr("Painting");
+    case Compiling: return Tr::tr("Compiling");
+    case Creating: return Tr::tr("Creating");
+    case Binding: return Tr::tr("Binding");
+    case HandlingSignal: return Tr::tr("Handling Signal");
+    case Javascript: return Tr::tr("JavaScript");
     default: return QString();
     }
 }
@@ -91,7 +92,7 @@ void QmlProfilerStatisticsModel::restrictToFeatures(quint64 features)
     }, [this](const QString &message) {
         endResetModel();
         if (!message.isEmpty()) {
-            emit m_modelManager->error(tr("Could not re-read events from temporary trace file: %1")
+            emit m_modelManager->error(Tr::tr("Could not re-read events from temporary trace file: %1")
                                         .arg(message));
         }
         clear();
@@ -239,7 +240,7 @@ QVariant QmlProfilerStatisticsModel::dataForMainEntry(const QModelIndex &index, 
         case MainMinTime:
             return Timeline::formatTime(m_rootDuration);
         case MainDetails:
-            return tr("Main program");
+            return Tr::tr("Main program");
         default:
             break;
         }
@@ -274,7 +275,7 @@ QVariant QmlProfilerStatisticsModel::data(const QModelIndex &index, int role) co
         return type.location().column();
     case Qt::ToolTipRole:
         if (stats.recursive > 0) {
-            return (tr("+%1 in recursive calls")
+            return (Tr::tr("+%1 in recursive calls")
                     .arg(Timeline::formatTime(stats.recursive)));
         } else {
             auto it = m_notes.constFind(typeIndex);
@@ -313,7 +314,7 @@ QVariant QmlProfilerStatisticsModel::data(const QModelIndex &index, int role) co
     case Qt::DisplayRole:
         switch (index.column()) {
         case MainLocation:
-            return type.displayName().isEmpty() ? tr("<bytecode>") : type.displayName();
+            return type.displayName().isEmpty() ? Tr::tr("<bytecode>") : type.displayName();
         case MainType:
             return nameForType(type.rangeType());
         case MainTimeInPercent:
@@ -335,7 +336,7 @@ QVariant QmlProfilerStatisticsModel::data(const QModelIndex &index, int role) co
         case MainMinTime:
             return Timeline::formatTime(stats.minimum);
         case MainDetails:
-            return type.data().isEmpty() ? tr("Source code not available")
+            return type.data().isEmpty() ? Tr::tr("Source code not available")
                                          : type.data();
         default:
             QTC_CHECK(false);
@@ -353,18 +354,18 @@ QVariant QmlProfilerStatisticsModel::headerData(int section, Qt::Orientation ori
         return QAbstractTableModel::headerData(section, orientation, role);
 
     switch (section) {
-    case MainCallCount: return tr("Calls");
-    case MainDetails: return tr("Details");
-    case MainLocation: return tr("Location");
-    case MainMaxTime: return tr("Longest Time");
-    case MainTimePerCall: return tr("Mean Time");
-    case MainSelfTime: return tr("Self Time");
-    case MainSelfTimeInPercent: return tr("Self Time in Percent");
-    case MainMinTime: return tr("Shortest Time");
-    case MainTimeInPercent: return tr("Time in Percent");
-    case MainTotalTime: return tr("Total Time");
-    case MainType: return tr("Type");
-    case MainMedianTime: return tr("Median Time");
+    case MainCallCount: return Tr::tr("Calls");
+    case MainDetails: return Tr::tr("Details");
+    case MainLocation: return Tr::tr("Location");
+    case MainMaxTime: return Tr::tr("Longest Time");
+    case MainTimePerCall: return Tr::tr("Mean Time");
+    case MainSelfTime: return Tr::tr("Self Time");
+    case MainSelfTimeInPercent: return Tr::tr("Self Time in Percent");
+    case MainMinTime: return Tr::tr("Shortest Time");
+    case MainTimeInPercent: return Tr::tr("Time in Percent");
+    case MainTotalTime: return Tr::tr("Total Time");
+    case MainType: return Tr::tr("Type");
+    case MainMedianTime: return Tr::tr("Median Time");
     case MaxMainField:
     default: QTC_ASSERT(false, return QString());
     }
@@ -560,7 +561,7 @@ QVariant QmlProfilerStatisticsRelativesModel::dataForMainEntry(qint64 totalDurat
         case RelativeLocation: return "<program>";
         case RelativeTotalTime: return Timeline::formatTime(totalDuration);
         case RelativeCallCount: return 1;
-        case RelativeDetails: return tr("Main Program");
+        case RelativeDetails: return Tr::tr("Main Program");
         }
     }
     return QVariant();
@@ -598,7 +599,7 @@ QVariant QmlProfilerStatisticsRelativesModel::data(const QModelIndex &index, int
     case ColumnRole:
         return type.location().column();
     case Qt::ToolTipRole:
-        return stats.isRecursive ? tr("called recursively") : QString();
+        return stats.isRecursive ? Tr::tr("called recursively") : QString();
     case Qt::ForegroundRole:
         return stats.isRecursive
                 ? Utils::creatorTheme()->color(Utils::Theme::Timeline_HighlightColor)
@@ -617,7 +618,7 @@ QVariant QmlProfilerStatisticsRelativesModel::data(const QModelIndex &index, int
     case Qt::DisplayRole:
         switch (index.column()) {
         case RelativeLocation:
-            return type.displayName().isEmpty() ? tr("<bytecode>") : type.displayName();
+            return type.displayName().isEmpty() ? Tr::tr("<bytecode>") : type.displayName();
         case RelativeType:
             return nameForType(type.rangeType());
         case RelativeTotalTime:
@@ -625,7 +626,7 @@ QVariant QmlProfilerStatisticsRelativesModel::data(const QModelIndex &index, int
         case RelativeCallCount:
             return stats.calls;
         case RelativeDetails:
-            return type.data().isEmpty() ? tr("Source code not available")
+            return type.data().isEmpty() ? Tr::tr("Source code not available")
                                          : type.data();
         default:
             QTC_CHECK(false);
@@ -644,16 +645,16 @@ QVariant QmlProfilerStatisticsRelativesModel::headerData(int section, Qt::Orient
 
     switch (section) {
     case RelativeLocation:
-        return m_relation == QmlProfilerStatisticsCallees ? tr("Callee") : tr("Caller");
+        return m_relation == QmlProfilerStatisticsCallees ? Tr::tr("Callee") : Tr::tr("Caller");
     case RelativeType:
-        return tr("Type");
+        return Tr::tr("Type");
     case RelativeTotalTime:
-        return tr("Total Time");
+        return Tr::tr("Total Time");
     case RelativeCallCount:
-        return tr("Calls");
+        return Tr::tr("Calls");
     case RelativeDetails:
-        return m_relation == QmlProfilerStatisticsCallees ? tr("Callee Description")
-                                                          : tr("Caller Description");
+        return m_relation == QmlProfilerStatisticsCallees ? Tr::tr("Callee Description")
+                                                          : Tr::tr("Caller Description");
     case MaxRelativeField:
     default:
         QTC_ASSERT(false, return QString());

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "qmlprofilertimelinemodel.h"
+#include "qmlprofilertr.h"
 
 namespace QmlProfiler {
 
@@ -12,7 +13,7 @@ QmlProfilerTimelineModel::QmlProfilerTimelineModel(QmlProfilerModelManager *mode
     TimelineModel(parent), m_message(message), m_rangeType(rangeType), m_mainFeature(mainFeature),
     m_modelManager(modelManager)
 {
-    setDisplayName(tr(QmlProfilerModelManager::featureName(mainFeature)));
+    setDisplayName(Tr::tr(QmlProfilerModelManager::featureName(mainFeature)));
     connect(modelManager, &QmlProfilerModelManager::typeDetailsFinished,
             this, &Timeline::TimelineModel::labelsChanged);
     connect(modelManager, &QmlProfilerModelManager::typeDetailsFinished,

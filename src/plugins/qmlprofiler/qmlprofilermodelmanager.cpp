@@ -1,11 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "qmlprofilermodelmanager.h"
 #include "qmlprofilerconstants.h"
-#include "qmlprofilertracefile.h"
-#include "qmlprofilernotesmodel.h"
 #include "qmlprofilerdetailsrewriter.h"
+#include "qmlprofilermodelmanager.h"
+#include "qmlprofilernotesmodel.h"
+#include "qmlprofilertr.h"
+#include "qmlprofilertracefile.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <tracing/tracestashfile.h>
@@ -23,19 +24,19 @@
 namespace QmlProfiler {
 
 static const char *ProfileFeatureNames[] = {
-    QT_TRANSLATE_NOOP("MainView", "JavaScript"),
-    QT_TRANSLATE_NOOP("MainView", "Memory Usage"),
-    QT_TRANSLATE_NOOP("MainView", "Pixmap Cache"),
-    QT_TRANSLATE_NOOP("MainView", "Scene Graph"),
-    QT_TRANSLATE_NOOP("MainView", "Animations"),
-    QT_TRANSLATE_NOOP("MainView", "Painting"),
-    QT_TRANSLATE_NOOP("MainView", "Compiling"),
-    QT_TRANSLATE_NOOP("MainView", "Creating"),
-    QT_TRANSLATE_NOOP("MainView", "Binding"),
-    QT_TRANSLATE_NOOP("MainView", "Handling Signal"),
-    QT_TRANSLATE_NOOP("MainView", "Input Events"),
-    QT_TRANSLATE_NOOP("MainView", "Debug Messages"),
-    QT_TRANSLATE_NOOP("MainView", "Quick3D")
+    QT_TRANSLATE_NOOP("QmlProfiler", "JavaScript"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Memory Usage"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Pixmap Cache"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Scene Graph"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Animations"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Painting"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Compiling"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Creating"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Binding"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Handling Signal"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Input Events"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Debug Messages"),
+    QT_TRANSLATE_NOOP("QmlProfiler", "Quick3D")
 };
 
 Q_STATIC_ASSERT(sizeof(ProfileFeatureNames) == sizeof(char *) * MaximumProfileFeature);
@@ -176,7 +177,7 @@ void QmlProfilerModelManager::replayQmlEvents(QmlEventLoader loader,
 
     if (!result && errorHandler) {
         errorHandler(future.isCanceled() ? QString()
-                                         : tr("Failed to replay QML events from stash file."));
+                                         : Tr::tr("Failed to replay QML events from stash file."));
     } else if (result && finalizer) {
         finalizer();
     }
@@ -203,7 +204,7 @@ void QmlProfilerModelManager::clearTypeStorage()
 static QString getDisplayName(const QmlEventType &event)
 {
     if (event.location().filename().isEmpty()) {
-        return QmlProfilerModelManager::tr("<bytecode>");
+        return Tr::tr("<bytecode>");
     } else {
         const QString filePath = QUrl(event.location().filename()).path();
         return filePath.mid(filePath.lastIndexOf(QLatin1Char('/')) + 1) + QLatin1Char(':') +
@@ -219,7 +220,7 @@ static QString getInitialDetails(const QmlEventType &event)
         details = details.replace(QLatin1Char('\n'),QLatin1Char(' ')).simplified();
         if (details.isEmpty()) {
             if (event.rangeType() == Javascript)
-                details = QmlProfilerModelManager::tr("anonymous function");
+                details = Tr::tr("anonymous function");
         } else {
             QRegularExpression rewrite(QLatin1String("^\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)$"));
             QRegularExpressionMatch match = rewrite.match(details);
@@ -483,7 +484,7 @@ QmlProfilerEventStorage::QmlProfilerEventStorage(
     : m_file("qmlprofiler-data"), m_errorHandler(errorHandler)
 {
     if (!m_file.open())
-        errorHandler(tr("Cannot open temporary trace file to store events."));
+        errorHandler(Tr::tr("Cannot open temporary trace file to store events."));
 }
 
 int QmlProfilerEventStorage::append(Timeline::TraceEvent &&event)
@@ -503,13 +504,13 @@ void QmlProfilerEventStorage::clear()
     m_size = 0;
     m_file.clear();
     if (!m_file.open())
-        m_errorHandler(tr("Failed to reset temporary trace file."));
+        m_errorHandler(Tr::tr("Failed to reset temporary trace file."));
 }
 
 void QmlProfilerEventStorage::finalize()
 {
     if (!m_file.flush())
-        m_errorHandler(tr("Failed to flush temporary trace file."));
+        m_errorHandler(Tr::tr("Failed to flush temporary trace file."));
 }
 
 QmlProfilerEventStorage::ErrorHandler QmlProfilerEventStorage::errorHandler() const
@@ -530,13 +531,13 @@ bool QmlProfilerEventStorage::replay(
     case Timeline::TraceStashFile<QmlEvent>::ReplaySuccess:
         return true;
     case Timeline::TraceStashFile<QmlEvent>::ReplayOpenFailed:
-        m_errorHandler(tr("Could not re-open temporary trace file."));
+        m_errorHandler(Tr::tr("Could not re-open temporary trace file."));
         break;
     case Timeline::TraceStashFile<QmlEvent>::ReplayLoadFailed:
         // Happens if the loader rejects an event. Not an actual error
         break;
     case Timeline::TraceStashFile<QmlEvent>::ReplayReadPastEnd:
-        m_errorHandler(tr("Read past end in temporary trace file."));
+        m_errorHandler(Tr::tr("Read past end in temporary trace file."));
         break;
     }
     return false;
