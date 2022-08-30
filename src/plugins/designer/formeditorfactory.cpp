@@ -1,6 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include "designertr.h"
 #include "formeditorfactory.h"
 #include "formeditorw.h"
 #include "formwindoweditor.h"
@@ -22,7 +23,7 @@ namespace Internal {
 FormEditorFactory::FormEditorFactory()
 {
     setId(K_DESIGNER_XML_EDITOR_ID);
-    setDisplayName(QCoreApplication::translate("Designer", C_DESIGNER_XML_DISPLAY_NAME));
+    setDisplayName(Tr::tr(C_DESIGNER_XML_DISPLAY_NAME));
     addMimeType(FORM_MIMETYPE);
     setEditorCreator([] { return  FormEditorW::createEditor(); });
 

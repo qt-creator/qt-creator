@@ -3735,7 +3735,7 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     </message>
 </context>
 <context>
-    <name>Designer::Internal::FormClassWizardPage</name>
+    <name>Designer</name>
     <message>
         <source>Choose a Class Name</source>
         <translation>Odaberi naziv klase</translation>
@@ -3747,10 +3747,6 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     <message>
         <source>Class Details</source>
         <translation>Detalji klase</translation>
-    </message>
-    <message>
-        <source>%1 - Error</source>
-        <translation>%1 - greška</translation>
     </message>
 </context>
 <context>
@@ -23093,25 +23089,11 @@ Rebuilding the project might help.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Designer</source>
-        <translation type="unfinished">Designer</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardDialog</name>
-    <message>
         <source>Qt Designer Form Class</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorPlugin</name>
     <message>
         <source>Switch Source/Form</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Qt Designer Form Class</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -23126,9 +23108,6 @@ Rebuilding the project might help.</source>
         <source>Shift+F4</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>FormEditorW</name>
     <message>
         <source>Widget box</source>
         <translation>Okvir programčića</translation>
@@ -24244,7 +24223,7 @@ Use this only if you are prototyping. You cannot create a full application with 
     </message>
 </context>
 <context>
-    <name>Designer::Internal::FormTemplateWizardPage</name>
+    <name>Designer</name>
     <message>
         <source>Choose a Form Template</source>
         <translation>Odaberi predložak za obrasce</translation>
@@ -24257,9 +24236,6 @@ Use this only if you are prototyping. You cannot create a full application with 
         <source>%1 - Error</source>
         <translation>%1 – Greška</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
         <source>The class containing &quot;%1&quot; could not be found in %2.
 Please verify the #include-directives.</source>

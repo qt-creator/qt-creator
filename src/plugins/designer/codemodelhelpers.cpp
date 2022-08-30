@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "codemodelhelpers.h"
+#include "designertr.h"
 
 #include <cppeditor/cppmodelmanager.h>
 
@@ -101,13 +102,13 @@ bool navigateToSlot(const QString &uiFileName,
     // Find the generated header.
     const FilePath generatedHeaderFile = generatedHeaderOf(FilePath::fromString(uiFileName));
     if (generatedHeaderFile.isEmpty()) {
-        *errorMessage = QCoreApplication::translate("Designer", "The generated header of the form \"%1\" could not be found.\nRebuilding the project might help.").arg(uiFileName);
+        *errorMessage = Tr::tr("The generated header of the form \"%1\" could not be found.\nRebuilding the project might help.").arg(uiFileName);
         return false;
     }
     const CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::instance()->snapshot();
     const DocumentPtr generatedHeaderDoc = snapshot.document(generatedHeaderFile);
     if (!generatedHeaderDoc) {
-        *errorMessage = QCoreApplication::translate("Designer", "The generated header \"%1\" could not be found in the code model.\nRebuilding the project might help.").arg(generatedHeaderFile.toUserOutput());
+        *errorMessage = Tr::tr("The generated header \"%1\" could not be found in the code model.\nRebuilding the project might help.").arg(generatedHeaderFile.toUserOutput());
         return false;
     }
 

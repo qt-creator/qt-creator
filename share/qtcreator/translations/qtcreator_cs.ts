@@ -4944,9 +4944,6 @@ Rebuilding the project might help.</source>
         <translation>Automaticky vytvořený soubor hlavičky &apos;%1 se v modelu kódu nepodařilo najít.
 Zkuste projekt vytvořit znovu.</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardDialog</name>
     <message>
         <source>Qt Designer Form Class</source>
         <translation>Třída formuláře programu Qt Designer</translation>
@@ -4959,9 +4956,6 @@ Zkuste projekt vytvořit znovu.</translation>
         <source>Class Details</source>
         <translation>Podrobnosti o třídě</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardPage</name>
     <message>
         <source>%1 - Error</source>
         <translation>%1 - Chyba</translation>
@@ -4982,9 +4976,6 @@ Zkuste projekt vytvořit znovu.</translation>
         <source>Choose a Class Name</source>
         <translation>Vyberte název třídy</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorPlugin</name>
     <message>
         <source>Qt</source>
         <translation type="obsolete">Qt</translation>
@@ -5029,13 +5020,6 @@ Zkuste projekt vytvořit znovu.</translation>
         <source>Creates a Qt Designer form file (.ui) with a matching class.</source>
         <translation type="obsolete">Vytvoří soubor formuláře programu Qt Designer (.ui) s odpovídající třídou.</translation>
     </message>
-    <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Třída formuláře programu Qt Designer</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorW</name>
     <message>
         <source>Widget Box</source>
         <translation>Krabice s prvky</translation>
@@ -5087,10 +5071,6 @@ Zkuste projekt vytvořit znovu.</translation>
     <message>
         <source>Edit tab order</source>
         <translation type="obsolete">Upravit pořadí zarážek</translation>
-    </message>
-    <message>
-        <source>For&amp;m Editor</source>
-        <translation>Editor for&amp;mulářů</translation>
     </message>
     <message>
         <source>Edit Widgets</source>
@@ -5145,14 +5125,6 @@ Zkuste projekt vytvořit znovu.</translation>
         <translation>Alt+Shift+R</translation>
     </message>
     <message>
-        <source>Switch Source/Form</source>
-        <translation>Přepnout mezi formulářem a zdrojem</translation>
-    </message>
-    <message>
-        <source>Shift+F4</source>
-        <translation>Shift+F4</translation>
-    </message>
-    <message>
         <source>About Qt Designer Plugins...</source>
         <translation>O přídavných modulech programu Qt Designer...</translation>
     </message>
@@ -5185,16 +5157,9 @@ Zkuste projekt vytvořit znovu.</translation>
         <translation>Náhled v</translation>
     </message>
     <message>
-        <source>Designer</source>
-        <translation>Designer</translation>
-    </message>
-    <message>
         <source>The image could not be created: %1</source>
         <translation>Obrázek se nepodařilo vytvořit: %1</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormTemplateWizardPage</name>
     <message>
         <source>Choose a form template</source>
         <translation type="obsolete">Vyberte předlohu formuláře</translation>
@@ -5203,13 +5168,6 @@ Zkuste projekt vytvořit znovu.</translation>
         <source>Choose a Form Template</source>
         <translation>Vyberte předlohu formuláře</translation>
     </message>
-    <message>
-        <source>%1 - Error</source>
-        <translation>%1 - Chyba</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormWindowFile</name>
     <message>
         <source>Error saving %1</source>
         <translation type="obsolete">Chyba při ukládání %1</translation>
@@ -5222,20 +5180,6 @@ Zkuste projekt vytvořit znovu.</translation>
         <source>Unable to write to %1: %2</source>
         <translation type="obsolete">Soubor %1 nelze zapsat: %2</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormWizardDialog</name>
-    <message>
-        <source>Qt Designer Form</source>
-        <translation>Formulář programu Qt Designer</translation>
-    </message>
-    <message>
-        <source>Form Template</source>
-        <translation>Předloha formuláře</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
         <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
         <translation type="obsolete">Vymezení třídy &apos;%1&apos; se nepodařilo nalézt v %2.</translation>
@@ -17192,7 +17136,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Designer::Internal::CppSettingsPageWidget</name>
+    <name>Designer</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -19525,7 +19469,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Designer::FormWindowEditor</name>
+    <name>Designer</name>
     <message>
         <source>untitled</source>
         <translation>Bez názvu</translation>
@@ -25313,7 +25257,7 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
     </message>
 </context>
 <context>
-    <name>Designer::Internal::FormEditorFactory</name>
+    <name>Designer</name>
     <message>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation>Tento soubor lze upravovat pouze v &lt;b&gt;Režimu návrhu&lt;/b&gt;.</translation>
@@ -25326,9 +25270,6 @@ Proces Pdb po určité době od úspěšného spuštění spadl.</translation>
         <source>Switch mode</source>
         <translation>Přepnout režim</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormFileWizardDialog</name>
     <message>
         <source>Location</source>
         <translation>Umístění</translation>

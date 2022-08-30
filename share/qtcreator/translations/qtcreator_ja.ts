@@ -2693,7 +2693,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Designer::Internal::FormClassWizardPage</name>
+    <name>Designer</name>
     <message>
         <source>Choose a Class Name</source>
         <translation>クラス名を選択してください</translation>
@@ -20371,16 +20371,10 @@ Rebuilding the project might help.</source>
         <translation>生成されたヘッダファイル &quot;%1&quot; がコードモデル内に見つかりませんでした。
 プロジェクトのリビルドをお奨めします。</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardDialog</name>
     <message>
         <source>Qt Designer Form Class</source>
         <translation>Qt Designer フォームクラス</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorPlugin</name>
     <message>
         <source>Switch Source/Form</source>
         <translation>ソース/フォームの切替</translation>
@@ -20394,16 +20388,9 @@ Rebuilding the project might help.</source>
         <translation>Shift+F4</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Qt Designer フォームクラス</translation>
-    </message>
-    <message>
         <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
         <translation>既存の Qt ウィジェットプロジェクトに追加可能な Qt Designer フォームとそれに対応したクラス (C++ ヘッダとソースファイル) を作成します。</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormTemplateWizardPage</name>
     <message>
         <source>Choose a Form Template</source>
         <translation>フォームテンプレートを選択してください</translation>
@@ -20412,13 +20399,6 @@ Rebuilding the project might help.</source>
         <source>Form Template</source>
         <translation>フォームテンプレート</translation>
     </message>
-    <message>
-        <source>%1 - Error</source>
-        <translation>%1 - エラー</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
         <source>The class containing &quot;%1&quot; could not be found in %2.
 Please verify the #include-directives.</source>
@@ -41267,7 +41247,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>FormEditorW</name>
+    <name>Designer</name>
     <message>
         <source>Widget box</source>
         <translation>ウィジェットボックス</translation>
@@ -41359,10 +41339,6 @@ Affected are breakpoints %1</source>
     <message>
         <source>Preview in</source>
         <translation>プレビュー</translation>
-    </message>
-    <message>
-        <source>Designer</source>
-        <translation>デザイナ</translation>
     </message>
     <message>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
@@ -47052,7 +47028,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Designer::Internal::NewClassWidget</name>
+    <name>Designer</name>
     <message>
         <source>&amp;Class name:</source>
         <translation>クラス名(&amp;C):</translation>

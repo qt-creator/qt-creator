@@ -5719,9 +5719,6 @@ Rebuilding the project might help.</source>
         <translation>代码模型中找不到生成的头文件&quot;%1&quot;。
 重新构建项目可能有帮助。</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardDialog</name>
     <message>
         <source>Qt Designer Form Class</source>
         <translation>Qt 设计器界面类</translation>
@@ -5734,9 +5731,6 @@ Rebuilding the project might help.</source>
         <source>Class Details</source>
         <translation>类详情</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardPage</name>
     <message>
         <source>%1 - Error</source>
         <translation>%1 - 错误</translation>
@@ -5757,9 +5751,6 @@ Rebuilding the project might help.</source>
         <source>Choose a Class Name</source>
         <translation>选择类名</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorPlugin</name>
     <message>
         <source>Qt</source>
         <translation type="obsolete">Qt</translation>
@@ -5784,13 +5775,6 @@ Rebuilding the project might help.</source>
         <source>Creates a Qt Designer form file (.ui) with a matching class.</source>
         <translation type="obsolete">创建与类匹配的Qt设计师界面文件(.ui)。</translation>
     </message>
-    <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Qt 设计师界面类</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorW</name>
     <message>
         <source>Widget Box</source>
         <translation>控件盒子</translation>
@@ -5936,16 +5920,9 @@ Rebuilding the project might help.</source>
         <translation>预览于</translation>
     </message>
     <message>
-        <source>Designer</source>
-        <translation>设计师</translation>
-    </message>
-    <message>
         <source>The image could not be created: %1</source>
         <translation>无法创建图片: %1</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormTemplateWizardPage</name>
     <message>
         <source>Choose a form template</source>
         <translation type="obsolete">选择 界面模板</translation>
@@ -5954,13 +5931,6 @@ Rebuilding the project might help.</source>
         <source>Choose a Form Template</source>
         <translation>选择界面模板</translation>
     </message>
-    <message>
-        <source>%1 - Error</source>
-        <translation>%1 - 错误</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormWindowFile</name>
     <message>
         <source>Error saving %1</source>
         <translation type="obsolete">保存 %1出错</translation>
@@ -5973,20 +5943,6 @@ Rebuilding the project might help.</source>
         <source>Unable to write to %1: %2</source>
         <translation type="obsolete">无法写入 %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormWizardDialog</name>
-    <message>
-        <source>Qt Designer Form</source>
-        <translation>Qt 设计师文件</translation>
-    </message>
-    <message>
-        <source>Form Template</source>
-        <translation>界面模板</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
         <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
         <translation type="obsolete">类 &apos;%1&apos; 的定义 在 %2中找不到.</translation>
@@ -16972,7 +16928,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Designer::Internal::CppSettingsPageWidget</name>
+    <name>Designer</name>
     <message>
         <source>Form</source>
         <translation>界面</translation>
@@ -18703,7 +18659,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Designer::FormWindowEditor</name>
+    <name>Designer</name>
     <message>
         <source>untitled</source>
         <translation>未命名</translation>
@@ -22975,7 +22931,7 @@ Previous decimal signed value (big endian): %4</source>
     </message>
 </context>
 <context>
-    <name>Designer::Internal::FormEditorFactory</name>
+    <name>Designer</name>
     <message>
         <source>This file can only be edited in Design Mode.</source>
         <translation type="obsolete">此文件仅可在设计模式中编辑。</translation>
@@ -22992,9 +22948,6 @@ Previous decimal signed value (big endian): %4</source>
         <source>Switch mode</source>
         <translation>切换模式</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormFileWizardDialog</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>

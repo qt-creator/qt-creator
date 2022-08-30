@@ -4216,9 +4216,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Class Generation</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::EditorWidget</name>
     <message>
         <source>Action editor</source>
         <translation type="obsolete">Editor de acciones</translation>
@@ -4227,16 +4224,10 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Signals and slots editor</source>
         <translation type="obsolete">Editor de signals/slots</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardDialog</name>
     <message>
         <source>Qt Designer Form Class</source>
         <translation>Clase del formulario Qt Designer</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardPage</name>
     <message>
         <source>%1 - Error</source>
         <translation></translation>
@@ -4279,9 +4270,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Support for changing languages at runtime</source>
         <translation type="obsolete">Permitir el cambio de idioma en tiempo de ejecución</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorPlugin</name>
     <message>
         <source>Qt</source>
         <translation></translation>
@@ -4302,9 +4290,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Qt Designer Form Class</source>
         <translation>Clase del formulario de Qt Designer</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorW</name>
     <message>
         <source>Object inspector</source>
         <translation type="obsolete">Inspector de objetos</translation>
@@ -4316,10 +4301,6 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
     <message>
         <source>Signals and slots editor</source>
         <translation type="obsolete">Editor de Signals/Slots</translation>
-    </message>
-    <message>
-        <source>Action editor</source>
-        <translation type="obsolete">Editor de acciones</translation>
     </message>
     <message>
         <source>Widget Box</source>
@@ -4437,27 +4418,14 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>The image could not be created: %1</source>
         <translation>No se pudo crear la imagen: %1</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormTemplateWizardPage</name>
     <message>
         <source>Choose a form template</source>
         <translation>Seleccione una plantilla para el formulario</translation>
     </message>
     <message>
-        <source>%1 - Error</source>
-        <translation></translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormWindowEditor</name>
-    <message>
         <source>untitled</source>
         <translation type="obsolete">sin título</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormWindowFile</name>
     <message>
         <source>Error saving %1</source>
         <translation>Error guardando %1</translation>
@@ -4470,16 +4438,10 @@ Es recomendado usar gdb 6.7 o posterior.</translation>
         <source>Unable to write to %1: %2</source>
         <translation>Imposible escribir a %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormWizardDialog</name>
     <message>
         <source>Qt Designer Form</source>
         <translation>Formulario de Qt Designer</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
         <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
         <translation>La definición de la clase &apos;%1&apos; no pudo ser encontrada en %2.</translation>
@@ -4498,9 +4460,6 @@ Reconstruir el proyecto puede ayudar.</translation>
         <source>Unable to add the method definition.</source>
         <translation>Imposible agregar la definición del método.</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::SettingsPage</name>
     <message>
         <source>Designer</source>
         <translation type="obsolete">Designer</translation>
@@ -11518,7 +11477,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Designer::Internal::CppSettingsPageWidget</name>
+    <name>Designer</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">Formulario</translation>
@@ -12938,7 +12897,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Designer::FormWindowEditor</name>
+    <name>Designer</name>
     <message>
         <source>untitled</source>
         <translation type="unfinished">sin título</translation>

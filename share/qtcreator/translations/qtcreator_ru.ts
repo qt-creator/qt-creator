@@ -19010,16 +19010,10 @@ Rebuilding the project might help.</source>
         <translation>Не удалось найти сгенерированный заголовочный файл «%1» в модели кода.
 Пересборка проекта может помочь.</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardDialog</name>
     <message>
         <source>Qt Designer Form Class</source>
         <translation>Класс формы Qt Designer</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardPage</name>
     <message>
         <source>Class Details</source>
         <translation>Характеристики класса</translation>
@@ -19036,9 +19030,6 @@ Rebuilding the project might help.</source>
         <source>Choose a Class Name</source>
         <translation>Выбор названия класса</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorPlugin</name>
     <message>
         <source>Switch Source/Form</source>
         <translation>Переключить исходник/форму</translation>
@@ -19056,13 +19047,6 @@ Rebuilding the project might help.</source>
         <translation>Создание формы дизайнера Qt и соответствующего класса (исходный и заголовочный файлы C++) для реализации. Их можно будет добавить к существующему проекту Qt Widget.</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Класс формы Qt Designer</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormTemplateWizardPage</name>
-    <message>
         <source>Choose a Form Template</source>
         <translation>Выбор шаблона формы</translation>
     </message>
@@ -19070,13 +19054,6 @@ Rebuilding the project might help.</source>
         <source>Form Template</source>
         <translation>Шаблон формы</translation>
     </message>
-    <message>
-        <source>%1 - Error</source>
-        <translation>%1 - Ошибка</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::NewClassWidget</name>
     <message>
         <source>&amp;Class name:</source>
         <translation>&amp;Имя класса:</translation>
@@ -19141,9 +19118,6 @@ Rebuilding the project might help.</source>
         <source>Invalid form file name: &quot;%1&quot;</source>
         <translation>Недопустимое имя файла формы: «%1»</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
         <source>The class containing &quot;%1&quot; could not be found in %2.
 Please verify the #include-directives.</source>
@@ -20799,7 +20773,7 @@ when they are not required, which will improve performance in most cases.</sourc
     </message>
 </context>
 <context>
-    <name>FormEditorW</name>
+    <name>Designer</name>
     <message>
         <source>Widget box</source>
         <translation>Панель виджетов</translation>
@@ -20891,10 +20865,6 @@ when they are not required, which will improve performance in most cases.</sourc
     <message>
         <source>Preview in</source>
         <translation>Предпросмотр в</translation>
-    </message>
-    <message>
-        <source>Designer</source>
-        <translation>Дизайнер</translation>
     </message>
     <message>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>

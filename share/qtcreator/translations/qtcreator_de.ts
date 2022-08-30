@@ -3720,16 +3720,10 @@ Rebuilding the project might help.</source>
         <translation>Die automatisch erstellte Header-Datei &quot;%1&quot; konnte nicht im Codemodell gefunden werden.
 Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardDialog</name>
     <message>
         <source>Qt Designer Form Class</source>
         <translation>Qt-Designer-Formularklasse</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardPage</name>
     <message>
         <source>Class Details</source>
         <translation>Klassendetails</translation>
@@ -3746,9 +3740,6 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <source>Choose a Class Name</source>
         <translation>Name der Klasse</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorPlugin</name>
     <message>
         <source>Switch Source/Form</source>
         <translation>Zwischen Quelldatei und Formular wechseln</translation>
@@ -3766,13 +3757,6 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation>Erstellt ein Qt-Designer-Formular mit zugehörigem Klassenrumpf (bestehend aus C++-Header- und -Quelldatei) für Implementierungszwecke. Sie können Formular und Klasse zu einem existierenden Qt-Widget-Projekt hinzufügen.</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Qt-Designer-Formularklasse</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormTemplateWizardPage</name>
-    <message>
         <source>Choose a Form Template</source>
         <translation>Formularvorlage auswählen</translation>
     </message>
@@ -3780,13 +3764,6 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <source>Form Template</source>
         <translation>Formularvorlage</translation>
     </message>
-    <message>
-        <source>%1 - Error</source>
-        <translation>%1 - Fehler</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
         <source>The class containing &quot;%1&quot; could not be found in %2.
 Please verify the #include-directives.</source>
@@ -28950,7 +28927,7 @@ Dies betrifft die Haltepunkte %1</translation>
     </message>
 </context>
 <context>
-    <name>FormEditorW</name>
+    <name>Designer</name>
     <message>
         <source>Widget box</source>
         <translation>Widget-Box</translation>
@@ -29042,10 +29019,6 @@ Dies betrifft die Haltepunkte %1</translation>
     <message>
         <source>Preview in</source>
         <translation>Vorschau in</translation>
-    </message>
-    <message>
-        <source>Designer</source>
-        <translation>Designer</translation>
     </message>
     <message>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
@@ -44468,7 +44441,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Designer::Internal::NewClassWidget</name>
+    <name>Designer</name>
     <message>
         <source>&amp;Class name:</source>
         <translation>&amp;Klassenname:</translation>

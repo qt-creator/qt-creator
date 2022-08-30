@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "settingspage.h"
+#include "designertr.h"
 #include "formeditorw.h"
+#include "settingspage.h"
 
 #include <coreplugin/icontext.h>
 
@@ -47,8 +48,7 @@ void SettingsPage::finish()
 SettingsPageProvider::SettingsPageProvider()
 {
     setCategory(Designer::Constants::SETTINGS_CATEGORY);
-    setDisplayCategory(QCoreApplication::translate("Designer",
-        Designer::Constants::SETTINGS_TR_CATEGORY));
+    setDisplayCategory(Tr::tr(Designer::Constants::SETTINGS_TR_CATEGORY));
     setCategoryIcon(Utils::Icon({{":/core/images/settingscategory_design.png",
                     Utils::Theme::PanelTextColorDark}}, Utils::Icon::Tint));
 }

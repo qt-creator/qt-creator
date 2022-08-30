@@ -1,8 +1,8 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include "designertr.h"
 #include "formclasswizardpage.h"
-
 #include "formclasswizardparameters.h"
 #include "newclasswidget.h"
 
@@ -24,10 +24,10 @@ namespace Internal {
 
 FormClassWizardPage::FormClassWizardPage()
 {
-    setTitle(tr("Choose a Class Name"));
+    setTitle(Tr::tr("Choose a Class Name"));
 
     auto classGroupBox = new QGroupBox(this);
-    classGroupBox->setTitle(tr("Class"));
+    classGroupBox->setTitle(Tr::tr("Class"));
 
     m_newClassWidget = new NewClassWidget(classGroupBox);
     m_newClassWidget->setHeaderExtension(
@@ -39,7 +39,7 @@ FormClassWizardPage::FormClassWizardPage()
     connect(m_newClassWidget, &NewClassWidget::validChanged,
             this, &FormClassWizardPage::slotValidChanged);
 
-    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Class Details"));
+    setProperty(Utils::SHORT_TITLE_PROPERTY, Tr::tr("Class Details"));
 
     auto verticalLayout = new QVBoxLayout(classGroupBox);
     verticalLayout->addWidget(m_newClassWidget);
@@ -105,7 +105,7 @@ bool FormClassWizardPage::validatePage()
     QString errorMessage;
     const bool rc = m_newClassWidget->isValid(&errorMessage);
     if (!rc)
-        QMessageBox::warning(this, tr("%1 - Error").arg(title()), errorMessage);
+        QMessageBox::warning(this, Tr::tr("%1 - Error").arg(title()), errorMessage);
     return rc;
 }
 

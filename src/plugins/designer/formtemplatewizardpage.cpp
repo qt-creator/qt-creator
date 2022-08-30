@@ -1,8 +1,9 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "formtemplatewizardpage.h"
+#include "designertr.h"
 #include "formeditorw.h"
+#include "formtemplatewizardpage.h"
 
 #include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
 
@@ -60,7 +61,7 @@ FormTemplateWizardPage::FormTemplateWizardPage(QWidget * parent) :
     m_newFormWidget(QDesignerNewFormWidgetInterface::createNewFormWidget(FormEditorW::designerEditor())),
     m_templateSelected(m_newFormWidget->hasCurrentTemplate())
 {
-    setTitle(tr("Choose a Form Template"));
+    setTitle(Tr::tr("Choose a Form Template"));
     QVBoxLayout *layout = new QVBoxLayout;
 
     connect(m_newFormWidget, &QDesignerNewFormWidgetInterface::currentTemplateChanged,
@@ -70,7 +71,7 @@ FormTemplateWizardPage::FormTemplateWizardPage(QWidget * parent) :
     layout->addWidget(m_newFormWidget);
 
     setLayout(layout);
-    setProperty(Utils::SHORT_TITLE_PROPERTY, tr("Form Template"));
+    setProperty(Utils::SHORT_TITLE_PROPERTY, Tr::tr("Form Template"));
 }
 
 bool FormTemplateWizardPage::isComplete() const
@@ -91,7 +92,7 @@ bool FormTemplateWizardPage::validatePage()
     QString errorMessage;
     m_templateContents = m_newFormWidget->currentTemplate(&errorMessage);
     if (m_templateContents.isEmpty()) {
-        QMessageBox::critical(this, tr("%1 - Error").arg(title()), errorMessage);
+        QMessageBox::critical(this, Tr::tr("%1 - Error").arg(title()), errorMessage);
         return false;
     }
     wizard()->setProperty("FormContents", m_templateContents);

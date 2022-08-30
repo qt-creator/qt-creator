@@ -4096,9 +4096,6 @@ Rebuilding the project might help.</source>
         <translation>代碼模型中找不到產生的標頭 &quot;%1&quot;。
 重新建置專案可能有幫助。</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardDialog</name>
     <message>
         <source>Qt Designer Form Class</source>
         <translation>Qt 設計器表單類別</translation>
@@ -4111,9 +4108,6 @@ Rebuilding the project might help.</source>
         <source>Class Details</source>
         <translation>類別詳情</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardPage</name>
     <message>
         <source>%1 - Error</source>
         <translation>%1 - 錯誤</translation>
@@ -4126,9 +4120,6 @@ Rebuilding the project might help.</source>
         <source>Choose a Class Name</source>
         <translation>選擇類別名稱</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorPlugin</name>
     <message>
         <source>Qt Designer Form</source>
         <translation>Qt 設計師表單</translation>
@@ -4141,13 +4132,6 @@ Rebuilding the project might help.</source>
         <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
         <translation>建立 Qt 設計師表單以及對應的類別檔（包括 C++ 標頭檔與源碼檔），讓您可以新增到 Qt 元件專案中直接進行實作。</translation>
     </message>
-    <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Qt 設計師表單類別</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorW</name>
     <message>
         <source>Widget Box</source>
         <translation>元件盒</translation>
@@ -4261,38 +4245,13 @@ Rebuilding the project might help.</source>
         <translation>預覽於</translation>
     </message>
     <message>
-        <source>Designer</source>
-        <translation>設計師</translation>
-    </message>
-    <message>
         <source>The image could not be created: %1</source>
         <translation>無法建立影像：%1</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormTemplateWizardPage</name>
     <message>
         <source>Choose a Form Template</source>
         <translation>選擇表單樣本</translation>
     </message>
-    <message>
-        <source>%1 - Error</source>
-        <translation>%1 - 錯誤</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormWizardDialog</name>
-    <message>
-        <source>Qt Designer Form</source>
-        <translation>Qt 設計師表單</translation>
-    </message>
-    <message>
-        <source>Form Template</source>
-        <translation>表單樣本</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
         <source>The class containing &apos;%1&apos; could not be found in %2.
 Please verify the #include-directives.</source>
@@ -10458,7 +10417,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Designer::Internal::CppSettingsPageWidget</name>
+    <name>Designer</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -11347,7 +11306,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Designer::FormWindowEditor</name>
+    <name>Designer</name>
     <message>
         <source>untitled</source>
         <translation>未命名</translation>
@@ -13474,7 +13433,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Designer::Internal::FormEditorFactory</name>
+    <name>Designer</name>
     <message>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation>此檔案只能在&lt;b&gt;設計&lt;/b&gt;模式中編輯。</translation>
@@ -13483,9 +13442,6 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
         <source>Switch mode</source>
         <translation>切換模式</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormFileWizardDialog</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>

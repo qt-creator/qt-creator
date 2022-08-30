@@ -5452,9 +5452,6 @@ Gdb 6.7 vagy későbbi használata erősen ajánlott.</translation>
         <source>The &lt;RCC&gt; root element is missing.</source>
         <translation>Az &lt;RCC&gt; rendszergazda elem hiányzik.</translation>
     </message>
-</context>
-<context>
-    <name>Designer::FormWindowEditor</name>
     <message>
         <source>untitled</source>
         <translation>címtelen</translation>
@@ -5670,7 +5667,7 @@ A projekt újraépítése talán segít.</translation>
     </message>
 </context>
 <context>
-    <name>Designer::Internal::CppSettingsPageWidget</name>
+    <name>Designer</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -5703,16 +5700,10 @@ A projekt újraépítése talán segít.</translation>
         <source>Use Qt module name in #include-directive</source>
         <translation>Qt modulnevek használata az #include irányelvekben</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardDialog</name>
     <message>
         <source>Qt Designer Form Class</source>
         <translation>Qt Designer forma osztály</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardPage</name>
     <message>
         <source>Choose a class name</source>
         <translation>Egy osztálynév kiválasztása</translation>
@@ -5729,9 +5720,6 @@ A projekt újraépítése talán segít.</translation>
         <source>%1 - Error</source>
         <translation>%1 - Hiba</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorPlugin</name>
     <message>
         <source>Qt</source>
         <translation>Qt</translation>
@@ -5745,16 +5733,9 @@ A projekt újraépítése talán segít.</translation>
         <translation>Qt Designer forma fájl (.ui) létrehozása.</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Qt Designer forma osztály</translation>
-    </message>
-    <message>
         <source>Creates a Qt Designer form file (.ui) with a matching class.</source>
         <translation>Qt Designer forma fájl(.ui) létrehozása illeszkedő osztályokkal.</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorW</name>
     <message>
         <source>Widget Box</source>
         <translation></translation>
@@ -5864,27 +5845,13 @@ A projekt újraépítése talán segít.</translation>
         <translation>Előnézet</translation>
     </message>
     <message>
-        <source>Designer</source>
-        <translation>Tervező</translation>
-    </message>
-    <message>
         <source>The image could not be created: %1</source>
         <translation>Nem sikerült létrehozni a képet: %1</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormTemplateWizardPage</name>
     <message>
         <source>Choose a form template</source>
         <translation>Forma sablonok kiválasztása</translation>
     </message>
-    <message>
-        <source>%1 - Error</source>
-        <translation>%1 - Hiba</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormWindowFile</name>
     <message>
         <source>Error saving %1</source>
         <translation>Hiba történt a(z) %1 mentése közben</translation>
@@ -5897,16 +5864,6 @@ A projekt újraépítése talán segít.</translation>
         <source>Unable to write to %1: %2</source>
         <translation>Nem lehet a(z) %1-be írni: %2</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormWizardDialog</name>
-    <message>
-        <source>Qt Designer Form</source>
-        <translation>Qt Designer forma</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
         <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
         <translation>A(z) &apos;%1&apos; osztálydefiniciója nem található a(z) %2-ben.</translation>

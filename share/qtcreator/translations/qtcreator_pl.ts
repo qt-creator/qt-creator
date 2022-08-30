@@ -386,7 +386,7 @@
     </message>
 </context>
 <context>
-    <name>Designer::Internal::FormClassWizardPage</name>
+    <name>Designer</name>
     <message>
         <source>Class</source>
         <translation>Klasa</translation>
@@ -5303,14 +5303,11 @@ Więcej szczegółów w /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>Designer::Internal::FormClassWizardDialog</name>
+    <name>Designer</name>
     <message>
         <source>Qt Designer Form Class</source>
         <translation>Klasa formularza Qt Designer</translation>
     </message>
-</context>
-<context>
-    <name>Designer</name>
     <message>
         <source>Designer</source>
         <translation>Designer</translation>
@@ -5331,9 +5328,6 @@ Rebuilding the project might help.</source>
         <translation>Nie można odnaleźć wygenerowanego pliku nagłówkowego &quot;%1&quot; w modelu kodu.
 Spróbuj ponownie przebudować projekt.</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorPlugin</name>
     <message>
         <source>Switch Source/Form</source>
         <translation>Przełącz między źródłem a formularzem</translation>
@@ -5351,13 +5345,6 @@ Spróbuj ponownie przebudować projekt.</translation>
         <translation>Tworzy formularz Qt Designera wraz z klasą implementującą (plik nagłówkowy i źródłowy C++). Utworzony formularz i klasę można dodać do istniejącego projektu Qt Widget.</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Klasa formularza Qt Designer</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormTemplateWizardPage</name>
-    <message>
         <source>Choose a Form Template</source>
         <translation>Wybierz szablon formularza</translation>
     </message>
@@ -5365,13 +5352,6 @@ Spróbuj ponownie przebudować projekt.</translation>
         <source>Form Template</source>
         <translation>Szablon formularza</translation>
     </message>
-    <message>
-        <source>%1 - Error</source>
-        <translation>%1 - Błąd</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
         <source>The class containing &quot;%1&quot; could not be found in %2.
 Please verify the #include-directives.</source>
@@ -31430,7 +31410,7 @@ Dotyczy to następujących pułapek: %1</translation>
     </message>
 </context>
 <context>
-    <name>FormEditorW</name>
+    <name>Designer</name>
     <message>
         <source>Widget box</source>
         <translation>Panel widżetów</translation>
@@ -31522,10 +31502,6 @@ Dotyczy to następujących pułapek: %1</translation>
     <message>
         <source>Preview in</source>
         <translation>Podgląd w stylu</translation>
-    </message>
-    <message>
-        <source>Designer</source>
-        <translation>Designer</translation>
     </message>
     <message>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>

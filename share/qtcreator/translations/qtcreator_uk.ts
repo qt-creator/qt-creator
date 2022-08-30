@@ -7930,16 +7930,10 @@ Rebuilding the project might help.</source>
         <translation>Не вдалось знайти згенерований заголовочний файл форми &quot;%1&quot; в моделі коду.
 Перезбірка проекту може допомогти.</translation>
     </message>
-</context>
-<context>
-    <name>Designer::FormWindowEditor</name>
     <message>
         <source>untitled</source>
         <translation type="vanished">без назви</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::CppSettingsPageWidget</name>
     <message>
         <source>Form</source>
         <translation type="vanished">Форма</translation>
@@ -7976,24 +7970,10 @@ Rebuilding the project might help.</source>
         <source>Add Qt version #ifdef for module names</source>
         <translation type="vanished">Додавати версію Qt в #ifdef для імен модулів</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardDialog</name>
     <message>
         <source>Qt Designer Form Class</source>
         <translation>Клас форми Qt Designer</translation>
     </message>
-    <message>
-        <source>Form Template</source>
-        <translation type="vanished">Шаблон форми</translation>
-    </message>
-    <message>
-        <source>Class Details</source>
-        <translation type="vanished">Деталі класу</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardPage</name>
     <message>
         <source>Choose a Class Name</source>
         <translation>Оберіть назву класу</translation>
@@ -8010,24 +7990,10 @@ Rebuilding the project might help.</source>
         <source>%1 - Error</source>
         <translation>%1 - Помилка</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorFactory</name>
-    <message>
-        <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
-        <translation type="vanished">Це файл можна редагувати лише в режимі &lt;b&gt;дизайну&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <source>Switch Mode</source>
-        <translation type="vanished">Перемкнути режим</translation>
-    </message>
     <message>
         <source>Switch mode</source>
         <translation type="vanished">Перемкнути режим</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorPlugin</name>
     <message>
         <source>Switch Source/Form</source>
         <translation>Перемкнути код/форма</translation>
@@ -8053,134 +8019,9 @@ Rebuilding the project might help.</source>
         <translation>Створює форму Qt Designer разом з відповідним класом (файли заголовку та коду C++) з метою реалізації.. Ви можете додати форму та клас до існуючого проекту Qt Widget.</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Клас форми Qt Designer</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorW</name>
-    <message>
-        <source>Widget box</source>
-        <translation type="vanished">Панель віджетів</translation>
-    </message>
-    <message>
-        <source>Object Inspector</source>
-        <translation type="vanished">Інспектор об&apos;єктів</translation>
-    </message>
-    <message>
-        <source>Property Editor</source>
-        <translation type="vanished">Редактор властивостей</translation>
-    </message>
-    <message>
-        <source>Signals &amp;&amp; Slots Editor</source>
-        <translation type="vanished">Редактор сигналів та слотів</translation>
-    </message>
-    <message>
-        <source>Action Editor</source>
-        <translation type="vanished">Редактор дій</translation>
-    </message>
-    <message>
-        <source>Widget Box</source>
-        <translation type="vanished">Панель віджетів</translation>
-    </message>
-    <message>
-        <source>For&amp;m Editor</source>
-        <translation type="vanished">Редактор &amp;форм</translation>
-    </message>
-    <message>
-        <source>Edit Widgets</source>
-        <translation type="vanished">Редагувати віджети</translation>
-    </message>
-    <message>
-        <source>F3</source>
-        <translation type="vanished">F3</translation>
-    </message>
-    <message>
-        <source>Edit Signals/Slots</source>
-        <translation type="vanished">Редагувати сигнали/слоти</translation>
-    </message>
-    <message>
-        <source>F4</source>
-        <translation type="vanished">F4</translation>
-    </message>
-    <message>
-        <source>Edit Buddies</source>
-        <translation type="vanished">Редагувати прив&apos;язки</translation>
-    </message>
-    <message>
-        <source>Edit Tab Order</source>
-        <translation type="vanished">Редагувати порядок обходу</translation>
-    </message>
-    <message>
-        <source>Ctrl+H</source>
-        <translation type="vanished">Ctrl+H</translation>
-    </message>
-    <message>
-        <source>Meta+Shift+H</source>
-        <translation type="vanished">Meta+Shift+H</translation>
-    </message>
-    <message>
-        <source>Meta+L</source>
-        <translation type="vanished">Meta+L</translation>
-    </message>
-    <message>
-        <source>Ctrl+L</source>
-        <translation type="vanished">Ctrl+L</translation>
-    </message>
-    <message>
-        <source>Ctrl+G</source>
-        <translation type="vanished">Ctrl+G</translation>
-    </message>
-    <message>
-        <source>Meta+Shift+G</source>
-        <translation type="vanished">Meta+Shift+G</translation>
-    </message>
-    <message>
-        <source>Meta+J</source>
-        <translation type="vanished">Meta+J</translation>
-    </message>
-    <message>
-        <source>Ctrl+J</source>
-        <translation type="vanished">Ctrl+J</translation>
-    </message>
-    <message>
-        <source>Alt+Shift+R</source>
-        <translation type="vanished">Alt+Shift+R</translation>
-    </message>
-    <message>
-        <source>Switch Source/Form</source>
-        <translation type="vanished">Перемкнути код/форма</translation>
-    </message>
-    <message>
-        <source>Shift+F4</source>
-        <translation type="vanished">Shift+F4</translation>
-    </message>
-    <message>
-        <source>About Qt Designer Plugins...</source>
-        <translation type="vanished">Про додатки Qt Designer....</translation>
-    </message>
-    <message>
-        <source>Preview in</source>
-        <translation type="vanished">Попередній перегляд в</translation>
-    </message>
-    <message>
-        <source>Designer</source>
-        <translation type="vanished">Designer</translation>
-    </message>
-    <message>
-        <source>The image could not be created: %1</source>
-        <translation type="vanished">Не вдалось створити зображення: %1</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormFileWizardDialog</name>
-    <message>
         <source>Location</source>
         <translation type="vanished">Розташування</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormTemplateWizardPage</name>
     <message>
         <source>Choose a Form Template</source>
         <translation>Оберіть шаблон форми</translation>
@@ -8189,24 +8030,6 @@ Rebuilding the project might help.</source>
         <source>Form Template</source>
         <translation>Шаблон форми</translation>
     </message>
-    <message>
-        <source>%1 - Error</source>
-        <translation>%1 - Помилка</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormWizardDialog</name>
-    <message>
-        <source>Qt Designer Form</source>
-        <translation type="vanished">Форма Qt Designer</translation>
-    </message>
-    <message>
-        <source>Form Template</source>
-        <translation type="vanished">Шаблон форми</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
         <source>The class containing &apos;%1&apos; could not be found in %2.
 Please verify the #include-directives.</source>
@@ -45605,7 +45428,7 @@ The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</sour
     </message>
 </context>
 <context>
-    <name>FormEditorW</name>
+    <name>Designer</name>
     <message>
         <source>Widget box</source>
         <translation>Панель віджетів</translation>
@@ -45697,10 +45520,6 @@ The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</sour
     <message>
         <source>Preview in</source>
         <translation>Попередній перегляд в</translation>
-    </message>
-    <message>
-        <source>Designer</source>
-        <translation></translation>
     </message>
     <message>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>

@@ -1,6 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include "designertr.h"
 #include "newclasswidget.h"
 
 #include <utils/classnamevalidatinglineedit.h>
@@ -66,11 +67,11 @@ NewClassWidget::NewClassWidget(QWidget *parent) :
 
     using namespace Utils::Layouting;
     Form {
-        tr("&Class name:"), d->m_classLineEdit, br,
-        tr("&Header file:"), d->m_headerFileLineEdit, br,
-        tr("&Source file:"), d->m_sourceFileLineEdit, br,
-        tr("&Form file:"), d->m_formFileLineEdit, br,
-        tr("&Path:"), d->m_pathChooser, br,
+        Tr::tr("&Class name:"), d->m_classLineEdit, br,
+        Tr::tr("&Header file:"), d->m_headerFileLineEdit, br,
+        Tr::tr("&Source file:"), d->m_sourceFileLineEdit, br,
+        Tr::tr("&Form file:"), d->m_formFileLineEdit, br,
+        Tr::tr("&Path:"), d->m_pathChooser, br,
     }.attachTo(this, WithoutMargins);
 
     connect(d->m_classLineEdit, &ClassNameValidatingLineEdit::updateFileName,
@@ -211,21 +212,21 @@ bool NewClassWidget::isValid(QString *error) const
 
     if (!d->m_headerFileLineEdit->isValid()) {
         if (error)
-            *error = tr("Invalid header file name: \"%1\"").
+            *error = Tr::tr("Invalid header file name: \"%1\"").
                 arg(d->m_headerFileLineEdit->errorMessage());
         return false;
     }
 
     if (!d->m_sourceFileLineEdit->isValid()) {
         if (error)
-            *error = tr("Invalid source file name: \"%1\"").
+            *error = Tr::tr("Invalid source file name: \"%1\"").
                 arg(d->m_sourceFileLineEdit->errorMessage());
         return false;
     }
 
     if (!d->m_formFileLineEdit->isValid()) {
         if (error)
-            *error = tr("Invalid form file name: \"%1\"").
+            *error = Tr::tr("Invalid form file name: \"%1\"").
                 arg(d->m_formFileLineEdit->errorMessage());
         return false;
     }

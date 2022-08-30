@@ -15144,16 +15144,10 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>Designer</source>
         <translation>Designer</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardDialog</name>
     <message>
         <source>Qt Designer Form Class</source>
         <translation>Qt Designer-udformningsklasse</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardPage</name>
     <message>
         <source>Choose a Class Name</source>
         <translation>Vælg et klassenavn</translation>
@@ -15170,16 +15164,9 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>%1 - Error</source>
         <translation>%1 - fejl</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorPlugin</name>
     <message>
         <source>Switch Source/Form</source>
         <translation>Skift kilde/udformning</translation>
-    </message>
-    <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Qt Designer-udformningsklasse</translation>
     </message>
     <message>
         <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt Widget Project.</source>
@@ -15193,9 +15180,6 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>Shift+F4</source>
         <translation>Skift+F4</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormTemplateWizardPage</name>
     <message>
         <source>Choose a Form Template</source>
         <translation>Vælg en udformningsskabelon</translation>
@@ -15204,13 +15188,6 @@ Det hjælper måske at genbygge projektet.</translation>
         <source>Form Template</source>
         <translation>Udformningsskabelon</translation>
     </message>
-    <message>
-        <source>%1 - Error</source>
-        <translation>%1 - fejl</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
         <source>The class containing &quot;%1&quot; could not be found in %2.
 Please verify the #include-directives.</source>
@@ -16628,7 +16605,7 @@ når de ikke kræves, hvilket i de fleste tilfælde vil forbedre ydelsen.</trans
     </message>
 </context>
 <context>
-    <name>FormEditorW</name>
+    <name>Designer</name>
     <message>
         <source>Widget box</source>
         <translation>Widget-boks</translation>
@@ -16720,10 +16697,6 @@ når de ikke kræves, hvilket i de fleste tilfælde vil forbedre ydelsen.</trans
     <message>
         <source>Preview in</source>
         <translation>Forhåndsvis i</translation>
-    </message>
-    <message>
-        <source>Designer</source>
-        <translation>Designer</translation>
     </message>
     <message>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>

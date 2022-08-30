@@ -1,6 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include "designertr.h"
 #include "formclasswizarddialog.h"
 #include "formclasswizardpage.h"
 #include "formclasswizardparameters.h"
@@ -24,7 +25,7 @@ FormClassWizardDialog::FormClassWizardDialog(const Core::BaseFileWizardFactory *
     m_formPage(new FormTemplateWizardPage),
     m_classPage(new FormClassWizardPage)
 {
-    setWindowTitle(tr("Qt Designer Form Class"));
+    setWindowTitle(Tr::tr("Qt Designer Form Class"));
 
     setPage(FormPageId, m_formPage);
     setPage(ClassPageId, m_classPage);

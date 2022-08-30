@@ -5891,9 +5891,6 @@ Rebuilding the project might help.</source>
         <translation>Impossible de trouver l&apos;en-tête généré %1 dans le modèle de code.
 Regénérer le projet peut résoudre ce problème.</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardDialog</name>
     <message>
         <source>Qt Designer Form Class</source>
         <translation>Classe d&apos;interface graphique Qt Designer</translation>
@@ -5906,9 +5903,6 @@ Regénérer le projet peut résoudre ce problème.</translation>
         <source>Class Details</source>
         <translation>Détails de la classe</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardPage</name>
     <message>
         <source>Choose a class name</source>
         <translation type="obsolete">Choisissez un nom de classe</translation>
@@ -5929,9 +5923,6 @@ Regénérer le projet peut résoudre ce problème.</translation>
         <source>Choose a Class Name</source>
         <translation>Choisissez un nom de classe</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorPlugin</name>
     <message>
         <source>Qt</source>
         <translation type="obsolete">Qt</translation>
@@ -5961,16 +5952,9 @@ Regénérer le projet peut résoudre ce problème.</translation>
         <translation type="obsolete">Crée un fichier d&apos;interface graphique Qt Designer (.ui).</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Classe d&apos;interface graphique Qt Designer</translation>
-    </message>
-    <message>
         <source>Creates a Qt Designer form file (.ui) with a matching class.</source>
         <translation type="obsolete">Crée un fichier d&apos;interface graphique Qt Designer (.ui) avec une classe correspondante.</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorW</name>
     <message>
         <source>Widget Box</source>
         <translatorcomment>this translation must coherent with the translation of Qt Designer</translatorcomment>
@@ -6131,16 +6115,9 @@ Regénérer le projet peut résoudre ce problème.</translation>
         <translation>Aperçu dans</translation>
     </message>
     <message>
-        <source>Designer</source>
-        <translation>Designer</translation>
-    </message>
-    <message>
         <source>The image could not be created: %1</source>
         <translation>L&apos;image ne peut pas être créée : %1</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormTemplateWizardPage</name>
     <message>
         <source>Choose a form template</source>
         <translation type="obsolete">Choisir un modèle d&apos;interface graphique</translation>
@@ -6149,13 +6126,6 @@ Regénérer le projet peut résoudre ce problème.</translation>
         <source>Choose a Form Template</source>
         <translation>Choisir un modèle d&apos;interface graphique</translation>
     </message>
-    <message>
-        <source>%1 - Error</source>
-        <translation>%1 - Erreur</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormWindowFile</name>
     <message>
         <source>Error saving %1</source>
         <translation type="obsolete">Erreur lors de l&apos;enregistrement de %1</translation>
@@ -6168,20 +6138,6 @@ Regénérer le projet peut résoudre ce problème.</translation>
         <source>Unable to write to %1: %2</source>
         <translation type="obsolete">Impossible d&apos;écrire dans %1 : %2</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormWizardDialog</name>
-    <message>
-        <source>Qt Designer Form</source>
-        <translation>Interface graphique Qt Designer</translation>
-    </message>
-    <message>
-        <source>Form Template</source>
-        <translation>Modèle d&apos;interface graphique</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
         <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
         <translation type="obsolete">La déclaration de la classe %1 est introuvable dans %2.</translation>
@@ -18466,7 +18422,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Designer::Internal::CppSettingsPageWidget</name>
+    <name>Designer</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -20305,7 +20261,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Designer::FormWindowEditor</name>
+    <name>Designer</name>
     <message>
         <source>untitled</source>
         <translation>sans titre</translation>
@@ -25570,7 +25526,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Designer::Internal::FormEditorFactory</name>
+    <name>Designer</name>
     <message>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation>Ce fichier ne peut être édité qu&apos;en mode &lt;b&gt;Design&lt;/b&gt;.</translation>
@@ -25579,9 +25535,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Switch mode</source>
         <translation>Changer de mode</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormFileWizardDialog</name>
     <message>
         <source>Location</source>
         <translation>Emplacement</translation>

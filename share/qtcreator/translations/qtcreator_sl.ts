@@ -3906,10 +3906,6 @@ To lahko privede do napačnih rezultatov.</translation>
         <translation>Datoteke ni moč zapisati. Ali je disk poln?</translation>
     </message>
     <message>
-        <source>Designer</source>
-        <translation>Designer</translation>
-    </message>
-    <message>
         <source>Class Generation</source>
         <translation>Ustvarjanje razreda</translation>
     </message>
@@ -3933,9 +3929,6 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <source>Xml Editor</source>
         <translation type="obsolete">Urejevalnik XML</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardDialog</name>
     <message>
         <source>Qt Designer Form Class</source>
         <translation>Razred obrazca Qt Designer</translation>
@@ -3948,9 +3941,6 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <source>Class Details</source>
         <translation>Podrobnosti razreda</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardPage</name>
     <message>
         <source>%1 - Error</source>
         <translation>%1 - Napaka</translation>
@@ -3968,9 +3958,6 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <source>Configure...</source>
         <translation type="obsolete">Nastavitve …</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorPlugin</name>
     <message>
         <source>Qt Designer Form</source>
         <translation>Obrazec Qt Designer</translation>
@@ -3984,10 +3971,6 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <translation>Ustvari obrazec Qt Designerja, skupaj z ustreznim razredom (glavo in izvorno kodo C++) za implementacijo. Obrazec in razred lahko dodate v obstoječ projekt iz gradnikov Qt.</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Razred obrazca Qt Designer</translation>
-    </message>
-    <message>
         <source>Creates a Qt Designer form that you can add to a Qt C++ project. This is useful if you already have an existing class for the UI business logic.</source>
         <translation type="obsolete">Ustvari obrazec Qt Designerja, ki ga lahko dodate v projekt C++. To je uporabno, če že imate obstoječ razred, ki vsebuje logiko za uporabniški vmesnik.</translation>
     </message>
@@ -3995,9 +3978,6 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <source>Creates a Qt Designer form along with a matching class (C++ header and source file) for implementation purposes. You can add the form and class to an existing Qt C++ Project.</source>
         <translation type="obsolete">Ustvari obrazec Qt Designerja, skupaj z ustreznim razredom (glavo in izvorno kodo C++) za implementacijo. Obrazec in razred lahko dodate v obstoječ projekt Qt/C++.</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorW</name>
     <message>
         <source>Widget Box</source>
         <translation>Podokno z gradniki</translation>
@@ -4114,31 +4094,10 @@ Morda lahko pomaga ponovna gradnja projekta.</translation>
         <source>Ctrl+Alt+R</source>
         <translation type="obsolete">Ctrl+Alt+R</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormTemplateWizardPage</name>
     <message>
         <source>Choose a Form Template</source>
         <translation>Izberite predlogo za obrazec</translation>
     </message>
-    <message>
-        <source>%1 - Error</source>
-        <translation>%1 - Napaka</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormWizardDialog</name>
-    <message>
-        <source>Qt Designer Form</source>
-        <translation>Obrazec Qt Designer</translation>
-    </message>
-    <message>
-        <source>Form Template</source>
-        <translation>Predloga obrazca</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
         <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
         <translation>Definicije razreda »%1« ni bilo moč najti v %2.</translation>
@@ -11249,7 +11208,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Designer::Internal::CppSettingsPageWidget</name>
+    <name>Designer</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -12950,7 +12909,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>Designer::FormWindowEditor</name>
+    <name>Designer</name>
     <message>
         <source>untitled</source>
         <translation>brez naslova</translation>
@@ -16284,7 +16243,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Designer::Internal::FormEditorFactory</name>
+    <name>Designer</name>
     <message>
         <source>This file can only be edited in &lt;b&gt;Design&lt;/b&gt; mode.</source>
         <translation>Datoteko je moč urejati le v načinu &lt;b&gt;Oblikovanje&lt;/b&gt;.</translation>
@@ -16293,9 +16252,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Switch mode</source>
         <translation>Preklopi način</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormFileWizardDialog</name>
     <message>
         <source>Location</source>
         <translation>Mesto</translation>
@@ -30750,7 +30706,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Designer::Internal::FormWindowFile</name>
+    <name>Designer</name>
     <message>
         <source>Error saving %1</source>
         <translation type="obsolete">Napaka shranjevanja %1</translation>

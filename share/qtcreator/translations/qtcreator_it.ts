@@ -4119,9 +4119,6 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <source>Class Generation</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::EditorWidget</name>
     <message>
         <source>Action editor</source>
         <translation type="obsolete">Editor delle azioni</translation>
@@ -4130,16 +4127,10 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <source>Signals and slots editor</source>
         <translation type="obsolete">Editor di segnali e slot</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardDialog</name>
     <message>
         <source>Qt Designer Form Class</source>
         <translation>Classe Form di Qt Designer</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormClassWizardPage</name>
     <message>
         <source>Choose a class name</source>
         <translation>Scegli il nome della classe</translation>
@@ -4182,9 +4173,6 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <source>%1 - Error</source>
         <translation>%1 - Errore</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorPlugin</name>
     <message>
         <source>Qt</source>
         <translation>Qt</translation>
@@ -4202,13 +4190,6 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <translation>Crea un file form Qt Designer (.ui) e la relativa classe.</translation>
     </message>
     <message>
-        <source>Qt Designer Form Class</source>
-        <translation>Classe Form di Qt Designer</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormEditorW</name>
-    <message>
         <source>Designer widgetbox</source>
         <translation type="obsolete">Collezione Widget</translation>
     </message>
@@ -4219,14 +4200,6 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
     <message>
         <source>Property editor</source>
         <translation type="obsolete">Editor delle Proprietà</translation>
-    </message>
-    <message>
-        <source>Signals and slots editor</source>
-        <translation type="obsolete">Editor di segnali e slot</translation>
-    </message>
-    <message>
-        <source>Action editor</source>
-        <translation type="obsolete">Editor delle azioni</translation>
     </message>
     <message>
         <source>Widget Box</source>
@@ -4344,27 +4317,14 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <source>The image could not be created: %1</source>
         <translation>L&apos;immagine non può essere creata: %1</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormTemplateWizardPage</name>
     <message>
         <source>Choose a form template</source>
         <translation>Scegli un modello di form</translation>
     </message>
     <message>
-        <source>%1 - Error</source>
-        <translation>%1 - Errore</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::FormWindowEditor</name>
-    <message>
         <source>untitled</source>
         <translation type="obsolete">senza titolo</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormWindowFile</name>
     <message>
         <source>Error saving %1</source>
         <translation>Errore durante il salvataggio di %1</translation>
@@ -4377,16 +4337,6 @@ L&apos;utilizzo di gdb 6.7 o successivi è fortemente consigliato.</translation>
         <source>Unable to write to %1: %2</source>
         <translation>Impossibile scrivere su %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::FormWizardDialog</name>
-    <message>
-        <source>Qt Designer Form</source>
-        <translation>Form di Qt Designer</translation>
-    </message>
-</context>
-<context>
-    <name>Designer::Internal::QtCreatorIntegration</name>
     <message>
         <source>The class definition of &apos;%1&apos; could not be found in %2.</source>
         <translation>La definizione della classe &apos;%1&apos; non è stata trovata in %2.</translation>
@@ -4405,9 +4355,6 @@ La ricompilazione del progetto potrebbe aiutare.</translation>
         <source>Unable to add the method definition.</source>
         <translation>Impossibile aggiungere la definizione del metodo.</translation>
     </message>
-</context>
-<context>
-    <name>Designer::Internal::SettingsPage</name>
     <message>
         <source>Designer</source>
         <translation type="obsolete">Designer</translation>
@@ -11377,7 +11324,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Designer::Internal::CppSettingsPageWidget</name>
+    <name>Designer</name>
     <message>
         <source>Form</source>
         <translation type="unfinished"></translation>
@@ -12712,7 +12659,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Designer::FormWindowEditor</name>
+    <name>Designer</name>
     <message>
         <source>untitled</source>
         <translation type="unfinished">senza titolo</translation>

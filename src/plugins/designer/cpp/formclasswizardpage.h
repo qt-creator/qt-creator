@@ -19,8 +19,6 @@ class NewClassWidget;
 
 class FormClassWizardPage : public QWizardPage
 {
-    Q_DECLARE_TR_FUNCTIONS(Designer::Internal::FormClassWizardPage)
-
 public:
     FormClassWizardPage();
     ~FormClassWizardPage() override;
