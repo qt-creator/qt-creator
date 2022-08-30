@@ -86,6 +86,7 @@ constexpr auto armgcc_stm32f769i_freertos_json = R"({
     "label": "FreeRTOS SDK for STM32F769I-Discovery",
     "cmakeVar": "FREERTOS_DIR",
     "defaultValue": "%{QUL_BOARD_SDK_DIR}/Middlewares/Third_Party/FreeRTOS/Source",
+    "validation": "tasks.c",
     "type": "path",
     "setting": "FreeRTOSSourcePackage_STM32F7",
     "optional": false

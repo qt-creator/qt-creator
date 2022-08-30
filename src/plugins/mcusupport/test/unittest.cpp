@@ -97,6 +97,7 @@ const char freeRtosCMakeVar[]{"FREERTOS_DIR"};
 const char freeRtosEnvVar[]{"EVK_MIMXRT1170_FREERTOS_PATH"};
 const char freeRtosLabel[]{"FreeRTOS directory"};
 const char freeRtosPath[]{"/opt/freertos/default"};
+const char freeRtosDetectionPath[]{"tasks.c"};
 const char freeRtosNxpPathSuffix[]{"rtos/freertos/freertos_kernel"};
 const char freeRtosStmPathSuffix[]{"/Middlewares/Third_Party/FreeRTOS/Source"};
 const char freeRtosSetting[]{"Freertos"};
@@ -273,6 +274,7 @@ void verifyFreeRtosPackage(const McuPackagePtr &freeRtos,
                            const QString &envVar,
                            const FilePath &boardSdkDir,
                            const QString &freeRtosPath,
+                           const QString &freeRtosDetectionPath,
                            const QString &expectedSettingsKey)
 {
     QVERIFY(freeRtos);
@@ -280,6 +282,7 @@ void verifyFreeRtosPackage(const McuPackagePtr &freeRtos,
     QCOMPARE(freeRtos->cmakeVariableName(), freeRtosCMakeVar);
     QCOMPARE(freeRtos->settingsKey(), expectedSettingsKey);
     QCOMPARE(freeRtos->path().cleanPath().toString(), freeRtosPath);
+    QCOMPARE(freeRtos->detectionPath().cleanPath().toString(), freeRtosDetectionPath);
     QVERIFY(freeRtos->path().toString().startsWith(boardSdkDir.cleanPath().toString()));
 }
 
@@ -613,7 +616,7 @@ void McuSupportTest::test_createTargets()
                                           freeRtosSetting,
                                           freeRtosLabel,
                                           freeRtosPath,
-                                          "",
+                                          freeRtosDetectionPath,
                                           {},
                                           VersionDetection{},
                                           true};
@@ -665,7 +668,7 @@ void McuSupportTest::test_createPackages()
                                           freeRtosLabel,
                                           freeRtosSetting,
                                           freeRtosPath,
-                                          "",
+                                          freeRtosDetectionPath,
                                           {},
                                           VersionDetection{},
                                           true};
@@ -962,23 +965,28 @@ void McuSupportTest::test_legacy_createFreeRtosPackage_data()
     QTest::addColumn<QStringList>("versions");
     QTest::addColumn<QString>("expectedSettingsKey");
     QTest::addColumn<FilePath>("expectedPath");
+    QTest::addColumn<FilePath>("expectedDetectionPath");
 
     QTest::newRow("armgcc_nxp_1050_json")
         << armgcc_nxp_1050_json << QStringList{boardSdkVersion}
         << QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(nxp1050)
-        << FilePath::fromUserInput(boardSdkDir) / freeRtosNxpPathSuffix;
+        << FilePath::fromUserInput(boardSdkDir) / freeRtosNxpPathSuffix
+        << FilePath::fromUserInput(freeRtosDetectionPath);
     QTest::newRow("armgcc_nxp_1064_json")
         << armgcc_nxp_1064_json << QStringList{boardSdkVersion}
         << QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(nxp1064)
-        << FilePath::fromUserInput(boardSdkDir) / freeRtosNxpPathSuffix;
+        << FilePath::fromUserInput(boardSdkDir) / freeRtosNxpPathSuffix
+        << FilePath::fromUserInput(freeRtosDetectionPath);
     QTest::newRow("iar_nxp_1064_json")
         << iar_nxp_1064_json << QStringList{boardSdkVersion}
         << QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(nxp1064)
-        << FilePath::fromUserInput(boardSdkDir) / freeRtosNxpPathSuffix;
+        << FilePath::fromUserInput(boardSdkDir) / freeRtosNxpPathSuffix
+        << FilePath::fromUserInput(freeRtosDetectionPath);
     QTest::newRow("armgcc_stm32f769i_freertos_json")
         << armgcc_stm32f769i_freertos_json << QStringList{"1.16.0"}
         << QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(stm32f7)
-        << FilePath::fromUserInput(boardSdkDir) / freeRtosStmPathSuffix;
+        << FilePath::fromUserInput(boardSdkDir) / freeRtosStmPathSuffix
+        << FilePath::fromUserInput(freeRtosDetectionPath);
 }
 
 void McuSupportTest::test_legacy_createFreeRtosPackage()
@@ -987,6 +995,7 @@ void McuSupportTest::test_legacy_createFreeRtosPackage()
     QFETCH(QStringList, versions);
     QFETCH(QString, expectedSettingsKey);
     QFETCH(FilePath, expectedPath);
+    QFETCH(FilePath, expectedDetectionPath);
 
     McuTargetDescription targetDescription{parseDescriptionJson(json.toLocal8Bit())};
 
@@ -1000,6 +1009,7 @@ void McuSupportTest::test_legacy_createFreeRtosPackage()
                           targetDescription.freeRTOS.envVar,
                           boardSdkDir,
                           expectedPath.toUserOutput(),
+                          expectedDetectionPath.toUserOutput(),
                           expectedSettingsKey);
 }
 
@@ -1014,6 +1024,7 @@ void McuSupportTest::test_createFreeRtosPackage()
     QFETCH(QStringList, versions);
     QFETCH(QString, expectedSettingsKey);
     QFETCH(FilePath, expectedPath);
+    QFETCH(FilePath, expectedDetectionPath);
 
     McuTargetDescription targetDescription{parseDescriptionJson(json.toLocal8Bit())};
 
@@ -1030,6 +1041,7 @@ void McuSupportTest::test_createFreeRtosPackage()
                           targetDescription.freeRTOS.envVar,
                           boardSdkDir,
                           expectedPath.toUserOutput(),
+                          expectedDetectionPath.toUserOutput(),
                           expectedSettingsKey);
 }
 

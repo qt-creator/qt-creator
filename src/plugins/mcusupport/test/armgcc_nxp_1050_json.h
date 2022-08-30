@@ -80,6 +80,7 @@ constexpr auto armgcc_nxp_1050_json = R"({
     "freeRTOS": {
         "cmakeVar": "FREERTOS_DIR",
         "defaultValue": "%{QUL_BOARD_SDK_DIR}/rtos/freertos/freertos_kernel",
+        "validation": "tasks.c",
         "envVar": "IMXRT1050_FREERTOS_DIR",
         "label": "FreeRTOS SDK for MIMXRT1050-EVK",
         "optional": false,

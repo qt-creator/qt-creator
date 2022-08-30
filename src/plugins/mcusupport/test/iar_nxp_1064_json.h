@@ -25,6 +25,7 @@ constexpr auto iar_nxp_1064_json = R"({
     "freeRTOS": {
         "cmakeVar": "FREERTOS_DIR",
         "defaultValue": "%{QUL_BOARD_SDK_DIR}/rtos/freertos/freertos_kernel",
+        "validation": "tasks.c",
         "envVar": "IMXRT1064_FREERTOS_DIR",
         "id": "NXP_FREERTOS_DIR",
         "label": "FreeRTOS SDK for MIMXRT1064-EVK",

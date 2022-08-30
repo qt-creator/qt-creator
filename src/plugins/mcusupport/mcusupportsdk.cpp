@@ -144,7 +144,7 @@ McuPackagePtr createFreeRTOSSourcesPackage(const SettingsHandler::Ptr &settingsH
         new McuPackage(settingsHandler,
                        QString::fromLatin1("FreeRTOS Sources (%1)").arg(envVarPrefix),
                        defaultPath,
-                       {}, // detection path
+                       "tasks.c", // detection path
                        QString{Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(envVarPrefix),
                        "FREERTOS_DIR",           // cmake var
                        envVar,                   // env var
