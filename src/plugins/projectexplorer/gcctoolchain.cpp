@@ -1129,6 +1129,11 @@ static FilePaths findCompilerCandidates(const ToolchainDetector &detector,
             searchPaths << gnuSearchPathsFromRegistry();
             searchPaths << atmelSearchPathsFromRegistry();
             searchPaths << renesasRl78SearchPathsFromRegistry();
+            if (HostOsInfo::isMacHost()) {
+                searchPaths << "/opt/homebrew/opt/ccache/libexec" // homebrew arm
+                            << "/usr/local/opt/ccache/libexec"    // homebrew intel
+                            << "/opt/local/libexec/ccache"; // macports, no links are created automatically though
+            }
             if (HostOsInfo::isAnyUnixHost()) {
                 FilePath ccachePath = "/usr/lib/ccache/bin";
                 if (!ccachePath.exists())
