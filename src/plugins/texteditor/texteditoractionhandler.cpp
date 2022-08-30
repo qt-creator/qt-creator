@@ -104,6 +104,7 @@ public:
     QAction *m_undoAction = nullptr;
     QAction *m_redoAction = nullptr;
     QAction *m_copyAction = nullptr;
+    QAction *m_copyHtmlAction = nullptr;
     QAction *m_cutAction = nullptr;
     QAction *m_autoIndentAction = nullptr;
     QAction *m_autoFormatAction = nullptr;
@@ -307,6 +308,10 @@ void TextEditorActionHandlerPrivate::createActions()
             [] (TextEditorWidget *w) { w->copyLine(); }, false, tr("Copy &Line"),
             QKeySequence(tr("Ctrl+Ins")),
             G_EDIT_TEXT, advancedEditMenu);
+    m_copyHtmlAction = registerAction(COPY_WITH_HTML,
+            [] (TextEditorWidget *w) { w->copyWithHtml(); }, true, tr("Copy With Highlighting"),
+            QKeySequence(), G_EDIT_TEXT, advancedEditMenu);
+
     registerAction(ADD_CURSORS_TO_LINE_ENDS,
             [] (TextEditorWidget *w) { w->addCursorsToLineEnds(); }, false, tr("Create Cursors at Selected Line Ends"),
             QKeySequence(tr("Alt+Shift+I")),
@@ -496,6 +501,8 @@ void TextEditorActionHandlerPrivate::updateCopyAction(bool hasCopyableText)
                                 && !m_currentEditorWidget->isReadOnly());
     if (m_copyAction)
         m_copyAction->setEnabled(hasCopyableText);
+    if (m_copyHtmlAction)
+        m_copyHtmlAction->setEnabled(hasCopyableText);
 }
 
 void TextEditorActionHandlerPrivate::updateCurrentEditor(Core::IEditor *editor)

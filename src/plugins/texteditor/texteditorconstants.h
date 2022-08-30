@@ -150,6 +150,7 @@ const char MOVE_LINE_UP[]          = "TextEditor.MoveLineUp";
 const char MOVE_LINE_DOWN[]        = "TextEditor.MoveLineDown";
 const char COPY_LINE_UP[]          = "TextEditor.CopyLineUp";
 const char COPY_LINE_DOWN[]        = "TextEditor.CopyLineDown";
+const char COPY_WITH_HTML[]        = "TextEditor.CopyWithHtml";
 const char JOIN_LINES[]            = "TextEditor.JoinLines";
 const char INSERT_LINE_ABOVE[]     = "TextEditor.InsertLineAboveCurrentLine";
 const char INSERT_LINE_BELOW[]     = "TextEditor.InsertLineBelowCurrentLine";

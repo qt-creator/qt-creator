@@ -6838,6 +6838,13 @@ void TextEditorWidget::copyLine()
     copy();
 }
 
+void TextEditorWidget::copyWithHtml()
+{
+    if (!multiTextCursor().hasSelection())
+        return;
+    QGuiApplication::clipboard()->setMimeData(createMimeDataFromSelection(true));
+}
+
 void TextEditorWidgetPrivate::addCursorsToLineEnds()
 {
     MultiTextCursor multiCursor = q->multiTextCursor();
@@ -7523,6 +7530,11 @@ void TextEditorWidget::switchUtf8bom()
 
 QMimeData *TextEditorWidget::createMimeDataFromSelection() const
 {
+    return createMimeDataFromSelection(false);
+}
+
+QMimeData *TextEditorWidget::createMimeDataFromSelection(bool withHtml) const
+{
     if (multiTextCursor().hasSelection()) {
         auto mimeData = new QMimeData;
 
@@ -7530,7 +7542,7 @@ QMimeData *TextEditorWidget::createMimeDataFromSelection() const
         mimeData->setText(text);
 
         // Copy the selected text as HTML
-        {
+        if (withHtml) {
             // Create a new document from the selected text document fragment
             auto tempDocument = new QTextDocument;
             QTextCursor tempCursor(tempDocument);

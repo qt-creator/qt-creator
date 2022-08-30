@@ -347,6 +347,7 @@ public:
 
     void cutLine();
     void copyLine();
+    void copyWithHtml();
     void duplicateSelection();
     void duplicateSelectionAndComment();
     void deleteLine();
@@ -512,6 +513,7 @@ protected:
     void dragEnterEvent(QDragEnterEvent *e) override;
 
     QMimeData *createMimeDataFromSelection() const override;
+    QMimeData *createMimeDataFromSelection(bool withHtml) const;
     bool canInsertFromMimeData(const QMimeData *source) const override;
     void insertFromMimeData(const QMimeData *source) override;
     void dragLeaveEvent(QDragLeaveEvent *e) override;
