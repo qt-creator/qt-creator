@@ -4,6 +4,7 @@
 #include "perfdatareader.h"
 #include "perfprofilerconstants.h"
 #include "perfprofilerplugin.h"
+#include "perfprofilertr.h"
 #include "perfrunconfigurationaspect.h"
 #include "perfsettings.h"
 #include "perftimelinemodel.h"
@@ -58,9 +59,9 @@ PerfDataReader::PerfDataReader(QObject *parent) :
         }
         if (exitCode != 0) {
             QMessageBox::warning(Core::ICore::dialogParent(),
-                                 tr("Perf Data Parser Failed"),
-                                 tr("The Perf data parser failed to process all the samples. "
-                                    "Your trace is incomplete. The exit code was %1.")
+                                 Tr::tr("Perf Data Parser Failed"),
+                                 Tr::tr("The Perf data parser failed to process all the samples. "
+                                        "Your trace is incomplete. The exit code was %1.")
                                  .arg(exitCode));
         }
     });
@@ -84,18 +85,18 @@ PerfDataReader::PerfDataReader(QObject *parent) :
     connect(&m_input, &QProcess::errorOccurred, this, [this](QProcess::ProcessError e){
         switch (e) {
         case QProcess::FailedToStart:
-            emit processFailed(tr("perfparser failed to start."));
+            emit processFailed(Tr::tr("perfparser failed to start."));
             QMessageBox::warning(Core::ICore::dialogParent(),
-                                 tr("Perf Data Parser Failed"),
-                                 tr("Could not start the perfparser utility program. "
-                                    "Make sure a working Perf parser is available at the location "
-                                    "given by the PERFPROFILER_PARSER_FILEPATH environment "
-                                    "variable."));
+                                 Tr::tr("Perf Data Parser Failed"),
+                                 Tr::tr("Could not start the perfparser utility program. "
+                                        "Make sure a working Perf parser is available at the "
+                                        "location given by the PERFPROFILER_PARSER_FILEPATH "
+                                        "environment variable."));
             break;
         case QProcess::Crashed:
             QMessageBox::warning(Core::ICore::dialogParent(),
-                                 tr("Perf Data Parser Crashed"),
-                                 tr("This is a bug. Please report it."));
+                                 Tr::tr("Perf Data Parser Crashed"),
+                                 Tr::tr("This is a bug. Please report it."));
             break;
         case QProcess::ReadError:
             qWarning() << "Cannot receive data from perfparser";
@@ -186,13 +187,13 @@ void PerfDataReader::triggerRecordingStateChange(bool recording)
                              static_cast<qint64>(std::numeric_limits<int>::max())));
 
             Core::FutureProgress *fp = Core::ProgressManager::addTimedTask(
-                        future(), tr("Skipping Processing Delay"),
+                        future(), Tr::tr("Skipping Processing Delay"),
                         Constants::PerfProfilerTaskSkipDelay, seconds);
             fp->setToolTip(recording ?
-                               tr("Cancel this to ignore the processing delay and immediately "
-                                  "start recording.") :
-                               tr("Cancel this to ignore the processing delay and immediately "
-                                  "stop recording."));
+                               Tr::tr("Cancel this to ignore the processing delay and immediately "
+                                      "start recording.") :
+                               Tr::tr("Cancel this to ignore the processing delay and immediately "
+                                      "stop recording."));
             connect(fp, &Core::FutureProgress::canceled, this, [this, recording]() {
                 setRecording(recording);
             });
@@ -325,9 +326,9 @@ void PerfDataReader::writeChunk()
                 m_input.kill();
                 emit finished();
                 QMessageBox::warning(Core::ICore::dialogParent(),
-                                     tr("Cannot Send Data to Perf Data Parser"),
-                                     tr("The Perf data parser does not accept further input. "
-                                        "Your trace is incomplete."));
+                                     Tr::tr("Cannot Send Data to Perf Data Parser"),
+                                     Tr::tr("The Perf data parser does not accept further input. "
+                                            "Your trace is incomplete."));
             }
         }
     } else if (m_dataFinished && m_input.isWritable()) {

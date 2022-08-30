@@ -4,6 +4,7 @@
 #include "perfconfigeventsmodel.h"
 #include "perfconfigwidget.h"
 #include "perfprofilerconstants.h"
+#include "perfprofilertr.h"
 
 #include <coreplugin/messagebox.h>
 
@@ -62,20 +63,20 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, QWidget *parent)
     eventsView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     useTracePointsButton = new QPushButton(this);
-    useTracePointsButton->setText(tr("Use Trace Points"));
+    useTracePointsButton->setText(Tr::tr("Use Trace Points"));
     useTracePointsButton->setVisible(false);
     connect(useTracePointsButton, &QPushButton::pressed,
             this, &PerfConfigWidget::readTracePoints);
 
     addEventButton = new QPushButton(this);
-    addEventButton->setText(tr("Add Event"));
+    addEventButton->setText(Tr::tr("Add Event"));
     connect(addEventButton, &QPushButton::pressed, this, [this]() {
         auto model = eventsView->model();
         model->insertRow(model->rowCount());
     });
 
     removeEventButton = new QPushButton(this);
-    removeEventButton->setText(tr("Remove Event"));
+    removeEventButton->setText(Tr::tr("Remove Event"));
     connect(removeEventButton, &QPushButton::pressed, this, [this]() {
         QModelIndex index = eventsView->currentIndex();
         if (index.isValid())
@@ -83,7 +84,7 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, QWidget *parent)
     });
 
     resetButton = new QPushButton(this);
-    resetButton->setText(tr("Reset"));
+    resetButton->setText(Tr::tr("Reset"));
     connect(resetButton, &QPushButton::pressed, m_settings, &PerfSettings::resetToDefault);
 
     using namespace Layouting;
@@ -141,9 +142,9 @@ void PerfConfigWidget::apply()
 void PerfConfigWidget::readTracePoints()
 {
     QMessageBox messageBox;
-    messageBox.setWindowTitle(tr("Use Trace Points"));
+    messageBox.setWindowTitle(Tr::tr("Use Trace Points"));
     messageBox.setIcon(QMessageBox::Question);
-    messageBox.setText(tr("Replace events with trace points read from the device?"));
+    messageBox.setText(Tr::tr("Replace events with trace points read from the device?"));
     messageBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     if (messageBox.exec() == QMessageBox::Yes) {
         m_process->start();
@@ -155,8 +156,8 @@ void PerfConfigWidget::handleProcessDone()
 {
     if (m_process->error() == QProcess::FailedToStart) {
         Core::AsynchronousMessageBox::warning(
-                    tr("Cannot List Trace Points"),
-                    tr("\"perf probe -l\" failed to start. Is perf installed?"));
+                    Tr::tr("Cannot List Trace Points"),
+                    Tr::tr("\"perf probe -l\" failed to start. Is perf installed?"));
         useTracePointsButton->setEnabled(true);
         return;
     }
@@ -178,8 +179,8 @@ void PerfConfigWidget::handleProcessDone()
 
     if (tracePoints.isEmpty()) {
         Core::AsynchronousMessageBox::warning(
-                    tr("No Trace Points Found"),
-                    tr("Trace points can be defined with \"perf probe -a\"."));
+                    Tr::tr("No Trace Points Found"),
+                    Tr::tr("Trace points can be defined with \"perf probe -a\"."));
     } else {
         for (const QByteArray &event : qAsConst(tracePoints)) {
             int row = model->rowCount();

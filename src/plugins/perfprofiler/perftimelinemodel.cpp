@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "perfdatareader.h"
+#include "perfprofilertr.h"
 #include "perftimelinemodel.h"
 #include "perftimelinemodelmanager.h"
 #include "perftimelineresourcesrenderpass.h"
@@ -56,7 +57,7 @@ QVariantList PerfTimelineModel::labels() const
     QVariantList result;
 
     QVariantMap sample;
-    sample.insert(QLatin1String("description"), tr("sample collected"));
+    sample.insert(QLatin1String("description"), Tr::tr("sample collected"));
     sample.insert(QLatin1String("id"), PerfEvent::LastSpecialTypeId);
     result << sample;
 
@@ -124,7 +125,7 @@ QString prettyPrintMemory(qint64 amount)
 
 static const QByteArray &orUnknown(const QByteArray &string)
 {
-    static const QByteArray unknown = PerfTimelineModel::tr("[unknown]").toUtf8();
+    static const QByteArray unknown = Tr::tr("[unknown]").toUtf8();
     return string.isEmpty() ? unknown : string;
 }
 
@@ -139,12 +140,12 @@ QVariantMap PerfTimelineModel::details(int index) const
     int typeId = selectionId(index);
     if (isSample(index)) {
         const PerfEventType::Attribute &attribute = manager->attribute(typeId);
-        result.insert(tr("Details"), orUnknown(manager->string(attribute.name)));
-        result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index),
-                                                            manager->traceDuration()));
+        result.insert(Tr::tr("Details"), orUnknown(manager->string(attribute.name)));
+        result.insert(Tr::tr("Timestamp"), Timeline::formatTime(startTime(index),
+                                                                manager->traceDuration()));
         const int guessedFrames = -frame.numSamples;
         if (guessedFrames > 0)
-            result.insert(tr("Guessed"), tr("%n frames", nullptr, guessedFrames));
+            result.insert(Tr::tr("Guessed"), Tr::tr("%n frames", nullptr, guessedFrames));
         for (int i = 0, end = numAttributes(index); i < end; ++i) {
             const auto &name = orUnknown(manager->string(
                 manager->attribute(attributeId(index, i)).name));
@@ -153,8 +154,8 @@ QVariantMap PerfTimelineModel::details(int index) const
         if (attribute.type == PerfEventType::TypeTracepoint) {
             const PerfProfilerTraceManager::TracePoint &tracePoint
                     = manager->tracePoint(static_cast<int>(attribute.config));
-            result.insert(tr("System"), orUnknown(manager->string(tracePoint.system)));
-            result.insert(tr("Name"), orUnknown(manager->string(tracePoint.name)));
+            result.insert(Tr::tr("System"), orUnknown(manager->string(tracePoint.system)));
+            result.insert(Tr::tr("Name"), orUnknown(manager->string(tracePoint.name)));
             const QHash<qint32, QVariant> &extraData = m_extraData[index];
             for (auto it = extraData.constBegin(), end = extraData.constEnd(); it != end; ++it) {
                 result.insert(QString::fromUtf8(manager->string(it.key())),
@@ -162,58 +163,58 @@ QVariantMap PerfTimelineModel::details(int index) const
             }
         }
         if (!m_resourceBlocks.isEmpty()) {
-            result.insert(tr("Resource Usage"), prettyPrintMemory(frame.resourcePeak));
-            result.insert(tr("Resource Change"), prettyPrintMemory(frame.resourceDelta));
+            result.insert(Tr::tr("Resource Usage"), prettyPrintMemory(frame.resourcePeak));
+            result.insert(Tr::tr("Resource Change"), prettyPrintMemory(frame.resourceDelta));
         }
     } else if (typeId == PerfEvent::ThreadStartTypeId) {
-        result.insert(tr("Details"), tr("thread started"));
-        result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index),
-                                                            manager->traceDuration()));
+        result.insert(Tr::tr("Details"), Tr::tr("thread started"));
+        result.insert(Tr::tr("Timestamp"), Timeline::formatTime(startTime(index),
+                                                                manager->traceDuration()));
     } else if (typeId == PerfEvent::ThreadEndTypeId) {
-        result.insert(tr("Details"), tr("thread ended"));
-        result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index),
-                                                            manager->traceDuration()));
+        result.insert(Tr::tr("Details"), Tr::tr("thread ended"));
+        result.insert(Tr::tr("Timestamp"), Timeline::formatTime(startTime(index),
+                                                                manager->traceDuration()));
     } else if (typeId == PerfEvent::LostTypeId) {
-        result.insert(tr("Details"), tr("lost sample"));
-        result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index),
-                                                            manager->traceDuration()));
+        result.insert(Tr::tr("Details"), Tr::tr("lost sample"));
+        result.insert(Tr::tr("Timestamp"), Timeline::formatTime(startTime(index),
+                                                                manager->traceDuration()));
     } else if (typeId == PerfEvent::ContextSwitchTypeId) {
-        result.insert(tr("Details"), tr("context switch"));
-        result.insert(tr("Timestamp"), Timeline::formatTime(startTime(index),
-                                                            manager->traceDuration()));
+        result.insert(Tr::tr("Details"), Tr::tr("context switch"));
+        result.insert(Tr::tr("Timestamp"), Timeline::formatTime(startTime(index),
+                                                                manager->traceDuration()));
     } else {
         const PerfProfilerTraceManager::Symbol &symbol
                 = manager->symbol(manager->aggregateAddresses()
                                   ? typeId : manager->symbolLocation(typeId));
-        result.insert(tr("Duration"), Timeline::formatTime(duration(index)));
-        result.insert(tr("Samples"), qAbs(frame.numSamples));
-        result.insert(tr("Details"), orUnknown(manager->string(symbol.name)));
-        result.insert(tr("Binary"), orUnknown(manager->string(symbol.binary)));
+        result.insert(Tr::tr("Duration"), Timeline::formatTime(duration(index)));
+        result.insert(Tr::tr("Samples"), qAbs(frame.numSamples));
+        result.insert(Tr::tr("Details"), orUnknown(manager->string(symbol.name)));
+        result.insert(Tr::tr("Binary"), orUnknown(manager->string(symbol.binary)));
 
         const PerfEventType::Location &location = manager->location(typeId);
         QString address = QString::fromLatin1("0x%1").arg(location.address, 1, 16);
         if (frame.numSamples < 0)
-            address += tr(" (guessed from context)");
-        result.insert(tr("Address"), address);
+            address += Tr::tr(" (guessed from context)");
+        result.insert(Tr::tr("Address"), address);
 
         const QByteArray &file = manager->string(location.file);
         if (!file.isEmpty()) {
-            result.insert(tr("Source"), QString::fromLatin1("%1:%2")
+            result.insert(Tr::tr("Source"), QString::fromLatin1("%1:%2")
                           .arg(QFileInfo(QLatin1String(file)).fileName()).arg(location.line));
         } else {
-            result.insert(tr("Source"), tr("[unknown]"));
+            result.insert(Tr::tr("Source"), Tr::tr("[unknown]"));
         }
         const LocationStats &stats = locationStats(typeId);
-        result.insert(tr("Total Samples"), stats.numSamples);
-        result.insert(tr("Total Unique Samples"), stats.numUniqueSamples);
+        result.insert(Tr::tr("Total Samples"), stats.numSamples);
+        result.insert(Tr::tr("Total Unique Samples"), stats.numUniqueSamples);
         if (!m_resourceBlocks.isEmpty()) {
-            result.insert(tr("Resource Peak"), prettyPrintMemory(frame.resourcePeak));
-            result.insert(tr("Resource Change"), prettyPrintMemory(frame.resourceDelta));
+            result.insert(Tr::tr("Resource Peak"), prettyPrintMemory(frame.resourcePeak));
+            result.insert(Tr::tr("Resource Change"), prettyPrintMemory(frame.resourceDelta));
         }
     }
 
     if (frame.resourceGuesses > 0)
-        result.insert(tr("Resource Guesses"), prettyPrintMemory(frame.resourceGuesses));
+        result.insert(Tr::tr("Resource Guesses"), prettyPrintMemory(frame.resourceGuesses));
 
     return result;
 }

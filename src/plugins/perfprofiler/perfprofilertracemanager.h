@@ -18,7 +18,6 @@ namespace Internal {
 
 class PerfProfilerEventStorage : public Timeline::TraceEventStorage
 {
-    Q_DECLARE_TR_FUNCTIONS(QmlProfilerEventStorage)
 public:
     using StashFile = Timeline::TraceStashFile<PerfEvent>;
 

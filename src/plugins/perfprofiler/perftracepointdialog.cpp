@@ -1,6 +1,7 @@
 // Copyright (C) 2018 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include "perfprofilertr.h"
 #include "perftracepointdialog.h"
 
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -35,7 +36,7 @@ namespace Internal {
 PerfTracePointDialog::PerfTracePointDialog()
 {
     resize(400, 300);
-    m_label = new QLabel(tr("Run the following script as root to create trace points?"));
+    m_label = new QLabel(Tr::tr("Run the following script as root to create trace points?"));
     m_textEdit = new QTextEdit;
     m_privilegesChooser = new QComboBox;
     m_privilegesChooser->addItems({ELEVATE_METHOD_NA, ELEVATE_METHOD_PKEXEC, ELEVATE_METHOD_SUDO});
@@ -46,7 +47,7 @@ PerfTracePointDialog::PerfTracePointDialog()
         m_label,
         m_textEdit,
         Form {
-            tr("Elevate privileges using:"), m_privilegesChooser, br,
+            Tr::tr("Elevate privileges using:"), m_privilegesChooser, br,
         },
         m_buttonBox,
     }.attachTo(this);
@@ -57,7 +58,7 @@ PerfTracePointDialog::PerfTracePointDialog()
 
         m_device = DeviceKitAspect::device(kit);
         if (!m_device) {
-            m_textEdit->setPlainText(tr("Error: No device available for active target."));
+            m_textEdit->setPlainText(Tr::tr("Error: No device available for active target."));
             return;
         }
     }
@@ -72,8 +73,8 @@ PerfTracePointDialog::PerfTracePointDialog()
     if (file.open(QIODevice::ReadOnly)) {
         m_textEdit->setPlainText(QString::fromUtf8(file.readAll()));
     } else {
-        m_textEdit->setPlainText(tr("Error: Failed to load trace point script %1: %2.")
-                                         .arg(file.fileName()).arg(file.errorString()));
+        m_textEdit->setPlainText(Tr::tr("Error: Failed to load trace point script %1: %2.")
+                                 .arg(file.fileName()).arg(file.errorString()));
     }
 
     m_privilegesChooser->setCurrentText(
@@ -88,7 +89,7 @@ PerfTracePointDialog::~PerfTracePointDialog() = default;
 
 void PerfTracePointDialog::runScript()
 {
-    m_label->setText(tr("Executing script..."));
+    m_label->setText(Tr::tr("Executing script..."));
     m_textEdit->setReadOnly(true);
     m_privilegesChooser->setEnabled(false);
     m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
@@ -112,11 +113,11 @@ void PerfTracePointDialog::handleProcessDone()
     const QProcess::ProcessError error = m_process->error();
     QString message;
     if (error == QProcess::FailedToStart) {
-        message = tr("Failed to run trace point script: %1").arg(error);
+        message = Tr::tr("Failed to run trace point script: %1").arg(error);
     } else if ((m_process->exitStatus() == QProcess::CrashExit) || (m_process->exitCode() != 0)) {
-        message = tr("Failed to create trace points.");
+        message = Tr::tr("Failed to create trace points.");
     } else {
-        message = tr("Created trace points for: %1").arg(QString::fromUtf8(
+        message = Tr::tr("Created trace points for: %1").arg(QString::fromUtf8(
             m_process->readAllStandardOutput().trimmed().replace('\n', ", ")));
     }
     m_label->setText(message);

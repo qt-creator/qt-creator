@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "perfprofilerstatisticsmodel.h"
+#include "perfprofilertr.h"
 
 #include <utils/qtcassert.h>
 
@@ -11,19 +12,19 @@ namespace PerfProfiler {
 namespace Internal {
 
 static const char *headerLabels[] = {
-    QT_TRANSLATE_NOOP("PerfProfilerStatisticsView", "Address"),
-    QT_TRANSLATE_NOOP("PerfProfilerStatisticsView", "Function"),
-    QT_TRANSLATE_NOOP("PerfProfilerStatisticsView", "Source Location"),
-    QT_TRANSLATE_NOOP("PerfProfilerStatisticsView", "Binary Location"),
-    QT_TRANSLATE_NOOP("PerfProfilerStatisticsView", "Caller"),
-    QT_TRANSLATE_NOOP("PerfProfilerStatisticsView", "Callee"),
-    QT_TRANSLATE_NOOP("PerfProfilerStatisticsView", "Occurrences"),
-    QT_TRANSLATE_NOOP("PerfProfilerStatisticsView", "Occurrences in Percent"),
-    QT_TRANSLATE_NOOP("PerfProfilerStatisticsView", "Recursion in Percent"),
-    QT_TRANSLATE_NOOP("PerfProfilerStatisticsView", "Samples"),
-    QT_TRANSLATE_NOOP("PerfProfilerStatisticsView", "Samples in Percent"),
-    QT_TRANSLATE_NOOP("PerfProfilerStatisticsView", "Self Samples"),
-    QT_TRANSLATE_NOOP("PerfProfilerStatisticsView", "Self in Percent")
+    QT_TRANSLATE_NOOP("PerfProfiler", "Address"),
+    QT_TRANSLATE_NOOP("PerfProfiler", "Function"),
+    QT_TRANSLATE_NOOP("PerfProfiler", "Source Location"),
+    QT_TRANSLATE_NOOP("PerfProfiler", "Binary Location"),
+    QT_TRANSLATE_NOOP("PerfProfiler", "Caller"),
+    QT_TRANSLATE_NOOP("PerfProfiler", "Callee"),
+    QT_TRANSLATE_NOOP("PerfProfiler", "Occurrences"),
+    QT_TRANSLATE_NOOP("PerfProfiler", "Occurrences in Percent"),
+    QT_TRANSLATE_NOOP("PerfProfiler", "Recursion in Percent"),
+    QT_TRANSLATE_NOOP("PerfProfiler", "Samples"),
+    QT_TRANSLATE_NOOP("PerfProfiler", "Samples in Percent"),
+    QT_TRANSLATE_NOOP("PerfProfiler", "Self Samples"),
+    QT_TRANSLATE_NOOP("PerfProfiler", "Self in Percent")
 };
 
 Q_STATIC_ASSERT(sizeof(headerLabels) ==
@@ -102,7 +103,7 @@ QVariant PerfProfilerStatisticsModel::headerData(int section, Qt::Orientation or
     if (role != Qt::DisplayRole || orientation != Qt::Horizontal)
         return QVariant();
 
-    return tr(headerLabels[m_columns[section]]);
+    return Tr::tr(headerLabels[m_columns[section]]);
 }
 
 void PerfProfilerStatisticsMainModel::resort()

@@ -5455,7 +5455,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>PerfProfiler::Internal::PerfConfigWidget</name>
+    <name>PerfProfiler</name>
     <message>
         <source>Stack snapshot size (kB):</source>
         <translation type="unfinished"></translation>
@@ -5532,9 +5532,6 @@ Greška: %5</translation>
         <source>&quot;perf probe -l&quot; failed to start. Is perf installed?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfLoadDialog</name>
     <message>
         <source>Load Perf Trace</source>
         <translation type="unfinished"></translation>
@@ -5571,9 +5568,6 @@ Greška: %5</translation>
         <source>Choose Directory of Executable</source>
         <translation>Odaberi direktorij ili izvršavajuće</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfilerFlameGraphView</name>
     <message>
         <source>Samples</source>
         <translation>Primjeri</translation>
@@ -5614,9 +5608,6 @@ Greška: %5</translation>
         <source>Various</source>
         <translation>Razno</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfTracePointDialog</name>
     <message>
         <source>Creating Memory Trace Points</source>
         <translation type="unfinished"></translation>
@@ -28722,7 +28713,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>PerfProfiler::Internal::PerfConfigEventsModel</name>
+    <name>PerfProfiler</name>
     <message>
         <source>Event Type</source>
         <translation>Vrsta događaja</translation>
@@ -28739,9 +28730,6 @@ Rok upotrebe: %3</translation>
         <source>Result</source>
         <translation>Rezultat</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfDataReader</name>
     <message>
         <source>Perf Data Parser Failed</source>
         <translation type="unfinished"></translation>
@@ -28786,23 +28774,14 @@ Rok upotrebe: %3</translation>
         <source>The Perf data parser does not accept further input. Your trace is incomplete.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::PerfOptionsPage</name>
     <message>
         <source>CPU Usage</source>
         <translation>Korištenje CPU-a</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfProfilerFlameGraphModel</name>
     <message>
         <source>[unknown]</source>
         <translation>[nepoznato]</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::LocalPerfRecordWorker</name>
     <message>
         <source>Could not start device process.</source>
         <translation>Nije bilo moguće pokrenuti proces uređaja.</translation>
@@ -28815,23 +28794,13 @@ Rok upotrebe: %3</translation>
         <source>Make sure that you are running a recent Linux kernel and that the &quot;perf&quot; utility is available.</source>
         <translation>Provjeri, da pokrećeš najnoviji Linux kernel i da je uslužni program &quot;perf&quot; dostupan.</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfProfilerRunner</name>
     <message>
         <source>Failed to transfer Perf data to perfparser.</source>
         <translation>Neuspjelo prenošenje Perf podataka na perfparser.</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfilerStatisticsView</name>
     <message>
         <source>Address</source>
         <translation>Adresa</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>Funkcija</translation>
     </message>
     <message>
         <source>Source Location</source>
@@ -28862,10 +28831,6 @@ Rok upotrebe: %3</translation>
         <translation>Rekurzije u postocima</translation>
     </message>
     <message>
-        <source>Samples</source>
-        <translation>Primjeri</translation>
-    </message>
-    <message>
         <source>Samples in Percent</source>
         <translation>Primjeri u postocima</translation>
     </message>
@@ -28877,9 +28842,6 @@ Rok upotrebe: %3</translation>
         <source>Self in Percent</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfProfilerTool</name>
     <message>
         <source>Performance Analyzer Options</source>
         <translation>Opcije analizatora preformance</translation>
@@ -29008,9 +28970,6 @@ Rok upotrebe: %3</translation>
         <source>Processing delay: %1.%2s</source>
         <translation>Obrađivanje kašnjenja: %1.%2s</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfProfilerTraceFile</name>
     <message>
         <source>Invalid data format</source>
         <translation>Neispravni format podataka</translation>
@@ -29048,7 +29007,7 @@ Rok upotrebe: %3</translation>
     </message>
 </context>
 <context>
-    <name>PerfProfiler::Internal::PerfProfilerTraceManager</name>
+    <name>PerfProfiler</name>
     <message>
         <source>Thread started</source>
         <translation type="unfinished"></translation>
@@ -29073,23 +29032,13 @@ Rok upotrebe: %3</translation>
         <source>Saving Trace Data</source>
         <translation>Spremanje Trace podataka</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::PerfRunConfigurationAspect</name>
     <message>
         <source>Performance Analyzer Settings</source>
         <translation>Postavke za analizatora preformance</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfTimelineModel</name>
     <message>
         <source>sample collected</source>
         <translation>primjer prikupljen</translation>
-    </message>
-    <message>
-        <source>[unknown]</source>
-        <translation>[nepoznato]</translation>
     </message>
     <message>
         <source>Details</source>
@@ -29148,24 +29097,8 @@ Rok upotrebe: %3</translation>
         <translation>Trajanje</translation>
     </message>
     <message>
-        <source>Samples</source>
-        <translation>Primjeri</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation>Binarno</translation>
-    </message>
-    <message>
         <source> (guessed from context)</source>
         <translation> (procijenjeno iz konteksta)</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresa</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation>Izvor</translation>
     </message>
     <message>
         <source>Total Samples</source>

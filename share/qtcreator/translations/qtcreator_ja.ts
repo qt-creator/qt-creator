@@ -47617,7 +47617,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>PerfProfiler::Internal::PerfConfigWidget</name>
+    <name>PerfProfiler</name>
     <message>
         <source>Additional arguments:</source>
         <translation>追加の引数:</translation>
@@ -47626,9 +47626,6 @@ Output:
         <source>Reset</source>
         <translation>リセット</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfLoadDialog</name>
     <message>
         <source>&amp;Browse...</source>
         <translation type="unfinished">参照(&amp;B)...</translation>
@@ -47887,7 +47884,7 @@ Output:
     <name>Tracing</name>
 </context>
 <context>
-    <name>PerfProfilerFlameGraphView</name>
+    <name>PerfProfiler</name>
     <message>
         <source>Function</source>
         <translation>関数</translation>
@@ -52894,28 +52891,18 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>PerfProfiler::Internal::PerfConfigEventsModel</name>
+    <name>PerfProfiler</name>
     <message>
         <source>Result</source>
         <translation>結果</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfProfilerFlameGraphModel</name>
     <message>
         <source>[unknown]</source>
         <translation>[不明]</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfilerStatisticsView</name>
     <message>
         <source>Address</source>
         <translation>アドレス</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>関数</translation>
     </message>
     <message>
         <source>Caller</source>
@@ -52929,9 +52916,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Occurrences</source>
         <translation>出現箇所</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfProfilerTool</name>
     <message>
         <source>Show Full Range</source>
         <translation>全体を表示</translation>
@@ -52964,9 +52948,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
         <source>Reset Flame Graph</source>
         <translation type="unfinished">フレームグラフをリセットする</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfProfilerTraceManager</name>
     <message>
         <source>Invalid</source>
         <translation>無効</translation>
@@ -52978,13 +52959,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     <message>
         <source>Saving Trace Data</source>
         <translation>トレースデータの保存中</translation>
-    </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfTimelineModel</name>
-    <message>
-        <source>[unknown]</source>
-        <translation>[不明]</translation>
     </message>
     <message>
         <source>Details</source>
@@ -53005,18 +52979,6 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     <message>
         <source>Duration</source>
         <translation>持続時間</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation>2進数</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>アドレス</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation>ソース</translation>
     </message>
 </context>
 <context>

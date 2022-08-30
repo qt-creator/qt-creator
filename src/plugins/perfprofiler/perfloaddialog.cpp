@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "perfloaddialog.h"
-
 #include "perfprofilerconstants.h"
+#include "perfprofilertr.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kit.h>
@@ -28,20 +28,20 @@ namespace Internal {
 PerfLoadDialog::PerfLoadDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("Load Perf Trace"));
+    setWindowTitle(Tr::tr("Load Perf Trace"));
     resize(710, 164);
 
-    auto label1 = new QLabel(tr("&Trace file:"));
+    auto label1 = new QLabel(Tr::tr("&Trace file:"));
     m_traceFileLineEdit = new QLineEdit(this);
     label1->setBuddy(m_traceFileLineEdit);
-    auto browseTraceFileButton = new QPushButton(tr("&Browse..."));
+    auto browseTraceFileButton = new QPushButton(Tr::tr("&Browse..."));
 
-    auto label2 = new QLabel(tr("Directory of &executable:"));
+    auto label2 = new QLabel(Tr::tr("Directory of &executable:"));
     m_executableDirLineEdit = new QLineEdit(this);
     label2->setBuddy(m_executableDirLineEdit);
-    auto browseExecutableDirButton = new QPushButton(tr("B&rowse..."));
+    auto browseExecutableDirButton = new QPushButton(Tr::tr("B&rowse..."));
 
-    auto label3 = new QLabel(tr("Kit:"));
+    auto label3 = new QLabel(Tr::tr("Kit:"));
     m_kitChooser = new ProjectExplorer::KitChooser(this);
     m_kitChooser->populate();
 
@@ -90,8 +90,8 @@ ProjectExplorer::Kit *PerfLoadDialog::kit() const
 void PerfLoadDialog::on_browseTraceFileButton_pressed()
 {
     FilePath filePath = FileUtils::getOpenFilePath(
-                this, tr("Choose Perf Trace"), {},
-                tr("Perf traces (*%1)").arg(Constants::TraceFileExtension));
+                this, Tr::tr("Choose Perf Trace"), {},
+                Tr::tr("Perf traces (*%1)").arg(Constants::TraceFileExtension));
     if (filePath.isEmpty())
         return;
 
@@ -101,7 +101,7 @@ void PerfLoadDialog::on_browseTraceFileButton_pressed()
 void PerfLoadDialog::on_browseExecutableDirButton_pressed()
 {
     FilePath filePath = FileUtils::getExistingDirectory(
-                this, tr("Choose Directory of Executable"));
+                this, Tr::tr("Choose Directory of Executable"));
     if (filePath.isEmpty())
         return;
 

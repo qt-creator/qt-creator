@@ -3,6 +3,7 @@
 
 #include "perfprofilerconstants.h"
 #include "perfprofilerplugin.h"
+#include "perfprofilertr.h"
 #include "perfprofilertracefile.h"
 
 #include <app/app_version.h>
@@ -246,12 +247,12 @@ void PerfProfilerTraceFile::readFromDevice()
         } else if (strncmp(magic.data(), Constants::PerfZqfileMagic, magicSize) == 0) {
             m_compressed = true;
         } else {
-            fail(tr("Invalid data format. The trace file's identification string is \"%1\"."
-                    "An acceptable trace file should have \"%2\". You cannot read trace files "
-                    "generated with older versions of %3.")
-                     .arg(QString::fromLatin1(magic))
-                     .arg(QString::fromLatin1(Constants::PerfZqfileMagic)
-                     .arg(Core::Constants::IDE_DISPLAY_NAME)));
+            fail(Tr::tr("Invalid data format. The trace file's identification string is \"%1\"."
+                        "An acceptable trace file should have \"%2\". You cannot read trace files "
+                        "generated with older versions of %3.")
+                 .arg(QString::fromLatin1(magic))
+                 .arg(QString::fromLatin1(Constants::PerfZqfileMagic))
+                 .arg(Core::Constants::IDE_DISPLAY_NAME));
             return;
         }
 
@@ -260,10 +261,10 @@ void PerfProfilerTraceFile::readFromDevice()
 
         if (m_dataStreamVersion < 0
                 || m_dataStreamVersion > QDataStream::Qt_DefaultCompiledVersion) {
-            fail(tr("Invalid data format. The trace file was written with data stream version %1. "
-                    "We can read at most version %2. Please use a newer version of Qt.")
-                     .arg(m_dataStreamVersion)
-                     .arg(qint32(QDataStream::Qt_DefaultCompiledVersion)));
+            fail(Tr::tr("Invalid data format. The trace file was written with data stream version %1. "
+                        "We can read at most version %2. Please use a newer version of Qt.")
+                 .arg(m_dataStreamVersion)
+                 .arg(qint32(QDataStream::Qt_DefaultCompiledVersion)));
             return;
         }
     }

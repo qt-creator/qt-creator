@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "perfprofilerflamegraphmodel.h"
+#include "perfprofilertr.h"
 
 #include <QFileInfo>
 #include <QQueue>
@@ -143,7 +144,7 @@ int PerfProfilerFlameGraphModel::columnCount(const QModelIndex &parent) const
 
 static const QByteArray &orUnknown(const QByteArray &string)
 {
-    static const QByteArray unknown = PerfProfilerFlameGraphModel::tr("[unknown]").toUtf8();
+    static const QByteArray unknown = Tr::tr("[unknown]").toUtf8();
     return string.isEmpty() ? unknown : string;
 }
 

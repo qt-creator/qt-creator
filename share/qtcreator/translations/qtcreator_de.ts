@@ -43286,7 +43286,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>PerfProfiler::Internal::PerfConfigWidget</name>
+    <name>PerfProfiler</name>
     <message>
         <source>Stack snapshot size (kB):</source>
         <translation>Größe des Stack-Abbilds (kB):</translation>
@@ -43363,9 +43363,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <source>Sample period:</source>
         <translation>Aufnahmehäufigkeit:</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfLoadDialog</name>
     <message>
         <source>Load Perf Trace</source>
         <translation>Perf-Trace laden</translation>
@@ -43402,9 +43399,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <source>Directory of &amp;executable:</source>
         <translation>Verzeichnis der &amp;ausführbaren Datei:</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfilerFlameGraphView</name>
     <message>
         <source>Samples</source>
         <translation>Samples</translation>
@@ -43445,9 +43439,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <source>Various</source>
         <translation>Verschiedene</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfTracePointDialog</name>
     <message>
         <source>Run the following script as root to create trace points?</source>
         <translation>Soll das folgende Skript als root ausgeführt werden, um Tracepoints zu erzeugen?</translation>
@@ -43925,7 +43916,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>PerfProfiler::Internal::PerfConfigEventsModel</name>
+    <name>PerfProfiler</name>
     <message>
         <source>Event Type</source>
         <translation>Ereignistyp</translation>
@@ -43942,9 +43933,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <source>Result</source>
         <translation>Ergebnis</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfDataReader</name>
     <message>
         <source>Perf Data Parser Failed</source>
         <translation>Perf-Daten konnten nicht ausgewertet werden</translation>
@@ -43989,30 +43977,17 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <source>The Perf data parser does not accept further input. Your trace is incomplete.</source>
         <translation>Der Perf Daten-Parser nimmt keine weiteren Eingabedaten an. Ihr Trace ist unvollständig.</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::PerfOptionsPage</name>
     <message>
         <source>CPU Usage</source>
         <translation>Prozessorauslastung</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfProfilerFlameGraphModel</name>
     <message>
         <source>[unknown]</source>
         <translation>[unbekannt]</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfilerStatisticsView</name>
     <message>
         <source>Address</source>
         <translation>Adresse</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>Funktion</translation>
     </message>
     <message>
         <source>Source Location</source>
@@ -44041,10 +44016,6 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     <message>
         <source>Recursion in Percent</source>
         <translation>Rekursion in Prozent</translation>
-    </message>
-    <message>
-        <source>Samples</source>
-        <translation>Samples</translation>
     </message>
     <message>
         <source>Samples in Percent</source>
@@ -44506,7 +44477,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>PerfProfiler::Internal::PerfProfilerRunner</name>
+    <name>PerfProfiler</name>
     <message>
         <source>Failed to transfer Perf data to perfparser.</source>
         <translation>Perf-Daten konnten nicht zum perfparser übertragen werden.</translation>
@@ -44543,7 +44514,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>PerfProfiler::Internal::LocalPerfRecordWorker</name>
+    <name>PerfProfiler</name>
     <message>
         <source>Could not start device process.</source>
         <translation>Der Prozess auf dem Gerät konnte nicht gestartet werden.</translation>
@@ -44556,9 +44527,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Make sure that you are running a recent Linux kernel and that the &quot;perf&quot; utility is available.</source>
         <translation>Stellen Sie sicher, dass Sie einen aktuellen Linux-Kernel verwenden und das Programm &quot;perf&quot; verfügbar ist.</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfProfilerTool</name>
     <message>
         <source>Performance Analyzer Options</source>
         <translation>Einstellungen zur Leistungsanalyse</translation>
@@ -44679,9 +44647,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Processing delay: %1.%2s</source>
         <translation>Verarbeitungsverzögerung: %1,%2s</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfProfilerTraceManager</name>
     <message>
         <source>Thread started</source>
         <translation>Thread gestartet</translation>
@@ -44710,23 +44675,13 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Saving Trace Data</source>
         <translation>Speichere Trace-Daten</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::PerfRunConfigurationAspect</name>
     <message>
         <source>Performance Analyzer Settings</source>
         <translation>Einstellungen zur Leistungsanalyse</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfTimelineModel</name>
     <message>
         <source>sample collected</source>
         <translation>Sample aufgezeichnet</translation>
-    </message>
-    <message>
-        <source>[unknown]</source>
-        <translation>[unbekannt]</translation>
     </message>
     <message>
         <source>Details</source>
@@ -44773,24 +44728,8 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>Dauer</translation>
     </message>
     <message>
-        <source>Samples</source>
-        <translation>Samples</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation>Binärdatei</translation>
-    </message>
-    <message>
         <source> (guessed from context)</source>
         <translation> (aus dem Kontext geschlossen)</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresse</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation>Quelltext</translation>
     </message>
     <message>
         <source>Total Samples</source>

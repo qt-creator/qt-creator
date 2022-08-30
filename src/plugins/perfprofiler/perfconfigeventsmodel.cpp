@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "perfconfigeventsmodel.h"
+#include "perfprofilertr.h"
 
 #include <utils/algorithm.h>
 
@@ -165,10 +166,10 @@ QVariant PerfConfigEventsModel::headerData(int section, Qt::Orientation orientat
         return QVariant();
 
     switch (section) {
-    case ColumnEventType: return tr("Event Type");
-    case ColumnSubType:   return tr("Counter");
-    case ColumnOperation: return tr("Operation");
-    case ColumnResult:    return tr("Result");
+    case ColumnEventType: return Tr::tr("Event Type");
+    case ColumnSubType:   return Tr::tr("Counter");
+    case ColumnOperation: return Tr::tr("Operation");
+    case ColumnResult:    return Tr::tr("Result");
     default:              return QVariant();
     }
 

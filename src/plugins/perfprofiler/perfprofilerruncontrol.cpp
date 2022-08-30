@@ -108,10 +108,10 @@ public:
             // The terminate() below will frequently lead to QProcess::Crashed. We're not interested
             // in that. FailedToStart is the only actual failure.
             if (m_process->error() == QProcess::FailedToStart) {
-                const QString msg = tr("Perf Process Failed to Start");
+                const QString msg = Tr::tr("Perf Process Failed to Start");
                 QMessageBox::warning(Core::ICore::dialogParent(), msg,
-                                     tr("Make sure that you are running a recent Linux kernel and "
-                                        "that the \"perf\" utility is available."));
+                                     Tr::tr("Make sure that you are running a recent Linux kernel "
+                                            "and that the \"perf\" utility is available."));
                 reportFailure(msg);
                 return;
             }
@@ -192,7 +192,7 @@ void PerfProfilerRunner::start()
         });
         connect(recorder, &QtcProcess::readyReadStandardOutput, this, [this, reader, recorder] {
             if (!reader->feedParser(recorder->readAllStandardOutput()))
-                reportFailure(tr("Failed to transfer Perf data to perfparser."));
+                reportFailure(Tr::tr("Failed to transfer Perf data to perfparser."));
         });
     }
 

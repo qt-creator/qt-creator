@@ -3,6 +3,7 @@
 
 #include "perfprofilerconstants.h"
 #include "perfprofilerplugin.h"
+#include "perfprofilertr.h"
 #include "perfrunconfigurationaspect.h"
 #include "perfsettings.h"
 
@@ -15,8 +16,7 @@ PerfRunConfigurationAspect::PerfRunConfigurationAspect(ProjectExplorer::Target *
     setProjectSettings(new PerfSettings(target));
     setGlobalSettings(Internal::PerfProfilerPlugin::globalSettings());
     setId(Constants::PerfSettingsId);
-    setDisplayName(QCoreApplication::translate("PerfProfiler::PerfRunConfigurationAspect",
-                                               "Performance Analyzer Settings"));
+    setDisplayName(Tr::tr("Performance Analyzer Settings"));
     setUsingGlobalSettings(true);
     resetProjectToGlobalSettings();
     setConfigWidgetCreator([this] { return new Debugger::AnalyzerRunConfigWidget(this); });

@@ -28720,7 +28720,7 @@ If set to false, the target will be moved straight to the current mouse position
     </message>
 </context>
 <context>
-    <name>PerfProfiler::Internal::LocalPerfRecordWorker</name>
+    <name>PerfProfiler</name>
     <message>
         <source>Could not start device process.</source>
         <translation>Не удалось запустить процесс устройства.</translation>
@@ -28733,9 +28733,6 @@ If set to false, the target will be moved straight to the current mouse position
         <source>Make sure that you are running a recent Linux kernel and that the &quot;perf&quot; utility is available.</source>
         <translation>Убедитесь, что используете свежую версию ядра Linux, а также в наличии программы «perf».</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfConfigEventsModel</name>
     <message>
         <source>Event Type</source>
         <translation>Тип события</translation>
@@ -28752,9 +28749,6 @@ If set to false, the target will be moved straight to the current mouse position
         <source>Result</source>
         <translation>Результат</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfConfigWidget</name>
     <message>
         <source>Stack snapshot size (kB):</source>
         <translatorcomment>интресно, тут 1000 байт или 1 килобайт?</translatorcomment>
@@ -28833,9 +28827,6 @@ If set to false, the target will be moved straight to the current mouse position
         <source>&quot;perf probe -l&quot; failed to start. Is perf installed?</source>
         <translation>Не удалось запустить «perf probe -l». Установлен perf?</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfDataReader</name>
     <message>
         <source>Perf Data Parser Failed</source>
         <translation>Не удалось разобрать данные Perf</translation>
@@ -28880,9 +28871,6 @@ If set to false, the target will be moved straight to the current mouse position
         <source>The Perf data parser does not accept further input. Your trace is incomplete.</source>
         <translation>Обработчик данных Perf больше не поддерживает ввод. Трассировка не полная.</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfLoadDialog</name>
     <message>
         <source>Load Perf Trace</source>
         <translation>Загрузка трассировки Perf</translation>
@@ -28919,23 +28907,14 @@ If set to false, the target will be moved straight to the current mouse position
         <source>Choose Directory of Executable</source>
         <translation>Выбор каталога приложения</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfProfilerFlameGraphModel</name>
     <message>
         <source>[unknown]</source>
         <translation>[неизвестная]</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfProfilerRunner</name>
     <message>
         <source>Failed to transfer Perf data to perfparser.</source>
         <translation>Не удалось передать данные Perf в perfparser.</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfProfilerTool</name>
     <message>
         <source>Performance Analyzer Options</source>
         <translation>Параметры анализатора производительности</translation>
@@ -29066,9 +29045,6 @@ You might find further explanations in the Application Output view.</source>
         <source>Processing delay: %1.%2s</source>
         <translation>Задержка обработки: %1.%2 сек</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfProfilerTraceFile</name>
     <message>
         <source>Invalid data format. The trace file&apos;s identification string is &quot;%1&quot;.An acceptable trace file should have &quot;%2&quot;. You cannot read trace files generated with older versions of Qt Creator.</source>
         <translation>Неверный формат данных. У файла трассировки задана строка идентификации «%1». А допустимой является «%2». Нельзя читать файлы трассировки, созданные старыми версиями Qt Creator.</translation>
@@ -29077,9 +29053,6 @@ You might find further explanations in the Application Output view.</source>
         <source>Invalid data format. The trace file was written with data stream version %1. We can read at most version %2. Please use a newer version of Qt.</source>
         <translation>Неверный формат данных. Файл трассировки был записан потоком данных версии %1, а поддерживается максимум %2. Используйте более позднюю версию Qt.</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfProfilerTraceManager</name>
     <message>
         <source>Thread started</source>
         <translation>Поток запущен</translation>
@@ -29112,16 +29085,9 @@ You might find further explanations in the Application Output view.</source>
         <source>Saving Trace Data</source>
         <translation>Сохранение данных трассировки</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfTimelineModel</name>
     <message>
         <source>sample collected</source>
         <translation>сделан семпл</translation>
-    </message>
-    <message>
-        <source>[unknown]</source>
-        <translation>[неизвестная]</translation>
     </message>
     <message>
         <source>Details</source>
@@ -29211,9 +29177,6 @@ You might find further explanations in the Application Output view.</source>
         <source>Resource Guesses</source>
         <translation>Оценка ресурсов</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::Internal::PerfTracePointDialog</name>
     <message>
         <source>Creating Memory Trace Points</source>
         <translation>Создание точек трассировки памяти</translation>
@@ -29250,38 +29213,17 @@ You might find further explanations in the Application Output view.</source>
         <source>Failed to run trace point script: %1</source>
         <translation>Не удалось запустить скрипт: %1</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::PerfOptionsPage</name>
     <message>
         <source>CPU Usage</source>
         <translation>Загрузка CPU</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfiler::PerfRunConfigurationAspect</name>
     <message>
         <source>Performance Analyzer Settings</source>
         <translation>Настройки анализатора производительности</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfilerFlameGraphView</name>
-    <message>
-        <source>Samples</source>
-        <translation>Семплы</translation>
-    </message>
     <message>
         <source>Function</source>
         <translation>Функция</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation>Источник</translation>
-    </message>
-    <message>
-        <source>Binary</source>
-        <translation>Двоичный</translation>
     </message>
     <message>
         <source>Allocations</source>
@@ -29308,16 +29250,9 @@ You might find further explanations in the Application Output view.</source>
         <source>Various</source>
         <translation>Разное</translation>
     </message>
-</context>
-<context>
-    <name>PerfProfilerStatisticsView</name>
     <message>
         <source>Address</source>
         <translation>Адрес</translation>
-    </message>
-    <message>
-        <source>Function</source>
-        <translation>Функция</translation>
     </message>
     <message>
         <source>Source Location</source>
@@ -29346,10 +29281,6 @@ You might find further explanations in the Application Output view.</source>
     <message>
         <source>Recursion in Percent</source>
         <translation>Рекурсия в процентах</translation>
-    </message>
-    <message>
-        <source>Samples</source>
-        <translation>Семплы</translation>
     </message>
     <message>
         <source>Samples in Percent</source>

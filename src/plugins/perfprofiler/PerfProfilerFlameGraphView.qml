@@ -24,24 +24,24 @@ FlameGraphView {
     ]
 
     trRoleNames: [
-        PerfProfilerFlameGraphModel.SamplesRole,                      qsTr("Samples"),
-        PerfProfilerFlameGraphModel.FunctionRole,                     qsTr("Function"),
-        PerfProfilerFlameGraphModel.SourceFileRole,                   qsTr("Source"),
-        PerfProfilerFlameGraphModel.ElfFileRole,                      qsTr("Binary"),
-        PerfProfilerFlameGraphModel.ResourceAllocationsRole,          qsTr("Allocations"),
-        PerfProfilerFlameGraphModel.ObservedResourceAllocationsRole,  qsTr(" observed"),
-        PerfProfilerFlameGraphModel.LostResourceRequestsRole,         qsTr(" guessed"),
-        PerfProfilerFlameGraphModel.ResourceReleasesRole,             qsTr("Releases"),
-        PerfProfilerFlameGraphModel.ObservedResourceReleasesRole,     qsTr(" observed"),
-        PerfProfilerFlameGraphModel.GuessedResourceReleasesRole,      qsTr(" guessed"),
-        PerfProfilerFlameGraphModel.ResourcePeakRole,                 qsTr("Peak Usage")
+        PerfProfilerFlameGraphModel.SamplesRole,                      qsTranslate("PerfProfiler", "Samples"),
+        PerfProfilerFlameGraphModel.FunctionRole,                     qsTranslate("PerfProfiler", "Function"),
+        PerfProfilerFlameGraphModel.SourceFileRole,                   qsTranslate("PerfProfiler", "Source"),
+        PerfProfilerFlameGraphModel.ElfFileRole,                      qsTranslate("PerfProfiler", "Binary"),
+        PerfProfilerFlameGraphModel.ResourceAllocationsRole,          qsTranslate("PerfProfiler", "Allocations"),
+        PerfProfilerFlameGraphModel.ObservedResourceAllocationsRole,  qsTranslate("PerfProfiler", " observed"),
+        PerfProfilerFlameGraphModel.LostResourceRequestsRole,         qsTranslate("PerfProfiler", " guessed"),
+        PerfProfilerFlameGraphModel.ResourceReleasesRole,             qsTranslate("PerfProfiler", "Releases"),
+        PerfProfilerFlameGraphModel.ObservedResourceReleasesRole,     qsTranslate("PerfProfiler", " observed"),
+        PerfProfilerFlameGraphModel.GuessedResourceReleasesRole,      qsTranslate("PerfProfiler", " guessed"),
+        PerfProfilerFlameGraphModel.ResourcePeakRole,                 qsTranslate("PerfProfiler", "Peak Usage")
     ].reduce(toMap, {})
 
     details: function(flameGraph) {
         var model = [];
         if (!flameGraph.dataValid) {
             model.push(trRoleNames[PerfProfilerFlameGraphModel.FunctionRole]);
-            model.push(qsTr("Various"));
+            model.push(qsTranslate("PerfProfiler", "Various"));
         } else {
             function addDetail(role, format) { root.addDetail(role, format, model, flameGraph); }
 

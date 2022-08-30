@@ -64,30 +64,30 @@ PerfProfilerTool::PerfProfilerTool()
     m_zoomControl = new Timeline::TimelineZoomControl(this);
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     ActionContainer *options = ActionManager::createMenu(Constants::PerfOptionsMenuId);
-    options->menu()->setTitle(tr("Performance Analyzer Options"));
+    options->menu()->setTitle(Tr::tr("Performance Analyzer Options"));
     menu->addMenu(options, Debugger::Constants::G_ANALYZER_OPTIONS);
     options->menu()->setEnabled(true);
 
     const Core::Context globalContext(Core::Constants::C_GLOBAL);
-    m_loadPerfData = new QAction(tr("Load perf.data File"), options);
+    m_loadPerfData = new QAction(Tr::tr("Load perf.data File"), options);
     Core::Command *command = Core::ActionManager::registerAction(
                 m_loadPerfData, Constants::PerfProfilerTaskLoadPerf, globalContext);
     connect(m_loadPerfData, &QAction::triggered, this, &PerfProfilerTool::showLoadPerfDialog);
     options->addAction(command);
 
-    m_loadTrace = new QAction(tr("Load Trace File"), options);
+    m_loadTrace = new QAction(Tr::tr("Load Trace File"), options);
     command = Core::ActionManager::registerAction(m_loadTrace, Constants::PerfProfilerTaskLoadTrace,
                                                   globalContext);
     connect(m_loadTrace, &QAction::triggered, this, &PerfProfilerTool::showLoadTraceDialog);
     options->addAction(command);
 
-    m_saveTrace = new QAction(tr("Save Trace File"), options);
+    m_saveTrace = new QAction(Tr::tr("Save Trace File"), options);
     command = Core::ActionManager::registerAction(m_saveTrace, Constants::PerfProfilerTaskSaveTrace,
                                                   globalContext);
     connect(m_saveTrace, &QAction::triggered, this, &PerfProfilerTool::showSaveTraceDialog);
     options->addAction(command);
 
-    m_limitToRange = new QAction(tr("Limit to Range Selected in Timeline"), options);
+    m_limitToRange = new QAction(Tr::tr("Limit to Range Selected in Timeline"), options);
     command = Core::ActionManager::registerAction(m_limitToRange, Constants::PerfProfilerTaskLimit,
                                                                  globalContext);
     connect(m_limitToRange, &QAction::triggered, this, [this]() {
@@ -97,7 +97,7 @@ PerfProfilerTool::PerfProfilerTool()
     });
     options->addAction(command);
 
-    m_showFullRange = new QAction(tr("Show Full Range"), options);
+    m_showFullRange = new QAction(Tr::tr("Show Full Range"), options);
     command = Core::ActionManager::registerAction(m_showFullRange,
                                                   Constants::PerfProfilerTaskFullRange,
                                                   globalContext);
@@ -106,11 +106,11 @@ PerfProfilerTool::PerfProfilerTool()
     });
     options->addAction(command);
 
-    QAction *tracePointsAction = new QAction(tr("Create Memory Trace Points"), options);
+    QAction *tracePointsAction = new QAction(Tr::tr("Create Memory Trace Points"), options);
     tracePointsAction->setIcon(Debugger::Icons::TRACEPOINT_TOOLBAR.icon());
     tracePointsAction->setIconVisibleInMenu(false);
-    tracePointsAction->setToolTip(tr("Create trace points for memory profiling on the target "
-                                       "device."));
+    tracePointsAction->setToolTip(Tr::tr("Create trace points for memory profiling on the target "
+                                         "device."));
     command = Core::ActionManager::registerAction(tracePointsAction,
                                                   Constants::PerfProfilerTaskTracePoints,
                                                   globalContext);
@@ -121,8 +121,8 @@ PerfProfilerTool::PerfProfilerTool()
     m_tracePointsButton->setDefaultAction(tracePointsAction);
     m_objectsToDelete << m_tracePointsButton;
 
-    auto action = new QAction(tr("Performance Analyzer"), this);
-    action->setToolTip(tr("Finds performance bottlenecks."));
+    auto action = new QAction(Tr::tr("Performance Analyzer"), this);
+    action->setToolTip(Tr::tr("Finds performance bottlenecks."));
     menu->addAction(ActionManager::registerAction(action, Constants::PerfProfilerLocalActionId),
                     Debugger::Constants::G_ANALYZER_TOOLS);
     QObject::connect(action, &QAction::triggered, this, [this] {
@@ -168,15 +168,15 @@ void PerfProfilerTool::createViews()
 {
     m_objectsToDelete.clear();
     m_traceView = new PerfProfilerTraceView(nullptr, this);
-    m_traceView->setWindowTitle(tr("Timeline"));
+    m_traceView->setWindowTitle(Tr::tr("Timeline"));
     connect(m_traceView, &PerfProfilerTraceView::gotoSourceLocation,
             this, &PerfProfilerTool::gotoSourceLocation);
 
     m_statisticsView = new PerfProfilerStatisticsView(nullptr, this);
-    m_statisticsView->setWindowTitle(tr("Statistics"));
+    m_statisticsView->setWindowTitle(Tr::tr("Statistics"));
 
     m_flameGraphView = new PerfProfilerFlameGraphView(nullptr, this);
-    m_flameGraphView->setWindowTitle(tr("Flame Graph"));
+    m_flameGraphView->setWindowTitle(Tr::tr("Flame Graph"));
 
     connect(m_statisticsView, &PerfProfilerStatisticsView::gotoSourceLocation,
             this, &PerfProfilerTool::gotoSourceLocation);
@@ -243,7 +243,7 @@ void PerfProfilerTool::createViews()
     connect(m_recordButton, &QAbstractButton::clicked, this, &PerfProfilerTool::setRecording);
 
     m_clearButton->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
-    m_clearButton->setToolTip(tr("Discard data."));
+    m_clearButton->setToolTip(Tr::tr("Discard data."));
     connect(m_clearButton, &QAbstractButton::clicked, this, &PerfProfilerTool::clear);
 
     m_filterButton->setIcon(Utils::Icons::FILTER.icon());
@@ -264,7 +264,7 @@ void PerfProfilerTool::createViews()
     connect(m_traceManager, &PerfProfilerTraceManager::error, this, [](const QString &message) {
         QMessageBox *errorDialog = new QMessageBox(ICore::dialogParent());
         errorDialog->setIcon(QMessageBox::Warning);
-        errorDialog->setWindowTitle(tr("Performance Analyzer"));
+        errorDialog->setWindowTitle(Tr::tr("Performance Analyzer"));
         errorDialog->setText(message);
         errorDialog->setStandardButtons(QMessageBox::Ok);
         errorDialog->setDefaultButton(QMessageBox::Ok);
@@ -286,10 +286,10 @@ void PerfProfilerTool::createViews()
 
     QMenu *menu1 = new QMenu(m_traceView);
     addLoadSaveActionsToMenu(menu1);
-    connect(menu1->addAction(tr("Limit to Selected Range")), &QAction::triggered,
+    connect(menu1->addAction(Tr::tr("Limit to Selected Range")), &QAction::triggered,
             m_limitToRange, &QAction::trigger);
     menu1->addAction(m_showFullRange);
-    connect(menu1->addAction(tr("Reset Zoom")), &QAction::triggered, this, [this](){
+    connect(menu1->addAction(Tr::tr("Reset Zoom")), &QAction::triggered, this, [this](){
         m_zoomControl->setRange(m_zoomControl->traceStart(), m_zoomControl->traceEnd());
     });
 
@@ -301,13 +301,13 @@ void PerfProfilerTool::createViews()
 
     menu1 = new QMenu(m_statisticsView);
     addLoadSaveActionsToMenu(menu1);
-    connect(menu1->addAction(tr("Limit to Range Selected in Timeline")), &QAction::triggered,
+    connect(menu1->addAction(Tr::tr("Limit to Range Selected in Timeline")), &QAction::triggered,
             m_limitToRange, &QAction::trigger);
-    connect(menu1->addAction(tr("Show Full Range")), &QAction::triggered,
+    connect(menu1->addAction(Tr::tr("Show Full Range")), &QAction::triggered,
             m_showFullRange, &QAction::trigger);
-    connect(menu1->addAction(tr("Copy Table")), &QAction::triggered,
+    connect(menu1->addAction(Tr::tr("Copy Table")), &QAction::triggered,
             m_statisticsView, &PerfProfilerStatisticsView::copyFocusedTableToClipboard);
-    QAction *copySelection = menu1->addAction(tr("Copy Row"));
+    QAction *copySelection = menu1->addAction(Tr::tr("Copy Row"));
     connect(copySelection, &QAction::triggered,
             m_statisticsView, &PerfProfilerStatisticsView::copyFocusedSelectionToClipboard);
     m_statisticsView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -319,11 +319,11 @@ void PerfProfilerTool::createViews()
 
     menu1 = new QMenu(m_flameGraphView);
     addLoadSaveActionsToMenu(menu1);
-    connect(menu1->addAction(tr("Limit to Range Selected in Timeline")), &QAction::triggered,
+    connect(menu1->addAction(Tr::tr("Limit to Range Selected in Timeline")), &QAction::triggered,
             m_limitToRange, &QAction::trigger);
-    connect(menu1->addAction(tr("Show Full Range")), &QAction::triggered,
+    connect(menu1->addAction(Tr::tr("Show Full Range")), &QAction::triggered,
             m_showFullRange, &QAction::trigger);
-    QAction *resetAction = menu1->addAction(tr("Reset Flame Graph"));
+    QAction *resetAction = menu1->addAction(Tr::tr("Reset Flame Graph"));
     connect(resetAction, &QAction::triggered,
             m_flameGraphView, &PerfProfilerFlameGraphView::resetRoot);
     m_flameGraphView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -398,12 +398,12 @@ void PerfProfilerTool::onReaderFinished()
     m_readerRunning = false;
     if (m_traceManager->traceDuration() <= 0) {
         QMessageBox::warning(Core::ICore::dialogParent(),
-                             tr("No Data Loaded"),
-                             tr("The profiler did not produce any samples. "
-                                "Make sure that you are running a recent Linux kernel and that "
-                                "the \"perf\" utility is available and generates useful call "
-                                "graphs.\nYou might find further explanations in the Application "
-                                "Output view."));
+                             Tr::tr("No Data Loaded"),
+                             Tr::tr("The profiler did not produce any samples. "
+                                    "Make sure that you are running a recent Linux kernel and that "
+                                    "the \"perf\" utility is available and generates useful call "
+                                    "graphs.\nYou might find further explanations in the "
+                                    "Application Output view."));
         clear();
     } else {
         m_traceManager->finalize();
@@ -437,11 +437,11 @@ void PerfProfilerTool::updateRunActions()
     m_stopAction->setEnabled(m_processRunning);
     if (m_readerRunning || m_processRunning) {
         m_startAction->setEnabled(false);
-        m_startAction->setToolTip(tr("A performance analysis is still in progress."));
+        m_startAction->setToolTip(Tr::tr("A performance analysis is still in progress."));
         m_loadPerfData->setEnabled(false);
         m_loadTrace->setEnabled(false);
     } else {
-        QString whyNot = tr("Start a performance analysis.");
+        QString whyNot = Tr::tr("Start a performance analysis.");
         bool canRun = ProjectExplorerPlugin::canRunStartupProject(
                     ProjectExplorer::Constants::PERFPROFILER_RUN_MODE, &whyNot);
         m_startAction->setToolTip(whyNot);
@@ -493,8 +493,8 @@ void PerfProfilerTool::updateFilterMenu()
 {
     m_filterMenu->clear();
 
-    QAction *enableAll = m_filterMenu->addAction(tr("Enable All"));
-    QAction *disableAll = m_filterMenu->addAction(tr("Disable All"));
+    QAction *enableAll = m_filterMenu->addAction(Tr::tr("Enable All"));
+    QAction *disableAll = m_filterMenu->addAction(Tr::tr("Disable All"));
     m_filterMenu->addSeparator();
 
     QList<PerfProfilerTraceManager::Thread> threads = m_traceManager->threads().values();
@@ -600,8 +600,8 @@ void PerfProfilerTool::showLoadTraceDialog()
 {
     m_perspective.select();
 
-    FilePath filePath = FileUtils::getOpenFilePath(nullptr, tr("Load Trace File"),
-                                                   {}, tr("Trace File (*.ptq)"));
+    FilePath filePath = FileUtils::getOpenFilePath(nullptr, Tr::tr("Load Trace File"),
+                                                   {}, Tr::tr("Trace File (*.ptq)"));
     if (filePath.isEmpty())
         return;
 
@@ -619,8 +619,8 @@ void PerfProfilerTool::showSaveTraceDialog()
 {
     m_perspective.select();
 
-    FilePath filePath = FileUtils::getSaveFilePath(nullptr, tr("Save Trace File"),
-                                                   {}, tr("Trace File (*.ptq)"));
+    FilePath filePath = FileUtils::getSaveFilePath(nullptr, Tr::tr("Save Trace File"),
+                                                   {}, Tr::tr("Trace File (*.ptq)"));
     if (filePath.isEmpty())
         return;
     if (!filePath.endsWith(".ptq"))
@@ -633,8 +633,8 @@ void PerfProfilerTool::showSaveTraceDialog()
 void PerfProfilerTool::setAggregated(bool aggregated)
 {
     m_aggregateButton->setChecked(aggregated);
-    m_aggregateButton->setToolTip(aggregated ? tr("Show all addresses.")
-                                             : tr("Aggregate by functions."));
+    m_aggregateButton->setToolTip(aggregated ? Tr::tr("Show all addresses.")
+                                             : Tr::tr("Aggregate by functions."));
     emit aggregatedChanged(aggregated);
 }
 
@@ -645,8 +645,8 @@ void PerfProfilerTool::setRecording(bool recording)
 
     m_recordButton->setIcon(recording ? recordOn : recordOff);
     m_recordButton->setChecked(recording);
-    m_recordButton->setToolTip(recording ? tr("Stop collecting profile data.") :
-                                           tr("Collect profile data."));
+    m_recordButton->setToolTip(recording ? Tr::tr("Stop collecting profile data.") :
+                                           Tr::tr("Collect profile data."));
     emit recordingChanged(recording);
 }
 
@@ -654,13 +654,13 @@ void PerfProfilerTool::updateTime(qint64 duration, qint64 delay)
 {
     qint64 e9 = 1e9, e8 = 1e8, ten = 10; // compiler would cast to double
     if (duration > 0)
-        m_recordedLabel->setText(tr("Recorded: %1.%2s").arg(duration / e9)
-                                .arg(qAbs(duration / e8) % ten));
+        m_recordedLabel->setText(Tr::tr("Recorded: %1.%2s").arg(duration / e9)
+                                 .arg(qAbs(duration / e8) % ten));
     else if (duration == 0)
         m_recordedLabel->clear();
 
     if (delay > 0)
-        m_delayLabel->setText(tr("Processing delay: %1.%2s").arg(delay / e9)
+        m_delayLabel->setText(Tr::tr("Processing delay: %1.%2s").arg(delay / e9)
                               .arg(qAbs(delay / e8) % ten));
     else if (delay == 0)
         m_delayLabel->clear();
