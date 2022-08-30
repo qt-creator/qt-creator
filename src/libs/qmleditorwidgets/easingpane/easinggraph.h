@@ -31,8 +31,6 @@
 
 QT_BEGIN_NAMESPACE
 
-QT_MODULE(Declarative)
-
 
 class EasingGraph: public QWidget
 {
