@@ -57,10 +57,7 @@ using namespace VcsBase;
 namespace Fossil {
 namespace Internal {
 
-// Disable UNIX terminals to suppress SSH prompting
-const unsigned s_pullFlags = VcsCommand::SshPasswordPrompt
-                           | VcsCommand::ShowStdOut
-                           | VcsCommand::ShowSuccessMessage;
+const unsigned s_pullFlags = VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage;
 
 
 // Parameter widget controlling whitespace diff mode, associated with a parameter
