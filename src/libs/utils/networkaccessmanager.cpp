@@ -26,6 +26,7 @@
 #include "networkaccessmanager.h"
 
 #include <QCoreApplication>
+#include <QLibraryInfo>
 #include <QLocale>
 #include <QNetworkReply>
 

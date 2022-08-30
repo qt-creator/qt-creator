@@ -33,6 +33,7 @@
 
 #include <QDir>
 #include <QDirIterator>
+#include <QLibraryInfo>
 #include <QTemporaryFile>
 #include <QVariant>
 #include <QVersionNumber>
