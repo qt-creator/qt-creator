@@ -84,6 +84,7 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR, defaultValue);
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, "#aaaaaa");
     restoreValue(settings, DesignerSettingsKey::SMOOTH_RENDERING, false);
+    restoreValue(settings, DesignerSettingsKey::SHOW_DEBUG_SETTINGS, false);
 
     settings->endGroup();
     settings->endGroup();
