@@ -100,20 +100,13 @@ QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
         return index.internalId();
 
     case HasWhenCondition:
-        return stateNode.isValid() && stateNode.hasProperty("when");
+        return stateNode.hasProperty("when");
 
-    case WhenConditionString: {
-        if (stateNode.isValid() && stateNode.hasBindingProperty("when"))
-            return stateNode.bindingProperty("when").expression();
-        else
-            return QString();
-    }
+    case WhenConditionString:
+        return stateNode.bindingProperty("when").expression();
 
     case IsDefault: {
-        QmlModelState modelState(stateNode);
-        if (modelState.isValid())
-            return modelState.isDefault();
-        return false;
+        return QmlModelState(stateNode).isDefault();
     }
 
     case ModelHasDefaultState:
