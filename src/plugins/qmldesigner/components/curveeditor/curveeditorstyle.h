@@ -34,8 +34,8 @@ struct TreeItemStyleOption
     static QIcon iconFromFont(QmlDesigner::Theme::Icon type, const QColor &color = Qt::white)
     {
         const QString fontName = "qtds_propertyIconFont.ttf";
-        static const int fontSize = 28;
-        static const int iconSize = 28;
+        const int fontSize = 28;
+        const int iconSize = 28;
         return Utils::StyleHelper::getIconFromIconFont(fontName,
                                                        QmlDesigner::Theme::getIconUnicode(type),
                                                        fontSize,
