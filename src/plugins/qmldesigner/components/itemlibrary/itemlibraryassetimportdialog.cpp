@@ -274,7 +274,7 @@ void ItemLibraryAssetImportDialog::updateImport(const ModelNode &updateNode,
 {
     QString errorMsg;
     const ModelNode &node = updateNode;
-    if (node.isValid() && node.hasMetaInfo()) {
+    if (node.hasMetaInfo()) {
         QString compFileName = node.metaInfo().componentFileName(); // absolute path
         bool preselectNodeSource = false;
         if (compFileName.isEmpty()) {
