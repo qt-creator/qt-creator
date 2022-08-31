@@ -153,8 +153,7 @@ void AnnotationListModel::storeChanges(int row, const QString &customId, const A
 void AnnotationListModel::saveChanges()
 {
     for (auto &item : m_annoList) {
-        ModelNode &node = item.node;
-        if (node.isValid()) {
+        if (ModelNode &node = item.node) {
             const QString &annoName = item.annotationName;
             const Annotation &anno = item.annotation;
 
