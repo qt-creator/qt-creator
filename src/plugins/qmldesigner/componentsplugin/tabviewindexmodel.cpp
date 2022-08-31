@@ -36,7 +36,7 @@ QStringList TabViewIndexModel::tabViewIndexModel() const
 void TabViewIndexModel::setupModel()
 {
     m_tabViewIndexModel.clear();
-    if (m_modelNode.isValid() && m_modelNode.metaInfo().isQtQuickControlsTabView()) {
+    if (m_modelNode.metaInfo().isQtQuickControlsTabView()) {
         const QList<QmlDesigner::ModelNode> childModelNodes
             = m_modelNode.defaultNodeAbstractProperty().directSubNodes();
         for (const QmlDesigner::ModelNode &childModelNode : childModelNodes) {
