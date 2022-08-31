@@ -144,7 +144,6 @@ void CurveEditorView::variantPropertiesChanged([[maybe_unused]] const QList<Vari
     for (const auto &property : propertyList) {
         if ((property.name() == "frame" || property.name() == "value")
             && property.parentModelNode().type() == "QtQuick.Timeline.Keyframe"
-            && property.parentModelNode().isValid()
             && property.parentModelNode().hasParentProperty()) {
             const ModelNode framesNode = property.parentModelNode().parentProperty().parentModelNode();
             if (QmlTimelineKeyframeGroup::isValidQmlTimelineKeyframeGroup(framesNode))
@@ -166,7 +165,7 @@ void CurveEditorView::bindingPropertiesChanged([[maybe_unused]] const QList<Bind
 void CurveEditorView::propertiesRemoved([[maybe_unused]] const QList<AbstractProperty> &propertyList)
 {
     for (const auto &property : propertyList) {
-        if (property.name() == "keyframes" && property.parentModelNode().isValid()) {
+        if (property.name() == "keyframes") {
             ModelNode parent = property.parentModelNode();
             if (dirtyfiesView(parent))
                 updateKeyframes();
@@ -260,10 +259,7 @@ ModelNode getTargetNode(PropertyTreeItem *item, const QmlTimeline &timeline)
 QmlTimelineKeyframeGroup timelineKeyframeGroup(QmlTimeline &timeline, PropertyTreeItem *item)
 {
     ModelNode node = getTargetNode(item, timeline);
-    if (node.isValid())
-        return timeline.keyframeGroup(node, item->name().toLatin1());
-
-    return QmlTimelineKeyframeGroup();
+    return timeline.keyframeGroup(node, item->name().toLatin1());
 }
 
 void attachEasingCurve(const QmlTimelineKeyframeGroup &group, double frame, const QEasingCurve &curve)
@@ -277,23 +273,21 @@ void attachEasingCurve(const QmlTimelineKeyframeGroup &group, double frame, cons
 
 void commitAuxiliaryData(ModelNode &node, TreeItem *item)
 {
-    if (node.isValid()) {
-        if (item->locked())
-            node.setLocked(true);
-        else
-            node.setLocked(false);
+    if (item->locked())
+        node.setLocked(true);
+    else
+        node.setLocked(false);
 
-        if (item->pinned())
-            node.setAuxiliaryData(pinnedProperty, true);
-        else
-            node.removeAuxiliaryData(pinnedProperty);
+    if (item->pinned())
+        node.setAuxiliaryData(pinnedProperty, true);
+    else
+        node.removeAuxiliaryData(pinnedProperty);
 
-        if (auto *pitem = item->asPropertyItem()) {
-            if (pitem->hasUnified())
-                node.setAuxiliaryData(unifiedProperty, pitem->unifyString());
-            else
-                node.removeAuxiliaryData(unifiedProperty);
-        }
+    if (auto *pitem = item->asPropertyItem()) {
+        if (pitem->hasUnified())
+            node.setAuxiliaryData(unifiedProperty, pitem->unifyString());
+        else
+            node.removeAuxiliaryData(unifiedProperty);
     }
 }
 
