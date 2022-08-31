@@ -230,7 +230,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
     const int separatorHeight = m_separatorVisible ? SEPARATOR_HEIGHT : 0;
     if (m_separatorVisible) {
         QRectF innerRect = QRectF(this->rect()).adjusted(0.5, 0.5, -0.5, -0.5);
-        p.setPen(StyleHelper::sidebarShadow());
+        p.setPen(StyleHelper::baseColor());
         p.drawLine(innerRect.topLeft(), innerRect.topRight());
 
         if (creatorTheme()->flag(Theme::DrawToolBarHighlights)) {

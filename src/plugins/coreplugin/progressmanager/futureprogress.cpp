@@ -303,8 +303,9 @@ void FutureProgress::paintEvent(QPaintEvent *)
     QPainter p(this);
     if (creatorTheme()->flag(Theme::FlatToolBars)) {
         p.fillRect(rect(), StyleHelper::baseColor());
+        p.fillRect(rect(), creatorTheme()->color(Theme::FancyToolButtonSelectedColor));
     } else {
-      QLinearGradient grad = StyleHelper::statusBarGradient(rect());
+        QLinearGradient grad = StyleHelper::statusBarGradient(rect());
         p.fillRect(rect(), grad);
     }
 }
