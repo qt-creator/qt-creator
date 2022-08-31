@@ -41,7 +41,8 @@ using namespace QmlDesigner::Internal;
 
 namespace QmlDesigner {
 
-const char annotationsEscapeSequence[] = "##^##";
+constexpr QStringView annotationsStart{u"/*##^##"};
+constexpr QStringView annotationsEnd{u"##^##*/"};
 
 bool debugQmlPuppet(const DesignerSettings &settings)
 {
@@ -1103,29 +1104,17 @@ void RewriterView::delayedSetup()
         m_textToModelMerger->delayedSetup();
 }
 
-static QString annotationsEnd()
-{
-    const static QString end = QString("%1*/").arg(annotationsEscapeSequence);
-    return end;
-}
-
-static QString annotationsStart()
-{
-    const static QString start = QString("/*%1").arg(annotationsEscapeSequence);
-    return start;
-}
-
 QString RewriterView::getRawAuxiliaryData() const
 {
     QTC_ASSERT(m_textModifier, return {});
 
     const QString oldText = m_textModifier->text();
 
-    int startIndex = oldText.indexOf(annotationsStart());
-    int endIndex = oldText.indexOf(annotationsEnd());
+    int startIndex = oldText.indexOf(annotationsStart);
+    int endIndex = oldText.indexOf(annotationsEnd);
 
     if (startIndex > 0 && endIndex > 0)
-        return oldText.mid(startIndex, endIndex - startIndex + annotationsEnd().length());
+        return oldText.mid(startIndex, endIndex - startIndex + annotationsEnd.length());
 
     return {};
 }
@@ -1136,8 +1125,8 @@ void RewriterView::writeAuxiliaryData()
 
     const QString oldText = m_textModifier->text();
 
-    const int startIndex = oldText.indexOf(annotationsStart());
-    const int endIndex = oldText.indexOf(annotationsEnd());
+    const int startIndex = oldText.indexOf(annotationsStart);
+    const int endIndex = oldText.indexOf(annotationsEnd);
 
     QString auxData = auxiliaryDataAsQML();
 
@@ -1145,16 +1134,16 @@ void RewriterView::writeAuxiliaryData()
 
     if (!auxData.isEmpty()) {
         auxData.prepend("\n");
-        auxData.prepend(annotationsStart());
+        auxData.prepend(annotationsStart);
         if (!replace)
             auxData.prepend("\n");
-        auxData.append(annotationsEnd());
+        auxData.append(annotationsEnd);
         if (!replace)
             auxData.append("\n");
     }
 
     if (replace)
-        m_textModifier->replace(startIndex, endIndex - startIndex + annotationsEnd().length(), auxData);
+        m_textModifier->replace(startIndex, endIndex - startIndex + annotationsEnd.length(), auxData);
     else
         m_textModifier->replace(oldText.length(), 0, auxData);
 }
@@ -1222,12 +1211,12 @@ void RewriterView::restoreAuxiliaryData()
 
     const QString text = m_textModifier->text();
 
-    int startIndex = text.indexOf(annotationsStart());
-    int endIndex = text.indexOf(annotationsEnd());
+    int startIndex = text.indexOf(annotationsStart);
+    int endIndex = text.indexOf(annotationsEnd);
 
     if (startIndex > 0 && endIndex > 0) {
-        const QString auxSource = text.mid(startIndex + annotationsStart().length(),
-                                           endIndex - startIndex - annotationsStart().length());
+        const QString auxSource = text.mid(startIndex + annotationsStart.length(),
+                                           endIndex - startIndex - annotationsStart.length());
         QmlJS::SimpleReader reader;
         checkChildNodes(reader.readFromSource(auxSource), this);
     }
