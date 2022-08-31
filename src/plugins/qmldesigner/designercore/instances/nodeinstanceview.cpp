@@ -225,13 +225,9 @@ bool static isSkippedNode(const ModelNode &node)
 
 bool static parentTakesOverRendering(const ModelNode &modelNode)
 {
-    if (!modelNode.isValid())
-        return false;
-
     ModelNode currentNode = modelNode;
 
-    while (currentNode.hasParentProperty()) {
-        currentNode = currentNode.parentProperty().parentModelNode();
+    while ((currentNode = currentNode.parentProperty().parentModelNode())) {
         if (NodeHints::fromModelNode(currentNode).takesOverRenderingOfChildren())
             return true;
     }
@@ -257,7 +253,7 @@ void NodeInstanceView::modelAttached(Model *model)
     }
 
     ModelNode stateNode = currentStateNode();
-    if (stateNode.isValid() && stateNode.metaInfo().isQtQuickState()) {
+    if (stateNode.metaInfo().isQtQuickState()) {
         NodeInstance newStateInstance = instanceForModelNode(stateNode);
         activateState(newStateInstance);
     }
@@ -943,15 +939,13 @@ void NodeInstanceView::updatePosition(const QList<VariantProperty> &propertyList
 
             QmlTimelineKeyframeGroup frames = QmlTimelineKeyframeGroup::keyframeGroupForKeyframe(variantProperty.parentModelNode());
 
-            if (frames.isValid() && frames.propertyName() == "x" && frames.target().isValid()) {
-
+            if (frames.propertyName() == "x" && frames.target().isValid()) {
                 NodeInstance instance = instanceForModelNode(frames.target());
                 setXValue(instance, variantProperty, informationChangeHash);
-            } else if (frames.isValid() && frames.propertyName() == "y" && frames.target().isValid()) {
+            } else if (frames.propertyName() == "y" && frames.target().isValid()) {
                 NodeInstance instance = instanceForModelNode(frames.target());
                 setYValue(instance, variantProperty, informationChangeHash);
             }
-
         }
     }
 
