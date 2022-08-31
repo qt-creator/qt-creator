@@ -5,8 +5,8 @@
 
 #include "fileutils.h"
 
-#include <QCoreApplication>
 #include <QDir>
+#include <QGuiApplication>
 #include <QMessageBox>
 #include <QPushButton>
 
@@ -29,11 +29,19 @@ QTCREATOR_UTILS_EXPORT ReloadPromptAnswer reloadPrompt(const FilePath &fileName,
         msg = QCoreApplication::translate("Utils::reloadPrompt",
                 "The file <i>%1</i> has been changed on disk. Do you want to reload it?");
     }
-    msg = "<p>" + msg.arg(fileName.fileName()) + "</p><p>"
-          + QCoreApplication::translate(
-              "Utils::reloadPrompt",
-              "The default behavior can be set in Edit > Preferences > Environment > System.")
-          + "</p>";
+    msg = "<p>" + msg.arg(fileName.fileName()) + "</p><p>";
+    if (HostOsInfo::isMacHost()) {
+        msg += QCoreApplication::translate(
+                   "Utils::reloadPrompt",
+                   "The default behavior can be set in %1 > Preferences > Environment > System.",
+                   "macOS")
+                   .arg(QGuiApplication::applicationDisplayName());
+    } else {
+        msg += QCoreApplication::translate(
+            "Utils::reloadPrompt",
+            "The default behavior can be set in Edit > Preferences > Environment > System.");
+    }
+    msg += "</p>";
     return reloadPrompt(title, msg, fileName.toUserOutput(), enableDiffOption, parent);
 }
 
