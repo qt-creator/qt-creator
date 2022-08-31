@@ -104,9 +104,8 @@ Edit3DCameraAction::Edit3DCameraAction(const QByteArray &menuId,
 
 bool Edit3DCameraAction::isEnabled(const SelectionContext &selectionContext) const
 {
-    return Utils::anyOf(selectionContext.selectedModelNodes(), [](const ModelNode &node) {
-        return node.isValid() && node.metaInfo().isQtQuick3DCamera();
-    });
+    return Utils::anyOf(selectionContext.selectedModelNodes(),
+                        [](const ModelNode &node) { return node.metaInfo().isQtQuick3DCamera(); });
 }
 
 }

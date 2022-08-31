@@ -321,9 +321,8 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
         QDataStream stream(data);
         qint32 internalId;
         stream >> internalId;
-        ModelNode matNode = m_view->modelNodeForInternalId(internalId);
 
-        if (matNode.isValid())
+        if (ModelNode matNode = m_view->modelNodeForInternalId(internalId))
             m_view->dropMaterial(matNode, dropEvent->position());
         return;
     }
