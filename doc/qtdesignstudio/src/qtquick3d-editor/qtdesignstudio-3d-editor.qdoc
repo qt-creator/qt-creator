@@ -286,6 +286,28 @@
         selected in the \uicontrol{3D} view.
     \endtable
 
+    \section1 Changing Colors
+
+    To change the \uicontrol 3D view background or grid color, select
+    \inlineimage icons/3d-background-color.png
+    in the toolbar. This opens a menu with the following options:
+
+    \table
+      \row
+        \li Select Background Color
+        \li Select a color for the background.
+      \row
+        \li Select Grid Color
+        \li Select a color for the grid.
+      \row
+        \li Use Scene Environment Color
+        \li Sets the 3D view to use the scene environment color as background
+        color.
+      \row
+        \li Reset Colors
+        \li Resets the background and grid colors to the default colors.
+    \endtable
+
     \section1 Particle Editor
 
     The particle editor tools help you preview your particle systems in
@@ -381,6 +403,11 @@
         \li Visibility Toggles
         \li
         \li \l{Toggling Visibility}
+    \row
+        \li \inlineimage icons/3d-background-color.png
+        \li Background Color Actions
+        \li
+        \li \l{Changing Colors}
     \row
         \li \inlineimage icons/particles-seek.png
         \li Seek Particle System Time
