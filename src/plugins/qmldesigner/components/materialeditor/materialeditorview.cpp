@@ -114,8 +114,8 @@ void MaterialEditorView::changeValue(const QString &name)
 
     QVariant castedValue;
 
-    if (metaInfo.isValid() && metaInfo.hasProperty(propertyName)) {
-        castedValue = metaInfo.property(propertyName).castedValue(value->value());
+    if (auto property = metaInfo.property(propertyName)) {
+        castedValue = property.castedValue(value->value());
     } else {
         qWarning() << __FUNCTION__ << propertyName << "cannot be casted (metainfo)";
         return;
@@ -128,8 +128,8 @@ void MaterialEditorView::changeValue(const QString &name)
 
     bool propertyTypeUrl = false;
 
-    if (metaInfo.isValid() && metaInfo.hasProperty(propertyName)) {
-        if (metaInfo.property(propertyName).propertyType().isUrl()) {
+    if (auto property = metaInfo.property(propertyName)) {
+        if (property.propertyType().isUrl()) {
             // turn absolute local file paths into relative paths
             propertyTypeUrl = true;
             QString filePath = castedValue.toUrl().toString();
@@ -191,9 +191,8 @@ void MaterialEditorView::changeExpression(const QString &propertyName)
             return;
         }
 
-        if (auto metaInfo = m_selectedMaterial.metaInfo();
-            metaInfo.isValid() && metaInfo.hasProperty(name)) {
-            auto propertyTypeName = metaInfo.property(name).propertyType().typeName();
+        if (auto property = m_selectedMaterial.metaInfo().property(name)) {
+            auto propertyTypeName = property.propertyType().typeName();
             if (propertyTypeName == "QColor") {
                 if (QColor(value->expression().remove('"')).isValid()) {
                     qmlObjectNode.setVariantProperty(name, QColor(value->expression().remove('"')));
@@ -550,8 +549,7 @@ void MaterialEditorView::setupQmlBackend()
         qmlPaneUrl = QUrl::fromLocalFile(materialEditorResourcesPath() + "/MaterialEditorPane.qml");
 
         TypeName diffClassName;
-        NodeMetaInfo metaInfo = m_selectedMaterial.metaInfo();
-        if (metaInfo.isValid()) {
+        if (NodeMetaInfo metaInfo = m_selectedMaterial.metaInfo()) {
             diffClassName = metaInfo.typeName();
             for (const NodeMetaInfo &metaInfo : metaInfo.classHierarchy()) {
                 if (PropertyEditorQmlBackend::checkIfUrlExists(qmlSpecificsUrl))
@@ -560,10 +558,13 @@ void MaterialEditorView::setupQmlBackend()
                                                                           + "Specifics", metaInfo);
                 diffClassName = metaInfo.typeName();
             }
-        }
-        if (metaInfo.isValid() && diffClassName != m_selectedMaterial.type()) {
-            specificQmlData = PropertyEditorQmlBackend::templateGeneration(
-                        metaInfo, model()->metaInfo(diffClassName), m_selectedMaterial);
+
+            if (diffClassName != m_selectedMaterial.type()) {
+                specificQmlData = PropertyEditorQmlBackend::templateGeneration(metaInfo,
+                                                                               model()->metaInfo(
+                                                                                   diffClassName),
+                                                                               m_selectedMaterial);
+            }
         }
         currentTypeName = QString::fromLatin1(m_selectedMaterial.type());
     } else {
