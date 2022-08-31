@@ -98,22 +98,16 @@ void TimelineView::nodeAboutToBeRemoved(const ModelNode &removedNode)
             if (lastId != currentId)
                 m_timelineWidget->setTimelineId(currentId);
 
-        } else if (removedNode.parentProperty().isValid()
-                   && QmlTimeline::isValidQmlTimeline(
-                          removedNode.parentProperty().parentModelNode())) {
-            if (removedNode.hasBindingProperty("target")) {
-                const ModelNode target = removedNode.bindingProperty("target").resolveToModelNode();
-                if (target.isValid()) {
-                    QmlTimeline timeline(removedNode.parentProperty().parentModelNode());
-                    if (timeline.hasKeyframeGroupForTarget(target))
-                        QTimer::singleShot(0, [this, target, timeline]() {
-                            if (timeline.hasKeyframeGroupForTarget(target))
-                                m_timelineWidget->graphicsScene()->invalidateSectionForTarget(
-                                    target);
-                            else
-                                m_timelineWidget->graphicsScene()->invalidateScene();
-                        });
-                }
+        } else if (QmlTimeline::isValidQmlTimeline(removedNode.parentProperty().parentModelNode())) {
+            if (const ModelNode target = removedNode.bindingProperty("target").resolveToModelNode()) {
+                QmlTimeline timeline(removedNode.parentProperty().parentModelNode());
+                if (timeline.hasKeyframeGroupForTarget(target))
+                    QTimer::singleShot(0, [this, target, timeline]() {
+                        if (timeline.hasKeyframeGroupForTarget(target))
+                            m_timelineWidget->graphicsScene()->invalidateSectionForTarget(target);
+                        else
+                            m_timelineWidget->graphicsScene()->invalidateScene();
+                    });
             }
         }
     }
@@ -190,7 +184,6 @@ void TimelineView::variantPropertiesChanged(const QList<VariantProperty> &proper
     for (const auto &property : propertyList) {
         if ((property.name() == "frame" || property.name() == "value")
             && property.parentModelNode().type() == "QtQuick.Timeline.Keyframe"
-            && property.parentModelNode().isValid()
             && property.parentModelNode().hasParentProperty()) {
             const ModelNode framesNode
                 = property.parentModelNode().parentProperty().parentModelNode();

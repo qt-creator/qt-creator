@@ -142,15 +142,12 @@ void TimelineActions::copyKeyframes(const QList<ModelNode> &keyframes)
 
 bool isKeyframe(const ModelNode &node)
 {
-    return node.isValid() && node.metaInfo().isQtQuickTimelineKeyframe();
+    return node.metaInfo().isQtQuickTimelineKeyframe();
 }
 
 QVariant getValue(const ModelNode &node)
 {
-    if (node.isValid())
-        return node.variantProperty("value").value();
-
-    return QVariant();
+    return node.variantProperty("value").value();
 }
 
 qreal getTime(const ModelNode &node)

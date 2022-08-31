@@ -257,10 +257,7 @@ void TimelinePropertyItem::updateFrames()
 
 bool TimelinePropertyItem::isSelected() const
 {
-    if (m_frames.isValid() && m_frames.target().isValid())
-        return m_frames.target().isSelected();
-
-    return false;
+    return m_frames.target().isSelected();
 }
 
 QString convertVariant(const QVariant &variant)
@@ -564,7 +561,7 @@ void TimelineKeyframeItem::enableUpdates()
 
 bool TimelineKeyframeItem::hasManualBezier() const
 {
-    return m_frame.isValid() && m_frame.hasProperty("easing.bezierCurve");
+    return m_frame.hasProperty("easing.bezierCurve");
 }
 
 void TimelineKeyframeItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
