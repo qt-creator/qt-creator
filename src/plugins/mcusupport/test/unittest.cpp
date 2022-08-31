@@ -141,15 +141,17 @@ const QStringList jsonFiles{QString::fromUtf8(armgcc_nxp_1050_json),
 const bool runLegacy{true};
 const int colorDepth{32};
 
-const PackageDescription qtForMCUsSDKDescription{
-    Legacy::Constants::QUL_LABEL,
-    QUL_ENV_VAR,
-    QUL_CMAKE_VAR,
-    Legacy::Constants::QUL_LABEL,
-    Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK,
-    qtForMcuSdkPath,
-    Legacy::Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH,
-};
+const PackageDescription
+    qtForMCUsSDKDescription{Legacy::Constants::QUL_LABEL,
+                            QUL_ENV_VAR,
+                            QUL_CMAKE_VAR,
+                            Legacy::Constants::QUL_LABEL,
+                            Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK,
+                            qtForMcuSdkPath,
+                            Legacy::Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH,
+                            {},
+                            VersionDetection{},
+                            false};
 
 const McuTargetDescription::Platform platformDescription{id,
                                                          "",
