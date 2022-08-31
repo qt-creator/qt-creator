@@ -1836,9 +1836,6 @@ void FormEditorTransitionItem::paint(QPainter *painter, const QStyleOptionGraphi
     if (!painter->isActive())
         return;
 
-    if (!qmlItemNode().modelNode().isValid())
-        return;
-
     if (!qmlItemNode().modelNode().hasBindingProperty("to"))
         return;
 
