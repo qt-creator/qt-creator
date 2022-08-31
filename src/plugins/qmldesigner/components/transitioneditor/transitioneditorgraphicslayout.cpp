@@ -94,10 +94,8 @@ void TransitionEditorGraphicsLayout::setTransition(const ModelNode &transition)
     m_rulerItem->setParentItem(this);
 
     qreal duration = 2000;
-    if (transition.isValid()) {
-        if (auto data = transition.auxiliaryData(transitionDurationProperty))
-            duration = data->toDouble();
-    }
+    if (auto data = transition.auxiliaryData(transitionDurationProperty))
+        duration = data->toDouble();
 
     setDuration(duration);
     m_layout->addItem(m_rulerItem);
@@ -107,11 +105,9 @@ void TransitionEditorGraphicsLayout::setTransition(const ModelNode &transition)
 
     m_layout->invalidate();
 
-    if (transition.isValid() && !transition.directSubModelNodes().isEmpty()) {
-        for (const ModelNode &parallel : transition.directSubModelNodes()) {
-            auto item = TransitionEditorSectionItem::create(parallel, this);
-            m_layout->addItem(item);
-        }
+    for (const ModelNode &parallel : transition.directSubModelNodes()) {
+        auto item = TransitionEditorSectionItem::create(parallel, this);
+        m_layout->addItem(item);
     }
 
     m_placeholder2->setParentItem(this);
