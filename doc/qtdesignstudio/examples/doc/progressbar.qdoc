@@ -25,7 +25,7 @@
 
     In the \uicontrol Design mode, we drag-and-drop a \uicontrol Rectangle from
     \uicontrol Components > \uicontrol {Default Components} >
-    \uicontrol Basic to \l {Form Editor} and modify its size to create the
+    \uicontrol Basic to the \l {2D} view and modify its size to create the
     background for the progress bar. We change its ID to \e pb_back in
     \l Properties.
 
@@ -33,7 +33,7 @@
     that was added by the project wizard, so we will use an \uicontrol Item
     component for that. We drag-and-drop the Item from \uicontrol Components >
     \uicontrol {Default Components} > \uicontrol Basic
-    to \uicontrol {Form Editor} and change its ID to \e root in
+    to the \uicontrol {2D} view and change its ID to \e root in
     \uicontrol Properties.
 
     To make the background and text children of the Item, we drag-and-drop them
@@ -43,7 +43,7 @@
     margin at the top to leave space for the text. We then anchor the text to
     the top of the Item.
 
-    \image progressbar-rectangle.png "Progress bar background in the Form Editor"
+    \image progressbar-rectangle.png "Progress bar background in the 2D view"
 
     We now drag-and-drop another rectangle on top of the background rectangle in
     \uicontrol Navigator and change its ID to \e pb_front in
@@ -139,7 +139,7 @@
 
     We now select the root component in \uicontrol Navigator, and
     then select \uicontrol {Go into Component} in the context menu to
-    open \e Root.qml in \uicontrol {Form Editor}.
+    open \e Root.qml in the \uicontrol {2D} view.
 
     We want to be able to use the keyframe value as the value of the text label,
     so we will export it as a \l{Adding Property Aliases}{property alias}. We
@@ -150,10 +150,11 @@
     \image progressbar-root-export-property.png "Export keyframe group as a property"
 
     When we select \e root in \uicontrol Navigator, we can see the
-    \e timelineCurrentFrame property in \l {Connection View} >
+    \e timelineCurrentFrame property on the \uicontrol Bindings tab in the
+    \l {Connections} view.
     \uicontrol Bindings. We double-click it to change its name to \e progress.
 
-    \image progressbar-bindings-progress.png "Connection View Bindings tab"
+    \image progressbar-bindings-progress.png "Connections View Bindings tab"
 
     We will bind some JavaScript to the value of the text label to turn
     it into a running number that reflects the number of the keyframe on the
@@ -189,7 +190,7 @@
     smooth looping animation.
 
     When we select the \uicontrol {Show Live Preview} button on the
-    \uicontrol {Form Editor} toolbar, we see a running number and moving
+    \uicontrol {2D} view toolbar, we see a running number and moving
     progress indicator of the animated progress bar instance.
 
     \image progressbar-animated.png

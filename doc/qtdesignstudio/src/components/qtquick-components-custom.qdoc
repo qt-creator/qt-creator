@@ -17,8 +17,8 @@
 
     Custom components are stored in \uicontrol Components >
     \uicontrol {My Components}. You can create instances of custom components
-    by dragging-and-dropping them from \uicontrol Components to \l {Form Editor},
-    \l {3D Editor}, or \l Navigator.
+    by dragging-and-dropping them from \uicontrol Components to the \l {2D},
+    \l {3D}, or \l Navigator view.
 
     \section1 Creating Components from Scratch
 
@@ -35,29 +35,30 @@
             \note Components are listed in \uicontrol Components >
             \uicontrol {My Components} only if the filename begins with a
             capital letter.
-        \li Click \uicontrol Design to open the file in
-            \uicontrol {Form Editor}.
+        \li Click \uicontrol Design to open the file in the
+            \uicontrol {2D} view.
         \li Drag-and-drop a component from \uicontrol Components to
-            \uicontrol Navigator or \uicontrol {Form Editor}.
+            \uicontrol Navigator or the \uicontrol {2D} view.
         \li Edit component properties in the \uicontrol Properties view.
             The available properties depend on the component type. You can
             \l{Specifying Dynamic Properties}{add properties for
-            components} in \uicontrol {Connection View} > \uicontrol Properties.
+            components} on the \uicontrol {Properties} tab in the
+            \uicontrol Connections view.
         \li To change the appearance and behavior of the component instances
             in ways that are not supported in \QDS by default, you can define
-            custom properties in \uicontrol {Connection View} >
-            \uicontrol {Properties}.
+            custom properties on the \uicontrol {Properties} tab in the
+            \uicontrol {Connections} view.
 
     \endlist
 
-    The following sections contain more information about how to use
-    \uicontrol {Form Editor} to edit 2D content and \uicontrol {3D Editor}
+    The following sections contain more information about how to use the
+    \uicontrol {2D} view to edit 2D content and the \uicontrol {3D} view
     to edit 3D scenes, as well as examples of how to create UI controls
     using instances of basic components:
 
     \list
-        \li \l{Form Editor}
-        \li \l{3D Editor}
+        \li The \l{2D} View
+        \li The \l{3D} View
         \li \l{Creating Buttons}
         \li \l{Creating Scalable Buttons and Borders}
     \endlist
@@ -88,7 +89,7 @@
     An alternative way of creating reusable components is to turn
     component instances into custom components by moving them into
     separate component files (.ui.qml). Right-click a component instance
-    in \uicontrol Navigator or \uicontrol {Form Editor}, and select
+    in \uicontrol Navigator or the \uicontrol {2D} view, and select
     \uicontrol {Move Component into Separate File} in the context menu.
 
     \image qtcreator-move-component-into-separate-file.png
@@ -98,7 +99,7 @@
 
     When you select \uicontrol OK, a new component file is created and an
     instance of the component is added to the code in the current component
-    file. The look of your UI in \uicontrol {Form Editor} does not change.
+    file. The look of your UI in the \uicontrol {2D} view does not change.
 
     To open the new component file for editing the properties that you want
     to change for all instances of the component, right-click the component,
@@ -125,7 +126,7 @@
     stylesheet.
 
     To use this experimental feature, right-click a component in the
-    \uicontrol Navigator or \uicontrol {Form Editor} view and select
+    \uicontrol Navigator or \uicontrol {2D} view and select
     \uicontrol {Merge File with Template} in the context menu.
 
     \image qmldesigner-merge-with-template.png "Merge with Template dialog"

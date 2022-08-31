@@ -1,13 +1,16 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "designmodewidget.h"
 #include "edit3dactions.h"
 #include "edit3dcanvas.h"
 #include "edit3dview.h"
 #include "edit3dwidget.h"
 #include "edit3dviewconfig.h"
 #include "backgroundcolorselection.h"
+#include "metainfo.h"
+#include "seekerslider.h"
+#include "view3dactioncommand.h"
+#include "nodehints.h"
 
 #include <auxiliarydataproperties.h>
 #include <coreplugin/icore.h>
@@ -24,7 +27,6 @@
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
-#include <QDebug>
 #include <QToolButton>
 
 namespace QmlDesigner {
@@ -32,11 +34,13 @@ namespace QmlDesigner {
 Edit3DView::Edit3DView(QObject *parent)
     : AbstractView(parent)
 {
+    m_compressionTimer.setInterval(1000);
+    m_compressionTimer.setSingleShot(true);
+    connect(&m_compressionTimer, &QTimer::timeout, this, &Edit3DView::handleEntriesChanged);
 }
 
 Edit3DView::~Edit3DView()
-{
-}
+{}
 
 void Edit3DView::createEdit3DWidget()
 {
@@ -185,6 +189,52 @@ void Edit3DView::modelAttached(Model *model)
     }
 
     edit3DWidget()->canvas()->busyIndicator()->show();
+
+    connect(model->metaInfo().itemLibraryInfo(), &ItemLibraryInfo::entriesChanged, this,
+            &Edit3DView::onEntriesChanged, Qt::UniqueConnection);
+}
+
+void Edit3DView::onEntriesChanged()
+{
+    m_compressionTimer.start();
+}
+
+void Edit3DView::handleEntriesChanged()
+{
+    if (!model())
+        return;
+
+    const QString cameras = tr("Cameras");
+    const QString lights = tr("Lights");
+    const QString primitives = tr("Primitives");
+    const QString importedModels = tr("Imported Models");
+    const QStringList keys {cameras, lights, primitives, importedModels}; // used to maintain order
+
+    QHash<QString, QList<ItemLibraryEntry>> entriesMap {
+        {cameras, {}},
+        {lights, {}},
+        {primitives, {}},
+        {importedModels, {}}
+    };
+
+    const QList<ItemLibraryEntry> itemLibEntries = model()->metaInfo().itemLibraryInfo()->entries();
+    for (const ItemLibraryEntry &entry : itemLibEntries) {
+        if (entry.typeName() == "QtQuick3D.Model") {
+            entriesMap[primitives].append(entry);
+        } else if (entry.typeName() == "QtQuick3D.DirectionalLight"
+                || entry.typeName() == "QtQuick3D.PointLight"
+                || entry.typeName() == "QtQuick3D.SpotLight") {
+            entriesMap[lights].append(entry);
+        } else if (entry.typeName() == "QtQuick3D.OrthographicCamera"
+                || entry.typeName() == "QtQuick3D.PerspectiveCamera") {
+            entriesMap[cameras].append(entry);
+        } else if (entry.typeName().startsWith("Quick3DAssets.")
+                   && NodeHints::fromItemLibraryEntry(entry).canBeDroppedInView3D()) {
+            entriesMap[importedModels].append(entry);
+        }
+    }
+
+    m_edit3DWidget->updateCreateSubMenu(keys, entriesMap);
 }
 
 void Edit3DView::modelAboutToBeDetached(Model *model)

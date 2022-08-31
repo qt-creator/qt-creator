@@ -7,7 +7,8 @@ View3D {
     id: root
     anchors.fill: parent
     environment: sceneEnv
-    camera: envMode === "SkyBox" && envValue === "preview_studio" ? studioCamera : defaultCamera
+    camera: !envMode || (envMode === "SkyBox" && envValue === "preview_studio") ? studioCamera
+                                                                                : defaultCamera
 
     property Material previewMaterial
     property string envMode
@@ -24,15 +25,16 @@ View3D {
         antialiasingMode: SceneEnvironment.MSAA
         antialiasingQuality: SceneEnvironment.High
         backgroundMode: envMode === "Color" ? SceneEnvironment.Color
-                                            : envMode === "SkyBox" ? SceneEnvironment.SkyBox
-                                                                   : SceneEnvironment.Transparent
+                                            : envMode === "Basic" ? SceneEnvironment.Transparent
+                                                                  : SceneEnvironment.SkyBox
         clearColor: envMode === "Color" ? envValue : "#000000"
-        lightProbe: envMode === "SkyBox" ? skyBoxTex : null
+        lightProbe: !envMode || envMode === "SkyBox" ? skyBoxTex : null
 
         Texture {
             id: skyBoxTex
-            source: envMode === "SkyBox" ? "../images/" + envValue + ".hdr"
-                                         : ""
+            source: !envMode ? "../images/preview_studio.hdr"
+                             : envMode === "SkyBox" ? "../images/" + envValue + ".hdr"
+                                                    : ""
         }
     }
 
@@ -40,7 +42,7 @@ View3D {
         DirectionalLight {
             eulerRotation.x: -26
             eulerRotation.y: modelSrc === "#Cube" ? -10 : -50
-            brightness: envMode !== "SkyBox" ? 1 : 0
+            brightness: envMode && envMode !== "SkyBox" ? 1 : 0
         }
 
         PerspectiveCamera {
@@ -84,7 +86,7 @@ View3D {
             scale.y: 8
             scale.x: 8
             eulerRotation.x: -60
-            visible: !envMode || envMode === "Default"
+            visible: envMode === "Basic"
             materials: floorMaterial
             DefaultMaterial {
                 id: floorMaterial

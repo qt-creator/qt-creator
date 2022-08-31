@@ -46,8 +46,7 @@
     To connect components to signals:
 
     \list 1
-        \li Select \uicontrol View > \uicontrol Views >
-            \l {Connection View} > \uicontrol {Connections}.
+        \li Go to the \uicontrol Connections tab in the \l Connections view.
         \li Select the \inlineimage icons/plus.png
             (\uicontrol Add) button to add a connection.
         \li Double-click the value in the \uicontrol Target column to add the
@@ -82,7 +81,7 @@
     \uicontrol {Signal Handler} column, you can add it:
 
     \list 1
-        \li Right-click a component in the \l Navigator or \l {Form Editor} view
+        \li Right-click a component in the \l Navigator or \l {2D} view
             and select \uicontrol {Add New Signal Handler} in the context menu.
         \li In the \uicontrol Signal field, select the signal to handle.
             \image qmldesigner-implement-signal-handler.png "Implement Signal Handler dialog"

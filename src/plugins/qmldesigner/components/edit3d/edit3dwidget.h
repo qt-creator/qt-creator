@@ -8,6 +8,7 @@
 #include <QWidget>
 
 #include <coreplugin/icontext.h>
+#include "itemlibraryinfo.h"
 #include <modelnode.h>
 
 namespace QmlDesigner {
@@ -35,6 +36,11 @@ public:
     void showBackgroundColorMenu(bool show, const QPoint &pos);
 
     void showContextMenu(const QPoint &pos, const ModelNode &modelNode);
+    void updateCreateSubMenu(const QStringList &keys,
+                             const QHash<QString, QList<ItemLibraryEntry>> &entriesMap);
+
+private slots:
+    void onCreateAction();
 
 protected:
     void dragEnterEvent(QDragEnterEvent *dragEnterEvent) override;
@@ -55,7 +61,9 @@ private:
     QPointer<QMenu> m_contextMenu;
     QPointer<QAction> m_editMaterialAction;
     QPointer<QAction> m_deleteAction;
+    QPointer<QMenu> m_createSubMenu;
     ModelNode m_contextMenuTarget;
+    QHash<QString, ItemLibraryEntry> m_nameToEntry;
 };
 
 } // namespace QmlDesigner

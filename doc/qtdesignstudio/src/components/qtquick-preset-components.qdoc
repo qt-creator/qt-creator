@@ -12,10 +12,10 @@
     by selecting \uicontrol Components > \inlineimage icons/plus.png
     . For more information, see \l{Adding and Removing Modules}. You can then
     create instances of the components by dragging-and-dropping them from
-    \uicontrol Components to \l {Form Editor}, \l {3D Editor}, or \l Navigator.
+    \uicontrol Components to the \l {2D}, \l {3D} , or \l Navigator view.
 
     To edit the appearance of a component instance, select it in
-    \uicontrol {Form Editor}, \uicontrol {3D Editor}, or \uicontrol Navigator
+    the \uicontrol {2D}, \uicontrol{3D}, or \uicontrol Navigator view
     and set its properties in the \l Properties view.
 
     For more information about creating your own components, see
@@ -39,7 +39,7 @@
 
     \section1 3D Components
 
-    You can use \l{3D Editor} in the \uicontrol Design mode to edit files you
+    You can use the \l {3D} view in the \uicontrol Design mode to edit files you
     created using 3D graphics applications and stored in one of the supported
     formats. You cannot create 3D models or other assets in the editor, but you
     can \l{Importing 3D Assets}{import} the assets you need and work with them

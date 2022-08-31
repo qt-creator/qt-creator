@@ -34,7 +34,7 @@
 
     \list 1
         \li Drag-and-drop an external file containing the 3D asset from,
-            for example, File Explorer (on Windows), to \uicontrol {3D Editor}.
+            for example, File Explorer (on Windows), to the \uicontrol{3D} view.
         \li In the \uicontrol {3D Scene Options} tab, select options for
             importing the file.
             \note To see all options, select \uicontrol{Show All Options}.
@@ -42,7 +42,7 @@
     \endlist
 
     The 3D asset is now added to your scene, and you can see it in the
-    \uicontrol {3D Editor} view and in \uicontrol Navigator. It is also
+    \uicontrol{3D} and \uicontrol Navigator views. It is also
     available in \uicontrol Components > \uicontrol {My 3D Components}.
 
     Alternatively, you can initiate the import dialog from the
@@ -62,6 +62,6 @@
 
     The 3D asset now appears in \uicontrol Components >
     \uicontrol {My 3D Components}. You can add it to the scene by
-    drag-and-dropping it to \uicontrol {3D Editor}.
+    drag-and-dropping it to the \uicontrol{3D} view.
 
 */

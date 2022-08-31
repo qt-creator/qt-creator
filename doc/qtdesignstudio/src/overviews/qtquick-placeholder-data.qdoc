@@ -20,7 +20,7 @@
 
     \section1 Using Dummy Models
 
-    If you open a file in \l {Form Editor} that references a C++ model, you see
+    If you open a file in the \l {2D} view that references a C++ model, you see
     nothing in it. If the data in the model is fetched from the
     internet, you have no control over it. To get reliable data, \e {dummy data}
     was introduced.
@@ -75,7 +75,7 @@
         }
     \endqml
 
-    This works nicely for applications but \uicontrol {Form Editor} displays a
+    This works nicely for applications but the \uicontrol {2D} view displays a
     zero-sized component. A parent for the opened file does not exist because
     the context is missing. To get around the missing context, the idea of a
     \e {dummy context} is introduced. If you place a file with the same name as

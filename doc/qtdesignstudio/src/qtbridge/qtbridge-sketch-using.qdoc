@@ -99,7 +99,7 @@
     Place different parts of the UI, such as menus and pop-ups, on separate
     artboards to be able to export them as components or children and to
     import them as component files and images that you can drag and drop to the
-    \uicontrol {Form Editor} in \QDS Design mode while creating a UI.
+    the \uicontrol {2D} view in \QDS Design mode while creating a UI.
 
     If you want to use the assets on an artboard in \QDS as they are in Sketch,
     you can import the artboard without generating code for it.

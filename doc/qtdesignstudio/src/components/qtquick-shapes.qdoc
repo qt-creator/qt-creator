@@ -18,14 +18,14 @@
     basic shapes, such as rectangles. In addition, \QDS comes with a set of
     more powerful and flexible graphical primitives, that allow creating more
     complex shapes, such as borders, triangles, arcs, and pies in
-    \uicontrol {Form Editor}.
+    the \uicontrol {2D} view.
 
-    \image studio-shapes.png "Shapes in Form Editor"
+    \image studio-shapes.png "Shapes in the 2D view"
 
     \else
     You can use the Rectangle component to draw basic shapes in
-    \l {Form Editor}.
-    \image qml-shapes.png "Shapes in Form Editor"
+    the \l {2D} view.
+    \image qml-shapes.png "Shapes in the 2D view"
     \endif
 
     Most visual components in \uicontrol Components are based on the \l [QtQuick]

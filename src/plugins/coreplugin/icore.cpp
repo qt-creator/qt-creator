@@ -18,6 +18,7 @@
 
 #include <QApplication>
 #include <QDebug>
+#include <QLibraryInfo>
 #include <QStandardPaths>
 #include <QSysInfo>
 

@@ -148,16 +148,16 @@
     the UI we will create. We use the imported components to create the
     UI in the \e {MainApp.ui.qml} file. The imported components are
     listed in \uicontrol Components > \uicontrol {My Components},
-    and we can drag-and-drop them to \l {Form Editor}.
+    and we can drag-and-drop them to the \l {2D} view.
 
     \image webinardemo-mainappui.png "Main app UI in Design mode"
 
     To view the structure of a particular component, we right-click it in the
-    \uicontrol {Form Editor} and select \uicontrol {Go into Component} in the
+    \uicontrol {2D} view and select \uicontrol {Go into Component} in the
     context menu. Any changes we make to a component are immediately visible in
     all the other components where it appears.
 
-    We can view the code for each component in \l{Text Editor}.
+    We can view the code for each component in the \l{Code} view.
 
     We can now use states and the timeline to animate the components in the UI.
 

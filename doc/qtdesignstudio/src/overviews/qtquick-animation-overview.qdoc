@@ -38,7 +38,7 @@
             appear to pick up speed, slow down, or bounce back at the end
             of the animation.
     \row
-        \li \l{Curve Editor}{Animation curves} attached to keyframes
+        \li \l{Curves}{Animation curves} attached to keyframes
         \li Complex 3D animations that require several keyframes so it becomes
             necessary to visualize the value and the interpolation of a keyframe
             simultaneously.
@@ -72,7 +72,7 @@
     While easing curves work well for most simple UI animations, more complex
     3D animations require several keyframes so it becomes necessary to visualize
     the value and the interpolation of a keyframe simultaneously. The
-    \l {Curve Editor} visualizes the whole animation of a property at once and
+    \l {Curves} view visualizes the whole animation of a property at once and
     shows the effective values of a keyframe together with the interpolation
     between keyframes. It can also show animations of different properties
     simultaneously so that you can see the animation for the x position
@@ -94,7 +94,7 @@
             the user experience of the application.
     \endif
     \row
-        \li \l{Transition Editor}{Transitions between states}
+        \li \l{Transitions}{Transitions between states}
         \li Transitions between different states of the UI using a transition
             timeline that is based on keyframes. You can apply easing curves
             to the keyframes.
@@ -145,7 +145,7 @@
     by using \e transitions. Transitions are animation types that interpolate
     property changes caused by state changes.
 
-    In \l {Transition Editor}, you can set the start frame, end frame,
+    In \l {Transitions}, you can set the start frame, end frame,
     and duration for the transition of each property. You can also set
     an \l{Editing Easing Curves}{easing curve} for each animation and
     the maximum duration of the whole transition.

@@ -850,7 +850,7 @@
 
             \li QML type name.
                 \if defined(qtdesignstudio)
-                This action is also available in \l {Form Editor}.
+                This action is also available in the \l {2D} view.
                 \endif
         \row
             \li Split Initializer

@@ -2,19 +2,17 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include "view3dactioncommand.h"
-#include "seekerslider.h"
-
+#include <abstractview.h>
 #include <modelcache.h>
 
-#include <abstractview.h>
-#include <QtGui/qevent.h>
-#include <QtGui/qimage.h>
-#include <QtCore/qvector.h>
-#include <QtCore/qvariant.h>
-#include <QtCore/qsize.h>
+#include <QImage>
+#include <QSize>
+#include <QTimer>
+#include <QVariant>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
+class QInputEvent;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -22,6 +20,7 @@ namespace QmlDesigner {
 class Edit3DWidget;
 class Edit3DAction;
 class Edit3DCameraAction;
+class SeekerSlider;
 
 class QMLDESIGNERCORE_EXPORT Edit3DView : public AbstractView
 {
@@ -60,6 +59,9 @@ public:
     void startContextMenu(const QPoint &pos);
     void dropMaterial(const ModelNode &matNode, const QPointF &pos);
 
+private slots:
+    void onEntriesChanged();
+
 private:
     enum class ModelAtPosReqType {
         MaterialDrop,
@@ -69,6 +71,7 @@ private:
 
     void createEdit3DWidget();
     void checkImports();
+    void handleEntriesChanged();
 
     Edit3DAction *createSelectBackgrounColorAction();
     Edit3DAction *createGridColorSelectionAction();
@@ -107,6 +110,7 @@ private:
     ModelNode m_droppedMaterial;
     ModelAtPosReqType m_modelAtPosReqType;
     QPoint m_contextMenuPos;
+    QTimer m_compressionTimer;
 };
 
 } // namespace QmlDesigner
