@@ -560,7 +560,8 @@ void DesignDocument::paste()
             targetNode = view.firstSelectedModelNode();
 
         // in case we copy and paste a selection we paste in the parent item
-        if ((view.selectedModelNodes().count() == selectedNodes.count()) && targetNode.isValid() && targetNode.hasParentProperty()) {
+        if ((view.selectedModelNodes().count() == selectedNodes.count())
+            && targetNode.hasParentProperty()) {
             targetNode = targetNode.parentProperty().parentModelNode();
         } else if (view.selectedModelNodes().isEmpty()) {
             // if selection is empty and copied nodes are all 3D nodes, paste them under the active scene
