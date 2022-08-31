@@ -127,12 +127,7 @@ QString NodeListView::setNodeId(int internalId, const QString &id)
 
 bool supported(const ModelNode &node)
 {
-    if (!node.isValid())
-        return false;
-
     const NodeMetaInfo metaInfo = node.metaInfo();
-    if (!metaInfo.isValid())
-        return false;
 
     return metaInfo.hasProperty("eventIds");
 }
