@@ -875,7 +875,8 @@ void FilePath::setFromString(const QString &filename, OsType osType)
         m_scheme = filename.left(schemeEnd);
         const auto hostEnd = filename.indexOf(slash, schemeEnd + 3);
         m_host = filename.mid(schemeEnd + 3, hostEnd - schemeEnd - 3);
-        setRootAndPath(QStringView(filename).mid(hostEnd), osType);
+        if (hostEnd != -1)
+            setRootAndPath(QStringView(filename).mid(hostEnd), osType);
         return;
     }
 

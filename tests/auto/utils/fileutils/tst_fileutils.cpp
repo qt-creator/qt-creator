@@ -65,6 +65,8 @@ private slots:
     void onDevice_data();
     void plus();
     void plus_data();
+    void url();
+    void url_data();
 
 private:
     QTemporaryDir tempDir;
@@ -784,6 +786,35 @@ void tst_fileutils::plus()
     const FilePath result = left + right;
 
     QCOMPARE(expected, result);
+}
+
+void tst_fileutils::url()
+{
+    QFETCH(QString, url);
+    QFETCH(QString, expectedScheme);
+    QFETCH(QString, expectedHost);
+    QFETCH(QString, expectedPath);
+
+    const FilePath result = FilePath::fromString(url);
+    QCOMPARE(result.scheme(), expectedScheme);
+    QCOMPARE(result.host(), expectedHost);
+    QCOMPARE(result.path(), expectedPath);
+}
+
+void tst_fileutils::url_data()
+{
+    QTest::addColumn<QString>("url");
+    QTest::addColumn<QString>("expectedScheme");
+    QTest::addColumn<QString>("expectedHost");
+    QTest::addColumn<QString>("expectedPath");
+    QTest::newRow("empty") << QString() << QString() << QString() << QString();
+    QTest::newRow("simple-file") << QString("file:///a/b") << QString("file") << QString() << QString("/a/b");
+    QTest::newRow("simple-file-root") << QString("file:///") << QString("file") << QString() << QString("/");
+    QTest::newRow("simple-docker") << QString("docker://1234/a/b") << QString("docker") << QString("1234") << QString("/a/b");
+    QTest::newRow("simple-ssh") << QString("ssh://user@host/a/b") << QString("ssh") << QString("user@host") << QString("/a/b");
+    QTest::newRow("simple-ssh-with-port") << QString("ssh://user@host:1234/a/b") << QString("ssh") << QString("user@host:1234") << QString("/a/b");
+    QTest::newRow("http-qt.io") << QString("http://qt.io") << QString("http") << QString("qt.io") << QString();
+    QTest::newRow("http-qt.io-index.html") << QString("http://qt.io/index.html") << QString("http") << QString("qt.io") << QString("/index.html");
 }
 
 QTEST_GUILESS_MAIN(tst_fileutils)
