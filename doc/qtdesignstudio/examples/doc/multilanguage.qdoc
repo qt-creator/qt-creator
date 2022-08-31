@@ -113,7 +113,7 @@
       \li In \uicontrol{Projects}, double-click \e{Screen01.ui.qml} to open it.
       \li All text strings that you want to translate need to be of \c
       qsTrId type. In this project the text strings are of \c qsTr type so you
-      need to change them. Open \uicontrol{Text Editor}, find all five
+      need to change them. Open the \uicontrol{Code} view, find all five
       occurrences of \c qsTr and replace them with \c{qsTrId}. For example,
       replace:
       \code
@@ -159,8 +159,8 @@
 
     You can select language from the dropdown list on the left side of the
     \uicontrol Translations view. Translations for the selected languages will
-    show in the \uicontrol Translations view as well as in
-    \uicontrol{Form Editor}.
+    show in the \uicontrol Translations view as well as in the
+    \uicontrol {2D} view.
 
     You can run translation tests, import, and export translations as described
     in \l{Translations}.

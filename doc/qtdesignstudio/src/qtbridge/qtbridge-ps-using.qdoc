@@ -75,7 +75,7 @@
     Place different parts of the UI, such as menus and pop-ups, on separate
     artboards to be able to export them as components or children and to
     import them as code and PNG files that you can drag and drop to
-    \l {Form Editor} in \QDS Design mode while creating a UI.
+    the \l {2D} view in \QDS Design mode while creating a UI.
 
     \QDS offers predefined sets of UI controls that you can modify according
     to your needs. You can export your own controls as components, Qt Quick

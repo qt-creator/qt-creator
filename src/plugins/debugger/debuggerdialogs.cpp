@@ -76,10 +76,6 @@ public:
     QDialogButtonBox *buttonBox;
 };
 
-} // Debugger::Internal
-
-namespace Debugger::Internal {
-
 ///////////////////////////////////////////////////////////////////////
 //
 // StartApplicationParameters

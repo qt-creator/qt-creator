@@ -28,7 +28,7 @@
     \image qtquick-designer-image-type.png "Image component in different views"
 
     When you drag-and-drop an image file from \uicontrol Assets to \l Navigator
-    or \l {Form Editor}, \QC automatically
+    or the \l {2D} view, \QC automatically
     creates an instance of the Image component for you with the path to the
     image file set as the value of the \uicontrol Source field in
     \uicontrol Properties.
@@ -198,7 +198,7 @@
     its color can be specified.
 
     To select an icon in the \uicontrol {ISO Icon Browser} in \QDS, select
-    the ISO icon in \l Navigator or \l {Form Editor}, and then select
+    the ISO icon in the \l Navigator or \l {2D} view, and then select
     \uicontrol {Choose Icon} in the context menu.
 
     \image studio-iso-icon.png

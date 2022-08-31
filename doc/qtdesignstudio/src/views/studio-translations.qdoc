@@ -46,7 +46,7 @@
     \row
         \li \inlineimage icons/qml-translation-test.png
         \li Run translation test for the currently open document. This test
-        shows translation warnings in \uicontrol{From Editor} and creates a
+        shows translation warnings in the \uicontrol{2D} view and creates a
         test report.
         \li \l{Running Translation Test for a Single Document}
     \row
@@ -124,7 +124,7 @@
     You can run the translation test to find missing translations
     and translations where the text exceeds the text element boundaries. Running
     the test is a quick way to check the translations in the document you have
-    open in \uicontrol{Form Editor} as it highlights errors in the UI.
+    open in the \uicontrol {2D} view as it highlights errors in the UI.
 
     To run the test for the currently open document:
 
@@ -146,7 +146,7 @@
     \endlist
 
     When the test has completed, you can see the test result highlights in
-    \uicontrol{Form Editor}.
+    the \uicontrol {2D} view.
     \image qml-translation-test-result.png
 
     If the test finds an error, it is highlighted for all languages. For

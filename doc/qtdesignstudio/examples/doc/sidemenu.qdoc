@@ -54,7 +54,7 @@
     for the states to bind the properties to the states using \c when
     conditions. First, we specify that a button instance enters the \e checked
     state when the \l {AbstractButton::}{checked} property is set to \c true.
-    This is how the code will look in \l{Text Editor}:
+    This is how the code will look in the \l{Code} view:
 
     \quotefromfile SideMenu/CustomButton.qml
     \skipto states: [
@@ -80,10 +80,10 @@
     \section1 Constructing a Menu Bar
 
     We construct the menu bar in the \e {MainFile.ui.qml} file using the
-    \l {Form Editor}. The CustomButton component is listed in
+    \l {2D} view. The CustomButton component is listed in
     \uicontrol Components > \uicontrol {My Components}.
     We drag-and-drop several instances of the component to \uicontrol Navigator
-    or \uicontrol {Form Editor} and enclose them in a \uicontrol {Row Layout}
+    or the \uicontrol {2D} view and enclose them in a \uicontrol {Row Layout}
     component instance to lay them out as a menu bar.
 
     \image sidemenu-menubar.png
@@ -179,7 +179,7 @@
     In \e {SideMenu.qml}, we use connections to bind the action of clicking
     the burger menu to the signal handler for triggering the opening or
     closing animation, depending on the current state. We create the connections
-    in \l{Connection View}.
+    in the \l{Connections} view.
 
     \image sidemenu-connections.png
 

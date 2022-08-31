@@ -101,8 +101,8 @@
     To use Texture components to apply textures to materials, drag-and-drop a
     Texture component from \uicontrol Components >
     \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} to a material component
-    in \l Navigator. The new texture should now be visible in \l {Form Editor}
-    and \l {3D Editor}. \note If the colors in your texture are not visualized
+    in \l Navigator. The new texture should now be visible in the \l {2D}
+    and \l {3D} views. \note If the colors in your texture are not visualized
     correctly, you should check the color in the \uicontrol Diffuse property of
     the material and try changing it to white (#ffffff).
 

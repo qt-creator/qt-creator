@@ -21,8 +21,8 @@
         \li \l{UI Files}
 
             Some of the wizard templates create projects that contain UI files.
-            You should always edit UI files in \l{Form Editor}
-            and \l Properties, to avoid breaking the code.
+            You should always edit UI files in the \l {2D}
+            and \l Properties view, to avoid breaking the code.
         \li \l{Managing Data Collection}
 
             \if defined (qtcreator)

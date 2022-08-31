@@ -148,8 +148,8 @@
     \list 1
         \li Drag-and-drop a \uicontrol {Grid View} or \uicontrol {List View}
             from \uicontrol Components >
-            \uicontrol {Default Components} > \uicontrol Views to
-            \uicontrol Navigator or \uicontrol {Form Editor}.
+            \uicontrol {Default Components} > \uicontrol Views to the
+            \uicontrol Navigator or \uicontrol {2D} view.
         \li Right-click the view in \uicontrol Navigator, and select
             \uicontrol {Edit List Model} in the context-menu to open
             the list model editor:
@@ -161,7 +161,7 @@
     \endlist
 
     You can replace the default model and delegate with other,
-    more complex models and delegates in \l {Text Editor}.
+    more complex models and delegates in the \l {Code} view.
     \l{ItemDelegate}{Item Delegate} and \l{SwipeDelegate}{Swipe Delegate}
     components are also available in \uicontrol Components
     > \uicontrol {Qt Quick Controls}.

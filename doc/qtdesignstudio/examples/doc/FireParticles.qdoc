@@ -85,7 +85,7 @@
     \list
       \li From \uicontrol Components >
       \uicontrol{Qt Quick 3D Particle System Templates} drag an
-      \uicontrol {Animated Sprite} component to \uicontrol{3D Editor}. You can
+      \uicontrol {Animated Sprite} component to the \uicontrol{3D} view. You can
       also drag it to \e scene in \uicontrol {Navigator}.
     \endlist
 
@@ -93,7 +93,7 @@
 
     You now have the particle system in place. To preview it, select
     \key Alt + \key{P}. You can also preview the particle system in
-    \uicontrol {3D Editor} by using the \l {Particle Editor} tools.
+    the \uicontrol{3D} view by using the \l {Particle Editor} tools.
 
     \section2 Adding Sprites and Sprite Animations
 

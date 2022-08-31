@@ -625,12 +625,12 @@ void MaterialEditorView::initPreviewData()
     //        QString env = rootModelNode().auxiliaryData("matPrevEnv").toString();
     //        QString envValue = rootModelNode().auxiliaryData("matPrevEnvValue").toString();
     //        QString modelStr = rootModelNode().auxiliaryData("matPrevModel").toString();
-    //        if (!envValue.isEmpty() && env != "Color" && env != "Default") {
+    //        if (!envValue.isEmpty() && env != "Color" && env != "Basic") {
     //            env += '=';
     //            env += envValue;
     //        }
     //        if (env.isEmpty())
-    //            env = "Default";
+    //            env = "SkyBox=preview_studio";
     //        if (modelStr.isEmpty())
     //            modelStr = "#Sphere";
     //        m_initializingPreviewData = true;

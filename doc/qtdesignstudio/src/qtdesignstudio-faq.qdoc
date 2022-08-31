@@ -89,7 +89,7 @@
 
     \section1 FAQ - Views
 
-    \section2 What are the keyboard shortcuts for moving around in \uicontrol {3D Editor}?
+    \section2 What are the keyboard shortcuts for moving around in the \uicontrol{3D} view?
 
     \list
         \li To pan: \key Alt + middle mouse button
@@ -97,7 +97,7 @@
         \li To zoom: \key Alt + right mouse button
     \endlist
 
-    For more information, see \l {3D Editor}.
+    For more information, see the \l {3D} view.
 
     \section1 FAQ - Integration Between \QDS and \QC
 

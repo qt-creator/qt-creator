@@ -34,7 +34,7 @@
     effects by selecting \l Properties > \uicontrol Control, and then disabling
     the \uicontrol Hover check box.
 
-    \image studio-dial.png "A stylable Dial component in Form Editor"
+    \image studio-dial.png "A stylable Dial component in the 2D view"
 
     To create stylable UI controls:
 
@@ -49,8 +49,8 @@
         \li Edit component properties in the \l Properties view.
 
             The available properties depend on the component type. You can
-            \l{Specifying Dynamic Properties}{add properties for components} in
-            \l {Connection View} > \uicontrol Properties.
+            \l{Specifying Dynamic Properties}{add properties for components} on
+            the \uicontrol Properties tab in the {Connections} view.
     \endlist
 
     For an example of using the \uicontrol Button template to create a button

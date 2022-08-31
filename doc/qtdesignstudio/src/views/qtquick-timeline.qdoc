@@ -140,7 +140,7 @@
 
     \list 1
         \li From \uicontrol {Components}, drag a slider to
-        \uicontrol {Form Editor} or \uicontrol {Navigator}.
+        the \uicontrol {2D} or \uicontrol {Navigator} view.
         \li In \uicontrol {Navigator}, select \e slider and in
         \uicontrol {Properties}, set:
             \list

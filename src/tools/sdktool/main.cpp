@@ -30,6 +30,7 @@
 #include <iostream>
 
 #include <QCoreApplication>
+#include <QLibraryInfo>
 #include <QStringList>
 
 void printHelp(const Operation *op)

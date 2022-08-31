@@ -16,6 +16,7 @@
 #endif
 
 #include <QtGlobal>
+#include <QLibraryInfo>
 
 #include <private/qdatetime_p.h>
 #include <private/qfile_p.h>

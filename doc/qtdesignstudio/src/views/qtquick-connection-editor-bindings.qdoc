@@ -30,8 +30,7 @@
     To bind a property of a component to the property of another component:
 
     \list 1
-        \li Select \uicontrol View > \uicontrol Views >
-             \l {Connection View} > \uicontrol {Bindings}.
+        \li Go to the \uicontrol Binding tab in the \l Connections view.
         \li Select the \inlineimage icons/plus.png
             (\uicontrol Add) button to add a binding for the currently selected
             component. The component ID is displayed in the \uicontrol Item

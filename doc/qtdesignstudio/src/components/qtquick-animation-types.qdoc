@@ -18,7 +18,7 @@
 
     You can drag-and-drop animation components from
     \uicontrol Components > \uicontrol {Default Components} >
-    \uicontrol Animation to \l Navigator or \l {Form Editor} to
+    \uicontrol Animation to the \l Navigator or \l {2D} view to
     create instances of them.
 
     You can achieve similar results by using different animation techniques.

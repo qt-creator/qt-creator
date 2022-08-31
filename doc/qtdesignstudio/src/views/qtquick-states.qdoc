@@ -19,7 +19,7 @@
 
     \image qmldesigner-transitions.png "States view"
 
-    Click the new state to switch to it in \l {Form Editor}, and then modify the
+    Click the new state to switch to it in the \l {2D} view, and then modify the
     values of the properties of components or component instances in
     \l Properties.
 
@@ -41,11 +41,11 @@
     \endif
 
     To add motion to a screen, you can change the position of a component
-    instance in \uicontrol {Form Editor} and then add animation to the change
+    instance in the \uicontrol {2D} view and then add animation to the change
     between the states.
 
     The properties that you change in a state are highlighted with blue color.
-    In \l{Text Editor}, you can see the changes recorded as changes
+    In the \l{Code} view, you can see the changes recorded as changes
     to the base state.
 
     \image qmldesigner-states.png "States and Properties views"

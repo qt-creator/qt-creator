@@ -21,9 +21,9 @@
 
     \if defined(qtdesignstudio)
     You can use \QDS wizards to create UI files that have the filename
-    extension \e .ui.qml. The UI files can be edited in \l {Form Editor}.
-    If you use \l {Text Editor} to add code that is not supported
-    by \uicontrol {Form Editor}, \QDS displays error messages.
+    extension \e .ui.qml. The UI files can be edited in the \l {2D} view.
+    If you use the \l {Code} view to add code that is not supported
+    by the \uicontrol {2D} view, \QDS displays error messages.
     \else
     If you switch between \QC and \QDS or cooperate with designers on
     a project, you might encounter UI files (.ui.qml). They are intended to
@@ -151,7 +151,7 @@
     \if defined(qtdesignstudio)
     \section1 Using UI Files
 
-    You can edit the UI files in the \l {Form Editor} and
+    You can edit the UI files in the \l {2D} and
     \uicontrol {Text Editor} views. Components that are
     supposed to be used in code have to be exported as properties:
 
@@ -190,7 +190,7 @@
 
     You can also assign properties or define behavior or transitions.
 
-    To move from \l {Form Editor} or \l Navigator directly to the
+    To move from the \l {2D} or \l Navigator view directly to the
     implementation of a component in the .qml file, right-click the
     component and select \uicontrol {Go to Implementation} in the
     context menu.

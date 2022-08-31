@@ -89,8 +89,8 @@ Column {
         ListModel {
             id: envMenuModel
             ListElement {
-                envName: qsTr("Default")
-                envStr: "Default"
+                envName: qsTr("Basic")
+                envStr: "Basic"
             }
             ListElement {
                 envName: qsTr("Color")

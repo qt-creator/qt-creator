@@ -18,7 +18,7 @@
 
     Add a camera by dragging-and-dropping one of the camera components from
     \uicontrol Components > \uicontrol {Qt Quick 3D} > \uicontrol
-    {Qt Quick 3D} to \l {3D Editor} or to a 3D view in \l Navigator.
+    {Qt Quick 3D} to the \l {3D} view or to a 3D view in \l Navigator.
     If the cameras are not displayed in \uicontrol {Components}, add the
     \uicontrol QtQuick3D module to your project, as described in
     \l {Adding and Removing Modules}.

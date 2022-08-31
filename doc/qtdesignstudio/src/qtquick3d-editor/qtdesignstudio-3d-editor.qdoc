@@ -6,9 +6,9 @@
     \page studio-3d-editor.html
     \nextpage studio-material-editor.html
 
-    \title 3D Editor
+    \title 3D
 
-    When editing a 3D scene, you view the scene in the \uicontrol {3D Editor}
+    When editing a 3D scene, you view the scene in the \uicontrol{3D}
     view. You can change the projection of the view by switching between
     \e {perspective camera} and \e {orthographic camera} modes. When using the
     perspective camera mode, components that are far from the camera appear
@@ -25,13 +25,13 @@
     components from \uicontrol Components > \inlineimage icons/plus.png
     > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}.
 
-    You can use the \l{Summary of the 3D Editor Toolbar Buttons}{toolbar buttons}
+    You can use the \l{Summary of the 3D View Toolbar Buttons}{toolbar buttons}
     to \e transform 3D components and manipulate the 3D scene. Transformation
     refers to moving, rotating, or scaling of a component. The \e pivot of the
     component is used as the origin for transformations. You can set a
     \l{Managing 3D Transformations}{local pivot offset} for a component in
     \uicontrol Properties to transform the component around a point other than
-    its local origin. A line is drawn in \uicontrol {3D Editor} from the pivot
+    its local origin. A line is drawn in the \uicontrol{3D} view from the pivot
     point to the center of the component to provide a visual connection between
     them. Especially when working with complex scenes, it may be useful to use
     the \l {Showing and Hiding Components}{showing and hiding} or the
@@ -48,18 +48,18 @@
     Additionally, you can toggle the visibility of the grid, selection boxes,
     icon gizmos, and camera frustums in the 3D scene.
 
-    To refresh the contents of \uicontrol {3D Editor}, press \key P or
+    To refresh the contents of the \uicontrol{3D} view, press \key P or
     select the \inlineimage icons/reset.png
     (\uicontrol {Reset View}) button.
 
-    \image studio-3d-editor.png "3D Editor"
+    \image studio-3d-editor.png "The 3D view"
 
-    The following video illustrates navigating in \uicontrol {3D Editor} and
+    The following video illustrates navigating in the \uicontrol{3D} view and
     using the toolbar:
 
     \youtube SsFWyUeAA_4
 
-    \section1 Controlling the 3D Editor Camera
+    \section1 Controlling the 3D View Camera
 
     To switch to perspective camera mode, select
     \inlineimage perspective_camera.png
@@ -68,7 +68,7 @@
     \inlineimage orthographic_camera.png
     . You can also Toggle the camera mode by using the keyboard shortcut \key T.
 
-    You can navigate the scene by panning, rotating, and zooming the 3D Editor
+    You can navigate the scene by panning, rotating, and zooming the 3D view
     camera:
 
     \list
@@ -83,7 +83,7 @@
             up or down.
     \endlist
 
-    To zoom and focus the 3D Editor camera on a selected component,
+    To zoom and focus the 3D view camera on a selected component,
     select \inlineimage fit_selected.png
     (\uicontrol {Fit Selected}) or press \key F.
 
@@ -94,10 +94,10 @@
     selected, the camera is pointed at the world origin. This does not affect
     the camera zoom level.
 
-    \image studio-3d-editor-axis-helper.png "Axis helper in 3D Editor"
+    \image studio-3d-editor-axis-helper.png "Axis helper in the 3D view"
 
     You can use scene cameras (2) to view the \uicontrol View3D component from a
-    specific angle in \l {Form Editor} while editing scenes. Different types of
+    specific angle in the \l {2D} view while editing scenes. Different types of
     cameras are available in \uicontrol Components
     > \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D}. For more information
     about using cameras in the scene, the available camera types, and their
@@ -138,7 +138,7 @@
 
     To move, rotate, or scale components in the scene, you need to select them
     first. The selection mode buttons determine how components are selected when
-    you click them in \uicontrol {3D Editor}:
+    you click them in the \uicontrol{3D} view:
 
     \list
         \li In the \inlineimage select_item.png
@@ -157,14 +157,14 @@
     {keyboard shortcuts} applicable to your operating system, for example,
     \key Ctrl+C and \key Ctrl+V on Windows to copy-paste components.
 
-    \target moving components 3d editor
+    \target moving components 3d view
     \section1 Moving Components
 
-    \image studio-3d-editor-move.png "3D Editor in move mode"
+    \image studio-3d-editor-move.png "The 3D view in move mode"
 
     You can move components in relation to their coordinate system, along the x,
     y, or z axis or on the top, bottom, left, and right clip planes of the
-    \uicontrol {3D Editor} view.
+    the \uicontrol{3D} view.
 
     To move components, select \inlineimage move_on.png
     or press \key W:
@@ -174,13 +174,13 @@
             and drag the component along the axis.
         \li To move components on a plane, click the plane handle and drag the
             component on the plane.
-        \li To move an component freely in 3D editor, click and drag the gray
+        \li To move an component freely in the 3D view, click and drag the gray
             handle at the center of the move gizmo.
      \endlist
 
     \section1 Rotating Components
 
-    \image studio-3d-editor-rotate.png "3D Editor in rotate mode"
+    \image studio-3d-editor-rotate.png "The 3D view in rotate mode"
 
     To rotate components, select \inlineimage rotate_on.png
     or press \key E:
@@ -194,7 +194,7 @@
 
     \section1 Scaling Components
 
-    \image studio-3d-editor-scale.png "3D Editor in scale mode"
+    \image studio-3d-editor-scale.png "The 3D view in scale mode"
 
     You can use the scale handles to adjust the local x, y, or z scale of a
     component. You can adjust the scale across one, two, or three axes,
@@ -214,31 +214,31 @@
 
     \section1 Aligning Views and Cameras
 
-    To align a camera to the \uicontrol {3D Editor} view:
+    To align a camera to the \uicontrol{3D} view:
     \list 1
-      \li Select a camera in \uicontrol {3D Editor} or \uicontrol {Navigator}.
-      \li In \uicontrol {3D Editor},
+      \li Select a camera in the \uicontrol{3D} or \uicontrol {Navigator} view.
+      \li In the \uicontrol{3D} view,
       select \inlineimage icons/align-camera-on.png
       .
     \endlist
 
     This moves and rotates the camera so that the camera shows the same view
-    as the current view in \uicontrol {3D Editor}.
+    as the current view in the \uicontrol{3D} view.
 
-    To align the \uicontrol {3D Editor} view to a camera:
+    To align the the \uicontrol{3D} view to a camera:
         \list 1
-      \li Select a camera in \uicontrol {3D Editor} or \uicontrol {Navigator}.
-      \li In \uicontrol {3D Editor},
+      \li Select a camera in the \uicontrol{3D} view or \uicontrol {Navigator}.
+      \li In the \uicontrol{3D} view,
       select \inlineimage icons/align-view-on.png
       .
     \endlist
 
     This copies the position as well as x and y rotation values from the
-    camera and applies them to \uicontrol {3D Editor}.
+    camera and applies them to the \uicontrol{3D} view.
 
     \section1 Toggling Visibility
 
-    To toggle the visibility of objects in \uicontrol {3D Editor}, select
+    To toggle the visibility of objects in the \uicontrol{3D} view, select
     \inlineimage icons/visibilityon.png
     in the toolbar. This opens a menu with the following options:
 
@@ -256,29 +256,29 @@
       \row
         \li Always Show Camera Frustums
         \li Toggles between always showing the camera frustum and showing it
-        only for cameras selected in \uicontrol {3D Editor}.
+        only for cameras selected in the \uicontrol{3D} view.
       \row
         \li Always Show Particle Emitters and Attractors
         \li Toggle between always showing the particle emitter and attractor
         visualizations and only showing them when the emitter or attractor is
-        selected in \uicontrol {3D Editor}.
+        selected in the \uicontrol{3D} view.
     \endtable
 
     \section1 Particle Editor
 
     The particle editor tools help you preview your particle systems in
-    \uicontrol {3D Editor}. You can select one particle system to preview at a
+    the \uicontrol{3D} view. You can select one particle system to preview at a
     time.
 
-    To preview a particle system in \uicontrol{3D Editor}:
+    To preview a particle system in the \uicontrol{3D} view:
 
     \list 1
-      \li Select a particle system in \uicontrol Navigator or
-      \uicontrol {3D Editor}.
-      \li In the \uicontrol {3D Editor}, select
+      \li Select a particle system in the \uicontrol Navigator or
+      \uicontrol{3D} view.
+      \li In the \uicontrol{3D} view, select
       \inlineimage icons/particle-animation-on.png
       to activate particle animation. Now you can see the particle animation in
-      \uicontrol{3D Editor}.
+      the \uicontrol{3D} view.
     \endlist
 
     You can pause the particle animation by selecting
@@ -287,9 +287,9 @@
     \inlineimage icons/particles-seek.png
     to manually seek forward or backward in the particle animation.
 
-    \section1 Summary of the 3D Editor Toolbar Buttons
+    \section1 Summary of the 3D View Toolbar Buttons
 
-    The \uicontrol {3D Editor} toolbar contains the following buttons:
+    The \uicontrol{3D} view toolbar contains the following buttons:
 
     \table
     \header
@@ -308,7 +308,7 @@
             \inlineimage move_on.png
         \li Activate the Move Tool
         \li \key W
-        \li \l{moving components 3d editor}{Moving Components}
+        \li \l{moving components 3d view}{Moving Components}
     \row
         \li \inlineimage rotate_off.png
             \inlineimage rotate_on.png
@@ -325,13 +325,13 @@
         \li \inlineimage fit_selected.png
         \li Fit Selected Object to View
         \li \key F
-        \li \l{Controlling the 3D Editor Camera}
+        \li \l{Controlling the 3D View Camera}
     \row
         \li  \inlineimage perspective_camera.png
              \inlineimage orthographic_camera.png
         \li Toggle Perspective/Orthographic Edit Camera
         \li \key T
-        \li \l{Controlling the 3D Editor Camera}
+        \li \l{Controlling the 3D View Camera}
     \row
         \li \inlineimage global.png
             \inlineimage local.png

@@ -107,7 +107,7 @@
     highly-readable, structured layout. Every UI file consists of two parts:
     an imports section and an component declaration section. The components and
     functionality most common to UIs are provided in the \c QtQuick import. You
-    can view the code of a \e .ui.qml file in the \l{Text Editor} view.
+    can view the code of a \e .ui.qml file in the \l{Code} view.
 
     Next, you will edit the values of the properties of the component instances
     to create the main page of the UI.
@@ -148,14 +148,14 @@
 
     To preview the changes that you make to the UI while you make
     them, select the \inlineimage icons/live_preview.png
-    (\uicontrol {Show Live Preview}) button on the \uicontrol {Form Editor}
+    (\uicontrol {Show Live Preview}) button on the \uicontrol {2D}
     view toolbar or press \key {Alt+P}.
 
     The \e Screen01.ui.qml file that the wizard template created for you should
     be open in the \uicontrol Design mode. If it is not, you can double-click it
     in the \uicontrol Projects view to open it.
 
-    To modify the \e Screen01 component in \uicontrol {Form Editor}:
+    To modify the \e Screen01 component in the \uicontrol {2D} view:
 
     \list 1
         \li Drag-and-drop the background image from \uicontrol Assets to the
@@ -167,9 +167,9 @@
             \image loginui1-image-properties.png "Image properties"
         \li Drag-and-drop the Qt logo from \uicontrol Assets to the rectangle
             in \uicontrol Navigator and move it to the top-center of the
-            background image in \uicontrol {Form Editor}.
+            background image in \uicontrol the {2D} view.
         \li Select \e Text in \uicontrol Navigator and drag it below the logo
-            in \uicontrol {Form Editor}. If the text is hidden behind the
+            in the \uicontrol {2D} view. If the text is hidden behind the
             background, select \inlineimage icons/navigator-arrowdown.png
             in \uicontrol Navigator to move the text as the last item in the
             component tree structure. The text should then appear on top
@@ -191,7 +191,7 @@
             to save your changes.
     \endlist
 
-    Your UI should now look something like this in \uicontrol {Form Editor}
+    Your UI should now look something like this in the \uicontrol {2D} view
     and live preview:
 
     \image loginui1-main-page.jpg "Modified UI in the Design mode"
@@ -212,7 +212,7 @@
     \skipto import
     \printuntil Controls
 
-    You can view the import statements in the \uicontrol {Text Editor} view.
+    You can view the import statements in the \uicontrol {Code} view.
 
     The \l Components view lists the components in each module that are
     supported by \QDS. You can use the basic components to create your own
@@ -372,7 +372,7 @@
 
     Your button should now look something like this:
 
-    \image loginui1-entry-field-styled.jpg "Modified button in the Form Editor"
+    \image loginui1-entry-field-styled.jpg "Modified button in the 2D view"
 
     Next, you will add instances of the \e EntryField component to the
     \e Screen01 component and modify their properties.
@@ -383,7 +383,7 @@
 
     \list 1
         \li Double-click \e Screen01.ui.qml in \uicontrol Projects
-            to open it in \uicontrol {Form Editor}.
+            to open it in the \uicontrol {2D} view.
         \li Drag-and-drop two instances of the EntryField component from
             \uicontrol Components > \uicontrol {My Components} to the rectangle
             in \uicontrol Navigator.
@@ -400,7 +400,7 @@
             translatable.
         \li Move the cursor on the selected button instance to make the
             selection icon appear. You can now drag the button instance
-            to another position in \uicontrol {Form Editor}. Use the
+            to another position in the \uicontrol {2D} view. Use the
             guidelines to align the button instances below the tag line:
             \image loginui1-align-buttons.jpg
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
@@ -456,12 +456,12 @@
 
     \list 1
         \li Double-click \e Screen01.ui.qml in \uicontrol Projects
-            to open it in \uicontrol {Form Editor}.
+            to open it in the \uicontrol {2D} view.
         \li Drag-and-drop two instances of the PushButton component from
             \uicontrol Components > \uicontrol {My Components} to the rectangle
             in \uicontrol Navigator.
         \li Drag the button instances to the bottom of the background image in
-            \uicontrol {Form Editor}. Use the guidelines to align the button
+            the \uicontrol {2D} view. Use the guidelines to align the button
             instances horizontally with the entry fields.
         \li Select the first PushButton instance in \uicontrol Navigator
             to modify its ID and text label in \uicontrol Properties.
@@ -477,9 +477,9 @@
     \endlist
 
     The first iteration of your UI is now ready and should now look something
-    like this in \uicontrol {Form Editor} and live preview:
+    like this in the \uicontrol {2D} view and live preview:
 
-    \image loginui1-ready.jpg "The finished UI in Form Editor"
+    \image loginui1-ready.jpg "The finished UI in the 2D view"
 
     \section2 Learn More - Component IDs
 
