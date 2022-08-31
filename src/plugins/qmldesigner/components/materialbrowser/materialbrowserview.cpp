@@ -223,9 +223,6 @@ void MaterialBrowserView::refreshModel(bool updateImages)
 
 bool MaterialBrowserView::isMaterial(const ModelNode &node) const
 {
-    if (!node.isValid())
-        return false;
-
     return node.metaInfo().isQtQuick3DMaterial();
 }
 
@@ -298,8 +295,8 @@ void MaterialBrowserView::nodeReparented(const ModelNode &node,
 
     ModelNode newParentNode = newPropertyParent.parentModelNode();
     ModelNode oldParentNode = oldPropertyParent.parentModelNode();
-    bool matAdded = newParentNode.isValid() && newParentNode.id() == Constants::MATERIAL_LIB_ID;
-    bool matRemoved = oldParentNode.isValid() && oldParentNode.id() == Constants::MATERIAL_LIB_ID;
+    bool matAdded = newParentNode.id() == Constants::MATERIAL_LIB_ID;
+    bool matRemoved = oldParentNode.id() == Constants::MATERIAL_LIB_ID;
 
     if (matAdded || matRemoved) {
         if (matAdded && !m_puppetResetPending) {
@@ -316,7 +313,7 @@ void MaterialBrowserView::nodeReparented(const ModelNode &node,
 void MaterialBrowserView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
     // removing the material editor node
-    if (removedNode.isValid() && removedNode.id() == Constants::MATERIAL_LIB_ID) {
+    if (removedNode.id() == Constants::MATERIAL_LIB_ID) {
         m_widget->materialBrowserModel()->setMaterials({}, m_hasQuick3DImport);
         return;
     }
