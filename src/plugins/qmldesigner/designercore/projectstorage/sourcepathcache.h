@@ -45,7 +45,7 @@ public:
         }
     }
 
-    SourceId sourceId(SourcePathView sourcePath) const
+    std::pair<SourceContextId, SourceId> sourceContextAndSourceId(SourcePathView sourcePath) const
     {
         Utils::SmallStringView sourceContextPath = sourcePath.directory();
 
@@ -53,7 +53,14 @@ public:
 
         Utils::SmallStringView sourceName = sourcePath.name();
 
-        return m_sourcePathCache.id({sourceName, sourceContextId});
+        auto sourceId = m_sourcePathCache.id({sourceName, sourceContextId});
+
+        return {sourceContextId, sourceId};
+    }
+
+    SourceId sourceId(SourcePathView sourcePath) const
+    {
+        return sourceContextAndSourceId(sourcePath).second;
     }
 
     SourceId sourceId(SourceContextId sourceContextId, Utils::SmallStringView sourceName) const
