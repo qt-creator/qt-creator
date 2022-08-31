@@ -118,8 +118,8 @@ QIcon paintPreview(const EasingCurve &curve, const QColor& background, const QCo
 
 namespace Internal {
 
-static const char settingsKey[] = "EasingCurveList";
-static const char settingsFileName[] = "EasingCurves.ini";
+const char settingsKey[] = "EasingCurveList";
+const char settingsFileName[] = "EasingCurves.ini";
 
 QString settingsFullFilePath(const QSettings::Scope &scope)
 {

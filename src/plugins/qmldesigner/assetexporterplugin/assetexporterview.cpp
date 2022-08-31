@@ -17,8 +17,8 @@ Q_LOGGING_CATEGORY(loggerInfo, "qtc.designer.assetExportPlugin.view", QtInfoMsg)
 Q_LOGGING_CATEGORY(loggerWarn, "qtc.designer.assetExportPlugin.view", QtWarningMsg)
 //Q_LOGGING_CATEGORY(loggerError, "qtc.designer.assetExportPlugin.view", QtCriticalMsg)
 
-static const int RetryIntervalMs = 500;
-static const int MinRetry = 2;
+const int RetryIntervalMs = 500;
+const int MinRetry = 2;
 }
 
 namespace QmlDesigner {

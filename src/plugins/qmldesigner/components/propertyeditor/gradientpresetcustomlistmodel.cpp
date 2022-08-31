@@ -16,8 +16,8 @@
 
 namespace Internal {
 
-static const char settingsKey[] = "GradientPresetCustomList";
-static const char settingsFileName[] = "GradientPresets.ini";
+const char settingsKey[] = "GradientPresetCustomList";
+const char settingsFileName[] = "GradientPresets.ini";
 
 QString settingsFullFilePath(const QSettings::Scope &scope)
 {

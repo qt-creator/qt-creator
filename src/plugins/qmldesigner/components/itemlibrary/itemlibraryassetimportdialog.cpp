@@ -39,8 +39,11 @@ namespace QmlDesigner {
 
 namespace {
 
-static void addFormattedMessage(Utils::OutputFormatter *formatter, const QString &str,
-                                const QString &srcPath, Utils::OutputFormat format) {
+void addFormattedMessage(Utils::OutputFormatter *formatter,
+                         const QString &str,
+                         const QString &srcPath,
+                         Utils::OutputFormat format)
+{
     if (!formatter)
         return;
     QString msg = str;
@@ -52,13 +55,13 @@ static void addFormattedMessage(Utils::OutputFormatter *formatter, const QString
                 formatter->plainTextEdit()->verticalScrollBar()->maximum());
 }
 
-static const int rowHeight = 32;
-static const int checkBoxColWidth = 18;
-static const int labelMinWidth = 130;
-static const int controlMinWidth = 65;
-static const int columnSpacing = 16;
+const int rowHeight = 32;
+const int checkBoxColWidth = 18;
+const int labelMinWidth = 130;
+const int controlMinWidth = 65;
+const int columnSpacing = 16;
 
-}
+} // namespace
 
 ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
         const QStringList &importFiles, const QString &defaulTargetDirectory,

@@ -580,20 +580,18 @@ double round(double value, int decimal_places) {
     return std::round(value * multiplier) / multiplier;
 }
 
-static const std::initializer_list<QStringView> tagAllowList{
-    u"path", u"rect", u"line", u"polygon", u"polyline", u"circle", u"ellipse"
-};
+const std::initializer_list<QStringView> tagAllowList{
+    u"path", u"rect", u"line", u"polygon", u"polyline", u"circle", u"ellipse"};
 
 // fillOpacity and strokeOpacity aren't actual QML properties, but get mapped anyways
 // for completeness.
-static const std::initializer_list<std::pair<QStringView, QString>> mapping{
-    {u"fill", "fillColor"},
-    {u"stroke", "strokeColor"},
-    {u"stroke-width", "strokeWidth"},
-    {u"opacity", "opacity"},
-    {u"fill-opacity", "fillOpacity"},
-    {u"stroke-opacity", "strokeOpacity"}
-};
+const std::initializer_list<std::pair<QStringView, QString>> mapping{{u"fill", "fillColor"},
+                                                                     {u"stroke", "strokeColor"},
+                                                                     {u"stroke-width", "strokeWidth"},
+                                                                     {u"opacity", "opacity"},
+                                                                     {u"fill-opacity", "fillOpacity"},
+                                                                     {u"stroke-opacity",
+                                                                      "strokeOpacity"}};
 
 template <typename Container>
 bool contains(const Container &c, const QStringView &stringView) {
