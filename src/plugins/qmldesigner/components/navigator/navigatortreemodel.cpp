@@ -669,9 +669,12 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
 
         QmlObjectNode newQmlObjectNode;
         m_view->executeInTransaction("NavigatorTreeModel::handleItemLibraryItemDrop", [&] {
-            newQmlObjectNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, QPointF(), targetProperty, false);
-            ModelNode newModelNode = newQmlObjectNode.modelNode();
-            if (newModelNode.isValid()) {
+            newQmlObjectNode = QmlItemNode::createQmlObjectNode(m_view,
+                                                                itemLibraryEntry,
+                                                                QPointF(),
+                                                                targetProperty,
+                                                                false);
+            if (ModelNode newModelNode = newQmlObjectNode.modelNode()) {
                 if (newModelNode.metaInfo().isQtQuick3DMaterial()) {
                     // Don't allow dropping materials on any node but Models
                     if (!targetNode.metaInfo().isQtQuick3DModel()) {
