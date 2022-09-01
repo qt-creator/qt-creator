@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QFrame>
+#include <QVariantMap>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
