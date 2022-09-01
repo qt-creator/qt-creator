@@ -29,9 +29,10 @@ void MyMain::select(int index)
     IText3 *t3 = Aggregation::query<IText3>(entry);
     // set the label texts and enable/disable, depending on whether
     // the respective interface implementations exist
-    ui.text1->setText(t1 ? t1->text() : tr("N/A"));
-    ui.text2->setText(t2 ? t2->text() : tr("N/A"));
-    ui.text3->setText(t3 ? t3->text() : tr("N/A"));
+    const QString na("N/A");
+    ui.text1->setText(t1 ? t1->text() : na);
+    ui.text2->setText(t2 ? t2->text() : na);
+    ui.text3->setText(t3 ? t3->text() : na);
     ui.text1->setEnabled(t1);
     ui.text2->setEnabled(t2);
     ui.text3->setEnabled(t3);
