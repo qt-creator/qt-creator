@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "introductionwidget.h"
+#include "welcometr.h"
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
@@ -34,11 +35,11 @@ void IntroductionWidget::askUserAboutIntroduction(QWidget *parent, QSettings *se
 
     Utils::InfoBarEntry
         info(kTakeTourSetting,
-             tr("Would you like to take a quick UI tour? This tour highlights important user "
-                "interface elements and shows how they are used. To take the tour later, "
-                "select Help > UI Tour."),
+             Tr::tr("Would you like to take a quick UI tour? This tour highlights important user "
+                    "interface elements and shows how they are used. To take the tour later, "
+                    "select Help > UI Tour."),
              Utils::InfoBarEntry::GlobalSuppression::Enabled);
-    info.addCustomButton(tr("Take UI Tour"), [parent] {
+    info.addCustomButton(Tr::tr("Take UI Tour"), [parent] {
         Core::ICore::infoBar()->removeInfo(kTakeTourSetting);
         Core::ICore::infoBar()->globallySuppressInfo(kTakeTourSetting);
         auto intro = new IntroductionWidget(parent);
@@ -85,63 +86,63 @@ IntroductionWidget::IntroductionWidget(QWidget *parent)
     m_bodyCss = "font-size: 16px;";
     m_items = {
         {QLatin1String("ModeSelector"),
-         tr("Mode Selector"),
-         tr("Select different modes depending on the task at hand."),
-         tr("<p style=\"margin-top: 30px\"><table>"
-            "<tr><td style=\"padding-right: 20px\">Welcome:</td><td>Open examples, tutorials, and "
-            "recent sessions and projects.</td></tr>"
-            "<tr><td>Edit:</td><td>Work with code and navigate your project.</td></tr>"
-            "<tr><td>Design:</td><td>Visually edit Widget-based user interfaces, state charts and UML models.</td></tr>"
-            "<tr><td>Debug:</td><td>Analyze your application with a debugger or other "
-            "analyzers.</td></tr>"
-            "<tr><td>Projects:</td><td>Manage project settings.</td></tr>"
-            "<tr><td>Help:</td><td>Browse the help database.</td></tr>"
-            "</table></p>")},
+         Tr::tr("Mode Selector"),
+         Tr::tr("Select different modes depending on the task at hand."),
+         Tr::tr("<p style=\"margin-top: 30px\"><table>"
+                "<tr><td style=\"padding-right: 20px\">Welcome:</td><td>Open examples, tutorials, and "
+                "recent sessions and projects.</td></tr>"
+                "<tr><td>Edit:</td><td>Work with code and navigate your project.</td></tr>"
+                "<tr><td>Design:</td><td>Visually edit Widget-based user interfaces, state charts and UML models.</td></tr>"
+                "<tr><td>Debug:</td><td>Analyze your application with a debugger or other "
+                "analyzers.</td></tr>"
+                "<tr><td>Projects:</td><td>Manage project settings.</td></tr>"
+                "<tr><td>Help:</td><td>Browse the help database.</td></tr>"
+                "</table></p>")},
         {QLatin1String("KitSelector.Button"),
-         tr("Kit Selector"),
-         tr("Select the active project or project configuration."),
+         Tr::tr("Kit Selector"),
+         Tr::tr("Select the active project or project configuration."),
          {}},
         {QLatin1String("Run.Button"),
-         tr("Run Button"),
-         tr("Run the active project. By default this builds the project first."),
+         Tr::tr("Run Button"),
+         Tr::tr("Run the active project. By default this builds the project first."),
          {}},
         {QLatin1String("Debug.Button"),
-         tr("Debug Button"),
-         tr("Run the active project in a debugger."),
+         Tr::tr("Debug Button"),
+         Tr::tr("Run the active project in a debugger."),
          {}},
-        {QLatin1String("Build.Button"), tr("Build Button"), tr("Build the active project."), {}},
+        {QLatin1String("Build.Button"), Tr::tr("Build Button"), Tr::tr("Build the active project."), {}},
         {QLatin1String("LocatorInput"),
-         tr("Locator"),
-         tr("Type here to open a file from any open project."),
-         tr("Or:"
-            "<ul>"
-            "<li>type <code>c&lt;space&gt;&lt;pattern&gt;</code> to jump to a class definition</li>"
-            "<li>type <code>f&lt;space&gt;&lt;pattern&gt;</code> to open a file from the file "
-            "system</li>"
-            "<li>click on the magnifier icon for a complete list of possible options</li>"
-            "</ul>")},
+         Tr::tr("Locator"),
+         Tr::tr("Type here to open a file from any open project."),
+         Tr::tr("Or:"
+                "<ul>"
+                "<li>type <code>c&lt;space&gt;&lt;pattern&gt;</code> to jump to a class definition</li>"
+                "<li>type <code>f&lt;space&gt;&lt;pattern&gt;</code> to open a file from the file "
+                "system</li>"
+                "<li>click on the magnifier icon for a complete list of possible options</li>"
+                "</ul>")},
         {QLatin1String("OutputPaneButtons"),
-         tr("Output"),
-         tr("Find compile and application output here, "
-            "as well as a list of configuration and build issues, "
-            "and the panel for global searches."),
+         Tr::tr("Output"),
+         Tr::tr("Find compile and application output here, "
+                "as well as a list of configuration and build issues, "
+                "and the panel for global searches."),
          {}},
         {QLatin1String("ProgressInfo"),
-         tr("Progress Indicator"),
-         tr("Progress information about running tasks is shown here."),
+         Tr::tr("Progress Indicator"),
+         Tr::tr("Progress information about running tasks is shown here."),
          {}},
         {{},
-         tr("Escape to Editor"),
-         tr("Pressing the Escape key brings you back to the editor. Press it "
-            "multiple times to also hide context help and output, giving the editor more "
-            "space."),
+         Tr::tr("Escape to Editor"),
+         Tr::tr("Pressing the Escape key brings you back to the editor. Press it "
+                "multiple times to also hide context help and output, giving the editor more "
+                "space."),
          {}},
         {{},
-         tr("The End"),
-         tr("You have now completed the UI tour. To learn more about the highlighted "
-            "controls, see <a style=\"color: #41CD52\" "
-            "href=\"qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html\">User "
-            "Interface</a>."),
+         Tr::tr("The End"),
+         Tr::tr("You have now completed the UI tour. To learn more about the highlighted "
+                "controls, see <a style=\"color: #41CD52\" "
+                "href=\"qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html\">User "
+                "Interface</a>."),
          {}}};
     setStep(0);
     resizeToParent();
@@ -361,7 +362,7 @@ void IntroductionWidget::setStep(uint index)
 {
     QTC_ASSERT(index < m_items.size(), return);
     m_step = index;
-    m_continueLabel->setText(tr("UI Introduction %1/%2 >").arg(m_step + 1).arg(m_items.size()));
+    m_continueLabel->setText(Tr::tr("UI Introduction %1/%2 >").arg(m_step + 1).arg(m_items.size()));
     const Item &item = m_items.at(m_step);
     m_stepText->setText("<html><body style=\"" + m_bodyCss + "\">" + "<h1>" + item.title
                         + "</h1><p>" + item.brief + "</p>" + item.description + "</body></html>");

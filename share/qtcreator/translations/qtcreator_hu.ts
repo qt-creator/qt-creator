@@ -12617,7 +12617,7 @@ a verziókövetőhöz (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>ProjectWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>Form</source>
         <translation>Forma</translation>
@@ -13954,17 +13954,10 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::GettingStartedWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>Getting Started</source>
         <translation>Első lépések</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GettingStartedWelcomePageWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Forma</translation>
     </message>
     <message>
         <source>Examples not installed</source>
@@ -18721,17 +18714,10 @@ p, li { white-space: pre-wrap; }(new line)
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::CommunityWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>Community</source>
         <translation>Közösség</translation>
-    </message>
-</context>
-<context>
-    <name>Welcome::Internal::CommunityWelcomePageWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Forma</translation>
     </message>
     <message>
         <source>News From the Qt Labs</source>
@@ -18769,9 +18755,6 @@ p, li { white-space: pre-wrap; }(new line)
         <source>Qt for Symbian at Forum Nokia</source>
         <translation>Qt Symbianra a Nokia Fórumán</translation>
     </message>
-</context>
-<context>
-    <name>Welcome::WelcomeMode</name>
     <message>
         <source>#gradientWidget {
   background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));

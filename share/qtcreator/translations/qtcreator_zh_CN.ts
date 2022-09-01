@@ -17365,7 +17365,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>ProjectWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">界面</translation>
@@ -17541,11 +17541,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::GettingStartedWelcomePageWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">界面</translation>
-    </message>
+    <name>Welcome</name>
     <message>
         <source>Examples not installed</source>
         <translation type="obsolete">例子没有被安装</translation>
@@ -17621,10 +17617,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>The specified location already exists. Please specify a valid location.</source>
         <translation type="obsolete">指定路径已经存在，请指定有效路径。</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation type="obsolete">新建项目</translation>
     </message>
     <message>
         <source>&lt;a href=&apos;%1&apos;&gt;Details...&lt;/a&gt;</source>
@@ -17828,11 +17820,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::CommunityWelcomePageWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">界面</translation>
-    </message>
+    <name>Welcome</name>
     <message>
         <source>&lt;b&gt;Forum Nokia&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Mobile Application Support&lt;/font&gt;</source>
         <translation type="obsolete">&lt;b&gt;诺基亚论坛&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;移动应用帮助&lt;/font&gt;</translation>
@@ -17913,9 +17901,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Qt for Symbian at Forum Nokia</source>
         <translation type="obsolete">诺基亚论坛---Qt for Symbian</translation>
     </message>
-</context>
-<context>
-    <name>Welcome::WelcomeMode</name>
     <message>
         <source>Help us make Qt Creator even better</source>
         <translation type="obsolete">协助我们使Qt Creator 更加完美</translation>
@@ -17923,10 +17908,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>Feedback</source>
         <translation type="obsolete">反馈</translation>
-    </message>
-    <message>
-        <source>Welcome</source>
-        <translation type="obsolete">欢迎</translation>
     </message>
 </context>
 <context>
@@ -19210,7 +19191,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::GettingStartedWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>Getting Started</source>
         <translation type="obsolete">入门</translation>
@@ -19711,7 +19692,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::CommunityWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>Community</source>
         <translation type="obsolete">社区</translation>
@@ -37233,7 +37214,7 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>ProjectWelcomePageWidget</name>
+    <name>Welcome</name>
     <message>
         <source>%1 (last session)</source>
         <translation type="obsolete">%1 (最后的会话)</translation>
@@ -37241,10 +37222,6 @@ These files are preserved.</source>
     <message>
         <source>%1 (current session)</source>
         <translation type="obsolete">%1 (当前会话)</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation type="obsolete">新项目</translation>
     </message>
 </context>
 <context>
@@ -39663,7 +39640,7 @@ stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::WelcomeMode</name>
+    <name>Welcome</name>
     <message>
         <source>Welcome</source>
         <translation>欢迎</translation>

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "introductionwidget.h"
+#include "welcometr.h"
 
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
@@ -123,7 +124,7 @@ public:
     {
         m_welcomeMode = new WelcomeMode;
 
-        auto introAction = new QAction(tr("UI Tour"), this);
+        auto introAction = new QAction(Tr::tr("UI Tour"), this);
         connect(introAction, &QAction::triggered, this, []() {
             auto intro = new IntroductionWidget(ICore::dialogParent());
             intro->show();
@@ -240,7 +241,7 @@ public:
             auto projectVBox = new QVBoxLayout;
             projectVBox->setSpacing(buttonSpacing);
             auto newButton = new WelcomePageButton(mainWidget);
-            newButton->setText(tr("Create Project..."));
+            newButton->setText(Tr::tr("Create Project..."));
             newButton->setWithAccentColor(true);
             newButton->setOnClicked([] {
                 QAction *openAction = ActionManager::command(Core::Constants::NEW)->action();
@@ -248,7 +249,7 @@ public:
             });
 
             auto openButton = new WelcomePageButton(mainWidget);
-            openButton->setText(tr("Open Project..."));
+            openButton->setText(Tr::tr("Open Project..."));
             openButton->setWithAccentColor(true);
             openButton->setOnClicked([] {
                 QAction *openAction = ActionManager::command(Core::Constants::OPEN)->action();
@@ -267,13 +268,13 @@ public:
             newVBox->setSpacing(buttonSpacing / 3);
             vbox->addItem(newVBox);
 
-            auto newLabel = new QLabel(tr("New to Qt?"), mainWidget);
+            auto newLabel = new QLabel(Tr::tr("New to Qt?"), mainWidget);
             newLabel->setFont(brandFont());
             newLabel->setAlignment(Qt::AlignHCenter);
             newVBox->addWidget(newLabel);
 
             auto getStartedButton = new WelcomePageButton(mainWidget);
-            getStartedButton->setText(tr("Get Started"));
+            getStartedButton->setText(Tr::tr("Get Started"));
             getStartedButton->setOnClicked([] {
                 QDesktopServices::openUrl(
                     QString("qthelp://org.qt-project.qtcreator/doc/creator-getting-started.html"));
@@ -314,11 +315,11 @@ public:
         hbox->setContentsMargins(0, 2 * ItemGap, HSpacing, 2 * ItemGap);
 
         const QList<QPair<QString, QString> > links {
-            { tr("Get Qt"), "https://www.qt.io/download" },
-            { tr("Qt Account"), "https://account.qt.io" },
-            { tr("Online Community"), "https://forum.qt.io" },
-            { tr("Blogs"), "https://planet.qt.io" },
-            { tr("User Guide"), "qthelp://org.qt-project.qtcreator/doc/index.html" },
+            { Tr::tr("Get Qt"), "https://www.qt.io/download" },
+            { Tr::tr("Qt Account"), "https://account.qt.io" },
+            { Tr::tr("Online Community"), "https://forum.qt.io" },
+            { Tr::tr("Blogs"), "https://planet.qt.io" },
+            { Tr::tr("User Guide"), "qthelp://org.qt-project.qtcreator/doc/index.html" },
         };
         for (const QPair<QString, QString> &link : links) {
             auto button = new WelcomePageButton(this);
@@ -337,7 +338,7 @@ public:
 
 WelcomeMode::WelcomeMode()
 {
-    setDisplayName(tr("Welcome"));
+    setDisplayName(Tr::tr("Welcome"));
 
     const Icon CLASSIC(":/welcome/images/mode_welcome.png");
     const Icon FLAT({{":/welcome/images/mode_welcome_mask.png",

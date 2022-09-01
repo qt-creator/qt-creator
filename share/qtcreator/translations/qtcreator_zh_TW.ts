@@ -11851,7 +11851,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::CommunityWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>News &amp;&amp; Support</source>
         <translation>新聞與支持</translation>
@@ -24640,7 +24640,7 @@ In addition, device connectivity will be tested.</source>
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::WelcomeMode</name>
+    <name>Welcome</name>
     <message>
         <source>Welcome</source>
         <translation>歡迎</translation>

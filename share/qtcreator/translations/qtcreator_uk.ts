@@ -25080,14 +25080,11 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::CommunityWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>News &amp;&amp; Support</source>
         <translation type="vanished">Новини та підтримка</translation>
     </message>
-</context>
-<context>
-    <name>Welcome::Internal::WelcomeMode</name>
     <message>
         <source>Welcome</source>
         <translation>Ласкаво просимо</translation>

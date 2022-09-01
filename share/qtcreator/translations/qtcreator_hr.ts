@@ -40916,7 +40916,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::IntroductionWidget</name>
+    <name>Welcome</name>
     <message>
         <source>Take a UI Tour</source>
         <translation>Pregledaj vodič kroz grafičko sučelje</translation>
@@ -41021,16 +41021,10 @@ What do you want to do?</source>
         <source>UI Introduction %1/%2 &gt;</source>
         <translation>Uvod za grafičko sučelje %1/%2 &gt;</translation>
     </message>
-</context>
-<context>
-    <name>Welcome::Internal::WelcomePlugin</name>
     <message>
         <source>UI Tour</source>
         <translation>Vodič kroz grafičko sučelje</translation>
     </message>
-</context>
-<context>
-    <name>Welcome::Internal::SideBar</name>
     <message>
         <source>New to Qt?</source>
         <translation>Još ne poznaš Qt?</translation>
@@ -41059,9 +41053,6 @@ What do you want to do?</source>
         <source>User Guide</source>
         <translation>Korisnički vodič</translation>
     </message>
-</context>
-<context>
-    <name>Welcome::Internal::WelcomeMode</name>
     <message>
         <source>Welcome</source>
         <translation>Dobrodošla, dobrodošao</translation>

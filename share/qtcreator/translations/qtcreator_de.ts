@@ -15828,7 +15828,7 @@ Wird ein Problem gefunden, dann wird die Anwendung angehalten und kann untersuch
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::WelcomeMode</name>
+    <name>Welcome</name>
     <message>
         <source>Welcome</source>
         <translation>Willkommen</translation>
@@ -40061,7 +40061,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::SideBar</name>
+    <name>Welcome</name>
     <message>
         <source>New to Qt?</source>
         <translation>Neu bei Qt?</translation>
@@ -43913,7 +43913,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::IntroductionWidget</name>
+    <name>Welcome</name>
     <message>
         <source>Would you like to take a quick UI tour? This tour highlights important user interface elements and shows how they are used. To take the tour later, select Help &gt; UI Tour.</source>
         <translation>Wollen Sie sich kurz die Oberfläche vorführen lassen? Dabei wird gezeigt, wo die wichtigsten Bedienelemente sind und wie man sie benutzt. Sie können die Vorführung auch später über &quot;Hilfe&quot; &gt; &quot;Oberfläche vorführen&quot; starten.</translation>
@@ -44014,9 +44014,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>UI Introduction %1/%2 &gt;</source>
         <translation>Vorführung der Oberfläche %1/%2 &gt;</translation>
     </message>
-</context>
-<context>
-    <name>Welcome::Internal::WelcomePlugin</name>
     <message>
         <source>UI Tour</source>
         <translation>Oberfläche vorführen</translation>

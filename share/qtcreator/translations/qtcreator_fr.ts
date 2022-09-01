@@ -2331,7 +2331,7 @@ Voulez vous les écraser ?</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::WelcomeMode</name>
+    <name>Welcome</name>
     <message>
         <source>Open Recent Project</source>
         <translation type="obsolete">Ouvrir un projet récent</translation>
@@ -2351,10 +2351,6 @@ Voulez vous les écraser ?</translation>
     <message>
         <source>Did You Know?</source>
         <translation type="obsolete">Le saviez-vous ?</translation>
-    </message>
-    <message>
-        <source>News From the Qt Labs</source>
-        <translation type="obsolete">Actualité de Qt Labs</translation>
     </message>
     <message>
         <source>Qt Websites</source>
@@ -2430,9 +2426,6 @@ Voulez vous les écraser ?</translation>
         <source>The code completion is CamelCase-aware. For example, to complete &lt;tt&gt;namespaceUri&lt;/tt&gt; you can just type &lt;tt&gt;nU&lt;/tt&gt; and hit &lt;tt&gt;Ctrl+Space&lt;/tt&gt;.</source>
         <translation type="obsolete">L&apos;auto-complétion du code.est compatible avec CamelCase. Par exemple, pour compléter &lt;tt&gt;namespaceUri&lt;/tt&gt; vous pouvez taper simplement &lt;tt&gt;nU&lt;/tt&gt; puis &lt;tt&gt;Ctrl+Espace&lt;/tt&gt;.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::WelcomePage</name>
     <message>
         <source>Getting Started</source>
         <translation type="obsolete">Commencer</translation>
@@ -18899,7 +18892,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ProjectWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">Formulaire</translation>
@@ -19075,51 +19068,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::GettingStartedWelcomePageWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Examples not installed</source>
-        <translation type="obsolete">Exemples non trouvés</translation>
-    </message>
-    <message>
-        <source>Open</source>
-        <translation type="obsolete">Ouvrir</translation>
-    </message>
-    <message>
-        <source>Tutorials</source>
-        <translation type="obsolete">Tutoriels</translation>
-    </message>
-    <message>
-        <source>Explore Qt Examples</source>
-        <translation type="obsolete">Explorer les exemples Qt</translation>
-    </message>
-    <message>
-        <source>Did You Know?</source>
-        <translation type="obsolete">Le saviez-vous ?</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qt Creator - A quick tour&lt;/b&gt;</source>
-        <translation type="obsolete">&lt;b&gt;Qt Creator - Aperçu rapide&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Creating an address book</source>
-        <translation type="obsolete">Créer un carnet d&apos;adresses</translation>
-    </message>
-    <message>
-        <source>Understanding widgets</source>
-        <translation type="obsolete">Comprendre les widgets</translation>
-    </message>
-    <message>
-        <source>Building with qmake</source>
-        <translation type="obsolete">Compiler grâce à qmake</translation>
-    </message>
-    <message>
-        <source>Writing test cases</source>
-        <translation type="obsolete">Écrire des tests</translation>
-    </message>
+    <name>Welcome</name>
     <message>
         <source>The Qt Creator User Interface</source>
         <translation type="obsolete">L&apos;interface utilisateur de Qt Creator</translation>
@@ -19139,10 +19088,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Creating a Qt Quick Application</source>
         <translation type="obsolete">Créer une application Qt Quick</translation>
-    </message>
-    <message>
-        <source>Choose an example...</source>
-        <translation type="obsolete">Choisir un exemple...</translation>
     </message>
     <message>
         <source>Choose an Example...</source>
@@ -19227,26 +19172,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Within a session, you can add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#dependencies&quot;&gt;dependencies&lt;/a&gt; between projects.</source>
         <translation type="obsolete">Dans une session, vous pouvez ajouter des &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-project-pane.html#dependencies&quot;&gt;dépendances&lt;/a&gt; entre des projets.</translation>
-    </message>
-    <message>
-        <source>You can switch between Qt Creator&apos;s modes using &lt;tt&gt;Ctrl+number&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Welcome&lt;/li&gt;&lt;li&gt;2 - Edit&lt;/li&gt;&lt;li&gt;3 - Debug&lt;/li&gt;&lt;li&gt;4 - Projects&lt;/li&gt;&lt;li&gt;5 - Help&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - Output&lt;/li&gt;&lt;/ul&gt;</source>
-        <translation type="obsolete">Vous pouvez basculer entre les modes de Qt Creator en utilisant &lt;tt&gt;Ctrl+number&lt;/tt&gt;:&lt;ul&gt;&lt;li&gt;1 - Accueil&lt;/li&gt;&lt;li&gt;2 - Éditeur&lt;/li&gt;&lt;li&gt;3 - Débogueur&lt;/li&gt;&lt;li&gt;4 - Projets&lt;/li&gt;&lt;li&gt;5 - Aide&lt;/li&gt;&lt;li&gt;&lt;/li&gt;&lt;li&gt;6 - Output&lt;/li&gt;&lt;/ul&gt;</translation>
-    </message>
-    <message>
-        <source>You can show and hide the side bar using &lt;tt&gt;%1+0&lt;tt&gt;.</source>
-        <translation type="obsolete">Vous pouvez afficher et masquer la barre latérale en utilisant &lt;tt&gt;%1+0&lt;tt&gt;.</translation>
-    </message>
-    <message>
-        <source>You can fine tune the &lt;tt&gt;Find&lt;/tt&gt; function by selecting &amp;quot;Whole Words&amp;quot; or &amp;quot;Case Sensitive&amp;quot;. Simply click on the icons on the right end of the line edit.</source>
-        <translation type="obsolete">Vous pouvez affiner les résultats de la fonction recherche en sélectionnant &amp;quot;Mots complets&amp;quot; ou &amp;quot;Sensible à la casse&amp;quot;. Cliquez simplement sur les icônes sur le bord droit du champ de recherche.</translation>
-    </message>
-    <message>
-        <source>If you add &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
-        <translation type="obsolete">Si vous ajoutez &lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-external-library-handling.html&quot;&gt;des bibliothèques externes&lt;/a&gt;, Qt Creator proposera automatiquement la coloration syntaxique et l&apos;auto-complétion du code.</translation>
-    </message>
-    <message>
-        <source>The code completion is CamelCase-aware. For example, to complete &lt;tt&gt;namespaceUri&lt;/tt&gt; you can just type &lt;tt&gt;nU&lt;/tt&gt; and hit &lt;tt&gt;Ctrl+Space&lt;/tt&gt;.</source>
-        <translation type="obsolete">L&apos;auto-complétion du code.est compatible avec CamelCase. Par exemple, pour compléter &lt;tt&gt;namespaceUri&lt;/tt&gt; vous pouvez taper simplement &lt;tt&gt;nU&lt;/tt&gt; puis &lt;tt&gt;Ctrl+Espace&lt;/tt&gt;.</translation>
     </message>
     <message>
         <source>You can force code completion at any time using &lt;tt&gt;Ctrl+Space&lt;/tt&gt;.</source>
@@ -19438,18 +19363,10 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::CommunityWelcomePageWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
+    <name>Welcome</name>
     <message>
         <source>News From the Qt Labs</source>
         <translation type="obsolete">Actualités de Qt Labs</translation>
-    </message>
-    <message>
-        <source>Qt Websites</source>
-        <translation type="obsolete">Sites web Qt</translation>
     </message>
     <message>
         <source>&lt;b&gt;Forum Nokia&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Mobile Application Support&lt;/font&gt;</source>
@@ -19489,16 +19406,8 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">http://labs.trolltech.com/blogs/feed</translation>
     </message>
     <message>
-        <source>Qt Home</source>
-        <translation type="obsolete">Qt Home</translation>
-    </message>
-    <message>
         <source>Qt Labs</source>
         <translation type="obsolete">Qt Labs</translation>
-    </message>
-    <message>
-        <source>Qt Git Hosting</source>
-        <translation type="obsolete">Dépôts Git Qt</translation>
     </message>
     <message>
         <source>Qt Centre</source>
@@ -19513,10 +19422,6 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Qt pour Symbian</translation>
     </message>
     <message>
-        <source>Qt for S60 at Forum Nokia</source>
-        <translation type="obsolete">Qt pour S60</translation>
-    </message>
-    <message>
         <source>Qt Support Sites</source>
         <translation type="obsolete">Sites du support Qt</translation>
     </message>
@@ -19524,9 +19429,6 @@ p, li { white-space: pre-wrap; }
         <source>Qt Links</source>
         <translation type="obsolete">Liens Qt</translation>
     </message>
-</context>
-<context>
-    <name>Welcome::WelcomeMode</name>
     <message>
         <source>#gradientWidget {
   background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
@@ -19545,18 +19447,6 @@ p, li { white-space: pre-wrap; }
     border-image: url(:/welcome/images/center_frame_header.png) 0;
     border-width: 0;
 }</translation>
-    </message>
-    <message>
-        <source>Help us make Qt Creator even better</source>
-        <translation type="obsolete">Aidez-nous à améliorer Qt Creator</translation>
-    </message>
-    <message>
-        <source>Feedback</source>
-        <translation type="obsolete">Votre avis nous interesse</translation>
-    </message>
-    <message>
-        <source>Welcome</source>
-        <translation type="obsolete">Accueil</translation>
     </message>
 </context>
 <context>
@@ -20825,11 +20715,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::GettingStartedWelcomePage</name>
-    <message>
-        <source>Getting Started</source>
-        <translation type="obsolete">Commencer</translation>
-    </message>
+    <name>Welcome</name>
 </context>
 <context>
     <name>QmakeProjectManager::Internal::S60DeviceRunConfiguration</name>
@@ -21443,11 +21329,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::CommunityWelcomePage</name>
-    <message>
-        <source>Community</source>
-        <translation type="obsolete">Communauté</translation>
-    </message>
+    <name>Welcome</name>
     <message>
         <source>News &amp;&amp; Support</source>
         <translation>Nouveauté &amp;&amp; Support</translation>
@@ -40367,18 +40249,10 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>ProjectWelcomePageWidget</name>
-    <message>
-        <source>%1 (last session)</source>
-        <translation type="obsolete">%1 (dernière session)</translation>
-    </message>
+    <name>Welcome</name>
     <message>
         <source>%1 (current session)</source>
         <translation type="obsolete">%1 (session courante)</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation type="obsolete">Nouveau projet</translation>
     </message>
 </context>
 <context>
@@ -42681,17 +42555,6 @@ Remote error output was: %1</source>
         <source>Command used for reverting diff chunks</source>
         <translatorcomment>??</translatorcomment>
         <translation>Commande utilisée pour annuler des morceaux de différences (diff chunks)</translation>
-    </message>
-</context>
-<context>
-    <name>Welcome::Internal::WelcomeMode</name>
-    <message>
-        <source>Welcome</source>
-        <translation>Accueil</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation type="obsolete">Nouveau projet</translation>
     </message>
 </context>
 <context>

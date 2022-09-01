@@ -1664,7 +1664,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::WelcomeMode</name>
+    <name>Welcome</name>
     <message>
         <source>Projects</source>
         <translation type="obsolete">Proyectos</translation>
@@ -1827,9 +1827,6 @@ Would you like to overwrite them?</source>
         <source>If you add &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-external-library-handling.html&quot;&gt;external libraries&lt;/a&gt;, Qt Creator will automatically offer syntax highlighting and code completion.</source>
         <translation type="obsolete">Si agrega &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-external-library-handling.html&quot;&gt;librerías externas&lt;/a&gt;, Qt Creator le ofrecerá automáticamente realce de sintaxis y autocompletado de código.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::WelcomePage</name>
     <message>
         <source>&lt;qt&gt;Restore Last Session &amp;gt;&amp;gt;</source>
         <translation type="obsolete">&lt;qt&gt;Restaurar última sesión &amp;gt;&amp;gt;</translation>
@@ -11797,7 +11794,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ProjectWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>Form</source>
         <translation type="unfinished">Formulario</translation>
@@ -12003,11 +12000,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::GettingStartedWelcomePageWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="unfinished">Formulario</translation>
-    </message>
+    <name>Welcome</name>
     <message>
         <location/>
         <source>Examples not installed</source>
@@ -12217,11 +12210,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::CommunityWelcomePageWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="unfinished">Formulario</translation>
-    </message>
+    <name>Welcome</name>
     <message>
         <source>News From the Qt Labs</source>
         <translation type="unfinished">Novedades desde los laboratorios de Qt</translation>
@@ -12255,9 +12244,6 @@ p, li { white-space: pre-wrap; }
         <source>Qt for S60 at Forum Nokia</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Welcome::WelcomeMode</name>
     <message>
         <source>#gradientWidget {
   background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
@@ -13255,7 +13241,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::GettingStartedWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>Getting Started</source>
         <translation type="unfinished">Comenzar con Qt</translation>
@@ -13627,7 +13613,7 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::CommunityWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>Community</source>
         <translation type="unfinished">Comunidad</translation>

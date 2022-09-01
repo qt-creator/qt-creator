@@ -17736,7 +17736,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>ProjectWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>Form</source>
         <translation type="obsolete">Formulář</translation>
@@ -17913,11 +17913,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::GettingStartedWelcomePageWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
+    <name>Welcome</name>
     <message>
         <source>Examples not installed</source>
         <translation type="obsolete">Příklady nenainstalovány</translation>
@@ -18256,11 +18252,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::CommunityWelcomePageWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
+    <name>Welcome</name>
     <message>
         <source>News From the Qt Labs</source>
         <translation type="obsolete">Novinky z laboratoří Qt</translation>
@@ -18338,9 +18330,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>Qt Links</source>
         <translation type="obsolete">Odkazy na Qt</translation>
     </message>
-</context>
-<context>
-    <name>Welcome::WelcomeMode</name>
     <message>
         <source>#gradientWidget {
   background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
@@ -18368,10 +18357,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     <message>
         <source>Feedback</source>
         <translation type="obsolete">Zpětná vazba</translation>
-    </message>
-    <message>
-        <source>Welcome</source>
-        <translation type="obsolete">Vítejte</translation>
     </message>
 </context>
 <context>
@@ -20499,7 +20484,7 @@ Důvod: %2</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::GettingStartedWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>Getting Started</source>
         <translation type="obsolete">Rychlý nástup</translation>
@@ -21262,7 +21247,7 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::CommunityWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>Community</source>
         <translation type="obsolete">Společenství</translation>
@@ -36437,7 +36422,7 @@ když bude zavolán mimo git bash.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectWelcomePageWidget</name>
+    <name>Welcome</name>
     <message>
         <source>%1 (last session)</source>
         <translation type="obsolete">%1 (poslední sezení)</translation>
@@ -36445,10 +36430,6 @@ když bude zavolán mimo git bash.</translation>
     <message>
         <source>%1 (current session)</source>
         <translation type="obsolete">%1 (nynější sezení)</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation type="obsolete">Nový projekt</translation>
     </message>
 </context>
 <context>
@@ -42213,7 +42194,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::WelcomeMode</name>
+    <name>Welcome</name>
     <message>
         <source>Welcome</source>
         <translation>Vítejte</translation>
@@ -42221,10 +42202,6 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     <message>
         <source>Welcome Mode Load Error</source>
         <translation>Chyba při nahrávání vítacího režimu</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation type="obsolete">Nový projekt</translation>
     </message>
 </context>
 <context>

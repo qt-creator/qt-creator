@@ -11711,13 +11711,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>ProjectWelcomePage</name>
-    <message>
-        <source>Form</source>
-        <translation>Obrazec</translation>
-    </message>
-</context>
-<context>
     <name>QmakeProjectManager::Internal::ClassDefinition</name>
     <message>
         <source>Form</source>
@@ -12029,7 +12022,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::CommunityWelcomePageWidget</name>
+    <name>Welcome</name>
     <message>
         <source>&lt;b&gt;Qt LGPL Support&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Buy commercial Qt support&lt;/font&gt;</source>
         <translation>&lt;b&gt;Podpora za Qt&lt;/b&gt;&lt;br /&gt;&lt;font color=&apos;gray&apos;&gt;Kupite komercialno podporo za Qt&lt;/font&gt;</translation>
@@ -13725,7 +13718,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::CommunityWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>News &amp;&amp; Support</source>
         <translation>Novice in podpora</translation>
@@ -25332,7 +25325,7 @@ ključe SSH išče na tem mestu in ne v mapi, kjer je nameščen.</translation>
     </message>
 </context>
 <context>
-    <name>ProjectWelcomePageWidget</name>
+    <name>Welcome</name>
     <message>
         <source>%1 (last session)</source>
         <translation>%1 (zadnja seja)</translation>
@@ -30281,14 +30274,10 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::WelcomeMode</name>
+    <name>Welcome</name>
     <message>
         <source>Welcome</source>
         <translation>Dobrodošli</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation>Nov projekt</translation>
     </message>
 </context>
 <context>
@@ -31489,11 +31478,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::GettingStartedWelcomePageWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Obrazec</translation>
-    </message>
+    <name>Welcome</name>
     <message>
         <source>Tutorials</source>
         <translation type="obsolete">Vodniki</translation>
@@ -31553,10 +31538,6 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     <message>
         <source>The specified location already exists. Please specify a valid location.</source>
         <translation type="obsolete">Navedena lokacija že obstaja. Določite drugo lokacijo.</translation>
-    </message>
-    <message>
-        <source>New Project</source>
-        <translation type="obsolete">Nov projekt</translation>
     </message>
     <message>
         <source>Cmd</source>
@@ -31653,9 +31634,6 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
         <source>You can quickly search methods, classes, help and more using the &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-navigation.html&quot;&gt;Locator bar&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</source>
         <translation type="obsolete">Metode, razrede, pomoč in ostalo lahko hitro najdete z uporabo &lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-navigation.html&quot;&gt;Lokatorja&lt;/a&gt; (&lt;tt&gt;%1+K&lt;/tt&gt;).</translation>
     </message>
-</context>
-<context>
-    <name>Welcome::WelcomeMode</name>
     <message>
         <source>#headerFrame {
     border-image: url(:/welcome/images/center_frame_header.png) 0;
@@ -31675,10 +31653,6 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     <message>
         <source>Feedback</source>
         <translation type="obsolete">Odziv</translation>
-    </message>
-    <message>
-        <source>Welcome</source>
-        <translation type="obsolete">Dobrodošli</translation>
     </message>
 </context>
 <context>
@@ -31893,7 +31867,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::GettingStartedWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>Getting Started</source>
         <translation type="obsolete">Začnite tu</translation>

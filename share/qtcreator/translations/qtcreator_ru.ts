@@ -52657,7 +52657,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::IntroductionWidget</name>
+    <name>Welcome</name>
     <message>
         <source>Would you like to take a quick UI tour? This tour highlights important user interface elements and shows how they are used. To take the tour later, select Help &gt; UI Tour.</source>
         <translation>Желаете познакомиться с интерфейсом программы? Всего за минуту вы узнаете, где и как используются наиболее важные элементы интерфейса пользователя. Ознакомиться можно и позже, для этого нужно зайти в Справка &gt; Знакомство.</translation>
@@ -52758,9 +52758,6 @@ What do you want to do?</source>
         <source>UI Introduction %1/%2 &gt;</source>
         <translation>Знакомство с UI %1/%2 &gt;</translation>
     </message>
-</context>
-<context>
-    <name>Welcome::Internal::SideBar</name>
     <message>
         <source>New to Qt?</source>
         <translation>Впервые с Qt?</translation>
@@ -52789,16 +52786,10 @@ What do you want to do?</source>
         <source>User Guide</source>
         <translation>Справка</translation>
     </message>
-</context>
-<context>
-    <name>Welcome::Internal::WelcomeMode</name>
     <message>
         <source>Welcome</source>
         <translation>Начало</translation>
     </message>
-</context>
-<context>
-    <name>Welcome::Internal::WelcomePlugin</name>
     <message>
         <source>UI Tour</source>
         <translation>Знакомство</translation>

@@ -1671,7 +1671,7 @@ Vuoi sovrascriverli?</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::WelcomeMode</name>
+    <name>Welcome</name>
     <message>
         <source>http://labs.trolltech.com/blogs/feed</source>
         <extracomment>Add localized feed here only if one exists</extracomment>
@@ -1827,9 +1827,6 @@ Vuoi sovrascriverli?</translation>
         <source>In the editor, &lt;tt&gt;F2&lt;/tt&gt; toggles declaration and definition while &lt;tt&gt;F4&lt;/tt&gt; toggles header file and source file.</source>
         <translation type="obsolete">Nell&apos;editor, &lt;tt&gt;F2&lt;/tt&gt; commuta tra la dichiarazione e la definizione mentre &lt;tt&gt;F4&lt;/tt&gt; alterna tra il file header ed il file sorgente.</translation>
     </message>
-</context>
-<context>
-    <name>Core::Internal::WelcomePage</name>
     <message>
         <source>Help us make Qt Creator even better</source>
         <translation type="obsolete">Aiutaci a migliorare Qt Creator</translation>
@@ -11644,7 +11641,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>ProjectWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>Form</source>
         <translation type="unfinished"></translation>
@@ -11850,11 +11847,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::GettingStartedWelcomePageWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>Welcome</name>
     <message>
         <location/>
         <source>Examples not installed</source>
@@ -12064,11 +12057,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::CommunityWelcomePageWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
-    </message>
+    <name>Welcome</name>
     <message>
         <source>News From the Qt Labs</source>
         <translation type="unfinished">Notizie dai Qt Labs</translation>
@@ -12102,9 +12091,6 @@ p, li { white-space: pre-wrap; }
         <source>Qt for S60 at Forum Nokia</source>
         <translation type="unfinished">Qt per S60 su Forum Nokia</translation>
     </message>
-</context>
-<context>
-    <name>Welcome::WelcomeMode</name>
     <message>
         <source>#gradientWidget {
   background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(247, 247, 247, 255), stop:1 rgba(215, 215, 215, 255));
@@ -13020,7 +13006,7 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::GettingStartedWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>Getting Started</source>
         <translation type="unfinished">Comincia</translation>
@@ -13392,7 +13378,7 @@ Check if the phone is connected and the TRK application is running.</source>
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::CommunityWelcomePage</name>
+    <name>Welcome</name>
     <message>
         <source>Community</source>
         <translation type="unfinished">Comunità</translation>

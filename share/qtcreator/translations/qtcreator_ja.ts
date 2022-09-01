@@ -33872,7 +33872,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::WelcomeMode</name>
+    <name>Welcome</name>
     <message>
         <source>Welcome</source>
         <translation>ようこそ</translation>
@@ -55923,14 +55923,11 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::IntroductionWidget</name>
+    <name>Welcome</name>
     <message>
         <source>Locator</source>
         <translation>クイックアクセス</translation>
     </message>
-</context>
-<context>
-    <name>Welcome::Internal::SideBar</name>
     <message>
         <source>New to Qt?</source>
         <translation>Qt を始めよう！</translation>

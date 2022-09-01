@@ -18167,7 +18167,7 @@ Kiedy zostaje wykryty problem, aplikacja jest zatrzymywana i może zostać zdebu
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::WelcomeMode</name>
+    <name>Welcome</name>
     <message>
         <source>Welcome</source>
         <translation>Powitanie</translation>
@@ -42757,7 +42757,7 @@ Termin wygaśnięcia: %3</translation>
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::SideBar</name>
+    <name>Welcome</name>
     <message>
         <source>New to Qt?</source>
         <translation>Nowicjusz?</translation>

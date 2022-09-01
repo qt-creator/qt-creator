@@ -42083,7 +42083,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>Welcome::Internal::SideBar</name>
+    <name>Welcome</name>
     <message>
         <source>New to Qt?</source>
         <translation>Ny til Qt?</translation>
@@ -42112,9 +42112,6 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
         <source>User Guide</source>
         <translation>Brugervejledning</translation>
     </message>
-</context>
-<context>
-    <name>Welcome::Internal::WelcomeMode</name>
     <message>
         <source>Welcome</source>
         <translation>Velkomst</translation>
