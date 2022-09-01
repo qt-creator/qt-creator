@@ -83,6 +83,11 @@ public:
     QString displayName() const;
     int timeoutS() const;
 
+    void setupProcess(QtcProcess *process, const Job &job);
+    void setupSynchronous(QtcProcess *process);
+    bool isFullySynchronous() const;
+    void handleDone(QtcProcess *process);
+
     VcsCommand *q = nullptr;
 
     QString m_displayName;
@@ -121,6 +126,72 @@ int VcsCommandPrivate::timeoutS() const
 {
     return std::accumulate(m_jobs.cbegin(), m_jobs.cend(), 0,
         [](int sum, const Job &job) { return sum + job.timeoutS; });
+}
+
+void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
+{
+    process->setExitCodeInterpreter(job.exitCodeInterpreter);
+    // TODO: Handle it properly in QtcProcess when QtcProcess::runBlocking() isn't used.
+    process->setTimeoutS(job.timeoutS);
+    if (!job.workingDirectory.isEmpty())
+        process->setWorkingDirectory(job.workingDirectory);
+    if (!(m_flags & VcsCommand::SuppressCommandLogging))
+        emit q->appendCommand(job.workingDirectory, job.command);
+    process->setCommand(job.command);
+    process->setDisableUnixTerminal();
+    process->setEnvironment(environment());
+    if (m_flags & VcsCommand::MergeOutputChannels)
+        process->setProcessChannelMode(QProcess::MergedChannels);
+    if (m_codec)
+        process->setCodec(m_codec);
+}
+
+void VcsCommandPrivate::setupSynchronous(QtcProcess *process)
+{
+    if (!(m_flags & VcsCommand::MergeOutputChannels)
+            && (m_progressiveOutput || !(m_flags & VcsCommand::SuppressStdErr))) {
+        process->setStdErrCallback([this](const QString &text) {
+            if (m_progressParser)
+                m_progressParser->parseProgress(text);
+            if (!(m_flags & VcsCommand::SuppressStdErr))
+                emit q->appendError(text);
+            if (m_progressiveOutput)
+                emit q->stdErrText(text);
+        });
+    }
+    // connect stdout to the output window if desired
+    if (m_progressParser || m_progressiveOutput || (m_flags & VcsCommand::ShowStdOut)) {
+        process->setStdOutCallback([this](const QString &text) {
+            if (m_progressParser)
+                m_progressParser->parseProgress(text);
+            if (m_flags & VcsCommand::ShowStdOut)
+                emit q->append(text);
+            if (m_progressiveOutput)
+                emit q->stdOutText(text);
+        });
+    }
+    // TODO: Implement it here
+//    m_process->setTimeOutMessageBoxEnabled(true);
+}
+
+bool VcsCommandPrivate::isFullySynchronous() const
+{
+    return (m_flags & VcsCommand::FullySynchronously) || (!(m_flags & VcsCommand::NoFullySync)
+            && QThread::currentThread() == QCoreApplication::instance()->thread());
+}
+
+void VcsCommandPrivate::handleDone(QtcProcess *process)
+{
+    if (!m_aborted) {
+        // Success/Fail message in appropriate window?
+        if (process->result() == ProcessResult::FinishedWithSuccess) {
+            if (m_flags & VcsCommand::ShowSuccessMessage)
+                emit q->appendMessage(process->exitMessage());
+        } else if (!(m_flags & VcsCommand::SuppressFailMessage)) {
+            emit q->appendError(process->exitMessage());
+        }
+    }
+    emit q->runCommandFinished(process->workingDirectory());
 }
 
 } // namespace Internal
@@ -285,41 +356,13 @@ CommandResult VcsCommand::runCommand(const CommandLine &command, int timeoutS,
     if (command.executable().isEmpty())
         return {};
 
-    proc.setExitCodeInterpreter(interpreter);
-    proc.setTimeoutS(timeoutS);
-
-    if (!workingDirectory.isEmpty())
-        proc.setWorkingDirectory(workingDirectory);
-
-    if (!(d->m_flags & SuppressCommandLogging))
-        emit appendCommand(workingDirectory, command);
-
-    proc.setCommand(command);
-    proc.setDisableUnixTerminal();
-    proc.setEnvironment(d->environment());
-    if (d->m_flags & MergeOutputChannels)
-        proc.setProcessChannelMode(QProcess::MergedChannels);
-    if (d->m_codec)
-        proc.setCodec(d->m_codec);
-
-    if ((d->m_flags & FullySynchronously)
-            || (!(d->m_flags & NoFullySync)
-                && QThread::currentThread() == QCoreApplication::instance()->thread())) {
+    d->setupProcess(&proc, {command, timeoutS, workingDirectory, interpreter});
+    if (d->isFullySynchronous())
         runFullySynchronous(proc);
-    } else {
+    else
         runSynchronous(proc);
-    }
+    d->handleDone(&proc);
 
-    if (!d->m_aborted) {
-        // Success/Fail message in appropriate window?
-        if (proc.result() == ProcessResult::FinishedWithSuccess) {
-            if (d->m_flags & ShowSuccessMessage)
-                emit appendMessage(proc.exitMessage());
-        } else if (!(d->m_flags & SuppressFailMessage)) {
-            emit appendError(proc.exitMessage());
-        }
-    }
-    emit runCommandFinished(workingDirectory);
     return CommandResult(proc);
 }
 
@@ -348,31 +391,7 @@ void VcsCommand::runSynchronous(QtcProcess &process)
         process.stop();
         process.waitForFinished();
     });
-    // connect stderr to the output window if desired
-    if (!(d->m_flags & MergeOutputChannels)
-            && (d->m_progressiveOutput || !(d->m_flags & SuppressStdErr))) {
-        process.setStdErrCallback([this](const QString &text) {
-            if (d->m_progressParser)
-                d->m_progressParser->parseProgress(text);
-            if (!(d->m_flags & SuppressStdErr))
-                emit appendError(text);
-            if (d->m_progressiveOutput)
-                emit stdErrText(text);
-        });
-    }
-
-    // connect stdout to the output window if desired
-    if (d->m_progressParser || d->m_progressiveOutput || (d->m_flags & ShowStdOut)) {
-        process.setStdOutCallback([this](const QString &text) {
-            if (d->m_progressParser)
-                d->m_progressParser->parseProgress(text);
-            if (d->m_flags & ShowStdOut)
-                emit append(text);
-            if (d->m_progressiveOutput)
-                emit stdOutText(text);
-        });
-    }
-
+    d->setupSynchronous(&process);
     process.setTimeOutMessageBoxEnabled(true);
     process.runBlocking(EventLoopMode::On);
 }

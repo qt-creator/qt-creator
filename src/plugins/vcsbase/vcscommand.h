@@ -46,6 +46,7 @@ private:
     QFutureInterface<void> *m_future;
     QMutex *m_futureMutex = nullptr;
     friend class VcsCommand;
+    friend class Internal::VcsCommandPrivate;
 };
 
 class VCSBASE_EXPORT CommandResult
