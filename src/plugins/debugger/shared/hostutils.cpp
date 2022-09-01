@@ -6,6 +6,9 @@
 #ifdef Q_OS_WIN
 
 #include <QTextStream>
+#ifdef QTCREATOR_PCH_H
+#define CALLBACK WINAPI
+#endif
 #include <windows.h>
 #include <utils/winutils.h>
 #include <tlhelp32.h>

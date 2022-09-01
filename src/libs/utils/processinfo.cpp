@@ -13,6 +13,9 @@
 #include <unistd.h>
 #elif defined(Q_OS_WIN)
 #include "winutils.h"
+#ifdef QTCREATOR_PCH_H
+#define CALLBACK WINAPI
+#endif
 #include <windows.h>
 #include <tlhelp32.h>
 #include <psapi.h>

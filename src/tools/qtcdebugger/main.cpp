@@ -23,6 +23,9 @@
 
 #include <registryaccess.h>
 
+#ifdef QTCREATOR_PCH_H
+#define CALLBACK WINAPI
+#endif
 #include <windows.h>
 #include <psapi.h>
 
