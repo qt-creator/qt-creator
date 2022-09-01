@@ -4335,7 +4335,11 @@ void TextEditorWidgetPrivate::paintIndentDepth(PaintEventData &data,
 
     const QString text = data.block.text();
     const TabSettings &tabSettings = m_document->tabSettings();
-    const int currentDepth = tabSettings.indentationColumn(text);
+    int currentDepth = -1;
+    if (text.simplified().isEmpty())
+        currentDepth = m_document->indenter()->indentFor(data.block, tabSettings);
+    if (currentDepth < 0)
+        currentDepth = tabSettings.indentationColumn(text);
 
     if (currentDepth <= tabSettings.m_indentSize || blockData.layout->lineCount() < 1)
         return;
