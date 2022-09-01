@@ -88,7 +88,7 @@ Item {
             implicitHeight: typeTitle.height
             visible: !rangeDetails.noteReadonly
             onClicked: noteEdit.focus = true
-            ToolTip.text: qsTr("Edit note")
+            ToolTip.text: qsTranslate("Tracing", "Edit note")
         }
 
         ImageToolButton {
@@ -98,7 +98,7 @@ Item {
             anchors.right: closeIcon.left
             implicitHeight: typeTitle.height
             onClicked: locked = !locked
-            ToolTip.text: qsTr("View event information on mouseover.")
+            ToolTip.text: qsTranslate("Tracing", "View event information on mouseover.")
         }
 
         ImageToolButton {
@@ -108,7 +108,7 @@ Item {
             implicitHeight: typeTitle.height
             imageSource: "image://icons/close_window"
             onClicked: rangeDetails.clearSelection()
-            ToolTip.text: qsTr("Close")
+            ToolTip.text: qsTranslate("Tracing", "Close")
         }
     }
 

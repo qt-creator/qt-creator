@@ -42723,11 +42723,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>RangeDetails</name>
-    <message>
-        <source>Duration</source>
-        <translation type="obsolete">Doba trvání</translation>
-    </message>
+    <name>Tracing</name>
     <message>
         <source>Details</source>
         <translation type="obsolete">Podrobnosti</translation>
@@ -46209,7 +46205,7 @@ Tyto předpony se používají dodatečně k nynějšímu názvu souboru na Pře
     </message>
 </context>
 <context>
-    <name>SelectionRangeDetails</name>
+    <name>Tracing</name>
     <message>
         <source>Selection</source>
         <translation>Výběr</translation>

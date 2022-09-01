@@ -17481,7 +17481,7 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
     </message>
 </context>
 <context>
-    <name>SelectionRangeDetails</name>
+    <name>Tracing</name>
     <message>
         <source>Selection</source>
         <translation>Auswahl</translation>
@@ -27109,7 +27109,7 @@ Möchten Sie es beenden?</translation>
     </message>
 </context>
 <context>
-    <name>ButtonsBar</name>
+    <name>Tracing</name>
     <message>
         <source>Jump to previous event.</source>
         <translation>Gehe zu vorangehendem Ereignis.</translation>
@@ -27130,9 +27130,6 @@ Möchten Sie es beenden?</translation>
         <source>View event information on mouseover.</source>
         <translation>Information zu Ereignis anzeigen, wenn sich der Mauszeiger darüber befindet.</translation>
     </message>
-</context>
-<context>
-    <name>CategoryLabel</name>
     <message>
         <source>Collapse category</source>
         <translation>Kategorie einklappen</translation>
@@ -31344,7 +31341,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
 </context>
 <context>
-    <name>RowLabel</name>
+    <name>Tracing</name>
     <message>
         <source>[unknown]</source>
         <translation>[unbekannt]</translation>
@@ -41336,7 +41333,7 @@ Breche ausstehende Operationen ab...
     </message>
 </context>
 <context>
-    <name>FlameGraphView</name>
+    <name>Tracing</name>
     <message>
         <source>others</source>
         <translation>andere</translation>
@@ -41487,7 +41484,7 @@ Breche ausstehende Operationen ab...
     </message>
 </context>
 <context>
-    <name>Timeline::TimelineTraceManager</name>
+    <name>Tracing</name>
     <message>
         <source>Could not open %1 for writing.</source>
         <translation>Die Datei %1 konnte nicht zum Schreiben geöffnet werden.</translation>
@@ -44848,18 +44845,10 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>RangeDetails</name>
+    <name>Tracing</name>
     <message>
         <source>Edit note</source>
         <translation>Notiz bearbeiten</translation>
-    </message>
-    <message>
-        <source>View event information on mouseover.</source>
-        <translation>Information zu Ereignis anzeigen, wenn sich der Mauszeiger darüber befindet.</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Schließen</translation>
     </message>
 </context>
 <context>

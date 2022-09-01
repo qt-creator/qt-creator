@@ -54,7 +54,7 @@ Item {
     //title
     TimelineText {
         id: typeTitle
-        text: "  "+qsTr("Selection")
+        text: "  "+qsTranslate("Tracing", "Selection")
         font.bold: true
         height: 20
         verticalAlignment: Text.AlignVCenter
@@ -78,11 +78,11 @@ Item {
             Repeater {
                 id: details
                 property var contents: [
-                    qsTr("Start") + ":",
+                    qsTranslate("Tracing", "Start") + ":",
                     TimeFormatter.format(startTime, referenceDuration),
-                    (qsTr("End") + ":"),
+                    (qsTranslate("Tracing", "End") + ":"),
                     TimeFormatter.format(endTime, referenceDuration),
-                    (qsTr("Duration") + ":"),
+                    (qsTranslate("Tracing", "Duration") + ":"),
                     TimeFormatter.format(duration, referenceDuration)
                 ]
 
@@ -112,6 +112,6 @@ Item {
         anchors.top: selectionRangeDetails.top
         implicitHeight: typeTitle.height
         onClicked: selectionRangeDetails.close()
-        ToolTip.text: qsTr("Close")
+        ToolTip.text: qsTranslate("Tracing", "Close")
     }
 }

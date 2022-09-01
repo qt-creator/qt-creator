@@ -43079,11 +43079,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>RangeDetails</name>
-    <message>
-        <source>Duration</source>
-        <translation type="obsolete">Durée</translation>
-    </message>
+    <name>Tracing</name>
     <message>
         <source>Details</source>
         <translation type="obsolete">Détails</translation>
@@ -45121,7 +45117,7 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>SelectionRangeDetails</name>
+    <name>Tracing</name>
     <message>
         <source>Selection</source>
         <translation>Sélection</translation>

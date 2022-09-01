@@ -163,7 +163,8 @@ Item {
         implicitHeight: txt.height - 1
         enabled: expanded || (model && !model.empty)
         imageSource: expanded ? "image://icons/close_split" : "image://icons/split"
-        ToolTip.text: expanded ? qsTr("Collapse category") : qsTr("Expand category")
+        ToolTip.text: expanded ? qsTranslate("Tracing", "Collapse category")
+                               : qsTranslate("Tracing", "Expand category")
         onClicked: model.expanded = !expanded
     }
 

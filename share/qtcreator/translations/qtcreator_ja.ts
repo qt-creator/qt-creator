@@ -5953,7 +5953,7 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>SelectionRangeDetails</name>
+    <name>Tracing</name>
     <message>
         <source>Selection</source>
         <translation>選択部分</translation>
@@ -35796,7 +35796,7 @@ kill しますか？</translation>
     </message>
 </context>
 <context>
-    <name>ButtonsBar</name>
+    <name>Tracing</name>
     <message>
         <source>Jump to previous event.</source>
         <translation>前のイベントにジャンプします。</translation>
@@ -36734,7 +36734,7 @@ API バージョンが %1 以上の SDK をインストールしてください�
     </message>
 </context>
 <context>
-    <name>CategoryLabel</name>
+    <name>Tracing</name>
     <message>
         <source>Collapse category</source>
         <translation>カテゴリを折りたたむ</translation>
@@ -36743,9 +36743,6 @@ API バージョンが %1 以上の SDK をインストールしてください�
         <source>Expand category</source>
         <translation>カテゴリを展開する</translation>
     </message>
-</context>
-<context>
-    <name>RowLabel</name>
     <message>
         <source>[unknown]</source>
         <translation>[不明]</translation>
@@ -37591,7 +37588,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>FlameGraphView</name>
+    <name>Tracing</name>
     <message>
         <source>Details</source>
         <translation>詳細</translation>
@@ -47887,15 +47884,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>RangeDetails</name>
-    <message>
-        <source>View event information on mouseover.</source>
-        <translation>マウスオーバー時にイベント情報を表示します。</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>閉じる</translation>
-    </message>
+    <name>Tracing</name>
 </context>
 <context>
     <name>PerfProfilerFlameGraphView</name>
@@ -48370,7 +48359,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>Timeline::TimelineTraceManager</name>
+    <name>Tracing</name>
     <message>
         <source>Could not open %1 for writing.</source>
         <translation>書き込み用に %1 を開けません。</translation>

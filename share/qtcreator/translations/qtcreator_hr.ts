@@ -388,7 +388,7 @@
     </message>
 </context>
 <context>
-    <name>ButtonsBar</name>
+    <name>Tracing</name>
     <message>
         <source>Jump to previous event.</source>
         <translation>Prijeđi na prethodni događaj.</translation>
@@ -409,9 +409,6 @@
         <source>View event information on mouseover.</source>
         <translation>Prikaži podatke događaja kad se miš nalazi iznad.</translation>
     </message>
-</context>
-<context>
-    <name>CategoryLabel</name>
     <message>
         <source>Collapse category</source>
         <translation>Sklopi kategoriju</translation>
@@ -420,9 +417,6 @@
         <source>Expand category</source>
         <translation>Rasklopi kategoriju</translation>
     </message>
-</context>
-<context>
-    <name>FlameGraphView</name>
     <message>
         <source>others</source>
         <translation>ostali</translation>
@@ -439,16 +433,10 @@
         <source>Visualize %1</source>
         <translation>Vizualiziraj %1</translation>
     </message>
-</context>
-<context>
-    <name>RowLabel</name>
     <message>
         <source>[unknown]</source>
         <translation>[nepoznato]</translation>
     </message>
-</context>
-<context>
-    <name>SelectionRangeDetails</name>
     <message>
         <source>Selection</source>
         <translation>Odabir</translation>
@@ -12989,7 +12977,7 @@ For more information, see the &quot;Checking Code Syntax&quot; documentation.</s
     </message>
 </context>
 <context>
-    <name>Timeline::TimelineTraceManager</name>
+    <name>Tracing</name>
     <message>
         <source>Could not open %1 for writing.</source>
         <translation type="unfinished"></translation>

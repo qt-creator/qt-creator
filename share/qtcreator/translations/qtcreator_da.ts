@@ -4296,7 +4296,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>ButtonsBar</name>
+    <name>Tracing</name>
     <message>
         <source>Jump to previous event.</source>
         <translation>Hop to forrige event.</translation>
@@ -5193,7 +5193,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>CategoryLabel</name>
+    <name>Tracing</name>
     <message>
         <source>Collapse category</source>
         <translation>Sammenfold kategori</translation>
@@ -35793,7 +35793,7 @@ Derudover testes enhedens forbindelse.</translation>
     </message>
 </context>
 <context>
-    <name>RowLabel</name>
+    <name>Tracing</name>
     <message>
         <source>[unknown]</source>
         <translation>[ukendt]</translation>
@@ -36522,7 +36522,7 @@ Række: %4, Kolonne: %5
     </message>
 </context>
 <context>
-    <name>SelectionRangeDetails</name>
+    <name>Tracing</name>
     <message>
         <source>Selection</source>
         <translation>Markering</translation>
@@ -43466,7 +43466,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>FlameGraphView</name>
+    <name>Tracing</name>
     <message>
         <source>others</source>
         <translation>andre</translation>
@@ -43765,7 +43765,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>Timeline::TimelineTraceManager</name>
+    <name>Tracing</name>
     <message>
         <source>Could not open %1 for writing.</source>
         <translation>Kunne ikke åbne %1 til skrivning.</translation>

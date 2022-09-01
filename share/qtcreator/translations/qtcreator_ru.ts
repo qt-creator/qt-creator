@@ -6046,7 +6046,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>ButtonsBar</name>
+    <name>Tracing</name>
     <message>
         <source>Jump to previous event.</source>
         <translation>Перейти к предыдущему событию.</translation>
@@ -7086,7 +7086,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>CategoryLabel</name>
+    <name>Tracing</name>
     <message>
         <source>Collapse category</source>
         <translation>Категория сворачивания</translation>
@@ -20575,7 +20575,7 @@ will also disable the following plugins:
     </message>
 </context>
 <context>
-    <name>FlameGraphView</name>
+    <name>Tracing</name>
     <message>
         <source>others</source>
         <translation>другие</translation>
@@ -44696,14 +44696,10 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RangeDetails</name>
+    <name>Tracing</name>
     <message>
         <source>Edit note</source>
         <translation>Изменить заметку</translation>
-    </message>
-    <message>
-        <source>View event information on mouseover.</source>
-        <translation>Показывать информацию о событии при наведении курсора.</translation>
     </message>
     <message>
         <source>Close</source>
@@ -45785,7 +45781,7 @@ If you do not have a private key yet, you can also create one here.</source>
     </message>
 </context>
 <context>
-    <name>RowLabel</name>
+    <name>Tracing</name>
     <message>
         <source>[unknown]</source>
         <translation>[неизвестная]</translation>
@@ -46550,7 +46546,7 @@ Row: %4, Column: %5
     </message>
 </context>
 <context>
-    <name>SelectionRangeDetails</name>
+    <name>Tracing</name>
     <message>
         <source>Selection</source>
         <translation>Выделение</translation>
@@ -46566,10 +46562,6 @@ Row: %4, Column: %5
     <message>
         <source>Duration</source>
         <translation>Продолжительность</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation>Закрыть</translation>
     </message>
 </context>
 <context>
@@ -50319,7 +50311,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Timeline::TimelineTraceManager</name>
+    <name>Tracing</name>
     <message>
         <source>Could not open %1 for writing.</source>
         <translation>Не удалось открыть %1 для записи.</translation>

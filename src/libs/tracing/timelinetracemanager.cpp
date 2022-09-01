@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "timelinenotesmodel.h"
-#include "timelinetracemanager.h"
 #include "timelinetracefile.h"
+#include "timelinetracemanager.h"
+#include "tracingtr.h"
 
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
@@ -229,7 +230,7 @@ QFuture<void> TimelineTraceManager::save(const QString &filename)
         if (file.open(QIODevice::WriteOnly))
             writer->save(&file);
         else
-            writer->fail(tr("Could not open %1 for writing.").arg(filename));
+            writer->fail(Tr::tr("Could not open %1 for writing.").arg(filename));
 
         if (future.isCanceled())
             file.remove();
@@ -255,7 +256,7 @@ QFuture<void> TimelineTraceManager::load(const QString &filename)
         if (file.open(QIODevice::ReadOnly))
             reader->load(&file);
         else
-            reader->fail(tr("Could not open %1 for reading.").arg(filename));
+            reader->fail(Tr::tr("Could not open %1 for reading.").arg(filename));
 
         reader->deleteLater();
     });
@@ -374,8 +375,8 @@ void TimelineTraceManager::restrictByFilter(TraceEventFilter filter)
         finalize();
     }, [this](const QString &message) {
         if (!message.isEmpty()) {
-            emit error(tr("Could not re-read events from temporary trace file: %1\n"
-                          "The trace data is lost.").arg(message));
+            emit error(Tr::tr("Could not re-read events from temporary trace file: %1\n"
+                              "The trace data is lost.").arg(message));
         }
         clearAll();
     }, future);

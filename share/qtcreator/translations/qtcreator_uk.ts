@@ -20805,7 +20805,7 @@ For more details, see /etc/sysctl.d/10-ptrace.conf
     </message>
 </context>
 <context>
-    <name>RangeDetails</name>
+    <name>Tracing</name>
     <message>
         <source>Duration:</source>
         <translation type="vanished">Тривалість:</translation>
@@ -25898,7 +25898,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>SelectionRangeDetails</name>
+    <name>Tracing</name>
     <message>
         <source>Selection</source>
         <translation>Виділення</translation>
@@ -43065,7 +43065,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>ButtonsBar</name>
+    <name>Tracing</name>
     <message>
         <source>Jump to previous event.</source>
         <translation>Перейти до попередньої події.</translation>
@@ -43086,9 +43086,6 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
         <source>View event information on mouseover.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CategoryLabel</name>
     <message>
         <source>&lt;bytecode&gt;</source>
         <translation type="vanished">&lt;байт-код&gt;</translation>
@@ -48242,7 +48239,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>RowLabel</name>
+    <name>Tracing</name>
     <message>
         <source>[unknown]</source>
         <translation>[невідомий]</translation>
@@ -52157,7 +52154,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>FlameGraphView</name>
+    <name>Tracing</name>
     <message>
         <source>Details</source>
         <translation>Деталі</translation>

@@ -41,7 +41,7 @@ ScrollView {
     property var details: function(flameGraph) { return []; }
     property var summary: function(attached) {
         if (!attached.dataValid)
-            return qsTr("others");
+            return qsTranslate("Tracing", "others");
 
         return attached.data(summaryRole) + " (" + percent(sizeRole, attached) + "%)";
     }
@@ -230,7 +230,8 @@ ScrollView {
                 // Functions, not properties to limit the initial overhead when creating the nodes,
                 // and because FlameGraph.data(...) cannot be notified anyway.
                 function title() {
-                    return FlameGraph.data(root.detailsTitleRole) || qsTr("unknown");
+                    return FlameGraph.data(root.detailsTitleRole)
+                            || qsTranslate("Tracing", "unknown");
                 }
 
                 function note() {
@@ -275,7 +276,7 @@ ScrollView {
                 if (currentNode)
                     return currentNode.title();
                 else if (root.model === null || root.model.rowCount() === 0)
-                    return qsTr("No data available");
+                    return qsTranslate("Tracing", "No data available");
                 else
                     return "";
             }

@@ -20030,7 +20030,7 @@ Przedrostki te, w dodatku do nazwy bieżącego pliku, używane są do przełącz
     </message>
 </context>
 <context>
-    <name>SelectionRangeDetails</name>
+    <name>Tracing</name>
     <message>
         <source>Selection</source>
         <translation>Selekcja</translation>
@@ -30188,7 +30188,7 @@ Instalowanie lokalnych bibliotek Qt nie jest kompatybilne z Androidem 5.</transl
     </message>
 </context>
 <context>
-    <name>ButtonsBar</name>
+    <name>Tracing</name>
     <message>
         <source>Jump to previous event.</source>
         <translation>Skocz do poprzedniego zdarzenia.</translation>
@@ -30209,9 +30209,6 @@ Instalowanie lokalnych bibliotek Qt nie jest kompatybilne z Androidem 5.</transl
         <source>View event information on mouseover.</source>
         <translation>Pokazuj informacje o zdarzeniach po najechaniu myszą.</translation>
     </message>
-</context>
-<context>
-    <name>CategoryLabel</name>
     <message>
         <source>Collapse category</source>
         <translation>Zwiń kategorię</translation>
@@ -34008,7 +34005,7 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>RowLabel</name>
+    <name>Tracing</name>
     <message>
         <source>[unknown]</source>
         <translation>[nieznany]</translation>

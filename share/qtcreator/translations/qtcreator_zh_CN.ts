@@ -40634,7 +40634,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>RangeDetails</name>
+    <name>Tracing</name>
     <message>
         <source>Duration</source>
         <translation type="obsolete">持续时间</translation>
@@ -43393,7 +43393,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>SelectionRangeDetails</name>
+    <name>Tracing</name>
     <message>
         <source>Selection</source>
         <translation type="obsolete">选择</translation>
@@ -43401,10 +43401,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Start</source>
         <translation type="obsolete">启动</translation>
-    </message>
-    <message>
-        <source>Duration</source>
-        <translation type="obsolete">持续时间</translation>
     </message>
 </context>
 <context>

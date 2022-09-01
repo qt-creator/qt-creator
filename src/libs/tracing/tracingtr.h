@@ -5,7 +5,7 @@
 
 #include <QCoreApplication>
 
-namespace Tracing {
+namespace Timeline {
 
 struct Tr
 {
