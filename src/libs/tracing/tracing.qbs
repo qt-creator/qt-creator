@@ -35,7 +35,7 @@ Project {
                 "timelinetracefile.cpp", "timelinetracefile.h",
                 "timelinetracemanager.cpp", "timelinetracemanager.h",
                 "timelinezoomcontrol.cpp", "timelinezoomcontrol.h",
-                "traceevent.h", "traceeventtype.h", "tracestashfile.h"
+                "traceevent.h", "traceeventtype.h", "tracestashfile.h",
                 "tracingtr.h",
             ]
         }
