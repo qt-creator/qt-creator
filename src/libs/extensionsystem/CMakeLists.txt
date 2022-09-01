@@ -3,6 +3,7 @@ add_qtc_library(ExtensionSystem
   PUBLIC_DEPENDS Qt5::Core Qt5::Widgets
   SOURCES
     extensionsystem_global.h
+    extensionsystemtr.h
     invoker.cpp invoker.h
     iplugin.cpp iplugin.h iplugin_p.h
     optionsparser.cpp optionsparser.h

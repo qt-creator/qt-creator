@@ -29,6 +29,7 @@ QtcLibrary {
             "gradientline.cpp", "gradientline.h",
             "huecontrol.cpp", "huecontrol.h",
             "qmleditorwidgets_global.h",
+            "qmleditorwidgetstr.h",
             "resources_qmleditorwidgets.qrc"
         ]
     }

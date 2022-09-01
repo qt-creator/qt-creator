@@ -48,6 +48,7 @@ Project {
                 "qmljsscopechain.cpp", "qmljsscopechain.h",
                 "qmljssimplereader.cpp", "qmljssimplereader.h",
                 "qmljsstaticanalysismessage.cpp", "qmljsstaticanalysismessage.h",
+                "qmljstr.h",
                 "qmljstypedescriptionreader.cpp", "qmljstypedescriptionreader.h",
                 "qmljsutils.cpp", "qmljsutils.h",
                 "qmljsvalueowner.cpp", "qmljsvalueowner.h",

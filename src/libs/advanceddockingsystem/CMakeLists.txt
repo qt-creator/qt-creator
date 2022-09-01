@@ -2,6 +2,7 @@ add_qtc_library(AdvancedDockingSystem
   DEPENDS Qt5::Widgets Qt5::Core Qt5::Gui Utils
   SOURCES
     ads_globals.cpp ads_globals.h
+    advanceddockingsystemtr.h
     dockareatabbar.cpp dockareatabbar.h
     dockareatitlebar.cpp dockareatitlebar.h
     dockareawidget.cpp dockareawidget.h

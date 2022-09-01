@@ -325,6 +325,7 @@ Project {
             "utils_global.h",
             "utilsicons.h",
             "utilsicons.cpp",
+            "utilstr.h",
             "variablechooser.cpp",
             "variablechooser.h",
             "winutils.cpp",

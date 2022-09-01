@@ -28,6 +28,7 @@ Project {
             "languagefeatures.cpp",
             "languagefeatures.h",
             "languageserverprotocol_global.h",
+            "languageserverprotocoltr.h",
             "lsptypes.cpp",
             "lsptypes.h",
             "lsputils.cpp",

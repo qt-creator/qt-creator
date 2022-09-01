@@ -5,6 +5,7 @@ add_qtc_library(Modeling
   PUBLIC_INCLUDES
     "${CMAKE_CURRENT_LIST_DIR}"
   SOURCES
+    modelinglibtr.h
     qmt/config/configcontroller.cpp qmt/config/configcontroller.h
     qmt/config/sourcepos.cpp qmt/config/sourcepos.h
     qmt/config/stereotypedefinitionparser.cpp qmt/config/stereotypedefinitionparser.h

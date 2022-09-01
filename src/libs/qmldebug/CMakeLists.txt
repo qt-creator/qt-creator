@@ -5,6 +5,7 @@ add_qtc_library(QmlDebug
     basetoolsclient.cpp basetoolsclient.h
     qdebugmessageclient.cpp qdebugmessageclient.h
     qmldebug_global.h
+    qmldebugtr.h
     qmldebugclient.cpp qmldebugclient.h
     qmldebugcommandlinearguments.h
     qmldebugconnection.cpp qmldebugconnection.h

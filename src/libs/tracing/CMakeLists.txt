@@ -30,6 +30,7 @@ set(TRACING_CPP_SOURCES
   traceeventtype.h
   tracestashfile.h
   tracing_global.h
+  tracingtr.h
 )
 
 find_package(Qt6 COMPONENTS ShaderTools QUIET)

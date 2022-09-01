@@ -17,6 +17,7 @@ Project {
             "qdebugmessageclient.cpp",
             "qdebugmessageclient.h",
             "qmldebug_global.h",
+            "qmldebugtr.h",
             "qmldebugclient.cpp",
             "qmldebugclient.h",
             "qmldebugcommandlinearguments.h",

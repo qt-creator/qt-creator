@@ -22,6 +22,7 @@ QtcLibrary {
         name: "Qmt"
         prefix: "./qmt/"
         files: [
+            "modelinglibtr.h",
             "config/configcontroller.cpp",
             "config/configcontroller.h",
             "config/sourcepos.cpp",

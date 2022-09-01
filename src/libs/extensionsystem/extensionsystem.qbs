@@ -15,6 +15,7 @@ Project {
 
         files: [
             "extensionsystem_global.h",
+            "extensionsystemtr.h",
             "invoker.cpp",
             "invoker.h",
             "iplugin.cpp",

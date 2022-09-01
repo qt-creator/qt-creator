@@ -177,6 +177,7 @@ add_qtc_library(Utils
     url.cpp url.h
     utils.qrc
     utils_global.h
+    utilstr.h
     utilsicons.cpp utilsicons.h
     variablechooser.cpp variablechooser.h
     winutils.cpp winutils.h

@@ -19,6 +19,7 @@ add_qtc_library(QmlJS
     parser/qmljssourcelocation_p.h
     persistenttrie.cpp persistenttrie.h
     qmljs_global.h
+    qmljstr.h
     qmljsbind.cpp qmljsbind.h
     qmljsbundle.cpp qmljsbundle.h
     qmljscheck.cpp qmljscheck.h

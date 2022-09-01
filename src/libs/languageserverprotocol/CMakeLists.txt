@@ -12,6 +12,7 @@ add_qtc_library(LanguageServerProtocol
     jsonrpcmessages.cpp jsonrpcmessages.h
     languagefeatures.cpp languagefeatures.h
     languageserverprotocol_global.h
+    languageserverprotocoltr.h
     lsptypes.cpp lsptypes.h
     lsputils.cpp lsputils.h
     messages.cpp messages.h
