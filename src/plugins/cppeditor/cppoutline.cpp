@@ -158,7 +158,7 @@ void CppOutlineWidget::updateIndexNow()
     if (!syncCursor())
         return;
 
-    const auto revision = static_cast<unsigned>(m_editor->document()->revision());
+    const int revision = m_editor->document()->revision();
     if (m_model->editorRevision() != revision) {
         m_editor->cppEditorDocument()->updateOutline();
         return;
