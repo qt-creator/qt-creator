@@ -7,11 +7,12 @@
 #include "qbsbuildstep.h"
 #include "qbsinstallstep.h"
 #include "qbsnodes.h"
+#include "qbsnodetreebuilder.h"
 #include "qbspmlogging.h"
 #include "qbsprojectimporter.h"
-#include "qbsprojectparser.h"
 #include "qbsprojectmanagerconstants.h"
-#include "qbsnodetreebuilder.h"
+#include "qbsprojectmanagertr.h"
+#include "qbsprojectparser.h"
 #include "qbssession.h"
 #include "qbssettings.h"
 
@@ -179,7 +180,7 @@ QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
         m_sourcesForGeneratedFiles.clear();
     });
     connect(m_session, &QbsSession::errorOccurred, this, [](QbsSession::Error e) {
-        const QString msg = tr("Fatal qbs error: %1").arg(QbsSession::errorString(e));
+        const QString msg = Tr::tr("Fatal qbs error: %1").arg(QbsSession::errorString(e));
         TaskHub::addTask(BuildSystemTask(Task::Error, msg));
     });
     connect(m_session, &QbsSession::fileListUpdated, this, &QbsBuildSystem::delayParsing);
@@ -336,8 +337,8 @@ bool QbsBuildSystem::ensureWriteableQbsFile(const QString &file)
             bool makeWritable = QFile::setPermissions(file, fi.permissions() | QFile::WriteUser);
             if (!makeWritable) {
                 QMessageBox::warning(ICore::dialogParent(),
-                                     tr("Failed"),
-                                     tr("Could not write project file %1.").arg(file));
+                                     Tr::tr("Failed"),
+                                     Tr::tr("Could not write project file %1.").arg(file));
                 return false;
             }
         }
@@ -681,7 +682,7 @@ void QbsBuildSystem::prepareForParsing()
     m_qbsUpdateFutureInterface = new QFutureInterface<bool>();
     m_qbsUpdateFutureInterface->setProgressRange(0, 0);
     ProgressManager::addTask(m_qbsUpdateFutureInterface->future(),
-        tr("Reading Project \"%1\"").arg(project()->displayName()), "Qbs.QbsEvaluate");
+        Tr::tr("Reading Project \"%1\"").arg(project()->displayName()), "Qbs.QbsEvaluate");
     m_qbsUpdateFutureInterface->reportStarted();
 }
 
@@ -1125,7 +1126,7 @@ void QbsBuildSystem::updateApplicationTargets()
                                                                        setupRunEnvConfig);
             if (result.error().hasError()) {
                 Core::MessageManager::writeFlashing(
-                    tr("Error retrieving run environment: %1").arg(result.error().toString()));
+                    Tr::tr("Error retrieving run environment: %1").arg(result.error().toString()));
                 return;
             }
             QProcessEnvironment fullEnv = result.environment();

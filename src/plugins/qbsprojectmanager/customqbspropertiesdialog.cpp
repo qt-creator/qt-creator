@@ -4,6 +4,7 @@
 #include "customqbspropertiesdialog.h"
 
 #include "qbsprofilemanager.h"
+#include "qbsprojectmanagertr.h"
 
 #include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
@@ -20,12 +21,12 @@ namespace Internal {
 CustomQbsPropertiesDialog::CustomQbsPropertiesDialog(const QVariantMap &properties, QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("Custom Properties"));
+    setWindowTitle(Tr::tr("Custom Properties"));
 
     m_propertiesTable = new QTableWidget;
     m_propertiesTable->setColumnCount(2);
     m_propertiesTable->setRowCount(properties.count());
-    m_propertiesTable->setHorizontalHeaderLabels(QStringList() << tr("Key") << tr("Value"));
+    m_propertiesTable->setHorizontalHeaderLabels(QStringList() << Tr::tr("Key") << Tr::tr("Value"));
     m_propertiesTable->horizontalHeader()->setStretchLastSection(true);
     m_propertiesTable->verticalHeader()->setVisible(false);
     int currentRow = 0;
@@ -39,7 +40,7 @@ CustomQbsPropertiesDialog::CustomQbsPropertiesDialog(const QVariantMap &properti
         m_propertiesTable->setItem(currentRow, 1, valueItem);
         ++currentRow;
     }
-    m_removeButton = new QPushButton(tr("&Remove"));
+    m_removeButton = new QPushButton(Tr::tr("&Remove"));
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
     using namespace Utils::Layouting;
@@ -48,7 +49,7 @@ CustomQbsPropertiesDialog::CustomQbsPropertiesDialog(const QVariantMap &properti
             m_propertiesTable,
             Column {
                 PushButton {
-                    text(tr("&Add")),
+                    text(Tr::tr("&Add")),
                     onClicked([this] { addProperty(); } ),
                 },
                 m_removeButton,

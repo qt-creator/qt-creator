@@ -37009,14 +37009,11 @@ Copy the path to the source files to the clipboard?</source>
     </message>
 </context>
 <context>
-    <name>QbsProductNode</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Generated files</source>
         <translation>Созданные файлы</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager</name>
     <message>
         <source>Qbs</source>
         <translation>Qbs</translation>
@@ -37025,16 +37022,10 @@ Copy the path to the source files to the clipboard?</source>
         <source>Profiles</source>
         <translation>Профили</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::AspectWidget</name>
     <message>
         <source>Change...</source>
         <translation>Изменить...</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::CustomQbsPropertiesDialog</name>
     <message>
         <source>Custom Properties</source>
         <translation>Особые свойства</translation>
@@ -37055,34 +37046,14 @@ Copy the path to the source files to the clipboard?</source>
         <source>Value</source>
         <translation>Значение</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::DefaultPropertyProvider</name>
     <message>
         <source>C and C++ compiler paths differ. C compiler may not work.</source>
         <translation>Пути к компиляторам C и C++ отличаются. Компилятор C может не работать.</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::PacketReader</name>
     <message>
         <source>Received invalid input.</source>
         <translation>Получен неверный ввод.</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::ProfileModel</name>
-    <message>
-        <source>Key</source>
-        <translation>Ключ</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Значение</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfiguration</name>
     <message>
         <source>Configuration name:</source>
         <translation>Название конфигурации:</translation>
@@ -37103,9 +37074,6 @@ Copy the path to the source files to the clipboard?</source>
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation>Release</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStep</name>
     <message>
         <source>Qbs Build</source>
         <translation>Qbs (сборка)</translation>
@@ -37118,9 +37086,6 @@ Copy the path to the source files to the clipboard?</source>
         <source>Build canceled: Qbs session failed.</source>
         <translation>Сборка отменена: сбой сессии Qbs.</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStepConfigWidget</name>
     <message>
         <source>Debug</source>
         <translation>Отладка</translation>
@@ -37210,9 +37175,6 @@ Copy the path to the source files to the clipboard?</source>
         <source>Installation directory:</source>
         <translation>Каталог установки:</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildSystem</name>
     <message>
         <source>Fatal qbs error: %1</source>
         <translation>Фатальная ошибка qbs: %1</translation>
@@ -37233,9 +37195,6 @@ Copy the path to the source files to the clipboard?</source>
         <source>Error retrieving run environment: %1</source>
         <translation>Не удалось получить среду запуска: %1</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStep</name>
     <message>
         <source>Qbs Clean</source>
         <translation>Qbs (очистка)</translation>
@@ -37249,43 +37208,13 @@ Copy the path to the source files to the clipboard?</source>
         <translation>Пропускать ошибки:</translation>
     </message>
     <message>
-        <source>Equivalent command line:</source>
-        <translation>Итоговая командная строка:</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>No qbs session exists for this target.</source>
-        <translation>Отсутствует сессия Qbs этого проекта.</translation>
-    </message>
-    <message>
         <source>Cleaning canceled: Qbs session failed.</source>
         <translation>Очистка отменена: сбой сессии Qbs.</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStepConfigWidget</name>
     <message>
         <source>Dry run</source>
         <translation>Тестовое выполнение</translation>
     </message>
-    <message>
-        <source>Keep going</source>
-        <translation>Пропускать ошибки</translation>
-    </message>
-    <message>
-        <source>Flags:</source>
-        <translation>Флаги:</translation>
-    </message>
-    <message>
-        <source>Equivalent command line:</source>
-        <translation>Итоговая командная строка:</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInstallStep</name>
     <message>
         <source>Qbs Install</source>
         <translation>Установка с Qbs</translation>
@@ -37299,39 +37228,13 @@ Copy the path to the source files to the clipboard?</source>
         <translation>Корень установки:</translation>
     </message>
     <message>
-        <source>Flags:</source>
-        <translation>Флаги:</translation>
-    </message>
-    <message>
-        <source>Dry run</source>
-        <translation>Тестовое выполнение</translation>
-    </message>
-    <message>
-        <source>Keep going</source>
-        <translation>Пропускать ошибки</translation>
-    </message>
-    <message>
         <source>Remove first</source>
         <translation>Сначала удалить</translation>
     </message>
     <message>
-        <source>Equivalent command line:</source>
-        <translation>Итоговая командная строка:</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsKitAspect</name>
-    <message>
         <source>Additional Qbs Profile Settings</source>
         <translation>Дополнительные настройки профиля Qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProfileManager</name>
     <message>
         <source>Failed run qbs config: %1</source>
         <translation>Не удалось запустить конфигурацию qbs: %1</translation>
@@ -37340,9 +37243,6 @@ Copy the path to the source files to the clipboard?</source>
         <source>Failed to run qbs config: %1</source>
         <translation>Не удалось запустить конфигурацию qbs: %1</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProfilesSettingsWidget</name>
     <message>
         <source>Kit:</source>
         <translation>Комплект:</translation>
@@ -37363,9 +37263,6 @@ Copy the path to the source files to the clipboard?</source>
         <source>&amp;Collapse All</source>
         <translation>&amp;Свернуть все</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProjectManagerPlugin</name>
     <message>
         <source>Reparse Qbs</source>
         <translation>Переразбор Qbs</translation>
@@ -37422,9 +37319,6 @@ Copy the path to the source files to the clipboard?</source>
         <source>Rebuild Product &quot;%1&quot;</source>
         <translation>Пересобрать продукт «%1»</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsSession</name>
     <message>
         <source>The qbs process quit unexpectedly.</source>
         <translation>Процесс qbs неожиданно завершился.</translation>
@@ -37461,9 +37355,6 @@ The affected files are:
 Проблемные файлы:
 	%2</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsSettingsPage</name>
     <message>
         <source>Use %1 settings directory for Qbs</source>
         <translation>Использовать каталог настроек %1 для Qbs</translation>
@@ -37488,9 +37379,6 @@ The affected files are:
         <source>General</source>
         <translation>Основное</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectNode</name>
     <message>
         <source>Qbs files</source>
         <translation>Файлы Qbs</translation>

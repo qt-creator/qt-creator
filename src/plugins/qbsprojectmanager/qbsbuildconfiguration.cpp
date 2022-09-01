@@ -8,6 +8,7 @@
 #include "qbsinstallstep.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
+#include "qbsprojectmanagertr.h"
 #include "qbssettings.h"
 
 #include <coreplugin/documentmanager.h>
@@ -19,6 +20,7 @@
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
@@ -100,7 +102,7 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
     });
 
     m_configurationName = addAspect<StringAspect>();
-    m_configurationName->setLabelText(tr("Configuration name:"));
+    m_configurationName->setLabelText(QbsProjectManager::Tr::tr("Configuration name:"));
     m_configurationName->setSettingsKey("Qbs.configName");
     m_configurationName->setDisplayStyle(StringAspect::LineEditDisplay);
     connect(m_configurationName, &StringAspect::changed,
@@ -125,7 +127,8 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
     connect(this, &QbsBuildConfiguration::qbsConfigurationChanged,
             this, &QbsBuildConfiguration::triggerReparseIfActive);
 
-    macroExpander()->registerVariable("CurrentBuild:QbsBuildRoot", tr("The qbs project build root"),
+    macroExpander()->registerVariable("CurrentBuild:QbsBuildRoot",
+                                      QbsProjectManager::Tr::tr("The qbs project build root"),
         [this] { return buildDirectory().pathAppended(configurationName()).toUserOutput(); });
 
     m_buildSystem = new QbsBuildSystem(this);
@@ -324,18 +327,16 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
 
         if (forSetup) {
             BuildInfo info = createBuildInfo(BuildConfiguration::Debug);
-            //: The name of the debug build configuration created by default for a qbs project.
-            info.displayName = BuildConfiguration::tr("Debug");
+            info.displayName = ProjectExplorer::Tr::tr("Debug");
             //: Non-ASCII characters in directory suffix may cause build issues.
-            const QString dbg = QbsBuildConfiguration::tr("Debug", "Shadow build directory suffix");
+            const QString dbg = QbsProjectManager::Tr::tr("Debug", "Shadow build directory suffix");
             info.buildDirectory = defaultBuildDirectory(projectPath, k, dbg, info.buildType);
             result << info;
 
             info = createBuildInfo(BuildConfiguration::Release);
-            //: The name of the release build configuration created by default for a qbs project.
-            info.displayName = BuildConfiguration::tr("Release");
+            info.displayName = ProjectExplorer::Tr::tr("Release");
             //: Non-ASCII characters in directory suffix may cause build issues.
-            const QString rel = QbsBuildConfiguration::tr("Release", "Shadow build directory suffix");
+            const QString rel = QbsProjectManager::Tr::tr("Release", "Shadow build directory suffix");
             info.buildDirectory = defaultBuildDirectory(projectPath, k, rel, info.buildType);
             result << info;
         } else {
@@ -352,7 +353,7 @@ BuildInfo QbsBuildConfigurationFactory::createBuildInfo(BuildConfiguration::Buil
     BuildInfo info;
     info.buildType = type;
     info.typeName = type == BuildConfiguration::Debug
-            ? BuildConfiguration::tr("Debug") : BuildConfiguration::tr("Release");
+            ? ProjectExplorer::Tr::tr("Debug") : ProjectExplorer::Tr::tr("Release");
     QVariantMap config;
     config.insert("configName", type == BuildConfiguration::Debug ? "Debug" : "Release");
     info.extraInfo = config;

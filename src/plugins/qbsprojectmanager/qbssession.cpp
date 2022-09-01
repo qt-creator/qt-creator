@@ -5,6 +5,7 @@
 
 #include "qbspmlogging.h"
 #include "qbsprojectmanagerconstants.h"
+#include "qbsprojectmanagertr.h"
 #include "qbssettings.h"
 
 #include <app/app_version.h>
@@ -110,7 +111,7 @@ private:
     {
         switch (m_currentPacket.parseInput(m_incomingData)) {
         case Packet::Status::Invalid:
-            emit errorOccurred(tr("Received invalid input."));
+            emit errorOccurred(Tr::tr("Received invalid input."));
             break;
         case Packet::Status::Complete:
             emit packetReceived(m_currentPacket.retrievePacket());
@@ -224,13 +225,13 @@ QString QbsSession::errorString(QbsSession::Error error)
 {
     switch (error) {
     case Error::QbsQuit:
-        return tr("The qbs process quit unexpectedly.");
+        return Tr::tr("The qbs process quit unexpectedly.");
     case Error::QbsFailedToStart:
-        return tr("The qbs process failed to start.");
+        return Tr::tr("The qbs process failed to start.");
     case Error::ProtocolError:
-        return tr("The qbs process sent unexpected data.");
+        return Tr::tr("The qbs process sent unexpected data.");
     case Error::VersionMismatch:
-        return tr("The qbs API level is not compatible with "
+        return Tr::tr("The qbs API level is not compatible with "
                   "what %1 expects.").arg(Core::Constants::IDE_DISPLAY_NAME);
     }
     return QString(); // For dumb compilers.
@@ -317,7 +318,7 @@ RunEnvironmentResult QbsSession::getRunEnvironment(
     sendRequest(request);
     QTimer::singleShot(10000, this, [this] { d->eventLoop.exit(1); });
     if (d->eventLoop.exec(QEventLoop::ExcludeUserInputEvents) == 1)
-        return RunEnvironmentResult(ErrorInfo(tr("Request timed out.")));
+        return RunEnvironmentResult(ErrorInfo(Tr::tr("Request timed out.")));
     QProcessEnvironment env;
     const QJsonObject outEnv = d->reply.value("full-environment").toObject();
     for (auto it = outEnv.begin(); it != outEnv.end(); ++it)
@@ -394,14 +395,14 @@ QbsSession::BuildGraphInfo QbsSession::getBuildGraphInfo(const FilePath &bgFileP
     bgInfo.bgFilePath = bgFilePath;
     QTimer::singleShot(10000, &session, [&session] { session.d->eventLoop.exit(1); });
     connect(&session, &QbsSession::errorOccurred, [&] {
-        bgInfo.error = ErrorInfo(tr("Failed to load qbs build graph."));
+        bgInfo.error = ErrorInfo(Tr::tr("Failed to load qbs build graph."));
     });
     connect(&session, &QbsSession::projectResolved, [&](const ErrorInfo &error) {
         bgInfo.error = error;
         session.d->eventLoop.quit();
     });
     if (session.d->eventLoop.exec(QEventLoop::ExcludeUserInputEvents) == 1) {
-        bgInfo.error = ErrorInfo(tr("Request timed out."));
+        bgInfo.error = ErrorInfo(Tr::tr("Request timed out."));
         return bgInfo;
     }
     if (bgInfo.error.hasError())
@@ -559,7 +560,7 @@ FileChangeResult QbsSession::updateFileList(const char *action, const QStringLis
                                             const QString &product, const QString &group)
 {
     if (d->state != State::Active)
-        return FileChangeResult(files, tr("The qbs session is not in a valid state."));
+        return FileChangeResult(files, Tr::tr("The qbs session is not in a valid state."));
     sendRequestNow(QJsonObject{
         {"type", QLatin1String(action)},
         {"files", QJsonArray::fromStringList(files)},
@@ -575,7 +576,7 @@ void QbsSession::handleFileListUpdated(const QJsonObject &reply)
     const QStringList failedFiles = arrayToStringList(reply.value("failed-files"));
     if (!failedFiles.isEmpty()) {
         Core::MessageManager::writeFlashing(
-            tr("Failed to update files in Qbs project: %1.\n"
+            Tr::tr("Failed to update files in Qbs project: %1.\n"
                "The affected files are: \n\t%2")
                 .arg(getErrorInfo(reply).toString(), failedFiles.join("\n\t")));
     }

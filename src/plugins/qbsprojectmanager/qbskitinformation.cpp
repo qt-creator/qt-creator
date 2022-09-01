@@ -5,6 +5,7 @@
 
 #include "customqbspropertiesdialog.h"
 #include "qbsprofilemanager.h"
+#include "qbsprojectmanagertr.h"
 
 #include <projectexplorer/kitmanager.h>
 
@@ -21,12 +22,11 @@ namespace Internal {
 
 class AspectWidget final : public KitAspectWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(QbsProjectManager::Internal::AspectWidget)
 public:
     AspectWidget(Kit *kit, const KitAspect *kitInfo)
         : KitAspectWidget(kit, kitInfo),
           m_contentLabel(createSubWidget<Utils::ElidingLabel>()),
-          m_changeButton(createSubWidget<QPushButton>(tr("Change...")))
+          m_changeButton(createSubWidget<QPushButton>(Tr::tr("Change...")))
     {
         connect(m_changeButton, &QPushButton::clicked, this, &AspectWidget::changeProperties);
     }
@@ -57,7 +57,7 @@ QbsKitAspect::QbsKitAspect()
 {
     setObjectName(QLatin1String("QbsKitAspect"));
     setId(QbsKitAspect::id());
-    setDisplayName(tr("Additional Qbs Profile Settings"));
+    setDisplayName(Tr::tr("Additional Qbs Profile Settings"));
     setPriority(22000);
 }
 

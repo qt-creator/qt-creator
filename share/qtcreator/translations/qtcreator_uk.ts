@@ -33950,11 +33950,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsBuildStepConfigWidget</name>
-    <message>
-        <source>Dry run</source>
-        <translation type="vanished">Лише тест</translation>
-    </message>
+    <name>QbsProjectManager</name>
     <message>
         <source>jobs</source>
         <translation type="vanished">завдань</translation>
@@ -34051,9 +34047,6 @@ cannot be found in the path.</source>
         <source>Parallel jobs:</source>
         <translation>Паралельні завдання:</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStepConfigWidget</name>
     <message>
         <source>Clean all artifacts</source>
         <translation type="vanished">Очистити все</translation>
@@ -34061,22 +34054,6 @@ cannot be found in the path.</source>
     <message>
         <source>Dry run</source>
         <translation>Лише тест</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>Keep going</source>
-        <translation>Продовжувати виконання</translation>
-    </message>
-    <message>
-        <source>Flags:</source>
-        <translation>Прапорці:</translation>
-    </message>
-    <message>
-        <source>Equivalent command line:</source>
-        <translation>Підсумковий командний рядок:</translation>
     </message>
 </context>
 <context>
@@ -35452,7 +35429,7 @@ Remote: %4</source>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsBuildConfiguration</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Parsing the Qbs project.</source>
         <translation>Розбір проекту Qbs.</translation>
@@ -35461,9 +35438,6 @@ Remote: %4</source>
         <source>Parsing of Qbs project has failed.</source>
         <translation>Збій розбору проекту Qbs.</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfigurationFactory</name>
     <message>
         <source>Qbs based build</source>
         <translation type="vanished">Збірка на базі Qbs</translation>
@@ -35485,15 +35459,6 @@ Remote: %4</source>
         <translation type="vanished">%1 Release</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>Збірка</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <extracomment>The name of the debug build configuration created by default for a qbs project.</extracomment>
-        <translation>Зневадження</translation>
-    </message>
-    <message>
         <source>Debug</source>
         <comment>Shadow build directory suffix</comment>
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
@@ -35501,53 +35466,22 @@ Remote: %4</source>
     </message>
     <message>
         <source>Release</source>
-        <extracomment>The name of the release build configuration created by default for a qbs project.</extracomment>
-        <translation>Реліз</translation>
-    </message>
-    <message>
-        <source>Release</source>
         <comment>Shadow build directory suffix</comment>
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation>Release</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfigurationWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Тека збірки:</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStep</name>
     <message>
         <source>Qbs Build</source>
         <translation>Збірка Qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStepFactory</name>
-    <message>
-        <source>Qbs Build</source>
-        <translation>Збірка Qbs</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStep</name>
     <message>
         <source>Qbs Clean</source>
         <translation>Очистка Qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStepFactory</name>
-    <message>
-        <source>Qbs Clean</source>
-        <translation>Очистка Qbs</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProject</name>
     <message>
         <source>Evaluating</source>
         <translation type="vanished">Оцінка</translation>
@@ -35568,9 +35502,6 @@ Remote: %4</source>
         <source>Reading Project &quot;%1&quot;</source>
         <translation>Читання проекту &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProjectManagerPlugin</name>
     <message>
         <source>Reparse Qbs</source>
         <translation>Перерозібрати Qbs</translation>
@@ -36562,7 +36493,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsInstallStepConfigWidget</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Install root:</source>
         <translation>Корінь встановлення:</translation>
@@ -36572,28 +36503,8 @@ Partial names can be used if they are unambiguous.</source>
         <translation>Спочатку видалити</translation>
     </message>
     <message>
-        <source>Dry run</source>
-        <translation>Лише тест</translation>
-    </message>
-    <message>
-        <source>Keep going</source>
-        <translation>Продовжувати виконання</translation>
-    </message>
-    <message>
         <source>Qbs Install Prefix</source>
         <translation>Префікс встановлення Qbs</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>Flags:</source>
-        <translation>Прапорці:</translation>
-    </message>
-    <message>
-        <source>Equivalent command line:</source>
-        <translation>Підсумковий командний рядок:</translation>
     </message>
 </context>
 <context>
@@ -37449,7 +37360,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>Qbs</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Qbs Install</source>
         <translation>Встановлення Qbs</translation>
@@ -37478,42 +37389,6 @@ Partial names can be used if they are unambiguous.</source>
         <source>The process &apos;%1&apos; could not be started: %2</source>
         <translation type="vanished">Не вдалось запустити процес &apos;%1&apos;: %2</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInstallStep</name>
-    <message>
-        <source>Qbs Install</source>
-        <translation>Встановлення Qbs</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInstallStepFactory</name>
-    <message>
-        <source>Qbs Install</source>
-        <translation>Встановлення Qbs</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::QbsManager</name>
-    <message>
-        <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
-        <translation type="vanished">Збій відкриття проекту &apos;%1&apos;: Проект не є файлом</translation>
-    </message>
-    <message>
-        <source>Failed opening project &apos;%1&apos;: Project is not a file.</source>
-        <translation type="vanished">Збій відкриття проекту &apos;%1&apos;: Проект не є файлом.</translation>
-    </message>
-    <message>
-        <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
-        <translation type="vanished">Збій відкриття проекту &quot;%1&quot;: Проект не є файлом.</translation>
-    </message>
-    <message>
-        <source>Failed to set up kit for Qbs: %1</source>
-        <translation type="vanished">Збій задання комплекту для Qbs: %1</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsRunConfiguration</name>
     <message>
         <source>The .qbs files are currently being parsed.</source>
         <translation>Здійснюється розбір файлу файлів .qbs.</translation>
@@ -37530,9 +37405,6 @@ Partial names can be used if they are unambiguous.</source>
         <source>Qbs Run Configuration</source>
         <translation>Конфігурація запуску Qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsRunConfigurationWidget</name>
     <message>
         <source>&lt;unknown&gt;</source>
         <translation>&lt;невідомий&gt;</translation>
@@ -37805,7 +37677,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>Qbs::QbsProjectNode</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 в %2</translation>
@@ -37984,11 +37856,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsPropertyLineEdit</name>
-    <message>
-        <source>Could not split properties.</source>
-        <translation type="vanished">Не вдалось розділити властивості.</translation>
-    </message>
+    <name>QbsProjectManager</name>
     <message>
         <source>No &apos;:&apos; found in property definition.</source>
         <translation type="vanished">Не знайдено двокрапку у визначенні властивості.</translation>
@@ -41012,29 +40880,7 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>qbs::ProductsOption</name>
-    <message>
-        <source>%1|%2</source>
-        <translation type="vanished">%1|%2</translation>
-    </message>
-</context>
-<context>
-    <name>qbs::Internal</name>
-    <message>
-        <source>The directory %1 could not be deleted.</source>
-        <translation type="vanished">Не вдалось видалити теку %1.</translation>
-    </message>
-    <message>
-        <source>The file %1 could not be deleted.</source>
-        <translation type="vanished">Не вдалось видалити файл %1.</translation>
-    </message>
-</context>
-<context>
-    <name>qbs::Internal::ProcessCommandExecutor</name>
-    <message>
-        <source>The process &apos;%1&apos; could not be started: %2</source>
-        <translation type="vanished">Не вдалось запустити процес &apos;%1&apos;: %2</translation>
-    </message>
+    <name>QbsProjectManager</name>
 </context>
 <context>
     <name>QmakeProjectManager::QtQuickAppWizard</name>
@@ -41117,11 +40963,7 @@ Please close all running instances of your application before starting a build.<
     </message>
 </context>
 <context>
-    <name>qbs::Internal::ProductInstaller</name>
-    <message>
-        <source>Refusing to remove root directory.</source>
-        <translation type="vanished">Відмова від видалення кореневої теки.</translation>
-    </message>
+    <name>QbsProjectManager</name>
 </context>
 <context>
     <name>Bazaar::Internal::UnCommitDialog</name>
@@ -43128,7 +42970,7 @@ This wizard will guide you through the essential steps to deploy a ready-to-go d
     </message>
 </context>
 <context>
-    <name>qbs::Internal::ScriptEngine</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Cannot open &apos;%1&apos;.</source>
         <translation type="vanished">Неможливо відкрити &apos;%1&apos;.</translation>
@@ -44916,13 +44758,6 @@ Install an SDK of at least API version %1.</source>
 </source>
         <translation>Помилка під час виконання WinRT Runner Tool: %1
 </translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsRootProjectNode</name>
-    <message>
-        <source>Qbs files</source>
-        <translation type="vanished">Файли Qbs</translation>
     </message>
 </context>
 <context>
@@ -48414,7 +48249,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::CustomQbsPropertiesDialog</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Custom Properties</source>
         <translation>Користувацькі властивості</translation>
@@ -48435,9 +48270,6 @@ Affected are breakpoints %1</source>
         <source>Value</source>
         <translation>Значення</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProfilesSettingsWidget</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
@@ -49457,16 +49289,10 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Version Info</source>
         <translation>Інформація про версію</translation>
     </message>
-</context>
-<context>
-    <name>QbsRootProjectNode</name>
     <message>
         <source>Qbs files</source>
         <translation>Файли Qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsManager</name>
     <message>
         <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
         <translation>Збій відкриття проекту &quot;%1&quot;: Проект не є файлом.</translation>
@@ -52293,11 +52119,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsInfoWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
+    <name>QbsProjectManager</name>
     <message>
         <source>Qbs version:</source>
         <translation>Версія Qbs:</translation>

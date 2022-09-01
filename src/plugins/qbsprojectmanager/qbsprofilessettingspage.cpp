@@ -5,6 +5,7 @@
 
 #include "qbsprofilemanager.h"
 #include "qbsprojectmanagerconstants.h"
+#include "qbsprojectmanagertr.h"
 #include "qbssettings.h"
 
 #include <coreplugin/icore.h>
@@ -58,7 +59,7 @@ class ProfileModel : public Utils::TreeModel<ProfileTreeItem>
 public:
     ProfileModel() : TreeModel(static_cast<QObject *>(nullptr))
     {
-        setHeader(QStringList{tr("Key"), tr("Value")});
+        setHeader(QStringList{Tr::tr("Key"), Tr::tr("Value")});
         reload();
     }
 
@@ -111,7 +112,7 @@ private:
 QbsProfilesSettingsPage::QbsProfilesSettingsPage()
 {
     setId("Y.QbsProfiles");
-    setDisplayName(QCoreApplication::translate("QbsProjectManager", "Profiles"));
+    setDisplayName(Tr::tr("Profiles"));
     setCategory(Constants::QBS_SETTINGS_CATEGORY);
 }
 
@@ -137,20 +138,20 @@ QbsProfilesSettingsWidget::QbsProfilesSettingsWidget()
     using namespace Utils::Layouting;
     Column {
         Form {
-            tr("Kit:"), m_kitsComboBox, br,
-            tr("Associated profile:"), m_profileValueLabel, br,
+            Tr::tr("Kit:"), m_kitsComboBox, br,
+            Tr::tr("Associated profile:"), m_profileValueLabel, br,
         },
         hr,
-        tr("Profile properties:"),
+        Tr::tr("Profile properties:"),
         Row {
             m_propertiesView,
             Column {
                 PushButton {
-                    text(tr("E&xpand All")),
+                    text(Tr::tr("E&xpand All")),
                     onClicked([this] { m_propertiesView->expandAll(); }),
                 },
                 PushButton {
-                    text(tr("&Collapse All")),
+                    text(Tr::tr("&Collapse All")),
                     onClicked([this] { m_propertiesView->collapseAll(); }),
                 },
                 st,

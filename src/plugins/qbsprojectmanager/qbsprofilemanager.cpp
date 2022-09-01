@@ -7,6 +7,7 @@
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagerplugin.h"
+#include "qbsprojectmanagertr.h"
 #include "qbssettings.h"
 
 #include <coreplugin/icore.h>
@@ -227,10 +228,10 @@ QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, cons
     qbsConfig.start();
     if (!qbsConfig.waitForFinished(5000)) {
         Core::MessageManager::writeFlashing(
-            tr("Failed to run qbs config: %1").arg(qbsConfig.errorString()));
+            Tr::tr("Failed to run qbs config: %1").arg(qbsConfig.errorString()));
     } else if (qbsConfig.exitCode() != 0) {
         Core::MessageManager::writeFlashing(
-            tr("Failed to run qbs config: %1")
+            Tr::tr("Failed to run qbs config: %1")
                 .arg(QString::fromLocal8Bit(qbsConfig.readAllStandardError())));
     }
     return QString::fromLocal8Bit(qbsConfig.readAllStandardOutput()).trimmed();

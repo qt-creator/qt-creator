@@ -22030,7 +22030,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsBuildStepConfigWidget</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Debug</source>
         <translation>Debug</translation>
@@ -22119,28 +22119,10 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
         <source>Installation directory:</source>
         <translation>Installationsverzeichnis:</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStepConfigWidget</name>
     <message>
         <source>Dry run</source>
         <translation>Probelauf</translation>
     </message>
-    <message>
-        <source>Keep going</source>
-        <translation>Fortsetzen</translation>
-    </message>
-    <message>
-        <source>Flags:</source>
-        <translation>Optionen:</translation>
-    </message>
-    <message>
-        <source>Equivalent command line:</source>
-        <translation>Entsprechende Kommandozeile:</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfiguration</name>
     <message>
         <source>Configuration name:</source>
         <translation>Name der Konfiguration:</translation>
@@ -22161,9 +22143,6 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation>Release</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStep</name>
     <message>
         <source>Qbs Build</source>
         <translation>Qbs Build</translation>
@@ -22176,9 +22155,6 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
         <source>Build canceled: Qbs session failed.</source>
         <translation>Erstellen abgebrochen: Qbs-Sitzung fehlgeschlagen.</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStep</name>
     <message>
         <source>Qbs Clean</source>
         <translation>Qbs Clean</translation>
@@ -22192,24 +22168,9 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
         <translation>Fortsetzen:</translation>
     </message>
     <message>
-        <source>Equivalent command line:</source>
-        <translation>Entsprechende Kommandozeile:</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>No qbs session exists for this target.</source>
-        <translation>Für dieses Ziel gibt es keine qbs-Sitzung.</translation>
-    </message>
-    <message>
         <source>Cleaning canceled: Qbs session failed.</source>
         <translation>Bereinigung abgebrochen: Qbs-Sitzung fehlgeschlagen.</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProjectManagerPlugin</name>
     <message>
         <source>Reparse Qbs</source>
         <translation>Qbs neu auswerten</translation>
@@ -23086,7 +23047,7 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsInstallStep</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Qbs Install</source>
         <translation>Qbs-Installation</translation>
@@ -23100,28 +23061,8 @@ Teilnamen können verwendet werden, sofern sie eindeutig sind.</translation>
         <translation>Install-Root:</translation>
     </message>
     <message>
-        <source>Flags:</source>
-        <translation>Optionen:</translation>
-    </message>
-    <message>
-        <source>Dry run</source>
-        <translation>Probelauf</translation>
-    </message>
-    <message>
-        <source>Keep going</source>
-        <translation>Fortsetzen</translation>
-    </message>
-    <message>
         <source>Remove first</source>
         <translation>Zuerst entfernen</translation>
-    </message>
-    <message>
-        <source>Equivalent command line:</source>
-        <translation>Entsprechende Kommandozeile:</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
     </message>
 </context>
 <context>
@@ -31516,7 +31457,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::CustomQbsPropertiesDialog</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Custom Properties</source>
         <translation>Benutzerdefinierte Eigenschaften</translation>
@@ -31537,9 +31478,6 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
         <source>Value</source>
         <translation>Wert</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProfilesSettingsWidget</name>
     <message>
         <source>Kit:</source>
         <translation>Kit:</translation>
@@ -38930,14 +38868,11 @@ Ablaufdatum: %3</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::DefaultPropertyProvider</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>C and C++ compiler paths differ. C compiler may not work.</source>
         <translation>Die Pfade von C- und C++-Compiler sind unterschiedlich. Der C-Compiler könnte nicht funktionieren.</translation>
     </message>
-</context>
-<context>
-    <name>QbsProductNode</name>
     <message>
         <source>Generated files</source>
         <translation>Erzeugte Dateien</translation>
@@ -48376,39 +48311,19 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::AspectWidget</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Change...</source>
         <translation>Ändern...</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsKitAspect</name>
     <message>
         <source>Additional Qbs Profile Settings</source>
         <translation>Zusätzliche Qbs-Profileinstellungen</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectNode</name>
     <message>
         <source>Qbs files</source>
         <translation>Qbs-Dateien</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::ProfileModel</name>
-    <message>
-        <source>Key</source>
-        <translation>Schlüssel</translation>
-    </message>
-    <message>
-        <source>Value</source>
-        <translation>Wert</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildSystem</name>
     <message>
         <source>Fatal qbs error: %1</source>
         <translation>Fataler qbs-Fehler:%1</translation>
@@ -48429,9 +48344,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Error retrieving run environment: %1</source>
         <translation>Fehler beim Abfragen der Ausführungsumgebung: %1</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsSettingsPage</name>
     <message>
         <source>Qbs version:</source>
         <translation>Qbs-Version:</translation>

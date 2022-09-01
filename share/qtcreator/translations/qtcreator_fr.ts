@@ -53339,7 +53339,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsBuildStepConfigWidget</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Build variant:</source>
         <translation>Variante de compilation :</translation>
@@ -53392,36 +53392,10 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Equivalent command line:</source>
         <translation>Ligne de commande équivalente :</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStepConfigWidget</name>
     <message>
         <source>Clean all artifacts</source>
         <translation>Nettoyer tous les artéfacts</translation>
     </message>
-    <message>
-        <source>Dry run</source>
-        <translation>Exécuter à froid</translation>
-    </message>
-    <message>
-        <source>Keep going</source>
-        <translation>Continuer</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs :&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>Flags:</source>
-        <translation>Flags :</translation>
-    </message>
-    <message>
-        <source>Equivalent command line:</source>
-        <translation>Ligne de commande équivalente :</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInstallStepConfigWidget</name>
     <message>
         <source>Install root:</source>
         <translation>Racine de l&apos;installation :</translation>
@@ -53431,28 +53405,8 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <translation>Retirer en premier</translation>
     </message>
     <message>
-        <source>Dry run</source>
-        <translation>Exécution à froid</translation>
-    </message>
-    <message>
-        <source>Keep going</source>
-        <translation>Continuer</translation>
-    </message>
-    <message>
         <source>Qbs Install Prefix</source>
         <translation>Préfixe d&apos;installation Qbs</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs :&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>Flags:</source>
-        <translation>Flags :</translation>
-    </message>
-    <message>
-        <source>Equivalent command line:</source>
-        <translation>Ligne de commande équivalente :</translation>
     </message>
 </context>
 <context>
@@ -56127,7 +56081,7 @@ Distant : %4</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsBuildConfiguration</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Parsing the Qbs project.</source>
         <translation>Analyse du projet Qbs.</translation>
@@ -56136,9 +56090,6 @@ Distant : %4</translation>
         <source>Parsing of Qbs project has failed.</source>
         <translation>L&apos;analyse du projet Qbs a échoué.</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfigurationFactory</name>
     <message>
         <source>Qbs based build</source>
         <translation>Compilation basée sur Qbs</translation>
@@ -56166,102 +56117,36 @@ Distant : %4</translation>
         <translation>Compilation</translation>
     </message>
     <message>
-        <source>Debug</source>
-        <extracomment>The name of the debug build configuration created by default for a qbs project.</extracomment>
-        <translation>Debug</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <extracomment>The name of the release build configuration created by default for a qbs project.</extracomment>
-        <translation>Release</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfigurationWidget</name>
-    <message>
         <source>Build directory:</source>
         <translation>Répertoire de compilation :</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStep</name>
     <message>
         <source>Qbs Build</source>
         <translation>Compilation Qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStepFactory</name>
-    <message>
-        <source>Qbs Build</source>
-        <translation>Compilation Qbs</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStep</name>
     <message>
         <source>Qbs Clean</source>
         <translation>Nettoyage Qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStepFactory</name>
-    <message>
-        <source>Qbs Clean</source>
-        <translation>Nettoyage Qbs</translation>
-    </message>
-</context>
-<context>
-    <name>Qbs</name>
     <message>
         <source>Qbs Install</source>
         <translation>Installation Qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInstallStep</name>
-    <message>
-        <source>Qbs Install</source>
-        <translation>Installation Qbs</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInstallStepFactory</name>
-    <message>
-        <source>Qbs Install</source>
-        <translation>Installation Qbs</translation>
-    </message>
-</context>
-<context>
-    <name>Qbs::QbsProjectNode</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 dans %2</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProject</name>
     <message>
         <source>Evaluating</source>
         <translation>Évaluation</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::QbsManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation>Échec de l&apos;ouverture du projet &quot;%1&quot; : le projet n&apos;est pas un fichier</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProjectManagerPlugin</name>
     <message>
         <source>Reparse Qbs</source>
         <translation>Recommencer l&apos;analyse Qbs</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>Compiler</translation>
     </message>
     <message>
         <source>Build File</source>
@@ -56287,9 +56172,6 @@ Distant : %4</translation>
         <source>Ctrl+Alt+Shift+B</source>
         <translation>Ctrl+Alt+Shift+B</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsPropertyLineEdit</name>
     <message>
         <source>Could not split properties.</source>
         <translation>Impossible de séparer les propriétés.</translation>
@@ -56298,9 +56180,6 @@ Distant : %4</translation>
         <source>No &apos;:&apos; found in property definition.</source>
         <translation>Aucun &quot;:&quot; trouvé dans la définition de la propriété.</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsRunConfiguration</name>
     <message>
         <source>The .qbs files are currently being parsed.</source>
         <translation>Les fichier .qbs sont en cours d&apos;analyse.</translation>
@@ -56313,9 +56192,6 @@ Distant : %4</translation>
         <source>Qbs Run Configuration</source>
         <translation>Configuration d&apos;exécution Qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsRunConfigurationWidget</name>
     <message>
         <source>Executable:</source>
         <translation>Exécutable :</translation>

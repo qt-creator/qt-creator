@@ -4788,18 +4788,10 @@ Add, modify, and remove document filters, which determine the documentation set 
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsBuildStepConfigWidget</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Build variant:</source>
         <translation>ビルド種類:</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>デバッグ</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>リリース</translation>
     </message>
     <message>
         <source>Enable QML debugging:</source>
@@ -4828,10 +4820,6 @@ Add, modify, and remove document filters, which determine the documentation set 
     <message>
         <source>Property &quot;%1&quot; cannot be set here. Please use the dedicated UI element.</source>
         <translation>プロパティ &quot;%1&quot; はここでは設定できません。専用の UI 要素を使用してください。</translation>
-    </message>
-    <message>
-        <source>Keep going</source>
-        <translation>ビルドを継続する</translation>
     </message>
     <message>
         <source>Equivalent command line:</source>
@@ -4885,63 +4873,21 @@ Add, modify, and remove document filters, which determine the documentation set 
         <source>Force probes</source>
         <translation>プローブを強制する</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStepConfigWidget</name>
-    <message>
-        <source>Flags:</source>
-        <translation>フラグ:</translation>
-    </message>
     <message>
         <source>Dry run</source>
         <translation>実行しない</translation>
     </message>
-    <message>
-        <source>Keep going</source>
-        <translation>クリーンを継続する</translation>
-    </message>
-    <message>
-        <source>Equivalent command line:</source>
-        <translation>等価なコマンドライン:</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInstallStepConfigWidget</name>
     <message>
         <source>Install root:</source>
         <translation>インストールルート:</translation>
-    </message>
-    <message>
-        <source>Flags:</source>
-        <translation>フラグ:</translation>
-    </message>
-    <message>
-        <source>Dry run</source>
-        <translation>実行しない</translation>
-    </message>
-    <message>
-        <source>Keep going</source>
-        <translation>インストールを継続する</translation>
     </message>
     <message>
         <source>Remove first</source>
         <translation>始めに削除する</translation>
     </message>
     <message>
-        <source>Equivalent command line:</source>
-        <translation>等価なコマンドライン:</translation>
-    </message>
-    <message>
         <source>Qbs Install Prefix</source>
         <translation>Qbs のインストールプレフィックス</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
     </message>
 </context>
 <context>
@@ -27369,7 +27315,7 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsBuildConfiguration</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Parsing the Qbs project.</source>
         <translation>Qbs プロジェクトの解析中。</translation>
@@ -27398,104 +27344,25 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation>リリース</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfigurationFactory</name>
     <message>
         <source>Build</source>
         <translation>ビルド</translation>
     </message>
     <message>
-        <source>Debug</source>
-        <extracomment>The name of the debug build configuration created by default for a qbs project.</extracomment>
-        <translation>デバッグ</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <comment>Shadow build directory suffix</comment>
-        <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
-        <translation>Debug</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <extracomment>The name of the release build configuration created by default for a qbs project.</extracomment>
-        <translation>リリース</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <comment>Shadow build directory suffix</comment>
-        <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
-        <translation>Release</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfigurationWidget</name>
-    <message>
         <source>Build directory:</source>
         <translation>ビルドディレクトリ:</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStep</name>
     <message>
         <source>Qbs Build</source>
         <translation>Qbs ビルド</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>Build variant:</source>
-        <translation>ビルド種類:</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>デバッグ</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>リリース</translation>
     </message>
     <message>
         <source>ABIs:</source>
         <translation>ABI:</translation>
     </message>
     <message>
-        <source>Keep going when errors occur (if at all possible).</source>
-        <translation>エラーが発生した場合でも(可能な限り)ビルドを継続します。</translation>
-    </message>
-    <message>
         <source>Keep going</source>
         <translation>継続する</translation>
-    </message>
-    <message>
-        <source>Parallel jobs:</source>
-        <translation>並列ジョブ数:</translation>
-    </message>
-    <message>
-        <source>Number of concurrent build jobs.</source>
-        <translation>並列ビルド時のジョブ数です。</translation>
-    </message>
-    <message>
-        <source>Show command lines</source>
-        <translation>コマンドラインを表示する</translation>
-    </message>
-    <message>
-        <source>Install</source>
-        <translation>インストールする</translation>
-    </message>
-    <message>
-        <source>Clean install root</source>
-        <translation>インストールルートのクリア</translation>
-    </message>
-    <message>
-        <source>Force probes</source>
-        <translation>プローブを強制する</translation>
-    </message>
-    <message>
-        <source>Equivalent command line:</source>
-        <translation>等価なコマンドライン:</translation>
     </message>
     <message>
         <source>No qbs session exists for this target.</source>
@@ -27505,16 +27372,6 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <source>Build canceled: Qbs session failed.</source>
         <translation>ビルドがキャンセルされました。Qbs のセッションに失敗しました。</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStepFactory</name>
-    <message>
-        <source>Qbs Build</source>
-        <translation>Qbs ビルド</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStep</name>
     <message>
         <source>Qbs Clean</source>
         <translation>Qbs クリーン</translation>
@@ -27528,91 +27385,21 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <translation>継続する:</translation>
     </message>
     <message>
-        <source>Equivalent command line:</source>
-        <translation>等価なコマンドライン:</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>No qbs session exists for this target.</source>
-        <translation>このターゲットには qbs セッションが存在しません。</translation>
-    </message>
-    <message>
         <source>Cleaning canceled: Qbs session failed.</source>
         <translation>クリーニングがキャンセルされました。Qbs のセッションに失敗しました。</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStepFactory</name>
-    <message>
-        <source>Qbs Clean</source>
-        <translation>Qbs クリーン</translation>
-    </message>
-</context>
-<context>
-    <name>Qbs</name>
     <message>
         <source>Qbs Install</source>
         <translation>Qbs インストール</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInstallStep</name>
-    <message>
-        <source>Qbs Install</source>
-        <translation>Qbs インストール</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>Dry run</source>
-        <translation>実行しない</translation>
-    </message>
-    <message>
-        <source>Keep going</source>
-        <translation>継続する</translation>
-    </message>
-    <message>
-        <source>Remove first</source>
-        <translation>はじめに削除する</translation>
     </message>
     <message>
         <source>Installing canceled: Qbs session failed.</source>
         <translation>インストールがキャンセルされました: Qbs のセッションに失敗しました。</translation>
     </message>
     <message>
-        <source>Equivalent command line:</source>
-        <translation>等価なコマンドライン:</translation>
-    </message>
-    <message>
-        <source>Install root:</source>
-        <translation>インストールルート:</translation>
-    </message>
-    <message>
-        <source>Flags:</source>
-        <translation>フラグ:</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInstallStepFactory</name>
-    <message>
-        <source>Qbs Install</source>
-        <translation>Qbs インストール</translation>
-    </message>
-</context>
-<context>
-    <name>Qbs::QbsProjectNode</name>
-    <message>
         <source>%1 in %2</source>
         <translation>%2 の %1</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProject</name>
     <message>
         <source>Failed!</source>
         <translation>失敗！</translation>
@@ -27629,16 +27416,9 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <source>Reading Project &quot;%1&quot;</source>
         <translation>プロジェクト &quot;%1&quot; の読込中</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProjectManagerPlugin</name>
     <message>
         <source>Reparse Qbs</source>
         <translation>Qbs の再解析</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>ビルド</translation>
     </message>
     <message>
         <source>Build File</source>
@@ -27700,9 +27480,6 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <source>Ctrl+Shift+B</source>
         <translation>Ctrl+Shift+B</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsRunConfiguration</name>
     <message>
         <source>The .qbs files are currently being parsed.</source>
         <translation>.qbs ファイルを現在解析しています。</translation>
@@ -27719,9 +27496,6 @@ Enable this if you plan to create 32-bit x86 binaries without using a dedicated 
         <source>Qbs Run Configuration</source>
         <translation>Qbs 実行設定</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsRunConfigurationWidget</name>
     <message>
         <source>&lt;unknown&gt;</source>
         <translation>&lt;不明&gt;</translation>
@@ -37462,7 +37236,7 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::CustomQbsPropertiesDialog</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Custom Properties</source>
         <translation>カスタムプロパティ</translation>
@@ -37483,9 +37257,6 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
         <source>Value</source>
         <translation>値</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInfoWidget</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -37493,13 +37264,6 @@ Android 5 ではローカルの Qt ライブラリをデプロイできません
     <message>
         <source>Qbs version:</source>
         <translation>Qbs バージョン:</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProfilesSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
     </message>
     <message>
         <source>Kit:</source>
@@ -44332,16 +44096,10 @@ These files are preserved.</source>
         <source>Version Info</source>
         <translation>バージョン情報</translation>
     </message>
-</context>
-<context>
-    <name>QbsRootProjectNode</name>
     <message>
         <source>Qbs files</source>
         <translation>Qbs ファイル</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsManager</name>
     <message>
         <source>Failed opening project &quot;%1&quot;: Project is not a file.</source>
         <translation>プロジェクト &quot;%1&quot; が開けません: プロジェクトがファイルではありません。</translation>
@@ -53924,50 +53682,14 @@ Stepping into the module or setting breakpoints by file and line is expected to 
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::AspectWidget</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Change...</source>
         <translation>変更...</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectNode</name>
-    <message>
-        <source>Qbs files</source>
-        <translation>Qbs ファイル</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::ProfileModel</name>
-    <message>
-        <source>Value</source>
-        <translation>値</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildSystem</name>
     <message>
         <source>Failed</source>
         <translation>失敗</translation>
-    </message>
-    <message>
-        <source>Could not write project file %1.</source>
-        <translation>プロジェクトファイル %1 に書き込みできませんでした。</translation>
-    </message>
-    <message>
-        <source>Reading Project &quot;%1&quot;</source>
-        <translation>プロジェクト &quot;%1&quot; の読込中</translation>
-    </message>
-    <message>
-        <source>Error retrieving run environment: %1</source>
-        <translation>実行環境取得中のエラー: %1</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsSettingsPage</name>
-    <message>
-        <source>Qbs version:</source>
-        <translation>Qbs バージョン:</translation>
     </message>
     <message>
         <source>General</source>

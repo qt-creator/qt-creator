@@ -6,6 +6,7 @@
 #include "qbsbuildconfiguration.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
+#include "qbsprojectmanagertr.h"
 #include "qbssession.h"
 
 #include <projectexplorer/buildsteplist.h>
@@ -31,19 +32,19 @@ namespace Internal {
 QbsCleanStep::QbsCleanStep(BuildStepList *bsl, Utils::Id id)
     : BuildStep(bsl, id)
 {
-    setDisplayName(tr("Qbs Clean"));
+    setDisplayName(Tr::tr("Qbs Clean"));
 
     m_dryRunAspect = addAspect<BoolAspect>();
     m_dryRunAspect->setSettingsKey("Qbs.DryRun");
-    m_dryRunAspect->setLabel(tr("Dry run:"), BoolAspect::LabelPlacement::InExtraLabel);
+    m_dryRunAspect->setLabel(Tr::tr("Dry run:"), BoolAspect::LabelPlacement::InExtraLabel);
 
     m_keepGoingAspect = addAspect<BoolAspect>();
     m_keepGoingAspect->setSettingsKey("Qbs.DryKeepGoing");
-    m_keepGoingAspect->setLabel(tr("Keep going:"), BoolAspect::LabelPlacement::InExtraLabel);
+    m_keepGoingAspect->setLabel(Tr::tr("Keep going:"), BoolAspect::LabelPlacement::InExtraLabel);
 
     auto effectiveCommandAspect = addAspect<StringAspect>();
     effectiveCommandAspect->setDisplayStyle(StringAspect::TextEditDisplay);
-    effectiveCommandAspect->setLabelText(tr("Equivalent command line:"));
+    effectiveCommandAspect->setLabelText(Tr::tr("Equivalent command line:"));
 
     setSummaryUpdater([this, effectiveCommandAspect] {
         QbsBuildStepData data;
@@ -53,7 +54,7 @@ QbsCleanStep::QbsCleanStep(BuildStepList *bsl, Utils::Id id)
         QString command = static_cast<QbsBuildConfiguration *>(buildConfiguration())
                  ->equivalentCommandLine(data);
         effectiveCommandAspect->setValue(command);
-        return tr("<b>Qbs:</b> %1").arg("clean");
+        return Tr::tr("<b>Qbs:</b> %1").arg("clean");
     });
 }
 
@@ -88,7 +89,7 @@ void QbsCleanStep::doRun()
 {
     m_session = static_cast<QbsBuildSystem*>(buildSystem())->session();
     if (!m_session) {
-        emit addOutput(tr("No qbs session exists for this target."), OutputFormat::ErrorMessage);
+        emit addOutput(Tr::tr("No qbs session exists for this target."), OutputFormat::ErrorMessage);
         emit finished(false);
         return;
     }
@@ -105,7 +106,7 @@ void QbsCleanStep::doRun()
     connect(m_session, &QbsSession::taskStarted, this, &QbsCleanStep::handleTaskStarted);
     connect(m_session, &QbsSession::taskProgress, this, &QbsCleanStep::handleProgress);
     connect(m_session, &QbsSession::errorOccurred, this, [this] {
-        cleaningDone(ErrorInfo(tr("Cleaning canceled: Qbs session failed.")));
+        cleaningDone(ErrorInfo(Tr::tr("Cleaning canceled: Qbs session failed.")));
     });
 }
 
@@ -152,7 +153,7 @@ QbsCleanStepFactory::QbsCleanStepFactory()
     registerStep<QbsCleanStep>(Constants::QBS_CLEANSTEP_ID);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
     setSupportedConfiguration(Constants::QBS_BC_ID);
-    setDisplayName(QbsCleanStep::tr("Qbs Clean"));
+    setDisplayName(Tr::tr("Qbs Clean"));
 }
 
 } // namespace Internal

@@ -6,6 +6,7 @@
 #include "qbsbuildconfiguration.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
+#include "qbsprojectmanagertr.h"
 #include "qbssession.h"
 #include "qbssettings.h"
 
@@ -14,6 +15,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitinformation.h>
@@ -194,8 +196,8 @@ private:
 QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
     BuildStep(bsl, id)
 {
-    setDisplayName(tr("Qbs Build"));
-    setSummaryText(tr("<b>Qbs:</b> %1").arg("build"));
+    setDisplayName(QbsProjectManager::Tr::tr("Qbs Build"));
+    setSummaryText(QbsProjectManager::Tr::tr("<b>Qbs:</b> %1").arg("build"));
 
     setQbsConfiguration(QVariantMap());
 
@@ -205,51 +207,52 @@ QbsBuildStep::QbsBuildStep(BuildStepList *bsl, Utils::Id id) :
             qbsBuildConfig, &QbsBuildConfiguration::qbsConfigurationChanged);
 
     m_buildVariant = addAspect<SelectionAspect>();
-    m_buildVariant->setDisplayName(tr("Build variant:"));
+    m_buildVariant->setDisplayName(QbsProjectManager::Tr::tr("Build variant:"));
     m_buildVariant->setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    m_buildVariant->addOption(tr("Debug"));
-    m_buildVariant->addOption(tr("Release"));
+    m_buildVariant->addOption(ProjectExplorer::Tr::tr("Debug"));
+    m_buildVariant->addOption(ProjectExplorer::Tr::tr("Release"));
 
     m_selectedAbis = addAspect<ArchitecturesAspect>();
-    m_selectedAbis->setLabelText(tr("ABIs:"));
+    m_selectedAbis->setLabelText(QbsProjectManager::Tr::tr("ABIs:"));
     m_selectedAbis->setDisplayStyle(MultiSelectionAspect::DisplayStyle::ListView);
     m_selectedAbis->setKit(target()->kit());
 
     m_keepGoing = addAspect<BoolAspect>();
     m_keepGoing->setSettingsKey(QBS_KEEP_GOING);
-    m_keepGoing->setToolTip(tr("Keep going when errors occur (if at all possible)."));
-    m_keepGoing->setLabel(tr("Keep going"),
+    m_keepGoing->setToolTip(
+                QbsProjectManager::Tr::tr("Keep going when errors occur (if at all possible)."));
+    m_keepGoing->setLabel(QbsProjectManager::Tr::tr("Keep going"),
                           BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
 
     m_maxJobCount = addAspect<IntegerAspect>();
     m_maxJobCount->setSettingsKey(QBS_MAXJOBCOUNT);
-    m_maxJobCount->setLabel(tr("Parallel jobs:"));
-    m_maxJobCount->setToolTip(tr("Number of concurrent build jobs."));
+    m_maxJobCount->setLabel(QbsProjectManager::Tr::tr("Parallel jobs:"));
+    m_maxJobCount->setToolTip(QbsProjectManager::Tr::tr("Number of concurrent build jobs."));
     m_maxJobCount->setValue(QThread::idealThreadCount());
 
     m_showCommandLines = addAspect<BoolAspect>();
     m_showCommandLines->setSettingsKey(QBS_SHOWCOMMANDLINES);
-    m_showCommandLines->setLabel(tr("Show command lines"),
+    m_showCommandLines->setLabel(QbsProjectManager::Tr::tr("Show command lines"),
                                  BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
 
     m_install = addAspect<BoolAspect>();
     m_install->setSettingsKey(QBS_INSTALL);
     m_install->setValue(true);
-    m_install->setLabel(tr("Install"), BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
+    m_install->setLabel(QbsProjectManager::Tr::tr("Install"), BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
 
     m_cleanInstallDir = addAspect<BoolAspect>();
     m_cleanInstallDir->setSettingsKey(QBS_CLEAN_INSTALL_ROOT);
-    m_cleanInstallDir->setLabel(tr("Clean install root"),
+    m_cleanInstallDir->setLabel(QbsProjectManager::Tr::tr("Clean install root"),
                                 BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
 
     m_forceProbes = addAspect<BoolAspect>();
     m_forceProbes->setSettingsKey("Qbs.forceProbesKey");
-    m_forceProbes->setLabel(tr("Force probes"),
+    m_forceProbes->setLabel(QbsProjectManager::Tr::tr("Force probes"),
                             BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel);
 
     m_commandLine = addAspect<StringAspect>();
     m_commandLine->setDisplayStyle(StringAspect::TextEditDisplay);
-    m_commandLine->setLabelText(tr("Equivalent command line:"));
+    m_commandLine->setLabelText(QbsProjectManager::Tr::tr("Equivalent command line:"));
     m_commandLine->setUndoRedoEnabled(false);
     m_commandLine->setReadOnly(true);
 
@@ -528,7 +531,8 @@ void QbsBuildStep::build()
 {
     m_session = qbsBuildSystem()->session();
     if (!m_session) {
-        emit addOutput(tr("No qbs session exists for this target."), OutputFormat::ErrorMessage);
+        emit addOutput(QbsProjectManager::Tr::tr("No qbs session exists for this target."),
+                       OutputFormat::ErrorMessage);
         emit finished(false);
         return;
     }
@@ -561,7 +565,7 @@ void QbsBuildStep::build()
             this, &QbsBuildStep::handleCommandDescription);
     connect(m_session, &QbsSession::processResult, this, &QbsBuildStep::handleProcessResult);
     connect(m_session, &QbsSession::errorOccurred, this, [this] {
-        buildingDone(ErrorInfo(tr("Build canceled: Qbs session failed.")));
+        buildingDone(ErrorInfo(QbsProjectManager::Tr::tr("Build canceled: Qbs session failed.")));
     });
 }
 
@@ -651,24 +655,24 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step)
     builder.addRow(m_qbsStep->m_buildVariant);
     builder.addRow(m_qbsStep->m_selectedAbis);
     builder.addRow(m_qbsStep->m_maxJobCount);
-    builder.addRow({tr("Properties:"), propertyEdit});
+    builder.addRow({QbsProjectManager::Tr::tr("Properties:"), propertyEdit});
 
-    builder.addRow(tr("Flags:"));
+    builder.addRow(QbsProjectManager::Tr::tr("Flags:"));
     m_qbsStep->m_keepGoing->addToLayout(builder);
     m_qbsStep->m_showCommandLines->addToLayout(builder);
     m_qbsStep->m_forceProbes->addToLayout(builder);
 
-    builder.addRow(tr("Installation flags:"));
+    builder.addRow(QbsProjectManager::Tr::tr("Installation flags:"));
     m_qbsStep->m_install->addToLayout(builder);
     m_qbsStep->m_cleanInstallDir->addToLayout(builder);
     builder.addItem(defaultInstallDirCheckBox);
 
-    builder.addRow({tr("Installation directory:"), installDirChooser});
+    builder.addRow({QbsProjectManager::Tr::tr("Installation directory:"), installDirChooser});
     builder.addRow(m_qbsStep->m_commandLine);
     builder.attachTo(this, Layouting::WithoutMargins);
 
-    propertyEdit->setToolTip(tr("Properties to pass to the project."));
-    defaultInstallDirCheckBox->setText(tr("Use default location"));
+    propertyEdit->setToolTip(QbsProjectManager::Tr::tr("Properties to pass to the project."));
+    defaultInstallDirCheckBox->setText(QbsProjectManager::Tr::tr("Use default location"));
 
     auto chooser = new VariableChooser(this);
     chooser->addSupportedWidget(propertyEdit);
@@ -831,7 +835,7 @@ bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QS
     QStringList argList = ProcessArgs::splitArgs(edit->text(), HostOsInfo::hostOs(), false, &err);
     if (err != ProcessArgs::SplitOk) {
         if (errorMessage)
-            *errorMessage = tr("Could not split properties.");
+            *errorMessage = QbsProjectManager::Tr::tr("Could not split properties.");
         return false;
     }
 
@@ -850,8 +854,8 @@ bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QS
                 specialProperties << Constants::QBS_ARCHITECTURES;
             if (specialProperties.contains(propertyName)) {
                 if (errorMessage) {
-                    *errorMessage = tr("Property \"%1\" cannot be set here. "
-                                       "Please use the dedicated UI element.").arg(propertyName);
+                    *errorMessage = QbsProjectManager::Tr::tr("Property \"%1\" cannot be set here. "
+                                          "Please use the dedicated UI element.").arg(propertyName);
                 }
                 return false;
             }
@@ -860,7 +864,7 @@ bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QS
             properties.append(property);
         } else {
             if (errorMessage)
-                *errorMessage = tr("No \":\" found in property definition.");
+                *errorMessage = QbsProjectManager::Tr::tr("No \":\" found in property definition.");
             return false;
         }
     }
@@ -879,7 +883,7 @@ bool QbsBuildStepConfigWidget::validateProperties(Utils::FancyLineEdit *edit, QS
 QbsBuildStepFactory::QbsBuildStepFactory()
 {
     registerStep<QbsBuildStep>(Constants::QBS_BUILDSTEP_ID);
-    setDisplayName(QbsBuildStep::tr("Qbs Build"));
+    setDisplayName(QbsProjectManager::Tr::tr("Qbs Build"));
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
     setSupportedConfiguration(Constants::QBS_BC_ID);
     setSupportedProjectType(Constants::PROJECT_ID);

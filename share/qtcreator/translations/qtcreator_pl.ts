@@ -24406,7 +24406,7 @@ Można używać nazw częściowych, jeśli są one unikalne.</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsBuildStepConfigWidget</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Build variant:</source>
         <translation>Wariant wersji:</translation>
@@ -24499,28 +24499,9 @@ Można używać nazw częściowych, jeśli są one unikalne.</translation>
         <source>Installation directory:</source>
         <translation>Katalog instalacji:</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStepConfigWidget</name>
     <message>
         <source>Dry run</source>
         <translation>Na sucho</translation>
-    </message>
-    <message>
-        <source>Keep going</source>
-        <translation>Ignoruj błędy</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>Flags:</source>
-        <translation>Flagi:</translation>
-    </message>
-    <message>
-        <source>Equivalent command line:</source>
-        <translation>Zastępcza linia komend:</translation>
     </message>
 </context>
 <context>
@@ -26112,7 +26093,7 @@ Zdalny: %4</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsBuildConfiguration</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Parsing the Qbs project.</source>
         <translation>Parsowanie projektu Qbs.</translation>
@@ -26121,28 +26102,15 @@ Zdalny: %4</translation>
         <source>Parsing of Qbs project has failed.</source>
         <translation>Nie można sparsować projektu Qbs.</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfigurationFactory</name>
     <message>
         <source>Build</source>
         <translation>Wersja</translation>
     </message>
     <message>
         <source>Debug</source>
-        <extracomment>The name of the debug build configuration created by default for a qbs project.</extracomment>
-        <translation>Debug</translation>
-    </message>
-    <message>
-        <source>Debug</source>
         <comment>Shadow build directory suffix</comment>
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation>Debug</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <extracomment>The name of the release build configuration created by default for a qbs project.</extracomment>
-        <translation>Release</translation>
     </message>
     <message>
         <source>Release</source>
@@ -26150,9 +26118,6 @@ Zdalny: %4</translation>
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation>Release</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfigurationWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Katalog wersji:</translation>
@@ -26161,44 +26126,18 @@ Zdalny: %4</translation>
         <source>Configuration name:</source>
         <translation>Nazwa konfiguracji:</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStep</name>
     <message>
         <source>Qbs Build</source>
         <translation>Wersja Qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStepFactory</name>
-    <message>
-        <source>Qbs Build</source>
-        <translation>Wersja Qbs</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStep</name>
     <message>
         <source>Qbs Clean</source>
         <translation>Qbs Clean</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStepFactory</name>
-    <message>
-        <source>Qbs Clean</source>
-        <translation>Qbs Clean</translation>
-    </message>
-</context>
-<context>
-    <name>Qbs</name>
     <message>
         <source>Qbs Install</source>
         <translation>Qbs Install</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProject</name>
     <message>
         <source>Failed</source>
         <translation>Niepoprawnie zakończone</translation>
@@ -26223,16 +26162,9 @@ Zdalny: %4</translation>
         <source>Reading Project &quot;%1&quot;</source>
         <translation>Odczyt projektu &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProjectManagerPlugin</name>
     <message>
         <source>Reparse Qbs</source>
         <translation>Przeparsuj Qbs</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>Zbuduj</translation>
     </message>
     <message>
         <source>Build File</source>
@@ -26310,9 +26242,6 @@ Zdalny: %4</translation>
         <source>Rebuild Subproject &quot;%1&quot;</source>
         <translation>Przebuduj podprojekt &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsRunConfiguration</name>
     <message>
         <source>The .qbs files are currently being parsed.</source>
         <translation>Trwa parsowanie plików .qbs.</translation>
@@ -26329,9 +26258,6 @@ Zdalny: %4</translation>
         <source>Qbs Run Configuration</source>
         <translation>Konfiguracja uruchamiania Qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsRunConfigurationWidget</name>
     <message>
         <source>&lt;unknown&gt;</source>
         <translation>&lt;nieznany&gt;</translation>
@@ -34089,7 +34015,7 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::CustomQbsPropertiesDialog</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Custom Properties</source>
         <translation>Własne właściwości</translation>
@@ -34110,9 +34036,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>Value</source>
         <translation>Wartość</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProfilesSettingsWidget</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -35298,16 +35221,10 @@ Ustawianie pułapek w liniach plików może się nie udać.</translation>
         <source>Qbs</source>
         <translation>Qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsRootProjectNode</name>
     <message>
         <source>Qbs files</source>
         <translation>Pliki qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsManager</name>
     <message>
         <source>Failed to set up kit for Qbs: %1</source>
         <translation>Nie można ustawić zestawu narzędzi dla Qbs: %1</translation>
@@ -41204,14 +41121,11 @@ Wskakiwanie do wnętrza modułu lub ustawianie pułapek w plikach powinno dział
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::DefaultPropertyProvider</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>C and C++ compiler paths differ. C compiler may not work.</source>
         <translation>Ścieżki do kompilatorów C i C++ są różne, Kompilator C może działać niepoprawnie.</translation>
     </message>
-</context>
-<context>
-    <name>QbsProductNode</name>
     <message>
         <source>Generated files</source>
         <translation>Wygenerowane pliki</translation>
@@ -43380,34 +43294,14 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsInstallStepConfigWidget</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Install root:</source>
         <translation>Korzeń instalacji:</translation>
     </message>
     <message>
-        <source>Flags:</source>
-        <translation>Flagi:</translation>
-    </message>
-    <message>
-        <source>Dry run</source>
-        <translation>Na sucho</translation>
-    </message>
-    <message>
-        <source>Keep going</source>
-        <translation>Ignoruj błędy</translation>
-    </message>
-    <message>
         <source>Remove first</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Equivalent command line:</source>
-        <translation>Zastępcza linia komend:</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
     </message>
 </context>
 <context>
@@ -43711,28 +43605,11 @@ Błąd: %5</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsInstallStep</name>
-    <message>
-        <source>Qbs Install</source>
-        <translation>Qbs Install</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInstallStepFactory</name>
-    <message>
-        <source>Qbs Install</source>
-        <translation>Qbs Install</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::ConfigWidget</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Change...</source>
         <translation>Zmień...</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsKitInformation</name>
     <message>
         <source>Additional Qbs Profile Settings</source>
         <translation>Dodatkowe ustawienia profilu Qbs</translation>

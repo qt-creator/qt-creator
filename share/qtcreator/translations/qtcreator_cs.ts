@@ -54546,7 +54546,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsBuildStepConfigWidget</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Dry run</source>
         <translation>Spustit na zkoušku</translation>
@@ -54627,59 +54627,9 @@ nelze najít v cestě.</translation>
         <source>Check timestamps</source>
         <translation>Ověřit časová razítka</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStepConfigWidget</name>
     <message>
         <source>Clean all artifacts</source>
         <translation>Pročistit všechny výtvory</translation>
-    </message>
-    <message>
-        <source>Dry run</source>
-        <translation>Spustit na zkoušku</translation>
-    </message>
-    <message>
-        <source>Keep Going</source>
-        <translation type="obsolete">Nechat běžet</translation>
-    </message>
-    <message>
-        <source>jobs</source>
-        <translation type="obsolete">Úkoly</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>Keep going</source>
-        <translation>Pokračovat</translation>
-    </message>
-    <message>
-        <source>Flags:</source>
-        <translation>Příznaky:</translation>
-    </message>
-    <message>
-        <source>Equivalent command line:</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsStepConfigWidget</name>
-    <message>
-        <source>Dry run</source>
-        <translation type="obsolete">Spustit na zkoušku</translation>
-    </message>
-    <message>
-        <source>Keep Going</source>
-        <translation type="obsolete">Nechat běžet</translation>
-    </message>
-    <message>
-        <source>jobs</source>
-        <translation type="obsolete">Úkoly</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation type="obsolete">&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
     </message>
 </context>
 <context>
@@ -56467,7 +56417,7 @@ Commit now?</source>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsBuildConfiguration</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Parsing the Qbs project.</source>
         <translation>Vyhodnocuje se projekt Qbs.</translation>
@@ -56476,9 +56426,6 @@ Commit now?</source>
         <source>Parsing of Qbs project has failed.</source>
         <translation>Vyhodnocení projektu Qbs se nezdařilo.</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfigurationFactory</name>
     <message>
         <source>Qbs based build</source>
         <translation>Sestavení založené na Qbs</translation>
@@ -56506,25 +56453,9 @@ Commit now?</source>
         <translation>Sestavování</translation>
     </message>
     <message>
-        <source>Debug</source>
-        <extracomment>The name of the debug build configuration created by default for a qbs project.</extracomment>
-        <translation>Ladění</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <extracomment>The name of the release build configuration created by default for a qbs project.</extracomment>
-        <translation>Vydání</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfigurationWidget</name>
-    <message>
         <source>Build directory:</source>
         <translation>Adresář pro sestavování:</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStep</name>
     <message>
         <source>Qbs build</source>
         <translation type="obsolete">Sestavení Qbs</translation>
@@ -56533,20 +56464,10 @@ Commit now?</source>
         <source>Qbs Build</source>
         <translation>Sestavení Qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStepFactory</name>
     <message>
         <source>Qbs</source>
         <translation type="obsolete">Qbs</translation>
     </message>
-    <message>
-        <source>Qbs Build</source>
-        <translation>Sestavení Qbs</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStep</name>
     <message>
         <source>Qbs clean</source>
         <translation type="obsolete">Pročištění Qbs</translation>
@@ -56555,34 +56476,13 @@ Commit now?</source>
         <source>Qbs Clean</source>
         <translation>Pročištění Qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStepFactory</name>
-    <message>
-        <source>Qbs</source>
-        <translation type="obsolete">Qbs</translation>
-    </message>
-    <message>
-        <source>Qbs Clean</source>
-        <translation>Pročištění Qbs</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProject</name>
     <message>
         <source>Evaluating</source>
         <translation>Vyhodnocení</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProjectManagerPlugin</name>
     <message>
         <source>Reparse Qbs</source>
         <translation>Zpracovat Qbs znovu</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>Sestavení</translation>
     </message>
     <message>
         <source>Build File</source>
@@ -57725,7 +57625,7 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::QbsInstallStepConfigWidget</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Install root:</source>
         <translation>Install root:</translation>
@@ -57735,28 +57635,8 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <translation>Odstranit jako první</translation>
     </message>
     <message>
-        <source>Dry run</source>
-        <translation>Spustit na zkoušku</translation>
-    </message>
-    <message>
-        <source>Keep going</source>
-        <translation>Pokračovat</translation>
-    </message>
-    <message>
         <source>Qbs Install Prefix</source>
         <translation>Předpona instalace Qbs</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>Flags:</source>
-        <translation>Příznaky:</translation>
-    </message>
-    <message>
-        <source>Equivalent command line:</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -58897,35 +58777,15 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
     </message>
 </context>
 <context>
-    <name>Qbs</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Qbs Install</source>
         <translation>Instalace Qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInstallStep</name>
-    <message>
-        <source>Qbs Install</source>
-        <translation>Instalace Qbs</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInstallStepFactory</name>
-    <message>
-        <source>Qbs Install</source>
-        <translation>Instalace Qbs</translation>
-    </message>
-</context>
-<context>
-    <name>Qbs::QbsProjectNode</name>
     <message>
         <source>%1 in %2</source>
         <translation>%1 v %2</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::QbsManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation>Projekt &apos;%1&apos; se nepodařil otevřít: Daný projektový soubor není soubor</translation>
@@ -58938,9 +58798,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Failed to set up kit for Qbs: %1</source>
         <translation>Pro Qbs se nepodařilo nastavit sadu: &apos;%1&apos;</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsPropertyLineEdit</name>
     <message>
         <source>Could not split properties.</source>
         <translation>Nepodařilo se rozdělit vlastnosti.</translation>
@@ -58949,9 +58806,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>No &apos;:&apos; found in property definition.</source>
         <translation>Definice vlastnosti neobsahuje žádný znak &apos;:&apos;.</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsRunConfiguration</name>
     <message>
         <source>The .qbs files are currently being parsed.</source>
         <translation>Soubor .qbs je právě zpracováván.</translation>
@@ -58964,9 +58818,6 @@ Lze používat části jmen, pokud jsou jednoznačné.</translation>
         <source>Qbs Run Configuration</source>
         <translation>Nastavení spuštění Qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsRunConfigurationWidget</name>
     <message>
         <source>&lt;unknown&gt;</source>
         <translation> &lt;Neznámý&gt; </translation>

@@ -28739,35 +28739,23 @@ Udløbsdato: %3</translation>
     </message>
 </context>
 <context>
-    <name>Qbs</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Qbs Install</source>
         <translation>Qbs install</translation>
     </message>
-</context>
-<context>
-    <name>QbsProductNode</name>
     <message>
         <source>Generated files</source>
         <translation>Genererede filer</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager</name>
     <message>
         <source>Qbs</source>
         <translation>Qbs</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::ConfigWidget</name>
     <message>
         <source>Change...</source>
         <translation>Skift...</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::CustomQbsPropertiesDialog</name>
     <message>
         <source>Custom Properties</source>
         <translation>Brugerdefineret egenskaber</translation>
@@ -28788,16 +28776,10 @@ Udløbsdato: %3</translation>
         <source>Value</source>
         <translation>Værdi</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::DefaultPropertyProvider</name>
     <message>
         <source>C and C++ compiler paths differ. C compiler may not work.</source>
         <translation>C- og C++-kompilerstier er forskellige. C-kompiler virker måske ikke.</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfiguration</name>
     <message>
         <source>Parsing the Qbs project.</source>
         <translation>Parser Qbs-projektet.</translation>
@@ -28806,28 +28788,15 @@ Udløbsdato: %3</translation>
         <source>Parsing of Qbs project has failed.</source>
         <translation>Parsing af Qbs-projekt mislykkedes.</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfigurationFactory</name>
     <message>
         <source>Build</source>
         <translation>Byg</translation>
     </message>
     <message>
         <source>Debug</source>
-        <extracomment>The name of the debug build configuration created by default for a qbs project.</extracomment>
-        <translation>Fejlret</translation>
-    </message>
-    <message>
-        <source>Debug</source>
         <comment>Shadow build directory suffix</comment>
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation>Fejlret</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <extracomment>The name of the release build configuration created by default for a qbs project.</extracomment>
-        <translation>Udgiv</translation>
     </message>
     <message>
         <source>Release</source>
@@ -28835,9 +28804,6 @@ Udløbsdato: %3</translation>
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation>Udgiv</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfigurationWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Bygmappe:</translation>
@@ -28846,16 +28812,10 @@ Udløbsdato: %3</translation>
         <source>Configuration name:</source>
         <translation>Konfigurationsnavn:</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStep</name>
     <message>
         <source>Qbs Build</source>
         <translation>Qbs-byg</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStepConfigWidget</name>
     <message>
         <source>Build variant:</source>
         <translation>Byggevariant:</translation>
@@ -28948,112 +28908,30 @@ Udløbsdato: %3</translation>
         <source>Installation directory:</source>
         <translation>Installationsmappe:</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStepFactory</name>
-    <message>
-        <source>Qbs Build</source>
-        <translation>Qbs-byg</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStep</name>
     <message>
         <source>Qbs Clean</source>
         <translation>Qbs clean</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStepConfigWidget</name>
-    <message>
-        <source>Flags:</source>
-        <translation>Flag:</translation>
     </message>
     <message>
         <source>Dry run</source>
         <translation>Prøvekørsel</translation>
     </message>
-    <message>
-        <source>Keep going</source>
-        <translation>Bliv ved</translation>
-    </message>
-    <message>
-        <source>Equivalent command line:</source>
-        <translation>Tilsvarende kommandolinje:</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStepFactory</name>
-    <message>
-        <source>Qbs Clean</source>
-        <translation>Qbs clean</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInstallStep</name>
-    <message>
-        <source>Qbs Install</source>
-        <translation>Qbs install</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInstallStepConfigWidget</name>
     <message>
         <source>Install root:</source>
         <translation>Installationsrod:</translation>
-    </message>
-    <message>
-        <source>Flags:</source>
-        <translation>Flag:</translation>
-    </message>
-    <message>
-        <source>Dry run</source>
-        <translation>Prøvekørsel</translation>
-    </message>
-    <message>
-        <source>Keep going</source>
-        <translation>Bliv ved</translation>
     </message>
     <message>
         <source>Remove first</source>
         <translation>Fjern første</translation>
     </message>
     <message>
-        <source>Equivalent command line:</source>
-        <translation>Tilsvarende kommandolinje:</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInstallStepFactory</name>
-    <message>
-        <source>Qbs Install</source>
-        <translation>Qbs install</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsKitInformation</name>
-    <message>
         <source>Additional Qbs Profile Settings</source>
         <translation>Yderligere Qbs-profilindstillinger</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsManager</name>
     <message>
         <source>Failed to set up kit for Qbs: %1</source>
         <translation>Kunne ikke opsætte kit for Qbs: %1</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProfilesSettingsWidget</name>
     <message>
         <source>Store profiles in Qt Creator settings directory</source>
         <translation>Opbevar profiler i Qt Creator-indstillingsmappe</translation>
@@ -29090,9 +28968,6 @@ Udløbsdato: %3</translation>
         <source>Store profiles in %1 settings directory</source>
         <translation>Opbevar profiler i %1-indstillingsmappe</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProject</name>
     <message>
         <source>Failed</source>
         <translation>Mislykkedes</translation>
@@ -29121,16 +28996,9 @@ Udløbsdato: %3</translation>
         <source>Error retrieving run environment: %1</source>
         <translation>Fejl ved hentning af kør-miljø: %1</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProjectManagerPlugin</name>
     <message>
         <source>Reparse Qbs</source>
         <translation>Reparse Qbs</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>Byg</translation>
     </message>
     <message>
         <source>Build File</source>
@@ -29208,9 +29076,6 @@ Udløbsdato: %3</translation>
         <source>Rebuild Subproject &quot;%1&quot;</source>
         <translation>Genbyg underprojektet &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>QbsRootProjectNode</name>
     <message>
         <source>Qbs files</source>
         <translation>Qbs-filer</translation>

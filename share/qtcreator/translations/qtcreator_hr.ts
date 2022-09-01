@@ -6150,7 +6150,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::CustomQbsPropertiesDialog</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>Custom Properties</source>
         <translation>Prilagođena svojstva</translation>
@@ -6171,9 +6171,6 @@ Greška: %5</translation>
         <source>Value</source>
         <translation>Vrijednost</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStepConfigWidget</name>
     <message>
         <source>Build variant:</source>
         <translation>Varijanta gradnje:</translation>
@@ -6270,59 +6267,18 @@ Greška: %5</translation>
         <source>No &quot;:&quot; found in property definition.</source>
         <translation>Znak &quot;:&quot; nije nađen u definiciji svojstva.</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStepConfigWidget</name>
-    <message>
-        <source>Flags:</source>
-        <translation>Oznake:</translation>
-    </message>
     <message>
         <source>Dry run</source>
         <translation>Probno pokretanje</translation>
     </message>
-    <message>
-        <source>Keep going</source>
-        <translation>Nastavi</translation>
-    </message>
-    <message>
-        <source>Equivalent command line:</source>
-        <translation>Odgovarajući naredbeni redak:</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInstallStepConfigWidget</name>
     <message>
         <source>Install root:</source>
         <translation>Instaliraj korijen:</translation>
     </message>
     <message>
-        <source>Flags:</source>
-        <translation>Oznake:</translation>
-    </message>
-    <message>
-        <source>Dry run</source>
-        <translation>Probno pokretanje</translation>
-    </message>
-    <message>
-        <source>Keep going</source>
-        <translation>Nastavi</translation>
-    </message>
-    <message>
         <source>Remove first</source>
         <translation>Ukloni prvu</translation>
     </message>
-    <message>
-        <source>Equivalent command line:</source>
-        <translation>Odgovarajući naredbeni redak:</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;Qbs:&lt;/b&gt; %1</translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProfilesSettingsWidget</name>
     <message>
         <source>Store profiles in Qt Creator settings directory</source>
         <translation>Spremi profile u Qt Creator direktorij postavaka</translation>
@@ -33085,14 +33041,11 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QbsProjectManager::Internal::DefaultPropertyProvider</name>
+    <name>QbsProjectManager</name>
     <message>
         <source>C and C++ compiler paths differ. C compiler may not work.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfiguration</name>
     <message>
         <source>Parsing the Qbs project.</source>
         <translation type="unfinished"></translation>
@@ -33101,28 +33054,15 @@ These files are preserved.</source>
         <source>Parsing of Qbs project has failed.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfigurationFactory</name>
     <message>
         <source>Build</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Debug</source>
-        <extracomment>The name of the debug build configuration created by default for a qbs project.</extracomment>
-        <translation>Ispravi greške</translation>
-    </message>
-    <message>
-        <source>Debug</source>
         <comment>Shadow build directory suffix</comment>
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation>Ispravi greške</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <extracomment>The name of the release build configuration created by default for a qbs project.</extracomment>
-        <translation>Objavi</translation>
     </message>
     <message>
         <source>Release</source>
@@ -33130,9 +33070,6 @@ These files are preserved.</source>
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation>Objavi</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildConfigurationWidget</name>
     <message>
         <source>Build directory:</source>
         <translation type="unfinished"></translation>
@@ -33141,81 +33078,38 @@ These files are preserved.</source>
         <source>Configuration name:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsBuildStep</name>
     <message>
         <source>Qbs Build</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsCleanStep</name>
     <message>
         <source>Qbs Clean</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Dry run</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Keep going</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Equivalent command line:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Qbs:&lt;/b&gt; %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsInstallStep</name>
-    <message>
         <source>Qbs Install</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::ConfigWidget</name>
     <message>
         <source>Change...</source>
         <translation>Promijeni …</translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsKitInformation</name>
     <message>
         <source>Additional Qbs Profile Settings</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QbsProductNode</name>
     <message>
         <source>Generated files</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QbsRootProjectNode</name>
     <message>
         <source>Qbs files</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager</name>
     <message>
         <source>Qbs</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProject</name>
     <message>
         <source>Failed</source>
         <translation type="unfinished"></translation>
@@ -33244,15 +33138,8 @@ These files are preserved.</source>
         <source>Error retrieving run environment: %1</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QbsProjectManager::Internal::QbsProjectManagerPlugin</name>
     <message>
         <source>Reparse Qbs</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Build</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

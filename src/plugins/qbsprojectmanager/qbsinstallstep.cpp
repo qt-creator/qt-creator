@@ -7,6 +7,7 @@
 #include "qbsbuildstep.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
+#include "qbsprojectmanagertr.h"
 #include "qbssession.h"
 
 #include <coreplugin/icore.h>
@@ -44,21 +45,21 @@ const char QBS_KEEP_GOING[] = "Qbs.DryKeepGoing";
 QbsInstallStep::QbsInstallStep(BuildStepList *bsl, Utils::Id id)
     : BuildStep(bsl, id)
 {
-    setDisplayName(tr("Qbs Install"));
-    setSummaryText(tr("<b>Qbs:</b> %1").arg("install"));
+    setDisplayName(Tr::tr("Qbs Install"));
+    setSummaryText(Tr::tr("<b>Qbs:</b> %1").arg("install"));
 
     const auto labelPlacement = BoolAspect::LabelPlacement::AtCheckBoxWithoutDummyLabel;
     m_dryRun = addAspect<BoolAspect>();
     m_dryRun->setSettingsKey(QBS_DRY_RUN);
-    m_dryRun->setLabel(tr("Dry run"), labelPlacement);
+    m_dryRun->setLabel(Tr::tr("Dry run"), labelPlacement);
 
     m_keepGoing = addAspect<BoolAspect>();
     m_keepGoing->setSettingsKey(QBS_KEEP_GOING);
-    m_keepGoing->setLabel(tr("Keep going"), labelPlacement);
+    m_keepGoing->setLabel(Tr::tr("Keep going"), labelPlacement);
 
     m_cleanInstallRoot = addAspect<BoolAspect>();
     m_cleanInstallRoot->setSettingsKey(QBS_REMOVE_FIRST);
-    m_cleanInstallRoot->setLabel(tr("Remove first"), labelPlacement);
+    m_cleanInstallRoot->setLabel(Tr::tr("Remove first"), labelPlacement);
 }
 
 QbsInstallStep::~QbsInstallStep()
@@ -91,7 +92,7 @@ void QbsInstallStep::doRun()
     connect(m_session, &QbsSession::taskStarted, this, &QbsInstallStep::handleTaskStarted);
     connect(m_session, &QbsSession::taskProgress, this, &QbsInstallStep::handleProgress);
     connect(m_session, &QbsSession::errorOccurred, this, [this] {
-        installDone(ErrorInfo(tr("Installing canceled: Qbs session failed.")));
+        installDone(ErrorInfo(Tr::tr("Installing canceled: Qbs session failed.")));
     });
 }
 
@@ -163,7 +164,7 @@ QWidget *QbsInstallStep::createConfigWidget()
 
     auto installRootValueLabel = new QLabel(installRoot());
 
-    auto commandLineKeyLabel = new QLabel(tr("Equivalent command line:"));
+    auto commandLineKeyLabel = new QLabel(Tr::tr("Equivalent command line:"));
     commandLineKeyLabel->setAlignment(Qt::AlignTop);
 
     auto commandLineTextEdit = new QPlainTextEdit(widget);
@@ -172,8 +173,8 @@ QWidget *QbsInstallStep::createConfigWidget()
     commandLineTextEdit->setMinimumHeight(QFontMetrics(widget->font()).height() * 8);
 
     Layouting::Form builder;
-    builder.addRow({tr("Install root:"), installRootValueLabel});
-    builder.addRow(tr("Flags:"));
+    builder.addRow({Tr::tr("Install root:"), installRootValueLabel});
+    builder.addRow(Tr::tr("Flags:"));
     m_dryRun->addToLayout(builder);
     m_keepGoing->addToLayout(builder);
     m_cleanInstallRoot->addToLayout(builder);
@@ -213,7 +214,7 @@ QbsInstallStepFactory::QbsInstallStepFactory()
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
     setSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     setSupportedProjectType(Constants::PROJECT_ID);
-    setDisplayName(QbsInstallStep::tr("Qbs Install"));
+    setDisplayName(Tr::tr("Qbs Install"));
 }
 
 } // namespace Internal
