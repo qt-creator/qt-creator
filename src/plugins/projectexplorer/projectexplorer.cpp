@@ -788,6 +788,8 @@ ProjectExplorerPlugin::ProjectExplorerPlugin()
 
 ProjectExplorerPlugin::~ProjectExplorerPlugin()
 {
+    QTC_ASSERT(dd, return);
+
     delete dd->m_proWindow; // Needs access to the kit manager.
     JsonWizardFactory::destroyAllFactories();
 

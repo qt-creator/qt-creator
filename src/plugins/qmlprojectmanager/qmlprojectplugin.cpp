@@ -100,6 +100,8 @@ public:
 
 QmlProjectPlugin::~QmlProjectPlugin()
 {
+    QTC_ASSERT(d, return);
+
     if (d->lastMessageBox)
         d->lastMessageBox->deleteLater();
     if (d->landingPage)

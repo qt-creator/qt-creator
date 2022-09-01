@@ -24,6 +24,7 @@
 
 #include <utils/futuresynchronizer.h>
 #include <utils/macroexpander.h>
+#include <utils/qtcassert.h>
 
 #include <QDebug>
 
@@ -51,6 +52,7 @@ VcsPlugin::VcsPlugin()
 
 VcsPlugin::~VcsPlugin()
 {
+    QTC_ASSERT(d, return);
     d->m_synchronizer.waitForFinished();
     VcsOutputWindow::destroy();
     m_instance = nullptr;
