@@ -105,7 +105,6 @@ public:
                 const Utils::FilePath &workingDirectory = {},
                 const Utils::ExitCodeInterpreter &interpreter = {});
     void execute(); // Execute tasks asynchronously!
-    void abort();
 
     void addFlags(unsigned f);
 

@@ -111,7 +111,6 @@ public:
     unsigned m_flags = 0;
 
     bool m_progressiveOutput = false;
-    bool m_aborted = false;
 };
 
 QString VcsCommandPrivate::displayName() const
@@ -216,14 +215,12 @@ bool VcsCommandPrivate::isFullySynchronous() const
 
 void VcsCommandPrivate::handleDone(QtcProcess *process)
 {
-    if (!m_aborted) {
-        // Success/Fail message in appropriate window?
-        if (process->result() == ProcessResult::FinishedWithSuccess) {
-            if (m_flags & VcsCommand::ShowSuccessMessage)
-                emit q->appendMessage(process->exitMessage());
-        } else if (!(m_flags & VcsCommand::SuppressFailMessage)) {
-            emit q->appendError(process->exitMessage());
-        }
+    // Success/Fail message in appropriate window?
+    if (process->result() == ProcessResult::FinishedWithSuccess) {
+        if (m_flags & VcsCommand::ShowSuccessMessage)
+            emit q->appendMessage(process->exitMessage());
+    } else if (!(m_flags & VcsCommand::SuppressFailMessage)) {
+        emit q->appendError(process->exitMessage());
     }
     emit q->runCommandFinished(process->workingDirectory());
 }
@@ -261,18 +258,14 @@ void VcsCommandPrivate::processDone()
         startNextJob();
         return;
     }
-    if (m_aborted) {
-        m_futureInterface.reportCanceled();
-    } else {
-        if (!m_progressiveOutput) {
-            emit q->stdOutText(m_stdOut);
-            if (!m_stdErr.isEmpty())
-                emit q->stdErrText(m_stdErr);
-        }
-        emit q->finished(success);
-        if (!success)
-            m_futureInterface.reportCanceled();
+    if (!m_progressiveOutput) {
+        emit q->stdOutText(m_stdOut);
+        if (!m_stdErr.isEmpty())
+            emit q->stdErrText(m_stdErr);
     }
+    emit q->finished(success);
+    if (!success)
+        m_futureInterface.reportCanceled();
     cleanup();
     // As it is used asynchronously, we need to delete ourselves
     q->deleteLater();
@@ -298,7 +291,11 @@ VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &envi
                                     this, &VcsCommand::postRunCommand);
     connect(ICore::instance(), &ICore::coreAboutToClose, this, [this, connection] {
         disconnect(connection);
-        abort();
+        d->m_process.reset();
+        if (d->m_futureInterface.isRunning()) {
+            d->m_futureInterface.reportCanceled();
+            d->cleanup();
+        }
     });
 }
 
@@ -357,12 +354,6 @@ void VcsCommand::execute()
         ProgressManager::addTimedTask(d->m_futureInterface, name, id, qMax(2, d->timeoutS() / 5));
 }
 
-void VcsCommand::abort()
-{
-    d->m_aborted = true;
-    d->m_watcher.future().cancel();
-}
-
 void VcsCommand::cancel()
 {
     d->m_futureInterface.reportCanceled();
@@ -404,18 +395,16 @@ void VcsCommand::runFullySynchronous(QtcProcess &process)
 {
     process.runBlocking();
 
-    if (!d->m_aborted) {
-        const QString stdErr = process.cleanedStdErr();
-        if (!stdErr.isEmpty() && !(d->m_flags & SuppressStdErr))
-            emit append(stdErr);
+    const QString stdErr = process.cleanedStdErr();
+    if (!stdErr.isEmpty() && !(d->m_flags & SuppressStdErr))
+        emit append(stdErr);
 
-        const QString stdOut = process.cleanedStdOut();
-        if (!stdOut.isEmpty() && d->m_flags & ShowStdOut) {
-            if (d->m_flags & SilentOutput)
-                emit appendSilently(stdOut);
-            else
-                emit append(stdOut);
-        }
+    const QString stdOut = process.cleanedStdOut();
+    if (!stdOut.isEmpty() && d->m_flags & ShowStdOut) {
+        if (d->m_flags & SilentOutput)
+            emit appendSilently(stdOut);
+        else
+            emit append(stdOut);
     }
 }
 

@@ -1387,7 +1387,7 @@ VcsBaseEditorConfig *VcsBaseEditorWidget::editorConfig() const
 void VcsBaseEditorWidget::setCommand(VcsCommand *command)
 {
     if (d->m_command) {
-        d->m_command->abort();
+        delete d->m_command;
         hideProgressIndicator();
     }
     d->m_command = command;
