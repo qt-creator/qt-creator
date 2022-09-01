@@ -32,8 +32,11 @@ SquishTestTreeItem::SquishTestTreeItem(const QString &displayName, Type type)
     case SquishTestCase:
         m_flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
         break;
+    case SquishSharedData:
+    case SquishSharedDataFolder:
     case SquishSharedFile:
     case SquishSharedFolder:
+    case SquishSharedRoot:
         m_flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
         break;
     }
@@ -149,11 +152,15 @@ SquishTestTreeModel *SquishTestTreeModel::instance()
 
 static QIcon treeIcon(SquishTestTreeItem::Type type, int column)
 {
-    static QIcon icons[5] = {QIcon(),
+    static QIcon icons[8] = {QIcon(),
                              Utils::Icons::OPENFILE.icon(),
                              QIcon(":/fancyactionbar/images/mode_Edit.png"),
                              Utils::Icons::OPENFILE.icon(),
-                             QIcon(":/fancyactionbar/images/mode_Edit.png")};
+                             Utils::Icons::OPENFILE.icon(),
+                             QIcon(":/fancyactionbar/images/mode_Edit.png"),
+                             Utils::Icons::OPENFILE.icon(),
+                             QIcon(":/squish/images/data.png")
+                            };
     if (column == 0)
         return icons[type];
 
@@ -192,8 +199,11 @@ QVariant SquishTestTreeModel::data(const QModelIndex &idx, int role) const
                 if (!item->hasChildren())
                     return Tr::tr("%1 (none)").arg(item->displayName());
                 return item->displayName();
+            case SquishTestTreeItem::SquishSharedData:
+            case SquishTestTreeItem::SquishSharedDataFolder:
             case SquishTestTreeItem::SquishSharedFile:
             case SquishTestTreeItem::SquishSharedFolder:
+            case SquishTestTreeItem::SquishSharedRoot:
                 return item->displayName();
             default: {
             } // avoid warning regarding unhandled enum values

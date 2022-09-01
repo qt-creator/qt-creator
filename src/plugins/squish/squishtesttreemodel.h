@@ -18,7 +18,16 @@ class SquishFileHandler;
 class SquishTestTreeItem : public Utils::TreeItem
 {
 public:
-    enum Type { Root, SquishSuite, SquishTestCase, SquishSharedFolder, SquishSharedFile };
+    enum Type {
+        Root,
+        SquishSuite,
+        SquishTestCase,
+        SquishSharedRoot,
+        SquishSharedFolder,
+        SquishSharedFile,
+        SquishSharedDataFolder,
+        SquishSharedData
+    };
 
     SquishTestTreeItem(const QString &displayName, Type type);
     ~SquishTestTreeItem() override {}

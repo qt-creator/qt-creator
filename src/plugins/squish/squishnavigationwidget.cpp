@@ -218,8 +218,14 @@ void SquishNavigationWidget::onItemActivated(const QModelIndex &idx)
         return;
 
     SquishTestTreeItem *item = static_cast<SquishTestTreeItem *>(m_sortModel->itemFromIndex(idx));
-    if (item->type() == SquishTestTreeItem::SquishSharedFolder)
+    switch (item->type()) {
+    case SquishTestTreeItem::SquishSharedDataFolder:
+    case SquishTestTreeItem::SquishSharedFolder:
+    case SquishTestTreeItem::SquishSharedRoot:
         return;
+    default:
+        break;
+    }
 
     if (!item->filePath().isEmpty())
         Core::EditorManager::openEditor(Utils::FilePath::fromString(item->filePath()));

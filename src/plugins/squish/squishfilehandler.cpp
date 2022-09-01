@@ -38,6 +38,54 @@ SquishFileHandler *SquishFileHandler::instance()
     return m_instance;
 }
 
+enum class SharedType { SharedFoldersAndFiles, SharedData };
+
+static SquishTestTreeItem::Type itemTypeForSharedType(SharedType sharedType, bool isDirectory)
+{
+    switch (sharedType) {
+    case SharedType::SharedFoldersAndFiles:
+        return isDirectory ? SquishTestTreeItem::SquishSharedFolder
+                           : SquishTestTreeItem::SquishSharedFile;
+    case SharedType::SharedData:
+        return isDirectory ? SquishTestTreeItem::SquishSharedDataFolder
+                           : SquishTestTreeItem::SquishSharedData;
+    }
+    QTC_CHECK(false);
+    return SquishTestTreeItem::SquishSharedFile;
+}
+
+static void addAllEntriesRecursively(SquishTestTreeItem *item, SharedType sharedType)
+{
+    const Utils::FilePath folder = Utils::FilePath::fromString(item->filePath());
+
+    for (const Utils::FilePath &file : folder.dirEntries(QDir::AllEntries | QDir::NoDotAndDotDot)) {
+        const bool isDirectory = file.isDir();
+        if (!file.isFile() && !isDirectory)
+            continue;
+
+        SquishTestTreeItem *child = new SquishTestTreeItem(
+                    file.fileName(), itemTypeForSharedType(sharedType, isDirectory));
+        child->setFilePath(file.toString());
+        if (isDirectory)
+            addAllEntriesRecursively(child, sharedType);
+
+        item->appendChild(child);
+    }
+}
+
+static void processSuiteSharedSubFolders(SquishTestTreeItem *item, const Utils::FilePath &directory,
+                                         SharedType sharedType)
+{
+    SquishTestTreeItem *sharedItem = new SquishTestTreeItem(directory.fileName(),
+                                                            SquishTestTreeItem::SquishSharedRoot);
+    sharedItem->setFilePath(directory.path());
+    addAllEntriesRecursively(sharedItem, sharedType);
+    if (sharedItem->hasChildren())
+        item->appendChild(sharedItem);
+    else
+        delete sharedItem;
+}
+
 SquishTestTreeItem *createSuiteTreeItem(const QString &name,
                                         const QString &filePath,
                                         const QStringList &cases)
@@ -50,6 +98,13 @@ SquishTestTreeItem *createSuiteTreeItem(const QString &name,
         child->setFilePath(testCase);
         item->appendChild(child);
     }
+
+    const Utils::FilePath baseDir = Utils::FilePath::fromString(filePath).absolutePath();
+    if (const Utils::FilePath scripts = baseDir.pathAppended("shared/scripts"); scripts.isDir())
+        processSuiteSharedSubFolders(item, scripts, SharedType::SharedFoldersAndFiles);
+    if (const Utils::FilePath data = baseDir.pathAppended("shared/testdata"); data.isDir())
+        processSuiteSharedSubFolders(item, data, SharedType::SharedData);
+
     return item;
 }
 
