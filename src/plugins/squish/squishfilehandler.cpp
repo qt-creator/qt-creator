@@ -73,8 +73,8 @@ static void addAllEntriesRecursively(SquishTestTreeItem *item, SharedType shared
     }
 }
 
-static void processSuiteSharedSubFolders(SquishTestTreeItem *item, const Utils::FilePath &directory,
-                                         SharedType sharedType)
+static void processSharedSubFolders(SquishTestTreeItem *item, const Utils::FilePath &directory,
+                                    SharedType sharedType)
 {
     SquishTestTreeItem *sharedItem = new SquishTestTreeItem(directory.fileName(),
                                                             SquishTestTreeItem::SquishSharedRoot);
@@ -93,17 +93,21 @@ SquishTestTreeItem *createSuiteTreeItem(const QString &name,
     SquishTestTreeItem *item = new SquishTestTreeItem(name, SquishTestTreeItem::SquishSuite);
     item->setFilePath(filePath);
     for (const QString &testCase : cases) {
-        SquishTestTreeItem *child = new SquishTestTreeItem(QFileInfo(testCase).dir().dirName(),
+        const Utils::FilePath testCaseDir = Utils::FilePath::fromString(testCase).parentDir();
+        SquishTestTreeItem *child = new SquishTestTreeItem(testCaseDir.fileName(),
                                                            SquishTestTreeItem::SquishTestCase);
         child->setFilePath(testCase);
         item->appendChild(child);
+
+        if (const Utils::FilePath data = testCaseDir.pathAppended("testdata"); data.isDir())
+            processSharedSubFolders(child, data, SharedType::SharedData);
     }
 
     const Utils::FilePath baseDir = Utils::FilePath::fromString(filePath).absolutePath();
     if (const Utils::FilePath scripts = baseDir.pathAppended("shared/scripts"); scripts.isDir())
-        processSuiteSharedSubFolders(item, scripts, SharedType::SharedFoldersAndFiles);
+        processSharedSubFolders(item, scripts, SharedType::SharedFoldersAndFiles);
     if (const Utils::FilePath data = baseDir.pathAppended("shared/testdata"); data.isDir())
-        processSuiteSharedSubFolders(item, data, SharedType::SharedData);
+        processSharedSubFolders(item, data, SharedType::SharedData);
 
     return item;
 }
