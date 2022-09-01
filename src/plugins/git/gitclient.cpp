@@ -2017,12 +2017,6 @@ bool GitClient::synchronousForEachRefCmd(const FilePath &workingDirectory, QStri
     return false;
 }
 
-VcsCommand *GitClient::asyncForEachRefCmd(const FilePath &workingDirectory, QStringList args) const
-{
-    args.push_front("for-each-ref");
-    return vcsExec(workingDirectory, args, nullptr, false, VcsCommand::NoOutput);
-}
-
 bool GitClient::synchronousRemoteCmd(const FilePath &workingDirectory, QStringList remoteArgs,
                                      QString *output, QString *errorMessage, bool silent) const
 {

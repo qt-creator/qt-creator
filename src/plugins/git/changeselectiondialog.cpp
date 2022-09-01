@@ -14,8 +14,6 @@
 #include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
 
-#include <vcsbase/vcscommand.h>
-
 #include <QApplication>
 #include <QCompleter>
 #include <QDir>
@@ -211,11 +209,16 @@ void ChangeSelectionDialog::recalculateCompletion()
         return;
 
     GitClient *client = GitClient::instance();
-    VcsCommand *command = client->asyncForEachRefCmd(workingDir, {"--format=%(refname:short)"});
-    connect(this, &QObject::destroyed, command, &VcsCommand::abort);
-    connect(command, &VcsCommand::stdOutText, [this](const QString &output) {
-        m_changeModel->setStringList(output.split('\n'));
+    QtcProcess *process = new QtcProcess(this);
+    process->setEnvironment(client->processEnvironment());
+    process->setCommand({client->vcsBinary(), {"for-each-ref", "--format=%(refname:short)"}});
+    process->setWorkingDirectory(workingDir);
+    connect(process, &QtcProcess::done, this, [this, process] {
+        if (process->result() == ProcessResult::FinishedWithSuccess)
+            m_changeModel->setStringList(process->cleanedStdOut().split('\n'));
+        process->deleteLater();
     });
+    process->start();
 }
 
 void ChangeSelectionDialog::recalculateDetails()
