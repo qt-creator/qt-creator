@@ -85,6 +85,7 @@ void Task::clear()
     file = Utils::FilePath();
     line = -1;
     movedLine = -1;
+    column = 0;
     category = Utils::Id();
     m_icon = QIcon();
     formats.clear();
