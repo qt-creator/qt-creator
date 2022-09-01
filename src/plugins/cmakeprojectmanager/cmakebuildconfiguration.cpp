@@ -1367,6 +1367,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
         m_buildSystem->setInitialCMakeArguments(cmd.splitArguments());
         m_buildSystem->setCMakeBuildType(buildType);
+        updateAndEmitConfigureEnvironmentChanged();
     });
 }
 
