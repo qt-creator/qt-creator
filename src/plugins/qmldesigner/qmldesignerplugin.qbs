@@ -689,6 +689,8 @@ Project {
                 "materialbrowser/materialbrowserview.h",
                 "materialbrowser/materialbrowserwidget.cpp",
                 "materialbrowser/materialbrowserwidget.h",
+                "materialbrowser/bundleimporter.cpp",
+                "materialbrowser/bundleimporter.h",
                 "materialeditor/materialeditorcontextobject.cpp",
                 "materialeditor/materialeditorcontextobject.h",
                 "materialeditor/materialeditordynamicpropertiesproxymodel.cpp",
