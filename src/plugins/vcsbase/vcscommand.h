@@ -143,9 +143,6 @@ private:
     void addTask(const QFuture<void> &future);
     void postRunCommand(const Utils::FilePath &workingDirectory);
 
-    QString displayName() const;
-    int timeoutS() const;
-
     // Run without a event loop in fully blocking mode. No signals will be delivered.
     void runFullySynchronous(Utils::QtcProcess &proc);
     // Run with an event loop. Signals will be delivered.

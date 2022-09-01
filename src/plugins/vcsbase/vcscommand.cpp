@@ -49,7 +49,7 @@ using namespace Utils;
 namespace VcsBase {
 namespace Internal {
 
-class VcsCommandPrivate
+class VcsCommandPrivate : public QObject
 {
 public:
     struct Job {
@@ -59,9 +59,11 @@ public:
         ExitCodeInterpreter exitCodeInterpreter = {};
     };
 
-    VcsCommandPrivate(const FilePath &defaultWorkingDirectory, const Environment &environment)
-        : m_defaultWorkingDirectory(defaultWorkingDirectory),
-          m_environment(environment)
+    VcsCommandPrivate(VcsCommand *vcsCommand, const FilePath &defaultWorkingDirectory,
+                      const Environment &environment)
+        : q(vcsCommand)
+        , m_defaultWorkingDirectory(defaultWorkingDirectory)
+        , m_environment(environment)
     {
         VcsBase::setProcessEnvironment(&m_environment);
     }
@@ -78,6 +80,11 @@ public:
         return m_environment;
     }
 
+    QString displayName() const;
+    int timeoutS() const;
+
+    VcsCommand *q = nullptr;
+
     QString m_displayName;
     const FilePath m_defaultWorkingDirectory;
     Environment m_environment;
@@ -93,10 +100,33 @@ public:
     bool m_aborted = false;
 };
 
+QString VcsCommandPrivate::displayName() const
+{
+    if (!m_displayName.isEmpty())
+        return m_displayName;
+    if (m_jobs.isEmpty())
+        return tr("Unknown");
+    const Job &job = m_jobs.at(0);
+    QString result = job.command.executable().baseName();
+    if (!result.isEmpty())
+        result[0] = result.at(0).toTitleCase();
+    else
+        result = tr("UNKNOWN");
+    if (!job.command.arguments().isEmpty())
+        result += ' ' + job.command.splitArguments().at(0);
+    return result;
+}
+
+int VcsCommandPrivate::timeoutS() const
+{
+    return std::accumulate(m_jobs.cbegin(), m_jobs.cend(), 0,
+        [](int sum, const Job &job) { return sum + job.timeoutS; });
+}
+
 } // namespace Internal
 
 VcsCommand::VcsCommand(const FilePath &workingDirectory, const Environment &environment) :
-    d(new Internal::VcsCommandPrivate(workingDirectory, environment))
+    d(new Internal::VcsCommandPrivate(this, workingDirectory, environment))
 {
     connect(&d->m_watcher, &QFutureWatcher<void>::canceled, this, &VcsCommand::cancel);
 
@@ -122,7 +152,7 @@ void VcsCommand::addTask(const QFuture<void> &future)
     if ((d->m_flags & VcsCommand::SuppressCommandLogging))
         return;
 
-    const QString name = displayName();
+    const QString name = d->displayName();
     const auto id = Id::fromString(name + QLatin1String(".action"));
     d->m_futureProgress = ProgressManager::addTask(future, name, id);
     Internal::VcsPlugin::addFuture(future);
@@ -142,26 +172,6 @@ VcsCommand::~VcsCommand()
     if (!d->m_watcher.future().isFinished())
         d->m_watcher.future().cancel();
     delete d;
-}
-
-QString VcsCommand::displayName() const
-{
-    if (!d->m_displayName.isEmpty())
-        return d->m_displayName;
-    if (!d->m_jobs.isEmpty()) {
-        const Internal::VcsCommandPrivate::Job &job = d->m_jobs.at(0);
-        QString result = job.command.executable().baseName();
-        if (!result.isEmpty())
-            result[0] = result.at(0).toTitleCase();
-        else
-            result = tr("UNKNOWN");
-
-        if (!job.command.arguments().isEmpty())
-            result += ' ' + job.command.splitArguments().at(0);
-
-        return result;
-    }
-    return tr("Unknown");
 }
 
 void VcsCommand::setDisplayName(const QString &name)
@@ -203,14 +213,6 @@ void VcsCommand::cancel()
     emit terminate();
 }
 
-int VcsCommand::timeoutS() const
-{
-    return std::accumulate(d->m_jobs.cbegin(), d->m_jobs.cend(), 0,
-                           [](int sum, const Internal::VcsCommandPrivate::Job &job) {
-        return sum + job.timeoutS;
-    });
-}
-
 void VcsCommand::run(QFutureInterface<void> &future)
 {
     // Check that the binary path is not empty
@@ -228,7 +230,7 @@ void VcsCommand::run(QFutureInterface<void> &future)
         d->m_progressParser->setFuture(&future);
     } else {
         QMetaObject::invokeMethod(this, [this, future] {
-            (void) new ProgressTimer(future, qMax(2, timeoutS() / 5), d->m_futureProgress);
+            (void) new ProgressTimer(future, qMax(2, d->timeoutS() / 5), d->m_futureProgress);
         });
     }
 
