@@ -32,8 +32,6 @@ bool currentAppearanceMatches(bool dark)
 
 void forceMacAppearance(bool dark)
 {
-    if (currentAppearanceMatches(dark))
-        return;
 #if __has_builtin(__builtin_available)
     if (__builtin_available(macOS 10.14, *))
 #else // Xcode 8
