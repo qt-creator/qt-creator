@@ -143,14 +143,21 @@
             \uicontrol Clangd > \uicontrol {Use clangd}.
             \image qtcreator-options-clangd.png "clangd preferences"
         \li In \uicontrol {Path to executable}, enter the path to clangd
-            version 13, or later.
+            version 14, or later.
         \li For more accurate results during global symbol searches, select
             \uicontrol {Enable background indexing}. However, this increases the
-            CPU load the first time you open the project.
-        \li Select \uicontrol {Insert header files on completion} to allow
-            clangd to insert header files as part of symbol completion.
+            CPU load the first time you open the project. If clangd background
+            indexing is disabled, \QC falls back to a faster, but less accurate
+            built-in indexer.
         \li By default, clangd attempts to use all unused cores. You can set a
             fixed number of cores to use in \uicontrol {Worker thread count}.
+            Background indexing also uses this many worker threads.
+        \li Select \uicontrol {Insert header files on completion} to allow
+            clangd to insert header files as part of symbol completion.
+        \li Set the number of \uicontrol {Completion results} if you regularly
+            miss important results during code completion. Set it to 0 to remove
+            the limit on the number of completion results. Setting this to 0 or a
+            very high number can make code completion slow.
         \li In \uicontrol {Document update threshold}, specify the amount of
             time \QC waits before sending document changes to the server.
             If the document changes again while waiting, this timeout is reset.

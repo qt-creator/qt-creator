@@ -169,45 +169,62 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     : d(new Private)
 {
     const ClangdSettings settings(settingsData);
+    const QString indexingToolTip = tr(
+        "If background indexing is enabled, global symbol searches will yield\n"
+        "more accurate results, at the cost of additional CPU load when\n"
+        "the project is first opened.\n"
+        "The indexing result is persisted in the project's build directory.\n"
+        "\n"
+        "If you disable background indexing, a faster, but less accurate,\n"
+        "built-in indexer is used instead.");
+    const QString workerThreadsToolTip = tr(
+        "Number of worker threads used by clangd. Background indexing also uses this many "
+        "worker threads.");
+    const QString autoIncludeToolTip = tr(
+        "Controls whether clangd may insert header files as part of symbol completion.");
+    const QString documentUpdateToolTip = tr(
+        "Defines the amount of time Qt Creator waits before sending document changes to the "
+        "server.\n"
+        "If the document changes again while waiting, this timeout resets.");
+    const QString sizeThresholdToolTip = tr(
+        "Files greater than this will not be opened as documents in clangd.\n"
+        "The built-in code model will handle highlighting, completion and so on.");
+    const QString completionResultToolTip = tr(
+        "The maximum number of completion results returned by clangd.");
+
     d->useClangdCheckBox.setText(tr("Use clangd"));
     d->useClangdCheckBox.setChecked(settings.useClangd());
     d->clangdChooser.setExpectedKind(Utils::PathChooser::ExistingCommand);
     d->clangdChooser.setFilePath(settings.clangdFilePath());
     d->clangdChooser.setEnabled(d->useClangdCheckBox.isChecked());
     d->indexingCheckBox.setChecked(settings.indexingEnabled());
-    d->indexingCheckBox.setToolTip(tr(
-        "If background indexing is enabled, global symbol searches will yield\n"
-        "more accurate results, at the cost of additional CPU load when\n"
-        "the project is first opened."));
+    d->indexingCheckBox.setToolTip(indexingToolTip);
     d->autoIncludeHeadersCheckBox.setChecked(settings.autoIncludeHeaders());
-    d->autoIncludeHeadersCheckBox.setToolTip(tr(
-        "Controls whether clangd may insert header files as part of symbol completion."));
+    d->autoIncludeHeadersCheckBox.setToolTip(autoIncludeToolTip);
     d->threadLimitSpinBox.setValue(settings.workerThreadLimit());
     d->threadLimitSpinBox.setSpecialValueText("Automatic");
+    d->threadLimitSpinBox.setToolTip(workerThreadsToolTip);
     d->documentUpdateThreshold.setMinimum(50);
     d->documentUpdateThreshold.setMaximum(10000);
     d->documentUpdateThreshold.setValue(settings.documentUpdateThreshold());
     d->documentUpdateThreshold.setSingleStep(100);
     d->documentUpdateThreshold.setSuffix(" ms");
-    d->documentUpdateThreshold.setToolTip(
-        tr("Defines the amount of time Qt Creator waits before sending document changes to the "
-           "server.\n"
-           "If the document changes again while waiting, this timeout resets.\n"));
+    d->documentUpdateThreshold.setToolTip(documentUpdateToolTip);
     d->sizeThresholdCheckBox.setText(tr("Ignore files greater than"));
     d->sizeThresholdCheckBox.setChecked(settings.sizeThresholdEnabled());
+    d->sizeThresholdCheckBox.setToolTip(sizeThresholdToolTip);
     d->sizeThresholdSpinBox.setMinimum(1);
     d->sizeThresholdSpinBox.setMaximum(std::numeric_limits<int>::max());
     d->sizeThresholdSpinBox.setSuffix(" KB");
     d->sizeThresholdSpinBox.setValue(settings.sizeThresholdInKb());
-    d->sizeThresholdSpinBox.setToolTip(tr(
-            "Files greater than this will not be opened as documents in clangd.\n"
-            "The built-in code model will handle highlighting, completion and so on."));
+    d->sizeThresholdSpinBox.setToolTip(sizeThresholdToolTip);
 
     const auto completionResultsLabel = new QLabel(tr("Completion results:"));
+    completionResultsLabel->setToolTip(completionResultToolTip);
     d->completionResults.setMinimum(0);
     d->completionResults.setMaximum(std::numeric_limits<int>::max());
     d->completionResults.setValue(settings.completionResults());
-    d->completionResults.setToolTip(tr("The maximum number of completion results returned by clangd"));
+    d->completionResults.setToolTip(completionResultToolTip);
     d->completionResults.setSpecialValueText(tr("No limit"));
 
     const auto layout = new QVBoxLayout(this);
@@ -218,29 +235,34 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     formLayout->addRow(chooserLabel, &d->clangdChooser);
     formLayout->addRow(QString(), &d->versionWarningLabel);
     const auto indexingLabel = new QLabel(tr("Enable background indexing:"));
+    indexingLabel->setToolTip(indexingToolTip);
     formLayout->addRow(indexingLabel, &d->indexingCheckBox);
-    const auto autoIncludeHeadersLabel = new QLabel(tr("Insert header files on completion:"));
-    formLayout->addRow(autoIncludeHeadersLabel, &d->autoIncludeHeadersCheckBox);
     const auto threadLimitLayout = new QHBoxLayout;
     threadLimitLayout->addWidget(&d->threadLimitSpinBox);
     threadLimitLayout->addStretch(1);
     const auto threadLimitLabel = new QLabel(tr("Worker thread count:"));
+    threadLimitLabel->setToolTip(workerThreadsToolTip);
     formLayout->addRow(threadLimitLabel, threadLimitLayout);
-    const auto documentUpdateThresholdLayout = new QHBoxLayout;
-    documentUpdateThresholdLayout->addWidget(&d->documentUpdateThreshold);
-    documentUpdateThresholdLayout->addStretch(1);
-    const auto documentUpdateThresholdLabel = new QLabel(tr("Document update threshold:"));
-    formLayout->addRow(documentUpdateThresholdLabel, documentUpdateThresholdLayout);
 
+    const auto autoIncludeHeadersLabel = new QLabel(tr("Insert header files on completion:"));
+    autoIncludeHeadersLabel->setToolTip(autoIncludeToolTip);
+    formLayout->addRow(autoIncludeHeadersLabel, &d->autoIncludeHeadersCheckBox);
     const auto limitResultsLayout = new QHBoxLayout;
     limitResultsLayout->addWidget(&d->completionResults);
     limitResultsLayout->addStretch(1);
     formLayout->addRow(completionResultsLabel, limitResultsLayout);
 
+    const auto documentUpdateThresholdLayout = new QHBoxLayout;
+    documentUpdateThresholdLayout->addWidget(&d->documentUpdateThreshold);
+    documentUpdateThresholdLayout->addStretch(1);
+    const auto documentUpdateThresholdLabel = new QLabel(tr("Document update threshold:"));
+    documentUpdateThresholdLabel->setToolTip(documentUpdateToolTip);
+    formLayout->addRow(documentUpdateThresholdLabel, documentUpdateThresholdLayout);
     const auto sizeThresholdLayout = new QHBoxLayout;
     sizeThresholdLayout->addWidget(&d->sizeThresholdSpinBox);
     sizeThresholdLayout->addStretch(1);
     formLayout->addRow(&d->sizeThresholdCheckBox, sizeThresholdLayout);
+
     d->configSelectionWidget = new ClangDiagnosticConfigsSelectionWidget(formLayout);
     d->configSelectionWidget->refresh(
                 diagnosticConfigsModel(settings.customDiagnosticConfigs()),
