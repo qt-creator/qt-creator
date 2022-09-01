@@ -5,6 +5,7 @@
 
 #include "algorithm.h"
 #include "commandline.h"
+#include "environment.h"
 #include "qtcassert.h"
 #include "stringutils.h"
 
@@ -479,8 +480,9 @@ public:
     GlobalMacroExpander()
     {
         setDisplayName(MacroExpander::tr("Global variables"));
-        registerPrefix("Env", MacroExpander::tr("Access environment variables."),
-           [](const QString &value) { return QString::fromLocal8Bit(qgetenv(value.toLocal8Bit())); });
+        registerPrefix("Env",
+                       MacroExpander::tr("Access environment variables."),
+                       [](const QString &value) { return qtcEnvironmentVariable(value); });
     }
 };
 
