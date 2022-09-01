@@ -1228,7 +1228,7 @@ void McuSupportTest::test_passDirectoryVersionDetectorToRenesasBoardSdkPackage()
 
 void McuSupportTest::test_resolveEnvironmentVariablesInDefaultPath()
 {
-    QVERIFY(qputenv(QUL_ENV_VAR, qtForMcuSdkPath));
+    Utils::Environment::modifySystemEnvironment({{QUL_ENV_VAR, qtForMcuSdkPath}});
     QCOMPARE(qtcEnvironmentVariable(QUL_ENV_VAR), qtForMcuSdkPath);
 
     const QString qulEnvVariable = QString("%{Env:") + QUL_ENV_VAR + "}";
@@ -1256,7 +1256,9 @@ void McuSupportTest::test_resolveEnvironmentVariablesInDefaultPath()
     QVERIFY(toolchainFilePkg->path().toString().startsWith(qtForMcuSdkPath));
     QCOMPARE(toolchainFilePkg->defaultPath().toString(), expectedPkgPath);
 
-    QVERIFY(qunsetenv(QUL_ENV_VAR));
+    Utils::Environment::modifySystemEnvironment(
+        {{QUL_ENV_VAR, qtForMcuSdkPath, EnvironmentItem::Unset}});
+    QVERIFY(!qtcEnvironmentVariableIsSet(QUL_ENV_VAR));
 }
 
 void McuSupportTest::test_resolveCmakeVariablesInDefaultPath()
