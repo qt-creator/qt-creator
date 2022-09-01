@@ -93,7 +93,8 @@ SquishTestTreeItem *createSuiteTreeItem(const QString &name,
     SquishTestTreeItem *item = new SquishTestTreeItem(name, SquishTestTreeItem::SquishSuite);
     item->setFilePath(filePath);
     for (const QString &testCase : cases) {
-        const Utils::FilePath testCaseDir = Utils::FilePath::fromString(testCase).parentDir();
+        const Utils::FilePath testCaseFP = Utils::FilePath::fromString(testCase);
+        const Utils::FilePath testCaseDir = testCaseFP.parentDir();
         SquishTestTreeItem *child = new SquishTestTreeItem(testCaseDir.fileName(),
                                                            SquishTestTreeItem::SquishTestCase);
         child->setFilePath(testCase);
@@ -101,6 +102,23 @@ SquishTestTreeItem *createSuiteTreeItem(const QString &name,
 
         if (const Utils::FilePath data = testCaseDir.pathAppended("testdata"); data.isDir())
             processSharedSubFolders(child, data, SharedType::SharedData);
+
+        for (auto &file : testCaseDir.dirEntries(QDir::AllEntries | QDir::NoDotAndDotDot)) {
+            // ignore current test script and testdata folder
+            const bool isDir = file.isDir();
+            if (file == testCaseFP || (isDir && file.fileName() == "testdata"))
+                continue;
+
+            SquishTestTreeItem *other
+                = new SquishTestTreeItem(file.fileName(),
+                                         isDir ? SquishTestTreeItem::SquishSharedFolder
+                                               : SquishTestTreeItem::SquishSharedFile);
+            other->setFilePath(file.toString());
+            if (isDir)
+                addAllEntriesRecursively(other, SharedType::SharedFoldersAndFiles);
+
+            child->appendChild(other);
+        }
     }
 
     const Utils::FilePath baseDir = Utils::FilePath::fromString(filePath).absolutePath();
