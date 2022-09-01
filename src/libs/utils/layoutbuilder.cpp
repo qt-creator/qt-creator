@@ -10,6 +10,7 @@
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QPushButton>
+#include <QStackedLayout>
 #include <QStyle>
 #include <QWidget>
 
@@ -107,6 +108,11 @@ QLayout *LayoutBuilder::createLayout() const
     case LayoutBuilder::VBoxLayout: {
         auto vboxLayout = new QVBoxLayout;
         layout = vboxLayout;
+        break;
+    }
+    case LayoutBuilder::StackLayout: {
+        auto stackLayout = new QStackedLayout;
+        layout = stackLayout;
         break;
     }
     }
@@ -216,6 +222,7 @@ static void doLayoutHelper(QLayout *layout,
     auto formLayout = qobject_cast<QFormLayout *>(layout);
     auto gridLayout = qobject_cast<QGridLayout *>(layout);
     auto boxLayout = qobject_cast<QBoxLayout *>(layout);
+    auto stackLayout = qobject_cast<QStackedLayout *>(layout);
 
     for (const LayoutBuilder::LayoutItem &item : items) {
         if (item.specialType == LayoutBuilder::SpecialType::Break) {
@@ -245,6 +252,8 @@ static void doLayoutHelper(QLayout *layout,
             currentGridColumn += item.span;
         } else if (boxLayout) {
             addItemToBoxLayout(boxLayout, item);
+        } else if (stackLayout) {
+            stackLayout->addWidget(item.widget);
         } else {
             pendingFormItems.append(item);
         }

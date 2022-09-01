@@ -150,6 +150,7 @@ add_qtc_library(Utils
     smallstringmemory.h
     smallstringvector.h
     smallstringview.h
+    sortfiltermodel.h
     span.h
     statuslabel.cpp statuslabel.h
     stringutils.cpp stringutils.h

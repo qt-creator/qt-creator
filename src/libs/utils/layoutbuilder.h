@@ -40,6 +40,7 @@ public:
         VBoxLayout,
         FormLayout,
         GridLayout,
+        StackLayout,
     };
 
     enum class AlignmentType {
@@ -207,6 +208,13 @@ class QTCREATOR_UTILS_EXPORT Form : public LayoutBuilder
 public:
     Form() : LayoutBuilder(FormLayout) {}
     Form(std::initializer_list<LayoutItem> items) : LayoutBuilder(FormLayout, items) {}
+};
+
+class QTCREATOR_UTILS_EXPORT Stack : public LayoutBuilder
+{
+public:
+    Stack() : LayoutBuilder(StackLayout) {}
+    Stack(std::initializer_list<LayoutItem> items) : LayoutBuilder(StackLayout, items) {}
 };
 
 using Space = LayoutBuilder::Space;

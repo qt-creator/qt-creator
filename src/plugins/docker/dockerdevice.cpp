@@ -41,6 +41,7 @@
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
+#include <utils/sortfiltermodel.h>
 #include <utils/temporaryfile.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
@@ -62,6 +63,7 @@
 #include <QTextBrowser>
 #include <QThread>
 #include <QToolButton>
+
 
 #include <numeric>
 
@@ -1101,11 +1103,39 @@ public:
         m_model.setHeader({"Repository", "Tag", "Image", "Size"});
 
         m_view = new TreeView;
-        m_view->setModel(&m_model);
+        QCheckBox *showUnnamedContainers = new QCheckBox(Tr::tr("Show Unnamed Images"));
+        QLabel *statusLabel = new QLabel();
+        statusLabel->setText(Tr::tr("Loading ..."));
+        statusLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        statusLabel->setAlignment(Qt::AlignCenter);
+
+        m_proxyModel = new SortFilterModel(this);
+
+        m_proxyModel->setFilterRowFunction(
+            [showUnnamedContainers, this](int source_row, const QModelIndex &parent) {
+                if (showUnnamedContainers->isChecked())
+                    return true;
+
+                return m_model.index(source_row, 0, parent).data(Qt::DisplayRole) != "<none>";
+            });
+
+        connect(showUnnamedContainers, &QCheckBox::toggled, this, [this]() {
+            m_proxyModel->invalidate();
+        });
+
+        m_proxyModel->setSourceModel(&m_model);
+
+        m_view->setModel(m_proxyModel);
+        m_view->setEnabled(false);
         m_view->header()->setStretchLastSection(true);
         m_view->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
         m_view->setSelectionBehavior(QAbstractItemView::SelectRows);
         m_view->setSelectionMode(QAbstractItemView::SingleSelection);
+        m_view->setSortingEnabled(true);
+        m_view->sortByColumn(0, Qt::AscendingOrder);
+        m_view->setEnabled(false);
+
+        connect(m_view, &QAbstractItemView::doubleClicked, this, &QDialog::accept);
 
         m_log = new QTextBrowser;
         m_log->setVisible(dockerDeviceLog().isDebugEnabled());
@@ -1119,10 +1149,16 @@ public:
 
         using namespace Layouting;
         Column {
-            m_view,
+            Stack {
+                statusLabel,
+                m_view,
+            },
             m_log,
             errorLabel,
-            m_buttons,
+            Row {
+                showUnnamedContainers,
+                m_buttons
+            },
         }.attachTo(this);
 
         connect(m_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -1159,8 +1195,12 @@ public:
             m_log->append(Tr::tr("Error: %1").arg(out));
         });
 
-        connect(m_process, &QtcProcess::done, errorLabel, [errorLabel, this] {
-            errorLabel->setVisible(m_process->result() != ProcessResult::FinishedWithSuccess);
+        connect(m_process, &QtcProcess::done, errorLabel, [errorLabel, this, statusLabel] {
+            delete statusLabel;
+            if (m_process->result() == ProcessResult::FinishedWithSuccess)
+                m_view->setEnabled(true);
+            else
+                errorLabel->setVisible(true);
         });
 
         connect(m_view->selectionModel(), &QItemSelectionModel::selectionChanged, [this] {
@@ -1176,7 +1216,7 @@ public:
     {
         const QModelIndexList selectedRows = m_view->selectionModel()->selectedRows();
         QTC_ASSERT(selectedRows.size() == 1, return {});
-        DockerImageItem *item = m_model.itemForIndex(selectedRows.front());
+        DockerImageItem *item = m_model.itemForIndex(m_proxyModel->mapToSource(selectedRows.front()));
         QTC_ASSERT(item, return {});
 
         auto device = DockerDevice::create(m_settings, *item);
@@ -1190,6 +1230,7 @@ public:
 public:
     TreeModel<DockerImageItem> m_model;
     TreeView *m_view = nullptr;
+    SortFilterModel *m_proxyModel = nullptr;
     QTextBrowser *m_log = nullptr;
     QDialogButtonBox *m_buttons;
     DockerSettings *m_settings;

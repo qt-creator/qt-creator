@@ -279,6 +279,7 @@ Project {
             "smallstringlayout.h",
             "smallstringmemory.h",
             "smallstringvector.h",
+            "sortfiltermodel.h",
             "span.h",
             "../3rdparty/span/span.hpp",
             "statuslabel.cpp",
