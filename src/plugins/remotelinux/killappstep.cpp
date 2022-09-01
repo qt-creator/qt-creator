@@ -25,7 +25,7 @@ class KillAppService : public AbstractRemoteLinuxDeployService
 public:
     ~KillAppService() override;
 
-    void setRemoteExecutable(const QString &filePath);
+    void setRemoteExecutable(const FilePath &filePath);
 
 private:
     void handleStdErr();
@@ -40,7 +40,7 @@ private:
     void cleanup();
     void finishDeployment();
 
-    QString m_remoteExecutable;
+    FilePath m_remoteExecutable;
     DeviceProcessSignalOperation::Ptr m_signalOperation;
 };
 
@@ -49,7 +49,7 @@ KillAppService::~KillAppService()
     cleanup();
 }
 
-void KillAppService::setRemoteExecutable(const QString &filePath)
+void KillAppService::setRemoteExecutable(const FilePath &filePath)
 {
     m_remoteExecutable = filePath;
 }
@@ -68,8 +68,9 @@ void KillAppService::doDeploy()
     }
     connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
             this, &KillAppService::handleSignalOpFinished);
-    emit progressMessage(Tr::tr("Trying to kill \"%1\" on remote device...").arg(m_remoteExecutable));
-    m_signalOperation->killProcess(m_remoteExecutable);
+    emit progressMessage(Tr::tr("Trying to kill \"%1\" on remote device...")
+                            .arg(m_remoteExecutable.path()));
+    m_signalOperation->killProcess(m_remoteExecutable.path());
 }
 
 void KillAppService::cleanup()
@@ -113,7 +114,7 @@ public:
             Target * const theTarget = target();
             QTC_ASSERT(theTarget, return CheckResult::failure());
             RunConfiguration * const rc = theTarget->activeRunConfiguration();
-            const QString remoteExe = rc ? rc->runnable().command.executable().path() : QString();
+            const FilePath remoteExe = rc ? rc->runnable().command.executable() : FilePath();
             service->setRemoteExecutable(remoteExe);
             return CheckResult::success();
         });
