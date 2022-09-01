@@ -13881,7 +13881,7 @@ Flags: %3</source>
     </message>
 </context>
 <context>
-    <name>CtfVisualizer::Internal::CtfStatisticsModel</name>
+    <name>CtfVisualizer</name>
     <message>
         <source>Title</source>
         <translation>Заголовок</translation>
@@ -13910,9 +13910,6 @@ Flags: %3</source>
         <source>Maximum Time</source>
         <translation>Максимальное время</translation>
     </message>
-</context>
-<context>
-    <name>CtfVisualizer::Internal::CtfTimelineModel</name>
     <message>
         <source>Stack Level %1</source>
         <translation>Уровень %1 стека</translation>
@@ -13981,9 +13978,6 @@ Flags: %3</source>
         <source>Return Arguments</source>
         <translation>Возвращаемые аргументы</translation>
     </message>
-</context>
-<context>
-    <name>CtfVisualizer::Internal::CtfTraceManager</name>
     <message>
         <source>CTF Visualizer</source>
         <translation>Визуализатор CTF</translation>
@@ -13998,9 +13992,6 @@ Do you want to display them anyway?</source>
         <translation>Трассировка содержит потоки с глубиной стека &gt; 512.
 Всё равно отобразить?</translation>
     </message>
-</context>
-<context>
-    <name>CtfVisualizer::Internal::CtfVisualizerTool</name>
     <message>
         <source>Chrome Trace Format Viewer</source>
         <translation>Просмотрщик Chrome Trace Format</translation>
@@ -14032,10 +14023,6 @@ Do you want to display them anyway?</source>
     <message>
         <source>JSON File (*.json)</source>
         <translation>Файл JSON (*.json)</translation>
-    </message>
-    <message>
-        <source>CTF Visualizer</source>
-        <translation>Визуализатор CTF</translation>
     </message>
     <message>
         <source>The file does not contain any trace data.</source>

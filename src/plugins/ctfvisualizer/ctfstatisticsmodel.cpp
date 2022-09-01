@@ -3,6 +3,7 @@
 #include "ctfstatisticsmodel.h"
 
 #include "ctfvisualizerconstants.h"
+#include "ctfvisualizertr.h"
 
 #include <tracing/timelineformattime.h>
 
@@ -167,19 +168,19 @@ QVariant CtfStatisticsModel::headerData(int section, Qt::Orientation orientation
 
     switch (section) {
     case Column::Title:
-        return tr("Title");
+        return Tr::tr("Title");
     case Column::Count:
-        return tr("Count");
+        return Tr::tr("Count");
     case Column::TotalDuration:
-        return tr("Total Time");
+        return Tr::tr("Total Time");
     case Column::RelativeDuration:
-        return tr("Percentage");
+        return Tr::tr("Percentage");
     case Column::MinDuration:
-        return tr("Minimum Time");
+        return Tr::tr("Minimum Time");
     case Column::AvgDuration:
-        return tr("Average Time");
+        return Tr::tr("Average Time");
     case Column::MaxDuration:
-        return tr("Maximum Time");
+        return Tr::tr("Maximum Time");
     default:
         return "";
     }

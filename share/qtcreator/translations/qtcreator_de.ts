@@ -46917,7 +46917,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>CtfVisualizer::Internal::CtfStatisticsModel</name>
+    <name>CtfVisualizer</name>
     <message>
         <source>Title</source>
         <translation>Titel</translation>
@@ -46930,9 +46930,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Total Time</source>
         <translation>Gesamtdauer</translation>
     </message>
-</context>
-<context>
-    <name>CtfVisualizer::Internal::CtfTimelineModel</name>
     <message>
         <source>Value</source>
         <translation>Wert</translation>
@@ -46941,9 +46938,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Arguments</source>
         <translation>Argumente</translation>
     </message>
-</context>
-<context>
-    <name>CtfVisualizer::Internal::CtfVisualizerTool</name>
     <message>
         <source>Reset Zoom</source>
         <translation>Vergrößerung zurücksetzen</translation>

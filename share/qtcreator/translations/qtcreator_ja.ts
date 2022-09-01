@@ -51523,7 +51523,7 @@ Continue?</source>
     </message>
 </context>
 <context>
-    <name>CtfVisualizer::Internal::CtfStatisticsModel</name>
+    <name>CtfVisualizer</name>
     <message>
         <source>Title</source>
         <translation>タイトル</translation>
@@ -51536,9 +51536,6 @@ Continue?</source>
         <source>Total Time</source>
         <translation>合計時間</translation>
     </message>
-</context>
-<context>
-    <name>CtfVisualizer::Internal::CtfTimelineModel</name>
     <message>
         <source>Value</source>
         <translation>値</translation>
@@ -51551,9 +51548,6 @@ Continue?</source>
         <source>Arguments</source>
         <translation>引数</translation>
     </message>
-</context>
-<context>
-    <name>CtfVisualizer::Internal::CtfVisualizerTool</name>
     <message>
         <source>Timeline</source>
         <translation>タイムライン</translation>

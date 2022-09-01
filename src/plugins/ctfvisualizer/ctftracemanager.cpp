@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #include "ctftracemanager.h"
 
-#include "ctftimelinemodel.h"
 #include "ctfstatisticsmodel.h"
+#include "ctftimelinemodel.h"
 #include "ctfvisualizerconstants.h"
+#include "ctfvisualizertr.h"
 
 #include <coreplugin/icore.h>
 #include <tracing/timelinemodelaggregator.h>
@@ -137,8 +138,8 @@ void CtfTraceManager::load(const QString &filename)
     std::ifstream file(filename.toStdString());
     if (!file.is_open()) {
         QMessageBox::warning(Core::ICore::dialogParent(),
-                             tr("CTF Visualizer"),
-                             tr("Cannot read the CTF file."));
+                             Tr::tr("CTF Visualizer"),
+                             Tr::tr("Cannot read the CTF file."));
         return;
     }
     CtfJsonParserCallback ctfParser(this);
@@ -159,8 +160,8 @@ void CtfTraceManager::finalize()
             if (!userConsentToIgnoreDeepTraces) {
                 QMessageBox::StandardButton answer
                     = QMessageBox::question(Core::ICore::dialogParent(),
-                                            tr("CTF Visualizer"),
-                                            tr("The trace contains threads with stack depth > "
+                                            Tr::tr("CTF Visualizer"),
+                                            Tr::tr("The trace contains threads with stack depth > "
                                                "512.\nDo you want to display them anyway?"),
                                             QMessageBox::Yes | QMessageBox::No,
                                             QMessageBox::No);

@@ -5,6 +5,7 @@
 
 #include "ctftracemanager.h"
 #include "ctfvisualizerconstants.h"
+#include "ctfvisualizertr.h"
 
 #include <tracing/timelineformattime.h>
 #include <tracing/timelinemodelaggregator.h>
@@ -54,7 +55,8 @@ QVariantList CtfTimelineModel::labels() const
 
     for (int i = 0; i < m_maxStackSize; ++i) {
         QVariantMap element;
-        element.insert(QLatin1String("description"), QStringLiteral("- ").append(tr("Stack Level %1").arg(i)));
+        element.insert(QLatin1String("description"),
+                       QStringLiteral("- ").append(Tr::tr("Stack Level %1").arg(i)));
         element.insert(QLatin1String("id"), m_counterNames.size() + i);
         result << element;
     }
@@ -68,12 +70,15 @@ QVariantMap CtfTimelineModel::orderedDetails(int index) const
     if (counterIdx > 0) {
         // this item is a counter, add its properties:
         info.insert(0, {{}, QString::fromStdString(m_counterNames.at(counterIdx - 1))});
-        info.insert(4, {tr("Value"), QString::number(double(m_counterValues.at(index)), 'g')});
-        info.insert(5, {tr("Min"), QString::number(double(m_counterData.at(counterIdx - 1).min), 'g')});
-        info.insert(6, {tr("Max"), QString::number(double(m_counterData.at(counterIdx - 1).max), 'g')});
+        info.insert(4, {Tr::tr("Value"),
+                        QString::number(double(m_counterValues.at(index)), 'g')});
+        info.insert(5, {Tr::tr("Min"),
+                        QString::number(double(m_counterData.at(counterIdx - 1).min), 'g')});
+        info.insert(6, {Tr::tr("Max"),
+                        QString::number(double(m_counterData.at(counterIdx - 1).max), 'g')});
     }
-    info.insert(2, {tr("Start"), Timeline::formatTime(startTime(index))});
-    info.insert(3, {tr("Wall Duration"), Timeline::formatTime(duration(index))});
+    info.insert(2, {Tr::tr("Start"), Timeline::formatTime(startTime(index))});
+    info.insert(3, {Tr::tr("Wall Duration"), Timeline::formatTime(duration(index))});
     QVariantMap data;
     QString title = info.value(0).second;
     data.insert("title", title);
@@ -176,8 +181,8 @@ void CtfTimelineModel::finalize(double traceBegin, double traceEnd, const QStrin
         int index = m_openEventIds.pop();
         qint64 duration = normalizedEnd - startTime(index);
         insertEnd(index, duration);
-        m_details[index].insert(3, {reuse(tr("Wall Duration")), Timeline::formatTime(duration)});
-        m_details[index].insert(6, {reuse(tr("Unfinished")), reuse(tr("true"))});
+        m_details[index].insert(3, {reuse(Tr::tr("Wall Duration")), Timeline::formatTime(duration)});
+        m_details[index].insert(6, {reuse(Tr::tr("Unfinished")), reuse(Tr::tr("true"))});
     }
     computeNesting();
 
@@ -211,7 +216,7 @@ QString CtfTimelineModel::eventTitle(int index) const
 void CtfTimelineModel::updateName()
 {
     if (m_threadName.isEmpty()) {
-        setDisplayName(tr("Thread %1").arg(m_threadId));
+        setDisplayName(Tr::tr("Thread %1").arg(m_threadId));
     } else {
         setDisplayName(QString("%1 (%2)").arg(m_threadName).arg(m_threadId));
     }
@@ -281,24 +286,25 @@ qint64 CtfTimelineModel::newStackEvent(const json &event, qint64 normalizedTime,
         m_details[index].insert(0, {{}, reuse(QString::fromStdString(name))});
     }
     if (event.contains(CtfEventCategoryKey)) {
-        m_details[index].insert(1, {reuse(tr("Categories")), reuse(QString::fromStdString(event[CtfEventCategoryKey]))});
+        m_details[index].insert(1, {reuse(Tr::tr("Categories")),
+                                    reuse(QString::fromStdString(event[CtfEventCategoryKey]))});
     }
     if (event.contains("args") && !event["args"].empty()) {
         QString argsJson = QString::fromStdString(event["args"].dump(1));
         // strip leading and trailing curled brackets:
         argsJson = argsJson.size() > 4 ? argsJson.mid(2, argsJson.size() - 4) : argsJson;
-        m_details[index].insert(4, {reuse(tr("Arguments")), reuse(argsJson)});
+        m_details[index].insert(4, {reuse(Tr::tr("Arguments")), reuse(argsJson)});
     }
     if (eventPhase == CtfEventTypeInstant) {
-        m_details[index].insert(6, {reuse(tr("Instant")), reuse(tr("true"))});
+        m_details[index].insert(6, {reuse(Tr::tr("Instant")), reuse(Tr::tr("true"))});
         if (event.contains("s")) {
             std::string scope = event["s"];
             if (scope == "g") {
-                m_details[index].insert(7, {reuse(tr("Scope")), reuse(tr("global"))});
+                m_details[index].insert(7, {reuse(Tr::tr("Scope")), reuse(Tr::tr("global"))});
             } else if (scope == "p") {
-                m_details[index].insert(7, {reuse(tr("Scope")), reuse(tr("process"))});
+                m_details[index].insert(7, {reuse(Tr::tr("Scope")), reuse(Tr::tr("process"))});
             } else {
-                m_details[index].insert(7, {reuse(tr("Scope")), reuse(tr("thread"))});
+                m_details[index].insert(7, {reuse(Tr::tr("Scope")), reuse(Tr::tr("thread"))});
             }
         }
     }
@@ -318,7 +324,7 @@ qint64 CtfTimelineModel::closeStackEvent(const json &event, double timestamp, qi
             QString argsJson = QString::fromStdString(event["args"].dump(1));
             // strip leading and trailing curled brackets:
             argsJson = argsJson.size() > 4 ? argsJson.mid(2, argsJson.size() - 4) : argsJson;
-            m_details[index].insert(5, {reuse(tr("Return Arguments")), reuse(argsJson)});
+            m_details[index].insert(5, {reuse(Tr::tr("Return Arguments")), reuse(argsJson)});
         }
         return duration;
     }
