@@ -8,8 +8,10 @@
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
 
+#include <utils/environment.h>
 #include <utils/filesystemwatcher.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
 
 #include <QDateTime>
@@ -886,9 +888,17 @@ void BranchModel::updateUpstreamStatus(BranchNode *node)
 {
     if (node->tracking.isEmpty())
         return;
-    VcsCommand *command = d->client->asyncUpstreamStatus(
-                d->workingDirectory, node->fullRef(), node->tracking);
-    QObject::connect(command, &VcsCommand::stdOutText, node, [this, node](const QString &text) {
+
+    QtcProcess *process = new QtcProcess(node);
+    process->setEnvironment(d->client->processEnvironment());
+    process->setCommand({d->client->vcsBinary(), {"rev-list", "--no-color", "--left-right",
+                         "--count", node->fullRef() + "..." + node->tracking}});
+    process->setWorkingDirectory(d->workingDirectory);
+    connect(process, &QtcProcess::done, this, [this, process, node] {
+        process->deleteLater();
+        if (process->result() != ProcessResult::FinishedWithSuccess)
+            return;
+        const QString text = process->cleanedStdOut();
         if (text.isEmpty())
             return;
         const QStringList split = text.trimmed().split('\t');
@@ -898,6 +908,7 @@ void BranchModel::updateUpstreamStatus(BranchNode *node)
         const QModelIndex idx = nodeToIndex(node, ColumnBranch);
         emit dataChanged(idx, idx);
     });
+    process->start();
 }
 
 QString BranchModel::toolTip(const QString &sha) const

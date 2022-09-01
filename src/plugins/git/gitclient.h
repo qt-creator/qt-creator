@@ -332,9 +332,6 @@ public:
     void show(const QString &source, const QString &id, const QString &name = {});
     void archive(const Utils::FilePath &workingDirectory, QString commit);
 
-    VcsBase::VcsCommand *asyncUpstreamStatus(const Utils::FilePath &workingDirectory,
-                                             const QString &branch, const QString &upstream);
-
     enum class BranchTargetType { Remote, Commit };
     static QString suggestedLocalBranchName(
             const Utils::FilePath &workingDirectory, const QStringList &existingLocalNames,
