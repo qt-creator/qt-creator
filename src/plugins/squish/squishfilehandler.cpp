@@ -38,9 +38,9 @@ SquishFileHandler *SquishFileHandler::instance()
     return m_instance;
 }
 
-SquishTestTreeItem *createTestTreeItem(const QString &name,
-                                       const QString &filePath,
-                                       const QStringList &cases)
+SquishTestTreeItem *createSuiteTreeItem(const QString &name,
+                                        const QString &filePath,
+                                        const QStringList &cases)
 {
     SquishTestTreeItem *item = new SquishTestTreeItem(name, SquishTestTreeItem::SquishSuite);
     item->setFilePath(filePath);
@@ -57,7 +57,7 @@ void SquishFileHandler::modifySuiteItem(const QString &suiteName,
                                         const QString &filePath,
                                         const QStringList &cases)
 {
-    SquishTestTreeItem *item = createTestTreeItem(suiteName, filePath, cases);
+    SquishTestTreeItem *item = createSuiteTreeItem(suiteName, filePath, cases);
     // TODO update file watcher
     m_suites.insert(suiteName, filePath);
     emit suiteTreeItemModified(item, suiteName);
@@ -92,9 +92,9 @@ void SquishFileHandler::openTestSuites()
                     modifySuiteItem(suiteName, suiteConf.absoluteFilePath(), cases);
             }
         } else {
-            SquishTestTreeItem *item = createTestTreeItem(suiteName,
-                                                          suiteConf.absoluteFilePath(),
-                                                          cases);
+            SquishTestTreeItem *item = createSuiteTreeItem(suiteName,
+                                                           suiteConf.absoluteFilePath(),
+                                                           cases);
             // TODO add file watcher
             m_suites.insert(suiteName, suiteConf.absoluteFilePath());
             emit testTreeItemCreated(item);
