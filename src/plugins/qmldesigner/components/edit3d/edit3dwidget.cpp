@@ -331,7 +331,8 @@ void Edit3DWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
     const DesignerActionManager &actionManager = QmlDesignerPlugin::instance()
                                                      ->viewManager().designerActionManager();
     if (actionManager.externalDragHasSupportedAssets(dragEnterEvent->mimeData())
-        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)) {
+        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_MATERIAL)
+        || dragEnterEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
         dragEnterEvent->acceptProposedAction();
     }
 }
@@ -348,6 +349,12 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
 
         if (matNode.isValid())
             m_view->dropMaterial(matNode, dropEvent->position());
+        return;
+    }
+
+    // handle dropping bundle materials
+    if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
+        m_view->dropBundleMaterial(dropEvent->position());
         return;
     }
 

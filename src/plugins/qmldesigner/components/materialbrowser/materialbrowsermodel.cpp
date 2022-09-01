@@ -235,6 +235,8 @@ void MaterialBrowserModel::setSearchText(const QString &searchText)
             isEmpty = !isValidIndex(m_selectedIndex + inc)
                    && !isValidIndex(m_selectedIndex - inc);
         }
+        if (!isMaterialVisible(m_selectedIndex)) // handles the case of a single material
+            isEmpty = true;
     }
 
     if (isEmpty != m_isEmpty) {

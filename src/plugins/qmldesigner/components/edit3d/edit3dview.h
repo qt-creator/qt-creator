@@ -80,12 +80,14 @@ public:
     void addQuick3DImport();
     void startContextMenu(const QPoint &pos);
     void dropMaterial(const ModelNode &matNode, const QPointF &pos);
+    void dropBundleMaterial(const QPointF &pos);
 
 private slots:
     void onEntriesChanged();
 
 private:
     enum class NodeAtPosReqType {
+        BundleMaterialDrop,
         MaterialDrop,
         ContextMenu,
         None

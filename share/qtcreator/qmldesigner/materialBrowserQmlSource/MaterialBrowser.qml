@@ -38,13 +38,15 @@ Item {
 
     property var currentMaterial: null
     property int currentMaterialIdx: 0
+    property var currentBundleMaterial: null
 
     property var matSectionsModel: []
 
     // Called also from C++ to close context menu on focus out
     function closeContextMenu()
     {
-        contextMenu.close()
+        cxtMenu.close()
+        cxtMenuBundle.close()
     }
 
     // Called from C++ to refresh a preview material after it changes
@@ -68,10 +70,15 @@ Item {
 
         acceptedButtons: Qt.RightButton
 
-        onClicked: {
-            if (!materialBrowserModel.hasMaterialRoot) {
+        onClicked: (mouse) => {
+            // root context-menu works only for user materials
+            var userMatsSecBottom = mapFromItem(userMaterialsSection, 0, userMaterialsSection.y).y
+                                    + userMaterialsSection.height;
+
+            if (!materialBrowserModel.hasMaterialRoot && (!materialBrowserBundleModel.matBundleExists
+                                                          || mouse.y < userMatsSecBottom)) {
                 root.currentMaterial = null
-                contextMenu.popup()
+                cxtMenu.popup()
             }
         }
     }
@@ -90,7 +97,7 @@ Item {
     }
 
     StudioControls.Menu {
-        id: contextMenu
+        id: cxtMenu
 
         closePolicy: StudioControls.Menu.CloseOnEscape | StudioControls.Menu.CloseOnPressOutside
 
@@ -188,6 +195,32 @@ Item {
         }
     }
 
+    StudioControls.Menu {
+        id: cxtMenuBundle
+
+        closePolicy: StudioControls.Menu.CloseOnEscape | StudioControls.Menu.CloseOnPressOutside
+
+        StudioControls.MenuItem {
+            text: qsTr("Apply to selected (replace)")
+            enabled: root.currentBundleMaterial && materialBrowserModel.hasModelSelection
+            onTriggered: materialBrowserBundleModel.applyToSelected(root.currentBundleMaterial, false)
+        }
+
+        StudioControls.MenuItem {
+            text: qsTr("Apply to selected (add)")
+            enabled: root.currentBundleMaterial && materialBrowserModel.hasModelSelection
+            onTriggered: materialBrowserBundleModel.applyToSelected(root.currentBundleMaterial, true)
+        }
+
+        StudioControls.MenuSeparator {}
+
+        StudioControls.MenuItem {
+            text: qsTr("Add to project")
+
+            onTriggered: materialBrowserBundleModel.addMaterial(root.currentBundleMaterial)
+        }
+    }
+
     Column {
         id: col
         y: 5
@@ -216,22 +249,11 @@ Item {
         }
 
         Text {
-            text: qsTr("No match found.");
-            color: StudioTheme.Values.themeTextColor
-            font.pixelSize: StudioTheme.Values.baseFontSize
-            leftPadding: 10
-            visible: materialBrowserModel.hasQuick3DImport && materialBrowserModel.isEmpty
-                     && !searchBox.isEmpty() && !materialBrowserModel.hasMaterialRoot
-        }
-
-        Text {
             text: {
                 if (materialBrowserModel.hasMaterialRoot)
                     qsTr("<b>Material Browser</b> is disabled inside a material component.")
                 else if (!materialBrowserModel.hasQuick3DImport)
                     qsTr("To use <b>Material Browser</b>, first add the QtQuick3D module in the <b>Components</b> view.")
-                else if (materialBrowserModel.isEmpty && searchBox.isEmpty())
-                    qsTr("There are no materials in this project.<br>Select '<b>+</b>' to create one.")
                 else
                     ""
             }
@@ -252,29 +274,113 @@ Item {
             width: root.width
             height: root.height - searchBox.height
             clip: true
+            visible: materialBrowserModel.hasQuick3DImport && !materialBrowserModel.hasMaterialRoot
 
-            Grid {
-                id: grid
+            Column {
+                Section {
+                    id: userMaterialsSection
 
-                width: scrollView.width
-                leftPadding: 5
-                rightPadding: 5
-                bottomPadding: 5
-                columns: root.width / root.cellWidth
+                    width: root.width
+                    caption: qsTr("User materials")
+                    hideHeader: !materialBrowserBundleModel.matBundleExists
 
-                Repeater {
-                    id: gridRepeater
+                    Grid {
+                        id: grid
 
-                    model: materialBrowserModel
-                    delegate: MaterialItem {
-                        width: root.cellWidth
-                        height: root.cellHeight
+                        width: scrollView.width
+                        leftPadding: 5
+                        rightPadding: 5
+                        bottomPadding: 5
+                        columns: root.width / root.cellWidth
 
-                        onShowContextMenu: {
-                            if (searchBox.isEmpty()) {
-                                root.currentMaterial = model
-                                contextMenu.popup()
+                        Repeater {
+                            id: gridRepeater
+
+                            model: materialBrowserModel
+                            delegate: MaterialItem {
+                                width: root.cellWidth
+                                height: root.cellHeight
+
+                                onShowContextMenu: {
+                                    if (searchBox.isEmpty()) {
+                                        root.currentMaterial = model
+                                        cxtMenu.popup()
+                                    }
+                                }
                             }
+                        }
+                    }
+
+                    Text {
+                        text: qsTr("No match found.");
+                        color: StudioTheme.Values.themeTextColor
+                        font.pixelSize: StudioTheme.Values.baseFontSize
+                        leftPadding: 10
+                        visible: materialBrowserModel.isEmpty && !searchBox.isEmpty() && !materialBrowserModel.hasMaterialRoot
+                    }
+
+                    Text {
+                        text:qsTr("There are no materials in this project.<br>Select '<b>+</b>' to create one.")
+                        visible: materialBrowserModel.isEmpty && searchBox.isEmpty()
+                        textFormat: Text.RichText
+                        color: StudioTheme.Values.themeTextColor
+                        font.pixelSize: StudioTheme.Values.mediumFontSize
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Text.WordWrap
+                        width: root.width
+                    }
+                }
+
+                Section {
+                    width: root.width
+                    caption: qsTr("Material Library")
+                    addTopPadding: noMatchText.visible
+                    visible: materialBrowserBundleModel.matBundleExists
+
+                    Column {
+                        Repeater {
+                            model: materialBrowserBundleModel
+
+                            delegate: Section {
+                                width: root.width
+                                caption: bundleCategory
+                                addTopPadding: false
+                                sectionBackgroundColor: "transparent"
+                                visible: bundleCategoryVisible
+
+                                Grid {
+                                    width: scrollView.width
+                                    leftPadding: 5
+                                    rightPadding: 5
+                                    bottomPadding: 5
+                                    columns: root.width / root.cellWidth
+
+                                    Repeater {
+                                        model: bundleMaterialsModel
+
+                                        delegate: BundleMaterialItem {
+                                            width: root.cellWidth
+                                            height: root.cellHeight
+
+                                            onShowContextMenu: {
+                                                if (searchBox.isEmpty()) {
+                                                    root.currentBundleMaterial = modelData
+                                                    cxtMenuBundle.popup()
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Text {
+                            id: noMatchText
+                            text: qsTr("No match found.");
+                            color: StudioTheme.Values.themeTextColor
+                            font.pixelSize: StudioTheme.Values.baseFontSize
+                            leftPadding: 10
+                            visible: materialBrowserBundleModel.isEmpty && !searchBox.isEmpty() && !materialBrowserModel.hasMaterialRoot
                         }
                     }
                 }

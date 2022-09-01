@@ -33,6 +33,7 @@
 
 #include <QFileIconProvider>
 #include <QFrame>
+#include <QJsonObject>
 #include <QPointF>
 #include <QQmlPropertyMap>
 #include <QQuickWidget>
@@ -48,8 +49,10 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
+class BundleMaterial;
 class MaterialBrowserView;
 class MaterialBrowserModel;
+class MaterialBrowserBundleModel;
 class PreviewImageProvider;
 
 class MaterialBrowserWidget : public QFrame
@@ -67,12 +70,17 @@ public:
     void clearSearchFilter();
 
     QPointer<MaterialBrowserModel> materialBrowserModel() const;
+    QPointer<MaterialBrowserBundleModel> materialBrowserBundleModel() const;
     void updateMaterialPreview(const ModelNode &node, const QPixmap &pixmap);
 
     Q_INVOKABLE void handleSearchfilterChanged(const QString &filterText);
     Q_INVOKABLE void startDragMaterial(int index, const QPointF &mousePos);
+    Q_INVOKABLE void startDragBundleMaterial(QmlDesigner::BundleMaterial *bundleMat, const QPointF &mousePos);
 
     QQuickWidget *quickWidget() const;
+
+signals:
+    void bundleMaterialDragStarted(QmlDesigner::BundleMaterial *bundleMat);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -83,6 +91,7 @@ private:
 
     QPointer<MaterialBrowserView>  m_materialBrowserView;
     QPointer<MaterialBrowserModel> m_materialBrowserModel;
+    QPointer<MaterialBrowserBundleModel> m_materialBrowserBundleModel;
     QScopedPointer<QQuickWidget> m_quickWidget;
 
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
@@ -92,6 +101,7 @@ private:
     QString m_filterText;
 
     ModelNode m_materialToDrag;
+    BundleMaterial *m_bundleMaterialToDrag = nullptr;
     QPoint m_dragStartPoint;
 };
 

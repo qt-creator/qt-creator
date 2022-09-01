@@ -31,6 +31,7 @@
 
 namespace QmlDesigner {
 
+class BundleMaterial;
 class MaterialBrowserWidget;
 
 class MaterialBrowserView : public AbstractView
@@ -65,13 +66,17 @@ public:
 private:
     void refreshModel(bool updateImages);
     bool isMaterial(const ModelNode &node) const;
+    void loadPropertyGroups();
 
     QPointer<MaterialBrowserWidget> m_widget;
+    ModelNode m_bundleMaterialDropTarget;
+    ModelNode m_selectedModel; // first selected 3D model node
+    BundleMaterial *m_draggedBundleMaterial = nullptr;
+    bool m_bundleMaterialAddToSelected = false;
     bool m_hasQuick3DImport = false;
     bool m_autoSelectModelMaterial = false; // TODO: wire this to some action
     bool m_puppetResetPending = false;
     bool m_propertyGroupsLoaded = false;
-    void loadPropertyGroups();
 };
 
 } // namespace QmlDesigner

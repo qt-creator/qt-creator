@@ -312,6 +312,8 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
                 assignMaterialTo3dModel(modelNode, m_droppedMaterial);
             });
         }
+    } else if (m_nodeAtPosReqType == NodeAtPosReqType::BundleMaterialDrop) {
+        emitCustomNotification("drop_bundle_material", {modelNode}); // To MaterialBrowserView
     }
     m_nodeAtPosReqType = NodeAtPosReqType::None;
 }
@@ -710,6 +712,12 @@ void Edit3DView::dropMaterial(const ModelNode &matNode, const QPointF &pos)
 {
     m_nodeAtPosReqType = NodeAtPosReqType::MaterialDrop;
     m_droppedMaterial = matNode;
+    QmlDesignerPlugin::instance()->viewManager().nodeInstanceView()->view3DAction({View3DActionCommand::GetNodeAtPos, pos});
+}
+
+void Edit3DView::dropBundleMaterial(const QPointF &pos)
+{
+    m_nodeAtPosReqType = NodeAtPosReqType::BundleMaterialDrop;
     QmlDesignerPlugin::instance()->viewManager().nodeInstanceView()->view3DAction({View3DActionCommand::GetNodeAtPos, pos});
 }
 

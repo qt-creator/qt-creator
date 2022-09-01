@@ -107,7 +107,7 @@ QString BundleImporter::importComponent(const QString &qmlFile,
         qmldirContent.append('\n');
     }
 
-    FilePath qmlSourceFile = FilePath::fromString(qmlFile);
+    FilePath qmlSourceFile = bundleImportPath.resolvePath(FilePath::fromString(qmlFile));
     const bool qmlFileExists = qmlSourceFile.exists();
     const QString qmlType = qmlSourceFile.baseName();
     m_pendingTypes.append(QStringLiteral("%1.%2")
