@@ -432,6 +432,7 @@ void MaterialEditorView::handleToolBarAction(int action)
 
 void MaterialEditorView::handlePreviewEnvChanged(const QString &envAndValue)
 {
+    Q_UNUSED(envAndValue);
     //    if (envAndValue.isEmpty() || m_initializingPreviewData)
     //        return;
 
@@ -493,6 +494,7 @@ void MaterialEditorView::handlePreviewEnvChanged(const QString &envAndValue)
 
 void MaterialEditorView::handlePreviewModelChanged(const QString &modelStr)
 {
+    Q_UNUSED(modelStr);
     //    if (modelStr.isEmpty() || m_initializingPreviewData)
     //        return;
 
