@@ -59,11 +59,6 @@ public:
                               VcsBaseEditorWidget *editor = nullptr,
                               JobOutputBindMode mode = NoOutputBind) const;
 
-    VcsCommand *execBgCommand(const Utils::FilePath &workingDirectory,
-                              const QStringList &args,
-                              const std::function<void (const QString &)> &outputCallback,
-                              unsigned flags = 0) const;
-
     void enqueueJob(VcsCommand *cmd, const QStringList &args,
                     const Utils::ExitCodeInterpreter &interpreter = {}) const;
 

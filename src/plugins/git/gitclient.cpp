@@ -455,7 +455,7 @@ private:
     QString m_body;
     QString m_precedes;
     std::vector<QString> m_follows;
-    QList<QPointer<VcsCommand>> m_commands;
+    QList<QtcProcess *> m_commands;
 };
 
 void ShowController::processCommandOutput(const QString &output)
@@ -489,28 +489,42 @@ void ShowController::processDescription(const QString &output)
     m_follows.push_back(m_precedes);
     updateDescription();
     const QString commit = modText.mid(7, 8);
-    m_commands.append(m_instance->execBgCommand(
-                          workingDirectory(), {"describe", "--contains", commit},
-                          [this](const QString &text) {
-        m_precedes = text.trimmed();
+
+    QtcProcess *precedesProcess = new QtcProcess(this);
+    m_commands.append(precedesProcess);
+    precedesProcess->setEnvironment(m_instance->processEnvironment());
+    precedesProcess->setCommand({m_instance->vcsBinary(), {"describe", "--contains", commit}});
+    precedesProcess->setWorkingDirectory(workingDirectory());
+    connect(precedesProcess, &QtcProcess::done, this, [this, precedesProcess] {
+        m_precedes = precedesProcess->result() == ProcessResult::FinishedWithSuccess
+                   ? precedesProcess->cleanedStdOut().trimmed() : QString();
         const int tilde = m_precedes.indexOf('~');
         if (tilde != -1)
             m_precedes.truncate(tilde);
         if (m_precedes.endsWith("^0"))
             m_precedes.chop(2);
         updateDescription();
-    }));
+    });
+    precedesProcess->start();
+
     QStringList parents;
     QString errorMessage;
     m_instance->synchronousParentRevisions(workingDirectory(), commit, &parents, &errorMessage);
     m_follows.resize(parents.size());
     for (int i = 0, total = parents.size(); i < total; ++i) {
-        m_commands.append(m_instance->execBgCommand(
-                              workingDirectory(), {"describe", "--tags", "--abbrev=0", parents[i]},
-                              [this, i](const QString &text) {
-            m_follows[i] = text.trimmed();
+        QtcProcess *followsProcess = new QtcProcess(this);
+        m_commands.append(followsProcess);
+        followsProcess->setEnvironment(m_instance->processEnvironment());
+        followsProcess->setCommand({m_instance->vcsBinary(),
+                                    {"describe", "--tags", "--abbrev=0", parents[i]}});
+        followsProcess->setWorkingDirectory(workingDirectory());
+        connect(followsProcess, &QtcProcess::done, this, [this, followsProcess, i] {
+            if (followsProcess->result() != ProcessResult::FinishedWithSuccess)
+                return;
+            m_follows[i] = followsProcess->cleanedStdOut().trimmed();
             updateDescription();
-        }));
+        });
+        followsProcess->start();
     }
 }
 
@@ -533,10 +547,7 @@ void ShowController::updateDescription()
 
 void ShowController::abortCommands()
 {
-    for (QPointer<VcsCommand> command : m_commands) {
-        if (command)
-            command->abort();
-    }
+    qDeleteAll(m_commands);
     m_commands.clear();
 }
 
