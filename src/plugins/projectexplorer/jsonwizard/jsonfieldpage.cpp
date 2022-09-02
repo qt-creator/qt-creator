@@ -852,9 +852,8 @@ void PathChooserField::setup(JsonFieldPage *page, const QString &name)
 {
     auto w = qobject_cast<PathChooser *>(widget());
     QTC_ASSERT(w, return);
-    page->registerFieldWithName(name, w, "path", SIGNAL(rawPathChanged(QString)));
-    QObject::connect(w, &PathChooser::rawPathChanged,
-                     page, [page](QString) { emit page->completeChanged(); });
+    page->registerFieldWithName(name, w, "path", SIGNAL(textChanged(QString)));
+    QObject::connect(w, &PathChooser::textChanged, page, &WizardPage::completeChanged);
 }
 
 bool PathChooserField::validate(MacroExpander *expander, QString *message)
