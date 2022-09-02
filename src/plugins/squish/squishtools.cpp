@@ -197,7 +197,7 @@ void SquishTools::queryServerSettings()
         QMessageBox::critical(Core::ICore::dialogParent(),
                               Tr::tr("Error"),
                               Tr::tr("Squish Tools in unexpected state (%1).\n"
-                                     "Refusing to run a test case.")
+                                     "Refusing to execute server query.")
                                   .arg(m_state));
         return;
     }
