@@ -202,6 +202,7 @@ void SquishTools::queryServerSettings()
         return;
     }
     m_squishRunnerMode = QueryMode;
+    m_fullRunnerOutput.clear();
     startSquishServer(RunnerQueryRequested);
 }
 
@@ -497,8 +498,9 @@ void SquishTools::onServerFinished()
 void SquishTools::onRunnerFinished()
 {
     if (m_squishRunnerMode == QueryMode) {
-        emit queryFinished(m_runnerProcess.readAllStandardOutput());
+        emit queryFinished(m_fullRunnerOutput);
         setState(RunnerStopped);
+        m_fullRunnerOutput.clear();
         return;
     }
 
@@ -663,8 +665,10 @@ void SquishTools::onRunnerErrorOutput()
 
 void SquishTools::onRunnerStdOutput(const QString &lineIn)
 {
-    if (m_request == RunnerQueryRequested) // only handle test runs here
+    if (m_request == RunnerQueryRequested) { // only handle test runs here
+        m_fullRunnerOutput.append(lineIn);   // but store output for query, see onRunnerFinished()
         return;
+    }
 
     int fileLine = -1;
     int fileColumn = -1;

@@ -117,7 +117,7 @@ class SquishServerSettings : public AspectContainer
 public:
     SquishServerSettings();
 
-    void setFromXmlOutput(const QByteArray &output);
+    void setFromXmlOutput(const QString &output);
 
     QMap<QString, QString> mappedAuts; // name, path
     QMap<QString, QString> attachableAuts; // name, host:port
@@ -181,7 +181,7 @@ InfoMode infoModeFromType(const QString &type)
     return None;
 }
 
-void SquishServerSettings::setFromXmlOutput(const QByteArray &output)
+void SquishServerSettings::setFromXmlOutput(const QString &output)
 {
     SquishServerSettings newSettings;
     InfoMode infoMode = None;
@@ -403,7 +403,7 @@ SquishServerSettingsWidget::SquishServerSettingsWidget(QWidget *parent)
     // query settings
     SquishTools *squishTools = SquishTools::instance();
     connect(squishTools, &SquishTools::queryFinished, this,
-            [this, progress] (const QByteArray &out) {
+            [this, progress] (const QString &out) {
         m_serverSettings.setFromXmlOutput(out);
         m_originalSettings.setFromXmlOutput(out);
         repopulateApplicationView();

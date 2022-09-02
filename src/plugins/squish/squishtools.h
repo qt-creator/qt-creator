@@ -61,7 +61,7 @@ signals:
     void squishTestRunStarted();
     void squishTestRunFinished();
     void resultOutputCreated(const QByteArray &output);
-    void queryFinished(const QByteArray &output);
+    void queryFinished(const QString &output);
     void configChangesFailed(QProcess::ProcessError error);
     void configChangesWritten();
     void localsUpdated(const QString &output);
@@ -122,6 +122,7 @@ private:
     QStringList m_testCases;
     QStringList m_reportFiles;
     QString m_currentResultsDirectory;
+    QString m_fullRunnerOutput; // used when querying the server
     Utils::FilePath m_currentTestCasePath;
     QFile *m_currentResultsXML = nullptr;
     QFileSystemWatcher *m_resultsFileWatcher = nullptr;
