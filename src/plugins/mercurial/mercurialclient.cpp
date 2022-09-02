@@ -141,14 +141,8 @@ bool MercurialClient::synchronousPull(const FilePath &workingDir, const QString 
     QStringList args;
     args << vcsCommandString(PullCommand) << extraOptions << srcLocation;
 
-    // cause mercurial doesn`t understand LANG
-    Environment env = Environment::systemEnvironment();
-    env.set("LANGUAGE", "C");
-
-    VcsCommand *command = VcsBaseClient::createVcsCommand(workingDir, env);
-    command->addFlags(VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage);
-    const CommandResult result = command->runCommand({vcsBinary(), args}, vcsTimeoutS());
-    delete command;
+    const CommandResult result = vcsSynchronousExec(workingDir, args,
+          VcsCommand::ShowStdOut | VcsCommand::ShowSuccessMessage | VcsCommand::ForceCLocale);
 
     parsePullOutput(result.cleanedStdOut().trimmed());
     return result.result() == ProcessResult::FinishedWithSuccess;
