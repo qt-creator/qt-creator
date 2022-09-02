@@ -604,7 +604,7 @@ void ProjectExplorerPlugin::testGccOutputParsers_data()
                                 8))
             << QString();
 
-    QTest::newRow("instanciated from here")
+    QTest::newRow("instantiated from here")
             << QString::fromLatin1("main.cpp:10: instantiated from here  ")
             << OutputParserTester::STDERR
             << QString() << QString()
