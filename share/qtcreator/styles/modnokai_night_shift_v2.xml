@@ -44,7 +44,7 @@
   <style name="Comment" foreground="#75715e" italic="true"/>
   <style name="Doxygen.Comment" foreground="#75715e" bold="true" italic="true"/>
   <style name="Doxygen.Tag" foreground="#80ff80"/>
-  <style name="VisualWhitespace" foreground="#777777"/>
+  <style name="VisualWhitespace" foreground="#404040"/>
   <style name="QmlLocalId" italic="true"/>
   <style name="QmlExternalId" foreground="#aaaaff" italic="true"/>
   <style name="QmlTypeId" foreground="#55ff55"/>

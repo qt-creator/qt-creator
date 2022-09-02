@@ -52,7 +52,7 @@
   <style name="Text" foreground="#cfbfad" background="#1e1e27"/>
   <style name="Type" foreground="#ff8bff"/>
   <style name="VirtualMethod" italic="true"/>
-  <style name="VisualWhitespace" foreground="#646482"/>
+  <style name="VisualWhitespace" foreground="#3d3d50"/>
   <style name="QmlTypeId" foreground="#ff8bff"/>
   <style name="Binding" foreground="#ff5555"/>
   <style name="QmlLocalId" italic="true"/>
