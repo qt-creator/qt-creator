@@ -193,7 +193,7 @@ PyLSClient::~PyLSClient()
 
 void PyLSClient::updateConfiguration()
 {
-    const auto doc = QJsonDocument::fromJson(PythonSettings::pyLSConfiguration().toUtf8());
+    const auto doc = QJsonDocument::fromJson(PythonSettings::pylsConfiguration().toUtf8());
     if (doc.isArray())
         Client::updateConfiguration(doc.array());
     else if (doc.isObject())

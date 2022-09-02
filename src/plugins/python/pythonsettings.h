@@ -26,7 +26,7 @@ public:
     static void setPyLSConfiguration(const QString &configuration);
     static bool pylsEnabled();
     static void setPylsEnabled(const bool &enabled);
-    static QString pyLSConfiguration();
+    static QString pylsConfiguration();
     static PythonSettings *instance();
 
     static QList<Interpreter> detectPythonVenvs(const Utils::FilePath &path);

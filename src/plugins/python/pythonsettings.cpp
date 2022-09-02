@@ -855,7 +855,7 @@ bool PythonSettings::pylsEnabled()
     return pylspOptionsPage().enabled();
 }
 
-QString PythonSettings::pyLSConfiguration()
+QString PythonSettings::pylsConfiguration()
 {
     return pylspOptionsPage().configuration();
 }
