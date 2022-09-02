@@ -10,8 +10,9 @@
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
-#include <utils/pathchooser.h>
 #include <utils/fileutils.h>
+#include <utils/pathchooser.h>
+#include <utils/qtcassert.h>
 
 #include <QFormLayout>
 
@@ -84,7 +85,13 @@ NimToolChainConfigWidget::NimToolChainConfigWidget(NimToolChain *tc)
     fillUI();
 
     // Connect
-    connect(m_compilerCommand, &PathChooser::pathChanged, this, &NimToolChainConfigWidget::onCompilerCommandChanged);
+    connect(m_compilerCommand, &PathChooser::textChanged, this, [this] {
+        const FilePath path = m_compilerCommand->rawFilePath();
+        auto tc = static_cast<NimToolChain *>(toolChain());
+        QTC_ASSERT(tc, return);
+        tc->setCompilerCommand(path);
+        fillUI();
+    });
 }
 
 void NimToolChainConfigWidget::applyImpl()
@@ -119,14 +126,6 @@ void NimToolChainConfigWidget::fillUI()
     Q_ASSERT(tc);
     m_compilerCommand->setFilePath(tc->compilerCommand());
     m_compilerVersion->setText(tc->compilerVersion());
-}
-
-void NimToolChainConfigWidget::onCompilerCommandChanged(const QString &path)
-{
-    auto tc = static_cast<NimToolChain *>(toolChain());
-    Q_ASSERT(tc);
-    tc->setCompilerCommand(FilePath::fromString(path));
-    fillUI();
 }
 
 }

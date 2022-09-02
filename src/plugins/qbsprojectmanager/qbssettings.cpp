@@ -161,7 +161,7 @@ public:
         layout->addRow(tr("Default installation directory:"), &m_defaultInstallDirLineEdit);
         layout->addRow(tr("Qbs version:"), &m_versionLabel);
 
-        connect(&m_qbsExePathChooser, &PathChooser::filePathChanged, [this] {
+        connect(&m_qbsExePathChooser, &PathChooser::textChanged, [this] {
             m_versionLabel.setText(getQbsVersionString());
         });
     }

@@ -87,7 +87,7 @@ public:
         m_executable->setExpectedKind(PathChooser::ExistingCommand);
 
         connect(m_name, &QLineEdit::textChanged, this, &InterpreterDetailsWidget::changed);
-        connect(m_executable, &PathChooser::filePathChanged, this, &InterpreterDetailsWidget::changed);
+        connect(m_executable, &PathChooser::textChanged, this, &InterpreterDetailsWidget::changed);
 
         Form {
             Tr::tr("Name:"), m_name, br,

@@ -154,8 +154,9 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
     m_sourceDirectoryWarning->setWordWrap(true);
     m_layout->addRow(m_sourceDirectoryWarning);
 
-    connect(m_androidPackageSourceDir, &PathChooser::filePathChanged,
-            m_wizard, &CreateAndroidManifestWizard::setDirectory);
+    connect(m_androidPackageSourceDir, &PathChooser::textChanged, m_wizard, [this] {
+        m_wizard->setDirectory(m_androidPackageSourceDir->rawFilePath());
+    });
 
     if (wizard->copyGradle()) {
         auto checkBox = new QCheckBox(this);

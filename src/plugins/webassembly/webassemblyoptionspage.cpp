@@ -67,7 +67,7 @@ WebAssemblyOptionsWidget::WebAssemblyOptionsWidget()
         m_emSdkPathChooser->setExpectedKind(PathChooser::Directory);
         m_emSdkPathChooser->setInitialBrowsePathBackup(FileUtils::homePath());
         m_emSdkPathChooser->setFilePath(WebAssemblyEmSdk::registeredEmSdk());
-        connect(m_emSdkPathChooser, &PathChooser::filePathChanged,
+        connect(m_emSdkPathChooser, &PathChooser::textChanged,
                 this, &WebAssemblyOptionsWidget::updateStatus);
         layout->addWidget(m_emSdkPathChooser);
         m_emSdkVersionDisplay = new InfoLabel(this);

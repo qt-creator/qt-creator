@@ -219,7 +219,7 @@ GdbServerProviderConfigWidget::GdbServerProviderConfigWidget(
 
     connect(m_startupModeComboBox, &QComboBox::currentIndexChanged,
             this, &GdbServerProviderConfigWidget::dirty);
-    connect(m_peripheralDescriptionFileChooser, &PathChooser::filePathChanged,
+    connect(m_peripheralDescriptionFileChooser, &PathChooser::textChanged,
             this, &GdbServerProviderConfigWidget::dirty);
 }
 

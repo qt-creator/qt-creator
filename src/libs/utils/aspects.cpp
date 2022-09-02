@@ -1087,7 +1087,7 @@ void StringAspect::addToLayout(LayoutBuilder &builder)
                 connect(d->m_pathChooserDisplay, &PathChooser::editingFinished, this, setPathChooserValue);
                 connect(d->m_pathChooserDisplay, &PathChooser::browsingFinished, this, setPathChooserValue);
             } else {
-                connect(d->m_pathChooserDisplay, &PathChooser::pathChanged,
+                connect(d->m_pathChooserDisplay, &PathChooser::textChanged,
                         this, [this](const QString &path) {
                     setValue(path);
                 });

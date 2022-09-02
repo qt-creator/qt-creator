@@ -272,7 +272,7 @@ DebuggerSourcePathMappingWidget::DebuggerSourcePathMappingWidget() :
     m_targetChooser->setHistoryCompleter("Debugger.MappingTarget.History");
     connect(m_sourceLineEdit, &QLineEdit::textChanged,
             this, &DebuggerSourcePathMappingWidget::slotEditSourceFieldChanged);
-    connect(m_targetChooser, &PathChooser::filePathChanged,
+    connect(m_targetChooser, &PathChooser::textChanged,
             this, &DebuggerSourcePathMappingWidget::slotEditTargetFieldChanged);
     auto editLayout = new QFormLayout;
     const QString sourceToolTip = Tr::tr("<p>The source path contained in the "

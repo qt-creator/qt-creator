@@ -59,7 +59,7 @@ OpenSquishSuitesDialog::OpenSquishSuitesDialog(QWidget *parent)
     }.attachTo(this);
 
     connect(m_directoryLineEdit,
-            &Utils::PathChooser::pathChanged,
+            &Utils::PathChooser::textChanged,
             this,
             &OpenSquishSuitesDialog::onDirectoryChanged);
     connect(selectAllPushButton,

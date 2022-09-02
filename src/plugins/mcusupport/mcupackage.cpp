@@ -260,7 +260,7 @@ QWidget *McuPackage::widget()
 
     QObject::connect(this, &McuPackage::statusChanged, this, [this] { updateStatusUi(); });
 
-    QObject::connect(m_fileChooser, &PathChooser::filePathChanged, this, [this] {
+    QObject::connect(m_fileChooser, &PathChooser::textChanged, this, [this] {
         updatePath();
         emit changed();
     });

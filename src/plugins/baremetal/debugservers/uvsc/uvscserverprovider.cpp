@@ -277,7 +277,7 @@ UvscServerProviderConfigWidget::UvscServerProviderConfigWidget(UvscServerProvide
 
     connect(m_hostWidget, &HostWidget::dataChanged,
             this, &UvscServerProviderConfigWidget::dirty);
-    connect(m_toolsIniChooser, &PathChooser::filePathChanged,
+    connect(m_toolsIniChooser, &PathChooser::textChanged,
             this, &UvscServerProviderConfigWidget::dirty);
     connect(m_deviceSelector, &DeviceSelector::selectionChanged,
             this, &UvscServerProviderConfigWidget::dirty);
@@ -290,7 +290,7 @@ UvscServerProviderConfigWidget::UvscServerProviderConfigWidget(UvscServerProvide
         m_driverSelector->setToolsIniFile(toolsIniFile);
     };
 
-    connect(m_toolsIniChooser, &PathChooser::filePathChanged, this, updateSelectors);
+    connect(m_toolsIniChooser, &PathChooser::textChanged, this, updateSelectors);
     updateSelectors();
 }
 

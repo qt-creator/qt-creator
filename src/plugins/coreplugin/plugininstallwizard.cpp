@@ -89,11 +89,11 @@ public:
         label->setWordWrap(true);
         vlayout->addWidget(label);
 
-        auto path = new PathChooser;
-        path->setExpectedKind(PathChooser::Any);
-        vlayout->addWidget(path);
-        connect(path, &PathChooser::pathChanged, this, [this, path] {
-            m_data->sourcePath = path->filePath();
+        auto chooser = new PathChooser;
+        chooser->setExpectedKind(PathChooser::Any);
+        vlayout->addWidget(chooser);
+        connect(chooser, &PathChooser::textChanged, this, [this, chooser] {
+            m_data->sourcePath = chooser->filePath();
             updateWarnings();
         });
 

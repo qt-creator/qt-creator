@@ -324,9 +324,9 @@ DebuggerItemConfigWidget::DebuggerItemConfigWidget()
     formLayout->addRow(new QLabel(Tr::tr("Version:")), m_versionLabel);
     formLayout->addRow(new QLabel(Tr::tr("Working directory:")), m_workingDirectoryChooser);
 
-    connect(m_binaryChooser, &PathChooser::filePathChanged,
+    connect(m_binaryChooser, &PathChooser::textChanged,
             this, &DebuggerItemConfigWidget::binaryPathHasChanged);
-    connect(m_workingDirectoryChooser, &PathChooser::filePathChanged,
+    connect(m_workingDirectoryChooser, &PathChooser::textChanged,
             this, &DebuggerItemConfigWidget::store);
     connect(m_displayNameLineEdit, &QLineEdit::textChanged,
             this, &DebuggerItemConfigWidget::store);

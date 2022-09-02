@@ -135,7 +135,7 @@ void SshSettingsWidget::setupPathChooser(PathChooser &chooser, const FilePath &i
 {
     chooser.setExpectedKind(PathChooser::ExistingCommand);
     chooser.setFilePath(initialPath);
-    connect(&chooser, &PathChooser::filePathChanged, [&changedFlag] { changedFlag = true; });
+    connect(&chooser, &PathChooser::textChanged, [&changedFlag] { changedFlag = true; });
 }
 
 void SshSettingsWidget::updateCheckboxEnabled()

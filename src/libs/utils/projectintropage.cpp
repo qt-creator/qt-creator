@@ -118,7 +118,8 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
         d->m_stateLabel
     }.attachTo(this);
 
-    connect(d->m_pathChooser, &PathChooser::filePathChanged, this, &ProjectIntroPage::slotChanged);
+    connect(d->m_pathChooser, &PathChooser::textChanged,
+            this, &ProjectIntroPage::slotChanged);
     connect(d->m_nameLineEdit, &QLineEdit::textChanged,
             this, &ProjectIntroPage::slotChanged);
     connect(d->m_pathChooser, &PathChooser::validChanged,
@@ -131,7 +132,7 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
             this, &ProjectIntroPage::slotChanged);
 
     setProperty(SHORT_TITLE_PROPERTY, tr("Location"));
-    registerFieldWithName(QLatin1String("Path"), d->m_pathChooser, "path", SIGNAL(pathChanged(QString)));
+    registerFieldWithName(QLatin1String("Path"), d->m_pathChooser, "path", SIGNAL(textChanged(QString)));
     registerFieldWithName(QLatin1String("ProjectName"), d->m_nameLineEdit);
 }
 

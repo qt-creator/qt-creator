@@ -36,10 +36,9 @@ protected:
 
 private:
     void fillUI();
-    void onCompilerCommandChanged(const QString &path);
 
     Utils::PathChooser *m_compilerCommand;
     QLineEdit *m_compilerVersion;
 };
 
-}
+} // Nim

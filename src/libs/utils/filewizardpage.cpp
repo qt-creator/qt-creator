@@ -75,7 +75,7 @@ FileWizardPage::FileWizardPage(QWidget *parent) :
 
     setProperty(SHORT_TITLE_PROPERTY, tr("Location"));
 
-    registerFieldWithName(QLatin1String("Path"), d->m_pathChooser, "path", SIGNAL(pathChanged(QString)));
+    registerFieldWithName(QLatin1String("Path"), d->m_pathChooser, "path", SIGNAL(textChanged(QString)));
     registerFieldWithName(QLatin1String("FileName"), d->m_nameLineEdit);
 }
 

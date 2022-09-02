@@ -94,12 +94,10 @@ void CmakeProjectConverterDialog::pathValidChanged()
 {
     bool valid = isValid();
 
-    if (valid) {
-        m_newProjectDir = FilePath::fromString(m_dirSelector->path()).pathAppended(m_nameEditor->text());
-    }
-    else {
+    if (valid)
+        m_newProjectDir = m_dirSelector->filePath().pathAppended(m_nameEditor->text());
+    else
         m_newProjectDir = FilePath();
-    }
 
     const QString error = errorText();
     m_errorLabel->setType(error.isEmpty() ? InfoLabel::None : InfoLabel::Warning);

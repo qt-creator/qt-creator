@@ -26,7 +26,7 @@ class PathChooserPrivate;
 class QTCREATOR_UTILS_EXPORT PathChooser : public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged DESIGNABLE true)
+    Q_PROPERTY(QString path READ path WRITE setPath NOTIFY textChanged DESIGNABLE true)
     Q_PROPERTY(QString promptDialogTitle READ promptDialogTitle WRITE setPromptDialogTitle DESIGNABLE true)
     Q_PROPERTY(QString promptDialogFilter READ promptDialogFilter WRITE setPromptDialogFilter DESIGNABLE true)
     Q_PROPERTY(Kind expectedKind READ expectedKind WRITE setExpectedKind DESIGNABLE true)
@@ -150,9 +150,8 @@ private:
 signals:
     void validChanged(bool validState);
     void rawPathChanged(const QString &text);
-    void pathChanged(const QString &path);
-    void filePathChanged(const FilePath &path);
-    void editingFinished();
+    void textChanged(const QString &text); // Triggered from the line edit's textChanged()
+    void editingFinished(); // Triggered from the line edit's editingFinished()
     void beforeBrowsing();
     void browsingFinished();
     void returnPressed();

@@ -276,9 +276,13 @@ AttachCoreDialog::~AttachCoreDialog()
 int AttachCoreDialog::exec()
 {
     connect(d->selectRemoteCoreButton, &QAbstractButton::clicked, this, &AttachCoreDialog::selectRemoteCoreFile);
-    connect(d->remoteCoreFileName, &PathChooser::filePathChanged, this, &AttachCoreDialog::coreFileChanged);
-    connect(d->symbolFileName, &PathChooser::filePathChanged, this, &AttachCoreDialog::changed);
-    connect(d->localCoreFileName, &PathChooser::filePathChanged, this, &AttachCoreDialog::coreFileChanged);
+    connect(d->remoteCoreFileName, &PathChooser::textChanged, this, [this] {
+        coreFileChanged(d->remoteCoreFileName->rawFilePath());
+    });
+    connect(d->symbolFileName, &PathChooser::textChanged, this, &AttachCoreDialog::changed);
+    connect(d->localCoreFileName, &PathChooser::textChanged, this, [this] {
+        coreFileChanged(d->localCoreFileName->rawFilePath());
+    });
     connect(d->forceLocalCheckBox, &QCheckBox::stateChanged, this, &AttachCoreDialog::changed);
     connect(d->kitChooser, &KitChooser::currentIndexChanged, this, &AttachCoreDialog::changed);
     connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);

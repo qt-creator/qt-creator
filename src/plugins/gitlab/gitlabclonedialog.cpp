@@ -91,7 +91,7 @@ GitLabCloneDialog::GitLabCloneDialog(const Project &project, QWidget *parent)
     QTC_ASSERT(slashIndex > 0, return);
     m_directoryLE->setText(path.mid(slashIndex + 1));
 
-    connect(m_pathChooser, &Utils::PathChooser::filePathChanged, this, [this]() {
+    connect(m_pathChooser, &Utils::PathChooser::textChanged, this, [this] {
         m_directoryLE->validate();
         GitLabCloneDialog::updateUi();
     });

@@ -45,7 +45,7 @@ void ExtPropertiesMView::visitMPackage(const qmt::MPackage *package)
             m_configPath->setInitialBrowsePathBackup(
                 Utils::FilePath::fromString(project->fileName()).absolutePath());
             addRow(tr("Config path:"), m_configPath, "configpath");
-            connect(m_configPath, &Utils::PathChooser::filePathChanged,
+            connect(m_configPath, &Utils::PathChooser::textChanged,
                     this, &ExtPropertiesMView::onConfigPathChanged);
         }
         if (!m_configPath->hasFocus()) {
@@ -64,8 +64,9 @@ void ExtPropertiesMView::visitMPackage(const qmt::MPackage *package)
     }
 }
 
-void ExtPropertiesMView::onConfigPathChanged(const Utils::FilePath &path)
+void ExtPropertiesMView::onConfigPathChanged()
 {
+    const Utils::FilePath path = m_configPath->rawFilePath();
     bool modified = false;
     qmt::Project *project = m_projectController->project();
     if (path.isEmpty()) {
