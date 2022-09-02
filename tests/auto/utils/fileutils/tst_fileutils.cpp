@@ -707,9 +707,8 @@ void tst_fileutils::asyncLocalCopy()
 
 void tst_fileutils::startsWithDriveLetter_data()
 {
-    if (!HostOsInfo::isWindowsHost()) {
+    if (!HostOsInfo::isWindowsHost())
         QSKIP("This test is only relevant on Windows");
-    }
 
     QTest::addColumn<FilePath>("path");
     QTest::addColumn<bool>("expected");
@@ -728,7 +727,8 @@ void tst_fileutils::startsWithDriveLetter()
     QCOMPARE(path.startsWithDriveLetter(), expected);
 }
 
-void tst_fileutils::onDevice_data() {
+void tst_fileutils::onDevice_data()
+{
     QTest::addColumn<FilePath>("path");
     QTest::addColumn<FilePath>("templatePath");
     QTest::addColumn<FilePath>("expected");
@@ -742,7 +742,8 @@ void tst_fileutils::onDevice_data() {
 
 }
 
-void tst_fileutils::onDevice() {
+void tst_fileutils::onDevice()
+{
     QFETCH(FilePath, path);
     QFETCH(FilePath, templatePath);
     QFETCH(FilePath, expected);
@@ -750,7 +751,8 @@ void tst_fileutils::onDevice() {
     QCOMPARE(path.onDevice(templatePath), expected);
 }
 
-void tst_fileutils::plus_data() {
+void tst_fileutils::plus_data()
+{
     QTest::addColumn<FilePath>("left");
     QTest::addColumn<QString>("right");
     QTest::addColumn<FilePath>("expected");
