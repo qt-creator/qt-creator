@@ -132,7 +132,15 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     ActionContainer *mfind = ActionManager::actionContainer(Constants::M_FIND);
     Command *cmd;
 
-    m_ui.advancedButton->setDefaultAction(ActionManager::command(Constants::ADVANCED_FIND)->action());
+    auto advancedAction = new QAction(Find::tr("Open Advanced Find..."), this);
+    advancedAction->setIconText(Find::tr("Advanced..."));
+    Command *advancedCmd = ActionManager::command(Constants::ADVANCED_FIND);
+    if (advancedCmd)
+        advancedCmd->augmentActionWithShortcutToolTip(advancedAction);
+    m_ui.advancedButton->setDefaultAction(advancedAction);
+    connect(advancedAction, &QAction::triggered, this, [this] {
+        Find::openFindDialog(nullptr, m_ui.findEdit->text());
+    });
 
     m_goToCurrentFindAction = new QAction(this);
     ActionManager::registerAction(m_goToCurrentFindAction, Constants::S_RETURNTOEDITOR,

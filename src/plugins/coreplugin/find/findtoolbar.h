@@ -42,6 +42,8 @@ public:
 
     void setLightColoredIcon(bool lightColored);
 
+    QString getFindText();
+
 public slots:
     void setBackward(bool backward);
 
@@ -112,7 +114,6 @@ private:
 
     bool eventFilter(QObject *obj, QEvent *event) override;
     void setFindText(const QString &text);
-    QString getFindText();
     QString getReplaceText();
     void selectFindText();
     void updateIcons();

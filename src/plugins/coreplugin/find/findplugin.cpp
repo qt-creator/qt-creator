@@ -239,12 +239,21 @@ bool FindPrivate::isAnyFilterEnabled() const
     return Utils::anyOf(m_findDialog->findFilters(), &IFindFilter::isEnabled);
 }
 
-void Find::openFindDialog(IFindFilter *filter)
+void Find::openFindDialog(IFindFilter *filter, const QString &findString)
 {
     d->m_currentDocumentFind->acceptCandidate();
-    const QString currentFindString =
-        d->m_currentDocumentFind->isEnabled() ?
-        d->m_currentDocumentFind->currentFindString() : QString();
+    const QString currentFindString = [findString] {
+        if (!findString.isEmpty())
+            return findString;
+        if (d->m_findToolBar->isVisible()
+            && QApplication::focusWidget() == d->m_findToolBar->focusWidget()
+            && !d->m_findToolBar->getFindText().isEmpty()) {
+            return d->m_findToolBar->getFindText();
+        }
+        if (d->m_currentDocumentFind->isEnabled())
+            return d->m_currentDocumentFind->currentFindString();
+        return QString();
+    }();
     if (!currentFindString.isEmpty())
         d->m_findDialog->setFindText(currentFindString);
     d->m_findDialog->setCurrentFilter(filter);
