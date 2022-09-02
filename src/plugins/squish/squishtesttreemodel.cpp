@@ -6,9 +6,11 @@
 #include "squishfilehandler.h"
 #include "squishtr.h"
 
+#include <debugger/debuggericons.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
+#include <QApplication>
 #include <QIcon>
 
 namespace Squish {
@@ -150,32 +152,44 @@ SquishTestTreeModel *SquishTestTreeModel::instance()
     return m_instance;
 }
 
-static QIcon treeIcon(SquishTestTreeItem::Type type, int column)
+static QPixmap scaledPixmap(const Utils::Icon &icon)
 {
-    static QIcon icons[8] = {QIcon(),
-                             Utils::Icons::OPENFILE.icon(),
-                             QIcon(":/fancyactionbar/images/mode_Edit.png"),
-                             Utils::Icons::OPENFILE.icon(),
-                             Utils::Icons::OPENFILE.icon(),
-                             QIcon(":/fancyactionbar/images/mode_Edit.png"),
-                             Utils::Icons::OPENFILE.icon(),
-                             QIcon(":/squish/images/data.png")
-                            };
+    const auto devicePixelRatio = qApp->devicePixelRatio();
+    const QSize special = QSize(10, 10) * devicePixelRatio;
+    QPixmap pixmap = icon.pixmap();
+    return pixmap.scaled(special, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+}
+
+
+static QPixmap treeIcon(SquishTestTreeItem::Type type, int column)
+{
+    static QPixmap icons[] = {QPixmap(),
+                              Utils::Icons::OPENFILE.pixmap(),
+                              QIcon(":/fancyactionbar/images/mode_Edit.png").pixmap(16, 16),
+                              Utils::Icons::OPENFILE.pixmap(),
+                              Utils::Icons::OPENFILE.pixmap(),
+                              QIcon(":/fancyactionbar/images/mode_Edit.png").pixmap(16, 16),
+                              Utils::Icons::OPENFILE.pixmap(),
+                              QIcon(":/squish/images/data.png").pixmap(16, 16)
+                             };
+    static const QPixmap playIcon = scaledPixmap(Utils::Icons::RUN_SMALL);
+    static const QPixmap recordIcon = scaledPixmap(Debugger::Icons::RECORD_ON);
+
     if (column == 0)
         return icons[type];
 
     switch (type) {
     case SquishTestTreeItem::SquishSuite:
         if (column == 1)
-            return QIcon(":/squish/mages/play.png");
+            return playIcon;
         else if (column == 2)
-            return QIcon(":/squish/images/objectsmap.png");
+            return QPixmap(":/squish/images/objectsmap.png");
         break;
     case SquishTestTreeItem::SquishTestCase:
         if (column == 1)
-            return QIcon(":/squish/images/play.png");
+            return playIcon;
         else if (column == 2)
-            return QIcon(":/squish/images/record.png");
+            return recordIcon;
         break;
     default: // avoid warning of unhandled enum values
         break;
