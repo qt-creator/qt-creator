@@ -172,11 +172,7 @@ CommandResult VcsBaseClientImpl::vcsSynchronousExec(const FilePath &workingDir,
                                                     unsigned flags,
                                                     QTextCodec *outputCodec) const
 {
-    Environment env = processEnvironment();
-    VcsCommand command(workingDir, env.isValid() ? env : Environment::systemEnvironment());
-    command.addFlags(flags);
-    command.setCodec(outputCodec);
-    return command.runCommand({vcsBinary(), args}, vcsTimeoutS());
+    return vcsFullySynchronousExec(workingDir, args, flags, vcsTimeoutS(), outputCodec);
 }
 
 int VcsBaseClientImpl::vcsTimeoutS() const
