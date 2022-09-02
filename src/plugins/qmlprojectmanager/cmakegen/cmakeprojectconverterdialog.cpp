@@ -65,7 +65,7 @@ CmakeProjectConverterDialog::CmakeProjectConverterDialog(const QmlProjectManager
     m_dirSelector = new PathChooser();
     m_dirSelector->setExpectedKind(PathChooser::Directory);
     m_dirSelector->setValidationFunction(dirValidationFunction);
-    m_dirSelector->setPath(defaultDir.toString());
+    m_dirSelector->setFilePath(defaultDir);
 
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok|QDialogButtonBox::Cancel);
     m_okButton = buttons->button(QDialogButtonBox::Ok);
