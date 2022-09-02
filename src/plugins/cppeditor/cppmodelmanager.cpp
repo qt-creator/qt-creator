@@ -1066,7 +1066,7 @@ void CppModelManager::recalculateProjectPartMappings()
         for (const ProjectPart::ConstPtr &projectPart : projectData.projectInfo->projectParts()) {
             d->m_projectPartIdToProjectProjectPart[projectPart->id()] = projectPart;
             for (const ProjectFile &cxxFile : projectPart->files)
-                d->m_fileToProjectParts[Utils::FilePath::fromString(cxxFile.path)].append(
+                d->m_fileToProjectParts[Utils::FilePath::fromString(cxxFile.path).canonicalPath()].append(
                             projectPart);
         }
     }
@@ -1242,7 +1242,7 @@ ProjectPart::ConstPtr CppModelManager::projectPartForId(const QString &projectPa
 QList<ProjectPart::ConstPtr> CppModelManager::projectPart(const Utils::FilePath &fileName) const
 {
     QReadLocker locker(&d->m_projectLock);
-    return d->m_fileToProjectParts.value(fileName);
+    return d->m_fileToProjectParts.value(fileName.canonicalPath());
 }
 
 QList<ProjectPart::ConstPtr> CppModelManager::projectPartFromDependencies(
@@ -1253,7 +1253,7 @@ QList<ProjectPart::ConstPtr> CppModelManager::projectPartFromDependencies(
 
     QReadLocker locker(&d->m_projectLock);
     for (const Utils::FilePath &dep : deps)
-        parts.unite(Utils::toSet(d->m_fileToProjectParts.value(dep)));
+        parts.unite(Utils::toSet(d->m_fileToProjectParts.value(dep.canonicalPath())));
 
     return parts.values();
 }
