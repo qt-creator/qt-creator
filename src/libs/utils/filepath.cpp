@@ -172,8 +172,9 @@ FilePath FilePath::rootPath()
     return FilePath::fromString(QDir::rootPath());
 }
 
-static QString hostEncoded(QString host)
+QString FilePath::encodedHost() const
 {
+    QString host = m_host;
     host.replace('%', "%25");
     host.replace('/', "%2f");
     return host;
@@ -186,8 +187,8 @@ QString FilePath::toString() const
         return m_path;
 
     if (isRelativePath())
-        return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + hostEncoded(m_host) + "/./" + m_path;
-    return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + hostEncoded(m_host) +  m_path;
+        return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + encodedHost() + "/./" + m_path;
+    return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + encodedHost() +  m_path;
 }
 
 QString FilePath::toFSPathString() const
@@ -212,8 +213,8 @@ QString FilePath::toUserOutput() const
 {
     if (needsDevice()) {
         if (root().empty())
-            return m_scheme + "://" + hostEncoded(m_host) + "/./" + m_path;
-        return m_scheme + "://" + hostEncoded(m_host) + m_path;
+            return m_scheme + "://" + encodedHost() + "/./" + m_path;
+        return m_scheme + "://" + encodedHost() + m_path;
     }
 
     QString tmp = toString();

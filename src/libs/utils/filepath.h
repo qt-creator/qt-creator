@@ -210,6 +210,7 @@ private:
     QStringView root() const;
     [[nodiscard]] QString mapToDevicePath() const;
     [[nodiscard]] QStringView pathWithoutRoot() const;
+    [[nodiscard]] QString encodedHost() const;
 
     QString m_scheme;
     QString m_host; // May contain raw slashes.
