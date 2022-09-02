@@ -17,13 +17,14 @@ SimpleCodeStylePreferencesWidget::SimpleCodeStylePreferencesWidget(QWidget *pare
     auto layout = new QVBoxLayout(this);
     layout->addWidget(m_tabSettingsWidget);
     layout->setContentsMargins(QMargins());
-    m_tabSettingsWidget->setEnabled(false);
 }
 
 void SimpleCodeStylePreferencesWidget::setPreferences(ICodeStylePreferences *preferences)
 {
     if (m_preferences == preferences)
         return; // nothing changes
+
+    slotCurrentPreferencesChanged(preferences);
 
     // cleanup old
     if (m_preferences) {
@@ -37,7 +38,6 @@ void SimpleCodeStylePreferencesWidget::setPreferences(ICodeStylePreferences *pre
     m_preferences = preferences;
     // fillup new
     if (m_preferences) {
-        slotCurrentPreferencesChanged(m_preferences->currentPreferences());
         m_tabSettingsWidget->setTabSettings(m_preferences->currentTabSettings());
 
         connect(m_preferences, &ICodeStylePreferences::currentTabSettingsChanged,
@@ -47,12 +47,12 @@ void SimpleCodeStylePreferencesWidget::setPreferences(ICodeStylePreferences *pre
         connect(m_tabSettingsWidget, &TabSettingsWidget::settingsChanged,
                 this, &SimpleCodeStylePreferencesWidget::slotTabSettingsChanged);
     }
-    m_tabSettingsWidget->setEnabled(m_preferences);
 }
 
 void SimpleCodeStylePreferencesWidget::slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *preferences)
 {
-    m_tabSettingsWidget->setEnabled(!preferences->isReadOnly() && !m_preferences->currentDelegate());
+    m_tabSettingsWidget->setEnabled(preferences && preferences->currentPreferences() &&
+                                    !preferences->currentPreferences()->isReadOnly());
 }
 
 void SimpleCodeStylePreferencesWidget::slotTabSettingsChanged(const TextEditor::TabSettings &settings)

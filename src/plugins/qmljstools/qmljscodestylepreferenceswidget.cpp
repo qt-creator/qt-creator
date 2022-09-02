@@ -19,13 +19,14 @@ QmlJSCodeStylePreferencesWidget::QmlJSCodeStylePreferencesWidget(QWidget *parent
     auto layout = new QVBoxLayout(this);
     layout->addWidget(m_codeStyleSettingsWidget);
     layout->setContentsMargins(QMargins());
-    m_codeStyleSettingsWidget->setEnabled(false);
 }
 
 void QmlJSCodeStylePreferencesWidget::setPreferences(QmlJSCodeStylePreferences *preferences)
 {
     if (m_preferences == preferences)
         return; // nothing changes
+
+    slotCurrentPreferencesChanged(preferences);
 
     // cleanup old
     if (m_preferences) {
@@ -39,8 +40,6 @@ void QmlJSCodeStylePreferencesWidget::setPreferences(QmlJSCodeStylePreferences *
     m_preferences = preferences;
     // fillup new
     if (m_preferences) {
-        slotCurrentPreferencesChanged(m_preferences->currentPreferences());
-
         m_codeStyleSettingsWidget->setCodeStyleSettings(m_preferences->currentCodeStyleSettings());
 
         connect(m_preferences, &QmlJSCodeStylePreferences::currentCodeStyleSettingsChanged,
@@ -50,12 +49,12 @@ void QmlJSCodeStylePreferencesWidget::setPreferences(QmlJSCodeStylePreferences *
         connect(m_codeStyleSettingsWidget, &QmlJSCodeStyleSettingsWidget::settingsChanged,
                 this, &QmlJSCodeStylePreferencesWidget::slotSettingsChanged);
     }
-    m_codeStyleSettingsWidget->setEnabled(m_preferences);
 }
 
 void QmlJSCodeStylePreferencesWidget::slotCurrentPreferencesChanged(TextEditor::ICodeStylePreferences *preferences)
 {
-    m_codeStyleSettingsWidget->setEnabled(!preferences->isReadOnly() && !m_preferences->currentDelegate());
+    m_codeStyleSettingsWidget->setEnabled(preferences && preferences->currentPreferences() &&
+                                          !preferences->currentPreferences()->isReadOnly());
 }
 
 void QmlJSCodeStylePreferencesWidget::slotSettingsChanged(const QmlJSCodeStyleSettings &settings)
