@@ -60,8 +60,6 @@ public:
     void setExpandable(bool b);
     void setIcon(const QIcon &icon);
 
-    static QPixmap createBackground(const QSize &size, int topHeight, QWidget *widget);
-
 signals:
     void checked(bool);
     void linkActivated(const QString &link);

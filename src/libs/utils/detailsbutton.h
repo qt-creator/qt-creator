@@ -5,7 +5,7 @@
 
 #include "utils_global.h"
 
-#include <QAbstractButton>
+#include <QToolButton>
 
 QT_BEGIN_NAMESPACE
 class QGraphicsOpacityEffect;
@@ -36,45 +36,21 @@ protected:
     QGraphicsOpacityEffect *m_opacityEffect;
 };
 
-class QTCREATOR_UTILS_EXPORT DetailsButton : public QAbstractButton
+class QTCREATOR_UTILS_EXPORT ExpandButton : public QToolButton
 {
-    Q_OBJECT
-    Q_PROPERTY(float fader READ fader WRITE setFader)
-
-public:
-    DetailsButton(QWidget *parent = nullptr);
-
-    QSize sizeHint() const override;
-    float fader() { return m_fader; }
-    void setFader(float value) { m_fader = value; update(); }
-
-protected:
-    void paintEvent(QPaintEvent *e) override;
-    bool event(QEvent *e) override;
-    void changeEvent(QEvent *e) override;
-
-private:
-    QPixmap cacheRendering(const QSize &size, bool checked);
-    QPixmap m_checkedPixmap;
-    QPixmap m_uncheckedPixmap;
-    float m_fader;
-};
-
-class QTCREATOR_UTILS_EXPORT ExpandButton : public QAbstractButton
-{
-    Q_OBJECT
-
 public:
     ExpandButton(QWidget *parent = nullptr);
+};
+
+class QTCREATOR_UTILS_EXPORT DetailsButton : public ExpandButton
+{
+public:
+    DetailsButton(QWidget *parent = nullptr);
+    QSize sizeHint() const override;
 
 private:
     void paintEvent(QPaintEvent *e) override;
-    QSize sizeHint() const override;
-
-    QPixmap cacheRendering();
-
-    QPixmap m_checkedPixmap;
-    QPixmap m_uncheckedPixmap;
+    const int spacing = 6;
 };
 
 } // namespace Utils

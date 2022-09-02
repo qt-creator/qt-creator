@@ -3,14 +3,16 @@
 
 #include "detailsbutton.h"
 
-#include "hostosinfo.h"
-#include "theme/theme.h"
+#include <utils/hostosinfo.h>
+#include <utils/icon.h>
 
 #include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
 #include <QPaintEvent>
 #include <QPainter>
 #include <QStyleOption>
+
+#include <qdrawutil.h>
 
 using namespace Utils;
 
@@ -47,200 +49,52 @@ qreal FadingWidget::opacity()
     return m_opacityEffect->opacity();
 }
 
-DetailsButton::DetailsButton(QWidget *parent) : QAbstractButton(parent), m_fader(0)
+ExpandButton::ExpandButton(QWidget *parent)
+    : QToolButton(parent)
 {
     setCheckable(true);
-    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
+    auto updateArrow = [this] (bool checked) {
+        static const QIcon expand =
+                Icon({{":/utils/images/arrowdown.png", Theme::PanelTextColorDark}}, Icon::Tint).icon();
+        static const QIcon collapse =
+                Icon({{":/utils/images/arrowup.png", Theme::PanelTextColorDark}}, Icon::Tint).icon();
+        setIcon(checked ? collapse : expand);
+    };
+    updateArrow(false);
+    connect(this, &QToolButton::toggled, this, updateArrow);
+}
+
+DetailsButton::DetailsButton(QWidget *parent)
+    : ExpandButton(parent)
+{
     setText(tr("Details"));
+    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
 }
 
 QSize DetailsButton::sizeHint() const
 {
-    // TODO: Adjust this when icons become available!
-    const int w = fontMetrics().horizontalAdvance(text()) + 32;
-    if (HostOsInfo::isMacHost())
-        return QSize(w, 34);
-    return QSize(w, 22);
-}
-
-bool DetailsButton::event(QEvent *e)
-{
-    switch (e->type()) {
-    case QEvent::Enter:
-        {
-            QPropertyAnimation *animation = new QPropertyAnimation(this, "fader");
-            animation->setDuration(200);
-            animation->setEndValue(1.0);
-            animation->start(QAbstractAnimation::DeleteWhenStopped);
-        }
-        break;
-    case QEvent::Leave:
-        {
-            QPropertyAnimation *animation = new QPropertyAnimation(this, "fader");
-            animation->setDuration(200);
-            animation->setEndValue(0.0);
-            animation->start(QAbstractAnimation::DeleteWhenStopped);
-        }
-        break;
-    default:
-        return QAbstractButton::event(e);
-    }
-    return false;
-}
-
-void DetailsButton::changeEvent(QEvent *e)
-{
-    if (e->type() == QEvent::EnabledChange) {
-        m_checkedPixmap = QPixmap();
-        m_uncheckedPixmap = QPixmap();
-    }
+    const QSize textSize = fontMetrics().size(Qt::TextSingleLine, text());
+    return QSize(spacing + textSize.width() + spacing + 16 + spacing,
+                 spacing + fontMetrics().height() + spacing);
 }
 
 void DetailsButton::paintEvent(QPaintEvent *e)
 {
-    QWidget::paintEvent(e);
+    Q_UNUSED(e)
 
     QPainter p(this);
-
-    // draw hover animation
-    if (!HostOsInfo::isMacHost() && !isDown() && m_fader > 0) {
-        QColor c = creatorTheme()->color(Theme::DetailsButtonBackgroundColorHover);
-        c.setAlpha (int(m_fader * c.alpha()));
-
-        QRect r = rect();
-        if (!creatorTheme()->flag(Theme::FlatProjectsMode))
-            r.adjust(1, 1, -2, -2);
-        p.fillRect(r, c);
+    if (isChecked() || (!HostOsInfo::isMacHost() && underMouse())) {
+        p.save();
+        p.setOpacity(0.125);
+        p.fillRect(rect(), palette().color(QPalette::Text));
+        p.restore();
     }
 
-    if (isChecked()) {
-        if (m_checkedPixmap.isNull() || m_checkedPixmap.size() / m_checkedPixmap.devicePixelRatio() != contentsRect().size())
-            m_checkedPixmap = cacheRendering(contentsRect().size(), true);
-        p.drawPixmap(contentsRect(), m_checkedPixmap);
-    } else {
-        if (m_uncheckedPixmap.isNull() || m_uncheckedPixmap.size() / m_uncheckedPixmap.devicePixelRatio() != contentsRect().size())
-            m_uncheckedPixmap = cacheRendering(contentsRect().size(), false);
-        p.drawPixmap(contentsRect(), m_uncheckedPixmap);
-    }
-    if (isDown()) {
-        p.setPen(Qt::NoPen);
-        p.setBrush(QColor(0, 0, 0, 20));
-        p.drawRoundedRect(rect().adjusted(1, 1, -1, -1), 1, 1);
-    }
-    if (hasFocus()) {
-        QStyleOptionFocusRect option;
-        option.initFrom(this);
-        style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &p, this);
-    }
-}
+    if (!creatorTheme()->flag(Theme::FlatProjectsMode))
+        qDrawPlainRect(&p, rect(), palette().color(QPalette::Mid));
 
-QPixmap DetailsButton::cacheRendering(const QSize &size, bool checked)
-{
-    const qreal pixelRatio = devicePixelRatio();
-    QPixmap pixmap(size * pixelRatio);
-    pixmap.setDevicePixelRatio(pixelRatio);
-    pixmap.fill(Qt::transparent);
-    QPainter p(&pixmap);
-    p.setRenderHint(QPainter::Antialiasing, true);
-    p.translate(0.5, 0.5);
-
-    if (!creatorTheme()->flag(Theme::FlatProjectsMode)) {
-        QLinearGradient lg;
-        lg.setCoordinateMode(QGradient::ObjectBoundingMode);
-        lg.setFinalStop(0, 1);
-        if (!checked) {
-            lg.setColorAt(0, QColor(0, 0, 0, 10));
-            lg.setColorAt(1, QColor(0, 0, 0, 16));
-        } else {
-            lg.setColorAt(0, QColor(255, 255, 255, 0));
-            lg.setColorAt(1, QColor(255, 255, 255, 50));
-        }
-        p.setBrush(lg);
-        p.setPen(QColor(255,255,255,140));
-        p.drawRoundedRect(1, 1, size.width()-3, size.height()-3, 1, 1);
-        p.setPen(QPen(QColor(0, 0, 0, 40)));
-        p.drawLine(0, 1, 0, size.height() - 2);
-        if (checked)
-            p.drawLine(1, size.height() - 1, size.width() - 1, size.height() - 1);
-    } else {
-        p.setPen(Qt::NoPen);
-        p.drawRoundedRect(0, 0, size.width(), size.height(), 1, 1);
-    }
-
-    p.setPen(palette().color(QPalette::Text));
-
-    QRect textRect = p.fontMetrics().boundingRect(text());
-    textRect.setWidth(textRect.width() + 15);
-    textRect.setHeight(textRect.height() + 4);
-    textRect.moveCenter(rect().center());
-
+    const QRect textRect(spacing, 0, width(), height());
     p.drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text());
-
-    int arrowsize = 15;
-    QStyleOption arrowOpt;
-    arrowOpt.initFrom(this);
-    QPalette pal = arrowOpt.palette;
-    pal.setBrush(QPalette::All, QPalette::Text, QColor(0, 0, 0));
-    arrowOpt.rect = QRect(size.width() - arrowsize - 6, height()/2-arrowsize/2, arrowsize, arrowsize);
-    arrowOpt.palette = pal;
-    style()->drawPrimitive(checked ? QStyle::PE_IndicatorArrowUp : QStyle::PE_IndicatorArrowDown, &arrowOpt, &p, this);
-    return pixmap;
-}
-
-ExpandButton::ExpandButton(QWidget *parent) : QAbstractButton(parent)
-{
-    setCheckable(true);
-    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
-}
-
-QSize ExpandButton::sizeHint() const
-{
-    return {fontMetrics().horizontalAdvance(text()) + 26, HostOsInfo::isMacHost() ? 34 : 22};
-}
-
-void ExpandButton::paintEvent(QPaintEvent *e)
-{
-    QWidget::paintEvent(e);
-    QPainter p(this);
-
-    QPixmap &pixmap = isChecked() ? m_checkedPixmap : m_uncheckedPixmap;
-    if (pixmap.isNull() || pixmap.size() / pixmap.devicePixelRatio() != contentsRect().size())
-        pixmap = cacheRendering();
-    p.drawPixmap(contentsRect(), pixmap);
-
-    if (isDown()) {
-        p.setPen(Qt::NoPen);
-        p.setBrush(QColor(0, 0, 0, 20));
-        p.drawRoundedRect(rect().adjusted(1, 1, -1, -1), 1, 1);
-    }
-    if (hasFocus()) {
-        QStyleOptionFocusRect option;
-        option.initFrom(this);
-        style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &p, this);
-    }
-}
-
-QPixmap ExpandButton::cacheRendering()
-{
-    const QSize size = contentsRect().size();
-    const qreal pixelRatio = devicePixelRatio();
-    QPixmap pixmap(size * pixelRatio);
-    pixmap.setDevicePixelRatio(pixelRatio);
-    pixmap.fill(Qt::transparent);
-    QPainter p(&pixmap);
-    p.setRenderHint(QPainter::Antialiasing, true);
-    p.translate(0.5, 0.5);
-    p.setPen(Qt::NoPen);
-    p.drawRoundedRect(0, 0, size.width(), size.height(), 1, 1);
-    int arrowsize = 15;
-    QStyleOption arrowOpt;
-    arrowOpt.initFrom(this);
-    QPalette pal = arrowOpt.palette;
-    pal.setBrush(QPalette::All, QPalette::Text, QColor(0, 0, 0));
-    arrowOpt.rect = QRect(size.width() - arrowsize - 6, height() / 2 - arrowsize / 2,
-                          arrowsize, arrowsize);
-    arrowOpt.palette = pal;
-    style()->drawPrimitive(isChecked() ? QStyle::PE_IndicatorArrowUp
-                                       : QStyle::PE_IndicatorArrowDown, &arrowOpt, &p, this);
-    return pixmap;
+    const QRect iconRect(width() - spacing - 16, 0, 16, height());
+    icon().paint(&p, iconRect);
 }

@@ -25,7 +25,6 @@ ThemePrivate::ThemePrivate()
     const QMetaObject &m = Theme::staticMetaObject;
     colors.resize        (m.enumerator(m.indexOfEnumerator("Color")).keyCount());
     imageFiles.resize    (m.enumerator(m.indexOfEnumerator("ImageFile")).keyCount());
-    gradients.resize     (m.enumerator(m.indexOfEnumerator("Gradient")).keyCount());
     flags.resize         (m.enumerator(m.indexOfEnumerator("Flag")).keyCount());
 }
 
@@ -132,11 +131,6 @@ QString Theme::imageFile(Theme::ImageFile imageFile, const QString &fallBack) co
     return file.isEmpty() ? fallBack : file;
 }
 
-QGradientStops Theme::gradient(Theme::Gradient role) const
-{
-    return d->gradients[role];
-}
-
 QPair<QColor, QString> Theme::readNamedColor(const QString &color) const
 {
     if (d->palette.contains(color))
@@ -207,26 +201,6 @@ void Theme::readSettings(QSettings &settings)
         for (int i = 0, total = e.keyCount(); i < total; ++i) {
             const QString key = QLatin1String(e.key(i));
             d->imageFiles[i] = settings.value(key).toString();
-        }
-        settings.endGroup();
-    }
-    {
-        settings.beginGroup(QLatin1String("Gradients"));
-        QMetaEnum e = m.enumerator(m.indexOfEnumerator("Gradient"));
-        for (int i = 0, total = e.keyCount(); i < total; ++i) {
-            const QString key = QLatin1String(e.key(i));
-            QGradientStops stops;
-            int size = settings.beginReadArray(key);
-            for (int j = 0; j < size; ++j) {
-                settings.setArrayIndex(j);
-                QTC_ASSERT(settings.contains(QLatin1String("pos")), return);
-                const double pos = settings.value(QLatin1String("pos")).toDouble();
-                QTC_ASSERT(settings.contains(QLatin1String("color")), return);
-                const QColor c('#' + settings.value(QLatin1String("color")).toString());
-                stops.append(qMakePair(pos, c));
-            }
-            settings.endArray();
-            d->gradients[i] = stops;
         }
         settings.endGroup();
     }

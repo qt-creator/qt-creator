@@ -24,7 +24,6 @@ public:
     QString defaultTextEditorColorScheme;
     QVector<QPair<QColor, QString> > colors;
     QVector<QString> imageFiles;
-    QVector<QGradientStops> gradients;
     QVector<bool> flags;
     QMap<QString, QColor> palette;
 };

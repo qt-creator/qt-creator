@@ -366,8 +366,3 @@ FlatMenuBar=false
 ToolBarIconShadow=true
 WindowColorAsBase=false
 DarkUserInterface=false
-
-[Gradients]
-DetailsWidgetHeaderGradient\1\color=ffffffff
-DetailsWidgetHeaderGradient\1\pos=1
-DetailsWidgetHeaderGradient\size=1

@@ -418,10 +418,6 @@ public:
         DSredLight,
     };
 
-    enum Gradient {
-        DetailsWidgetHeaderGradient,
-    };
-
     enum ImageFile {
         IconOverlayCSource,
         IconOverlayCppHeader,
@@ -453,13 +449,11 @@ public:
 
     Q_ENUM(Color)
     Q_ENUM(ImageFile)
-    Q_ENUM(Gradient)
     Q_ENUM(Flag)
 
     Q_INVOKABLE bool flag(Utils::Theme::Flag f) const;
     Q_INVOKABLE QColor color(Utils::Theme::Color role) const;
     QString imageFile(ImageFile imageFile, const QString &fallBack) const;
-    QGradientStops gradient(Gradient role) const;
     QPalette palette() const;
     QStringList preferredStyles() const;
     QString defaultTextEditorColorScheme() const;

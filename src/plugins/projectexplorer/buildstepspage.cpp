@@ -158,7 +158,7 @@ BuildStepsWidgetData::BuildStepsWidgetData(BuildStep *s) :
     toolWidget->setBuildStepEnabled(step->enabled());
 
     detailsWidget->setToolWidget(toolWidget);
-    detailsWidget->setContentsMargins(0, 0, 0, 1);
+    detailsWidget->setContentsMargins(0, 0, 0, 0);
     detailsWidget->setSummaryText(s->summaryText());
 }
 
@@ -284,7 +284,6 @@ void BuildStepListWidget::setupUi()
 
     m_vbox = new QVBoxLayout(this);
     m_vbox->setContentsMargins(0, 0, 0, 0);
-    m_vbox->setSpacing(0);
 
     m_noStepsLabel = new QLabel(tr("No Build Steps"), this);
     m_noStepsLabel->setContentsMargins(0, 0, 0, 0);
