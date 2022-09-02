@@ -139,28 +139,26 @@ public:
     void setAllowPathFromDevice(bool allow);
     bool allowPathFromDevice() const;
 
-private:
-    QString rawPath() const; // The raw unexpanded input.
-    bool validatePath(FancyLineEdit *edit, QString *errorMessage) const;
-    // Returns overridden title or the one from <title>
-    QString makeDialogTitle(const QString &title);
-    void slotBrowse();
-    void contextMenuRequested(const QPoint &pos);
+public slots:
+    void setPath(const QString &);
+    void setFilePath(const FilePath &);
 
 signals:
     void validChanged(bool validState);
-    void rawPathChanged(const QString &text);
+    void rawPathChanged();
     void textChanged(const QString &text); // Triggered from the line edit's textChanged()
     void editingFinished(); // Triggered from the line edit's editingFinished()
     void beforeBrowsing();
     void browsingFinished();
     void returnPressed();
 
-public slots:
-    void setPath(const QString &);
-    void setFilePath(const FilePath &);
-
 private:
+    bool validatePath(FancyLineEdit *edit, QString *errorMessage) const;
+    // Returns overridden title or the one from <title>
+    QString makeDialogTitle(const QString &title);
+    void slotBrowse();
+    void contextMenuRequested(const QPoint &pos);
+
     PathChooserPrivate *d = nullptr;
     static AboutToShowContextMenuHandler s_aboutToShowContextMenuHandler;
 };

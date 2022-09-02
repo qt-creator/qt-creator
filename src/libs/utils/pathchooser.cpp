@@ -242,8 +242,7 @@ PathChooser::PathChooser(QWidget *parent) :
             this,
             &PathChooser::contextMenuRequested);
     connect(d->m_lineEdit, &FancyLineEdit::validReturnPressed, this, &PathChooser::returnPressed);
-    connect(d->m_lineEdit, &QLineEdit::textChanged, this,
-            [this] { emit rawPathChanged(rawPath()); });
+    connect(d->m_lineEdit, &QLineEdit::textChanged, this, &PathChooser::rawPathChanged);
     connect(d->m_lineEdit, &FancyLineEdit::validChanged, this, &PathChooser::validChanged);
     connect(d->m_lineEdit, &QLineEdit::editingFinished, this, &PathChooser::editingFinished);
     connect(d->m_lineEdit, &QLineEdit::textChanged, this, &PathChooser::textChanged);
@@ -313,13 +312,8 @@ void PathChooser::setEnvironmentChange(const EnvironmentChange &env)
     d->m_environmentChange = env;
     if (filePath().toString() != oldExpand) {
         triggerChanged();
-        emit rawPathChanged(rawPath());
+        emit rawPathChanged();
     }
-}
-
-QString PathChooser::rawPath() const
-{
-    return rawFilePath().toString();
 }
 
 FilePath PathChooser::rawFilePath() const
