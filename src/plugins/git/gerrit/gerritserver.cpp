@@ -223,7 +223,7 @@ int GerritServer::testConnection()
 {
     static GitClient *const client = GitClient::instance();
     const QStringList arguments = curlArguments() << (url(RestUrl) + accountUrlC);
-    const CommandResult result = client->vcsFullySynchronousExec({}, {curlBinary, arguments});
+    const CommandResult result = client->vcsSynchronousExec({}, {curlBinary, arguments});
     if (result.result() == ProcessResult::FinishedWithSuccess) {
         QString output = result.cleanedStdOut();
         // Gerrit returns an empty response for /p/qt-creator/a/accounts/self
@@ -322,8 +322,8 @@ bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
         if (port)
             arguments << p.portFlag << QString::number(port);
         arguments << hostArgument() << "gerrit" << "version";
-        const CommandResult result = client->vcsFullySynchronousExec({}, {p.ssh, arguments},
-                                                                     VcsCommand::NoOutput);
+        const CommandResult result = client->vcsSynchronousExec({}, {p.ssh, arguments},
+                                                                VcsCommand::NoOutput);
         QString stdOut = result.cleanedStdOut().trimmed();
         stdOut.remove("gerrit version ");
         version = stdOut;
@@ -331,8 +331,8 @@ bool GerritServer::resolveVersion(const GerritParameters &p, bool forceReload)
             return false;
     } else {
         const QStringList arguments = curlArguments() << (url(RestUrl) + versionUrlC);
-        const CommandResult result = client->vcsFullySynchronousExec({}, {curlBinary, arguments},
-                                                                     VcsCommand::NoOutput);
+        const CommandResult result = client->vcsSynchronousExec({}, {curlBinary, arguments},
+                                                                VcsCommand::NoOutput);
         // REST endpoint for version is only available from 2.8 and up. Do not consider invalid
         // if it fails.
         if (result.result() == ProcessResult::FinishedWithSuccess) {

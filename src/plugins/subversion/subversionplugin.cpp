@@ -994,7 +994,7 @@ SubversionResponse SubversionPluginPrivate::runSvn(const FilePath &workingDir,
         return response;
     }
 
-    const CommandResult result = m_client->vcsFullySynchronousExec(workingDir, arguments, flags,
+    const CommandResult result = m_client->vcsSynchronousExec(workingDir, arguments, flags,
                         m_settings.timeout.value() * defaultTimeoutMutiplier, outputCodec);
 
     response.error = result.result() != ProcessResult::FinishedWithSuccess;

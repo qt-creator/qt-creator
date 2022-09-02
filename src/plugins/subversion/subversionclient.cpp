@@ -130,7 +130,7 @@ QString SubversionClient::synchronousTopic(const FilePath &repository) const
     else
         svnVersionBinary = svnVersionBinary.left(pos + 1);
     svnVersionBinary.append(HostOsInfo::withExecutableSuffix("svnversion"));
-    const CommandResult result = vcsFullySynchronousExec(repository,
+    const CommandResult result = vcsSynchronousExec(repository,
                                  {FilePath::fromString(svnVersionBinary), args});
     if (result.result() == ProcessResult::FinishedWithSuccess)
         return result.cleanedStdOut().trimmed();

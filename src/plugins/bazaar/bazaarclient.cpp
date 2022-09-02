@@ -129,7 +129,7 @@ bool BazaarClient::synchronousUncommit(const FilePath &workingDir,
          << revisionSpec(revision)
          << extraOptions;
 
-    const CommandResult result = vcsFullySynchronousExec(workingDir, args);
+    const CommandResult result = vcsSynchronousExec(workingDir, args);
     VcsOutputWindow::append(result.cleanedStdOut());
     return result.result() == ProcessResult::FinishedWithSuccess;
 }
@@ -167,7 +167,7 @@ bool BazaarClient::managesFile(const FilePath &workingDirectory, const QString &
     QStringList args(QLatin1String("status"));
     args << fileName;
 
-    const CommandResult result = vcsFullySynchronousExec(workingDirectory, args);
+    const CommandResult result = vcsSynchronousExec(workingDirectory, args);
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return false;
     return result.rawStdOut().startsWith("unknown");

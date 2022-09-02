@@ -76,10 +76,10 @@ public:
     static QString stripLastNewline(const QString &in);
 
     // Fully synchronous VCS execution (QProcess-based)
-    CommandResult vcsFullySynchronousExec(const Utils::FilePath &workingDir,
+    CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
                                           const QStringList &args, unsigned flags = 0,
                                           int timeoutS = -1, QTextCodec *codec = nullptr) const;
-    CommandResult vcsFullySynchronousExec(const Utils::FilePath &workingDir,
+    CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
                                           const Utils::CommandLine &cmdLine, unsigned flags = 0,
                                           int timeoutS = -1, QTextCodec *codec = nullptr) const;
 
@@ -94,13 +94,6 @@ protected:
     void resetCachedVcsInfo(const Utils::FilePath &workingDir);
     virtual void annotateRevisionRequested(const Utils::FilePath &workingDirectory, const QString &file,
                                            const QString &change, int line);
-
-    // Synchronous VCS execution using Utils::SynchronousProcess, with
-    // log windows updating (using VcsBasePlugin::runVcs with flags)
-    CommandResult vcsSynchronousExec(const Utils::FilePath &workingDir,
-                                     const QStringList &args,
-                                     unsigned flags = 0,
-                                     QTextCodec *outputCodec = nullptr) const;
 
 private:
     void saveSettings();

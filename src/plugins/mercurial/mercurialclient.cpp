@@ -74,7 +74,7 @@ bool MercurialClient::manifestSync(const FilePath &repository, const QString &re
     // This  only works when called from the repo and outputs paths relative to it.
     const QStringList args(QLatin1String("manifest"));
 
-    const CommandResult result = vcsFullySynchronousExec(repository, args);
+    const CommandResult result = vcsSynchronousExec(repository, args);
 
     const QDir repositoryDir(repository.toString());
     const QFileInfo needle = QFileInfo(repositoryDir, relativeFilename);
@@ -101,7 +101,7 @@ bool MercurialClient::synchronousClone(const FilePath &workingDirectory,
     if (workingDirectory.exists()) {
         // Let's make first init
         QStringList arguments(QLatin1String("init"));
-        if (vcsFullySynchronousExec(workingDirectory, arguments).result()
+        if (vcsSynchronousExec(workingDirectory, arguments).result()
                 != ProcessResult::FinishedWithSuccess) {
             return false;
         }
@@ -187,7 +187,7 @@ QStringList MercurialClient::parentRevisionsSync(const FilePath &workingDirector
     args << QLatin1String("parents") <<  QLatin1String("-r") <<revision;
     if (!file.isEmpty())
         args << file;
-    const CommandResult result = vcsFullySynchronousExec(workingDirectory, args);
+    const CommandResult result = vcsSynchronousExec(workingDirectory, args);
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return {};
     /* Looks like: \code
@@ -229,7 +229,7 @@ QString MercurialClient::shortDescriptionSync(const FilePath &workingDirectory,
     if (!format.isEmpty())
         args << QLatin1String("--template") << format;
 
-    const CommandResult result = vcsFullySynchronousExec(workingDirectory, args);
+    const CommandResult result = vcsSynchronousExec(workingDirectory, args);
     if (result.result() != ProcessResult::FinishedWithSuccess)
         return revision;
     return stripLastNewline(result.cleanedStdOut());
@@ -248,7 +248,7 @@ bool MercurialClient::managesFile(const FilePath &workingDirectory, const QStrin
 {
     QStringList args;
     args << QLatin1String("status") << QLatin1String("--unknown") << fileName;
-    const CommandResult result = vcsFullySynchronousExec(workingDirectory, args);
+    const CommandResult result = vcsSynchronousExec(workingDirectory, args);
     return result.cleanedStdOut().isEmpty();
 }
 
