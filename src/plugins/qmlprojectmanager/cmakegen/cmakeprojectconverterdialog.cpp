@@ -174,9 +174,8 @@ const QString CmakeProjectConverterDialog::errorText() const
             return ERROR_DIR_NOT_WRITABLE;
     }
 
-    if (FilePath::fromString(m_dirSelector->path()).pathAppended(m_nameEditor->text()).exists())
+    if (m_dirSelector->filePath().pathAppended(m_nameEditor->text()).exists())
         return ERROR_DIR_EXISTS;
-
 
     return text;
 }
@@ -195,7 +194,7 @@ const QString CmakeProjectConverterDialog::uniqueProjectName(const FilePath &dir
 
 bool CmakeProjectConverterDialog::isValid()
 {
-    FilePath newPath = FilePath::fromString(m_dirSelector->path()).pathAppended(m_nameEditor->text());
+    FilePath newPath = m_dirSelector->filePath().pathAppended(m_nameEditor->text());
     return m_dirSelector->isValid() && m_nameEditor->isValid() && !newPath.exists();
 }
 
