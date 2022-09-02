@@ -7678,6 +7678,7 @@ void TextEditorWidget::dropEvent(QDropEvent *e)
     insertFromMimeData(mime);
     delete mimeOverwrite;
     cursor.endEditBlock();
+    e->acceptProposedAction();
 }
 
 QMimeData *TextEditorWidget::duplicateMimeData(const QMimeData *source)
