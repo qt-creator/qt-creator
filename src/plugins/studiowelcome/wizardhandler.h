@@ -71,7 +71,6 @@ private:
 
 private slots:
     void onWizardResetting();
-    void onProjectIntroCompleteChanged();
 
 private:
     Utils::Wizard *m_wizard = nullptr;

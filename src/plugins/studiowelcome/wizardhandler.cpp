@@ -87,8 +87,10 @@ void WizardHandler::initializeProjectPage(QWizardPage *page)
     auto *jpp = dynamic_cast<ProjectExplorer::JsonProjectPage *>(page);
     QTC_ASSERT(jpp, return);
 
-    QObject::connect(jpp, &ProjectExplorer::JsonProjectPage::statusMessageChanged, this, &WizardHandler::statusMessageChanged);
-    QObject::connect(jpp, &ProjectExplorer::JsonProjectPage::completeChanged, this, &WizardHandler::onProjectIntroCompleteChanged);
+    QObject::connect(jpp, &ProjectExplorer::JsonProjectPage::statusMessageChanged,
+                     this, &WizardHandler::statusMessageChanged);
+    QObject::connect(jpp, &ProjectExplorer::JsonProjectPage::completeChanged,
+                     this, [this, jpp] { emit projectCanBeCreated(jpp->isComplete()); });
 }
 
 void WizardHandler::initializeFieldsPage(QWizardPage *page)
@@ -98,14 +100,6 @@ void WizardHandler::initializeFieldsPage(QWizardPage *page)
     m_detailsPage = fieldsPage;
 
     fieldsPage->initializePage();
-}
-
-void WizardHandler::onProjectIntroCompleteChanged()
-{
-    auto *page = dynamic_cast<ProjectExplorer::JsonProjectPage *>(QObject::sender());
-    QTC_ASSERT(page, return);
-
-    emit projectCanBeCreated(page->isComplete());
 }
 
 QStandardItemModel *WizardHandler::getScreenFactorModel(ProjectExplorer::JsonFieldPage *page)
