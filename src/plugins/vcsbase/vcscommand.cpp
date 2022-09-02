@@ -368,20 +368,13 @@ void VcsCommand::cancel()
     emit terminate();
 }
 
-CommandResult VcsCommand::runCommand(const Utils::CommandLine &command, int timeoutS)
-{
-    return runCommand(command, timeoutS, d->m_defaultWorkingDirectory, {});
-}
-
-CommandResult VcsCommand::runCommand(const CommandLine &command, int timeoutS,
-                                     const FilePath &workingDirectory,
-                                     const ExitCodeInterpreter &interpreter)
+CommandResult VcsCommand::runCommand(const CommandLine &command, int timeoutS)
 {
     QtcProcess proc;
     if (command.executable().isEmpty())
         return {};
 
-    d->setupProcess(&proc, {command, timeoutS, workingDirectory, interpreter});
+    d->setupProcess(&proc, {command, timeoutS, d->m_defaultWorkingDirectory, {}});
     if (d->isFullySynchronous())
         runFullySynchronous(proc);
     else

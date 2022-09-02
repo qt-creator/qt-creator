@@ -132,12 +132,6 @@ signals:
     void runCommandFinished(const Utils::FilePath &workingDirectory);
 
 private:
-    // This is called once per job in a thread.
-    // When called from the UI thread it will execute fully synchronously, so no signals will
-    // be triggered!
-    CommandResult runCommand(const Utils::CommandLine &command, int timeoutS,
-                             const Utils::FilePath &workingDirectory,
-                             const Utils::ExitCodeInterpreter &interpreter);
     void postRunCommand(const Utils::FilePath &workingDirectory);
 
     // Run without a event loop in fully blocking mode. No signals will be delivered.
