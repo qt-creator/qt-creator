@@ -39,7 +39,15 @@ signals:
 private:
     PythonSettings();
 
+    void initFromSettings(QSettings *settings);
+    void writeToSettings(QSettings *settings);
+
+    QList<Interpreter> m_interpreters;
+    QString m_defaultInterpreterId;
+    bool m_pylsEnabled = true;
+    QString m_pylsConfiguration;
+
     static void saveSettings();
 };
 
-} // PythonEditor::Internal
+} // Python::Internal

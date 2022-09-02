@@ -118,13 +118,12 @@ signals:
 };
 
 
-class InterpreterOptionsWidget : public QWidget
+class InterpreterOptionsWidget : public Core::IOptionsPageWidget
 {
 public:
-    InterpreterOptionsWidget(const QList<Interpreter> &interpreters,
-                             const QString &defaultInterpreter);
+    InterpreterOptionsWidget();
 
-    void apply();
+    void apply() override;
 
 private:
     QTreeView m_view;
@@ -144,9 +143,9 @@ private:
     void cleanUp();
 };
 
-InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &interpreters, const QString &defaultInterpreter)
+InterpreterOptionsWidget::InterpreterOptionsWidget()
     : m_detailsWidget(new InterpreterDetailsWidget())
-    , m_defaultId(defaultInterpreter)
+    , m_defaultId(PythonSettings::defaultInterpreter().id)
 {
     m_model.setDataAccessor([this](const Interpreter &interpreter, int column, int role) -> QVariant {
         switch (role) {
@@ -174,7 +173,7 @@ InterpreterOptionsWidget::InterpreterOptionsWidget(const QList<Interpreter> &int
         }
         return {};
     });
-    m_model.setAllData(interpreters);
+    m_model.setAllData(PythonSettings::interpreters());
 
     m_view.setModel(&m_model);
     m_view.setHeaderHidden(true);
@@ -278,64 +277,17 @@ void InterpreterOptionsWidget::deleteItem()
 
 class InterpreterOptionsPage : public Core::IOptionsPage
 {
-    Q_OBJECT
-
 public:
-    InterpreterOptionsPage();
-
-    void setInterpreter(const QList<Interpreter> &interpreters) { m_interpreters = interpreters; }
-    void addInterpreter(const Interpreter &interpreter) { m_interpreters << interpreter; }
-    QList<Interpreter> interpreters() const { return m_interpreters; }
-    void setDefaultInterpreter(const QString &defaultId)
-    { m_defaultInterpreterId = defaultId; }
-    Interpreter defaultInterpreter() const;
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QPointer<InterpreterOptionsWidget> m_widget;
-    QList<Interpreter> m_interpreters;
-    QString m_defaultInterpreterId;
+    InterpreterOptionsPage()
+    {
+        setId(Constants::C_PYTHONOPTIONS_PAGE_ID);
+        setDisplayName(Tr::tr("Interpreters"));
+        setCategory(Constants::C_PYTHON_SETTINGS_CATEGORY);
+        setDisplayCategory(Tr::tr("Python"));
+        setCategoryIconPath(":/python/images/settingscategory_python.png");
+        setWidgetCreator([]() { return new InterpreterOptionsWidget(); });
+    }
 };
-
-InterpreterOptionsPage::InterpreterOptionsPage()
-{
-    setId(Constants::C_PYTHONOPTIONS_PAGE_ID);
-    setDisplayName(Tr::tr("Interpreters"));
-    setCategory(Constants::C_PYTHON_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("Python"));
-    setCategoryIconPath(":/python/images/settingscategory_python.png");
-}
-
-Interpreter InterpreterOptionsPage::defaultInterpreter() const
-{
-    if (m_defaultInterpreterId.isEmpty())
-        return {};
-    return Utils::findOrDefault(m_interpreters, [this](const Interpreter &interpreter) {
-        return interpreter.id == m_defaultInterpreterId;
-    });
-}
-
-QWidget *InterpreterOptionsPage::widget()
-{
-    if (!m_widget)
-        m_widget = new InterpreterOptionsWidget(m_interpreters, m_defaultInterpreterId);
-    return m_widget;
-}
-
-void InterpreterOptionsPage::apply()
-{
-    if (m_widget)
-        m_widget->apply();
-}
-
-void InterpreterOptionsPage::finish()
-{
-    delete m_widget;
-    m_widget = nullptr;
-}
 
 static bool alreadyRegistered(const QList<Interpreter> &pythons, const FilePath &pythonExecutable)
 {
@@ -370,7 +322,7 @@ static const QStringList &plugins()
     return plugins;
 }
 
-class PyLSConfigureWidget : public QWidget
+class PyLSConfigureWidget : public Core::IOptionsPageWidget
 {
 public:
     PyLSConfigureWidget()
@@ -427,16 +379,13 @@ public:
         QVBoxLayout *mainLayout = new QVBoxLayout;
         mainLayout->addWidget(m_mainGroup);
         setLayout(mainLayout);
-    }
 
-    void initialize(bool enabled, const QString &configuration)
-    {
-        m_editor->textDocument()->setPlainText(configuration);
-        m_mainGroup->setChecked(enabled);
+        m_editor->textDocument()->setPlainText(PythonSettings::pylsConfiguration());
+        m_mainGroup->setChecked(PythonSettings::pylsEnabled());
         updateCheckboxes();
     }
 
-    void apply()
+    void apply() override
     {
         PythonSettings::setPylsEnabled(m_mainGroup->isChecked());
         PythonSettings::setPyLSConfiguration(m_editor->textDocument()->plainText());
@@ -501,56 +450,14 @@ private:
 class PyLSOptionsPage : public Core::IOptionsPage
 {
 public:
-    PyLSOptionsPage();
-
-    bool enabled() const { return m_enabled; }
-    void setEnabled(bool enabled);
-
-    void setConfiguration(const QString &configuration) { m_configuration = configuration; }
-    QString configuration() const { return m_configuration; }
-
-    QWidget *widget() override;
-    void apply() override;
-    void finish() override;
-
-private:
-    QPointer<PyLSConfigureWidget> m_widget;
-    bool m_enabled = true;
-    QString m_configuration;
-};
-
-PyLSOptionsPage::PyLSOptionsPage()
-{
-    setId(Constants::C_PYLSCONFIGURATION_PAGE_ID);
-    setDisplayName(Tr::tr("Language Server Configuration"));
-    setCategory(Constants::C_PYTHON_SETTINGS_CATEGORY);
-}
-
-QWidget *PyLSOptionsPage::widget()
-{
-    if (!m_widget) {
-        m_widget = new PyLSConfigureWidget();
-        m_widget->initialize(m_enabled, m_configuration);
+    PyLSOptionsPage()
+    {
+        setId(Constants::C_PYLSCONFIGURATION_PAGE_ID);
+        setDisplayName(Tr::tr("Language Server Configuration"));
+        setCategory(Constants::C_PYTHON_SETTINGS_CATEGORY);
+        setWidgetCreator([]() {return new PyLSConfigureWidget();});
     }
-    return m_widget;
-}
-
-void PyLSOptionsPage::apply()
-{
-    if (m_widget)
-        m_widget->apply();
-}
-
-void PyLSOptionsPage::finish()
-{
-    delete m_widget;
-    m_widget = nullptr;
-}
-
-void PyLSOptionsPage::setEnabled(bool enabled)
-{
-    m_enabled = enabled;
-}
+};
 
 static PyLSOptionsPage &pylspOptionsPage()
 {
@@ -584,14 +491,6 @@ constexpr char interpreterKey[] = "Interpeter";
 constexpr char defaultKey[] = "DefaultInterpeter";
 constexpr char pylsEnabledKey[] = "PylsEnabled";
 constexpr char pylsConfigurationKey[] = "PylsConfiguration";
-
-struct SavedSettings
-{
-    QList<Interpreter> pythons;
-    QString defaultId;
-    QString pylsConfiguration;
-    bool pylsEnabled = true;
-};
 
 static QString defaultPylsConfiguration()
 {
@@ -648,69 +547,6 @@ static void disableOutdatedPyls()
         QObject::connect(PluginManager::instance(), &PluginManager::initializationDone,
                          PythonPlugin::instance(), &disableOutdatedPylsNow);
     }
-}
-
-static SavedSettings fromSettings(QSettings *settings)
-{
-    SavedSettings result;
-    settings->beginGroup(settingsGroupKey);
-    const QVariantList interpreters = settings->value(interpreterKey).toList();
-    QList<Interpreter> oldSettings;
-    for (const QVariant &interpreterVar : interpreters) {
-        auto interpreterList = interpreterVar.toList();
-        const Interpreter interpreter{interpreterList.value(0).toString(),
-                                      interpreterList.value(1).toString(),
-                                      FilePath::fromVariant(interpreterList.value(2)),
-                                      interpreterList.value(3, true).toBool()};
-        if (interpreterList.size() == 3)
-            oldSettings << interpreter;
-        else if (interpreterList.size() == 4)
-            result.pythons << interpreter;
-    }
-
-    for (const Interpreter &interpreter : qAsConst(oldSettings)) {
-        if (Utils::anyOf(result.pythons, Utils::equal(&Interpreter::id, interpreter.id)))
-            continue;
-        result.pythons << interpreter;
-    }
-
-    result.pythons = Utils::filtered(result.pythons, [](const Interpreter &interpreter){
-        return !interpreter.autoDetected || interpreter.command.isExecutableFile();
-    });
-
-    result.defaultId = settings->value(defaultKey).toString();
-
-    QVariant pylsEnabled = settings->value(pylsEnabledKey);
-    if (pylsEnabled.isNull())
-        disableOutdatedPyls();
-    else
-        result.pylsEnabled = pylsEnabled.toBool();
-    const QVariant pylsConfiguration = settings->value(pylsConfigurationKey);
-    if (!pylsConfiguration.isNull())
-        result.pylsConfiguration = pylsConfiguration.toString();
-    else
-        result.pylsConfiguration = defaultPylsConfiguration();
-    settings->endGroup();
-    return result;
-}
-
-static void toSettings(QSettings *settings, const SavedSettings &savedSettings)
-{
-    settings->beginGroup(settingsGroupKey);
-    QVariantList interpretersVar;
-    for (const Interpreter &interpreter : savedSettings.pythons) {
-        QVariantList interpreterVar{interpreter.id,
-                                    interpreter.name,
-                                    interpreter.command.toVariant()};
-        interpretersVar.append(QVariant(interpreterVar)); // old settings
-        interpreterVar.append(interpreter.autoDetected);
-        interpretersVar.append(QVariant(interpreterVar)); // new settings
-    }
-    settings->setValue(interpreterKey, interpretersVar);
-    settings->setValue(defaultKey, savedSettings.defaultId);
-    settings->setValue(pylsConfigurationKey, savedSettings.pylsConfiguration);
-    settings->setValue(pylsEnabledKey, savedSettings.pylsEnabled);
-    settings->endGroup();
 }
 
 static void addPythonsFromRegistry(QList<Interpreter> &pythons)
@@ -784,7 +620,7 @@ static void addPythonsFromPath(QList<Interpreter> &pythons)
     }
 }
 
-static QString idForPythonFromPath(QList<Interpreter> pythons)
+static QString idForPythonFromPath(const QList<Interpreter> &pythons)
 {
     FilePath pythonFromPath = Environment::systemEnvironment().searchInPath("python3");
     if (pythonFromPath.isEmpty())
@@ -799,72 +635,77 @@ static QString idForPythonFromPath(QList<Interpreter> pythons)
 }
 
 static PythonSettings *settingsInstance = nullptr;
-PythonSettings::PythonSettings() = default;
+
+PythonSettings::PythonSettings()
+    : QObject(PythonPlugin::instance())
+{
+    initFromSettings(Core::ICore::settings());
+
+    if (HostOsInfo::isWindowsHost())
+        addPythonsFromRegistry(m_interpreters);
+    addPythonsFromPath(m_interpreters);
+
+    if (m_defaultInterpreterId.isEmpty())
+        m_defaultInterpreterId = idForPythonFromPath(m_interpreters);
+
+    writeToSettings(Core::ICore::settings());
+
+    interpreterOptionsPage();
+    pylspOptionsPage();
+}
 
 void PythonSettings::init()
 {
     QTC_ASSERT(!settingsInstance, return );
     settingsInstance = new PythonSettings();
-
-    const SavedSettings &settings = fromSettings(Core::ICore::settings());
-    pylspOptionsPage().setConfiguration(settings.pylsConfiguration);
-    pylspOptionsPage().setEnabled(settings.pylsEnabled);
-
-    QList<Interpreter> pythons = settings.pythons;
-
-    if (HostOsInfo::isWindowsHost())
-        addPythonsFromRegistry(pythons);
-    addPythonsFromPath(pythons);
-
-    const QString &defaultId = !settings.defaultId.isEmpty() ? settings.defaultId
-                                                             : idForPythonFromPath(pythons);
-    setInterpreter(pythons, defaultId);
 }
 
 void PythonSettings::setInterpreter(const QList<Interpreter> &interpreters, const QString &defaultId)
 {
-    if (defaultId == interpreterOptionsPage().defaultInterpreter().id
-            && interpreters == interpreterOptionsPage().interpreters()) {
+    if (defaultId == settingsInstance->m_defaultInterpreterId
+        && interpreters == settingsInstance->m_interpreters) {
         return;
     }
-    interpreterOptionsPage().setInterpreter(interpreters);
-    interpreterOptionsPage().setDefaultInterpreter(defaultId);
+    settingsInstance->m_interpreters = interpreters;
+    settingsInstance->m_defaultInterpreterId = defaultId;
     saveSettings();
 }
 
 void PythonSettings::setPyLSConfiguration(const QString &configuration)
 {
-    if (configuration == pylspOptionsPage().configuration())
+    if (configuration == settingsInstance->m_pylsConfiguration)
         return;
-    pylspOptionsPage().setConfiguration(configuration);
+    settingsInstance->m_pylsConfiguration = configuration;
     saveSettings();
     emit instance()->pylsConfigurationChanged(configuration);
 }
 
 void PythonSettings::setPylsEnabled(const bool &enabled)
 {
-    if (enabled == pylspOptionsPage().enabled())
+    if (enabled == settingsInstance->m_pylsEnabled)
         return;
-    pylspOptionsPage().setEnabled(enabled);
+    settingsInstance->m_pylsEnabled = enabled;
     saveSettings();
     emit instance()->pylsEnabledChanged(enabled);
 }
 
 bool PythonSettings::pylsEnabled()
 {
-    return pylspOptionsPage().enabled();
+    return settingsInstance->m_pylsEnabled;
 }
 
 QString PythonSettings::pylsConfiguration()
 {
-    return pylspOptionsPage().configuration();
+    return settingsInstance->m_pylsConfiguration;
 }
 
 void PythonSettings::addInterpreter(const Interpreter &interpreter, bool isDefault)
 {
-    interpreterOptionsPage().addInterpreter(interpreter);
+    if (Utils::anyOf(settingsInstance->m_interpreters, Utils::equal(&Interpreter::id, interpreter.id)))
+        return;
+    settingsInstance->m_interpreters.append(interpreter);
     if (isDefault)
-        interpreterOptionsPage().setDefaultInterpreter(interpreter.id);
+        settingsInstance->m_defaultInterpreterId = interpreter.id;
     saveSettings();
 }
 
@@ -911,31 +752,89 @@ QList<Interpreter> PythonSettings::detectPythonVenvs(const FilePath &path)
     return result;
 }
 
+void PythonSettings::initFromSettings(QSettings *settings)
+{
+    settings->beginGroup(settingsGroupKey);
+    const QVariantList interpreters = settings->value(interpreterKey).toList();
+    QList<Interpreter> oldSettings;
+    for (const QVariant &interpreterVar : interpreters) {
+        auto interpreterList = interpreterVar.toList();
+        const Interpreter interpreter{interpreterList.value(0).toString(),
+                                      interpreterList.value(1).toString(),
+                                      FilePath::fromVariant(interpreterList.value(2)),
+                                      interpreterList.value(3, true).toBool()};
+        if (interpreterList.size() == 3)
+            oldSettings << interpreter;
+        else if (interpreterList.size() == 4)
+            m_interpreters << interpreter;
+    }
+
+    for (const Interpreter &interpreter : qAsConst(oldSettings)) {
+        if (Utils::anyOf(m_interpreters, Utils::equal(&Interpreter::id, interpreter.id)))
+            continue;
+        m_interpreters << interpreter;
+    }
+
+    m_interpreters = Utils::filtered(m_interpreters, [](const Interpreter &interpreter){
+        return !interpreter.autoDetected || interpreter.command.isExecutableFile();
+    });
+
+    m_defaultInterpreterId = settings->value(defaultKey).toString();
+
+    QVariant pylsEnabled = settings->value(pylsEnabledKey);
+    if (pylsEnabled.isNull())
+        disableOutdatedPyls();
+    else
+        m_pylsEnabled = pylsEnabled.toBool();
+    const QVariant pylsConfiguration = settings->value(pylsConfigurationKey);
+    if (!pylsConfiguration.isNull())
+        m_pylsConfiguration = pylsConfiguration.toString();
+    else
+        m_pylsConfiguration = defaultPylsConfiguration();
+    settings->endGroup();
+}
+
+void PythonSettings::writeToSettings(QSettings *settings)
+{
+    settings->beginGroup(settingsGroupKey);
+    QVariantList interpretersVar;
+    for (const Interpreter &interpreter : m_interpreters) {
+        QVariantList interpreterVar{interpreter.id,
+                                    interpreter.name,
+                                    interpreter.command.toVariant()};
+        interpretersVar.append(QVariant(interpreterVar)); // old settings
+        interpreterVar.append(interpreter.autoDetected);
+        interpretersVar.append(QVariant(interpreterVar)); // new settings
+    }
+    settings->setValue(interpreterKey, interpretersVar);
+    settings->setValue(defaultKey, m_defaultInterpreterId);
+    settings->setValue(pylsConfigurationKey, m_pylsConfiguration);
+    settings->setValue(pylsEnabledKey, m_pylsEnabled);
+    settings->endGroup();
+}
+
 void PythonSettings::saveSettings()
 {
-    const QList<Interpreter> &interpreters = interpreterOptionsPage().interpreters();
-    const QString defaultId = interpreterOptionsPage().defaultInterpreter().id;
-    const QString pylsConfiguration = pylspOptionsPage().configuration();
-    const bool pylsEnabled = pylspOptionsPage().enabled();
-    toSettings(Core::ICore::settings(), {interpreters, defaultId, pylsConfiguration, pylsEnabled});
-    if (QTC_GUARD(settingsInstance))
-        emit settingsInstance->interpretersChanged(interpreters, defaultId);
+    QTC_ASSERT(settingsInstance, return);
+    settingsInstance->writeToSettings(Core::ICore::settings());
+    emit settingsInstance->interpretersChanged(settingsInstance->m_interpreters,
+                                               settingsInstance->m_defaultInterpreterId);
 }
 
 QList<Interpreter> PythonSettings::interpreters()
 {
-    return interpreterOptionsPage().interpreters();
+    return settingsInstance->m_interpreters;
 }
 
 Interpreter PythonSettings::defaultInterpreter()
 {
-    return interpreterOptionsPage().defaultInterpreter();
+    return interpreter(settingsInstance->m_defaultInterpreterId);
 }
 
 Interpreter PythonSettings::interpreter(const QString &interpreterId)
 {
-    const QList<Interpreter> interpreters = PythonSettings::interpreters();
-    return Utils::findOrDefault(interpreters, Utils::equal(&Interpreter::id, interpreterId));
+    return Utils::findOrDefault(settingsInstance->m_interpreters,
+                                Utils::equal(&Interpreter::id, interpreterId));
 }
 
 } // Python::Internal
