@@ -7665,7 +7665,7 @@ void TextEditorWidget::dropEvent(QDropEvent *e)
     MultiTextCursor cursor = multiTextCursor();
     cursor.beginEditBlock();
     const QTextCursor eventCursor = cursorForPosition(e->pos());
-    if (e->dropAction() == Qt::MoveAction)
+    if (e->dropAction() == Qt::MoveAction && e->source() == viewport())
         cursor.removeSelectedText();
     cursor.setCursors({eventCursor});
     setMultiTextCursor(cursor);
