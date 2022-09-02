@@ -447,6 +447,7 @@ extend_qtc_plugin(QmlDesigner
     include/modificationgrouptoken.h
     include/nodeanchors.h
     include/objectpropertybinding.h
+    include/projectstorageids.h
     include/propertybinding.h
     include/qml3dnode.h
     include/qmlvisualnode.h
