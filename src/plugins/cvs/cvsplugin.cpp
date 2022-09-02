@@ -1402,16 +1402,10 @@ CvsResponse CvsPluginPrivate::runCvs(const FilePath &workingDirectory,
         response.message =tr("No CVS executable specified.");
         return response;
     }
-    // Run, connect stderr to the output window
 
-    auto *command = VcsBaseClient::createVcsCommand(workingDirectory,
-                                                    Environment::systemEnvironment());
-    command->addFlags(flags);
-    command->setCodec(outputCodec);
-    const CommandResult result = command->runCommand({executable, m_settings.addOptions(arguments)},
-                                                     timeOutS);
-    delete command;
-
+    const CommandResult result = m_client->vcsSynchronousExec(workingDirectory,
+                                 {executable, m_settings.addOptions(arguments)},
+                                 flags, timeOutS, outputCodec);
     response.result = CvsResponse::OtherError;
     response.stdErr = result.cleanedStdErr();
     response.stdOut = result.cleanedStdOut();
