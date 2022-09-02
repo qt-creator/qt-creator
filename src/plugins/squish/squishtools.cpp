@@ -335,33 +335,7 @@ void SquishTools::startSquishServer(Request request)
         return;
     m_request = request;
     if (m_serverProcess.state() != QProcess::NotRunning) {
-        if (QMessageBox::question(Core::ICore::dialogParent(),
-                                  Tr::tr("Squish Server Already Running"),
-                                  Tr::tr("There is still an old Squish server instance running.\n"
-                                         "This will cause problems later on.\n\n"
-                                         "If you continue, the old instance will be terminated.\n"
-                                         "Do you want to continue?"))
-            == QMessageBox::Yes) {
-            switch (m_request) {
-            case RunTestRequested:
-                m_request = KillOldBeforeRunRunner;
-                break;
-            case RecordTestRequested:
-                m_request = KillOldBeforeRecordRunner;
-                break;
-            case RunnerQueryRequested:
-                m_request = KillOldBeforeQueryRunner;
-                break;
-            default:
-                QMessageBox::critical(Core::ICore::dialogParent(),
-                                      Tr::tr("Error"),
-                                      Tr::tr("Unexpected state or request while starting Squish "
-                                             "server. (state: %1, request: %2)")
-                                          .arg(m_state)
-                                          .arg(m_request));
-            }
-            stopSquishServer();
-        }
+        handleSquishServerAlreadyRunning();
         return;
     }
 
@@ -393,22 +367,7 @@ void SquishTools::startSquishServer(Request request)
         m_perspective.setState(SquishPerspective::State::Starting);
     }
 
-    QStringList arguments;
-    // TODO if isLocalServer is false we should start a squishserver on remote device
-    if (toolsSettings.isLocalServer) {
-        if (m_request != ServerConfigChangeRequested)
-            arguments << "--local"; // for now - although Squish Docs say "don't use it"
-    } else {
-        arguments << "--port" << QString::number(toolsSettings.serverPort);
-    }
-    if (toolsSettings.verboseLog)
-        arguments << "--verbose";
-
-    if (m_request == ServerConfigChangeRequested && QTC_GUARD(!m_serverConfigChanges.isEmpty())) {
-        arguments.append("--config");
-        arguments.append(m_serverConfigChanges.first());
-    }
-
+    const QStringList arguments = serverArgumentsFromSettings();
     m_serverProcess.setCommand({toolsSettings.serverPath, arguments});
     m_serverProcess.setEnvironment(squishEnvironment());
 
@@ -961,6 +920,57 @@ void SquishTools::terminateRunner()
     process.setCommand(cmd);
     process.start();
     process.waitForFinished();
+}
+
+void SquishTools::handleSquishServerAlreadyRunning()
+{
+    if (QMessageBox::question(Core::ICore::dialogParent(),
+                              Tr::tr("Squish Server Already Running"),
+                              Tr::tr("There is still an old Squish server instance running.\n"
+                                     "This will cause problems later on.\n\n"
+                                     "If you continue, the old instance will be terminated.\n"
+                                     "Do you want to continue?"))
+        == QMessageBox::Yes) {
+        switch (m_request) {
+        case RunTestRequested:
+            m_request = KillOldBeforeRunRunner;
+            break;
+        case RecordTestRequested:
+            m_request = KillOldBeforeRecordRunner;
+            break;
+        case RunnerQueryRequested:
+            m_request = KillOldBeforeQueryRunner;
+            break;
+        default:
+            QMessageBox::critical(Core::ICore::dialogParent(),
+                                  Tr::tr("Error"),
+                                  Tr::tr("Unexpected state or request while starting Squish "
+                                         "server. (state: %1, request: %2)")
+                                      .arg(m_state)
+                                      .arg(m_request));
+        }
+        stopSquishServer();
+    }
+}
+
+QStringList SquishTools::serverArgumentsFromSettings() const
+{
+    QStringList arguments;
+    // TODO if isLocalServer is false we should start a squishserver on remote device
+    if (toolsSettings.isLocalServer) {
+        if (m_request != ServerConfigChangeRequested)
+            arguments << "--local"; // for now - although Squish Docs say "don't use it"
+    } else {
+        arguments << "--port" << QString::number(toolsSettings.serverPort);
+    }
+    if (toolsSettings.verboseLog)
+        arguments << "--verbose";
+
+    if (m_request == ServerConfigChangeRequested && QTC_GUARD(!m_serverConfigChanges.isEmpty())) {
+        arguments.append("--config");
+        arguments.append(m_serverConfigChanges.first());
+    }
+    return arguments;
 }
 
 bool SquishTools::isValidToStartRunner()

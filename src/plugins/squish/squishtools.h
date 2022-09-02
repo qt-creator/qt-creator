@@ -106,6 +106,8 @@ private:
     void interruptRunner();
     void terminateRunner();
     bool isValidToStartRunner();
+    void handleSquishServerAlreadyRunning();
+    QStringList serverArgumentsFromSettings() const;
     bool setupRunnerPath();
     void setupAndStartSquishRunnerProcess(const QStringList &arg,
                                           const QString &caseReportFilePath = {});
