@@ -279,7 +279,6 @@ QmlModelStateGroup QmlModelState::stateGroup() const
 ModelNode QmlModelState::createQmlState(AbstractView *view, const PropertyListType &propertyList)
 {
     QTC_ASSERT(view, return {});
-    QTC_CHECK(view->majorQtQuickVersion() < 3);
 
     const QByteArray typeName = "QtQuick.State";
     NodeMetaInfo metaInfo = view->model()->metaInfo(typeName);
