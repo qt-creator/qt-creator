@@ -682,6 +682,8 @@ void ExampleSetModel::selectExampleSet(int index)
         if (getType(m_selectedExampleSetIndex) == ExampleSetModel::QtExampleSet) {
             QtVersion *selectedQtVersion = QtVersionManager::version(getQtId(m_selectedExampleSetIndex));
             m_selectedQtTypes = selectedQtVersion->targetDeviceTypes();
+        } else {
+            m_selectedQtTypes.clear();
         }
         emit selectedExampleSetChanged(m_selectedExampleSetIndex);
     }
