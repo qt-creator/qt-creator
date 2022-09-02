@@ -45,6 +45,20 @@ public:
         RunnerStopped
     };
 
+    enum class RunnerState {
+        None,
+        Starting,
+        Running,
+        RunRequested,
+        Interrupted,
+        InterruptRequested,
+        Canceling,
+        Canceled,
+        CancelRequested,
+        CancelRequestedWhileInterrupted,
+        Finished
+    };
+
     State state() const { return m_state; }
     void runTestCases(const QString &suitePath,
                       const QStringList &testCases = QStringList(),
@@ -102,7 +116,7 @@ private:
     void restoreQtCreatorWindows();
     void updateLocationMarker(const Utils::FilePath &file, int line);
     void clearLocationMarker();
-    void onPerspectiveStateChanged(SquishPerspective::State state);
+    void onRunnerRunRequested(SquishPerspective::StepMode step);
     void interruptRunner();
     void terminateRunner();
     bool isValidToStartRunner();
@@ -120,6 +134,7 @@ private:
     QString m_serverHost;
     Request m_request = None;
     State m_state = Idle;
+    RunnerState m_squishRunnerState = RunnerState::None;
     QString m_suitePath;
     QStringList m_testCases;
     QStringList m_reportFiles;
@@ -134,7 +149,6 @@ private:
     QWindowList m_lastTopLevelWindows;
     class SquishLocationMark *m_locationMarker = nullptr;
     QTimer *m_requestVarsTimer = nullptr;
-    enum RunnerMode { NoMode, TestingMode, QueryMode} m_squishRunnerMode = NoMode;
     qint64 m_readResultsCount;
     bool m_shutdownInitiated = false;
 };

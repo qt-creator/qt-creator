@@ -28,41 +28,28 @@ class SquishPerspective : public Utils::Perspective
 {
     Q_OBJECT
 public:
-    enum class State {
-        None,
-        Starting,
-        Running,
-        RunRequested,
-        StepInRequested,
-        StepOverRequested,
-        StepReturnRequested,
-        Interrupted,
-        InterruptRequested,
-        Canceling,
-        Canceled,
-        CancelRequested,
-        CancelRequestedWhileInterrupted,
-        Finished
-    };
+    enum PerspectiveMode { NoMode, Interrupted, Running, Querying };
+    enum StepMode { Continue, StepIn, StepOver, StepOut };
 
     SquishPerspective();
     void initPerspective();
+    void setPerspectiveMode(PerspectiveMode mode);
+    PerspectiveMode perspectiveMode() const { return m_mode; }
 
-    State state() const { return m_state; }
-    void setState(State state);
     void updateStatus(const QString &status);
 
     void showControlBar(SquishXmlOutputHandler *xmlOutputHandler);
     void destroyControlBar();
 
 signals:
-    void stateChanged(State state);
+    void stopRequested();
+    void interruptRequested();
+    void runRequested(SquishPerspective::StepMode mode);
 
 private:
     void onStopTriggered();
     void onPausePlayTriggered();
     void onLocalsUpdated(const QString &output);
-    bool isStateTransitionValid(State newState) const;
 
     QAction *m_pausePlayAction = nullptr;
     QAction *m_stepInAction = nullptr;
@@ -72,7 +59,7 @@ private:
     QLabel *m_status = nullptr;
     class SquishControlBar *m_controlBar = nullptr;
     Utils::TreeModel<LocalsItem> m_localsModel;
-    State m_state = State::None;
+    PerspectiveMode m_mode = NoMode;
 
     friend class SquishControlBar;
 };

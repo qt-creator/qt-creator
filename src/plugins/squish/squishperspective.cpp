@@ -26,45 +26,24 @@
 namespace Squish {
 namespace Internal {
 
-static QString stateName(SquishPerspective::State state)
-{
-    switch (state) {
-    case SquishPerspective::State::None: return "None";
-    case SquishPerspective::State::Starting: return "Starting";
-    case SquishPerspective::State::Running: return "Running";
-    case SquishPerspective::State::RunRequested: return "RunRequested";
-    case SquishPerspective::State::StepInRequested: return "StepInRequested";
-    case SquishPerspective::State::StepOverRequested: return "StepOverRequested";
-    case SquishPerspective::State::StepReturnRequested: return "StepReturnRequested";
-    case SquishPerspective::State::Interrupted: return "Interrupted";
-    case SquishPerspective::State::InterruptRequested: return "InterruptedRequested";
-    case SquishPerspective::State::Canceling: return "Canceling";
-    case SquishPerspective::State::Canceled: return "Canceled";
-    case SquishPerspective::State::CancelRequested: return "CancelRequested";
-    case SquishPerspective::State::CancelRequestedWhileInterrupted: return "CancelRequestedWhileInterrupted";
-    case SquishPerspective::State::Finished: return "Finished";
-    }
-    return "ThouShallNotBeHere";
-}
-
-enum IconType { StopRecord, Play, Pause, StepIn, StepOver, StepReturn, Stop };
+enum class IconType { StopRecord, Play, Pause, StepIn, StepOver, StepReturn, Stop };
 
 static QIcon iconForType(IconType type)
 {
     switch (type) {
-    case StopRecord:
+    case IconType::StopRecord:
         return QIcon();
-    case Play:
+    case IconType::Play:
         return Debugger::Icons::DEBUG_CONTINUE_SMALL_TOOLBAR.icon();
-    case Pause:
+    case IconType::Pause:
         return Utils::Icons::INTERRUPT_SMALL.icon();
-    case StepIn:
+    case IconType::StepIn:
         return Debugger::Icons::STEP_INTO_TOOLBAR.icon();
-    case StepOver:
+    case IconType::StepOver:
         return Debugger::Icons::STEP_OVER_TOOLBAR.icon();
-    case StepReturn:
+    case IconType::StepReturn:
         return Debugger::Icons::STEP_OUT_TOOLBAR.icon();
-    case Stop:
+    case IconType::Stop:
         return Utils::Icons::STOP_SMALL.icon();
     }
     return QIcon();
@@ -202,19 +181,19 @@ SquishPerspective::SquishPerspective()
 void SquishPerspective::initPerspective()
 {
     m_pausePlayAction = new QAction(this);
-    m_pausePlayAction->setIcon(iconForType(Pause));
+    m_pausePlayAction->setIcon(iconForType(IconType::Pause));
     m_pausePlayAction->setToolTip(Tr::tr("Interrupt"));
     m_pausePlayAction->setEnabled(false);
     m_stepInAction = new QAction(this);
-    m_stepInAction->setIcon(iconForType(StepIn));
+    m_stepInAction->setIcon(iconForType(IconType::StepIn));
     m_stepInAction->setToolTip(Tr::tr("Step Into"));
     m_stepInAction->setEnabled(false);
     m_stepOverAction = new QAction(this);
-    m_stepOverAction->setIcon(iconForType(StepOver));
+    m_stepOverAction->setIcon(iconForType(IconType::StepOver));
     m_stepOverAction->setToolTip(Tr::tr("Step Over"));
     m_stepOverAction->setEnabled(false);
     m_stepOutAction = new QAction(this);
-    m_stepOutAction->setIcon(iconForType(StepReturn));
+    m_stepOutAction->setIcon(iconForType(IconType::StepReturn));
     m_stepOutAction->setToolTip(Tr::tr("Step Out"));
     m_stepOutAction->setEnabled(false);
     m_stopAction = Debugger::createStopAction();
@@ -248,15 +227,9 @@ void SquishPerspective::initPerspective()
     addWindow(mainWidget, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
 
     connect(m_pausePlayAction, &QAction::triggered, this, &SquishPerspective::onPausePlayTriggered);
-    connect(m_stepInAction, &QAction::triggered, this, [this] {
-        setState(State::StepInRequested);
-    });
-    connect(m_stepOverAction, &QAction::triggered, this, [this] {
-        setState(State::StepOverRequested);
-    });
-    connect(m_stepOutAction, &QAction::triggered, this, [this] {
-        setState(State::StepReturnRequested);
-    });
+    connect(m_stepInAction, &QAction::triggered, this, [this] { emit runRequested(StepIn); });
+    connect(m_stepOverAction, &QAction::triggered, this, [this] { emit runRequested(StepOver); });
+    connect(m_stepOutAction, &QAction::triggered, this, [this] { emit runRequested(StepOut); });
     connect(m_stopAction, &QAction::triggered, this, &SquishPerspective::onStopTriggered);
 
     connect(SquishTools::instance(), &SquishTools::localsUpdated,
@@ -278,18 +251,17 @@ void SquishPerspective::onStopTriggered()
 {
     m_pausePlayAction->setEnabled(false);
     m_stopAction->setEnabled(false);
-    setState(m_state == State::Interrupted ? State::CancelRequestedWhileInterrupted
-                                           : State::CancelRequested);
+    emit stopRequested();
 }
 
 void SquishPerspective::onPausePlayTriggered()
 {
-    if (m_state == State::Interrupted)
-        setState(State::RunRequested);
-    else if (m_state == State::Running)
-        setState(State::InterruptRequested);
+    if (m_mode == Interrupted)
+        emit runRequested(Continue);
+    else if (m_mode == Running)
+        emit interruptRequested();
     else
-        qDebug() << "###state: " << stateName(m_state);
+        qDebug() << "###state: " << m_mode;
 }
 
 void SquishPerspective::onLocalsUpdated(const QString &output)
@@ -358,99 +330,45 @@ void SquishPerspective::destroyControlBar()
     m_controlBar = nullptr;
 }
 
-void SquishPerspective::setState(State state)
+void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
 {
-    if (m_state == state) // ignore triggering the state again
+    if (m_mode == mode) // ignore
         return;
 
-    if (!isStateTransitionValid(state)) {
-        qDebug() << "Illegal state transition" << stateName(m_state) << "->" << stateName(state);
-        return;
-    }
-
-    m_state = state;
-    m_localsModel.clear();
-    emit stateChanged(state);
-
-    switch (m_state) {
-    case State::Running:
-    case State::Interrupted:
+    m_mode = mode;
+    switch (m_mode) {
+    case Running:
         m_pausePlayAction->setEnabled(true);
-        if (m_state == State::Interrupted) {
-            m_pausePlayAction->setIcon(iconForType(Play));
-            m_pausePlayAction->setToolTip(Tr::tr("Continue"));
-            m_stepInAction->setEnabled(true);
-            m_stepOverAction->setEnabled(true);
-            m_stepOutAction->setEnabled(true);
-        } else {
-            m_pausePlayAction->setIcon(iconForType(Pause));
-            m_pausePlayAction->setToolTip(Tr::tr("Interrupt"));
-            m_stepInAction->setEnabled(false);
-            m_stepOverAction->setEnabled(false);
-            m_stepOutAction->setEnabled(false);
-        }
+        m_pausePlayAction->setIcon(iconForType(IconType::Pause));
+        m_pausePlayAction->setToolTip(Tr::tr("Interrupt"));
+        m_stepInAction->setEnabled(false);
+        m_stepOverAction->setEnabled(false);
+        m_stepOutAction->setEnabled(false);
         m_stopAction->setEnabled(true);
         break;
-    case State::RunRequested:
-    case State::Starting:
-    case State::StepInRequested:
-    case State::StepOverRequested:
-    case State::StepReturnRequested:
-    case State::InterruptRequested:
-    case State::CancelRequested:
-    case State::CancelRequestedWhileInterrupted:
-    case State::Canceled:
-    case State::Finished:
-        m_pausePlayAction->setIcon(iconForType(Pause));
+    case Interrupted:
+        m_pausePlayAction->setEnabled(true);
+        m_pausePlayAction->setIcon(iconForType(IconType::Play));
+        m_pausePlayAction->setToolTip(Tr::tr("Continue"));
+        m_stepInAction->setEnabled(true);
+        m_stepOverAction->setEnabled(true);
+        m_stepOutAction->setEnabled(true);
+        m_stopAction->setEnabled(true);
+        break;
+    case Querying:
+    case NoMode:
+        m_pausePlayAction->setIcon(iconForType(IconType::Pause));
         m_pausePlayAction->setToolTip(Tr::tr("Interrupt"));
         m_pausePlayAction->setEnabled(false);
         m_stepInAction->setEnabled(false);
         m_stepOverAction->setEnabled(false);
         m_stepOutAction->setEnabled(false);
         m_stopAction->setEnabled(false);
+        m_localsModel.clear();
         break;
     default:
         break;
     }
-}
-
-bool SquishPerspective::isStateTransitionValid(State newState) const
-{
-    if (newState == State::Finished || newState == State::CancelRequested)
-        return true;
-
-    switch (m_state) {
-    case State::None:
-        return newState == State::Starting;
-    case State::Starting:
-        return newState == State::RunRequested;
-    case State::Running:
-        return newState == State::Interrupted
-                || newState == State::InterruptRequested;
-    case State::RunRequested:
-    case State::StepInRequested:
-    case State::StepOverRequested:
-    case State::StepReturnRequested:
-        return newState == State::Running;
-    case State::Interrupted:
-        return newState == State::RunRequested
-                || newState == State::StepInRequested
-                || newState == State::StepOverRequested
-                || newState == State::StepReturnRequested
-                || newState == State::CancelRequestedWhileInterrupted;
-    case State::InterruptRequested:
-        return newState == State::Interrupted;
-    case State::Canceling:
-        return newState == State::Canceled;
-    case State::Canceled:
-        return newState == State::None;
-    case State::CancelRequested:
-    case State::CancelRequestedWhileInterrupted:
-        return newState == State::Canceling;
-    case State::Finished:
-        return newState == State::Starting;
-    }
-    return false;
 }
 
 } // namespace Internal

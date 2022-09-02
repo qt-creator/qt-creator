@@ -36,6 +36,25 @@ using namespace Utils;
 namespace Squish {
 namespace Internal {
 
+
+static QString runnerStateName(SquishTools::RunnerState state)
+{
+    switch (state) {
+    case SquishTools::RunnerState::None: return "None";
+    case SquishTools::RunnerState::Starting: return "Starting";
+    case SquishTools::RunnerState::Running: return "Running";
+    case SquishTools::RunnerState::RunRequested: return "RunRequested";
+    case SquishTools::RunnerState::Interrupted: return "Interrupted";
+    case SquishTools::RunnerState::InterruptRequested: return "InterruptedRequested";
+    case SquishTools::RunnerState::Canceling: return "Canceling";
+    case SquishTools::RunnerState::Canceled: return "Canceled";
+    case SquishTools::RunnerState::CancelRequested: return "CancelRequested";
+    case SquishTools::RunnerState::CancelRequestedWhileInterrupted: return "CancelRequestedWhileInterrupted";
+    case SquishTools::RunnerState::Finished: return "Finished";
+    }
+    return "ThouShallNotBeHere";
+}
+
 class SquishLocationMark : public TextEditor::TextMark
 {
 public:
@@ -50,7 +69,6 @@ public:
 // make this configurable?
 static const QString resultsDirectory = QFileInfo(QDir::home(), ".squishQC/Test Results")
                                             .absoluteFilePath();
-
 static SquishTools *s_instance = nullptr;
 
 SquishTools::SquishTools(QObject *parent)
@@ -82,8 +100,24 @@ SquishTools::SquishTools(QObject *parent)
             this, &SquishTools::onServerFinished);
     s_instance = this;
     m_perspective.initPerspective();
-    connect(&m_perspective, &SquishPerspective::stateChanged,
-            this, &SquishTools::onPerspectiveStateChanged);
+    connect(&m_perspective, &SquishPerspective::interruptRequested,
+            this, [this] {
+        m_squishRunnerState = RunnerState::InterruptRequested;
+        if (m_runnerProcess.processId() != -1)
+            interruptRunner();
+    });
+    connect(&m_perspective, &SquishPerspective::stopRequested,
+            this, [this] () {
+        bool interrupted = m_squishRunnerState == RunnerState::Interrupted;
+        m_squishRunnerState = interrupted ? RunnerState::CancelRequestedWhileInterrupted
+                                          : RunnerState::CancelRequested;
+        if (interrupted)
+            handlePrompt();
+        else if (m_runnerProcess.processId() != -1)
+            terminateRunner();
+    });
+    connect(&m_perspective, &SquishPerspective::runRequested,
+            this, &SquishTools::onRunnerRunRequested);
 }
 
 SquishTools::~SquishTools()
@@ -184,7 +218,7 @@ void SquishTools::runTestCases(const QString &suitePath,
     connect(m_xmlOutputHandler.get(), &SquishXmlOutputHandler::updateStatus,
             &m_perspective, &SquishPerspective::updateStatus);
 
-    m_squishRunnerMode = TestingMode;
+    m_perspective.setPerspectiveMode(SquishPerspective::Running);
     emit squishTestRunStarted();
     startSquishServer(RunTestRequested);
 }
@@ -201,7 +235,7 @@ void SquishTools::queryServerSettings()
                                   .arg(m_state));
         return;
     }
-    m_squishRunnerMode = QueryMode;
+    m_perspective.setPerspectiveMode(SquishPerspective::Querying);
     m_fullRunnerOutput.clear();
     startSquishServer(RunnerQueryRequested);
 }
@@ -225,7 +259,6 @@ void SquishTools::setState(SquishTools::State state)
 {
     // TODO check whether state transition is legal
     m_state = state;
-
     switch (m_state) {
     case Idle:
         m_request = None;
@@ -235,7 +268,7 @@ void SquishTools::setState(SquishTools::State state)
         m_reportFiles.clear();
         m_additionalRunnerArguments.clear();
         m_additionalServerArguments.clear();
-        m_squishRunnerMode = NoMode;
+        m_perspective.setPerspectiveMode(SquishPerspective::NoMode);
         m_currentResultsDirectory.clear();
         m_lastTopLevelWindows.clear();
         break;
@@ -252,11 +285,11 @@ void SquishTools::setState(SquishTools::State state)
         break;
     case ServerStartFailed:
         m_state = Idle;
-        m_request = None;
-        if (m_squishRunnerMode == TestingMode) {
+        if (m_request == RunTestRequested) {
             emit squishTestRunFinished();
-            m_squishRunnerMode = NoMode;
+            m_perspective.setPerspectiveMode(SquishPerspective::NoMode);
         }
+        m_request = None;
         if (toolsSettings.minimizeIDE)
             restoreQtCreatorWindows();
         m_perspective.destroyControlBar();
@@ -277,9 +310,9 @@ void SquishTools::setState(SquishTools::State state)
                 emit configChangesWritten();
         } else if (m_request == ServerStopRequested) {
             m_request = None;
-            if (m_squishRunnerMode == TestingMode) {
+            if (m_perspective.perspectiveMode() == SquishPerspective::Running) {
                 emit squishTestRunFinished();
-                m_squishRunnerMode = NoMode;
+                m_perspective.setPerspectiveMode(SquishPerspective::NoMode);
             }
             if (toolsSettings.minimizeIDE)
                 restoreQtCreatorWindows();
@@ -303,11 +336,10 @@ void SquishTools::setState(SquishTools::State state)
         break;
     case RunnerStartFailed:
     case RunnerStopped:
-        if (m_squishRunnerMode == QueryMode) {
+        if (m_request == RunnerQueryRequested) {
             m_request = ServerStopRequested;
             stopSquishServer();
-        } else if (m_testCases.isEmpty()
-                   || (m_perspective.state() == SquishPerspective::State::Canceled)) {
+        } else if (m_testCases.isEmpty() || (m_squishRunnerState == RunnerState::Canceled)) {
             m_request = ServerStopRequested;
             stopSquishServer();
             QString error;
@@ -320,7 +352,7 @@ void SquishTools::setState(SquishTools::State state)
             logrotateTestResults();
         } else {
             m_xmlOutputHandler->clearForNextRun();
-            m_perspective.setState(SquishPerspective::State::Starting);
+            m_squishRunnerState = RunnerState::Starting;
             startSquishRunner();
         }
         break;
@@ -333,6 +365,7 @@ void SquishTools::startSquishServer(Request request)
 {
     if (m_shutdownInitiated)
         return;
+    QTC_ASSERT(m_perspective.perspectiveMode() != SquishPerspective::NoMode, return);
     m_request = request;
     if (m_serverProcess.state() != QProcess::NotRunning) {
         handleSquishServerAlreadyRunning();
@@ -355,7 +388,7 @@ void SquishTools::startSquishServer(Request request)
     }
     toolsSettings.serverPath = squishServer;
 
-    if (m_squishRunnerMode == TestingMode) {
+    if (m_request == RunTestRequested) {
         if (toolsSettings.minimizeIDE)
             minimizeQtCreatorWindows();
         else
@@ -364,7 +397,7 @@ void SquishTools::startSquishServer(Request request)
             m_perspective.showControlBar(m_xmlOutputHandler.get());
 
         m_perspective.select();
-        m_perspective.setState(SquishPerspective::State::Starting);
+        m_squishRunnerState = RunnerState::Starting;
     }
 
     const QStringList arguments = serverArgumentsFromSettings();
@@ -460,7 +493,7 @@ void SquishTools::onServerFinished()
 
 void SquishTools::onRunnerFinished()
 {
-    if (m_squishRunnerMode == QueryMode) {
+    if (m_request == RunnerQueryRequested) {
         emit queryFinished(m_fullRunnerOutput);
         setState(RunnerStopped);
         m_fullRunnerOutput.clear();
@@ -468,8 +501,9 @@ void SquishTools::onRunnerFinished()
     }
 
     if (!m_shutdownInitiated) {
-        m_perspective.setState(SquishPerspective::State::Finished);
+        m_squishRunnerState = RunnerState::Finished;
         m_perspective.updateStatus(Tr::tr("Test run finished."));
+        m_perspective.setPerspectiveMode(SquishPerspective::NoMode);
     }
 
     if (m_resultsFileWatcher) {
@@ -619,8 +653,10 @@ void SquishTools::onRunnerErrorOutput()
             emit logOutputReceived("Runner: " + QLatin1String(trimmed));
             if (trimmed.startsWith("QSocketNotifier: Invalid socket")) {
                 // we've lost connection to the AUT - if Interrupted, try to cancel the runner
-                if (m_perspective.state() == SquishPerspective::State::Interrupted)
-                    m_perspective.setState(SquishPerspective::State::CancelRequestedWhileInterrupted);
+                if (m_squishRunnerState == RunnerState::Interrupted) {
+                    m_squishRunnerState = RunnerState::CancelRequestedWhileInterrupted;
+                    handlePrompt();
+                }
             }
         }
     }
@@ -705,49 +741,28 @@ void SquishTools::setBreakpoints()
 
 void SquishTools::handlePrompt(const QString &fileName, int line, int column)
 {
-    const SquishPerspective::State state = m_perspective.state();
-    switch (state) {
-    case SquishPerspective::State::Starting:
+    switch (m_squishRunnerState) {
+    case RunnerState::Starting:
         setBreakpoints();
-        m_perspective.setState(SquishPerspective::State::RunRequested);
+        onRunnerRunRequested(SquishPerspective::Continue);
         break;
-    case SquishPerspective::State::RunRequested:
-    case SquishPerspective::State::StepInRequested:
-    case SquishPerspective::State::StepOverRequested:
-    case SquishPerspective::State::StepReturnRequested:
-        if (m_requestVarsTimer) {
-            delete m_requestVarsTimer;
-            m_requestVarsTimer = nullptr;
-        }
-        if (state == SquishPerspective::State::RunRequested)
-            m_runnerProcess.write("continue\n");
-        else if (state == SquishPerspective::State::StepInRequested)
-            m_runnerProcess.write("step\n");
-        else if (state == SquishPerspective::State::StepOverRequested)
-            m_runnerProcess.write("next\n");
-        else // SquishPerspective::State::StepReturnRequested
-            m_runnerProcess.write("return\n");
-        clearLocationMarker();
-        if (state == SquishPerspective::State::RunRequested && toolsSettings.minimizeIDE)
-            minimizeQtCreatorWindows();
-        m_perspective.setState(SquishPerspective::State::Running);
-        break;
-    case SquishPerspective::State::CancelRequested:
-    case SquishPerspective::State::CancelRequestedWhileInterrupted:
+    case RunnerState::CancelRequested:
+    case RunnerState::CancelRequestedWhileInterrupted:
         m_runnerProcess.write("exit\n");
         clearLocationMarker();
-        m_perspective.setState(SquishPerspective::State::Canceling);
+        m_squishRunnerState = RunnerState::Canceling;
         break;
-    case SquishPerspective::State::Canceling:
+    case RunnerState::Canceling:
         m_runnerProcess.write("quit\n");
-        m_perspective.setState(SquishPerspective::State::Canceled);
+        m_squishRunnerState = RunnerState::Canceled;
         break;
-    case SquishPerspective::State::Canceled:
+    case RunnerState::Canceled:
         QTC_CHECK(false);
         break;
     default:
         if (line != -1 && column != -1) {
-            m_perspective.setState(SquishPerspective::State::Interrupted);
+            m_perspective.setPerspectiveMode(SquishPerspective::Interrupted);
+            m_squishRunnerState = RunnerState::Interrupted;
             restoreQtCreatorWindows();
             // if we're returning from a function we might end up without a file information
             if (fileName.isEmpty()) {
@@ -760,7 +775,7 @@ void SquishTools::handlePrompt(const QString &fileName, int line, int column)
                 updateLocationMarker(filePath, line);
             }
         } else { // it's just some output coming from the server
-            if (m_perspective.state() == SquishPerspective::State::Interrupted && !m_requestVarsTimer) {
+            if (m_squishRunnerState == RunnerState::Interrupted && !m_requestVarsTimer) {
                 // FIXME: this should be easier, but when interrupted and AUT is closed
                 // runner does not get notified until continued/canceled
                 m_requestVarsTimer = new QTimer(this);
@@ -777,7 +792,7 @@ void SquishTools::handlePrompt(const QString &fileName, int line, int column)
 
 void SquishTools::requestExpansion(const QString &name)
 {
-    QTC_ASSERT(m_perspective.state() == SquishPerspective::State::Interrupted, return);
+    QTC_ASSERT(m_squishRunnerState == RunnerState::Interrupted, return);
     m_runnerProcess.write("print variables +" + name + "\n");
 }
 
@@ -879,27 +894,28 @@ void SquishTools::clearLocationMarker()
     m_locationMarker = nullptr;
 }
 
-void SquishTools::onPerspectiveStateChanged(SquishPerspective::State state)
+void SquishTools::onRunnerRunRequested(SquishPerspective::StepMode step)
 {
-    switch (state) {
-    case SquishPerspective::State::InterruptRequested:
-        if (m_runnerProcess.processId() != -1)
-            interruptRunner();
-        break;
-    case SquishPerspective::State::CancelRequested:
-        if (m_runnerProcess.processId() != -1)
-            terminateRunner();
-        break;
-    case SquishPerspective::State::RunRequested:
-    case SquishPerspective::State::StepInRequested:
-    case SquishPerspective::State::StepOverRequested:
-    case SquishPerspective::State::StepReturnRequested:
-    case SquishPerspective::State::CancelRequestedWhileInterrupted:
-        handlePrompt();
-        break;
-    default:
-        break;
+    if (m_requestVarsTimer) {
+        delete m_requestVarsTimer;
+        m_requestVarsTimer = nullptr;
     }
+    m_squishRunnerState = RunnerState::RunRequested;
+
+    if (step == SquishPerspective::Continue)
+        m_runnerProcess.write("continue\n");
+    else if (step == SquishPerspective::StepIn)
+        m_runnerProcess.write("step\n");
+    else if (step == SquishPerspective::StepOver)
+        m_runnerProcess.write("next\n");
+    else if (step == SquishPerspective::StepOut)
+        m_runnerProcess.write("return\n");
+
+    clearLocationMarker();
+    if (toolsSettings.minimizeIDE)
+        minimizeQtCreatorWindows();
+    m_perspective.setPerspectiveMode(SquishPerspective::Running);
+    m_squishRunnerState = RunnerState::Running;
 }
 
 void SquishTools::interruptRunner()
