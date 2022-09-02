@@ -114,6 +114,7 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget(QWidget *parent) :
                                "<a href=\"http://download.qt.io/official_releases/jom/\">"
                                "http://download.qt.io/official_releases/jom/</a>. "
                                "Disable it if you experience problems with your builds.");
+    jomLabel->setWordWrap(true);
     jomLabel->setVisible(HostOsInfo::isWindowsHost());
 
     using namespace Utils::Layouting;
