@@ -24,6 +24,8 @@
 #ifdef QTCREATOR_PCH_H
 #define CALLBACK WINAPI
 #endif
+#include <QFile>
+#include <io.h>
 #include <qt_windows.h>
 #include <shlobj.h>
 #endif
@@ -1532,6 +1534,7 @@ FilePath FilePath::resolveSymlinks() const
 
 /*!
 *  \brief Recursively resolves possibly present symlinks in this file name.
+*  On Windows, also resolves SUBST and re-mounted NTFS drives.
 *  Unlike QFileInfo::canonicalFilePath(), this function will not return an empty
 *  string if path doesn't exist.
 *
@@ -1543,10 +1546,26 @@ FilePath FilePath::canonicalPath() const
         // FIXME: Not a full solution, but it stays on the right device.
         return *this;
     }
+
+#ifdef Q_OS_WINDOWS
+    QFile f(toString());
+    if (f.open(QIODevice::ReadOnly)) {
+        TCHAR normalizedPath[MAX_PATH];
+        const auto length = GetFinalPathNameByHandleW(
+                    reinterpret_cast<HANDLE>(_get_osfhandle(f.handle())),
+                    normalizedPath,
+                    MAX_PATH,
+                    FILE_NAME_NORMALIZED);
+        if (length > 0)
+            return fromUserInput(QString::fromStdWString(std::wstring(normalizedPath, length)));
+    }
+#endif
+
     const QString result = toFileInfo().canonicalFilePath();
-    if (result.isEmpty())
-        return *this;
-    return FilePath::fromString(result);
+    if (!result.isEmpty())
+        return fromString(result);
+
+    return *this;
 }
 
 FilePath FilePath::operator/(const QString &str) const
