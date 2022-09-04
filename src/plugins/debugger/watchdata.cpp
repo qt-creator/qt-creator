@@ -11,6 +11,7 @@
 #include "debuggertr.h"
 
 #include <QDebug>
+#include <QtEndian>
 
 namespace Debugger::Internal {
 
@@ -208,6 +209,8 @@ QString decodeItemHelper(const double &t)
     return QString::number(t, 'g', 16);
 }
 
+enum class Endian { Little, Big };
+
 class ArrayDataDecoder
 {
 public:
@@ -219,7 +222,8 @@ public:
         for (int i = 0, n = int(ba.size() / sizeof(T)); i < n; ++i) {
             auto child = new WatchItem;
             child->arrayIndex = i;
-            child->value = decodeItemHelper(p[i]);
+            child->value = decodeItemHelper(endian == Endian::Big ? qFromBigEndian(p[i])
+                                                                  : qFromLittleEndian(p[i]));
             child->size = childSize;
             child->type = childType;
             child->address = addrbase + i * addrstep;
@@ -276,6 +280,7 @@ public:
     DebuggerEncoding encoding;
     quint64 addrbase;
     quint64 addrstep;
+    Endian endian;
 };
 
 static bool sortByName(const WatchItem *a, const WatchItem *b)
@@ -390,6 +395,7 @@ void WatchItem::parseHelper(const GdbMi &input, bool maySort)
         decoder.childType = input["childtype"].data();
         decoder.addrbase = input["addrbase"].toAddress();
         decoder.addrstep = input["addrstep"].toAddress();
+        decoder.endian = input["endian"].data() == ">" ? Endian::Big : Endian::Little;
         decoder.encoding = DebuggerEncoding(input["arrayencoding"].data());
         decoder.decode();
     } else {

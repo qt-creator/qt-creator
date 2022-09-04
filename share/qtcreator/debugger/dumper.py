@@ -2248,6 +2248,7 @@ class DumperBase():
             self.put('addrbase="0x%x",' % addrBase)
             self.put('addrstep="0x%x",' % innerSize)
             self.put('arrayencoding="%s",' % enc)
+            self.put('endian="%s",' % self.packCode)
             if n > maxNumChild:
                 self.put('childrenelided="%s",' % n)  # FIXME: Act on that in frontend
                 n = maxNumChild
