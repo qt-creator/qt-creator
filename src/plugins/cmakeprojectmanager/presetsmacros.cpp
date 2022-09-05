@@ -12,9 +12,9 @@
 
 namespace CMakeProjectManager::Internal::CMakePresets::Macros {
 
-static void expandAllButEnv(const PresetsDetails::ConfigurePreset &configurePreset,
-                            const Utils::FilePath &sourceDirectory,
-                            QString &value)
+void expandAllButEnv(const PresetsDetails::ConfigurePreset &preset,
+                     const Utils::FilePath &sourceDirectory,
+                     QString &value)
 {
     value.replace("${dollar}", "$");
 
@@ -22,23 +22,36 @@ static void expandAllButEnv(const PresetsDetails::ConfigurePreset &configurePres
     value.replace("${sourceParentDir}", sourceDirectory.parentDir().toString());
     value.replace("${sourceDirName}", sourceDirectory.fileName());
 
-    value.replace("${presetName}", configurePreset.name);
-    if (configurePreset.generator)
-        value.replace("${generator}", configurePreset.generator.value());
+    value.replace("${presetName}", preset.name);
+    if (preset.generator)
+        value.replace("${generator}", preset.generator.value());
 }
 
-void expand(const PresetsDetails::ConfigurePreset &configurePreset,
+void expandAllButEnv(const PresetsDetails::BuildPreset &preset,
+                     const Utils::FilePath &sourceDirectory,
+                     QString &value)
+{
+    value.replace("${dollar}", "$");
+
+    value.replace("${sourceDir}", sourceDirectory.toString());
+    value.replace("${sourceParentDir}", sourceDirectory.parentDir().toString());
+    value.replace("${sourceDirName}", sourceDirectory.fileName());
+
+    value.replace("${presetName}", preset.name);
+}
+
+template<class PresetType>
+void expand(const PresetType &preset,
             Utils::Environment &env,
             const Utils::FilePath &sourceDirectory)
 {
-    const QHash<QString, QString> presetEnv = configurePreset.environment
-                                                  ? configurePreset.environment.value()
-                                                  : QHash<QString, QString>();
+    const QHash<QString, QString> presetEnv = preset.environment ? preset.environment.value()
+                                                                 : QHash<QString, QString>();
     for (auto it = presetEnv.constKeyValueBegin(); it != presetEnv.constKeyValueEnd(); ++it) {
         const QString key = it->first;
         QString value = it->second;
 
-        expandAllButEnv(configurePreset, sourceDirectory, value);
+        expandAllButEnv(preset, sourceDirectory, value);
 
         QRegularExpression envRegex(R"((\$env\{(\w+)\}))");
         for (const QRegularExpressionMatch &match : envRegex.globalMatch(value)) {
@@ -69,19 +82,19 @@ void expand(const PresetsDetails::ConfigurePreset &configurePreset,
     }
 }
 
-void expand(const PresetsDetails::ConfigurePreset &configurePreset,
+template<class PresetType>
+void expand(const PresetType &preset,
             Utils::EnvironmentItems &envItems,
             const Utils::FilePath &sourceDirectory)
 {
-    const QHash<QString, QString> presetEnv = configurePreset.environment
-                                                  ? configurePreset.environment.value()
-                                                  : QHash<QString, QString>();
+    const QHash<QString, QString> presetEnv = preset.environment ? preset.environment.value()
+                                                                 : QHash<QString, QString>();
 
     for (auto it = presetEnv.constKeyValueBegin(); it != presetEnv.constKeyValueEnd(); ++it) {
         const QString key = it->first;
         QString value = it->second;
 
-        expandAllButEnv(configurePreset, sourceDirectory, value);
+        expandAllButEnv(preset, sourceDirectory, value);
 
         QRegularExpression envRegex(R"((\$env\{(\w+)\}))");
         for (const QRegularExpressionMatch &match : envRegex.globalMatch(value)) {
@@ -108,16 +121,16 @@ void expand(const PresetsDetails::ConfigurePreset &configurePreset,
     }
 }
 
-void expand(const PresetsDetails::ConfigurePreset &configurePreset,
+template<class PresetType>
+void expand(const PresetType &preset,
             const Utils::Environment &env,
             const Utils::FilePath &sourceDirectory,
             QString &value)
 {
-    expandAllButEnv(configurePreset, sourceDirectory, value);
+    expandAllButEnv(preset, sourceDirectory, value);
 
-    const QHash<QString, QString> presetEnv = configurePreset.environment
-                                                  ? configurePreset.environment.value()
-                                                  : QHash<QString, QString>();
+    const QHash<QString, QString> presetEnv = preset.environment ? preset.environment.value()
+                                                                 : QHash<QString, QString>();
 
     QRegularExpression envRegex(R"((\$env\{(\w+)\}))");
     for (const QRegularExpressionMatch &match : envRegex.globalMatch(value))
@@ -127,5 +140,33 @@ void expand(const PresetsDetails::ConfigurePreset &configurePreset,
     for (const QRegularExpressionMatch &match : penvRegex.globalMatch(value))
         value.replace(match.captured(1), env.value(match.captured(2)));
 }
+
+// Expand for PresetsDetails::ConfigurePreset
+template void expand<PresetsDetails::ConfigurePreset>(const PresetsDetails::ConfigurePreset &preset,
+                                                      Utils::Environment &env,
+                                                      const Utils::FilePath &sourceDirectory);
+
+template void expand<PresetsDetails::ConfigurePreset>(const PresetsDetails::ConfigurePreset &preset,
+                                                      Utils::EnvironmentItems &envItems,
+                                                      const Utils::FilePath &sourceDirectory);
+
+template void expand<PresetsDetails::ConfigurePreset>(const PresetsDetails::ConfigurePreset &preset,
+                                                      const Utils::Environment &env,
+                                                      const Utils::FilePath &sourceDirectory,
+                                                      QString &value);
+
+// Expand for PresetsDetails::BuildPreset
+template void expand<PresetsDetails::BuildPreset>(const PresetsDetails::BuildPreset &preset,
+                                                  Utils::Environment &env,
+                                                  const Utils::FilePath &sourceDirectory);
+
+template void expand<PresetsDetails::BuildPreset>(const PresetsDetails::BuildPreset &preset,
+                                                  Utils::EnvironmentItems &envItems,
+                                                  const Utils::FilePath &sourceDirectory);
+
+template void expand<PresetsDetails::BuildPreset>(const PresetsDetails::BuildPreset &preset,
+                                                  const Utils::Environment &env,
+                                                  const Utils::FilePath &sourceDirectory,
+                                                  QString &value);
 
 } // namespace CMakeProjectManager::Internal::CMakePresets::Macros

@@ -38,6 +38,7 @@ private:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
     Internal::PresetsData combinePresets(Internal::PresetsData &cmakePresetsData,
                                          Internal::PresetsData &cmakeUserPresetsData);
+    void setupBuildPresets(Internal::PresetsData &presetsData);
 
     mutable Internal::CMakeProjectImporter *m_projectImporter = nullptr;
 

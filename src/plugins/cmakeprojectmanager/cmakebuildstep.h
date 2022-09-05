@@ -54,8 +54,26 @@ public:
 
     QString activeRunConfigTarget() const;
 
+    void setBuildPreset(const QString &preset);
+
+    Utils::Environment environment() const;
+    void setUserEnvironmentChanges(const Utils::EnvironmentItems &diff);
+    Utils::EnvironmentItems userEnvironmentChanges() const;
+    bool useClearEnvironment() const;
+    void setUseClearEnvironment(bool b);
+    void updateAndEmitEnvironmentChanged();
+
+    Utils::Environment baseEnvironment() const;
+    QString baseEnvironmentText() const;
+
+    void setCMakeArguments(const QStringList &cmakeArguments);
+    void setToolArguments(const QStringList &nativeToolArguments);
+
+    void setConfiguration(const QString &configuration);
+
 signals:
     void buildTargetsChanged();
+    void environmentChanged();
 
 private:
     Utils::CommandLine cmakeCommand() const;
@@ -69,6 +87,7 @@ private:
     QWidget *createConfigWidget() override;
 
     QString defaultBuildTarget() const;
+    bool isCleanStep() const;
 
     void runImpl();
     void handleProjectWasParsed(bool success);
@@ -90,6 +109,12 @@ private:
     QString m_installTarget = "install";
 
     Utils::TreeModel<Utils::TreeItem, CMakeTargetItem> m_buildTargetModel;
+
+    Utils::Environment m_environment;
+    Utils::EnvironmentItems  m_userEnvironmentChanges;
+    bool m_clearSystemEnvironment = false;
+    QString m_buildPreset;
+    std::optional<QString> m_configuration;
 };
 
 class CMakeBuildStepFactory : public ProjectExplorer::BuildStepFactory

@@ -88,52 +88,91 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
     result.version = cmakePresetsData.version;
     result.cmakeMinimimRequired = cmakePresetsData.cmakeMinimimRequired;
 
-    QHash<QString, PresetsDetails::ConfigurePreset> configurePresets;
+    auto combinePresetsInternal = [](auto &presetsHash,
+                                     auto &presets,
+                                     auto &userPresets,
+                                     const QString &presetType) {
+        // Populate the hash map with the CMakePresets
+        for (const auto &p : presets)
+            presetsHash.insert(p.name, p);
 
-    // Populate the hash map with the CMakePresets
-    for (const PresetsDetails::ConfigurePreset &p: cmakePresetsData.configurePresets)
-        configurePresets.insert(p.name, p);
-
-    auto resolveInherits =
-        [configurePresets](std::vector<PresetsDetails::ConfigurePreset> &configurePresetsList) {
-            for (PresetsDetails::ConfigurePreset &cp : configurePresetsList) {
-                if (!cp.inherits)
+        auto resolveInherits = [](const auto &presetsHash, auto &presetsList) {
+            for (auto &p : presetsList) {
+                if (!p.inherits)
                     continue;
 
-                for (const QString &inheritFromName : cp.inherits.value())
-                    if (configurePresets.contains(inheritFromName))
-                        cp.inheritFrom(configurePresets[inheritFromName]);
+                for (const QString &inheritFromName : p.inherits.value())
+                    if (presetsHash.contains(inheritFromName))
+                        p.inheritFrom(presetsHash[inheritFromName]);
             }
         };
 
-    // First resolve the CMakePresets
-    resolveInherits(cmakePresetsData.configurePresets);
+        // First resolve the CMakePresets
+        resolveInherits(presetsHash, presets);
 
-    // Add the CMakeUserPresets to the resolve hash map
-    for (const PresetsDetails::ConfigurePreset &cp : cmakeUserPresetsData.configurePresets) {
-        if (configurePresets.contains(cp.name)) {
-            TaskHub::addTask(BuildSystemTask(
-                Task::TaskType::Error,
-                tr("CMakeUserPresets.json cannot re-define the configure preset: %1").arg(cp.name),
-                "CMakeUserPresets.json"));
-            TaskHub::requestPopup();
-        } else {
-            configurePresets.insert(cp.name, cp);
+        // Add the CMakeUserPresets to the resolve hash map
+        for (const auto &p : userPresets) {
+            if (presetsHash.contains(p.name)) {
+                TaskHub::addTask(
+                    BuildSystemTask(Task::TaskType::Error,
+                                    tr("CMakeUserPresets.json cannot re-define the %1 preset: %2")
+                                        .arg(presetType)
+                                        .arg(p.name),
+                                    "CMakeUserPresets.json"));
+                TaskHub::requestPopup();
+            } else {
+                presetsHash.insert(p.name, p);
+            }
         }
-    }
 
-    // Then resolve the CMakeUserPresets
-    resolveInherits(cmakeUserPresetsData.configurePresets);
+        // Then resolve the CMakeUserPresets
+        resolveInherits(presetsHash, userPresets);
 
-    // Get both CMakePresets and CMakeUserPresets into the result
-    result.configurePresets = cmakePresetsData.configurePresets;
+        // Get both CMakePresets and CMakeUserPresets into the result
+        auto result = presets;
 
-    // std::vector doesn't have append
-    std::copy(cmakeUserPresetsData.configurePresets.begin(),
-              cmakeUserPresetsData.configurePresets.end(),
-              std::back_inserter(result.configurePresets));
+        // std::vector doesn't have append
+        std::copy(userPresets.begin(), userPresets.end(), std::back_inserter(result));
+        return result;
+    };
+
+    QHash<QString, PresetsDetails::ConfigurePreset> configurePresetsHash;
+    QHash<QString, PresetsDetails::BuildPreset> buildPresetsHash;
+
+    result.configurePresets = combinePresetsInternal(configurePresetsHash,
+                                                     cmakePresetsData.configurePresets,
+                                                     cmakeUserPresetsData.configurePresets,
+                                                     "configure");
+    result.buildPresets = combinePresetsInternal(buildPresetsHash,
+                                                 cmakePresetsData.buildPresets,
+                                                 cmakeUserPresetsData.buildPresets,
+                                                 "build");
 
     return result;
+}
+
+void CMakeProject::setupBuildPresets(Internal::PresetsData &presetsData)
+{
+    for (auto &buildPreset : presetsData.buildPresets) {
+        if (buildPreset.inheritConfigureEnvironment) {
+            if (!buildPreset.configurePreset) {
+                TaskHub::addTask(BuildSystemTask(
+                    Task::TaskType::Error,
+                    tr("Build preset %1 is missing a corresponding configure preset.")
+                        .arg(buildPreset.name)));
+                TaskHub::requestPopup();
+            }
+
+            const QString &configurePresetName = buildPreset.configurePreset.value();
+            buildPreset.environment
+                = Utils::findOrDefault(presetsData.configurePresets,
+                                       [configurePresetName](
+                                           const PresetsDetails::ConfigurePreset &configurePreset) {
+                                           return configurePresetName == configurePreset.name;
+                                       })
+                      .environment;
+        }
+    }
 }
 
 void CMakeProject::readPresets()
@@ -168,6 +207,7 @@ void CMakeProject::readPresets()
     Internal::PresetsData cmakeUserPresetsData = parsePreset(cmakeUserPresetsJson);
 
     m_presetsData = combinePresets(cmakePresetsData, cmakeUserPresetsData);
+    setupBuildPresets(m_presetsData);
 }
 
 bool CMakeProject::setupTarget(Target *t)
