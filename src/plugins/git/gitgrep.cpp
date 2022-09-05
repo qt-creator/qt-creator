@@ -168,7 +168,7 @@ public:
                     return QString(":!" + filter);
                 });
         arguments << "--" << filterArgs << exclusionArgs;
-        m_command->addFlags(VcsCommand::SilentOutput | VcsCommand::SuppressFailMessage);
+        m_command->addFlags(VcsCommand::SilentOutput);
         m_command->setProgressiveOutput(true);
         QFutureWatcher<FileSearchResultList> watcher;
         QObject::connect(&watcher,
