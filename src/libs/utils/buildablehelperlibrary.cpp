@@ -7,7 +7,6 @@
 #include "qtcprocess.h"
 
 #include <QDebug>
-#include <QDir>
 #include <QRegularExpression>
 
 #include <set>
@@ -84,10 +83,10 @@ FilePath BuildableHelperLibrary::findSystemQt(const Environment &env)
 FilePaths BuildableHelperLibrary::findQtsInEnvironment(const Environment &env, int maxCount)
 {
     FilePaths qmakeList;
-    std::set<QString> canonicalEnvPaths;
+    std::set<FilePath> canonicalEnvPaths;
     const FilePaths paths = env.path();
     for (const FilePath &path : paths) {
-        if (!canonicalEnvPaths.insert(path.toFileInfo().canonicalFilePath()).second)
+        if (!canonicalEnvPaths.insert(path.canonicalPath()).second)
             continue;
         const FilePath qmake = findQmakeInDir(path);
         if (qmake.isEmpty())
