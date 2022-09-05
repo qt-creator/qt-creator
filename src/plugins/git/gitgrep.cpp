@@ -4,30 +4,24 @@
 #include "gitgrep.h"
 #include "gitclient.h"
 
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <texteditor/findinfiles.h>
 
 #include <vcsbase/vcsbaseconstants.h>
-#include <vcsbase/vcscommand.h>
 
 #include <utils/algorithm.h>
-#include <utils/commandline.h>
+#include <utils/environment.h>
 #include <utils/fancylineedit.h>
 #include <utils/filesearch.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/runextensions.h>
-#include <utils/textfileformat.h>
 
 #include <QCheckBox>
 #include <QFuture>
-#include <QFutureWatcher>
 #include <QHBoxLayout>
 #include <QRegularExpressionValidator>
-#include <QScopedPointer>
 #include <QSettings>
 #include <QTextStream>
 
@@ -59,8 +53,8 @@ public:
         : m_parameters(parameters)
     {
         m_directory = FilePath::fromString(parameters.additionalParameters.toString());
-        m_command.reset(GitClient::instance()->createCommand(m_directory));
         m_vcsBinary = GitClient::instance()->vcsBinary();
+        m_environment = GitClient::instance()->processEnvironment();
     }
 
     struct Match
@@ -130,13 +124,12 @@ public:
         QTextStream stream(&t);
         while (!stream.atEnd() && !fi.isCanceled())
             processLine(stream.readLine(), &resultList);
-        if (!resultList.isEmpty())
+        if (!resultList.isEmpty() && !fi.isCanceled())
             fi.reportResult(resultList);
     }
 
     void operator()(FutureInterfaceType &fi)
     {
-        Core::ProgressTimer progress(fi, 5);
         QStringList arguments = {
             "-c", "color.grep.match=bold red",
             "-c", "color.grep=always",
@@ -168,19 +161,16 @@ public:
                     return QString(":!" + filter);
                 });
         arguments << "--" << filterArgs << exclusionArgs;
-        m_command->addFlags(VcsCommand::SilentOutput);
-        m_command->setProgressiveOutput(true);
-        QFutureWatcher<FileSearchResultList> watcher;
-        QObject::connect(&watcher,
-                         &QFutureWatcher<FileSearchResultList>::canceled,
-                         m_command.get(),
-                         &VcsCommand::cancel);
-        watcher.setFuture(fi.future());
-        QObject::connect(m_command.get(),
-                         &VcsCommand::stdOutText,
-                         [this, &fi](const QString &text) { read(fi, text); });
-        const CommandResult result = m_command->runCommand({m_vcsBinary, arguments}, 0);
-        switch (result.result()) {
+
+        QtcProcess process;
+        process.setEnvironment(m_environment);
+        process.setCommand({m_vcsBinary, arguments});
+        process.setWorkingDirectory(m_directory);
+        process.setStdOutCallback([this, &fi](const QString &text) { read(fi, text); });
+        process.start();
+        process.waitForFinished();
+
+        switch (process.result()) {
         case ProcessResult::TerminatedAbnormally:
         case ProcessResult::StartFailed:
         case ProcessResult::Hang:
@@ -199,7 +189,7 @@ private:
     FilePath m_directory;
     QString m_ref;
     TextEditor::FileFindParameters m_parameters;
-    std::unique_ptr<VcsCommand> m_command;
+    Environment m_environment;
 };
 
 } // namespace
