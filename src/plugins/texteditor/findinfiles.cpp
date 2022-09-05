@@ -150,7 +150,7 @@ QWidget *FindInFiles::createConfigWidget()
         m_directory->setExpectedKind(PathChooser::ExistingDirectory);
         m_directory->setPromptDialogTitle(tr("Directory to Search"));
         connect(m_directory.data(), &PathChooser::textChanged, this,
-                [this] { pathChanged(m_directory->rawFilePath()); });
+                [this] { pathChanged(m_directory->filePath()); });
         m_directory->setHistoryCompleter(QLatin1String(HistoryKey),
                                          /*restoreLastItemFromHistory=*/ true);
         if (!HistoryCompleter::historyExistsFor(QLatin1String(HistoryKey))) {
