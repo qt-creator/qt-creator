@@ -206,11 +206,9 @@ void DebuggerItem::reinitializeFromFile(const Environment &sysEnv, QString *erro
 
         // ABI: legacy: the target was removed from the output of --version with
         // https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;a=commit;h=c61b06a19a34baab66e3809c7b41b0c31009ed9f
-        auto legacyGdbTargetAbiString = extractGdbTargetAbiStringFromGdbOutput(output);
+        QString legacyGdbTargetAbiString = extractGdbTargetAbiStringFromGdbOutput(output);
         if (!legacyGdbTargetAbiString.isEmpty()) {
-            // remove trailing "
-            legacyGdbTargetAbiString =
-                    legacyGdbTargetAbiString.left(legacyGdbTargetAbiString.length() - 1);
+            legacyGdbTargetAbiString.chop(1); // remove trailing "
             m_abis.append(Abi::abiFromTargetTriplet(legacyGdbTargetAbiString));
             return;
         }
