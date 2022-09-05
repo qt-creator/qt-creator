@@ -1226,11 +1226,9 @@ void ModelManagerInterface::updateImportPaths()
     QmlLanguageBundles extendedBundles;
     for (const ProjectInfo &pInfo : qAsConst(m_projects)) {
         for (const auto &importPath : pInfo.importPaths) {
-            const QString canonicalPath = importPath.path().toFileInfo().canonicalFilePath();
-            if (!canonicalPath.isEmpty()) {
-                allImportPaths.maybeInsert(Utils::FilePath::fromString(canonicalPath),
-                                           importPath.language());
-            }
+            const FilePath canonicalPath = importPath.path().canonicalPath();
+            if (!canonicalPath.isEmpty())
+                allImportPaths.maybeInsert(canonicalPath, importPath.language());
         }
         allApplicationDirectories.append(pInfo.applicationDirectories);
     }
