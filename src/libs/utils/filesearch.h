@@ -5,6 +5,8 @@
 
 #include "utils_global.h"
 
+#include "filepath.h"
+
 #include <QDir>
 #include <QMap>
 #include <QSet>
@@ -153,7 +155,7 @@ class QTCREATOR_UTILS_EXPORT FileSearchResult
 {
 public:
     FileSearchResult() = default;
-    FileSearchResult(const QString &fileName, int lineNumber, const QString &matchingLine,
+    FileSearchResult(const FilePath &fileName, int lineNumber, const QString &matchingLine,
                      int matchStart, int matchLength,
                      const QStringList &regexpCapturedTexts)
             : fileName(fileName),
@@ -172,7 +174,7 @@ public:
     }
     bool operator!=(const FileSearchResult &o) const { return !(*this == o); }
 
-    QString fileName;
+    FilePath fileName;
     int lineNumber;
     QString matchingLine;
     int matchStart;

@@ -227,7 +227,7 @@ static void displayResult(QFutureWatcher<FileSearchResultList> *watcher,
     QList<SearchResultItem> items;
     for (const FileSearchResult &result : results) {
         SearchResultItem item;
-        item.setFilePath(Utils::FilePath::fromString(result.fileName));
+        item.setFilePath(result.fileName);
         item.setMainRange(result.lineNumber, result.matchStart, result.matchLength);
         item.setLineText(displayText(result.matchingLine));
         item.setUseTextEditorFont(true);

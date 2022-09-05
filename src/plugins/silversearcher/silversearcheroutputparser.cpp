@@ -45,7 +45,7 @@ bool SilverSearcherOutputParser::parseFilePath()
     int startIndex = ++index;
     while (index < outputSize && output[index] != '\n')
         ++index;
-    item.fileName = QString(output.data() + startIndex, index - startIndex);
+    item.fileName = Utils::FilePath::fromString(QString(output.data() + startIndex, index - startIndex));
     ++index;
     return true;
 }

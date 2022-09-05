@@ -190,7 +190,7 @@ void FileSearch::operator()(QFutureInterface<FileSearchResultList> &futureInterf
                 }
                 if (equal) {
                     const QString resultItemText = clippedText(chunk, MAX_LINE_SIZE);
-                    results << FileSearchResult(item.filePath,
+                    results << FileSearchResult(FilePath::fromString(item.filePath),
                                                 lineNr,
                                                 resultItemText,
                                                 regionPtr - chunkPtr,
@@ -268,7 +268,7 @@ void FileSearchRegExp::operator()(QFutureInterface<FileSearchResultList> &future
         int pos = 0;
         while ((match = doGuardedMatch(line, pos)).hasMatch()) {
             pos = match.capturedStart();
-            results << FileSearchResult(item.filePath, lineNr, resultItemText,
+            results << FileSearchResult(FilePath::fromString(item.filePath), lineNr, resultItemText,
                                           pos, match.capturedLength(),
                                           match.capturedTexts());
             if (match.capturedLength() == 0)

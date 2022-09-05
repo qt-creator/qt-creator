@@ -85,7 +85,7 @@ public:
         QString filePath = line.left(lineSeparator);
         if (!m_ref.isEmpty() && filePath.startsWith(m_ref))
             filePath.remove(0, m_ref.length());
-        single.fileName = m_directory.pathAppended(filePath).toString();
+        single.fileName = m_directory.pathAppended(filePath);
         const int textSeparator = line.indexOf(QChar::Null, lineSeparator + 1);
         single.lineNumber = line.mid(lineSeparator + 1, textSeparator - lineSeparator - 1).toInt();
         QString text = line.mid(textSeparator + 1);
