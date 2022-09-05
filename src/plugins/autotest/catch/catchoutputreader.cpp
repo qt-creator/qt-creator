@@ -17,6 +17,7 @@ namespace CatchXml {
     const char GroupElement[]          = "Group";
     const char TestCaseElement[]       = "TestCase";
     const char SectionElement[]        = "Section";
+    const char ExceptionElement[]      = "Exception";
     const char ExpressionElement[]     = "Expression";
     const char ExpandedElement[]       = "Expanded";
     const char BenchmarkResults[]      = "BenchmarkResults";
@@ -91,6 +92,10 @@ void CatchOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
                 if (attributes.value("failures").toInt() == 0)
                     if (!m_reportedSectionResult)
                       sendResult(ResultType::Pass);
+            } else if (m_currentTagName == CatchXml::ExceptionElement) {
+                recordTestInformation(m_xmlReader.attributes());
+                m_currentExpression = m_currentExpression.prepend(Tr::tr("Exception:"));
+                m_currentResult = ResultType::MessageFatal;
             } else if (m_currentTagName == CatchXml::ExpressionElement) {
                 recordTestInformation(m_xmlReader.attributes());
                 if (m_xmlReader.attributes().value("success").toString() == QStringLiteral("true"))
@@ -116,6 +121,8 @@ void CatchOutputReader::processOutputLine(const QByteArray &outputLineWithNewLin
             const auto text = m_xmlReader.text();
             if (m_currentTagName == CatchXml::ExpandedElement) {
                 m_currentExpression.append(text);
+            } else if (m_currentTagName == CatchXml::ExceptionElement) {
+                m_currentExpression.append('\n').append(text.trimmed());
             }
             break;
         }
@@ -246,7 +253,7 @@ void CatchOutputReader::sendResult(const ResultType result)
     } else if (result == ResultType::TestEnd) {
         catchResult->setDescription(Tr::tr("Finished executing %1 \"%2\"").arg(testOutputNodeToString().toLower())
                                     .arg(catchResult->description()));
-    } else if (result == ResultType::Benchmark) {
+    } else if (result == ResultType::Benchmark || result == ResultType::MessageFatal) {
         catchResult->setDescription(m_currentExpression);
     }
 
