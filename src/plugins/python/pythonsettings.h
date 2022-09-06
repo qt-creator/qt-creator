@@ -14,6 +14,8 @@ class PythonSettings : public QObject
     Q_OBJECT
 
 public:
+    ~PythonSettings();
+
     static void init();
 
     using Interpreter = ProjectExplorer::Interpreter;

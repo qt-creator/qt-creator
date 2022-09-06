@@ -708,6 +708,12 @@ PythonSettings::PythonSettings()
     pylspOptionsPage();
 }
 
+PythonSettings::~PythonSettings()
+{
+    ExtensionSystem::PluginManager::removeObject(this);
+    settingsInstance = nullptr;
+}
+
 void PythonSettings::init()
 {
     QTC_ASSERT(!settingsInstance, return );
