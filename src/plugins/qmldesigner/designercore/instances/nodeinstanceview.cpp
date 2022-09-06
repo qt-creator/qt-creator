@@ -1917,6 +1917,9 @@ void NodeInstanceView::endNanotrace()
 
 QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &modelNode, const ModelNode &renderNode)
 {
+    if (!modelNode.isValid())
+        return {};
+
     ModelNodePreviewImageData imageData;
 
     // We need puppet to generate the image, which needs to be asynchronous.
