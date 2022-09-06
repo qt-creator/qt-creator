@@ -118,7 +118,7 @@ QmlDesigner::PropertyName DynamicPropertiesModel::unusedProperty(const QmlDesign
 {
     QmlDesigner::PropertyName propertyName = "property";
     int i = 0;
-    if (modelNode.metaInfo().isValid()) {
+    if (modelNode.isValid() && modelNode.metaInfo().isValid()) {
         while (true) {
             const QmlDesigner::PropertyName currentPropertyName = propertyName + QString::number(i).toLatin1();
             if (!modelNode.hasProperty(currentPropertyName) && !modelNode.metaInfo().hasProperty(currentPropertyName))
@@ -545,6 +545,9 @@ void DynamicPropertiesModel::updateVariantProperty(int rowNumber)
 
 void DynamicPropertiesModel::addModelNode(const ModelNode &modelNode)
 {
+    if (!modelNode.isValid())
+        return;
+
     const QList<BindingProperty> bindingProperties = modelNode.bindingProperties();
     for (const BindingProperty &bindingProperty : bindingProperties) {
         if (bindingProperty.isDynamic())
