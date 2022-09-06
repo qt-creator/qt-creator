@@ -346,7 +346,7 @@ QStringView FilePath::pathWithoutRoot() const
 
 QStringView FilePath::root() const
 {
-    return QStringView{m_path}.first(m_rootLen);
+    return QStringView{m_path}.left(m_rootLen);
 }
 
 void FilePath::setParts(const QStringView scheme, const QStringView host, const QStringView path)
