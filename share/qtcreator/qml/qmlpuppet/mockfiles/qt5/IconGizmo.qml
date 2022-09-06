@@ -52,6 +52,17 @@ Item {
 
     signal clicked(Node node, bool multi)
 
+    function hasPoint(x, y)
+    {
+        if (!view3D || !targetNode)
+            return false;
+
+        var point =  view3D.mapToItem(iconMouseArea, x, y);
+
+        return point.x >= iconMouseArea.x && (point.x <= iconMouseArea.x + iconMouseArea.width)
+                && point.y >= iconMouseArea.y && (point.y <= iconMouseArea.y + iconMouseArea.height);
+    }
+
     onSelectedChanged: {
         if (selected)
             hasMouse = false;

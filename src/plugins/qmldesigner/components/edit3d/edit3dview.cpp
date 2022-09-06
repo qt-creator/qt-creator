@@ -290,28 +290,29 @@ void Edit3DView::customNotification(const AbstractView *view, const QString &ide
 }
 
 /**
- * @brief get model at position from puppet process
+ * @brief Get node at position from puppet process
  *
  * Response from puppet process for the model at requested position
  *
- * @param modelNode 3D model picked at the requested position, invalid node if no model exists
+ * @param modelNode Node picked at the requested position or invalid node if nothing could be picked
  */
-void Edit3DView::modelAtPosReady(const ModelNode &modelNode)
+void Edit3DView::nodeAtPosReady(const ModelNode &modelNode)
 {
-    if (m_modelAtPosReqType == ModelAtPosReqType::ContextMenu) {
+    if (m_nodeAtPosReqType == NodeAtPosReqType::ContextMenu) {
         // Make sure right-clicked item is selected. Due to a bug in puppet side right-clicking an item
         // while the context-menu is shown doesn't select the item.
         if (modelNode.isValid() && !modelNode.isSelected())
             setSelectedModelNode(modelNode);
         m_edit3DWidget->showContextMenu(m_contextMenuPos, modelNode);
-    } else if (m_modelAtPosReqType == ModelAtPosReqType::MaterialDrop) {
-        if (m_droppedMaterial.isValid() && modelNode.isValid()) {
+    } else if (m_nodeAtPosReqType == NodeAtPosReqType::MaterialDrop) {
+        if (m_droppedMaterial.isValid() && modelNode.isValid()
+                && modelNode.isSubclassOf("QtQuick3D.Model")) {
             executeInTransaction(__FUNCTION__, [&] {
                 assignMaterialTo3dModel(modelNode, m_droppedMaterial);
             });
         }
     }
-    m_modelAtPosReqType = ModelAtPosReqType::None;
+    m_nodeAtPosReqType = NodeAtPosReqType::None;
 }
 
 void Edit3DView::sendInputEvent(QInputEvent *e) const
@@ -697,18 +698,18 @@ void Edit3DView::addQuick3DImport()
 }
 
 // This method is called upon right-clicking the view to prepare for context-menu creation. The actual
-// context menu is created when modelAtPosReady() is received from puppet
+// context menu is created when nodeAtPosReady() is received from puppet
 void Edit3DView::startContextMenu(const QPoint &pos)
 {
     m_contextMenuPos = pos;
-    m_modelAtPosReqType = ModelAtPosReqType::ContextMenu;
+    m_nodeAtPosReqType = NodeAtPosReqType::ContextMenu;
 }
 
 void Edit3DView::dropMaterial(const ModelNode &matNode, const QPointF &pos)
 {
-    m_modelAtPosReqType = ModelAtPosReqType::MaterialDrop;
+    m_nodeAtPosReqType = NodeAtPosReqType::MaterialDrop;
     m_droppedMaterial = matNode;
-    QmlDesignerPlugin::instance()->viewManager().nodeInstanceView()->view3DAction({View3DActionCommand::GetModelAtPos, pos});
+    QmlDesignerPlugin::instance()->viewManager().nodeInstanceView()->view3DAction({View3DActionCommand::GetNodeAtPos, pos});
 }
 
 } // namespace QmlDesigner

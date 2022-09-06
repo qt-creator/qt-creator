@@ -148,7 +148,7 @@ private:
     void updateMaterialPreviewData(const QVector<PropertyValueContainer> &valueChanges);
     void updateRotationBlocks(const QVector<PropertyValueContainer> &valueChanges);
     void removeRotationBlocks(const QVector<qint32> &instanceIds);
-    void getModelAtPos(const QPointF &pos);
+    void getNodeAtPos(const QPointF &pos);
 
     void createAuxiliaryQuickView(const QUrl &url, RenderViewData &viewData);
 #ifdef QUICK3D_PARTICLES_MODULE

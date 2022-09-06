@@ -1705,9 +1705,9 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
     } else if (command.type() == PuppetToCreatorCommand::Import3DSupport) {
         const QVariantMap supportMap = qvariant_cast<QVariantMap>(command.data());
         emitImport3DSupportChanged(supportMap);
-    } else if (command.type() == PuppetToCreatorCommand::ModelAtPos) {
+    } else if (command.type() == PuppetToCreatorCommand::NodeAtPos) {
         ModelNode modelNode = modelNodeForInternalId(command.data().toUInt());
-        emitModelAtPosResult(modelNode);
+        emitNodeAtPosResult(modelNode);
     }
 }
 

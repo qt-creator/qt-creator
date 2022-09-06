@@ -294,7 +294,7 @@ void Qt5InformationNodeInstanceServer::handleInputEvents()
 
                 // Context menu requested
                 if (command.button() == Qt::RightButton && command.modifiers() == Qt::NoModifier)
-                    getModelAtPos(command.pos());
+                    getNodeAtPos(command.pos());
             }
         }
 
@@ -409,7 +409,7 @@ void Qt5InformationNodeInstanceServer::removeRotationBlocks(const QVector<qint32
 #endif
 }
 
-void Qt5InformationNodeInstanceServer::getModelAtPos(const QPointF &pos)
+void Qt5InformationNodeInstanceServer::getNodeAtPos(const QPointF &pos)
 {
 #ifdef QUICK3D_MODULE
     // pick a Quick3DModel at view position
@@ -421,13 +421,25 @@ void Qt5InformationNodeInstanceServer::getModelAtPos(const QPointF &pos)
     QObject *obj = qvariant_cast<QObject *>(editViewProp.read());
     QQuick3DViewport *editView = qobject_cast<QQuick3DViewport *>(obj);
 
-    QQuick3DModel *hitModel = helper->pickViewAt(editView, pos.x(), pos.y()).objectHit();
+    // Non-model nodes with icon gizmos are also valid results
+    QVariant gizmoVar;
+    QMetaObject::invokeMethod(m_editView3DData.rootItem, "gizmoAt", Qt::DirectConnection,
+                              Q_RETURN_ARG(QVariant, gizmoVar),
+                              Q_ARG(QVariant, pos.x()),
+                              Q_ARG(QVariant, pos.y()));
+    QObject *gizmoObj = qvariant_cast<QObject *>(gizmoVar);
+    QVariant instance = -1;
 
-    // filter out picks of models created dynamically or inside components
-    QQuick3DModel *resolvedPick = qobject_cast<QQuick3DModel *>(helper->resolvePick(hitModel));
+    if (gizmoObj && hasInstanceForObject(gizmoObj)) {
+        instance = instanceForObject(gizmoObj).instanceId();
+    } else {
+        QQuick3DModel *hitModel = helper->pickViewAt(editView, pos.x(), pos.y()).objectHit();
+        QObject *resolvedPick = helper->resolvePick(hitModel);
+        if (hasInstanceForObject(resolvedPick))
+            instance = instanceForObject(resolvedPick).instanceId();
+    }
 
-    QVariant instance = resolvedPick ? instanceForObject(resolvedPick).instanceId() : -1;
-    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::ModelAtPos, instance});
+    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::NodeAtPos, instance});
 #else
     Q_UNUSED(pos)
 #endif
@@ -2426,8 +2438,8 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
         break;
 #endif
 #ifdef QUICK3D_MODULE
-    case View3DActionCommand::GetModelAtPos: {
-        getModelAtPos(command.value().toPointF());
+    case View3DActionCommand::GetNodeAtPos: {
+        getNodeAtPos(command.value().toPointF());
         return;
     }
 #endif
