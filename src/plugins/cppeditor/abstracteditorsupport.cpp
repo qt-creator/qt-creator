@@ -27,7 +27,7 @@ AbstractEditorSupport::~AbstractEditorSupport()
 void AbstractEditorSupport::updateDocument()
 {
     ++m_revision;
-    m_modelmanager->updateSourceFiles(QSet<QString>() << fileName());
+    m_modelmanager->updateSourceFiles(QSet<QString>{fileName()});
 }
 
 void AbstractEditorSupport::notifyAboutUpdatedContents() const

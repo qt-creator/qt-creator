@@ -1009,7 +1009,7 @@ void ModelManagerTest::testRenameIncludes()
     QCoreApplication::processEvents();
     CPlusPlus::Snapshot snapshot = modelManager->snapshot();
     for (const QString &sourceFile : qAsConst(sourceFiles))
-        QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>() << oldHeader);
+        QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>{oldHeader});
 
     // Renaming the header
     QVERIFY(Core::FileUtils::renameFile(Utils::FilePath::fromString(oldHeader),
@@ -1021,7 +1021,7 @@ void ModelManagerTest::testRenameIncludes()
     QCoreApplication::processEvents();
     snapshot = modelManager->snapshot();
     for (const QString &sourceFile : qAsConst(sourceFiles))
-        QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>() << newHeader);
+        QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>{newHeader});
 }
 
 void ModelManagerTest::testRenameIncludesInEditor()
@@ -1067,7 +1067,7 @@ void ModelManagerTest::testRenameIncludesInEditor()
     QCoreApplication::processEvents();
     CPlusPlus::Snapshot snapshot = modelManager->snapshot();
     for (const QString &sourceFile : qAsConst(sourceFiles))
-        QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>() << headerWithPragmaOnce);
+        QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>{headerWithPragmaOnce});
 
     // Open a file in the editor
     QCOMPARE(Core::DocumentModel::openedDocuments().size(), 0);
@@ -1145,7 +1145,7 @@ void ModelManagerTest::testRenameIncludesInEditor()
     QCoreApplication::processEvents();
     snapshot = modelManager->snapshot();
     for (const QString &sourceFile : qAsConst(sourceFiles))
-        QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>() << renamedHeaderWithPragmaOnce);
+        QCOMPARE(snapshot.allIncludesForDocument(sourceFile), QSet<QString>{renamedHeaderWithPragmaOnce});
 }
 
 void ModelManagerTest::testDocumentsAndRevisions()
@@ -1156,7 +1156,7 @@ void ModelManagerTest::testDocumentsAndRevisions()
     const MyTestDataDir testDir(_("testdata_project1"));
     const QString filePath1 = testDir.file(QLatin1String("foo.h"));
     const QString filePath2 = testDir.file(QLatin1String("foo.cpp"));
-    const QSet<QString> filesToIndex = QSet<QString>() << filePath1 << filePath2;
+    const QSet<QString> filesToIndex = {filePath1,filePath2};
     QVERIFY(TestCase::parseFiles(filesToIndex));
 
     CppModelManager *modelManager = CppModelManager::instance();

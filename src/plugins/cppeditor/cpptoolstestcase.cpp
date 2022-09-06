@@ -299,7 +299,7 @@ bool TestCase::parseFiles(const QSet<QString> &filePaths)
 
 bool TestCase::parseFiles(const QString &filePath)
 {
-    return parseFiles(QSet<QString>() << filePath);
+    return parseFiles(QSet<QString>{filePath});
 }
 
 void TestCase::closeEditorAtEndOfTestCase(Core::IEditor *editor)
