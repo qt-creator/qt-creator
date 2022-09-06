@@ -215,6 +215,9 @@ Q_DECLARE_METATYPE(Utils::ProcessResult)
 
 void tst_QtcProcess::multiRead()
 {
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("This test uses /bin/sh.");
+
     QByteArray buffer;
     QtcProcess process;
 
