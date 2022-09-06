@@ -102,7 +102,7 @@ TransitionEditorSectionItem *TransitionEditorSectionItem::create(const ModelNode
     ModelNode target;
 
     if (animation.isValid()) {
-        auto model = target.model();
+        auto model = animation.model();
         const QList<ModelNode> propertyAnimations = animation.subModelNodesOfType(
             model->qtQuickPropertyAnimationMetaInfo());
 
