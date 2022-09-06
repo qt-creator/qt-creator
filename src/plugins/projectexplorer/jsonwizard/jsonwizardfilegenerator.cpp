@@ -155,10 +155,10 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::MacroExpander *exp
                                   File file = f;
 
                                   file.keepExisting = file.source.isEmpty();
-                                  file.target = projectDir / expander->expand(file.target.toString());
+                                  file.target = projectDir.resolvePath(expander->expand(file.target));
                                   file.source = file.keepExisting
                                           ? file.target
-                                          : wizardDir / expander->expand(file.source.toString());
+                                          : wizardDir.resolvePath(expander->expand(file.source));
                                   file.isBinary = JsonWizard::boolFromVariant(file.isBinary, expander);
 
                                   return file;
