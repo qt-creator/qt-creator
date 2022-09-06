@@ -24,8 +24,6 @@
 #ifdef QTCREATOR_PCH_H
 #define CALLBACK WINAPI
 #endif
-#include <QFile>
-#include <io.h>
 #include <qt_windows.h>
 #include <shlobj.h>
 #endif
@@ -1549,14 +1547,25 @@ FilePath FilePath::canonicalPath() const
     }
 
 #ifdef Q_OS_WINDOWS
-    QFile f(toString());
-    if (f.open(QIODevice::ReadOnly)) {
+    DWORD flagsAndAttrs = FILE_ATTRIBUTE_NORMAL;
+    if (isDir())
+        flagsAndAttrs |= FILE_FLAG_BACKUP_SEMANTICS;
+    const HANDLE fileHandle = CreateFile(
+                toUserOutput().toStdWString().c_str(),
+                GENERIC_READ,
+                FILE_SHARE_READ,
+                nullptr,
+                OPEN_EXISTING,
+                flagsAndAttrs,
+                nullptr);
+    if (fileHandle != INVALID_HANDLE_VALUE) {
         TCHAR normalizedPath[MAX_PATH];
         const auto length = GetFinalPathNameByHandleW(
-                    reinterpret_cast<HANDLE>(_get_osfhandle(f.handle())),
+                    fileHandle,
                     normalizedPath,
                     MAX_PATH,
                     FILE_NAME_NORMALIZED);
+        CloseHandle(fileHandle);
         if (length > 0)
             return fromUserInput(QString::fromStdWString(std::wstring(normalizedPath, length)));
     }
