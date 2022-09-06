@@ -990,7 +990,7 @@ void MaterialEditorView::renameMaterial(ModelNode &material, const QString &newN
     QTC_ASSERT(material.isValid(), return);
 
     executeInTransaction("MaterialEditorView:renameMaterial", [&] {
-        material.setIdWithRefactoring(generateIdFromName(newName));
+        material.setIdWithRefactoring(model()->generateIdFromName(newName, "material"));
 
         VariantProperty objNameProp = material.variantProperty("objectName");
         objNameProp.setValue(newName);
@@ -1019,7 +1019,7 @@ void MaterialEditorView::duplicateMaterial(const ModelNode &material)
         // set name and id
         QString newName = sourceMat.modelNode().variantProperty("objectName").value().toString() + " copy";
         duplicateMat.modelNode().variantProperty("objectName").setValue(newName);
-        duplicateMat.modelNode().setIdWithoutRefactoring(generateIdFromName(newName));
+        duplicateMat.modelNode().setIdWithoutRefactoring(model()->generateIdFromName(newName, "material"));
 
         // sync properties
         const QList<AbstractProperty> props = material.properties();
@@ -1125,40 +1125,6 @@ void MaterialEditorView::reloadQml()
     m_qmlBackEnd = nullptr;
 
     resetView();
-}
-
-// generate a unique camelCase id from a name
-QString MaterialEditorView::generateIdFromName(const QString &name)
-{
-    QString newId;
-    if (name.isEmpty()) {
-        newId = "material";
-    } else {
-        // convert to camel case
-        QStringList nameWords = name.split(" ");
-        nameWords[0] = nameWords[0].at(0).toLower() + nameWords[0].mid(1);
-        for (int i = 1; i < nameWords.size(); ++i)
-            nameWords[i] = nameWords[i].at(0).toUpper() + nameWords[i].mid(1);
-        newId = nameWords.join("");
-
-        // if id starts with a number prepend an underscore
-        if (newId.at(0).isDigit())
-            newId.prepend('_');
-    }
-
-    QRegularExpression rgx("\\d+$"); // matches a number at the end of a string
-    while (hasId(newId)) { // id exists
-        QRegularExpressionMatch match = rgx.match(newId);
-        if (match.hasMatch()) { // ends with a number, increment it
-            QString numStr = match.captured();
-            int num = numStr.toInt() + 1;
-            newId = newId.mid(0, match.capturedStart()) + QString::number(num);
-        } else {
-            newId.append('1');
-        }
-    }
-
-    return newId;
 }
 
 } // namespace QmlDesigner

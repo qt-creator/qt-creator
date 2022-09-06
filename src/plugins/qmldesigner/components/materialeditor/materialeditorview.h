@@ -114,7 +114,6 @@ private:
 
     void reloadQml();
     void highlightSupportedProperties(bool highlight = true);
-    QString generateIdFromName(const QString &name);
 
     void requestPreviewRender();
     void applyMaterialToSelectedModels(const ModelNode &material, bool add = false);
