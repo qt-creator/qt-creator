@@ -983,6 +983,10 @@ bool TextDocument::addMark(TextMark *mark)
         // Update document layout
         bool fullUpdate = !documentLayout->hasMarks;
         documentLayout->hasMarks = true;
+        if (!documentLayout->hasLocationMarker && mark->isLocationMarker()) {
+            documentLayout->hasLocationMarker = true;
+            fullUpdate = true;
+        }
         if (fullUpdate)
             documentLayout->scheduleUpdate();
         else
@@ -1017,6 +1021,11 @@ void TextDocument::removeMarkFromMarksCache(TextMark *mark)
         QMetaObject::invokeMethod(documentLayout, &QPlainTextDocumentLayout::requestUpdate,
                                   Qt::QueuedConnection);
     };
+
+    if (mark->isLocationMarker()) {
+        documentLayout->hasLocationMarker = false;
+        scheduleLayoutUpdate();
+    }
 
     if (d->m_marksCache.isEmpty()) {
         documentLayout->hasMarks = false;

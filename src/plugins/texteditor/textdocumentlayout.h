@@ -203,6 +203,7 @@ public:
 
     int lastSaveRevision = 0;
     bool hasMarks = false;
+    bool hasLocationMarker = false;
     int m_requiredWidth = 0;
 
     void setRequiredWidth(int width);

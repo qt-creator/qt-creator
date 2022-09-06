@@ -409,6 +409,16 @@ void TextMark::setSettingsPage(Id settingsPage)
     m_settingsPage = settingsPage;
 }
 
+bool TextMark::isLocationMarker() const
+{
+    return m_isLocationMarker;
+}
+
+void TextMark::setIsLocationMarker(bool newIsLocationMarker)
+{
+    m_isLocationMarker = newIsLocationMarker;
+}
+
 TextMarkRegistry::TextMarkRegistry(QObject *parent)
     : QObject(parent)
 {

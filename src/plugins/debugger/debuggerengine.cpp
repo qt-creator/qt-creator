@@ -156,6 +156,7 @@ LocationMark::LocationMark(DebuggerEngine *engine, const FilePath &file, int lin
     : TextMark(file, line, Constants::TEXT_MARK_CATEGORY_LOCATION), m_engine(engine)
 {
     setPriority(TextMark::HighPriority);
+    setIsLocationMarker(true);
     updateIcon();
 }
 

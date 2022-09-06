@@ -4930,35 +4930,46 @@ void TextEditorWidgetPrivate::paintTextMarks(QPainter &painter, const ExtraAreaP
     QList<QIcon> icons;
     auto end = marks.crend();
     int marksWithIconCount = 0;
+    QIcon overrideIcon;
     for (auto it = marks.crbegin(); it != end; ++it) {
         if ((*it)->isVisible()) {
             const QIcon icon = (*it)->icon();
             if (!icon.isNull()) {
-                if (icons.size() < 3
-                    && !Utils::contains(icons, Utils::equal(&QIcon::cacheKey, icon.cacheKey()))) {
-                    icons << icon;
+                if ((*it)->isLocationMarker()) {
+                    overrideIcon = icon;
+                } else {
+                    if (icons.size() < 3
+                            && !Utils::contains(icons, Utils::equal(&QIcon::cacheKey, icon.cacheKey()))) {
+                        icons << icon;
+                    }
+                    ++marksWithIconCount;
                 }
-                ++marksWithIconCount;
             }
         }
     }
 
-    if (icons.isEmpty())
-        return;
-
-    painter.save();
-    Utils::ExecuteOnDestruction painterRestore([&]() { painter.restore(); });
 
     int size = data.lineSpacing - 1;
     int xoffset = 0;
     int yoffset = blockBoundingRect.top();
+
+    painter.save();
+    Utils::ExecuteOnDestruction eod([&painter, size, yoffset, xoffset, overrideIcon]() {
+        if (!overrideIcon.isNull()) {
+            const QRect r(xoffset, yoffset, size, size);
+            overrideIcon.paint(&painter, r, Qt::AlignCenter);
+        }
+        painter.restore();
+    });
+
+    if (icons.isEmpty())
+        return;
 
     if (icons.size() == 1) {
         const QRect r(xoffset, yoffset, size, size);
         icons.first().paint(&painter, r, Qt::AlignCenter);
         return;
     }
-
     size = size / 2;
     for (const QIcon &icon : qAsConst(icons)) {
         const QRect r(xoffset, yoffset, size, size);

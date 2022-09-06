@@ -111,6 +111,9 @@ public:
     void setActions(const QVector<QAction *> &actions); // Takes ownership
     void setActionsProvider(const std::function<QList<QAction *>()> &actionsProvider); // Takes ownership
 
+    bool isLocationMarker() const;;
+    void setIsLocationMarker(bool newIsLocationMarker);
+
 protected:
     void setSettingsPage(Utils::Id settingsPage);
 
@@ -121,6 +124,7 @@ private:
     Utils::FilePath m_fileName;
     int m_lineNumber = 0;
     Priority m_priority = LowPriority;
+    bool m_isLocationMarker = false;
     QIcon m_icon;
     std::function<QIcon()> m_iconProvider;
     std::optional<Utils::Theme::Color> m_color;
