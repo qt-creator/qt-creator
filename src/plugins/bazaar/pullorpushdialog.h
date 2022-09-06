@@ -5,10 +5,15 @@
 
 #include <QDialog>
 
-namespace Bazaar {
-namespace Internal {
+#include <utils/pathchooser.h>
 
-namespace Ui { class PullOrPushDialog; }
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QLineEdit;
+class QRadioButton;
+QT_END_NAMESPACE
+
+namespace Bazaar::Internal {
 
 class PullOrPushDialog : public QDialog
 {
@@ -36,13 +41,19 @@ public:
     bool isUseExistingDirectoryOptionEnabled() const;
     bool isCreatePrefixOptionEnabled() const;
 
-protected:
-    void changeEvent(QEvent *e) override;
-
 private:
     Mode m_mode;
-    Ui::PullOrPushDialog *m_ui;
+
+    QRadioButton *m_defaultButton;
+    QRadioButton *m_localButton;
+    Utils::PathChooser *m_localPathChooser;
+    QLineEdit *m_urlLineEdit;
+    QCheckBox *m_rememberCheckBox;
+    QCheckBox *m_overwriteCheckBox;
+    QCheckBox *m_useExistingDirCheckBox;
+    QCheckBox *m_createPrefixCheckBox;
+    QLineEdit *m_revisionLineEdit;
+    QCheckBox *m_localCheckBox;
 };
 
-} // namespace Internal
-} // namespace Bazaar
+} // Bazaar::Internal
