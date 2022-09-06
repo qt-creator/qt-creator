@@ -6304,8 +6304,8 @@ void TextEditorWidgetPrivate::searchResultsReady(int beginIndex, int endIndex)
 {
     QVector<SearchResult> results;
     for (int index = beginIndex; index < endIndex; ++index) {
-        const QList<Utils::FileSearchResult> resultList = m_searchWatcher->resultAt(index);
-        for (Utils::FileSearchResult result : resultList) {
+        const FileSearchResultList resultList = m_searchWatcher->resultAt(index);
+        for (FileSearchResult result : resultList) {
             const QTextBlock &block = q->document()->findBlockByNumber(result.lineNumber - 1);
             const int matchStart = block.position() + result.matchStart;
             QTextCursor cursor(block);
@@ -6360,9 +6360,9 @@ void TextEditorWidgetPrivate::highlightSearchResultsInScrollBar()
     adjustScrollBarRanges();
 
     m_searchWatcher = new QFutureWatcher<FileSearchResultList>();
-    connect(m_searchWatcher, &QFutureWatcher<Utils::FileSearchResultList>::resultsReadyAt,
+    connect(m_searchWatcher, &QFutureWatcher<FileSearchResultList>::resultsReadyAt,
             this, &TextEditorWidgetPrivate::searchResultsReady);
-    connect(m_searchWatcher, &QFutureWatcher<Utils::FileSearchResultList>::finished,
+    connect(m_searchWatcher, &QFutureWatcher<FileSearchResultList>::finished,
             this, &TextEditorWidgetPrivate::searchFinished);
     m_searchWatcher->setPendingResultsLimit(10);
 

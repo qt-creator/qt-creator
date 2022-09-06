@@ -16,7 +16,7 @@ SilverSearcherOutputParser::SilverSearcherOutputParser(
     hasRegexp = !regexp.pattern().isEmpty();
 }
 
-QList<Utils::FileSearchResult> SilverSearcherOutputParser::parse()
+Utils::FileSearchResultList SilverSearcherOutputParser::parse()
 {
     while (index < outputSize - 1) {
         if (output[index] == '\n') {

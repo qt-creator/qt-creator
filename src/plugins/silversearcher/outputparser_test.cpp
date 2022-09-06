@@ -51,7 +51,7 @@ void OutputParserTest::test()
     QFETCH(QString, parserOutput);
     QFETCH(FileSearchResultList, results);
     SilverSearcher::SilverSearcherOutputParser ssop(parserOutput);
-    const QList<Utils::FileSearchResult> items = ssop.parse();
+    const FileSearchResultList items = ssop.parse();
     QCOMPARE(items, results);
 }
 

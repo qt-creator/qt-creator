@@ -113,7 +113,6 @@ void runSilverSeacher(FutureInterfaceType &fi, FileFindParameters parameters)
     process.setCommand({"ag", arguments});
     process.start();
     if (process.waitForFinished()) {
-        typedef QList<FileSearchResult> FileSearchResultList;
         QRegularExpression regexp;
         if (parameters.flags & FindRegularExpression) {
             const QRegularExpression::PatternOptions patternOptions

@@ -16,7 +16,7 @@ class SilverSearcherOutputParser
 public:
     SilverSearcherOutputParser(const QString &output, const QRegularExpression &regexp = {});
 
-    QList<Utils::FileSearchResult> parse();
+    Utils::FileSearchResultList parse();
 
 private:
     int parseMatches();
@@ -32,7 +32,7 @@ private:
     int outputSize = 0;
     int index = 0;
     Utils::FileSearchResult item;
-    QList<Utils::FileSearchResult> items;
+    Utils::FileSearchResultList items;
 };
 
 } // namespace SilverSearcher
