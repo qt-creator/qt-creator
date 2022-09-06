@@ -84,7 +84,7 @@ void OpenSquishSuitesDialog::onDirectoryChanged()
 {
     m_suitesListWidget->clear();
     m_buttonBox->button(QDialogButtonBox::Open)->setEnabled(false);
-    QDir baseDir(m_directoryLineEdit->path());
+    QDir baseDir(m_directoryLineEdit->filePath().toString());
     if (!baseDir.exists()) {
         return;
     }
@@ -134,7 +134,7 @@ void OpenSquishSuitesDialog::deselectAll()
 void OpenSquishSuitesDialog::setChosenSuites()
 {
     const int count = m_suitesListWidget->count();
-    const QDir baseDir(m_directoryLineEdit->path());
+    const QDir baseDir(m_directoryLineEdit->filePath().toString());
     for (int row = 0; row < count; ++row) {
         QListWidgetItem *item = m_suitesListWidget->item(row);
         if (item->checkState() == Qt::Checked)
