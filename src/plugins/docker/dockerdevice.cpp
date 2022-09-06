@@ -333,8 +333,10 @@ DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &dat
         proc->setTerminalMode(TerminalMode::On);
 
         QObject::connect(proc, &QtcProcess::done, [proc] {
-            if (proc->error() != QProcess::UnknownError && MessageManager::instance())
-                MessageManager::writeDisrupting(Tr::tr("Error starting remote shell."));
+            if (proc->error() != QProcess::UnknownError && MessageManager::instance()) {
+                MessageManager::writeDisrupting(
+                    Tr::tr("Error starting remote shell: %1").arg(proc->errorString()));
+            }
             proc->deleteLater();
         });
 
@@ -492,9 +494,6 @@ void DockerDevicePrivate::startContainer()
 
 void DockerDevicePrivate::updateContainerAccess()
 {
-    if (!m_container.isEmpty())
-        return;
-
     if (DockerApi::isDockerDaemonAvailable(false).value_or(false) == false)
         return;
 
