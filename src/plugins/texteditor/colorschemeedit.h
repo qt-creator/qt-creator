@@ -9,6 +9,7 @@
 #include <QDialog>
 
 QT_BEGIN_NAMESPACE
+class QAbstractButton;
 class QCheckBox;
 class QComboBox;
 class QDoubleSpinBox;
@@ -80,10 +81,10 @@ private:
     QWidget *m_fontProperties;
     QLabel *m_foregroundLabel;
     QToolButton *m_foregroundToolButton;
-    QToolButton *m_eraseForegroundToolButton;
+    QAbstractButton *m_eraseForegroundToolButton;
     QLabel *m_backgroundLabel;
     QToolButton *m_backgroundToolButton;
-    QToolButton *m_eraseBackgroundToolButton;
+    QAbstractButton *m_eraseBackgroundToolButton;
     QLabel *m_relativeForegroundHeadline;
     QLabel *m_foregroundLightnessLabel;
     QDoubleSpinBox *m_foregroundLightnessSpinBox;
@@ -100,7 +101,7 @@ private:
     QLabel *m_underlineHeadline;
     QLabel *m_underlineLabel;
     QToolButton *m_underlineColorToolButton;
-    QToolButton *m_eraseUnderlineColorToolButton;
+    QAbstractButton *m_eraseUnderlineColorToolButton;
     QComboBox *m_underlineComboBox;
 
 };

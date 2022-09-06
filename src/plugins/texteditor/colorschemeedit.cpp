@@ -5,6 +5,7 @@
 
 #include <utils/layoutbuilder.h>
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 
 #include <QAbstractListModel>
 #include <QApplication>
@@ -16,6 +17,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QListView>
+#include <QPushButton>
 #include <QSpacerItem>
 #include <QToolButton>
 
@@ -135,11 +137,10 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
         return tb;
     };
 
-    auto eraseButton = [] (const QString &toolTip) {
-        auto tb = new QToolButton;
-        tb->setText("x");
+    auto unsetButton = [](const QString &toolTip) {
+        auto tb = new QPushButton;
         tb->setToolTip(toolTip);
-        tb->setArrowType(Qt::LeftArrow);
+        tb->setText(tr("Unset"));
         return tb;
     };
 
@@ -176,10 +177,10 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
 
     m_foregroundLabel = new QLabel(tr("Foreground:"));
     m_foregroundToolButton = colorButton();
-    m_eraseForegroundToolButton = eraseButton(tr("Erase foreground."));
+    m_eraseForegroundToolButton = unsetButton(tr("Unset foreground."));
     m_backgroundLabel = new QLabel(tr("Background:"));
     m_backgroundToolButton = colorButton();
-    m_eraseBackgroundToolButton = eraseButton(tr("Erase background."));
+    m_eraseBackgroundToolButton = unsetButton(tr("Unset background."));
 
     m_relativeForegroundHeadline = headlineLabel(tr("Relative Foreground"));
     m_foregroundSaturationLabel = new QLabel(tr("Saturation:"));
@@ -200,7 +201,7 @@ ColorSchemeEdit::ColorSchemeEdit(QWidget *parent) :
     m_underlineHeadline = headlineLabel(tr("Underline"));
     m_underlineLabel = new QLabel(tr("Color:"));
     m_underlineColorToolButton = colorButton();
-    m_eraseUnderlineColorToolButton = eraseButton(tr("Erase background."));
+    m_eraseUnderlineColorToolButton = unsetButton(tr("Unset background."));
     m_underlineComboBox = new QComboBox;
 
     m_itemList->setModel(m_formatsModel);
