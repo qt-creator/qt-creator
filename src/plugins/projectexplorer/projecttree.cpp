@@ -298,7 +298,7 @@ void ProjectTree::updateFileWarning(Core::IDocument *document, const QString &te
     }
     if (!infoBar->canInfoBeAdded(infoId))
         return;
-    const FilePath fileName = document->filePath();
+    const FilePath filePath = document->filePath();
     const QList<Project *> projects = SessionManager::projects();
     if (projects.isEmpty())
         return;
@@ -306,12 +306,14 @@ void ProjectTree::updateFileWarning(Core::IDocument *document, const QString &te
         FilePath projectDir = project->projectDirectory();
         if (projectDir.isEmpty())
             continue;
-        if (fileName.isChildOf(projectDir))
+        if (filePath.isChildOf(projectDir))
+            return;
+        if (filePath.canonicalPath().isChildOf(projectDir.canonicalPath()))
             return;
         // External file. Test if it under the same VCS
         QString topLevel;
         if (Core::VcsManager::findVersionControlForDirectory(projectDir, &topLevel)
-                && fileName.isChildOf(FilePath::fromString(topLevel))) {
+                && filePath.isChildOf(FilePath::fromString(topLevel))) {
             return;
         }
     }
