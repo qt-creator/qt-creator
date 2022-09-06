@@ -74,6 +74,7 @@ public:
     void evaluateCompilerFlags();
     bool isClStyle() const;
     void setClStyle(bool clStyle) { m_clStyle = clStyle; }
+    void setNativeMode() { m_nativeMode = true; }
 
     const ProjectPart &projectPart() const { return m_projectPart; }
 
@@ -106,6 +107,7 @@ private:
     QStringList m_options;
     QString m_explicitTarget;
     bool m_clStyle = false;
+    bool m_nativeMode = false;
 };
 
 } // namespace CppEditor

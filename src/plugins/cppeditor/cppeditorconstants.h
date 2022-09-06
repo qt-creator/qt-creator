@@ -59,6 +59,8 @@ const char QUICK_FIX_SETTING_CUSTOM_TEMPLATE_ASSIGNMENT[] = "Assignment";
 const char M_TOOLS_CPP[]              = "CppTools.Tools.Menu";
 const char SWITCH_HEADER_SOURCE[]     = "CppTools.SwitchHeaderSource";
 const char OPEN_HEADER_SOURCE_IN_NEXT_SPLIT[] = "CppTools.OpenHeaderSourceInNextSplit";
+const char SHOW_PREPROCESSED_FILE[]     = "CppTools.ShowPreprocessedFile";
+const char SHOW_PREPROCESSED_FILE_SPLIT[]     = "CppTools.ShowPreprocessedFileSplit";
 const char TASK_INDEX[]               = "CppTools.Task.Index";
 const char TASK_SEARCH[]              = "CppTools.Task.Search";
 const char C_SOURCE_MIMETYPE[] = "text/x-csrc";
@@ -80,6 +82,7 @@ const char CPPEDITOR_SORT_EDITOR_DOCUMENT_OUTLINE[] = "SortedMethodOverview";
 const char CPPEDITOR_MODEL_MANAGER_PCH_USAGE[] = "PCHUsage";
 const char CPPEDITOR_INTERPRET_AMBIGIUOUS_HEADERS_AS_C_HEADERS[]
     = "InterpretAmbiguousHeadersAsCHeaders";
+const char CPPEDITOR_USE_BUILTIN_PREPROCESSOR[] = "UseBuiltinPreprocessor";
 const char CPPEDITOR_SKIP_INDEXING_BIG_FILES[] = "SkipIndexingBigFiles";
 const char CPPEDITOR_INDEXER_FILE_SIZE_LIMIT[] = "IndexerFileSizeLimit";
 

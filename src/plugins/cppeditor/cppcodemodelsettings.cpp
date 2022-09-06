@@ -45,6 +45,9 @@ static QString interpretAmbiguousHeadersAsCHeadersKey()
 static QString skipIndexingBigFilesKey()
 { return QLatin1String(Constants::CPPEDITOR_SKIP_INDEXING_BIG_FILES); }
 
+static QString useBuiltinPreprocessorKey()
+{ return QLatin1String(Constants::CPPEDITOR_USE_BUILTIN_PREPROCESSOR); }
+
 static QString indexerFileSizeLimitKey()
 { return QLatin1String(Constants::CPPEDITOR_INDEXER_FILE_SIZE_LIMIT); }
 
@@ -87,6 +90,8 @@ void CppCodeModelSettings::fromSettings(QSettings *s)
     const QVariant skipIndexingBigFiles = s->value(skipIndexingBigFilesKey(), true);
     setSkipIndexingBigFiles(skipIndexingBigFiles.toBool());
 
+    setUseBuiltinPreprocessor(s->value(useBuiltinPreprocessorKey(), true).toBool());
+
     const QVariant indexerFileSizeLimit = s->value(indexerFileSizeLimitKey(), 5);
     setIndexerFileSizeLimitInMb(indexerFileSizeLimit.toInt());
 
@@ -104,6 +109,7 @@ void CppCodeModelSettings::toSettings(QSettings *s)
 
     s->setValue(interpretAmbiguousHeadersAsCHeadersKey(), interpretAmbigiousHeadersAsCHeaders());
     s->setValue(skipIndexingBigFilesKey(), skipIndexingBigFiles());
+    s->setValue(useBuiltinPreprocessorKey(), useBuiltinPreprocessor());
     s->setValue(indexerFileSizeLimitKey(), indexerFileSizeLimitInMb());
 
     s->endGroup();

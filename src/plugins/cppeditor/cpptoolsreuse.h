@@ -65,7 +65,8 @@ enum class CacheUsage { ReadWrite, ReadOnly };
 
 QString CPPEDITOR_EXPORT correspondingHeaderOrSource(const QString &fileName, bool *wasHeader = nullptr,
                                                     CacheUsage cacheUsage = CacheUsage::ReadWrite);
-void CPPEDITOR_EXPORT openEditor(const Utils::FilePath &filePath, bool inNextSplit);
+void CPPEDITOR_EXPORT openEditor(const Utils::FilePath &filePath, bool inNextSplit,
+                                 Utils::Id editorId = {});
 class CppCodeModelSettings;
 CppCodeModelSettings CPPEDITOR_EXPORT *codeModelSettings();
 

@@ -50,6 +50,7 @@ private:
     CppCodeModelSettings *m_settings = nullptr;
     QCheckBox *m_interpretAmbiguousHeadersAsCHeaders;
     QCheckBox *m_ignorePchCheckBox;
+    QCheckBox *m_useBuiltinPreprocessorCheckBox;
     QCheckBox *m_skipIndexingBigFilesCheckBox;
     QSpinBox *m_bigFilesLimitSpinBox;
 };
@@ -74,10 +75,17 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(CppCodeModelSettings *s)
         "completion and semantic highlighting will process the precompiled header before "
         "processing any file.</p></body></html>"));
 
+    m_useBuiltinPreprocessorCheckBox = new QCheckBox(tr("Use built-in preprocessor to show "
+                                                        "pre-processed files"));
+    m_useBuiltinPreprocessorCheckBox->setToolTip
+            (tr("Uncheck this to invoke the actual compiler "
+                "to show a pre-processed source file in the editor."));
+
     m_interpretAmbiguousHeadersAsCHeaders->setChecked(
                 m_settings->interpretAmbigiousHeadersAsCHeaders());
 
     m_ignorePchCheckBox->setChecked(m_settings->pchUsage() == CppCodeModelSettings::PchUse_None);
+    m_useBuiltinPreprocessorCheckBox->setChecked(m_settings->useBuiltinPreprocessor());
 
     using namespace Utils::Layouting;
 
@@ -87,6 +95,7 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(CppCodeModelSettings *s)
             Column {
                 m_interpretAmbiguousHeadersAsCHeaders,
                 m_ignorePchCheckBox,
+                m_useBuiltinPreprocessorCheckBox,
                 Row { m_skipIndexingBigFilesCheckBox, m_bigFilesLimitSpinBox, st },
             }
         },
@@ -115,6 +124,11 @@ bool CppCodeModelSettingsWidget::applyGeneralWidgetsToSettings() const
     const bool newSkipIndexingBigFiles = m_skipIndexingBigFilesCheckBox->isChecked();
     if (m_settings->skipIndexingBigFiles() != newSkipIndexingBigFiles) {
         m_settings->setSkipIndexingBigFiles(newSkipIndexingBigFiles);
+        settingsChanged = true;
+    }
+    const bool newUseBuiltinPreprocessor = m_useBuiltinPreprocessorCheckBox->isChecked();
+    if (m_settings->useBuiltinPreprocessor() != newUseBuiltinPreprocessor) {
+        m_settings->setUseBuiltinPreprocessor(newUseBuiltinPreprocessor);
         settingsChanged = true;
     }
     const int newFileSizeLimit = m_bigFilesLimitSpinBox->value();

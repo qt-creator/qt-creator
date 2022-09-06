@@ -177,6 +177,7 @@ public:
                              Backend backend = Backend::Best);
     static void findUsages(const CursorInEditor &data, Backend backend = Backend::Best);
     static void switchHeaderSource(bool inNextSplit, Backend backend = Backend::Best);
+    static void showPreprocessedFile(bool inNextSplit);
 
     static Core::ILocatorFilter *createAuxiliaryCurrentDocumentFilter();
 

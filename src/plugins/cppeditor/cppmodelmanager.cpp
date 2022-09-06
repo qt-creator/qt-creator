@@ -4,18 +4,21 @@
 #include "cppmodelmanager.h"
 
 #include "abstracteditorsupport.h"
-#include "cppoutlinemodel.h"
 #include "baseeditordocumentprocessor.h"
 #include "builtinindexingsupport.h"
+#include "compileroptionsbuilder.h"
 #include "cppcodemodelinspectordumper.h"
+#include "cppcodemodelsettings.h"
 #include "cppcurrentdocumentfilter.h"
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cppfindreferences.h"
 #include "cppincludesfilter.h"
 #include "cppindexingsupport.h"
 #include "cpplocatordata.h"
 #include "cpplocatorfilter.h"
 #include "cppbuiltinmodelmanagersupport.h"
+#include "cppprojectfile.h"
 #include "cppsourceprocessor.h"
 #include "cpptoolsjsextension.h"
 #include "cpptoolsreuse.h"
@@ -23,10 +26,12 @@
 #include "symbolfinder.h"
 #include "symbolsfindfilter.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/jsexpander.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 #include <cplusplus/ASTPath.h>
@@ -34,13 +39,17 @@
 #include <cplusplus/TypeOfExpression.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacro.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
+#include <projectexplorer/target.h>
 
 #include <texteditor/textdocument.h>
 
@@ -48,6 +57,9 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
+#include <utils/savefile.h>
+#include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -318,6 +330,127 @@ void CppModelManager::switchHeaderSource(bool inNextSplit, Backend backend)
     QTC_ASSERT(currentDocument, return);
     instance()->modelManagerSupport(backend)->switchHeaderSource(currentDocument->filePath(),
                                                                  inNextSplit);
+}
+
+void CppModelManager::showPreprocessedFile(bool inNextSplit)
+{
+    const Core::IDocument *doc = Core::EditorManager::currentDocument();
+    QTC_ASSERT(doc, return);
+
+    static const auto showError = [](const QString &reason) {
+        Core::MessageManager::writeFlashing(Tr::tr("Cannot show preprocessed file: %1")
+                                            .arg(reason));
+    };
+    static const auto showFallbackWarning = [](const QString &reason) {
+        Core::MessageManager::writeSilently(Tr::tr("%1, falling back to built-in preprocessor")
+                                            .arg(reason));
+    };
+    static const auto saveAndOpen = [](const FilePath &filePath, const QByteArray &contents,
+                                       bool inNextSplit) {
+        SaveFile f(filePath.toString());
+        if (!f.open()) {
+            showError(Tr::tr("Failed to open output file \"%1\"").arg(filePath.toUserOutput()));
+            return;
+        }
+        f.write(contents);
+        if (!f.commit()) {
+            showError(Tr::tr("Failed to write output file \"%1\"").arg(filePath.toUserOutput()));
+            return;
+        }
+        f.close();
+        openEditor(filePath, inNextSplit, Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
+    };
+
+    const FilePath &filePath = doc->filePath();
+    const QString outFileName = filePath.completeBaseName() + "_preprocessed." + filePath.suffix();
+    const auto outFilePath = FilePath::fromString(
+                TemporaryDirectory::masterTemporaryDirectory()->filePath(outFileName));
+    const auto useBuiltinPreprocessor = [filePath, outFilePath, inNextSplit,
+                                         contents = doc->contents()] {
+        const Document::Ptr preprocessedDoc = instance()->snapshot()
+                .preprocessedDocument(contents, filePath);
+        QByteArray content = R"(/* Created using Qt Creator's built-in preprocessor. */
+/* See Tools -> Debug Qt Creator -> Inspect C++ Code Model for the parameters used.
+ * Adapt the respective setting in Edit -> Preferences -> C++ -> Code Model to invoke
+ * the actual compiler instead.
+ */
+)";
+        saveAndOpen(outFilePath, content.append(preprocessedDoc->utf8Source()), inNextSplit);
+    };
+
+    if (codeModelSettings()->useBuiltinPreprocessor()) {
+        useBuiltinPreprocessor();
+        return;
+    }
+
+    const Project * const project = ProjectTree::currentProject();
+    if (!project || !project->activeTarget()
+            || !project->activeTarget()->activeBuildConfiguration()) {
+        showFallbackWarning(Tr::tr("Could not determine which compiler to invoke"));
+        useBuiltinPreprocessor();
+        return;
+    }
+
+    const ToolChain * tc = nullptr;
+    const ProjectFile classifier(filePath.toString(), ProjectFile::classify(filePath.toString()));
+    if (classifier.isC()) {
+        tc = ToolChainKitAspect::cToolChain(project->activeTarget()->kit());
+    } else if (classifier.isCxx() || classifier.isHeader()) {
+        tc = ToolChainKitAspect::cxxToolChain(project->activeTarget()->kit());
+    } else {
+        showFallbackWarning(Tr::tr("Could not determine which compiler to invoke"));
+        useBuiltinPreprocessor();
+        return;
+    }
+
+    const bool isGcc = dynamic_cast<const GccToolChain *>(tc);
+    const bool isMsvc = !isGcc
+            && (tc->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
+                || tc->typeId() == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID);
+    if (!isGcc && !isMsvc) {
+        showFallbackWarning(Tr::tr("Could not determine compiler command line"));
+        useBuiltinPreprocessor();
+        return;
+    }
+
+    const ProjectPart::ConstPtr projectPart = Utils::findOrDefault(
+                instance()->projectPart(filePath), [](const ProjectPart::ConstPtr &pp) {
+        return pp->belongsToProject(ProjectTree::currentProject());
+    });
+    if (!projectPart) {
+        showFallbackWarning(Tr::tr("Could not determine compiler command line"));
+        useBuiltinPreprocessor();
+        return;
+    }
+
+    CompilerOptionsBuilder optionsBuilder(*projectPart);
+    optionsBuilder.setNativeMode();
+    optionsBuilder.setClStyle(isMsvc);
+    optionsBuilder.build(classifier.kind, UsePrecompiledHeaders::No);
+    QStringList compilerArgs = optionsBuilder.options();
+    if (isGcc)
+        compilerArgs.append({"-E", "-o", outFilePath.toUserOutput()});
+    else
+        compilerArgs.append("/E");
+    compilerArgs.append(filePath.toUserOutput());
+    const CommandLine compilerCommandLine(tc->compilerCommand(), compilerArgs);
+    const auto compiler = new QtcProcess(instance());
+    compiler->setCommand(compilerCommandLine);
+    compiler->setEnvironment(project->activeTarget()->activeBuildConfiguration()->environment());
+    connect(compiler, &QtcProcess::done, instance(), [compiler, outFilePath, inNextSplit,
+                                                      useBuiltinPreprocessor, isMsvc] {
+        compiler->deleteLater();
+        if (compiler->result() != ProcessResult::FinishedWithSuccess) {
+            showFallbackWarning("Compiler failed to run");
+            useBuiltinPreprocessor();
+            return;
+        }
+        if (isMsvc)
+            saveAndOpen(outFilePath, compiler->readAllStandardOutput(), inNextSplit);
+        else
+            openEditor(outFilePath, inNextSplit, Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);
+    });
+    compiler->start();
 }
 
 int argumentPositionOf(const AST *last, const CallAST *callAst)

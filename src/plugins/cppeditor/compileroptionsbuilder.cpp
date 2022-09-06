@@ -161,6 +161,9 @@ void CompilerOptionsBuilder::add(const QStringList &args, bool gccOnlyOptions)
 
 void CompilerOptionsBuilder::addSyntaxOnly()
 {
+    if (m_nativeMode)
+        return;
+
     isClStyle() ? add("/Zs") : add("-fsyntax-only");
 }
 
@@ -232,6 +235,11 @@ void CompilerOptionsBuilder::addWordWidth()
 
 void CompilerOptionsBuilder::addTargetTriple()
 {
+    if (m_nativeMode && m_projectPart.toolchainType != Constants::CLANG_TOOLCHAIN_TYPEID
+            && m_projectPart.toolchainType != Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
+        return;
+    }
+
     const QString target = m_explicitTarget.isEmpty() || m_projectPart.targetTripleIsAuthoritative
             ? m_projectPart.toolChainTargetTriple : m_explicitTarget;
 
@@ -242,6 +250,9 @@ void CompilerOptionsBuilder::addTargetTriple()
 
 void CompilerOptionsBuilder::addExtraCodeModelFlags()
 {
+    if (m_nativeMode)
+        return;
+
     // extraCodeModelFlags keep build architecture for cross-compilation.
     // In case of iOS build target triple has aarch64 archtecture set which makes
     // code model fail with CXError_Failure. To fix that we explicitly provide architecture.
@@ -272,6 +283,11 @@ void CompilerOptionsBuilder::addMsvcExceptions()
 
 void CompilerOptionsBuilder::enableExceptions()
 {
+    if (m_nativeMode)
+        return;
+
+    // FIXME: Shouldn't this be dependent on the build system settings?
+
     // With "--driver-mode=cl" exceptions are disabled (clang 8).
     // This is most likely due to incomplete exception support of clang.
     // However, as we need exception support only in the frontend,
@@ -466,9 +482,14 @@ void CompilerOptionsBuilder::addLanguageVersionAndExtensions()
         }
 
         if (!option.isEmpty()) {
+            if (m_nativeMode)
+                option.replace("-clang:-std=", "/std:").replace("c++2b", "c++latest");
             add(option);
             return;
         }
+
+        if (m_nativeMode)
+            return;
 
         // Continue in case no cl-style option could be chosen.
     }
@@ -616,6 +637,9 @@ static QStringList languageFeatureMacros()
 
 void CompilerOptionsBuilder::undefineCppLanguageFeatureMacrosForMsvc2015()
 {
+    if (m_nativeMode)
+        return;
+
     if (m_projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
             && m_projectPart.isMsvc2015Toolchain) {
         // Undefine the language feature macros that are pre-defined in clang-cl,
@@ -879,25 +903,27 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             containsDriverMode = true;
         }
 
-        // Transfrom the "/" starting commands into "-" commands, which if
-        // unknown will not cause clang to fail because it thinks
-        // it's a missing file.
-        if (theOption.startsWith("/") &&
-            (toolChain == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID ||
-             toolChain == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID)) {
-            theOption[0] = '-';
-        }
+        if (!m_nativeMode) {
+            // Transform the "/" starting commands into "-" commands, which if
+            // unknown will not cause clang to fail because it thinks
+            // it's a missing file.
+            if (theOption.startsWith("/") &&
+                    (toolChain == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID ||
+                     toolChain == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID)) {
+                theOption[0] = '-';
+            }
 
-        if (toolChain == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID ||
-            toolChain == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
-            theOption.replace("-std:c++latest", "-clang:-std=c++2b");
-            theOption.replace("-std:c++", "-clang:-std=c++");
+            if (toolChain == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID ||
+                    toolChain == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
+                theOption.replace("-std:c++latest", "-clang:-std=c++2b");
+                theOption.replace("-std:c++", "-clang:-std=c++");
+            }
         }
 
         m_compilerFlags.flags.append(theOption);
     }
 
-    if (!containsDriverMode
+    if (!m_nativeMode && !containsDriverMode
         && (toolChain == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
             || toolChain == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID)) {
         m_clStyle = true;

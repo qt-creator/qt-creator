@@ -607,11 +607,11 @@ ProjectExplorer::Project *projectForProjectInfo(const ProjectInfo &info)
     return ProjectExplorer::SessionManager::projectWithProjectFilePath(info.projectFilePath());
 }
 
-void openEditor(const Utils::FilePath &filePath, bool inNextSplit)
+void openEditor(const Utils::FilePath &filePath, bool inNextSplit, Utils::Id editorId)
 {
     using Core::EditorManager;
-    EditorManager::openEditor(filePath, {}, inNextSplit ? EditorManager::OpenInOtherSplit
-                                                        : EditorManager::NoFlags);
+    EditorManager::openEditor(filePath, editorId, inNextSplit ? EditorManager::OpenInOtherSplit
+                                                              : EditorManager::NoFlags);
 }
 
 namespace Internal {

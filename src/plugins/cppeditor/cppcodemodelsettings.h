@@ -48,6 +48,9 @@ public:
     bool skipIndexingBigFiles() const;
     void setSkipIndexingBigFiles(bool yesno);
 
+    bool useBuiltinPreprocessor() const { return m_useBuiltinPreprocessor; }
+    void setUseBuiltinPreprocessor(bool useBuiltin) { m_useBuiltinPreprocessor = useBuiltin; }
+
     int indexerFileSizeLimitInMb() const;
     void setIndexerFileSizeLimitInMb(int sizeInMB);
 
@@ -62,6 +65,7 @@ private:
     PCHUsage m_pchUsage = PchUse_BuildSystem;
     bool m_interpretAmbigiousHeadersAsCHeaders = false;
     bool m_skipIndexingBigFiles = true;
+    bool m_useBuiltinPreprocessor = true;
     int m_indexerFileSizeLimitInMB = 5;
     bool m_enableLowerClazyLevels = true; // For UI behavior only
     bool m_categorizeFindReferences = false; // Ephemeral!
