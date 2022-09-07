@@ -1,0 +1,29 @@
+
+FROM ubuntu:latest
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y gpg wget software-properties-common
+
+RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null \
+    | gpg --dearmor - \
+    | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null
+
+RUN apt-add-repository -y 'deb https://apt.kitware.com/ubuntu/ focal main'
+
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    git \
+    openssh-client \
+    sudo \
+    vim \
+    linux-tools-common \
+    valgrind \
+    x11-apps \
+    python3 \
+    python3-pip \
+ && apt-get clean
+
+RUN pip install PySide6
+
+# && rm -rf /var/lib/apt/lists/*
