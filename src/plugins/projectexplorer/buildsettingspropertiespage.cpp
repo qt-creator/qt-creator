@@ -122,7 +122,7 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
 void BuildSettingsWidget::addSubWidget(NamedWidget *widget)
 {
     widget->setParent(this);
-    widget->setContentsMargins(0, 10, 0, 0);
+    widget->setContentsMargins(0, 2, 0, 0);
 
     auto label = new QLabel(this);
     label->setText(widget->displayName());
@@ -131,7 +131,7 @@ void BuildSettingsWidget::addSubWidget(NamedWidget *widget)
     f.setPointSizeF(f.pointSizeF() * 1.2);
     label->setFont(f);
 
-    label->setContentsMargins(0, 10, 0, 0);
+    label->setContentsMargins(0, 18, 0, 0);
 
     layout()->addWidget(label);
     layout()->addWidget(widget);

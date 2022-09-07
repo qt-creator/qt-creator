@@ -473,14 +473,14 @@ void RunSettingsWidget::addRunControlWidgets()
 
 void RunSettingsWidget::addSubWidget(QWidget *widget, QLabel *label)
 {
-    widget->setContentsMargins(0, 10, 0, 0);
+    widget->setContentsMargins(0, 2, 0, 0);
 
     QFont f = label->font();
     f.setBold(true);
     f.setPointSizeF(f.pointSizeF() * 1.2);
     label->setFont(f);
 
-    label->setContentsMargins(0, 10, 0, 0);
+    label->setContentsMargins(0, 18, 0, 0);
 
     QGridLayout *l = m_gridLayout;
     l->addWidget(label, l->rowCount(), 0, 1, -1);
