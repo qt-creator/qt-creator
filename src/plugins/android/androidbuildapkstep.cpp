@@ -320,11 +320,10 @@ QWidget *AndroidBuildApkWidget::createAdditionalLibrariesGroup()
     libsView->setToolTip(tr("List of extra libraries to include in Android package and load on startup."));
     libsView->setModel(libsModel);
 
-    auto addLibButton = new QToolButton;
+    auto addLibButton = new QPushButton;
     addLibButton->setText(tr("Add..."));
     addLibButton->setToolTip(tr("Select library to include in package."));
     addLibButton->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-    addLibButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
     connect(addLibButton, &QAbstractButton::clicked, this, [this, libsModel] {
         QStringList fileNames = QFileDialog::getOpenFileNames(this,
                                                               tr("Select additional libraries"),
@@ -334,7 +333,7 @@ QWidget *AndroidBuildApkWidget::createAdditionalLibrariesGroup()
             libsModel->addEntries(fileNames);
     });
 
-    auto removeLibButton = new QToolButton;
+    auto removeLibButton = new QPushButton;
     removeLibButton->setText(tr("Remove"));
     removeLibButton->setToolTip(tr("Remove currently selected library from list."));
     connect(removeLibButton, &QAbstractButton::clicked, this, [libsModel, libsView] {
