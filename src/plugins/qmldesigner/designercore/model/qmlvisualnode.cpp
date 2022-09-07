@@ -55,7 +55,7 @@ bool QmlVisualNode::isValidQmlVisualNode(const ModelNode &modelNode)
     auto metaInfo = modelNode.metaInfo();
     auto model = modelNode.model();
 
-    return metaInfo.isBasedOn(model->flowViewFlowTransitionMetaInfo(),
+    return isItemOr3DNode(modelNode) || metaInfo.isBasedOn(model->flowViewFlowTransitionMetaInfo(),
                               model->flowViewFlowDecisionMetaInfo(),
                               model->flowViewFlowWildcardMetaInfo());
 }
