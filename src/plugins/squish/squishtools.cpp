@@ -61,6 +61,7 @@ public:
     SquishLocationMark(const FilePath &filePath, int line)
         : TextEditor::TextMark(filePath, line, Id("Squish.LocationMark"))
     {
+        setIsLocationMarker(true);
         setIcon(Debugger::Icons::LOCATION.icon());
         setPriority(HighPriority);
     }
