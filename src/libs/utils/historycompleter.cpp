@@ -76,6 +76,10 @@ public:
     HistoryLineView(HistoryCompleterPrivate *model_)
         : model(model_)
     {
+        setEditTriggers(QAbstractItemView::NoEditTriggers);
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        setSelectionBehavior(QAbstractItemView::SelectRows);
+        setSelectionMode(QAbstractItemView::SingleSelection);
     }
 
     void installDelegate()
