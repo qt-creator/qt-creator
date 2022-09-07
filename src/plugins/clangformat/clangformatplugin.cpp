@@ -76,7 +76,7 @@ public:
     }
 
     TextEditor::CodeStyleEditorWidget *createAdditionalGlobalSettings(
-        ProjectExplorer::Project *project, QWidget *parent)
+        ProjectExplorer::Project *project, QWidget *parent) override
     {
         return new ClangFormatGlobalConfigWidget(project, parent);
     }
