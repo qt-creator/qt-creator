@@ -65,6 +65,7 @@ public:
 
     QmlTimeline timeline() const;
 
+    static bool isDangling(const ModelNode &node);
     bool isDangling() const;
 };
 

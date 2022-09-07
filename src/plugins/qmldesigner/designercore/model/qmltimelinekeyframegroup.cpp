@@ -12,6 +12,7 @@
 #include <nodelistproperty.h>
 #include <variantproperty.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <cmath>
@@ -42,10 +43,7 @@ void QmlTimelineKeyframeGroup::destroy()
 
 ModelNode QmlTimelineKeyframeGroup::target() const
 {
-    if (modelNode().property("target").isBindingProperty())
-        return modelNode().bindingProperty("target").resolveToModelNode();
-
-    return {};
+    return modelNode().bindingProperty("target").resolveToModelNode();
 }
 
 void QmlTimelineKeyframeGroup::setTarget(const ModelNode &target)
@@ -123,17 +121,17 @@ QmlTimeline QmlTimelineKeyframeGroup::timeline() const
 {
     QTC_CHECK(isValid());
 
-    if (modelNode().hasParentProperty())
-        return modelNode().parentProperty().parentModelNode();
+    return modelNode().parentProperty().parentModelNode();
+}
 
-    return {};
+bool QmlTimelineKeyframeGroup::isDangling(const ModelNode &node)
+{
+    QmlTimelineKeyframeGroup group{node};
+    return group.isDangling();
 }
 
 bool QmlTimelineKeyframeGroup::isDangling() const
 {
-    if (!isValid())
-        return false;
-
     return !target().isValid() || keyframes().isEmpty();
 }
 
@@ -247,14 +245,9 @@ QList<ModelNode> QmlTimelineKeyframeGroup::keyframes() const
 
 QList<ModelNode> QmlTimelineKeyframeGroup::keyframePositions() const
 {
-    QList<ModelNode> returnValues;
-    for (const ModelNode &childNode : modelNode().defaultNodeListProperty().toModelNodeList()) {
-        QVariant value = childNode.variantProperty("frame").value();
-        if (value.isValid())
-            returnValues.append(childNode);
-    }
-
-    return returnValues;
+    return Utils::filtered(modelNode().defaultNodeListProperty().toModelNodeList(), [](auto &&node) {
+        return node.variantProperty("frame").value().isValid();
+    });
 }
 
 bool QmlTimelineKeyframeGroup::isValidKeyframe(const ModelNode &node)
@@ -278,21 +271,21 @@ QmlTimelineKeyframeGroup QmlTimelineKeyframeGroup::keyframeGroupForKeyframe(cons
     return QmlTimelineKeyframeGroup();
 }
 
-QList<QmlTimelineKeyframeGroup> QmlTimelineKeyframeGroup::allInvalidTimelineKeyframeGroups(AbstractView *view)
+QList<QmlTimelineKeyframeGroup> QmlTimelineKeyframeGroup::allInvalidTimelineKeyframeGroups(
+    AbstractView *view)
 {
-    QList<QmlTimelineKeyframeGroup> ret;
+    QTC_CHECK(view);
+    QTC_CHECK(view->model());
 
-    QTC_ASSERT(view, return ret);
-    QTC_ASSERT(view->model(), return ret);
-    QTC_ASSERT(view->rootModelNode().isValid(), return ret);
+    if (!view || !view->model())
+        return {};
 
     const auto groups = view->rootModelNode().subModelNodesOfType(
         view->model()->qtQuickTimelineKeyframeGroupMetaInfo());
-    for (const QmlTimelineKeyframeGroup group : groups) {
-        if (group.isDangling())
-            ret.append(group);
-    }
-    return ret;
+
+    return Utils::filteredCast<QList<QmlTimelineKeyframeGroup>>(groups, [](auto &&group) {
+        return isDangling(group);
+    });
 }
 
 void QmlTimelineKeyframeGroup::moveAllKeyframes(qreal offset)

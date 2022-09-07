@@ -891,6 +891,17 @@ C filtered(const C &container, R (S::*predicate)() const)
 }
 
 //////////////////
+// filteredCast
+/////////////////
+template<typename R, typename C, typename F>
+Q_REQUIRED_RESULT R filteredCast(const C &container, F predicate)
+{
+    R out;
+    std::copy_if(std::begin(container), std::end(container), inserter(out), predicate);
+    return out;
+}
+
+//////////////////
 // partition
 /////////////////
 
