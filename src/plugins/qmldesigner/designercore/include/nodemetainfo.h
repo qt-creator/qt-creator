@@ -135,6 +135,7 @@ public:
     bool isQtQuickPropertyChanges() const;
     bool isQtQuickRepeater() const;
     bool isQtQuickState() const;
+    bool isQtQuickStateOperation() const;
     bool isQtQuickStudioComponentsGroupItem() const;
     bool isQtQuickText() const;
     bool isQtQuickTimelineKeyframe() const;
@@ -142,6 +143,7 @@ public:
     bool isQtQuickTimelineTimeline() const;
     bool isQtQuickTimelineTimelineAnimation() const;
     bool isQtQuickTransition() const;
+    bool isQtQuickWindowWindow() const;
     bool isQtSafeRendererSafeRendererPicture() const;
     bool isQtSafeRendererSafePicture() const;
     bool isQuick3DParticleAbstractShape() const;

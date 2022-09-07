@@ -1843,7 +1843,7 @@ void tst_TestCore::testBasicStates()
     QCOMPARE(state1.propertyChanges().count(), 2);
     QCOMPARE(state2.propertyChanges().count(), 2);
 
-    QVERIFY(state1.propertyChanges().first().modelNode().metaInfo().isSubclassOf("<cpp>.QQuickStateOperation", -1, -1));
+    QVERIFY(state1.propertyChanges().first().modelNode().metaInfo().isQtQuickStateOperation());
     QVERIFY(!state1.hasPropertyChanges(rootModelNode));
 
     QVERIFY(state1.propertyChanges(rect1).isValid());
@@ -4766,12 +4766,11 @@ void tst_TestCore::testMetaInfoSimpleType()
     // super classes
     NodeMetaInfo qobject = itemMetaInfo.superClasses().front();
     QVERIFY(qobject.isValid());
-    QVERIFY(qobject.isSubclassOf("<cpp>.QObject"));
+    QVERIFY(qobject.isQtObject());
 
     QCOMPARE(itemMetaInfo.superClasses().size(), 2); // Item, QtQuick.QtObject
-    QVERIFY(itemMetaInfo.isSubclassOf("QtQuick.Item", -1, -1));
-    QVERIFY(itemMetaInfo.isSubclassOf("<cpp>.QObject", -1, -1));
-    QVERIFY(itemMetaInfo.isSubclassOf("QtQml.QtObject", -1, -1));
+    QVERIFY(itemMetaInfo.isQtQuickItem());
+    QVERIFY(itemMetaInfo.isQtObject());
 
     // availableInVersion
     QVERIFY(itemMetaInfo.availableInVersion(2, 2));
@@ -4793,7 +4792,7 @@ void tst_TestCore::testMetaInfoUncreatableType()
     QCOMPARE(animationTypeInfo.majorVersion(), 2);
     QCOMPARE(animationTypeInfo.minorVersion(), 1);
 
-    NodeMetaInfo qObjectTypeInfo = animationTypeInfo.superClass().front();
+    NodeMetaInfo qObjectTypeInfo = animationTypeInfo.superClasses().front();
     QVERIFY(qObjectTypeInfo.isValid());
     QCOMPARE(qObjectTypeInfo.simplifiedTypeName(), QmlDesigner::TypeName("QtObject"));
 
@@ -4811,7 +4810,7 @@ void tst_TestCore::testMetaInfoExtendedType()
     QVERIFY(typeInfo.hasProperty("font")); // from QGraphicsWidget
     QVERIFY(typeInfo.hasProperty("enabled")); // from QGraphicsItem
 
-    NodeMetaInfo graphicsObjectTypeInfo = typeInfo.superClass().front();
+    NodeMetaInfo graphicsObjectTypeInfo = typeInfo.superClasses().front();
     QVERIFY(graphicsObjectTypeInfo.isValid());
 }
 
@@ -4833,7 +4832,7 @@ void tst_TestCore::testMetaInfoCustomType()
     QVERIFY(propertyChangesInfo.hasProperty("restoreEntryValues"));
     QVERIFY(propertyChangesInfo.hasProperty("explicit"));
 
-    NodeMetaInfo stateOperationInfo = propertyChangesInfo.superClass().front();
+    NodeMetaInfo stateOperationInfo = propertyChangesInfo.superClasses().front();
     QVERIFY(stateOperationInfo.isValid());
     QCOMPARE(stateOperationInfo.typeName(), QmlDesigner::TypeName("QtQuick.QQuickStateOperation"));
     QCOMPARE(stateOperationInfo.majorVersion(), -1);
@@ -4860,11 +4859,19 @@ void tst_TestCore::testMetaInfoEnums()
     QVERIFY(view->rootModelNode().metaInfo().hasProperty("transformOrigin"));
 
     QVERIFY(view->rootModelNode().metaInfo().property("transformOrigin").isEnumType());
-    QCOMPARE(view->rootModelNode().metaInfo().property("transformOrigin").propertyTypeName(),
+    QCOMPARE(view->rootModelNode()
+                 .metaInfo()
+                 .property("transformOrigin")
+                 .propertyType()
+                 .simplifiedTypeName(),
              QmlDesigner::TypeName("TransformOrigin"));
 
     QVERIFY(view->rootModelNode().metaInfo().property("horizontalAlignment").isEnumType());
-    QCOMPARE(view->rootModelNode().metaInfo().property("horizontalAlignment").propertyTypeName(),
+    QCOMPARE(view->rootModelNode()
+                 .metaInfo()
+                 .property("horizontalAlignment")
+                 .propertyType()
+                 .simplifiedTypeName(),
              QmlDesigner::TypeName("HAlignment"));
 
     QApplication::processEvents();
@@ -4962,7 +4969,7 @@ void tst_TestCore::testMetaInfoDotProperties()
     QVERIFY(model->hasNodeMetaInfo("QtQuick.Text"));
 
     QVERIFY(model->metaInfo("QtQuick.Rectangle").hasProperty("border"));
-    QCOMPARE(model->metaInfo("QtQuick.Rectangle").property("border").propertyTypeName(),
+    QCOMPARE(model->metaInfo("QtQuick.Rectangle").property("border").propertyType().typeName(),
              QmlDesigner::TypeName("<cpp>.QQuickPen"));
 
     QCOMPARE(view->rootModelNode().metaInfo().typeName(), QmlDesigner::TypeName("QtQuick.Text"));
@@ -5104,7 +5111,7 @@ void tst_TestCore::testQtQuickControls2()
     QVERIFY(rootModelNode.isValid());
 
     QVERIFY(rootModelNode.metaInfo().isGraphicalItem());
-    QVERIFY(rootModelNode.isSubclassOf("QtQuick.Window.Window", -1, -1));
+    QVERIFY(rootModelNode.metaInfo().isQtQuickWindowWindow());
 
     QVERIFY(!contains(rootModelNode.metaInfo().localProperties(), "visible"));
     QVERIFY(contains(rootModelNode.metaInfo().properties(), "visible"));
@@ -5114,16 +5121,15 @@ void tst_TestCore::testQtQuickControls2()
     QVERIFY(button.isValid());
     QVERIFY(button.metaInfo().isValid());
     QVERIFY(button.metaInfo().isGraphicalItem());
-    QVERIFY(button.isSubclassOf("QtQuick.Controls.Button", 2, -1));
-    QVERIFY(button.isSubclassOf("QtQuick.Item", 2, -1));
+    QVERIFY(button.metaInfo().isQtQuickItem());
 
     QCOMPARE(rootModelNode.allSubModelNodes().count(), 2);
     ModelNode layout = rootModelNode.allSubModelNodes().last();
     QVERIFY(layout.isValid());
     QVERIFY(layout.metaInfo().isValid());
     QVERIFY(layout.metaInfo().isGraphicalItem());
-    QVERIFY(layout.isSubclassOf("QtQuick.Layout", -1, -1));
-    QVERIFY(layout.isSubclassOf("QtQuick.Item", 2, -1));
+    QVERIFY(layout.metaInfo().isQtQuickLayoutsLayout());
+    QVERIFY(layout.metaInfo().isQtQuickItem());
 }
 
 void tst_TestCore::testImplicitComponents()
@@ -5292,7 +5298,7 @@ void tst_TestCore::testStatesRewriter()
 
     QVERIFY(rootModelNode.isValid());
 
-    qDebug() << rootModelNode.metaInfo().isSubclassOf("QtQuick.Item");
+    qDebug() << rootModelNode.metaInfo().isQtQuickItem();
 
     QVERIFY(QmlItemNode(rootModelNode).isValid());
 
@@ -8863,7 +8869,7 @@ void tst_TestCore::loadGradient()
         QCOMPARE(rootModelNode.defaultNodeListProperty().toModelNodeList().count(), 1);
         ModelNode gradientNode = rootModelNode.defaultNodeListProperty().toModelNodeList().first();
         QVERIFY(gradientNode.isValid());
-        QVERIFY(!gradientNode.metaInfo().isSubclassOf("QtQuick.Item", -1, -1));
+        QVERIFY(!gradientNode.metaInfo().isQtQuickItem());
         QCOMPARE(gradientNode.type(), QmlDesigner::TypeName("QtQuick.Gradient"));
         QCOMPARE(gradientNode.id(), QString("secondGradient"));
         QCOMPARE(gradientNode.directSubModelNodes().size(), 2);

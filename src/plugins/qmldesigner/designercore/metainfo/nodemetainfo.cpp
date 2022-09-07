@@ -2091,6 +2091,16 @@ bool NodeMetaInfo::isQtQuickTransition() const
     }
 }
 
+bool NodeMetaInfo::isQtQuickWindowWindow() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick_Window, Window>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick.Window.Window");
+    }
+}
+
 bool NodeMetaInfo::isQtQuickLoader() const
 {
     if constexpr (useProjectStorage()) {
@@ -2108,6 +2118,16 @@ bool NodeMetaInfo::isQtQuickState() const
         return isBasedOnCommonType<QtQuick, State>(m_projectStorage, m_typeId);
     } else {
         return isValid() && isSubclassOf("QtQuick.State");
+    }
+}
+
+bool NodeMetaInfo::isQtQuickStateOperation() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick, QQuickStateOperation>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("<cpp>.QQuickStateOperation");
     }
 }
 

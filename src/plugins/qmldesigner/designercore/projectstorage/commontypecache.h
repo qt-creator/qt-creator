@@ -70,6 +70,7 @@ inline constexpr char PropertyChanges[] = "PropertyChanges";
 inline constexpr char QML[] = "QML";
 inline constexpr char QML_cppnative[] = "QML-cppnative";
 inline constexpr char QQuick3DParticleAbstractShape[] = "QQuick3DParticleAbstractShape";
+inline constexpr char QQuickStateOperation[] = "QQuickStateOperation";
 inline constexpr char QtMultimedia[] = "QtMultimedia";
 inline constexpr char QtObject[] = "QtObject";
 inline constexpr char QtQml[] = "QtQml";
@@ -151,6 +152,7 @@ class CommonTypeCache
                                    CacheType<QML, url>,
                                    CacheType<QML, var>,
                                    CacheType<QML_cppnative, FloatType>,
+                                   CacheType<QML_cppnative, QQuickStateOperation>,
                                    CacheType<QtMultimedia, SoundEffect>,
                                    CacheType<QtQuick, BorderImage>,
                                    CacheType<QtQuick, GridView>,
