@@ -5,8 +5,8 @@ endif()
 
 
 env_with_default("QDS_USE_PROJECTSTORAGE" ENV_QDS_USE_PROJECTSTORAGE OFF)
-option(USE_PROJECTSTORAGE "Build uses ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
-add_feature_info("Build uses ProjectStorage" ${USE_PROJECTSTORAGE} "")
+option(USE_PROJECTSTORAGE "Build with ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
+add_feature_info("Build with ProjectStorage" ${USE_PROJECTSTORAGE} "")
 
 env_with_default("QDS_WITH_QMLDOM" ENV_QDS_WITH_QMLDOM OFF)
 option(WITH_QMLDOM "Build with QmlDom" ${ENV_QDS_WITH_QMLDOM})
