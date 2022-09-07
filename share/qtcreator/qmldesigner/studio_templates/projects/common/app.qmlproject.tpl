@@ -20,12 +20,16 @@ Project {
         directory: "content"
     }
 
-     JavaScriptFiles {
+    JavaScriptFiles {
         directory: "imports"
     }
 
     ImageFiles {
         directory: "content"
+    }
+    
+    ImageFiles {
+        directory: "asset_imports"
     }
 
     Files {
