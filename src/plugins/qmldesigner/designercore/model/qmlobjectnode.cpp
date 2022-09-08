@@ -665,6 +665,21 @@ QString QmlObjectNode::generateTranslatableText(const QString &text)
 #endif
 }
 
+QString QmlObjectNode::stripedTranslatableTextFunction(const QString &text)
+{
+    const QRegularExpression regularExpressionPattern(
+                QLatin1String("^qsTr(|Id|anslate)\\(\"(.*)\"\\)$"));
+    const QRegularExpressionMatch match = regularExpressionPattern.match(text);
+    if (match.hasMatch())
+        return match.captured(2);
+    return text;
+}
+
+QString QmlObjectNode::convertToCorrectTranslatableFunction(const QString &text)
+{
+    return generateTranslatableText(stripedTranslatableTextFunction(text));
+}
+
 TypeName QmlObjectNode::instanceType(const PropertyName &name) const
 {
     return nodeInstance().instanceType(name);
