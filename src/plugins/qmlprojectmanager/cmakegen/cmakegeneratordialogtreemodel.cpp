@@ -76,11 +76,7 @@ bool CMakeGeneratorDialogTreeModel::setData(const QModelIndex &index, const QVar
 
 const QList<CheckableFileTreeItem*> CMakeGeneratorDialogTreeModel::items() const
 {
-#if QT_VERSION < QT_VERSION_CHECK(5, 15, 0)
-    QList<QStandardItem*> standardItems = findItems("*", Qt::MatchWildcard | Qt::MatchRecursive);
-#else
     QList<QStandardItem*> standardItems = findItems(".*", Qt::MatchRegularExpression | Qt::MatchRecursive);
-#endif
     QList<CheckableFileTreeItem*> checkableItems;
     for (QStandardItem *item : standardItems)
         checkableItems.append(static_cast<CheckableFileTreeItem*>(item));

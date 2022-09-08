@@ -14,11 +14,7 @@
 #include <QtCore/QScopedValueRollback>
 
 QT_BEGIN_NAMESPACE
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-Q_CORE_EXPORT double qstrntod(const char *s00, int len, char const **se, bool *ok);
-#else
 Q_CORE_EXPORT double qstrntod(const char *s00, qsizetype len, char const **se, bool *ok);
-#endif
 QT_END_NAMESPACE
 
 using namespace QmlJS;

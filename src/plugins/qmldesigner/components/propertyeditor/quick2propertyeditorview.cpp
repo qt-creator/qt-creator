@@ -56,14 +56,10 @@ void Quick2PropertyEditorView::registerQmlTypes()
 
         const QString resourcePath = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         QUrl regExpUrl = QUrl::fromLocalFile(resourcePath + "/RegExpValidator.qml");
         qmlRegisterType(regExpUrl, "HelperWidgets", 2, 0, "RegExpValidator");
 
         const QString qtPrefix = "/Qt6";
-#else
-        const QString qtPrefix = "/Qt5";
-#endif
         qmlRegisterType(QUrl::fromLocalFile(resourcePath + qtPrefix + "HelperWindow.qml"),
                         "HelperWidgets",
                         2,

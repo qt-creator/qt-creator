@@ -55,11 +55,7 @@ inline void load(Archive &archive, QList<T *> &list, const Parameters &parameter
         //archive >> ref<QList<T *>, T * const &>("item", list, &QList<T *>::append);
         archive >> ref("item", list, &QList<T *>::append);
     } else {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
         using ParameterType = typename QList<T *>::parameter_type;
-#else
-        using ParameterType = T * const &;
-#endif
         void (QList<T *>::*appendMethod)(ParameterType) = &QList<T *>::append;
         archive >> attr("item", list, appendMethod);
     }

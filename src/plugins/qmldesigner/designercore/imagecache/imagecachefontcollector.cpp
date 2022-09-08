@@ -49,11 +49,7 @@ static int resolveFont(const QString &fontFile, QFont &outFont)
                 outFont.setFamily(fontFamily);
                 outFont.setStyle(rawFont.style());
                 outFont.setStyleName(rawFont.styleName());
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
                 outFont.setWeight(QFont::Weight(rawFont.weight()));
-#else
-                outFont.setWeight(rawFont.weight());
-#endif
             }
         }
     }

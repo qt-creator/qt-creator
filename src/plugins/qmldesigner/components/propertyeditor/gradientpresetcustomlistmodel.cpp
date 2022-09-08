@@ -33,9 +33,6 @@ GradientPresetCustomListModel::GradientPresetCustomListModel(QObject *parent)
     : GradientPresetListModel(parent)
     , m_filename(getFilename())
 {
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    qRegisterMetaTypeStreamOperators<GradientPresetItem>("GradientPresetItem");
-#endif
     readPresets();
 }
 

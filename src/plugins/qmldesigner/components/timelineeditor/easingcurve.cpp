@@ -45,10 +45,6 @@ void EasingCurve::registerStreamOperators()
 {
     qRegisterMetaType<QmlDesigner::EasingCurve>("QmlDesigner::EasingCurve");
     qRegisterMetaType<QmlDesigner::NamedEasingCurve>("QmlDesigner::NamedEasingCurve");
-#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-    qRegisterMetaTypeStreamOperators<QmlDesigner::EasingCurve>("QmlDesigner::EasingCurve");
-    qRegisterMetaTypeStreamOperators<QmlDesigner::NamedEasingCurve>("QmlDesigner::NamedEasingCurve");
-#endif
 }
 
 int EasingCurve::count() const
