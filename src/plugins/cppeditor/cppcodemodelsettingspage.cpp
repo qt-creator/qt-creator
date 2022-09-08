@@ -211,8 +211,10 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     d->clangdChooser.setExpectedKind(Utils::PathChooser::ExistingCommand);
     d->clangdChooser.setFilePath(settings.clangdFilePath());
     d->clangdChooser.setEnabled(d->useClangdCheckBox.isChecked());
+    d->indexingCheckBox.setText(tr("Enable background indexing"));
     d->indexingCheckBox.setChecked(settings.indexingEnabled());
     d->indexingCheckBox.setToolTip(indexingToolTip);
+    d->autoIncludeHeadersCheckBox.setText(tr("Insert header files on completion"));
     d->autoIncludeHeadersCheckBox.setChecked(settings.autoIncludeHeaders());
     d->autoIncludeHeadersCheckBox.setToolTip(autoIncludeToolTip);
     d->threadLimitSpinBox.setValue(settings.workerThreadLimit());
@@ -244,13 +246,12 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     const auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(&d->useClangdCheckBox);
+
     const auto formLayout = new QFormLayout;
     const auto chooserLabel = new QLabel(tr("Path to executable:"));
     formLayout->addRow(chooserLabel, &d->clangdChooser);
     formLayout->addRow(QString(), &d->versionWarningLabel);
-    const auto indexingLabel = new QLabel(tr("Enable background indexing:"));
-    indexingLabel->setToolTip(indexingToolTip);
-    formLayout->addRow(indexingLabel, &d->indexingCheckBox);
+    formLayout->addRow(QString(), &d->indexingCheckBox);
     const auto threadLimitLayout = new QHBoxLayout;
     threadLimitLayout->addWidget(&d->threadLimitSpinBox);
     threadLimitLayout->addStretch(1);
@@ -258,9 +259,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     threadLimitLabel->setToolTip(workerThreadsToolTip);
     formLayout->addRow(threadLimitLabel, threadLimitLayout);
 
-    const auto autoIncludeHeadersLabel = new QLabel(tr("Insert header files on completion:"));
-    autoIncludeHeadersLabel->setToolTip(autoIncludeToolTip);
-    formLayout->addRow(autoIncludeHeadersLabel, &d->autoIncludeHeadersCheckBox);
+    formLayout->addRow(QString(), &d->autoIncludeHeadersCheckBox);
     const auto limitResultsLayout = new QHBoxLayout;
     limitResultsLayout->addWidget(&d->completionResults);
     limitResultsLayout->addStretch(1);
