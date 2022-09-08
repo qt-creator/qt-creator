@@ -259,11 +259,9 @@ public:
 
         updateClearCrashWidgets();
         connect(m_clearCrashReportsButton, &QPushButton::clicked, this, [&] {
-            QDir crashReportsDir = ICore::crashReportsPath().path();
-            crashReportsDir.setFilter(QDir::Files);
-            const QStringList crashFiles = crashReportsDir.entryList();
-            for (QString file : crashFiles)
-                crashReportsDir.remove(file);
+            const FilePaths &crashFiles = ICore::crashReportsPath().dirEntries(QDir::Files);
+            for (const FilePath &file : crashFiles)
+                file.removeFile();
             updateClearCrashWidgets();
         });
 #endif
@@ -476,10 +474,9 @@ void SystemSettingsWidget::updateClearCrashWidgets()
     QDir crashReportsDir(ICore::crashReportsPath().path());
     crashReportsDir.setFilter(QDir::Files);
     qint64 size = 0;
-    const QStringList crashFiles = crashReportsDir.entryList();
-    for (QString file : crashFiles)
-        size += QFileInfo(crashReportsDir, file).size();
-
+    const FilePaths crashFiles = ICore::crashReportsPath().dirEntries(QDir::Files);
+    for (const FilePath &file : crashFiles)
+        size += file.fileSize();
     m_clearCrashReportsButton->setEnabled(!crashFiles.isEmpty());
     m_crashReportsSizeText->setText(formatSize(size));
 }
