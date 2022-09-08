@@ -3,8 +3,10 @@
 
 #include "externaltoolsfilter.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/externaltool.h>
 #include <coreplugin/externaltoolmanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 #include <utils/qtcassert.h>
 
@@ -33,6 +35,12 @@ void ExternalToolsFilter::accept(const LocatorFilterEntry &selection,
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
+
+    if (!selection.internalData.isValid()) {
+        ICore::showOptionsDialog(Constants::SETTINGS_ID_TOOLS);
+        return;
+    }
+
     auto tool = selection.internalData.value<ExternalTool *>();
     QTC_ASSERT(tool, return);
 
@@ -69,5 +77,8 @@ void ExternalToolsFilter::prepareSearch(const QString &entry)
                 goodEntries.append(filterEntry);
         }
     }
-    m_results = bestEntries + betterEntries + goodEntries;
+    LocatorFilterEntry configEntry(this, "Configure External Tool...", {});
+    configEntry.extraInfo = "Opens External Tool settings";
+    m_results = {};
+    m_results << bestEntries << betterEntries << goodEntries << configEntry;
 }
