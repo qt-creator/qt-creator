@@ -85,7 +85,7 @@ public:
     void setup();
     void cleanup();
     void setupProcess(QtcProcess *process, const Job &job);
-    void setupSynchronous(QtcProcess *process);
+    void installStdCallbacks(QtcProcess *process);
     bool isFullySynchronous() const;
     void handleDone(QtcProcess *process);
     void startAll();
@@ -179,7 +179,7 @@ void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
         process->setCodec(m_codec);
 }
 
-void VcsCommandPrivate::setupSynchronous(QtcProcess *process)
+void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
 {
     if (!(m_flags & VcsCommand::MergeOutputChannels)
             && (m_progressiveOutput || !(m_flags & VcsCommand::SuppressStdErr))) {
@@ -241,8 +241,7 @@ void VcsCommandPrivate::startNextJob()
     m_process.reset(new QtcProcess);
     connect(m_process.get(), &QtcProcess::done, this, &VcsCommandPrivate::processDone);
     setupProcess(m_process.get(), m_jobs.at(m_currentJob));
-    if (!isFullySynchronous())
-        setupSynchronous(m_process.get());
+    installStdCallbacks(m_process.get());
     m_process->start();
 }
 
@@ -407,7 +406,7 @@ void VcsCommand::runSynchronous(QtcProcess &process)
         process.stop();
         process.waitForFinished();
     });
-    d->setupSynchronous(&process);
+    d->installStdCallbacks(&process);
     process.setTimeOutMessageBoxEnabled(true);
     process.runBlocking(EventLoopMode::On);
 }
