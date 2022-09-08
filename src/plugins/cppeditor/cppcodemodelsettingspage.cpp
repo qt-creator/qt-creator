@@ -338,6 +338,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             "project-specific settings can be configured by putting a .clangd file into "
             "the project source tree.")
                 .arg(ClangdSettings::clangdUserConfigFilePath().toUserOutput()));
+    configFilesHelpLabel->setWordWrap(true);
     connect(configFilesHelpLabel, &QLabel::linkHovered, configFilesHelpLabel, &QLabel::setToolTip);
     connect(configFilesHelpLabel, &QLabel::linkActivated, [](const QString &link) {
         if (link.startsWith("https"))
