@@ -1128,6 +1128,9 @@ void QtcProcess::setUseCtrlCStub(bool enabled)
 void QtcProcess::start()
 {
     QTC_ASSERT(state() == QProcess::NotRunning, return);
+    QTC_ASSERT(!(d->m_process && d->m_guard.isLocked()),
+               qWarning("Restarting the QtcProcess directly from one of its signal handlers will "
+                        "lead to crash! Consider calling close() prior to direct restart."));
     d->clearForRun();
     d->m_state = QProcess::Starting;
     ProcessInterface *processImpl = nullptr;
