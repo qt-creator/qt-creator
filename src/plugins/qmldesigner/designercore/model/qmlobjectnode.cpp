@@ -653,7 +653,7 @@ QString QmlObjectNode::generateTranslatableText(const QString &text)
                     DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt()) {
         case 0: return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
         case 1: return QString(QStringLiteral("qsTrId(\"%1\")")).arg(text);
-        case 2: return QString(QStringLiteral("qsTranslate(\"\"\"%1\")")).arg(text);
+        case 2: return QString(QStringLiteral("qsTranslate(\"%1\", \"context\")")).arg(text);
         default:
             break;
 
