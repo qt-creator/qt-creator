@@ -26,7 +26,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/editormanager_p.h>
-#include <coreplugin/menubarfilter.h>
+#include <coreplugin/actionsfilter.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <extensionsystem/pluginmanager.h>
@@ -64,7 +64,7 @@ public:
     ExecuteFilter m_executeFilter;
     ExternalToolsFilter m_externalToolsFilter;
     LocatorFiltersFilter m_locatorsFiltersFilter;
-    MenuBarFilter m_menubarFilter;
+    ActionsFilter m_actionsFilter;
     UrlLocatorFilter m_urlFilter{UrlLocatorFilter::tr("Web Search"), "RemoteHelpFilter"};
     UrlLocatorFilter m_bugFilter{UrlLocatorFilter::tr("Qt Project Bugs"), "QtProjectBugs"};
     SpotlightLocatorFilter m_spotlightLocatorFilter;

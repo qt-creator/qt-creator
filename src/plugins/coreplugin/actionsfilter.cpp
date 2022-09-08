@@ -1,7 +1,7 @@
 // Copyright (C) 2018 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "menubarfilter.h"
+#include "actionsfilter.h"
 
 #include "actionmanager/actioncontainer.h"
 #include "actionmanager/actionmanager.h"
@@ -16,6 +16,7 @@
 #include <QMenuBar>
 #include <QPointer>
 #include <QRegularExpression>
+#include <QTextDocument>
 
 QT_BEGIN_NAMESPACE
 size_t qHash(const QPointer<QAction> &p, size_t seed)
@@ -27,13 +28,13 @@ QT_END_NAMESPACE
 using namespace Core::Internal;
 using namespace Core;
 
-MenuBarFilter::MenuBarFilter()
+ActionsFilter::ActionsFilter()
 {
     setId("Actions from the menu");
-    setDisplayName(tr("Actions from the Menu"));
+    setDisplayName(tr("Global Actions & Actions from the Menu"));
     setDescription(
-        tr("Triggers an action from the menu. Matches any part of a menu hierarchy, separated by "
-           "\">\". For example \"sess def\" matches \"File > Sessions > Default\"."));
+        tr("Triggers an action. If it is from the menu it matches any part of a menu hierarchy, "
+           "separated by \">\". For example \"sess def\" matches \"File > Sessions > Default\"."));
     setDefaultShortcutString("t");
     connect(ICore::instance(), &ICore::contextAboutToChange, this, [this] {
         if (LocatorManager::locatorHasFocus())
@@ -48,7 +49,7 @@ static const QList<QAction *> menuBarActions()
     return menuBar->actions();
 }
 
-QList<LocatorFilterEntry> MenuBarFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
+QList<LocatorFilterEntry> ActionsFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                                     const QString &entry)
 {
     Q_UNUSED(future)
@@ -56,7 +57,7 @@ QList<LocatorFilterEntry> MenuBarFilter::matchesFor(QFutureInterface<LocatorFilt
     return std::move(m_entries);
 }
 
-void MenuBarFilter::accept(const LocatorFilterEntry &selection, QString *newText,
+void ActionsFilter::accept(const LocatorFilterEntry &selection, QString *newText,
                            int *selectionStart, int *selectionLength) const
 {
     Q_UNUSED(newText)
@@ -70,10 +71,10 @@ void MenuBarFilter::accept(const LocatorFilterEntry &selection, QString *newText
     }
 }
 
-QList<LocatorFilterEntry> MenuBarFilter::matchesForAction(QAction *action,
+QList<LocatorFilterEntry> ActionsFilter::matchesForAction(QAction *action,
                                                           const QStringList &entryPath,
                                                           const QStringList &path,
-                                                          QVector<const QMenu *> &processedMenus)
+                                                          QList<const QMenu *> &processedMenus)
 {
     QList<LocatorFilterEntry> entries;
     if (!m_enabledActions.contains(action))
@@ -129,6 +130,46 @@ QList<LocatorFilterEntry> MenuBarFilter::matchesForAction(QAction *action,
     return entries;
 }
 
+QList<LocatorFilterEntry> ActionsFilter::matchesForCommands(const QString &entry)
+{
+    QList<LocatorFilterEntry> entries;
+    const QList<Command *> commands = Core::ActionManager::commands();
+    for (const Command *command : commands) {
+        QAction *action = command->action();
+        if (!m_enabledActions.contains(action))
+            continue;
+
+        QString text = command->description();
+        if (text.isEmpty())
+            continue;
+        if (text.contains('<')) {
+            // removing HTML tags
+            QTextDocument html;
+            html.setHtml(text);
+            text = html.toPlainText();
+        }
+        int entryIndex = text.indexOf(entry, 0, Qt::CaseInsensitive);
+        if (entryIndex < 0)
+            continue;
+
+        int entryLength = entry.length();
+        LocatorFilterEntry::HighlightInfo::DataType highlightType =
+                LocatorFilterEntry::HighlightInfo::DisplayName;
+        LocatorFilterEntry filterEntry(this,
+                                       text,
+                                       QVariant(),
+                                       action->icon());
+        filterEntry.internalData.setValue(QPointer<QAction>(action));
+        filterEntry.highlightInfo = {entryIndex, entryLength, highlightType};
+        const QString identifier = command->id().toString();
+        const QStringList path = identifier.split(QLatin1Char('.'));
+        if (path.size() >= 2)
+            filterEntry.extraInfo = path.mid(0, path.size() - 1).join(" > ");
+        entries << filterEntry;
+    }
+    return entries;
+}
+
 static void requestMenuUpdate(const QAction* action)
 {
     if (QMenu *menu = action->menu()) {
@@ -139,7 +180,7 @@ static void requestMenuUpdate(const QAction* action)
     }
 }
 
-void MenuBarFilter::updateEnabledActionCache()
+void ActionsFilter::updateEnabledActionCache()
 {
     m_enabledActions.clear();
     QList<QAction *> queue = menuBarActions();
@@ -147,7 +188,7 @@ void MenuBarFilter::updateEnabledActionCache()
         requestMenuUpdate(action);
     while (!queue.isEmpty()) {
         QAction *action = queue.takeFirst();
-        if (action->isEnabled()) {
+        if (action->isEnabled() && !action->isSeparator() && action->isVisible()) {
             m_enabledActions.insert(action);
             if (QMenu *menu = action->menu()) {
                 if (menu->isEnabled())
@@ -155,9 +196,16 @@ void MenuBarFilter::updateEnabledActionCache()
             }
         }
     }
+    const QList<Command *> commands = Core::ActionManager::commands();
+    for (const Command *command : commands) {
+        if (command && command->action() && command->action()->isEnabled()
+                && !command->action()->isSeparator()) {
+            m_enabledActions.insert(command->action());
+        }
+    }
 }
 
-void Core::Internal::MenuBarFilter::prepareSearch(const QString &entry)
+void Core::Internal::ActionsFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
     static const QString separators = ". >/";
@@ -166,7 +214,8 @@ void Core::Internal::MenuBarFilter::prepareSearch(const QString &entry)
     normalized.replace(seperatorRegExp, separators.at(0));
     const QStringList entryPath = normalized.split(separators.at(0), Qt::SkipEmptyParts);
     m_entries.clear();
-    QVector<const QMenu *> processedMenus;
+    QList<const QMenu *> processedMenus;
     for (QAction* action : menuBarActions())
         m_entries << matchesForAction(action, entryPath, QStringList(), processedMenus);
+    m_entries << matchesForCommands(entry);
 }

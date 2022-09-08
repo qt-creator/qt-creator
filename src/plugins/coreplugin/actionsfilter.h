@@ -17,11 +17,11 @@ QT_END_NAMESPACE
 namespace Core {
 namespace Internal {
 
-class MenuBarFilter : public ILocatorFilter
+class ActionsFilter : public ILocatorFilter
 {
     Q_OBJECT
 public:
-    MenuBarFilter();
+    ActionsFilter();
 
     QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                          const QString &entry) override;
@@ -33,7 +33,8 @@ private:
     QList<LocatorFilterEntry> matchesForAction(QAction *action,
                                                const QStringList &entryPath,
                                                const QStringList &path,
-                                               QVector<const QMenu *> &processedMenus);
+                                               QList<const QMenu *> &processedMenus);
+    QList<LocatorFilterEntry> matchesForCommands(const QString &entry);
     void updateEnabledActionCache();
 
     QList<LocatorFilterEntry> m_entries;

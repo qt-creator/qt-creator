@@ -13,6 +13,7 @@ add_qtc_plugin(Core
     actionmanager/commandbutton.cpp actionmanager/commandbutton.h
     actionmanager/commandmappings.cpp actionmanager/commandmappings.h
     actionmanager/commandsfile.cpp actionmanager/commandsfile.h
+    actionsfilter.cpp actionsfilter.h
     basefilewizard.cpp basefilewizard.h
     basefilewizardfactory.cpp basefilewizardfactory.h
     ${CMAKE_CURRENT_BINARY_DIR}/core_logo_cmake.qrc
@@ -124,7 +125,6 @@ add_qtc_plugin(Core
     loggingmanager.cpp loggingmanager.h
     mainwindow.cpp mainwindow.h
     manhattanstyle.cpp manhattanstyle.h
-    menubarfilter.cpp menubarfilter.h
     messagebox.cpp messagebox.h
     messagemanager.cpp messagemanager.h
     messageoutputwindow.cpp messageoutputwindow.h

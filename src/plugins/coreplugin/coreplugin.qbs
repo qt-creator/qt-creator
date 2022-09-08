@@ -31,6 +31,8 @@ Project {
         Group {
             name: "General"
             files: [
+                "actionsfilter.cpp",
+                "actionsfilter.h",
                 "basefilewizard.cpp",
                 "basefilewizard.h",
                 "basefilewizardfactory.cpp",
@@ -113,8 +115,6 @@ Project {
                 "mainwindow.h",
                 "manhattanstyle.cpp",
                 "manhattanstyle.h",
-                "menubarfilter.cpp",
-                "menubarfilter.h",
                 "messagebox.cpp",
                 "messagebox.h",
                 "messagemanager.cpp",
