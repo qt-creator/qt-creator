@@ -47,8 +47,8 @@ static QList<ILocatorFilter *> g_locatorFilters;
 /*!
     Constructs a locator filter with \a parent. Call from subclasses.
 */
-ILocatorFilter::ILocatorFilter(QObject *parent):
-    QObject(parent)
+ILocatorFilter::ILocatorFilter(QObject *parent)
+    : QObject(parent)
 {
     g_locatorFilters.append(this);
 }
@@ -119,6 +119,26 @@ void ILocatorFilter::setDefaultShortcutString(const QString &shortcut)
 void ILocatorFilter::setShortcutString(const QString &shortcut)
 {
     m_shortcut = shortcut;
+}
+
+QKeySequence ILocatorFilter::defaultKeySequence() const
+{
+    return m_defaultKeySequence;
+}
+
+void ILocatorFilter::setDefaultKeySequence(const QKeySequence &sequence)
+{
+    m_defaultKeySequence = sequence;
+}
+
+std::optional<QString> ILocatorFilter::defaultSearchText() const
+{
+    return m_defaultSearchText;
+}
+
+void ILocatorFilter::setDefaultSearchText(const QString &defaultSearchText)
+{
+    m_defaultSearchText = defaultSearchText;
 }
 
 const char kShortcutStringKey[] = "shortcut";

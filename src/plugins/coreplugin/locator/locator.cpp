@@ -225,6 +225,7 @@ void Locator::updateFilterActions()
             action = new QAction(filter->displayName(), this);
             Command *cmd = ActionManager::registerAction(action, actionId);
             cmd->setAttribute(Command::CA_UpdateText);
+            cmd->setDefaultKeySequence(filter->defaultKeySequence());
             connect(action, &QAction::triggered, this, [filter] {
                 LocatorManager::showFilter(filter);
             });
@@ -407,22 +408,23 @@ void Locator::showFilter(ILocatorFilter *filter, LocatorWidget *widget)
 {
     QTC_ASSERT(filter, return );
     QTC_ASSERT(widget, return );
-    QString searchText = LocatorManager::tr("<type here>");
-    const QString currentText = widget->currentText().trimmed();
-    // add shortcut string at front or replace existing shortcut string
-    if (!currentText.isEmpty()) {
-        searchText = currentText;
-        const QList<ILocatorFilter *> allFilters = Locator::filters();
-        for (ILocatorFilter *otherfilter : allFilters) {
-            if (currentText.startsWith(otherfilter->shortcutString() + ' ')) {
-                searchText = currentText.mid(otherfilter->shortcutString().length() + 1);
-                break;
+    std::optional<QString> searchText = filter->defaultSearchText();
+    if (!searchText) {
+        searchText = widget->currentText().trimmed();
+        // add shortcut string at front or replace existing shortcut string
+        if (!searchText->isEmpty()) {
+            const QList<ILocatorFilter *> allFilters = Locator::filters();
+            for (ILocatorFilter *otherfilter : allFilters) {
+                if (searchText->startsWith(otherfilter->shortcutString() + ' ')) {
+                    searchText = searchText->mid(otherfilter->shortcutString().length() + 1);
+                    break;
+                }
             }
         }
     }
-    widget->showText(filter->shortcutString() + ' ' + searchText,
+    widget->showText(filter->shortcutString() + ' ' + *searchText,
                      filter->shortcutString().length() + 1,
-                     searchText.length());
+                     searchText->length());
 }
 
 } // namespace Internal

@@ -158,11 +158,7 @@ void TextEditorActionHandlerPrivate::createActions()
     registerAction(SELECTALL,
             [] (TextEditorWidget *w) { w->selectAll(); }, true);
     registerAction(GOTO, [] (TextEditorWidget *) {
-            QString locatorString = TextEditorPlugin::lineNumberFilter()->shortcutString();
-            locatorString += QLatin1Char(' ');
-            const int selectionStart = locatorString.size();
-            locatorString += tr("<line>:<column>");
-            Core::LocatorManager::show(locatorString, selectionStart, locatorString.size() - selectionStart);
+            Core::LocatorManager::showFilter(TextEditorPlugin::lineNumberFilter());
         });
     m_modifyingActions << registerAction(PRINT,
             [] (TextEditorWidget *widget) { widget->print(Core::ICore::printer()); });

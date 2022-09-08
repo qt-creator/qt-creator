@@ -36,6 +36,8 @@ ActionsFilter::ActionsFilter()
         tr("Triggers an action. If it is from the menu it matches any part of a menu hierarchy, "
            "separated by \">\". For example \"sess def\" matches \"File > Sessions > Default\"."));
     setDefaultShortcutString("t");
+    setDefaultSearchText({});
+    setDefaultKeySequence(QKeySequence("Ctrl+Shift+K"));
     connect(ICore::instance(), &ICore::contextAboutToChange, this, [this] {
         if (LocatorManager::locatorHasFocus())
             updateEnabledActionCache();

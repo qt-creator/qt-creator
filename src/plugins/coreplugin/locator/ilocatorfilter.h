@@ -12,6 +12,7 @@
 #include <QIcon>
 #include <QMetaType>
 #include <QVariant>
+#include <QKeySequence>
 
 #include <optional>
 
@@ -120,6 +121,12 @@ public:
     void setDefaultShortcutString(const QString &shortcut);
     void setShortcutString(const QString &shortcut);
 
+    QKeySequence defaultKeySequence() const;
+    void setDefaultKeySequence(const QKeySequence &sequence);
+
+    std::optional<QString> defaultSearchText() const;
+    void setDefaultSearchText(const QString &defaultSearchText);
+
     virtual void prepareSearch(const QString &entry);
 
     virtual QList<LocatorFilterEntry> matchesFor(QFutureInterface<LocatorFilterEntry> &future, const QString &entry) = 0;
@@ -177,6 +184,8 @@ private:
     QString m_displayName;
     QString m_description;
     QString m_defaultShortcut;
+    std::optional<QString> m_defaultSearchText;
+    QKeySequence m_defaultKeySequence;
     bool m_defaultIncludedByDefault = false;
     bool m_includedByDefault = m_defaultIncludedByDefault;
     bool m_hidden = false;
