@@ -292,7 +292,8 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
 
             for (const auto &property : itemLibraryEntry.properties()) {
                 if (property.type() == "binding") {
-                    propertyBindingList.append(PropertyBindingEntry(property.name(), property.value().toString()));
+                    const QString value = QmlObjectNode::convertToCorrectTranslatableFunction(property.value().toString());
+                    propertyBindingList.append(PropertyBindingEntry(property.name(), value));
                 } else if (property.type() == "enum") {
                     propertyEnumList.append(PropertyBindingEntry(property.name(), property.value().toString()));
                 } else if (property.value().toString() == QString::fromLatin1(imagePlaceHolder)) {
