@@ -114,6 +114,7 @@ signals:
                                   const Utils::FilePath &file);
     void proposalReady(TextEditor::IAssistProposal *proposal);
     void textMarkCreated(const Utils::FilePath &file);
+    void configChanged();
 
 private:
     void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params) override;

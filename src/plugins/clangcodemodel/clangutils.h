@@ -35,7 +35,8 @@ const QStringList globalClangOptions();
 CppEditor::CompilerOptionsBuilder clangOptionsBuilder(
         const CppEditor::ProjectPart &projectPart,
         const CppEditor::ClangDiagnosticConfig &warningsConfig,
-        const Utils::FilePath &clangIncludeDir);
+        const Utils::FilePath &clangIncludeDir,
+        const ProjectExplorer::Macros &extraMacros);
 QJsonArray projectPartOptions(const CppEditor::CompilerOptionsBuilder &optionsBuilder);
 QJsonArray fullProjectPartOptions(const CppEditor::CompilerOptionsBuilder &optionsBuilder,
                                   const QStringList &projectOptions);

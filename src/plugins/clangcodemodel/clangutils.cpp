@@ -171,7 +171,7 @@ GenerateCompilationDbResult generateCompilationDB(QList<ProjectInfo::ConstPtr> p
             QTC_ASSERT(projectInfo, continue);
             QStringList args;
             const CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
-                        *projectPart, warningsConfig, clangIncludeDir);
+                        *projectPart, warningsConfig, clangIncludeDir, {});
             QJsonArray ppOptions;
             if (purpose == CompilationDbPurpose::Project) {
                 args = projectPartArguments(*projectPart);
@@ -328,7 +328,8 @@ QString textUntilPreviousStatement(TextEditor::TextDocumentManipulatorInterface 
 
 CompilerOptionsBuilder clangOptionsBuilder(const ProjectPart &projectPart,
                                            const ClangDiagnosticConfig &warningsConfig,
-                                           const Utils::FilePath &clangIncludeDir)
+                                           const FilePath &clangIncludeDir,
+                                           const Macros &extraMacros)
 {
     const auto useBuildSystemWarnings = warningsConfig.useBuildSystemWarnings()
             ? UseBuildSystemWarnings::Yes
@@ -336,7 +337,9 @@ CompilerOptionsBuilder clangOptionsBuilder(const ProjectPart &projectPart,
     CompilerOptionsBuilder optionsBuilder(projectPart, UseSystemHeader::No,
                                           UseTweakedHeaderPaths::Yes, UseLanguageDefines::No,
                                           useBuildSystemWarnings, clangIncludeDir);
-    optionsBuilder.provideAdditionalMacros({ProjectExplorer::Macro("Q_CREATOR_RUN", "1")});
+    Macros fullMacroList = extraMacros;
+    fullMacroList += Macro("Q_CREATOR_RUN", "1");
+    optionsBuilder.provideAdditionalMacros(fullMacroList);
     optionsBuilder.build(ProjectFile::Unclassified, UsePrecompiledHeaders::No);
     optionsBuilder.add("-fmessage-length=0", /*gccOnlyOption=*/true);
     optionsBuilder.add("-fdiagnostics-show-note-include-stack", /*gccOnlyOption=*/true);

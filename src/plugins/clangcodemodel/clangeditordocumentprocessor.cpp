@@ -3,12 +3,10 @@
 
 #include "clangeditordocumentprocessor.h"
 
-#include "clangdiagnostictooltipwidget.h"
-#include "clangfixitoperation.h"
 #include "clangmodelmanagersupport.h"
-#include "clangutils.h"
 
 #include <cppeditor/builtincursorinfo.h>
+#include <cppeditor/builtineditordocumentparser.h>
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/compileroptionsbuilder.h>
 #include <cppeditor/cppcodemodelsettings.h>
@@ -41,6 +39,11 @@ ClangEditorDocumentProcessor::ClangEditorDocumentProcessor(TextEditor::TextDocum
 {
     connect(parser().data(), &CppEditor::BaseEditorDocumentParser::projectPartInfoUpdated,
             this, &BaseEditorDocumentProcessor::projectPartInfoUpdated);
+    connect(static_cast<CppEditor::BuiltinEditorDocumentParser *>(parser().data()),
+            &CppEditor::BuiltinEditorDocumentParser::finished,
+            this, [this] {
+        emit parserConfigChanged(Utils::FilePath::fromString(filePath()), parserConfig());
+    });
     setSemanticHighlightingChecker([this] {
         return !ClangModelManagerSupport::clientForFile(m_document.filePath());
     });

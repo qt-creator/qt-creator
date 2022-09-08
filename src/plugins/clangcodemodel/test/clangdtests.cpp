@@ -20,6 +20,7 @@
 #include <projectexplorer/target.h>
 #include <texteditor/codeassist/assistproposaliteminterface.h>
 #include <texteditor/codeassist/textdocumentmanipulatorinterface.h>
+#include <texteditor/textmark.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
@@ -2001,6 +2002,15 @@ ClangdTestExternalChanges::ClangdTestExternalChanges()
 
 void ClangdTestExternalChanges::test()
 {
+    ClangdClient * const oldClient = client();
+    QVERIFY(oldClient);
+
+    // Wait until things have settled.
+    while (true) {
+        if (!waitForSignalOrTimeout(oldClient, &ClangdClient::configChanged, timeOutInMs()))
+            break;
+    }
+
     // Break a header file that is used, but not open in Creator.
     // Neither we nor the server should notice, and no diagnostics should be shown for the
     // source file that includes the now-broken header.
@@ -2008,14 +2018,15 @@ void ClangdTestExternalChanges::test()
     QVERIFY(header.open(QIODevice::WriteOnly));
     header.write("blubb");
     header.close();
-    ClangdClient * const oldClient = client();
-    QVERIFY(oldClient);
     waitForSignalOrTimeout(LanguageClientManager::instance(),
                            &LanguageClientManager::clientAdded, timeOutInMs());
     QCOMPARE(client(), oldClient);
     QCOMPARE(client(), ClangModelManagerSupport::clientForProject(project()));
     const TextDocument * const curDoc = document("main.cpp");
     QVERIFY(curDoc);
+    if (!curDoc->marks().isEmpty())
+        for (const auto &m : curDoc->marks())
+            qDebug() << m->lineAnnotation();
     QVERIFY(curDoc->marks().isEmpty());
 
     // Now trigger an external change in an open, but not currently visible file and

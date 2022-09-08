@@ -335,7 +335,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir)
                 = CppEditor::ClangdSettings(d->settings).clangdIncludePath();
         CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
                     *CppEditor::CppModelManager::instance()->fallbackProjectPart(),
-                    warningsConfigForProject(nullptr), includeDir);
+                    warningsConfigForProject(nullptr), includeDir, {});
         const CppEditor::UsePrecompiledHeaders usePch = CppEditor::getPchUsage();
         const QJsonArray projectPartOptions = fullProjectPartOptions(
                     optionsBuilder, globalClangOptions());
@@ -714,23 +714,26 @@ void ClangdClient::handleUiHeaderChange(const QString &fileName)
 void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
         const CppEditor::BaseEditorDocumentParser::Configuration &config)
 {
-    if (config.preferredProjectPartId.isEmpty())
-        return;
-
-    CppEditor::BaseEditorDocumentParser::Configuration &cachedConfig = d->parserConfigs[filePath];
-    if (cachedConfig == config)
-        return;
-    cachedConfig = config;
-
-    // TODO: Also handle editorDefines (and usePrecompiledHeaders?)
-    const auto projectPart = CppEditor::CppModelManager::instance()
-            ->projectPartForId(config.preferredProjectPartId);
+    // TODO: Also handle usePrecompiledHeaders?
+    const auto projectPart = !config.preferredProjectPartId.isEmpty()
+            ? CppEditor::CppModelManager::instance()->projectPartForId(
+                  config.preferredProjectPartId)
+            : projectPartForFile(filePath.toString());
     if (!projectPart)
         return;
+
+    CppEditor::BaseEditorDocumentParser::Configuration fullConfig = config;
+    fullConfig.preferredProjectPartId = projectPart->id();
+    CppEditor::BaseEditorDocumentParser::Configuration &cachedConfig = d->parserConfigs[filePath];
+    if (cachedConfig == fullConfig)
+        return;
+    cachedConfig = fullConfig;
+
     QJsonObject cdbChanges;
     const Utils::FilePath includeDir = CppEditor::ClangdSettings(d->settings).clangdIncludePath();
     CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
-                *projectPart, warningsConfigForProject(project()), includeDir);
+                *projectPart, warningsConfigForProject(project()), includeDir,
+                ProjectExplorer::Macro::toMacros(config.editorDefines));
     const CppEditor::ProjectFile file(filePath.toString(),
                                       CppEditor::ProjectFile::classify(filePath.toString()));
     const QJsonArray projectPartOptions = fullProjectPartOptions(
@@ -742,6 +745,7 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     DidChangeConfigurationParams configChangeParams;
     configChangeParams.setSettings(settings);
     sendMessage(DidChangeConfigurationNotification(configChangeParams));
+    emit configChanged();
 }
 
 void ClangdClient::switchIssuePaneEntries(const Utils::FilePath &filePath)

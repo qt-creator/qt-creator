@@ -507,19 +507,15 @@ void CppEditorWidget::finalizeInitialization()
 
     // clang-format on
     // Toolbar: '#' Button
-    // TODO: Make "Additional Preprocessor Directives" also useful with Clang Code Model.
-    if (!d->m_modelManager->isClangCodeModelActive()) {
-        d->m_preprocessorButton = new QToolButton(this);
-        d->m_preprocessorButton->setText(QLatin1String("#"));
-        Command *cmd = ActionManager::command(Constants::OPEN_PREPROCESSOR_DIALOG);
-        connect(cmd, &Command::keySequenceChanged,
-                this, &CppEditorWidget::updatePreprocessorButtonTooltip);
-        updatePreprocessorButtonTooltip();
-        connect(d->m_preprocessorButton, &QAbstractButton::clicked,
-                this, &CppEditorWidget::showPreProcessorWidget);
-
-        insertExtraToolBarWidget(TextEditorWidget::Left, d->m_preprocessorButton);
-    }
+    d->m_preprocessorButton = new QToolButton(this);
+    d->m_preprocessorButton->setText(QLatin1String("#"));
+    Command *cmd = ActionManager::command(Constants::OPEN_PREPROCESSOR_DIALOG);
+    connect(cmd, &Command::keySequenceChanged,
+            this, &CppEditorWidget::updatePreprocessorButtonTooltip);
+    updatePreprocessorButtonTooltip();
+    connect(d->m_preprocessorButton, &QAbstractButton::clicked,
+            this, &CppEditorWidget::showPreProcessorWidget);
+    insertExtraToolBarWidget(TextEditorWidget::Left, d->m_preprocessorButton);
 
     connect(this, &TextEditor::TextEditorWidget::toolbarOutlineChanged,
             this, &CppEditorWidget::handleOutlineChanged);
