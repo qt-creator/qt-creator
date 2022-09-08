@@ -123,6 +123,23 @@ inline constexpr AuxiliaryDataKeyView rotBlockProperty{AuxiliaryDataType::NodeIn
                                                        "rotBlock"};
 inline constexpr AuxiliaryDataKeyView languageProperty{AuxiliaryDataType::Temporary, "language"};
 
+// Most material preview aux properties are duplicated as document and instance types, as they
+// are both required to be persistent and used at runtime to control material preview rendering
+inline constexpr AuxiliaryDataKeyView materialPreviewEnvDocProperty{
+    AuxiliaryDataType::Document, "matPrevEnvDoc"};
+inline constexpr AuxiliaryDataKeyView materialPreviewEnvValueDocProperty{
+    AuxiliaryDataType::Document, "matPrevEnvValueDoc"};
+inline constexpr AuxiliaryDataKeyView materialPreviewModelDocProperty{
+    AuxiliaryDataType::Document, "matPrevModelDoc"};
+inline constexpr AuxiliaryDataKeyView materialPreviewColorDocProperty{
+    AuxiliaryDataType::Document, "matPrevColorDoc"}; // Only needed on doc side
+inline constexpr AuxiliaryDataKeyView materialPreviewEnvProperty{
+    AuxiliaryDataType::NodeInstanceAuxiliary, "matPrevEnv"};
+inline constexpr AuxiliaryDataKeyView materialPreviewEnvValueProperty{
+    AuxiliaryDataType::NodeInstanceAuxiliary, "matPrevEnvValue"};
+inline constexpr AuxiliaryDataKeyView materialPreviewModelProperty{
+    AuxiliaryDataType::NodeInstanceAuxiliary, "matPrevModel"};
+
 template<typename Type>
 QVariant getDefaultValueAsQVariant(const Type &key)
 {

@@ -9,6 +9,7 @@
 #include "materialeditortransaction.h"
 #include "assetslibrarywidget.h"
 
+#include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
 #include <metainfo.h>
 #include <nodeinstanceview.h>
@@ -433,79 +434,81 @@ void MaterialEditorView::handleToolBarAction(int action)
 void MaterialEditorView::handlePreviewEnvChanged(const QString &envAndValue)
 {
     Q_UNUSED(envAndValue);
-    //    if (envAndValue.isEmpty() || m_initializingPreviewData)
-    //        return;
+    if (envAndValue.isEmpty() || m_initializingPreviewData)
+        return;
 
-    //    QTC_ASSERT(m_hasQuick3DImport, return);
-    //    QTC_ASSERT(model(), return);
-    //    QTC_ASSERT(model()->nodeInstanceView(), return);
+    QTC_ASSERT(m_hasQuick3DImport, return);
+    QTC_ASSERT(model(), return);
+    QTC_ASSERT(model()->nodeInstanceView(), return);
 
-    //    QStringList parts = envAndValue.split('=');
-    //    QString env = parts[0];
-    //    QString value;
-    //    if (parts.size() > 1)
-    //        value = parts[1];
+    QStringList parts = envAndValue.split('=');
+    QString env = parts[0];
+    QString value;
+    if (parts.size() > 1)
+        value = parts[1];
 
-    //    PropertyName matPrevEnvAuxProp("matPrevEnv");
-    //    PropertyName matPrevEnvValueAuxProp("matPrevEnvValue");
+    auto renderPreviews = [=](const QString &auxEnv, const QString &auxValue) {
+        rootModelNode().setAuxiliaryData(materialPreviewEnvDocProperty, auxEnv);
+        rootModelNode().setAuxiliaryData(materialPreviewEnvProperty, auxEnv);
+        rootModelNode().setAuxiliaryData(materialPreviewEnvValueDocProperty, auxValue);
+        rootModelNode().setAuxiliaryData(materialPreviewEnvValueProperty, auxValue);
+        QTimer::singleShot(0, this, &MaterialEditorView::requestPreviewRender);
+        emitCustomNotification("refresh_material_browser", {});
+    };
 
-    //    auto renderPreviews = [=](const QString &auxEnv, const QString &auxValue) {
-    //        rootModelNode().setAuxiliaryData(matPrevEnvAuxProp, auxEnv);
-    //        rootModelNode().setAuxiliaryData(matPrevEnvValueAuxProp, auxValue);
-    //        QTimer::singleShot(0, this, &MaterialEditorView::requestPreviewRender);
-    //        emitCustomNotification("refresh_material_browser", {});
-    //    };
+    if (env == "Color") {
+        m_colorDialog.clear();
 
-    //    if (env == "Color") {
-    //        m_colorDialog.clear();
+        // Store color to separate property to persist selection over non-color env changes
+        auto oldColorPropVal = rootModelNode().auxiliaryData(materialPreviewColorDocProperty);
+        auto oldEnvPropVal = rootModelNode().auxiliaryData(materialPreviewEnvDocProperty);
+        auto oldValuePropVal = rootModelNode().auxiliaryData(materialPreviewEnvValueDocProperty);
+        QString oldColor = oldColorPropVal ? oldColorPropVal->toString() : "";
+        QString oldEnv = oldEnvPropVal ? oldEnvPropVal->toString() : "";
+        QString oldValue = oldValuePropVal ? oldValuePropVal->toString() : "";
 
-    //        // Store color to separate property to persist selection over non-color env changes
-    //        PropertyName colorAuxProp("matPrevColor");
-    //        QString oldColor = rootModelNode().auxiliaryData(colorAuxProp).toString();
-    //        QString oldEnv = rootModelNode().auxiliaryData(matPrevEnvAuxProp).toString();
-    //        QString oldValue = rootModelNode().auxiliaryData(matPrevEnvValueAuxProp).toString();
+        m_colorDialog = new QColorDialog(Core::ICore::dialogParent());
+        m_colorDialog->setModal(true);
+        m_colorDialog->setAttribute(Qt::WA_DeleteOnClose);
+        m_colorDialog->setCurrentColor(QColor(oldColor));
+        m_colorDialog->show();
 
-    //        m_colorDialog = new QColorDialog(Core::ICore::dialogParent());
-    //        m_colorDialog->setModal(true);
-    //        m_colorDialog->setAttribute(Qt::WA_DeleteOnClose);
-    //        m_colorDialog->setCurrentColor(QColor(oldColor));
-    //        m_colorDialog->show();
+        QObject::connect(m_colorDialog, &QColorDialog::currentColorChanged,
+                         m_colorDialog, [=](const QColor &color) {
+            renderPreviews(env, color.name());
+        });
 
-    //        QObject::connect(m_colorDialog, &QColorDialog::currentColorChanged,
-    //                         m_colorDialog, [=](const QColor &color) {
-    //            renderPreviews(env, color.name());
-    //        });
+        QObject::connect(m_colorDialog, &QColorDialog::colorSelected,
+                         m_colorDialog, [=](const QColor &color) {
+            renderPreviews(env, color.name());
+            rootModelNode().setAuxiliaryData(materialPreviewColorDocProperty, color.name());
+        });
 
-    //        QObject::connect(m_colorDialog, &QColorDialog::colorSelected,
-    //                         m_colorDialog, [=](const QColor &color) {
-    //            renderPreviews(env, color.name());
-    //            rootModelNode().setAuxiliaryData(colorAuxProp, color.name());
-    //        });
-
-    //        QObject::connect(m_colorDialog, &QColorDialog::rejected,
-    //                         m_colorDialog, [=]() {
-    //            renderPreviews(oldEnv, oldValue);
-    //            initPreviewData();
-    //        });
-    //        return;
-    //    }
-    //    renderPreviews(env, value);
+        QObject::connect(m_colorDialog, &QColorDialog::rejected,
+                         m_colorDialog, [=]() {
+            renderPreviews(oldEnv, oldValue);
+            initPreviewData();
+        });
+        return;
+    }
+    renderPreviews(env, value);
 }
 
 void MaterialEditorView::handlePreviewModelChanged(const QString &modelStr)
 {
     Q_UNUSED(modelStr);
-    //    if (modelStr.isEmpty() || m_initializingPreviewData)
-    //        return;
+    if (modelStr.isEmpty() || m_initializingPreviewData)
+        return;
 
-    //    QTC_ASSERT(m_hasQuick3DImport, return);
-    //    QTC_ASSERT(model(), return);
-    //    QTC_ASSERT(model()->nodeInstanceView(), return);
+    QTC_ASSERT(m_hasQuick3DImport, return);
+    QTC_ASSERT(model(), return);
+    QTC_ASSERT(model()->nodeInstanceView(), return);
 
-    //    rootModelNode().setAuxiliaryData("matPrevModel", modelStr);
+    rootModelNode().setAuxiliaryData(materialPreviewModelDocProperty, modelStr);
+    rootModelNode().setAuxiliaryData(materialPreviewModelProperty, modelStr);
 
-    //    QTimer::singleShot(0, this, &MaterialEditorView::requestPreviewRender);
-    //    emitCustomNotification("refresh_material_browser", {});
+    QTimer::singleShot(0, this, &MaterialEditorView::requestPreviewRender);
+    emitCustomNotification("refresh_material_browser", {});
 }
 
 void MaterialEditorView::setupQmlBackend()
@@ -623,24 +626,31 @@ bool MaterialEditorView::noValidSelection() const
 
 void MaterialEditorView::initPreviewData()
 {
-    //    if (model() && m_qmlBackEnd) {
-    //        QString env = rootModelNode().auxiliaryData("matPrevEnv").toString();
-    //        QString envValue = rootModelNode().auxiliaryData("matPrevEnvValue").toString();
-    //        QString modelStr = rootModelNode().auxiliaryData("matPrevModel").toString();
-    //        if (!envValue.isEmpty() && env != "Color" && env != "Basic") {
-    //            env += '=';
-    //            env += envValue;
-    //        }
-    //        if (env.isEmpty())
-    //            env = "SkyBox=preview_studio";
-    //        if (modelStr.isEmpty())
-    //            modelStr = "#Sphere";
-    //        m_initializingPreviewData = true;
-    //        QMetaObject::invokeMethod(m_qmlBackEnd->widget()->rootObject(),
-    //                                  "initPreviewData",
-    //                                  Q_ARG(QVariant, env), Q_ARG(QVariant, modelStr));
-    //        m_initializingPreviewData = false;
-    //    }
+    if (model() && m_qmlBackEnd) {
+        auto envPropVal = rootModelNode().auxiliaryData(materialPreviewEnvDocProperty);
+        auto envValuePropVal = rootModelNode().auxiliaryData(materialPreviewEnvValueDocProperty);
+        auto modelStrPropVal = rootModelNode().auxiliaryData(materialPreviewModelDocProperty);
+        QString env = envPropVal ? envPropVal->toString() : "";
+        QString envValue = envValuePropVal ? envValuePropVal->toString() : "";
+        QString modelStr = modelStrPropVal ? modelStrPropVal->toString() : "";
+        // Initialize corresponding instance aux values used by puppet
+        rootModelNode().setAuxiliaryData(materialPreviewEnvProperty, env);
+        rootModelNode().setAuxiliaryData(materialPreviewEnvValueProperty, envValue);
+        rootModelNode().setAuxiliaryData(materialPreviewModelProperty, modelStr);
+        if (!envValue.isEmpty() && env != "Color" && env != "Basic") {
+            env += '=';
+            env += envValue;
+        }
+        if (env.isEmpty())
+            env = "SkyBox=preview_studio";
+        if (modelStr.isEmpty())
+            modelStr = "#Sphere";
+        m_initializingPreviewData = true;
+        QMetaObject::invokeMethod(m_qmlBackEnd->widget()->rootObject(),
+                                  "initPreviewData",
+                                  Q_ARG(QVariant, env), Q_ARG(QVariant, modelStr));
+        m_initializingPreviewData = false;
+    }
 }
 
 void MaterialEditorView::delayedTypeUpdate()
