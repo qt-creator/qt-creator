@@ -320,68 +320,109 @@ void tst_fileutils::toString()
     QCOMPARE(cleanedOutput, userResult);
 }
 
+enum ExpectedPass
+{
+    PassEverywhere = 0,
+    FailOnWindows = 1,
+    FailOnLinux = 2,
+    FailEverywhere = 3
+};
+
+class FromStringData
+{
+public:
+    FromStringData(const QString &input, const QString &scheme, const QString &host,
+                   const QString &path, ExpectedPass expectedPass = PassEverywhere)
+        : input(input), scheme(scheme), host(host),
+         path(path), expectedPass(expectedPass)
+    {}
+
+    QString input;
+    QString scheme;
+    QString host;
+    QString path;
+    ExpectedPass expectedPass = PassEverywhere;
+};
+
+Q_DECLARE_METATYPE(FromStringData);
+
 void tst_fileutils::fromString_data()
 {
-    QTest::addColumn<QString>("input");
+    using D = FromStringData;
+    QTest::addColumn<D>("data");
 
-    QTest::addColumn<QString>("scheme");
-    QTest::addColumn<QString>("host");
-    QTest::addColumn<QString>("path");
+    QTest::newRow("empty") << D("", "", "", "");
+    QTest::newRow("single-colon") << D(":", "", "", ":");
+    QTest::newRow("single-slash") << D("/", "", "", "/");
+    QTest::newRow("single-char") << D("a", "", "", "a");
+    QTest::newRow("qrc") << D(":/test.txt", "", "", ":/test.txt");
+    QTest::newRow("qrc-no-slash") << D(":test.txt", "", "", ":test.txt");
 
-    QTest::newRow("empty-linux") << "" << "" << "" << "";
-    QTest::newRow("empty-win") << "" << "" << "" << "";
-    QTest::newRow("single-colon-linux") << ":" << "" << "" << ":";
-    QTest::newRow("single-colon-win") << ":" << "" << "" << ":";
-    QTest::newRow("single-slash-linux") << "/" << "" << "" << "/";
-    QTest::newRow("single-slash-win") << "/" << "" << "" << "/";
-    QTest::newRow("single-char-linux") << "a" << "" << "" << "a";
-    QTest::newRow("single-char-win") << "a" << "" << "" << "a";
-    QTest::newRow("qrc-linux") << ":/test.txt" << "" << "" << ":/test.txt";
-    QTest::newRow("qrc-win") << ":/test.txt" << "" << "" << ":/test.txt";
-    QTest::newRow("qrc-no-slash-linux") << ":test.txt" << "" << "" << ":test.txt";
-    QTest::newRow("qrc-no-slash-win") << ":test.txt" << "" << "" << ":test.txt";
-    QTest::newRow("unc-incomplete-only-server") << "//server/" << "" << "" << "//server/";
-    QTest::newRow("unc-server-and-share") << "//server/share" << "" << "" << "//server/share";
-    QTest::newRow("unc-server-and-share-2") << "//server/share/" << "" << "" << "//server/share/";
-    QTest::newRow("unc-full") << "//server/share/test.txt" << "" << "" << "//server/share/test.txt";
+    QTest::newRow("unc-incomplete") << D("//", "", "", "", FailEverywhere);
+    QTest::newRow("unc-incomplete-only-server") << D("//server", "", "", "//server/", FailEverywhere);
+    QTest::newRow("unc-incomplete-only-server-2") << D("//server/", "", "", "//server/");
+    QTest::newRow("unc-server-and-share") << D("//server/share", "", "", "//server/share");
+    QTest::newRow("unc-server-and-share-2") << D("//server/share/", "", "", "//server/share/");
+    QTest::newRow("unc-full") << D("//server/share/test.txt", "", "", "//server/share/test.txt");
 
-    QTest::newRow("unix-root") << "/" << "" << "" << "/"  ;
-    QTest::newRow("unix-folder") << "/tmp" << "" << "" << "/tmp";
-    QTest::newRow("unix-folder-with-trailing-slash") << "/tmp/" << "" << "" << "/tmp/";
+    QTest::newRow("unix-root") << D("/", "", "", "/");
+    QTest::newRow("unix-folder") << D("/tmp", "", "", "/tmp");
+    QTest::newRow("unix-folder-with-trailing-slash") << D("/tmp/", "", "", "/tmp/");
 
-    QTest::newRow("windows-root") << "c:" << "" << "" << "c:";
-    QTest::newRow("windows-folder") << "c:\\Windows" << "" << "" << "c:\\Windows";
-    QTest::newRow("windows-folder-with-trailing-slash") << "c:\\Windows\\" << "" << "" << "c:\\Windows\\";
-    QTest::newRow("windows-folder-slash") << "C:/Windows" << "" << "" << "C:/Windows";
+    QTest::newRow("windows-root") << D("c:", "", "", "c:/", FailEverywhere);
+    QTest::newRow("windows-folder") << D("c:\\Windows", "", "", "c:/Windows", FailEverywhere);
+    QTest::newRow("windows-folder-with-trailing-slash") << D("c:\\Windows\\", "", "", "c:/Windows\\", FailEverywhere);
+    QTest::newRow("windows-folder-slash") << D("C:/Windows", "", "", "C:/Windows");
 
-    QTest::newRow("docker-root-url") << "docker://1234/" << "docker" << "1234" << "/";
-    QTest::newRow("docker-root-url-special") << QDir::rootPath() + "__qtc_devices__/docker/1234/" << "docker" << "1234" << "/";
+    QTest::newRow("docker-root-url") << D("docker://1234/", "docker", "1234", "/");
+    QTest::newRow("docker-root-url-special-linux") << D("/__qtc_devices__/docker/1234/", "docker", "1234", "/", FailOnWindows);
+    QTest::newRow("docker-root-url-special-win") << D("c:/__qtc_devices__/docker/1234/", "docker", "1234", "/", FailOnLinux);
 
-    QTest::newRow("qtc-dev-linux") << QDir::rootPath() + "__qtc_devices__" << "" << "" << QDir::rootPath() + "__qtc_devices__";
-    QTest::newRow("qtc-dev-win") << QDir::rootPath() + "__qtc_devices__" << "" << "" << QDir::rootPath() + "__qtc_devices__";
-    QTest::newRow("qtc-dev-type-linux") << QDir::rootPath() + "__qtc_devices__/docker" << "" << "" << QDir::rootPath() + "__qtc_devices__/docker";
-    QTest::newRow("qtc-dev-type-win") << QDir::rootPath() + "__qtc_devices__/docker" << "" << "" << QDir::rootPath() + "__qtc_devices__/docker";
-    QTest::newRow("qtc-dev-type-dev") << QDir::rootPath() + "__qtc_devices__/docker/1234" << "docker" << "1234" << "/";
+    QTest::newRow("qtc-dev-linux") << D("/__qtc_devices__", "", "", "/__qtc_devices__");
+    QTest::newRow("qtc-dev-win") << D("c:/__qtc_devices__", "", "", "c:/__qtc_devices__");
+    QTest::newRow("qtc-dev-type-linux") << D("/__qtc_devices__/docker", "", "", "/__qtc_devices__/docker");
+    QTest::newRow("qtc-dev-type-win") << D("c:/__qtc_devices__/docker", "", "", "c:/__qtc_devices__/docker");
+    QTest::newRow("qtc-dev-type-dev-linux") << D("/__qtc_devices__/docker/1234", "docker", "1234", "/", FailOnWindows);
+    QTest::newRow("qtc-dev-type-dev-win") << D("c:/__qtc_devices__/docker/1234", "docker", "1234", "/", FailOnLinux);
 
-    QTest::newRow("cross-os") << QDir::rootPath() + "__qtc_devices__/docker/1234/c:/test.txt" << "docker" << "1234" << "/c:/test.txt";
-    QTest::newRow("cross-os-unclean") << QDir::rootPath() + "__qtc_devices__/docker/1234/c:\\test.txt" << "docker" << "1234" << "/c:\\test.txt";
-    QTest::newRow("unc-full-in-docker") << QDir::rootPath() + "__qtc_devices__/docker/1234//server/share/test.txt" << "docker" << "1234" << "//server/share/test.txt";
+    QTest::newRow("cross-os-linux")
+        << D("/__qtc_devices__/docker/1234/c:/test.txt", "docker", "1234", "c:/test.txt", FailEverywhere);
+    QTest::newRow("cross-os-win")
+        << D("c:/__qtc_devices__/docker/1234/c:/test.txt", "docker", "1234", "c:/test.txt", FailEverywhere);
+    QTest::newRow("cross-os-unclean-linux")
+        << D("/__qtc_devices__/docker/1234/c:\\test.txt", "docker", "1234", "c:/test.txt", FailEverywhere);
+    QTest::newRow("cross-os-unclean-win")
+        << D("c:/__qtc_devices__/docker/1234/c:\\test.txt", "docker", "1234", "c:/test.txt", FailEverywhere);
 
-    QTest::newRow("unc-dos-1") << "//?/c:" << "" << "" << "//?/c:";
-    QTest::newRow("unc-dos-com") << "//./com1" << "" << "" << "//./com1";
+    QTest::newRow("unc-full-in-docker-linux")
+        << D("/__qtc_devices__/docker/1234//server/share/test.txt", "docker", "1234", "//server/share/test.txt", FailOnWindows);
+    QTest::newRow("unc-full-in-docker-win")
+        << D("c:/__qtc_devices__/docker/1234//server/share/test.txt", "docker", "1234", "//server/share/test.txt", FailOnLinux);
+
+    QTest::newRow("unc-dos-1") << D("//?/c:", "", "", "//?/c:");
+    QTest::newRow("unc-dos-com") << D("//./com1", "", "", "//./com1");
 }
 
 void tst_fileutils::fromString()
 {
-    QFETCH(QString, input);
-    QFETCH(QString, scheme);
-    QFETCH(QString, host);
-    QFETCH(QString, path);
+    QFETCH(FromStringData, data);
 
-    FilePath filePath = FilePath::fromString(input);
-    QCOMPARE(filePath.scheme(), scheme);
-    QCOMPARE(filePath.host(), host);
-    QCOMPARE(filePath.path(), path);
+    FilePath filePath = FilePath::fromString(data.input);
+
+    bool expectFail = ((data.expectedPass & FailOnLinux) && !HostOsInfo::isWindowsHost())
+                   || ((data.expectedPass & FailOnWindows) && HostOsInfo::isWindowsHost());
+
+    if (expectFail) {
+        QString actual = filePath.scheme() + '|' + filePath.host() + '|' + filePath.path();
+        QString expected = data.scheme + '|' + data.host + '|' + data.path;
+        QEXPECT_FAIL("", "", Continue);
+        QCOMPARE(actual, expected);
+        return;
+    }
+
+    QCOMPARE(filePath.scheme(), data.scheme);
+    QCOMPARE(filePath.host(), data.host);
+    QCOMPARE(filePath.path(), data.path);
 }
 
 void tst_fileutils::fromToString_data()
