@@ -586,7 +586,7 @@ inline bool dotPropertyHeuristic(const QmlObjectNode &node, const NodeMetaInfo &
     NodeMetaInfo rectangleInfo = node.view()->model()->metaInfo("QtQuick.Rectangle");
     NodeMetaInfo imageInfo = node.view()->model()->metaInfo("QtQuick.Image");
 
-    if (typeName == "font"
+    if (typeName == "font" || typeName == "Texture" || typeName == "vector4d"
             || itemInfo.hasProperty(itemProperty)
             || textInfo.isSubclassOf(typeName)
             || rectangleInfo.isSubclassOf(typeName)
@@ -607,10 +607,13 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
 
     QStringList allTypes; // all template types
     QStringList separateSectionTypes; // separate section types only
+    QStringList needsTypeArgTypes;  // types that need type as third parameter
 
     for (const QmlJS::SimpleReaderNode::Ptr &node : nodes) {
         if (node->propertyNames().contains("separateSection"))
             separateSectionTypes.append(variantToStringList(node->property("typeNames").value));
+        if (node->propertyNames().contains("needsTypeArg"))
+            needsTypeArgTypes.append(variantToStringList(node->property("typeNames").value));
 
         allTypes.append(variantToStringList(node->property("typeNames").value));
     }
@@ -668,8 +671,8 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
 
     Utils::sort(basicProperties);
 
-    auto findAndFillTemplate = [&nodes, &node, &type](const PropertyName &label,
-                                                      const PropertyName &property) {
+    auto findAndFillTemplate = [&nodes, &node, &type, &needsTypeArgTypes](
+            const PropertyName &label, const PropertyName &property) {
         PropertyName underscoreProperty = property;
         underscoreProperty.replace('.', '_');
 
@@ -687,7 +690,14 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &type,
                 if (file.open(QIODevice::ReadOnly)) {
                     QString source = QString::fromUtf8(file.readAll());
                     file.close();
-                    filledTemplate = source.arg(QString::fromUtf8(label)).arg(QString::fromUtf8(underscoreProperty));
+                    if (needsTypeArgTypes.contains(QString::fromUtf8(typeName))) {
+                        filledTemplate = source.arg(QString::fromUtf8(label),
+                                                    QString::fromUtf8(underscoreProperty),
+                                                    QString::fromUtf8(typeName));
+                    } else {
+                        filledTemplate = source.arg(QString::fromUtf8(label),
+                                                    QString::fromUtf8(underscoreProperty));
+                    }
                 } else {
                     qWarning().nospace() << "template definition source file not found:" << fileName;
                 }

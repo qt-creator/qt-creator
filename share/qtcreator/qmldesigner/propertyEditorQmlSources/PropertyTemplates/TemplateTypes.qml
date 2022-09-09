@@ -78,4 +78,25 @@ AutoTypes {
         sourceFile: "ImageEditorTemplate.template"
         separateSection: true
     }
+
+    Type {
+        typeNames: ["TextureInput", "Texture"]
+        sourceFile: "3DItemFilterComboBoxEditorTemplate.template"
+        needsTypeArg: true
+    }
+
+    Type {
+        typeNames: ["vector2d"]
+        sourceFile: "Vector2dEditorTemplate.template"
+    }
+
+    Type {
+        typeNames: ["vector3d"]
+        sourceFile: "Vector3dEditorTemplate.template"
+    }
+
+    Type {
+        typeNames: ["vector4d"]
+        sourceFile: "Vector4dEditorTemplate.template"
+    }
 }
