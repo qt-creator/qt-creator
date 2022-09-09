@@ -27,15 +27,17 @@
 #include <QDir>
 #include <QFile>
 #include <QFileSystemWatcher>
+#include <QLoggingCategory>
 #include <QMessageBox>
 #include <QTimer>
 #include <QWindow>
+
+static Q_LOGGING_CATEGORY(LOG, "qtc.squish.squishtools", QtWarningMsg)
 
 using namespace Utils;
 
 namespace Squish {
 namespace Internal {
-
 
 static QString runnerStateName(SquishTools::RunnerState state)
 {
@@ -53,6 +55,28 @@ static QString runnerStateName(SquishTools::RunnerState state)
     case SquishTools::RunnerState::Finished: return "Finished";
     }
     return "ThouShallNotBeHere";
+}
+
+static QString toolsStateName(SquishTools::State state)
+{
+    switch (state) {
+    case SquishTools::Idle: return "Idle";
+    case SquishTools::ServerStarting: return "ServerStarting";
+    case SquishTools::ServerStarted: return "ServerStartFailed";
+    case SquishTools::ServerStartFailed: return "ServerStopped";
+    case SquishTools::ServerStopped: return "ServerStopped";
+    case SquishTools::ServerStopFailed: return "ServerStopFailed";
+    case SquishTools::RunnerStarting: return "RunnerStarting";
+    case SquishTools::RunnerStarted: return "RunnerStarted";
+    case SquishTools::RunnerStartFailed: return "RunnerStartFailed";
+    case SquishTools::RunnerStopped: return "RunnerStopped";
+    }
+    return "UnexpectedState";
+}
+
+static void logRunnerStateChange(SquishTools::RunnerState from, SquishTools::RunnerState to)
+{
+    qCInfo(LOG) << "Runner state change:" << runnerStateName(from) << ">" << runnerStateName(to);
 }
 
 class SquishLocationMark : public TextEditor::TextMark
@@ -103,6 +127,7 @@ SquishTools::SquishTools(QObject *parent)
     m_perspective.initPerspective();
     connect(&m_perspective, &SquishPerspective::interruptRequested,
             this, [this] {
+        logRunnerStateChange(m_squishRunnerState, RunnerState::InterruptRequested);
         m_squishRunnerState = RunnerState::InterruptRequested;
         if (m_runnerProcess.processId() != -1)
             interruptRunner();
@@ -110,8 +135,10 @@ SquishTools::SquishTools(QObject *parent)
     connect(&m_perspective, &SquishPerspective::stopRequested,
             this, [this] () {
         bool interrupted = m_squishRunnerState == RunnerState::Interrupted;
-        m_squishRunnerState = interrupted ? RunnerState::CancelRequestedWhileInterrupted
-                                          : RunnerState::CancelRequested;
+        RunnerState state = interrupted ? RunnerState::CancelRequestedWhileInterrupted
+                                        : RunnerState::CancelRequested;
+        logRunnerStateChange(m_squishRunnerState, state);
+        m_squishRunnerState = state;
         if (interrupted)
             handlePrompt();
         else if (m_runnerProcess.processId() != -1)
@@ -258,6 +285,7 @@ void SquishTools::writeServerSettingsChanges(const QList<QStringList> &changes)
 
 void SquishTools::setState(SquishTools::State state)
 {
+    qCInfo(LOG) << "State change:" << toolsStateName(m_state) << ">" << toolsStateName(state);
     // TODO check whether state transition is legal
     m_state = state;
 
@@ -343,6 +371,7 @@ void SquishTools::setState(SquishTools::State state)
             logrotateTestResults();
         } else {
             m_xmlOutputHandler->clearForNextRun();
+            logRunnerStateChange(m_squishRunnerState, RunnerState::Starting);
             m_squishRunnerState = RunnerState::Starting;
             startSquishRunner();
         }
@@ -438,6 +467,7 @@ void SquishTools::startSquishServer(Request request)
             m_perspective.showControlBar(m_xmlOutputHandler.get());
 
         m_perspective.select();
+        logRunnerStateChange(m_squishRunnerState, RunnerState::Starting);
         m_squishRunnerState = RunnerState::Starting;
     }
 
@@ -450,6 +480,7 @@ void SquishTools::startSquishServer(Request request)
     // several times and may crash as the process may not have been cleanly destructed yet
     m_serverProcess.close();
     setState(ServerStarting);
+    qCDebug(LOG) << "Server starts:" << m_serverProcess.commandLine().toUserOutput();
     m_serverProcess.start();
     if (!m_serverProcess.waitForStarted()) {
         setState(ServerStartFailed);
@@ -459,6 +490,7 @@ void SquishTools::startSquishServer(Request request)
 
 void SquishTools::stopSquishServer()
 {
+    qCDebug(LOG) << "Stopping server";
     if (m_serverProcess.state() != QProcess::NotRunning && m_serverPort > 0) {
         QtcProcess serverKiller;
         QStringList args;
@@ -528,12 +560,14 @@ Environment SquishTools::squishEnvironment()
 
 void SquishTools::onServerFinished()
 {
+    qCDebug(LOG) << "Server finished";
     m_serverPort = -1;
     setState(ServerStopped);
 }
 
 void SquishTools::onRunnerFinished()
 {
+    qCDebug(LOG) << "Runner finished";
     if (m_request == RunnerQueryRequested) {
         emit queryFinished(m_fullRunnerOutput);
         setState(RunnerStopped);
@@ -542,6 +576,7 @@ void SquishTools::onRunnerFinished()
     }
 
     if (!m_shutdownInitiated) {
+        logRunnerStateChange(m_squishRunnerState, RunnerState::Finished);
         m_squishRunnerState = RunnerState::Finished;
         m_perspective.updateStatus(Tr::tr("Test run finished."));
         m_perspective.setPerspectiveMode(SquishPerspective::NoMode);
@@ -695,6 +730,8 @@ void SquishTools::onRunnerErrorOutput()
             if (trimmed.startsWith("QSocketNotifier: Invalid socket")) {
                 // we've lost connection to the AUT - if Interrupted, try to cancel the runner
                 if (m_squishRunnerState == RunnerState::Interrupted) {
+                    logRunnerStateChange(m_squishRunnerState,
+                                         RunnerState::CancelRequestedWhileInterrupted);
                     m_squishRunnerState = RunnerState::CancelRequestedWhileInterrupted;
                     handlePrompt();
                 }
@@ -791,10 +828,12 @@ void SquishTools::handlePrompt(const QString &fileName, int line, int column)
     case RunnerState::CancelRequestedWhileInterrupted:
         m_runnerProcess.write("exit\n");
         clearLocationMarker();
+        logRunnerStateChange(m_squishRunnerState, RunnerState::Canceling);
         m_squishRunnerState = RunnerState::Canceling;
         break;
     case RunnerState::Canceling:
         m_runnerProcess.write("quit\n");
+        logRunnerStateChange(m_squishRunnerState, RunnerState::Canceled);
         m_squishRunnerState = RunnerState::Canceled;
         break;
     case RunnerState::Canceled:
@@ -803,6 +842,7 @@ void SquishTools::handlePrompt(const QString &fileName, int line, int column)
     default:
         if (line != -1 && column != -1) {
             m_perspective.setPerspectiveMode(SquishPerspective::Interrupted);
+            logRunnerStateChange(m_squishRunnerState, RunnerState::Interrupted);
             m_squishRunnerState = RunnerState::Interrupted;
             restoreQtCreatorWindows();
             // if we're returning from a function we might end up without a file information
@@ -941,6 +981,7 @@ void SquishTools::onRunnerRunRequested(SquishPerspective::StepMode step)
         delete m_requestVarsTimer;
         m_requestVarsTimer = nullptr;
     }
+    logRunnerStateChange(m_squishRunnerState, RunnerState::RunRequested);
     m_squishRunnerState = RunnerState::RunRequested;
 
     if (step == SquishPerspective::Continue)
@@ -956,11 +997,13 @@ void SquishTools::onRunnerRunRequested(SquishPerspective::StepMode step)
     if (toolsSettings.minimizeIDE)
         minimizeQtCreatorWindows();
     m_perspective.setPerspectiveMode(SquishPerspective::Running);
+    logRunnerStateChange(m_squishRunnerState, RunnerState::Running);
     m_squishRunnerState = RunnerState::Running;
 }
 
 void SquishTools::interruptRunner()
 {
+    qCDebug(LOG) << "Interrupting runner";
     const CommandLine cmd(toolsSettings.processComPath,
                           {QString::number(m_runnerProcess.processId()), "break"});
     QtcProcess process;
@@ -971,6 +1014,7 @@ void SquishTools::interruptRunner()
 
 void SquishTools::terminateRunner()
 {
+    qCDebug(LOG) << "Terminating runner";
     m_testCases.clear();
     m_currentTestCasePath.clear();
     m_perspective.updateStatus(Tr::tr("User stop initiated."));
@@ -1114,6 +1158,7 @@ void SquishTools::setupAndStartSquishRunnerProcess(const QStringList &args,
                 &SquishTools::onResultsDirChanged);
     }
 
+    qCDebug(LOG) << "Runner starts:" << m_runnerProcess.commandLine().toUserOutput();
     m_runnerProcess.start();
     if (!m_runnerProcess.waitForStarted()) {
         QMessageBox::critical(Core::ICore::dialogParent(),
