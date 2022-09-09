@@ -201,14 +201,15 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
         return QVariant::fromValue(mEntries.at(index.row()));
     case int(HighlightingItemRole::StartColumn):
     case int(HighlightingItemRole::Length): {
-        LocatorFilterEntry &entry = mEntries[index.row()];
-        const int highlightColumn = entry.highlightInfo.dataType == LocatorFilterEntry::HighlightInfo::DisplayName
-                                                                 ? DisplayNameColumn
-                                                                 : ExtraInfoColumn;
-        if (highlightColumn == index.column()) {
+        const LocatorFilterEntry &entry = mEntries[index.row()];
+        auto highlights = [&](LocatorFilterEntry::HighlightInfo::DataType type){
             const bool startIndexRole = role == int(HighlightingItemRole::StartColumn);
-            return startIndexRole ? QVariant::fromValue(entry.highlightInfo.starts)
-                                  : QVariant::fromValue(entry.highlightInfo.lengths);
+            return startIndexRole ? QVariant::fromValue(entry.highlightInfo.starts(type))
+                                  : QVariant::fromValue(entry.highlightInfo.lengths(type));
+        };
+        switch (index.column()) {
+        case DisplayNameColumn: return highlights(LocatorFilterEntry::HighlightInfo::DisplayName);
+        case ExtraInfoColumn: return highlights(LocatorFilterEntry::HighlightInfo::ExtraInfo);
         }
         break;
     }

@@ -28,21 +28,37 @@ struct LocatorFilterEntry
             ExtraInfo
         };
 
+        HighlightInfo(QVector<int> startIndex,
+                      QVector<int> length,
+                      DataType type = DataType::DisplayName)
+        {
+            if (type == DataType::DisplayName) {
+                startsDisplay = startIndex;
+                lengthsDisplay = length;
+            } else {
+                startsExtraInfo = startIndex;
+                lengthsExtraInfo = length;
+            }
+        }
+
         HighlightInfo(int startIndex, int length, DataType type = DataType::DisplayName)
-            : starts{startIndex}
-            , lengths{length}
-            , dataType(type)
-        {}
+            : HighlightInfo(QVector<int>{startIndex}, QVector<int>{length}, type)
+        { }
 
-        HighlightInfo(QVector<int> startIndex, QVector<int> length, DataType type = DataType::DisplayName)
-            : starts(startIndex)
-            , lengths(length)
-            , dataType(type)
-        {}
+        QVector<int> starts(DataType type = DataType::DisplayName) const
+        {
+            return type == DataType::DisplayName ? startsDisplay : startsExtraInfo;
+        };
 
-        QVector<int> starts;
-        QVector<int> lengths;
-        DataType dataType;
+        QVector<int> lengths(DataType type = DataType::DisplayName) const
+        {
+            return type == DataType::DisplayName ? lengthsDisplay : lengthsExtraInfo;
+        };
+
+        QVector<int> startsDisplay;
+        QVector<int> lengthsDisplay;
+        QVector<int> startsExtraInfo;
+        QVector<int> lengthsExtraInfo;
     };
 
     LocatorFilterEntry() = default;

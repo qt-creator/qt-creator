@@ -77,9 +77,9 @@ ResultData::ResultDataList ResultData::fromFilterEntryList(const QList<LocatorFi
     for (const LocatorFilterEntry &entry : entries) {
         ResultData data(entry.displayName, entry.extraInfo);
         data.highlight = QString(entry.displayName.size(), QChar(' '));
-        for (int i = 0; i < entry.highlightInfo.starts.size(); ++i) {
-            const int start = entry.highlightInfo.starts.at(i);
-            const int length = entry.highlightInfo.lengths.at(i);
+        for (int i = 0; i < entry.highlightInfo.startsDisplay.size(); ++i) {
+            const int start = entry.highlightInfo.startsDisplay.at(i);
+            const int length = entry.highlightInfo.lengthsDisplay.at(i);
             if (start < 0 || start + length > data.highlight.size())
                 break;
             for (int j = 0; j < length; ++j)

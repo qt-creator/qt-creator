@@ -83,8 +83,8 @@ void BookmarkFilter::prepareSearch(const QString &entry)
                     highlightIndex = filterEntry.displayName.indexOf(
                         lineNumber, highlightIndex, Qt::CaseInsensitive);
                     if (highlightIndex >= 0) {
-                        filterEntry.highlightInfo.starts += highlightIndex;
-                        filterEntry.highlightInfo.lengths += lineNumber.length();
+                        filterEntry.highlightInfo.startsDisplay += highlightIndex;
+                        filterEntry.highlightInfo.lengthsDisplay += lineNumber.length();
                     }
                 }
             }

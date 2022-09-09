@@ -79,13 +79,12 @@ QList<Core::LocatorFilterEntry> CppLocatorFilter::matchesFor(
                     matchOffset = 0;
                 }
                 filterEntry.highlightInfo = highlightInfo(match);
-                if (matchInParameterList && filterEntry.highlightInfo.starts.isEmpty()) {
+                if (matchInParameterList && filterEntry.highlightInfo.startsDisplay.isEmpty()) {
                     match = regexp.match(filterEntry.extraInfo);
-                    filterEntry.highlightInfo = highlightInfo(match);
-                    filterEntry.highlightInfo.dataType =
-                            Core::LocatorFilterEntry::HighlightInfo::ExtraInfo;
+                    filterEntry.highlightInfo
+                        = highlightInfo(match, Core::LocatorFilterEntry::HighlightInfo::ExtraInfo);
                 } else if (matchOffset > 0) {
-                    for (int &start : filterEntry.highlightInfo.starts)
+                    for (int &start : filterEntry.highlightInfo.startsDisplay)
                         start -= matchOffset;
                 }
 
