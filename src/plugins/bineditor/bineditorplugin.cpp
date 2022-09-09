@@ -274,7 +274,7 @@ public:
         if (fn.isEmpty())
             return;
         const int blockSize = m_widget->dataBlockSize();
-        QByteArray data = fn.fileContents(blockSize, address);
+        QByteArray data = fn.fileContents(blockSize, address).value_or(QByteArray());
         const int dataSize = data.size();
         if (dataSize != blockSize)
             data += QByteArray(blockSize - dataSize, 0);

@@ -57,7 +57,7 @@ void tst_fsengine::initTestCase()
 
     deviceHooks.fileContents =
         [](const FilePath &path, qint64 maxSize, qint64 offset) -> QByteArray {
-        return FilePath::fromString(path.path()).fileContents(maxSize, offset);
+        return FilePath::fromString(path.path()).fileContents(maxSize, offset).value_or(QByteArray());
     };
 
     deviceHooks.isExecutableFile = [](const FilePath &filePath) {
@@ -123,7 +123,7 @@ void tst_fsengine::initTestCase()
                 },
                 filter);
     };
-    deviceHooks.asyncFileContents = [](const Continuation<QByteArray> &cont,
+    deviceHooks.asyncFileContents = [](const Continuation<const std::optional<QByteArray> &> &cont,
                                        const FilePath &filePath,
                                        qint64 maxSize,
                                        qint64 offset) {

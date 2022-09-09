@@ -58,8 +58,12 @@ bool FileReader::fetch(const FilePath &filePath, QIODevice::OpenMode mode)
     QTC_ASSERT(!(mode & ~(QIODevice::ReadOnly | QIODevice::Text)), return false);
 
     if (filePath.needsDevice()) {
-        // TODO: add error handling to FilePath::fileContents
-        m_data = filePath.fileContents();
+        const std::optional<QByteArray> contents = filePath.fileContents();
+        if (!contents) {
+            m_errorString = tr("Cannot read %1").arg(filePath.toUserOutput());
+            return false;
+        }
+        m_data = *contents;
         return true;
     }
 
@@ -668,8 +672,8 @@ bool FileUtils::copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgt
         const QDateTime srcModified = srcFilePath.lastModified();
         const QDateTime tgtModified = tgtFilePath.lastModified();
         if (srcModified == tgtModified) {
-            const QByteArray srcContents = srcFilePath.fileContents();
-            const QByteArray tgtContents = srcFilePath.fileContents();
+            const std::optional<QByteArray> srcContents = srcFilePath.fileContents();
+            const std::optional<QByteArray> tgtContents = srcFilePath.fileContents();
             if (srcContents == tgtContents)
                 return true;
         }

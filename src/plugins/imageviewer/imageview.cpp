@@ -233,7 +233,7 @@ void ImageView::exportMultiImages()
 void ImageView::copyDataUrl()
 {
     Utils::MimeType mimeType = Utils::mimeTypeForFile(m_file->filePath());
-    QByteArray data = m_file->filePath().fileContents();
+    QByteArray data = m_file->filePath().fileContents().value_or(QByteArray());
     const auto url = QStringLiteral("data:%1;base64,%2")
             .arg(mimeType.name())
             .arg(QString::fromLatin1(data.toBase64()));

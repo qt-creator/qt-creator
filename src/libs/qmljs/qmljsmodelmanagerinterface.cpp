@@ -859,9 +859,10 @@ static bool findNewQmlLibraryInPath(const Utils::FilePath &path,
     }
 
     // found a new library!
-    if (!qmldirFile.isReadableFile())
+    const std::optional<QByteArray> contents = qmldirFile.fileContents();
+    if (!contents)
         return false;
-    QString qmldirData = QString::fromUtf8(qmldirFile.fileContents());
+    QString qmldirData = QString::fromUtf8(*contents);
 
     QmlDirParser qmldirParser;
     qmldirParser.parse(qmldirData);
@@ -968,8 +969,9 @@ void ModelManagerInterface::parseLoop(QSet<Utils::FilePath> &scannedPaths,
             contents = entry.first;
             documentRevision = entry.second;
         } else {
-            if (fileName.isReadableFile()) {
-                QTextStream ins(fileName.fileContents());
+            const std::optional<QByteArray> fileContents = fileName.fileContents();
+            if (fileContents) {
+                QTextStream ins(*fileContents);
                 contents = ins.readAll();
             } else {
                 continue;

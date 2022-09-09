@@ -751,7 +751,8 @@ McuSdkRepository targetsAndPackages(const FilePath &qtForMCUSdkPath,
     for (const FilePath &filePath : descriptionFiles) {
         if (!filePath.isReadableFile())
             continue;
-        const McuTargetDescription desc = parseDescriptionJson(filePath.fileContents());
+        const McuTargetDescription desc = parseDescriptionJson(
+            filePath.fileContents().value_or(QByteArray()));
         bool ok = false;
         const int compatVersion = desc.compatVersion.toInt(&ok);
         if (!desc.compatVersion.isEmpty() && ok && compatVersion > MAX_COMPATIBILITY_VERSION) {

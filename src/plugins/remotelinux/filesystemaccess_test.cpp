@@ -127,7 +127,7 @@ void FileSystemAccessTest::testCreateRemoteFile()
     QVERIFY(!testFilePath.exists());
     QVERIFY(testFilePath.writeFileContents(data));
     QVERIFY(testFilePath.exists());
-    QCOMPARE(testFilePath.fileContents(), data);
+    QCOMPARE(testFilePath.fileContents().value_or(QByteArray()), data);
     QVERIFY(testFilePath.removeFile());
     QVERIFY(!testFilePath.exists());
 }
@@ -181,7 +181,7 @@ void FileSystemAccessTest::testFileActions()
 
     const QByteArray content("Test");
     testFilePath.writeFileContents(content);
-    QCOMPARE(testFilePath.fileContents(), content);
+    QCOMPARE(testFilePath.fileContents().value_or(QByteArray()), content);
 
     const FilePath newTestFilePath = baseFilePath() / "test1";
     // It is Ok that FilePath doesn't change itself after rename.
@@ -189,7 +189,7 @@ void FileSystemAccessTest::testFileActions()
     QVERIFY(testFilePath.renameFile(newTestFilePath));
     QVERIFY(!testFilePath.exists());
     QVERIFY(newTestFilePath.exists());
-    QCOMPARE(newTestFilePath.fileContents(), content);
+    QCOMPARE(newTestFilePath.fileContents().value_or(QByteArray()), content);
     QVERIFY(!testFilePath.removeFile());
     QVERIFY(newTestFilePath.exists());
     QVERIFY(newTestFilePath.removeFile());

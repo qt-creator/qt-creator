@@ -754,9 +754,10 @@ clang::format::FormatStyle ClangFormatBaseIndenter::styleForFile() const
 
         clang::format::FormatStyle currentSettingsStyle;
         currentSettingsStyle.Language = clang::format::FormatStyle::LK_Cpp;
-        const std::error_code error
-            = clang::format::parseConfiguration(filePath.fileContents().toStdString(),
-                                                &currentSettingsStyle);
+        const std::error_code error = clang::format::parseConfiguration(filePath.fileContents()
+                                                                            .value_or(QByteArray())
+                                                                            .toStdString(),
+                                                                        &currentSettingsStyle);
         QTC_ASSERT(error.value() == static_cast<int>(clang::format::ParseError::Success),
                    return qtcStyle());
 

@@ -85,7 +85,7 @@ ElfMapper::ElfMapper(const ElfReader *reader)
 bool ElfMapper::map()
 {
     if (binary.needsDevice()) {
-        raw = binary.fileContents();
+        raw = binary.fileContents().value_or(QByteArray());
         start = raw.constData();
         fdlen = raw.size();
         return fdlen > 0;

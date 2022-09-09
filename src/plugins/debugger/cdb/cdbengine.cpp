@@ -2431,7 +2431,7 @@ static CPlusPlus::Document::Ptr getParsedDocument(const FilePath &filePath,
     if (workingCopy.contains(filePath))
         src = workingCopy.source(filePath);
     else
-        src = QString::fromLocal8Bit(filePath.fileContents()).toUtf8();
+        src = QString::fromLocal8Bit(filePath.fileContents().value_or(QByteArray())).toUtf8();
 
     CPlusPlus::Document::Ptr doc = snapshot.preprocessedDocument(src, filePath);
     doc->parse();

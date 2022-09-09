@@ -652,8 +652,16 @@ void LoggingViewManagerWidget::loadAndUpdateFromPreset()
     if (fp.isEmpty())
         return;
     // read file, update categories
+    const std::optional<QByteArray> contents = fp.fileContents();
+    if (!contents) {
+        QMessageBox::critical(ICore::dialogParent(),
+                              tr("Error"),
+                              tr("Failed to open preset file \"%1\" for reading")
+                                  .arg(fp.toUserOutput()));
+        return;
+    }
     QJsonParseError error;
-    QJsonDocument doc = QJsonDocument::fromJson(fp.fileContents(), &error);
+    QJsonDocument doc = QJsonDocument::fromJson(*contents, &error);
     if (error.error != QJsonParseError::NoError) {
         QMessageBox::critical(ICore::dialogParent(), tr("Error"),
                               tr("Failed to read preset file \"%1\": %2").arg(fp.toUserOutput())

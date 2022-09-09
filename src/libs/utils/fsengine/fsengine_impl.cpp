@@ -38,7 +38,8 @@ bool FSEngineImpl::open(QIODevice::OpenMode openMode)
         return false;
 
     if (read || append) {
-        QTC_ASSERT(m_tempStorage.write(m_filePath.fileContents()) >= 0, return false);
+        const std::optional<QByteArray> contents = m_filePath.fileContents();
+        QTC_ASSERT(contents && m_tempStorage.write(*contents) >= 0, return false);
 
         if (!append)
             m_tempStorage.seek(0);

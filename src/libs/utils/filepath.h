@@ -13,6 +13,7 @@
 
 #include <functional>
 #include <memory>
+#include <optional>
 
 QT_BEGIN_NAMESPACE
 class QDateTime;
@@ -117,7 +118,7 @@ public:
     bool createDir() const;
     FilePaths dirEntries(const FileFilter &filter, QDir::SortFlags sort = QDir::NoSort) const;
     FilePaths dirEntries(QDir::Filters filters) const;
-    QByteArray fileContents(qint64 maxSize = -1, qint64 offset = 0) const;
+    std::optional<QByteArray> fileContents(qint64 maxSize = -1, qint64 offset = 0) const;
     bool writeFileContents(const QByteArray &data) const;
 
     bool operator==(const FilePath &other) const;
@@ -177,8 +178,9 @@ public:
     // Asynchronous interface
     template <class ...Args> using Continuation = std::function<void(Args...)>;
     void asyncCopyFile(const Continuation<bool> &cont, const FilePath &target) const;
-    void asyncFileContents(const Continuation<const QByteArray &> &cont,
-                           qint64 maxSize = -1, qint64 offset = 0) const;
+    void asyncFileContents(const Continuation<const std::optional<QByteArray> &> &cont,
+                           qint64 maxSize = -1,
+                           qint64 offset = 0) const;
     void asyncWriteFileContents(const Continuation<bool> &cont, const QByteArray &data) const;
 
     // Prefer not to use
@@ -262,7 +264,9 @@ public:
 
     template <class ...Args> using Continuation = std::function<void(Args...)>;
     std::function<void(const Continuation<bool> &, const FilePath &, const FilePath &)> asyncCopyFile;
-    std::function<void(const Continuation<const QByteArray &> &, const FilePath &, qint64, qint64)> asyncFileContents;
+    std::function<void(
+        const Continuation<const std::optional<QByteArray> &> &, const FilePath &, qint64, qint64)>
+        asyncFileContents;
     std::function<void(const Continuation<bool> &, const FilePath &, const QByteArray &)> asyncWriteFileContents;
 };
 

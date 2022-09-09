@@ -538,10 +538,11 @@ void FilePath::iterateDirectories(const FilePaths &dirs,
         dir.iterateDirectory(callBack, filter);
 }
 
-QByteArray FilePath::fileContents(qint64 maxSize, qint64 offset) const
+std::optional<QByteArray> FilePath::fileContents(qint64 maxSize, qint64 offset) const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.fileContents, return {});
+        // TODO change hooks to return optional byte array
         return s_deviceHooks.fileContents(*this, maxSize, offset);
     }
 
@@ -562,12 +563,14 @@ QByteArray FilePath::fileContents(qint64 maxSize, qint64 offset) const
     return f.readAll();
 }
 
-void FilePath::asyncFileContents(const Continuation<const QByteArray &> &cont,
-                                 qint64 maxSize, qint64 offset) const
+void FilePath::asyncFileContents(const Continuation<const std::optional<QByteArray> &> &cont,
+                                 qint64 maxSize,
+                                 qint64 offset) const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.asyncFileContents, return);
-        return s_deviceHooks.asyncFileContents(cont, *this, maxSize, offset);
+        s_deviceHooks.asyncFileContents(cont, *this, maxSize, offset);
+        return;
     }
 
     cont(fileContents(maxSize, offset));
@@ -1363,8 +1366,10 @@ bool FilePath::copyFile(const FilePath &target) const
 {
     if (host() != target.host()) {
         // FIXME: This does not scale.
-        const QByteArray ba = fileContents();
-        return target.writeFileContents(ba);
+        const std::optional<QByteArray> ba = fileContents();
+        if (!ba)
+            return false;
+        return target.writeFileContents(*ba);
     }
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.copyFile, return false);
@@ -1376,8 +1381,9 @@ bool FilePath::copyFile(const FilePath &target) const
 void FilePath::asyncCopyFile(const std::function<void(bool)> &cont, const FilePath &target) const
 {
     if (host() != target.host()) {
-        asyncFileContents([cont, target](const QByteArray &ba) {
-            target.asyncWriteFileContents(cont, ba);
+        asyncFileContents([cont, target](const std::optional<QByteArray> &ba) {
+            if (ba)
+                target.asyncWriteFileContents(cont, *ba);
         });
     } else if (needsDevice()) {
         s_deviceHooks.asyncCopyFile(cont, *this, target);

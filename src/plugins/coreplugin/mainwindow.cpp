@@ -1541,7 +1541,7 @@ void MainWindow::changeLog()
         if (index < 0 || index >= versionedFiles.size())
             return;
         const FilePath file = versionedFiles.at(index).second;
-        QString contents = QString::fromUtf8(file.fileContents());
+        QString contents = QString::fromUtf8(file.fileContents().value_or(QByteArray()));
         contents.replace(QRegularExpression("(QT(CREATOR)?BUG-[0-9]+)"),
                          "[\\1](https://bugreports.qt.io/browse/\\1)");
         textEdit->setMarkdown(contents);

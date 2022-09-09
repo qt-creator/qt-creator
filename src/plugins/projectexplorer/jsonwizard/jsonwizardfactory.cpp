@@ -411,7 +411,7 @@ QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
             const FilePath currentFile = currentDir / wizardFileName;
             if (currentFile.exists()) {
                 QJsonParseError error;
-                const QByteArray fileData = currentFile.fileContents();
+                const QByteArray fileData = currentFile.fileContents().value_or(QByteArray());
                 const QJsonDocument json = QJsonDocument::fromJson(fileData, &error);
 
                 if (error.error != QJsonParseError::NoError) {

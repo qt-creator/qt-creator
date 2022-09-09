@@ -185,7 +185,7 @@ private:
 
 QVariantMap ParseContext::parse(const FilePath &file)
 {
-    QXmlStreamReader r(file.fileContents());
+    QXmlStreamReader r(file.fileContents().value_or(QByteArray()));
 
     m_result.clear();
     m_currentVariableName.clear();

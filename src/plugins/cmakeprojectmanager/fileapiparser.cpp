@@ -74,7 +74,10 @@ static QJsonDocument readJsonFile(const FilePath &filePath)
     qCDebug(cmakeFileApi) << "readJsonFile:" << filePath;
     QTC_ASSERT(!filePath.isEmpty(), return {});
 
-    const QJsonDocument doc = QJsonDocument::fromJson(filePath.fileContents());
+    const std::optional<QByteArray> contents = filePath.fileContents();
+    if (!contents)
+        return {};
+    const QJsonDocument doc = QJsonDocument::fromJson(*contents);
 
     return doc;
 }

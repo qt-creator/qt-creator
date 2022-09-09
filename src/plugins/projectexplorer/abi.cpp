@@ -1154,7 +1154,7 @@ Abis Abi::abisOfBinary(const Utils::FilePath &path)
     if (path.isEmpty())
         return tmp;
 
-    QByteArray data = path.fileContents(1024);
+    QByteArray data = path.fileContents(1024).value_or(QByteArray());
     if (data.size() >= 67
             && getUint8(data, 0) == '!' && getUint8(data, 1) == '<' && getUint8(data, 2) == 'a'
             && getUint8(data, 3) == 'r' && getUint8(data, 4) == 'c' && getUint8(data, 5) == 'h'
@@ -1193,7 +1193,7 @@ Abis Abi::abisOfBinary(const Utils::FilePath &path)
                 break;
 
             offset += (offset % 2); // ar is 2 byte aligned
-            data = path.fileContents(1024, offset);
+            data = path.fileContents(1024, offset).value_or(QByteArray());
         }
     } else {
         tmp = abiOf(data);
