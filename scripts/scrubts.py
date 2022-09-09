@@ -70,6 +70,7 @@ def rewriteLines(input, scrubbedContext, tsFilePath):
 
 def findDistinctDuplicates(input, scrubbedContext, tsFilePath):
     inContext = False
+    inputLineNr = 0
 
     @dataclass
     class Translation:
@@ -84,7 +85,8 @@ def findDistinctDuplicates(input, scrubbedContext, tsFilePath):
     messages = {}
 
     lineIter = iter(input)
-    for lineNr, line in enumerate(lineIter):
+    for line in lineIter:
+        inputLineNr += 1
         if line.count(r"</name>") == 1: # Any new context
             inContext = (line.count(scrubbedContext + r"</name>") == 1)
             continue
@@ -92,17 +94,20 @@ def findDistinctDuplicates(input, scrubbedContext, tsFilePath):
             continue
         if inContext:
             sourceXml = []
+            lineNr = inputLineNr
             for sourceLine in lineIter: # <source>..</source> (possibly multi-line)
+                inputLineNr += 1
                 sourceXml.append(sourceLine)
                 if sourceLine.count(r"</source>") == 1:
                     break
             sourceXmlHash = hash(str(sourceXml))
             translationXml = []
             for translationLine in lineIter: #  <translation>..</translation> (possibly multi-line)
+                inputLineNr += 1
                 translationXml.append(translationLine)
                 if translationLine.count(r"</translation>") == 1:
                     break
-            translation = Translation(lineNr + 1, translationXml)
+            translation = Translation(lineNr, translationXml)
             if sourceXmlHash in messages:
                 messages[sourceXmlHash].translations.append(translation)
             else:
