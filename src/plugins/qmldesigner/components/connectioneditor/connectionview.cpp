@@ -208,6 +208,11 @@ void ConnectionView::importsChanged(const QList<Import> & /*addedImports*/, cons
     backendModel()->resetModel();
 }
 
+void ConnectionView::currentStateChanged(const ModelNode &node)
+{
+    dynamicPropertiesModel()->reset();
+}
+
 WidgetInfo ConnectionView::widgetInfo()
 {
     return createWidgetInfo(m_connectionViewWidget.data(),
