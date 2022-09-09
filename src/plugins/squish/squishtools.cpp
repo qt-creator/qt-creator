@@ -369,8 +369,12 @@ void SquishTools::startSquishServer(Request request)
 
     const QStringList arguments = serverArgumentsFromSettings();
     m_serverProcess.setCommand({toolsSettings.serverPath, arguments});
+
     m_serverProcess.setEnvironment(squishEnvironment());
 
+    // especially when writing server config we re-use the process fast and start the server
+    // several times and may crash as the process may not have been cleanly destructed yet
+    m_serverProcess.close();
     setState(ServerStarting);
     m_serverProcess.start();
     if (!m_serverProcess.waitForStarted()) {
