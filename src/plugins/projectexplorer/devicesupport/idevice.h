@@ -237,9 +237,9 @@ public:
     virtual void iterateDirectory(const Utils::FilePath &filePath,
                                   const std::function<bool(const Utils::FilePath &)> &callBack,
                                   const Utils::FileFilter &filter) const;
-    virtual QByteArray fileContents(const Utils::FilePath &filePath,
-                                    qint64 limit,
-                                    qint64 offset) const;
+    virtual std::optional<QByteArray> fileContents(const Utils::FilePath &filePath,
+                                                   qint64 limit,
+                                                   qint64 offset) const;
     virtual bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const;
     virtual QDateTime lastModified(const Utils::FilePath &filePath) const;
     virtual QFile::Permissions permissions(const Utils::FilePath &filePath) const;
@@ -253,9 +253,10 @@ public:
 
     virtual void aboutToBeRemoved() const {}
 
-    virtual void asyncFileContents(const Continuation<QByteArray> &cont,
+    virtual void asyncFileContents(const Continuation<std::optional<QByteArray>> &cont,
                                    const Utils::FilePath &filePath,
-                                   qint64 limit, qint64 offset) const;
+                                   qint64 limit,
+                                   qint64 offset) const;
     virtual void asyncWriteFileContents(const Continuation<bool> &cont,
                                         const Utils::FilePath &filePath,
                                         const QByteArray &data) const;

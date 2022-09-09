@@ -521,14 +521,17 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         device->iterateDirectory(filePath, callBack, filter);
     };
 
-    deviceHooks.fileContents = [](const FilePath &filePath, qint64 maxSize, qint64 offset) {
+    deviceHooks.fileContents =
+        [](const FilePath &filePath, qint64 maxSize, qint64 offset) -> std::optional<QByteArray> {
         auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return QByteArray());
+        QTC_ASSERT(device, return {});
         return device->fileContents(filePath, maxSize, offset);
     };
 
-    deviceHooks.asyncFileContents = [](const Continuation<QByteArray> &cont, const FilePath &filePath,
-            qint64 maxSize, qint64 offset) {
+    deviceHooks.asyncFileContents = [](const Continuation<std::optional<QByteArray>> &cont,
+                                       const FilePath &filePath,
+                                       qint64 maxSize,
+                                       qint64 offset) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return);
         device->asyncFileContents(cont, filePath, maxSize, offset);

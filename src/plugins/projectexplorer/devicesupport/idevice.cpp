@@ -362,7 +362,9 @@ void IDevice::iterateDirectory(const FilePath &filePath,
     QTC_CHECK(false);
 }
 
-QByteArray IDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 offset) const
+std::optional<QByteArray> IDevice::fileContents(const FilePath &filePath,
+                                                qint64 limit,
+                                                qint64 offset) const
 {
     Q_UNUSED(filePath);
     Q_UNUSED(limit);
@@ -371,9 +373,10 @@ QByteArray IDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 
     return {};
 }
 
-void IDevice::asyncFileContents(const Continuation<QByteArray> &cont,
+void IDevice::asyncFileContents(const Continuation<std::optional<QByteArray>> &cont,
                                 const FilePath &filePath,
-                                qint64 limit, qint64 offset) const
+                                qint64 limit,
+                                qint64 offset) const
 {
     cont(fileContents(filePath, limit, offset));
 }

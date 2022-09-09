@@ -534,7 +534,6 @@ std::optional<QByteArray> FilePath::fileContents(qint64 maxSize, qint64 offset) 
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.fileContents, return {});
-        // TODO change hooks to return optional byte array
         return s_deviceHooks.fileContents(*this, maxSize, offset);
     }
 

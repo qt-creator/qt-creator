@@ -246,7 +246,7 @@ public:
     std::function<void(const FilePath &,
                        const std::function<bool(const FilePath &)> &, // Abort on 'false' return.
                        const FileFilter &)> iterateDirectory;
-    std::function<QByteArray(const FilePath &, qint64, qint64)> fileContents;
+    std::function<std::optional<QByteArray>(const FilePath &, qint64, qint64)> fileContents;
     std::function<bool(const FilePath &, const QByteArray &)> writeFileContents;
     std::function<QDateTime(const FilePath &)> lastModified;
     std::function<QFile::Permissions(const FilePath &)> permissions;

@@ -958,7 +958,9 @@ void DockerDevice::iterateDirectory(const FilePath &filePath,
     FileUtils::iterateLsOutput(filePath, entries, filter, callBack);
 }
 
-QByteArray DockerDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 offset) const
+std::optional<QByteArray> DockerDevice::fileContents(const FilePath &filePath,
+                                                     qint64 limit,
+                                                     qint64 offset) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
     updateContainerAccess();
@@ -976,6 +978,8 @@ QByteArray DockerDevice::fileContents(const FilePath &filePath, qint64 limit, qi
     proc.start();
     proc.waitForFinished();
 
+    if (proc.result() != ProcessResult::FinishedWithSuccess)
+        return {};
     QByteArray output = proc.readAllStandardOutput();
     return output;
 }

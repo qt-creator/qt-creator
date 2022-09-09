@@ -80,7 +80,9 @@ public:
     void iterateDirectory(const Utils::FilePath &filePath,
                           const std::function<bool(const Utils::FilePath &)> &callBack,
                           const Utils::FileFilter &filter) const override;
-    QByteArray fileContents(const Utils::FilePath &filePath, qint64 limit, qint64 offset) const override;
+    std::optional<QByteArray> fileContents(const Utils::FilePath &filePath,
+                                           qint64 limit,
+                                           qint64 offset) const override;
     bool writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const override;
     QDateTime lastModified(const Utils::FilePath &filePath) const override;
     qint64 fileSize(const Utils::FilePath &filePath) const override;

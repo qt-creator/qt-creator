@@ -265,10 +265,12 @@ FilePath DesktopDevice::symLinkTarget(const FilePath &filePath) const
     return filePath.symLinkTarget();
 }
 
-QByteArray DesktopDevice::fileContents(const FilePath &filePath, qint64 limit, qint64 offset) const
+std::optional<QByteArray> DesktopDevice::fileContents(const FilePath &filePath,
+                                                      qint64 limit,
+                                                      qint64 offset) const
 {
     QTC_ASSERT(handlesFile(filePath), return {});
-    return filePath.fileContents(limit, offset).value_or(QByteArray());
+    return filePath.fileContents(limit, offset);
 }
 
 bool DesktopDevice::writeFileContents(const Utils::FilePath &filePath, const QByteArray &data) const
