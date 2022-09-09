@@ -37,6 +37,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QScopeGuard>
+
 using namespace QmlDesigner;
 
 static const int propertyNameRole = Qt::UserRole + 1;
@@ -315,11 +317,20 @@ void DynamicPropertyRow::setupBackendValue()
 
 void DynamicPropertyRow::commitValue(const QVariant &value)
 {
+    if (m_lock)
+        return;
+
+    if (m_row < 0)
+        return;
+
     auto propertiesModel = m_model->dynamicPropertiesModel();
     VariantProperty variantProperty = propertiesModel->variantPropertyForRow(m_row);
 
     if (!Internal::DynamicPropertiesModel::isValueType(variantProperty.dynamicTypeName()))
         return;
+
+    m_lock = true;
+    auto unlock = qScopeGuard([this] { m_lock = false; });
 
     auto view = propertiesModel->view();
     RewriterTransaction transaction = view->beginRewriterTransaction(
@@ -335,6 +346,15 @@ void DynamicPropertyRow::commitValue(const QVariant &value)
 
 void DynamicPropertyRow::commitExpression(const QString &expression)
 {
+    if (m_lock)
+        return;
+
+    if (m_row < 0)
+        return;
+
+    m_lock = true;
+    auto unlock = qScopeGuard([this] { m_lock = false; });
+
     auto propertiesModel = m_model->dynamicPropertiesModel();
     BindingProperty bindingProperty = propertiesModel->bindingPropertyForRow(m_row);
 

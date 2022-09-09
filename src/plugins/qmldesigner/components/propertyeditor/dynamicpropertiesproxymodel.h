@@ -105,6 +105,7 @@ private:
     PropertyEditorValue *m_backendValue = nullptr;
     DynamicPropertiesProxyModel *m_model = nullptr;
     QList<PropertyEditorValue *> m_proxyBackendValues;
+    bool m_lock = false;
 };
 
 QML_DECLARE_TYPE(DynamicPropertyRow)
