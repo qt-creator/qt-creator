@@ -259,25 +259,20 @@ void SquishTools::setState(SquishTools::State state)
 {
     // TODO check whether state transition is legal
     m_state = state;
+
+    if (m_request == RunnerQueryRequested || m_request == KillOldBeforeQueryRunner) {
+        handleSetStateQueryRunner();
+        return;
+    }
+
     switch (m_state) {
     case Idle:
-        m_request = None;
-        m_suitePath = QString();
-        m_testCases.clear();
-        m_currentTestCasePath.clear();
-        m_reportFiles.clear();
-        m_additionalRunnerArguments.clear();
-        m_additionalServerArguments.clear();
-        m_perspective.setPerspectiveMode(SquishPerspective::NoMode);
-        m_currentResultsDirectory.clear();
-        m_lastTopLevelWindows.clear();
+        setIdle();
         break;
     case ServerStarted:
         if (m_request == RunTestRequested) {
             startSquishRunner();
         } else if (m_request == RecordTestRequested) {
-        } else if (m_request == RunnerQueryRequested) {
-            executeRunnerQuery();
         } else if (m_request == ServerConfigChangeRequested) { // nothing to do here
         } else {
             QTC_ASSERT(false, qDebug() << m_state << m_request);
@@ -321,8 +316,6 @@ void SquishTools::setState(SquishTools::State state)
             startSquishServer(RunTestRequested);
         } else if (m_request == KillOldBeforeRecordRunner) {
             startSquishServer(RecordTestRequested);
-        } else if (m_request == KillOldBeforeQueryRunner) {
-            startSquishServer(RunnerQueryRequested);
         } else {
             QTC_ASSERT(false, qDebug() << m_state << m_request);
         }
@@ -336,10 +329,7 @@ void SquishTools::setState(SquishTools::State state)
         break;
     case RunnerStartFailed:
     case RunnerStopped:
-        if (m_request == RunnerQueryRequested) {
-            m_request = ServerStopRequested;
-            stopSquishServer();
-        } else if (m_testCases.isEmpty() || (m_squishRunnerState == RunnerState::Canceled)) {
+        if (m_testCases.isEmpty() || (m_squishRunnerState == RunnerState::Canceled)) {
             m_request = ServerStopRequested;
             stopSquishServer();
             QString error;
@@ -359,6 +349,56 @@ void SquishTools::setState(SquishTools::State state)
     default:
         break;
     }
+}
+
+void SquishTools::handleSetStateQueryRunner()
+{
+    switch (m_state) {
+    case Idle:
+        setIdle();
+        break;
+    case ServerStarted:
+        executeRunnerQuery();
+        break;
+    case ServerStartFailed:
+        m_state = Idle;
+        m_request = None;
+        break;
+    case ServerStopped:
+        m_state = Idle;
+        emit shutdownFinished();
+        if (m_request == KillOldBeforeQueryRunner) {
+            startSquishServer(RunnerQueryRequested);
+        } else {
+            QTC_ASSERT(false, qDebug() << m_state << m_request);
+        }
+        break;
+    case ServerStopFailed:
+        m_state = Idle;
+        break;
+    case RunnerStartFailed:
+    case RunnerStopped:
+        m_request = ServerStopRequested;
+        stopSquishServer();
+        break;
+    default:
+        break;
+    }
+}
+
+void SquishTools::setIdle()
+{
+    QTC_ASSERT(m_state == Idle, return);
+    m_request = None;
+    m_suitePath = QString();
+    m_testCases.clear();
+    m_currentTestCasePath.clear();
+    m_reportFiles.clear();
+    m_additionalRunnerArguments.clear();
+    m_additionalServerArguments.clear();
+    m_perspective.setPerspectiveMode(SquishPerspective::NoMode);
+    m_currentResultsDirectory.clear();
+    m_lastTopLevelWindows.clear();
 }
 
 void SquishTools::startSquishServer(Request request)

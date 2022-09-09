@@ -96,6 +96,8 @@ private:
     };
 
     void setState(State state);
+    void handleSetStateQueryRunner();
+    void setIdle();
     void startSquishServer(Request request);
     void stopSquishServer();
     void startSquishRunner();
