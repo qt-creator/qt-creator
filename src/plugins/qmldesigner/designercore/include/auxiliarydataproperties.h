@@ -13,28 +13,6 @@
 
 namespace QmlDesigner {
 
-using PropertyValue = std::variant<int, long long, double, bool, QColor, QStringView, Qt::Corner>;
-
-inline QVariant toQVariant(const PropertyValue &variant)
-{
-    return std::visit([](const auto &value) { return QVariant::fromValue(value); }, variant);
-}
-
-class AuxiliaryDataKeyDefaultValue : public AuxiliaryDataKeyView
-{
-public:
-    constexpr AuxiliaryDataKeyDefaultValue() = default;
-    constexpr AuxiliaryDataKeyDefaultValue(AuxiliaryDataType type,
-                                           Utils::SmallStringView name,
-                                           PropertyValue defaultValue)
-        : AuxiliaryDataKeyView{type, name}
-        , defaultValue{std::move(defaultValue)}
-    {}
-
-public:
-    PropertyValue defaultValue;
-};
-
 inline constexpr AuxiliaryDataKeyDefaultValue customIdProperty{AuxiliaryDataType::Document,
                                                                "customId",
                                                                QStringView{}};
@@ -137,16 +115,7 @@ inline constexpr AuxiliaryDataKeyView materialPreviewEnvProperty{
     AuxiliaryDataType::NodeInstanceAuxiliary, "matPrevEnv"};
 inline constexpr AuxiliaryDataKeyView materialPreviewEnvValueProperty{
     AuxiliaryDataType::NodeInstanceAuxiliary, "matPrevEnvValue"};
-inline constexpr AuxiliaryDataKeyView materialPreviewModelProperty{
-    AuxiliaryDataType::NodeInstanceAuxiliary, "matPrevModel"};
-
-template<typename Type>
-QVariant getDefaultValueAsQVariant(const Type &key)
-{
-    if constexpr (std::is_same_v<AuxiliaryDataKey, AuxiliaryDataKeyDefaultValue>)
-        return toQVariant(key.defaultvalue);
-
-    return {};
-}
+inline constexpr AuxiliaryDataKeyView materialPreviewModelProperty{AuxiliaryDataType::NodeInstanceAuxiliary,
+                                                                   "matPrevModel"};
 
 } // namespace QmlDesigner

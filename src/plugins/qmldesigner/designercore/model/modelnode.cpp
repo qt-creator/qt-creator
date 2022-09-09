@@ -1070,6 +1070,19 @@ QVariant ModelNode::auxiliaryDataWithDefault(AuxiliaryDataKeyView key) const
     return {};
 }
 
+QVariant ModelNode::auxiliaryDataWithDefault(AuxiliaryDataKeyDefaultValue key) const
+{
+    if (!isValid())
+        return toQVariant(key.defaultValue);
+
+    auto data = m_internalNode->auxiliaryData(key);
+
+    if (data)
+        return *data;
+
+    return toQVariant(key.defaultValue);
+}
+
 void ModelNode::setAuxiliaryData(AuxiliaryDataType type,
                                  Utils::SmallStringView name,
                                  const QVariant &data) const

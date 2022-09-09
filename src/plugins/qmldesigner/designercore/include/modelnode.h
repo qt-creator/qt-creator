@@ -181,6 +181,7 @@ public:
     std::optional<QVariant> auxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const;
     QVariant auxiliaryDataWithDefault(AuxiliaryDataType type, Utils::SmallStringView name) const;
     QVariant auxiliaryDataWithDefault(AuxiliaryDataKeyView key) const;
+    QVariant auxiliaryDataWithDefault(AuxiliaryDataKeyDefaultValue key) const;
     void setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data) const;
     void setAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name, const QVariant &data) const;
     void setAuxiliaryDataWithoutLock(AuxiliaryDataType type,

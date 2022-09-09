@@ -8,6 +8,10 @@
 #include <utils/smallstring.h>
 #include <utils/span.h>
 
+#include <QColor>
+#include <QStringView>
+#include <QVariant>
+
 #include <vector>
 
 namespace QmlDesigner {
@@ -56,4 +60,36 @@ using AuxiliaryDataKeyView = BasicAuxiliaryDataKey<Utils::SmallStringView>;
 using AuxiliaryDatas = std::vector<std::pair<AuxiliaryDataKey, QVariant>>;
 using AuxiliaryDatasView = Utils::span<const std::pair<AuxiliaryDataKey, QVariant>>;
 using AuxiliaryDatasForType = std::vector<std::pair<Utils::SmallString, QVariant>>;
+
+using PropertyValue = std::variant<int, long long, double, bool, QColor, QStringView, Qt::Corner>;
+
+inline QVariant toQVariant(const PropertyValue &variant)
+{
+    return std::visit([](const auto &value) { return QVariant::fromValue(value); }, variant);
+}
+
+class AuxiliaryDataKeyDefaultValue : public AuxiliaryDataKeyView
+{
+public:
+    constexpr AuxiliaryDataKeyDefaultValue() = default;
+    constexpr AuxiliaryDataKeyDefaultValue(AuxiliaryDataType type,
+                                           Utils::SmallStringView name,
+                                           PropertyValue defaultValue)
+        : AuxiliaryDataKeyView{type, name}
+        , defaultValue{std::move(defaultValue)}
+    {}
+
+public:
+    PropertyValue defaultValue;
+};
+
+template<typename Type>
+QVariant getDefaultValueAsQVariant(const Type &key)
+{
+    if constexpr (std::is_same_v<AuxiliaryDataKey, AuxiliaryDataKeyDefaultValue>)
+        return toQVariant(key.defaultvalue);
+
+    return {};
+}
+
 } // namespace QmlDesigner
