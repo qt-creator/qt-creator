@@ -336,8 +336,16 @@ void DynamicPropertyRow::commitValue(const QVariant &value)
     RewriterTransaction transaction = view->beginRewriterTransaction(
         QByteArrayLiteral("DynamicPropertiesModel::commitValue"));
     try {
-        if (variantProperty.value() != value)
-            variantProperty.setDynamicTypeNameAndValue(variantProperty.dynamicTypeName(), value);
+        if (view->currentState().isBaseState()) {
+            if (variantProperty.value() != value)
+                variantProperty.setDynamicTypeNameAndValue(variantProperty.dynamicTypeName(), value);
+        } else {
+            QmlObjectNode objectNode = variantProperty.parentQmlObjectNode();
+            QTC_CHECK(objectNode.isValid());
+            PropertyName name = variantProperty.name();
+            if (objectNode.isValid() && objectNode.modelValue(name) != value)
+                objectNode.setVariantProperty(name, value);
+        }
         transaction.commit(); //committing in the try block
     } catch (Exception &e) {
         e.showException();
