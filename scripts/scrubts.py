@@ -10,15 +10,16 @@
 
 import argparse
 import pathlib
-import re
 import sys
-
+from dataclasses import dataclass
 
 def rewriteLines(input, scrubbedContext, tsFilePath):
     result = []
     previouslyInContext = False
     contextWasPresent = False
     messageHashes = []
+    mergedContextsCount = 0
+    removedDuplicatesCount = 0
 
     lineIter = iter(input)
     for line in lineIter:
@@ -27,6 +28,7 @@ def rewriteLines(input, scrubbedContext, tsFilePath):
             if line.count(scrubbedContext + r"</name>") == 1: # It the context being scrubbed
                 contextWasPresent = True
                 if previouslyInContext: # Previous context was a scrubbed context, so merge them
+                    mergedContextsCount += 1
                     result = result[ : -2] # Remove recent:   </context>\n<context>
                     continue               # ...and skip this input line
                 else:
@@ -35,7 +37,7 @@ def rewriteLines(input, scrubbedContext, tsFilePath):
                 previouslyInContext = False
 
         # Message de-duplicating
-        if previouslyInContext and line.count(r"<message>") == 1: # message in scrubbed context
+        if previouslyInContext and line.count(r"<message") == 1: # message in scrubbed context
             # Iterate through message
             messageLines = [line]
             for messageLine in lineIter:
@@ -48,6 +50,8 @@ def rewriteLines(input, scrubbedContext, tsFilePath):
             if messageHash not in messageHashes:
                 result = result + messageLines
                 messageHashes.append(messageHash) # Append if not a duplicate
+            else:
+                removedDuplicatesCount += 1
 
             continue
 
@@ -57,7 +61,64 @@ def rewriteLines(input, scrubbedContext, tsFilePath):
         error = f"Context \"{scrubbedContext}\" was not found in {tsFilePath}"
         sys.exit(error)
 
+    print (f"{tsFilePath}:")
+    print (f"  {removedDuplicatesCount} identical duplicate message(s) removed.")
+    print (f"  {mergedContextsCount} occurrence(s) of context \"{scrubbedContext}\" merged.")
+
     return result
+
+
+def findDistinctDuplicates(input, scrubbedContext, tsFilePath):
+    inContext = False
+
+    @dataclass
+    class Translation:
+        lineNr: int
+        translationXml: []
+
+    @dataclass
+    class Source:
+        sourceXml: str
+        translations: []
+
+    messages = {}
+
+    lineIter = iter(input)
+    for lineNr, line in enumerate(lineIter):
+        if line.count(r"</name>") == 1: # Any new context
+            inContext = (line.count(scrubbedContext + r"</name>") == 1)
+            continue
+        if line.count(r"<message") == 0:
+            continue
+        if inContext:
+            sourceXml = []
+            for sourceLine in lineIter: # <source>..</source> (possibly multi-line)
+                sourceXml.append(sourceLine)
+                if sourceLine.count(r"</source>") == 1:
+                    break
+            sourceXmlHash = hash(str(sourceXml))
+            translationXml = []
+            for translationLine in lineIter: #  <translation>..</translation> (possibly multi-line)
+                translationXml.append(translationLine)
+                if translationLine.count(r"</translation>") == 1:
+                    break
+            translation = Translation(lineNr + 1, translationXml)
+            if sourceXmlHash in messages:
+                messages[sourceXmlHash].translations.append(translation)
+            else:
+                messages[sourceXmlHash] = Source(sourceXml, [translation])
+
+    for sourceId in messages:
+        source = messages[sourceId]
+        translationsCount = len(source.translations)
+        if translationsCount > 1:
+            print (f"\n{translationsCount} duplicates for source:")
+            for sourceXmlLine in source.sourceXml:
+                 print (sourceXmlLine.rstrip())
+            for translation in source.translations:
+                print (f"\n{tsFilePath}:{translation.lineNr}")
+                for translationXmlLine in translation.translationXml:
+                     print (translationXmlLine.rstrip())
 
 
 def processTsFile(tsFilePath, scrubbedContext):
@@ -65,19 +126,22 @@ def processTsFile(tsFilePath, scrubbedContext):
         lines = tsInputFile.readlines()
 
     result = rewriteLines(lines, scrubbedContext, tsFilePath)
+    if lines != result:
+        with open(tsFilePath, 'w') as tsOutputFile:
+            for line in result:
+                tsOutputFile.write(line)
 
-    with open(tsFilePath, 'w') as tsOutputFile:
-        for line in result:
-            tsOutputFile.write(line)
+    findDistinctDuplicates(result, scrubbedContext, tsFilePath)
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Rewrites a .ts file, removing duplicate messages '
-                                                 'of a specified translation context and joining '
-                                                 'adjacent occurrences of that context. '
-                                                 'Unlike lrelease and lconvert, this script does '
-                                                 'an exact comparison of the whole <message/> xml '
-                                                 'tag.')
+    parser = argparse.ArgumentParser(
+        description='''Rewrites a .ts file, removing identical duplicate messages of a specified
+                       translation context and joining adjacent occurrences of that context.
+                       Unlike lrelease and lconvert, this script does an exact comparison of the
+                       whole <message/> xml tag when removing duplicates.
+                       Subsequently, the remaining duplicate messages with identical source but
+                       different translation are listed with filename:linenumber.''')
     parser.add_argument('tsfile',
                         help='The .ts file to be processed.',
                         type=pathlib.Path)
