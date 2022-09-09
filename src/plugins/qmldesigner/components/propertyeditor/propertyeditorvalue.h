@@ -157,7 +157,11 @@ signals:
     void valueChanged(const QString &name, const QVariant&);
     void valueChangedQml();
 
-    void expressionChanged(const QString &name);
+    void expressionChanged(const QString &name); //HACK - We use the same notifer
+                                                 //for the backend and frontend.
+                                                 //If name is empty the signal is
+                                                 //used for QML.
+
     void exportPropertyAsAliasRequested(const QString &name);
     void removeAliasExportRequested(const QString &name);
 

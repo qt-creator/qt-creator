@@ -804,6 +804,8 @@ void MaterialEditorView::propertiesRemoved(const QList<AbstractProperty> &proper
             setValue(m_selectedMaterial, property.name(), QmlObjectNode(m_selectedMaterial).instanceValue(property.name()));
             changed = true;
         }
+
+        dynamicPropertiesModel()->dispatchPropertyChanges(property);
     }
     if (changed)
         requestPreviewRender();
@@ -827,6 +829,8 @@ void MaterialEditorView::variantPropertiesChanged(const QList<VariantProperty> &
 
             changed = true;
         }
+
+        dynamicPropertiesModel()->dispatchPropertyChanges(property);
     }
     if (changed)
         requestPreviewRender();
@@ -854,6 +858,8 @@ void MaterialEditorView::bindingPropertiesChanged(const QList<BindingProperty> &
 
             changed = true;
         }
+
+        dynamicPropertiesModel()->dispatchPropertyChanges(property);
     }
     if (changed)
         requestPreviewRender();

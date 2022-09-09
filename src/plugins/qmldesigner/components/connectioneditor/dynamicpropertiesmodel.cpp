@@ -139,6 +139,44 @@ bool DynamicPropertiesModel::isValueType(const TypeName &type)
     return valueTypes.contains(type);
 }
 
+QVariant DynamicPropertiesModel::defaultValueForType(const TypeName &type)
+{
+    QVariant value;
+    if (type == "int")
+        value = 0;
+    else if (type == "real")
+        value = 0.0;
+    else if (type == "color")
+        value = QColor(255, 255, 255);
+    else if (type == "string")
+        value = "This is a string";
+    else if (type == "bool")
+        value = false;
+    else if (type == "url")
+        value = "";
+    else if (type == "variant")
+        value = "";
+
+    return value;
+}
+
+QString DynamicPropertiesModel::defaultExpressionForType(const TypeName &type)
+{
+    QString expression;
+    if (type == "alias")
+        expression = "null";
+    else if (type == "TextureInput")
+        expression = "null";
+    else if (type == "vector2d")
+        expression = "Qt.vector2d(0, 0)";
+    else if (type == "vector3d")
+        expression = "Qt.vector3d(0, 0, 0)";
+    else if (type == "vector4d")
+        expression = "Qt.vector4d(0, 0, 0 ,0)";
+
+    return expression;
+}
+
 DynamicPropertiesModel::DynamicPropertiesModel(bool explicitSelection, AbstractView *parent)
     : QStandardItemModel(parent)
     , m_view(parent)
@@ -239,6 +277,20 @@ void DynamicPropertiesModel::resetProperty(const PropertyName &name)
     }
 }
 
+void DynamicPropertiesModel::dispatchPropertyChanges(const AbstractProperty &abstractProperty)
+{
+    if (abstractProperty.parentModelNode().simplifiedTypeName() == "PropertyChanges") {
+        QmlPropertyChanges changes(abstractProperty.parentModelNode());
+        if (changes.target().isValid()) {
+            const ModelNode target = changes.target();
+            const PropertyName propertyName = abstractProperty.name();
+            const AbstractProperty targetProperty = target.variantProperty(propertyName);
+            if (target.hasProperty(propertyName) && targetProperty.isDynamic())
+                abstractPropertyChanged(targetProperty);
+        }
+    }
+}
+
 void DynamicPropertiesModel::bindingPropertyChanged(const BindingProperty &bindingProperty)
 {
     if (!bindingProperty.isDynamic())
@@ -257,6 +309,27 @@ void DynamicPropertiesModel::bindingPropertyChanged(const BindingProperty &bindi
         } else {
             updateBindingProperty(rowNumber);
         }
+    }
+
+    m_handleDataChanged = true;
+}
+
+void DynamicPropertiesModel::abstractPropertyChanged(const AbstractProperty &property)
+{
+    if (!property.isDynamic())
+        return;
+
+    m_handleDataChanged = false;
+
+    const QList<ModelNode> nodes = selectedNodes();
+    if (!nodes.contains(property.parentModelNode()))
+        return;
+    int rowNumber = findRowForProperty(property);
+    if (rowNumber > -1) {
+        if (property.isVariantProperty())
+            updateVariantProperty(rowNumber);
+        else
+            updateBindingProperty(rowNumber);
     }
 
     m_handleDataChanged = true;
@@ -334,12 +407,13 @@ void DynamicPropertiesModel::setSelectedNode(const ModelNode &node)
 AbstractProperty DynamicPropertiesModel::abstractPropertyForRow(int rowNumber) const
 {
     const int internalId = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 1).toInt();
-    const QString targetPropertyName = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 2).toString();
+    const QString targetPropertyName = data(index(rowNumber, TargetModelNodeRow), Qt::UserRole + 2)
+                                           .toString();
 
     if (!m_view->isAttached())
         return AbstractProperty();
 
-    ModelNode  modelNode = m_view->modelNodeForInternalId(internalId);
+    ModelNode modelNode = m_view->modelNodeForInternalId(internalId);
 
     if (modelNode.isValid())
         return modelNode.property(targetPropertyName.toUtf8());
@@ -545,6 +619,12 @@ void DynamicPropertiesModel::updateBindingProperty(int rowNumber)
         QString type = QString::fromUtf8(bindingProperty.dynamicTypeName());
         updateDisplayRole(rowNumber, PropertyTypeRow, type);
         updateDisplayRole(rowNumber, PropertyValueRow, value);
+
+        const QmlObjectNode objectNode = QmlObjectNode(bindingProperty.parentModelNode());
+        if (objectNode.isValid() && !objectNode.view()->currentState().isBaseState())
+            value = objectNode.expression(bindingProperty.name());
+
+        updateDisplayRole(rowNumber, PropertyValueRow, value);
     }
 }
 
@@ -558,6 +638,10 @@ void DynamicPropertiesModel::updateVariantProperty(int rowNumber)
         QVariant value = variantProperty.value();
         QString type = QString::fromUtf8(variantProperty.dynamicTypeName());
         updateDisplayRole(rowNumber, PropertyTypeRow, type);
+        const QmlObjectNode objectNode = QmlObjectNode(variantProperty.parentModelNode());
+        if (objectNode.isValid() && !objectNode.view()->currentState().isBaseState())
+            value = objectNode.modelValue(variantProperty.name());
+
 
         updateDisplayRoleFromVariant(rowNumber, PropertyValueRow, value);
     }
@@ -755,6 +839,16 @@ int DynamicPropertiesModel::findRowForVariantProperty(const VariantProperty &var
 {
     for (int i=0; i < rowCount(); i++) {
         if (compareVariantProperties(variantPropertyForRow(i), variantProperty))
+            return i;
+    }
+    //not found
+    return -1;
+}
+
+int DynamicPropertiesModel::findRowForProperty(const AbstractProperty &abstractProperty) const
+{
+    for (int i = 0; i < rowCount(); i++) {
+        if ((abstractPropertyForRow(i).name() == abstractProperty.name()))
             return i;
     }
     //not found
