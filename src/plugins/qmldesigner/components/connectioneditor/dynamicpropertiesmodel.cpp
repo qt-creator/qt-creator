@@ -102,7 +102,7 @@ QVariant convertVariantForTypeName(const QVariant &variant, const QmlDesigner::T
     } else if (typeName == "alias") {
         returnValue = "null";
     } else if (typeName == "Item") {
-        returnValue = 0;
+        returnValue = "null";
     }
 
     return returnValue;
