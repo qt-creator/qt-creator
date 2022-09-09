@@ -405,7 +405,7 @@ void DynamicPropertiesModel::addDynamicPropertyForCurrentNode()
         const ModelNode modelNode = selectedNodes().constFirst();
         if (modelNode.isValid()) {
             try {
-                modelNode.variantProperty(unusedProperty(modelNode)).setDynamicTypeNameAndValue("string", QLatin1String("none.none"));
+                modelNode.variantProperty(unusedProperty(modelNode)).setDynamicTypeNameAndValue("string", "This is a string");
             } catch (RewritingException &e) {
                 m_exceptionError = e.description();
                 QTimer::singleShot(200, this, &DynamicPropertiesModel::handleException);
