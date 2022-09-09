@@ -30,11 +30,10 @@ public:
     void prepareSearch(const QString &entry) override;
 
 private:
-    QList<LocatorFilterEntry> matchesForAction(QAction *action,
-                                               const QStringList &entryPath,
-                                               const QStringList &path,
-                                               QList<const QMenu *> &processedMenus);
-    QList<LocatorFilterEntry> matchesForCommands(const QString &entry);
+    QList<LocatorFilterEntry> entriesForAction(QAction *action,
+                                              const QStringList &path,
+                                              QList<const QMenu *> &processedMenus);
+    QList<LocatorFilterEntry> entriesForCommands();
     void updateEnabledActionCache();
 
     QList<LocatorFilterEntry> m_entries;
