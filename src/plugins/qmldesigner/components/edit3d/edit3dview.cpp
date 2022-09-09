@@ -240,7 +240,7 @@ void Edit3DView::handleEntriesChanged()
 
     const QList<ItemLibraryEntry> itemLibEntries = model()->metaInfo().itemLibraryInfo()->entries();
     for (const ItemLibraryEntry &entry : itemLibEntries) {
-        if (entry.typeName() == "QtQuick3D.Model") {
+        if (entry.typeName() == "QtQuick3D.Model" && entry.name() != "Empty") {
             entriesMap[primitives].append(entry);
         } else if (entry.typeName() == "QtQuick3D.DirectionalLight"
                 || entry.typeName() == "QtQuick3D.PointLight"
