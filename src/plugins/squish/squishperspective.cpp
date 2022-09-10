@@ -32,7 +32,7 @@ static QIcon iconForType(IconType type)
 {
     switch (type) {
     case IconType::StopRecord:
-        return QIcon();
+        return Debugger::Icons::RECORD_ON.icon();
     case IconType::Play:
         return Debugger::Icons::DEBUG_CONTINUE_SMALL_TOOLBAR.icon();
     case IconType::Pause:
@@ -132,6 +132,7 @@ SquishControlBar::SquishControlBar(SquishPerspective *perspective)
     mainLayout->setContentsMargins(0, 0, 0, 0);
     mainLayout->addWidget(m_toolBar = new QToolBar(this));
     // for now
+    m_toolBar->addAction(perspective->m_stopRecordAction);
     m_toolBar->addAction(perspective->m_pausePlayAction);
     m_toolBar->addAction(perspective->m_stopAction);
 
@@ -180,6 +181,12 @@ SquishPerspective::SquishPerspective()
 
 void SquishPerspective::initPerspective()
 {
+    m_stopRecordAction = new QAction(this);
+    m_stopRecordAction->setIcon(iconForType(IconType::StopRecord));
+    m_stopRecordAction->setToolTip(Tr::tr("Stop Recording") + "\n\n"
+                                   + Tr::tr("Ends the recording session, "
+                                            "saving all commands to the script file."));
+    m_stopRecordAction->setEnabled(false);
     m_pausePlayAction = new QAction(this);
     m_pausePlayAction->setIcon(iconForType(IconType::Pause));
     m_pausePlayAction->setToolTip(Tr::tr("Interrupt"));
@@ -231,6 +238,8 @@ void SquishPerspective::initPerspective()
     connect(m_stepOverAction, &QAction::triggered, this, [this] { emit runRequested(StepOver); });
     connect(m_stepOutAction, &QAction::triggered, this, [this] { emit runRequested(StepOut); });
     connect(m_stopAction, &QAction::triggered, this, &SquishPerspective::onStopTriggered);
+    connect(m_stopRecordAction, &QAction::triggered,
+            this, &SquishPerspective::onStopRecordTriggered);
 
     connect(SquishTools::instance(), &SquishTools::localsUpdated,
             this, &SquishPerspective::onLocalsUpdated);
@@ -249,9 +258,18 @@ void SquishPerspective::initPerspective()
 
 void SquishPerspective::onStopTriggered()
 {
+    m_stopRecordAction->setEnabled(false);
     m_pausePlayAction->setEnabled(false);
     m_stopAction->setEnabled(false);
     emit stopRequested();
+}
+
+void SquishPerspective::onStopRecordTriggered()
+{
+    m_stopRecordAction->setEnabled(false);
+    m_pausePlayAction->setEnabled(false);
+    m_stopAction->setEnabled(false);
+    emit stopRecordRequested();
 }
 
 void SquishPerspective::onPausePlayTriggered()
@@ -303,6 +321,8 @@ void SquishPerspective::onLocalsUpdated(const QString &output)
 void SquishPerspective::updateStatus(const QString &status)
 {
     m_status->setText(status);
+    if (m_controlBar)
+        m_controlBar->updateProgressText(status);
 }
 
 void SquishPerspective::showControlBar(SquishXmlOutputHandler *xmlOutputHandler)
@@ -310,12 +330,14 @@ void SquishPerspective::showControlBar(SquishXmlOutputHandler *xmlOutputHandler)
     QTC_ASSERT(!m_controlBar, return);
     m_controlBar = new SquishControlBar(this);
 
-    connect(xmlOutputHandler, &SquishXmlOutputHandler::increasePassCounter,
-            m_controlBar, &SquishControlBar::increasePassCounter);
-    connect(xmlOutputHandler, &SquishXmlOutputHandler::increaseFailCounter,
-            m_controlBar, &SquishControlBar::increaseFailCounter);
-    connect (xmlOutputHandler, &SquishXmlOutputHandler::updateStatus,
-             m_controlBar, &SquishControlBar::updateProgressText);
+    if (xmlOutputHandler) {
+        connect(xmlOutputHandler, &SquishXmlOutputHandler::increasePassCounter,
+                m_controlBar, &SquishControlBar::increasePassCounter);
+        connect(xmlOutputHandler, &SquishXmlOutputHandler::increaseFailCounter,
+                m_controlBar, &SquishControlBar::increaseFailCounter);
+        connect (xmlOutputHandler, &SquishXmlOutputHandler::updateStatus,
+                 m_controlBar, &SquishControlBar::updateProgressText);
+    }
 
     const QRect rect = Core::ICore::dialogParent()->screen()->availableGeometry();
     m_controlBar->move(rect.width() - m_controlBar->width() - 10, 10);
@@ -338,7 +360,18 @@ void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
     m_mode = mode;
     switch (m_mode) {
     case Running:
+        m_stopRecordAction->setEnabled(false);
         m_pausePlayAction->setEnabled(true);
+        m_pausePlayAction->setIcon(iconForType(IconType::Pause));
+        m_pausePlayAction->setToolTip(Tr::tr("Interrupt"));
+        m_stepInAction->setEnabled(false);
+        m_stepOverAction->setEnabled(false);
+        m_stepOutAction->setEnabled(false);
+        m_stopAction->setEnabled(true);
+        break;
+    case Recording:
+        m_stopRecordAction->setEnabled(true);
+        m_pausePlayAction->setEnabled(false);
         m_pausePlayAction->setIcon(iconForType(IconType::Pause));
         m_pausePlayAction->setToolTip(Tr::tr("Interrupt"));
         m_stepInAction->setEnabled(false);
@@ -360,6 +393,7 @@ void SquishPerspective::setPerspectiveMode(PerspectiveMode mode)
         m_pausePlayAction->setIcon(iconForType(IconType::Pause));
         m_pausePlayAction->setToolTip(Tr::tr("Interrupt"));
         m_pausePlayAction->setEnabled(false);
+        m_stopRecordAction->setEnabled(false);
         m_stepInAction->setEnabled(false);
         m_stepOverAction->setEnabled(false);
         m_stepOutAction->setEnabled(false);

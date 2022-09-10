@@ -11,6 +11,7 @@ add_qtc_plugin(Squish
     opensquishsuitesdialog.cpp opensquishsuitesdialog.h
     propertyitemdelegate.cpp propertyitemdelegate.h
     propertytreeitem.cpp propertytreeitem.h
+    scripthelper.cpp scripthelper.h
     squish.qrc
     squishfilehandler.cpp squishfilehandler.h
     squishnavigationwidget.cpp squishnavigationwidget.h

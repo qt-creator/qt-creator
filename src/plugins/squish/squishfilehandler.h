@@ -24,6 +24,7 @@ public:
     void closeAllTestSuites();
     void runTestCase(const QString &suiteName, const QString &testCaseName);
     void runTestSuite(const QString &suiteName);
+    void recordTestCase(const QString &suiteName, const QString &testCaseName);
     void addSharedFolder();
     bool removeSharedFolder(const QString &folder);
     void removeAllSharedFolders();

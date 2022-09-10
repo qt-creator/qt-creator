@@ -27,6 +27,8 @@ QtcPlugin {
         "propertyitemdelegate.h",
         "propertytreeitem.cpp",
         "propertytreeitem.h",
+        "scripthelper.cpp",
+        "scripthelper.h",
         "squish.qrc",
         "squishconstants.h",
         "squishfilehandler.cpp",

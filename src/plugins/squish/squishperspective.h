@@ -28,7 +28,7 @@ class SquishPerspective : public Utils::Perspective
 {
     Q_OBJECT
 public:
-    enum PerspectiveMode { NoMode, Interrupted, Running, Querying };
+    enum PerspectiveMode { NoMode, Interrupted, Running, Recording, Querying };
     enum StepMode { Continue, StepIn, StepOver, StepOut };
 
     SquishPerspective();
@@ -43,14 +43,17 @@ public:
 
 signals:
     void stopRequested();
+    void stopRecordRequested();
     void interruptRequested();
     void runRequested(SquishPerspective::StepMode mode);
 
 private:
     void onStopTriggered();
+    void onStopRecordTriggered();
     void onPausePlayTriggered();
     void onLocalsUpdated(const QString &output);
 
+    QAction *m_stopRecordAction = nullptr;
     QAction *m_pausePlayAction = nullptr;
     QAction *m_stepInAction = nullptr;
     QAction *m_stepOverAction = nullptr;

@@ -12,6 +12,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icore.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -65,6 +66,10 @@ SquishNavigationWidget::SquishNavigationWidget(QWidget *parent)
             &SquishTestTreeView::runTestCase,
             SquishFileHandler::instance(),
             &SquishFileHandler::runTestCase);
+    connect(m_view,
+            &SquishTestTreeView::recordTestCase,
+            this,
+            &SquishNavigationWidget::onRecordTestCase);
     connect(m_view,
             &SquishTestTreeView::runTestSuite,
             SquishFileHandler::instance(),
@@ -286,6 +291,21 @@ void SquishNavigationWidget::onRemoveAllSharedFolderTriggered()
 
     SquishFileHandler::instance()->removeAllSharedFolders();
     m_model->removeAllSharedFolders();
+}
+
+void SquishNavigationWidget::onRecordTestCase(const QString &suiteName, const QString &testCase)
+{
+    QDialogButtonBox::StandardButton pressed = Utils::CheckableMessageBox::doNotAskAgainQuestion(
+                Core::ICore::dialogParent(),
+                Tr::tr("Record Test Case"),
+                Tr::tr("Do you want to record over the test case \"%1\"? The existing content will "
+                       "be overwritten by the recorded script.").arg(testCase),
+                Core::ICore::settings(),
+                "RecordWithoutApproval");
+    if (pressed != QDialogButtonBox::Yes)
+        return;
+
+    SquishFileHandler::instance()->recordTestCase(suiteName, testCase);
 }
 
 SquishNavigationWidgetFactory::SquishNavigationWidgetFactory()

@@ -4,6 +4,7 @@
 #pragma once
 
 #include "squishperspective.h"
+#include "suiteconf.h"
 
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
@@ -64,6 +65,8 @@ public:
                       const QStringList &testCases = QStringList(),
                       const QStringList &additionalServerArgs = QStringList(),
                       const QStringList &additionalRunnerArgs = QStringList());
+    void recordTestCase(const QString &suitePath, const QString &testCaseName,
+                        const SuiteConf &suiteConf);
     void queryServerSettings();
     void writeServerSettingsChanges(const QList<QStringList> &changes);
     void requestExpansion(const QString &name);
@@ -96,15 +99,19 @@ private:
     };
 
     void setState(State state);
+    void handleSetStateStartAppRunner();
     void handleSetStateQueryRunner();
     void setIdle();
     void startSquishServer(Request request);
     void stopSquishServer();
     void startSquishRunner();
+    void setupAndStartRecorder();
+    void stopRecorder();
     void executeRunnerQuery();
     static Utils::Environment squishEnvironment();
     void onServerFinished();
     void onRunnerFinished();
+    void onRecorderFinished();
     void onServerOutput();
     void onServerErrorOutput();
     void onRunnerOutput();                              // runner's results file
@@ -124,14 +131,15 @@ private:
     bool isValidToStartRunner();
     void handleSquishServerAlreadyRunning();
     QStringList serverArgumentsFromSettings() const;
+    QStringList runnerArgumentsFromSettings();
     bool setupRunnerPath();
-    void setupAndStartSquishRunnerProcess(const QStringList &arg,
-                                          const QString &caseReportFilePath = {});
+    void setupAndStartSquishRunnerProcess(const QStringList &arg);
 
     SquishPerspective m_perspective;
     std::unique_ptr<SquishXmlOutputHandler> m_xmlOutputHandler;
     Utils::QtcProcess m_serverProcess;
     Utils::QtcProcess m_runnerProcess;
+    Utils::QtcProcess m_recorderProcess;
     int m_serverPort = -1;
     QString m_serverHost;
     Request m_request = None;
@@ -139,10 +147,12 @@ private:
     RunnerState m_squishRunnerState = RunnerState::None;
     QString m_suitePath;
     QStringList m_testCases;
+    SuiteConf m_suiteConf; // holds information of current test suite e.g. while recording
     QStringList m_reportFiles;
     QString m_currentResultsDirectory;
     QString m_fullRunnerOutput; // used when querying the server
     Utils::FilePath m_currentTestCasePath;
+    Utils::FilePath m_currentRecorderSnippetFile;
     QFile *m_currentResultsXML = nullptr;
     QFileSystemWatcher *m_resultsFileWatcher = nullptr;
     QStringList m_additionalServerArguments;
@@ -152,7 +162,9 @@ private:
     class SquishLocationMark *m_locationMarker = nullptr;
     QTimer *m_requestVarsTimer = nullptr;
     qint64 m_readResultsCount;
+    int m_autId = 0;
     bool m_shutdownInitiated = false;
+    bool m_closeRunnerOnEndRecord = false;
 };
 
 } // namespace Internal

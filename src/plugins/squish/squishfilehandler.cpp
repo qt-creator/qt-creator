@@ -244,6 +244,34 @@ void SquishFileHandler::runTestSuite(const QString &suiteName)
     SquishTools::instance()->runTestCases(suitePath.absolutePath(), testCases);
 }
 
+void SquishFileHandler::recordTestCase(const QString &suiteName, const QString &testCaseName)
+{
+    QTC_ASSERT(!suiteName.isEmpty() && !testCaseName.isEmpty(), return );
+
+    if (SquishTools::instance()->state() != SquishTools::Idle)
+        return;
+
+    const QDir suitePath = QFileInfo(m_suites.value(suiteName)).absoluteDir();
+    if (!suitePath.exists() || !suitePath.isReadable()) {
+        QMessageBox::critical(Core::ICore::dialogParent(),
+                              Tr::tr("Test Suite Path Not Accessible"),
+                              Tr::tr("The path \"%1\" does not exist or is not accessible.\n"
+                                     "Refusing to record test case \"%2\".")
+                                  .arg(QDir::toNativeSeparators(suitePath.absolutePath()))
+                                  .arg(testCaseName));
+        return;
+    }
+
+    SuiteConf conf = SuiteConf::readSuiteConf(
+                Utils::FilePath::fromString(m_suites.value(suiteName)));
+    if (conf.aut().isEmpty()) {
+        // provide a choice of apps & args, set aut & args for conf
+        return;
+    }
+
+    SquishTools::instance()->recordTestCase(suitePath.absolutePath(), testCaseName, conf);
+}
+
 void addAllEntriesRecursively(SquishTestTreeItem *item)
 {
     QDir folder(item->filePath());

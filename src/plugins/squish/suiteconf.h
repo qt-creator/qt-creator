@@ -26,6 +26,7 @@ public:
     void setAut(const QString &aut) { m_aut = aut; }
     QString arguments() const { return m_arguments; }
     void setArguments(const QString &arguments) { m_arguments = arguments; }
+    Language language() const { return m_language; }
     QString langParameter() const;
     Utils::FilePath objectMapPath() const;
     QString objectMapStyle() const { return m_objectMapStyle; }
