@@ -7,7 +7,7 @@
 #include "squishconstants.h"
 #include "squishtesttreemodel.h"
 #include "squishtools.h"
-#include "squishutils.h"
+#include "suiteconf.h"
 #include "squishtr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -149,7 +149,7 @@ void SquishFileHandler::openTestSuites()
     for (const QString &suite : chosenSuites) {
         const QDir suiteDir(suite);
         const QString suiteName = suiteDir.dirName();
-        const QStringList cases = SquishUtils::validTestCases(suite);
+        const QStringList cases = SuiteConf::validTestCases(suite);
         const QFileInfo suiteConf(suiteDir, "suite.conf");
         if (m_suites.contains(suiteName)) {
             if (replaceSuite == QMessageBox::YesToAll) {
@@ -304,9 +304,10 @@ void SquishFileHandler::openObjectsMap(const QString &suiteName)
 {
     QTC_ASSERT(!suiteName.isEmpty(), return );
 
-    const Utils::FilePath objectsMapPath = Utils::FilePath::fromString(
-        SquishUtils::objectsMapPath(m_suites.value(suiteName)));
-    if (!objectsMapPath.isEmpty() && objectsMapPath.exists()) {
+    const SuiteConf conf = SuiteConf::readSuiteConf(
+                Utils::FilePath::fromString(m_suites.value(suiteName)));
+    const Utils::FilePath objectsMapPath = conf.objectMapPath();
+    if (objectsMapPath.exists()) {
         if (!Core::EditorManager::openEditor(objectsMapPath, Constants::OBJECTSMAP_EDITOR_ID)) {
             QMessageBox::critical(Core::ICore::dialogParent(),
                                   Tr::tr("Error"),

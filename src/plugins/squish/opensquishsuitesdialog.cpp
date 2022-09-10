@@ -4,7 +4,7 @@
 #include "opensquishsuitesdialog.h"
 
 #include "squishtr.h"
-#include "squishutils.h"
+#include "suiteconf.h"
 
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -93,7 +93,7 @@ void OpenSquishSuitesDialog::onDirectoryChanged()
     for (const QFileInfo &subDir : subDirs) {
         if (!subDir.baseName().startsWith("suite_"))
             continue;
-        if (SquishUtils::validTestCases(subDir.absoluteFilePath()).size()) {
+        if (SuiteConf::validTestCases(subDir.absoluteFilePath()).size()) {
             QListWidgetItem *item = new QListWidgetItem(subDir.baseName(), m_suitesListWidget);
             item->setCheckState(Qt::Checked);
             connect(m_suitesListWidget,

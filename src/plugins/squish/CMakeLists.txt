@@ -23,8 +23,8 @@ add_qtc_plugin(Squish
     squishtesttreeview.cpp squishtesttreeview.h
     squishtools.cpp squishtools.h
     squishtr.h
-    squishutils.cpp squishutils.h
     squishxmloutputhandler.cpp squishxmloutputhandler.h
+    suiteconf.cpp suiteconf.h
     symbolnameitemdelegate.cpp symbolnameitemdelegate.h
     testresult.cpp testresult.h
 )
