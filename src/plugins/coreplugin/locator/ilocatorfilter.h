@@ -28,6 +28,8 @@ struct LocatorFilterEntry
             ExtraInfo
         };
 
+        HighlightInfo() = default;
+
         HighlightInfo(QVector<int> startIndex,
                       QVector<int> length,
                       DataType type = DataType::DisplayName)
@@ -88,7 +90,7 @@ struct LocatorFilterEntry
     /* file path, if the entry is related to a file, is used e.g. for resolving a file icon */
     Utils::FilePath filePath;
     /* highlighting support */
-    HighlightInfo highlightInfo{0, 0};
+    HighlightInfo highlightInfo;
 
     static bool compareLexigraphically(const Core::LocatorFilterEntry &lhs,
                                        const Core::LocatorFilterEntry &rhs)

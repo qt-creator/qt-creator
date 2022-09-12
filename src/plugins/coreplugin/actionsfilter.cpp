@@ -10,6 +10,8 @@
 #include "locator/locatormanager.h"
 
 #include <utils/algorithm.h>
+#include <utils/fuzzymatcher.h>
+#include <utils/mapreduce.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -61,50 +63,99 @@ static const QList<QAction *> menuBarActions()
 QList<LocatorFilterEntry> ActionsFilter::matchesFor(QFutureInterface<LocatorFilterEntry> &future,
                                                     const QString &entry)
 {
-    Q_UNUSED(future)
-    static const QString separators = ". >/";
-    static const QRegularExpression seperatorRegExp(QString("[%1]").arg(separators));
-    QString normalized = entry;
-    normalized.replace(seperatorRegExp, separators.at(0));
-    const QStringList entryPath = normalized.split(separators.at(0), Qt::SkipEmptyParts);
+    using Highlight = LocatorFilterEntry::HighlightInfo;
+    if (entry.simplified().isEmpty())
+        return m_entries;
 
-    QList<LocatorFilterEntry> filtered;
+    const QRegularExpression regExp = createRegExp(entry, Qt::CaseInsensitive, true);
 
-    for (LocatorFilterEntry filterEntry : qAsConst(m_entries)) {
-        int entryIndex = 0;
-        int entryLength = 0;
-        int pathIndex = 0;
-        const ActionFilterEntryData data = filterEntry.internalData.value<ActionFilterEntryData>();
-        const QString pathText = data.path.join(" > ");
-        QStringList actionPath(data.path);
-        if (!entryPath.isEmpty()) {
-            actionPath << filterEntry.displayName;
-            for (const QString &entry : entryPath) {
-                const QRegularExpression re(".*" + entry + ".*",
-                                            QRegularExpression::CaseInsensitiveOption);
-                pathIndex = actionPath.indexOf(re, pathIndex);
-                if (pathIndex < 0)
-                    continue;
-            }
-            const QString &lastEntry(entryPath.last());
-            entryLength = lastEntry.length();
-            entryIndex = filterEntry.displayName.indexOf(lastEntry, 0, Qt::CaseInsensitive);
-            LocatorFilterEntry::HighlightInfo::DataType highlightType =
-                    LocatorFilterEntry::HighlightInfo::DisplayName;
-            if (entryIndex >= 0) {
-                highlightType = LocatorFilterEntry::HighlightInfo::DisplayName;
-            } else {
-                entryIndex = pathText.indexOf(lastEntry, 0, Qt::CaseInsensitive);
-                if (entryIndex < 0)
-                    continue;
-                highlightType = LocatorFilterEntry::HighlightInfo::ExtraInfo;
-            }
-            filterEntry.highlightInfo = {entryIndex, entryLength, highlightType};
+    using FilterResult = std::pair<MatchLevel, LocatorFilterEntry>;
+    const auto filter = [&](const LocatorFilterEntry &filterEntry) -> std::optional<FilterResult> {
+        if (future.isCanceled())
+            return {};
+        Highlight highlight;
+
+        const auto withHighlight = [&](LocatorFilterEntry result) {
+            result.highlightInfo = highlight;
+            return result;
+        };
+
+        Highlight::DataType first = Highlight::DisplayName;
+        QString allText = filterEntry.displayName + ' ' + filterEntry.extraInfo;
+        QRegularExpressionMatch allTextMatch = regExp.match(allText);
+        if (!allTextMatch.hasMatch()) {
+            first = Highlight::ExtraInfo;
+            allText = filterEntry.extraInfo + ' ' + filterEntry.displayName;
+            allTextMatch = regExp.match(allText);
         }
-        filtered << filterEntry;
+        if (allTextMatch.hasMatch()) {
+            if (first == Highlight::DisplayName) {
+                const QRegularExpressionMatch displayMatch = regExp.match(filterEntry.displayName);
+                if (displayMatch.hasMatch())
+                    highlight = highlightInfo(displayMatch);
+                const QRegularExpressionMatch extraMatch = regExp.match(filterEntry.extraInfo);
+                if (extraMatch.hasMatch()) {
+                    Highlight extraHighlight = highlightInfo(extraMatch, Highlight::ExtraInfo);
+                    highlight.startsExtraInfo = extraHighlight.startsExtraInfo;
+                    highlight.lengthsExtraInfo = extraHighlight.lengthsExtraInfo;
+                }
+
+                if (filterEntry.displayName.startsWith(entry, Qt::CaseInsensitive))
+                    return FilterResult{MatchLevel::Best, withHighlight(filterEntry)};
+                if (filterEntry.displayName.contains(entry, Qt::CaseInsensitive))
+                    return FilterResult{MatchLevel::Better, withHighlight(filterEntry)};
+                if (displayMatch.hasMatch())
+                    return FilterResult{MatchLevel::Good, withHighlight(filterEntry)};
+                if (extraMatch.hasMatch())
+                    return FilterResult{MatchLevel::Normal, withHighlight(filterEntry)};
+            }
+
+            FuzzyMatcher::HighlightingPositions positions = FuzzyMatcher::highlightingPositions(
+                allTextMatch);
+            const int positionsCount = positions.starts.count();
+            QTC_ASSERT(positionsCount == positions.lengths.count(), return {});
+            const int border = first == Highlight::DisplayName ? filterEntry.displayName.length()
+                                                               : filterEntry.extraInfo.length();
+            for (int i = 0; i < positionsCount; ++i) {
+                int start = positions.starts.at(i);
+                const int length = positions.lengths.at(i);
+                Highlight::DataType type = first;
+                if (start > border) {
+                    // this highlight is behind the border so switch type and reset start index
+                    start -= border + 1;
+                    type = first == Highlight::DisplayName ? Highlight::ExtraInfo
+                                                           : Highlight::DisplayName;
+                } else if (start + length > border) {
+                    // skip this highlight since it starts before and ends after the border
+                    // between the concatenated strings
+                    continue;
+                }
+                if (type == Highlight::DisplayName) {
+                    highlight.startsDisplay.append(start);
+                    highlight.lengthsDisplay.append(length);
+                } else {
+                    highlight.startsExtraInfo.append(start);
+                    highlight.lengthsExtraInfo.append(length);
+                }
+            }
+
+            return FilterResult{MatchLevel::Normal, withHighlight(filterEntry)};
+        }
+        return {};
+    };
+
+    QMap<MatchLevel, QList<LocatorFilterEntry>> filtered;
+    const QList<std::optional<FilterResult>> filterResults = Utils::map(qAsConst(m_entries), filter)
+                                                                 .results();
+    for (const std::optional<FilterResult> &filterResult : filterResults) {
+        if (filterResult)
+            filtered[filterResult->first] << filterResult->second;
     }
 
-    return filtered;
+    QList<LocatorFilterEntry> result;
+    for (const QList<LocatorFilterEntry> &sublist : qAsConst(filtered))
+        result << sublist;
+    return result;
 }
 
 void ActionsFilter::accept(const LocatorFilterEntry &selection, QString *newText,
