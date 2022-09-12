@@ -634,9 +634,14 @@ void MaterialEditorView::initPreviewData()
         QString envValue = envValuePropVal ? envValuePropVal->toString() : "";
         QString modelStr = modelStrPropVal ? modelStrPropVal->toString() : "";
         // Initialize corresponding instance aux values used by puppet
-        rootModelNode().setAuxiliaryData(materialPreviewEnvProperty, env);
-        rootModelNode().setAuxiliaryData(materialPreviewEnvValueProperty, envValue);
-        rootModelNode().setAuxiliaryData(materialPreviewModelProperty, modelStr);
+        QTimer::singleShot(0, this, [this, env, envValue, modelStr]() {
+            if (model()) {
+                rootModelNode().setAuxiliaryData(materialPreviewEnvProperty, env);
+                rootModelNode().setAuxiliaryData(materialPreviewEnvValueProperty, envValue);
+                rootModelNode().setAuxiliaryData(materialPreviewModelProperty, modelStr);
+            }
+        });
+
         if (!envValue.isEmpty() && env != "Color" && env != "Basic") {
             env += '=';
             env += envValue;
