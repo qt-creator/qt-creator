@@ -444,7 +444,10 @@ int TimelineModel::insert(qint64 startTime, qint64 duration, int selectionId)
     int index = d->insertStart(TimelineModelPrivate::Range(startTime, duration, selectionId));
     if (index < d->ranges.size() - 1)
         d->incrementStartIndices(index);
-    d->insertEnd(TimelineModelPrivate::RangeEnd(index, startTime + duration));
+    int endIndex = d->insertEnd(TimelineModelPrivate::RangeEnd(index, startTime + duration));
+    d->setEndIndex(index, endIndex);
+    if (endIndex < d->endTimes.size() - 1)
+        d->incrementEndIndices(endIndex);
     return index;
 }
 
@@ -468,7 +471,10 @@ int TimelineModel::insertStart(qint64 startTime, int selectionId)
 void TimelineModel::insertEnd(int index, qint64 duration)
 {
     d->ranges[index].duration = duration;
-    d->insertEnd(TimelineModelPrivate::RangeEnd(index, d->ranges[index].start + duration));
+    int endIndex = d->insertEnd(TimelineModelPrivate::RangeEnd(index, d->ranges[index].start + duration));
+    d->setEndIndex(index, endIndex);
+    if (endIndex < d->endTimes.size() - 1)
+        d->incrementEndIndices(endIndex);
 }
 
 bool TimelineModel::expanded() const

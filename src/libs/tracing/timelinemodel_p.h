@@ -52,13 +52,14 @@ public:
     };
 
     struct Range {
-        Range() : start(-1), duration(-1), selectionId(-1), parent(-1) {}
+        Range() : start(-1), duration(-1), selectionId(-1), parent(-1), endIndex(-1) {}
         Range(qint64 start, qint64 duration, int selectionId) :
-            start(start), duration(duration), selectionId(selectionId), parent(-1) {}
+            start(start), duration(duration), selectionId(selectionId), parent(-1), endIndex(-1) {}
         qint64 start;
         qint64 duration;
         int selectionId;
         int parent;
+        int endIndex;
         inline qint64 timestamp() const {return start;}
     };
 
@@ -77,10 +78,20 @@ public:
 
     void incrementStartIndices(int index)
     {
-        for (RangeEnd &endTime : endTimes) {
-            if (endTime.startIndex >= index)
-                ++(endTime.startIndex);
+        for (index = index + 1; index < ranges.count(); index++) {
+            if (ranges[index].endIndex >= 0)
+                endTimes[ranges[index].endIndex].startIndex++;
         }
+    }
+    void incrementEndIndices(int index)
+    {
+        for (index = index + 1; index < endTimes.count(); index++)
+            ranges[endTimes[index].startIndex].endIndex++;
+    }
+
+    inline void setEndIndex(int index, int endIndex)
+    {
+        ranges[index].endIndex = endIndex;
     }
 
     inline int insertStart(const Range &start)
