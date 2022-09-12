@@ -238,7 +238,7 @@ void Edit3DWidget::onCreateAction()
         int activeScene = m_view->rootModelNode().auxiliaryData("active3dScene@Internal").toInt();
 
         auto modelNode = QmlVisualNode::createQml3DNode(m_view, m_nameToEntry.value(action->data().toString()),
-                                                        activeScene).modelNode();
+                                                        activeScene, m_contextMenuPos3d).modelNode();
         QTC_ASSERT(modelNode.isValid(), return);
         m_view->setSelectedModelNode(modelNode);
 
@@ -296,9 +296,10 @@ void Edit3DWidget::showBackgroundColorMenu(bool show, const QPoint &pos)
         m_backgroundColorMenu->close();
 }
 
-void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode)
+void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode, const QVector3D &pos3d)
 {
     m_contextMenuTarget = modelNode;
+    m_contextMenuPos3d = pos3d;
 
     const bool isValid = modelNode.isValid();
     const bool isModel = isValid && modelNode.isSubclassOf("QtQuick3D.Model");

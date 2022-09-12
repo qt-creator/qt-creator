@@ -295,15 +295,16 @@ void Edit3DView::customNotification(const AbstractView *view, const QString &ide
  * Response from puppet process for the model at requested position
  *
  * @param modelNode Node picked at the requested position or invalid node if nothing could be picked
+ * @param pos3d 3D scene position of the requested view position
  */
-void Edit3DView::nodeAtPosReady(const ModelNode &modelNode)
+void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos3d)
 {
     if (m_nodeAtPosReqType == NodeAtPosReqType::ContextMenu) {
         // Make sure right-clicked item is selected. Due to a bug in puppet side right-clicking an item
         // while the context-menu is shown doesn't select the item.
         if (modelNode.isValid() && !modelNode.isSelected())
             setSelectedModelNode(modelNode);
-        m_edit3DWidget->showContextMenu(m_contextMenuPos, modelNode);
+        m_edit3DWidget->showContextMenu(m_contextMenuPos, modelNode, pos3d);
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::MaterialDrop) {
         if (m_droppedMaterial.isValid() && modelNode.isValid()
                 && modelNode.isSubclassOf("QtQuick3D.Model")) {

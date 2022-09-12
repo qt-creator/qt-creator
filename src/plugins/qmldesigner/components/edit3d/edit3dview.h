@@ -63,7 +63,7 @@ public:
     void modelAboutToBeDetached(Model *model) override;
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
-    void nodeAtPosReady(const ModelNode &modelNode) override;
+    void nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos3d) override;
 
     void sendInputEvent(QInputEvent *e) const;
     void edit3DViewResized(const QSize &size) const;

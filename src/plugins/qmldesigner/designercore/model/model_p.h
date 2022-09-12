@@ -29,6 +29,7 @@
 #include <QPointer>
 #include <QSet>
 #include <QUrl>
+#include <QVector3D>
 
 #include "modelnode.h"
 #include "abstractview.h"
@@ -186,7 +187,7 @@ public:
     void notifyUpdateActiveScene3D(const QVariantMap &sceneState);
     void notifyModelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap);
     void notifyImport3DSupportChanged(const QVariantMap &supportMap);
-    void notifyNodeAtPosResult(const ModelNode &modelNode);
+    void notifyNodeAtPosResult(const ModelNode &modelNode, const QVector3D &pos3d);
 
     void notifyDragStarted(QMimeData *mimeData);
     void notifyDragEnded();
