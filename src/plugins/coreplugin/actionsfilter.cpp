@@ -15,10 +15,14 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QMenuBar>
 #include <QPointer>
 #include <QRegularExpression>
 #include <QTextDocument>
+
+static const char lastTriggeredC[] = "LastTriggeredActions";
 
 QT_BEGIN_NAMESPACE
 size_t qHash(const QPointer<QAction> &p, size_t seed)
@@ -29,13 +33,6 @@ QT_END_NAMESPACE
 
 using namespace Core::Internal;
 using namespace Core;
-
-class ActionFilterEntryData
-{
-public:
-    QPointer<QAction> action;
-    QStringList path;
-};
 
 ActionsFilter::ActionsFilter()
 {
@@ -174,50 +171,60 @@ QList<LocatorFilterEntry> ActionsFilter::matchesFor(QFutureInterface<LocatorFilt
 void ActionsFilter::accept(const LocatorFilterEntry &selection, QString *newText,
                            int *selectionStart, int *selectionLength) const
 {
+    static const int maxHistorySize = 30;
     Q_UNUSED(newText)
     Q_UNUSED(selectionStart)
     Q_UNUSED(selectionLength)
-    if (QPointer<QAction> action = selection.internalData.value<ActionFilterEntryData>().action) {
-        QMetaObject::invokeMethod(action, [action] {
+    auto data = selection.internalData.value<ActionFilterEntryData>();
+    if (data.action) {
+        m_lastTriggered.removeAll(data);
+        m_lastTriggered.prepend(data);
+        QMetaObject::invokeMethod(data.action, [action = data.action] {
             if (action && action->isEnabled())
                 action->trigger();
         }, Qt::QueuedConnection);
+        if (m_lastTriggered.size() > maxHistorySize)
+            m_lastTriggered.resize(maxHistorySize);
     }
 }
 
-QList<LocatorFilterEntry> ActionsFilter::entriesForAction(QAction *action,
-                                                         const QStringList &path,
-                                                         QList<const QMenu *> &processedMenus)
+static QString actionText(QAction *action)
+{
+    const QString whatsThis = action->whatsThis();
+    return Utils::stripAccelerator(action->text())
+           + (whatsThis.isEmpty() ? QString() : QString(" (" + whatsThis + ")"));
+}
+
+void ActionsFilter::collectEntriesForAction(QAction *action,
+                                            const QStringList &path,
+                                            QList<const QMenu *> &processedMenus)
 {
     QList<LocatorFilterEntry> entries;
     if (!m_enabledActions.contains(action))
-        return entries;
+        return;
     const QString whatsThis = action->whatsThis();
-    const QString text = Utils::stripAccelerator(action->text())
-                         + (whatsThis.isEmpty() ? QString() : QString(" (" + whatsThis + ")"));
+    const QString text = actionText(action);
     if (QMenu *menu = action->menu()) {
         if (processedMenus.contains(menu))
-            return entries;
+            return;
         processedMenus.append(menu);
         if (menu->isEnabled()) {
             const QList<QAction *> &actions = menu->actions();
             QStringList menuPath(path);
             menuPath << text;
             for (QAction *menuAction : actions)
-                entries << entriesForAction(menuAction, menuPath, processedMenus);
+                collectEntriesForAction(menuAction, menuPath, processedMenus);
         }
     } else if (!text.isEmpty()) {
-        const ActionFilterEntryData data{action, path};
+        const ActionFilterEntryData data{action};
         LocatorFilterEntry filterEntry(this, text, QVariant::fromValue(data), action->icon());
         filterEntry.extraInfo = path.join(" > ");
-        entries << filterEntry;
+        updateEntry(action, filterEntry);
     }
-    return entries;
 }
 
-QList<LocatorFilterEntry> ActionsFilter::entriesForCommands()
+void ActionsFilter::collectEntriesForCommands()
 {
-    QList<LocatorFilterEntry> entries;
     const QList<Command *> commands = Core::ActionManager::commands();
     for (const Command *command : commands) {
         QAction *action = command->action();
@@ -236,13 +243,38 @@ QList<LocatorFilterEntry> ActionsFilter::entriesForCommands()
 
         const QString identifier = command->id().toString();
         const QStringList path = identifier.split(QLatin1Char('.'));
-        const ActionFilterEntryData data{action, path};
+        const ActionFilterEntryData data{action, command->id()};
         LocatorFilterEntry filterEntry(this, text, QVariant::fromValue(data), action->icon());
         if (path.size() >= 2)
             filterEntry.extraInfo = path.mid(0, path.size() - 1).join(" > ");
-        entries << filterEntry;
+        updateEntry(action, filterEntry);
     }
-    return entries;
+}
+
+void ActionsFilter::collectEntriesForLastTriggered()
+{
+    for (ActionFilterEntryData &data : m_lastTriggered) {
+        if (!data.action) {
+            if (Command *command = Core::ActionManager::command(data.commandId))
+                data.action = command->action();
+        }
+        if (!data.action || !m_enabledActions.contains(data.action))
+            continue;
+        const QString text = actionText(data.action);
+        LocatorFilterEntry filterEntry(this, text, QVariant::fromValue(data), data.action->icon());
+        updateEntry(data.action, filterEntry);
+    }
+}
+
+void ActionsFilter::updateEntry(const QPointer<QAction> action, const LocatorFilterEntry &entry)
+{
+    auto index = m_indexes.value(action, -1);
+    if (index < 0) {
+        m_indexes[action] = m_entries.size();
+        m_entries << entry;
+    } else {
+        m_entries[index] = entry;
+    }
 }
 
 static void requestMenuUpdate(const QAction* action)
@@ -284,8 +316,29 @@ void Core::Internal::ActionsFilter::prepareSearch(const QString &entry)
 {
     Q_UNUSED(entry)
     m_entries.clear();
+    m_indexes.clear();
     QList<const QMenu *> processedMenus;
+    collectEntriesForLastTriggered();
     for (QAction* action : menuBarActions())
-        m_entries << entriesForAction(action, QStringList(), processedMenus);
-    m_entries << entriesForCommands();
+        collectEntriesForAction(action, QStringList(), processedMenus);
+    collectEntriesForCommands();
+}
+
+void ActionsFilter::saveState(QJsonObject &object) const
+{
+    QJsonArray commands;
+    for (const ActionFilterEntryData &data : m_lastTriggered) {
+        if (data.commandId.isValid())
+            commands.append(data.commandId.toString());
+    }
+    object.insert(lastTriggeredC, commands);
+}
+
+void ActionsFilter::restoreState(const QJsonObject &object)
+{
+    m_lastTriggered.clear();
+    for (const QJsonValue &command : object.value(lastTriggeredC).toArray()) {
+        if (command.isString())
+            m_lastTriggered.append({nullptr, Utils::Id::fromString(command.toString())});
+    }
 }
