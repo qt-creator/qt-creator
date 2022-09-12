@@ -13,7 +13,7 @@ QTCREATOR_UTILS_EXPORT void dumpBacktrace(int maxdepth);
 #define QTC_ASSERT_STRINGIFY_HELPER(x) #x
 #define QTC_ASSERT_STRINGIFY(x) QTC_ASSERT_STRINGIFY_HELPER(x)
 #define QTC_ASSERT_STRING(cond) ::Utils::writeAssertLocation(\
-    "\"" cond"\" in file " __FILE__ ", line " QTC_ASSERT_STRINGIFY(__LINE__))
+    "\"" cond"\" in " __FILE__ ":" QTC_ASSERT_STRINGIFY(__LINE__))
 
 // The 'do {...} while (0)' idiom is not used for the main block here to be
 // able to use 'break' and 'continue' as 'actions'.
