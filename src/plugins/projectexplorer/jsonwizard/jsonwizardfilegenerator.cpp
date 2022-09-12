@@ -177,8 +177,8 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::MacroExpander *exp
                 sourceDir.dirEntries(QDir::NoDotAndDotDot | QDir::Files| QDir::Hidden);
 
         for (const Utils::FilePath &entry : entries) {
-            const Utils::FilePath relativeFilePath = sourceDir.relativeChildPath(entry);
-            const Utils::FilePath targetPath = dir.target / relativeFilePath.toString();
+            const QString relativeFilePath = entry.relativeChildPath(sourceDir).path();
+            const Utils::FilePath targetPath = dir.target / relativeFilePath;
 
             if (knownFiles.contains(targetPath))
                 continue;
@@ -186,7 +186,7 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(Utils::MacroExpander *exp
             // initialize each new file with properties (isBinary etc)
             // from the current directory json entry
             File newFile = dir;
-            newFile.source = dir.source / relativeFilePath.toString();
+            newFile.source = dir.source / relativeFilePath;
             newFile.target = targetPath;
             fileList.append(newFile);
         }
