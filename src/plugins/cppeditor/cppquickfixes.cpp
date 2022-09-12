@@ -3881,7 +3881,7 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
     }
     const FullySpecifiedType returnTypeHeader = [&] {
         if (!getSetTemplate.returnTypeTemplate.has_value())
-            return parameterType;
+            return m_settings->returnByConstRef ? parameterType : memberVariableType;
         QString typeTemplate = getSetTemplate.returnTypeTemplate.value();
         if (returnTypeTemplateParameter.has_value())
             typeTemplate.replace(Pattern::TEMPLATE_PARAMETER_PATTERN,
@@ -3947,7 +3947,7 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
                                                            data.clazz,
                                                            targetFile,
                                                            targetLoc);
-                    if (!isValueType)
+                    if (m_settings->returnByConstRef && !isValueType)
                         return makeConstRef(returnType);
                     return returnType;
                 }

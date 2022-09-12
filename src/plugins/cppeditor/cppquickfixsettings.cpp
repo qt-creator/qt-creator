@@ -79,6 +79,8 @@ void CppQuickFixSettings::loadSettingsFrom(QSettings *s)
                                           def.memberVariableNameTemplate)
                                      .toString();
     valueTypes = s->value(Constants::QUICK_FIX_SETTING_VALUE_TYPES, def.valueTypes).toStringList();
+    returnByConstRef = s->value(Constants::QUICK_FIX_SETTING_RETURN_BY_CONST_REF,
+                                def.returnByConstRef).toBool();
     customTemplates = def.customTemplates;
     int size = s->beginReadArray(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATES);
     if (size > 0)
@@ -171,6 +173,10 @@ void CppQuickFixSettings::saveSettingsTo(QSettings *s)
                                      Constants::QUICK_FIX_SETTING_VALUE_TYPES,
                                      valueTypes,
                                      def.valueTypes);
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::QUICK_FIX_SETTING_RETURN_BY_CONST_REF,
+                                     returnByConstRef,
+                                     def.returnByConstRef);
     if (customTemplates == def.customTemplates) {
         s->remove(Constants::QUICK_FIX_SETTING_CUSTOM_TEMPLATES);
     } else {

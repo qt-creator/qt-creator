@@ -129,6 +129,7 @@ public:
     MissingNamespaceHandling cppFileNamespaceHandling = MissingNamespaceHandling::CreateMissing;
     QString memberVariableNameTemplate = "m_<name>";
     QStringList valueTypes; // if contains use value. Ignores namespaces and template parameters
+    bool returnByConstRef = false;
     std::vector<CustomTemplate> customTemplates;
 };
 } // namespace CppEditor

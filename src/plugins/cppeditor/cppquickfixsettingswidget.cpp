@@ -79,6 +79,7 @@ e.g. name = "m_test_foo_":
     QObject::connect(this->ui->pushButton_addValueType, &QPushButton::clicked, then);
     QObject::connect(this->ui->pushButton_removeValueType, &QPushButton::clicked, then);
     QObject::connect(this->ui->valueTypes, &QListWidget::itemChanged, then);
+    QObject::connect(this->ui->returnByConstRefCheckBox, &QCheckBox::clicked, then);
     QObject::connect(this->ui->lineEdit_customTemplateAssignment, &QLineEdit::textEdited, then);
     QObject::connect(this->ui->lineEdit_customTemplateComparison, &QLineEdit::textEdited, then);
     QObject::connect(this->ui->lineEdit_customTemplateReturnExpression, &QLineEdit::textEdited, then);
@@ -142,6 +143,7 @@ void CppQuickFixSettingsWidget::loadSettings(CppQuickFixSettings *settings)
         item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled
                        | Qt::ItemNeverHasChildren);
     }
+    ui->returnByConstRefCheckBox->setChecked(settings->returnByConstRef);
     ui->listWidget_customTemplates->clear();
     for (const auto &customTemplate : settings->customTemplates) {
         auto item = new QListWidgetItem(customTemplate.types.join(", "),
@@ -201,6 +203,7 @@ void CppQuickFixSettingsWidget::saveSettings(CppQuickFixSettings *settings)
     for (int i = 0; i < ui->valueTypes->count(); ++i) {
         settings->valueTypes << ui->valueTypes->item(i)->text();
     }
+    settings->returnByConstRef = ui->returnByConstRefCheckBox->isChecked();
     settings->customTemplates.clear();
     for (int i = 0; i < ui->listWidget_customTemplates->count(); ++i) {
         auto item = ui->listWidget_customTemplates->item(i);

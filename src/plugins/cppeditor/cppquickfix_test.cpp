@@ -2722,6 +2722,7 @@ void QuickfixTest::testGenerateGetterSetterValueTypes()
     s->getterInCppFileFrom = 0;
     s->getterNameTemplate = "get<Name>";
     s->valueTypes << "Value";
+    s->returnByConstRef = true;
 
     GenerateGetterSetter factory;
     QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), operation);
@@ -3434,6 +3435,7 @@ public:
     s->getterOutsideClassFrom = 0;
     s->getterInCppFileFrom = 0;
     s->getterNameTemplate = "get<Name>";
+    s->returnByConstRef = true;
 
     GenerateGetterSetter factory;
     QuickFixOperationTest(testDocuments, &factory, ProjectExplorer::HeaderPaths(), 1);
@@ -3615,6 +3617,7 @@ void QuickfixTest::testGenerateGettersSetters()
     s->setterParameterNameTemplate = "value";
     s->setterOutsideClassFrom = 1;
     s->getterOutsideClassFrom = 1;
+    s->returnByConstRef = true;
 
     TestFactory factory;
     QuickFixOperationTest({CppTestDocument::create("file.h", original, expected)}, &factory);

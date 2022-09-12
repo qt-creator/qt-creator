@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>641</width>
-    <height>1074</height>
+    <height>1141</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -24,9 +24,6 @@
        <widget class="QLabel" name="label_5">
         <property name="text">
          <string>Default</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -329,9 +326,6 @@
         <property name="text">
          <string>Default</string>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
        </widget>
       </item>
       <item row="0" column="2">
@@ -350,9 +344,6 @@
         <property name="text">
          <string>Generate Getters</string>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
        </widget>
       </item>
       <item row="0" column="1">
@@ -370,9 +361,6 @@
         </property>
         <property name="text">
          <string>Generate Setters</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -885,6 +873,16 @@
       </layout>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="returnByConstRefCheckBox">
+     <property name="text">
+      <string>Return non-value types by const reference</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
