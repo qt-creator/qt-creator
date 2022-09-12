@@ -3,7 +3,6 @@
 
 #include "findinopenfiles.h"
 #include "textdocument.h"
-#include "texteditor.h"
 
 #include <utils/filesearch.h>
 #include <coreplugin/icore.h>
@@ -40,13 +39,13 @@ Utils::FileIterator *FindInOpenFiles::files(const QStringList &nameFilters,
     Q_UNUSED(nameFilters)
     Q_UNUSED(exclusionFilters)
     Q_UNUSED(additionalParameters)
-    QMap<QString, QTextCodec *> openEditorEncodings
-            = TextDocument::openedTextDocumentEncodings();
-    QStringList fileNames;
+    QMap<Utils::FilePath, QTextCodec *> openEditorEncodings
+        = TextDocument::openedTextDocumentEncodings();
+    Utils::FilePaths fileNames;
     QList<QTextCodec *> codecs;
     const QList<Core::DocumentModel::Entry *> entries = Core::DocumentModel::entries();
     for (Core::DocumentModel::Entry *entry : entries) {
-        QString fileName = entry->fileName().toString();
+        const Utils::FilePath fileName = entry->fileName();
         if (!fileName.isEmpty()) {
             fileNames.append(fileName);
             QTextCodec *codec = openEditorEncodings.value(fileName);

@@ -57,8 +57,11 @@ void DirectoryFilter::saveState(QJsonObject &object) const
 
     if (displayName() != defaultDisplayName())
         object.insert(kDisplayNameKey, displayName());
-    if (!m_directories.isEmpty())
-        object.insert(kDirectoriesKey, QJsonArray::fromStringList(m_directories));
+    if (!m_directories.isEmpty()) {
+        object.insert(kDirectoriesKey,
+                      QJsonArray::fromStringList(
+                          Utils::transform(m_directories, &FilePath::toString)));
+    }
     if (m_filters != kFiltersDefault)
         object.insert(kFiltersKey, QJsonArray::fromStringList(m_filters));
     if (!m_files.isEmpty())
@@ -74,11 +77,17 @@ static QStringList toStringList(const QJsonArray &array)
     return Utils::transform(array.toVariantList(), &QVariant::toString);
 }
 
+static FilePaths toFilePaths(const QJsonArray &array)
+{
+    return Utils::transform(array.toVariantList(),
+                            [](const QVariant &v) { return FilePath::fromString(v.toString()); });
+}
+
 void DirectoryFilter::restoreState(const QJsonObject &object)
 {
     QMutexLocker locker(&m_lock);
     setDisplayName(object.value(kDisplayNameKey).toString(defaultDisplayName()));
-    m_directories = toStringList(object.value(kDirectoriesKey).toArray());
+    m_directories = toFilePaths(object.value(kDirectoriesKey).toArray());
     m_filters = toStringList(
         object.value(kFiltersKey).toArray(QJsonArray::fromStringList(kFiltersDefault)));
     m_files = FileUtils::toFilePathList(toStringList(object.value(kFilesKey).toArray()));
@@ -112,8 +121,11 @@ void DirectoryFilter::restoreState(const QByteArray &state)
         else
             m_exclusionFilters.clear();
 
-        if (m_isCustomFilter)
-            m_directories = directories;
+        if (m_isCustomFilter) {
+            m_directories = Utils::transform(directories, [](const QString &d) {
+                return FilePath::fromString(d);
+            });
+        }
         setDisplayName(name);
         setShortcutString(shortcut);
         setIncludedByDefault(defaultFilter);
@@ -164,7 +176,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     m_ui->directoryList->clear();
     // Note: assuming we only change m_directories in the Gui thread,
     // we don't need to protect it here with mutex
-    m_ui->directoryList->addItems(m_directories);
+    m_ui->directoryList->addItems(Utils::transform(m_directories, &FilePath::toString));
     m_ui->nameLabel->setVisible(m_isCustomFilter);
     m_ui->nameEdit->setVisible(m_isCustomFilter);
     m_ui->directoryLabel->setVisible(m_isCustomFilter);
@@ -192,7 +204,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
     if (dialog.exec() == QDialog::Accepted) {
         QMutexLocker locker(&m_lock);
         bool directoriesChanged = false;
-        const QStringList oldDirectories = m_directories;
+        const FilePaths oldDirectories = m_directories;
         const QStringList oldFilters = m_filters;
         const QStringList oldExclusionFilters = m_exclusionFilters;
         setDisplayName(m_ui->nameEdit->text().trimmed());
@@ -202,7 +214,7 @@ bool DirectoryFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
         if (oldCount != newCount)
             directoriesChanged = true;
         for (int i = 0; i < newCount; ++i) {
-            m_directories.append(m_ui->directoryList->item(i)->text());
+            m_directories.append(FilePath::fromString(m_ui->directoryList->item(i)->text()));
             if (!directoriesChanged && m_directories.at(i) != oldDirectories.at(i))
                 directoriesChanged = true;
         }
@@ -258,7 +270,8 @@ void DirectoryFilter::updateFileIterator()
 
 void DirectoryFilter::refresh(QFutureInterface<void> &future)
 {
-    QStringList directories, filters, exclusionFilters;
+    FilePaths directories;
+    QStringList filters, exclusionFilters;
     {
         QMutexLocker locker(&m_lock);
         if (m_directories.isEmpty()) {
@@ -280,7 +293,7 @@ void DirectoryFilter::refresh(QFutureInterface<void> &future)
     for (auto it = subDirIterator.begin(); it != end; ++it) {
         if (future.isCanceled())
             break;
-        filesFound << Utils::FilePath::fromString((*it).filePath);
+        filesFound << (*it).filePath;
         if (future.isProgressUpdateNeeded()
                 || future.progressValue() == 0 /*workaround for regression in Qt*/) {
             future.setProgressValueAndText(subDirIterator.currentProgress(),
@@ -303,7 +316,7 @@ void DirectoryFilter::setIsCustomFilter(bool value)
     m_isCustomFilter = value;
 }
 
-void DirectoryFilter::setDirectories(const QStringList &directories)
+void DirectoryFilter::setDirectories(const FilePaths &directories)
 {
     if (directories == m_directories)
         return;
@@ -314,19 +327,19 @@ void DirectoryFilter::setDirectories(const QStringList &directories)
     Internal::Locator::instance()->refresh({this});
 }
 
-void DirectoryFilter::addDirectory(const QString &directory)
+void DirectoryFilter::addDirectory(const FilePath &directory)
 {
-    setDirectories(m_directories + QStringList(directory));
+    setDirectories(m_directories + FilePaths{directory});
 }
 
-void DirectoryFilter::removeDirectory(const QString &directory)
+void DirectoryFilter::removeDirectory(const FilePath &directory)
 {
-    QStringList directories = m_directories;
+    FilePaths directories = m_directories;
     directories.removeOne(directory);
     setDirectories(directories);
 }
 
-QStringList DirectoryFilter::directories() const
+FilePaths DirectoryFilter::directories() const
 {
     return m_directories;
 }

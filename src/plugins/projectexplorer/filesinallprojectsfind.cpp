@@ -54,8 +54,7 @@ Utils::FileIterator *FilesInAllProjectsFind::files(const QStringList &nameFilter
     const QSet<FilePath> dirs = Utils::transform<QSet>(SessionManager::projects(), [](Project *p) {
         return p->projectFilePath().parentDir();
     });
-    const QStringList dirStrings = Utils::transform<QStringList>(dirs, &FilePath::toString);
-    return new SubDirFileIterator(dirStrings,
+    return new SubDirFileIterator(FilePaths(dirs.constBegin(), dirs.constEnd()),
                                   nameFilters,
                                   exclusionFilters,
                                   Core::EditorManager::defaultTextCodec());

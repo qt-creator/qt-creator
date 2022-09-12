@@ -30,10 +30,10 @@ public:
     void refresh(QFutureInterface<void> &future) override;
 
     void setIsCustomFilter(bool value);
-    void setDirectories(const QStringList &directories);
-    void addDirectory(const QString &directory);
-    void removeDirectory(const QString &directory);
-    QStringList directories() const;
+    void setDirectories(const Utils::FilePaths &directories);
+    void addDirectory(const Utils::FilePath &directory);
+    void removeDirectory(const Utils::FilePath &directory);
+    Utils::FilePaths directories() const;
     void setFilters(const QStringList &filters);
     void setExclusionFilters(const QStringList &exclusionFilters);
 
@@ -48,7 +48,7 @@ private:
     void updateOptionButtons();
     void updateFileIterator();
 
-    QStringList m_directories;
+    Utils::FilePaths m_directories;
     QStringList m_filters;
     QStringList m_exclusionFilters;
     // Our config dialog, uses in addDirectory and editDirectory

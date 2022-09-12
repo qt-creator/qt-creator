@@ -864,8 +864,8 @@ void TextEditorWidgetFind::selectAll(const QString &txt, FindFlags findFlags)
                 m_editor->setFocus();
             });
 
-    const QString &fileName = m_editor->textDocument()->filePath().toString();
-    QMap<QString, QString> fileToContentsMap;
+    const FilePath &fileName = m_editor->textDocument()->filePath();
+    QMap<FilePath, QString> fileToContentsMap;
     fileToContentsMap[fileName] = m_editor->textDocument()->plainText();
 
     FileListIterator *it = new FileListIterator({fileName},
@@ -6368,10 +6368,10 @@ void TextEditorWidgetPrivate::highlightSearchResultsInScrollBar()
 
     const QTextDocument::FindFlags findFlags = textDocumentFlagsForFindFlags(m_findFlags);
 
-    const QString &fileName = m_document->filePath().toString();
+    const FilePath &fileName = m_document->filePath();
     FileListIterator *it =
             new FileListIterator({fileName} , {const_cast<QTextCodec *>(m_document->codec())});
-    QMap<QString, QString> fileToContentsMap;
+    QMap<FilePath, QString> fileToContentsMap;
     fileToContentsMap[fileName] = m_document->plainText();
 
     if (m_findFlags & FindRegularExpression)

@@ -16,6 +16,7 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 using namespace TextEditor;
+using namespace Utils;
 
 CurrentProjectFind::CurrentProjectFind()
 {
@@ -51,22 +52,22 @@ QVariant CurrentProjectFind::additionalParameters() const
 {
     Project *project = ProjectTree::currentProject();
     if (project)
-        return QVariant::fromValue(project->projectFilePath().toString());
+        return project->projectFilePath().toVariant();
     return QVariant();
 }
 
-Utils::FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
-                                               const QStringList &exclusionFilters,
-                                               const QVariant &additionalParameters) const
+FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
+                                        const QStringList &exclusionFilters,
+                                        const QVariant &additionalParameters) const
 {
     QTC_ASSERT(additionalParameters.isValid(),
-               return new Utils::FileListIterator(QStringList(), QList<QTextCodec *>()));
-    QString projectFile = additionalParameters.toString();
+               return new FileListIterator(FilePaths(), QList<QTextCodec *>()));
+    const FilePath projectFile = FilePath::fromVariant(additionalParameters);
     for (Project *project : SessionManager::projects()) {
-        if (project && projectFile == project->projectFilePath().toString())
+        if (project && projectFile == project->projectFilePath())
             return filesForProjects(nameFilters, exclusionFilters, {project});
     }
-    return new Utils::FileListIterator(QStringList(), QList<QTextCodec *>());
+    return new FileListIterator(FilePaths(), QList<QTextCodec *>());
 }
 
 QString CurrentProjectFind::label() const
@@ -84,9 +85,9 @@ void CurrentProjectFind::handleProjectChanged()
 
 void CurrentProjectFind::recheckEnabled(Core::SearchResult *search)
 {
-    QString projectFile = getAdditionalParameters(search).toString();
+    const FilePath projectFile = FilePath::fromVariant(getAdditionalParameters(search));
     for (Project *project : SessionManager::projects()) {
-        if (projectFile == project->projectFilePath().toString()) {
+        if (projectFile == project->projectFilePath()) {
             search->setSearchAgainEnabled(true);
             return;
         }

@@ -49,8 +49,8 @@ public:
     explicit TextDocument(Utils::Id id = Utils::Id());
     ~TextDocument() override;
 
-    static QMap<QString, QString> openedTextDocumentContents();
-    static QMap<QString, QTextCodec *> openedTextDocumentEncodings();
+    static QMap<Utils::FilePath, QString> openedTextDocumentContents();
+    static QMap<Utils::FilePath, QTextCodec *> openedTextDocumentEncodings();
     static TextDocument *currentTextDocument();
     static TextDocument *textDocumentForFilePath(const Utils::FilePath &filePath);
 

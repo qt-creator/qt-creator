@@ -24,12 +24,12 @@ QT_END_NAMESPACE
 namespace Utils {
 
 QTCREATOR_UTILS_EXPORT
-std::function<bool(const QString &)>
-filterFileFunction(const QStringList &filterRegs, const QStringList &exclusionRegs);
+std::function<bool(const FilePath &)> filterFileFunction(const QStringList &filterRegs,
+                                                         const QStringList &exclusionRegs);
 
 QTCREATOR_UTILS_EXPORT
-std::function<QStringList(const QStringList &)>
-filterFilesFunction(const QStringList &filters, const QStringList &exclusionFilters);
+std::function<FilePaths(const FilePaths &)> filterFilesFunction(const QStringList &filters,
+                                                                const QStringList &exclusionFilters);
 
 QTCREATOR_UTILS_EXPORT
 QStringList splitFilterUiText(const QString &text);
@@ -50,10 +50,11 @@ public:
     {
     public:
         Item() = default;
-        Item(const QString &path, QTextCodec *codec)
-            : filePath(path), encoding(codec)
+        Item(const FilePath &path, QTextCodec *codec)
+            : filePath(path)
+            , encoding(codec)
         {}
-        QString filePath;
+        FilePath filePath;
         QTextCodec *encoding = nullptr;
     };
 
@@ -106,8 +107,7 @@ protected:
 class QTCREATOR_UTILS_EXPORT FileListIterator : public FileIterator
 {
 public:
-    explicit FileListIterator(const QStringList &fileList,
-                              const QList<QTextCodec *> encodings);
+    explicit FileListIterator(const FilePaths &fileList, const QList<QTextCodec *> encodings);
 
     int maxProgress() const override;
     int currentProgress() const override;
@@ -125,7 +125,7 @@ private:
 class QTCREATOR_UTILS_EXPORT SubDirFileIterator : public FileIterator
 {
 public:
-    SubDirFileIterator(const QStringList &directories,
+    SubDirFileIterator(const FilePaths &directories,
                        const QStringList &filters,
                        const QStringList &exclusionFilters,
                        QTextCodec *encoding = nullptr);
@@ -140,10 +140,10 @@ protected:
     const Item &itemAt(int index) const override;
 
 private:
-    std::function<QStringList(const QStringList &)> m_filterFiles;
+    std::function<FilePaths(const FilePaths &)> m_filterFiles;
     QTextCodec *m_encoding;
-    QStack<QDir> m_dirs;
-    QSet<QString> m_knownDirs;
+    QStack<FilePath> m_dirs;
+    QSet<FilePath> m_knownDirs;
     QStack<qreal> m_progressValues;
     QStack<bool> m_processedValues;
     qreal m_progress;
@@ -184,11 +184,17 @@ public:
 
 using FileSearchResultList = QList<FileSearchResult>;
 
-QTCREATOR_UTILS_EXPORT QFuture<FileSearchResultList> findInFiles(const QString &searchTerm, FileIterator *files,
-    QTextDocument::FindFlags flags, const QMap<QString, QString> &fileToContentsMap = QMap<QString, QString>());
+QTCREATOR_UTILS_EXPORT QFuture<FileSearchResultList> findInFiles(
+    const QString &searchTerm,
+    FileIterator *files,
+    QTextDocument::FindFlags flags,
+    const QMap<FilePath, QString> &fileToContentsMap = QMap<FilePath, QString>());
 
-QTCREATOR_UTILS_EXPORT QFuture<FileSearchResultList> findInFilesRegExp(const QString &searchTerm, FileIterator *files,
-    QTextDocument::FindFlags flags, const QMap<QString, QString> &fileToContentsMap = QMap<QString, QString>());
+QTCREATOR_UTILS_EXPORT QFuture<FileSearchResultList> findInFilesRegExp(
+    const QString &searchTerm,
+    FileIterator *files,
+    QTextDocument::FindFlags flags,
+    const QMap<FilePath, QString> &fileToContentsMap = QMap<FilePath, QString>());
 
 QTCREATOR_UTILS_EXPORT QString expandRegExpReplacement(const QString &replaceText, const QStringList &capturedTexts);
 QTCREATOR_UTILS_EXPORT QString matchCaseReplacement(const QString &originalText, const QString &replaceText);

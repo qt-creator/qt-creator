@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "findincurrentfile.h"
-#include "texteditor.h"
 #include "textdocument.h"
 
 #include <utils/filesearch.h>
@@ -39,8 +38,9 @@ Utils::FileIterator *FindInCurrentFile::files(const QStringList &nameFilters,
 {
     Q_UNUSED(nameFilters)
     Q_UNUSED(exclusionFilters)
-    QString fileName = additionalParameters.toString();
-    QMap<QString, QTextCodec *> openEditorEncodings = TextDocument::openedTextDocumentEncodings();
+    const auto fileName = Utils::FilePath::fromVariant(additionalParameters);
+    QMap<Utils::FilePath, QTextCodec *> openEditorEncodings
+        = TextDocument::openedTextDocumentEncodings();
     QTextCodec *codec = openEditorEncodings.value(fileName);
     if (!codec)
         codec = Core::EditorManager::defaultTextCodec();
@@ -49,7 +49,7 @@ Utils::FileIterator *FindInCurrentFile::files(const QStringList &nameFilters,
 
 QVariant FindInCurrentFile::additionalParameters() const
 {
-    return QVariant::fromValue(m_currentDocument->filePath().toString());
+    return m_currentDocument->filePath().toVariant();
 }
 
 QString FindInCurrentFile::label() const

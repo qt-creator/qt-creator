@@ -235,29 +235,29 @@ TextDocument::~TextDocument()
     delete d;
 }
 
-QMap<QString, QString> TextDocument::openedTextDocumentContents()
+QMap<FilePath, QString> TextDocument::openedTextDocumentContents()
 {
-    QMap<QString, QString> workingCopy;
+    QMap<FilePath, QString> workingCopy;
     const QList<IDocument *> documents = DocumentModel::openedDocuments();
     for (IDocument *document : documents) {
         auto textEditorDocument = qobject_cast<TextDocument *>(document);
         if (!textEditorDocument)
             continue;
-        QString fileName = textEditorDocument->filePath().toString();
+        const FilePath fileName = textEditorDocument->filePath();
         workingCopy[fileName] = textEditorDocument->plainText();
     }
     return workingCopy;
 }
 
-QMap<QString, QTextCodec *> TextDocument::openedTextDocumentEncodings()
+QMap<FilePath, QTextCodec *> TextDocument::openedTextDocumentEncodings()
 {
-    QMap<QString, QTextCodec *> workingCopy;
+    QMap<FilePath, QTextCodec *> workingCopy;
     const QList<IDocument *> documents = DocumentModel::openedDocuments();
     for (IDocument *document : documents) {
         auto textEditorDocument = qobject_cast<TextDocument *>(document);
         if (!textEditorDocument)
             continue;
-        QString fileName = textEditorDocument->filePath().toString();
+        const FilePath fileName = textEditorDocument->filePath();
         workingCopy[fileName] = const_cast<QTextCodec *>(textEditorDocument->codec());
     }
     return workingCopy;

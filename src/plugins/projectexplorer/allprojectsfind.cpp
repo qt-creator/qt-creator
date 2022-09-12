@@ -21,6 +21,7 @@
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
 using namespace TextEditor;
+using namespace Utils;
 
 AllProjectsFind::AllProjectsFind() :  m_configWidget(nullptr)
 {
@@ -43,37 +44,37 @@ bool AllProjectsFind::isEnabled() const
     return BaseFileFind::isEnabled() && SessionManager::hasProjects();
 }
 
-Utils::FileIterator *AllProjectsFind::files(const QStringList &nameFilters,
-                                            const QStringList &exclusionFilters,
-                                            const QVariant &additionalParameters) const
+FileIterator *AllProjectsFind::files(const QStringList &nameFilters,
+                                     const QStringList &exclusionFilters,
+                                     const QVariant &additionalParameters) const
 {
     Q_UNUSED(additionalParameters)
     return filesForProjects(nameFilters, exclusionFilters, SessionManager::projects());
 }
 
-Utils::FileIterator *AllProjectsFind::filesForProjects(const QStringList &nameFilters,
-                                                       const QStringList &exclusionFilters,
-                                                       const QList<Project *> &projects) const
+FileIterator *AllProjectsFind::filesForProjects(const QStringList &nameFilters,
+                                                const QStringList &exclusionFilters,
+                                                const QList<Project *> &projects) const
 {
-    std::function<QStringList(const QStringList &)> filterFiles =
-            Utils::filterFilesFunction(nameFilters, exclusionFilters);
-    const QMap<QString, QTextCodec *> openEditorEncodings = TextDocument::openedTextDocumentEncodings();
-    QMap<QString, QTextCodec *> encodings;
+    std::function<FilePaths(const FilePaths &)> filterFiles
+        = Utils::filterFilesFunction(nameFilters, exclusionFilters);
+    const QMap<FilePath, QTextCodec *> openEditorEncodings
+        = TextDocument::openedTextDocumentEncodings();
+    QMap<FilePath, QTextCodec *> encodings;
     for (const Project *project : projects) {
         const EditorConfiguration *config = project->editorConfiguration();
         QTextCodec *projectCodec = config->useGlobalSettings()
             ? Core::EditorManager::defaultTextCodec()
             : config->textCodec();
-        const QStringList filteredFiles = filterFiles(
-            Utils::transform(project->files(Project::SourceFiles), &Utils::FilePath::toString));
-        for (const QString &fileName : filteredFiles) {
+        const FilePaths filteredFiles = filterFiles(project->files(Project::SourceFiles));
+        for (const FilePath &fileName : filteredFiles) {
             QTextCodec *codec = openEditorEncodings.value(fileName);
             if (!codec)
                 codec = projectCodec;
             encodings.insert(fileName, codec);
         }
     }
-    return new Utils::FileListIterator(encodings.keys(), encodings.values());
+    return new FileListIterator(encodings.keys(), encodings.values());
 }
 
 QVariant AllProjectsFind::additionalParameters() const

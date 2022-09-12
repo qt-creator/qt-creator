@@ -59,7 +59,7 @@ FileIterator *FindInFiles::files(const QStringList &nameFilters,
                                  const QStringList &exclusionFilters,
                                  const QVariant &additionalParameters) const
 {
-    return new SubDirFileIterator({additionalParameters.toString()},
+    return new SubDirFileIterator({FilePath::fromVariant(additionalParameters)},
                                   nameFilters,
                                   exclusionFilters,
                                   EditorManager::defaultTextCodec());
@@ -67,7 +67,7 @@ FileIterator *FindInFiles::files(const QStringList &nameFilters,
 
 QVariant FindInFiles::additionalParameters() const
 {
-    return QVariant::fromValue(path().toString());
+    return path().toVariant();
 }
 
 QString FindInFiles::label() const

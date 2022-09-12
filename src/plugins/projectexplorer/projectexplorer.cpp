@@ -867,14 +867,13 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::loadSesssionTasks);
 
     connect(sessionManager, &SessionManager::projectAdded, dd, [](ProjectExplorer::Project *project) {
-        dd->m_allProjectDirectoriesFilter.addDirectory(project->projectDirectory().toString());
+        dd->m_allProjectDirectoriesFilter.addDirectory(project->projectDirectory());
     });
     connect(sessionManager,
             &SessionManager::projectRemoved,
             dd,
             [](ProjectExplorer::Project *project) {
-                dd->m_allProjectDirectoriesFilter.removeDirectory(
-                    project->projectDirectory().toString());
+                dd->m_allProjectDirectoriesFilter.removeDirectory(project->projectDirectory());
             });
 
     ProjectTree *tree = &dd->m_projectTree;
