@@ -1008,8 +1008,8 @@ void McuSupportTest::test_legacy_createFreeRtosPackage()
     verifyFreeRtosPackage(freeRtos,
                           targetDescription.freeRTOS.envVar,
                           boardSdkDir,
-                          expectedPath.toUserOutput(),
-                          expectedDetectionPath.toUserOutput(),
+                          expectedPath.toString(),
+                          expectedDetectionPath.toString(),
                           expectedSettingsKey);
 }
 
@@ -1040,8 +1040,8 @@ void McuSupportTest::test_createFreeRtosPackage()
     verifyFreeRtosPackage(freeRtos,
                           targetDescription.freeRTOS.envVar,
                           boardSdkDir,
-                          expectedPath.toUserOutput(),
-                          expectedDetectionPath.toUserOutput(),
+                          expectedPath.toString(),
+                          expectedDetectionPath.toString(),
                           expectedSettingsKey);
 }
 
@@ -1083,7 +1083,7 @@ void McuSupportTest::test_legacy_createQtMCUsPackage()
     QCOMPARE(qtForMCUsSDK->detectionPath(),
              FilePath::fromUserInput(Legacy::Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH)
                  .withExecutableSuffix());
-    QCOMPARE(qtForMCUsSDK->path().toUserOutput(), qtForMcuSdkPath);
+    QCOMPARE(qtForMCUsSDK->path().toString(), qtForMcuSdkPath);
 }
 
 void McuSupportTest::test_legacy_supportMultipleToolchainVersions()
