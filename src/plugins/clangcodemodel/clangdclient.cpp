@@ -985,6 +985,9 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                 type = type.left(angleBracketIndex);
         };
 
+        if (gatherMemberFunctionOverrideHelpItemForTooltip(id, path))
+            return;
+
         const bool isMemberFunction = node.role() == "expression" && node.kind() == "Member"
                 && (node.arcanaContains("member function") || type.contains('('));
         const bool isFunction = node.role() == "expression" && node.kind() == "DeclRef"
@@ -1068,6 +1071,50 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
         d->setHelpItemForTooltip(id);
     };
     d->getAndHandleAst(doc, astHandler, AstCallbackMode::SyncIfPossible);
+}
+
+bool ClangdClient::gatherMemberFunctionOverrideHelpItemForTooltip(
+        const LanguageServerProtocol::MessageId &token,
+        const QList<ClangdAstNode> &path)
+{
+    // Heuristic: If we encounter a member function re-declaration, continue under the
+    // assumption that the base class holds the documentation.
+    if (path.length() < 3 || path.last().kind() != "FunctionProto")
+        return false;
+    const ClangdAstNode &methodNode = path.at(path.length() - 2);
+    if (methodNode.kind() != "CXXMethod" || !methodNode.detail())
+        return false;
+    bool hasOverride = false;
+    for (const ClangdAstNode &methodNodeChild
+         : methodNode.children().value_or(QList<ClangdAstNode>())) {
+        if (methodNodeChild.kind() == "Override") {
+            hasOverride = true;
+            break;
+        }
+    }
+    if (!hasOverride)
+        return false;
+    const ClangdAstNode &classNode = path.at(path.length() - 3);
+    if (classNode.kind() != "CXXRecord")
+        return false;
+    const ClangdAstNode baseNode = classNode.children()->first();
+    if (baseNode.role() != "base")
+        return false;
+    const auto baseNodeChildren = baseNode.children();
+    if (!baseNodeChildren || baseNodeChildren->isEmpty())
+        return false;
+    const ClangdAstNode baseTypeNode = baseNodeChildren->first();
+    if (baseTypeNode.role() != "type")
+        return false;
+    const auto baseTypeNodeChildren = baseTypeNode.children();
+    if (!baseTypeNodeChildren || baseTypeNodeChildren->isEmpty())
+        return false;
+    const ClangdAstNode baseClassNode = baseTypeNodeChildren->first();
+    if (!baseClassNode.detail())
+        return false;
+    d->setHelpItemForTooltip(token, *baseClassNode.detail() + "::" + *methodNode.detail(),
+                             HelpItem::Function, "()");
+    return true;
 }
 
 void ClangdClient::setVirtualRanges(const Utils::FilePath &filePath, const QList<Range> &ranges,
