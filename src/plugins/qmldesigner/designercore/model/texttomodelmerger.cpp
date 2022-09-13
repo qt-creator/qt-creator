@@ -1960,7 +1960,7 @@ void ModelValidator::typeDiffers(bool /*isRootNode*/,
     Q_UNUSED(minorVersion)
     Q_UNUSED(majorVersion)
 
-    QTC_ASSERT(modelNode.type() == typeName, return);
+    QTC_ASSERT(modelNode.type() == typeName, return );
 
     if (modelNode.majorVersion() != majorVersion) {
         qDebug() << Q_FUNC_INFO << modelNode;

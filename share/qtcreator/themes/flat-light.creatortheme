@@ -94,6 +94,9 @@ DSstateSeparatorColor=ffadadad
 DSstateBackgroundColor=ffe0e0e0
 DSstatePreviewOutline=ff363636
 
+DSstatePanelBackground=ffdadada
+DSstateHighlight=ff8d8d8d
+
 DSchangedStateText=ff99ccff
 
 DS3DAxisXColor=ffd00000

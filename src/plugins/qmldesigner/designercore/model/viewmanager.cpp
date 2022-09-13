@@ -28,6 +28,7 @@
 #ifndef QMLDESIGNER_TEST
 
 #include <abstractview.h>
+#include <assetslibraryview.h>
 #include <capturingconnectionmanager.h>
 #include <componentaction.h>
 #include <componentview.h>
@@ -38,13 +39,13 @@
 #include <edit3dview.h>
 #include <formeditorview.h>
 #include <itemlibraryview.h>
-#include <assetslibraryview.h>
+#include <materialbrowserview.h>
+#include <materialeditorview.h>
 #include <navigatorview.h>
 #include <nodeinstanceview.h>
 #include <propertyeditorview.h>
-#include <materialeditorview.h>
-#include <materialbrowserview.h>
 #include <rewriterview.h>
+#include <stateseditornew/stateseditorview.h>
 #include <stateseditorview.h>
 #include <texteditorview.h>
 #include <qmldesignerplugin.h>
@@ -86,6 +87,7 @@ public:
     MaterialEditorView materialEditorView;
     MaterialBrowserView materialBrowserView;
     StatesEditorView statesEditorView;
+    Experimental::StatesEditorView newStatesEditorView;
 
     std::vector<std::unique_ptr<AbstractView>> additionalViews;
     bool disableStandardViews = false;
@@ -168,12 +170,22 @@ void ViewManager::switchStateEditorViewToBaseState()
         d->savedState = d->statesEditorView.currentState();
         d->statesEditorView.setCurrentState(d->statesEditorView.baseState());
     }
+
+    // TODO Settings branch
+    if (d->newStatesEditorView.isAttached()) {
+        d->savedState = d->newStatesEditorView.currentState();
+        d->newStatesEditorView.setCurrentState(d->newStatesEditorView.baseState());
+    }
 }
 
 void ViewManager::switchStateEditorViewToSavedState()
 {
     if (d->savedState.isValid() && d->statesEditorView.isAttached())
         d->statesEditorView.setCurrentState(d->savedState);
+
+    // TODO Settings branch
+    if (d->savedState.isValid() && d->newStatesEditorView.isAttached())
+        d->newStatesEditorView.setCurrentState(d->savedState);
 }
 
 QList<AbstractView *> ViewManager::views() const
@@ -196,6 +208,7 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->materialEditorView,
                                   &d->materialBrowserView,
                                   &d->statesEditorView,
+                                  &d->newStatesEditorView, // TODO
                                   &d->designerActionManagerView};
 
     if (QmlDesignerPlugin::instance()->settings().value(
@@ -331,6 +344,7 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->materialEditorView.widgetInfo());
     widgetInfoList.append(d->materialBrowserView.widgetInfo());
     widgetInfoList.append(d->statesEditorView.widgetInfo());
+    widgetInfoList.append(d->newStatesEditorView.widgetInfo()); // TODO
     if (d->debugView.hasWidget())
         widgetInfoList.append(d->debugView.widgetInfo());
 

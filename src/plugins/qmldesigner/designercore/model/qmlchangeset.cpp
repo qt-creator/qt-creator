@@ -29,6 +29,8 @@
 #include "abstractview.h"
 #include <metainfo.h>
 
+#include <utils/algorithm.h>
+
 namespace QmlDesigner {
 
 ModelNode QmlModelStateOperation::target() const
@@ -42,6 +44,40 @@ ModelNode QmlModelStateOperation::target() const
 void QmlModelStateOperation::setTarget(const ModelNode &target)
 {
     modelNode().bindingProperty("target").setExpression(target.id());
+}
+
+bool QmlModelStateOperation::explicitValue() const
+{
+    if (modelNode().property("explicit").isVariantProperty())
+        return modelNode().variantProperty("explicit").value().toBool();
+
+    return false;
+}
+
+void QmlModelStateOperation::setExplicitValue(bool value)
+{
+    modelNode().variantProperty("explicit").setValue(value);
+}
+
+bool QmlModelStateOperation::restoreEntryValues() const
+{
+    if (modelNode().property("restoreEntryValues").isVariantProperty())
+        return modelNode().variantProperty("restoreEntryValues").value().toBool();
+
+    return false;
+}
+
+void QmlModelStateOperation::setRestoreEntryValues(bool value)
+{
+    modelNode().variantProperty("restoreEntryValues").setValue(value);
+}
+
+QList<AbstractProperty> QmlModelStateOperation::targetProperties() const
+{
+    return Utils::filtered(modelNode().properties(), [](const AbstractProperty &property) {
+        const QList<PropertyName> ignore = {"target", "explicit", "restoreEntryValues"};
+        return !ignore.contains(property.name());
+    });
 }
 
 bool QmlPropertyChanges::isValid() const

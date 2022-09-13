@@ -43,6 +43,9 @@ T.AbstractButton {
     property alias backgroundVisible: buttonBackground.visible
     property alias backgroundRadius: buttonBackground.radius
 
+    // Inverts the checked style
+    property bool checkedInverted: false
+
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
     implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
@@ -98,11 +101,12 @@ T.AbstractButton {
                     }
                 },
                 State {
-                    name: "select"
+                    name: "check"
                     when: myButton.enabled && !myButton.pressed && myButton.checked
                     PropertyChanges {
                         target: buttonIcon
-                        color: StudioTheme.Values.themeIconColorSelected
+                        color: myButton.checkedInverted ? StudioTheme.Values.themeTextSelectedTextColor
+                                                        : StudioTheme.Values.themeIconColorSelected
                     }
                 },
                 State {
@@ -125,6 +129,7 @@ T.AbstractButton {
             PropertyChanges {
                 target: buttonBackground
                 color: StudioTheme.Values.themeControlBackground
+                border.color: StudioTheme.Values.themeControlOutline
             }
             PropertyChanges {
                 target: myButton
@@ -137,19 +142,32 @@ T.AbstractButton {
             PropertyChanges {
                 target: buttonBackground
                 color: StudioTheme.Values.themeControlBackground
+                border.color: StudioTheme.Values.themeControlOutline
             }
         },
         State {
             name: "hover"
-            when: myButton.hover && !myButton.pressed && myButton.enabled
+            when: !myButton.checked && myButton.hover && !myButton.pressed && myButton.enabled
             PropertyChanges {
                 target: buttonBackground
                 color: StudioTheme.Values.themeControlBackgroundHover
+                border.color: StudioTheme.Values.themeControlOutline
+            }
+        },
+        State {
+            name: "hoverCheck"
+            when: myButton.checked && myButton.hover && !myButton.pressed && myButton.enabled
+            PropertyChanges {
+                target: buttonBackground
+                color: myButton.checkedInverted ? StudioTheme.Values.themeInteractionHover
+                                                : StudioTheme.Values.themeControlBackgroundHover
+                border.color: myButton.checkedInverted ? StudioTheme.Values.themeInteractionHover
+                                                       : StudioTheme.Values.themeControlOutline
             }
         },
         State {
             name: "press"
-            when: myButton.hover && myButton.pressed
+            when: myButton.hover && myButton.pressed && myButton.enabled
             PropertyChanges {
                 target: buttonBackground
                 color: StudioTheme.Values.themeInteraction
@@ -158,6 +176,17 @@ T.AbstractButton {
             PropertyChanges {
                 target: myButton
                 z: 100
+            }
+        },
+        State {
+            name: "check"
+            when: myButton.enabled && !myButton.pressed && myButton.checked
+            PropertyChanges {
+                target: buttonBackground
+                color: myButton.checkedInverted ? StudioTheme.Values.themeInteraction
+                                                : StudioTheme.Values.themeControlBackground
+                border.color: myButton.checkedInverted ? StudioTheme.Values.themeInteraction
+                                                       : StudioTheme.Values.themeControlOutline
             }
         },
         State {

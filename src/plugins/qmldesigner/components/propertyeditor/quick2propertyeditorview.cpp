@@ -36,10 +36,12 @@
 #include "gradientpresetcustomlistmodel.h"
 #include "gradientpresetdefaultlistmodel.h"
 #include "itemfiltermodel.h"
+#include "propertychangesmodel.h"
 #include "propertyeditorcontextobject.h"
 #include "propertyeditorimageprovider.h"
 #include "propertyeditorqmlbackend.h"
 #include "propertyeditorvalue.h"
+#include "propertymodel.h"
 #include "qmlanchorbindingproxy.h"
 #include "richtexteditor/richtexteditorproxy.h"
 #include "theme.h"
@@ -78,6 +80,8 @@ void Quick2PropertyEditorView::registerQmlTypes()
         RichTextEditorProxy::registerDeclarativeType();
         SelectionDynamicPropertiesProxyModel::registerDeclarativeType();
         DynamicPropertyRow::registerDeclarativeType();
+        Experimental::PropertyChangesModel::registerDeclarativeType();
+        Experimental::PropertyModel::registerDeclarativeType();
 
         const QString resourcePath = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 

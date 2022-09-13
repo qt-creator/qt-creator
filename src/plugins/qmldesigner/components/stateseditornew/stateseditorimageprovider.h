@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 The Qt Company Ltd.
+** Copyright (C) 2022 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of Qt Creator.
@@ -25,36 +25,30 @@
 
 #pragma once
 
-#include <qmldesignercorelib_global.h>
-#include <modelnode.h>
-#include "qmlmodelnodefacade.h"
+#include"abstractview.h"
+
+#include <QQuickImageProvider>
+#include <QPointer>
 
 namespace QmlDesigner {
+namespace Experimental {
+namespace Internal {
 
-class QMLDESIGNERCORE_EXPORT QmlModelStateOperation : public QmlModelNodeFacade
+class StatesEditorView;
+
+class StatesEditorImageProvider : public QQuickImageProvider
 {
 public:
-    QmlModelStateOperation() : QmlModelNodeFacade() {}
-    QmlModelStateOperation(const ModelNode &modelNode) : QmlModelNodeFacade(modelNode) {}
-    ModelNode target() const;
-    void setTarget(const ModelNode &target);
-    bool explicitValue() const;
-    void setExplicitValue(bool value);
-    bool restoreEntryValues() const;
-    void setRestoreEntryValues(bool value);
-    QList<AbstractProperty> targetProperties() const;
-    bool isValid() const override;
-    static bool isValidQmlModelStateOperation(const ModelNode &modelNode);
+    StatesEditorImageProvider();
+
+    QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize) override;
+
+    void setNodeInstanceView(NodeInstanceView *nodeInstanceView);
+
+private:
+    QPointer<NodeInstanceView> m_nodeInstanceView;
 };
 
-class QMLDESIGNERCORE_EXPORT QmlPropertyChanges : public QmlModelStateOperation
-{
-public:
-    QmlPropertyChanges() : QmlModelStateOperation() {}
-    QmlPropertyChanges(const ModelNode &modelNode) : QmlModelStateOperation(modelNode) {}
-    bool isValid() const override;
-    static bool isValidQmlPropertyChanges(const ModelNode &modelNode);
-    void removeProperty(const PropertyName &name);
-};
-
-} //QmlDesigner
+} // namespace Internal
+} // namespace Experimental
+} // namespace QmlDesigner
