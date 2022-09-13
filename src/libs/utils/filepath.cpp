@@ -1001,9 +1001,7 @@ bool FilePath::endsWith(const QString &s) const
 */
 bool FilePath::startsWithDriveLetter() const
 {
-    if (needsDevice() || !HostOsInfo::isWindowsHost())
-        return false;
-    return m_path.size() >= 2 && isWindowsDriveLetter(m_path[0]) && m_path.at(1) == ':';
+    return !needsDevice() && m_path.size() >= 2 && isWindowsDriveLetter(m_path[0]) && m_path.at(1) == ':';
 }
 
 /*!

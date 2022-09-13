@@ -789,9 +789,6 @@ void tst_fileutils::asyncLocalCopy()
 
 void tst_fileutils::startsWithDriveLetter_data()
 {
-    if (!HostOsInfo::isWindowsHost())
-        QSKIP("This test is only relevant on Windows");
-
     QTest::addColumn<FilePath>("path");
     QTest::addColumn<bool>("expected");
 
