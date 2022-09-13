@@ -6,6 +6,7 @@
 #include "clangdast.h"
 #include "clangdclient.h"
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultwindow.h>
 #include <cplusplus/FindUsages.h>
@@ -158,8 +159,10 @@ void ClangdFindReferences::Private::handleRenameRequest(
 {
     const Utils::FilePaths filePaths = BaseFileFind::replaceAll(newSymbolName, checkedItems,
                                                                 preserveCase);
-    if (!filePaths.isEmpty())
+    if (!filePaths.isEmpty()) {
+        DocumentManager::notifyFilesChangedInternally(filePaths);
         SearchResultWindow::instance()->hide();
+    }
 
     const auto renameFilesCheckBox = qobject_cast<QCheckBox *>(search->additionalReplaceWidget());
     QTC_ASSERT(renameFilesCheckBox, return);
