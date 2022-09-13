@@ -57,7 +57,7 @@ HelperWidgets.ComboBox {
 
         comboBox.currentIndex = comboBox.find(text)
 
-        if (text === "") {
+        if (text === "" || text === "null") {
             comboBox.currentIndex = 0
             comboBox.editText = comboBox.defaultItem
         } else {

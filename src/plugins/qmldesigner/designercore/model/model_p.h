@@ -170,7 +170,7 @@ public:
     void notifyUpdateActiveScene3D(const QVariantMap &sceneState);
     void notifyModelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap);
     void notifyImport3DSupportChanged(const QVariantMap &supportMap);
-    void notifyModelAtPosResult(const ModelNode &modelNode);
+    void notifyNodeAtPosResult(const ModelNode &modelNode);
 
     void notifyDragStarted(QMimeData *mimeData);
     void notifyDragEnded();

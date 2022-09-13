@@ -54,6 +54,8 @@ public:
 
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
 
+    void currentStateChanged(const ModelNode &node) override;
+
     WidgetInfo widgetInfo() override;
     bool hasWidget() const override;
     bool isWidgetEnabled();

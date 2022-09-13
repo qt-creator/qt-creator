@@ -567,6 +567,13 @@ inline bool dotPropertyHeuristic(const QmlObjectNode &node, const NodeMetaInfo &
     if (propertyType.isFont() || itemInfo.hasProperty(itemProperty)
         || propertyType.isBasedOn(textInfo, rectangleInfo, imageInfo))
         return false;
+    // TODO In 8.0 this is now the following, which conflicts with master:
+    //    if (typeName == "font" || typeName == "Texture" || typeName == "vector4d"
+    //        || itemInfo.hasProperty(itemProperty)
+    //        || textInfo.isSubclassOf(typeName)
+    //        || rectangleInfo.isSubclassOf(typeName)
+    //        || imageInfo.isSubclassOf(typeName))
+    //        return false;
 
     return true;
 }
@@ -582,10 +589,13 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
 
     QStringList allTypes; // all template types
     QStringList separateSectionTypes; // separate section types only
+    QStringList needsTypeArgTypes;  // types that need type as third parameter
 
     for (const QmlJS::SimpleReaderNode::Ptr &node : nodes) {
         if (node->propertyNames().contains("separateSection"))
             separateSectionTypes.append(variantToStringList(node->property("typeNames").value));
+        if (node->propertyNames().contains("needsTypeArg"))
+            needsTypeArgTypes.append(variantToStringList(node->property("typeNames").value));
 
         allTypes.append(variantToStringList(node->property("typeNames").value));
     }
@@ -643,8 +653,8 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
 
     Utils::sort(basicProperties, propertyMetaInfoCompare);
 
-    auto findAndFillTemplate = [&nodes, &node](const PropertyName &label,
-                                               const PropertyMetaInfo &property) {
+    auto findAndFillTemplate = [&nodes, &node, &needsTypeArgTypes](const PropertyName &label,
+                                                                   const PropertyMetaInfo &property) {
         const auto &propertyName = property.name();
         PropertyName underscoreProperty = propertyName;
         underscoreProperty.replace('.', '_');
@@ -663,7 +673,14 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
                 if (file.open(QIODevice::ReadOnly)) {
                     QString source = QString::fromUtf8(file.readAll());
                     file.close();
-                    filledTemplate = source.arg(QString::fromUtf8(label)).arg(QString::fromUtf8(underscoreProperty));
+                    if (needsTypeArgTypes.contains(QString::fromUtf8(typeName))) {
+                        filledTemplate = source.arg(QString::fromUtf8(label),
+                                                    QString::fromUtf8(underscoreProperty),
+                                                    QString::fromUtf8(typeName));
+                    } else {
+                        filledTemplate = source.arg(QString::fromUtf8(label),
+                                                    QString::fromUtf8(underscoreProperty));
+                    }
                 } else {
                     qWarning().nospace() << "template definition source file not found:" << fileName;
                 }

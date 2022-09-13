@@ -355,8 +355,8 @@ void ConnectionViewWidget::invalidateButtonStatus()
     } else if (currentTab() == DynamicPropertiesTab) {
         emit setEnabledRemoveButton(ui->dynamicPropertiesView->selectionModel()->hasSelection());
         auto dynamicPropertiesModel = qobject_cast<DynamicPropertiesModel*>(ui->dynamicPropertiesView->model());
-        emit setEnabledAddButton(dynamicPropertiesModel->connectionView()->model() &&
-                       dynamicPropertiesModel->connectionView()->selectedModelNodes().count() == 1);
+        emit setEnabledAddButton(dynamicPropertiesModel->view()->model() &&
+                       dynamicPropertiesModel->selectedNodes().count() == 1);
     } else if (currentTab() == BackendTab) {
         emit setEnabledAddButton(true);
         emit setEnabledRemoveButton(ui->backendView->selectionModel()->hasSelection());
@@ -526,9 +526,9 @@ void ConnectionViewWidget::editorForDynamic()
         QString newValue = m_dynamicEditor->bindingValue().trimmed();
 
         if (m_dynamicIndex.isValid()) {
-            if (propertiesModel->connectionView()->isWidgetEnabled()
+            if (qobject_cast<ConnectionView *>(propertiesModel->view())->isWidgetEnabled()
                 && (propertiesModel->rowCount() > m_dynamicIndex.row())) {
-                propertiesModel->connectionView()->executeInTransaction(
+                propertiesModel->view()->executeInTransaction(
                     "ConnectionView::setBinding", [this, propertiesModel, newValue]() {
                         AbstractProperty abProp = propertiesModel->abstractPropertyForRow(
                             m_dynamicIndex.row());

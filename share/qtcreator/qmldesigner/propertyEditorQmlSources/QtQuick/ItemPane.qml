@@ -15,6 +15,10 @@ PropertyEditorPane {
         showState: true
     }
 
+    DynamicPropertiesSection {
+        propertiesModel: SelectionDynamicPropertiesModel {}
+    }
+
     GeometrySection {}
 
     Section {

@@ -20,12 +20,16 @@ Project {
         directory: "content"
     }
 
-     JavaScriptFiles {
+    JavaScriptFiles {
         directory: "imports"
     }
 
     ImageFiles {
         directory: "content"
+    }
+    
+    ImageFiles {
+        directory: "asset_imports"
     }
 
     Files {
@@ -95,7 +99,7 @@ Project {
     /* Required for deployment */
     targetDirectory: "/opt/%{ProjectName}"
 
-    qdsVersion: "3.5"
+    qdsVersion: "3.7"
 
     quickVersion: "%{QtQuickVersion}"
 

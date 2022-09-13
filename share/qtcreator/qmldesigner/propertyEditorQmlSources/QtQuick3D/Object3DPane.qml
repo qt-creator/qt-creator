@@ -18,6 +18,10 @@ PropertyEditorPane {
         anchors.left: parent.left
         anchors.right: parent.right
 
+        DynamicPropertiesSection {
+            propertiesModel: SelectionDynamicPropertiesModel {}
+        }
+
         Loader {
             id: specificsTwo
             anchors.left: parent.left

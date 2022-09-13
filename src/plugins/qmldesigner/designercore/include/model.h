@@ -138,8 +138,8 @@ public:
     bool hasId(const QString &id) const;
     bool hasImport(const QString &importUrl) const;
 
-    QString generateNewId(const QString &prefixName) const;
-    QString generateNewId(const QString &prefixName, const QString &fallbackPrefix) const;
+    QString generateNewId(const QString &prefixName, const QString &fallbackPrefix = "element") const;
+    QString generateIdFromName(const QString &name, const QString &fallbackId = "element") const;
 
     void startDrag(QMimeData *mimeData, const QPixmap &icon);
     void endDrag();
