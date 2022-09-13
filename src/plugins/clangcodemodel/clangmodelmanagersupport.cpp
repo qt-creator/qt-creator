@@ -167,9 +167,33 @@ static void updateParserConfig(ClangdClient *client)
     }
 }
 
+static bool projectIsParsing(const ClangdClient *client)
+{
+    for (const ProjectExplorer::Project * const p : projectsForClient(client)) {
+        const ProjectExplorer::BuildSystem * const bs = p && p->activeTarget()
+                ? p->activeTarget()->buildSystem() : nullptr;
+        if (bs && (bs->isParsing() || bs->isWaitingForParse()))
+            return true;
+    }
+    return false;
+}
+
 
 ClangModelManagerSupport::ClangModelManagerSupport()
+    : m_clientRestartTimer(new QTimer(this))
 {
+    m_clientRestartTimer->setInterval(3000);
+    connect(m_clientRestartTimer, &QTimer::timeout, this, [this] {
+        const auto clients = m_clientsToRestart;
+        m_clientsToRestart.clear();
+        for (ClangdClient * const client : clients) {
+            if (client && client->state() != Client::Shutdown
+                    && client->state() != Client::ShutdownRequested
+                    && !projectIsParsing(client)) {
+                updateLanguageClient(client->project());
+            }
+        }
+    });
     watchForExternalChanges();
     watchForInternalChanges();
     setupClangdConfigFile();
@@ -594,32 +618,8 @@ void ClangModelManagerSupport::claimNonProjectSources(ClangdClient *client)
 // workflow, e.g. a git branch switch will hit at least one open file.
 void ClangModelManagerSupport::watchForExternalChanges()
 {
-    static const auto projectIsParsing = [](const ClangdClient *client) {
-        for (const ProjectExplorer::Project * const p : projectsForClient(client)) {
-            const ProjectExplorer::BuildSystem * const bs = p && p->activeTarget()
-                    ? p->activeTarget()->buildSystem() : nullptr;
-            if (bs && (bs->isParsing() || bs->isWaitingForParse()))
-                return true;
-        }
-        return false;
-    };
-
-    const auto timer = new QTimer(this);
-    timer->setInterval(3000);
-    connect(timer, &QTimer::timeout, this, [this] {
-        const auto clients = m_clientsToRestart;
-        m_clientsToRestart.clear();
-        for (ClangdClient * const client : clients) {
-            if (client && client->state() != Client::Shutdown
-                    && client->state() != Client::ShutdownRequested
-                    && !projectIsParsing(client)) {
-                updateLanguageClient(client->project());
-            }
-        }
-    });
-
     connect(Core::DocumentManager::instance(), &Core::DocumentManager::filesChangedExternally,
-            this, [this, timer](const QSet<Utils::FilePath> &files) {
+            this, [this](const QSet<Utils::FilePath> &files) {
         if (!LanguageClientManager::hasClients<ClangdClient>())
             return;
         for (const Utils::FilePath &file : files) {
@@ -631,18 +631,8 @@ void ClangModelManagerSupport::watchForExternalChanges()
             if (!project)
                 continue;
 
-            ClangdClient * const client = clientForProject(project);
-            if (client && !m_clientsToRestart.contains(client)) {
-
-                // If a project file was changed, it is very likely that we will have to generate
-                // a new compilation database, in which case the client will be restarted via
-                // a different code path.
-                if (projectIsParsing(client))
-                    return;
-
-                m_clientsToRestart.append(client);
-                timer->start();
-            }
+            if (ClangdClient * const client = clientForProject(project))
+                scheduleClientRestart(client);
 
             // It's unlikely that the same signal carries files from different projects,
             // so we exit the loop as soon as we have dealt with one project, as the
@@ -652,27 +642,41 @@ void ClangModelManagerSupport::watchForExternalChanges()
     });
 }
 
+// If Qt Creator changes a file that is not open (e.g. as part of a quickfix), we have to
+// restart clangd for reliable re-parsing and re-indexing.
 void ClangModelManagerSupport::watchForInternalChanges()
 {
     connect(Core::DocumentManager::instance(), &Core::DocumentManager::filesChangedInternally,
-            this, [](const Utils::FilePaths &filePaths) {
+            this, [this](const Utils::FilePaths &filePaths) {
         for (const Utils::FilePath &fp : filePaths) {
-            ClangdClient * const client = clientForFile(fp);
-            if (!client || client->documentForFilePath(fp))
+            const ProjectFile::Kind kind = ProjectFile::classify(fp.toString());
+            if (!ProjectFile::isSource(kind) && !ProjectFile::isHeader(kind))
                 continue;
-            client->openExtraFile(fp);
-
-            // We need to give clangd some time to start re-parsing the file.
-            // Closing right away does not work, and neither does doing it queued.
-            // If it turns out that this delay is not always enough, we'll need to come up
-            // with something more clever.
-            // Ideally, clangd would implement workspace/didChangeWatchedFiles; let's keep
-            // any eye on that.
-            QTimer::singleShot(5000, client, [client, fp] {
-                if (!client->documentForFilePath(fp))
-                    client->closeExtraFile(fp); });
+            ProjectExplorer::Project * const project
+                    = ProjectExplorer::SessionManager::projectForFile(fp);
+            if (!project)
+                continue;
+            if (ClangdClient * const client = clientForProject(project);
+                    client && !client->documentForFilePath(fp)) {
+               scheduleClientRestart(client);
+            }
         }
     });
+}
+
+void ClangModelManagerSupport::scheduleClientRestart(ClangdClient *client)
+{
+    if (m_clientsToRestart.contains(client))
+        return;
+
+    // If a project file was changed, it is very likely that we will have to generate
+    // a new compilation database, in which case the client will be restarted via
+    // a different code path.
+    if (projectIsParsing(client))
+        return;
+
+    m_clientsToRestart.append(client);
+    m_clientRestartTimer->start();
 }
 
 void ClangModelManagerSupport::onEditorOpened(Core::IEditor *editor)

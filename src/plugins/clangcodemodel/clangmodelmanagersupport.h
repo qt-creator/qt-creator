@@ -18,6 +18,7 @@
 
 QT_BEGIN_NAMESPACE
 class QMenu;
+class QTimer;
 class QWidget;
 QT_END_NAMESPACE
 
@@ -85,10 +86,12 @@ private:
     void claimNonProjectSources(ClangdClient *client);
     void watchForExternalChanges();
     void watchForInternalChanges();
+    void scheduleClientRestart(ClangdClient *client);
     static ClangdClient *clientWithProject(const ProjectExplorer::Project *project);
 
     Utils::FutureSynchronizer m_generatorSynchronizer;
     QList<QPointer<ClangdClient>> m_clientsToRestart;
+    QTimer * const m_clientRestartTimer;
     QHash<Utils::FilePath, QString> m_queuedShadowDocuments;
 };
 
