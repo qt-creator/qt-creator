@@ -40,6 +40,10 @@ Item {
         }
     }
 
+    onBackendValueChanged: {
+        spinBox.enabled = backendValue === undefined ? false : !isBlocked(backendValue.name)
+    }
+
     StudioControls.RealSpinBox {
         id: spinBox
 

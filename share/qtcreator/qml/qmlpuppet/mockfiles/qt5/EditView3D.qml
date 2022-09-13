@@ -525,6 +525,19 @@ Item {
         }
     }
 
+    function gizmoAt(x, y)
+    {
+        for (var i = 0; i < lightIconGizmos.length; ++i) {
+            if (lightIconGizmos[i].visible && lightIconGizmos[i].hasPoint(x, y))
+                return lightIconGizmos[i].targetNode;
+        }
+        for (var i = 0; i < cameraGizmos.length; ++i) {
+            if (cameraGizmos[i].visible && cameraGizmos[i].hasPoint(x, y))
+                return cameraGizmos[i].targetNode;
+        }
+        return null;
+    }
+
     Component.onCompleted: {
         createEditView();
         selectObjects([]);

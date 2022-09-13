@@ -42,6 +42,9 @@
    </item>
    <item row="2" column="4">
     <widget class="QLabel" name="label_7">
+     <property name="toolTip">
+      <string>Last frame of the timeline.</string>
+     </property>
      <property name="text">
       <string>End frame:</string>
      </property>
@@ -52,6 +55,9 @@
    </item>
    <item row="2" column="1">
     <widget class="QLabel" name="label_6">
+     <property name="toolTip">
+      <string>First frame of the timeline. Negative numbers are allowed.</string>
+     </property>
      <property name="text">
       <string>Start frame:</string>
      </property>
@@ -87,6 +93,9 @@
      <property name="enabled">
       <bool>false</bool>
      </property>
+     <property name="toolTip">
+      <string>To create an expression binding animation, delete all animations from this timeline.</string>
+     </property>
      <property name="text">
       <string>Expression binding</string>
      </property>
@@ -94,6 +103,9 @@
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="label_5">
+     <property name="toolTip">
+      <string>Name for the timeline.</string>
+     </property>
      <property name="text">
       <string>Timeline ID:</string>
      </property>
@@ -152,6 +164,9 @@
    </item>
    <item row="4" column="0">
     <widget class="QLabel" name="label_8">
+     <property name="toolTip">
+      <string>Sets the expression to bind the current keyframe to.</string>
+     </property>
      <property name="text">
       <string>Expression binding:</string>
      </property>

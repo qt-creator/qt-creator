@@ -1736,9 +1736,9 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
     } else if (command.type() == PuppetToCreatorCommand::Import3DSupport) {
         const QVariantMap supportMap = qvariant_cast<QVariantMap>(command.data());
         emitImport3DSupportChanged(supportMap);
-    } else if (command.type() == PuppetToCreatorCommand::ModelAtPos) {
+    } else if (command.type() == PuppetToCreatorCommand::NodeAtPos) {
         ModelNode modelNode = modelNodeForInternalId(command.data().toUInt());
-        emitModelAtPosResult(modelNode);
+        emitNodeAtPosResult(modelNode);
     }
 }
 
@@ -1955,6 +1955,9 @@ void NodeInstanceView::endNanotrace()
 
 QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &modelNode, const ModelNode &renderNode)
 {
+    if (!modelNode.isValid())
+        return {};
+
     ModelNodePreviewImageData imageData;
 
     // We need puppet to generate the image, which needs to be asynchronous.

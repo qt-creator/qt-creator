@@ -372,6 +372,7 @@ extend_qtc_plugin(QmlDesigner
     fileresourcesmodel.cpp fileresourcesmodel.h
     itemfiltermodel.cpp itemfiltermodel.h
     gradientmodel.cpp gradientmodel.h
+    dynamicpropertiesproxymodel.cpp dynamicpropertiesproxymodel.h
     gradientpresetcustomlistmodel.cpp gradientpresetcustomlistmodel.h
     gradientpresetdefaultlistmodel.cpp gradientpresetdefaultlistmodel.h
     gradientpresetitem.cpp gradientpresetitem.h
@@ -393,6 +394,7 @@ extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/materialeditor
   SOURCES
     materialeditorcontextobject.cpp materialeditorcontextobject.h
+    materialeditordynamicpropertiesproxymodel.cpp materialeditordynamicpropertiesproxymodel.h
     materialeditorqmlbackend.cpp materialeditorqmlbackend.h
     materialeditortransaction.cpp materialeditortransaction.h
     materialeditorview.cpp materialeditorview.h
@@ -405,6 +407,7 @@ extend_qtc_plugin(QmlDesigner
     materialbrowserview.cpp materialbrowserview.h
     materialbrowserwidget.cpp materialbrowserwidget.h
     materialbrowsermodel.cpp materialbrowsermodel.h
+    bundleimporter.cpp bundleimporter.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -560,6 +563,7 @@ extend_qtc_plugin(QmlDesigner
     connectionviewwidget.cpp connectionviewwidget.h connectionviewwidget.ui
     delegates.cpp delegates.h
     dynamicpropertiesmodel.cpp dynamicpropertiesmodel.h
+    selectiondynamicpropertiesproxymodel.cpp selectiondynamicpropertiesproxymodel.h
 )
 
 extend_qtc_plugin(QmlDesigner

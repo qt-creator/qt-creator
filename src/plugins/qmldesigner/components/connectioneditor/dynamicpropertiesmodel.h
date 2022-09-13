@@ -11,9 +11,9 @@
 
 namespace QmlDesigner {
 
-namespace Internal {
+class AbstractView;
 
-class ConnectionView;
+namespace Internal {
 
 class DynamicPropertiesModel : public QStandardItemModel
 {
@@ -26,13 +26,17 @@ public:
         PropertyTypeRow = 2,
         PropertyValueRow = 3
     };
-    DynamicPropertiesModel(ConnectionView *parent = nullptr);
+    DynamicPropertiesModel(bool explicitSelection, AbstractView *parent);
     void bindingPropertyChanged(const BindingProperty &bindingProperty);
     void variantPropertyChanged(const VariantProperty &variantProperty);
     void bindingRemoved(const BindingProperty &bindingProperty);
-    void selectionChanged(const QList<ModelNode> &selectedNodes);
+    void variantRemoved(const VariantProperty &variantProperty);
+    void reset();
+    void setSelectedNode(const ModelNode &node);
+    const QList<ModelNode> selectedNodes() const;
+    const ModelNode singleSelectedNode() const;
 
-    ConnectionView *connectionView() const;
+    AbstractView *view() const { return m_view; }
     AbstractProperty abstractPropertyForRow(int rowNumber) const;
     BindingProperty bindingPropertyForRow(int rowNumber) const;
     VariantProperty variantPropertyForRow(int rowNumber) const;
@@ -48,6 +52,8 @@ public:
     void resetProperty(const PropertyName &name);
 
     QmlDesigner::PropertyName unusedProperty(const QmlDesigner::ModelNode &modelNode);
+
+    static bool isValueType(const TypeName &type);
 
 protected:
     void addProperty(const QVariant &propertyValue,
@@ -75,12 +81,12 @@ private:
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex& bottomRight);
     void handleException();
 
-private:
-    ConnectionView *m_connectionView;
+    AbstractView *m_view = nullptr;
     bool m_lock = false;
     bool m_handleDataChanged = false;
     QString m_exceptionError;
-
+    QList<ModelNode> m_selectedNodes;
+    bool m_explicitSelection = false;
 };
 
 } // namespace Internal

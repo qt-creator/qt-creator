@@ -1,0 +1,17 @@
+PropertyLabel {
+    text: "%1"
+    tooltip: "%1"
+}
+
+SecondColumnLayout {
+    ItemFilterComboBox {
+        typeFilter: "QtQuick3D.%3"
+        validator: RegExpValidator { regExp: /(^$|^[a-z_]\w*)/ }
+        backendValue: backendValues.%2
+        implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                       + StudioTheme.Values.actionIndicatorWidth
+        width: implicitWidth
+    }
+
+    ExpandingSpacer {}
+}

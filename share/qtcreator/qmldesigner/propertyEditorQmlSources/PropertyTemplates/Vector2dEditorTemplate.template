@@ -1,0 +1,42 @@
+PropertyLabel {
+    text: "%1"
+    tooltip: "%1"
+}
+
+ColumnLayout {
+    SecondColumnLayout {
+        SpinBox {
+            minimumValue: -9999999
+            maximumValue: 9999999
+            decimals: 2
+            backendValue: backendValues.%2_x
+            implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                           + StudioTheme.Values.actionIndicatorWidth
+        }
+
+        Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+        ControlLabel {
+            text: "X"
+        }
+
+        Spacer { implicitWidth: StudioTheme.Values.controlGap }
+
+        SpinBox {
+            minimumValue: -9999999
+            maximumValue: 9999999
+            decimals: 2
+            backendValue: backendValues.%2_y
+            implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                           + StudioTheme.Values.actionIndicatorWidth
+        }
+
+        Spacer { implicitWidth: StudioTheme.Values.controlLabelGap }
+
+        ControlLabel {
+            text: "Y"
+        }
+
+        ExpandingSpacer {}
+    }
+}

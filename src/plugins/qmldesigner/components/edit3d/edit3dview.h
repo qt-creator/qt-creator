@@ -41,7 +41,7 @@ public:
     void modelAboutToBeDetached(Model *model) override;
     void importsChanged(const QList<Import> &addedImports, const QList<Import> &removedImports) override;
     void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
-    void modelAtPosReady(const ModelNode &modelNode) override;
+    void nodeAtPosReady(const ModelNode &modelNode) override;
 
     void sendInputEvent(QInputEvent *e) const;
     void edit3DViewResized(const QSize &size) const;
@@ -63,7 +63,7 @@ private slots:
     void onEntriesChanged();
 
 private:
-    enum class ModelAtPosReqType {
+    enum class NodeAtPosReqType {
         MaterialDrop,
         ContextMenu,
         None
@@ -108,7 +108,7 @@ private:
     int particlemode;
     ModelCache<QImage> m_canvasCache;
     ModelNode m_droppedMaterial;
-    ModelAtPosReqType m_modelAtPosReqType;
+    NodeAtPosReqType m_nodeAtPosReqType;
     QPoint m_contextMenuPos;
     QTimer m_compressionTimer;
 };

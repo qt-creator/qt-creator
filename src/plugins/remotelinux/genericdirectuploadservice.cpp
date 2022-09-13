@@ -63,7 +63,7 @@ GenericDirectUploadService::GenericDirectUploadService(QObject *parent)
 {
     connect(&d->uploader, &FileTransfer::done, this, [this](const ProcessResultData &result) {
         QTC_ASSERT(d->state == Uploading, return);
-        if (result.m_error != QProcess::UnknownError) {
+        if (result.m_error != QProcess::UnknownError || result.m_exitCode != 0) {
             emit errorMessage(result.m_errorString);
             setFinished();
             handleDeploymentDone();

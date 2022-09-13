@@ -38,7 +38,7 @@ public:
                 SelectGridColor,
                 ResetBackgroundColor,
                 SyncBackgroundColor,
-                GetModelAtPos
+                GetNodeAtPos
               };
 
     View3DActionCommand(Type type, const QVariant &value);

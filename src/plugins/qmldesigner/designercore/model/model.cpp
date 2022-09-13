@@ -579,9 +579,9 @@ void ModelPrivate::notifyImport3DSupportChanged(const QVariantMap &supportMap)
     notifyInstanceChanges([&](AbstractView *view) { view->updateImport3DSupport(supportMap); });
 }
 
-void ModelPrivate::notifyModelAtPosResult(const ModelNode &modelNode)
+void ModelPrivate::notifyNodeAtPosResult(const ModelNode &modelNode)
 {
-    notifyInstanceChanges([&](AbstractView *view) { view->modelAtPosReady(modelNode); });
+    notifyInstanceChanges([&](AbstractView *view) { view->nodeAtPosReady(modelNode); });
 }
 
 void ModelPrivate::notifyDragStarted(QMimeData *mimeData)
@@ -1539,6 +1539,41 @@ QString Model::generateNewId(const QString &prefixName, const QString &fallbackP
     return newId;
 }
 
+// Generate a unique camelCase id from a name
+// note: this methods does the same as generateNewId(). The 2 methods should be merged into one
+QString Model::generateIdFromName(const QString &name, const QString &fallbackId) const
+{
+    QString newId;
+    if (name.isEmpty()) {
+        newId = fallbackId;
+    } else {
+        // convert to camel case
+        QStringList nameWords = name.split(" ");
+        nameWords[0] = nameWords[0].at(0).toLower() + nameWords[0].mid(1);
+        for (int i = 1; i < nameWords.size(); ++i)
+            nameWords[i] = nameWords[i].at(0).toUpper() + nameWords[i].mid(1);
+        newId = nameWords.join("");
+
+        // if id starts with a number prepend an underscore
+        if (newId.at(0).isDigit())
+            newId.prepend('_');
+    }
+
+    QRegularExpression rgx("\\d+$"); // matches a number at the end of a string
+    while (hasId(newId)) { // id exists
+        QRegularExpressionMatch match = rgx.match(newId);
+        if (match.hasMatch()) { // ends with a number, increment it
+            QString numStr = match.captured();
+            int num = numStr.toInt() + 1;
+            newId = newId.mid(0, match.capturedStart()) + QString::number(num);
+        } else {
+            newId.append('1');
+        }
+    }
+
+    return newId;
+}
+
 void Model::startDrag(QMimeData *mimeData, const QPixmap &icon)
 {
     d->notifyDragStarted(mimeData);
@@ -1560,11 +1595,6 @@ void Model::endDrag()
 NotNullPointer<const ProjectStorage<Sqlite::Database>> Model::projectStorage() const
 {
     return d->projectStorage;
-}
-
-QString Model::generateNewId(const QString &prefixName) const
-{
-    return generateNewId(prefixName, QStringLiteral("element"));
 }
 
 bool Model::isImportPossible(const Import &import, bool ignoreAlias, bool allowHigherVersion) const

@@ -7851,7 +7851,7 @@ void TextEditorWidget::dropEvent(QDropEvent *e)
     MultiTextCursor cursor = multiTextCursor();
     cursor.beginEditBlock();
     const QTextCursor eventCursor = cursorForPosition(e->pos());
-    if (e->dropAction() == Qt::MoveAction)
+    if (e->dropAction() == Qt::MoveAction && e->source() == viewport())
         cursor.removeSelectedText();
     cursor.setCursors({eventCursor});
     setMultiTextCursor(cursor);
@@ -7864,6 +7864,7 @@ void TextEditorWidget::dropEvent(QDropEvent *e)
     insertFromMimeData(mime);
     delete mimeOverwrite;
     cursor.endEditBlock();
+    e->acceptProposedAction();
 }
 
 QMimeData *TextEditorWidget::duplicateMimeData(const QMimeData *source)

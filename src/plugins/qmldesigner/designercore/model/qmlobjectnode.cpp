@@ -637,7 +637,7 @@ QString QmlObjectNode::generateTranslatableText([[maybe_unused]] const QString &
                     DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt()) {
         case 0: return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
         case 1: return QString(QStringLiteral("qsTrId(\"%1\")")).arg(text);
-        case 2: return QString(QStringLiteral("qsTranslate(\"\"\"%1\")")).arg(text);
+        case 2: return QString(QStringLiteral("qsTranslate(\"%1\", \"context\")")).arg(text);
         default:
             break;
 
@@ -646,6 +646,21 @@ QString QmlObjectNode::generateTranslatableText([[maybe_unused]] const QString &
 #else
     return QString();
 #endif
+}
+
+QString QmlObjectNode::stripedTranslatableTextFunction(const QString &text)
+{
+    const QRegularExpression regularExpressionPattern(
+                QLatin1String("^qsTr(|Id|anslate)\\(\"(.*)\"\\)$"));
+    const QRegularExpressionMatch match = regularExpressionPattern.match(text);
+    if (match.hasMatch())
+        return match.captured(2);
+    return text;
+}
+
+QString QmlObjectNode::convertToCorrectTranslatableFunction(const QString &text)
+{
+    return generateTranslatableText(stripedTranslatableTextFunction(text));
 }
 
 TypeName QmlObjectNode::instanceType(const PropertyName &name) const

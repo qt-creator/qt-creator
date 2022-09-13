@@ -406,7 +406,7 @@ void VcsOutputWindow::append(const QString &text, MessageStyle style, bool silen
 
 void VcsOutputWindow::appendError(const QString &text)
 {
-    append(text.endsWith('\n') ? text : text + '\n', Error, false);
+    append((text.endsWith('\n') || text.endsWith('\r')) ? text : text + '\n', Error, false);
 }
 
 void VcsOutputWindow::appendWarning(const QString &text)
