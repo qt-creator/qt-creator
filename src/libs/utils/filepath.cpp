@@ -809,13 +809,17 @@ void FilePath::setPath(QStringView path)
     m_path = path.toString();
 }
 
-void FilePath::setFromString(const QString &filename)
+void FilePath::setFromString(const QString &unnormalizedFileName)
 {
     static const QLatin1String qtcDevSlash("__qtc_devices__/");
     static const QLatin1String colonSlashSlash("://");
 
+    QString fileName = unnormalizedFileName;
+    if (fileName.contains('\\'))
+        fileName.replace('\\', '/');
+
     const QChar slash('/');
-    const QStringView fileNameView(filename);
+    const QStringView fileNameView(fileName);
 
     bool startsWithQtcSlashDev = false;
     QStringView withoutQtcDeviceRoot = fileNameView;
@@ -848,23 +852,23 @@ void FilePath::setFromString(const QString &filename)
 
         m_scheme.clear();
         m_host.clear();
-        m_path = filename;
+        m_path = fileName;
         return;
     }
 
-    const int firstSlash = filename.indexOf(slash);
-    const int schemeEnd = filename.indexOf(colonSlashSlash);
+    const int firstSlash = fileName.indexOf(slash);
+    const int schemeEnd = fileName.indexOf(colonSlashSlash);
     if (schemeEnd != -1 && schemeEnd < firstSlash) {
         // This is a pseudo Url, we can't use QUrl here sadly.
-        m_scheme = filename.left(schemeEnd);
-        const int hostEnd = filename.indexOf(slash, schemeEnd + 3);
-        m_host = filename.mid(schemeEnd + 3, hostEnd - schemeEnd - 3);
+        m_scheme = fileName.left(schemeEnd);
+        const int hostEnd = fileName.indexOf(slash, schemeEnd + 3);
+        m_host = fileName.mid(schemeEnd + 3, hostEnd - schemeEnd - 3);
         if (hostEnd != -1)
-            setPath(QStringView(filename).mid(hostEnd));
+            setPath(QStringView(fileName).mid(hostEnd));
         return;
     }
 
-    setPath(filename);
+    setPath(fileName);
     return;
 }
 
@@ -1599,7 +1603,7 @@ QString FilePath::shortNativePath() const
 */
 bool FilePath::isRelativePath() const
 {
-    if (m_path.startsWith('/') || m_path.startsWith('\\'))
+    if (m_path.startsWith('/'))
         return false;
     if (m_path.size() > 1 && isWindowsDriveLetter(m_path[0]) && m_path.at(1) == ':')
         return false;

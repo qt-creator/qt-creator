@@ -410,9 +410,9 @@ void tst_fileutils::fromString_data()
     QTest::newRow("unix-folder") << D("/tmp", "", "", "/tmp");
     QTest::newRow("unix-folder-with-trailing-slash") << D("/tmp/", "", "", "/tmp/");
 
-    QTest::newRow("windows-root") << D("c:", "", "", "c:/", FailEverywhere);
-    QTest::newRow("windows-folder") << D("c:\\Windows", "", "", "c:/Windows", FailEverywhere);
-    QTest::newRow("windows-folder-with-trailing-slash") << D("c:\\Windows\\", "", "", "c:/Windows\\", FailEverywhere);
+    QTest::newRow("windows-root") << D("c:", "", "", "c:");
+    QTest::newRow("windows-folder") << D("c:\\Windows", "", "", "c:/Windows");
+    QTest::newRow("windows-folder-with-trailing-slash") << D("c:\\Windows\\", "", "", "c:/Windows/");
     QTest::newRow("windows-folder-slash") << D("C:/Windows", "", "", "C:/Windows");
 
     QTest::newRow("docker-root-url") << D("docker://1234/", "docker", "1234", "/");
@@ -426,6 +426,7 @@ void tst_fileutils::fromString_data()
     QTest::newRow("qtc-dev-type-dev-linux") << D("/__qtc_devices__/docker/1234", "docker", "1234", "/");
     QTest::newRow("qtc-dev-type-dev-win") << D("c:/__qtc_devices__/docker/1234", "docker", "1234", "/");
 
+    // "Remote Windows" is currently truly not supported.
     QTest::newRow("cross-os-linux")
         << D("/__qtc_devices__/docker/1234/c:/test.txt", "docker", "1234", "c:/test.txt", FailEverywhere);
     QTest::newRow("cross-os-win")
