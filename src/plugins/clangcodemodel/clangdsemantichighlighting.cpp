@@ -258,7 +258,7 @@ void doSemanticHighlighting(
     };
 
     const std::function<HighlightingResult(const ExpandedSemanticToken &)> toResult
-            = [&ast, &isOutputParameter, &clangdVersion, &tokenRange]
+            = [&ast, &isOutputParameter, &tokenRange]
             (const ExpandedSemanticToken &token) {
         TextStyles styles;
         if (token.type == "variable") {
