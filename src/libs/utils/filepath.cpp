@@ -817,52 +817,47 @@ void FilePath::setFromString(const QString &filename)
     const QChar slash('/');
     const QStringView fileNameView(filename);
 
-    bool startsWithRoot = false;
-    int rootLength = 0;
-    if (fileNameView.startsWith('/')) {
-        startsWithRoot = true;
-        rootLength = 1;
-    } else if (fileNameView.size() > 3 && fileNameView.at(1) == ':' && fileNameView.at(2) == '/') {
-        // FIXME: Should we check that at(0) is actually the 'right' letter?
-        startsWithRoot = true;
-        rootLength = 3;
+    bool startsWithQtcSlashDev = false;
+    QStringView withoutQtcDeviceRoot = fileNameView;
+    if (fileNameView.startsWith('/') && fileNameView.mid(1).startsWith(qtcDevSlash)) {
+        startsWithQtcSlashDev = true;
+        withoutQtcDeviceRoot = withoutQtcDeviceRoot.mid(1 + qtcDevSlash.size());
+    } else if (fileNameView.size() > 3 && isWindowsDriveLetter(fileNameView.at(0))
+               && fileNameView.at(1) == ':' && fileNameView.mid(3).startsWith(qtcDevSlash)) {
+        startsWithQtcSlashDev = true;
+        withoutQtcDeviceRoot = withoutQtcDeviceRoot.mid(3 + qtcDevSlash.size());
     }
 
-    if (startsWithRoot) { // Absolute path ...
-        const QStringView withoutRootPath = fileNameView.mid(rootLength);
-        if (withoutRootPath.startsWith(qtcDevSlash)) { // Starts with "/__qtc_devices__/" ...
-            const QStringView withoutQtcDeviceRoot = withoutRootPath.mid(qtcDevSlash.size());
+    if (startsWithQtcSlashDev) {
+        const int firstSlash = withoutQtcDeviceRoot.indexOf(slash);
 
-            const auto firstSlash = withoutQtcDeviceRoot.indexOf(slash);
-
-            if (firstSlash != -1) {
-                m_scheme = withoutQtcDeviceRoot.left(firstSlash).toString();
-                const auto secondSlash = withoutQtcDeviceRoot.indexOf(slash, firstSlash + 1);
-                m_host = withoutQtcDeviceRoot.mid(firstSlash + 1, secondSlash - firstSlash - 1)
-                             .toString();
-                if (secondSlash != -1) {
-                    QStringView path = withoutQtcDeviceRoot.mid(secondSlash);
-                    setPath(path);
-                    return;
-                }
-
-                m_path = slash;
+        if (firstSlash != -1) {
+            m_scheme = withoutQtcDeviceRoot.left(firstSlash).toString();
+            const int secondSlash = withoutQtcDeviceRoot.indexOf(slash, firstSlash + 1);
+            m_host = withoutQtcDeviceRoot.mid(firstSlash + 1, secondSlash - firstSlash - 1)
+                         .toString();
+            if (secondSlash != -1) {
+                QStringView path = withoutQtcDeviceRoot.mid(secondSlash);
+                setPath(path);
                 return;
             }
 
-            m_scheme.clear();
-            m_host.clear();
-            m_path = filename;
+            m_path = slash;
             return;
         }
+
+        m_scheme.clear();
+        m_host.clear();
+        m_path = filename;
+        return;
     }
 
-    const auto firstSlash = filename.indexOf(slash);
-    const auto schemeEnd = filename.indexOf(colonSlashSlash);
+    const int firstSlash = filename.indexOf(slash);
+    const int schemeEnd = filename.indexOf(colonSlashSlash);
     if (schemeEnd != -1 && schemeEnd < firstSlash) {
         // This is a pseudo Url, we can't use QUrl here sadly.
         m_scheme = filename.left(schemeEnd);
-        const auto hostEnd = filename.indexOf(slash, schemeEnd + 3);
+        const int hostEnd = filename.indexOf(slash, schemeEnd + 3);
         m_host = filename.mid(schemeEnd + 3, hostEnd - schemeEnd - 3);
         if (hostEnd != -1)
             setPath(QStringView(filename).mid(hostEnd));
