@@ -245,6 +245,7 @@ void ActionsFilter::collectEntriesForCommands()
         const QStringList path = identifier.split(QLatin1Char('.'));
         const ActionFilterEntryData data{action, command->id()};
         LocatorFilterEntry filterEntry(this, text, QVariant::fromValue(data), action->icon());
+        filterEntry.displayExtra = command->keySequence().toString(QKeySequence::NativeText);
         if (path.size() >= 2)
             filterEntry.extraInfo = path.mid(0, path.size() - 1).join(" > ");
         updateEntry(action, filterEntry);

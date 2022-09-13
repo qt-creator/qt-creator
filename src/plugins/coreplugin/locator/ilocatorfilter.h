@@ -79,6 +79,8 @@ struct LocatorFilterEntry
     ILocatorFilter *filter = nullptr;
     /* displayed string */
     QString displayName;
+    /* extra information displayed in parentheses and light-gray next to display name (optional)*/
+    QString displayExtra;
     /* extra information displayed in light-gray in a second column (optional) */
     QString extraInfo;
     /* additional tooltip */

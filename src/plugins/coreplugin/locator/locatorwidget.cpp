@@ -213,6 +213,16 @@ QVariant LocatorModel::data(const QModelIndex &index, int role) const
         }
         break;
     }
+    case int(HighlightingItemRole::DisplayExtra): {
+        if (index.column() == LocatorFilterEntry::HighlightInfo::DisplayName) {
+            LocatorFilterEntry &entry = mEntries[index.row()];
+            if (!entry.displayExtra.isEmpty())
+                return QString("   (" + entry.displayExtra + ')');
+        }
+        break;
+    }
+    case int(HighlightingItemRole::DisplayExtraForeground):
+        return QColor(Qt::darkGray);
     case int(HighlightingItemRole::Background):
         return mBackgroundColor;
     case int(HighlightingItemRole::Foreground):

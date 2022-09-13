@@ -139,8 +139,24 @@ void HighlightingItemDelegate::drawText(QPainter *painter,
     QVector<int> searchTermLengths =
             index.model()->data(index, int(HighlightingItemRole::Length)).value<QVector<int>>();
 
+    QVector<QTextLayout::FormatRange> formats;
+
+    const QString extraText
+        = index.model()->data(index, int(HighlightingItemRole::DisplayExtra)).toString();
+    if (!extraText.isEmpty()) {
+        if (!option.state.testFlag(QStyle::State_Selected)) {
+            int start = text.length();
+            auto dataType = int(HighlightingItemRole::DisplayExtraForeground);
+            const QColor highlightForeground = index.model()->data(index, dataType).value<QColor>();
+            QTextCharFormat extraFormat;
+            extraFormat.setForeground(highlightForeground);
+            formats.append({start, int(extraText.length()), extraFormat});
+        }
+        text.append(extraText);
+    }
+
     if (searchTermStarts.isEmpty()) {
-        drawDisplay(painter, option, rect, text.replace('\t', m_tabString), {});
+        drawDisplay(painter, option, rect, text.replace('\t', m_tabString), formats);
         return;
     }
 
@@ -175,7 +191,6 @@ void HighlightingItemDelegate::drawText(QPainter *painter,
     highlightFormat.setForeground(highlightForeground);
     highlightFormat.setBackground(highlightBackground);
 
-    QVector<QTextLayout::FormatRange> formats;
     for (int i = 0, size = searchTermStarts.size(); i < size; ++i)
         formats.append({searchTermStarts.at(i), searchTermLengths.at(i), highlightFormat});
 
