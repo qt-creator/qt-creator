@@ -973,7 +973,7 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
     if (checkTypeForQmlUiSupport(typeId))
         addMessage(ErrUnsupportedTypeInQmlUi, typeErrorLocation, typeName);
 
-    if (m_typeStack.count() > 1 && typeName == "State") {
+    if (m_typeStack.count() > 1 && typeName == "State" && m_typeStack.last() != "StateGroup") {
         addMessage(WarnStatesOnlyInRootItemForVisualDesigner, typeErrorLocation);
         addMessage(ErrStatesOnlyInRootItemInQmlUi, typeErrorLocation);
     }
