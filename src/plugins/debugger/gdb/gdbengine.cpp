@@ -4620,22 +4620,14 @@ void GdbEngine::interruptInferior2()
 
         interruptLocalInferior(runParameters().attachPID.pid());
 
-    } else if (isRemoteEngine() || runParameters().startMode == AttachToRemoteProcess) {
+    } else if (isRemoteEngine() || runParameters().startMode == AttachToRemoteProcess
+               || m_gdbProc.commandLine().executable().needsDevice()) {
 
         CHECK_STATE(InferiorStopRequested);
         if (usesTargetAsync()) {
             runCommand({"-exec-interrupt", CB(handleInterruptInferior)});
-        } else if (m_isQnxGdb && HostOsInfo::isWindowsHost()) {
-            m_gdbProc.interrupt();
         } else {
-            qint64 pid = m_gdbProc.processId();
-            bool ok = interruptProcess(pid, GdbEngineType, &m_errorString);
-            if (!ok) {
-                // FIXME: Extra state needed?
-                showMessage("NOTE: INFERIOR STOP NOT POSSIBLE");
-                showStatusMessage(Tr::tr("Interrupting not possible."));
-                notifyInferiorRunOk();
-            }
+            m_gdbProc.interrupt();
         }
 
     } else if (isPlainEngine()) {
