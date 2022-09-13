@@ -608,14 +608,16 @@ bool AndroidBuildApkStep::init()
     if (m_buildAAB)
         arguments << "--aab" <<  "--jarsigner";
 
+    if (buildType() == BuildConfiguration::Release) {
+        arguments << "--release";
+    }
+
     QStringList argumentsPasswordConcealed = arguments;
 
     if (m_signPackage) {
-        arguments << "--release"
-                  << "--sign" << m_keystorePath.toString() << m_certificateAlias
+        arguments << "--sign" << m_keystorePath.toString() << m_certificateAlias
                   << "--storepass" << m_keystorePasswd;
-        argumentsPasswordConcealed << "--release"
-                                   << "--sign" << "******"
+        argumentsPasswordConcealed << "--sign" << "******"
                                    << "--storepass" << "******";
         if (!m_certificatePasswd.isEmpty()) {
             arguments << "--keypass" << m_certificatePasswd;
