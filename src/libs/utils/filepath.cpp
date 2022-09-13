@@ -32,6 +32,8 @@ namespace Utils {
 
 static DeviceFileHooks s_deviceHooks;
 static bool removeRecursivelyLocal(const FilePath &filePath, QString *error);
+inline bool isWindowsDriveLetter(QChar ch);
+
 
 /*! \class Utils::FilePath
 
@@ -210,7 +212,7 @@ QUrl FilePath::toUrl() const
 QString FilePath::toUserOutput() const
 {
     if (needsDevice()) {
-        if (root().empty())
+        if (isRelativePath())
             return m_scheme + "://" + encodedHost() + "/./" + m_path;
         return m_scheme + "://" + encodedHost() + m_path;
     }
@@ -235,8 +237,8 @@ QString FilePath::nativePath() const
 QString FilePath::fileName() const
 {
     // FIXME: Performance
-    QStringView fp = pathWithoutRoot();
-    return fp.mid(fp.lastIndexOf('/') + 1).toString();
+    QString fp = path();
+    return fp.mid(fp.lastIndexOf('/') + 1);
 }
 
 QString FilePath::fileNameWithPathComponents(int pathComponents) const
@@ -338,22 +340,12 @@ QString FilePath::path() const
     return m_path;
 }
 
-QStringView FilePath::pathWithoutRoot() const
-{
-    return QStringView{m_path}.mid(m_rootLen);
-}
-
-QStringView FilePath::root() const
-{
-    return QStringView{m_path}.left(m_rootLen);
-}
-
 void FilePath::setParts(const QStringView scheme, const QStringView host, const QStringView path)
 {
     QTC_CHECK(!m_scheme.contains('/'));
     m_scheme = scheme.toString();
     m_host = host.toString();
-    setRootAndPath(path, HostOsInfo::hostOs());
+    setPath(path);
 }
 
 /// \returns a bool indicating whether a file with this
@@ -757,13 +749,6 @@ FilePath FilePath::fromString(const QString &filepath)
     return fn;
 }
 
-FilePath FilePath::fromStringAndOs(const QString &filepath, OsType osType)
-{
-    FilePath fn;
-    fn.setFromStringAndOs(filepath, osType);
-    return fn;
-}
-
 bool isWindowsDriveLetter(QChar ch)
 {
     return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
@@ -801,46 +786,14 @@ std::optional<RootAndPath> windowsRootAndPath(const QStringView path)
     return {};
 }
 
-void FilePath::setRootAndPath(QStringView path, OsType osType)
+void FilePath::setPath(QStringView path)
 {
-    std::optional<RootAndPath> windowsDriveAndPath = osType == OsType::OsTypeWindows
-                                                         ? windowsRootAndPath(path)
-                                                         : std::nullopt;
-
-    if (path.startsWith(QLatin1String("/./"))) {
-        m_rootLen  = 0;
-        m_path = path.mid(3).toString();
-    } else if (windowsDriveAndPath ) {
-        if (windowsDriveAndPath->first.isEmpty()) {
-            m_rootLen = 0;
-            m_path = windowsDriveAndPath->second.toString();
-        } else {
-            m_rootLen = windowsDriveAndPath->first.size() + 1; // 1 for "/"
-            m_path = windowsDriveAndPath->first.toString() + '/' + windowsDriveAndPath->second.toString();
-        }
-    } else if (path.startsWith('/')) {
-        m_rootLen = 1;
-        m_path = path.toString();
-    } else if (path.startsWith(':')) {
-        if (path.length() > 1 && path[1] == '/') {
-            m_rootLen = 2;
-            m_path = path.toString();
-        } else {
-            m_rootLen = 1;
-            m_path = path.toString();
-        }
-    } else {
-        m_rootLen = 0;
-        m_path = path.toString();
-    }
+    if (path.startsWith(QStringLiteral("/./")))
+        path = path.mid(3);
+    m_path = path.toString();
 }
 
-void FilePath::setFromString(const QString &fileName)
-{
-    setFromStringAndOs(fileName, HostOsInfo::hostOs());
-}
-
-void FilePath::setFromStringAndOs(const QString &filename, OsType osType)
+void FilePath::setFromString(const QString &filename)
 {
     static const QLatin1String qtcDevSlash("__qtc_devices__/");
     static const QLatin1String colonSlashSlash("://");
@@ -863,19 +816,17 @@ void FilePath::setFromStringAndOs(const QString &filename, OsType osType)
                              .toString();
                 if (secondSlash != -1) {
                     QStringView path = withoutQtcDeviceRoot.mid(secondSlash);
-                    setRootAndPath(path, osType);
+                    setPath(path);
                     return;
                 }
 
                 m_path = slash;
-                m_rootLen = 1;
                 return;
             }
 
             m_scheme.clear();
             m_host.clear();
             m_path = filename;
-            m_rootLen = 0;
             return;
         }
     }
@@ -888,11 +839,11 @@ void FilePath::setFromStringAndOs(const QString &filename, OsType osType)
         const auto hostEnd = filename.indexOf(slash, schemeEnd + 3);
         m_host = filename.mid(schemeEnd + 3, hostEnd - schemeEnd - 3);
         if (hostEnd != -1)
-            setRootAndPath(QStringView(filename).mid(hostEnd), osType);
+            setPath(QStringView(filename).mid(hostEnd));
         return;
     }
 
-    setRootAndPath(filename, osType);
+    setPath(filename);
     return;
 }
 
@@ -991,8 +942,6 @@ bool FilePath::isChildOf(const FilePath &s) const
 {
     if (s.isEmpty())
         return false;
-    if (s.m_rootLen != m_rootLen)
-        return false;
     if (!m_path.startsWith(s.m_path, caseSensitivity()))
         return false;
     if (m_path.size() <= s.m_path.size())
@@ -1028,7 +977,7 @@ bool FilePath::startsWithDriveLetter() const
 {
     if (needsDevice() || !HostOsInfo::isWindowsHost())
         return false;
-    return root().size() >= 2 && m_path.at(0).isLetter() && m_path.at(1) == ':';
+    return m_path.size() >= 2 && isWindowsDriveLetter(m_path[0]) && m_path.at(1) == ':';
 }
 
 /*!
@@ -1172,8 +1121,7 @@ FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
     res.m_scheme = deviceTemplate.m_scheme;
     res.m_host = deviceTemplate.m_host;
     res.m_path = m_path;
-    res.m_rootLen = m_rootLen;
-    res.setRootAndPath(res.mapToDevicePath(), res.osType());
+    res.setPath(res.mapToDevicePath());
     return res;
 }
 
@@ -1191,7 +1139,7 @@ FilePath FilePath::onDevice(const FilePath &deviceTemplate) const
 FilePath FilePath::withNewPath(const QString &newPath) const
 {
     FilePath res;
-    res.setRootAndPath(newPath, osType());
+    res.setPath(newPath);
     res.m_host = m_host;
     res.m_scheme = m_scheme;
     return res;
@@ -1632,7 +1580,11 @@ QString FilePath::shortNativePath() const
 */
 bool FilePath::isRelativePath() const
 {
-    return m_rootLen == 0;
+    if (m_path.startsWith('/') || m_path.startsWith('\\'))
+        return false;
+    if (m_path.size() > 1 && isWindowsDriveLetter(m_path[0]) && m_path.at(1) == ':')
+        return false;
+    return true;
 }
 
 /*!
@@ -1643,7 +1595,7 @@ bool FilePath::isRelativePath() const
 FilePath FilePath::resolvePath(const FilePath &tail) const
 {
     if (tail.isRelativePath())
-        return pathAppended(tail.pathWithoutRoot().toString());
+        return pathAppended(tail.path());
     return tail;
 }
 
