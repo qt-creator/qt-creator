@@ -61,8 +61,12 @@
 
     \section1 Assigning a Material to an Object
 
-    To assign a material to a 3D object in your project, first select the object
-    in \uicontrol Navigator or the \uicontrol{3D} view. Then, do one of the
+    To assign a material to a 3D object in your project, drag the material from
+    \uicontrol {Material Browser} to the object in the \uicontrol Navigator or
+    \uicontrol 3D view.
+
+    Additionally, you can also first select the object
+    in the \uicontrol Navigator or \uicontrol{3D} view, and then do one of the
     following:
 
     \list
@@ -85,6 +89,26 @@
       next to the material.
       \image materials-remove-material.png
     \endlist
+
+   \section1 Copying and Pasting Material Properties
+
+    You can copy properties from one material to another. You can choose if you
+    want to copy all properties or certain property groups.
+
+    To copy material properties from one material to another:
+
+    \list
+      \li In \uicontrol {Material Browser}, right-click the material that you
+      want to copy properties from.
+      \li Select \uicontrol {Copy properties} and then
+      \uicontrol All or a property group.
+      \image material-copy-properties.png
+      \li Right-click the material that you want to copy the properties to.
+      \li Select \uicontrol {Paste properties}.
+    \endlist
+
+    \note You can't copy material properties between materials of different
+    material types.
 
     \section1 Using Texture Maps
 
