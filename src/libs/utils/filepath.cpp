@@ -8,7 +8,6 @@
 #include "fileutils.h"
 #include "hostosinfo.h"
 #include "qtcassert.h"
-#include "stringutils.h"
 
 #include <QtGlobal>
 #include <QDateTime>
@@ -131,6 +130,8 @@ inline bool isWindowsDriveLetter(QChar ch);
     code from QString based file path to FilePath. An exception here are
     fragments of paths of a FilePath that are later used with \c pathAppended()
     or similar which should be kept as QString.
+
+    UNC paths will retain their "//" begin, and are recognizable by this.
 */
 
 FilePath::FilePath()
@@ -768,38 +769,6 @@ FilePath FilePath::fromString(const QString &filepath)
 bool isWindowsDriveLetter(QChar ch)
 {
     return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
-}
-
-using RootAndPath = QPair<QStringView, QStringView>;
-
-std::optional<RootAndPath> windowsRootAndPath(const QStringView path)
-{
-    const QChar slash('/');
-    QStringView workPath = path;
-    if (workPath.size() < 2)
-        return {};
-    if (workPath.startsWith(slash))
-        workPath = workPath.mid(1);
-
-    if (workPath.startsWith(slash)) {
-        // Its a UNC path ( //server/share/path )
-        workPath = workPath.mid(1);
-        const auto firstSlash = workPath.indexOf(slash);
-
-        // If the first slash is not found, we either received "//" or "//server"
-        // If we only received "//" we return an empty root name, otherwise
-        // we return "//server" as root name.
-        if (firstSlash == -1)
-            return RootAndPath{path.length() > 2 ? path : workPath, {}};
-
-        workPath = workPath.mid(firstSlash + 1);
-        return RootAndPath{chopIfEndsWith(path.mid(0, path.length() - workPath.length()), '/'),
-                           workPath};
-    }
-
-    if (workPath.length() > 1 && workPath[1] == ':' && isWindowsDriveLetter(workPath[0]))
-        return RootAndPath{workPath.mid(0, 2), workPath.mid(3)};
-    return {};
 }
 
 void FilePath::setPath(QStringView path)

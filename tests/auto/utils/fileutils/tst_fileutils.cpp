@@ -399,8 +399,8 @@ void tst_fileutils::fromString_data()
     QTest::newRow("qrc") << D(":/test.txt", "", "", ":/test.txt");
     QTest::newRow("qrc-no-slash") << D(":test.txt", "", "", ":test.txt");
 
-    QTest::newRow("unc-incomplete") << D("//", "", "", "", FailEverywhere);
-    QTest::newRow("unc-incomplete-only-server") << D("//server", "", "", "//server/", FailEverywhere);
+    QTest::newRow("unc-incomplete") << D("//", "", "", "//");
+    QTest::newRow("unc-incomplete-only-server") << D("//server", "", "", "//server");
     QTest::newRow("unc-incomplete-only-server-2") << D("//server/", "", "", "//server/");
     QTest::newRow("unc-server-and-share") << D("//server/share", "", "", "//server/share");
     QTest::newRow("unc-server-and-share-2") << D("//server/share/", "", "", "//server/share/");
