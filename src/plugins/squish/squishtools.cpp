@@ -236,6 +236,7 @@ void SquishTools::runTestCases(const QString &suitePath,
     }
 
     m_suitePath = suitePath;
+    m_suiteConf = SuiteConf::readSuiteConf(Utils::FilePath::fromString(suitePath).pathAppended("suite.conf"));
     m_testCases = testCases;
     m_reportFiles.clear();
 
@@ -955,12 +956,15 @@ void SquishTools::setBreakpoints()
 {
     using namespace Debugger::Internal;
     const GlobalBreakpoints globalBPs  = BreakpointManager::globalBreakpoints();
+    const QString extension = m_suiteConf.scriptExtension();
     for (const GlobalBreakpoint &gb : globalBPs) {
         if (!gb->isEnabled())
             continue;
         auto fileName = Utils::FilePath::fromUserInput(
                     gb->data(BreakpointFileColumn, Qt::DisplayRole).toString()).toUserOutput();
         if (fileName.isEmpty())
+            continue;
+        if (!fileName.endsWith(extension))
             continue;
         // mask backslashes and spaces
         fileName.replace('\\', "\\\\");
@@ -971,6 +975,7 @@ void SquishTools::setBreakpoints()
         cmd.append(':');
         cmd.append(QString::number(line));
         cmd.append('\n');
+        qCInfo(LOG).noquote().nospace() << "Setting breakpoint: '" << cmd << "'";
         m_runnerProcess.write(cmd);
     }
 }
