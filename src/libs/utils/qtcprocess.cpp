@@ -1027,6 +1027,7 @@ QtcProcess::QtcProcess(QObject *parent)
     : QObject(parent),
     d(new QtcProcessPrivate(this))
 {
+    qRegisterMetaType<ProcessResultData>("ProcessResultData");
     static int qProcessExitStatusMeta = qRegisterMetaType<QProcess::ExitStatus>();
     static int qProcessProcessErrorMeta = qRegisterMetaType<QProcess::ProcessError>();
     Q_UNUSED(qProcessExitStatusMeta)
