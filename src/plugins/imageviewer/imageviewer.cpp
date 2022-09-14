@@ -117,7 +117,7 @@ void ImageViewer::ctor()
     d->toolButtonOutline->setCheckable(true);
     d->toolButtonOutline->setChecked(true);
 
-    d->toolButtonFitToScreen->setCheckable(false);
+    d->toolButtonFitToScreen->setCheckable(true);
 
     d->toolButtonZoomIn->setAutoRepeat(true);
 
@@ -199,10 +199,18 @@ void ImageViewer::ctor()
             d->imageView, &ImageView::zoomIn);
     connect(d->toolButtonZoomOut, &QAbstractButton::clicked,
             d->imageView, &ImageView::zoomOut);
-    connect(d->toolButtonFitToScreen, &QAbstractButton::clicked,
-            d->imageView, &ImageView::fitToScreen);
-    connect(d->toolButtonOriginalSize, &QAbstractButton::clicked,
-            d->imageView, &ImageView::resetToOriginalSize);
+    connect(d->toolButtonFitToScreen,
+            &QAbstractButton::toggled,
+            d->imageView,
+            &ImageView::setFitToScreen);
+    connect(d->imageView,
+            &ImageView::fitToScreenChanged,
+            d->toolButtonFitToScreen,
+            &QAbstractButton::setChecked);
+    connect(d->toolButtonOriginalSize,
+            &QAbstractButton::clicked,
+            d->imageView,
+            &ImageView::resetToOriginalSize);
     connect(d->toolButtonBackground, &QAbstractButton::toggled,
             d->imageView, &ImageView::setViewBackground);
     connect(d->toolButtonOutline, &QAbstractButton::toggled,

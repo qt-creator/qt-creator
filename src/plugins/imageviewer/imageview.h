@@ -36,13 +36,15 @@ public:
     void zoomIn();
     void zoomOut();
     void resetToOriginalSize();
-    void fitToScreen();
+    void setFitToScreen(bool fit);
 
 signals:
     void scaleFactorChanged(qreal factor);
     void imageSizeChanged(const QSize &size);
+    void fitToScreenChanged(bool fit);
 
 private:
+    void doFitToScreen();
     void emitScaleFactor();
     void doScale(qreal factor);
     QSize svgSize() const;
@@ -53,6 +55,7 @@ private:
     void hideEvent(QHideEvent *event) override;
     void showEvent(QShowEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
     ImageViewerFile *m_file;
     QGraphicsItem *m_imageItem = nullptr;
@@ -60,6 +63,7 @@ private:
     QGraphicsRectItem *m_outlineItem = nullptr;
     bool m_showBackground = false;
     bool m_showOutline = true;
+    bool m_fitToScreen = false;
 };
 
 } // ImageViewer::Internal

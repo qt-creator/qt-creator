@@ -265,6 +265,7 @@ void ImageView::doScale(qreal factor)
 
 void ImageView::wheelEvent(QWheelEvent *event)
 {
+    setFitToScreen(false);
     qreal factor = qPow(Constants::DEFAULT_SCALE_FACTOR, event->angleDelta().y() / 240.0);
     // cap to 0.001 - 1000
     qreal actualFactor = qBound(0.001, factor, 1000.0);
@@ -272,8 +273,16 @@ void ImageView::wheelEvent(QWheelEvent *event)
     event->accept();
 }
 
+void ImageView::resizeEvent(QResizeEvent *event)
+{
+    QGraphicsView::resizeEvent(event);
+    if (m_fitToScreen)
+        doFitToScreen();
+}
+
 void ImageView::zoomIn()
 {
+    setFitToScreen(false);
     qreal nextZoomLevel = nextLevel(transform().m11());
     resetTransform();
     doScale(nextZoomLevel);
@@ -281,6 +290,7 @@ void ImageView::zoomIn()
 
 void ImageView::zoomOut()
 {
+    setFitToScreen(false);
     qreal previousZoomLevel = previousLevel(transform().m11());
     resetTransform();
     doScale(previousZoomLevel);
@@ -288,11 +298,22 @@ void ImageView::zoomOut()
 
 void ImageView::resetToOriginalSize()
 {
+    setFitToScreen(false);
     resetTransform();
     emitScaleFactor();
 }
 
-void ImageView::fitToScreen()
+void ImageView::setFitToScreen(bool fit)
+{
+    if (fit == m_fitToScreen)
+        return;
+    m_fitToScreen = fit;
+    if (m_fitToScreen)
+        doFitToScreen();
+    emit fitToScreenChanged(m_fitToScreen);
+}
+
+void ImageView::doFitToScreen()
 {
     fitInView(m_imageItem, Qt::KeepAspectRatio);
     emitScaleFactor();
