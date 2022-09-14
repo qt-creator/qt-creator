@@ -53,11 +53,10 @@ Section {
             Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
 
             IconIndicator {
-                Layout.alignment: Qt.AlignLeft
-
                 icon: StudioTheme.Constants.closeCross
                 onClicked: colorEditorControl.remove()
             }
+
             ExpandingSpacer {}
         }
     }
@@ -79,24 +78,17 @@ Section {
                                + StudioTheme.Values.actionIndicatorWidth
             }
 
-            Spacer {
-                implicitWidth: StudioTheme.Values.twoControlColumnGap
-            }
+            Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
 
             Item {
                 height: 10
-                implicitWidth: {
-                    return StudioTheme.Values.twoControlColumnWidth
-                            + StudioTheme.Values.actionIndicatorWidth
-                }
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
             }
 
-            Spacer {
-                implicitWidth: StudioTheme.Values.twoControlColumnGap
-            }
+            Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
 
             IconIndicator {
-                Layout.alignment: Qt.AlignLeft
                 icon: StudioTheme.Constants.closeCross
                 onClicked: layoutInt.remove()
             }
@@ -124,24 +116,17 @@ Section {
                                + StudioTheme.Values.actionIndicatorWidth
             }
 
-            Spacer {
-                implicitWidth: StudioTheme.Values.twoControlColumnGap
-            }
+            Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
 
             Item {
                 height: 10
-                implicitWidth: {
-                    return StudioTheme.Values.twoControlColumnWidth
-                            + StudioTheme.Values.actionIndicatorWidth
-                }
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
             }
 
-            Spacer {
-                implicitWidth: StudioTheme.Values.twoControlColumnGap
-            }
+            Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
 
             IconIndicator {
-                Layout.alignment: Qt.AlignLeft
                 icon: StudioTheme.Constants.closeCross
                 onClicked: layoutReal.remove()
             }
@@ -165,12 +150,9 @@ Section {
                                + StudioTheme.Values.actionIndicatorWidth
             }
 
-            Spacer {
-                implicitWidth: StudioTheme.Values.twoControlColumnGap
-            }
+            Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
 
             IconIndicator {
-                Layout.alignment: Qt.AlignLeft
                 icon: StudioTheme.Constants.closeCross
                 onClicked: layoutString.remove()
             }
@@ -192,27 +174,20 @@ Section {
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
                 text: layoutBool.backendValue.value
-                backendValue:  layoutBool.backendValue
+                backendValue: layoutBool.backendValue
             }
 
-            Spacer {
-                implicitWidth: StudioTheme.Values.twoControlColumnGap
-            }
+            Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
 
             Item {
                 height: 10
-                implicitWidth: {
-                    return StudioTheme.Values.twoControlColumnWidth
-                            + StudioTheme.Values.actionIndicatorWidth
-                }
+                implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                               + StudioTheme.Values.actionIndicatorWidth
             }
 
-            Spacer {
-                implicitWidth: StudioTheme.Values.twoControlColumnGap
-            }
+            Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
 
             IconIndicator {
-                Layout.alignment: Qt.AlignLeft
                 icon: StudioTheme.Constants.closeCross
                 onClicked: layoutBool.remove()
             }
@@ -238,7 +213,6 @@ Section {
             }
 
             IconIndicator {
-                Layout.alignment: Qt.AlignLeft
                 icon: StudioTheme.Constants.closeCross
                 onClicked: layoutUrl.remove()
             }
@@ -270,12 +244,9 @@ Section {
                 showTranslateCheckBox: false
             }
 
-            Spacer {
-                implicitWidth: StudioTheme.Values.twoControlColumnGap
-            }
+            Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
 
             IconIndicator {
-                Layout.alignment: Qt.AlignLeft
                 icon: StudioTheme.Constants.closeCross
                 onClicked: layoutAlias.remove()
             }
@@ -301,12 +272,9 @@ Section {
                                + StudioTheme.Values.actionIndicatorWidth
             }
 
-            Spacer {
-                implicitWidth: StudioTheme.Values.twoControlColumnGap
-            }
+            Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
 
             IconIndicator {
-                Layout.alignment: Qt.AlignLeft
                 icon: StudioTheme.Constants.closeCross
                 onClicked: layoutTextureInput.remove()
             }
@@ -411,7 +379,6 @@ Section {
                 Spacer { implicitWidth: StudioTheme.Values.controlGap }
 
                 IconIndicator {
-                    Layout.alignment: Qt.AlignLeft
                     icon: StudioTheme.Constants.closeCross
                     onClicked: layoutVector.remove()
                 }
@@ -462,16 +429,12 @@ Section {
 
                 Item {
                     height: 10
-                    implicitWidth: {
-                        return StudioTheme.Values.twoControlColumnWidth
-                                + StudioTheme.Values.actionIndicatorWidth
-                    }
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                  + StudioTheme.Values.actionIndicatorWidth
                     visible: vecSize === 2 // Placeholder for last spinbox
                 }
 
-                Spacer {
-                    implicitWidth: StudioTheme.Values.twoControlColumnGap
-                }
+                Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
 
                 ExpandingSpacer {}
             }
@@ -497,11 +460,9 @@ Section {
                        + StudioTheme.Values.actionIndicatorWidth
             }
 
-            Spacer {
-                implicitWidth: StudioTheme.Values.twoControlColumnGap
-            }
+            Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
+
             IconIndicator {
-                Layout.alignment: Qt.AlignLeft
                 icon: StudioTheme.Constants.closeCross
                 onClicked: layoutReadonly.remove()
             }
@@ -541,8 +502,9 @@ Section {
                     active: repeater.loadActive
                     width: loader.item ? loader.item.width : 0
                     height: loader.item ? loader.item.height : 0
+                    Layout.fillWidth: true
 
-                    sourceComponent:  {
+                    sourceComponent: {
                         if (propertyType == "color")
                             return colorEditor
                         if (propertyType == "int")
@@ -615,7 +577,6 @@ Section {
                 Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
 
                 StudioControls.AbstractButton {
-
                     id: plusButton
                     buttonIcon: StudioTheme.Constants.plus
                     onClicked: {
@@ -691,7 +652,7 @@ Section {
                 RowLayout {
                     width: cePopup.width - 8
                     PropertyLabel {
-                        text: "Add New Property"
+                        text: qsTr("Add New Property")
                         horizontalAlignment: Text.AlignLeft
                         leftPadding: 8
                         width: cePopup.width - closeIndicator.width - 24
@@ -707,7 +668,7 @@ Section {
                 RowLayout {
                     PropertyLabel {
                         id: textLabel
-                        text: "Name"
+                        text: qsTr("Name")
                         width: cePopup.labelWidth
                     }
                     StudioControls.TextField {
@@ -720,7 +681,7 @@ Section {
                 }
                 RowLayout {
                     PropertyLabel {
-                        text: "Type"
+                        text: qsTr("Type")
                         width: cePopup.labelWidth
                     }
                     StudioControls.ComboBox {
