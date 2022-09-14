@@ -777,8 +777,8 @@ void DesignDocument::updateActiveTarget()
 
 void DesignDocument::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
-    if (view())
-        view()->contextHelp(callback);
+    if (auto v = view())
+        QmlDesignerPlugin::contextHelp(callback, v->contextHelpId());
     else
         callback({});
 }

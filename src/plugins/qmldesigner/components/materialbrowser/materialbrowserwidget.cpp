@@ -187,7 +187,7 @@ QList<QToolButton *> MaterialBrowserWidget::createToolBarWidgets()
 void MaterialBrowserWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
     if (m_materialBrowserView)
-        m_materialBrowserView->contextHelp(callback);
+        QmlDesignerPlugin::contextHelp(callback, m_materialBrowserView->contextHelpId());
     else
         callback({});
 }

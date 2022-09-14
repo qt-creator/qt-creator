@@ -65,6 +65,8 @@ public:
 
     static double formEditorDevicePixelRatio();
 
+    static void contextHelp(const Core::IContext::HelpCallback &callback, const QString &id);
+
     static void emitUsageStatistics(const QString &identifier);
     static void emitUsageStatisticsContextAction(const QString &identifier);
     static void emitUsageStatisticsHelpRequested(const QString &identifier);

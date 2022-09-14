@@ -312,8 +312,8 @@ void TransitionEditorWidget::selectionChanged()
 
 void TransitionEditorWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
-    if (transitionEditorView())
-        transitionEditorView()->contextHelp(callback);
+    if (auto view = transitionEditorView())
+        QmlDesignerPlugin::contextHelp(callback, view->contextHelpId());
     else
         callback({});
 }

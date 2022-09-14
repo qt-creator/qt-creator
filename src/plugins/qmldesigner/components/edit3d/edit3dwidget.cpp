@@ -228,9 +228,9 @@ void Edit3DWidget::onCreateAction()
 void Edit3DWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
     if (m_view)
-        m_view->contextHelp(callback);
-
-    callback({});
+        QmlDesignerPlugin::contextHelp(callback, m_view->contextHelpId());
+    else
+        callback({});
 }
 
 void Edit3DWidget::showCanvas(bool show)

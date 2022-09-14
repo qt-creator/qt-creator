@@ -587,21 +587,16 @@ void AbstractView::enableWidget()
         widgetInfo().widget->setEnabled(true);
 }
 
-void AbstractView::contextHelp(const Core::IContext::HelpCallback &callback) const
+QString AbstractView::contextHelpId() const
 {
-#ifndef QMLDESIGNER_TEST
+    QString id = const_cast<AbstractView *>(this)->widgetInfo().uniqueId;
 
-    const QString id = const_cast<AbstractView *>(this)->widgetInfo().uniqueId;
+    if (!selectedModelNodes().isEmpty()) {
+        const auto nodeId = selectedModelNodes().first().simplifiedTypeName();
+        id += " " + nodeId;
+    }
 
-    QString nodeId;
-    if (!selectedModelNodes().isEmpty())
-        nodeId = selectedModelNodes().first().simplifiedTypeName();
-    QmlDesignerPlugin::instance()->emitUsageStatisticsHelpRequested(id + " " + nodeId);
-    QmlDesignerPlugin::instance()->viewManager().qmlJSEditorContextHelp(callback);
-
-#else
-    callback(QString());
-#endif
+    return id;
 }
 
 void AbstractView::setCurrentTimeline(const ModelNode &timeline)

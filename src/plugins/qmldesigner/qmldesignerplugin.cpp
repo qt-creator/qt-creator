@@ -642,6 +642,12 @@ double QmlDesignerPlugin::formEditorDevicePixelRatio()
     return topLevelWindows.constFirst()->screen()->devicePixelRatio();
 }
 
+void QmlDesignerPlugin::contextHelp(const Core::IContext::HelpCallback &callback, const QString &id)
+{
+    emitUsageStatisticsHelpRequested(id);
+    QmlDesignerPlugin::instance()->viewManager().qmlJSEditorContextHelp(callback);
+}
+
 void QmlDesignerPlugin::emitUsageStatistics(const QString &identifier)
 {
     QTC_ASSERT(instance(), return);

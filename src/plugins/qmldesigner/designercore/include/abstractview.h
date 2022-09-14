@@ -12,8 +12,6 @@
 #include <rewritertransaction.h>
 #include <commondefines.h>
 
-#include <coreplugin/icontext.h>
-
 #include <QObject>
 #include <QPointer>
 #include <QVector3D>
@@ -70,6 +68,7 @@ public:
 class QMLDESIGNERCORE_EXPORT AbstractView : public QObject
 {
     Q_OBJECT
+
 public:
     Q_FLAGS(PropertyChangeFlag PropertyChangeFlags)
 
@@ -249,7 +248,7 @@ public:
     virtual void disableWidget();
     virtual void enableWidget();
 
-    virtual void contextHelp(const Core::IContext::HelpCallback &callback) const;
+    QString contextHelpId() const;
 
     void setCurrentTimeline(const ModelNode &timeline);
     void activateTimelineRecording(const ModelNode &timeline);

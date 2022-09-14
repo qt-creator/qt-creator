@@ -480,7 +480,7 @@ double FormEditorWidget::containerPadding() const
 void FormEditorWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
     if (m_formEditorView)
-        m_formEditorView->contextHelp(callback);
+        QmlDesignerPlugin::contextHelp(callback, m_formEditorView->contextHelpId());
     else
         callback({});
 }

@@ -36,6 +36,7 @@ class AbstractView;
 class QMLDESIGNERCORE_EXPORT DesignDocument: public QObject
 {
     Q_OBJECT
+
 public:
     DesignDocument(ProjectStorage<Sqlite::Database> &projectStorage);
     ~DesignDocument() override;

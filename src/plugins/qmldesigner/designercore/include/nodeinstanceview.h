@@ -17,6 +17,7 @@
 #include <QElapsedTimer>
 #include <QHash>
 #include <QImage>
+#include <QPixmap>
 #include <QPointer>
 #include <QRectF>
 #include <QTime>

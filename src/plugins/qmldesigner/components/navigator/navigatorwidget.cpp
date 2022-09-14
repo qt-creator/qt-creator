@@ -150,8 +150,8 @@ QToolBar *NavigatorWidget::createToolBar()
 
 void NavigatorWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
-    if (navigatorView())
-        navigatorView()->contextHelp(callback);
+    if (auto view = navigatorView())
+        QmlDesignerPlugin::contextHelp(callback, view->contextHelpId());
     else
         callback({});
 }

@@ -4,6 +4,8 @@
 
 #include <abstractview.h>
 
+#include <QPicture>
+
 #include <functional>
 #include <memory>
 #include <vector>

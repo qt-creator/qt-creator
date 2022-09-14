@@ -5,9 +5,11 @@
 
 #include "abstractview.h"
 
-#include <QWidgetAction>
+#include <coreplugin/icontext.h>
 
 #include <utils/fileutils.h>
+
+#include <QWidgetAction>
 
 namespace ProjectExplorer {
 class Target;

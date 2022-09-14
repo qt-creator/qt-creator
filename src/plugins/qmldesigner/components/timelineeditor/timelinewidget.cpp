@@ -455,8 +455,8 @@ void TimelineWidget::setTimelineRecording(bool value)
 
 void TimelineWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
-    if (timelineView())
-        timelineView()->contextHelp(callback);
+    if (auto view = timelineView())
+        QmlDesignerPlugin::contextHelp(callback, view->contextHelpId());
     else
         callback({});
 }

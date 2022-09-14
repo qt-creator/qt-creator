@@ -82,7 +82,10 @@ void TextEditorWidget::setTextEditor(TextEditor::BaseTextEditor *textEditor)
 
 void TextEditorWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
-    m_textEditorView->contextHelp(callback);
+    if (m_textEditorView)
+        QmlDesignerPlugin::contextHelp(callback, m_textEditorView->contextHelpId());
+    else
+        callback({});
 }
 
 void TextEditorWidget::updateSelectionByCursorPosition()

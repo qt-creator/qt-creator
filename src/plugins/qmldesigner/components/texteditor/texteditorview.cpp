@@ -127,11 +127,6 @@ WidgetInfo TextEditorView::widgetInfo()
     return createWidgetInfo(m_widget, "TextEditor", WidgetInfo::CentralPane, 0, tr("Code"), DesignerWidgetFlags::IgnoreErrors);
 }
 
-void TextEditorView::contextHelp(const Core::IContext::HelpCallback &callback) const
-{
-    AbstractView::contextHelp(callback);
-}
-
 void TextEditorView::qmlJSEditorContextHelp(const Core::IContext::HelpCallback &callback) const
 {
     if (m_widget->textEditor())
