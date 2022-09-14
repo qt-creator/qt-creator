@@ -688,7 +688,7 @@ QWidget *ICore::dialogParent()
     QWidget *active = QApplication::activeModalWidget();
     if (!active)
         active = QApplication::activeWindow();
-    if (!active || (active && active->windowFlags().testFlag(Qt::SplashScreen)))
+    if (!active || (active && active->windowFlags().testAnyFlags(Qt::SplashScreen | Qt::Popup)))
         active = m_mainwindow;
     return active;
 }

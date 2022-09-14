@@ -126,7 +126,7 @@ SquishControlBar::SquishControlBar(SquishPerspective *perspective)
     , m_perspective(perspective)
 {
     setWindowTitle(Tr::tr("Control Bar"));
-    setWindowFlags(Qt::Widget | Qt::WindowCloseButtonHint | Qt::WindowStaysOnTopHint);
+    setWindowFlags(Qt::Tool | Qt::WindowCloseButtonHint | Qt::WindowStaysOnTopHint);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->setContentsMargins(0, 0, 0, 0);

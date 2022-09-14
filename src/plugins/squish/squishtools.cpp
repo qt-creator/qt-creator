@@ -367,7 +367,7 @@ void SquishTools::setState(SquishTools::State state)
                                                      QDir(m_suitePath).dirName(),
                                                      &error);
             if (!error.isEmpty())
-                QMessageBox::critical(Core::ICore::mainWindow(), Tr::tr("Error"), error);
+                QMessageBox::critical(Core::ICore::dialogParent(), Tr::tr("Error"), error);
             logrotateTestResults();
         } else {
             m_xmlOutputHandler->clearForNextRun();
