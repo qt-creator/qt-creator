@@ -153,8 +153,12 @@ void SquishControlBar::updateProgressBar()
     const int allCounted = m_passes + m_fails;
     if (allCounted == 0)
         return;
-    if (allCounted == 1)
+    if (allCounted == 1) {
+        QPalette palette = m_progress->palette();
+        palette.setColor(QPalette::Text, Qt::black);
         m_progress->setStyleSheet(customStyleSheet(true));
+        m_progress->setPalette(palette);
+    }
 
     m_progress->setRange(0, allCounted);
     m_progress->setValue(m_passes);
