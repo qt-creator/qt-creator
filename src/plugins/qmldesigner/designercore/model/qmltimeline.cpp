@@ -208,6 +208,15 @@ void QmlTimeline::destroyKeyframesForTarget(const ModelNode &target)
         frames.destroy();
 }
 
+void QmlTimeline::removeKeyframesForTargetAndProperty(const ModelNode &target,
+                                                      const PropertyName &propertyName)
+{
+    for (QmlTimelineKeyframeGroup frames : keyframeGroupsForTarget(target)) {
+        if (frames.propertyName() == propertyName)
+            frames.destroy();
+    }
+}
+
 bool QmlTimeline::hasActiveTimeline(AbstractView *view)
 {
     if (view && view->isAttached()) {
