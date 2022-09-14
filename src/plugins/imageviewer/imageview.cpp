@@ -14,6 +14,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 
 #include <QClipboard>
 #include <QDir>
@@ -33,6 +34,11 @@
 #include <QGraphicsSvgItem>
 #include <QSvgRenderer>
 #endif
+
+const char kSettingsGroup[] = "ImageViewer";
+const char kSettingsBackground[] = "ShowBackground";
+const char kSettingsOutline[] = "ShowOutline";
+const char kSettingsFitToScreen[] = "FitToScreen";
 
 namespace ImageViewer {
 namespace Constants {
@@ -105,7 +111,7 @@ void ImageView::createScene()
     m_backgroundItem = new QGraphicsRectItem(m_imageItem->boundingRect());
     m_backgroundItem->setBrush(Qt::white);
     m_backgroundItem->setPen(Qt::NoPen);
-    m_backgroundItem->setVisible(m_showBackground);
+    m_backgroundItem->setVisible(m_settings.showBackground);
     m_backgroundItem->setZValue(-1);
 
     // outline
@@ -114,7 +120,7 @@ void ImageView::createScene()
     outline.setCosmetic(true);
     m_outlineItem->setPen(outline);
     m_outlineItem->setBrush(Qt::NoBrush);
-    m_outlineItem->setVisible(m_showOutline);
+    m_outlineItem->setVisible(m_settings.showOutline);
     m_outlineItem->setZValue(1);
 
     QGraphicsScene *s = scene();
@@ -242,14 +248,14 @@ void ImageView::copyDataUrl()
 
 void ImageView::setViewBackground(bool enable)
 {
-    m_showBackground = enable;
+    m_settings.showBackground = enable;
     if (m_backgroundItem)
         m_backgroundItem->setVisible(enable);
 }
 
 void ImageView::setViewOutline(bool enable)
 {
-    m_showOutline = enable;
+    m_settings.showOutline = enable;
     if (m_outlineItem)
         m_outlineItem->setVisible(enable);
 }
@@ -276,7 +282,7 @@ void ImageView::wheelEvent(QWheelEvent *event)
 void ImageView::resizeEvent(QResizeEvent *event)
 {
     QGraphicsView::resizeEvent(event);
-    if (m_fitToScreen)
+    if (m_settings.fitToScreen)
         doFitToScreen();
 }
 
@@ -305,12 +311,39 @@ void ImageView::resetToOriginalSize()
 
 void ImageView::setFitToScreen(bool fit)
 {
-    if (fit == m_fitToScreen)
+    if (fit == m_settings.fitToScreen)
         return;
-    m_fitToScreen = fit;
-    if (m_fitToScreen)
+    m_settings.fitToScreen = fit;
+    if (m_settings.fitToScreen)
         doFitToScreen();
-    emit fitToScreenChanged(m_fitToScreen);
+    emit fitToScreenChanged(m_settings.fitToScreen);
+}
+
+void ImageView::readSettings(Utils::QtcSettings *settings)
+{
+    const Settings def;
+    settings->beginGroup(kSettingsGroup);
+    m_settings.showBackground = settings->value(kSettingsBackground, def.showBackground).toBool();
+    m_settings.showOutline = settings->value(kSettingsOutline, def.showOutline).toBool();
+    m_settings.fitToScreen = settings->value(kSettingsFitToScreen, def.fitToScreen).toBool();
+    settings->endGroup();
+}
+
+void ImageView::writeSettings(Utils::QtcSettings *settings) const
+{
+    const Settings def;
+    settings->beginGroup(kSettingsGroup);
+    settings->setValueWithDefault(kSettingsBackground,
+                                  m_settings.showBackground,
+                                  def.showBackground);
+    settings->setValueWithDefault(kSettingsOutline, m_settings.showOutline, def.showOutline);
+    settings->setValueWithDefault(kSettingsFitToScreen, m_settings.fitToScreen, def.fitToScreen);
+    settings->endGroup();
+}
+
+ImageView::Settings ImageView::settings() const
+{
+    return m_settings;
 }
 
 void ImageView::doFitToScreen()

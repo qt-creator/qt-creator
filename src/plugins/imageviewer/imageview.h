@@ -8,6 +8,10 @@
 
 QT_FORWARD_DECLARE_CLASS(QImage)
 
+namespace Utils {
+class QtcSettings;
+}
+
 namespace ImageViewer::Internal {
 
 class ImageViewerFile;
@@ -22,6 +26,13 @@ class ImageView : public QGraphicsView
     Q_OBJECT
 
 public:
+    struct Settings
+    {
+        bool showBackground = false;
+        bool showOutline = true;
+        bool fitToScreen = false;
+    };
+
     ImageView(ImageViewerFile *file);
     ~ImageView() override;
 
@@ -37,6 +48,10 @@ public:
     void zoomOut();
     void resetToOriginalSize();
     void setFitToScreen(bool fit);
+
+    void readSettings(Utils::QtcSettings *settings);
+    void writeSettings(Utils::QtcSettings *settings) const;
+    Settings settings() const;
 
 signals:
     void scaleFactorChanged(qreal factor);
@@ -61,9 +76,7 @@ private:
     QGraphicsItem *m_imageItem = nullptr;
     QGraphicsRectItem *m_backgroundItem = nullptr;
     QGraphicsRectItem *m_outlineItem = nullptr;
-    bool m_showBackground = false;
-    bool m_showOutline = true;
-    bool m_fitToScreen = false;
+    Settings m_settings;
 };
 
 } // ImageViewer::Internal

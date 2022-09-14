@@ -92,6 +92,8 @@ ImageViewer::ImageViewer(const QSharedPointer<ImageViewerFile> &document)
 void ImageViewer::ctor()
 {
     d->imageView = new ImageView(d->file.data());
+    d->imageView->readSettings(ICore::settings());
+    const ImageView::Settings settings = d->imageView->settings();
 
     setContext(Core::Context(Constants::IMAGEVIEWER_ID));
     setWidget(d->imageView);
@@ -112,12 +114,13 @@ void ImageViewer::ctor()
     d->toolButtonPlayPause = new CommandButton;
 
     d->toolButtonBackground->setCheckable(true);
-    d->toolButtonBackground->setChecked(false);
+    d->toolButtonBackground->setChecked(settings.showBackground);
 
     d->toolButtonOutline->setCheckable(true);
-    d->toolButtonOutline->setChecked(true);
+    d->toolButtonOutline->setChecked(settings.showOutline);
 
     d->toolButtonFitToScreen->setCheckable(true);
+    d->toolButtonFitToScreen->setChecked(settings.fitToScreen);
 
     d->toolButtonZoomIn->setAutoRepeat(true);
 
@@ -153,6 +156,12 @@ void ImageViewer::ctor()
     // (photograph has outline - piece of paper)
     updateButtonIconByTheme(d->toolButtonOutline, QLatin1String("emblem-photos"));
 
+    auto setAsDefaultButton = new QToolButton;
+    auto setAsDefault = new QAction(Tr::tr("Set as Default"), setAsDefaultButton);
+    setAsDefault->setToolTip(Tr::tr("Use the current settings for background, outline, and fitting "
+                                    "to screen as the default for new image viewers."));
+    setAsDefaultButton->setDefaultAction(setAsDefault);
+
     d->toolButtonExportImage->setCommandId(Constants::ACTION_EXPORT_IMAGE);
     d->toolButtonMultiExportImages->setCommandId(Constants::ACTION_EXPORT_MULTI_IMAGES);
     d->toolButtonCopyDataUrl->setCommandId(Constants::ACTION_COPY_DATA_URL);
@@ -173,9 +182,12 @@ void ImageViewer::ctor()
     horizontalLayout->addWidget(d->toolButtonExportImage);
     horizontalLayout->addWidget(d->toolButtonMultiExportImages);
     horizontalLayout->addWidget(d->toolButtonCopyDataUrl);
+    horizontalLayout->addWidget(new StyledSeparator);
     horizontalLayout->addWidget(d->toolButtonBackground);
     horizontalLayout->addWidget(d->toolButtonOutline);
     horizontalLayout->addWidget(d->toolButtonFitToScreen);
+    horizontalLayout->addWidget(setAsDefaultButton);
+    horizontalLayout->addWidget(new StyledSeparator);
     horizontalLayout->addWidget(d->toolButtonOriginalSize);
     horizontalLayout->addWidget(d->toolButtonZoomIn);
     horizontalLayout->addWidget(d->toolButtonZoomOut);
@@ -231,6 +243,9 @@ void ImageViewer::ctor()
             this, &ImageViewer::updatePauseAction);
     connect(d->imageView, &ImageView::scaleFactorChanged,
             this, &ImageViewer::scaleFactorUpdate);
+    connect(setAsDefault, &QAction::triggered, d->imageView, [this] {
+        d->imageView->writeSettings(ICore::settings());
+    });
 }
 
 ImageViewer::~ImageViewer()
