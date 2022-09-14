@@ -21,6 +21,8 @@ public:
     virtual QString type() const = 0;
     QString description() const;
     void showException(const QString &title = QString()) const;
+    static void setShowExceptionCallback(
+        std::function<void(QStringView title, QStringView description)> callback);
 
     int line() const;
     QString function() const;

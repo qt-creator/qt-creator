@@ -12,10 +12,7 @@
 
 #include <QCoreApplication>
 
-#ifndef QMLDESIGNER_TEST
-#include <coreplugin/messagebox.h>
-#include <qmldesignerplugin.h>
-#endif
+#include <functional>
 
 /*!
 \defgroup CoreExceptions
@@ -150,17 +147,22 @@ QString Exception::description() const
 {
     return m_description;
 }
+namespace {
+std::function<void(QStringView title, QStringView description)> showExceptionCallback;
+}
 
 /*!
     Shows message in a message box.
 */
 void Exception::showException([[maybe_unused]] const QString &title) const
 {
-#ifndef QMLDESIGNER_TEST
-    QString composedTitle = title.isEmpty() ? QCoreApplication::translate("QmlDesigner", "Error")
-                                            : title;
-    Core::AsynchronousMessageBox::warning(composedTitle, description());
-#endif
+    if (showExceptionCallback)
+        showExceptionCallback(title, m_description);
+}
+
+void Exception::setShowExceptionCallback(std::function<void(QStringView, QStringView)> callback)
+{
+    showExceptionCallback = std::move(callback);
 }
 
 /*!
