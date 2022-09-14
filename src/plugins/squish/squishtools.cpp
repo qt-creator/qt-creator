@@ -215,9 +215,7 @@ struct SquishToolsSettings
 static SquishToolsSettings toolsSettings;
 
 void SquishTools::runTestCases(const QString &suitePath,
-                               const QStringList &testCases,
-                               const QStringList &additionalServerArgs,
-                               const QStringList &additionalRunnerArgs)
+                               const QStringList &testCases)
 {
     if (m_shutdownInitiated)
         return;
@@ -240,12 +238,11 @@ void SquishTools::runTestCases(const QString &suitePath,
     m_suitePath = suitePath;
     m_testCases = testCases;
     m_reportFiles.clear();
-    m_additionalServerArguments = additionalServerArgs;
 
     const QString dateTimeString = QDateTime::currentDateTime().toString("yyyy-MM-ddTHH-mm-ss");
     m_currentResultsDirectory = QFileInfo(QDir(resultsDirectory), dateTimeString).absoluteFilePath();
 
-    m_additionalRunnerArguments = additionalRunnerArgs;
+    m_additionalRunnerArguments.clear();
     m_additionalRunnerArguments << "--interactive" << "--resultdir"
                                 << QDir::toNativeSeparators(m_currentResultsDirectory);
 
@@ -513,7 +510,6 @@ void SquishTools::setIdle()
     m_currentTestCasePath.clear();
     m_reportFiles.clear();
     m_additionalRunnerArguments.clear();
-    m_additionalServerArguments.clear();
     m_perspective.setPerspectiveMode(SquishPerspective::NoMode);
     m_currentResultsDirectory.clear();
     m_lastTopLevelWindows.clear();
@@ -1267,7 +1263,6 @@ QStringList SquishTools::serverArgumentsFromSettings() const
 QStringList SquishTools::runnerArgumentsFromSettings()
 {
     QStringList arguments;
-    arguments << m_additionalServerArguments;
     if (!toolsSettings.isLocalServer)
         arguments << "--host" << toolsSettings.serverHost;
     arguments << "--port" << QString::number(m_serverPort);

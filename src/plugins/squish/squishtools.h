@@ -62,9 +62,7 @@ public:
 
     State state() const { return m_state; }
     void runTestCases(const QString &suitePath,
-                      const QStringList &testCases = QStringList(),
-                      const QStringList &additionalServerArgs = QStringList(),
-                      const QStringList &additionalRunnerArgs = QStringList());
+                      const QStringList &testCases = QStringList());
     void recordTestCase(const QString &suitePath, const QString &testCaseName,
                         const SuiteConf &suiteConf);
     void queryServerSettings();
@@ -155,7 +153,6 @@ private:
     Utils::FilePath m_currentRecorderSnippetFile;
     QFile *m_currentResultsXML = nullptr;
     QFileSystemWatcher *m_resultsFileWatcher = nullptr;
-    QStringList m_additionalServerArguments;
     QStringList m_additionalRunnerArguments;
     QList<QStringList> m_serverConfigChanges;
     QWindowList m_lastTopLevelWindows;
