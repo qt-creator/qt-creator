@@ -55,6 +55,15 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     const FilePath cmakeExecutable = cmake->cmakeExecutable();
 
+    if (!cmakeExecutable.ensureReachable(parameters.sourceDirectory)
+        || !cmakeExecutable.ensureReachable(parameters.buildDirectory)) {
+        QString msg = ::CMakeProjectManager::Internal::CMakeProcess::tr(
+            "The source or build directory is not reachable by the CMake executable.");
+        BuildSystem::appendBuildSystemOutput(msg + '\n');
+        emit finished();
+        return;
+    }
+
     const FilePath sourceDirectory = parameters.sourceDirectory.onDevice(cmakeExecutable);
     const FilePath buildDirectory = parameters.buildDirectory.onDevice(cmakeExecutable);
 
