@@ -4,6 +4,7 @@ Project {
     name: "Utils autotests"
     references: [
         "fileutils/fileutils.qbs",
+        "fsengine/fsengine.qbs",
         "ansiescapecodehandler/ansiescapecodehandler.qbs",
         "fuzzymatcher/fuzzymatcher.qbs",
         "indexedcontainerproxyconstiterator/indexedcontainerproxyconstiterator.qbs",
