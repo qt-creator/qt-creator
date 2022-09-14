@@ -590,6 +590,18 @@ QmlModelStateGroup QmlObjectNode::states() const
         return QmlModelStateGroup();
 }
 
+QList<ModelNode> QmlObjectNode::allTimelines() const
+{
+    QList<ModelNode> timelineNodes;
+    const auto allNodes = view()->allModelNodes();
+    for (const auto &timelineNode : allNodes) {
+        if (QmlTimeline::isValidQmlTimeline(timelineNode))
+            timelineNodes.append(timelineNode);
+    }
+
+    return timelineNodes;
+}
+
 /*!
     Removes a variant property of the object specified by \a name from the
     model.
