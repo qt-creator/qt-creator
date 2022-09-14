@@ -1383,6 +1383,9 @@ void SquishTools::setupAndStartSquishRunnerProcess(const QStringList &args)
                 &SquishTools::onResultsDirChanged);
     }
 
+    // especially when running multiple test cases we re-use the process fast and start the runner
+    // several times and may crash as the process may not have been cleanly destructed yet
+    m_runnerProcess.close();
     qCDebug(LOG) << "Runner starts:" << m_runnerProcess.commandLine().toUserOutput();
     m_runnerProcess.start();
     if (!m_runnerProcess.waitForStarted()) {
