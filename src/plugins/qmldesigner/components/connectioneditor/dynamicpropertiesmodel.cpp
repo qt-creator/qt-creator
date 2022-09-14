@@ -27,15 +27,16 @@
 
 #include "connectionview.h"
 
+#include <bindingproperty.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
-#include <variantproperty.h>
-#include <bindingproperty.h>
-#include <rewritingexception.h>
 #include <rewritertransaction.h>
-#include <qmldesignerplugin.h>
+#include <rewritingexception.h>
+#include <variantproperty.h>
 #include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
@@ -548,16 +549,21 @@ void DynamicPropertiesModel::addModelNode(const ModelNode &modelNode)
     if (!modelNode.isValid())
         return;
 
-    const QList<BindingProperty> bindingProperties = modelNode.bindingProperties();
-    for (const BindingProperty &bindingProperty : bindingProperties) {
-        if (bindingProperty.isDynamic())
-            addBindingProperty(bindingProperty);
-    }
+    auto properties = modelNode.properties();
 
-    const QList<VariantProperty> variantProperties = modelNode.variantProperties();
-    for (const VariantProperty &variantProperty : variantProperties) {
-        if (variantProperty.isDynamic())
-            addVariantProperty(variantProperty);
+    auto dynamicProperties = Utils::filtered(properties, [](const AbstractProperty &p) {
+        return p.isDynamic();
+    });
+
+    Utils::sort(dynamicProperties, [](const AbstractProperty &a, const AbstractProperty &b) {
+        return a.name() < b.name();
+    });
+
+    for (const AbstractProperty &property : qAsConst(dynamicProperties)) {
+        if (property.isBindingProperty())
+            addBindingProperty(property.toBindingProperty());
+        else if (property.isVariantProperty())
+            addVariantProperty(property.toVariantProperty());
     }
 }
 
