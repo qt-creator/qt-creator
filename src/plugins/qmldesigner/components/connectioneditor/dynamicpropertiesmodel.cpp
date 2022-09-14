@@ -458,16 +458,35 @@ QStringList DynamicPropertiesModel::possibleSourceProperties(const BindingProper
 
 void DynamicPropertiesModel::deleteDynamicPropertyByRow(int rowNumber)
 {
-    m_view->executeInTransaction("DynamicPropertiesModel::deleteDynamicPropertyByRow", [this, rowNumber]() {
-        BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
-        if (bindingProperty.isValid()) {
-            bindingProperty.parentModelNode().removeProperty(bindingProperty.name());
-        } else {
-            VariantProperty variantProperty = variantPropertyForRow(rowNumber);
-            if (variantProperty.isValid())
-                variantProperty.parentModelNode().removeProperty(variantProperty.name());
-        }
-    });
+    m_view->executeInTransaction(
+        "DynamicPropertiesModel::deleteDynamicPropertyByRow", [this, rowNumber]() {
+            const AbstractProperty property = abstractPropertyForRow(rowNumber);
+            const PropertyName propertyName = property.name();
+            BindingProperty bindingProperty = bindingPropertyForRow(rowNumber);
+            if (bindingProperty.isValid()) {
+                bindingProperty.parentModelNode().removeProperty(bindingProperty.name());
+            } else {
+                VariantProperty variantProperty = variantPropertyForRow(rowNumber);
+                if (variantProperty.isValid())
+                    variantProperty.parentModelNode().removeProperty(variantProperty.name());
+            }
+
+            if (property.isValid()) {
+                QmlObjectNode objectNode = QmlObjectNode(property.parentModelNode());
+                const auto stateOperations = objectNode.allAffectingStatesOperations();
+                for (const QmlModelStateOperation &stateOperation : stateOperations) {
+                    if (stateOperation.modelNode().hasProperty(propertyName))
+                        stateOperation.modelNode().removeProperty(propertyName);
+                }
+
+                const auto timelineNodes = objectNode.allTimelines();
+                for (auto &timelineNode : timelineNodes) {
+                    QmlTimeline timeline(timelineNode);
+                    timeline.removeKeyframesForTargetAndProperty(objectNode.modelNode(),
+                                                                 propertyName);
+                }
+            }
+        });
 
     resetModel();
 }
