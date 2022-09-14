@@ -127,6 +127,7 @@ public:
 
     void updateContainerAccess();
     void changeMounts(QStringList newMounts);
+    bool ensureReachable(const FilePath &other);
     void shutdown();
 
     QString containerId() { return m_container; }
@@ -150,11 +151,18 @@ private:
     void stopCurrentContainer();
     void fetchSystemEnviroment();
 
+    bool addTemporaryMount(const FilePath &path, const FilePath &containerPath);
+
     DockerDevice *const q;
     DockerDeviceData m_data;
     DockerSettings *m_settings;
 
-    // For local file access
+    struct TemporaryMountInfo {
+        FilePath path;
+        FilePath containerPath;
+    };
+
+    QList<TemporaryMountInfo> m_temporaryMounts;
 
     std::unique_ptr<ContainerShell> m_shell;
 
@@ -468,6 +476,12 @@ bool DockerDevicePrivate::createContainer()
     FilePath dumperPath = FilePath::fromString("/tmp/qtcreator/debugger");
     dockerCreate.addArgs({"-v", q->debugDumperPath().toUserOutput() + ':' + dumperPath.path()});
     q->setDebugDumperPath(dumperPath);
+
+    for (const auto &[path, containerPath] : qAsConst(m_temporaryMounts)) {
+        if (path.isEmpty())
+            continue;
+        dockerCreate.addArgs({"-v", path.nativePath() + ':' + containerPath.nativePath()});
+    }
 
     dockerCreate.addArgs({"--entrypoint", "/bin/sh"});
 
@@ -844,6 +858,16 @@ bool DockerDevice::setPermissions(const FilePath &filePath, QFileDevice::Permiss
     QTC_ASSERT(handlesFile(filePath), return {});
     QTC_CHECK(false); // FIXME: Implement.
     return false;
+}
+
+bool DockerDevice::ensureReachable(const FilePath &other) const
+{
+    if (other.needsDevice())
+        return false;
+
+    if (other.isDir())
+        return d->ensureReachable(other);
+    return d->ensureReachable(other.parentDir());
 }
 
 void DockerDevice::iterateWithFind(const FilePath &filePath,
@@ -1256,6 +1280,21 @@ void DockerDeviceFactory::shutdownExistingDevices()
     }
 }
 
+bool DockerDevicePrivate::addTemporaryMount(const FilePath &path, const FilePath &containerPath)
+{
+    bool alreadyAdded = anyOf(m_temporaryMounts,
+                              [containerPath](const TemporaryMountInfo &info) {
+                                  return info.containerPath == containerPath;
+                              });
+    if (alreadyAdded)
+        return false;
+
+    qCDebug(dockerDeviceLog) << "Adding temporary mount:" << path;
+    m_temporaryMounts.append({path, containerPath});
+    stopCurrentContainer(); // Force re-start with new mounts.
+    return true;
+}
+
 Environment DockerDevicePrivate::environment()
 {
     if (!m_cachedEnviroment.isValid())
@@ -1279,6 +1318,26 @@ void DockerDevicePrivate::changeMounts(QStringList newMounts)
         m_data.mounts = newMounts;
         stopCurrentContainer(); // Force re-start with new mounts.
     }
+}
+
+bool DockerDevicePrivate::ensureReachable(const FilePath &other)
+{
+    for (const QString &mount : m_data.mounts) {
+        const FilePath fMount = FilePath::fromString(mount);
+        if (other.isChildOf(fMount))
+            return true;
+    }
+
+    for (const auto &[path, containerPath] : m_temporaryMounts) {
+        if (path.path() != containerPath.path())
+            continue;
+
+        if (other.isChildOf(path))
+            return true;
+    }
+
+    addTemporaryMount(other, other);
+    return true;
 }
 
 void DockerDevicePrivate::setData(const DockerDeviceData &data)

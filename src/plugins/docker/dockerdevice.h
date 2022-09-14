@@ -5,9 +5,10 @@
 
 #include "dockersettings.h"
 
+#include <coreplugin/documentmanager.h>
+
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
-#include <coreplugin/documentmanager.h>
 
 #include <utils/aspects.h>
 
@@ -20,17 +21,11 @@ class DockerDeviceData
 public:
     bool operator==(const DockerDeviceData &other) const
     {
-        return imageId == other.imageId
-            && repo == other.repo
-            && tag == other.tag
-            && useLocalUidGid == other.useLocalUidGid
-            && mounts == other.mounts;
+        return imageId == other.imageId && repo == other.repo && tag == other.tag
+               && useLocalUidGid == other.useLocalUidGid && mounts == other.mounts;
     }
 
-    bool operator!=(const DockerDeviceData &other) const
-    {
-        return !(*this == other);
-    }
+    bool operator!=(const DockerDeviceData &other) const { return !(*this == other); }
 
     // Used for "docker run"
     QString repoAndTag() const
@@ -49,7 +44,7 @@ public:
     QString tag;
     QString size;
     bool useLocalUidGid = true;
-    QStringList mounts = { Core::DocumentManager::projectsDirectory().toString() };
+    QStringList mounts = {Core::DocumentManager::projectsDirectory().toString()};
 };
 
 class DockerDevice : public ProjectExplorer::IDevice
@@ -63,7 +58,10 @@ public:
 
     void shutdown();
 
-    static Ptr create(DockerSettings *settings, const DockerDeviceData &data) { return Ptr(new DockerDevice(settings, data)); }
+    static Ptr create(DockerSettings *settings, const DockerDeviceData &data)
+    {
+        return Ptr(new DockerDevice(settings, data));
+    }
 
     ProjectExplorer::IDeviceWidget *createWidget() override;
     QList<ProjectExplorer::Task> validate() const override;
@@ -110,7 +108,9 @@ public:
     QDateTime lastModified(const Utils::FilePath &filePath) const override;
     qint64 fileSize(const Utils::FilePath &filePath) const override;
     QFileDevice::Permissions permissions(const Utils::FilePath &filePath) const override;
-    bool setPermissions(const Utils::FilePath &filePath, QFileDevice::Permissions permissions) const override;
+    bool setPermissions(const Utils::FilePath &filePath,
+                        QFileDevice::Permissions permissions) const override;
+    bool ensureReachable(const Utils::FilePath &other) const override;
 
     Utils::Environment systemEnvironment() const override;
 
@@ -148,9 +148,9 @@ public:
 
 private:
     QMutex m_deviceListMutex;
-    std::vector<QWeakPointer<DockerDevice> > m_existingDevices;
+    std::vector<QWeakPointer<DockerDevice>> m_existingDevices;
 };
 
-} // Docker::Internal
+} // namespace Docker::Internal
 
 Q_DECLARE_METATYPE(Docker::Internal::DockerDeviceData)
