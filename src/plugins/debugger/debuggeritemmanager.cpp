@@ -703,26 +703,6 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePaths &s
                                  "gdb.exe", "lldb", "lldb.exe", "lldb-[1-9]*",
                                  "arm-none-eabi-gdb-py.exe"};
 
-//    DebuggerItem result;
-//    result.setAutoDetected(true);
-//    result.setDisplayName(Tr::tr("Auto-detected for Tool Chain %1").arg(tc->displayName()));
-    /*
-    // Check suggestions from the SDK.
-    Environment env = Environment::systemEnvironment();
-    if (tc) {
-        tc->addToEnvironment(env); // Find MinGW gdb in toolchain environment.
-        QString path = tc->suggestedDebugger().toString(); // Won't compile
-        if (!path.isEmpty()) {
-            const QFileInfo fi(path);
-            if (!fi.isAbsolute())
-                path = env.searchInPath(path);
-            result.command = FileName::fromString(path);
-            result.engineType = engineTypeFromBinary(path);
-            return maybeAddDebugger(result, false);
-        }
-    }
-    */
-
     if (searchPaths.isEmpty())
         return;
 
