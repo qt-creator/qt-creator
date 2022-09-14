@@ -576,6 +576,11 @@ void ModelPrivate::notifyNodeAtPosResult(const ModelNode &modelNode)
     notifyInstanceChanges([&](AbstractView *view) { view->nodeAtPosReady(modelNode); });
 }
 
+void ModelPrivate::notifyView3DAction(View3DActionType type, const QVariant &value)
+{
+    notifyNormalViewsLast([&](AbstractView *view) { view->view3DAction(type, value); });
+}
+
 void ModelPrivate::notifyDragStarted(QMimeData *mimeData)
 {
     notifyInstanceChanges([&](AbstractView *view) { view->dragStarted(mimeData); });

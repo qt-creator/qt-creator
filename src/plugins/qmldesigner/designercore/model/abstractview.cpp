@@ -395,6 +395,8 @@ void AbstractView::modelNodePreviewPixmapChanged(const ModelNode & /*node*/, con
 {
 }
 
+void AbstractView::view3DAction(View3DActionType, const QVariant &) {}
+
 void AbstractView::dragStarted(QMimeData * /*mimeData*/) {}
 void AbstractView::dragEnded() {}
 
@@ -785,6 +787,12 @@ void AbstractView::emitNodeAtPosResult(const ModelNode &modelNode)
 {
     if (model())
         model()->d->notifyNodeAtPosResult(modelNode);
+}
+
+void AbstractView::emitView3DAction(View3DActionType type, const QVariant &value)
+{
+    if (model())
+        model()->d->notifyView3DAction(type, value);
 }
 
 void AbstractView::emitRewriterEndTransaction()

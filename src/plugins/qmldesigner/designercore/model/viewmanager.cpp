@@ -361,7 +361,7 @@ void ViewManager::nextFileIsCalledInternally()
     crumbleBar()->nextFileIsCalledInternally();
 }
 
-NodeInstanceView *ViewManager::nodeInstanceView() const
+const NodeInstanceView *ViewManager::nodeInstanceView() const
 {
     return &d->nodeInstanceView;
 }

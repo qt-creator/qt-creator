@@ -903,7 +903,7 @@ void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D([[maybe_unu
             bool sync = toolStates["syncBackgroundColor"].toBool();
             if (sync) {
                 QColor color = helper->sceneEnvironmentColor(sceneId);
-                View3DActionCommand cmd(View3DActionCommand::SelectBackgroundColor,
+                View3DActionCommand cmd(View3DActionType::SelectBackgroundColor,
                                         QVariant::fromValue(color));
                 view3DAction(cmd);
             }
@@ -1910,13 +1910,14 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(
     createCameraAndLightGizmos(instanceList);
 
     if (!command.edit3dBackgroundColor.isEmpty()) {
-        View3DActionCommand backgroundColorCommand(View3DActionCommand::SelectBackgroundColor,
-                                                   QVariant::fromValue(command.edit3dBackgroundColor));
+        View3DActionCommand backgroundColorCommand(View3DActionType::SelectBackgroundColor,
+                                                   QVariant::fromValue(
+                                                       command.edit3dBackgroundColor));
         view3DAction(backgroundColorCommand);
     }
 
     if (command.edit3dGridColor.isValid()) {
-        View3DActionCommand backgroundColorCommand(View3DActionCommand::SelectGridColor,
+        View3DActionCommand backgroundColorCommand(View3DActionType::SelectGridColor,
                                                    QVariant::fromValue(command.edit3dGridColor));
         view3DAction(backgroundColorCommand);
     }
@@ -2242,7 +2243,8 @@ void Qt5InformationNodeInstanceServer::setSceneEnvironmentColor(const PropertyVa
     if (toolStates.contains("syncBackgroundColor")) {
         bool sync = toolStates["syncBackgroundColor"].toBool();
         if (sync) {
-            View3DActionCommand cmd(View3DActionCommand::SelectBackgroundColor, QVariant::fromValue(color));
+            View3DActionCommand cmd(View3DActionType::SelectBackgroundColor,
+                                    QVariant::fromValue(color));
             view3DAction(cmd);
         }
     }
@@ -2316,65 +2318,65 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
     int renderCount = 1;
 
     switch (command.type()) {
-    case View3DActionCommand::MoveTool:
+    case View3DActionType::MoveTool:
         updatedToolState.insert("transformMode", 0);
         break;
-    case View3DActionCommand::RotateTool:
+    case View3DActionType::RotateTool:
         updatedToolState.insert("transformMode", 1);
         break;
-    case View3DActionCommand::ScaleTool:
+    case View3DActionType::ScaleTool:
         updatedToolState.insert("transformMode", 2);
         break;
-    case View3DActionCommand::FitToView:
+    case View3DActionType::FitToView:
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "fitToView");
         break;
-    case View3DActionCommand::AlignCamerasToView:
+    case View3DActionType::AlignCamerasToView:
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "alignCamerasToView");
         break;
-    case View3DActionCommand::AlignViewToCamera:
+    case View3DActionType::AlignViewToCamera:
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "alignViewToCamera");
         break;
-    case View3DActionCommand::SelectionModeToggle:
+    case View3DActionType::SelectionModeToggle:
         updatedToolState.insert("selectionMode", command.isEnabled() ? 1 : 0);
         break;
-    case View3DActionCommand::CameraToggle:
+    case View3DActionType::CameraToggle:
         updatedToolState.insert("usePerspective", command.isEnabled());
         // It can take a couple frames to properly update icon gizmo positions
         renderCount = 2;
         break;
-    case View3DActionCommand::OrientationToggle:
+    case View3DActionType::OrientationToggle:
         updatedToolState.insert("globalOrientation", command.isEnabled());
         break;
-    case View3DActionCommand::EditLightToggle:
+    case View3DActionType::EditLightToggle:
         updatedToolState.insert("showEditLight", command.isEnabled());
         break;
-    case View3DActionCommand::ShowGrid:
+    case View3DActionType::ShowGrid:
         updatedToolState.insert("showGrid", command.isEnabled());
         break;
-    case View3DActionCommand::ShowSelectionBox:
+    case View3DActionType::ShowSelectionBox:
         updatedToolState.insert("showSelectionBox", command.isEnabled());
         break;
-    case View3DActionCommand::ShowIconGizmo:
+    case View3DActionType::ShowIconGizmo:
         updatedToolState.insert("showIconGizmo", command.isEnabled());
         break;
-    case View3DActionCommand::ShowCameraFrustum:
+    case View3DActionType::ShowCameraFrustum:
         updatedToolState.insert("showCameraFrustum", command.isEnabled());
         break;
-    case View3DActionCommand::SyncBackgroundColor:
+    case View3DActionType::SyncBackgroundColor:
         updatedToolState.insert("syncBackgroundColor", command.isEnabled());
         break;
-    case View3DActionCommand::SelectBackgroundColor:
+    case View3DActionType::SelectBackgroundColor:
         updatedViewState.insert("selectBackgroundColor", command.value());
         break;
-    case View3DActionCommand::SelectGridColor: {
+    case View3DActionType::SelectGridColor: {
         updatedViewState.insert("selectGridColor", command.value());
         break;
     }
 #ifdef QUICK3D_PARTICLES_MODULE
-    case View3DActionCommand::ShowParticleEmitter:
+    case View3DActionType::ShowParticleEmitter:
         updatedToolState.insert("showParticleEmitter", command.isEnabled());
         break;
-    case View3DActionCommand::ParticlesPlay:
+    case View3DActionType::ParticlesPlay:
         m_particleAnimationPlaying = command.isEnabled();
         updatedToolState.insert("particlePlay", command.isEnabled());
         if (m_particleAnimationPlaying) {
@@ -2386,7 +2388,7 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
             m_particleAnimationDriver->setSeekerEnabled(true);
         }
         break;
-    case View3DActionCommand::ParticlesRestart:
+    case View3DActionType::ParticlesRestart:
         resetParticleSystem();
         if (m_particleAnimationPlaying) {
             m_particleAnimationDriver->restart();
@@ -2394,12 +2396,12 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
             m_particleAnimationDriver->setSeekerPosition(0);
         }
         break;
-    case View3DActionCommand::ParticlesSeek:
-        m_particleAnimationDriver->setSeekerPosition(static_cast<const View3DSeekActionCommand &>(command).position());
+    case View3DActionType::ParticlesSeek:
+        m_particleAnimationDriver->setSeekerPosition(command.position());
         break;
 #endif
 #ifdef QUICK3D_MODULE
-    case View3DActionCommand::GetNodeAtPos: {
+    case View3DActionType::GetNodeAtPos: {
         getNodeAtPos(command.value().toPointF());
         return;
     }

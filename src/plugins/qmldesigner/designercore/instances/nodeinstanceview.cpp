@@ -1759,9 +1759,9 @@ void NodeInstanceView::sendInputEvent(QInputEvent *e) const
     m_nodeInstanceServer->inputEvent(InputEventCommand(e));
 }
 
-void NodeInstanceView::view3DAction(const View3DActionCommand &command)
+void NodeInstanceView::view3DAction(View3DActionType type, const QVariant &value)
 {
-    m_nodeInstanceServer->view3DAction(command);
+    m_nodeInstanceServer->view3DAction({type, value});
 }
 
 void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node, const ModelNode &renderNode)

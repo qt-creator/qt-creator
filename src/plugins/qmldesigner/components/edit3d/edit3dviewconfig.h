@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include <view3dactioncommand.h>
-
 #include <nodeinstanceview.h>
 #include <qmldesignerplugin.h>
 
@@ -30,17 +28,17 @@ public:
         });
     }
 
-    static void set(View3DActionCommand::Type type, const QList<QColor> &colorConfig)
+    static void set(AbstractView *view, View3DActionType type, const QList<QColor> &colorConfig)
     {
         if (colorConfig.size() == 1)
-            set(type, colorConfig.at(0));
+            set(view, type, colorConfig.at(0));
         else
-            setVariant(type, QVariant::fromValue(colorConfig));
+            setVariant(view, type, QVariant::fromValue(colorConfig));
     }
 
-    static void set(View3DActionCommand::Type type, const QColor &color)
+    static void set(AbstractView *view, View3DActionType type, const QColor &color)
     {
-        setVariant(type, QVariant::fromValue(color));
+        setVariant(view, type, QVariant::fromValue(color));
     }
 
     static void save(const QByteArray &key, const QList<QColor> &colorConfig)
@@ -60,11 +58,9 @@ public:
     static bool isValid(const QList<QColor> &colorConfig) { return !colorConfig.isEmpty(); }
 
 private:
-    static void setVariant(View3DActionCommand::Type type, const QVariant &colorConfig)
+    static void setVariant(AbstractView *view, View3DActionType type, const QVariant &colorConfig)
     {
-        auto view = QmlDesignerPlugin::instance()->viewManager().nodeInstanceView();
-        View3DActionCommand cmd(type, colorConfig);
-        view->view3DAction(cmd);
+        view->emitView3DAction(type, colorConfig);
     }
 
     static void saveVariant(const QByteArray &key, const QVariant &colorConfig)

@@ -127,7 +127,7 @@ public:
                               const QList<ModelNode> &lastSelectedNodeList) override;
 
     void sendInputEvent(QInputEvent *e) const;
-    void view3DAction(const View3DActionCommand &command);
+    void view3DAction(View3DActionType type, const QVariant &value) override;
     void requestModelNodePreviewImage(const ModelNode &node, const ModelNode &renderNode);
     void edit3DViewResized(const QSize &size) const;
 

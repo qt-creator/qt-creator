@@ -140,7 +140,7 @@ bool DesignDocument::loadInFileComponent(const ModelNode &componentNode)
     return true;
 }
 
-AbstractView *DesignDocument::view() const
+const AbstractView *DesignDocument::view() const
 {
     return viewManager().nodeInstanceView();
 }

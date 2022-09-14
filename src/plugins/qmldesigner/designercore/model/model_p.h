@@ -171,6 +171,7 @@ public:
     void notifyModelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap);
     void notifyImport3DSupportChanged(const QVariantMap &supportMap);
     void notifyNodeAtPosResult(const ModelNode &modelNode);
+    void notifyView3DAction(View3DActionType type, const QVariant &value);
 
     void notifyDragStarted(QMimeData *mimeData);
     void notifyDragEnded();

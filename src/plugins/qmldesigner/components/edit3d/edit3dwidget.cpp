@@ -130,9 +130,8 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
     view->setSeeker(seeker);
     seeker->setToolTip(QLatin1String("Seek particle system time when paused."));
 
-    QObject::connect(seeker, &SeekerSlider::positionChanged, [seeker](){
-        QmlDesignerPlugin::instance()->viewManager().nodeInstanceView()
-                ->view3DAction(View3DSeekActionCommand(seeker->position()));
+    QObject::connect(seeker, &SeekerSlider::positionChanged, [seeker, view]() {
+        view->emitView3DAction(View3DActionType::ParticlesSeek, seeker->position());
     });
 
     // Onboarding label contains instructions for new users how to get 3D content into the project

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <nodeinstanceglobal.h>
+
 #include <QMetaType>
 #include <QVariant>
 
@@ -14,60 +16,25 @@ class View3DActionCommand
     friend QDebug operator<<(QDebug debug, const View3DActionCommand &command);
 
 public:
-    enum Type { Empty,
-                MoveTool,
-                ScaleTool,
-                RotateTool,
-                FitToView,
-                AlignCamerasToView,
-                AlignViewToCamera,
-                SelectionModeToggle,
-                CameraToggle,
-                OrientationToggle,
-                EditLightToggle,
-                ShowGrid,
-                ShowSelectionBox,
-                ShowIconGizmo,
-                ShowCameraFrustum,
-                ShowParticleEmitter,
-                Edit3DParticleModeToggle,
-                ParticlesPlay,
-                ParticlesRestart,
-                ParticlesSeek,
-                SelectBackgroundColor,
-                SelectGridColor,
-                ResetBackgroundColor,
-                SyncBackgroundColor,
-                GetNodeAtPos
-              };
-
-    View3DActionCommand(Type type, const QVariant &value);
+    View3DActionCommand(View3DActionType type, const QVariant &value);
 
     View3DActionCommand() = default;
 
     bool isEnabled() const;
     QVariant value() const;
-    Type type() const;
+    View3DActionType type() const;
     int position() const;
 
 private:
-    Type m_type = Empty;
+    View3DActionType m_type = View3DActionType::Empty;
     QVariant m_value;
-
-protected:
-    View3DActionCommand(int pos);
-};
-
-class View3DSeekActionCommand : public View3DActionCommand
-{
-public:
-    View3DSeekActionCommand(int pos) : View3DActionCommand(pos) {}
 };
 
 QDataStream &operator<<(QDataStream &out, const View3DActionCommand &command);
 QDataStream &operator>>(QDataStream &in, View3DActionCommand &command);
 
 QDebug operator<<(QDebug debug, const View3DActionCommand &command);
+QDebug operator<<(QDebug debug, View3DActionType type);
 
 } // namespace QmlDesigner
 

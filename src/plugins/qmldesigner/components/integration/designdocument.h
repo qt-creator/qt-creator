@@ -120,7 +120,7 @@ private: // functions
 
     bool loadInFileComponent(const ModelNode &componentNode);
 
-    AbstractView *view() const;
+    const AbstractView *view() const;
 
     std::unique_ptr<Model> createInFileComponentModel();
 

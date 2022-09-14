@@ -22,4 +22,32 @@ enum class AuxiliaryDataType {
     NodeInstancePropertyOverwrite,
     NodeInstanceAuxiliary
 };
+
+enum class View3DActionType {
+    Empty,
+    MoveTool,
+    ScaleTool,
+    RotateTool,
+    FitToView,
+    AlignCamerasToView,
+    AlignViewToCamera,
+    SelectionModeToggle,
+    CameraToggle,
+    OrientationToggle,
+    EditLightToggle,
+    ShowGrid,
+    ShowSelectionBox,
+    ShowIconGizmo,
+    ShowCameraFrustum,
+    ShowParticleEmitter,
+    Edit3DParticleModeToggle,
+    ParticlesPlay,
+    ParticlesRestart,
+    ParticlesSeek,
+    SelectBackgroundColor,
+    SelectGridColor,
+    ResetBackgroundColor,
+    SyncBackgroundColor,
+    GetNodeAtPos
+};
 }

@@ -146,6 +146,7 @@ public:
     void emitModelNodelPreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap);
     void emitImport3DSupportChanged(const QVariantMap &supportMap);
     void emitNodeAtPosResult(const ModelNode &modelNode);
+    void emitView3DAction(View3DActionType type, const QVariant &value);
 
     void sendTokenToInstances(const QString &token, int number, const QVector<ModelNode> &nodeVector);
 
@@ -215,6 +216,8 @@ public:
     virtual void updateImport3DSupport(const QVariantMap &supportMap);
     virtual void nodeAtPosReady(const ModelNode &modelNode);
     virtual void modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap);
+
+    virtual void view3DAction(View3DActionType type, const QVariant &value);
 
     virtual void dragStarted(QMimeData *mimeData);
     virtual void dragEnded();

@@ -8,17 +8,10 @@
 
 namespace QmlDesigner {
 
-View3DActionCommand::View3DActionCommand(Type type, const QVariant &value)
+View3DActionCommand::View3DActionCommand(View3DActionType type, const QVariant &value)
     : m_type(type)
     , m_value(value)
 {
-}
-
-View3DActionCommand::View3DActionCommand(int pos)
-    : m_type(ParticlesSeek)
-    , m_value(pos)
-{
-
 }
 
 bool View3DActionCommand::isEnabled() const
@@ -31,7 +24,7 @@ QVariant View3DActionCommand::value() const
     return m_value;
 }
 
-View3DActionCommand::Type View3DActionCommand::type() const
+View3DActionType View3DActionCommand::type() const
 {
     return m_type;
 }
@@ -51,19 +44,15 @@ int View3DActionCommand::position() const
 QDataStream &operator<<(QDataStream &out, const View3DActionCommand &command)
 {
     out << command.value();
-    out << qint32(command.type());
+    out << command.type();
 
     return out;
 }
 
 QDataStream &operator>>(QDataStream &in, View3DActionCommand &command)
 {
-    QVariant value;
-    qint32 type;
-    in >> value;
-    in >> type;
-    command.m_value = value;
-    command.m_type = View3DActionCommand::Type(type);
+    in >> command.m_value;
+    in >> command.m_type;
 
     return in;
 }
@@ -73,6 +62,18 @@ QDebug operator<<(QDebug debug, const View3DActionCommand &command)
     return debug.nospace() << "View3DActionCommand(type: "
                            << command.m_type << ","
                            << command.m_value << ")\n";
+}
+
+template<typename Enumeration>
+constexpr std::underlying_type_t<Enumeration> to_underlying(Enumeration enumeration) noexcept
+{
+    static_assert(std::is_enum_v<Enumeration>, "to_underlying expect an enumeration");
+    return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
+}
+
+QDebug operator<<(QDebug debug, View3DActionType type)
+{
+    return debug.nospace() << to_underlying(type);
 }
 
 } // namespace QmlDesigner
