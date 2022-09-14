@@ -201,6 +201,8 @@ public:
     [[nodiscard]] static QString specialPath(SpecialPathComponent component);
     [[nodiscard]] static FilePath specialFilePath(SpecialPathComponent component);
 
+    [[nodiscard]] bool ensureReachable(const FilePath &other) const;
+
     QString toFSPathString() const;
 
 private:
@@ -265,6 +267,7 @@ public:
         const Continuation<const std::optional<QByteArray> &> &, const FilePath &, qint64, qint64)>
         asyncFileContents;
     std::function<void(const Continuation<bool> &, const FilePath &, const QByteArray &)> asyncWriteFileContents;
+    std::function<bool(const FilePath &, const FilePath &)> ensureReachable;
 };
 
 } // namespace Utils

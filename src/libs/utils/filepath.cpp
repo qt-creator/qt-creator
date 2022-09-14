@@ -559,6 +559,18 @@ std::optional<QByteArray> FilePath::fileContents(qint64 maxSize, qint64 offset) 
     return f.readAll();
 }
 
+bool FilePath::ensureReachable(const FilePath &other) const
+{
+    if (needsDevice()) {
+        QTC_ASSERT(s_deviceHooks.ensureReachable, return false);
+        return s_deviceHooks.ensureReachable(*this, other);
+    } else if (!other.needsDevice()) {
+        return true;
+    }
+    return false;
+}
+
+
 void FilePath::asyncFileContents(const Continuation<const std::optional<QByteArray> &> &cont,
                                  qint64 maxSize,
                                  qint64 offset) const

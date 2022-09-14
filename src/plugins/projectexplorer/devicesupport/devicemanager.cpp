@@ -591,6 +591,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->displayName();
     };
 
+    deviceHooks.ensureReachable = [](const FilePath &filePath, const FilePath &other) {
+        auto device = DeviceManager::deviceForPath(filePath);
+        QTC_ASSERT(device, return false);
+        return device->ensureReachable(other);
+    };
+
     DeviceProcessHooks processHooks;
 
     processHooks.processImplHook = [](const FilePath &filePath) -> ProcessInterface * {
