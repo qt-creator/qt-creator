@@ -22,7 +22,8 @@ public:
     bool operator==(const DockerDeviceData &other) const
     {
         return imageId == other.imageId && repo == other.repo && tag == other.tag
-               && useLocalUidGid == other.useLocalUidGid && mounts == other.mounts;
+               && useLocalUidGid == other.useLocalUidGid && mounts == other.mounts
+               && keepEntryPoint == other.keepEntryPoint;
     }
 
     bool operator!=(const DockerDeviceData &other) const { return !(*this == other); }
@@ -45,6 +46,7 @@ public:
     QString size;
     bool useLocalUidGid = true;
     QStringList mounts = {Core::DocumentManager::projectsDirectory().toString()};
+    bool keepEntryPoint = false;
 };
 
 class DockerDevice : public ProjectExplorer::IDevice

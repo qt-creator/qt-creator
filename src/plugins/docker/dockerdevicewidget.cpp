@@ -65,6 +65,18 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         DockerApi::recheckDockerDaemon();
     });
 
+    m_keepEntryPoint = new QCheckBox(Tr::tr("Don't modify entry point"));
+    m_keepEntryPoint->setToolTip(
+        Tr::tr("If checked, the entry point of the image will not be modified. Only use this if "
+               "the image starts into a shell."));
+    m_keepEntryPoint->setChecked(m_data.keepEntryPoint);
+    m_keepEntryPoint->setEnabled(true);
+
+    connect(m_keepEntryPoint, &QCheckBox::toggled, this, [this, dockerDevice](bool on) {
+        m_data.keepEntryPoint = on;
+        dockerDevice->setData(m_data);
+    });
+
     m_runAsOutsideUser = new QCheckBox(Tr::tr("Run as outside user"));
     m_runAsOutsideUser->setToolTip(Tr::tr("Uses user ID and group ID of the user running Qt Creator "
                                           "in the docker container."));
@@ -164,6 +176,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         idLabel, m_idLineEdit, br,
         daemonStateLabel, m_daemonReset, m_daemonState, br,
         m_runAsOutsideUser, br,
+        m_keepEntryPoint, br,
         Column {
             pathListLabel,
             m_pathsListEdit,

@@ -36,6 +36,7 @@ private:
     QToolButton *m_daemonReset;
     QLabel *m_daemonState;
     QCheckBox *m_runAsOutsideUser;
+    QCheckBox *m_keepEntryPoint;
     Utils::PathListEditor *m_pathsListEdit;
     KitDetector m_kitItemDetector;
 

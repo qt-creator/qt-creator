@@ -482,8 +482,8 @@ bool DockerDevicePrivate::createContainer()
             continue;
         dockerCreate.addArgs({"-v", path.nativePath() + ':' + containerPath.nativePath()});
     }
-
-    dockerCreate.addArgs({"--entrypoint", "/bin/sh"});
+    if (!m_data.keepEntryPoint)
+        dockerCreate.addArgs({"--entrypoint", "/bin/sh"});
 
     dockerCreate.addArg(m_data.repoAndTag());
 
@@ -563,6 +563,7 @@ const char DockerDeviceDataTagKey[] = "DockerDeviceDataTag";
 const char DockerDeviceDataSizeKey[] = "DockerDeviceDataSize";
 const char DockerDeviceUseOutsideUser[] = "DockerDeviceUseUidGid";
 const char DockerDeviceMappedPaths[] = "DockerDeviceMappedPaths";
+const char DockerDeviceKeepEntryPoint[] = "DockerDeviceKeepEntryPoint";
 
 void DockerDevice::fromMap(const QVariantMap &map)
 {
@@ -576,6 +577,7 @@ void DockerDevice::fromMap(const QVariantMap &map)
     data.useLocalUidGid = map.value(DockerDeviceUseOutsideUser, HostOsInfo::isLinuxHost())
                                    .toBool();
     data.mounts = map.value(DockerDeviceMappedPaths).toStringList();
+    data.keepEntryPoint = map.value(DockerDeviceKeepEntryPoint).toBool();
     d->setData(data);
 }
 
@@ -590,6 +592,7 @@ QVariantMap DockerDevice::toMap() const
     map.insert(DockerDeviceDataSizeKey, data.size);
     map.insert(DockerDeviceUseOutsideUser, data.useLocalUidGid);
     map.insert(DockerDeviceMappedPaths, data.mounts);
+    map.insert(DockerDeviceKeepEntryPoint, data.keepEntryPoint);
     return map;
 }
 
