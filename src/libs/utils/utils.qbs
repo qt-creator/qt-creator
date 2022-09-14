@@ -341,6 +341,7 @@ Project {
         Group {
             name: "FSEngine"
             prefix: "fsengine/"
+            cpp.defines: outer.concat("QTC_UTILS_WITH_FSENGINE")
             files: [
                 "diriterator.h",
                 "fileiconprovider.cpp",
