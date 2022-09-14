@@ -297,6 +297,11 @@ void FileSystemAccessTest::testFileTransfer()
     QVERIFY2(result.m_errorString.isEmpty(), qPrintable(result.m_errorString));
     QCOMPARE(result.m_exitCode, 0);
     QCOMPARE(result.m_error, QProcess::UnknownError);
+
+    // Cleanup remote
+    const FilePath remoteDir = m_device->filePath(QString("/tmp/foo/"));
+    QString errorString;
+    QVERIFY2(remoteDir.removeRecursively(&errorString), qPrintable(errorString));
 }
 
 } // Internal
