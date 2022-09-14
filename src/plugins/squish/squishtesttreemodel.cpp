@@ -370,6 +370,8 @@ QStringList SquishTestTreeModel::getSelectedSquishTestCases(const QString &suite
                 const int testCaseCount = suiteItem->childCount();
                 for (int caseRow = 0; caseRow < testCaseCount; ++caseRow) {
                     auto caseItem = static_cast<SquishTestTreeItem *>(suiteItem->childAt(caseRow));
+                    if (caseItem->type() != SquishTestTreeItem::SquishTestCase)
+                        continue;
                     if (caseItem->checkState() == Qt::Checked)
                         result.append(caseItem->displayName());
                 }
