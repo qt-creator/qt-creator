@@ -301,6 +301,52 @@ bool BindingProperty::isAliasExport() const
             && parentModelNode().view()->modelNodeForId(expression()).isValid();
 }
 
+static bool isTrueFalseLiteral(const QString &expression)
+{
+    return (expression.compare("false", Qt::CaseInsensitive) == 0)
+           || (expression.compare("true", Qt::CaseInsensitive) == 0);
+}
+
+QVariant BindingProperty::convertToLiteral(const TypeName &typeName, const QString &testExpression)
+{
+    if ("QColor" == typeName || "color" == typeName) {
+        QString unquoted = testExpression;
+        unquoted.remove('"');
+        if (QColor(unquoted).isValid())
+            return QColor(unquoted);
+    } else if ("bool" == typeName) {
+        if (isTrueFalseLiteral(testExpression)) {
+            if (testExpression.compare("true", Qt::CaseInsensitive) == 0)
+                return true;
+            else
+                return false;
+        }
+    } else if ("int" == typeName) {
+        bool ok;
+        int intValue = testExpression.toInt(&ok);
+        if (ok)
+            return intValue;
+    } else if ("qreal" == typeName || "real" == typeName) {
+        bool ok;
+        qreal realValue = testExpression.toDouble(&ok);
+        if (ok)
+            return realValue;
+    } else if ("QVariant" == typeName || "variant" == typeName) {
+        bool ok;
+        qreal realValue = testExpression.toDouble(&ok);
+        if (ok) {
+            return realValue;
+        } else if (isTrueFalseLiteral(testExpression)) {
+            if (testExpression.compare("true", Qt::CaseInsensitive) == 0)
+                return true;
+            else
+                return false;
+        }
+    }
+
+    return {};
+}
+
 void BindingProperty::setDynamicTypeNameAndExpression(const TypeName &typeName, const QString &expression)
 {
     Internal::WriteLocker locker(model());
