@@ -474,7 +474,7 @@ bool DockerDevicePrivate::createContainer()
         dockerCreate.addArgs({"-v", mount + ':' + mount});
     }
     FilePath dumperPath = FilePath::fromString("/tmp/qtcreator/debugger");
-    dockerCreate.addArgs({"-v", q->debugDumperPath().toUserOutput() + ':' + dumperPath.path()});
+    addTemporaryMount(Core::ICore::resourcePath("debugger/"), dumperPath);
     q->setDebugDumperPath(dumperPath);
 
     for (const auto &[path, containerPath] : qAsConst(m_temporaryMounts)) {
