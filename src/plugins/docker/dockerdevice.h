@@ -18,8 +18,31 @@ namespace Docker::Internal {
 class DockerDeviceData
 {
 public:
+    bool operator==(const DockerDeviceData &other) const
+    {
+        return imageId == other.imageId
+            && repo == other.repo
+            && tag == other.tag
+            && useLocalUidGid == other.useLocalUidGid
+            && mounts == other.mounts;
+    }
+
+    bool operator!=(const DockerDeviceData &other) const
+    {
+        return !(*this == other);
+    }
+
     // Used for "docker run"
-    QString repoAndTag() const;
+    QString repoAndTag() const
+    {
+        if (repo == "<none>")
+            return imageId;
+
+        if (tag == "<none>")
+            return repo;
+
+        return repo + ':' + tag;
+    }
 
     QString imageId;
     QString repo;
@@ -91,13 +114,13 @@ public:
 
     Utils::Environment systemEnvironment() const override;
 
-    const DockerDeviceData &data() const;
-    DockerDeviceData &data();
+    const DockerDeviceData data() const;
+    DockerDeviceData data();
+
+    void setData(const DockerDeviceData &data);
 
     void updateContainerAccess() const;
     void setMounts(const QStringList &mounts) const;
-
-    Utils::CommandLine withDockerExecCmd(const Utils::CommandLine& cmd, bool interactive = false) const;
 
 protected:
     void fromMap(const QVariantMap &map) final;
@@ -111,6 +134,7 @@ private:
     void aboutToBeRemoved() const final;
 
     class DockerDevicePrivate *d = nullptr;
+
     friend class DockerDeviceSetupWizard;
     friend class DockerDeviceWidget;
 };

@@ -31,21 +31,21 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     auto dockerDevice = device.dynamicCast<DockerDevice>();
     QTC_ASSERT(dockerDevice, return);
 
-    DockerDeviceData &data = dockerDevice->data();
+    m_data = dockerDevice->data();
 
     auto repoLabel = new QLabel(Tr::tr("Repository:"));
     m_repoLineEdit = new QLineEdit;
-    m_repoLineEdit->setText(data.repo);
+    m_repoLineEdit->setText(m_data.repo);
     m_repoLineEdit->setEnabled(false);
 
     auto tagLabel = new QLabel(Tr::tr("Tag:"));
     m_tagLineEdit = new QLineEdit;
-    m_tagLineEdit->setText(data.tag);
+    m_tagLineEdit->setText(m_data.tag);
     m_tagLineEdit->setEnabled(false);
 
     auto idLabel = new QLabel(Tr::tr("Image ID:"));
     m_idLineEdit = new QLineEdit;
-    m_idLineEdit->setText(data.imageId);
+    m_idLineEdit->setText(m_data.imageId);
     m_idLineEdit->setEnabled(false);
 
     auto daemonStateLabel = new QLabel(Tr::tr("Daemon state:"));
@@ -68,11 +68,12 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     m_runAsOutsideUser = new QCheckBox(Tr::tr("Run as outside user"));
     m_runAsOutsideUser->setToolTip(Tr::tr("Uses user ID and group ID of the user running Qt Creator "
                                           "in the docker container."));
-    m_runAsOutsideUser->setChecked(data.useLocalUidGid);
+    m_runAsOutsideUser->setChecked(m_data.useLocalUidGid);
     m_runAsOutsideUser->setEnabled(HostOsInfo::isLinuxHost());
 
-    connect(m_runAsOutsideUser, &QCheckBox::toggled, this, [&data](bool on) {
-        data.useLocalUidGid = on;
+    connect(m_runAsOutsideUser, &QCheckBox::toggled, this, [this, dockerDevice](bool on) {
+        m_data.useLocalUidGid = on;
+        dockerDevice->setData(m_data);
     });
 
     auto pathListLabel = new InfoLabel(Tr::tr("Paths to mount:"));
@@ -82,7 +83,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     m_pathsListEdit->setPlaceholderText(Tr::tr("Host directories to mount into the container"));
     m_pathsListEdit->setToolTip(Tr::tr("Maps paths in this list one-to-one to the "
                                        "docker container."));
-    m_pathsListEdit->setPathList(data.mounts);
+    m_pathsListEdit->setPathList(m_data.mounts);
     m_pathsListEdit->setMaximumHeight(100);
     m_pathsListEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
@@ -92,8 +93,9 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     };
     markupMounts();
 
-    connect(m_pathsListEdit, &PathListEditor::changed, this, [dockerDevice, markupMounts, this] {
-        dockerDevice->setMounts(m_pathsListEdit->pathList());
+    connect(m_pathsListEdit, &PathListEditor::changed, this, [this, dockerDevice, markupMounts] {
+        m_data.mounts = m_pathsListEdit->pathList();
+        dockerDevice->setData(m_data);
         markupMounts();
     });
 

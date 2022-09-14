@@ -3,6 +3,10 @@
 
 #pragma once
 
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(dockerDeviceLog)
+
 namespace Docker::Constants {
 
 const char DOCKER[] = "docker";

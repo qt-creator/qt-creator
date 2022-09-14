@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "dockerdevice.h"
+
 #include "kitdetector.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
@@ -36,6 +38,8 @@ private:
     QCheckBox *m_runAsOutsideUser;
     Utils::PathListEditor *m_pathsListEdit;
     KitDetector m_kitItemDetector;
+
+    DockerDeviceData m_data;
 };
 
 } // Docker::Internal
