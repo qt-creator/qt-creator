@@ -191,7 +191,7 @@ void DynamicPropertiesProxyModel::createProperty(const QString &name, const QStr
     }
 }
 
-DynamicPropertyRow::DynamicPropertyRow(QObject *parent)
+DynamicPropertyRow::DynamicPropertyRow()
 {
     m_backendValue = new PropertyEditorValue(this);
 

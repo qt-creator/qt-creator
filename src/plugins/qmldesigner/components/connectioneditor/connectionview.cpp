@@ -184,7 +184,7 @@ void ConnectionView::importsChanged(const QList<Import> & /*addedImports*/, cons
     backendModel()->resetModel();
 }
 
-void ConnectionView::currentStateChanged(const ModelNode &node)
+void ConnectionView::currentStateChanged(const ModelNode &)
 {
     dynamicPropertiesModel()->reset();
 }

@@ -76,7 +76,7 @@ class DynamicPropertyRow : public QObject
     Q_PROPERTY(DynamicPropertiesProxyModel *model READ model WRITE setModel NOTIFY modelChanged FINAL)
 
 public:
-    explicit DynamicPropertyRow(QObject *parent = nullptr);
+    explicit DynamicPropertyRow();
     ~DynamicPropertyRow();
 
     static void registerDeclarativeType();
