@@ -7,6 +7,7 @@
 #include "suiteconf.h"
 
 #include <utils/environment.h>
+#include <utils/link.h>
 #include <utils/qtcprocess.h>
 
 #include <QObject>
@@ -115,7 +116,7 @@ private:
     void onRunnerOutput();                              // runner's results file
     void onRunnerErrorOutput();                         // runner's error stream
     void onRunnerStdOutput(const QString &line);        // runner's output stream
-    void setBreakpoints();
+    Utils::Links setBreakpoints();
     void handlePrompt(const QString &fileName = {}, int line = -1, int column = -1);
     void onResultsDirChanged(const QString &filePath);
     static void logrotateTestResults();

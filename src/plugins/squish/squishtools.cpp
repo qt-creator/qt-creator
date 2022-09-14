@@ -952,20 +952,23 @@ void SquishTools::onRunnerStdOutput(const QString &lineIn)
 
 // FIXME: add/removal of breakpoints while debugging not handled yet
 // FIXME: enabled state of breakpoints
-void SquishTools::setBreakpoints()
+Utils::Links SquishTools::setBreakpoints()
 {
+    Utils::Links setBPs;
     using namespace Debugger::Internal;
     const GlobalBreakpoints globalBPs  = BreakpointManager::globalBreakpoints();
     const QString extension = m_suiteConf.scriptExtension();
     for (const GlobalBreakpoint &gb : globalBPs) {
         if (!gb->isEnabled())
             continue;
-        auto fileName = Utils::FilePath::fromUserInput(
-                    gb->data(BreakpointFileColumn, Qt::DisplayRole).toString()).toUserOutput();
+        const Utils::FilePath filePath = Utils::FilePath::fromString(
+                    gb->data(BreakpointFileColumn, Qt::DisplayRole).toString());
+        auto fileName = filePath.toUserOutput();
         if (fileName.isEmpty())
             continue;
         if (!fileName.endsWith(extension))
             continue;
+
         // mask backslashes and spaces
         fileName.replace('\\', "\\\\");
         fileName.replace(' ', "\\x20");
@@ -977,7 +980,9 @@ void SquishTools::setBreakpoints()
         cmd.append('\n');
         qCInfo(LOG).noquote().nospace() << "Setting breakpoint: '" << cmd << "'";
         m_runnerProcess.write(cmd);
+        setBPs.append({filePath, line});
     }
+    return setBPs;
 }
 
 void SquishTools::handlePrompt(const QString &fileName, int line, int column)
@@ -1004,10 +1009,23 @@ void SquishTools::handlePrompt(const QString &fileName, int line, int column)
     }
 
     switch (m_squishRunnerState) {
-    case RunnerState::Starting:
-        setBreakpoints();
-        onRunnerRunRequested(SquishPerspective::Continue);
+    case RunnerState::Starting: {
+        const Utils::Links setBPs = setBreakpoints();
+        if (!setBPs.contains({Utils::FilePath::fromString(fileName), line})) {
+            onRunnerRunRequested(SquishPerspective::Continue);
+        } else {
+            m_perspective.setPerspectiveMode(SquishPerspective::Interrupted);
+            logRunnerStateChange(m_squishRunnerState, RunnerState::Interrupted);
+            m_squishRunnerState = RunnerState::Interrupted;
+            restoreQtCreatorWindows();
+            // request local variables
+            m_runnerProcess.write("print variables\n");
+            const FilePath filePath = FilePath::fromString(fileName);
+            Core::EditorManager::openEditorAt({filePath, line, column});
+            updateLocationMarker(filePath, line);
+        }
         break;
+    }
     case RunnerState::CancelRequested:
     case RunnerState::CancelRequestedWhileInterrupted:
         m_runnerProcess.write("exit\n");
