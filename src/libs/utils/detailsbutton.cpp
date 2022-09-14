@@ -83,18 +83,31 @@ void DetailsButton::paintEvent(QPaintEvent *e)
     Q_UNUSED(e)
 
     QPainter p(this);
-    if (isChecked() || (!HostOsInfo::isMacHost() && underMouse())) {
+    if (isEnabled() && (isChecked() || (!HostOsInfo::isMacHost() && underMouse()))) {
         p.save();
         p.setOpacity(0.125);
         p.fillRect(rect(), palette().color(QPalette::Text));
         p.restore();
     }
 
-    if (!creatorTheme()->flag(Theme::FlatProjectsMode))
-        qDrawPlainRect(&p, rect(), palette().color(QPalette::Mid));
+    if (!creatorTheme()->flag(Theme::FlatProjectsMode)) {
+        const QColor outlineColor = palette().color(HostOsInfo::isMacHost() ? QPalette::Mid
+                                                                            : QPalette::Midlight);
+        qDrawPlainRect(&p, rect(), outlineColor);
+    }
 
-    const QRect textRect(spacing, 0, width(), height());
+    const QRect textRect(spacing + 3, 0, width(), height());
     p.drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text());
-    const QRect iconRect(width() - spacing - 16, 0, 16, height());
-    icon().paint(&p, iconRect);
+    if (creatorTheme()->flag(Theme::FlatProjectsMode) || HostOsInfo::isMacHost()) {
+        const QRect iconRect(width() - spacing - 15, 0, 16, height());
+        icon().paint(&p, iconRect);
+    } else {
+        int arrowsize = 15;
+        QStyleOption arrowOpt;
+        arrowOpt.initFrom(this);
+        arrowOpt.rect = QRect(size().width() - arrowsize - spacing, height() / 2 - arrowsize / 2,
+                              arrowsize, arrowsize);
+        style()->drawPrimitive(isChecked() ? QStyle::PE_IndicatorArrowUp
+                                           : QStyle::PE_IndicatorArrowDown, &arrowOpt, &p, this);
+    }
 }

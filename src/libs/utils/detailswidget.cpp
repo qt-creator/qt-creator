@@ -220,14 +220,18 @@ void DetailsWidget::paintEvent(QPaintEvent *paintEvent)
 {
     QWidget::paintEvent(paintEvent);
 
-    const QColor bgColor = creatorTheme()->flag(Theme::FlatProjectsMode) ?
-                creatorTheme()->color(Theme::DetailsWidgetBackgroundColor)
-              : palette().color(QPalette::Window);
-
     QPainter p(this);
-    p.fillRect(rect(), bgColor);
-    if (!creatorTheme()->flag(Theme::FlatProjectsMode))
-        qDrawPlainRect(&p, rect(), palette().color(QPalette::Mid));
+    if (creatorTheme()->flag(Theme::FlatProjectsMode) || HostOsInfo::isMacHost()) {
+        const QColor bgColor = creatorTheme()->flag(Theme::FlatProjectsMode) ?
+                    creatorTheme()->color(Theme::DetailsWidgetBackgroundColor)
+                  : palette().color(QPalette::Window);
+        p.fillRect(rect(), bgColor);
+    }
+    if (!creatorTheme()->flag(Theme::FlatProjectsMode)) {
+        const QColor outlineColor = palette().color(HostOsInfo::isMacHost() ? QPalette::Mid
+                                                                            : QPalette::Midlight);
+        qDrawPlainRect(&p, rect(), outlineColor);
+    }
 }
 
 void DetailsWidget::enterEvent(QEnterEvent *event)
