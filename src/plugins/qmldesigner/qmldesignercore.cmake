@@ -307,6 +307,9 @@ function(extend_with_qmldesigner_core target_name)
       pluginmanager/widgetpluginmanager.h
       pluginmanager/widgetpluginpath.cpp
       pluginmanager/widgetpluginpath.h
+
+      projectstorage/projectstorage.cpp
+      projectstorage/projectstorage.h
   )
 
   extend_qtc_target(${target_name}
