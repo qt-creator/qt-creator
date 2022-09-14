@@ -63,8 +63,9 @@ private:
     void stopAutoCheckForUpdates();
     void doAutoCheckForUpdates();
 
-    void startUpdater();
-    void startPackageManager();
+    void startMaintenanceTool(const QStringList &args) const;
+    void startUpdater() const;
+    void startPackageManager() const;
     void stopCheckForUpdates();
 
     void checkForUpdatesFinished();

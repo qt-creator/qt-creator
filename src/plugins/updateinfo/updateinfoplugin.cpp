@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "updateinfoplugin.h"
+#include "updateinfotr.h"
 
 #include "settingspage.h"
 #include "updateinfotools.h"
@@ -47,6 +48,7 @@ const quint32 OneMinute = 60000;
 const quint32 OneHour = 3600000;
 const char InstallUpdates[] = "UpdateInfo.InstallUpdates";
 const char InstallQtUpdates[] = "UpdateInfo.InstallQtUpdates";
+const char M_MAINTENANCE_TOOL[] = "QtCreator.Menu.Tools.MaintenanceTool";
 
 using namespace Core;
 using namespace Utils;
@@ -324,12 +326,28 @@ bool UpdateInfoPlugin::initialize(const QStringList & /* arguments */, QString *
 
     (void) new SettingsPage(this);
 
+    auto mtools = ActionManager::actionContainer(Constants::M_TOOLS);
+    ActionContainer *mmaintenanceTool = ActionManager::createMenu(M_MAINTENANCE_TOOL);
+    mmaintenanceTool->setOnAllDisabledBehavior(Core::ActionContainer::Hide);
+    mmaintenanceTool->menu()->setTitle(Tr::tr("Qt Maintenance Tool")); mtools->addMenu(mmaintenanceTool);
+
     QAction *checkForUpdatesAction = new QAction(tr("Check for Updates"), this);
     checkForUpdatesAction->setMenuRole(QAction::ApplicationSpecificRole);
-    Core::Command *checkForUpdatesCommand = Core::ActionManager::registerAction(checkForUpdatesAction, "Updates.CheckForUpdates");
-    connect(checkForUpdatesAction, &QAction::triggered, this, &UpdateInfoPlugin::startCheckForUpdates);
-    ActionContainer *const helpContainer = ActionManager::actionContainer(Core::Constants::M_HELP);
-    helpContainer->addAction(checkForUpdatesCommand, Constants::G_HELP_UPDATES);
+    Core::Command *checkForUpdatesCommand
+        = Core::ActionManager::registerAction(checkForUpdatesAction, "Updates.CheckForUpdates");
+    connect(checkForUpdatesAction, &QAction::triggered,
+            this, &UpdateInfoPlugin::startCheckForUpdates);
+    mmaintenanceTool->addAction(checkForUpdatesCommand);
+
+    QAction *startMaintenanceToolAction = new QAction(Tr::tr("Start Maintenance Tool"), this);
+    startMaintenanceToolAction->setMenuRole(QAction::ApplicationSpecificRole);
+    Core::Command *startMaintenanceToolCommand
+        = Core::ActionManager::registerAction(startMaintenanceToolAction,
+                                              "Updates.StartMaintenanceTool");
+    connect(startMaintenanceToolAction, &QAction::triggered, this, [this]() {
+        startMaintenanceTool({});
+    });
+    mmaintenanceTool->addAction(startMaintenanceToolCommand);
 
     return true;
 }
@@ -458,16 +476,19 @@ QDate UpdateInfoPlugin::nextCheckDate(CheckUpdateInterval interval) const
     return d->m_lastCheckDate.addMonths(1);
 }
 
-void UpdateInfoPlugin::startUpdater()
+void UpdateInfoPlugin::startMaintenanceTool(const QStringList &args) const
 {
-    Utils::QtcProcess::startDetached(
-        {Utils::FilePath::fromString(d->m_maintenanceTool), {"--updater"}});
+    QtcProcess::startDetached(CommandLine{FilePath::fromString(d->m_maintenanceTool), args});
 }
 
-void UpdateInfoPlugin::startPackageManager()
+void UpdateInfoPlugin::startUpdater() const
 {
-    Utils::QtcProcess::startDetached(
-        {Utils::FilePath::fromString(d->m_maintenanceTool), {"--start-package-manager"}});
+    startMaintenanceTool({"--updater"});
+}
+
+void UpdateInfoPlugin::startPackageManager() const
+{
+    startMaintenanceTool({"--start-package-manager"});
 }
 
 } //namespace Internal

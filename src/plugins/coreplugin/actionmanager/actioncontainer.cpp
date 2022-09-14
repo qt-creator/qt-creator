@@ -476,7 +476,9 @@ bool MenuActionContainer::updateInternal()
                 }
             } else if (auto command = qobject_cast<Command *>(item)) {
                 actions.removeAll(command->action());
-                if (command->isActive()) {
+                if (command->isActive()
+                    && !(HostOsInfo::isMacHost()
+                         && command->action()->menuRole() == QAction::ApplicationSpecificRole)) {
                     hasitems = true;
                     break;
                 }
