@@ -569,6 +569,12 @@ QList<QmlModelState> QmlObjectNode::allDefinedStates() const
     for (const QmlVisualNode &node : qAsConst(allVisualNodes))
         returnList.append(node.states().allStates());
 
+    const auto allNodes = view()->allModelNodes();
+    for (const ModelNode &node : allNodes) {
+        if (node.simplifiedTypeName() == "StateGroup")
+            returnList.append(QmlModelStateGroup(node).allStates());
+    }
+
     return returnList;
 }
 
