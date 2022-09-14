@@ -571,7 +571,8 @@ Utils::Text::Replacements ClangFormatBaseIndenter::format(
 Utils::Text::Replacements ClangFormatBaseIndenter::indentsFor(QTextBlock startBlock,
                                                               const QTextBlock &endBlock,
                                                               const QChar &typedChar,
-                                                              int cursorPositionInEditor)
+                                                              int cursorPositionInEditor,
+                                                              bool trimTrailingWhitespace)
 {
     if (typedChar != QChar::Null && cursorPositionInEditor > 0
         && m_doc->characterAt(cursorPositionInEditor - 1) == typedChar
@@ -581,7 +582,7 @@ Utils::Text::Replacements ClangFormatBaseIndenter::indentsFor(QTextBlock startBl
 
     startBlock = reverseFindLastEmptyBlock(startBlock);
     const int startBlockPosition = startBlock.position();
-    if (startBlockPosition > 0) {
+    if (trimTrailingWhitespace && startBlockPosition > 0) {
         trimRHSWhitespace(startBlock.previous());
         if (cursorPositionInEditor >= 0)
             cursorPositionInEditor += startBlock.position() - startBlockPosition;
@@ -656,13 +657,14 @@ void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block,
 }
 
 int ClangFormatBaseIndenter::indentFor(const QTextBlock &block,
-                                       const TextEditor::TabSettings & /*tabSettings*/,
+                                       const TextEditor::TabSettings &tabSettings,
                                        int cursorPositionInEditor)
 {
     Utils::Text::Replacements toReplace = indentsFor(block,
                                                      block,
                                                      QChar::Null,
-                                                     cursorPositionInEditor);
+                                                     cursorPositionInEditor,
+                                                     false);
     if (toReplace.empty())
         return -1;
 

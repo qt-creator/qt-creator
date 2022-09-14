@@ -62,7 +62,8 @@ private:
     Utils::Text::Replacements indentsFor(QTextBlock startBlock,
                                          const QTextBlock &endBlock,
                                          const QChar &typedChar,
-                                         int cursorPositionInEditor);
+                                         int cursorPositionInEditor,
+                                         bool trimTrailingWhitespace = true);
     Utils::Text::Replacements replacements(QByteArray buffer,
                                            const QTextBlock &startBlock,
                                            const QTextBlock &endBlock,
