@@ -701,7 +701,7 @@ void DebuggerItemManagerPrivate::autoDetectGdbOrLldbDebuggers(const FilePaths &s
 {
     const QStringList filters = {"gdb-i686-pc-mingw32", "gdb-i686-pc-mingw32.exe", "gdb",
                                  "gdb.exe", "lldb", "lldb.exe", "lldb-[1-9]*",
-                                 "arm-none-eabi-gdb-py.exe"};
+                                 "arm-none-eabi-gdb-py.exe", "*-*-*-gdb"};
 
     if (searchPaths.isEmpty())
         return;
