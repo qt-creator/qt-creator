@@ -144,6 +144,8 @@ public:
                                 const FileFilter &filter,
                                 const std::function<bool(const FilePath &)> &callBack);
 
+    static qint64 bytesAvailableFromDFOutput(const QByteArray &dfOutput);
+
 #ifdef QT_WIDGETS_LIB
     static void setDialogParentGetter(const std::function<QWidget *()> &getter);
 

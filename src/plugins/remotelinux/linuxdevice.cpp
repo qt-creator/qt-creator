@@ -1273,13 +1273,9 @@ qint64 LinuxDevice::bytesAvailable(const FilePath &filePath) const
     QTC_ASSERT(handlesFile(filePath), return -1);
     CommandLine cmd("df", {"-k"});
     cmd.addArg(filePath.path());
-    cmd.addArgs("|tail -n 1 |sed 's/  */ /g'|cut -d ' ' -f 4", CommandLine::Raw);
     const QByteArray output = d->outputForRunInShell(cmd);
-    bool ok = false;
-    const qint64 size = output.toLongLong(&ok);
-    if (ok)
-        return size * 1024;
-    return -1;
+
+    return FileUtils::bytesAvailableFromDFOutput(output);
 }
 
 QFileDevice::Permissions LinuxDevice::permissions(const FilePath &filePath) const

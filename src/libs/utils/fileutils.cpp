@@ -531,4 +531,26 @@ void FileUtils::iterateLsOutput(const FilePath &base,
 
 #endif // QT_WIDGETS_LIB
 
+qint64 FileUtils::bytesAvailableFromDFOutput(const QByteArray &dfOutput)
+{
+    const auto lines = filtered(dfOutput.split('\n'),
+                                [](const QByteArray &line) { return line.size() > 0; });
+
+    QTC_ASSERT(lines.size() == 2, return -1);
+    const auto headers = filtered(lines[0].split(' '),
+                                  [](const QByteArray &field) { return field.size() > 0; });
+    QTC_ASSERT(headers.size() >= 4, return -1);
+    QTC_ASSERT(headers[3] == QByteArray("Available"), return -1);
+
+    const auto fields = filtered(lines[1].split(' '),
+                                 [](const QByteArray &field) { return field.size() > 0; });
+    QTC_ASSERT(fields.size() >= 4, return -1);
+
+    bool ok = false;
+    const quint64 result = QString::fromUtf8(fields[3]).toULongLong(&ok);
+    if (ok)
+        return result;
+    return -1;
+}
+
 } // namespace Utils
