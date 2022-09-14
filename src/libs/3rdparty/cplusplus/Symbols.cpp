@@ -635,6 +635,11 @@ void Class::addBaseClass(BaseClass *baseClass)
 FullySpecifiedType Class::type() const
 { return FullySpecifiedType(const_cast<Class *>(this)); }
 
+const Name *Class::prettyName() const
+{
+    return _canonicalTypedefName ? _canonicalTypedefName : name();
+}
+
 void Class::visitSymbol0(SymbolVisitor *visitor)
 {
     if (visitor->visit(this)) {
