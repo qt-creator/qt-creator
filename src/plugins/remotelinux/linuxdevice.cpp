@@ -1495,18 +1495,12 @@ private:
             return;
         }
 
-        m_batchFile.reset(new QTemporaryFile(this));
-        if (!m_batchFile->isOpen() && !m_batchFile->open()) {
-            startFailed(SshTransferInterface::tr("Could not create temporary file: %1")
-                            .arg(m_batchFile->errorString()));
-            return;
-        }
+        QByteArray batchData;
 
         const FilePaths dirs = dirsToCreate(m_setup.m_files);
         for (const FilePath &dir : dirs) {
             if (direction() == FileTransferDirection::Upload) {
-                m_batchFile->write("-mkdir " + ProcessArgs::quoteArgUnix(dir.path()).toLocal8Bit()
-                                + '\n');
+                batchData += "-mkdir " + ProcessArgs::quoteArgUnix(dir.path()).toLocal8Bit() + '\n';
             } else if (direction() == FileTransferDirection::Download) {
                 if (!QDir::root().mkpath(dir.path())) {
                     startFailed(SshTransferInterface::tr("Failed to create local directory \"%1\".")
@@ -1523,25 +1517,22 @@ private:
                 const QFileInfo fi(file.m_source.toFileInfo());
                 if (fi.isSymLink()) {
                     link = true;
-                    m_batchFile->write("-rm " + ProcessArgs::quoteArgUnix(
-                                        file.m_target.path()).toLocal8Bit() + '\n');
+                    batchData += "-rm " + ProcessArgs::quoteArgUnix(
+                                file.m_target.path()).toLocal8Bit() + '\n';
                      // see QTBUG-5817.
                     sourceFileOrLinkTarget.setPath(fi.dir().relativeFilePath(fi.symLinkTarget()));
                 }
              }
-             m_batchFile->write(transferCommand(direction(), link) + ' '
-                 + ProcessArgs::quoteArgUnix(sourceFileOrLinkTarget.path()).toLocal8Bit() + ' '
-                 + ProcessArgs::quoteArgUnix(file.m_target.path()).toLocal8Bit() + '\n');
+             batchData += transferCommand(direction(), link) + ' '
+                     + ProcessArgs::quoteArgUnix(sourceFileOrLinkTarget.path()).toLocal8Bit() + ' '
+                     + ProcessArgs::quoteArgUnix(file.m_target.path()).toLocal8Bit() + '\n';
         }
-        m_batchFile->close();
-        process().setCommand(CommandLine(sftpBinary, fullConnectionOptions()
-                                         << "-b" << m_batchFile->fileName() << host()));
+        process().setCommand({sftpBinary, fullConnectionOptions() << "-b" << "-" << host()});
+        process().setWriteData(batchData);
         process().start();
     }
 
     void doneImpl() final { handleDone(); }
-
-    std::unique_ptr<QTemporaryFile> m_batchFile;
 };
 
 class RsyncTransferImpl : public SshTransferInterface
