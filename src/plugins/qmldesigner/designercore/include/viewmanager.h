@@ -66,7 +66,7 @@ public:
     void pushInFileComponentOnCrumbleBar(const ModelNode &modelNode);
     void nextFileIsCalledInternally();
 
-    const NodeInstanceView *nodeInstanceView() const;
+    NodeInstanceView *nodeInstanceView() const;
 
     void exportAsImage();
     void reformatFileUsingTextEditorView();
