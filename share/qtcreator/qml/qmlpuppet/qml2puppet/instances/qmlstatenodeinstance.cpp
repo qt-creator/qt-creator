@@ -97,9 +97,7 @@ void QmlStateNodeInstance::setPropertyVariant(const PropertyName &name, const QV
 
 void QmlStateNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
-    bool isStateOfTheRootModelNode = parentInstance() && parentInstance()->isRootNodeInstance();
-
-    if (name == "when" && (isStateOfTheRootModelNode))
+    if (name == "when")
         return;
 
     ObjectNodeInstance::setPropertyBinding(name, expression);
