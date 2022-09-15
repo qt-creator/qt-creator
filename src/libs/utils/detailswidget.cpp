@@ -114,8 +114,11 @@ DetailsWidgetPrivate::DetailsWidgetPrivate(QWidget *parent) :
 
 void DetailsWidgetPrivate::updateControls()
 {
-    if (m_widget)
+    if (m_widget) {
         m_widget->setVisible(m_state == DetailsWidget::Expanded || m_state == DetailsWidget::NoSummary);
+        m_widget->setContentsMargins(
+                    MARGIN, m_state == DetailsWidget::Expanded ? MARGIN : 0, MARGIN, MARGIN);
+    }
     m_detailsButton->setChecked(m_state == DetailsWidget::Expanded && m_widget);
     m_detailsButton->setVisible(m_state == DetailsWidget::Expanded || m_state == DetailsWidget::Collapsed);
     m_summaryLabelIcon->setVisible(m_state != DetailsWidget::NoSummary && !m_useCheckBox);
