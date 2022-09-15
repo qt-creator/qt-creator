@@ -83,7 +83,7 @@ QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) con
 
     const QStringList &testSets = testCases();
     if (!testSets.isEmpty())
-        arguments << "--gtest_filter=" + testSets.join(':');
+        arguments << "--gtest_filter=\"" + testSets.join(':') + '"';
 
     auto gSettings = static_cast<GTestSettings *>(framework()->testSettings());
     if (!gSettings)
