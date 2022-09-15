@@ -177,6 +177,8 @@ void VcsCommandPrivate::setupProcess(QtcProcess *process, const Job &job)
         process->setProcessChannelMode(QProcess::MergedChannels);
     if (m_codec)
         process->setCodec(m_codec);
+
+    installStdCallbacks(process);
 }
 
 void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
@@ -245,7 +247,6 @@ void VcsCommandPrivate::startNextJob()
     m_process.reset(new QtcProcess);
     connect(m_process.get(), &QtcProcess::done, this, &VcsCommandPrivate::processDone);
     setupProcess(m_process.get(), m_jobs.at(m_currentJob));
-    installStdCallbacks(m_process.get());
     m_process->start();
 }
 
@@ -373,46 +374,25 @@ void VcsCommand::cancel()
 
 CommandResult VcsCommand::runCommand(const CommandLine &command, int timeoutS)
 {
-    QtcProcess proc;
+    QtcProcess process;
     if (command.executable().isEmpty())
         return {};
 
-    d->setupProcess(&proc, {command, timeoutS, d->m_defaultWorkingDirectory, {}});
-    if (d->isFullySynchronous())
-        runFullySynchronous(proc);
-    else
-        runSynchronous(proc);
-    d->handleDone(&proc);
+    d->setupProcess(&process, {command, timeoutS, d->m_defaultWorkingDirectory, {}});
 
-    return CommandResult(proc);
-}
-
-void VcsCommand::runFullySynchronous(QtcProcess &process)
-{
-    process.runBlocking();
-
-    const QString stdErr = process.cleanedStdErr();
-    if (!stdErr.isEmpty() && !(d->m_flags & SuppressStdErr))
-        emit appendError(stdErr);
-
-    const QString stdOut = process.cleanedStdOut();
-    if (!stdOut.isEmpty() && d->m_flags & ShowStdOut) {
-        if (d->m_flags & SilentOutput)
-            emit appendSilently(stdOut);
-        else
-            emit append(stdOut);
+    EventLoopMode eventLoopMode = EventLoopMode::Off;
+    if (!d->isFullySynchronous()) {
+        eventLoopMode = EventLoopMode::On;
+        connect(this, &VcsCommand::terminate, &process, [&process] {
+            process.stop();
+            process.waitForFinished();
+        });
+        process.setTimeOutMessageBoxEnabled(true);
     }
-}
+    process.runBlocking(eventLoopMode);
+    d->handleDone(&process);
 
-void VcsCommand::runSynchronous(QtcProcess &process)
-{
-    connect(this, &VcsCommand::terminate, &process, [&process] {
-        process.stop();
-        process.waitForFinished();
-    });
-    d->installStdCallbacks(&process);
-    process.setTimeOutMessageBoxEnabled(true);
-    process.runBlocking(EventLoopMode::On);
+    return CommandResult(process);
 }
 
 void VcsCommand::setCodec(QTextCodec *codec)

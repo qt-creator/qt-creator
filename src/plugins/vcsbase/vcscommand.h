@@ -134,11 +134,6 @@ signals:
 private:
     void postRunCommand(const Utils::FilePath &workingDirectory);
 
-    // Run without a event loop in fully blocking mode. No signals will be delivered.
-    void runFullySynchronous(Utils::QtcProcess &proc);
-    // Run with an event loop. Signals will be delivered.
-    void runSynchronous(Utils::QtcProcess &proc);
-
     class Internal::VcsCommandPrivate *const d;
 };
 
