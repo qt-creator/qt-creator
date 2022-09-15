@@ -481,7 +481,7 @@ QWidget *CMakeBuildStep::createConfigWidget()
         builder.addRow(m_useiOSAutomaticProvisioningUpdates);
 
     builder.addRow({new QLabel(tr("Targets:")), frame});
-    auto widget = builder.emerge();
+    auto widget = builder.emerge(Layouting::WithoutMargins);
 
     updateDetails();
 
