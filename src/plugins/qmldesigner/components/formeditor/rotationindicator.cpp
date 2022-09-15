@@ -5,6 +5,10 @@
 
 #include "formeditoritem.h"
 
+#include <designermcumanager.h>
+#include <nodehints.h>
+#include <nodemetainfo.h>
+
 namespace QmlDesigner {
 
 RotationIndicator::RotationIndicator(LayerItem *layerItem)
@@ -34,16 +38,57 @@ void RotationIndicator::clear()
 {
     m_itemControllerHash.clear();
 }
+namespace {
 
-static bool itemIsRotatable(const QmlItemNode &qmlItemNode)
+bool itemIsResizable(const ModelNode &modelNode)
 {
-    return qmlItemNode.isValid()
-            && qmlItemNode.instanceIsResizable()
-            && qmlItemNode.modelIsMovable()
-            && qmlItemNode.modelIsRotatable()
-            && !qmlItemNode.instanceIsInLayoutable()
-            && !qmlItemNode.isFlowItem();
+    if (modelNode.metaInfo().isQtQuickControlsTab())
+        return false;
+
+    return NodeHints::fromModelNode(modelNode).isResizable();
 }
+
+bool isMcuRotationAllowed([[maybe_unused]] QString itemName, [[maybe_unused]] bool hasChildren)
+{
+    const QString propName = "rotation";
+    const DesignerMcuManager &manager = DesignerMcuManager::instance();
+    if (manager.isMCUProject()) {
+        if (manager.allowedItemProperties().contains(itemName)) {
+            const DesignerMcuManager::ItemProperties properties = manager.allowedItemProperties().value(
+                itemName);
+            if (properties.properties.contains(propName)) {
+                if (hasChildren)
+                    return properties.allowChildren;
+                return true;
+            }
+        }
+
+        if (manager.bannedItems().contains(itemName))
+            return false;
+
+        if (manager.bannedProperties().contains(propName))
+            return false;
+    }
+
+    return true;
+}
+
+bool modelIsRotatable(const QmlItemNode &itemNode)
+{
+    auto modelNode = itemNode.modelNode();
+    return !modelNode.hasBindingProperty("rotation") && itemIsResizable(modelNode)
+           && !itemNode.modelIsInLayout()
+           && isMcuRotationAllowed(QString::fromUtf8(modelNode.type()), itemNode.hasChildren());
+}
+
+bool itemIsRotatable(const QmlItemNode &qmlItemNode)
+{
+    return qmlItemNode.isValid() && qmlItemNode.instanceIsResizable()
+           && qmlItemNode.modelIsMovable() && modelIsRotatable(qmlItemNode)
+           && !qmlItemNode.instanceIsInLayoutable() && !qmlItemNode.isFlowItem();
+}
+
+} // namespace
 
 void RotationIndicator::setItems(const QList<FormEditorItem*> &itemList)
 {
@@ -74,4 +119,4 @@ void RotationIndicator::updateItems(const QList<FormEditorItem*> &itemList)
     }
 }
 
-}
+} // namespace QmlDesigner

@@ -325,41 +325,6 @@ bool QmlItemNode::modelIsResizable() const
             && !modelIsInLayout();
 }
 
-static bool isMcuRotationAllowed([[maybe_unused]] QString itemName, [[maybe_unused]] bool hasChildren)
-{
-#ifndef QMLDESIGNER_TEST
-    const QString propName = "rotation";
-    const DesignerMcuManager &manager = DesignerMcuManager::instance();
-    if (manager.isMCUProject()) {
-        if (manager.allowedItemProperties().contains(itemName)) {
-            const DesignerMcuManager::ItemProperties properties =
-                    manager.allowedItemProperties().value(itemName);
-            if (properties.properties.contains(propName)) {
-                if (hasChildren)
-                    return properties.allowChildren;
-                return true;
-            }
-        }
-
-        if (manager.bannedItems().contains(itemName))
-            return false;
-
-        if (manager.bannedProperties().contains(propName))
-            return false;
-    }
-#endif
-
-    return true;
-}
-
-bool QmlItemNode::modelIsRotatable() const
-{
-    return !modelNode().hasBindingProperty("rotation")
-            && itemIsResizable(modelNode())
-            && !modelIsInLayout()
-            && isMcuRotationAllowed(QString::fromUtf8(modelNode().type()), hasChildren());
-}
-
 bool QmlItemNode::modelIsInLayout() const
 {
     if (modelNode().hasParentProperty()) {

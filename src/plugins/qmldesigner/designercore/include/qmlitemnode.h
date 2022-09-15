@@ -82,7 +82,6 @@ public:
 
     bool modelIsMovable() const;
     bool modelIsResizable() const;
-    bool modelIsRotatable() const;
     bool modelIsInLayout() const;
     bool hasFormEditorItem() const;
 
