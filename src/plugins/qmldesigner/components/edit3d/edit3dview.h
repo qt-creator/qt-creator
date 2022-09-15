@@ -27,7 +27,7 @@ class QMLDESIGNERCORE_EXPORT Edit3DView : public AbstractView
     Q_OBJECT
 
 public:
-    Edit3DView(QObject *parent = nullptr);
+    Edit3DView();
     ~Edit3DView() override;
 
     WidgetInfo widgetInfo() override;

@@ -39,7 +39,7 @@ class QMLDESIGNERCORE_EXPORT FormEditorView : public AbstractView
     Q_OBJECT
 
 public:
-    FormEditorView(QObject *parent = nullptr);
+    FormEditorView();
     ~FormEditorView() override;
 
     // AbstractView

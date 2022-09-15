@@ -17,7 +17,7 @@ class MaterialBrowserView : public AbstractView
     Q_OBJECT
 
 public:
-    MaterialBrowserView(QObject *parent = nullptr);
+    MaterialBrowserView();
     ~MaterialBrowserView() override;
 
     bool hasWidget() const override;

@@ -78,8 +78,7 @@ public:
       EmptyPropertiesRemoved = 0x2
     };
     Q_DECLARE_FLAGS(PropertyChangeFlags, PropertyChangeFlag)
-    AbstractView(QObject *parent = nullptr)
-            : QObject(parent) {}
+    AbstractView() {}
 
     ~AbstractView() override;
 

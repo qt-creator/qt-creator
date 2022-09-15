@@ -19,7 +19,7 @@ class AssetsLibraryView : public AbstractView
     Q_OBJECT
 
 public:
-    AssetsLibraryView(QObject* parent = nullptr);
+    AssetsLibraryView();
     ~AssetsLibraryView() override;
 
     bool hasWidget() const override;

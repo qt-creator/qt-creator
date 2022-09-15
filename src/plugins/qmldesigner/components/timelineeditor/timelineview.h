@@ -18,7 +18,7 @@ class TimelineView : public AbstractView
     Q_OBJECT
 
 public:
-    explicit TimelineView(QObject *parent = nullptr);
+    explicit TimelineView();
     ~TimelineView() override;
     //Abstract View
     WidgetInfo widgetInfo() override;

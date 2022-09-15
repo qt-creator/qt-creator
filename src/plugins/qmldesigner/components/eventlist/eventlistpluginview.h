@@ -16,7 +16,7 @@ class EventListPluginView : public AbstractView
     Q_OBJECT
 
 public:
-    EventListPluginView(QObject* parent = nullptr);
+    EventListPluginView();
     ~EventListPluginView() override = default;
 
     void registerActions();

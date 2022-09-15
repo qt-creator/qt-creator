@@ -21,9 +21,8 @@
 
 namespace QmlDesigner {
 
-CurveEditorView::CurveEditorView([[maybe_unused]] QObject *parent)
-    : AbstractView(parent)
-    , m_block(false)
+CurveEditorView::CurveEditorView()
+    : m_block(false)
     , m_model(new CurveEditorModel())
     , m_editor(new CurveEditor(m_model))
 {

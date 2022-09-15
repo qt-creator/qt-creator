@@ -42,10 +42,7 @@
 
 namespace QmlDesigner {
 
-FormEditorView::FormEditorView(QObject *parent)
-    : AbstractView(parent)
-{
-}
+FormEditorView::FormEditorView() {}
 
 FormEditorScene* FormEditorView::scene() const
 {

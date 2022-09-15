@@ -7,6 +7,8 @@
 #include <abstractview.h>
 #include <QStandardItemModel>
 
+#include <memory>
+
 namespace QmlDesigner {
 
 struct Event
@@ -49,7 +51,7 @@ class EventListView : public AbstractView
     Q_OBJECT
 
 public:
-    explicit EventListView(QObject *parent = nullptr);
+    explicit EventListView();
     ~EventListView() override;
 
     void nodeRemoved(const ModelNode &removedNode,
@@ -73,7 +75,7 @@ private:
     void reset();
 
     EventList m_eventlist;
-    EventListModel *m_model;
+    std::unique_ptr<EventListModel> m_model;
 };
 
 } // namespace QmlDesigner.

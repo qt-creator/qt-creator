@@ -30,9 +30,8 @@ SignalHandlerProperty signalPropertyFromAction(ActionInterface *interface)
     return SignalHandlerProperty();
 }
 
-EventListPluginView::EventListPluginView(QObject* parent)
-    : AbstractView(parent)
-    , m_eventlist()
+EventListPluginView::EventListPluginView()
+    : m_eventlist()
     , m_eventListDialog(nullptr)
     , m_assigner(nullptr)
     , m_signalConnector(nullptr)

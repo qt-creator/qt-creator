@@ -269,10 +269,10 @@ void AssetExporter::preprocessQmlFile(const Utils::FilePath &path)
     textEdit.setPlainText(QString::fromUtf8(reader.data()));
     NotIndentingTextEditModifier *modifier = new NotIndentingTextEditModifier(&textEdit);
     modifier->setParent(model.get());
-    RewriterView *rewriterView = new RewriterView(QmlDesigner::RewriterView::Validate, model.get());
+    auto rewriterView = std::make_unique<RewriterView>(QmlDesigner::RewriterView::Validate);
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(modifier);
-    model->attachView(rewriterView);
+    model->attachView(rewriterView.get());
     rewriterView->restoreAuxiliaryData();
     ModelNode rootNode = rewriterView->rootModelNode();
     if (!rootNode.isValid()) {

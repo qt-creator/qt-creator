@@ -88,9 +88,8 @@ static inline void moveNodesDown(const QList<QmlDesigner::ModelNode> &nodes)
 
 namespace QmlDesigner {
 
-NavigatorView::NavigatorView(QObject* parent) :
-    AbstractView(parent),
-    m_blockSelectionChangedSignal(false)
+NavigatorView::NavigatorView()
+    : m_blockSelectionChangedSignal(false)
 {
 
 }

@@ -31,8 +31,7 @@
 
 namespace QmlDesigner {
 
-Edit3DView::Edit3DView(QObject *parent)
-    : AbstractView(parent)
+Edit3DView::Edit3DView()
 {
     m_compressionTimer.setInterval(1000);
     m_compressionTimer.setSingleShot(true);

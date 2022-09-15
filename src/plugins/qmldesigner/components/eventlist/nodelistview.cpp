@@ -41,11 +41,10 @@ NodeListModel::NodeListModel(QObject *parent)
     setSortRole(internalIdRole);
 }
 
-
 NodeListView::NodeListView(AbstractView *parent)
-    : AbstractView(parent)
-    , m_itemModel(new NodeListModel(this))
+    : m_itemModel(new NodeListModel(this))
 {
+    setParent(parent);
     parent->model()->attachView(this);
     reset();
 }

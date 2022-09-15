@@ -56,7 +56,7 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
                                 CaptureCallback captureCallback,
                                 AbortCallback abortCallback)
 {
-    RewriterView rewriterView{RewriterView::Amend, nullptr};
+    RewriterView rewriterView{RewriterView::Amend};
     NodeInstanceView nodeInstanceView{m_connectionManager};
     nodeInstanceView.setCaptureImageMinimumAndMaximumSize(captureImageMinimumSize,
                                                           captureImageMaximumSize);

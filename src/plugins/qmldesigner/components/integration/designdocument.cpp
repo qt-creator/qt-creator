@@ -63,7 +63,7 @@ namespace QmlDesigner {
 DesignDocument::DesignDocument(ProjectStorage<Sqlite::Database> &projectStorage)
     : m_documentModel(Model::create("QtQuick.Item", 1, 0))
     , m_subComponentManager(new SubComponentManager(m_documentModel.get(), this))
-    , m_rewriterView(new RewriterView(RewriterView::Amend, m_documentModel.get()))
+    , m_rewriterView(new RewriterView(RewriterView::Amend))
     , m_documentLoaded(false)
     , m_currentTarget(nullptr)
     , m_projectStorage(projectStorage)

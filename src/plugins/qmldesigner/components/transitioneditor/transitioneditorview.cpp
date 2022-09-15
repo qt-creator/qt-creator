@@ -40,9 +40,8 @@
 
 namespace QmlDesigner {
 
-TransitionEditorView::TransitionEditorView(QObject *parent)
-    : AbstractView(parent)
-    , m_transitionEditorWidget(nullptr)
+TransitionEditorView::TransitionEditorView()
+    : m_transitionEditorWidget(nullptr)
 {
 
 }

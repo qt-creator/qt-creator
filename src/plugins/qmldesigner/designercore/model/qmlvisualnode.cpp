@@ -218,7 +218,7 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
     textEdit.setPlainText(source);
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, nullptr));
+    QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend));
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(&modifier);
     rewriterView->setAllowComponentRoot(true);

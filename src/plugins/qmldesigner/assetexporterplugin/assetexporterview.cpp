@@ -23,8 +23,8 @@ const int MinRetry = 2;
 
 namespace QmlDesigner {
 
-AssetExporterView::AssetExporterView(QObject *parent) : AbstractView(parent),
-    m_timer(this)
+AssetExporterView::AssetExporterView()
+    : m_timer(this)
 {
     m_timer.setInterval(RetryIntervalMs);
     // We periodically check if file is loaded.

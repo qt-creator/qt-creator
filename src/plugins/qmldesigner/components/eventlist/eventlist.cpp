@@ -196,7 +196,7 @@ void EventList::initialize(EventListPluginView *parent)
     }
 
     if (!m_eventView) {
-        m_eventView = std::make_unique<EventListView>(m_model.get());
+        m_eventView = std::make_unique<EventListView>();
         m_model->attachView(m_eventView.get());
     }
 }

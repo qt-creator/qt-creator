@@ -17,7 +17,7 @@ class  DebugView : public AbstractView
     Q_OBJECT
 
 public:
-    DebugView(QObject *parent = nullptr);
+    DebugView();
     ~DebugView() override;
 
     // AbstractView

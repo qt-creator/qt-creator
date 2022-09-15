@@ -25,7 +25,7 @@ class QMLDESIGNERCORE_EXPORT TextEditorView : public AbstractView
     Q_OBJECT
 
 public:
-    TextEditorView(QObject *parent = nullptr);
+    TextEditorView();
     ~TextEditorView() override;
 
     // AbstractView

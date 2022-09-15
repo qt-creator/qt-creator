@@ -24,12 +24,12 @@ namespace QmlDesigner {
 
 namespace  Internal {
 
-ConnectionView::ConnectionView(QObject *parent) : AbstractView(parent),
-    m_connectionViewWidget(new ConnectionViewWidget()),
-    m_connectionModel(new ConnectionModel(this)),
-    m_bindingModel(new BindingModel(this)),
-    m_dynamicPropertiesModel(new DynamicPropertiesModel(false, this)),
-    m_backendModel(new BackendModel(this))
+ConnectionView::ConnectionView()
+    : m_connectionViewWidget(new ConnectionViewWidget())
+    , m_connectionModel(new ConnectionModel(this))
+    , m_bindingModel(new BindingModel(this))
+    , m_dynamicPropertiesModel(new DynamicPropertiesModel(false, this))
+    , m_backendModel(new BackendModel(this))
 {
     connectionViewWidget()->setBindingModel(m_bindingModel);
     connectionViewWidget()->setConnectionModel(m_connectionModel);

@@ -29,7 +29,7 @@ public:
         QStringList arguments;
     };
 
-    TestView(QmlDesigner::Model *model);
+    TestView();
 
     void modelAttached(QmlDesigner::Model *model);
     void modelAboutToBeDetached(QmlDesigner::Model *model);

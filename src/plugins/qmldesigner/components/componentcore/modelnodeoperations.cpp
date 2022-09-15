@@ -581,7 +581,7 @@ static QString toUpper(const QString &signal)
 static void addSignal(const QString &typeName, const QString &itemId, const QString &signalName, bool isRootModelNode)
 {
     auto model = Model::create("Item", 2, 0);
-    RewriterView rewriterView(RewriterView::Amend, nullptr);
+    RewriterView rewriterView(RewriterView::Amend);
 
     auto textEdit = qobject_cast<TextEditor::TextEditorWidget*>
             (Core::EditorManager::currentEditor()->widget());
@@ -1525,7 +1525,7 @@ void styleMerge(const SelectionContext &selectionContext, const QString &templat
     textEditTemplate.setPlainText(imports + qmlTemplateString);
     NotIndentingTextEditModifier textModifierTemplate(&textEditTemplate);
 
-    QScopedPointer<RewriterView> templateRewriterView(new RewriterView(RewriterView::Amend, nullptr));
+    QScopedPointer<RewriterView> templateRewriterView(new RewriterView(RewriterView::Amend));
     templateRewriterView->setTextModifier(&textModifierTemplate);
     templateModel->attachView(templateRewriterView.data());
     templateRewriterView->setCheckSemanticErrors(false);
@@ -1544,7 +1544,7 @@ void styleMerge(const SelectionContext &selectionContext, const QString &templat
     textEditStyle.setPlainText(parentRewriterView->textModifierContent());
     NotIndentingTextEditModifier textModifierStyle(&textEditStyle);
 
-    QScopedPointer<RewriterView> styleRewriterView(new RewriterView(RewriterView::Amend, nullptr));
+    QScopedPointer<RewriterView> styleRewriterView(new RewriterView(RewriterView::Amend));
     styleRewriterView->setTextModifier(&textModifierStyle);
     styleModel->attachView(styleRewriterView.data());
 

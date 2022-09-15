@@ -12,10 +12,9 @@
 namespace QmlDesigner {
 
 DesignerActionManagerView::DesignerActionManagerView()
-    : AbstractView(nullptr),
-      m_designerActionManager(this),
-      m_isInRewriterTransaction(false),
-      m_setupContextDirty(false)
+    : m_designerActionManager(this)
+    , m_isInRewriterTransaction(false)
+    , m_setupContextDirty(false)
 {
 }
 

@@ -43,9 +43,7 @@ public:
     SynchronousImageCache synchronousFontImageCache{storage, timeStampProvider, fontCollector};
 };
 
-AssetsLibraryView::AssetsLibraryView(QObject *parent)
-    : AbstractView(parent)
-{}
+AssetsLibraryView::AssetsLibraryView() {}
 
 AssetsLibraryView::~AssetsLibraryView()
 {}

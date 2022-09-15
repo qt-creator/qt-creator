@@ -29,7 +29,7 @@ public:
         Loaded
     };
 
-    AssetExporterView(QObject *parent = nullptr);
+    AssetExporterView();
 
     bool loadQmlFile(const Utils::FilePath &path, uint timeoutSecs = 10);
     bool saveQmlFile(QString *error) const;

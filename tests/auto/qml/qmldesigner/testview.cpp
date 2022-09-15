@@ -15,16 +15,7 @@
 #include <model.h>
 #include <nodeinstanceview.h>
 
-TestView::TestView(QmlDesigner::Model *model)
-    : QmlDesigner::AbstractView(model)
-{
-    /*
-    QmlDesigner::NodeInstanceView *nodeInstanceView = new QmlDesigner::NodeInstanceView(model, QmlDesigner::NodeInstanceServerInterface::TestModus);
-
-    if (model)
-        model->setNodeInstanceView(nodeInstanceView);
-    */
-}
+TestView::TestView() {}
 
 void TestView::modelAttached(QmlDesigner::Model *model)
 {

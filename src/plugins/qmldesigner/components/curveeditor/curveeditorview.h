@@ -16,7 +16,7 @@ class CurveEditorView : public AbstractView
     Q_OBJECT
 
 public:
-    explicit CurveEditorView(QObject *parent = nullptr);
+    explicit CurveEditorView();
     ~CurveEditorView() override;
 
 public:

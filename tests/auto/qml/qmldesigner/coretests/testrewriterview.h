@@ -26,8 +26,7 @@ class TestRewriterView : public RewriterView
 Q_OBJECT
 
 public:
-    TestRewriterView(QObject *parent = 0,
-                     DifferenceHandling differenceHandling = RewriterView::Validate);
+    TestRewriterView(DifferenceHandling differenceHandling = RewriterView::Validate);
 
     Internal::TestModelToTextMerger *modelToTextMerger() const;
     Internal::TextToModelMerger *textToModelMerger() const;

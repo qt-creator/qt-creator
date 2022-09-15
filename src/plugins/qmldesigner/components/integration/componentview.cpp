@@ -15,10 +15,9 @@
 
 namespace QmlDesigner {
 
-ComponentView::ComponentView(QObject *parent)
-  : AbstractView(parent),
-    m_standardItemModel(new QStandardItemModel(this)),
-    m_componentAction(new ComponentAction(this))
+ComponentView::ComponentView()
+    : m_standardItemModel(new QStandardItemModel(this))
+    , m_componentAction(new ComponentAction(this))
 {
 }
 

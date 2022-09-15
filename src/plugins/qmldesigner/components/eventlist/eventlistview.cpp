@@ -50,11 +50,9 @@ QStringList EventListModel::connectEvents(const QStringList &eventIds)
     return out;
 }
 
-
-EventListView::EventListView(QObject *parent)
-    : AbstractView(parent)
-    , m_eventlist()
-    , m_model(new EventListModel(this))
+EventListView::EventListView()
+    : m_eventlist()
+    , m_model(std::make_unique<EventListModel>())
 {}
 
 EventListView::~EventListView() {}
@@ -78,7 +76,7 @@ void EventListView::nodeReparented(const ModelNode &node,
 
 EventListModel *EventListView::eventListModel() const
 {
-    return m_model;
+    return m_model.get();
 }
 
 void EventListView::addEvent(const Event &event)

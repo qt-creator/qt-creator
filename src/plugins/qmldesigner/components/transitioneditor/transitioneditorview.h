@@ -16,7 +16,7 @@ class TransitionEditorView : public AbstractView
     Q_OBJECT
 
 public:
-    explicit TransitionEditorView(QObject *parent = nullptr);
+    explicit TransitionEditorView();
     ~TransitionEditorView() override;
     //Abstract View
     WidgetInfo widgetInfo() override;

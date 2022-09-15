@@ -59,12 +59,11 @@ bool debugQmlPuppet()
 #endif
 }
 
-RewriterView::RewriterView(DifferenceHandling differenceHandling, QObject *parent):
-        AbstractView(parent),
-        m_differenceHandling(differenceHandling),
-        m_positionStorage(new ModelNodePositionStorage),
-        m_modelToTextMerger(new Internal::ModelToTextMerger(this)),
-        m_textToModelMerger(new Internal::TextToModelMerger(this))
+RewriterView::RewriterView(DifferenceHandling differenceHandling)
+    : m_differenceHandling(differenceHandling)
+    , m_positionStorage(new ModelNodePositionStorage)
+    , m_modelToTextMerger(new Internal::ModelToTextMerger(this))
+    , m_textToModelMerger(new Internal::TextToModelMerger(this))
 {
     m_amendTimer.setSingleShot(true);
 

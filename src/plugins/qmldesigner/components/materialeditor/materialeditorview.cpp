@@ -48,9 +48,8 @@
 
 namespace QmlDesigner {
 
-MaterialEditorView::MaterialEditorView(QWidget *parent)
-    : AbstractView(parent)
-    , m_stackedWidget(new QStackedWidget(parent))
+MaterialEditorView::MaterialEditorView()
+    : m_stackedWidget(new QStackedWidget)
     , m_dynamicPropertiesModel(new Internal::DynamicPropertiesModel(true, this))
 {
     m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F7), m_stackedWidget);

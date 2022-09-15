@@ -39,8 +39,8 @@ namespace QmlDesigner {
 
 namespace  Internal {
 
-DebugView::DebugView(QObject *parent) : AbstractView(parent),
-    m_debugViewWidget(new DebugViewWidget)
+DebugView::DebugView()
+    : m_debugViewWidget(new DebugViewWidget)
 {
 }
 

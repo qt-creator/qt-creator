@@ -31,7 +31,7 @@ class MaterialEditorView : public AbstractView
     Q_OBJECT
 
 public:
-    MaterialEditorView(QWidget *parent = nullptr);
+    MaterialEditorView();
     ~MaterialEditorView() override;
 
     bool hasWidget() const override;

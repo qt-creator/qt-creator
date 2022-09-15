@@ -58,9 +58,8 @@ VariantProperty TestModelToTextMerger::findAddedVariantProperty(const VariantPro
     return VariantProperty();
 }
 
-TestRewriterView::TestRewriterView(QObject *parent,
-                                   DifferenceHandling differenceHandling)
-    : RewriterView(differenceHandling, parent)
+TestRewriterView::TestRewriterView(DifferenceHandling differenceHandling)
+    : RewriterView(differenceHandling)
 {
     //Unit tests do not like the semantic errors
     setCheckSemanticErrors(false);

@@ -45,9 +45,8 @@
 
 namespace QmlDesigner {
 
-TimelineView::TimelineView(QObject *parent)
-    : AbstractView(parent)
-    , m_timelineWidget(nullptr)
+TimelineView::TimelineView()
+    : m_timelineWidget(nullptr)
 {
     EasingCurve::registerStreamOperators();
     setEnabled(false);

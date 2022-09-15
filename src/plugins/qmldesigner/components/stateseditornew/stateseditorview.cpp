@@ -57,8 +57,7 @@ namespace Experimental {
   We always have 'one' current state, where we get updates from (see sceneChanged()). In case
   the current state is the base state, we render the base state + all other states.
   */
-StatesEditorView::StatesEditorView(QObject *parent) :
-        AbstractView(parent),
+StatesEditorView::StatesEditorView() :
         m_statesEditorModel(new StatesEditorModel(this)),
         m_lastIndex(-1),
         m_editor(nullptr)

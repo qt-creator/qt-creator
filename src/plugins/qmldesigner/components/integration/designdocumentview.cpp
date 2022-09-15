@@ -22,8 +22,8 @@
 
 namespace QmlDesigner {
 
-DesignDocumentView::DesignDocumentView(QObject *parent)
-    : AbstractView(parent), m_modelMerger(new ModelMerger(this))
+DesignDocumentView::DesignDocumentView()
+    : m_modelMerger(new ModelMerger(this))
 {
 }
 
@@ -97,7 +97,7 @@ QString DesignDocumentView::toText() const
     textEdit.setPlainText(imports +  QStringLiteral("Item {\n}\n"));
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend, nullptr));
+    QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend));
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(&modifier);
     outputModel->setRewriterView(rewriterView.data());

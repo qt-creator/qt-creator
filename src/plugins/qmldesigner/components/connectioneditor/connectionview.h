@@ -28,7 +28,7 @@ class  ConnectionView : public AbstractView
     Q_OBJECT
 
 public:
-    ConnectionView(QObject *parent = nullptr);
+    ConnectionView();
     ~ConnectionView() override;
 
     // AbstractView
