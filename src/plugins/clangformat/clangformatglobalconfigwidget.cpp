@@ -52,7 +52,7 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(ProjectExplorer::Pr
 
     Column {
         globalSettingsGroupBox
-    }.attachTo(this);
+    }.attachTo(this, Layouting::WithoutMargins);
 
     initCheckBoxes();
     initIndentationOrFormattingCombobox();
