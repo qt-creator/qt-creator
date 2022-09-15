@@ -66,6 +66,9 @@ Note that if you install Qt via the online installer, the path to Qt must
 include the version number and compiler ABI. The path to the online installer
 content is not enough.
 
+Note that `/path/to/Qt` doesn't imply the full path depth like:
+`$USER/Qt/6.2.4/gcc_64/lib/cmake/Qt6`, but only `$USER/Qt/6.2.4/gcc_64`.
+
 See [instructions](#getting-llvmclang-for-the-clang-code-model) on how to
 get LLVM.
 
@@ -84,6 +87,11 @@ sources are located at `\path\to\qtcreator_sources`, Qt is installed in
 Note that if you install Qt via the online installer, the path to Qt must
 include the version number and compiler ABI. The path to the online installer
 content is not enough.
+
+Note that `\path\to\Qt` doesn't imply the full path depth like:
+`c:\Qt\6.2.4\msvc2019_64\lib\cmake\Qt6`, but only `c:/Qt/6.2.4/msvc2019_64`.
+The usage of slashes `/` is intentional, since CMake has issues with backslashes `\`
+in `CMAKE_PREFX_PATH`, they are interpreted as escape codes.
 
 See [instructions](#getting-llvmclang-for-the-clang-code-model) on how to
 get LLVM.
