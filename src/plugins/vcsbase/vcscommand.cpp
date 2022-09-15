@@ -197,8 +197,12 @@ void VcsCommandPrivate::installStdCallbacks(QtcProcess *process)
         process->setStdOutCallback([this](const QString &text) {
             if (m_progressParser)
                 m_progressParser->parseProgress(text);
-            if (m_flags & VcsCommand::ShowStdOut)
-                emit q->append(text);
+            if (m_flags & VcsCommand::ShowStdOut) {
+                if (m_flags & VcsCommand::SilentOutput)
+                    emit q->appendSilently(text);
+                else
+                    emit q->append(text);
+            }
             if (m_progressiveOutput)
                 emit q->stdOutText(text);
         });
