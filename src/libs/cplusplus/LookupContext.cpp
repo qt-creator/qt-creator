@@ -53,10 +53,7 @@ static void path_helper(Symbol *symbol,
                 if (ns && ns->isInline())
                     return;
             }
-            if (symbol->asClass())
-                addNames(symbol->asClass()->prettyName(), names);
-            else
-                addNames(symbol->name(), names);
+            addNames(symbol->name(), names);
 
         } else if (symbol->asObjCClass() || symbol->asObjCBaseClass() || symbol->asObjCProtocol()
                 || symbol->asObjCForwardClassDeclaration() || symbol->asObjCForwardProtocolDeclaration()

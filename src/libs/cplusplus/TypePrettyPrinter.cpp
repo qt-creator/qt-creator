@@ -166,7 +166,7 @@ void TypePrettyPrinter::visit(Template *type)
 
 void TypePrettyPrinter::visit(Class *classTy)
 {
-    _text.prepend(overview()->prettyName(classTy->prettyName()));
+    _text.prepend(overview()->prettyName(classTy->name()));
     prependCv(_fullySpecifiedType);
 }
 

@@ -495,9 +495,6 @@ public:
     const Class *asClassType() const override { return this; }
     Class *asClassType() override { return this; }
 
-    void setCanonicalTypedefName(const Name *n) { _canonicalTypedefName = n; }
-    const Name *prettyName() const;
-
 protected:
     void visitSymbol0(SymbolVisitor *visitor) override;
     void accept0(TypeVisitor *visitor) override;
@@ -506,7 +503,6 @@ protected:
 private:
     Key _key;
     std::vector<BaseClass *> _baseClasses;
-    const Name *_canonicalTypedefName = nullptr;
 };
 
 class CPLUSPLUS_EXPORT QtPropertyDeclaration final : public Symbol

@@ -2024,7 +2024,7 @@ bool Bind::visit(SimpleDeclarationAST *ast)
             Declaration *decl = control()->newDeclaration(sourceLocation, nameAndLoc.first);
             if (const Type * const t = declTy.type(); t && declTy.isTypedef() && t->asClassType()
                     && t->asClassType()->name() && t->asClassType()->name()->asAnonymousNameId()) {
-                declTy.type()->asClassType()->setCanonicalTypedefName(decl->name());
+                declTy.type()->asClassType()->setName(decl->name());
             }
             decl->setType(declTy);
             setDeclSpecifiers(decl, type);
