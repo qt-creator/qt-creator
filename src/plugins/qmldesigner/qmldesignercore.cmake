@@ -382,7 +382,6 @@ function(extend_with_qmldesigner_core target_name)
       commands/scenecreatedcommand.h
       commands/statepreviewimagechangedcommand.cpp
       commands/statepreviewimagechangedcommand.h
-      commands/synchronizecommand.cpp
       commands/synchronizecommand.h
       commands/tokencommand.cpp
       commands/tokencommand.h

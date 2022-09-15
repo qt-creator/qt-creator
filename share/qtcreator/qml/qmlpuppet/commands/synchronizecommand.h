@@ -3,10 +3,9 @@
 
 #pragma once
 
+#include <QDebug>
 #include <QMetaType>
 #include <QVector>
-
-#include "propertyvaluecontainer.h"
 
 namespace QmlDesigner {
 
@@ -16,20 +15,43 @@ class SynchronizeCommand
     friend bool operator ==(const SynchronizeCommand &first, const SynchronizeCommand &second);
 
 public:
-    SynchronizeCommand();
-    explicit SynchronizeCommand(int synchronizeId);
+    SynchronizeCommand()
+        : m_synchronizeId(-1)
+    {}
+    explicit SynchronizeCommand(int synchronizeId)
+        : m_synchronizeId(synchronizeId)
+    {}
 
-    int synchronizeId() const;
+    int synchronizeId() const { return m_synchronizeId; }
+
+    friend QDataStream &operator<<(QDataStream &out, const SynchronizeCommand &command)
+    {
+        out << command.synchronizeId();
+
+        return out;
+    }
+
+    friend QDataStream &operator>>(QDataStream &in, SynchronizeCommand &command)
+    {
+        in >> command.m_synchronizeId;
+
+        return in;
+    }
+
+    friend bool operator==(const SynchronizeCommand &first, const SynchronizeCommand &second)
+    {
+        return first.m_synchronizeId == second.m_synchronizeId;
+    }
+
+    friend QDebug operator<<(QDebug debug, const SynchronizeCommand &command)
+    {
+        return debug.nospace() << "SynchronizeCommand(synchronizeId: " << command.synchronizeId()
+                               << ")";
+    }
 
 private:
     int m_synchronizeId;
 };
-
-QDataStream &operator<<(QDataStream &out, const SynchronizeCommand &command);
-QDataStream &operator>>(QDataStream &in, SynchronizeCommand &command);
-
-bool operator ==(const SynchronizeCommand &first, const SynchronizeCommand &second);
-QDebug operator <<(QDebug debug, const SynchronizeCommand &command);
 
 } // namespace QmlDesigner
 

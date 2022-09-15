@@ -38,7 +38,7 @@ HEADERS += $$PWD/synchronizecommand.h \ \
     $$PWD/view3dactioncommand.h \
     $$PWD/requestmodelnodepreviewimagecommand.h
 
-SOURCES += $$PWD/synchronizecommand.cpp \
+SOURCES += \
     $$PWD/changepreviewimagesizecommand.cpp \
     $$PWD/changelanguagecommand.cpp \
     $$PWD/debugoutputcommand.cpp \

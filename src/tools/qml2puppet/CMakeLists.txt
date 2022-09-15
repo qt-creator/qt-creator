@@ -84,7 +84,7 @@ extend_qtc_library(qml2puppet_static
     removesharedmemorycommand.cpp removesharedmemorycommand.h
     reparentinstancescommand.cpp reparentinstancescommand.h
     statepreviewimagechangedcommand.cpp statepreviewimagechangedcommand.h
-    synchronizecommand.cpp synchronizecommand.h
+    synchronizecommand.h
     tokencommand.cpp tokencommand.h
     changeselectioncommand.cpp changeselectioncommand.h
     update3dviewstatecommand.cpp update3dviewstatecommand.h

@@ -5,6 +5,7 @@
 #include "synchronizecommand.h"
 
 #include <QLocalSocket>
+#include <QVariant>
 
 namespace QmlDesigner {
 
