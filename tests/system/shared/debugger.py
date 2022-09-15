@@ -174,6 +174,8 @@ def doSimpleDebugging(currentKit, currentConfigName, expectedBPOrder=[], enableQ
 
 # param currentKit specifies the ID of the kit to use (see class Targets)
 def isMsvcConfig(currentKit):
+    if platform.system() not in ('Microsoft' 'Windows'):
+        return False
     switchViewTo(ViewConstants.PROJECTS)
     switchToBuildOrRunSettingsFor(currentKit, ProjectSettings.BUILD)
 
@@ -186,7 +188,8 @@ def isMsvcConfig(currentKit):
         raise Exception("Kit '%s' is not activated in the project." % wantedKitName)
     index = waitForObject(wantedKitIndexString)
     toolTip = str(index.data(Qt.ToolTipRole).toString())
-    compilerPattern = re.compile("<tr><td><b>Compiler:</b></td><td>(?P<compiler>.+)</td></tr>")
+    compilerPattern = re.compile('<dt style="font-weight:bold">Compiler:</dt><dd>(?P<compiler>.+)'
+                                 '</dd><dt style="font-weight:bold">Environment:')
     match = compilerPattern.search(toolTip)
     if match is None:
         test.warning("UI seems to have changed - failed to check for compiler.")
