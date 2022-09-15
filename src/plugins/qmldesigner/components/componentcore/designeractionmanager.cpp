@@ -1474,6 +1474,17 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &singleSelection,
                           &singleSelection));
 
+    addDesignerAction(new ModelNodeContextMenuAction(
+        addMouseAreaFillCommandId,
+        addMouseAreaFillDisplayName,
+        {},
+        rootCategory,
+        QKeySequence(),
+        (priorityLast+7),
+        &addMouseAreaFill,
+        &addMouseAreaFillCheck,
+        &singleSelection));
+
     const bool standaloneMode = QmlProjectManager::QmlProject::isQtDesignStudio();
 
     if (!standaloneMode) {

@@ -93,6 +93,7 @@ void selectFlowEffect(const SelectionContext &selectionContext);
 void mergeWithTemplate(const SelectionContext &selectionContext);
 void removeGroup(const SelectionContext &selectionContext);
 void editAnnotation(const SelectionContext &selectionContext);
+void addMouseAreaFill(const SelectionContext &selectionContext);
 
 void openSignalDialog(const SelectionContext &selectionContext);
 void updateImported3DAsset(const SelectionContext &selectionContext);

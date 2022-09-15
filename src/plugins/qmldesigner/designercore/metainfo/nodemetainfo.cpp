@@ -1659,6 +1659,14 @@ bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int mino
     return false;
 }
 
+bool NodeMetaInfo::isSuitableForMouseAreaFill() const
+{
+    return isSubclassOf("QtQuick.Item")
+           && !isSubclassOf("QtQuick.MouseArea")
+           && !isSubclassOf("QtQuick.Controls.Control")
+           && !isSubclassOf("QtQuick.Templates.Control");
+}
+
 bool NodeMetaInfo::isGraphicalItem() const
 {
     return isSubclassOf("QtQuick.Item")

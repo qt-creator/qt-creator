@@ -92,6 +92,7 @@ const char removeGroupItemCommandId[] = "RemoveToGroupItem";
 const char fitRootToScreenCommandId[] = "FitRootToScreen";
 const char fitSelectionToScreenCommandId[] = "FitSelectionToScreen";
 const char editAnnotationCommandId[] = "EditAnnotation";
+const char addMouseAreaFillCommandId[] = "AddMouseAreaFill";
 
 const char openSignalDialogCommandId[] = "OpenSignalDialog";
 const char update3DAssetCommandId[] = "Update3DAsset";
@@ -137,6 +138,7 @@ const char addSignalHandlerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContext
 const char moveToComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Move Component into Separate File");
 const char editMaterialDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit Material");
 const char editAnnotationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit Annotation");
+const char addMouseAreaFillDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add Mouse Area");
 
 const char openSignalDialogDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Open Signal Dialog");
 const char update3DAssetDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Update 3D Asset");

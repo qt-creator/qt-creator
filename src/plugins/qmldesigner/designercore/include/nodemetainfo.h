@@ -95,6 +95,7 @@ public:
     bool availableInVersion(int majorVersion, int minorVersion) const;
     bool isSubclassOf(const TypeName &type, int majorVersion = -1, int minorVersion = -1) const;
 
+    bool isSuitableForMouseAreaFill() const;
     bool isGraphicalItem() const;
     bool isQmlItem() const;
     bool isLayoutable() const;
