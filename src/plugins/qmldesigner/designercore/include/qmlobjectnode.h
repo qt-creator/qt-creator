@@ -17,6 +17,7 @@ class QmlItemNode;
 class QmlPropertyChanges;
 class MoveManipulator;
 class QmlVisualNode;
+class DesignerSettings;
 
 class QMLDESIGNERCORE_EXPORT QmlObjectNode : public QmlModelNodeFacade
 {
@@ -99,11 +100,13 @@ public:
 
     static  QVariant instanceValue(const ModelNode &modelNode, const PropertyName &name);
 
-    static QString generateTranslatableText(const QString& text);
+    static QString generateTranslatableText(const QString &text,
+                                            const DesignerSettings &designerSettings);
 
     static QString stripedTranslatableTextFunction(const QString &text);
 
-    static QString convertToCorrectTranslatableFunction(const QString &text);
+    static QString convertToCorrectTranslatableFunction(const QString &text,
+                                                        const DesignerSettings &designerSettings);
 
     QString simplifiedTypeName() const;
 

@@ -78,7 +78,8 @@ private:
     QToolBar *m_toolBar;
 };
 
-class QMLDESIGNERCORE_EXPORT DesignerActionManager {
+class QMLDESIGNERCOMPONENTS_EXPORT DesignerActionManager
+{
 public:
     DesignerActionManager(DesignerActionManagerView *designerActionManagerView);
     ~DesignerActionManager();

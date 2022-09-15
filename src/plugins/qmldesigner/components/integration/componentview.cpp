@@ -15,8 +15,9 @@
 
 namespace QmlDesigner {
 
-ComponentView::ComponentView()
-    : m_standardItemModel(new QStandardItemModel(this))
+ComponentView::ComponentView(ExternalDependenciesInterface &externalDependencies)
+    : AbstractView{externalDependencies}
+    , m_standardItemModel(new QStandardItemModel(this))
     , m_componentAction(new ComponentAction(this))
 {
 }

@@ -54,6 +54,7 @@ class CompleteComponentCommand;
 class InformationContainer;
 class TokenCommand;
 class ConnectionManagerInterface;
+class ExternalDependenciesInterface;
 
 class QMLDESIGNERCORE_EXPORT NodeInstanceView : public AbstractView, public NodeInstanceClientInterface
 {
@@ -64,7 +65,8 @@ class QMLDESIGNERCORE_EXPORT NodeInstanceView : public AbstractView, public Node
 public:
     using Pointer = QWeakPointer<NodeInstanceView>;
 
-    explicit NodeInstanceView(ConnectionManagerInterface &connectionManager);
+    explicit NodeInstanceView(ConnectionManagerInterface &connectionManager,
+                              ExternalDependenciesInterface &externalDependencies);
     ~NodeInstanceView() override;
 
     void modelAttached(Model *model) override;
@@ -256,6 +258,7 @@ private:
     ModelCache<NodeInstanceCacheData> m_nodeInstanceCache;
     QHash<ModelNode, QImage> m_statePreviewImage;
     ConnectionManagerInterface &m_connectionManager;
+    ExternalDependenciesInterface &m_externalDependencies;
     std::unique_ptr<NodeInstanceServerProxy> m_nodeInstanceServer;
     QImage m_baseStatePreviewImage;
     QElapsedTimer m_lastCrashTime;

@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #pragma once
 
+#include <qmldesignercomponents_global.h>
+
 #include <abstractview.h>
 
 #include <QPicture>
@@ -34,12 +36,12 @@ class DragTool;
 class ItemLibraryEntry;
 class QmlItemNode;
 
-class QMLDESIGNERCORE_EXPORT FormEditorView : public AbstractView
+class QMLDESIGNERCOMPONENTS_EXPORT FormEditorView : public AbstractView
 {
     Q_OBJECT
 
 public:
-    FormEditorView();
+    FormEditorView(ExternalDependenciesInterface &externalDependencies);
     ~FormEditorView() override;
 
     // AbstractView

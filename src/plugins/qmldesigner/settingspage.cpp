@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "settingspage.h"
-#include "qmldesignerconstants.h"
-#include "qmldesignerplugin.h"
 #include "designersettings.h"
-#include "puppetcreator.h"
+#include "qmldesignerconstants.h"
+#include "qmldesignerexternaldependencies.h"
+#include "qmldesignerplugin.h"
 #include "ui_settingspage.h"
 
 #include <app/app_version.h>
@@ -37,7 +37,7 @@ class SettingsPageWidget final : public Core::IOptionsPageWidget
     Q_DECLARE_TR_FUNCTIONS(QmlDesigner::Internal::SettingsPage)
 
 public:
-    explicit SettingsPageWidget();
+    explicit SettingsPageWidget(ExternalDependencies &externalDependencies);
 
     void apply() final;
 
@@ -46,9 +46,11 @@ public:
 
 private:
     Ui::SettingsPage m_ui;
+    ExternalDependencies &m_externalDependencies;
 };
 
-SettingsPageWidget::SettingsPageWidget()
+SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencies)
+    : m_externalDependencies(externalDependencies)
 {
     m_ui.setupUi(this);
 
@@ -57,18 +59,16 @@ SettingsPageWidget::SettingsPageWidget()
             m_ui.designerShowDebuggerCheckBox->setChecked(true);
         }
     );
-    connect(m_ui.resetFallbackPuppetPathButton, &QPushButton::clicked, [=]() {
-        m_ui.fallbackPuppetPathLineEdit->setPath(
-            PuppetCreator::defaultPuppetFallbackDirectory());
-        }
-    );
-    m_ui.fallbackPuppetPathLineEdit->lineEdit()->setPlaceholderText(PuppetCreator::defaultPuppetFallbackDirectory());
+    connect(m_ui.resetFallbackPuppetPathButton, &QPushButton::clicked, [&]() {
+        m_ui.fallbackPuppetPathLineEdit->setPath(externalDependencies.defaultPuppetFallbackDirectory());
+    });
+    m_ui.fallbackPuppetPathLineEdit->lineEdit()->setPlaceholderText(
+        externalDependencies.defaultPuppetFallbackDirectory());
 
-    connect(m_ui.resetQmlPuppetBuildPathButton, &QPushButton::clicked, [=]() {
+    connect(m_ui.resetQmlPuppetBuildPathButton, &QPushButton::clicked, [&]() {
         m_ui.puppetBuildPathLineEdit->setPath(
-            PuppetCreator::defaultPuppetToplevelBuildDirectory());
-        }
-    );
+            externalDependencies.defaultPuppetToplevelBuildDirectory());
+    });
     connect(m_ui.useDefaultPuppetRadioButton, &QRadioButton::toggled,
         m_ui.fallbackPuppetPathLineEdit, &QLineEdit::setEnabled);
     connect(m_ui.useQtRelatedPuppetRadioButton, &QRadioButton::toggled,
@@ -128,15 +128,15 @@ QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
         m_ui.debugPuppetComboBox->currentText());
 
     QString newFallbackPuppetPath = m_ui.fallbackPuppetPathLineEdit->filePath().toString();
-    QTC_CHECK(PuppetCreator::defaultPuppetFallbackDirectory() ==
-              m_ui.fallbackPuppetPathLineEdit->lineEdit()->placeholderText());
+    QTC_CHECK(m_externalDependencies.defaultPuppetFallbackDirectory()
+              == m_ui.fallbackPuppetPathLineEdit->lineEdit()->placeholderText());
     if (newFallbackPuppetPath.isEmpty())
         newFallbackPuppetPath = m_ui.fallbackPuppetPathLineEdit->lineEdit()->placeholderText();
 
-    QString oldFallbackPuppetPath = PuppetCreator::qmlPuppetFallbackDirectory(QmlDesignerPlugin::settings());
+    QString oldFallbackPuppetPath = m_externalDependencies.qmlPuppetFallbackDirectory();
 
     if (oldFallbackPuppetPath != newFallbackPuppetPath && QFileInfo::exists(newFallbackPuppetPath)) {
-        if (newFallbackPuppetPath == PuppetCreator::defaultPuppetFallbackDirectory())
+        if (newFallbackPuppetPath == m_externalDependencies.defaultPuppetFallbackDirectory())
             settings.insert(DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY, QString());
         else
             settings.insert(DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY, newFallbackPuppetPath);
@@ -144,8 +144,9 @@ QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
         settings.insert(DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY, QString());
     }
 
-    if (!m_ui.puppetBuildPathLineEdit->filePath().isEmpty() &&
-        m_ui.puppetBuildPathLineEdit->filePath().toString() != PuppetCreator::defaultPuppetToplevelBuildDirectory()) {
+    if (!m_ui.puppetBuildPathLineEdit->filePath().isEmpty()
+        && m_ui.puppetBuildPathLineEdit->filePath().toString()
+               != m_externalDependencies.defaultPuppetToplevelBuildDirectory()) {
         settings.insert(DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY,
             m_ui.puppetBuildPathLineEdit->filePath().toString());
     }
@@ -168,8 +169,7 @@ QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
 
 void SettingsPageWidget::setSettings(const DesignerSettings &settings)
 {
-    m_ui.spinItemSpacing->setValue(settings.value(
-        DesignerSettingsKey::ITEMSPACING).toInt());
+    m_ui.spinItemSpacing->setValue(settings.value(DesignerSettingsKey::ITEMSPACING).toInt());
     m_ui.spinSnapMargin->setValue(settings.value(
         DesignerSettingsKey::CONTAINERPADDING).toInt());
     m_ui.spinCanvasWidth->setValue(settings.value(
@@ -203,14 +203,17 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
     m_ui.styleLineEdit->setText(settings.value(
         DesignerSettingsKey::CONTROLS_STYLE).toString());
 
-    QString puppetFallbackDirectory = settings.value(
-        DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY,
-        PuppetCreator::defaultPuppetFallbackDirectory()).toString();
+    QString puppetFallbackDirectory = settings
+                                          .value(DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY,
+                                                 m_externalDependencies.defaultPuppetFallbackDirectory())
+                                          .toString();
     m_ui.fallbackPuppetPathLineEdit->setPath(puppetFallbackDirectory);
 
-    QString puppetToplevelBuildDirectory = settings.value(
-        DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY,
-        PuppetCreator::defaultPuppetToplevelBuildDirectory()).toString();
+    QString puppetToplevelBuildDirectory = settings
+                                               .value(DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY,
+                                                      m_externalDependencies
+                                                          .defaultPuppetToplevelBuildDirectory())
+                                               .toString();
     m_ui.puppetBuildPathLineEdit->setPath(puppetToplevelBuildDirectory);
 
     m_ui.forwardPuppetOutputComboBox->setCurrentText(settings.value(
@@ -275,12 +278,12 @@ void SettingsPageWidget::apply()
     QmlDesignerPlugin::settings().insert(settings);
 }
 
-SettingsPage::SettingsPage()
+SettingsPage::SettingsPage(ExternalDependencies &externalDependencies)
 {
     setId("B.QmlDesigner");
     setDisplayName(SettingsPageWidget::tr("Qt Quick Designer"));
     setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
-    setWidgetCreator([] { return new SettingsPageWidget; });
+    setWidgetCreator([&] { return new SettingsPageWidget(externalDependencies); });
 }
 
 } // Internal

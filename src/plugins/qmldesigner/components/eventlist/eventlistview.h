@@ -51,7 +51,7 @@ class EventListView : public AbstractView
     Q_OBJECT
 
 public:
-    explicit EventListView();
+    explicit EventListView(ExternalDependenciesInterface &externalDependencies);
     ~EventListView() override;
 
     void nodeRemoved(const ModelNode &removedNode,

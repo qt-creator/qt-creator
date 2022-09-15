@@ -30,6 +30,7 @@ class TimelineKeyframeItem;
 class TimelinePlaceholder;
 class TimelineGraphicsLayout;
 class TimelineToolBar;
+class ExternalDependenciesInterface;
 
 class AbstractScrollGraphicsScene : public QGraphicsScene
 {
@@ -87,7 +88,8 @@ class TimelineGraphicsScene : public AbstractScrollGraphicsScene
     Q_OBJECT
 
 public:
-    explicit TimelineGraphicsScene(TimelineWidget *parent);
+    explicit TimelineGraphicsScene(TimelineWidget *parent,
+                                   ExternalDependenciesInterface &m_externalDependencies);
 
     ~TimelineGraphicsScene() override;
 
@@ -191,6 +193,8 @@ private:
     TimelineFrameHandle *m_currentFrameIndicator = nullptr;
 
     TimelineToolDelegate m_tools;
+
+    ExternalDependenciesInterface &m_externalDependencies;
 
     // sorted, unique cache of keyframes positions, used for snapping
     QVector<qreal> m_keyframePositionsCache;

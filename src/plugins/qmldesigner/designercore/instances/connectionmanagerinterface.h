@@ -19,6 +19,7 @@ namespace QmlDesigner {
 
 class NodeInstanceServerInterface;
 class AbstractView;
+class ExternalDependenciesInterface;
 
 class QMLDESIGNERCORE_EXPORT ConnectionManagerInterface
 {
@@ -49,7 +50,8 @@ public:
     virtual void setUp(NodeInstanceServerInterface *nodeInstanceServer,
                        const QString &qrcMappingString,
                        ProjectExplorer::Target *target,
-                       AbstractView *view)
+                       AbstractView *view,
+                       ExternalDependenciesInterface &externalDependencies)
         = 0;
     virtual void shutDown() = 0;
 

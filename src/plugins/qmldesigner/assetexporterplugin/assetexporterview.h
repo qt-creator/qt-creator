@@ -29,7 +29,7 @@ public:
         Loaded
     };
 
-    AssetExporterView();
+    AssetExporterView(ExternalDependenciesInterface &externalDependencies);
 
     bool loadQmlFile(const Utils::FilePath &path, uint timeoutSecs = 10);
     bool saveQmlFile(QString *error) const;

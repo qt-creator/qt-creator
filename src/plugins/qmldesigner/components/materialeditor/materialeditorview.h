@@ -31,7 +31,7 @@ class MaterialEditorView : public AbstractView
     Q_OBJECT
 
 public:
-    MaterialEditorView();
+    MaterialEditorView(ExternalDependenciesInterface &externalDependencies);
     ~MaterialEditorView() override;
 
     bool hasWidget() const override;

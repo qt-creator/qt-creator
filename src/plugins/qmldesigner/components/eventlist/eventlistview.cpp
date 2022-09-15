@@ -50,8 +50,9 @@ QStringList EventListModel::connectEvents(const QStringList &eventIds)
     return out;
 }
 
-EventListView::EventListView()
-    : m_eventlist()
+EventListView::EventListView(ExternalDependenciesInterface &externalDependencies)
+    : AbstractView{externalDependencies}
+    , m_eventlist()
     , m_model(std::make_unique<EventListModel>())
 {}
 

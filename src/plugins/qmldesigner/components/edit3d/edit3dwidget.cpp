@@ -1,10 +1,10 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include "edit3dwidget.h"
 #include "edit3dactions.h"
 #include "edit3dcanvas.h"
 #include "edit3dview.h"
-#include "edit3dwidget.h"
 #include "edit3dvisibilitytogglesmenu.h"
 #include "metainfo.h"
 #include "modelnodeoperations.h"
@@ -12,8 +12,9 @@
 #include "qmldesignerplugin.h"
 #include "qmlvisualnode.h"
 #include "viewmanager.h"
-#include <seekerslider.h>
+#include <designeractionmanager.h>
 #include <nodeinstanceview.h>
+#include <seekerslider.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>

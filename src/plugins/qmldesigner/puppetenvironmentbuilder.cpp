@@ -67,6 +67,13 @@ QProcessEnvironment PuppetEnvironmentBuilder::processEnvironment() const
     return m_environment.toProcessEnvironment();
 }
 
+QProcessEnvironment PuppetEnvironmentBuilder::createEnvironment(
+    ProjectExplorer::Target *target, const DesignerSettings &designerSettings, const Model &model)
+{
+    PuppetEnvironmentBuilder builder{target, designerSettings, model};
+    return builder.processEnvironment();
+}
+
 bool PuppetEnvironmentBuilder::usesVirtualKeyboard() const
 {
     if (m_target) {

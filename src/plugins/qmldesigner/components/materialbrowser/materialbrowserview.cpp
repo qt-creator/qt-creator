@@ -25,7 +25,9 @@
 
 namespace QmlDesigner {
 
-MaterialBrowserView::MaterialBrowserView() {}
+MaterialBrowserView::MaterialBrowserView(ExternalDependenciesInterface &externalDependencies)
+    : AbstractView{externalDependencies}
+{}
 
 MaterialBrowserView::~MaterialBrowserView()
 {}

@@ -15,7 +15,8 @@ public:
     void setUp(NodeInstanceServerInterface *nodeInstanceServer,
                const QString &qrcMappingString,
                ProjectExplorer::Target *target,
-               AbstractView *view) override;
+               AbstractView *view,
+               ExternalDependenciesInterface &externalDependencies) override;
 
     void processFinished(int exitCode, QProcess::ExitStatus exitStatus, const QString &connectionName) override;
 

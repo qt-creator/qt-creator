@@ -20,7 +20,7 @@ class PathTool : public QObject, public AbstractCustomTool
 {
     Q_OBJECT
 public:
-    PathTool();
+    PathTool(ExternalDependenciesInterface &externalDepoendencies);
     ~PathTool() override;
 
     void mousePressEvent(const QList<QGraphicsItem*> &itemList,

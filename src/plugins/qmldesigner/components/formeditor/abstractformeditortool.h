@@ -4,7 +4,7 @@
 
 #include "formeditoritem.h"
 
-#include <qmldesignercorelib_global.h>
+#include <qmldesignercomponents_global.h>
 
 #include "snapper.h"
 
@@ -16,7 +16,7 @@ namespace QmlDesigner {
 
 class FormEditorView;
 
-class QMLDESIGNERCORE_EXPORT AbstractFormEditorTool
+class QMLDESIGNERCOMPONENTS_EXPORT AbstractFormEditorTool
 {
     friend FormEditorView;
 

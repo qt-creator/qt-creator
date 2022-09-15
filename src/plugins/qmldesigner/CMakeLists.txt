@@ -11,6 +11,508 @@ add_feature_info("ProjectStorage" ${USE_PROJECTSTORAGE} "")
 env_with_default("QDS_WITH_QMLDOM" ENV_QDS_WITH_QMLDOM OFF)
 option(WITH_QMLDOM "Build with QmlDom" ${ENV_QDS_WITH_QMLDOM})
 add_feature_info("Build with QmlDom" ${WITH_QMLDOM} "")
+
+add_qtc_library(QmlDesignerUtils STATIC
+  DEPENDS
+    Qt5::Gui
+  DEFINES QMLDESIGNERUTILS_LIBRARY
+  PUBLIC_DEFINES $<$<BOOL:QTC_STATIC_BUILD>:QMLDESIGNER_STATIC_LIBRARY>
+  PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/utils
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/utils
+  SOURCES
+    designersettings.cpp designersettings.h
+    hdrimage.cpp hdrimage.h
+    qmldesignerutils_global.h
+)
+
+add_qtc_library(QmlDesignerCore STATIC
+  DEPENDS
+    Threads::Threads
+    Qt5::CorePrivate
+    CPlusPlus
+    Utils
+    Qt5::Widgets
+    Qt5::Qml
+    Core
+    ProjectExplorer
+    QmakeProjectManager
+    QmlJS
+    QmlJSEditor
+    QmlJSTools
+    QmlProjectManager
+    QtSupport
+  PUBLIC_DEPENDS
+    QmlDesignerUtils
+    TextEditor
+    Sqlite
+  DEFINES QMLDESIGNERCORE_LIBRARY QMLDESIGNERUTILS_STATIC_LIBRARY
+  INCLUDES
+    ${CMAKE_CURRENT_LIST_DIR}
+  PUBLIC_INCLUDES
+    ${CMAKE_CURRENT_LIST_DIR}/designercore
+    ${CMAKE_CURRENT_LIST_DIR}/designercore/include
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore
+  SOURCES
+    rewritertransaction.cpp
+    rewritertransaction.h
+)
+
+extend_qtc_library(QmlDesignerCore
+  CONDITION UNIX AND NOT APPLE
+  PUBLIC_DEPENDS rt
+)
+
+set(UI_FILES
+  ${CMAKE_CURRENT_LIST_DIR}/designercore/instances/puppetbuildprogressdialog.ui
+  ${CMAKE_CURRENT_LIST_DIR}/designercore/instances/puppetdialog.ui
+)
+qt_wrap_ui(UI_SOURCES ${UI_FILES})
+
+extend_qtc_library(QmlDesignerCore
+  INCLUDES ${CMAKE_CURRENT_BINARY_DIR}
+  SOURCES
+    ${UI_SOURCES}
+    ${UI_FILES}
+)
+set_source_files_properties(${UI_FILES} PROPERTIES SKIP_AUTOUIC ON)
+
+extend_qtc_library(QmlDesignerCore
+  INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/exceptions
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/exceptions
+  SOURCES
+    exception.cpp
+    invalidargumentexception.cpp
+    invalididexception.cpp
+    invalidmetainfoexception.cpp
+    invalidmodelnodeexception.cpp
+    invalidmodelstateexception.cpp
+    invalidpropertyexception.cpp
+    invalidqmlsourceexception.cpp
+    invalidreparentingexception.cpp
+    invalidslideindexexception.cpp
+    notimplementedexception.cpp
+    removebasestateexception.cpp
+    rewritingexception.cpp
+)
+
+extend_qtc_library(QmlDesignerCore
+  INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/filemanager
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/filemanager
+  SOURCES
+    addarraymembervisitor.cpp
+    addarraymembervisitor.h
+    addobjectvisitor.cpp
+    addobjectvisitor.h
+    addpropertyvisitor.cpp
+    addpropertyvisitor.h
+    astobjecttextextractor.cpp
+    astobjecttextextractor.h
+    changeimportsvisitor.cpp
+    changeimportsvisitor.h
+    changeobjecttypevisitor.cpp
+    changeobjecttypevisitor.h
+    changepropertyvisitor.cpp
+    changepropertyvisitor.h
+    firstdefinitionfinder.cpp
+    firstdefinitionfinder.h
+    moveobjectbeforeobjectvisitor.cpp
+    moveobjectbeforeobjectvisitor.h
+    moveobjectvisitor.cpp
+    moveobjectvisitor.h
+    objectlengthcalculator.cpp
+    objectlengthcalculator.h
+    qmlrefactoring.cpp
+    qmlrefactoring.h
+    qmlrewriter.cpp
+    qmlrewriter.h
+    removepropertyvisitor.cpp
+    removepropertyvisitor.h
+    removeuiobjectmembervisitor.cpp
+    removeuiobjectmembervisitor.h
+)
+
+extend_qtc_library(QmlDesignerCore
+  INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/imagecache
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/imagecache
+  SOURCES
+    asynchronousexplicitimagecache.cpp
+    asynchronousimagecache.cpp
+    asynchronousimagefactory.cpp
+    asynchronousimagefactory.h
+    imagecachecollector.cpp
+    imagecachecollector.h
+    imagecachedispatchcollector.h
+    imagecachecollectorinterface.h
+    imagecacheconnectionmanager.cpp
+    imagecacheconnectionmanager.h
+    imagecachefontcollector.cpp
+    imagecachefontcollector.h
+    imagecachegenerator.cpp
+    imagecachegenerator.h
+    imagecachegeneratorinterface.h
+    imagecachestorage.h
+    imagecachestorageinterface.h
+    meshimagecachecollector.cpp
+    meshimagecachecollector.h
+    synchronousimagecache.cpp
+    timestampprovider.cpp
+    timestampprovider.h
+    timestampproviderinterface.h
+)
+
+extend_qtc_library(QmlDesignerCore
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/include
+  SOURCES
+    abstractproperty.h
+    abstractview.h
+    anchorline.h
+    annotation.h
+    asynchronousexplicitimagecache.h
+    asynchronousimagecache.h
+    auxiliarydata.h
+    auxiliarydataproperties.h
+    basetexteditmodifier.h
+    bindingproperty.h
+    componenttextmodifier.h
+    customnotifications.h
+    documentmessage.h
+    enumerationmetainfo.h
+    exception.h
+    externaldependenciesinterface.h
+    forwardview.h
+    imagecacheauxiliarydata.h
+    import.h
+    invalidargumentexception.h
+    invalididexception.h
+    invalidmetainfoexception.h
+    invalidmodelnodeexception.h
+    invalidmodelstateexception.h
+    invalidpropertyexception.h
+    invalidqmlsourceexception.h
+    invalidreparentingexception.h
+    invalidslideindexexception.h
+    itemlibraryinfo.h
+    mathutils.h
+    metainfo.h
+    metainforeader.h
+    model.h
+    modelmerger.h
+    modelnode.h
+    modelnodepositionstorage.h
+    nodeabstractproperty.h
+    nodehints.h
+    nodeinstance.h
+    nodeinstanceview.h
+    nodelistproperty.h
+    nodemetainfo.h
+    nodeproperty.h
+    notimplementedexception.h
+    plaintexteditmodifier.h
+    propertycontainer.h
+    propertymetainfo.h
+    propertynode.h
+    propertyparser.h
+    qmlanchors.h
+    qmlchangeset.h
+    qmlconnections.h
+    qmldesignercorelib_global.h
+    qmlitemnode.h
+    qmlmodelnodefacade.h
+    qmlobjectnode.h
+    qmlstate.h
+    qmltimeline.h
+    qmltimelinekeyframegroup.h
+    removebasestateexception.h
+    rewriterview.h
+    rewritingexception.h
+    signalhandlerproperty.h
+    stylesheetmerger.h
+    subcomponentmanager.h
+    synchronousimagecache.h
+    textmodifier.h
+    variantproperty.h
+)
+
+extend_qtc_library(QmlDesignerCore
+  INCLUDES
+    ${CMAKE_CURRENT_LIST_DIR}/designercore/metainfo
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/metainfo
+  SOURCES
+    itemlibraryinfo.cpp
+    metainfo.cpp
+    metainforeader.cpp
+    nodehints.cpp
+    nodemetainfo.cpp
+    subcomponentmanager.cpp
+)
+
+extend_qtc_library(QmlDesignerCore
+  PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/instances
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/instances
+  SOURCES
+    baseconnectionmanager.cpp
+    baseconnectionmanager.h
+    connectionmanager.cpp
+    connectionmanager.h
+    connectionmanagerinterface.cpp
+    connectionmanagerinterface.h
+    nodeinstance.cpp
+    nodeinstanceserverproxy.cpp
+    nodeinstanceserverproxy.h
+    nodeinstanceview.cpp
+    puppetbuildprogressdialog.cpp
+    puppetbuildprogressdialog.h
+    puppetstarter.cpp
+    puppetstarter.h
+    puppetdialog.cpp
+    puppetdialog.h
+    qprocessuniqueptr.h
+)
+
+extend_qtc_library(QmlDesignerCore
+  INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/model
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/model
+  SOURCES
+    abstractproperty.cpp
+    abstractview.cpp
+    anchorline.cpp
+    annotation.cpp
+    bindingproperty.cpp
+    componenttextmodifier.cpp
+    documentmessage.cpp
+    import.cpp
+    internalbindingproperty.cpp
+    internalbindingproperty.h
+    internalnode.cpp
+    internalnode_p.h
+    internalnodeabstractproperty.cpp
+    internalnodeabstractproperty.h
+    internalnodelistproperty.cpp
+    internalnodelistproperty.h
+    internalnodeproperty.cpp
+    internalnodeproperty.h
+    internalproperty.cpp
+    internalproperty.h
+    internalsignalhandlerproperty.cpp
+    internalsignalhandlerproperty.h
+    internalvariantproperty.cpp
+    internalvariantproperty.h
+    model.cpp
+    model_p.h
+    modelmerger.cpp
+    modelnode.cpp
+    modelnodepositionrecalculator.cpp
+    modelnodepositionrecalculator.h
+    modelnodepositionstorage.cpp
+    modeltotextmerger.cpp
+    modeltotextmerger.h
+    nodeabstractproperty.cpp
+    nodelistproperty.cpp
+    nodeproperty.cpp
+    plaintexteditmodifier.cpp
+    propertycontainer.cpp
+    propertynode.cpp
+    propertyparser.cpp
+    qml3dnode.cpp
+    qmlanchors.cpp
+    qmlchangeset.cpp
+    qmlconnections.cpp
+    qmlitemnode.cpp
+    qmlmodelnodefacade.cpp
+    qmlobjectnode.cpp
+    qmlstate.cpp
+    qmltextgenerator.cpp
+    qmltextgenerator.h
+    qmltimeline.cpp
+    qmltimelinekeyframegroup.cpp
+    qmlvisualnode.cpp
+    rewriteaction.cpp
+    rewriteaction.h
+    rewriteactioncompressor.cpp
+    rewriteactioncompressor.h
+    rewriterview.cpp
+    signalhandlerproperty.cpp
+    stylesheetmerger.cpp
+    textmodifier.cpp
+    texttomodelmerger.cpp
+    texttomodelmerger.h
+    variantproperty.cpp
+)
+
+extend_qtc_library(QmlDesignerCore
+  INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/pluginmanager
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/pluginmanager
+  SOURCES
+    widgetpluginmanager.cpp
+    widgetpluginmanager.h
+    widgetpluginpath.cpp
+    widgetpluginpath.h
+)
+
+extend_qtc_library(QmlDesignerCore
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet
+  INCLUDES
+    ${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet/commands
+    ${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet/container
+  PUBLIC_INCLUDES
+    "${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet/interfaces"
+    "${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet/types"
+  SOURCES
+    commands/captureddatacommand.h
+    commands/changeauxiliarycommand.cpp
+    commands/changeauxiliarycommand.h
+    commands/changebindingscommand.cpp
+    commands/changebindingscommand.h
+    commands/changefileurlcommand.cpp
+    commands/changefileurlcommand.h
+    commands/changeidscommand.cpp
+    commands/changeidscommand.h
+    commands/changelanguagecommand.cpp
+    commands/changelanguagecommand.h
+    commands/changenodesourcecommand.cpp
+    commands/changenodesourcecommand.h
+    commands/changepreviewimagesizecommand.cpp
+    commands/changepreviewimagesizecommand.h
+    commands/changeselectioncommand.cpp
+    commands/changeselectioncommand.h
+    commands/changestatecommand.cpp
+    commands/changestatecommand.h
+    commands/changevaluescommand.cpp
+    commands/changevaluescommand.h
+    commands/childrenchangedcommand.cpp
+    commands/childrenchangedcommand.h
+    commands/clearscenecommand.cpp
+    commands/clearscenecommand.h
+    commands/completecomponentcommand.cpp
+    commands/completecomponentcommand.h
+    commands/componentcompletedcommand.cpp
+    commands/componentcompletedcommand.h
+    commands/createinstancescommand.cpp
+    commands/createinstancescommand.h
+    commands/createscenecommand.cpp
+    commands/createscenecommand.h
+    commands/debugoutputcommand.cpp
+    commands/debugoutputcommand.h
+    commands/endpuppetcommand.cpp
+    commands/endpuppetcommand.h
+    commands/informationchangedcommand.cpp
+    commands/informationchangedcommand.h
+    commands/nanotracecommand.cpp
+    commands/nanotracecommand.h
+    commands/inputeventcommand.cpp
+    commands/inputeventcommand.h
+    commands/pixmapchangedcommand.cpp
+    commands/pixmapchangedcommand.h
+    commands/puppetalivecommand.cpp
+    commands/puppetalivecommand.h
+    commands/puppettocreatorcommand.cpp
+    commands/puppettocreatorcommand.h
+    commands/removeinstancescommand.cpp
+    commands/removeinstancescommand.h
+    commands/removepropertiescommand.cpp
+    commands/removepropertiescommand.h
+    commands/removesharedmemorycommand.cpp
+    commands/removesharedmemorycommand.h
+    commands/reparentinstancescommand.cpp
+    commands/reparentinstancescommand.h
+    commands/requestmodelnodepreviewimagecommand.cpp
+    commands/requestmodelnodepreviewimagecommand.h
+    commands/scenecreatedcommand.h
+    commands/statepreviewimagechangedcommand.cpp
+    commands/statepreviewimagechangedcommand.h
+    commands/synchronizecommand.h
+    commands/tokencommand.cpp
+    commands/tokencommand.h
+    commands/update3dviewstatecommand.cpp
+    commands/update3dviewstatecommand.h
+    commands/valueschangedcommand.cpp
+    commands/valueschangedcommand.h
+    commands/view3dactioncommand.cpp
+    commands/view3dactioncommand.h
+
+    container/addimportcontainer.cpp
+    container/addimportcontainer.h
+    container/idcontainer.cpp
+    container/idcontainer.h
+    container/imagecontainer.cpp
+    container/imagecontainer.h
+    container/informationcontainer.cpp
+    container/informationcontainer.h
+    container/instancecontainer.cpp
+    container/instancecontainer.h
+    container/mockuptypecontainer.cpp
+    container/mockuptypecontainer.h
+    container/propertyabstractcontainer.cpp
+    container/propertyabstractcontainer.h
+    container/propertybindingcontainer.cpp
+    container/propertybindingcontainer.h
+    container/propertyvaluecontainer.cpp
+    container/propertyvaluecontainer.h
+    container/reparentcontainer.cpp
+    container/reparentcontainer.h
+    container/sharedmemory.h
+
+    interfaces/commondefines.h
+    interfaces/nodeinstanceclientinterface.h
+    interfaces/nodeinstanceglobal.h
+    interfaces/nodeinstanceserverinterface.cpp
+    interfaces/nodeinstanceserverinterface.h
+
+    types/enumeration.h
+)
+
+extend_qtc_library(QmlDesignerCore
+  SOURCES_PREFIX designercore/projectstorage
+  PUBLIC_INCLUDES designercore/projectstorage
+  SOURCES
+    commontypecache.h
+    directorypathcompressor.h
+    filesysteminterface.h
+    filesystem.cpp filesystem.h
+    filestatus.h
+    filestatuscache.cpp filestatuscache.h
+    nonlockingmutex.h
+    projectstorageinterface.h
+    projectstoragefwd.h
+    projectstorageinfotypes.h
+    projectstoragepathwatcher.h
+    projectstoragepathwatcherinterface.h
+    projectstoragepathwatchernotifierinterface.h
+    projectstoragepathwatcher.h
+    projectstoragepathwatchertypes.h
+    projectstorageprinting.h
+    projectstoragetypes.h
+    projectstorageupdater.cpp projectstorageupdater.h
+    projectstorage.cpp projectstorage.h
+    sourcepath.h
+    sourcepathcache.h
+    sourcepathcache.h
+    sourcepathcachetypes.h
+    sourcepathview.h
+    storagecache.h
+    storagecacheentry.h
+    storagecachefwd.h
+    qmldocumentparserinterface.h
+    qmltypesparserinterface.h
+    qmltypesparser.cpp qmltypesparser.h
+    qmldocumentparser.cpp qmldocumentparser.h
+)
+
+extend_qtc_library(QmlDesignerCore
+  CONDITION UNIX
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet/container
+  SOURCES sharedmemory_unix.cpp
+)
+
+extend_qtc_library(QmlDesignerCore
+  CONDITION NOT UNIX
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet/container
+  SOURCES sharedmemory_qt.cpp
+)
+
+file(GLOB PROJECTSTORAGE_EXCLUDED_SOURCES designercore/projectstorage/*.cpp)
+set_property(SOURCE ${PROJECTSTORAGE_EXCLUDED_SOURCES} PROPERTY SKIP_AUTOMOC ON)
+
 add_qtc_plugin(QmlDesigner
   CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0 AND TARGET Qt5::QuickWidgets AND TARGET Qt5::Svg
   DEPENDS
@@ -20,17 +522,30 @@ add_qtc_plugin(QmlDesigner
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
     SHARE_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../../share/qtcreator/qmldesigner"
     $<$<BOOL:${USE_PROJECTSTORAGE}>:QDS_USE_PROJECTSTORAGE>
+    QMLDESIGNER_LIBRARY QMLDESIGNERCORE_STATIC_LIBRARY QMLDESIGNERUTILS_STATIC_LIBRARY
+  INCLUDES
+    ${CMAKE_CURRENT_LIST_DIR}/components
+    ${CMAKE_CURRENT_LIST_DIR}/components/assetslibrary
+    ${CMAKE_CURRENT_LIST_DIR}/components/debugview
+    ${CMAKE_CURRENT_LIST_DIR}/components/edit3d
+    ${CMAKE_CURRENT_LIST_DIR}/components/formeditor
+    ${CMAKE_CURRENT_LIST_DIR}/components/integration
+    ${CMAKE_CURRENT_LIST_DIR}/components/itemlibrary
+    ${CMAKE_CURRENT_LIST_DIR}/components/materialbrowser
+    ${CMAKE_CURRENT_LIST_DIR}/components/materialeditor
+    ${CMAKE_CURRENT_LIST_DIR}/components/navigator
+    ${CMAKE_CURRENT_LIST_DIR}/components/propertyeditor
+    ${CMAKE_CURRENT_LIST_DIR}/components/stateseditor
+    ${CMAKE_CURRENT_LIST_DIR}/components/texteditor
   PUBLIC_INCLUDES
-    "${CMAKE_CURRENT_LIST_DIR}"
-    "${CMAKE_CURRENT_LIST_DIR}/designercore/include"
-    "${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet/interfaces"
-    "${CMAKE_CURRENT_LIST_DIR}/../../../share/qtcreator/qml/qmlpuppet/types"
+    ${CMAKE_CURRENT_LIST_DIR}
+  PUBLIC_DEPENDS
+    QmlDesignerCore
   PLUGIN_DEPENDS
     Core ProjectExplorer QmlJSEditor QmakeProjectManager QmlProjectManager
-    QtSupport TextEditor
+    QtSupport
   PLUGIN_RECOMMENDS QmlPreview
   SOURCES
-    designersettings.cpp designersettings.h
     designmodecontext.cpp designmodecontext.h
     designmodewidget.cpp designmodewidget.h
     documentmanager.cpp documentmanager.h
@@ -39,9 +554,11 @@ add_qtc_plugin(QmlDesigner
     generateresource.cpp generateresource.h
     openuiqmlfiledialog.cpp openuiqmlfiledialog.h openuiqmlfiledialog.ui
     puppetenvironmentbuilder.cpp puppetenvironmentbuilder.h
+    qmldesigner_global.h
     qmldesignerconstants.h
     qmldesignericons.h
     qmldesignerplugin.cpp qmldesignerplugin.h
+    qmldesignerexternaldependencies.cpp qmldesignerexternaldependencies.h
     qmldesignerprojectmanager.cpp qmldesignerprojectmanager.h
     settingspage.cpp settingspage.h settingspage.ui
     shortcutmanager.cpp shortcutmanager.h
@@ -56,9 +573,6 @@ add_qtc_plugin(QmlDesigner
   PROPERTIES
     QMLDESIGNER_PLUGIN_PATH "${QmlDesignerPluginInstallPrefix}"
 )
-
-include(qmldesignercore.cmake)
-extend_with_qmldesigner_core(QmlDesigner)
 
 function(get_and_add_as_subdirectory name repository git_tag build_dir source_dir source_subdir)
     # make the configuration in the build dir
@@ -192,6 +706,14 @@ add_qtc_plugin(qtquickplugin
 add_subdirectory(studioplugin)
 
 extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components
+  PUBLIC_INCLUDES components
+  DEFINES QMLDESIGNERCOMPONENTS_LIBRARY
+  SOURCES
+    qmldesignercomponents_global.h
+)
+
+extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/componentcore
   PUBLIC_INCLUDES components/componentcore
   SOURCES
@@ -217,7 +739,6 @@ extend_qtc_plugin(QmlDesigner
     selectioncontext.cpp selectioncontext.h
     theme.cpp theme.h
     zoomaction.cpp zoomaction.h
-    hdrimage.cpp hdrimage.h
     svgpasteaction.cpp svgpasteaction.h
     viewmanager.cpp viewmanager.h
 )
@@ -470,41 +991,6 @@ extend_qtc_plugin(QmlDesigner
     include/qml3dnode.h
     include/qmlvisualnode.h
 
-)
-
-extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX designercore/projectstorage
-  SOURCES
-    commontypecache.h
-    directorypathcompressor.h
-    filesysteminterface.h
-    filesystem.cpp filesystem.h
-    filestatus.h
-    filestatuscache.cpp filestatuscache.h
-    nonlockingmutex.h
-    projectstorageinterface.h
-    projectstoragefwd.h
-    projectstorageinfotypes.h
-    projectstoragepathwatcher.h
-    projectstoragepathwatcherinterface.h
-    projectstoragepathwatchernotifierinterface.h
-    projectstoragepathwatcher.h
-    projectstoragepathwatchertypes.h
-    projectstorageprinting.h
-    projectstoragetypes.h
-    projectstorageupdater.cpp projectstorageupdater.h
-    sourcepath.h
-    sourcepathcache.h
-    sourcepathcache.h
-    sourcepathcachetypes.h
-    sourcepathview.h
-    storagecache.h
-    storagecacheentry.h
-    storagecachefwd.h
-    qmldocumentparserinterface.h
-    qmltypesparserinterface.h
-    qmltypesparser.cpp qmltypesparser.h
-    qmldocumentparser.cpp qmldocumentparser.h
 )
 
 extend_qtc_plugin(QmlDesigner

@@ -20,6 +20,7 @@ public:
     MeshImageCacheCollector(ImageCacheConnectionManager &connectionManager,
                             QSize captureImageMinimumSize,
                             QSize captureImageMaximumSize,
+                            ExternalDependenciesInterface &externalDependencies,
                             ImageCacheCollectorNullImageHandling nullImageHandling = {});
 
     ~MeshImageCacheCollector();

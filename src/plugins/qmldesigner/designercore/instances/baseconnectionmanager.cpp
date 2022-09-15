@@ -16,7 +16,8 @@ namespace QmlDesigner {
 void BaseConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServer,
                                   const QString &,
                                   ProjectExplorer::Target *,
-                                  [[maybe_unused]] AbstractView *view)
+                                  [[maybe_unused]] AbstractView *view,
+                                  ExternalDependenciesInterface &)
 {
     m_nodeInstanceServer = nodeInstanceServer;
     m_isActive = true;

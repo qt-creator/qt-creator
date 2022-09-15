@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #pragma once
 
+#include <qmldesignercomponents_global.h>
+
 #include <abstractview.h>
 #include <modelcache.h>
 
@@ -22,12 +24,12 @@ class Edit3DAction;
 class Edit3DCameraAction;
 class SeekerSlider;
 
-class QMLDESIGNERCORE_EXPORT Edit3DView : public AbstractView
+class QMLDESIGNERCOMPONENTS_EXPORT Edit3DView : public AbstractView
 {
     Q_OBJECT
 
 public:
-    Edit3DView();
+    Edit3DView(ExternalDependenciesInterface &externalDependencies);
     ~Edit3DView() override;
 
     WidgetInfo widgetInfo() override;

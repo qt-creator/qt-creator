@@ -26,10 +26,6 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#ifndef QMLDESIGNER_TEST
-#include <designermcumanager.h>
-#endif
-
 namespace QmlDesigner {
 
 bool QmlItemNode::isItemOrWindow(const ModelNode &modelNode)

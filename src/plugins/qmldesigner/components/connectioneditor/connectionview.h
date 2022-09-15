@@ -28,7 +28,7 @@ class  ConnectionView : public AbstractView
     Q_OBJECT
 
 public:
-    ConnectionView();
+    ConnectionView(ExternalDependenciesInterface &externalDependencies);
     ~ConnectionView() override;
 
     // AbstractView

@@ -19,7 +19,7 @@ class AssetsLibraryView : public AbstractView
     Q_OBJECT
 
 public:
-    AssetsLibraryView();
+    AssetsLibraryView(ExternalDependenciesInterface &externalDependencies);
     ~AssetsLibraryView() override;
 
     bool hasWidget() const override;

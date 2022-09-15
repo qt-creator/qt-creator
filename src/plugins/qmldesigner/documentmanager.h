@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "qmldesigner_global.h"
+
 #include <QObject>
 #include <QList>
 #include <QLoggingCategory>
@@ -21,12 +23,14 @@ class QmlDesignerProjectManager;
 
 Q_DECLARE_LOGGING_CATEGORY(documentManagerLog)
 
-class QMLDESIGNERCORE_EXPORT DocumentManager : public QObject
+class QMLDESIGNER_EXPORT DocumentManager : public QObject
 {
     Q_OBJECT
 public:
-    DocumentManager(QmlDesignerProjectManager &projectManager)
+    DocumentManager(QmlDesignerProjectManager &projectManager,
+                    ExternalDependenciesInterface &externalDependencies)
         : m_projectManager{projectManager}
+        , m_externalDependencies{externalDependencies}
     {}
 
     void setCurrentDesignDocument(Core::IEditor *editor);
@@ -56,6 +60,7 @@ private:
     std::map<Core::IEditor *, std::unique_ptr<DesignDocument>> m_designDocuments;
     QPointer<DesignDocument> m_currentDesignDocument;
     QmlDesignerProjectManager &m_projectManager;
+    ExternalDependenciesInterface &m_externalDependencies;
 };
 
 } // namespace QmlDesigner

@@ -47,9 +47,26 @@ static Q_LOGGING_CATEGORY(viewBenchmark, "qtc.viewmanager.attach", QtWarningMsg)
 class ViewManagerData
 {
 public:
-    ViewManagerData(AsynchronousImageCache &imageCache)
-        : itemLibraryView(imageCache)
-        , propertyEditorView(imageCache)
+    ViewManagerData(AsynchronousImageCache &imageCache,
+                    ExternalDependenciesInterface &externalDependencies)
+        : debugView{externalDependencies}
+        , designerActionManagerView{externalDependencies}
+        , nodeInstanceView(QCoreApplication::arguments().contains("-capture-puppet-stream")
+                               ? capturingConnectionManager
+                               : connectionManager,
+                           externalDependencies)
+        , componentView{externalDependencies}
+        , edit3DView{externalDependencies}
+        , formEditorView{externalDependencies}
+        , textEditorView{externalDependencies}
+        , assetsLibraryView{externalDependencies}
+        , itemLibraryView(imageCache, externalDependencies)
+        , navigatorView{externalDependencies}
+        , propertyEditorView(imageCache, externalDependencies)
+        , materialEditorView{externalDependencies}
+        , materialBrowserView{externalDependencies}
+        , statesEditorView{externalDependencies}
+        , newStatesEditorView{externalDependencies}
     {}
 
     InteractiveConnectionManager connectionManager;
@@ -57,9 +74,7 @@ public:
     QmlModelState savedState;
     Internal::DebugView debugView;
     DesignerActionManagerView designerActionManagerView;
-    NodeInstanceView nodeInstanceView{
-        QCoreApplication::arguments().contains("-capture-puppet-stream") ? capturingConnectionManager
-                                                                         : connectionManager};
+    NodeInstanceView nodeInstanceView;
     ComponentView componentView;
     Edit3DView edit3DView;
     FormEditorView formEditorView;
@@ -81,8 +96,9 @@ static CrumbleBar *crumbleBar() {
     return QmlDesignerPlugin::instance()->mainWidget()->crumbleBar();
 }
 
-ViewManager::ViewManager(AsynchronousImageCache &imageCache)
-    : d(std::make_unique<ViewManagerData>(imageCache))
+ViewManager::ViewManager(AsynchronousImageCache &imageCache,
+                         ExternalDependenciesInterface &externalDependencies)
+    : d(std::make_unique<ViewManagerData>(imageCache, externalDependencies))
 {
     d->formEditorView.setGotoErrorCallback([this](int line, int column) {
         d->textEditorView.gotoCursorPosition(line, column);

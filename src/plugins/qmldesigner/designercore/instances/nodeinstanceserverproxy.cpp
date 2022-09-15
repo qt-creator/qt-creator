@@ -4,7 +4,6 @@
 #include "nodeinstanceserverproxy.h"
 
 #include "connectionmanagerinterface.h"
-#include "puppetcreator.h"
 
 #include <changeauxiliarycommand.h>
 #include <changebindingscommand.h>
@@ -71,7 +70,8 @@ static Q_LOGGING_CATEGORY(instanceViewBenchmark, "qtc.nodeinstances.init", QtWar
 
 NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView,
                                                  ProjectExplorer::Target *target,
-                                                 ConnectionManagerInterface &connectionManager)
+                                                 ConnectionManagerInterface &connectionManager,
+                                                 ExternalDependenciesInterface &externalDependencies)
     : m_nodeInstanceView(nodeInstanceView)
     , m_connectionManager{connectionManager}
 
@@ -79,7 +79,7 @@ NodeInstanceServerProxy::NodeInstanceServerProxy(NodeInstanceView *nodeInstanceV
     if (instanceViewBenchmark().isInfoEnabled())
         m_benchmarkTimer.start();
 
-    m_connectionManager.setUp(this, qrcMappingString(), target, nodeInstanceView);
+    m_connectionManager.setUp(this, qrcMappingString(), target, nodeInstanceView, externalDependencies);
 
     qCInfo(instanceViewBenchmark) << "puppets setup:" << m_benchmarkTimer.elapsed();
 }

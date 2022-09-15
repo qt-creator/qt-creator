@@ -13,7 +13,7 @@ class PathToolView : public AbstractView
 {
     Q_OBJECT
 public:
-    PathToolView(PathTool *pathTool);
+    PathToolView(PathTool *pathTool, ExternalDependenciesInterface &externalDependencies);
 
     void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent, const NodeAbstractProperty &oldPropertyParent, AbstractView::PropertyChangeFlags propertyChange) override;
     void variantPropertiesChanged(const QList<VariantProperty>& propertyList, PropertyChangeFlags propertyChange) override;

@@ -75,7 +75,8 @@ void EventListDialog::initialize(EventList &events)
         Model *model = events.model();
         m_modifier->setParent(model);
 
-        m_rewriter = new RewriterView(QmlDesigner::RewriterView::Validate);
+        m_rewriter = new RewriterView(events.view()->externalDependencies(),
+                                      QmlDesigner::RewriterView::Validate);
         m_rewriter->setParent(model);
         m_rewriter->setTextModifier(m_modifier);
         m_rewriter->setCheckSemanticErrors(false);

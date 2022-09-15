@@ -42,7 +42,9 @@
 
 namespace QmlDesigner {
 
-FormEditorView::FormEditorView() {}
+FormEditorView::FormEditorView(ExternalDependenciesInterface &externalDependencies)
+    : AbstractView{externalDependencies}
+{}
 
 FormEditorScene* FormEditorView::scene() const
 {

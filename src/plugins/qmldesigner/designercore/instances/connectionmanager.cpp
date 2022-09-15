@@ -5,11 +5,9 @@
 #include "endpuppetcommand.h"
 #include "nodeinstanceserverproxy.h"
 #include "nodeinstanceview.h"
-#include "puppetcreator.h"
+#include "puppetstarter.h"
 
-#ifndef QMLDESIGNER_TEST
-#include <qmldesignerplugin.h>
-#endif
+#include <externaldependenciesinterface.h>
 
 #include <projectexplorer/target.h>
 
@@ -27,14 +25,14 @@ ConnectionManager::~ConnectionManager() = default;
 void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerProxy,
                               const QString &qrcMappingString,
                               ProjectExplorer::Target *target,
-                              AbstractView *view)
+                              AbstractView *view,
+                              ExternalDependenciesInterface &externalDependencies)
 {
-    BaseConnectionManager::setUp(nodeInstanceServerProxy, qrcMappingString, target, view);
-
-    PuppetCreator puppetCreator(target, view->model());
-    puppetCreator.setQrcMappingString(qrcMappingString);
-
-    puppetCreator.createQml2PuppetExecutableIfMissing();
+    BaseConnectionManager::setUp(nodeInstanceServerProxy,
+                                 qrcMappingString,
+                                 target,
+                                 view,
+                                 externalDependencies);
 
     for (Connection &connection : m_connections) {
 
@@ -43,7 +41,8 @@ void ConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServerPro
         connection.localServer->listen(socketToken);
         connection.localServer->setMaxPendingConnections(1);
 
-        connection.qmlPuppetProcess = puppetCreator.createPuppetProcess(
+        connection.qmlPuppetProcess = PuppetStarter::createPuppetProcess(
+            externalDependencies.puppetStartData(*view->model()),
             connection.mode,
             socketToken,
             [&] { printProcessOutput(connection.qmlPuppetProcess.get(), connection.name); },

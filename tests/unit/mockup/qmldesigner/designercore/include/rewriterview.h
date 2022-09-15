@@ -44,7 +44,9 @@ public:
     };
 
 public:
-    RewriterView(DifferenceHandling, QObject *) {}
+    RewriterView(DifferenceHandling, ExternalDependenciesInterface &externalDependencies)
+        : AbstractView{externalDependencies}
+    {}
     ~RewriterView() override {}
 
     void modelAttached(Model *) override {}

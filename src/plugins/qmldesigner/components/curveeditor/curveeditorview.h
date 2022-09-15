@@ -16,7 +16,7 @@ class CurveEditorView : public AbstractView
     Q_OBJECT
 
 public:
-    explicit CurveEditorView();
+    explicit CurveEditorView(ExternalDependenciesInterface &externalDepoendencies);
     ~CurveEditorView() override;
 
 public:

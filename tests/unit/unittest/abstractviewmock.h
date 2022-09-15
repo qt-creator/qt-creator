@@ -10,5 +10,8 @@
 class AbstractViewMock : public QmlDesigner::AbstractView
 {
 public:
+    AbstractViewMock(QmlDesigner::ExternalDependenciesInterface *externalDependencies = nullptr)
+        : QmlDesigner::AbstractView{*externalDependencies}
+    {}
     MOCK_METHOD(void, nodeOrderChanged, (const QmlDesigner::NodeListProperty &listProperty), (override));
 };

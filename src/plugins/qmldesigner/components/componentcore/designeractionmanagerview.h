@@ -16,7 +16,7 @@ class DesignerActionManagerView : public AbstractView
 {
     Q_OBJECT
 public:
-    DesignerActionManagerView();
+    DesignerActionManagerView(ExternalDependenciesInterface &externalDependencies);
 
     void modelAttached(Model *model) override;
     void modelAboutToBeDetached(Model *model) override;

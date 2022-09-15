@@ -16,7 +16,7 @@ class TransitionEditorView : public AbstractView
     Q_OBJECT
 
 public:
-    explicit TransitionEditorView();
+    explicit TransitionEditorView(ExternalDependenciesInterface &externalDependencies);
     ~TransitionEditorView() override;
     //Abstract View
     WidgetInfo widgetInfo() override;

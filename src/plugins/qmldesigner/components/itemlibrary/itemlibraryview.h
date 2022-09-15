@@ -16,7 +16,8 @@ class ItemLibraryView : public AbstractView
     Q_OBJECT
 
 public:
-    ItemLibraryView(class AsynchronousImageCache &imageCache);
+    ItemLibraryView(class AsynchronousImageCache &imageCache,
+                    ExternalDependenciesInterface &externalDependencies);
     ~ItemLibraryView() override;
 
     bool hasWidget() const override;

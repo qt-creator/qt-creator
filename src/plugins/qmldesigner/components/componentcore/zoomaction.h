@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include <qmldesignercorelib_global.h>
+#include <qmldesignercomponents_global.h>
 
 #include <QPointer>
 #include <QWidgetAction>
@@ -15,7 +15,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT ZoomAction : public QWidgetAction
+class QMLDESIGNERCOMPONENTS_EXPORT ZoomAction : public QWidgetAction
 {
     Q_OBJECT
 

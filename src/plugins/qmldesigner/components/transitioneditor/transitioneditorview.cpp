@@ -40,8 +40,9 @@
 
 namespace QmlDesigner {
 
-TransitionEditorView::TransitionEditorView()
-    : m_transitionEditorWidget(nullptr)
+TransitionEditorView::TransitionEditorView(ExternalDependenciesInterface &externalDependencies)
+    : AbstractView{externalDependencies}
+    , m_transitionEditorWidget(nullptr)
 {
 
 }

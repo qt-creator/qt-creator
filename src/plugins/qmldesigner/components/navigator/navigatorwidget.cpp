@@ -5,17 +5,19 @@
 #include "navigatorwidget.h"
 #include "navigatorview.h"
 
+#include <designeractionmanager.h>
 #include <designersettings.h>
+#include <theme.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignericons.h>
 #include <qmldesignerplugin.h>
-#include <theme.h>
 
 #include <QAbstractItemModel>
 #include <QBoxLayout>
 #include <QHeaderView>
 #include <QMenu>
 #include <QStackedWidget>
+#include <QToolBar>
 #include <QToolButton>
 
 #include <utils/fileutils.h>
@@ -56,11 +58,9 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view)
 
     setWindowTitle(tr("Navigator", "Title of navigator view"));
 
-#ifndef QMLDESIGNER_TEST
     QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
     sheet += Utils::FileReader::fetchQrc(":/qmldesigner/scrollbar.css");
     setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
-#endif
 
     QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_NAVIGATORVIEW_TIME);
 }

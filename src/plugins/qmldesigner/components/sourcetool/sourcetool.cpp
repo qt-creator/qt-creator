@@ -13,6 +13,7 @@
 
 #include "nodemetainfo.h"
 #include "qmlitemnode.h"
+#include <designeractionmanager.h>
 #include <qmldesignerplugin.h>
 
 #include <abstractaction.h>

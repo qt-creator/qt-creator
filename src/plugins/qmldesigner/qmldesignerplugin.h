@@ -3,15 +3,16 @@
 
 #pragma once
 
-#include <qmldesigner/designersettings.h>
+#include "documentmanager.h"
+#include "qmldesigner_global.h"
+#include "shortcutmanager.h"
+
+#include <designersettings.h>
+#include <viewmanager.h>
 #include <qmldesignercorelib_global.h>
 
 #include <extensionsystem/iplugin.h>
 
-#include "documentmanager.h"
-#include "viewmanager.h"
-#include "shortcutmanager.h"
-#include <designeractionmanager.h>
 
 #include <QElapsedTimer>
 
@@ -25,10 +26,11 @@ namespace QmlDesigner {
 
 class QmlDesignerPluginPrivate;
 class AsynchronousImageCache;
+class ExternalDependenciesInterface;
 
 namespace Internal { class DesignModeWidget; }
 
-class QMLDESIGNERCORE_EXPORT QmlDesignerPlugin final : public ExtensionSystem::IPlugin
+class QMLDESIGNER_EXPORT QmlDesignerPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlDesigner.json")
@@ -47,13 +49,13 @@ public:
     DocumentManager &documentManager();
     const DocumentManager &documentManager() const;
 
-    ViewManager &viewManager();
-    const ViewManager &viewManager() const;
+    static ViewManager &viewManager();
 
     DesignerActionManager &designerActionManager();
     const DesignerActionManager &designerActionManager() const;
 
-    static DesignerSettings& settings();
+    static DesignerSettings &settings();
+    static ExternalDependenciesInterface &externalDependenciesForPluginInitializationOnly(); // if you use it your code smells
 
     DesignDocument *currentDesignDocument() const;
     Internal::DesignModeWidget *mainWidget() const;

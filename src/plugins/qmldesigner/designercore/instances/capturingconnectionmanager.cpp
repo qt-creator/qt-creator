@@ -15,9 +15,14 @@ namespace QmlDesigner {
 void CapturingConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServer,
                                        const QString &qrcMappingString,
                                        ProjectExplorer::Target *target,
-                                       AbstractView *view)
+                                       AbstractView *view,
+                                       ExternalDependenciesInterface &externalDependencies)
 {
-    InteractiveConnectionManager::setUp(nodeInstanceServer, qrcMappingString, target, view);
+    InteractiveConnectionManager::setUp(nodeInstanceServer,
+                                        qrcMappingString,
+                                        target,
+                                        view,
+                                        externalDependencies);
 
     int indexOfCapturePuppetStream = QCoreApplication::arguments().indexOf(
         "-capture-puppet-stream");

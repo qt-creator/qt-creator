@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include <qmlitemnode.h>
 #include "snappinglinecreator.h"
+
+#include <qmldesignercomponents_global.h>
+#include <qmlitemnode.h>
 
 #include <QPointer>
 #include <QGraphicsWidget>
@@ -25,7 +27,7 @@ namespace Internal {
     class MoveController;
 }
 
-class QMLDESIGNERCORE_EXPORT FormEditorItem : public QGraphicsItem
+class QMLDESIGNERCOMPONENTS_EXPORT FormEditorItem : public QGraphicsItem
 {
     friend FormEditorScene;
 

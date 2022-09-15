@@ -9,6 +9,8 @@
 
 #include <bindingproperty.h>
 #include <customnotifications.h>
+#include <designersettings.h>
+#include <externaldependenciesinterface.h>
 #include <filemanager/astobjecttextextractor.h>
 #include <filemanager/firstdefinitionfinder.h>
 #include <filemanager/objectlengthcalculator.h>
@@ -20,11 +22,6 @@
 #include <variantproperty.h>
 #include <qmlobjectnode.h>
 #include <qmltimelinekeyframegroup.h>
-
-#ifndef QMLDESIGNER_TEST
-#include <qmldesignerplugin.h>
-#include <viewmanager.h>
-#endif
 
 #include <qmljs/parser/qmljsengine_p.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -46,21 +43,16 @@ namespace QmlDesigner {
 
 const char annotationsEscapeSequence[] = "##^##";
 
-bool debugQmlPuppet()
+bool debugQmlPuppet(const DesignerSettings &settings)
 {
-#ifndef QMLDESIGNER_TEST
-    if (!QmlDesignerPlugin::instance())
-        return false;
-    const QString debugPuppet = QmlDesignerPlugin::instance()->settings().value(DesignerSettingsKey::
-        DEBUG_PUPPET).toString();
+    const QString debugPuppet = settings.value(DesignerSettingsKey::DEBUG_PUPPET).toString();
     return !debugPuppet.isEmpty();
-#else
-    return false;
-#endif
 }
 
-RewriterView::RewriterView(DifferenceHandling differenceHandling)
-    : m_differenceHandling(differenceHandling)
+RewriterView::RewriterView(ExternalDependenciesInterface &externalDependencies,
+                           DifferenceHandling differenceHandling)
+    : AbstractView{externalDependencies}
+    , m_differenceHandling(differenceHandling)
     , m_positionStorage(new ModelNodePositionStorage)
     , m_modelToTextMerger(new Internal::ModelToTextMerger(this))
     , m_textToModelMerger(new Internal::TextToModelMerger(this))
@@ -888,7 +880,8 @@ void RewriterView::setupCanonicalHashes() const
 void RewriterView::handleLibraryInfoUpdate()
 {
     // Trigger dummy amend to reload document when library info changes
-    if (isAttached() && !m_modelAttachPending && !debugQmlPuppet())
+    if (isAttached() && !m_modelAttachPending
+        && !debugQmlPuppet(externalDependencies().designerSettings()))
         m_amendTimer.start();
 }
 
@@ -1093,16 +1086,10 @@ void RewriterView::qmlTextChanged()
             if (m_instantQmlTextUpdate) {
                 amendQmlText();
             } else {
-#ifndef QMLDESIGNER_TEST
-                auto &viewManager = QmlDesignerPlugin::instance()->viewManager();
-                if (viewManager.usesRewriterView(this)) {
-                    QmlDesignerPlugin::instance()->viewManager().disableWidgets();
+                if (externalDependencies().viewManagerUsesRewriterView(this)) {
+                    externalDependencies().viewManagerDiableWidgets();
                     m_amendTimer.start();
                 }
-#else
-                /*Keep test synchronous*/
-                amendQmlText();
-#endif
             }
             break;
         }

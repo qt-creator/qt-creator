@@ -56,19 +56,20 @@ void TimelineActions::copyAllKeyframesForTarget(const ModelNode &targetNode,
                                                 const QmlTimeline &timeline)
 {
     DesignDocumentView::copyModelNodes(Utils::transform(timeline.keyframeGroupsForTarget(targetNode),
-                                                        &QmlTimelineKeyframeGroup::modelNode));
+                                                        &QmlTimelineKeyframeGroup::modelNode),
+                                       targetNode.view()->externalDependencies());
 }
 
 void TimelineActions::pasteKeyframesToTarget(const ModelNode &targetNode,
                                              const QmlTimeline &timeline)
 {
     if (timeline.isValid()) {
-        auto pasteModel = DesignDocumentView::pasteToModel();
+        auto pasteModel = DesignDocumentView::pasteToModel(targetNode.view()->externalDependencies());
 
         if (!pasteModel)
             return;
 
-        DesignDocumentView view;
+        DesignDocumentView view{targetNode.view()->externalDependencies()};
         pasteModel->attachView(&view);
 
         if (!view.rootModelNode().isValid())
@@ -113,7 +114,8 @@ void TimelineActions::pasteKeyframesToTarget(const ModelNode &targetNode,
     }
 }
 
-void TimelineActions::copyKeyframes(const QList<ModelNode> &keyframes)
+void TimelineActions::copyKeyframes(const QList<ModelNode> &keyframes,
+                                    ExternalDependenciesInterface &externalDependencies)
 {
     QList<ModelNode> nodes;
     for (const auto &node : keyframes) {
@@ -137,7 +139,7 @@ void TimelineActions::copyKeyframes(const QList<ModelNode> &keyframes)
         nodes << node;
     }
 
-    DesignDocumentView::copyModelNodes(nodes);
+    DesignDocumentView::copyModelNodes(nodes, externalDependencies);
 }
 
 bool isKeyframe(const ModelNode &node)
@@ -238,12 +240,12 @@ std::vector<std::tuple<ModelNode, qreal>> getFramesRelative(const ModelNode &par
 
 void TimelineActions::pasteKeyframes(AbstractView *timelineView, const QmlTimeline &timeline)
 {
-    auto pasteModel = DesignDocumentView::pasteToModel();
+    auto pasteModel = DesignDocumentView::pasteToModel(timelineView->externalDependencies());
 
     if (!pasteModel)
         return;
 
-    DesignDocumentView view;
+    DesignDocumentView view{timelineView->externalDependencies()};
     pasteModel->attachView(&view);
 
     if (!view.rootModelNode().isValid())

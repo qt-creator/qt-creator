@@ -2,13 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "subcomponentmanager.h"
-
-#include <invalidmetainfoexception.h>
-#include <itemlibraryimport.h>
-#include <qmldesignerconstants.h>
-
-#include "model.h"
 #include "metainforeader.h"
+
+#include <externaldependenciesinterface.h>
+#include <invalidmetainfoexception.h>
+#include <model.h>
+#include <qmldesignerconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -40,9 +39,10 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
 static const QString s_qmlFilePattern = QStringLiteral("*.qml");
 
-SubComponentManager::SubComponentManager(Model *model, QObject *parent)
-    : QObject(parent),
-      m_model(model)
+SubComponentManager::SubComponentManager(Model *model,
+                                         ExternalDependenciesInterface &externalDependencies)
+    : m_model(model)
+    , m_externalDependencies{externalDependencies}
 {
     connect(&m_watcher, &QFileSystemWatcher::directoryChanged,
             this, [this](const QString &path) { parseDirectory(path); });
@@ -357,9 +357,7 @@ void SubComponentManager::registerQmlFile(const QFileInfo &fileInfo, const QStri
     ItemLibraryEntry itemLibraryEntry;
     itemLibraryEntry.setType(componentName.toUtf8());
     itemLibraryEntry.setName(baseComponentName);
-#ifndef QMLDESIGNER_TEST
-    itemLibraryEntry.setCategory(ItemLibraryImport::userComponentsTitle());
-#endif
+    itemLibraryEntry.setCategory(m_externalDependencies.itemLibraryImportUserComponentsTitle());
     itemLibraryEntry.setCustomComponentSource(fileInfo.absoluteFilePath());
     if (!qualifier.isEmpty())
         itemLibraryEntry.setRequiredImport(fixedQualifier);

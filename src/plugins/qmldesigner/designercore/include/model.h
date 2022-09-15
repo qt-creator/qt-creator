@@ -74,7 +74,6 @@ public:
     }
 
     QUrl fileUrl() const;
-    QUrl projectUrl() const;
     void setFileUrl(const QUrl &url);
 
     const MetaInfo metaInfo() const;

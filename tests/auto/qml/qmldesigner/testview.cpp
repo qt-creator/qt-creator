@@ -15,7 +15,9 @@
 #include <model.h>
 #include <nodeinstanceview.h>
 
-TestView::TestView() {}
+TestView::TestView(QmlDesigner::ExternalDependenciesInterface *externalDependencies)
+    : QmlDesigner::AbstractView{*externalDependencies}
+{}
 
 void TestView::modelAttached(QmlDesigner::Model *model)
 {

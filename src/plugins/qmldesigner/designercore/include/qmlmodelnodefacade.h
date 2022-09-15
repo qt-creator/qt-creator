@@ -29,6 +29,8 @@ public:
     NodeInstanceView *nodeInstanceView() const;
     bool isRootNode() const;
 
+    static void enableUglyWorkaroundForIsValidQmlModelNodeFacadeInTests();
+
 protected:
     QmlModelNodeFacade(const ModelNode &modelNode)
         : m_modelNode(modelNode)

@@ -10,19 +10,22 @@
 #include <QTest>
 #include <QVariant>
 
+#include <designersettings.h>
+#include <externaldependenciesinterface.h>
+#include <invalididexception.h>
+#include <invalidmodelnodeexception.h>
 #include <metainfo.h>
 #include <model.h>
 #include <modelmerger.h>
 #include <modelnode.h>
-#include <qmlanchors.h>
-#include <invalididexception.h>
-#include <invalidmodelnodeexception.h>
-#include <rewritingexception.h>
-#include <nodeinstanceview.h>
 #include <nodeinstance.h>
-#include <subcomponentmanager.h>
+#include <nodeinstanceview.h>
+#include <rewritingexception.h>
 #include <stylesheetmerger.h>
+#include <subcomponentmanager.h>
 #include <QDebug>
+#include <qmlanchors.h>
+#include <qmlmodelnodefacade.h>
 
 #include "../testconnectionmanager.h"
 #include "../testview.h"
@@ -120,10 +123,52 @@ static void initializeMetaTypeSystem(const QString &resourcePath)
         qWarning() << qPrintable(errorAndWarning);
 }
 
-static std::unique_ptr<QmlDesigner::Model> createModel(const QString &typeName,
-                                                       int major = 2,
-                                                       int minor = 1,
-                                                       Model *metaInfoPropxyModel = 0)
+namespace {
+
+class ExternalDependenciesFake : public QObject, public ExternalDependenciesInterface
+{
+public:
+    ExternalDependenciesFake(Model &model)
+        : model{model}
+    {}
+
+    double formEditorDevicePixelRatio() const override { return 1.; }
+    QString currentProjectDirPath() const override
+    {
+        return QFileInfo(model.fileUrl().toLocalFile()).absolutePath();
+    }
+
+    QUrl currentResourcePath() const override
+    {
+        return QUrl::fromLocalFile(QFileInfo(model.fileUrl().toLocalFile()).absolutePath());
+    }
+
+    QString defaultPuppetFallbackDirectory() const override { return {}; }
+    QString defaultPuppetToplevelBuildDirectory() const override { return {}; }
+    QString qmlPuppetFallbackDirectory() const override { return {}; }
+    QUrl projectUrl() const override { return {}; }
+    QList<QColor> designerSettingsEdit3DViewBackgroundColor() const override { return {}; }
+    QColor designerSettingsEdit3DViewGridColor() const override { return {}; }
+    void parseItemLibraryDescriptions() override {}
+    const QmlDesigner::DesignerSettings &designerSettings() const override { return settings; }
+    void undoOnCurrentDesignDocument() override {}
+    bool viewManagerUsesRewriterView(class RewriterView *) const override { return true; }
+    void viewManagerDiableWidgets() override {}
+    QString itemLibraryImportUserComponentsTitle() const override { return {}; }
+    bool isQt6Import() const override { return false; }
+    bool hasStartupTarget() const override { return false; }
+    PuppetStartData puppetStartData(const class Model &) const override { return {}; }
+
+public:
+    QSettings qsettings;
+    QmlDesigner::DesignerSettings settings{&qsettings};
+    Model &model;
+};
+
+std::unique_ptr<QmlDesigner::Model> createModel(const QString &typeName,
+                                                int major = 2,
+                                                int minor = 1,
+                                                Model *metaInfoPropxyModel = 0)
 {
     QApplication::processEvents();
 
@@ -131,24 +176,40 @@ static std::unique_ptr<QmlDesigner::Model> createModel(const QString &typeName,
 
     QPlainTextEdit *textEdit = new QPlainTextEdit;
     QObject::connect(model.get(), &QObject::destroyed, textEdit, &QObject::deleteLater);
-    textEdit->setPlainText(QString("import %1 %3.%4; %2{}").arg(typeName.split(".").first())
-            .arg(typeName.split(".").last())
-            .arg(major)
-            .arg(minor));
+    textEdit->setPlainText(QString("import %1 %3.%4; %2{}")
+                               .arg(typeName.split(".").first())
+                               .arg(typeName.split(".").last())
+                               .arg(major)
+                               .arg(minor));
 
     NotIndentingTextEditModifier *modifier = new NotIndentingTextEditModifier(textEdit);
     modifier->setParent(textEdit);
 
-    auto rewriterView = new QmlDesigner::RewriterView(QmlDesigner::RewriterView::Validate);
+    auto externalDependencies = new ExternalDependenciesFake{*model};
+    externalDependencies->setParent(model.get());
+
+    auto rewriterView = new QmlDesigner::RewriterView(*externalDependencies,
+                                                      QmlDesigner::RewriterView::Validate);
     rewriterView->setParent(model.get());
-    //rewriterView->setCheckSemanticErrors(false);
+    rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(modifier);
 
     model->attachView(rewriterView);
 
     return model;
-
 }
+
+auto createTextRewriterView(
+    Model &model, RewriterView::DifferenceHandling differenceHandling = RewriterView::Amend)
+{
+    auto externalDependencies = new ExternalDependenciesFake{model};
+    auto rewriter = std::make_unique<TestRewriterView>(*externalDependencies, differenceHandling);
+    externalDependencies->setParent(rewriter.get());
+
+    return rewriter;
+}
+
+} // namespace
 
 tst_TestCore::tst_TestCore()
     : QObject()
@@ -160,6 +221,8 @@ tst_TestCore::tst_TestCore()
 
 void tst_TestCore::initTestCase()
 {
+    QmlModelNodeFacade::enableUglyWorkaroundForIsValidQmlModelNodeFacadeInTests();
+    MetaInfo::disableParseItemLibraryDescriptionsUgly();
     Exception::setShouldAssert(false);
 
     if (!QmlJS::ModelManagerInterface::instance())
@@ -228,9 +291,9 @@ void tst_TestCore::loadEmptyCoreModel()
 
     auto model1(Model::create("QtQuick.Item"));
 
-    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    auto testRewriterView1 = createTextRewriterView(*model1);
     testRewriterView1->setTextModifier(&modifier1);
-    model1->attachView(testRewriterView1.data());
+    model1->attachView(testRewriterView1.get());
 
     QPlainTextEdit textEdit2;
     textEdit2.setPlainText("import QtQuick 1.1; Item{}");
@@ -238,9 +301,9 @@ void tst_TestCore::loadEmptyCoreModel()
 
     auto model2(Model::create("QtQuick.Item"));
 
-    QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
+    auto testRewriterView2 = createTextRewriterView(*model2);
     testRewriterView2->setTextModifier(&modifier2);
-    model2->attachView(testRewriterView2.data());
+    model2->attachView(testRewriterView2.get());
 
     QVERIFY(compareTree(testRewriterView1->rootModelNode(), testRewriterView2->rootModelNode()));
 }
@@ -261,9 +324,9 @@ void tst_TestCore::testRewriterView2()
 
         ModelNode rootModelNode(view->rootModelNode());
         QVERIFY(rootModelNode.isValid());
-        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        auto testRewriterView = createTextRewriterView(*model);
         testRewriterView->setTextModifier(&textModifier);
-        model->attachView(testRewriterView.data());
+        model->attachView(testRewriterView.get());
 
         while (testRewriterView->hasIncompleteTypeInformation()) {
             QApplication::processEvents(QEventLoop::AllEvents, 1000);
@@ -321,7 +384,7 @@ void tst_TestCore::testRewriterView2()
                      .value(),
                  QVariant(90));
 
-        model->detachView(testRewriterView.data());
+        model->detachView(testRewriterView.get());
     } catch (Exception &e) {
         QFAIL(qPrintable(e.description()));
     }
@@ -341,10 +404,10 @@ void tst_TestCore::testRewriterView()
         auto model(Model::create("QtQuick.Item", 2, 15));
         QVERIFY(model.get());
 
-        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        auto testRewriterView = createTextRewriterView(*model);
         testRewriterView->setTextModifier(&textModifier);
         testRewriterView->setCheckSemanticErrors(true);
-        model->attachView(testRewriterView.data());
+        model->attachView(testRewriterView.get());
 
         while (testRewriterView->hasIncompleteTypeInformation()) {
             QApplication::processEvents(QEventLoop::AllEvents, 1000);
@@ -402,7 +465,7 @@ void tst_TestCore::testRewriterView()
         QCOMPARE(testRewriterView->modelToTextMerger()->findAddedVariantProperty(childNode.variantProperty("x")).value(), QVariant(70));
         QCOMPARE(testRewriterView->modelToTextMerger()->findAddedVariantProperty(childNode.variantProperty("y")).value(), QVariant(90));
 
-        model->detachView(testRewriterView.data());
+        model->detachView(testRewriterView.get());
     } catch (Exception &e) {
         QFAIL(qPrintable(e.description()));
     }
@@ -423,9 +486,9 @@ void tst_TestCore::testRewriterErrors()
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QVERIFY(testRewriterView->errors().isEmpty());
     testRewriterView->setCheckSemanticErrors(true);
@@ -448,9 +511,9 @@ void tst_TestCore::saveEmptyCoreModel()
 
     auto model1(Model::create("QtQuick.Item"));
 
-    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    auto testRewriterView1 = createTextRewriterView(*model1);
     testRewriterView1->setTextModifier(&modifier1);
-    model1->attachView(testRewriterView1.data());
+    model1->attachView(testRewriterView1.get());
 
     QPlainTextEdit textEdit2;
     textEdit2.setPlainText("import QtQuick 1.1; Item{}");
@@ -458,9 +521,9 @@ void tst_TestCore::saveEmptyCoreModel()
 
     auto model2(Model::create("QtQuick.Item"));
 
-    QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
+    auto testRewriterView2 = createTextRewriterView(*model2);
     testRewriterView2->setTextModifier(&modifier2);
-    model2->attachView(testRewriterView2.data());
+    model2->attachView(testRewriterView2.get());
 
     QVERIFY(compareTree(testRewriterView1->rootModelNode(), testRewriterView2->rootModelNode()));
 }
@@ -476,9 +539,9 @@ void tst_TestCore::loadAttributesInCoreModel()
 
     auto model1(Model::create("QtQuick.Item"));
 
-    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    auto testRewriterView1 = createTextRewriterView(*model1);
     testRewriterView1->setTextModifier(&modifier1);
-    model1->attachView(testRewriterView1.data());
+    model1->attachView(testRewriterView1.get());
 
     QPlainTextEdit textEdit2;
     textEdit2.setPlainText("import QtQuick 1.1; Item{}");
@@ -486,9 +549,9 @@ void tst_TestCore::loadAttributesInCoreModel()
 
     auto model2(Model::create("QtQuick.Item"));
 
-    QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
+    auto testRewriterView2 = createTextRewriterView(*model2);
     testRewriterView2->setTextModifier(&modifier2);
-    model2->attachView(testRewriterView2.data());
+    model2->attachView(testRewriterView2.get());
 
     ModelNode rootModelNode = testRewriterView2->rootModelNode();
 
@@ -511,9 +574,9 @@ void tst_TestCore::saveAttributesInCoreModel()
 
     auto model1(Model::create("QtQuick.Item"));
 
-    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    auto testRewriterView1 = createTextRewriterView(*model1);
     testRewriterView1->setTextModifier(&modifier1);
-    model1->attachView(testRewriterView1.data());
+    model1->attachView(testRewriterView1.get());
 
     QVERIFY(testRewriterView1->errors().isEmpty());
 
@@ -527,9 +590,9 @@ void tst_TestCore::saveAttributesInCoreModel()
 
     auto model2(Model::create("QtQuick.Item"));
 
-    QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
+    auto testRewriterView2 = createTextRewriterView(*model2);
     testRewriterView2->setTextModifier(&modifier2);
-    model2->attachView(testRewriterView2.data());
+    model2->attachView(testRewriterView2.get());
 
     QVERIFY(testRewriterView2->errors().isEmpty());
 
@@ -604,9 +667,9 @@ void tst_TestCore::testRewriterDynamicProperties()
 
     auto model1(Model::create("QtQuick.Item"));
 
-    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    auto testRewriterView1 = createTextRewriterView(*model1);
     testRewriterView1->setTextModifier(&modifier1);
-    model1->attachView(testRewriterView1.data());
+    model1->attachView(testRewriterView1.get());
 
     QVERIFY(testRewriterView1->errors().isEmpty());
 
@@ -699,9 +762,9 @@ void tst_TestCore::testRewriterDynamicProperties()
     //
     //   auto model2(Model::create("QtQuick.Item"));
     //
-    //    QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
+    //    auto testRewriterView2 = createTextRewriterView(*model2);
     //    testRewriterView2->setTextModifier(&modifier2);
-    //    model2->attachView(testRewriterView2.data());
+    //    model2->attachView(testRewriterView2.get());
     //
     //    testRewriterView2->rootModelNode().variantProperty("pushed").setDynamicTypeNameAndValue("bool", QVariant(false));
     //
@@ -726,9 +789,9 @@ void tst_TestCore::testRewriterGroupedProperties()
 
     auto model1(Model::create("QtQuick.Text"));
 
-    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    auto testRewriterView1 = createTextRewriterView(*model1);
     testRewriterView1->setTextModifier(&modifier1);
-    model1->attachView(testRewriterView1.data());
+    model1->attachView(testRewriterView1.get());
 
     QVERIFY(testRewriterView1->errors().isEmpty());
 
@@ -808,9 +871,9 @@ void tst_TestCore::testRewriterPreserveOrder()
 
         auto model(Model::create("QtQuick.Text"));
 
-        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        auto testRewriterView = createTextRewriterView(*model);
         testRewriterView->setTextModifier(&modifier);
-        model->attachView(testRewriterView.data());
+        model->attachView(testRewriterView.get());
 
         QVERIFY(testRewriterView->errors().isEmpty());
 
@@ -843,9 +906,9 @@ void tst_TestCore::testRewriterPreserveOrder()
 
         auto model(Model::create("QtQuick.Text"));
 
-        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        auto testRewriterView = createTextRewriterView(*model);
         testRewriterView->setTextModifier(&modifier);
-        model->attachView(testRewriterView.data());
+        model->attachView(testRewriterView.get());
 
         QVERIFY(testRewriterView->errors().isEmpty());
 
@@ -897,9 +960,9 @@ void tst_TestCore::testRewriterActionCompression()
 
     auto model1(Model::create("QtQuick.Rectangle"));
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model1);
     testRewriterView->setTextModifier(&modifier1);
-    model1->attachView(testRewriterView.data());
+    model1->attachView(testRewriterView.get());
 
     QVERIFY(testRewriterView->errors().isEmpty());
 
@@ -952,9 +1015,9 @@ void tst_TestCore::testRewriterImports()
     auto model(Model::create("QtQuick.Item"));
     model->setFileUrl(QUrl::fromLocalFile(fileName));
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&modifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QVERIFY(testRewriterView->errors().isEmpty());
 
@@ -998,9 +1061,9 @@ void tst_TestCore::testRewriterChangeImports()
 
     auto model(Model::create("QtQuick.Rectangle"));
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView(RewriterView::Amend));
+    auto testRewriterView = createTextRewriterView(*model, RewriterView::Amend);
     testRewriterView->setTextModifier(&modifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QVERIFY(testRewriterView->errors().isEmpty());
 
@@ -1082,9 +1145,9 @@ void tst_TestCore::testRewriterUnicodeChars()
 
     auto model(Model::create("QtQuick.Rectangle"));
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView(RewriterView::Amend));
+    auto testRewriterView = createTextRewriterView(*model, RewriterView::Amend);
     testRewriterView->setTextModifier(&modifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QVERIFY(testRewriterView->errors().isEmpty());
 
@@ -1112,9 +1175,9 @@ void tst_TestCore::testRewriterTransactionAddingAfterReparenting()
 
     auto model(Model::create("QtQuick.Rectangle"));
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView(RewriterView::Amend));
+    auto testRewriterView = createTextRewriterView(*model, RewriterView::Amend);
     testRewriterView->setTextModifier(&modifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QVERIFY(testRewriterView->errors().isEmpty());
 
@@ -1154,9 +1217,9 @@ void tst_TestCore::testRewriterReparentToNewNode()
 
     auto model(Model::create("QtQuick.Rectangle"));
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView(RewriterView::Amend));
+    auto testRewriterView = createTextRewriterView(*model, RewriterView::Amend);
     testRewriterView->setTextModifier(&modifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QVERIFY(testRewriterView->errors().isEmpty());
 
@@ -1253,9 +1316,9 @@ void tst_TestCore::testRewriterBehaivours()
 
     auto model(Model::create("QtQuick.Rectangle"));
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView(RewriterView::Amend));
+    auto testRewriterView = createTextRewriterView(*model, RewriterView::Amend);
     testRewriterView->setTextModifier(&modifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     //qDebug() << testRewriterView->errors().first().toString();
     QVERIFY(testRewriterView->errors().isEmpty());
@@ -1356,9 +1419,9 @@ void tst_TestCore::testRewriterSignalDefinition()
 
     auto model(Model::create("QtQuick.Text"));
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&modifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QVERIFY(testRewriterView->errors().isEmpty());
 
@@ -1486,9 +1549,9 @@ void tst_TestCore::testRewriterForGradientMagic()
 
     auto model(Model::create("QtQuick.Text"));
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&modifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QVERIFY(testRewriterView->errors().isEmpty());
 
@@ -1506,13 +1569,13 @@ void tst_TestCore::testRewriterForGradientMagic()
     QScopedPointer<TestView> view1(new TestView);
     model1->attachView(view1.data());
 
-    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    auto testRewriterView1 = createTextRewriterView(*model1);
     QPlainTextEdit textEdit1;
     textEdit1.setPlainText("import QtQuick 2.1; Item {}");
     NotIndentingTextEditModifier modifier1(&textEdit1);
 
     testRewriterView1->setTextModifier(&modifier1);
-    model1->attachView(testRewriterView1.data());
+    model1->attachView(testRewriterView1.get());
 
     QVERIFY(testRewriterView1->errors().isEmpty());
 
@@ -1562,10 +1625,10 @@ void tst_TestCore::testStatesVersionFailing()
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
     QCOMPARE(rootModelNode.type(), QmlDesigner::TypeName("QtQuick.Item"));
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
 
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
     QVERIFY(rootModelNode.isValid());
     QCOMPARE(rootModelNode.type(), QmlDesigner::TypeName("QtQuick.Rectangle"));
 
@@ -1645,9 +1708,9 @@ void tst_TestCore::loadSubItems()
 
     auto model1(Model::create("QtQuick.Item", 2, 0));
 
-    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    auto testRewriterView1 = createTextRewriterView(*model1);
     testRewriterView1->setTextModifier(&modifier1);
-    model1->attachView(testRewriterView1.data());
+    model1->attachView(testRewriterView1.get());
 }
 
 void tst_TestCore::createInvalidCoreModel()
@@ -1807,10 +1870,10 @@ void tst_TestCore::testBasicStates()
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
     QCOMPARE(rootModelNode.type(), QmlDesigner::TypeName("QtQuick.Item"));
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
 
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
     QVERIFY(rootModelNode.isValid());
     QCOMPARE(rootModelNode.type(), QmlDesigner::TypeName("QtQuick.Rectangle"));
 
@@ -1906,9 +1969,9 @@ void tst_TestCore::testBasicStatesQtQuick20()
     auto model(Model::create("QtQuick.Item"));
     QVERIFY(model.get());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootModelNode(testRewriterView->rootModelNode());
     QVERIFY(rootModelNode.isValid());
@@ -2234,9 +2297,9 @@ void tst_TestCore::testModelNodePropertyDynamicSource()
     auto model(Model::create("QtQuick.Item", 2, 1));
     QVERIFY(model.get());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QVERIFY(model.get());
     ModelNode rootModelNode(testRewriterView->rootModelNode());
@@ -2491,7 +2554,8 @@ void tst_TestCore::testModelRemoveNode()
     model->attachView(view.data());
 
     TestConnectionManager connectionManager;
-    NodeInstanceView nodeInstanceView{connectionManager};
+    ExternalDependenciesFake externalDependenciesFake{*model};
+    NodeInstanceView nodeInstanceView{connectionManager, externalDependenciesFake};
     model->attachView(&nodeInstanceView);
 
     QCOMPARE(view->rootModelNode().directSubModelNodes().count(), 0);
@@ -2618,9 +2682,9 @@ void tst_TestCore::reparentingNodeLikeDragAndDrop()
     auto model(Model::create("QtQuick.Item"));
     QVERIFY(model.get());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QScopedPointer<TestView> view(new TestView);
     QVERIFY(view.data());
@@ -3068,11 +3132,10 @@ void tst_TestCore::testRewriterId()
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
 
-
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
     QCOMPARE(rootModelNode.type(),  QmlDesigner::TypeName("QtQuick.Rectangle"));
 
     QVERIFY(rootModelNode.isValid());
@@ -3112,10 +3175,10 @@ void tst_TestCore::testRewriterNodeReparentingTransaction1()
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
     QCOMPARE(rootModelNode.type(), QmlDesigner::TypeName("QtQuick.Item"));
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
 
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QVERIFY(rootModelNode.isValid());
 
@@ -3157,10 +3220,10 @@ void tst_TestCore::testRewriterNodeReparentingTransaction2()
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
     QCOMPARE(rootModelNode.type(),  QmlDesigner::TypeName("QtQuick.Item"));
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
 
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QVERIFY(rootModelNode.isValid());
 
@@ -3223,10 +3286,10 @@ void tst_TestCore::testRewriterNodeReparentingTransaction3()
    ModelNode rootModelNode(view->rootModelNode());
    QVERIFY(rootModelNode.isValid());
    QCOMPARE(rootModelNode.type(),  QmlDesigner::TypeName("QtQuick.Item"));
-   QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+   auto testRewriterView = createTextRewriterView(*model);
    testRewriterView->setTextModifier(&textModifier);
 
-   model->attachView(testRewriterView.data());
+   model->attachView(testRewriterView.get());
 
    QVERIFY(rootModelNode.isValid());
 
@@ -3273,10 +3336,10 @@ void tst_TestCore::testRewriterNodeReparentingTransaction4()
    ModelNode rootModelNode(view->rootModelNode());
    QVERIFY(rootModelNode.isValid());
    QCOMPARE(rootModelNode.type(), QmlDesigner::TypeName("QtQuick.Item"));
-   QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+   auto testRewriterView = createTextRewriterView(*model);
    testRewriterView->setTextModifier(&textModifier);
 
-   model->attachView(testRewriterView.data());
+   model->attachView(testRewriterView.get());
 
    QVERIFY(rootModelNode.isValid());
 
@@ -3324,10 +3387,10 @@ void tst_TestCore::testRewriterAddNodeTransaction()
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
     QCOMPARE(rootModelNode.type(), QmlDesigner::TypeName("QtQuick.Item"));
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
 
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QVERIFY(rootModelNode.isValid());
 
@@ -3368,11 +3431,11 @@ void tst_TestCore::testRewriterComponentId()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     QVERIFY(!model->rewriterView());
     testRewriterView->setTextModifier(&textModifier);
 
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
     QVERIFY(model->rewriterView());
 
     QVERIFY(model->hasNodeMetaInfo("QtQuick.Item", 2, 1));
@@ -3407,10 +3470,10 @@ void tst_TestCore::testRewriterTransactionRewriter()
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
     QCOMPARE(rootModelNode.type(), QmlDesigner::TypeName("QtQuick.Item"));
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
 
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QVERIFY(rootModelNode.isValid());
 
@@ -3476,9 +3539,9 @@ void tst_TestCore::testRewriterPropertyDeclarations()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QVERIFY(testRewriterView->errors().isEmpty());
 
@@ -3538,9 +3601,9 @@ void tst_TestCore::testRewriterPropertyAliases()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
@@ -3598,9 +3661,9 @@ void tst_TestCore::testRewriterPositionAndOffset()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -3700,9 +3763,9 @@ void tst_TestCore::testRewriterComponentTextModifier()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -3739,9 +3802,9 @@ void tst_TestCore::testRewriterComponentTextModifier()
     QCOMPARE(componentTextModifier.text(), qmlExpected);
 
     auto componentModel(Model::create("QtQuick.Item", 1, 1));
-    QScopedPointer<TestRewriterView> testRewriterViewComponent(new TestRewriterView());
+    auto testRewriterViewComponent = createTextRewriterView(*componentModel);
     testRewriterViewComponent->setTextModifier(&componentTextModifier);
-    componentModel->attachView(testRewriterViewComponent.data());
+    componentModel->attachView(testRewriterViewComponent.get());
 
     ModelNode componentrootNode = testRewriterViewComponent->rootModelNode();
     QVERIFY(componentrootNode.isValid());
@@ -3771,9 +3834,9 @@ void tst_TestCore::testRewriterPreserveType()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -3816,9 +3879,9 @@ void tst_TestCore::testRewriterForArrayMagic()
         model->attachView(view.data());
 
         // read in
-        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        auto testRewriterView = createTextRewriterView(*model);
         testRewriterView->setTextModifier(&textModifier);
-        model->attachView(testRewriterView.data());
+        model->attachView(testRewriterView.get());
 
         ModelNode rootNode = view->rootModelNode();
         QVERIFY(rootNode.isValid());
@@ -3868,9 +3931,9 @@ void tst_TestCore::testRewriterWithSignals()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -3911,9 +3974,9 @@ void tst_TestCore::testRewriterNodeSliding()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -3951,10 +4014,10 @@ void tst_TestCore::testRewriterExceptionHandling()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
     testRewriterView->setCheckSemanticErrors(true);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -4009,9 +4072,9 @@ void tst_TestCore::testRewriterFirstDefinitionInside()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -4079,9 +4142,9 @@ void tst_TestCore::testCopyModelRewriter1()
     model1->attachView(view1.data());
 
     // read in 1
-    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    auto testRewriterView1 = createTextRewriterView(*model1);
     testRewriterView1->setTextModifier(&textModifier1);
-    model1->attachView(testRewriterView1.data());
+    model1->attachView(testRewriterView1.get());
 
     ModelNode rootNode1 = view1->rootModelNode();
     QVERIFY(rootNode1.isValid());
@@ -4098,9 +4161,9 @@ void tst_TestCore::testCopyModelRewriter1()
     model2->attachView(view2.data());
 
     // read in 2
-    QScopedPointer<TestRewriterView> testRewriterView2(new TestRewriterView());
+    auto testRewriterView2 = createTextRewriterView(*model2);
     testRewriterView2->setTextModifier(&textModifier2);
-    model2->attachView(testRewriterView2.data());
+    model2->attachView(testRewriterView2.get());
 
     ModelNode rootNode2 = view2->rootModelNode();
     QVERIFY(rootNode2.isValid());
@@ -4294,9 +4357,9 @@ void tst_TestCore::testMergeModelRewriter1()
     templateModel->attachView(templateView.data());
 
     // read in 1
-    QScopedPointer<TestRewriterView> templateRewriterView(new TestRewriterView());
+    auto templateRewriterView = createTextRewriterView(*templateModel);
     templateRewriterView->setTextModifier(&textModifier1);
-    templateModel->attachView(templateRewriterView.data());
+    templateModel->attachView(templateRewriterView.get());
 
     ModelNode templateRootNode = templateView->rootModelNode();
     QVERIFY(templateRootNode.isValid());
@@ -4312,9 +4375,9 @@ void tst_TestCore::testMergeModelRewriter1()
     styleModel->attachView(styleView.data());
 
     // read in 2
-    QScopedPointer<TestRewriterView> styleRewriterView(new TestRewriterView());
+    auto styleRewriterView = createTextRewriterView(*styleModel);
     styleRewriterView->setTextModifier(&textModifier2);
-    styleModel->attachView(styleRewriterView.data());
+    styleModel->attachView(styleRewriterView.get());
 
     StylesheetMerger merger(templateView.data(), styleView.data());
     merger.merge();
@@ -4384,9 +4447,9 @@ void tst_TestCore::testCopyModelRewriter2()
     templateModel->attachView(view1.data());
 
     // read in 1
-    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    auto testRewriterView1 = createTextRewriterView(*templateModel);
     testRewriterView1->setTextModifier(&textModifier1);
-    templateModel->attachView(testRewriterView1.data());
+    templateModel->attachView(testRewriterView1.get());
 
     ModelNode rootNode1 = view1->rootModelNode();
     QVERIFY(rootNode1.isValid());
@@ -4403,9 +4466,9 @@ void tst_TestCore::testCopyModelRewriter2()
     QScopedPointer<TestView> view2(new TestView);
     styleModel->attachView(view2.data());
 
-    QScopedPointer<TestRewriterView> styleRewriterView(new TestRewriterView());
+    auto styleRewriterView = createTextRewriterView(*styleModel);
     styleRewriterView->setTextModifier(&textModifier2);
-    styleModel->attachView(styleRewriterView.data());
+    styleModel->attachView(styleRewriterView.get());
 
     ModelNode rootNode2 = view2->rootModelNode();
     QVERIFY(rootNode2.isValid());
@@ -4465,7 +4528,9 @@ void tst_TestCore::testSubComponentManager()
 
     auto model(createModel("QtQuick.Rectangle", 2, 15));
     model->setFileUrl(QUrl::fromLocalFile(fileName));
-    QScopedPointer<SubComponentManager> subComponentManager(new SubComponentManager(model.get()));
+    ExternalDependenciesFake externalDependenciesFake{*model};
+    QScopedPointer<SubComponentManager> subComponentManager(
+        new SubComponentManager(model.get(), externalDependenciesFake));
     subComponentManager->update(QUrl::fromLocalFile(fileName), model->imports());
 
     QVERIFY(model->hasNodeMetaInfo("QtQuick.Rectangle", 2, 15));
@@ -4521,9 +4586,9 @@ void tst_TestCore::testAnchorsAndRewriting()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -4587,9 +4652,9 @@ void tst_TestCore::testAnchorsAndRewritingCenter()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -4659,11 +4724,11 @@ void tst_TestCore::loadQml()
     QVERIFY(rootModelNode.isValid());
 
     QCOMPARE(rootModelNode.type(), QmlDesigner::TypeName("QtQuick.Item"));
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setCheckSemanticErrors(true);
     testRewriterView->setTextModifier(&textModifier);
 
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     while (testRewriterView->hasIncompleteTypeInformation()) {
         QApplication::processEvents(QEventLoop::AllEvents, 1000);
@@ -4921,10 +4986,10 @@ void tst_TestCore::testMetaInfoQtQuickVersion2()
     auto model(Model::create("QtQuick.Item"));
     QVERIFY(model.get());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
 
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootModelNode = testRewriterView->rootModelNode();
     QVERIFY(rootModelNode.isValid());
@@ -5030,7 +5095,7 @@ void tst_TestCore::testQtQuick20Basic()
     auto model(Model::create("QtQuick.Item"));
     QVERIFY(model.get());
 
-    auto testRewriterView = std::make_unique<TestRewriterView>();
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&modifier);
     model->attachView(testRewriterView.get());
 
@@ -5052,7 +5117,7 @@ void tst_TestCore::testQtQuick20BasicRectangle()
     auto model(Model::create("QtQuick.Item"));
     QVERIFY(model.get());
 
-    auto testRewriterView = std::make_unique<TestRewriterView>();
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&modifier);
     model->attachView(testRewriterView.get());
 
@@ -5098,7 +5163,7 @@ void tst_TestCore::testQtQuickControls2()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    auto testRewriterView = std::make_unique<TestRewriterView>();
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&modifier);
     model->attachView(testRewriterView.get());
 
@@ -5192,7 +5257,7 @@ void tst_TestCore::testImplicitComponents()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    auto testRewriterView = std::make_unique<TestRewriterView>();
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&modifier);
     model->attachView(testRewriterView.get());
 
@@ -5252,7 +5317,7 @@ void tst_TestCore::testRevisionedProperties()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    auto testRewriterView = std::make_unique<TestRewriterView>();
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setCheckSemanticErrors(true);
     testRewriterView->setTextModifier(&modifier);
     model->attachView(testRewriterView.get());
@@ -5286,7 +5351,7 @@ void tst_TestCore::testStatesRewriter()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    auto testRewriterView = std::make_unique<TestRewriterView>();
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&modifier);
     model->attachView(testRewriterView.get());
 
@@ -5335,7 +5400,7 @@ void tst_TestCore::testGradientsRewriter()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    auto testRewriterView = std::make_unique<TestRewriterView>();
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&modifier);
     model->attachView(testRewriterView.get());
 
@@ -6655,8 +6720,8 @@ void tst_TestCore::testInstancesAttachToExistingModel()
     // Attach NodeInstanceView
 
     TestConnectionManager connectionManager;
-
-    NodeInstanceView instanceView{connectionManager};
+    ExternalDependenciesFake externalDependenciesFake{*model};
+    NodeInstanceView instanceView{connectionManager, externalDependenciesFake};
 
     model->attachView(&instanceView);
 
@@ -6739,7 +6804,7 @@ void tst_TestCore::testQmlModelStateWithName()
 
     auto model1(Model::create("QtQuick.Item"));
 
-    auto testRewriterView1 = std::make_unique<TestRewriterView>();
+    auto testRewriterView1 = createTextRewriterView(*model1);
     testRewriterView1->setTextModifier(&modifier1);
     model1->attachView(testRewriterView1.get());
 
@@ -6791,7 +6856,7 @@ void tst_TestCore::testRewriterAutomaticSemicolonAfterChangedProperty()
 
     auto model1(Model::create("QtQuick.Item"));
 
-    auto testRewriterView1 = std::make_unique<TestRewriterView>();
+    auto testRewriterView1 = createTextRewriterView(*model1);
     testRewriterView1->setTextModifier(&modifier1);
     model1->attachView(testRewriterView1.get());
 
@@ -6835,9 +6900,9 @@ void tst_TestCore::testModelPropertyValueTypes()
 
     auto model1(Model::create("QtQuick.Item"));
 
-    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    auto testRewriterView1 = createTextRewriterView(*model1);
     testRewriterView1->setTextModifier(&modifier1);
-    model1->attachView(testRewriterView1.data());
+    model1->attachView(testRewriterView1.get());
 
     QVERIFY(testRewriterView1->errors().isEmpty());
 
@@ -6936,9 +7001,9 @@ void tst_TestCore::testModelChangeType()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -7045,9 +7110,9 @@ void tst_TestCore::loadAnchors()
 
     auto model(Model::create("QtQuick.Item"));
 
-    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    auto testRewriterView1 = createTextRewriterView(*model);
     testRewriterView1->setTextModifier(&modifier1);
-    model->attachView(testRewriterView1.data());
+    model->attachView(testRewriterView1.get());
 
     auto testView = std::make_unique<TestView>();
     model->attachView(testView.get());
@@ -7084,9 +7149,9 @@ void tst_TestCore::changeAnchors()
 
     auto model(Model::create("QtQuick.Item"));
 
-    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    auto testRewriterView1 = createTextRewriterView(*model);
     testRewriterView1->setTextModifier(&modifier1);
-    model->attachView(testRewriterView1.data());
+    model->attachView(testRewriterView1.get());
 
     auto testView = std::make_unique<TestView>();
 
@@ -7147,9 +7212,9 @@ void tst_TestCore::anchorToSibling()
 
     auto model(Model::create("QtQuick.Item"));
 
-    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    auto testRewriterView1 = createTextRewriterView(*model);
     testRewriterView1->setTextModifier(&modifier1);
-    model->attachView(testRewriterView1.data());
+    model->attachView(testRewriterView1.get());
 
     auto testView = std::make_unique<TestView>();
 
@@ -7193,9 +7258,9 @@ void tst_TestCore::removeFillAnchorByDetaching()
 
     auto model(Model::create("QtQuick.Item"));
 
-    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    auto testRewriterView1 = createTextRewriterView(*model);
     testRewriterView1->setTextModifier(&modifier1);
-    model->attachView(testRewriterView1.data());
+    model->attachView(testRewriterView1.get());
 
     auto testView = std::make_unique<TestView>();
 
@@ -7274,9 +7339,9 @@ void tst_TestCore::removeFillAnchorByChanging()
 
     auto model(Model::create("QtQuick.Item"));
 
-    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    auto testRewriterView1 = createTextRewriterView(*model);
     testRewriterView1->setTextModifier(&modifier1);
-    model->attachView(testRewriterView1.data());
+    model->attachView(testRewriterView1.get());
 
     auto testView = std::make_unique<TestView>();
 
@@ -7541,9 +7606,9 @@ void tst_TestCore::testRewriterChangeId()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
@@ -7579,9 +7644,9 @@ void tst_TestCore::testRewriterRemoveId()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView(TestRewriterView::Amend));
+    auto testRewriterView = createTextRewriterView(*model, TestRewriterView::Amend);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
@@ -7611,9 +7676,9 @@ void tst_TestCore::testRewriterChangeValueProperty()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
@@ -7651,9 +7716,9 @@ void tst_TestCore::testRewriterRemoveValueProperty()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
@@ -7693,9 +7758,9 @@ void tst_TestCore::testRewriterSignalProperty()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
@@ -7718,9 +7783,9 @@ void tst_TestCore::testRewriterObjectTypeProperty()
     QVERIFY(view.data());
     model->attachView(view.data());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootModelNode(view->rootModelNode());
     QVERIFY(rootModelNode.isValid());
@@ -7766,9 +7831,9 @@ void tst_TestCore::testRewriterPropertyChanges()
         model->attachView(view.data());
 
         // read in
-        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        auto testRewriterView = createTextRewriterView(*model);
         testRewriterView->setTextModifier(&textModifier);
-        model->attachView(testRewriterView.data());
+        model->attachView(testRewriterView.get());
 
         ModelNode rootNode = view->rootModelNode();
         QVERIFY(rootNode.isValid());
@@ -7817,9 +7882,9 @@ void tst_TestCore::testRewriterListModel()
         auto model(Model::create("QtQuick.Item", 2, 1));
         QVERIFY(model.get());
 
-        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        auto testRewriterView = createTextRewriterView(*model);
         testRewriterView->setTextModifier(&textModifier);
-        model->attachView(testRewriterView.data());
+        model->attachView(testRewriterView.get());
 
         QScopedPointer<TestView> view(new TestView);
         model->attachView(view.data());
@@ -7857,9 +7922,9 @@ void tst_TestCore::testRewriterAddProperty()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -7901,9 +7966,9 @@ void tst_TestCore::testRewriterAddPropertyInNestedObject()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -7947,9 +8012,9 @@ void tst_TestCore::testRewriterAddObjectDefinition()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -7980,9 +8045,9 @@ void tst_TestCore::testRewriterAddStatesArray()
     QScopedPointer<TestView> view(new TestView);
     model->attachView(view.data());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -8042,9 +8107,9 @@ void tst_TestCore::testRewriterRemoveStates()
     QScopedPointer<TestView> view(new TestView);
     model->attachView(view.data());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -8101,9 +8166,9 @@ void tst_TestCore::testRewriterRemoveObjectDefinition()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -8160,9 +8225,9 @@ void tst_TestCore::testRewriterRemoveScriptBinding()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -8213,9 +8278,9 @@ void tst_TestCore::testRewriterNodeReparenting()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -8321,9 +8386,9 @@ void tst_TestCore::testRewriterNodeReparentingWithTransaction()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -8382,9 +8447,9 @@ void tst_TestCore::testRewriterMovingInOut()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -8440,9 +8505,9 @@ void tst_TestCore::testRewriterMovingInOutWithTransaction()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -8494,9 +8559,9 @@ void tst_TestCore::testRewriterComplexMovingInOut()
     model->attachView(view.data());
 
     // read in
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     ModelNode rootNode = view->rootModelNode();
     QVERIFY(rootNode.isValid());
@@ -8582,9 +8647,9 @@ void tst_TestCore::removeCenteredInAnchorByDetaching()
 
     auto model(Model::create("QtQuick.Item"));
 
-    QScopedPointer<TestRewriterView> testRewriterView1(new TestRewriterView());
+    auto testRewriterView1 = createTextRewriterView(*model);
     testRewriterView1->setTextModifier(&modifier1);
-    model->attachView(testRewriterView1.data());
+    model->attachView(testRewriterView1.get());
 
     auto testView = std::make_unique<TestView>();
 
@@ -8682,9 +8747,9 @@ void tst_TestCore::loadTestFiles()
         auto model(Model::create("QtQuick.Item", 1, 1));
         QVERIFY(model.get());
 
-        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        auto testRewriterView = createTextRewriterView(*model);
         testRewriterView->setTextModifier(&textModifier);
-        model->attachView(testRewriterView.data());
+        model->attachView(testRewriterView.get());
 
         QVERIFY(model.get());
         ModelNode rootModelNode(testRewriterView->rootModelNode());
@@ -8704,9 +8769,9 @@ void tst_TestCore::loadTestFiles()
         auto model(Model::create("QtQuick.Item", 2, 1));
         QVERIFY(model.get());
 
-        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        auto testRewriterView = createTextRewriterView(*model);
         testRewriterView->setTextModifier(&textModifier);
-        model->attachView(testRewriterView.data());
+        model->attachView(testRewriterView.get());
 
         QVERIFY(model.get());
         ModelNode rootModelNode(testRewriterView->rootModelNode());
@@ -8733,9 +8798,9 @@ void tst_TestCore::loadTestFiles()
         auto model(Model::create("QtQuick.Item", 2, 1));
         QVERIFY(model.get());
 
-        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        auto testRewriterView = createTextRewriterView(*model);
         testRewriterView->setTextModifier(&textModifier);
-        model->attachView(testRewriterView.data());
+        model->attachView(testRewriterView.get());
 
         QVERIFY(model.get());
         ModelNode rootModelNode(testRewriterView->rootModelNode());
@@ -8781,9 +8846,9 @@ void tst_TestCore::loadTestFiles()
         auto model(Model::create("QtQuick.Item", 2, 1));
         QVERIFY(model.get());
 
-        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        auto testRewriterView = createTextRewriterView(*model);
         testRewriterView->setTextModifier(&textModifier);
-        model->attachView(testRewriterView.data());
+        model->attachView(testRewriterView.get());
 
         QVERIFY(testRewriterView->errors().isEmpty());
 
@@ -8818,9 +8883,9 @@ void tst_TestCore::loadGradient()
     auto model(Model::create("QtQuick.Item", 2, 1));
     QVERIFY(model.get());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QVERIFY(model.get());
     ModelNode rootModelNode(testRewriterView->rootModelNode());
@@ -8916,9 +8981,9 @@ void tst_TestCore::changeGradientId()
         auto model(Model::create("QtQuick.Item", 2, 1));
         QVERIFY(model.get());
 
-        QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+        auto testRewriterView = createTextRewriterView(*model);
         testRewriterView->setTextModifier(&textModifier);
-        model->attachView(testRewriterView.data());
+        model->attachView(testRewriterView.get());
 
         QVERIFY(model.get());
         ModelNode rootModelNode(testRewriterView->rootModelNode());
@@ -9016,9 +9081,9 @@ void tst_TestCore::writeAnnotations()
     auto model(Model::create("QtQuick.Item", 2, 1));
     QVERIFY(model.get());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QVERIFY(model.get());
     ModelNode rootModelNode(testRewriterView->rootModelNode());
@@ -9034,7 +9099,7 @@ void tst_TestCore::writeAnnotations()
     const QString metaSource = testRewriterView->auxiliaryDataAsQML();
 
     QmlJS::SimpleReader reader;
-    checkChildNodes(reader.readFromSource(metaSource), testRewriterView.data());
+    checkChildNodes(reader.readFromSource(metaSource), testRewriterView.get());
 
     testRewriterView->writeAuxiliaryData();
     const QString textWithMeta = testRewriterView->textModifier()->text();
@@ -9070,9 +9135,9 @@ void tst_TestCore::readAnnotations()
     auto model(Model::create("QtQuick.Item", 2, 1));
     QVERIFY(model.get());
 
-    QScopedPointer<TestRewriterView> testRewriterView(new TestRewriterView());
+    auto testRewriterView = createTextRewriterView(*model);
     testRewriterView->setTextModifier(&textModifier);
-    model->attachView(testRewriterView.data());
+    model->attachView(testRewriterView.get());
 
     QVERIFY(model.get());
     ModelNode rootModelNode(testRewriterView->rootModelNode());

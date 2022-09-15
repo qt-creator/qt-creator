@@ -10,21 +10,23 @@
 #include "nodeinstanceview.h"
 #include "openuiqmlfiledialog.h"
 #include "qmldesignerconstants.h"
+#include "qmldesignerexternaldependencies.h"
 #include "qmldesignerprojectmanager.h"
 #include "quick2propertyeditorview.h"
 #include "settingspage.h"
 
-#include <metainfo.h>
-#include <connectionview.h>
-#include <sourcetool/sourcetool.h>
 #include <colortool/colortool.h>
+#include <connectionview.h>
 #include <curveeditor/curveeditorview.h>
+#include <designeractionmanager.h>
+#include <eventlist/eventlistpluginview.h>
 #include <formeditor/transitiontool.h>
+#include <metainfo.h>
+#include <pathtool/pathtool.h>
+#include <sourcetool/sourcetool.h>
 #include <texttool/texttool.h>
 #include <timelineeditor/timelineview.h>
 #include <transitioneditor/transitioneditorview.h>
-#include <eventlist/eventlistpluginview.h>
-#include <pathtool/pathtool.h>
 
 #include <qmljseditor/qmljseditor.h>
 #include <qmljseditor/qmljseditorconstants.h>
@@ -114,11 +116,12 @@ class QmlDesignerPluginPrivate
 {
 public:
     DesignerSettings settings{Core::ICore::instance()->settings()};
-    QmlDesignerProjectManager projectManager;
-    ViewManager viewManager{projectManager.asynchronousImageCache()};
-    DocumentManager documentManager{projectManager};
+    ExternalDependencies externalDependencies{settings};
+    QmlDesignerProjectManager projectManager{externalDependencies};
+    ViewManager viewManager{projectManager.asynchronousImageCache(), externalDependencies};
+    DocumentManager documentManager{projectManager, externalDependencies};
     ShortCutManager shortCutManager;
-    SettingsPage settingsPage;
+    SettingsPage settingsPage{externalDependencies};
     DesignModeWidget mainWidget;
     QtQuickDesignerFactory m_qtQuickDesignerFactory;
     bool blockEditorChange = false;
@@ -287,25 +290,29 @@ bool QmlDesignerPlugin::delayedInitialize()
         });
     MetaInfo::setPluginPaths(pluginPaths);
 
-    d->viewManager.registerView(std::make_unique<QmlDesigner::Internal::ConnectionView>());
+    d->viewManager.registerView(
+        std::make_unique<QmlDesigner::Internal::ConnectionView>(d->externalDependencies));
 
-    auto timelineView = d->viewManager.registerView(std::make_unique<QmlDesigner::TimelineView>());
+    auto timelineView = d->viewManager.registerView(
+        std::make_unique<QmlDesigner::TimelineView>(d->externalDependencies));
     timelineView->registerActions();
 
-    d->viewManager.registerView(std::make_unique<QmlDesigner::CurveEditorView>());
+    d->viewManager.registerView(
+        std::make_unique<QmlDesigner::CurveEditorView>(d->externalDependencies));
 
     auto eventlistView = d->viewManager.registerView(
-        std::make_unique<QmlDesigner::EventListPluginView>());
+        std::make_unique<QmlDesigner::EventListPluginView>(d->externalDependencies));
     eventlistView->registerActions();
 
     auto transitionEditorView = d->viewManager.registerView(
-        std::make_unique<QmlDesigner::TransitionEditorView>());
+        std::make_unique<QmlDesigner::TransitionEditorView>(d->externalDependencies));
     transitionEditorView->registerActions();
 
     d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::SourceTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::ColorTool>());
     d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::TextTool>());
-    d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::PathTool>());
+    d->viewManager.registerFormEditorTool(
+        std::make_unique<QmlDesigner::PathTool>(d->externalDependencies));
     d->viewManager.registerFormEditorTool(std::make_unique<QmlDesigner::TransitionTool>());
 
     if (QmlProjectManager::QmlProject::isQtDesignStudio()) {
@@ -729,12 +736,7 @@ const DocumentManager &QmlDesignerPlugin::documentManager() const
 
 ViewManager &QmlDesignerPlugin::viewManager()
 {
-    return d->viewManager;
-}
-
-const ViewManager &QmlDesignerPlugin::viewManager() const
-{
-    return d->viewManager;
+    return instance()->d->viewManager;
 }
 
 DesignerActionManager &QmlDesignerPlugin::designerActionManager()
@@ -747,7 +749,12 @@ const DesignerActionManager &QmlDesignerPlugin::designerActionManager() const
     return d->viewManager.designerActionManager();
 }
 
-DesignerSettings& QmlDesignerPlugin::settings()
+ExternalDependenciesInterface &QmlDesignerPlugin::externalDependenciesForPluginInitializationOnly()
+{
+    return instance()->d->externalDependencies;
+}
+
+DesignerSettings &QmlDesignerPlugin::settings()
 {
     return instance()->d->settings;
 }

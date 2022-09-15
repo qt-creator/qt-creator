@@ -43,7 +43,9 @@ public:
     SynchronousImageCache synchronousFontImageCache{storage, timeStampProvider, fontCollector};
 };
 
-AssetsLibraryView::AssetsLibraryView() {}
+AssetsLibraryView::AssetsLibraryView(ExternalDependenciesInterface &externalDependencies)
+    : AbstractView{externalDependencies}
+{}
 
 AssetsLibraryView::~AssetsLibraryView()
 {}

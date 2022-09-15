@@ -21,8 +21,9 @@
 
 namespace QmlDesigner {
 
-CurveEditorView::CurveEditorView()
-    : m_block(false)
+CurveEditorView::CurveEditorView(ExternalDependenciesInterface &externalDepoendencies)
+    : AbstractView{externalDepoendencies}
+    , m_block(false)
     , m_model(new CurveEditorModel())
     , m_editor(new CurveEditor(m_model))
 {

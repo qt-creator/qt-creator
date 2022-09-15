@@ -88,8 +88,9 @@ static inline void moveNodesDown(const QList<QmlDesigner::ModelNode> &nodes)
 
 namespace QmlDesigner {
 
-NavigatorView::NavigatorView()
-    : m_blockSelectionChangedSignal(false)
+NavigatorView::NavigatorView(ExternalDependenciesInterface &externalDependencies)
+    : AbstractView{externalDependencies}
+    , m_blockSelectionChangedSignal(false)
 {
 
 }
@@ -702,10 +703,8 @@ void NavigatorView::setupWidget()
     m_widget = new NavigatorWidget(this);
     m_treeModel = new NavigatorTreeModel(this);
 
-#ifndef QMLDESIGNER_TEST
     auto navigatorContext = new Internal::NavigatorContext(m_widget.data());
     Core::ICore::addContextObject(navigatorContext);
-#endif
 
     m_treeModel->setView(this);
     m_widget->setTreeModel(m_treeModel.data());
@@ -722,7 +721,6 @@ void NavigatorView::setupWidget()
 
     connect(m_widget.data(), &NavigatorWidget::textFilterChanged, this, &NavigatorView::textFilterChanged);
 
-#ifndef QMLDESIGNER_TEST
     const QString fontName = "qtds_propertyIconFont.ttf";
     const QSize size = QSize(28, 28);
 
@@ -808,8 +806,6 @@ void NavigatorView::setupWidget()
     treeWidget()->setItemDelegateForColumn(NavigatorTreeModel::ColumnType::Alias, aliasDelegate);
     treeWidget()->setItemDelegateForColumn(NavigatorTreeModel::ColumnType::Visibility, visibilityDelegate);
     treeWidget()->setItemDelegateForColumn(NavigatorTreeModel::ColumnType::Lock, lockDelegate);
-
-#endif //QMLDESIGNER_TEST
 }
 
 } // namespace QmlDesigner

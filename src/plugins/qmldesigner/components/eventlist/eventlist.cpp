@@ -44,12 +44,12 @@ static Utils::FilePath findFile(const Utils::FilePath &path, const QString &file
     return {};
 }
 
-
-NodeListView *EventList::st_nodeView = nullptr;
+static std::unique_ptr<NodeListView> st_nodeView;
 
 void EventList::setNodeProperties(AbstractView *view)
 {
-    st_nodeView = new NodeListView(view);
+    st_nodeView = std::make_unique<NodeListView>(view->externalDependencies());
+    view->model()->attachView(st_nodeView.get());
 }
 
 void EventList::selectNode(int internalId)
@@ -108,7 +108,7 @@ QStandardItemModel *EventList::nodeModel()
 
 NodeListView *EventList::nodeListView()
 {
-    return st_nodeView;
+    return st_nodeView.get();
 }
 
 ModelNode EventList::modelNode(const QString &id)
@@ -196,7 +196,8 @@ void EventList::initialize(EventListPluginView *parent)
     }
 
     if (!m_eventView) {
-        m_eventView = std::make_unique<EventListView>();
+        m_eventView = std::make_unique<EventListView>(parent->externalDependencies());
+
         m_model->attachView(m_eventView.get());
     }
 }

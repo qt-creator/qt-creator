@@ -40,7 +40,7 @@ class NavigatorView : public AbstractView
     Q_OBJECT
 
 public:
-    NavigatorView();
+    NavigatorView(ExternalDependenciesInterface &externalDependencies);
     ~NavigatorView() override;
 
     bool hasWidget() const override;

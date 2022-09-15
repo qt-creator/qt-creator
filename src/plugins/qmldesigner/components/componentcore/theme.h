@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <qmldesignercorelib_global.h>
+#include <qmldesignercomponents_global.h>
 
 #include <utils/theme/theme.h>
 
@@ -16,7 +16,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT Theme : public Utils::Theme
+class QMLDESIGNERCOMPONENTS_EXPORT Theme : public Utils::Theme
 {
     Q_OBJECT
 public:

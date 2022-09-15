@@ -53,7 +53,8 @@ public:
     };
 
 public:
-    RewriterView(DifferenceHandling differenceHandling = RewriterView::Amend);
+    RewriterView(ExternalDependenciesInterface &externalDependencies,
+                 DifferenceHandling differenceHandling = RewriterView::Amend);
     ~RewriterView() override;
 
     void modelAttached(Model *model) override;

@@ -29,7 +29,8 @@ public:
     void setUp(NodeInstanceServerInterface *nodeInstanceServerProxy,
                const QString &qrcMappingString,
                ProjectExplorer::Target *target,
-               AbstractView *view) override;
+               AbstractView *view,
+               ExternalDependenciesInterface &externalDependencies) override;
     void shutDown() override;
 
     void writeCommand(const QVariant &command) override;

@@ -56,6 +56,7 @@
 
 #include <auxiliarydataproperties.h>
 #include <designersettings.h>
+#include <externaldependenciesinterface.h>
 #include <metainfo.h>
 #include <model.h>
 #include <modelnode.h>
@@ -63,14 +64,7 @@
 #include <rewriterview.h>
 #include <qmlitemnode.h>
 
-#ifndef QMLDESIGNER_TEST
-#include <qmldesignerplugin.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/documentmanager.h>
-#include <hdrimage.h>
-#include <edit3d/edit3dviewconfig.h>
-#endif
+#include <utils/hdrimage.h>
 
 #include <coreplugin/messagemanager.h>
 
@@ -128,8 +122,11 @@ namespace QmlDesigner {
 
     \sa ~NodeInstanceView, setRenderOffScreen()
 */
-NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager)
-    : m_connectionManager(connectionManager)
+NodeInstanceView::NodeInstanceView(ConnectionManagerInterface &connectionManager,
+                                   ExternalDependenciesInterface &externalDependencies)
+    : AbstractView{externalDependencies}
+    , m_connectionManager(connectionManager)
+    , m_externalDependencies(externalDependencies)
     , m_baseStatePreviewImage(QSize(100, 100), QImage::Format_ARGB32)
     , m_restartProcessTimerId(0)
     , m_fileSystemWatcher(new QFileSystemWatcher(this))
@@ -1180,39 +1177,26 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     if (stateNode.isValid() && stateNode.metaInfo().isQtQuickState())
         stateInstanceId = stateNode.internalId();
 
-    QColor gridColor;
-    QList<QColor> backgroundColor;
+    QColor gridColor = m_externalDependencies.designerSettingsEdit3DViewGridColor();
+    QList<QColor> backgroundColor = m_externalDependencies.designerSettingsEdit3DViewBackgroundColor();
 
-#ifndef QMLDESIGNER_TEST
-    backgroundColor = Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR);
-    QList<QColor> gridColorList = Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR);
-    if (!gridColorList.isEmpty())
-        gridColor = gridColorList.at(0);
-#endif
-
-    return CreateSceneCommand(
-        instanceContainerList,
-        reparentContainerList,
-        idContainerList,
-        valueContainerList,
-        bindingContainerList,
-        auxiliaryContainerVector,
-        importVector,
-        mockupTypesVector,
-        model()->fileUrl(),
-#ifndef QMLDESIGNER_TEST
-        QUrl::fromLocalFile(
-            QmlDesigner::DocumentManager::currentResourcePath().toFileInfo().absoluteFilePath()),
-#else
-        QUrl::fromLocalFile(QFileInfo(model()->fileUrl().toLocalFile()).absolutePath()),
-#endif
-        m_edit3DToolStates[model()->fileUrl()],
-        lastUsedLanguage,
-        m_captureImageMinimumSize,
-        m_captureImageMaximumSize,
-        stateInstanceId,
-        backgroundColor,
-        gridColor);
+    return CreateSceneCommand(instanceContainerList,
+                              reparentContainerList,
+                              idContainerList,
+                              valueContainerList,
+                              bindingContainerList,
+                              auxiliaryContainerVector,
+                              importVector,
+                              mockupTypesVector,
+                              model()->fileUrl(),
+                              m_externalDependencies.currentResourcePath(),
+                              m_edit3DToolStates[model()->fileUrl()],
+                              lastUsedLanguage,
+                              m_captureImageMinimumSize,
+                              m_captureImageMaximumSize,
+                              stateInstanceId,
+                              backgroundColor,
+                              gridColor);
 }
 
 ClearSceneCommand NodeInstanceView::createClearSceneCommand() const
@@ -1715,11 +1699,7 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
         if (hasModelNodeForInternalId(container.instanceId()) && !image.isNull()) {
             auto node = modelNodeForInternalId(container.instanceId());
             if (node.isValid()) {
-#ifndef QMLDESIGNER_TEST
-                const double ratio = QmlDesignerPlugin::formEditorDevicePixelRatio();
-#else
-                const double ratio = 1;
-#endif
+                const double ratio = m_externalDependencies.formEditorDevicePixelRatio();
                 const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
                 if (image.height() != dim || image.width() != dim)
                     image = image.scaled(dim, dim, Qt::KeepAspectRatio);
@@ -1742,7 +1722,10 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
 
 std::unique_ptr<NodeInstanceServerProxy> NodeInstanceView::createNodeInstanceServerProxy()
 {
-    return std::make_unique<NodeInstanceServerProxy>(this, m_currentTarget, m_connectionManager);
+    return std::make_unique<NodeInstanceServerProxy>(this,
+                                                     m_currentTarget,
+                                                     m_connectionManager,
+                                                     m_externalDependencies);
 }
 
 void NodeInstanceView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
@@ -1778,11 +1761,7 @@ void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node, const
             } else if (node.isComponent()) {
                 componentPath = node.metaInfo().componentFileName();
             }
-#ifndef QMLDESIGNER_TEST
-                const double ratio = QmlDesignerPlugin::formEditorDevicePixelRatio();
-#else
-                const double ratio = 1;
-#endif
+            const double ratio = m_externalDependencies.formEditorDevicePixelRatio();
             const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
             m_nodeInstanceServer->requestModelNodePreviewImage(
                         RequestModelNodePreviewImageCommand(instance.instanceId(), QSize(dim, dim),
@@ -1837,11 +1816,7 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
     ModelNodePreviewImageData imageData;
     imageData.id = modelNode.id();
     imageData.type = QString::fromLatin1(modelNode.type());
-#ifndef QMLDESIGNER_TEST
-    const double ratio = QmlDesignerPlugin::formEditorDevicePixelRatio();
-#else
-    const double ratio = 1;
-#endif
+    const double ratio = m_externalDependencies.formEditorDevicePixelRatio();
 
     if (imageSource.isEmpty() && modelNode.metaInfo().isQtQuick3DTexture()) {
         // Texture node may have sourceItem instead
@@ -1903,11 +1878,9 @@ QVariant NodeInstanceView::previewImageDataForImageNode(const ModelNode &modelNo
                     originalPixmap = QPixmap::fromImage(paintImage);
                 }
             } else {
-#ifndef QMLDESIGNER_TEST
                 if (imageFi.suffix() == "hdr")
                     originalPixmap = HdrImage{imageSource}.toPixmap();
                 else
-#endif
                     originalPixmap.load(imageSource);
             }
             if (!originalPixmap.isNull()) {
@@ -1989,11 +1962,8 @@ void NodeInstanceView::updateWatcher(const QString &path)
     QStringList newFiles;
     QStringList newDirs;
     QStringList qsbFiles;
-#ifndef QMLDESIGNER_TEST
-    const QString projPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString();
-#else
-    const QString projPath = QFileInfo(model()->fileUrl().toLocalFile()).absolutePath();
-#endif
+
+    const QString projPath = m_externalDependencies.currentProjectDirPath();
 
     if (projPath.isEmpty())
         return;
@@ -2118,11 +2088,8 @@ void NodeInstanceView::updateQsbPathToFilterMap()
             return;
         const QStringList shaderToolFiles = bs->shaderToolFiles();
 
-#ifndef QMLDESIGNER_TEST
-        const QString projPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString();
-#else
-        const QString projPath = QFileInfo(model()->fileUrl().toLocalFile()).absolutePath();
-#endif
+        const QString projPath = m_externalDependencies.currentProjectDirPath();
+
         if (projPath.isEmpty())
             return;
 

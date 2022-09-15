@@ -4,8 +4,8 @@
 #include "propertyeditorimageprovider.h"
 #include "assetslibrarymodel.h"
 
-#include <hdrimage.h>
 #include <projectexplorer/target.h>
+#include <utils/hdrimage.h>
 #include <utils/stylehelper.h>
 
 #include <QMetaObject>

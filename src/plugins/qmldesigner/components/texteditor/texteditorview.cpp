@@ -42,8 +42,9 @@ namespace QmlDesigner {
 
 const char TEXTEDITOR_CONTEXT_ID[] = "QmlDesigner.TextEditorContext";
 
-TextEditorView::TextEditorView()
-    : m_widget(new TextEditorWidget(this))
+TextEditorView::TextEditorView(ExternalDependenciesInterface &externalDependencies)
+    : AbstractView{externalDependencies}
+    , m_widget(new TextEditorWidget(this))
     , m_textEditorContext(new Internal::TextEditorContext(m_widget))
 {
     Core::ICore::addContextObject(m_textEditorContext);

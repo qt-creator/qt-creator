@@ -62,12 +62,14 @@ QList<QmlTimelineKeyframeGroup> allTimelineFrames(const QmlTimeline &timeline)
     return returnList;
 }
 
-TimelineGraphicsScene::TimelineGraphicsScene(TimelineWidget *parent)
+TimelineGraphicsScene::TimelineGraphicsScene(TimelineWidget *parent,
+                                             ExternalDependenciesInterface &m_externalDependencies)
     : AbstractScrollGraphicsScene(parent)
     , m_parent(parent)
     , m_layout(new TimelineGraphicsLayout(this))
     , m_currentFrameIndicator(new TimelineFrameHandle)
     , m_tools(this)
+    , m_externalDependencies{m_externalDependencies}
 {
     addItem(m_layout);
     addItem(m_currentFrameIndicator);
@@ -735,8 +737,9 @@ void TimelineGraphicsScene::pasteKeyframesToTarget(const ModelNode &targetNode)
 
 void TimelineGraphicsScene::copySelectedKeyframes()
 {
-    TimelineActions::copyKeyframes(
-        Utils::transform(selectedKeyframes(), &TimelineKeyframeItem::frameNode));
+    TimelineActions::copyKeyframes(Utils::transform(selectedKeyframes(),
+                                                    &TimelineKeyframeItem::frameNode),
+                                   m_externalDependencies);
 }
 
 void TimelineGraphicsScene::pasteSelectedKeyframes()

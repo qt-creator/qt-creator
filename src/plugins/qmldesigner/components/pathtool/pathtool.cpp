@@ -117,8 +117,8 @@ protected:
     }
 };
 
-PathTool::PathTool()
-    : m_pathToolView(this)
+PathTool::PathTool(ExternalDependenciesInterface &externalDepoendencies)
+    : m_pathToolView(this, externalDepoendencies)
 {
     auto textToolAction = new PathToolAction;
     QmlDesignerPlugin::instance()->designerActionManager().addDesignerAction(textToolAction);

@@ -4,13 +4,13 @@
 
 #include "rotationcontroller.h"
 
-#include <qmldesignercorelib_global.h>
+#include <qmldesignercomponents_global.h>
 
 #include <QGraphicsItem>
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT RotationHandleItem : public QGraphicsItem
+class QMLDESIGNERCOMPONENTS_EXPORT RotationHandleItem : public QGraphicsItem
 {
 public:
     enum

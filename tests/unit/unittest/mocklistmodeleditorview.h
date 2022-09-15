@@ -10,6 +10,9 @@
 class MockListModelEditorView : public QmlDesigner::AbstractView
 {
 public:
+    MockListModelEditorView(QmlDesigner::ExternalDependenciesInterface *externalDependencies = nullptr)
+        : AbstractView{*externalDependencies}
+    {}
     MOCK_METHOD(void,
                 variantPropertiesChanged,
                 (const QList<QmlDesigner::VariantProperty> &propertyList,

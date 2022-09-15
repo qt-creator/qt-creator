@@ -48,8 +48,9 @@ static bool propertyIsAttachedLayoutProperty(const PropertyName &propertyName)
     return propertyName.contains("Layout.");
 }
 
-PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache)
-    : AbstractView()
+PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
+                                       ExternalDependenciesInterface &externalDependencies)
+    : AbstractView(externalDependencies)
     , m_imageCache(imageCache)
     , m_updateShortcut(nullptr)
     , m_timerId(0)

@@ -18,7 +18,7 @@ class TimelineView : public AbstractView
     Q_OBJECT
 
 public:
-    explicit TimelineView();
+    explicit TimelineView(ExternalDependenciesInterface &externalDepoendencies);
     ~TimelineView() override;
     //Abstract View
     WidgetInfo widgetInfo() override;

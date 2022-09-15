@@ -33,7 +33,7 @@ class NodeListView : public AbstractView
     Q_OBJECT
 
 public:
-    explicit NodeListView(AbstractView *parent);
+    explicit NodeListView(ExternalDependenciesInterface &externalDependencies);
     ~NodeListView() override;
 
     int currentNode() const;

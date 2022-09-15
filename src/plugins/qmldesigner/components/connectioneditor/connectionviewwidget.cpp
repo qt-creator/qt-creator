@@ -13,6 +13,7 @@
 #include "theme.h"
 #include "signalhandlerproperty.h"
 
+#include <designeractionmanager.h>
 #include <designersettings.h>
 #include <qmldesignerplugin.h>
 

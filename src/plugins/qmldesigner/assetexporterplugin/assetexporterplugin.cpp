@@ -43,7 +43,8 @@ AssetExporterPlugin::AssetExporterPlugin()
 
     auto *designerPlugin = QmlDesigner::QmlDesignerPlugin::instance();
     auto &viewManager = designerPlugin->viewManager();
-    m_view = viewManager.registerView(std::make_unique<AssetExporterView>());
+    m_view = viewManager.registerView(std::make_unique<AssetExporterView>(
+        designerPlugin->externalDependenciesForPluginInitializationOnly()));
 
     // Add dumper templates for factory instantiation.
     Component::addNodeDumper<ItemNodeDumper>();

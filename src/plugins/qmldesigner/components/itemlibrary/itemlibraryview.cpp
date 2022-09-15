@@ -2,12 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "itemlibraryview.h"
-#include "itemlibrarywidget.h"
 #include "itemlibraryassetimportdialog.h"
+#include "itemlibrarywidget.h"
 #include "metainfo.h"
 #include <asynchronousimagecache.h>
 #include <bindingproperty.h>
+#include <componentcore_constants.h>
 #include <coreplugin/icore.h>
+#include <designeractionmanager.h>
 #include <import.h>
 #include <nodelistproperty.h>
 #include <projectexplorer/kit.h>
@@ -17,14 +19,15 @@
 #include <rewriterview.h>
 #include <sqlitedatabase.h>
 #include <utils/algorithm.h>
+#include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
-#include <qmldesignerconstants.h>
 
 namespace QmlDesigner {
 
-ItemLibraryView::ItemLibraryView(AsynchronousImageCache &imageCache)
-    : AbstractView()
+ItemLibraryView::ItemLibraryView(AsynchronousImageCache &imageCache,
+                                 ExternalDependenciesInterface &externalDependencies)
+    : AbstractView(externalDependencies)
     , m_imageCache(imageCache)
 {}
 

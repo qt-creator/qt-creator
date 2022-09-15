@@ -26,7 +26,8 @@ class TestRewriterView : public RewriterView
 Q_OBJECT
 
 public:
-    TestRewriterView(DifferenceHandling differenceHandling = RewriterView::Validate);
+    TestRewriterView(ExternalDependenciesInterface &externalDependencies,
+                     DifferenceHandling differenceHandling = RewriterView::Validate);
 
     Internal::TestModelToTextMerger *modelToTextMerger() const;
     Internal::TextToModelMerger *textToModelMerger() const;

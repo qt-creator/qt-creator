@@ -24,6 +24,8 @@ class Target;
 
 namespace QmlDesigner {
 
+class ExternalDependenciesInterface;
+
 class QmlDesignerProjectManager : public QObject
 {
     Q_OBJECT
@@ -33,7 +35,7 @@ class QmlDesignerProjectManager : public QObject
     class ImageCacheData;
 
 public:
-    QmlDesignerProjectManager();
+    QmlDesignerProjectManager(ExternalDependenciesInterface &externalDependencies);
     ~QmlDesignerProjectManager();
 
     void registerPreviewImageProvider(QQmlEngine *engine) const;
@@ -64,5 +66,6 @@ private:
     std::unique_ptr<ImageCacheData> m_imageCacheData;
     std::unique_ptr<PreviewImageCacheData> m_previewImageCacheData;
     std::unique_ptr<QmlDesignerProjectManagerProjectData> m_projectData;
+    ExternalDependenciesInterface &m_externalDependencies;
 };
 } // namespace QmlDesigner

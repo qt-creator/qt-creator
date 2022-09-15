@@ -4,8 +4,9 @@
 #include "qmlpreviewplugin.h"
 #include "qmlpreviewactions.h"
 
-#include <zoomaction.h>
+#include <designeractionmanager.h>
 #include <designersettings.h>
+#include <zoomaction.h>
 
 #include <utils/utilsicons.h>
 

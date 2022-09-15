@@ -26,6 +26,7 @@ class NodeInstanceView;
 class NodeInstanceClientProxy;
 class BaseConnectionManager;
 class ConnectionManagerInterface;
+class ExternalDependenciesInterface;
 
 class NodeInstanceServerProxy : public NodeInstanceServerInterface
 {
@@ -36,7 +37,8 @@ class NodeInstanceServerProxy : public NodeInstanceServerInterface
 public:
     explicit NodeInstanceServerProxy(NodeInstanceView *nodeInstanceView,
                                      ProjectExplorer::Target *target,
-                                     ConnectionManagerInterface &connectionManager);
+                                     ConnectionManagerInterface &connectionManager,
+                                     ExternalDependenciesInterface &externalDependencies);
     ~NodeInstanceServerProxy() override;
     void createInstances(const CreateInstancesCommand &command) override;
     void changeFileUrl(const ChangeFileUrlCommand &command) override;

@@ -29,7 +29,8 @@ class PropertyEditorView: public AbstractView
     Q_OBJECT
 
 public:
-    PropertyEditorView(class AsynchronousImageCache &imageCache);
+    PropertyEditorView(class AsynchronousImageCache &imageCache,
+                       ExternalDependenciesInterface &externalDependencies);
     ~PropertyEditorView() override;
 
     bool hasWidget() const override;

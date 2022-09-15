@@ -4,8 +4,8 @@
 #include "assetslibraryiconprovider.h"
 #include "assetslibrarymodel.h"
 
-#include <hdrimage.h>
 #include <theme.h>
+#include <utils/hdrimage.h>
 #include <utils/stylehelper.h>
 
 namespace QmlDesigner {

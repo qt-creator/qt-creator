@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <qmldesignercorelib_global.h>
+#include "qmldesignerutils_global.h"
 
 #include <QHash>
 #include <QVariant>
@@ -56,7 +56,7 @@ const char SMOOTH_RENDERING[] = "SmoothRendering";
 const char OLD_STATES_EDITOR[] = "OldStatesEditor";
 }
 
-class QMLDESIGNERCORE_EXPORT DesignerSettings
+class QMLDESIGNERUTILS_EXPORT DesignerSettings
 {
 public:
     DesignerSettings(QSettings *settings);
@@ -68,6 +68,7 @@ public:
 private:
     void fromSettings(QSettings *);
     void toSettings(QSettings *) const;
+
     void restoreValue(QSettings *settings, const QByteArray &key,
         const QVariant &defaultValue = QVariant());
     void storeValue(QSettings *settings, const QByteArray &key, const QVariant &value) const;

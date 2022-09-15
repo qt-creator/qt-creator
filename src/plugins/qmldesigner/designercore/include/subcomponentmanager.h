@@ -24,7 +24,8 @@ class QMLDESIGNERCORE_EXPORT SubComponentManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit SubComponentManager(Model *model, QObject *parent = nullptr);
+    explicit SubComponentManager(Model *model,
+                                 class ExternalDependenciesInterface &externalDependencies);
 
     void update(const QUrl &fileUrl, const QList<Import> &imports);
     void addAndParseImport(const Import &import);
@@ -58,6 +59,7 @@ private: // variables
     QUrl m_filePath;
     QDir m_filePathDir;
     QPointer<Model> m_model;
+    ExternalDependenciesInterface &m_externalDependencies;
 };
 
 } // namespace QmlDesigner

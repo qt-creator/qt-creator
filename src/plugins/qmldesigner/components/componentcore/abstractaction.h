@@ -10,7 +10,7 @@
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT DefaultAction : public QAction
+class QMLDESIGNERCOMPONENTS_EXPORT DefaultAction : public QAction
 {
     Q_OBJECT
 
@@ -25,7 +25,7 @@ protected:
     SelectionContext m_selectionContext;
 };
 
-class QMLDESIGNERCORE_EXPORT AbstractAction : public ActionInterface
+class QMLDESIGNERCOMPONENTS_EXPORT AbstractAction : public ActionInterface
 {
 public:
     AbstractAction(const QString &description = QString());

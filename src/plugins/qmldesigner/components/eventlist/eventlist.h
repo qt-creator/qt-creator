@@ -49,8 +49,6 @@ public:
     void write(const QString &text);
 
 private:
-    static NodeListView *st_nodeView;
-
     std::unique_ptr<Model> m_model;
     std::unique_ptr<EventListView> m_eventView;
     Utils::FilePath m_path;

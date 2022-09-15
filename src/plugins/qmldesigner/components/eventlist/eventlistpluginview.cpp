@@ -7,11 +7,12 @@
 #include "eventlistdialog.h"
 
 #include "signalhandlerproperty.h"
+#include <componentcore/componentcore_constants.h>
 #include <coreplugin/icore.h>
+#include <designeractionmanager.h>
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 #include <qmldesignerplugin.h>
-#include <componentcore/componentcore_constants.h>
 
 namespace QmlDesigner {
 
@@ -30,8 +31,9 @@ SignalHandlerProperty signalPropertyFromAction(ActionInterface *interface)
     return SignalHandlerProperty();
 }
 
-EventListPluginView::EventListPluginView()
-    : m_eventlist()
+EventListPluginView::EventListPluginView(ExternalDependenciesInterface &externalDepoendencies)
+    : AbstractView{externalDepoendencies}
+    , m_eventlist()
     , m_eventListDialog(nullptr)
     , m_assigner(nullptr)
     , m_signalConnector(nullptr)

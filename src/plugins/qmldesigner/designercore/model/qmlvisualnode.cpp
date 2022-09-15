@@ -11,6 +11,8 @@
 #include "qmlanchors.h"
 #include "itemlibraryinfo.h"
 
+#include <externaldependenciesinterface.h>
+
 #include "plaintexteditmodifier.h"
 #include "rewriterview.h"
 #include "modelmerger.h"
@@ -218,7 +220,8 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
     textEdit.setPlainText(source);
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend));
+    QScopedPointer<RewriterView> rewriterView(
+        new RewriterView(view->externalDependencies(), RewriterView::Amend));
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(&modifier);
     rewriterView->setAllowComponentRoot(true);
@@ -235,12 +238,12 @@ static QmlObjectNode createQmlObjectNodeFromSource(AbstractView *view,
     return {};
 }
 
-static QString imagePlaceHolderPath(Model *model)
+static QString imagePlaceHolderPath(AbstractView *view)
 {
-    QFileInfo info(model->projectUrl().toLocalFile() +  "/images/place_holder.png");
+    QFileInfo info(view->externalDependencies().projectUrl().toLocalFile() + "/images/place_holder.png");
 
     if (info.exists()) {
-        const QDir dir(QFileInfo(model->fileUrl().toLocalFile()).absoluteDir());
+        const QDir dir(QFileInfo(view->model()->fileUrl().toLocalFile()).absoluteDir());
         return dir.relativeFilePath(info.filePath());
     }
 
@@ -272,12 +275,13 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
 
             for (const auto &property : itemLibraryEntry.properties()) {
                 if (property.type() == "binding") {
-                    const QString value = QmlObjectNode::convertToCorrectTranslatableFunction(property.value().toString());
+                    const QString value = QmlObjectNode::convertToCorrectTranslatableFunction(
+                        property.value().toString(), view->externalDependencies().designerSettings());
                     propertyBindingList.append(PropertyBindingEntry(property.name(), value));
                 } else if (property.type() == "enum") {
                     propertyEnumList.append(PropertyBindingEntry(property.name(), property.value().toString()));
                 } else if (property.value().toString() == QString::fromLatin1(imagePlaceHolder)) {
-                    propertyPairList.append({property.name(), imagePlaceHolderPath(view->model()) });
+                    propertyPairList.append({property.name(), imagePlaceHolderPath(view)});
                 } else {
                     propertyPairList.append({property.name(), property.value()});
                 }

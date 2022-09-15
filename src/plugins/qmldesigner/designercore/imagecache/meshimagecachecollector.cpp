@@ -12,14 +12,15 @@
 
 namespace QmlDesigner {
 
-MeshImageCacheCollector::MeshImageCacheCollector(
-    ImageCacheConnectionManager &connectionManager,
-    QSize captureImageMinimumSize,
-    QSize captureImageMaximumSize,
-    ImageCacheCollectorNullImageHandling nullImageHandling)
+MeshImageCacheCollector::MeshImageCacheCollector(ImageCacheConnectionManager &connectionManager,
+                                                 QSize captureImageMinimumSize,
+                                                 QSize captureImageMaximumSize,
+                                                 ExternalDependenciesInterface &externalDependencies,
+                                                 ImageCacheCollectorNullImageHandling nullImageHandling)
     : m_imageCacheCollector(connectionManager,
                             captureImageMinimumSize,
                             captureImageMaximumSize,
+                            externalDependencies,
                             nullImageHandling)
 {}
 

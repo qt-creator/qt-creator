@@ -60,13 +60,15 @@ namespace QmlDesigner {
   DesignDocument acts as a facade to a model representing a qml document,
   and the different views/widgets accessing it.
   */
-DesignDocument::DesignDocument(ProjectStorage<Sqlite::Database> &projectStorage)
+DesignDocument::DesignDocument(ProjectStorage<Sqlite::Database> &projectStorage,
+                               ExternalDependenciesInterface &externalDependencies)
     : m_documentModel(Model::create("QtQuick.Item", 1, 0))
-    , m_subComponentManager(new SubComponentManager(m_documentModel.get(), this))
-    , m_rewriterView(new RewriterView(RewriterView::Amend))
+    , m_subComponentManager(new SubComponentManager(m_documentModel.get(), externalDependencies))
+    , m_rewriterView(new RewriterView(externalDependencies, RewriterView::Amend))
     , m_documentLoaded(false)
     , m_currentTarget(nullptr)
     , m_projectStorage(projectStorage)
+    , m_externalDependencies{externalDependencies}
 {
 }
 
@@ -477,11 +479,11 @@ void DesignDocument::deleteSelected()
 
 void DesignDocument::copySelected()
 {
-    DesignDocumentView view;
+    DesignDocumentView view{m_externalDependencies};
 
     currentModel()->attachView(&view);
 
-    DesignDocumentView::copyModelNodes(view.selectedModelNodes());
+    DesignDocumentView::copyModelNodes(view.selectedModelNodes(), m_externalDependencies);
 }
 
 void DesignDocument::cutSelected()
@@ -537,12 +539,12 @@ void DesignDocument::paste()
     if (TimelineActions::clipboardContainsKeyframes()) // pasting keyframes is handled in TimelineView
         return;
 
-    auto pasteModel = DesignDocumentView::pasteToModel();
+    auto pasteModel = DesignDocumentView::pasteToModel(m_externalDependencies);
 
     if (!pasteModel)
         return;
 
-    DesignDocumentView view;
+    DesignDocumentView view{m_externalDependencies};
     pasteModel->attachView(&view);
     ModelNode rootNode(view.rootModelNode());
     QList<ModelNode> selectedNodes = rootNode.directSubModelNodes();
@@ -662,7 +664,7 @@ void DesignDocument::selectAll()
     if (!currentModel())
         return;
 
-    DesignDocumentView view;
+    DesignDocumentView view{m_externalDependencies};
     currentModel()->attachView(&view);
 
     QList<ModelNode> allNodesExceptRootNode(view.allModelNodes());

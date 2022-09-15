@@ -3,7 +3,9 @@
 
 #include "textedititem.h"
 
+#include <externaldependenciesinterface.h>
 #include <formeditorscene.h>
+#include <formeditorview.h>
 #include <model.h>
 #include <nodemetainfo.h>
 #include <rewritingexception.h>
@@ -32,7 +34,11 @@ void TextEditItem::writeTextToProperty()
             if (text().isEmpty())
                 m_formEditorItem->qmlItemNode().removeProperty("text");
             else if (m_formEditorItem->qmlItemNode().isTranslatableText("text"))
-                m_formEditorItem->qmlItemNode().setBindingProperty("text", QmlObjectNode::generateTranslatableText(text()));
+                m_formEditorItem->qmlItemNode().setBindingProperty(
+                    "text",
+                    QmlObjectNode::generateTranslatableText(
+                        text(),
+                        m_formEditorItem->formEditorView()->externalDependencies().designerSettings()));
             else
                 m_formEditorItem->qmlItemNode().setVariantProperty("text", text());
         }

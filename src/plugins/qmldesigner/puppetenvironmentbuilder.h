@@ -28,6 +28,10 @@ public:
 
     QProcessEnvironment processEnvironment() const;
 
+    static QProcessEnvironment createEnvironment(ProjectExplorer::Target *target,
+                                                 const class DesignerSettings &designerSettings,
+                                                 const class Model &model);
+
 private:
     PuppetType determinePuppetType() const;
     bool usesVirtualKeyboard() const;

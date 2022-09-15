@@ -578,10 +578,14 @@ static QString toUpper(const QString &signal)
     return ret;
 }
 
-static void addSignal(const QString &typeName, const QString &itemId, const QString &signalName, bool isRootModelNode)
+static void addSignal(const QString &typeName,
+                      const QString &itemId,
+                      const QString &signalName,
+                      bool isRootModelNode,
+                      ExternalDependenciesInterface &externanDependencies)
 {
     auto model = Model::create("Item", 2, 0);
-    RewriterView rewriterView(RewriterView::Amend);
+    RewriterView rewriterView(externanDependencies, RewriterView::Amend);
 
     auto textEdit = qobject_cast<TextEditor::TextEditorWidget*>
             (Core::EditorManager::currentEditor()->widget());
@@ -700,12 +704,19 @@ void addSignalHandlerOrGotoImplementation(const SelectionContext &selectionState
                 if (dialog->signal().isEmpty())
                     return;
 
-                qmlObjectNode.view()->executeInTransaction("NavigatorTreeModel:exportItem", [=](){
-
-                    addSignal(typeName, itemId, dialog->signal(), isModelNodeRoot);
+                qmlObjectNode.view()->executeInTransaction("NavigatorTreeModel:exportItem", [=]() {
+                    addSignal(typeName,
+                              itemId,
+                              dialog->signal(),
+                              isModelNodeRoot,
+                              selectionState.view()->externalDependencies());
                 });
 
-                addSignal(typeName, itemId, dialog->signal(), isModelNodeRoot);
+                addSignal(typeName,
+                          itemId,
+                          dialog->signal(),
+                          isModelNodeRoot,
+                          selectionState.view()->externalDependencies());
 
                 //Move cursor to correct curser position
                 const QString filePath = Core::EditorManager::currentDocument()->filePath().toString();
@@ -1524,7 +1535,8 @@ void styleMerge(const SelectionContext &selectionContext, const QString &templat
     textEditTemplate.setPlainText(imports + qmlTemplateString);
     NotIndentingTextEditModifier textModifierTemplate(&textEditTemplate);
 
-    QScopedPointer<RewriterView> templateRewriterView(new RewriterView(RewriterView::Amend));
+    QScopedPointer<RewriterView> templateRewriterView(
+        new RewriterView(selectionContext.view()->externalDependencies(), RewriterView::Amend));
     templateRewriterView->setTextModifier(&textModifierTemplate);
     templateModel->attachView(templateRewriterView.data());
     templateRewriterView->setCheckSemanticErrors(false);
@@ -1543,7 +1555,8 @@ void styleMerge(const SelectionContext &selectionContext, const QString &templat
     textEditStyle.setPlainText(parentRewriterView->textModifierContent());
     NotIndentingTextEditModifier textModifierStyle(&textEditStyle);
 
-    QScopedPointer<RewriterView> styleRewriterView(new RewriterView(RewriterView::Amend));
+    QScopedPointer<RewriterView> styleRewriterView(
+        new RewriterView(selectionContext.view()->externalDependencies(), RewriterView::Amend));
     styleRewriterView->setTextModifier(&textModifierStyle);
     styleModel->attachView(styleRewriterView.data());
 

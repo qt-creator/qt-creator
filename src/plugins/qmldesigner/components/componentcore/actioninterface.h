@@ -12,7 +12,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT ActionInterface
+class QMLDESIGNERCOMPONENTS_EXPORT ActionInterface
 {
 public:
     enum Type {

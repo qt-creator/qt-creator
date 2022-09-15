@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include <qmldesignercorelib_global.h>
+#include "qmldesignerutils_global.h"
 
 #include <QImage>
 #include <QPixmap>
@@ -10,7 +10,7 @@
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT HdrImage
+class QMLDESIGNERUTILS_EXPORT HdrImage
 {
 public:
     HdrImage(const QString &fileName);

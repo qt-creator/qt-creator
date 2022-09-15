@@ -14,8 +14,9 @@
 
 namespace QmlDesigner {
 
-PathToolView::PathToolView(PathTool *pathTool)
-    : m_pathTool(pathTool)
+PathToolView::PathToolView(PathTool *pathTool, ExternalDependenciesInterface &externalDependencies)
+    : AbstractView{externalDependencies}
+    , m_pathTool(pathTool)
 {
 }
 

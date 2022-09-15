@@ -29,7 +29,8 @@ public:
     void setUp(NodeInstanceServerInterface *nodeInstanceServer,
                const QString &qrcMappingString,
                ProjectExplorer::Target *target,
-               AbstractView *view) override;
+               AbstractView *view,
+               ExternalDependenciesInterface &) override;
     void shutDown() override;
 
     void setCrashCallback(std::function<void()> callback) override;

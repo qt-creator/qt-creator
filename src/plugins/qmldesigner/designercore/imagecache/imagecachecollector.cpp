@@ -41,10 +41,12 @@ QString fileToString(const QString &filename)
 ImageCacheCollector::ImageCacheCollector(ImageCacheConnectionManager &connectionManager,
                                          QSize captureImageMinimumSize,
                                          QSize captureImageMaximumSize,
+                                         ExternalDependenciesInterface &externalDependencies,
                                          ImageCacheCollectorNullImageHandling nullImageHandling)
     : m_connectionManager{connectionManager}
     , captureImageMinimumSize{captureImageMinimumSize}
     , captureImageMaximumSize{captureImageMaximumSize}
+    , m_externalDependencies{externalDependencies}
     , nullImageHandling{nullImageHandling}
 {}
 
@@ -56,8 +58,8 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
                                 CaptureCallback captureCallback,
                                 AbortCallback abortCallback)
 {
-    RewriterView rewriterView{RewriterView::Amend};
-    NodeInstanceView nodeInstanceView{m_connectionManager};
+    RewriterView rewriterView{m_externalDependencies, RewriterView::Amend};
+    NodeInstanceView nodeInstanceView{m_connectionManager, m_externalDependencies};
     nodeInstanceView.setCaptureImageMinimumAndMaximumSize(captureImageMinimumSize,
                                                           captureImageMaximumSize);
 

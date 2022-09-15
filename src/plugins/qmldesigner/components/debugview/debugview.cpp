@@ -39,8 +39,9 @@ namespace QmlDesigner {
 
 namespace  Internal {
 
-DebugView::DebugView()
-    : m_debugViewWidget(new DebugViewWidget)
+DebugView::DebugView(ExternalDependenciesInterface &externalDependencies)
+    : AbstractView{externalDependencies}
+    , m_debugViewWidget(new DebugViewWidget)
 {
 }
 

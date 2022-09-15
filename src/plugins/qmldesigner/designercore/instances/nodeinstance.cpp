@@ -4,9 +4,6 @@
 #include "nodeinstance.h"
 
 #include <modelnode.h>
-#ifndef QMLDESIGNER_TEST
-#include <qmldesignerplugin.h>
-#endif
 
 #include <QDebug>
 #include <QPainter>

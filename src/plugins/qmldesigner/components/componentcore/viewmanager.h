@@ -3,7 +3,9 @@
 
 #pragma once
 
-#include "abstractview.h"
+#include <qmldesignercomponents_global.h>
+
+#include <abstractview.h>
 
 #include <coreplugin/icontext.h>
 
@@ -28,10 +30,11 @@ namespace Internal { class DesignModeWidget; }
 
 class ViewManagerData;
 
-class QMLDESIGNERCORE_EXPORT ViewManager
+class QMLDESIGNERCOMPONENTS_EXPORT ViewManager
 {
 public:
-    ViewManager(class AsynchronousImageCache &imageCache);
+    ViewManager(class AsynchronousImageCache &imageCache,
+                class ExternalDependenciesInterface &externalDependencies);
     ~ViewManager();
 
     void attachRewriterView();

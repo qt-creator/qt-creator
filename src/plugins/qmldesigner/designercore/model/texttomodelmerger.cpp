@@ -3,34 +3,25 @@
 
 #include "texttomodelmerger.h"
 
-#include "documentmessage.h"
-#include "modelnodepositionstorage.h"
 #include "abstractproperty.h"
 #include "bindingproperty.h"
+#include "documentmessage.h"
 #include "filemanager/firstdefinitionfinder.h"
 #include "filemanager/objectlengthcalculator.h"
 #include "filemanager/qmlrefactoring.h"
 #include "itemlibraryinfo.h"
 #include "metainfo.h"
+#include "modelnodepositionstorage.h"
 #include "nodemetainfo.h"
 #include "nodeproperty.h"
-#include "signalhandlerproperty.h"
 #include "propertyparser.h"
 #include "rewriterview.h"
+#include "signalhandlerproperty.h"
 #include "variantproperty.h"
+#include <externaldependenciesinterface.h>
 #include <rewritingexception.h>
 
 #include <enumeration.h>
-
-#ifndef QMLDESIGNER_TEST
-#include <projectexplorer/kit.h>
-#include <projectexplorer/session.h>
-#include <projectexplorer/target.h>
-
-#include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
-
-#endif
 
 #include <qmljs/qmljsevaluate.h>
 #include <qmljs/qmljslink.h>
@@ -2243,40 +2234,31 @@ void TextToModelMerger::collectImportErrors(QList<DocumentMessage> *errors)
             if (supportedQtQuickVersion(import.version())) {
                 hasQtQuick = true;
 
-#ifndef QMLDESIGNER_TEST
-                auto target = ProjectExplorer::SessionManager::startupTarget();
-                if (target) {
-                    QtSupport::QtVersion *currentQtVersion = QtSupport::QtKitAspect::qtVersion(
-                        target->kit());
-                    if (currentQtVersion && currentQtVersion->isValid()) {
-                        const bool qt6import = import.version().startsWith("6");
+                auto &externalDependencies = m_rewriterView->externalDependencies();
+                if (externalDependencies.hasStartupTarget()) {
+                    const bool qt6import = import.version().startsWith("6");
 
-                        if (currentQtVersion->qtVersion().majorVersion() == 5
-                            && (m_hasVersionlessImport || qt6import)) {
-                            const QmlJS::DiagnosticMessage diagnosticMessage(
-                                QmlJS::Severity::Error,
-                                SourceLocation(0, 0, 0, 0),
-                                QCoreApplication::translate(
-                                    "QmlDesigner::TextToModelMerger",
-                                    "Qt Quick 6 is not supported with a Qt 5 kit."));
-                            errors->prepend(DocumentMessage(diagnosticMessage,
-                                                            QUrl::fromLocalFile(
-                                                                m_document->fileName().path())));
-                        }
-                    } else {
-                        const QmlJS::DiagnosticMessage
-                            diagnosticMessage(QmlJS::Severity::Error,
-                                              SourceLocation(0, 0, 0, 0),
-                                              QCoreApplication::translate(
-                                                  "QmlDesigner::TextToModelMerger",
-                                                  "The Design Mode requires a valid Qt kit."));
+                    if (!externalDependencies.isQt6Import() && (m_hasVersionlessImport || qt6import)) {
+                        const QmlJS::DiagnosticMessage diagnosticMessage(
+                            QmlJS::Severity::Error,
+                            SourceLocation(0, 0, 0, 0),
+                            QCoreApplication::translate(
+                                "QmlDesigner::TextToModelMerger",
+                                "Qt Quick 6 is not supported with a Qt 5 kit."));
                         errors->prepend(
                             DocumentMessage(diagnosticMessage,
                                             QUrl::fromLocalFile(m_document->fileName().path())));
                     }
+                } else {
+                    const QmlJS::DiagnosticMessage diagnosticMessage(
+                        QmlJS::Severity::Error,
+                        SourceLocation(0, 0, 0, 0),
+                        QCoreApplication::translate("QmlDesigner::TextToModelMerger",
+                                                    "The Design Mode requires a valid Qt kit."));
+                    errors->prepend(
+                        DocumentMessage(diagnosticMessage,
+                                        QUrl::fromLocalFile(m_document->fileName().path())));
                 }
-#endif
-
             } else {
                 const QmlJS::DiagnosticMessage
                     diagnosticMessage(QmlJS::Severity::Error,

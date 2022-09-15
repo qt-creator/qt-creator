@@ -24,9 +24,10 @@ InteractiveConnectionManager::InteractiveConnectionManager()
 void InteractiveConnectionManager::setUp(NodeInstanceServerInterface *nodeInstanceServer,
                                          const QString &qrcMappingString,
                                          ProjectExplorer::Target *target,
-                                         AbstractView *view)
+                                         AbstractView *view,
+                                         ExternalDependenciesInterface &externalDependencies)
 {
-    ConnectionManager::setUp(nodeInstanceServer, qrcMappingString, target, view);
+    ConnectionManager::setUp(nodeInstanceServer, qrcMappingString, target, view, externalDependencies);
 
     int timeOutTime = QmlDesignerPlugin::settings()
             .value(DesignerSettingsKey::PUPPET_KILL_TIMEOUT).toInt();

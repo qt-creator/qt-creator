@@ -98,14 +98,20 @@ auto makeCollecterDispatcherChain(ImageCacheCollector &nodeInstanceCollector,
 class QmlDesignerProjectManager::ImageCacheData
 {
 public:
+    ImageCacheData(ExternalDependenciesInterface &externalDependencies)
+        : meshImageCollector{connectionManager, QSize{300, 300}, QSize{600, 600}, externalDependencies}
+        , nodeInstanceCollector{connectionManager, QSize{300, 300}, QSize{600, 600}, externalDependencies}
+    {}
+
+public:
     Sqlite::Database database{Utils::PathString{
                                   Core::ICore::cacheResourcePath("imagecache-v2.db").toString()},
                               Sqlite::JournalMode::Wal,
                               Sqlite::LockingMode::Normal};
     ImageCacheStorage<Sqlite::Database> storage{database};
     ImageCacheConnectionManager connectionManager;
-    MeshImageCacheCollector meshImageCollector{connectionManager, QSize{300, 300}, QSize{600, 600}};
-    ImageCacheCollector nodeInstanceCollector{connectionManager, QSize{300, 300}, QSize{600, 600}};
+    MeshImageCacheCollector meshImageCollector;
+    ImageCacheCollector nodeInstanceCollector;
     ImageCacheDispatchCollector<decltype(makeCollecterDispatcherChain(nodeInstanceCollector,
                                                                       meshImageCollector))>
         dispatchCollector{makeCollecterDispatcherChain(nodeInstanceCollector, meshImageCollector)};
@@ -117,16 +123,22 @@ public:
 class QmlDesignerProjectManager::PreviewImageCacheData
 {
 public:
+    PreviewImageCacheData(ExternalDependenciesInterface &externalDependencies)
+        : collector{connectionManager,
+                    QSize{300, 300},
+                    QSize{1000, 1000},
+                    externalDependencies,
+                    ImageCacheCollectorNullImageHandling::DontCaptureNullImage}
+    {}
+
+public:
     Sqlite::Database database{Utils::PathString{
                                   Core::ICore::cacheResourcePath("previewcache.db").toString()},
                               Sqlite::JournalMode::Wal,
                               Sqlite::LockingMode::Normal};
     ImageCacheStorage<Sqlite::Database> storage{database};
     ImageCacheConnectionManager connectionManager;
-    ImageCacheCollector collector{connectionManager,
-                                  QSize{300, 300},
-                                  QSize{1000, 1000},
-                                  ImageCacheCollectorNullImageHandling::DontCaptureNullImage};
+    ImageCacheCollector collector;
     PreviewTimeStampProvider timeStampProvider;
     AsynchronousExplicitImageCache cache{storage};
     AsynchronousImageFactory factory{storage, timeStampProvider, collector};
@@ -154,24 +166,28 @@ class QmlDesignerProjectManager::QmlDesignerProjectManagerProjectData
 {
 public:
     QmlDesignerProjectManagerProjectData(ImageCacheStorage<Sqlite::Database> &storage,
-                                         ::ProjectExplorer::Project *project)
-        : factory{storage, timeStampProvider, collector}
+                                         ::ProjectExplorer::Project *project,
+                                         ExternalDependenciesInterface &externalDependencies)
+        : collector{connectionManager,
+                    QSize{300, 300},
+                    QSize{1000, 1000},
+                    externalDependencies,
+                    ImageCacheCollectorNullImageHandling::DontCaptureNullImage}
+        , factory{storage, timeStampProvider, collector}
         , projectStorageData{project}
     {}
 
     ImageCacheConnectionManager connectionManager;
-    ImageCacheCollector collector{connectionManager,
-                                  QSize{300, 300},
-                                  QSize{1000, 1000},
-                                  ImageCacheCollectorNullImageHandling::DontCaptureNullImage};
+    ImageCacheCollector collector;
     PreviewTimeStampProvider timeStampProvider;
     AsynchronousImageFactory factory;
     ProjectStorageData projectStorageData;
     QPointer<::ProjectExplorer::Target> activeTarget;
 };
 
-QmlDesignerProjectManager::QmlDesignerProjectManager()
-    : m_previewImageCacheData{std::make_unique<PreviewImageCacheData>()}
+QmlDesignerProjectManager::QmlDesignerProjectManager(ExternalDependenciesInterface &externalDependencies)
+    : m_previewImageCacheData{std::make_unique<PreviewImageCacheData>(externalDependencies)}
+    , m_externalDependencies{externalDependencies}
 {
     auto editorManager = ::Core::EditorManager::instance();
     QObject::connect(editorManager, &::Core::EditorManager::editorOpened, [&](auto *editor) {
@@ -351,8 +367,8 @@ QStringList qmlTypes(::ProjectExplorer::Target *target)
 void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project)
 {
     if (qEnvironmentVariableIsSet("QDS_ACTIVATE_PROJECT_STORAGE")) {
-        m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(m_previewImageCacheData->storage,
-                                                                               project);
+        m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(
+            m_previewImageCacheData->storage, project, m_externalDependencies);
         m_projectData->activeTarget = project->activeTarget();
 
         QObject::connect(project, &::ProjectExplorer::Project::fileListChanged, [&]() {
@@ -385,7 +401,7 @@ void QmlDesignerProjectManager::projectRemoved(::ProjectExplorer::Project *) {}
 QmlDesignerProjectManager::ImageCacheData *QmlDesignerProjectManager::imageCacheData()
 {
     std::call_once(imageCacheFlag, [this]() {
-        m_imageCacheData = std::make_unique<ImageCacheData>();
+        m_imageCacheData = std::make_unique<ImageCacheData>(m_externalDependencies);
         auto setTargetInImageCache =
             [imageCacheData = m_imageCacheData.get()](ProjectExplorer::Target *target) {
                 if (target == imageCacheData->nodeInstanceCollector.target())

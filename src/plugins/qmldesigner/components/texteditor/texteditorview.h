@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include <coreplugin/icontext.h>
 
 #include <abstractview.h>
+#include <qmldesignercomponents_global.h>
+
+#include <coreplugin/icontext.h>
 
 #include <memory>
 
@@ -20,12 +22,12 @@ class TextEditorContext;
 
 class TextEditorWidget;
 
-class QMLDESIGNERCORE_EXPORT TextEditorView : public AbstractView
+class QMLDESIGNERCOMPONENTS_EXPORT TextEditorView : public AbstractView
 {
     Q_OBJECT
 
 public:
-    TextEditorView();
+    TextEditorView(ExternalDependenciesInterface &externalDependencies);
     ~TextEditorView() override;
 
     // AbstractView

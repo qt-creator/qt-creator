@@ -10,6 +10,7 @@
 #include <projectstorage/projectstoragefwd.h>
 #include <rewriterview.h>
 #include <subcomponentmanager.h>
+#include <qmldesignercomponents_global.h>
 
 #include <QObject>
 #include <QString>
@@ -33,12 +34,13 @@ class CrumbleBarInfo;
 class ViewManager;
 class AbstractView;
 
-class QMLDESIGNERCORE_EXPORT DesignDocument: public QObject
+class QMLDESIGNERCOMPONENTS_EXPORT DesignDocument : public QObject
 {
     Q_OBJECT
 
 public:
-    DesignDocument(ProjectStorage<Sqlite::Database> &projectStorage);
+    DesignDocument(ProjectStorage<Sqlite::Database> &projectStorage,
+                   ExternalDependenciesInterface &externalDependencies);
     ~DesignDocument() override;
 
     QString displayName() const;
@@ -139,6 +141,7 @@ private: // variables
     bool m_documentLoaded;
     ProjectExplorer::Target *m_currentTarget;
     ProjectStorage<Sqlite::Database> &m_projectStorage;
+    ExternalDependenciesInterface &m_externalDependencies;
 };
 
 } // namespace QmlDesigner

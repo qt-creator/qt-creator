@@ -29,7 +29,7 @@ public:
         QStringList arguments;
     };
 
-    TestView();
+    TestView(QmlDesigner::ExternalDependenciesInterface *externalDependencies = nullptr);
 
     void modelAttached(QmlDesigner::Model *model);
     void modelAboutToBeDetached(QmlDesigner::Model *model);

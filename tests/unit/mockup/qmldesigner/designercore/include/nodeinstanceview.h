@@ -17,7 +17,9 @@ class NodeInstanceView : public AbstractView
     Q_OBJECT
 
 public:
-    NodeInstanceView([[maybe_unused]] QObject *parent) {}
+    NodeInstanceView(ExternalDependenciesInterface &externalDependencies)
+        : AbstractView{externalDependencies}
+    {}
     ~NodeInstanceView() override {}
 
     void modelAttached([[maybe_unused]] Model *model) override {}

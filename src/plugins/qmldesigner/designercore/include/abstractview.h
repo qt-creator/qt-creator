@@ -39,6 +39,7 @@ class NodeInstanceView;
 class RewriterView;
 class QmlModelState;
 class QmlTimeline;
+class ExternalDependenciesInterface;
 
 enum DesignerWidgetFlags {
     DisableOnError,
@@ -78,7 +79,9 @@ public:
       EmptyPropertiesRemoved = 0x2
     };
     Q_DECLARE_FLAGS(PropertyChangeFlags, PropertyChangeFlag)
-    AbstractView() {}
+    AbstractView(ExternalDependenciesInterface &externalDependencies)
+        : m_externalDependencies{externalDependencies}
+    {}
 
     ~AbstractView() override;
 
@@ -259,6 +262,8 @@ public:
     bool isEnabled() const;
     void setEnabled(bool b);
 
+    ExternalDependenciesInterface &externalDependencies() const { return m_externalDependencies; }
+
     bool isBlockingNotifications() const { return m_isBlockingNotifications; }
 
     class NotificationBlocker
@@ -290,6 +295,7 @@ private: //functions
 
 private:
     QPointer<Model> m_model;
+    ExternalDependenciesInterface &m_externalDependencies;
     bool m_enabled = true;
     bool m_isBlockingNotifications = false;
 };

@@ -6,7 +6,7 @@
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT AbstractCustomTool : public QmlDesigner::AbstractFormEditorTool
+class QMLDESIGNERCOMPONENTS_EXPORT AbstractCustomTool : public QmlDesigner::AbstractFormEditorTool
 {
 public:
     AbstractCustomTool();

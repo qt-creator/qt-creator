@@ -11,7 +11,7 @@
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT AbstractActionGroup : public ActionInterface
+class QMLDESIGNERCOMPONENTS_EXPORT AbstractActionGroup : public ActionInterface
 {
 public:
     AbstractActionGroup(const QString &displayName);

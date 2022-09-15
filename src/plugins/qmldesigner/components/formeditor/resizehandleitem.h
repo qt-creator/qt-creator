@@ -4,13 +4,13 @@
 
 #include "resizecontroller.h"
 
-#include <qmldesignercorelib_global.h>
+#include <qmldesignercomponents_global.h>
 
 #include <QGraphicsItem>
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT ResizeHandleItem : public QGraphicsItem
+class QMLDESIGNERCOMPONENTS_EXPORT ResizeHandleItem : public QGraphicsItem
 {
 public:
     enum

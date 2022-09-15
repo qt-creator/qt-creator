@@ -3,15 +3,11 @@
 
 #include "rewritertransaction.h"
 #include <abstractview.h>
-#include <rewritingexception.h>
+#include <externaldependenciesinterface.h>
 #include <rewriterview.h>
+#include <rewritingexception.h>
 
 #include <utils/qtcassert.h>
-
-#ifndef QMLDESIGNER_TEST
-#include <designdocument.h>
-#include <qmldesignerplugin.h>
-#endif
 
 #include <QDebug>
 
@@ -99,9 +95,7 @@ void RewriterTransaction::rollback()
         m_valid = false;
         view()->emitRewriterEndTransaction();
 
-#ifndef QMLDESIGNER_TEST
-        QmlDesignerPlugin::instance()->currentDesignDocument()->undo();
-#endif
+        view()->externalDependencies().undoOnCurrentDesignDocument();
         if (m_activeIdentifier) {
             qDebug() << "Rollback RewriterTransaction:" << m_identifier << m_identifierNumber;
             m_identifierList.removeOne(m_identifier + QByteArrayLiteral("-") + QByteArray::number(m_identifierNumber));

@@ -49,6 +49,8 @@ public:
 
     static void setPluginPaths(const QStringList &paths);
 
+    static void disableParseItemLibraryDescriptionsUgly(); // ugly hack around broken tests
+
 private:
     bool isGlobal() const;
 

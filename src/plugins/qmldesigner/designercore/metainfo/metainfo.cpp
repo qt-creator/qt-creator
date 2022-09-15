@@ -70,10 +70,10 @@ public:
     bool m_isInitialized;
 };
 
-MetaInfoPrivate::MetaInfoPrivate(MetaInfo *q) :
-        m_itemLibraryInfo(new ItemLibraryInfo()),
-        m_q(q),
-        m_isInitialized(false)
+MetaInfoPrivate::MetaInfoPrivate(MetaInfo *q)
+    : m_itemLibraryInfo(new ItemLibraryInfo())
+    , m_q(q)
+    , m_isInitialized(false)
 {
     if (!m_q->isGlobal())
         m_itemLibraryInfo->setBaseInfo(MetaInfo::global().itemLibraryInfo());
@@ -85,15 +85,19 @@ void MetaInfoPrivate::clear()
     m_isInitialized = false;
 }
 
+namespace {
+bool enableParseItemLibraryDescriptions = true;
+}
+
 void MetaInfoPrivate::initialize()
 {
-    parseItemLibraryDescriptions();
+    if (enableParseItemLibraryDescriptions)
+        parseItemLibraryDescriptions();
     m_isInitialized = true;
 }
 
 void MetaInfoPrivate::parseItemLibraryDescriptions()
 {
-#ifndef QMLDESIGNER_TEST
     Internal::WidgetPluginManager pluginManager;
     for (const QString &pluginDir : qAsConst(m_q->s_pluginDirs))
         pluginManager.addPath(pluginDir);
@@ -104,9 +108,12 @@ void MetaInfoPrivate::parseItemLibraryDescriptions()
             reader.readMetaInfoFile(plugin->metaInfo());
         } catch (const InvalidMetaInfoException &e) {
             qWarning() << e.description();
-            const QString errorMessage = plugin->metaInfo() + QLatin1Char('\n') + QLatin1Char('\n') + reader.errors().join(QLatin1Char('\n'));
-            Core::AsynchronousMessageBox::warning(QCoreApplication::translate("QmlDesigner::Internal::MetaInfoPrivate", "Invalid meta info"),
-                                  errorMessage);
+            const QString errorMessage = plugin->metaInfo() + QLatin1Char('\n') + QLatin1Char('\n')
+                                         + reader.errors().join(QLatin1Char('\n'));
+            Core::AsynchronousMessageBox::warning(
+                QCoreApplication::translate("QmlDesigner::Internal::MetaInfoPrivate",
+                                            "Invalid meta info"),
+                errorMessage);
         }
     }
 
@@ -117,15 +124,22 @@ void MetaInfoPrivate::parseItemLibraryDescriptions()
             reader.readMetaInfoFile(path.toString());
         } catch (const InvalidMetaInfoException &e) {
             qWarning() << e.description();
-            const QString errorMessage = path.toString() + QLatin1Char('\n') + QLatin1Char('\n') + reader.errors().join(QLatin1Char('\n'));
-            Core::AsynchronousMessageBox::warning(QCoreApplication::translate("QmlDesigner::Internal::MetaInfoPrivate", "Invalid meta info"),
-                                  errorMessage);
+            const QString errorMessage = path.toString() + QLatin1Char('\n') + QLatin1Char('\n')
+                                         + reader.errors().join(QLatin1Char('\n'));
+            Core::AsynchronousMessageBox::warning(
+                QCoreApplication::translate("QmlDesigner::Internal::MetaInfoPrivate",
+                                            "Invalid meta info"),
+                errorMessage);
         }
     }
-#endif
 }
 
 } // namespace Internal
+
+void MetaInfo::disableParseItemLibraryDescriptionsUgly()
+{
+    Internal::enableParseItemLibraryDescriptions = false;
+}
 
 using QmlDesigner::Internal::MetaInfoPrivate;
 
@@ -156,8 +170,7 @@ MetaInfo::MetaInfo(const MetaInfo &metaInfo) = default;
   */
 MetaInfo::MetaInfo() :
         m_p(new MetaInfoPrivate(this))
-{
-}
+{}
 
 MetaInfo::~MetaInfo() = default;
 

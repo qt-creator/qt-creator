@@ -5,10 +5,10 @@
 #include "qmldesignerplugin.h"
 #include "qmldesignerconstants.h"
 
-#include "rewriterview.h"
 #include "model.h"
-#include "puppetcreator.h"
+#include "puppetstarter.h"
 #include "rewritertransaction.h"
+#include "rewriterview.h"
 #include "rewritingexception.h"
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -568,9 +568,6 @@ void ItemLibraryAssetImporter::startNextImportProcess()
     Model *model = doc ? doc->currentModel() : nullptr;
 
     if (model) {
-        PuppetCreator puppetCreator(doc->currentTarget(), model);
-        puppetCreator.createQml2PuppetExecutableIfMissing();
-
         bool done = false;
         while (!m_puppetQueue.isEmpty() && !done) {
             const ParseData pd = m_parseData.value(m_puppetQueue.takeLast());
@@ -581,7 +578,8 @@ void ItemLibraryAssetImporter::startNextImportProcess()
                        << pd.outDir.absolutePath() << QString::fromUtf8(optDoc.toJson());
 
             m_currentImportId = pd.importId;
-            m_puppetProcess = puppetCreator.createPuppetProcess(
+            m_puppetProcess = PuppetStarter::createPuppetProcess(
+                {},
                 "custom",
                 {},
                 [&] {},
@@ -611,15 +609,13 @@ void ItemLibraryAssetImporter::startNextIconProcess()
     Model *model = doc ? doc->currentModel() : nullptr;
 
     if (model) {
-        PuppetCreator puppetCreator(doc->currentTarget(), model);
-        puppetCreator.createQml2PuppetExecutableIfMissing();
-
         bool done = false;
         while (!m_puppetQueue.isEmpty() && !done) {
             const ParseData pd = m_parseData.value(m_puppetQueue.takeLast());
             QStringList puppetArgs;
             puppetArgs << "--rendericon" << QString::number(24) << pd.iconFile << pd.iconSource;
-            m_puppetProcess = puppetCreator.createPuppetProcess(
+            m_puppetProcess = PuppetStarter::createPuppetProcess(
+                {},
                 "custom",
                 {},
                 [&] {},

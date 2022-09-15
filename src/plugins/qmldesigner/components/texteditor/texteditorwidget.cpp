@@ -8,6 +8,7 @@
 #include <coreplugin/findplaceholder.h>
 #include <rewriterview.h>
 
+#include <designeractionmanager.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 

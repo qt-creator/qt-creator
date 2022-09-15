@@ -15,6 +15,7 @@
 
 #include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
+#include <designeractionmanager.h>
 #include <exception.h>
 #include <modelnodecontextmenu_helper.h>
 #include <nodeabstractproperty.h>
@@ -45,8 +46,9 @@
 
 namespace QmlDesigner {
 
-TimelineView::TimelineView()
-    : m_timelineWidget(nullptr)
+TimelineView::TimelineView(ExternalDependenciesInterface &externalDepoendencies)
+    : AbstractView{externalDepoendencies}
+    , m_timelineWidget(nullptr)
 {
     EasingCurve::registerStreamOperators();
     setEnabled(false);

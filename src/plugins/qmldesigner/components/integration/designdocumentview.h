@@ -4,6 +4,7 @@
 #pragma once
 
 #include <abstractview.h>
+#include <qmldesignercomponents_global.h>
 
 #include <memory>
 
@@ -11,11 +12,11 @@ namespace QmlDesigner {
 
 class ModelMerger;
 
-class QMLDESIGNERCORE_EXPORT DesignDocumentView : public AbstractView
+class QMLDESIGNERCOMPONENTS_EXPORT DesignDocumentView : public AbstractView
 {
         Q_OBJECT
 public:
-    DesignDocumentView();
+    DesignDocumentView(ExternalDependenciesInterface &externalDependencies);
     ~DesignDocumentView() override;
 
     ModelNode insertModel(const ModelNode &modelNode);
@@ -27,8 +28,9 @@ public:
     QString toText() const;
     void fromText(const QString &text);
 
-    static std::unique_ptr<Model> pasteToModel();
-    static void copyModelNodes(const QList<ModelNode> &nodesToCopy);
+    static std::unique_ptr<Model> pasteToModel(ExternalDependenciesInterface &externalDependencies);
+    static void copyModelNodes(const QList<ModelNode> &nodesToCopy,
+                               ExternalDependenciesInterface &externalDependencies);
 
 private:
     std::unique_ptr<ModelMerger> m_modelMerger;

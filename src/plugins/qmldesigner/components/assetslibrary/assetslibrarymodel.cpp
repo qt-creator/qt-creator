@@ -7,10 +7,10 @@
 
 #include <designersettings.h>
 #include <documentmanager.h>
-#include <hdrimage.h>
-#include <qmldesignerplugin.h>
 #include <synchronousimagecache.h>
 #include <theme.h>
+#include <utils/hdrimage.h>
+#include <qmldesignerplugin.h>
 
 #include <coreplugin/icore.h>
 

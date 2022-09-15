@@ -3,7 +3,7 @@
 
 #include "shortcutmanager.h"
 
-#include "designersettings.h"
+#include <designersettings.h>
 
 #include <viewmanager.h>
 #include <designeractionmanagerview.h>

@@ -24,8 +24,9 @@ namespace QmlDesigner {
 
 namespace  Internal {
 
-ConnectionView::ConnectionView()
-    : m_connectionViewWidget(new ConnectionViewWidget())
+ConnectionView::ConnectionView(ExternalDependenciesInterface &externalDependencies)
+    : AbstractView{externalDependencies}
+    , m_connectionViewWidget(new ConnectionViewWidget())
     , m_connectionModel(new ConnectionModel(this))
     , m_bindingModel(new BindingModel(this))
     , m_dynamicPropertiesModel(new DynamicPropertiesModel(false, this))

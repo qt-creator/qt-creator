@@ -17,7 +17,7 @@ class StatesEditorView : public AbstractView {
     Q_OBJECT
 
 public:
-    explicit StatesEditorView();
+    explicit StatesEditorView(ExternalDependenciesInterface &externalDependencies);
     ~StatesEditorView() override;
 
     void renameState(int internalNodeId,const QString &newName);

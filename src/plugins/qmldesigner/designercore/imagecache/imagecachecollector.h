@@ -22,6 +22,7 @@ class NotIndentingTextEditModifier;
 class ImageCacheConnectionManager;
 class RewriterView;
 class NodeInstanceView;
+class ExternalDependenciesInterface;
 
 enum class ImageCacheCollectorNullImageHandling { CaptureNullImage, DontCaptureNullImage };
 
@@ -31,6 +32,7 @@ public:
     ImageCacheCollector(ImageCacheConnectionManager &connectionManager,
                         QSize captureImageMinimumSize,
                         QSize captureImageMaximumSize,
+                        ExternalDependenciesInterface &externalDependencies,
                         ImageCacheCollectorNullImageHandling nullImageHandling = {});
 
     ~ImageCacheCollector();
@@ -57,6 +59,7 @@ private:
     QPointer<ProjectExplorer::Target> m_target;
     QSize captureImageMinimumSize;
     QSize captureImageMaximumSize;
+    ExternalDependenciesInterface &m_externalDependencies;
     ImageCacheCollectorNullImageHandling nullImageHandling{};
 };
 

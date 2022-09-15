@@ -158,7 +158,7 @@ extend_qtc_test(unittest
     "${QmlDesignerDir}/../../../share/qtcreator/qml/qmlpuppet/interfaces"
     "${QmlDesignerDir}/../../../share/qtcreator/qml/qmlpuppet/types"
   DEFINES
-    QMLDESIGNER_TEST QMLDESIGNER_STATIC_LIBRARY
+    QMLDESIGNERCORE_STATIC_LIBRARY QMLDESIGNER_STATIC_LIBRARY
   SOURCES_PREFIX
     "${QmlDesignerDir}"
   SOURCES

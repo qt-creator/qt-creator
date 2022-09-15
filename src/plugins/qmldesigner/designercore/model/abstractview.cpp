@@ -15,12 +15,6 @@
 #include <variantproperty.h>
 #include <bindingproperty.h>
 
-#ifndef QMLDESIGNER_TEST
-#include <qmldesignerplugin.h>
-#include <viewmanager.h>
-#include <nodeabstractproperty.h>
-#endif
-
 #include <coreplugin/helpmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>

@@ -4,12 +4,13 @@
 #include "qmlpreviewplugin.h"
 #include "qmlpreviewactions.h"
 
-#include <modelnodecontextmenu_helper.h>
-#include <componentcore_constants.h>
-#include <qmldesignerplugin.h>
-#include <viewmanager.h>
 #include <actioninterface.h>
+#include <componentcore_constants.h>
+#include <designeractionmanager.h>
+#include <modelnodecontextmenu_helper.h>
+#include <viewmanager.h>
 #include <zoomaction.h>
+#include <qmldesignerplugin.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>

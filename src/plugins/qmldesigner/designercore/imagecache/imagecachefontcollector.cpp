@@ -3,10 +3,6 @@
 
 #include "imagecachefontcollector.h"
 
-#ifndef QMLDESIGNER_TEST // Tests don't care about UI, and can't have theme dependency here
-#include <theme.h>
-#endif
-
 #include <QtGui/qrawfont.h>
 #include <QtGui/qpainter.h>
 #include <QtGui/qimage.h>

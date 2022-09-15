@@ -7,6 +7,7 @@
 #include "addtabdesigneraction.h"
 #include "entertabdesigneraction.h"
 
+#include <designeractionmanager.h>
 #include <viewmanager.h>
 #include <qmldesignerplugin.h>
 

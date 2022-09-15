@@ -17,13 +17,10 @@
 #include "variantproperty.h"
 
 #include <auxiliarydataproperties.h>
+#include <designersettings.h>
 #include <invalidmodelnodeexception.h>
 
 #include <qmltimeline.h>
-
-#ifndef QMLDESIGNER_TEST
-#include <qmldesignerplugin.h>
-#endif
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -658,26 +655,18 @@ QVariant QmlObjectNode::instanceValue(const ModelNode &modelNode, const Property
     return modelNode.view()->nodeInstanceView()->instanceForModelNode(modelNode).property(name);
 }
 
-QString QmlObjectNode::generateTranslatableText([[maybe_unused]] const QString &text)
+QString QmlObjectNode::generateTranslatableText([[maybe_unused]] const QString &text,
+                                                const DesignerSettings &settings)
 {
-#ifndef QMLDESIGNER_TEST
-
-    if (QmlDesignerPlugin::settings().value(
-            DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt())
-
-        switch (QmlDesignerPlugin::settings().value(
-                    DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt()) {
+    if (settings.value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt())
+        switch (settings.value(DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt()) {
         case 0: return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
         case 1: return QString(QStringLiteral("qsTrId(\"%1\")")).arg(text);
         case 2: return QString(QStringLiteral("qsTranslate(\"%1\", \"context\")")).arg(text);
         default:
             break;
-
         }
     return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
-#else
-    return QString();
-#endif
 }
 
 QString QmlObjectNode::stripedTranslatableTextFunction(const QString &text)
@@ -690,9 +679,10 @@ QString QmlObjectNode::stripedTranslatableTextFunction(const QString &text)
     return text;
 }
 
-QString QmlObjectNode::convertToCorrectTranslatableFunction(const QString &text)
+QString QmlObjectNode::convertToCorrectTranslatableFunction(const QString &text,
+                                                            const DesignerSettings &designerSettings)
 {
-    return generateTranslatableText(stripedTranslatableTextFunction(text));
+    return generateTranslatableText(stripedTranslatableTextFunction(text), designerSettings);
 }
 
 TypeName QmlObjectNode::instanceType(const PropertyName &name) const

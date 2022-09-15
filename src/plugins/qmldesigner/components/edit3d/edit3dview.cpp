@@ -10,7 +10,6 @@
 #include "metainfo.h"
 #include "nodehints.h"
 #include "seekerslider.h"
-#include "view3dactioncommand.h"
 
 #include <auxiliarydataproperties.h>
 #include <coreplugin/icore.h>
@@ -31,7 +30,8 @@
 
 namespace QmlDesigner {
 
-Edit3DView::Edit3DView()
+Edit3DView::Edit3DView(ExternalDependenciesInterface &externalDependencies)
+    : AbstractView{externalDependencies}
 {
     m_compressionTimer.setInterval(1000);
     m_compressionTimer.setSingleShot(true);

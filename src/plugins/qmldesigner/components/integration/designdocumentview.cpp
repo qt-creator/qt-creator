@@ -22,8 +22,9 @@
 
 namespace QmlDesigner {
 
-DesignDocumentView::DesignDocumentView()
-    : m_modelMerger(new ModelMerger(this))
+DesignDocumentView::DesignDocumentView(ExternalDependenciesInterface &externalDependencies)
+    : AbstractView{externalDependencies}
+    , m_modelMerger(new ModelMerger(this))
 {
 }
 
@@ -79,7 +80,6 @@ void DesignDocumentView::fromClipboard()
 //    }
 }
 
-
 QString DesignDocumentView::toText() const
 {
     auto outputModel = Model::create("QtQuick.Rectangle", 1, 0, model());
@@ -97,7 +97,8 @@ QString DesignDocumentView::toText() const
     textEdit.setPlainText(imports +  QStringLiteral("Item {\n}\n"));
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    QScopedPointer<RewriterView> rewriterView(new RewriterView(RewriterView::Amend));
+    QScopedPointer<RewriterView> rewriterView(
+        new RewriterView(externalDependencies(), RewriterView::Amend));
     rewriterView->setCheckSemanticErrors(false);
     rewriterView->setTextModifier(&modifier);
     outputModel->setRewriterView(rewriterView.data());
@@ -126,7 +127,7 @@ void DesignDocumentView::fromText(const QString &text)
     textEdit.setPlainText(imports + text);
     NotIndentingTextEditModifier modifier(&textEdit);
 
-    RewriterView rewriterView;
+    RewriterView rewriterView{externalDependencies()};
     rewriterView.setCheckSemanticErrors(false);
     rewriterView.setTextModifier(&modifier);
     inputModel->setRewriterView(&rewriterView);
@@ -151,7 +152,7 @@ static Model *currentModel()
     return nullptr;
 }
 
-std::unique_ptr<Model> DesignDocumentView::pasteToModel()
+std::unique_ptr<Model> DesignDocumentView::pasteToModel(ExternalDependenciesInterface &externalDependencies)
 {
     Model *parentModel = currentModel();
 
@@ -167,7 +168,7 @@ std::unique_ptr<Model> DesignDocumentView::pasteToModel()
     pasteModel->setFileUrl(parentModel->fileUrl());
     pasteModel->changeImports(parentModel->imports(), {});
 
-    DesignDocumentView view;
+    DesignDocumentView view{externalDependencies};
     pasteModel->attachView(&view);
 
     view.fromClipboard();
@@ -175,7 +176,8 @@ std::unique_ptr<Model> DesignDocumentView::pasteToModel()
     return pasteModel;
 }
 
-void DesignDocumentView::copyModelNodes(const QList<ModelNode> &nodesToCopy)
+void DesignDocumentView::copyModelNodes(const QList<ModelNode> &nodesToCopy,
+                                        ExternalDependenciesInterface &externalDependencies)
 {
     Model *parentModel = currentModel();
 
@@ -201,7 +203,7 @@ void DesignDocumentView::copyModelNodes(const QList<ModelNode> &nodesToCopy)
         }
     }
 
-    DesignDocumentView view;
+    DesignDocumentView view{externalDependencies};
     copyModel->attachView(&view);
 
     if (selectedNodes.count() == 1) {
