@@ -266,6 +266,7 @@ public:
             "to create entries in Issues.<br>"
             "The parsers can be configured <a href=\"dummy\">here</a>."));
         layout->addWidget(explanatoryLabel);
+        layout->setContentsMargins(0, 0, 0, 0);
         connect(explanatoryLabel, &QLabel::linkActivated, [] {
             Core::ICore::showOptionsDialog(Constants::CUSTOM_PARSERS_SETTINGS_PAGE_ID);
         });
