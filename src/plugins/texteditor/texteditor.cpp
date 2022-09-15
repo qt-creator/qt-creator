@@ -88,6 +88,7 @@
 #include <QPrinter>
 #include <QPropertyAnimation>
 #include <QDrag>
+#include <QRegularExpression>
 #include <QSequentialAnimationGroup>
 #include <QScreen>
 #include <QScrollBar>
@@ -7195,26 +7196,35 @@ void TextEditorWidget::rewrapParagraph()
     QTextCursor nextBlock = cursor;
     QString commonPrefix;
 
+    const QString doxygenPrefix("^\\s*(?:///|/\\*\\*|/\\*\\!|\\*)?[ *]+");
     if (nextBlock.movePosition(QTextCursor::NextBlock))
     {
          QString nText = nextBlock.block().text();
          int maxLength = qMin(text.length(), nText.length());
 
+         const auto hasDoxygenPrefix = [&] {
+             static const QRegularExpression pattern(doxygenPrefix);
+             return pattern.match(commonPrefix).hasMatch();
+         };
+
          for (int i = 0; i < maxLength; ++i) {
              const QChar ch = text.at(i);
 
-             if (ch != nText[i] || ch.isLetterOrNumber())
+             if (ch != nText[i] || ch.isLetterOrNumber()
+                     || ((ch == '@' || ch == '\\' ) && hasDoxygenPrefix())) {
                  break;
+             }
              commonPrefix.append(ch);
          }
     }
 
-
     // Find end of paragraph.
+    const QRegularExpression immovableDoxygenCommand(doxygenPrefix + "[@\\\\].*");
+    QTC_CHECK(immovableDoxygenCommand.isValid());
     while (cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor)) {
         QString text = cursor.block().text();
 
-        if (!text.contains(anyLettersOrNumbers))
+        if (!text.contains(anyLettersOrNumbers) || immovableDoxygenCommand.match(text).hasMatch())
             break;
     }
 
