@@ -53,6 +53,9 @@ void tst_fsengine::initTestCase()
     if (!FSEngine::isAvailable())
         QSKIP("Utils was built without Filesystem Engine");
 
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("The fsengine tests are not supported on Windows.");
+
     DeviceFileHooks &deviceHooks = DeviceFileHooks::instance();
 
     deviceHooks.fileContents =
