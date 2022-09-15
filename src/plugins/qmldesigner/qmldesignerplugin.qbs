@@ -45,6 +45,7 @@ Project {
              "components",
              "components/annotationeditor",
              "components/assetslibrary",
+             "components/bindingeditor",
              "components/componentcore",
              "components/curveeditor",
              "components/connectioneditor",
