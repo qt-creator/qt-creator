@@ -3,11 +3,7 @@
 
 #include "cppeditorwidget.h"
 
-#include "cppautocompleter.h"
-#include "cppcanonicalsymbol.h"
-#include "cppchecksymbols.h"
 #include "cppcodeformatter.h"
-#include "cppcodemodelsettings.h"
 #include "cppcompletionassistprovider.h"
 #include "doxygengenerator.h"
 #include "cppeditorconstants.h"
@@ -15,19 +11,14 @@
 #include "cppeditoroutline.h"
 #include "cppeditorplugin.h"
 #include "cppfunctiondecldeflink.h"
-#include "cpphighlighter.h"
 #include "cpplocalrenaming.h"
 #include "cppmodelmanager.h"
 #include "cpppreprocessordialog.h"
 #include "cppsemanticinfo.h"
 #include "cppselectionchanger.h"
-#include "cppqtstyleindenter.h"
 #include "cppquickfixassistant.h"
-#include "cpptoolsreuse.h"
 #include "cpptoolssettings.h"
 #include "cppuseselectionsupdater.h"
-#include "cppworkingcopy.h"
-#include "symbolfinder.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -843,6 +834,41 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
     CppModelManager::switchDeclDef(cursor, std::move(callback));
 }
 
+bool CppEditorWidget::followQrcUrl(const QTextCursor &cursor,
+                                   const Utils::LinkHandler &processLinkCallback)
+{
+    const Project * const project = ProjectTree::currentProject();
+    if (!project || !project->rootProjectNode())
+        return false;
+
+    const QList<AST *> astPath = ASTPath(d->m_lastSemanticInfo.doc)(cursor);
+    if (astPath.isEmpty())
+        return false;
+    const StringLiteralAST * const literalAst = astPath.last()->asStringLiteral();
+    if (!literalAst)
+        return false;
+    const StringLiteral * const literal = d->m_lastSemanticInfo.doc->translationUnit()
+            ->stringLiteral(literalAst->literal_token);
+    if (!literal)
+        return false;
+    const QString theString = QString::fromUtf8(literal->chars(), literal->size());
+    if (!theString.startsWith("qrc:/") && !theString.startsWith(":/"))
+        return false;
+
+    const Node * const nodeForPath = project->rootProjectNode()->findNode(
+                [qrcPath = theString.mid(theString.indexOf(':') + 1)](Node *n) {
+        if (!n->asFileNode())
+            return false;
+        const auto qrcNode = dynamic_cast<ResourceFileNode *>(n);
+        return qrcNode && qrcNode->qrcPath() == qrcPath;
+    });
+    if (!nodeForPath)
+        return false;
+
+    processLinkCallback(Link(nodeForPath->filePath()));
+    return true;
+}
+
 void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
                                  const LinkHandler &processLinkCallback,
                                  bool resolveTarget,
@@ -850,6 +876,9 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
 {
     if (!d->m_modelManager)
         return processLinkCallback(Utils::Link());
+
+    if (followQrcUrl(cursor, processLinkCallback))
+        return;
 
     const Utils::FilePath &filePath = textDocument()->filePath();
 
