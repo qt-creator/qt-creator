@@ -389,7 +389,7 @@ void VcsCommand::runFullySynchronous(QtcProcess &process)
 
     const QString stdErr = process.cleanedStdErr();
     if (!stdErr.isEmpty() && !(d->m_flags & SuppressStdErr))
-        emit append(stdErr);
+        emit appendError(stdErr);
 
     const QString stdOut = process.cleanedStdOut();
     if (!stdOut.isEmpty() && d->m_flags & ShowStdOut) {
