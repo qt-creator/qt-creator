@@ -25,12 +25,13 @@ McuPackagePtr createQtForMCUsPackage(const SettingsHandler::Ptr &);
 
 bool checkDeprecatedSdkError(const Utils::FilePath &qulDir, QString &message);
 
-McuSdkRepository targetsAndPackages(const Utils::FilePath &qulDir, const SettingsHandler::Ptr &);
+McuSdkRepository targetsAndPackages(const McuPackagePtr &qtForMCUsPackage,
+                                    const SettingsHandler::Ptr &);
 
 McuTargetDescription parseDescriptionJson(const QByteArray &);
 McuSdkRepository targetsFromDescriptions(const QList<McuTargetDescription> &,
                                          const SettingsHandler::Ptr &,
-                                         const Utils::FilePath &qtForMCUSdkPath,
+                                         const McuPackagePtr &qtForMCUsPackage,
                                          bool isLegacy);
 
 Utils::FilePath kitsPath(const Utils::FilePath &dir);

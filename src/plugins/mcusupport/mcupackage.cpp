@@ -118,7 +118,6 @@ FilePath McuPackage::detectionPath() const
 void McuPackage::setPath(const FilePath &newPath)
 {
     m_path = newPath;
-    m_defaultPath = newPath;
     updateStatus();
 }
 

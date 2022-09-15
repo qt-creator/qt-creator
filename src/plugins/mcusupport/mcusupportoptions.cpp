@@ -96,11 +96,11 @@ bool McuSupportOptions::isLegacyVersion(const QVersionNumber &version)
     return version < newVersion;
 }
 
-void McuSupportOptions::setQulDir(const FilePath &dir)
+void McuSupportOptions::setQulDir(const FilePath &)
 {
     qtForMCUsSdkPackage->updateStatus();
     if (qtForMCUsSdkPackage->isValidStatus())
-        sdkRepository = targetsAndPackages(dir, settingsHandler);
+        sdkRepository = targetsAndPackages(qtForMCUsSdkPackage, settingsHandler);
     else
         sdkRepository = McuSdkRepository{};
     for (const auto &package : qAsConst(sdkRepository.packages))

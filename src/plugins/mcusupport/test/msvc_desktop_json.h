@@ -3,43 +3,41 @@
 
 #pragma once
 
-constexpr auto msvc_desktop_json = R"({
-  "qulVersion": "@CMAKE_PROJECT_VERSION@",
-  "compatVersion": "@COMPATIBILITY_VERSION@",
-  "platform": {
-      "id": "Qt",
-      "platformName": "Desktop",
-      "vendor": "Qt",
-      "colorDepths": [
-          32
-      ],
-      "pathEntries": [
-      ],
-      "environmentEntries": [
-      ],
-      "cmakeEntries": [
-         {
-              "envVar": "Qul_DIR",
-              "label": "Qt for MCUs SDK",
-              "type": "path",
-              "cmakeVar": "Qul_ROOT",
-              "optional": false
-         }
-      ]
-  },
-  "toolchain": {
-    "id": "msvc",
-    "versions": [
-        "19.20","19.21","19.22","19.23","19.24",
-        "19.25","19.26","19.27","19.28","19.29"
-    ],
-    "compiler": {
-      "defaultValue": "%{Env:MSVC_COMPILER_DIR}",
-      "versionDetection" : {
-            "filePattern": "cl.exe",
-            "executableArgs": "--version",
-            "regex": "\\b(\\d+\\.\\d+)\\.\\d+\\b"
+constexpr auto msvc_desktop_json = R"(
+{
+    "qulVersion": "2.3.0",
+    "compatVersion": "1",
+    "platform": {
+        "id": "Qt",
+        "platformName": "Desktop",
+        "vendor": "Qt",
+        "colorDepths": [
+            32
+        ]
+    },
+    "toolchain": {
+        "id": "msvc",
+        "versions": [
+            "19.20",
+            "19.21",
+            "19.22",
+            "19.23",
+            "19.24",
+            "19.25",
+            "19.26",
+            "19.27",
+            "19.28",
+            "19.29"
+        ],
+        "compiler": {
+            "label": "MSVC Toolchain",
+            "defaultValue": "%{Env:MSVC_COMPILER_DIR}",
+            "versionDetection": {
+                "filePattern": "cl.exe",
+                "executableArgs": "--version",
+                "regex": "\\b(\\d+\\.\\d+)\\.\\d+\\b"
+            }
         }
     }
-  }
-})";
+}
+)";

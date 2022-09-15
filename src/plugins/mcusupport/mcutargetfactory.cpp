@@ -46,6 +46,14 @@ McuPackageVersionDetector *createVersionDetection(const VersionDetection &versio
                                                       versionDetection.isFile);
 }
 
+static void removeEmptyPackages(Packages &packages)
+{
+    for (const McuPackagePtr &pkg : packages) {
+        if (pkg->cmakeVariableName().isEmpty() && pkg->path().isEmpty())
+            packages.remove(pkg);
+    }
+}
+
 static void expandVariables(Packages &packages)
 {
     Utils::MacroExpander macroExpander;
@@ -63,7 +71,7 @@ McuTargetFactory::McuTargetFactory(const SettingsHandler::Ptr &settingsHandler)
 {}
 
 QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescription &desc,
-                                                         const Utils::FilePath & /*qtForMCUSdkPath*/)
+                                                         const McuPackagePtr &qtForMCUsPackage)
 {
     Targets mcuTargets;
     Packages packages;
@@ -80,8 +88,10 @@ QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescript
         Packages targetPackages = createPackages(desc);
         McuToolChainPackagePtr toolchainPtr{toolchain};
         targetPackages.insert({toolchainPtr});
+        targetPackages.insert({qtForMCUsPackage});
         targetPackages.unite({toolchainFile});
 
+        removeEmptyPackages(targetPackages);
         expandVariables(targetPackages);
 
         packages.unite(targetPackages);
@@ -143,8 +153,8 @@ McuToolChainPackage *McuTargetFactory::createToolchain(
         {"msvc", McuToolChainPackage::ToolChainType::MSVC},
         {"gcc", McuToolChainPackage::ToolChainType::GCC},
         {"armgcc", McuToolChainPackage::ToolChainType::ArmGcc},
-        {"ghs", McuToolChainPackage::ToolChainType::GHS},
-        {"ghsarm", McuToolChainPackage::ToolChainType::GHSArm},
+        {"greenhills", McuToolChainPackage::ToolChainType::GHS},
+        {"arm-greenhills", McuToolChainPackage::ToolChainType::GHSArm},
     };
 
     const PackageDescription compilerDescription{toolchain.compiler};

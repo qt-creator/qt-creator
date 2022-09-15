@@ -490,8 +490,7 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
                 return;
             }
 
-            FilePath dir = qtForMCUsPackage->path();
-            McuSdkRepository repo{targetsAndPackages(dir, settingsHandler)};
+            McuSdkRepository repo{targetsAndPackages(qtForMCUsPackage, settingsHandler)};
 
             bool needsUpgrade = false;
             for (const auto &target : qAsConst(repo.mcuTargets)) {
@@ -529,8 +528,7 @@ void upgradeKitsByCreatingNewPackage(const SettingsHandler::Ptr &settingsHandler
 
     McuPackagePtr qtForMCUsPackage{createQtForMCUsPackage(settingsHandler)};
 
-    auto dir = qtForMCUsPackage->path();
-    McuSdkRepository repo{targetsAndPackages(dir, settingsHandler)};
+    McuSdkRepository repo{targetsAndPackages(qtForMCUsPackage, settingsHandler)};
 
     for (const auto &target : qAsConst(repo.mcuTargets)) {
         if (!matchingKits(target.get(), qtForMCUsPackage).empty())
@@ -571,8 +569,7 @@ void updatePathsInExistingKits(const SettingsHandler::Ptr &settingsHandler)
 {
     McuPackagePtr qtForMCUsPackage{createQtForMCUsPackage(settingsHandler)};
 
-    FilePath dir = qtForMCUsPackage->path();
-    McuSdkRepository repo{targetsAndPackages(dir, settingsHandler)};
+    McuSdkRepository repo{targetsAndPackages(qtForMCUsPackage, settingsHandler)};
     for (const auto &target : qAsConst(repo.mcuTargets)) {
         if (target->isValid()) {
             for (auto *kit : kitsWithMismatchedDependencies(target.get())) {
@@ -657,8 +654,7 @@ void fixExistingKits(const SettingsHandler::Ptr &settingsHandler)
     McuPackagePtr qtForMCUsPackage{createQtForMCUsPackage(settingsHandler)};
     qtForMCUsPackage->updateStatus();
     if (qtForMCUsPackage->isValidStatus()) {
-        FilePath dir = qtForMCUsPackage->path();
-        McuSdkRepository repo{targetsAndPackages(dir, settingsHandler)};
+        McuSdkRepository repo{targetsAndPackages(qtForMCUsPackage, settingsHandler)};
         for (const auto &target : qAsConst(repo.mcuTargets))
             for (auto kit : existingKits(target.get())) {
                 if (McuDependenciesKitAspect::dependencies(kit).isEmpty()) {

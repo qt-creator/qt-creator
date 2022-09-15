@@ -3,43 +3,33 @@
 
 #pragma once
 
-constexpr auto gcc_desktop_json = R"({
-  "qulVersion": "2.3.0",
-  "compatVersion": "1",
-  "platform": {
-      "id": "Qt",
-      "platformName": "Desktop",
-      "vendor": "Qt",
-      "colorDepths": [
-          32
-      ],
-      "pathEntries": [
-      ],
-      "environmentEntries": [
-      ],
-      "cmakeEntries": [
-         {
-              "envVar": "Qul_DIR",
-              "label": "Qt for MCUs SDK",
-              "type": "path",
-              "cmakeVar": "Qul_ROOT",
-              "optional": false
-         }
-      ]
-  },
-  "toolchain": {
-    "id": "gcc",
-    "versions": [
-      "9.4.0",
-      "10.3.1"
-    ],
-    "compiler": {
-      "defaultValue": "/usr",
-      "versionDetection": {
-          "filePattern": "bin/g++",
-          "executableArgs": "--version",
-          "regex": "\\b(\\d+\\.\\d+\\.\\d+)\\b"
-      }
+constexpr auto gcc_desktop_json = R"(
+{
+    "qulVersion": "2.3.0",
+    "compatVersion": "1",
+    "platform": {
+        "id": "Qt",
+        "platformName": "Desktop",
+        "vendor": "Qt",
+        "colorDepths": [
+            32
+        ]
+    },
+    "toolchain": {
+        "id": "gcc",
+        "versions": [
+            "9.4.0",
+            "10.3.1"
+        ],
+        "compiler": {
+            "label": "GNU Toolchain",
+            "defaultValue": "/usr",
+            "versionDetection": {
+                "executableArgs": "--version",
+                "filePattern": "bin/g++",
+                "regex": "\\b(\\d+\\.\\d+\\.\\d+)\\b"
+            }
+        }
     }
-  }
-})";
+}
+)";

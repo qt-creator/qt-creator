@@ -18,7 +18,7 @@ class McuTargetFactory : public McuAbstractTargetFactory
 public:
     explicit McuTargetFactory(const SettingsHandler::Ptr &);
     QPair<Targets, Packages> createTargets(const McuTargetDescription &,
-                                           const Utils::FilePath &qtForMCUSdkPath) override;
+                                           const McuPackagePtr &qtForMCUsPackage) override;
     Packages createPackages(const McuTargetDescription &);
     McuToolChainPackage *createToolchain(const McuTargetDescription::Toolchain &);
     McuPackagePtr createPackage(const PackageDescription &);

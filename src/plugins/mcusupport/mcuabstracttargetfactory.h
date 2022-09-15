@@ -25,7 +25,7 @@ public:
     virtual ~McuAbstractTargetFactory() = default;
 
     virtual QPair<Targets, Packages> createTargets(const McuTargetDescription &,
-                                                   const Utils::FilePath &qtForMcuPath)
+                                                   const McuPackagePtr &qtForMCUsPackage)
         = 0;
     using AdditionalPackages
         = QPair<QHash<QString, McuToolChainPackagePtr>, QHash<QString, McuPackagePtr>>;

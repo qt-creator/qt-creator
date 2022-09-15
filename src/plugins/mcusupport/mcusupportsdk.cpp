@@ -48,7 +48,7 @@ McuPackagePtr createQtForMCUsPackage(const SettingsHandler::Ptr &settingsHandler
 {
     return McuPackagePtr{
         new McuPackage(settingsHandler,
-                       McuPackage::tr("Qt for MCUs SDK"),
+                       {},
                        FileUtils::homePath(), // defaultPath
                        FilePath(Legacy::Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH)
                            .withExecutableSuffix(),                     // detectionPath
@@ -573,19 +573,20 @@ static McuAbstractTargetFactory::Ptr createFactory(bool isLegacy,
 
 McuSdkRepository targetsFromDescriptions(const QList<McuTargetDescription> &descriptions,
                                          const SettingsHandler::Ptr &settingsHandler,
-                                         const FilePath &qtForMCUSdkPath,
+                                         const McuPackagePtr &qtForMCUsPackage,
                                          bool isLegacy)
 {
     Targets mcuTargets;
     Packages mcuPackages;
-
+    const FilePath &qtForMCUSdkPath{qtForMCUsPackage->path()};
     McuAbstractTargetFactory::Ptr targetFactory = createFactory(isLegacy,
                                                                 settingsHandler,
                                                                 qtForMCUSdkPath);
     for (const McuTargetDescription &desc : descriptions) {
-        auto [targets, packages] = targetFactory->createTargets(desc, qtForMCUSdkPath);
+        auto [targets, packages] = targetFactory->createTargets(desc, qtForMCUsPackage);
         mcuTargets.append(targets);
         mcuPackages.unite(packages);
+        mcuPackages.insert(qtForMCUsPackage);
     }
 
     if (isLegacy) {
@@ -741,9 +742,10 @@ bool checkDeprecatedSdkError(const FilePath &qulDir, QString &message)
     return false;
 }
 
-McuSdkRepository targetsAndPackages(const FilePath &qtForMCUSdkPath,
+McuSdkRepository targetsAndPackages(const McuPackagePtr &qtForMCUsPackage,
                                     const SettingsHandler::Ptr &settingsHandler)
 {
+    const FilePath &qtForMCUSdkPath{qtForMCUsPackage->path()};
     QList<McuTargetDescription> descriptions;
     bool isLegacy{false};
 
@@ -800,7 +802,7 @@ McuSdkRepository targetsAndPackages(const FilePath &qtForMCUSdkPath,
     }
     McuSdkRepository repo = targetsFromDescriptions(descriptions,
                                                     settingsHandler,
-                                                    qtForMCUSdkPath,
+                                                    qtForMCUsPackage,
                                                     isLegacy);
 
     // Keep targets sorted lexicographically

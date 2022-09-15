@@ -24,8 +24,9 @@ McuTargetFactory::McuTargetFactory(const QHash<QString, ToolchainCompilerCreator
 {}
 
 QPair<Targets, Packages> McuTargetFactory::createTargets(const McuTargetDescription &desc,
-                                                         const Utils::FilePath &qtForMcuPath)
+                                                         const McuPackagePtr &qtForMCUsPackage)
 {
+    const Utils::FilePath &qtForMcuPath{qtForMCUsPackage->path()};
     QHash<QString, McuPackagePtr> boardSdkPkgs;
     QHash<QString, McuPackagePtr> freeRTOSPkgs;
     Targets mcuTargets;

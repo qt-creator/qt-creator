@@ -28,7 +28,7 @@ public:
                      const SettingsHandler::Ptr &);
 
     QPair<Targets, Packages> createTargets(const McuTargetDescription &,
-                                           const Utils::FilePath &qtForMCUSdkPath) override;
+                                           const McuPackagePtr &qtForMCUsPackage) override;
     AdditionalPackages getAdditionalPackages() const override;
 
     McuToolChainPackagePtr getToolchainCompiler(const McuTargetDescription::Toolchain &) const;
