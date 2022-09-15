@@ -210,7 +210,6 @@ function(extend_with_qmldesigner_core target_name)
       include/synchronousimagecache.h
       include/textmodifier.h
       include/variantproperty.h
-      include/viewmanager.h
 
       instances/baseconnectionmanager.cpp
       instances/baseconnectionmanager.h
@@ -301,7 +300,6 @@ function(extend_with_qmldesigner_core target_name)
       model/texttomodelmerger.cpp
       model/texttomodelmerger.h
       model/variantproperty.cpp
-      model/viewmanager.cpp
 
       pluginmanager/widgetpluginmanager.cpp
       pluginmanager/widgetpluginmanager.h

@@ -11,7 +11,6 @@ add_feature_info("ProjectStorage" ${USE_PROJECTSTORAGE} "")
 env_with_default("QDS_WITH_QMLDOM" ENV_QDS_WITH_QMLDOM OFF)
 option(WITH_QMLDOM "Build with QmlDom" ${ENV_QDS_WITH_QMLDOM})
 add_feature_info("Build with QmlDom" ${WITH_QMLDOM} "")
-
 add_qtc_plugin(QmlDesigner
   CONDITION Qt5_VERSION VERSION_GREATER_EQUAL 6.2.0 AND TARGET Qt5::QuickWidgets AND TARGET Qt5::Svg
   DEPENDS
@@ -219,6 +218,7 @@ extend_qtc_plugin(QmlDesigner
     zoomaction.cpp zoomaction.h
     hdrimage.cpp hdrimage.h
     svgpasteaction.cpp svgpasteaction.h
+    viewmanager.cpp viewmanager.h
 )
 
 extend_qtc_plugin(QmlDesigner
