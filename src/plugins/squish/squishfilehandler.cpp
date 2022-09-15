@@ -54,6 +54,12 @@ static SquishTestTreeItem::Type itemTypeForSharedType(SharedType sharedType, boo
     return SquishTestTreeItem::SquishSharedFile;
 }
 
+static bool isIgnoredSuffix(const QString &suffix)
+{
+    const QStringList ignored{ "pyc", "swp", "bak", "autosave"};
+    return suffix.endsWith('~') || ignored.contains(suffix);
+}
+
 static void addAllEntriesRecursively(SquishTestTreeItem *item, SharedType sharedType)
 {
     const Utils::FilePath folder = Utils::FilePath::fromString(item->filePath());
@@ -61,6 +67,12 @@ static void addAllEntriesRecursively(SquishTestTreeItem *item, SharedType shared
     for (const Utils::FilePath &file : folder.dirEntries(QDir::AllEntries | QDir::NoDotAndDotDot)) {
         const bool isDirectory = file.isDir();
         if (!file.isFile() && !isDirectory)
+            continue;
+
+        if (isDirectory && file.fileName() == "__pycache__")
+            continue;
+
+        if (!isDirectory && isIgnoredSuffix(file.suffix()))
             continue;
 
         SquishTestTreeItem *child = new SquishTestTreeItem(
