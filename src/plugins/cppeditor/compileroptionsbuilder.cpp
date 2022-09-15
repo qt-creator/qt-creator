@@ -334,7 +334,7 @@ void CompilerOptionsBuilder::insertWrappedHeaders(const QStringList &relPaths)
         static const QString baseDir = creatorResourcePath() + "/cplusplus";
         const QString fullPath = baseDir + '/' + relPath;
         QTC_ASSERT(QDir(fullPath).exists(), continue);
-        args << includeUserPathOption << QDir::toNativeSeparators(fullPath);
+        args << (includeUserPathOption + QDir::toNativeSeparators(fullPath));
     }
 
     const int index = m_options.indexOf(QRegularExpression("\\A-I.*\\z"));
@@ -683,7 +683,7 @@ void CompilerOptionsBuilder::addIncludeDirOptionForPath(const HeaderPath &path)
         return;
     }
 
-    add({includeUserPathOption, QDir::toNativeSeparators(path.path)});
+    add(includeUserPathOption + QDir::toNativeSeparators(path.path));
 }
 
 bool CompilerOptionsBuilder::excludeDefineDirective(const Macro &macro) const
