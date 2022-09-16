@@ -167,9 +167,10 @@ FilePath FilePath::currentWorkingPath()
     return FilePath::fromString(QDir::currentPath());
 }
 
-FilePath FilePath::rootPath()
+bool FilePath::isRootPath() const
 {
-    return FilePath::fromString(QDir::rootPath());
+    // FIXME: Make host-independent
+    return operator==(FilePath::fromString(QDir::rootPath()));
 }
 
 QString FilePath::encodedHost() const

@@ -59,11 +59,9 @@ public:
     [[nodiscard]] static FilePath fromParts(const QStringView scheme, const QStringView host, const QStringView path);
 
     [[nodiscard]] static FilePath currentWorkingPath();
-    [[nodiscard]] static FilePath rootPath();
 
     QString toUserOutput() const;
     QString toString() const;
-    QString toFSPathString() const;
     QVariant toVariant() const;
     QUrl toUrl() const;
 
@@ -102,6 +100,7 @@ public:
     bool isAbsolutePath() const { return !isRelativePath(); }
     bool isFile() const;
     bool isDir() const;
+    bool isRootPath() const;
     bool isNewerThan(const QDateTime &timeStamp) const;
     QDateTime lastModified() const;
     QFile::Permissions permissions() const;
@@ -191,6 +190,7 @@ public:
     [[nodiscard]] QFileInfo toFileInfo() const;
     [[nodiscard]] static FilePath fromFileInfo(const QFileInfo &info);
 
+    // Support for FSEngine. Do not use unless needed.
     enum class SpecialPathComponent {
         RootName,
         RootPath,
@@ -200,6 +200,8 @@ public:
 
     [[nodiscard]] static QString specialPath(SpecialPathComponent component);
     [[nodiscard]] static FilePath specialFilePath(SpecialPathComponent component);
+
+    QString toFSPathString() const;
 
 private:
     friend class ::tst_fileutils;

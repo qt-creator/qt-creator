@@ -39,8 +39,8 @@ namespace ProjectExplorer {
 QHash<QString, QIcon> DirectoryIcon::m_cache;
 
 static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
-                                                   const Utils::FilePath &directory,
-                                                   const Utils::FilePath &overrideBaseDir,
+                                                   const FilePath &directory,
+                                                   const FilePath &overrideBaseDir,
                                                    const FolderNode::FolderNodeFactory &factory)
 {
     Utils::FilePath path = overrideBaseDir.isEmpty() ? folder->filePath() : overrideBaseDir;
@@ -48,7 +48,7 @@ static FolderNode *recursiveFindOrCreateFolderNode(FolderNode *folder,
     Utils::FilePath directoryWithoutPrefix;
     bool isRelative = false;
 
-    if (path.isEmpty() || path == FilePath::rootPath()) {
+    if (path.isEmpty() || path.isRootPath()) {
         directoryWithoutPrefix = directory;
         isRelative = false;
     } else {

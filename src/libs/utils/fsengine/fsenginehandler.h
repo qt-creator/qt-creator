@@ -5,9 +5,7 @@
 
 #include <QtCore/private/qabstractfileengine_p.h>
 
-namespace Utils {
-
-namespace Internal {
+namespace Utils::Internal {
 
 class FSEngineHandler : public QAbstractFileEngineHandler
 {
@@ -15,6 +13,4 @@ public:
     QAbstractFileEngine *create(const QString &fileName) const override;
 };
 
-} // namespace Internal
-
-} // namespace Utils
+} // Utils::Internal
