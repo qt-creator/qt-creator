@@ -45,18 +45,13 @@ static const FilePath &remoteFile(FileTransferDirection direction, const FileToT
     return direction == FileTransferDirection::Upload ? file.m_target : file.m_source;
 }
 
-static bool isSameDevice(const FilePath &first, const FilePath &second)
-{
-    return (first.scheme() == second.scheme()) && (first.host() == second.host());
-}
-
 static IDeviceConstPtr matchedDevice(FileTransferDirection direction, const FilesToTransfer &files)
 {
     if (files.isEmpty())
         return {};
     const FilePath &filePath = remoteFile(direction, files.first());
     for (const FileToTransfer &file : files) {
-        if (!isSameDevice(filePath, remoteFile(direction, file)))
+        if (!filePath.isSameDevice(remoteFile(direction, file)))
             return {};
     }
     return DeviceManager::deviceForPath(filePath);

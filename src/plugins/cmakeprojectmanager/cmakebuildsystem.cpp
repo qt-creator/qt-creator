@@ -864,14 +864,7 @@ void CMakeBuildSystem::ensureBuildDirectory(const BuildDirParameters &parameters
     }
 
     if (tool->cmakeExecutable().needsDevice()) {
-        if (bdir.needsDevice()) {
-            if (bdir.scheme() != tool->cmakeExecutable().scheme()
-                || bdir.host() != tool->cmakeExecutable().host()) {
-                handleParsingFailed(
-                    tr("The CMake executable and the build directory are not on the same device."));
-                return;
-            }
-        } else if (!tool->cmakeExecutable().ensureReachable(bdir)) {
+        if (!tool->cmakeExecutable().ensureReachable(bdir)) {
             // Make sure that the build directory is available on the device.
             handleParsingFailed(
                 tr("The remote CMake executable cannot write to the local build directory."));

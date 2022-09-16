@@ -429,6 +429,13 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->isWritableDirectory(filePath);
     };
 
+    deviceHooks.isSameDevice = [](const FilePath &left, const FilePath &right) {
+        auto leftDevice = DeviceManager::deviceForPath(left);
+        auto rightDevice = DeviceManager::deviceForPath(right);
+
+        return leftDevice == rightDevice;
+    };
+
     deviceHooks.isWritableFile = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
         QTC_ASSERT(device, return false);

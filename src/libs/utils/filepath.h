@@ -187,6 +187,8 @@ public:
     // on FilePath::osType().
     bool needsDevice() const;
 
+    bool isSameDevice(const FilePath &other) const;
+
     [[nodiscard]] QFileInfo toFileInfo() const;
     [[nodiscard]] static FilePath fromFileInfo(const QFileInfo &info);
 
@@ -260,6 +262,8 @@ public:
     std::function<qint64(const FilePath &)> fileSize;
     std::function<qint64(const FilePath &)> bytesAvailable;
     std::function<QString(const FilePath &)> deviceDisplayName;
+    std::function<bool(const FilePath &, const FilePath &)> isSameDevice;
+
 
     template <class ...Args> using Continuation = std::function<void(Args...)>;
     std::function<void(const Continuation<bool> &, const FilePath &, const FilePath &)> asyncCopyFile;

@@ -614,6 +614,17 @@ bool FilePath::needsDevice() const
     return !m_scheme.isEmpty();
 }
 
+bool FilePath::isSameDevice(const FilePath &other) const
+{
+    if (needsDevice() != other.needsDevice())
+        return false;
+    if (!needsDevice() && !other.needsDevice())
+        return true;
+
+    QTC_ASSERT(s_deviceHooks.isSameDevice, return true);
+    return s_deviceHooks.isSameDevice(*this, other);
+}
+
 /// \returns an empty FilePath if this is not a symbolic linl
 FilePath FilePath::symLinkTarget() const
 {
