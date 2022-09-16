@@ -174,7 +174,7 @@ void tst_fsengine::testFilePathFromToString()
     QCOMPARE(p.host(), u"test");
     QCOMPARE(p.path(), u"/test.txt");
 
-    QString asString = p.toString();
+    QString asString = p.toFSPathString();
     QCOMPARE(asString,
              FilePath::specialPath(FilePath::SpecialPathComponent::DeviceRootPath)
                  + "/test/test.txt");

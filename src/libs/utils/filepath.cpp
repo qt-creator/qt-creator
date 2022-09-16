@@ -186,10 +186,9 @@ QString FilePath::toString() const
     if (m_scheme.isEmpty())
         return m_path;
 
-    // FIXME: This OS-independent URL-style output
     if (isRelativePath())
-        return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + encodedHost() + "/./" + m_path;
-    return specialPath(SpecialPathComponent::RootPath) + "/" + m_scheme + "/" + encodedHost() +  m_path;
+        return m_scheme + "://" + encodedHost() + "/./" + m_path;
+    return m_scheme + "://" + encodedHost() +  m_path;
 }
 
 QString FilePath::toFSPathString() const

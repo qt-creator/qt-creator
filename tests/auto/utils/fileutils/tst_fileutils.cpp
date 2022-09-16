@@ -297,15 +297,17 @@ void tst_fileutils::toString_data()
     QTest::addColumn<QString>("userResult");
 
     QTest::newRow("empty") << "" << "" << "" << "" << "";
-    QTest::newRow("scheme") << "http" << "" << "" << QDir::rootPath() + "__qtc_devices__/http//./" << "http:///./";
-    QTest::newRow("scheme-and-host") << "http" << "127.0.0.1" << "" << QDir::rootPath() + "__qtc_devices__/http/127.0.0.1/./" << "http://127.0.0.1/./";
-    QTest::newRow("root") << "http" << "127.0.0.1" << "/" << QDir::rootPath() + "__qtc_devices__/http/127.0.0.1/" << "http://127.0.0.1/";
+    QTest::newRow("scheme") << "http" << "" << "" << "http:///./" << "http:///./";
+    QTest::newRow("scheme-and-host") << "http" << "127.0.0.1" << "" << "http://127.0.0.1/./" << "http://127.0.0.1/./";
+    QTest::newRow("root") << "http" << "127.0.0.1" << "/" << "http://127.0.0.1/" << "http://127.0.0.1/";
 
     QTest::newRow("root-folder") << "" << "" << "/" << "/" << "/";
-    QTest::newRow("qtc-dev-root-folder") << "" << "" << QDir::rootPath() + "__qtc_devices__" << QDir::rootPath() + "__qtc_devices__" << QDir::rootPath() + "__qtc_devices__";
-    QTest::newRow("qtc-dev-type-root-folder") << "" << "" << QDir::rootPath() + "__qtc_devices__/docker" << QDir::rootPath() + "__qtc_devices__/docker" << QDir::rootPath() + "__qtc_devices__/docker";
-    QTest::newRow("qtc-root-folder") << "docker" << "alpine:latest" << "/" << QDir::rootPath() + "__qtc_devices__/docker/alpine:latest/" << "docker://alpine:latest/";
-    QTest::newRow("qtc-root-folder-rel") << "docker" << "alpine:latest" << "" << QDir::rootPath() + "__qtc_devices__/docker/alpine:latest/./" << "docker://alpine:latest/./";
+    QTest::newRow("qtc-dev-root-folder-linux") << "" << "" << "/__qtc_devices__" << "/__qtc_devices__" << "/__qtc_devices__";
+    QTest::newRow("qtc-dev-root-folder-win") << "" << "" << "c:/__qtc_devices__" << "c:/__qtc_devices__" << "c:/__qtc_devices__";
+    QTest::newRow("qtc-dev-type-root-folder-linux") << "" << "" << "/__qtc_devices__/docker" << "/__qtc_devices__/docker" << "/__qtc_devices__/docker";
+    QTest::newRow("qtc-dev-type-root-folder-win") << "" << "" << "c:/__qtc_devices__/docker" << "c:/__qtc_devices__/docker" << "c:/__qtc_devices__/docker";
+    QTest::newRow("qtc-root-folder") << "docker" << "alpine:latest" << "/" << "docker://alpine:latest/" << "docker://alpine:latest/";
+    QTest::newRow("qtc-root-folder-rel") << "docker" << "alpine:latest" << "" << "docker://alpine:latest/./" << "docker://alpine:latest/./";
 }
 
 void tst_fileutils::toString()
@@ -473,15 +475,11 @@ void tst_fileutils::fromToString_data()
     QTest::newRow("s2") << "" << "" << "a/b/c/d" << "a/b/c/d";
     QTest::newRow("s3") << "" << "" << "/a/b" << "/a/b";
 
-    QTest::newRow("s4")
-        << "docker" << "1234abcdef" << "/bin/ls" << QDir::rootPath() + "__qtc_devices__/docker/1234abcdef/bin/ls";
-
-    QTest::newRow("s5")
-        << "docker" << "1234" << "/bin/ls" << QDir::rootPath() + "__qtc_devices__/docker/1234/bin/ls";
+    QTest::newRow("s4") << "docker" << "1234abcdef" << "/bin/ls" << "docker://1234abcdef/bin/ls";
+    QTest::newRow("s5") << "docker" << "1234" << "/bin/ls" << "docker://1234/bin/ls";
 
     // This is not a proper URL.
-    QTest::newRow("s6")
-        << "docker" << "1234" << "somefile" << QDir::rootPath() + "__qtc_devices__/docker/1234/./somefile";
+    QTest::newRow("s6") << "docker" << "1234" << "somefile" << "docker://1234/./somefile";
 
     // Local Windows paths:
     QTest::newRow("w1") << "" << "" << "C:/data" << "C:/data";

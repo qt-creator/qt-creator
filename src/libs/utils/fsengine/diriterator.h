@@ -29,7 +29,7 @@ public:
     {
         if (it == m_filePaths.end())
             return QString();
-        const QString r = chopIfEndsWith(it->toString(), '/');
+        const QString r = chopIfEndsWith(it->toFSPathString(), '/');
         ++it;
         return r;
     }
@@ -44,7 +44,7 @@ public:
 
     QFileInfo currentFileInfo() const override
     {
-        return QFileInfo(chopIfEndsWith(it->toString(), '/'));
+        return QFileInfo(chopIfEndsWith(it->toFSPathString(), '/'));
     }
 
 private:
