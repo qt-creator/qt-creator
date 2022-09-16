@@ -46,6 +46,8 @@ private slots:
     void fromString();
     void toString_data();
     void toString();
+    void toFSPathString_data();
+    void toFSPathString();
     void comparison_data();
     void comparison();
     void linkFromString_data();
@@ -316,6 +318,40 @@ void tst_fileutils::toString()
 
     FilePath filePath = FilePath::fromParts(scheme, host, path);
     QCOMPARE(filePath.toString(), result);
+    QString cleanedOutput = filePath.needsDevice() ? filePath.toUserOutput() : QDir::cleanPath(filePath.toUserOutput());
+    QCOMPARE(cleanedOutput, userResult);
+}
+
+void tst_fileutils::toFSPathString_data()
+{
+    QTest::addColumn<QString>("scheme");
+    QTest::addColumn<QString>("host");
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<QString>("result");
+    QTest::addColumn<QString>("userResult");
+
+    QTest::newRow("empty") << "" << "" << "" << "" << "";
+    QTest::newRow("scheme") << "http" << "" << "" << QDir::rootPath() + "__qtc_devices__/http//./" << "http:///./";
+    QTest::newRow("scheme-and-host") << "http" << "127.0.0.1" << "" << QDir::rootPath() + "__qtc_devices__/http/127.0.0.1/./" << "http://127.0.0.1/./";
+    QTest::newRow("root") << "http" << "127.0.0.1" << "/" << QDir::rootPath() + "__qtc_devices__/http/127.0.0.1/" << "http://127.0.0.1/";
+
+    QTest::newRow("root-folder") << "" << "" << "/" << "/" << "/";
+    QTest::newRow("qtc-dev-root-folder") << "" << "" << QDir::rootPath() + "__qtc_devices__" << QDir::rootPath() + "__qtc_devices__" << QDir::rootPath() + "__qtc_devices__";
+    QTest::newRow("qtc-dev-type-root-folder") << "" << "" << QDir::rootPath() + "__qtc_devices__/docker" << QDir::rootPath() + "__qtc_devices__/docker" << QDir::rootPath() + "__qtc_devices__/docker";
+    QTest::newRow("qtc-root-folder") << "docker" << "alpine:latest" << "/" << QDir::rootPath() + "__qtc_devices__/docker/alpine:latest/" << "docker://alpine:latest/";
+    QTest::newRow("qtc-root-folder-rel") << "docker" << "alpine:latest" << "" << QDir::rootPath() + "__qtc_devices__/docker/alpine:latest/./" << "docker://alpine:latest/./";
+}
+
+void tst_fileutils::toFSPathString()
+{
+    QFETCH(QString, scheme);
+    QFETCH(QString, host);
+    QFETCH(QString, path);
+    QFETCH(QString, result);
+    QFETCH(QString, userResult);
+
+    FilePath filePath = FilePath::fromParts(scheme, host, path);
+    QCOMPARE(filePath.toFSPathString(), result);
     QString cleanedOutput = filePath.needsDevice() ? filePath.toUserOutput() : QDir::cleanPath(filePath.toUserOutput());
     QCOMPARE(cleanedOutput, userResult);
 }
