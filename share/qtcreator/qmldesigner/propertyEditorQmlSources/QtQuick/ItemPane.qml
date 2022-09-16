@@ -39,6 +39,7 @@ PropertyEditorPane {
 
     DynamicPropertiesSection {
         propertiesModel: SelectionDynamicPropertiesModel {}
+        visible: !hasMultiSelection
     }
 
     GeometrySection {}

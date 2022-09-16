@@ -42,6 +42,7 @@ PropertyEditorPane {
 
         DynamicPropertiesSection {
             propertiesModel: SelectionDynamicPropertiesModel {}
+            visible: !hasMultiSelection
         }
 
         Loader {

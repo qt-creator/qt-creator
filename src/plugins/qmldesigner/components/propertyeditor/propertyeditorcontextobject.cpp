@@ -429,6 +429,20 @@ QQmlComponent *PropertyEditorContextObject::specificQmlComponent()
     return m_qmlComponent;
 }
 
+bool PropertyEditorContextObject::hasMultiSelection() const
+{
+    return m_hasMultiSelection;
+}
+
+void PropertyEditorContextObject::setHasMultiSelection(bool b)
+{
+    if (b == m_hasMultiSelection)
+        return;
+
+    m_hasMultiSelection = b;
+    emit hasMultiSelectionChanged();
+}
+
 void PropertyEditorContextObject::setSpecificsUrl(const QUrl &newSpecificsUrl)
 {
     if (newSpecificsUrl == m_specificsUrl)
