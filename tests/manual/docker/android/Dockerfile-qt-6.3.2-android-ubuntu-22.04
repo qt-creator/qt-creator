@@ -1,0 +1,52 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND noninteractive
+
+# Install dependencies
+RUN apt-get update
+RUN apt-get install -y \
+    bash \
+    curl \
+    git \
+    openjdk-11-jdk \
+    unzip \
+    wget \
+    cmake \
+    ninja-build \
+    nano
+
+# Install Android SDK
+ENV ANDROID_SDK_ROOT /opt/android-sdk
+ENV ANDROID_HOME /opt/android-sdk
+ENV ANDROID_SDK /opt/android-sdk
+ENV PATH ${PATH}:${ANDROID_SDK_ROOT}/tools:${ANDROID_SDK_ROOT}/tools/bin:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin
+
+RUN mkdir -p ${ANDROID_SDK_ROOT} && \
+    cd ${ANDROID_SDK_ROOT}
+
+WORKDIR ${ANDROID_SDK_ROOT}
+
+RUN curl https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip -o commandlinetools.zip
+RUN unzip -q commandlinetools.zip && mv cmdline-tools tools && mkdir cmdline-tools && mv tools cmdline-tools/latest
+RUN yes | sdkmanager --licenses
+RUN sdkmanager "platform-tools" "platforms;android-31" "build-tools;31.0.0" "ndk;22.1.7171670"
+
+WORKDIR /Qt
+
+RUN curl -L https://download.qt.io/online/qtsdkrepository/linux_x64/android/qt6_632_x86_64/qt.qt6.632.android_x86_64/6.3.2-0-202209072001qtbase-Linux-RHEL_8_4-Clang-Android-Android_ANY-X86_64.7z -o 6.3.2-X86_64.7z
+RUN cmake -E tar xf 6.3.2-X86_64.7z
+
+RUN curl -L https://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt6_632/qt.qt6.632.gcc_64/6.3.2-0-202209071847qtbase-Linux-RHEL_8_4-GCC-Linux-RHEL_8_4-X86_64.7z -o 6.3.2-host.7z
+RUN cmake -E tar xf 6.3.2-host.7z
+
+RUN curl -L https://download.qt.io/online/qtsdkrepository/linux_x64/desktop/qt6_632/qt.qt6.632.gcc_64/6.3.2-0-202209071847icu-linux-Rhel7.2-x64.7z -o icu.7z
+RUN cmake -E tar xf icu.7z
+
+RUN mkdir -p /home/qt/work/
+RUN ln -s /Qt/6.3.2/gcc_64 /home/qt/work/install
+
+COPY target_qt.conf /Qt/6.3.2/android_x86_64/bin
+
+# REMEMBER TO UPDATE THE qt.toolchain.cmake FILE!!
+
+
