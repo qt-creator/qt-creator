@@ -76,6 +76,13 @@ Row {
         // when the combobox is closed by focusing on some other control.
         property int hoverIndex: -1
 
+        onCurrentIndexChanged: {
+            // This is needed to correctly update root.absoluteFilePath in cases where selection
+            // changes between two nodes of same type.
+            if (currentIndex !== -1 && !root.backendValue.isBound)
+                root.absoluteFilePath = fileModel.resolve(root.backendValue.value)
+        }
+
         DropArea {
             id: dropArea
 
