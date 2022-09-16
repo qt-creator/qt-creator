@@ -30,6 +30,7 @@
 #include "nodemetainfo.h"
 
 #include <QTimer>
+#include <QVariantHash>
 
 QT_BEGIN_NAMESPACE
 QT_END_NAMESPACE
@@ -49,6 +50,8 @@ public:
 
     QString importComponent(const QString &qmlFile,
                             const QStringList &files);
+    QString unimportComponent(const QString &qmlFile);
+
 signals:
     // The metaInfo parameter will be invalid if an error was encountered during
     // asynchronous part of the import. In this case all remaining pending imports have been
@@ -57,6 +60,9 @@ signals:
 
 private:
     void handleImportTimer();
+    QVariantHash loadAssetRefMap(const Utils::FilePath &bundlePath);
+    void writeAssetRefMap(const Utils::FilePath &bundlePath, const QVariantHash &assetRefMap);
+    Utils::FilePath resolveBundleImportPath();
 
     Utils::FilePath m_bundleDir;
     QString m_bundleId;

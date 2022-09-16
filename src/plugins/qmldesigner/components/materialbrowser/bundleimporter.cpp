@@ -33,9 +33,9 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <QFile>
 #include <QFileInfo>
-#include <QSaveFile>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QStringList>
 
 using namespace Utils;
@@ -65,20 +65,14 @@ BundleImporter::BundleImporter(const QString &bundleDir,
 QString BundleImporter::importComponent(const QString &qmlFile,
                                         const QStringList &files)
 {
-    FilePath bundleImportPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath();
+    FilePath bundleImportPath = resolveBundleImportPath();
     if (bundleImportPath.isEmpty())
-        return "Failed to resolve current project path";
+        return "Failed to resolve bundle import folder";
 
-    const QString projectBundlePath = QStringLiteral("%1%2/%3").arg(
-                QLatin1String(Constants::DEFAULT_ASSET_IMPORT_FOLDER),
-                QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER),
-                m_bundleId).mid(1); // Chop leading slash
-    bundleImportPath = bundleImportPath.resolvePath(projectBundlePath);
+    bool bundleImportPathExists = bundleImportPath.exists();
 
-    if (!bundleImportPath.exists()) {
-        if (!bundleImportPath.createDir())
-            return QStringLiteral("Failed to create bundle import folder: '%1'").arg(bundleImportPath.toString());
-    }
+    if (!bundleImportPathExists && !bundleImportPath.createDir())
+        return QStringLiteral("Failed to create bundle import folder: '%1'").arg(bundleImportPath.toString());
 
     for (const QString &file : qAsConst(m_sharedFiles)) {
         FilePath target = bundleImportPath.resolvePath(file);
@@ -93,15 +87,8 @@ QString BundleImporter::importComponent(const QString &qmlFile,
     }
 
     FilePath qmldirPath = bundleImportPath.resolvePath(QStringLiteral("qmldir"));
-    QFile qmldirFile(qmldirPath.toString());
-
-    QString qmldirContent;
-    if (qmldirPath.exists()) {
-        if (!qmldirFile.open(QIODeviceBase::ReadOnly))
-            return QStringLiteral("Failed to open qmldir file for reading: '%1'").arg(qmldirPath.toString());
-        qmldirContent = QString::fromUtf8(qmldirFile.readAll());
-        qmldirFile.close();
-    } else {
+    QString qmldirContent = QString::fromUtf8(qmldirPath.fileContents());
+    if (qmldirContent.isEmpty()) {
         qmldirContent.append("module ");
         qmldirContent.append(m_moduleName);
         qmldirContent.append('\n');
@@ -113,17 +100,11 @@ QString BundleImporter::importComponent(const QString &qmlFile,
     m_pendingTypes.append(QStringLiteral("%1.%2")
                           .arg(QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1), qmlType));
     if (!qmldirContent.contains(qmlFile)) {
-        QSaveFile qmldirSaveFile(qmldirPath.toString());
-        if (!qmldirSaveFile.open(QIODeviceBase::WriteOnly | QIODeviceBase::Truncate))
-            return QStringLiteral("Failed to open qmldir file for writing: '%1'").arg(qmldirPath.toString());
-
         qmldirContent.append(qmlType);
         qmldirContent.append(" 1.0 ");
         qmldirContent.append(qmlFile);
         qmldirContent.append('\n');
-
-        qmldirSaveFile.write(qmldirContent.toUtf8());
-        qmldirSaveFile.commit();
+        qmldirPath.writeFileContents(qmldirContent.toUtf8());
     }
 
     QStringList allFiles;
@@ -145,6 +126,19 @@ QString BundleImporter::importComponent(const QString &qmlFile,
             return QStringLiteral("Failed to copy file: '%1'").arg(source.toString());
     }
 
+    QVariantHash assetRefMap = loadAssetRefMap(bundleImportPath);
+    bool writeAssetRefs = false;
+    for (const QString &assetFile : files) {
+        QStringList assets = assetRefMap[assetFile].toStringList();
+        if (!assets.contains(qmlFile)) {
+            assets.append(qmlFile);
+            writeAssetRefs = true;
+        }
+        assetRefMap[assetFile] = assets;
+    }
+    if (writeAssetRefs)
+        writeAssetRefMap(bundleImportPath, assetRefMap);
+
     m_fullReset = !qmlFileExists;
     auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();
     Model *model = doc ? doc->currentModel() : nullptr;
@@ -163,10 +157,12 @@ QString BundleImporter::importComponent(const QString &qmlFile,
             }
         } else {
             // If import is not yet possible, import statement needs to be added asynchronously to
-            // avoid errors, as code model update takes a while. Full reset is not necessary
-            // in this case, as new import directory appearing will trigger scanning of it.
+            // avoid errors, as code model update takes a while.
             m_importAddPending = true;
-            m_fullReset = false;
+
+            // Full reset is not necessary if new import directory appearing will trigger scanning,
+            // but if directory existed but was not valid possible import, we need to do a reset.
+            m_fullReset = bundleImportPathExists;
         }
     }
     m_importTimerCount = 0;
@@ -230,6 +226,116 @@ void BundleImporter::handleImportTimer()
         m_importTimer.stop();
         m_importTimerCount = 0;
     }
+}
+
+QVariantHash BundleImporter::loadAssetRefMap(const Utils::FilePath &bundlePath)
+{
+    FilePath assetRefPath = bundlePath.resolvePath(QLatin1String(Constants::COMPONENT_BUNDLES_ASSET_REF_FILE));
+    QByteArray content = assetRefPath.fileContents();
+    if (!content.isEmpty()) {
+        QJsonParseError error;
+        QJsonDocument bundleDataJsonDoc = QJsonDocument::fromJson(content, &error);
+        if (bundleDataJsonDoc.isNull()) {
+            // Failure to read asset refs is not considred fatal, so just print error
+            qWarning() << "Failed to parse bundle asset ref file:" << error.errorString();
+        } else {
+            return bundleDataJsonDoc.object().toVariantHash();
+        }
+    }
+    return {};
+}
+
+void BundleImporter::writeAssetRefMap(const Utils::FilePath &bundlePath,
+                                      const QVariantHash &assetRefMap)
+{
+    FilePath assetRefPath = bundlePath.resolvePath(QLatin1String(Constants::COMPONENT_BUNDLES_ASSET_REF_FILE));
+    QJsonObject jsonObj = QJsonObject::fromVariantHash(assetRefMap);
+    if (!assetRefPath.writeFileContents(QJsonDocument{jsonObj}.toJson())) {
+        // Failure to write asset refs is not considred fatal, so just print error
+        qWarning() << QStringLiteral("Failed to save bundle asset ref file: '%1'").arg(assetRefPath.toString()) ;
+    }
+}
+
+QString BundleImporter::unimportComponent(const QString &qmlFile)
+{
+    FilePath bundleImportPath = resolveBundleImportPath();
+    if (bundleImportPath.isEmpty())
+        return "Failed to resolve bundle import folder";
+
+    if (!bundleImportPath.exists())
+        return {};
+
+    FilePath qmlFilePath = bundleImportPath.resolvePath(qmlFile);
+    if (!qmlFilePath.exists())
+        return {};
+
+    QStringList removedFiles;
+    removedFiles.append(qmlFile);
+
+    FilePath qmldirPath = bundleImportPath.resolvePath(QStringLiteral("qmldir"));
+    QByteArray qmldirContent = qmldirPath.fileContents();
+    QByteArray newContent;
+    if (!qmldirContent.isEmpty()) {
+        QByteArray qmlType = qmlFilePath.baseName().toUtf8();
+        int typeIndex = qmldirContent.indexOf(qmlType);
+        if (typeIndex != -1) {
+            int newLineIndex = qmldirContent.indexOf('\n', typeIndex);
+            newContent = qmldirContent.left(typeIndex);
+            if (newLineIndex != -1)
+                newContent.append(qmldirContent.mid(newLineIndex + 1));
+        }
+        if (newContent != qmldirContent) {
+            if (!qmldirPath.writeFileContents(newContent))
+                return QStringLiteral("Failed to write qmldir file: '%1'").arg(qmldirPath.toString());
+        }
+    }
+
+    QVariantHash assetRefMap = loadAssetRefMap(bundleImportPath);
+    bool writeAssetRefs = false;
+    const auto keys = assetRefMap.keys();
+    for (const QString &assetFile : keys) {
+        QStringList assets = assetRefMap[assetFile].toStringList();
+        if (assets.contains(qmlFile)) {
+            assets.removeAll(qmlFile);
+            writeAssetRefs = true;
+        }
+        if (!assets.isEmpty()) {
+            assetRefMap[assetFile] = assets;
+        } else {
+            removedFiles.append(assetFile);
+            assetRefMap.remove(assetFile);
+            writeAssetRefs = true;
+        }
+    }
+
+    for (const QString &removedFile : removedFiles) {
+        FilePath removedFilePath = bundleImportPath.resolvePath(removedFile);
+        if (removedFilePath.exists())
+            removedFilePath.removeFile();
+    }
+
+    if (writeAssetRefs)
+        writeAssetRefMap(bundleImportPath, assetRefMap);
+
+    m_fullReset = true;
+    m_importTimerCount = 0;
+    m_importTimer.start();
+
+    return {};
+}
+
+FilePath BundleImporter::resolveBundleImportPath()
+{
+    FilePath bundleImportPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath();
+    if (bundleImportPath.isEmpty())
+        return bundleImportPath;
+
+    const QString projectBundlePath = QStringLiteral("%1%2/%3").arg(
+                QLatin1String(Constants::DEFAULT_ASSET_IMPORT_FOLDER),
+                QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER),
+                m_bundleId).mid(1); // Chop leading slash
+
+    return bundleImportPath.resolvePath(projectBundlePath);
 }
 
 } // namespace QmlDesigner::Internal

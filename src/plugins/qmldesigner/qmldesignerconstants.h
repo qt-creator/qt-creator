@@ -84,6 +84,7 @@ const char EDIT3D_BACKGROUND_COLOR_ACTIONS[] = "QmlDesigner.Editor3D.BackgroundC
 
 const char QML_DESIGNER_SUBFOLDER[] = "/designer/";
 const char COMPONENT_BUNDLES_FOLDER[] = "/ComponentBundles";
+const char COMPONENT_BUNDLES_ASSET_REF_FILE[] = "_asset_ref.json";
 const char QUICK_3D_ASSETS_FOLDER[] = "/Quick3DAssets";
 const char QUICK_3D_ASSET_LIBRARY_ICON_SUFFIX[] = "_libicon";
 const char QUICK_3D_ASSET_ICON_DIR[] = "_icons";
