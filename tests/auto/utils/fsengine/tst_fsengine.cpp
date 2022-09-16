@@ -253,9 +253,6 @@ void tst_fsengine::testListDir()
 
 void tst_fsengine::testWindowsPaths()
 {
-    if (!HostOsInfo::isWindowsHost())
-        QSKIP("This test is only valid on windows");
-
     // Test upper-case "C:"
     QVERIFY(FilePath::fromString("C:/__qtc_devices__/device/{cd6c7e4b-12fd-43ca-9bb2-053a38e6b7c5}")
                 .needsDevice());

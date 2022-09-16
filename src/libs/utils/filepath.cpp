@@ -800,13 +800,23 @@ void FilePath::setFromString(const QString &filename)
 {
     static const QLatin1String qtcDevSlash("__qtc_devices__/");
     static const QLatin1String colonSlashSlash("://");
-    static const QString rootPath = QDir::rootPath();
 
     const QChar slash('/');
     const QStringView fileNameView(filename);
 
-    if (fileNameView.startsWith(rootPath, Qt::CaseInsensitive)) { // Absolute path ...
-        const QStringView withoutRootPath = fileNameView.mid(rootPath.size());
+    bool startsWithRoot = false;
+    int rootLength = 0;
+    if (fileNameView.startsWith('/')) {
+        startsWithRoot = true;
+        rootLength = 1;
+    } else if (fileNameView.size() > 3 && fileNameView.at(1) == ':' && fileNameView.at(2) == '/') {
+        // FIXME: Should we check that at(0) is actually the 'right' letter?
+        startsWithRoot = true;
+        rootLength = 3;
+    }
+
+    if (startsWithRoot) { // Absolute path ...
+        const QStringView withoutRootPath = fileNameView.mid(rootLength);
         if (withoutRootPath.startsWith(qtcDevSlash)) { // Starts with "/__qtc_devices__/" ...
             const QStringView withoutQtcDeviceRoot = withoutRootPath.mid(qtcDevSlash.size());
 
