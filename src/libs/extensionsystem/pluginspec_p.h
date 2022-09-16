@@ -54,7 +54,6 @@ public:
     QString version;
     QString compatVersion;
     bool required = false;
-    bool hiddenByDefault = false;
     bool experimental = false;
     bool enabledByDefault = true;
     QString vendor;
