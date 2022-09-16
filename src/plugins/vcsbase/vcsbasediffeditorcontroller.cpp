@@ -123,7 +123,8 @@ void VcsBaseDiffEditorControllerPrivate::commandFinished(bool success)
         return;
     }
 
-    q->processCommandOutput(m_output);
+    // Pass a copy of m_output since processDiff() cleans the m_output
+    q->processCommandOutput(QString(m_output));
 }
 
 /////////////////////
