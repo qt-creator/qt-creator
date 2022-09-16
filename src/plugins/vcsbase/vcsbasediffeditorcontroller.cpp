@@ -33,35 +33,6 @@ static void readPatch(QFutureInterface<QList<FileData>> &futureInterface,
 
 /////////////////////
 
-// We need a way to disconnect from signals posted from different thread
-// so that signals that are already posted from the other thread and not delivered
-// yet will be ignored. Unfortunately, simple QObject::disconnect() doesn't
-// work like that, since signals that are already posted and are awaiting
-// to be delivered WILL BE delivered later, even after a call to QObject::disconnect().
-// The delivery will happen when the control returns to the main event loop.
-
-// This proxy class solves the above problem. Instead of a call to
-// QObject::disconnect(), which would still deliver posted signals,
-// we delete the proxy object immediately. In this way signals which are
-// already posted and are awaiting to be delivered won't be delivered to the
-// destroyed object.
-
-// So the only reason for this proxy object is to be able to disconnect
-// effectively from the signals posted from different threads.
-
-class VcsCommandResultProxy : public QObject {
-    Q_OBJECT
-public:
-    VcsCommandResultProxy(VcsCommand *command, VcsBaseDiffEditorControllerPrivate *target);
-private:
-    void storeOutput(const QString &output);
-    void commandFinished(bool success);
-
-    VcsBaseDiffEditorControllerPrivate *m_target;
-};
-
-/////////////////////
-
 class VcsBaseDiffEditorControllerPrivate
 {
 public:
@@ -71,7 +42,6 @@ public:
     void processingFinished();
     void processDiff(const QString &patch);
     void cancelReload();
-    void storeOutput(const QString &output);
     void commandFinished(bool success);
 
     VcsBaseDiffEditorController *q;
@@ -83,37 +53,12 @@ public:
     QString m_output;
     QString m_displayName;
     QPointer<VcsCommand> m_command;
-    QPointer<VcsCommandResultProxy> m_commandResultProxy;
     QFutureWatcher<QList<FileData>> *m_processWatcher = nullptr;
 };
 
-/////////////////////
-
-VcsCommandResultProxy::VcsCommandResultProxy(VcsCommand *command,
-                          VcsBaseDiffEditorControllerPrivate *target)
-    : QObject(target->q)
-    , m_target(target)
-{
-    connect(command, &VcsCommand::stdOutText,
-            this, &VcsCommandResultProxy::storeOutput);
-    connect(command, &VcsCommand::finished,
-            this, &VcsCommandResultProxy::commandFinished);
-    connect(command, &VcsCommand::destroyed,
-            this, &QObject::deleteLater);
-}
-
-void VcsCommandResultProxy::storeOutput(const QString &output)
-{
-    m_target->storeOutput(output);
-}
-
-void VcsCommandResultProxy::commandFinished(bool success)
-{
-    m_target->commandFinished(success);
-}
-
 VcsBaseDiffEditorControllerPrivate::~VcsBaseDiffEditorControllerPrivate()
 {
+    delete m_command;
     cancelReload();
 }
 
@@ -142,8 +87,8 @@ void VcsBaseDiffEditorControllerPrivate::processDiff(const QString &patch)
 
     m_processWatcher = new QFutureWatcher<QList<FileData>>();
 
-    QObject::connect(m_processWatcher, &QFutureWatcher<QList<FileData>>::finished,
-                     [this] () { processingFinished(); } );
+    QObject::connect(m_processWatcher, &QFutureWatcherBase::finished,
+                     q, [this] { processingFinished(); });
 
     m_processWatcher->setFuture(Utils::runAsync(&readPatch, patch));
 
@@ -153,14 +98,7 @@ void VcsBaseDiffEditorControllerPrivate::processDiff(const QString &patch)
 
 void VcsBaseDiffEditorControllerPrivate::cancelReload()
 {
-    if (m_command) {
-        m_command->cancel();
-        m_command.clear();
-    }
-
-    // Disconnect effectively, don't deliver already posted signals
-    if (m_commandResultProxy)
-        delete m_commandResultProxy.data();
+    m_command.clear();
 
     if (m_processWatcher) {
         // Cancel the running process without the further processingFinished()
@@ -173,24 +111,11 @@ void VcsBaseDiffEditorControllerPrivate::cancelReload()
     m_output = QString();
 }
 
-void VcsBaseDiffEditorControllerPrivate::storeOutput(const QString &output)
-{
-    m_output = output;
-}
-
 void VcsBaseDiffEditorControllerPrivate::commandFinished(bool success)
 {
-    if (m_command)
-        m_command.clear();
-
-    // Prevent direct deletion of m_commandResultProxy inside the possible
-    // subsequent synchronous calls to cancelReload() [called e.g. by
-    // processCommandOutput() overload], since
-    // commandFinished() is called directly by the m_commandResultProxy.
-    // m_commandResultProxy is removed via deleteLater right after
-    // a call to this commandFinished() is finished
-    if (m_commandResultProxy)
-        m_commandResultProxy.clear();
+    // Don't delete here, as it is called from command finished signal.
+    // Clear it only, as we may call runCommand() again from inside processCommandOutput overload.
+    m_command.clear();
 
     if (!success) {
         cancelReload();
@@ -198,7 +123,7 @@ void VcsBaseDiffEditorControllerPrivate::commandFinished(bool success)
         return;
     }
 
-    q->processCommandOutput(QString(m_output)); // pass a copy of m_output
+    q->processCommandOutput(m_output);
 }
 
 /////////////////////
@@ -219,12 +144,16 @@ void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, uns
     // processingFinished() notifications, as right after that
     // we re-reload it from scratch. So no intermediate "Retrieving data failed."
     // and "Waiting for data..." will be shown.
+    delete d->m_command;
     d->cancelReload();
 
     d->m_command = VcsBaseClient::createVcsCommand(workingDirectory(), d->m_processEnvironment);
     d->m_command->setDisplayName(d->m_displayName);
     d->m_command->setCodec(codec ? codec : EditorManager::defaultTextCodec());
-    d->m_commandResultProxy = new VcsCommandResultProxy(d->m_command.data(), d);
+    connect(d->m_command.data(), &VcsCommand::stdOutText,
+            this, [this](const QString &output) { d->m_output = output; });
+    connect(d->m_command.data(), &VcsCommand::finished,
+            this, [this](bool success) { d->commandFinished(success); });
     d->m_command->addFlags(flags);
 
     for (const QStringList &arg : args) {
@@ -283,5 +212,3 @@ void VcsBaseDiffEditorController::setProcessEnvironment(const Environment &value
 }
 
 } // namespace VcsBase
-
-#include "vcsbasediffeditorcontroller.moc"
