@@ -1,6 +1,6 @@
 add_qtc_plugin(Squish
   PLUGIN_DEPENDS
-    Core Debugger TextEditor
+    Core Debugger ProjectExplorer TextEditor
   DEPENDS ExtensionSystem Utils
   SOURCES
     deletesymbolicnamedialog.cpp deletesymbolicnamedialog.h
@@ -24,6 +24,7 @@ add_qtc_plugin(Squish
     squishtesttreeview.cpp squishtesttreeview.h
     squishtools.cpp squishtools.h
     squishtr.h
+    squishwizardpages.cpp squishwizardpages.h
     squishxmloutputhandler.cpp squishxmloutputhandler.h
     suiteconf.cpp suiteconf.h
     symbolnameitemdelegate.cpp symbolnameitemdelegate.h

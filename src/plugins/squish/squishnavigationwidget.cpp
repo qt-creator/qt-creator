@@ -12,6 +12,9 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/iwizardfactory.h>
+
+#include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/qtcassert.h>
 
@@ -168,6 +171,21 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
     QAction *createNewTestSuite = new QAction(Tr::tr("Create New Test Suite..."), &menu);
     menu.addAction(createNewTestSuite);
 
+    connect(createNewTestSuite,
+            &QAction::triggered,
+            this, [this]() {
+        if (!Core::ICore::isNewItemDialogRunning()) {
+            Core::ICore::showNewItemDialog(
+                        Tr::tr("New Project", "Title of dialog"),
+                        Utils::filtered(Core::IWizardFactory::allWizardFactories(),
+                                        [](Core::IWizardFactory *f) {
+                            return f->supportedProjectTypes().contains("Squish");
+                        }));
+        } else {
+            Core::ICore::raiseWindow(Core::ICore::newItemDialog());
+        }
+
+    });
     connect(openSquishSuites,
             &QAction::triggered,
             SquishFileHandler::instance(),

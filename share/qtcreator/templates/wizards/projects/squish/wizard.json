@@ -1,0 +1,107 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "Squish" ],
+    "id": "S.SquishTestSuite",
+    "category": "T.Squish",
+    "trDescription": "Creates a new Squish test suite.",
+    "trDisplayName": "Squish Test Suite",
+    "trDisplayCategory": "Squish",
+    "iconText": "STS",
+    "enabled": "%{JS: value('Plugins').indexOf('Squish') >= 0}",
+
+    "options":
+    [
+        {
+            "key": "SquishSuiteName",
+            "value": "%{JS: '%{SuiteName}'.startsWith('suite_') ? '%{SuiteName}' : 'suite_%{SuiteName}'}"
+        },
+        {
+            "key": "TargetPath",
+            "value": "%{Path}/%{SquishSuiteName}"
+        },
+        {
+            "key": "AUT",
+            "value": "%{ChosenAUT}"
+        },
+        {
+            "key": "Language",
+            "value": "%{ChosenLanguage}"
+        },
+        {
+            "key": "Toolkit",
+            "value": "%{ChosenToolkit}"
+        }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "trSubTitle": "Specify name of the Test suite and directory where to create the Squish test suite.",
+            "typeId": "Fields",
+            "data" :
+            [
+                {
+                    "name": "SuiteName",
+                    "trDisplayName": "Test Suite Name:",
+                    "type": "LineEdit"
+                },
+                {
+                    "name": "Path",
+                    "trDisplayName": "Test Suite folder's parent folder:",
+                    "type": "PathChooser",
+                    "data":
+                    {
+                        "kind": "existingDirectory",
+                        "basePath": "%{InitialPath}",
+                        "path": "%{InitialPath}"
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Setup",
+            "trShortTitle": "Setup",
+            "trSubTitle": "Choose the GUI toolkit used by the application you want to create Squish Test Suite for.",
+            "typeId": "SquishToolkits",
+            "data": {}
+        },
+        {
+            "trDisplayName": "Script Language",
+            "trShortTitle": "Language",
+            "trSubTitle": "Choose the scripting language to be used for the Test Suite's test scripts.",
+            "typeId": "SquishScriptLanguage",
+            "data": {}
+        },
+        {
+            "trDisplayName": "Application Under Test",
+            "trShortTitle": "AUT",
+            "trSubTitle": "Choose the application (AUT) that you want this Test Suite to test.",
+            "typeId": "SquishAUT",
+            "data": {}
+        },
+        {
+            "trDisplayName": "Summary",
+            "trShortTitle": "Summary",
+            "typeId": "Summary",
+            "data":
+            {
+                "hideProjectUi": true
+            }
+        }
+    ],
+
+    "generators":
+    [
+        {
+            "typeId": "SquishSuiteGenerator",
+            "data": {
+                "mode": "TestSuite",
+                "aut": "%{AUT}",
+                "language": "%{Language}",
+                "toolkit": "%{Toolkit}"
+            }
+        }
+    ]
+}

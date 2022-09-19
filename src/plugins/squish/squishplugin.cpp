@@ -4,6 +4,7 @@
 #include "squishplugin.h"
 
 #include "objectsmapeditor.h"
+#include "squish/squishwizardpages.h"
 #include "squishnavigationwidget.h"
 #include "squishoutputpane.h"
 #include "squishresultmodel.h"
@@ -17,6 +18,8 @@
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/pluginmanager.h>
+
+#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
 #include <utils/mimetypes/mimedatabase.h>
 #include <utils/qtcassert.h>
@@ -56,6 +59,11 @@ SquishPluginPrivate::SquishPluginPrivate()
     m_outputPane = SquishOutputPane::instance();
     m_squishTools = new SquishTools;
     initializeMenuEntries();
+
+    ProjectExplorer::JsonWizardFactory::registerPageFactory(new SquishToolkitsPageFactory);
+    ProjectExplorer::JsonWizardFactory::registerPageFactory(new SquishScriptLanguagePageFactory);
+    ProjectExplorer::JsonWizardFactory::registerPageFactory(new SquishAUTPageFactory);
+    ProjectExplorer::JsonWizardFactory::registerGeneratorFactory(new SquishGeneratorFactory);
 }
 
 SquishPluginPrivate::~SquishPluginPrivate()

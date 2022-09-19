@@ -163,6 +163,7 @@ void SquishFileHandler::openTestSuites()
         const QString suiteName = suiteDir.dirName();
         const QStringList cases = SuiteConf::validTestCases(suite);
         const QFileInfo suiteConf(suiteDir, "suite.conf");
+
         if (m_suites.contains(suiteName)) {
             if (replaceSuite == QMessageBox::YesToAll) {
                 modifySuiteItem(suiteName, suiteConf.absoluteFilePath(), cases);
@@ -190,6 +191,32 @@ void SquishFileHandler::openTestSuites()
         }
     }
     emit suitesOpened();
+}
+
+void SquishFileHandler::openTestSuite(const Utils::FilePath &suitePath)
+{
+    const QString suiteName = suitePath.parentDir().fileName();
+    const QString suitePathStr = suitePath.toString();
+    const QStringList cases = SuiteConf::validTestCases(suitePath.parentDir().toString());
+
+    if (m_suites.contains(suiteName)) {
+        QMessageBox::Button replaceSuite
+                = QMessageBox::question(Core::ICore::dialogParent(),
+                                        Tr::tr("Suite Already Open"),
+                                        Tr::tr("A test suite with the name \"%1\" is already open."
+                                               "\nClose the opened test suite and replace it "
+                                               "with the new one?")
+                                        .arg(suiteName),
+                                        QMessageBox::Yes | QMessageBox::No,
+                                        QMessageBox::No);
+        if (replaceSuite == QMessageBox::Yes)
+            modifySuiteItem(suiteName, suitePathStr, cases);
+    } else {
+        SquishTestTreeItem *item = createSuiteTreeItem(suiteName, suitePathStr, cases);
+        // TODO add file watcher
+        m_suites.insert(suiteName, suitePathStr);
+        emit testTreeItemCreated(item);
+    }
 }
 
 void SquishFileHandler::closeTestSuite(const QString &suiteName)

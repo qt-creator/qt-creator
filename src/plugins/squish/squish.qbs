@@ -5,6 +5,7 @@ QtcPlugin {
 
     Depends { name: "Core" }
     Depends { name: "Debugger" }
+    Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
 
@@ -53,6 +54,8 @@ QtcPlugin {
         "squishtools.cpp",
         "squishtools.h",
         "squishtr.h",
+        "squishwizardpages.cpp",
+        "squishwizardpages.h",
         "squishxmloutputhandler.cpp",
         "squishxmloutputhandler.h",
         "suiteconf.cpp",

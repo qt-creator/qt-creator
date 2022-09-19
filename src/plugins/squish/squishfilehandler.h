@@ -9,6 +9,8 @@
 #include <QObject>
 #include <QString>
 
+namespace Utils { class FilePath; }
+
 namespace Squish {
 namespace Internal {
 
@@ -20,6 +22,7 @@ public:
     ~SquishFileHandler() override = default;
     static SquishFileHandler *instance();
     void openTestSuites();
+    void openTestSuite(const Utils::FilePath &suitePath);
     void closeTestSuite(const QString &suiteName);
     void closeAllTestSuites();
     void runTestCase(const QString &suiteName, const QString &testCaseName);
