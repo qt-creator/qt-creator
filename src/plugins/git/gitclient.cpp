@@ -3263,37 +3263,18 @@ public:
                                                  nullptr, true, VcsCommand::ShowSuccessMessage);
         // Make command a parent of this in order to delete this when command is deleted
         setParent(command);
-
-        connect(command, &VcsCommand::stdErrText, this, [this](const QString &text) {
-            if (text.contains("non-fast-forward")) {
-                m_pushFailure = NonFastForward;
-            } else if (text.contains("has no upstream branch")) {
-                m_pushFailure = NoRemoteBranch;
-                const QStringList lines = text.split('\n', Qt::SkipEmptyParts);
-                for (const QString &line : lines) {
-                    /* Extract the suggested command from the git output which
-                     * should be similar to the following:
-                     *
-                     *     git push --set-upstream origin add_set_upstream_dialog
-                     */
-                    const QString trimmedLine = line.trimmed();
-                    if (trimmedLine.startsWith("git push")) {
-                        m_pushFallbackCommand = trimmedLine;
-                        break;
-                    }
-                }
-            }
-        });
-
-        connect(command, &VcsCommand::finished, this, [this, workingDir, pushArgs](bool success) {
+        connect(command, &VcsCommand::finished, this, [=](bool success) {
+            QString pushFallbackCommand;
+            const PushFailure pushFailure = handleError(command->cleanedStdErr(),
+                                                        &pushFallbackCommand);
             if (success) {
                 GitPlugin::updateCurrentBranch();
                 return;
             }
-            if (m_pushFailure == Unknown || !m_gitClient)
+            if (pushFailure == Unknown || !m_gitClient)
                 return;
 
-            if (m_pushFailure == NonFastForward) {
+            if (pushFailure == NonFastForward) {
                 const QColor warnColor = Utils::creatorTheme()->color(Theme::TextColorError);
                 if (QMessageBox::question(
                             Core::ICore::dialogParent(), tr("Force Push"),
@@ -3326,9 +3307,9 @@ public:
                 return;
             }
             const QStringList fallbackCommandParts =
-                    m_pushFallbackCommand.split(' ', Qt::SkipEmptyParts);
+                    pushFallbackCommand.split(' ', Qt::SkipEmptyParts);
             VcsCommand *rePushCommand = m_gitClient->vcsExec(workingDir,
-                       fallbackCommandParts.mid(1), nullptr, true, VcsCommand::ShowSuccessMessage);
+                    fallbackCommandParts.mid(1), nullptr, true, VcsCommand::ShowSuccessMessage);
             connect(rePushCommand, &VcsCommand::finished, this, [workingDir](bool success) {
                 if (success)
                     GitPlugin::updateBranches(workingDir);
@@ -3336,9 +3317,32 @@ public:
         });
     }
 private:
-    enum PushFailure { Unknown, NonFastForward, NoRemoteBranch } m_pushFailure = Unknown;
+    enum PushFailure { Unknown, NonFastForward, NoRemoteBranch };
+
+    PushFailure handleError(const QString &text, QString *pushFallbackCommand) const {
+        if (text.contains("non-fast-forward"))
+            return NonFastForward;
+
+        if (text.contains("has no upstream branch")) {
+            const QStringList lines = text.split('\n', Qt::SkipEmptyParts);
+            for (const QString &line : lines) {
+                /* Extract the suggested command from the git output which
+                 * should be similar to the following:
+                 *
+                 *     git push --set-upstream origin add_set_upstream_dialog
+                 */
+                const QString trimmedLine = line.trimmed();
+                if (trimmedLine.startsWith("git push")) {
+                    *pushFallbackCommand = trimmedLine;
+                    break;
+                }
+            }
+            return NoRemoteBranch;
+        }
+        return Unknown;
+    };
+
     QPointer<GitClient> m_gitClient;
-    QString m_pushFallbackCommand;
 };
 
 void GitClient::push(const FilePath &workingDirectory, const QStringList &pushArgs)
