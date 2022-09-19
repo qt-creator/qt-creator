@@ -126,14 +126,14 @@ void tst_fileutils::parentDir_data()
 #ifdef Q_OS_WIN
     QTest::newRow("C:/data") << "C:/data" << "C:/" << "";
     QTest::newRow("C:/") << "C:/" << "" << "";
-    QTest::newRow("//./com1") << "//./com1" << "//./" << "";
+    QTest::newRow("//./com1") << "//./com1" << "//." << "";
     QTest::newRow("//?/path") << "//?/path" << "/" << "Qt 4 cannot handle this path.";
     QTest::newRow("/Global?\?/UNC/host") << "/Global?\?/UNC/host" << "/Global?\?/UNC/host"
                                         << "Qt 4 cannot handle this path.";
     QTest::newRow("//server/directory/file")
             << "//server/directory/file" << "//server/directory" << "";
-    QTest::newRow("//server/directory") << "//server/directory" << "//server/" << "";
-    QTest::newRow("//server") << "//server/" << "" << "";
+    QTest::newRow("//server/directory") << "//server/directory" << "//server" << "";
+    QTest::newRow("//server") << "//server" << "" << "";
 #endif
 }
 
@@ -166,8 +166,8 @@ void tst_fileutils::isChildOf_data()
 #ifdef Q_OS_WIN
     QTest::newRow("C:/data") << "C:/" << "C:/data" << true;
     QTest::newRow("C:/") << "" << "C:/" << false;
-    QTest::newRow("//./com1") << "/" << "//./com1" << false;
-    QTest::newRow("//?/path") << "/" << "//?/path" << false;
+    QTest::newRow("com-port") << "//./" << "//./com1" << true;
+    QTest::newRow("extended-length-path") << "\\\\?\\C:\\" << "\\\\?\\C:\\path" << false;
     QTest::newRow("/Global?\?/UNC/host") << "/Global?\?/UNC/host"
                                         << "/Global?\?/UNC/host/file" << true;
     QTest::newRow("//server/directory/file")
