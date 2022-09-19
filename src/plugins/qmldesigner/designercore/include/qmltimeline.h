@@ -44,6 +44,10 @@ public:
     QList<ModelNode> allTargets() const;
     QList<QmlTimelineKeyframeGroup> keyframeGroupsForTarget(const ModelNode &target) const;
     void destroyKeyframesForTarget(const ModelNode &target);
+
+    void removeKeyframesForTargetAndProperty(const ModelNode &target,
+                                             const PropertyName &propertyName);
+
     static bool hasActiveTimeline(AbstractView *view);
 
     bool isRecording() const;

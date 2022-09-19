@@ -16,6 +16,7 @@
 
 #include <QObject>
 #include <QPointer>
+#include <QVector3D>
 
 #include <functional>
 #include <memory>
@@ -145,7 +146,7 @@ public:
     void emitUpdateActiveScene3D(const QVariantMap &sceneState);
     void emitModelNodelPreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap);
     void emitImport3DSupportChanged(const QVariantMap &supportMap);
-    void emitNodeAtPosResult(const ModelNode &modelNode);
+    void emitNodeAtPosResult(const ModelNode &modelNode, const QVector3D &pos3d);
     void emitView3DAction(View3DActionType type, const QVariant &value);
 
     void sendTokenToInstances(const QString &token, int number, const QVector<ModelNode> &nodeVector);
@@ -214,7 +215,7 @@ public:
     virtual void renderImage3DChanged(const QImage &image);
     virtual void updateActiveScene3D(const QVariantMap &sceneState);
     virtual void updateImport3DSupport(const QVariantMap &supportMap);
-    virtual void nodeAtPosReady(const ModelNode &modelNode);
+    virtual void nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos3d);
     virtual void modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap);
 
     virtual void view3DAction(View3DActionType type, const QVariant &value);

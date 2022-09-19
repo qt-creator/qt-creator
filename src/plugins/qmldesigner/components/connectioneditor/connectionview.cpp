@@ -89,6 +89,8 @@ void ConnectionView::propertiesRemoved(const QList<AbstractProperty> &propertyLi
     for (const AbstractProperty &property : propertyList) {
         if (property.isDefaultProperty())
             connectionModel()->resetModel();
+
+        dynamicPropertiesModel()->dispatchPropertyChanges(property);
     }
 }
 
@@ -116,8 +118,9 @@ void ConnectionView::variantPropertiesChanged(const QList<VariantProperty> &prop
             backendModel()->resetModel();
 
         connectionModel()->variantPropertyChanged(variantProperty);
-    }
 
+        dynamicPropertiesModel()->dispatchPropertyChanges(variantProperty);
+    }
 }
 
 void ConnectionView::bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
@@ -131,6 +134,8 @@ void ConnectionView::bindingPropertiesChanged(const QList<BindingProperty> &prop
             backendModel()->resetModel();
 
         connectionModel()->bindingPropertyChanged(bindingProperty);
+
+        dynamicPropertiesModel()->dispatchPropertyChanges(bindingProperty);
     }
 }
 

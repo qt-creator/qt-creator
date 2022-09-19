@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QMenu>
 #include <QPointer>
+#include <QVector3D>
 #include <QWidget>
 
 #include <coreplugin/icontext.h>
@@ -35,7 +36,7 @@ public:
     QMenu *backgroundColorMenu() const;
     void showBackgroundColorMenu(bool show, const QPoint &pos);
 
-    void showContextMenu(const QPoint &pos, const ModelNode &modelNode);
+    void showContextMenu(const QPoint &pos, const ModelNode &modelNode, const QVector3D &pos3d);
     void updateCreateSubMenu(const QStringList &keys,
                              const QHash<QString, QList<ItemLibraryEntry>> &entriesMap);
 
@@ -63,6 +64,7 @@ private:
     QPointer<QAction> m_deleteAction;
     QPointer<QMenu> m_createSubMenu;
     ModelNode m_contextMenuTarget;
+    QVector3D m_contextMenuPos3d;
     QHash<QString, ItemLibraryEntry> m_nameToEntry;
 };
 

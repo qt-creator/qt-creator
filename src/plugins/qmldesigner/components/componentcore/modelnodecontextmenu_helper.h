@@ -42,6 +42,18 @@ inline bool singleSelection(const SelectionContext &selectionState)
     return selectionState.singleNodeIsSelected();
 }
 
+inline bool addMouseAreaFillCheck(const SelectionContext &selectionContext)
+{
+    if (selectionContext.isValid() && selectionContext.singleNodeIsSelected()) {
+        ModelNode node = selectionContext.currentSingleSelectedNode();
+        if (node.hasMetaInfo()) {
+            NodeMetaInfo nodeInfo = node.metaInfo();
+            return nodeInfo.isSuitableForMouseAreaFill();
+        }
+    }
+    return false;
+}
+
 inline bool isModel(const SelectionContext &selectionState)
 {
     ModelNode node = selectionState.currentSingleSelectedNode();

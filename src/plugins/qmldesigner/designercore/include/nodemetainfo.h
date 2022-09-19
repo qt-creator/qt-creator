@@ -87,6 +87,7 @@ public:
     bool isFlowViewFlowWildcard() const;
     bool isFlowViewItem() const;
     bool isFont() const;
+    bool isSuitableForMouseAreaFill() const;
     bool isGraphicalItem() const;
     bool isInteger() const;
     bool isLayoutable() const;

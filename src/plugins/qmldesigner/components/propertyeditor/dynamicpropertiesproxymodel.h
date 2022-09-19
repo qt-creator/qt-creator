@@ -100,6 +100,7 @@ private:
     void commitValue(const QVariant &value);
     void commitExpression(const QString &expression);
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &, const QList<int> &);
+    void resetValue();
 
     int m_row = -1;
     PropertyEditorValue *m_backendValue = nullptr;

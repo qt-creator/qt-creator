@@ -119,6 +119,8 @@ public:
 
     QmlModelStateGroup states() const;
 
+    QList<ModelNode> allTimelines() const;
+
 protected:
     NodeInstance nodeInstance() const;
     QmlObjectNode nodeForInstance(const NodeInstance &instance) const;

@@ -554,6 +554,12 @@ QList<QmlModelState> QmlObjectNode::allDefinedStates() const
     for (const QmlVisualNode &node : qAsConst(allVisualNodes))
         returnList.append(node.states().allStates());
 
+    const auto allNodes = view()->allModelNodes();
+    for (const ModelNode &node : allNodes) {
+        if (node.simplifiedTypeName() == "StateGroup")
+            returnList.append(QmlModelStateGroup(node).allStates());
+    }
+
     return returnList;
 }
 
@@ -573,6 +579,18 @@ QmlModelStateGroup QmlObjectNode::states() const
         return QmlModelStateGroup(modelNode());
     else
         return QmlModelStateGroup();
+}
+
+QList<ModelNode> QmlObjectNode::allTimelines() const
+{
+    QList<ModelNode> timelineNodes;
+    const auto allNodes = view()->allModelNodes();
+    for (const auto &timelineNode : allNodes) {
+        if (QmlTimeline::isValidQmlTimeline(timelineNode))
+            timelineNodes.append(timelineNode);
+    }
+
+    return timelineNodes;
 }
 
 /*!

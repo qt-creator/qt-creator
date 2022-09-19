@@ -28,6 +28,7 @@ public:
     };
     DynamicPropertiesModel(bool explicitSelection, AbstractView *parent);
     void bindingPropertyChanged(const BindingProperty &bindingProperty);
+    void abstractPropertyChanged(const AbstractProperty &bindingProperty);
     void variantPropertyChanged(const VariantProperty &variantProperty);
     void bindingRemoved(const BindingProperty &bindingProperty);
     void variantRemoved(const VariantProperty &variantProperty);
@@ -51,9 +52,13 @@ public:
     BindingProperty replaceVariantWithBinding(const PropertyName &name, bool copyValue = false);
     void resetProperty(const PropertyName &name);
 
+    void dispatchPropertyChanges(const AbstractProperty &abstractProperty);
+
     QmlDesigner::PropertyName unusedProperty(const QmlDesigner::ModelNode &modelNode);
 
     static bool isValueType(const TypeName &type);
+    static QVariant defaultValueForType(const TypeName &type);
+    static QString defaultExpressionForType(const TypeName &type);
 
 protected:
     void addProperty(const QVariant &propertyValue,
@@ -72,6 +77,7 @@ protected:
     void updateCustomData(int row, const AbstractProperty &property);
     int findRowForBindingProperty(const BindingProperty &bindingProperty) const;
     int findRowForVariantProperty(const VariantProperty &variantProperty) const;
+    int findRowForProperty(const AbstractProperty &abstractProperty) const;
 
     bool getExpressionStrings(const BindingProperty &bindingProperty, QString *sourceNode, QString *sourceProperty);
 

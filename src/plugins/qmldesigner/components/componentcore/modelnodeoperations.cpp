@@ -1616,6 +1616,34 @@ void editAnnotation(const SelectionContext &selectionContext)
     ModelNodeEditorProxy::fromModelNode<AnnotationEditor>(selectedNode);
 }
 
+void addMouseAreaFill(const SelectionContext &selectionContext)
+{
+    if (!selectionContext.isValid()) {
+        return;
+    }
+
+    if (!selectionContext.singleNodeIsSelected()) {
+        return;
+    }
+
+    selectionContext.view()->executeInTransaction("DesignerActionManager|addMouseAreaFill", [selectionContext]() {
+        ModelNode modelNode = selectionContext.currentSingleSelectedNode();
+        if (modelNode.isValid()) {
+            NodeMetaInfo itemMetaInfo = selectionContext.view()->model()->metaInfo("QtQuick.MouseArea", -1, -1);
+            QTC_ASSERT(itemMetaInfo.isValid(), return);
+
+            QmlDesigner::ModelNode mouseAreaNode =
+                selectionContext.view()->createModelNode("QtQuick.MouseArea", itemMetaInfo.majorVersion(), itemMetaInfo.minorVersion());
+
+            modelNode.defaultNodeListProperty().reparentHere(mouseAreaNode);
+            QmlItemNode mouseAreaItemNode(mouseAreaNode);
+            if (mouseAreaItemNode.isValid()) {
+                mouseAreaItemNode.anchors().fill();
+            }
+        }
+    });
+}
+
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode)
 {
     if (modelNode.isValid())

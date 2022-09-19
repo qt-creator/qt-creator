@@ -38,7 +38,7 @@
             identifying potential bottlenecks, especially in the evaluation
             of bindings.
 
-        \li \l{Checking Code Coverage}{Squish Coco}
+        \li \l{Checking Code Coverage}{Coco}
 
             Analyze the way an application runs as part of a test suite, for
             example, and use the results to make the tests more efficient and
