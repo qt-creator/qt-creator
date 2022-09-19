@@ -168,7 +168,8 @@ public:
 
     static Qt::CaseSensitivity caseSensitivity(const QString &str);
     static QRegularExpression createRegExp(const QString &text,
-                                           Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive);
+                                           Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive,
+                                           bool multiWord = false);
     static LocatorFilterEntry::HighlightInfo highlightInfo(const QRegularExpressionMatch &match,
         LocatorFilterEntry::HighlightInfo::DataType dataType = LocatorFilterEntry::HighlightInfo::DisplayName);
 

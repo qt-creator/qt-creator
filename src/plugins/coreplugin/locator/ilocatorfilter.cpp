@@ -224,11 +224,14 @@ Qt::CaseSensitivity ILocatorFilter::caseSensitivity(const QString &str)
 
 /*!
     Creates the search term \a text as a regular expression with case
-    sensitivity set to \a caseSensitivity.
+    sensitivity set to \a caseSensitivity. Pass true to \a multiWord if the pattern is
+    expected to contain spaces.
 */
-QRegularExpression ILocatorFilter::createRegExp(const QString &text, Qt::CaseSensitivity caseSensitivity)
+QRegularExpression ILocatorFilter::createRegExp(const QString &text,
+                                                Qt::CaseSensitivity caseSensitivity,
+                                                bool multiWord)
 {
-    return FuzzyMatcher::createRegExp(text, caseSensitivity);
+    return FuzzyMatcher::createRegExp(text, caseSensitivity, multiWord);
 }
 
 /*!

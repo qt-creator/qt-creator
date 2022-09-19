@@ -17,7 +17,7 @@
  * \return the regexp
  */
 QRegularExpression FuzzyMatcher::createRegExp(
-        const QString &pattern, FuzzyMatcher::CaseSensitivity caseSensitivity)
+        const QString &pattern, FuzzyMatcher::CaseSensitivity caseSensitivity, bool multiWord)
 {
     if (pattern.isEmpty())
         return QRegularExpression();
@@ -34,9 +34,10 @@ QRegularExpression FuzzyMatcher::createRegExp(
      * upper-case character. And any sequence of lower-case or upper case characters -
      * followed by an underscore can preceed a lower-case character.
      *
-     * Examples: (case sensitive mode)
-     *   gAC matches getActionController
-     *   gac matches get_action_controller
+     * Examples:
+     *   gAC matches getActionController (case sensitive mode)
+     *   gac matches get_action_controller (case sensitive mode)
+     *   gac matches Get Action Container (case insensitive multi word mode)
      *
      * It also implements the fully and first-letter-only case sensitivity.
      */
@@ -51,6 +52,10 @@ QRegularExpression FuzzyMatcher::createRegExp(
     const QLatin1String uppercaseWordContinuation("[a-z0-9_]*");
     const QLatin1String lowercaseWordContinuation("(?:[a-zA-Z0-9]*_)?");
     const QLatin1String upperSnakeWordContinuation("[A-Z0-9]*_?");
+
+    const QLatin1String multiWordFirst("\\b");
+    const QLatin1String multiWordContinuation("(?:.*?\\b)*?");
+
     keyRegExp += "(?:";
     for (const QChar &c : pattern) {
         if (!c.isLetterOrNumber()) {
@@ -60,6 +65,9 @@ QRegularExpression FuzzyMatcher::createRegExp(
             } else if (c == asterisk) {
                 keyRegExp += ".*";
                 plainRegExp += ").*(";
+            } else if (multiWord && c == QChar::Space) {
+                // ignore spaces in keyRegExp
+                plainRegExp += QRegularExpression::escape(c);
             } else {
                 const QString escaped = QRegularExpression::escape(c);
                 keyRegExp += '(' + escaped + ')';
@@ -67,26 +75,34 @@ QRegularExpression FuzzyMatcher::createRegExp(
             }
         } else if (caseSensitivity == CaseSensitivity::CaseInsensitive ||
             (caseSensitivity == CaseSensitivity::FirstLetterCaseSensitive && !first)) {
-
             const QString upper = QRegularExpression::escape(c.toUpper());
             const QString lower = QRegularExpression::escape(c.toLower());
-            keyRegExp += "(?:";
-            keyRegExp += first ? uppercaseWordFirst : uppercaseWordContinuation;
-            keyRegExp += '(' + upper + ')';
-            if (first) {
-                keyRegExp += '|' + lowercaseWordFirst + '(' + lower + ')';
+            if (multiWord) {
+                keyRegExp += first ? multiWordFirst : multiWordContinuation;
+                keyRegExp += '(' + upper + '|' + lower + ')';
             } else {
-                keyRegExp += '|' + lowercaseWordContinuation + '(' + lower + ')';
-                keyRegExp += '|' + upperSnakeWordContinuation + '(' + upper + ')';
+                keyRegExp += "(?:";
+                keyRegExp += first ? uppercaseWordFirst : uppercaseWordContinuation;
+                keyRegExp += '(' + upper + ')';
+                if (first) {
+                    keyRegExp += '|' + lowercaseWordFirst + '(' + lower + ')';
+                } else {
+                    keyRegExp += '|' + lowercaseWordContinuation + '(' + lower + ')';
+                    keyRegExp += '|' + upperSnakeWordContinuation + '(' + upper + ')';
+                }
+                keyRegExp += ')';
             }
-            keyRegExp += ')';
             plainRegExp += '[' + upper + lower + ']';
         } else {
             if (!first) {
+                if (multiWord)
+                    keyRegExp += multiWordContinuation;
                 if (c.isUpper())
                     keyRegExp += uppercaseWordContinuation;
                 else
                     keyRegExp += lowercaseWordContinuation;
+            } else if (multiWord) {
+                keyRegExp += multiWordFirst;
             }
             const QString escaped = QRegularExpression::escape(c);
             keyRegExp += escaped;
@@ -106,13 +122,14 @@ QRegularExpression FuzzyMatcher::createRegExp(
     Qt::CaseSensitivity.
  */
 QRegularExpression FuzzyMatcher::createRegExp(const QString &pattern,
-                                              Qt::CaseSensitivity caseSensitivity)
+                                              Qt::CaseSensitivity caseSensitivity,
+                                              bool multiWord)
 {
     const CaseSensitivity sensitivity = (caseSensitivity == Qt::CaseSensitive)
             ? CaseSensitivity::CaseSensitive
             : CaseSensitivity::CaseInsensitive;
 
-    return createRegExp(pattern, sensitivity);
+    return createRegExp(pattern, sensitivity, multiWord);
 }
 
 /*!

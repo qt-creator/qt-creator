@@ -30,9 +30,12 @@ public:
         QVector<int> lengths;
     };
 
+    static QRegularExpression createRegExp(
+        const QString &pattern,
+        CaseSensitivity caseSensitivity = CaseSensitivity::CaseInsensitive,
+        bool multiWord = false);
     static QRegularExpression createRegExp(const QString &pattern,
-            CaseSensitivity caseSensitivity = CaseSensitivity::CaseInsensitive);
-    static QRegularExpression createRegExp(const QString &pattern,
-                                           Qt::CaseSensitivity caseSensitivity);
+                                           Qt::CaseSensitivity caseSensitivity,
+                                           bool multiWord);
     static HighlightingPositions highlightingPositions(const QRegularExpressionMatch &match);
 };
