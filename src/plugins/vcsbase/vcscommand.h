@@ -116,6 +116,9 @@ public:
     CommandResult runCommand(const Utils::CommandLine &command, int timeoutS = 10);
     void cancel();
 
+    QString cleanedStdOut() const;
+    QString cleanedStdErr() const;
+
 signals:
     void stdOutText(const QString &);
     void stdErrText(const QString &);

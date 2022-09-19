@@ -372,6 +372,16 @@ void VcsCommand::cancel()
     emit terminate();
 }
 
+QString VcsCommand::cleanedStdOut() const
+{
+    return d->m_stdOut;
+}
+
+QString VcsCommand::cleanedStdErr() const
+{
+    return d->m_stdErr;
+}
+
 CommandResult VcsCommand::runCommand(const CommandLine &command, int timeoutS)
 {
     QtcProcess process;

@@ -50,7 +50,6 @@ public:
     FilePath m_vcsBinary;
     int m_vscTimeoutS;
     QString m_startupFile;
-    QString m_output;
     QString m_displayName;
     QPointer<VcsCommand> m_command;
     QFutureWatcher<QList<FileData>> *m_processWatcher = nullptr;
@@ -107,12 +106,11 @@ void VcsBaseDiffEditorControllerPrivate::cancelReload()
         delete m_processWatcher;
         m_processWatcher = nullptr;
     }
-
-    m_output = QString();
 }
 
 void VcsBaseDiffEditorControllerPrivate::commandFinished(bool success)
 {
+    const QString output = m_command->cleanedStdOut();
     // Don't delete here, as it is called from command finished signal.
     // Clear it only, as we may call runCommand() again from inside processCommandOutput overload.
     m_command.clear();
@@ -123,8 +121,7 @@ void VcsBaseDiffEditorControllerPrivate::commandFinished(bool success)
         return;
     }
 
-    // Pass a copy of m_output since processDiff() cleans the m_output
-    q->processCommandOutput(QString(m_output));
+    q->processCommandOutput(output);
 }
 
 /////////////////////
@@ -151,8 +148,6 @@ void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, uns
     d->m_command = VcsBaseClient::createVcsCommand(workingDirectory(), d->m_processEnvironment);
     d->m_command->setDisplayName(d->m_displayName);
     d->m_command->setCodec(codec ? codec : EditorManager::defaultTextCodec());
-    connect(d->m_command.data(), &VcsCommand::stdOutText,
-            this, [this](const QString &output) { d->m_output = output; });
     connect(d->m_command.data(), &VcsCommand::finished,
             this, [this](bool success) { d->commandFinished(success); });
     d->m_command->addFlags(flags);
