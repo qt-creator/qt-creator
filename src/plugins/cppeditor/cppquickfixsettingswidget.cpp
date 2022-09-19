@@ -78,6 +78,7 @@ e.g. name = "m_test_foo_":
     QObject::connect(this->ui->pushButton_removeCustomTemplate, &QPushButton::clicked, then);
     QObject::connect(this->ui->pushButton_addValueType, &QPushButton::clicked, then);
     QObject::connect(this->ui->pushButton_removeValueType, &QPushButton::clicked, then);
+    QObject::connect(this->ui->useAutoCheckBox, &QCheckBox::clicked, then);
     QObject::connect(this->ui->valueTypes, &QListWidget::itemChanged, then);
     QObject::connect(this->ui->returnByConstRefCheckBox, &QCheckBox::clicked, then);
     QObject::connect(this->ui->lineEdit_customTemplateAssignment, &QLineEdit::textEdited, then);
@@ -137,6 +138,7 @@ void CppQuickFixSettingsWidget::loadSettings(CppQuickFixSettings *settings)
     ui->lineEdit_memberVariableName->setText(settings->memberVariableNameTemplate);
     ui->checkBox_setterSlots->setChecked(settings->setterAsSlot);
     ui->checkBox_signalWithNewValue->setChecked(settings->signalWithNewValue);
+    ui->useAutoCheckBox->setChecked(settings->useAuto);
     ui->valueTypes->clear();
     for (const auto &valueType : qAsConst(settings->valueTypes)) {
         auto item = new QListWidgetItem(valueType, ui->valueTypes);
@@ -199,6 +201,7 @@ void CppQuickFixSettingsWidget::saveSettings(CppQuickFixSettings *settings)
     } else if (ui->radioButton_generateMissingNamespace->isChecked()) {
         settings->cppFileNamespaceHandling = CppQuickFixSettings::MissingNamespaceHandling::CreateMissing;
     }
+    settings->useAuto = ui->useAutoCheckBox->isChecked();
     settings->valueTypes.clear();
     for (int i = 0; i < ui->valueTypes->count(); ++i) {
         settings->valueTypes << ui->valueTypes->item(i)->text();

@@ -47,6 +47,7 @@ const char QUICK_FIX_SETTING_SIGNAL_WITH_NEW_VALUE[] = "SignalWithNewValue";
 const char QUICK_FIX_SETTING_SETTER_AS_SLOT[] = "SetterAsSlot";
 const char QUICK_FIX_SETTING_SETTER_PARAMETER_NAME[] = "SetterParameterName";
 const char QUICK_FIX_SETTING_CPP_FILE_NAMESPACE_HANDLING[] = "CppFileNamespaceHandling";
+const char QUICK_FIX_SETTING_USE_AUTO[] = "UseAutoInAssignToVar";
 const char QUICK_FIX_SETTING_MEMBER_VARIABEL_NAME_TEMPLATE[] = "MemberVariableNameTemplate";
 const char QUICK_FIX_SETTING_VALUE_TYPES[] = "ValueTypes";
 const char QUICK_FIX_SETTING_RETURN_BY_CONST_REF[] = "ReturnNonValueTypesByConstRef";

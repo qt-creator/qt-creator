@@ -75,6 +75,8 @@ void CppQuickFixSettings::loadSettingsFrom(QSettings *s)
         s->value(Constants::QUICK_FIX_SETTING_CPP_FILE_NAMESPACE_HANDLING,
                  static_cast<int>(def.cppFileNamespaceHandling))
             .toInt());
+    useAuto = s->value(Constants::QUICK_FIX_SETTING_USE_AUTO, def.useAuto).toBool();
+
     memberVariableNameTemplate = s->value(Constants::QUICK_FIX_SETTING_MEMBER_VARIABEL_NAME_TEMPLATE,
                                           def.memberVariableNameTemplate)
                                      .toString();
@@ -169,6 +171,10 @@ void CppQuickFixSettings::saveSettingsTo(QSettings *s)
                                      Constants::QUICK_FIX_SETTING_SETTER_AS_SLOT,
                                      setterAsSlot,
                                      def.setterAsSlot);
+    QtcSettings::setValueWithDefault(s,
+                                     Constants::QUICK_FIX_SETTING_USE_AUTO,
+                                     useAuto,
+                                     def.useAuto);
     QtcSettings::setValueWithDefault(s,
                                      Constants::QUICK_FIX_SETTING_VALUE_TYPES,
                                      valueTypes,

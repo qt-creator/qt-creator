@@ -1614,8 +1614,10 @@ private:
         CppRefactoringChanges refactoring(snapshot());
         CppRefactoringFilePtr currentFile = refactoring.file(filePath());
         Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
+        const auto settings = CppQuickFixProjectsSettings::getQuickFixSettings(
+                    ProjectExplorer::ProjectTree::currentProject());
 
-        if (currentFile->cppDocument()->languageFeatures().cxx11Enabled)
+        if (currentFile->cppDocument()->languageFeatures().cxx11Enabled && settings->useAuto)
             return "auto " + oo.prettyName(simpleNameAST->name);
 
         TypeOfExpression typeOfExpression;
@@ -6764,7 +6766,9 @@ private:
 
     QString deduceType() const
     {
-        if (m_file->cppDocument()->languageFeatures().cxx11Enabled)
+        const auto settings = CppQuickFixProjectsSettings::getQuickFixSettings(
+                    ProjectExplorer::ProjectTree::currentProject());
+        if (m_file->cppDocument()->languageFeatures().cxx11Enabled && settings->useAuto)
             return "auto " + m_originalName;
 
         TypeOfExpression typeOfExpression;

@@ -130,6 +130,7 @@ public:
     QString memberVariableNameTemplate = "m_<name>";
     QStringList valueTypes; // if contains use value. Ignores namespaces and template parameters
     bool returnByConstRef = false;
+    bool useAuto = true;
     std::vector<CustomTemplate> customTemplates;
 };
 } // namespace CppEditor
