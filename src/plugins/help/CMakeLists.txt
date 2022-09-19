@@ -54,6 +54,7 @@ extend_qtc_plugin(Help
   SOURCES
     webenginehelpviewer.cpp
     webenginehelpviewer.h
+  EXPLICIT_MOC webenginehelpviewer.h
 )
 
 extend_qtc_plugin(Help
