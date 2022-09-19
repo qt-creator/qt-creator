@@ -262,11 +262,6 @@ void VcsCommandPrivate::processDone()
         startNextJob();
         return;
     }
-    if (!m_progressiveOutput) {
-        emit q->stdOutText(m_stdOut);
-        if (!m_stdErr.isEmpty())
-            emit q->stdErrText(m_stdErr);
-    }
     emit q->finished(success);
     if (!success)
         m_futureInterface.reportCanceled();
