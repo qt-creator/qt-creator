@@ -1688,11 +1688,7 @@ QString QtcProcess::stdOut() const
 
 QString QtcProcess::stdErr() const
 {
-    // FIXME: The tighter check below is actually good theoretically, but currently
-    // VcsCommand::runFullySynchronous triggers it and disentangling there
-    // is not trivial. So weaken it a bit for now.
-    //QTC_CHECK(d->m_stdErr.keepRawData);
-    QTC_CHECK(d->m_stdErr.keepRawData || d->m_stdErr.rawData.isEmpty());
+    QTC_CHECK(d->m_stdErr.keepRawData);
     return d->m_codec->toUnicode(d->m_stdErr.rawData);
 }
 
