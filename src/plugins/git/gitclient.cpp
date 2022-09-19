@@ -320,7 +320,7 @@ void GitBaseDiffEditorController::updateBranchList()
 
     VcsCommand *command = m_instance->vcsExec(baseDirectory(),
                           {"branch", noColorOption, "-a", "--contains", revision});
-    connect(command, &VcsCommand::finished, this, [this, command] {
+    connect(command, &VcsCommand::done, this, [this, command] {
         const QString remotePrefix = "remotes/";
         const QString localPrefix = "<Local>";
         const int prefixLength = remotePrefix.length();
@@ -731,7 +731,7 @@ public:
         handler->setParent(command); // delete when command goes out of scope
 
         command->addFlags(VcsCommand::ExpectRepoChanges);
-        connect(command, &VcsCommand::finished, handler, [handler, command] {
+        connect(command, &VcsCommand::done, handler, [handler, command] {
             handler->readStdOut(command->cleanedStdOut());
             handler->readStdErr(command->cleanedStdErr());
         });
@@ -1133,7 +1133,7 @@ void GitClient::status(const FilePath &workingDirectory) const
 {
     VcsOutputWindow::setRepository(workingDirectory);
     VcsCommand *command = vcsExec(workingDirectory, {"status", "-u"}, nullptr, true);
-    connect(command, &VcsCommand::finished, VcsOutputWindow::instance(),
+    connect(command, &VcsCommand::done, VcsOutputWindow::instance(),
             &VcsOutputWindow::clearRepository, Qt::QueuedConnection);
 }
 
@@ -1378,11 +1378,10 @@ VcsCommand *GitClient::checkout(const FilePath &workingDirectory, const QString 
     VcsCommand *command = vcsExec(
                 workingDirectory, arguments, nullptr, true,
                 VcsCommand::ExpectRepoChanges | VcsCommand::ShowSuccessMessage);
-    connect(command, &VcsCommand::finished,
-            this, [this, workingDirectory, stashMode](bool success) {
+    connect(command, &VcsCommand::done, this, [this, workingDirectory, stashMode, command] {
         if (stashMode == StashMode::TryStash)
             endStashScope(workingDirectory);
-        if (success)
+        if (command->result() == ProcessResult::FinishedWithSuccess)
             updateSubmodulesIfNeeded(workingDirectory, true);
     });
     return command;
@@ -1490,8 +1489,8 @@ void GitClient::removeStaleRemoteBranches(const FilePath &workingDirectory, cons
     VcsCommand *command = vcsExec(workingDirectory, arguments, nullptr, true,
                                   VcsCommand::ShowSuccessMessage);
 
-    connect(command, &VcsCommand::finished, this, [workingDirectory](bool success) {
-        if (success)
+    connect(command, &VcsCommand::done, this, [workingDirectory, command] {
+        if (command->result() == ProcessResult::FinishedWithSuccess)
             GitPlugin::updateBranches(workingDirectory);
     });
 }
@@ -2319,7 +2318,7 @@ void GitClient::updateSubmodulesIfNeeded(const FilePath &workingDirectory, bool 
 
     VcsCommand *cmd = vcsExec(workingDirectory, {"submodule", "update"}, nullptr, true,
                               VcsCommand::ExpectRepoChanges);
-    connect(cmd, &VcsCommand::finished, this, &GitClient::finishSubmoduleUpdate);
+    connect(cmd, &VcsCommand::done, this, &GitClient::finishSubmoduleUpdate);
 }
 
 void GitClient::finishSubmoduleUpdate()
@@ -3095,8 +3094,8 @@ void GitClient::fetch(const FilePath &workingDirectory, const QString &remote)
     QStringList const arguments = {"fetch", (remote.isEmpty() ? "--all" : remote)};
     VcsCommand *command = vcsExec(workingDirectory, arguments, nullptr, true,
                                   VcsCommand::ShowSuccessMessage);
-    connect(command, &VcsCommand::finished, this, [workingDirectory](bool success) {
-        if (success)
+    connect(command, &VcsCommand::done, this, [workingDirectory, command] {
+        if (command->result() == ProcessResult::FinishedWithSuccess)
             GitPlugin::updateBranches(workingDirectory);
     });
 }
@@ -3126,8 +3125,8 @@ void GitClient::pull(const FilePath &workingDirectory, bool rebase)
     }
 
     VcsCommand *command = vcsExecAbortable(workingDirectory, arguments, rebase, abortCommand);
-    connect(command, &VcsCommand::finished, this, [this, workingDirectory](bool success) {
-        if (success)
+    connect(command, &VcsCommand::done, this, [this, workingDirectory, command] {
+        if (command->result() == ProcessResult::FinishedWithSuccess)
             updateSubmodulesIfNeeded(workingDirectory, true);
     }, Qt::QueuedConnection);
 }
@@ -3263,11 +3262,11 @@ public:
                                                  nullptr, true, VcsCommand::ShowSuccessMessage);
         // Make command a parent of this in order to delete this when command is deleted
         setParent(command);
-        connect(command, &VcsCommand::finished, this, [=](bool success) {
+        connect(command, &VcsCommand::done, this, [=] {
             QString pushFallbackCommand;
             const PushFailure pushFailure = handleError(command->cleanedStdErr(),
                                                         &pushFallbackCommand);
-            if (success) {
+            if (command->result() == ProcessResult::FinishedWithSuccess) {
                 GitPlugin::updateCurrentBranch();
                 return;
             }
@@ -3288,8 +3287,8 @@ public:
                 VcsCommand *rePushCommand = m_gitClient->vcsExec(workingDir,
                            QStringList({"push", "--force-with-lease"}) + pushArgs,
                            nullptr, true, VcsCommand::ShowSuccessMessage);
-                connect(rePushCommand, &VcsCommand::finished, this, [](bool success) {
-                    if (success)
+                connect(rePushCommand, &VcsCommand::done, this, [rePushCommand] {
+                    if (rePushCommand->result() == ProcessResult::FinishedWithSuccess)
                         GitPlugin::updateCurrentBranch();
                 });
                 return;
@@ -3310,8 +3309,8 @@ public:
                     pushFallbackCommand.split(' ', Qt::SkipEmptyParts);
             VcsCommand *rePushCommand = m_gitClient->vcsExec(workingDir,
                     fallbackCommandParts.mid(1), nullptr, true, VcsCommand::ShowSuccessMessage);
-            connect(rePushCommand, &VcsCommand::finished, this, [workingDir](bool success) {
-                if (success)
+            connect(rePushCommand, &VcsCommand::done, this, [workingDir, rePushCommand] {
+                if (rePushCommand->result() == ProcessResult::FinishedWithSuccess)
                     GitPlugin::updateBranches(workingDir);
             });
         });

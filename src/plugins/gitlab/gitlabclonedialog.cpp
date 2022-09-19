@@ -40,6 +40,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
+using namespace Utils;
 using namespace VcsBase;
 
 namespace GitLab {
@@ -55,12 +56,12 @@ GitLabCloneDialog::GitLabCloneDialog(const Project &project, QWidget *parent)
     m_repositoryCB = new QComboBox(this);
     m_repositoryCB->addItems({project.sshUrl, project.httpUrl});
     form->addRow(tr("Repository"), m_repositoryCB);
-    m_pathChooser = new Utils::PathChooser(this);
-    m_pathChooser->setExpectedKind(Utils::PathChooser::ExistingDirectory);
+    m_pathChooser = new PathChooser(this);
+    m_pathChooser->setExpectedKind(PathChooser::ExistingDirectory);
     form->addRow(tr("Path"), m_pathChooser);
-    m_directoryLE = new Utils::FancyLineEdit(this);
-    m_directoryLE->setValidationFunction([this](Utils::FancyLineEdit *e, QString *msg) {
-        const Utils::FilePath fullPath = m_pathChooser->filePath().pathAppended(e->text());
+    m_directoryLE = new FancyLineEdit(this);
+    m_directoryLE->setValidationFunction([this](FancyLineEdit *e, QString *msg) {
+        const FilePath fullPath = m_pathChooser->filePath().pathAppended(e->text());
         bool alreadyExists = fullPath.exists();
         if (alreadyExists && msg)
             *msg = tr("Path \"%1\" already exists.").arg(fullPath.toUserOutput());
@@ -75,7 +76,7 @@ GitLabCloneDialog::GitLabCloneDialog(const Project &project, QWidget *parent)
     m_cloneOutput->setReadOnly(true);
     centerLayout->addWidget(m_cloneOutput);
     layout->addLayout(centerLayout);
-    m_infoLabel = new Utils::InfoLabel(this);
+    m_infoLabel = new InfoLabel(this);
     layout->addWidget(m_infoLabel);
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel, this);
     m_cloneButton = new QPushButton(tr("Clone"), this);
@@ -91,11 +92,11 @@ GitLabCloneDialog::GitLabCloneDialog(const Project &project, QWidget *parent)
     QTC_ASSERT(slashIndex > 0, return);
     m_directoryLE->setText(path.mid(slashIndex + 1));
 
-    connect(m_pathChooser, &Utils::PathChooser::textChanged, this, [this] {
+    connect(m_pathChooser, &PathChooser::textChanged, this, [this] {
         m_directoryLE->validate();
         GitLabCloneDialog::updateUi();
     });
-    connect(m_directoryLE, &Utils::FancyLineEdit::textChanged, this, &GitLabCloneDialog::updateUi);
+    connect(m_directoryLE, &FancyLineEdit::textChanged, this, &GitLabCloneDialog::updateUi);
     connect(m_cloneButton, &QPushButton::clicked, this, &GitLabCloneDialog::cloneProject);
     connect(m_cancelButton, &QPushButton::clicked,
             this, &GitLabCloneDialog::cancel);
@@ -118,10 +119,10 @@ void GitLabCloneDialog::updateUi()
     m_cloneButton->setEnabled(pathValid && directoryValid);
     if (!pathValid) {
         m_infoLabel->setText(m_pathChooser->errorMessage());
-        m_infoLabel->setType(Utils::InfoLabel::Error);
+        m_infoLabel->setType(InfoLabel::Error);
     } else if (!directoryValid) {
         m_infoLabel->setText(m_directoryLE->errorMessage());
-        m_infoLabel->setType(Utils::InfoLabel::Error);
+        m_infoLabel->setType(InfoLabel::Error);
     }
     m_infoLabel->setVisible(!pathValid || !directoryValid);
 }
@@ -129,14 +130,14 @@ void GitLabCloneDialog::updateUi()
 void GitLabCloneDialog::cloneProject()
 {
     VcsBasePluginPrivate *vc = static_cast<VcsBasePluginPrivate *>(
-                Core::VcsManager::versionControl(Utils::Id::fromString("G.Git")));
+                Core::VcsManager::versionControl(Id::fromString("G.Git")));
     QTC_ASSERT(vc, return);
     const QStringList extraArgs = m_submodulesCB->isChecked() ? QStringList{ "--recursive" }
                                                               : QStringList{};
     m_command = vc->createInitialCheckoutCommand(m_repositoryCB->currentText(),
                                                  m_pathChooser->absoluteFilePath(),
                                                  m_directoryLE->text(), extraArgs);
-    const Utils::FilePath workingDirectory = m_pathChooser->absoluteFilePath();
+    const FilePath workingDirectory = m_pathChooser->absoluteFilePath();
     m_command->setProgressiveOutput(true);
     connect(m_command, &VcsCommand::stdOutText, this, [this](const QString &text) {
         m_cloneOutput->appendPlainText(text);
@@ -144,7 +145,9 @@ void GitLabCloneDialog::cloneProject()
     connect(m_command, &VcsCommand::stdErrText, this, [this](const QString &text) {
         m_cloneOutput->appendPlainText(text);
     });
-    connect(m_command, &VcsCommand::finished, this, &GitLabCloneDialog::cloneFinished);
+    connect(m_command, &VcsCommand::done, this, [this] {
+        cloneFinished(m_command->result() == ProcessResult::FinishedWithSuccess);
+    });
     QApplication::setOverrideCursor(Qt::WaitCursor);
 
     m_cloneOutput->clear();
@@ -166,12 +169,12 @@ void GitLabCloneDialog::cancel()
     }
 }
 
-static Utils::FilePaths scanDirectoryForFiles(const Utils::FilePath &directory)
+static FilePaths scanDirectoryForFiles(const FilePath &directory)
 {
-    Utils::FilePaths result;
-    const Utils::FilePaths entries = directory.dirEntries(QDir::AllEntries | QDir::NoDotAndDotDot);
+    FilePaths result;
+    const FilePaths entries = directory.dirEntries(QDir::AllEntries | QDir::NoDotAndDotDot);
 
-    for (const Utils::FilePath &entry : entries) {
+    for (const FilePath &entry : entries) {
         if (entry.isDir())
             result.append(scanDirectoryForFiles(entry));
         else
@@ -194,21 +197,19 @@ void GitLabCloneDialog::cloneFinished(bool success)
         m_cloneOutput->appendPlainText(tr("Cloning succeeded.") + emptyLine);
         m_cloneButton->setEnabled(false);
 
-        const Utils::FilePath base = m_pathChooser->filePath().pathAppended(m_directoryLE->text());
-        Utils::FilePaths filesWeMayOpen
-                = Utils::filtered(scanDirectoryForFiles(base), [](const Utils::FilePath &f) {
-            return ProjectExplorer::ProjectManager::canOpenProjectForMimeType(
-                        Utils::mimeTypeForFile(f));
+        const FilePath base = m_pathChooser->filePath().pathAppended(m_directoryLE->text());
+        FilePaths filesWeMayOpen = filtered(scanDirectoryForFiles(base), [](const FilePath &f) {
+            return ProjectExplorer::ProjectManager::canOpenProjectForMimeType(mimeTypeForFile(f));
         });
 
         // limit the files to the most top-level item(s)
         int minimum = std::numeric_limits<int>::max();
-        for (const Utils::FilePath &f : filesWeMayOpen) {
+        for (const FilePath &f : filesWeMayOpen) {
             int parentCount = f.toString().count('/');
             if (parentCount < minimum)
                 minimum = parentCount;
         }
-        filesWeMayOpen = Utils::filtered(filesWeMayOpen, [minimum](const Utils::FilePath &f) {
+        filesWeMayOpen = filtered(filesWeMayOpen, [minimum](const FilePath &f) {
             return f.toString().count('/') == minimum;
         });
 
@@ -219,8 +220,7 @@ void GitLabCloneDialog::cloneFinished(bool success)
                                     "opened. Try importing the project as a generic project."));
             accept();
         } else {
-            const QStringList pFiles = Utils::transform(filesWeMayOpen,
-                                                        [base](const Utils::FilePath &f) {
+            const QStringList pFiles = Utils::transform(filesWeMayOpen, [base](const FilePath &f) {
                 return f.relativePath(base).toUserOutput();
             });
             bool ok = false;
@@ -234,8 +234,7 @@ void GitLabCloneDialog::cloneFinished(bool success)
         }
     } else {
         m_cloneOutput->appendPlainText(tr("Cloning failed.") + emptyLine);
-        const Utils::FilePath fullPath = m_pathChooser->filePath()
-                .pathAppended(m_directoryLE->text());
+        const FilePath fullPath = m_pathChooser->filePath().pathAppended(m_directoryLE->text());
         fullPath.removeRecursively();
         m_cloneButton->setEnabled(true);
         m_cancelButton->setEnabled(true);

@@ -365,7 +365,9 @@ void VcsCommandPage::start(VcsCommand *command)
     connect(command, &VcsCommand::stdErrText, this, [this](const QString &text) {
         m_formatter->appendMessage(text, StdErrFormat);
     });
-    connect(command, &VcsCommand::finished, this, &VcsCommandPage::finished);
+    connect(command, &VcsCommand::done, this, [this] {
+        finished(m_command->result() == ProcessResult::FinishedWithSuccess);
+    });
     QApplication::setOverrideCursor(Qt::WaitCursor);
     m_logPlainTextEdit->clear();
     m_overwriteOutput = false;

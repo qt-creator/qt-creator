@@ -148,8 +148,9 @@ void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, uns
     d->m_command = VcsBaseClient::createVcsCommand(workingDirectory(), d->m_processEnvironment);
     d->m_command->setDisplayName(d->m_displayName);
     d->m_command->setCodec(codec ? codec : EditorManager::defaultTextCodec());
-    connect(d->m_command.data(), &VcsCommand::finished,
-            this, [this](bool success) { d->commandFinished(success); });
+    connect(d->m_command.data(), &VcsCommand::done, this, [this] {
+        d->commandFinished(d->m_command->result() == ProcessResult::FinishedWithSuccess);
+    });
     d->m_command->addFlags(flags);
 
     for (const QStringList &arg : args) {
