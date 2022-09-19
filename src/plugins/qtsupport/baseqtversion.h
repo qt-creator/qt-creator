@@ -4,7 +4,6 @@
 #pragma once
 
 #include "qtsupport_global.h"
-#include "qversionnumber.h"
 
 #include <utils/fileutils.h>
 #include <utils/macroexpander.h>
@@ -15,6 +14,7 @@
 #include <QSet>
 #include <QStringList>
 #include <QVariantMap>
+#include <QVersionNumber>
 
 QT_BEGIN_NAMESPACE
 class ProFileEvaluator;
