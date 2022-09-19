@@ -731,8 +731,10 @@ public:
         handler->setParent(command); // delete when command goes out of scope
 
         command->addFlags(VcsCommand::ExpectRepoChanges);
-        connect(command, &VcsCommand::stdOutText, handler, &ConflictHandler::readStdOut);
-        connect(command, &VcsCommand::stdErrText, handler, &ConflictHandler::readStdErr);
+        connect(command, &VcsCommand::finished, handler, [handler, command] {
+            handler->readStdOut(command->cleanedStdOut());
+            handler->readStdErr(command->cleanedStdErr());
+        });
     }
 
     static void handleResponse(const VcsBase::CommandResult &result,
