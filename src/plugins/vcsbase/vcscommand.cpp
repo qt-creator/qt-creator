@@ -264,7 +264,6 @@ void VcsCommandPrivate::processDone()
         startNextJob();
         return;
     }
-    emit q->finished(success);
     emit q->done();
     if (!success)
         m_futureInterface.reportCanceled();

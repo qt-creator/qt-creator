@@ -123,7 +123,6 @@ public:
 signals:
     void stdOutText(const QString &);
     void stdErrText(const QString &);
-    void finished(bool success);
     void done();
 
     void terminate(); // Internal
