@@ -170,7 +170,7 @@ private:
     IDevice::ConstPtr m_device;
 
     QtcProcess m_process;
-    qint64 m_remotePID = -1;
+    qint64 m_remotePID = 0;
     bool m_hasReceivedFirstOutput = false;
 };
 
@@ -273,6 +273,7 @@ qint64 DockerProcessImpl::write(const QByteArray &data)
 
 void DockerProcessImpl::sendControlSignal(ControlSignal controlSignal)
 {
+    QTC_ASSERT(m_remotePID, return);
     int signal = controlSignalToInt(controlSignal);
     m_devicePrivate->runInShell(
         {"kill", {QString("-%1").arg(signal), QString("%2").arg(m_remotePID)}});
