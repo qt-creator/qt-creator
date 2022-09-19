@@ -80,10 +80,10 @@ WidgetInfo StatesEditorView::widgetInfo()
         m_statesEditorWidget = new StatesEditorWidget(this, m_statesEditorModel.data());
 
     return createWidgetInfo(m_statesEditorWidget.data(),
-                            QLatin1String("StatesEditorNew"),
+                            "StatesEditor",
                             WidgetInfo::BottomPane,
                             0,
-                            tr("States New"));
+                            tr("States"));
 }
 
 void StatesEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)

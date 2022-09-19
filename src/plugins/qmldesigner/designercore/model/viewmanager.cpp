@@ -58,6 +58,14 @@
 
 namespace QmlDesigner {
 
+static bool useOldStatesEditor()
+{
+    return QmlDesignerPlugin::instance()
+        ->settings()
+        .value(DesignerSettingsKey::OLD_STATES_EDITOR)
+        .toBool();
+}
+
 static Q_LOGGING_CATEGORY(viewBenchmark, "qtc.viewmanager.attach", QtWarningMsg)
 
 class ViewManagerData
@@ -166,26 +174,30 @@ void ViewManager::detachRewriterView()
 
 void ViewManager::switchStateEditorViewToBaseState()
 {
-    if (d->statesEditorView.isAttached()) {
-        d->savedState = d->statesEditorView.currentState();
-        d->statesEditorView.setCurrentState(d->statesEditorView.baseState());
-    }
-
-    // TODO Settings branch
-    if (d->newStatesEditorView.isAttached()) {
-        d->savedState = d->newStatesEditorView.currentState();
-        d->newStatesEditorView.setCurrentState(d->newStatesEditorView.baseState());
+    if (useOldStatesEditor()) {
+        if (d->statesEditorView.isAttached()) {
+            d->savedState = d->statesEditorView.currentState();
+            d->statesEditorView.setCurrentState(d->statesEditorView.baseState());
+        }
+    } else {
+        // TODO remove old statesview
+        if (d->newStatesEditorView.isAttached()) {
+            d->savedState = d->newStatesEditorView.currentState();
+            d->newStatesEditorView.setCurrentState(d->newStatesEditorView.baseState());
+        }
     }
 }
 
 void ViewManager::switchStateEditorViewToSavedState()
 {
-    if (d->savedState.isValid() && d->statesEditorView.isAttached())
-        d->statesEditorView.setCurrentState(d->savedState);
-
-    // TODO Settings branch
-    if (d->savedState.isValid() && d->newStatesEditorView.isAttached())
-        d->newStatesEditorView.setCurrentState(d->savedState);
+    if (useOldStatesEditor()) {
+        if (d->savedState.isValid() && d->statesEditorView.isAttached())
+            d->statesEditorView.setCurrentState(d->savedState);
+    } else {
+        // TODO remove old statesview
+        if (d->savedState.isValid() && d->newStatesEditorView.isAttached())
+            d->newStatesEditorView.setCurrentState(d->savedState);
+    }
 }
 
 QList<AbstractView *> ViewManager::views() const
@@ -211,9 +223,16 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->newStatesEditorView, // TODO
                                   &d->designerActionManagerView};
 
-    if (QmlDesignerPlugin::instance()->settings().value(
-                DesignerSettingsKey::ENABLE_DEBUGVIEW).toBool())
-         list.append(&d->debugView);
+    if (useOldStatesEditor())
+        list.removeAll(&d->newStatesEditorView);
+    else
+        list.removeAll(&d->statesEditorView);
+
+    if (QmlDesignerPlugin::instance()
+            ->settings()
+            .value(DesignerSettingsKey::ENABLE_DEBUGVIEW)
+            .toBool())
+        list.append(&d->debugView);
 
     return list;
 }
@@ -343,8 +362,11 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->propertyEditorView.widgetInfo());
     widgetInfoList.append(d->materialEditorView.widgetInfo());
     widgetInfoList.append(d->materialBrowserView.widgetInfo());
-    widgetInfoList.append(d->statesEditorView.widgetInfo());
-    widgetInfoList.append(d->newStatesEditorView.widgetInfo()); // TODO
+    if (useOldStatesEditor())
+        widgetInfoList.append(d->statesEditorView.widgetInfo());
+    else
+        widgetInfoList.append(d->newStatesEditorView.widgetInfo());
+
     if (d->debugView.hasWidget())
         widgetInfoList.append(d->debugView.widgetInfo());
 

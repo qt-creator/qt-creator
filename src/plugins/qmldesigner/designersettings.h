@@ -74,6 +74,7 @@ const char ALWAYS_DESIGN_MODE[] = "AlwaysDesignMode";
 const char DISABLE_ITEM_LIBRARY_UPDATE_TIMER[] = "DisableItemLibraryUpdateTimer";
 const char ASK_BEFORE_DELETING_ASSET[] = "AskBeforeDeletingAsset";
 const char SMOOTH_RENDERING[] = "SmoothRendering";
+const char OLD_STATES_EDITOR[] = "OldStatesEditor";
 }
 
 class QMLDESIGNERCORE_EXPORT DesignerSettings : public QHash<QByteArray, QVariant>
