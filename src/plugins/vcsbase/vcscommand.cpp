@@ -106,6 +106,7 @@ public:
     std::unique_ptr<QtcProcess> m_process;
     QString m_stdOut;
     QString m_stdErr;
+    ProcessResult m_result = ProcessResult::StartFailed;
     QFutureInterface<void> m_futureInterface;
 
     unsigned m_flags = 0;
@@ -255,6 +256,7 @@ void VcsCommandPrivate::processDone()
     handleDone(m_process.get());
     m_stdOut += m_process->cleanedStdOut();
     m_stdErr += m_process->cleanedStdErr();
+    m_result = m_process->result();
     ++m_currentJob;
     const bool success = m_process->result() == ProcessResult::FinishedWithSuccess;
     if (m_currentJob < m_jobs.count() && success) {
@@ -263,6 +265,7 @@ void VcsCommandPrivate::processDone()
         return;
     }
     emit q->finished(success);
+    emit q->done();
     if (!success)
         m_futureInterface.reportCanceled();
     cleanup();
@@ -375,6 +378,11 @@ QString VcsCommand::cleanedStdOut() const
 QString VcsCommand::cleanedStdErr() const
 {
     return d->m_stdErr;
+}
+
+ProcessResult VcsCommand::result() const
+{
+    return d->m_result;
 }
 
 CommandResult VcsCommand::runCommand(const CommandLine &command, int timeoutS)
