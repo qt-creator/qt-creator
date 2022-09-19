@@ -45,6 +45,7 @@
 #include <qmldesignerplugin.h>
 #endif
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QRegularExpression>
@@ -606,6 +607,18 @@ QList<ModelNode> QmlObjectNode::allTimelines() const
     }
 
     return timelineNodes;
+}
+
+QList<ModelNode> QmlObjectNode::getAllConnections() const
+{
+    if (!isValid())
+        return {};
+
+    auto list = view()->allModelNodesOfType("QtQuick.Connections");
+    return Utils::filtered(list, [this](const ModelNode &connection) {
+        return connection.hasBindingProperty("target")
+               && connection.bindingProperty("target").resolveToModelNode() == modelNode();
+    });
 }
 
 /*!
