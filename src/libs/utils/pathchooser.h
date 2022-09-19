@@ -128,9 +128,6 @@ public:
     void setOpenTerminalHandler(const std::function<void()> &openTerminal);
     std::function<void()> openTerminalHandler() const;
 
-    // Deprecated. Use filePath().toString() or better suitable conversions.
-    QString path() const { return filePath().toString(); }
-
     // this sets the placeHolderText to defaultValue and enables to use this as
     // input value during validation if the real value is empty
     // setting an empty QString will disable this and clear the placeHolderText
@@ -153,6 +150,10 @@ signals:
     void returnPressed();
 
 private:
+    // Deprecated, only used in property getter.
+    // Use filePath().toString() or better suitable conversions.
+    QString path() const { return filePath().toString(); }
+
     bool validatePath(FancyLineEdit *edit, QString *errorMessage) const;
     // Returns overridden title or the one from <title>
     QString makeDialogTitle(const QString &title);
