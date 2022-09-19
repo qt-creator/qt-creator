@@ -213,6 +213,9 @@ private:
     void setPath(QStringView path);
     void setFromString(const QString &filepath);
 
+    static int rootLength(const QStringView path);
+    static int schemeAndHostLength(const QStringView path);
+
     [[nodiscard]] QString mapToDevicePath() const;
     [[nodiscard]] QString encodedHost() const;
 

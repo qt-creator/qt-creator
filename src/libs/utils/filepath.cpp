@@ -652,6 +652,53 @@ FilePath FilePath::withExecutableSuffix() const
     return withNewPath(OsSpecificAspects::withExecutableSuffix(osType(), path()));
 }
 
+static bool startsWithWindowsDriveLetterAndSlash(QStringView path)
+{
+    return path.size() > 2 && (path[1] == ':' && path[2] == '/' && isWindowsDriveLetter(path[0]));
+}
+
+int FilePath::rootLength(const QStringView path)
+{
+    if (path.size() == 0)
+        return 0;
+
+    if (path.size() == 1)
+        return path[0] == '/' ? 1 : 0;
+
+    if (path[0] == '/' && path[1] == '/') { // UNC, FIXME: Incomplete
+        if (path.size() == 2)
+            return 2; // case deviceless UNC root - assuming there's such a thing.
+        const int pos = path.indexOf('/', 2);
+        if (pos == -1)
+            return path.size(); // case   //localhost
+        return pos + 1;     // case   //localhost/*
+    }
+
+    if (startsWithWindowsDriveLetterAndSlash(path))
+        return 3; // FIXME-ish: same assumption as elsewhere: we assume "x:/" only ever appears as root
+
+    if (path[0] == '/')
+        return 1;
+
+    return 0;
+}
+
+int FilePath::schemeAndHostLength(const QStringView path)
+{
+    static const QLatin1String colonSlashSlash("://");
+
+    const int sep = path.indexOf(colonSlashSlash);
+    if (sep == -1)
+        return 0;
+
+    const int pos = path.indexOf('/', sep + 3);
+    if (pos == -1) // Just   scheme://host
+        return path.size();
+
+    return pos + 1;  // scheme://host/ plus something
+}
+
+
 /// Find the parent directory of a given directory.
 
 /// Returns an empty FilePath if the current directory is already

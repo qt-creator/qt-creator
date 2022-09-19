@@ -62,6 +62,10 @@ private slots:
     void relativeChildPath();
     void bytesAvailableFromDF_data();
     void bytesAvailableFromDF();
+    void rootLength_data();
+    void rootLength();
+    void schemeAndHostLength_data();
+    void schemeAndHostLength();
 
     void asyncLocalCopy();
     void startsWithDriveLetter();
@@ -287,6 +291,64 @@ void tst_fileutils::relativePath()
     FilePath actualPath = FilePath::fromString(rootPath + "/" + relative)
                               .relativePath(FilePath::fromString(rootPath + "/" + anchor));
     QCOMPARE(actualPath.toString(), result);
+}
+
+void tst_fileutils::rootLength_data()
+{
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<int>("result");
+
+    QTest::newRow("empty") << "" << 0;
+    QTest::newRow("slash") << "/" << 1;
+    QTest::newRow("slash-rest") << "/abc" << 1;
+    QTest::newRow("rest") << "abc" << 0;
+    QTest::newRow("drive-slash") << "x:/" << 3;
+    QTest::newRow("drive-rest") << "x:abc" << 0;
+    QTest::newRow("drive-slash-rest") << "x:/abc" << 3;
+
+    QTest::newRow("unc-root") << "//" << 2;
+    QTest::newRow("unc-localhost-unfinished") << "//localhost" << 11;
+    QTest::newRow("unc-localhost") << "//localhost/" << 12;
+    QTest::newRow("unc-localhost-rest") << "//localhost/abs" << 12;
+    QTest::newRow("unc-localhost-drive") << "//localhost/c$" << 12;
+    QTest::newRow("unc-localhost-drive-slash") << "//localhost//c$/" << 12;
+    QTest::newRow("unc-localhost-drive-slash-rest") << "//localhost//c$/x" << 12;
+}
+
+void tst_fileutils::rootLength()
+{
+    QFETCH(QString, path);
+    QFETCH(int, result);
+
+    int actual = FilePath::rootLength(path);
+    QCOMPARE(actual, result);
+}
+
+void tst_fileutils::schemeAndHostLength_data()
+{
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<int>("result");
+
+    QTest::newRow("empty") << "" << 0;
+    QTest::newRow("drive-slash-rest") << "x:/abc" << 0;
+    QTest::newRow("rest") << "abc" << 0;
+    QTest::newRow("slash-rest") << "/abc" << 0;
+    QTest::newRow("dev-empty") << "dev://" << 6;
+    QTest::newRow("dev-localhost-unfinished") << "dev://localhost" << 15;
+    QTest::newRow("dev-localhost") << "dev://localhost/" << 16;
+    QTest::newRow("dev-localhost-rest") << "dev://localhost/abs" << 16;
+    QTest::newRow("dev-localhost-drive") << "dev://localhost/c$" << 16;
+    QTest::newRow("dev-localhost-drive-slash") << "dev://localhost//c$/" << 16;
+    QTest::newRow("dev-localhost-drive-slash-rest") << "dev://localhost//c$/x" << 16;
+}
+
+void tst_fileutils::schemeAndHostLength()
+{
+    QFETCH(QString, path);
+    QFETCH(int, result);
+
+    int actual = FilePath::schemeAndHostLength(path);
+    QCOMPARE(actual, result);
 }
 
 void tst_fileutils::toString_data()
