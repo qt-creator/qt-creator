@@ -320,7 +320,7 @@ void GitBaseDiffEditorController::updateBranchList()
 
     VcsCommand *command = m_instance->vcsExec(baseDirectory(),
                           {"branch", noColorOption, "-a", "--contains", revision});
-    connect(command, &VcsCommand::stdOutText, this, [this](const QString &text) {
+    connect(command, &VcsCommand::finished, this, [this, command] {
         const QString remotePrefix = "remotes/";
         const QString localPrefix = "<Local>";
         const int prefixLength = remotePrefix.length();
@@ -328,7 +328,7 @@ void GitBaseDiffEditorController::updateBranchList()
         QStringList branches;
         QString previousRemote = localPrefix;
         bool first = true;
-        for (const QString &branch : text.split('\n')) {
+        for (const QString &branch : command->cleanedStdOut().split('\n')) {
             const QString b = branch.mid(2).trimmed();
             if (b.isEmpty())
                 continue;
