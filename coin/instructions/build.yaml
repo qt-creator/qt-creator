@@ -27,6 +27,11 @@ instructions:
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
+      - type: ExecuteCommand
+        command: "python3 -u {{.AgentWorkingDir}}/build/qtsdk/packaging-tools/bld_sdktool.py --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}} --qt-build {{.AgentWorkingDir}}/build/sdktool/qt --src {{.AgentWorkingDir}}/qt-creator/qt-creator/src/tools/sdktool --build {{.AgentWorkingDir}}/build/sdktool/build --install {{.AgentWorkingDir}}/build/sdktool/install --make-command make"
+        maxTimeInSeconds: 36000
+        maxTimeBetweenOutput: 3600
+        userMessageOnFailure: "Failed to build sdktool, check logs."
     enable_if:
       condition: and
       conditions:
@@ -54,6 +59,11 @@ instructions:
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
+      - type: ExecuteCommand
+        command: "python3 -u {{.AgentWorkingDir}}/build/qtsdk/packaging-tools/bld_sdktool.py --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}} --qt-build {{.AgentWorkingDir}}/build/sdktool/qt --src {{.AgentWorkingDir}}/qt-creator/qt-creator/src/tools/sdktool --build {{.AgentWorkingDir}}/build/sdktool/build --install {{.AgentWorkingDir}}/build/sdktool/install --make-command make"
+        maxTimeInSeconds: 36000
+        maxTimeBetweenOutput: 3600
+        userMessageOnFailure: "Failed to build sdktool, check logs."
     enable_if:
       condition: property
       property: host.os
@@ -96,6 +106,11 @@ instructions:
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
+      - type: ExecuteCommand
+        command: "python -u {{.AgentWorkingDir}}\\build\\qtsdk\\packaging-tools\\bld_sdktool.py --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}} --qt-build {{.AgentWorkingDir}}\\build\\sdktool\\qt --src {{.AgentWorkingDir}}\\qt-creator\\qt-creator\\src\\tools\\sdktool --build {{.AgentWorkingDir}}\\build\\sdktool\\build --install {{.AgentWorkingDir}}\\build\\sdktool\\install --make-command nmake"
+        maxTimeInSeconds: 36000
+        maxTimeBetweenOutput: 3600
+        userMessageOnFailure: "Failed to build sdktool, check logs."
     enable_if:
       condition: and
       conditions:

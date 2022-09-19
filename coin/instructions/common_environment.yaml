@@ -8,9 +8,6 @@ instructions:
       - type: EnvironmentVariable
         variableName: LLVM_BASE_URL
         variableValue: http://master.qt.io/development_releases/prebuilt/libclang/libclang-release_15.0.0-based
-
-  - type: Group
-    instructions:
       - type: EnvironmentVariable
         variableName: QTC_QT_BASE_URL
         variableValue: "http://ci-files02-hki.intra.qt.io/packages/jenkins/archive/qt/6.3/6.3.2-final-released/Qt"
@@ -20,11 +17,17 @@ instructions:
       - type: EnvironmentVariable
         variableName: MACOSX_DEPLOYMENT_TARGET
         variableValue: 10.14
+      - type: EnvironmentVariable
+        variableName: QTC_SDKTOOL_QT_BASE_URL
+        variableValue: "http://ci-files02-hki.intra.qt.io/packages/jenkins/archive/qt/5.15/5.15.2-final-released/latest/src/submodules/qtbase-everywhere-src-5.15.2"
       - type: Group
         instructions:
           - type: EnvironmentVariable
             variableName: QTC_QT_POSTFIX
             variableValue: "-Windows-Windows_10_21H2-MSVC2019-Windows-Windows_10_21H2-X86_64.7z"
+          - type: EnvironmentVariable
+            variableName: QTC_SDKTOOL_QT_EXT
+            variableValue: ".zip"
         enable_if:
           condition: property
           property: target.os
@@ -34,6 +37,9 @@ instructions:
           - type: EnvironmentVariable
             variableName: QTC_QT_POSTFIX
             variableValue: "-Linux-RHEL_8_4-GCC-Linux-RHEL_8_4-X86_64.7z"
+          - type: EnvironmentVariable
+            variableName: QTC_SDKTOOL_QT_EXT
+            variableValue: ".tar.xz"
         enable_if:
           condition: property
           property: target.os
@@ -43,22 +49,23 @@ instructions:
           - type: EnvironmentVariable
             variableName: QTC_QT_POSTFIX
             variableValue: "-MacOS-MacOS_12-Clang-MacOS-MacOS_12-X86_64-ARM64.7z"
+          - type: EnvironmentVariable
+            variableName: QTC_SDKTOOL_QT_EXT
+            variableValue: ".tar.xz"
         enable_if:
           condition: property
           property: target.os
           equals_value: MacOS
 
-  - type: PrependToEnvironmentVariable
-    variableName: PATH
-    variableValue: "{{.Env.PYTHON3_PATH}};{{.Env.PIP3_PATH}};C:\\Utils\\gnuwin21\\bin;{{.InstallDir}}\\bin;"
-    enable_if:
-      condition: property
-      property: target.os
-      equals_value: Windows
-
-  - type: PrependToEnvironmentVariable
-    variableName: PATH
-    variableValue: "C:\\Utils\\gnuwin32\\bin;"
+  - type: Group
+    instructions:
+      - type: PrependToEnvironmentVariable
+        variableName: PATH
+        variableValue: "{{.Env.PYTHON3_PATH}};{{.Env.PIP3_PATH}};{{.Env.CI_JOM_PATH}};C:\\Utils\\gnuwin21\\bin;{{.InstallDir}}\\bin;C:\\Utils\\gnuwin32\\bin;"
+      # unset MAKEFLAGS, which interferes with running jom for the Qt build for sdktool
+      - type: EnvironmentVariable
+        variableName: MAKEFLAGS
+        variableValue: ""
     enable_if:
       condition: property
       property: target.os
