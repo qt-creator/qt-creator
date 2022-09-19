@@ -247,7 +247,7 @@ DeviceShell::RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray
     const int id = ++m_currentId;
     const auto it = m_commandOutput.insert(id, CommandRun{{-1, {}, {}}, &waiter});
 
-    QMetaObject::invokeMethod(m_shellProcess, [this, id, &cmd, &stdInData]() {
+    QMetaObject::invokeMethod(m_shellProcess, [this, id, cmd, stdInData]() {
         const QString command = QString("%1 \"%2\" %3\n")
                                     .arg(id)
                                     .arg(QString::fromLatin1(stdInData.toBase64()))
