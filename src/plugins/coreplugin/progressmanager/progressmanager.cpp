@@ -664,6 +664,8 @@ void ProgressManagerPrivate::summaryProgressFinishedFading()
 void ProgressManagerPrivate::progressDetailsToggled(bool checked)
 {
     m_progressViewPinned = checked;
+    if (!checked)
+        m_hovered = false; // make it take effect immediately even though the mouse is on the button
     updateVisibility();
 
     QtcSettings *settings = ICore::settings();
