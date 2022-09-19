@@ -405,18 +405,33 @@ void Qt5InformationNodeInstanceServer::getNodeAtPos(const QPointF &pos)
                               Q_ARG(QVariant, pos.x()),
                               Q_ARG(QVariant, pos.y()));
     QObject *gizmoObj = qvariant_cast<QObject *>(gizmoVar);
-    QVariant instance = -1;
+    qint32 instanceId = -1;
 
     if (gizmoObj && hasInstanceForObject(gizmoObj)) {
-        instance = instanceForObject(gizmoObj).instanceId();
+        instanceId = instanceForObject(gizmoObj).instanceId();
     } else {
         QQuick3DModel *hitModel = helper->pickViewAt(editView, pos.x(), pos.y()).objectHit();
         QObject *resolvedPick = helper->resolvePick(hitModel);
         if (hasInstanceForObject(resolvedPick))
-            instance = instanceForObject(resolvedPick).instanceId();
+            instanceId = instanceForObject(resolvedPick).instanceId();
     }
 
-    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::NodeAtPos, instance});
+    // Also get the intersection with an axis plane of the scene.
+    QVector3D pos3d;
+    if (editView) {
+        Internal::MouseArea3D ma;
+        ma.setView3D(editView);
+        ma.setEulerRotation({90, 0, 0}); // Default grid plane (XZ plane)
+        QVector3D planePos = ma.getMousePosInPlane(nullptr, pos);
+        const float limit = 10000000; // Remove extremes on nearly parallel plane
+        if (!qFuzzyCompare(planePos.z(), -1.f) && qAbs(planePos.x()) < limit && qAbs(planePos.y()) < limit)
+            pos3d = {planePos.x(), 0, planePos.y()};
+    }
+    QVariantList data;
+    data.append(instanceId);
+    data.append(pos3d);
+    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::NodeAtPos,
+                                                        QVariant::fromValue(data)});
 #else
     Q_UNUSED(pos)
 #endif

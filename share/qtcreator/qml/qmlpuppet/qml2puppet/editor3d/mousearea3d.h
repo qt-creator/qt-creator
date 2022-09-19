@@ -59,22 +59,9 @@ public:
     QQuick3DNode *pickNode() const;
     MouseArea3D *dragHelper() const;
 
+    QVector3D getMousePosInPlane(const MouseArea3D *helper, const QPointF &mousePosInView) const;
+
     static qreal mouseDragMultiplier() { return .02; }
-
-public slots:
-    void setView3D(QQuick3DViewport *view3D);
-    void setGrabsMouse(bool grabsMouse);
-    void setActive(bool active);
-    void setCirclePickArea(const QPointF &pickArea);
-    void setMinAngle(qreal angle);
-    void setPickNode(QQuick3DNode *node);
-    void setDragHelper(MouseArea3D *dragHelper);
-
-    void setX(qreal x);
-    void setY(qreal y);
-    void setWidth(qreal width);
-    void setHeight(qreal height);
-    void setPriority(int level);
 
     Q_INVOKABLE QVector3D rayIntersectsPlane(const QVector3D &rayPos0,
                                              const QVector3D &rayPos1,
@@ -97,6 +84,21 @@ public slots:
     Q_INVOKABLE void forcePressEvent(double x, double y);
     Q_INVOKABLE void forceMoveEvent(double x, double y);
     Q_INVOKABLE void forceReleaseEvent(double x, double y);
+
+public slots:
+    void setView3D(QQuick3DViewport *view3D);
+    void setGrabsMouse(bool grabsMouse);
+    void setActive(bool active);
+    void setCirclePickArea(const QPointF &pickArea);
+    void setMinAngle(qreal angle);
+    void setPickNode(QQuick3DNode *node);
+    void setDragHelper(MouseArea3D *dragHelper);
+
+    void setX(qreal x);
+    void setY(qreal y);
+    void setWidth(qreal width);
+    void setHeight(qreal height);
+    void setPriority(int level);
 
 signals:
     void view3DChanged();
@@ -131,7 +133,6 @@ private:
     void setHovering(bool enable);
     QVector3D getNormal() const;
     QVector3D getCameraToNodeDir(QQuick3DNode *node) const;
-    QVector3D getMousePosInPlane(const MouseArea3D *helper, const QPointF &mousePosInView) const;
 
     Q_DISABLE_COPY(MouseArea3D)
     QQuick3DViewport *m_view3D = nullptr;

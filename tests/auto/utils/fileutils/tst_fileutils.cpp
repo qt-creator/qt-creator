@@ -60,6 +60,9 @@ private slots:
     void resolvePath();
     void relativeChildPath_data();
     void relativeChildPath();
+    void bytesAvailableFromDF_data();
+    void bytesAvailableFromDF();
+
     void asyncLocalCopy();
     void startsWithDriveLetter();
     void startsWithDriveLetter_data();
@@ -886,6 +889,33 @@ void tst_fileutils::url_data()
     QTest::newRow("simple-ssh-with-port") << QString("ssh://user@host:1234/a/b") << QString("ssh") << QString("user@host:1234") << QString("/a/b");
     QTest::newRow("http-qt.io") << QString("http://qt.io") << QString("http") << QString("qt.io") << QString();
     QTest::newRow("http-qt.io-index.html") << QString("http://qt.io/index.html") << QString("http") << QString("qt.io") << QString("/index.html");
+}
+
+void tst_fileutils::bytesAvailableFromDF_data()
+{
+    QTest::addColumn<QByteArray>("dfOutput");
+    QTest::addColumn<qint64>("expected");
+
+    QTest::newRow("empty") << QByteArray("") << qint64(-1);
+    QTest::newRow("mac")    << QByteArray("Filesystem   1024-blocks      Used Available Capacity iused      ifree %iused  Mounted on\n/dev/disk3s5   971350180 610014564 342672532    65% 4246780 3426725320    0%   /System/Volumes/Data\n") << qint64(342672532);
+    QTest::newRow("alpine") << QByteArray("Filesystem           1K-blocks      Used Available Use% Mounted on\noverlay              569466448 163526072 376983360  30% /\n") << qint64(376983360);
+    QTest::newRow("alpine-no-trailing-br") << QByteArray("Filesystem           1K-blocks      Used Available Use% Mounted on\noverlay              569466448 163526072 376983360  30% /") << qint64(376983360);
+    QTest::newRow("alpine-missing-line") << QByteArray("Filesystem           1K-blocks      Used Available Use% Mounted on\n") << qint64(-1);
+    QTest::newRow("wrong-header") << QByteArray("Filesystem           1K-blocks      Used avail Use% Mounted on\noverlay              569466448 163526072 376983360  30% /\n") << qint64(-1);
+    QTest::newRow("not-enough-fields") << QByteArray("Filesystem 1K-blocks Used avail Use% Mounted on\noverlay              569466448\n") << qint64(-1);
+    QTest::newRow("not-enough-header-fields") << QByteArray("Filesystem           1K-blocks      Used \noverlay              569466448 163526072 376983360  30% /\n") << qint64(-1);
+}
+
+void tst_fileutils::bytesAvailableFromDF()
+{
+    if (HostOsInfo::isWindowsHost())
+        QSKIP("Test only valid on unix-ish systems");
+
+    QFETCH(QByteArray, dfOutput);
+    QFETCH(qint64, expected);
+
+    const auto result = FileUtils::bytesAvailableFromDFOutput(dfOutput);
+    QCOMPARE(result, expected);
 }
 
 QTEST_GUILESS_MAIN(tst_fileutils)

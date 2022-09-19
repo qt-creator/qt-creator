@@ -181,7 +181,7 @@ void PropertyEditorValue::setExpressionWithEmit(const QString &expression)
     if ( m_expression != expression) {
         setExpression(expression);
         m_value.clear();
-        emit expressionChanged(nameAsQString());
+        emit expressionChanged(nameAsQString()); //Note that we set the name in this case
     }
 }
 

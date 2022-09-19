@@ -1737,8 +1737,12 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
         const QVariantMap supportMap = qvariant_cast<QVariantMap>(command.data());
         emitImport3DSupportChanged(supportMap);
     } else if (command.type() == PuppetToCreatorCommand::NodeAtPos) {
-        ModelNode modelNode = modelNodeForInternalId(command.data().toUInt());
-        emitNodeAtPosResult(modelNode);
+        auto data = qvariant_cast<QVariantList>(command.data());
+        if (data.size() == 2) {
+            ModelNode modelNode = modelNodeForInternalId(data[0].toInt());
+            QVector3D pos3d = data[1].value<QVector3D>();
+            emitNodeAtPosResult(modelNode, pos3d);
+        }
     }
 }
 

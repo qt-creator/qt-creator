@@ -571,9 +571,9 @@ void ModelPrivate::notifyImport3DSupportChanged(const QVariantMap &supportMap)
     notifyInstanceChanges([&](AbstractView *view) { view->updateImport3DSupport(supportMap); });
 }
 
-void ModelPrivate::notifyNodeAtPosResult(const ModelNode &modelNode)
+void ModelPrivate::notifyNodeAtPosResult(const ModelNode &modelNode, const QVector3D &pos3d)
 {
-    notifyInstanceChanges([&](AbstractView *view) { view->nodeAtPosReady(modelNode); });
+    notifyInstanceChanges([&](AbstractView *view) { view->nodeAtPosReady(modelNode, pos3d); });
 }
 
 void ModelPrivate::notifyView3DAction(View3DActionType type, const QVariant &value)

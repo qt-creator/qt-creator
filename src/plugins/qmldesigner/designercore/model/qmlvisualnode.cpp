@@ -268,7 +268,7 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
         QList<PropertyBindingEntry> propertyBindingList;
         QList<PropertyBindingEntry> propertyEnumList;
         if (itemLibraryEntry.qmlSource().isEmpty()) {
-            QList<QPair<PropertyName, QVariant> > propertyPairList = position.propertyPairList();
+            QList<QPair<PropertyName, QVariant> > propertyPairList;
 
             for (const auto &property : itemLibraryEntry.properties()) {
                 if (property.type() == "binding") {
@@ -282,6 +282,8 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                     propertyPairList.append({property.name(), property.value()});
                 }
             }
+            // Add position last so it'll override any default position specified in the entry
+            propertyPairList.append(position.propertyPairList());
 
             ModelNode::NodeSourceType nodeSourceType = ModelNode::NodeWithoutSource;
             if (itemLibraryEntry.typeName() == "QtQml.Component")

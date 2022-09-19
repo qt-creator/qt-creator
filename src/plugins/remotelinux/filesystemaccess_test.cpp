@@ -219,7 +219,7 @@ void FileSystemAccessTest::testFileTransfer()
     QVERIFY2(dirForFilesToDownload.isValid(), qPrintable(dirForFilesToDownload.errorString()));
     QVERIFY2(dir2ForFilesToDownload.isValid(), qPrintable(dirForFilesToDownload.errorString()));
     static const auto getRemoteFilePath = [this](const QString &localFileName) {
-        return m_device->filePath(QString("/tmp/").append(localFileName).append(".upload"));
+        return m_device->filePath(QString("/tmp/foo/bar/").append(localFileName).append(".upload"));
     };
     FilesToTransfer filesToUpload;
     std::srand(QDateTime::currentDateTime().toSecsSinceEpoch());
@@ -255,11 +255,11 @@ void FileSystemAccessTest::testFileTransfer()
                                     getRemoteFilePath(bigFileName)};
     fileTransfer.setFilesToTransfer(filesToUpload);
 
-    QString jobError;
+    ProcessResultData result;
     QEventLoop loop;
-    connect(&fileTransfer, &FileTransfer::done, [&jobError, &loop]
+    connect(&fileTransfer, &FileTransfer::done, [&result, &loop]
             (const ProcessResultData &resultData) {
-        jobError = resultData.m_errorString;
+        result = resultData;
         loop.quit();
     });
     QTimer timer;
@@ -271,7 +271,15 @@ void FileSystemAccessTest::testFileTransfer()
     loop.exec();
     QVERIFY(timer.isActive());
     timer.stop();
-    QVERIFY2(jobError.isEmpty(), qPrintable(jobError));
+    QCOMPARE(result.m_exitStatus, QProcess::NormalExit);
+    QVERIFY2(result.m_errorString.isEmpty(), qPrintable(result.m_errorString));
+    QCOMPARE(result.m_exitCode, 0);
+    QCOMPARE(result.m_error, QProcess::UnknownError);
+
+    // Cleanup remote
+    const FilePath remoteDir = m_device->filePath(QString("/tmp/foo/"));
+    QString errorString;
+    QVERIFY2(remoteDir.removeRecursively(&errorString), qPrintable(errorString));
 }
 
 } // Internal
