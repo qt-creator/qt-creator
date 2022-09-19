@@ -49,7 +49,7 @@ DummyModel::DummyModel(QmlProfilerModelManager *manager,
 
 void DummyModel::loadData()
 {
-    QmlEventType type(MaximumMessage, Binding);
+    QmlEventType type(UndefinedMessage, Binding);
     const int typeIndex = modelManager()->appendEventType(QmlEventType(type));
     QCOMPARE(typeIndex, 0);
 

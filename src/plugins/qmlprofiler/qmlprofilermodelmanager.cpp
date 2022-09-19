@@ -393,7 +393,7 @@ QmlProfilerModelManager::rangeFilter(qint64 rangeStart, qint64 rangeEnd) const
             // Double-check if rangeStart has been crossed. Some versions of Qt send dirty data.
             qint64 adjustedTimestamp = event.timestamp();
             if (event.timestamp() < rangeStart && !crossedRangeStart) {
-                if (type.rangeType() != MaximumRangeType) {
+                if (type.rangeType() != UndefinedRangeType) {
                     if (event.rangeStage() == RangeStart)
                         stack.push(event);
                     else if (event.rangeStage() == RangeEnd && !stack.isEmpty())
@@ -414,7 +414,7 @@ QmlProfilerModelManager::rangeFilter(qint64 rangeStart, qint64 rangeEnd) const
                     crossedRangeStart = true;
                 }
                 if (event.timestamp() > rangeEnd) {
-                    if (type.rangeType() != MaximumRangeType) {
+                    if (type.rangeType() != UndefinedRangeType) {
                         if (event.rangeStage() == RangeEnd) {
                             if (stack.isEmpty()) {
                                 QmlEvent endEvent(event);

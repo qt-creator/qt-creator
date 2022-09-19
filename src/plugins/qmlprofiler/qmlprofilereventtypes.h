@@ -30,7 +30,8 @@
 namespace QmlProfiler {
 
 enum Message {
-    Event,
+    UndefinedMessage = 0xff,
+    Event = 0,
     RangeStart,
     RangeData,
     RangeLocation,
@@ -72,7 +73,8 @@ enum Quick3DEventType {
 };
 
 enum RangeType {
-    Painting, // old Qt4 paint events
+    UndefinedRangeType = 0xff,
+    Painting = 0, // old Qt4 paint events
     Compiling,
     Creating,
     Binding,

@@ -36,10 +36,10 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
 
     stream >> time >> messageType;
 
-    if (messageType < 0 || messageType > MaximumMessage)
-        messageType = MaximumMessage;
+    if (messageType < 0 || messageType >= MaximumMessage)
+        messageType = UndefinedMessage;
 
-    RangeType rangeType = MaximumRangeType;
+    RangeType rangeType = UndefinedRangeType;
     if (!stream.atEnd()) {
         stream >> subtype;
         if (subtype >= 0 && subtype < MaximumRangeType)
@@ -54,7 +54,7 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
 
     switch (messageType) {
     case Event: {
-        event.type = QmlEventType(static_cast<Message>(messageType), MaximumRangeType, subtype);
+        event.type = QmlEventType(static_cast<Message>(messageType), UndefinedRangeType, subtype);
         switch (subtype) {
         case StartTrace:
         case EndTrace: {
@@ -98,7 +98,7 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
         break;
     }
     case Complete: {
-        event.type = QmlEventType(static_cast<Message>(messageType), MaximumRangeType, subtype);
+        event.type = QmlEventType(static_cast<Message>(messageType), UndefinedRangeType, subtype);
         break;
     }
     case SceneGraphFrame: {
@@ -110,7 +110,7 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
             params.push_back(param);
         }
 
-        event.type = QmlEventType(static_cast<Message>(messageType), MaximumRangeType, subtype);
+        event.type = QmlEventType(static_cast<Message>(messageType), UndefinedRangeType, subtype);
         event.event.setNumbers<QVarLengthArray<qint64>, qint64>(params);
         break;
     }
@@ -125,7 +125,7 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
             refcount = 1;
         }
 
-        event.type = QmlEventType(static_cast<Message>(messageType), MaximumRangeType, subtype,
+        event.type = QmlEventType(static_cast<Message>(messageType), UndefinedRangeType, subtype,
                                   QmlEventLocation(filename, 0, 0));
         event.event.setNumbers<qint32>({width, height, refcount});
         break;
@@ -134,7 +134,7 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
         qint64 delta;
         stream >> delta;
 
-        event.type = QmlEventType(static_cast<Message>(messageType), MaximumRangeType, subtype);
+        event.type = QmlEventType(static_cast<Message>(messageType), UndefinedRangeType, subtype);
         event.event.setNumbers<qint64>({delta});
         break;
     }
@@ -147,7 +147,7 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
             // otherwise it's the old binding type of 4 bytes
         }
 
-        event.type = QmlEventType(MaximumMessage, rangeType, -1);
+        event.type = QmlEventType(UndefinedMessage, rangeType, -1);
         event.event.setRangeStage(RangeStart);
         break;
     }
@@ -155,7 +155,7 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
         QString data;
         stream >> data;
 
-        event.type = QmlEventType(MaximumMessage, rangeType, -1, QmlEventLocation(), data);
+        event.type = QmlEventType(UndefinedMessage, rangeType, -1, QmlEventLocation(), data);
         event.event.setRangeStage(RangeData);
         if (!stream.atEnd())
             stream >> event.serverTypeId;
@@ -173,13 +173,13 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
                 stream >> event.serverTypeId;
         }
 
-        event.type = QmlEventType(MaximumMessage, rangeType, -1,
+        event.type = QmlEventType(UndefinedMessage, rangeType, -1,
                                   QmlEventLocation(filename, line, column));
         event.event.setRangeStage(RangeLocation);
         break;
     }
     case RangeEnd: {
-        event.type = QmlEventType(MaximumMessage, rangeType, -1);
+        event.type = QmlEventType(UndefinedMessage, rangeType, -1);
         event.event.setRangeStage(RangeEnd);
         break;
     }
@@ -192,13 +192,13 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
             stream >> param;
             params.push_back(param);
         }
-        event.type = QmlEventType(static_cast<Message>(messageType), MaximumRangeType, subtype);
+        event.type = QmlEventType(static_cast<Message>(messageType), UndefinedRangeType, subtype);
         event.event.setNumbers<QVarLengthArray<qint64>, qint64>(params);
         break;
     }
     default:
         event.event.setNumbers<char>({});
-        event.type = QmlEventType(static_cast<Message>(messageType), MaximumRangeType, subtype);
+        event.type = QmlEventType(static_cast<Message>(messageType), UndefinedRangeType, subtype);
         break;
     }
 

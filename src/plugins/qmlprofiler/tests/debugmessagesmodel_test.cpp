@@ -45,7 +45,7 @@ void DebugMessagesModelTest::initTestCase()
         QmlEvent event;
         event.setTimestamp(i);
         event.setString(QString::fromLatin1("message %1").arg(i));
-        QmlEventType type(DebugMessage, MaximumRangeType, i % (QtMsgType::QtInfoMsg + 1),
+        QmlEventType type(DebugMessage, UndefinedRangeType, i % (QtMsgType::QtInfoMsg + 1),
                           QmlEventLocation("somefile.js", i, 10 - i));
         event.setTypeIndex(manager.numEventTypes());
         manager.appendEventType(std::move(type));

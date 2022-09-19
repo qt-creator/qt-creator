@@ -39,7 +39,7 @@ class QmlEventType : public Timeline::TraceEventType {
 public:
     static const qint32 staticClassId = 0x716d6c74; // 'qmlt';
 
-    QmlEventType(Message message = MaximumMessage, RangeType rangeType = MaximumRangeType,
+    QmlEventType(Message message = UndefinedMessage, RangeType rangeType = UndefinedRangeType,
                  int detailType = -1, const QmlEventLocation &location = QmlEventLocation(),
                  const QString &data = QString(), const QString &displayName = QString());
 

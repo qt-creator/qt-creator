@@ -33,7 +33,7 @@ namespace Internal {
 
 Quick3DModel::Quick3DModel(QmlProfilerModelManager *manager,
                                        Timeline::TimelineModelAggregator *parent) :
-    QmlProfilerTimelineModel(manager, Quick3DEvent, MaximumRangeType, ProfileQuick3D, parent),
+    QmlProfilerTimelineModel(manager, Quick3DEvent, UndefinedRangeType, ProfileQuick3D, parent),
     m_maximumMsgType(-1)
 {
 }
