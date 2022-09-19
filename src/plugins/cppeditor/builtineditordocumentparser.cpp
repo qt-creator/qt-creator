@@ -51,7 +51,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
     ExtraState state = extraState();
     WorkingCopy workingCopy = updateParams.workingCopy;
 
-    bool invalidateSnapshot = false, invalidateConfig = false, editorDefinesChanged_ = false;
+    bool invalidateSnapshot = false, invalidateConfig = false;
 
     CppModelManager *modelManager = CppModelManager::instance();
     QByteArray configFile = modelManager->codeModelConfiguration();
@@ -97,7 +97,6 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
     if (baseConfig.editorDefines != baseState.editorDefines) {
         baseState.editorDefines = baseConfig.editorDefines;
         invalidateSnapshot = true;
-        editorDefinesChanged_ = true;
     }
 
     if (headerPaths != state.headerPaths) {
@@ -130,6 +129,10 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
 
     if (invalidateSnapshot) {
         state.snapshot = Snapshot();
+        if (!baseState.editorDefines.isEmpty()) {
+                workingCopy.insert(CppModelManager::editorConfigurationFileName(),
+                                   baseState.editorDefines);
+        }
     } else {
         // Remove changed files from the snapshot
         QSet<Utils::FilePath> toRemove;
@@ -161,13 +164,6 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
             workingCopy.insert(configurationFileName, state.configFile);
         state.snapshot.remove(filePath());
 
-        static const QString editorDefinesFileName
-            = CppModelManager::editorConfigurationFileName();
-        if (editorDefinesChanged_) {
-            state.snapshot.remove(editorDefinesFileName);
-            workingCopy.insert(editorDefinesFileName, baseState.editorDefines);
-        }
-
         Internal::CppSourceProcessor sourceProcessor(state.snapshot, [&](const Document::Ptr &doc) {
             const QString fileName = doc->fileName();
             const bool isInEditor = fileName == filePath();
@@ -197,7 +193,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QFutureInterface<void> &futur
                 sourceProcessor.run(precompiledHeader);
         }
         if (!baseState.editorDefines.isEmpty())
-            sourceProcessor.run(editorDefinesFileName);
+            sourceProcessor.run(CppModelManager::editorConfigurationFileName());
         QStringList includedFiles = state.includedFiles;
         if (baseConfig.usePrecompiledHeaders)
             includedFiles << state.precompiledHeaders;
