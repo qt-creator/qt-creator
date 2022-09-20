@@ -163,18 +163,16 @@ void tst_fileutils::isChildOf_data()
     QTest::newRow("same") << "/tmp/dir" << "/tmp/dir" << false;
 
     // Windows stuff:
-#ifdef Q_OS_WIN
     QTest::newRow("C:/data") << "C:/" << "C:/data" << true;
     QTest::newRow("C:/") << "" << "C:/" << false;
     QTest::newRow("com-port") << "//./" << "//./com1" << true;
-    QTest::newRow("extended-length-path") << "\\\\?\\C:\\" << "\\\\?\\C:\\path" << false;
+    QTest::newRow("extended-length-path") << "\\\\?\\C:\\" << "\\\\?\\C:\\path" << true;
     QTest::newRow("/Global?\?/UNC/host") << "/Global?\?/UNC/host"
                                         << "/Global?\?/UNC/host/file" << true;
     QTest::newRow("//server/directory/file")
             << "//server/directory" << "//server/directory/file" << true;
     QTest::newRow("//server/directory")
             << "//server" << "//server/directory" << true;
-#endif
 }
 
 void tst_fileutils::isChildOf()
