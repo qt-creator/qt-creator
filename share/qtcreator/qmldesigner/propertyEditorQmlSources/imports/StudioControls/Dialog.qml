@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 import QtQuick
-import QtQuick.Controls as C
 import QtQuick.Templates as T
 import StudioTheme 1.0 as StudioTheme
 
