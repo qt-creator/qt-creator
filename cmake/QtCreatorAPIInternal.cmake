@@ -168,11 +168,12 @@ function(qtc_enable_release_for_debug_configuration)
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}" PARENT_SCOPE)
 endfunction()
 
-function(qtc_enable_sanitize _sanitize_flags)
+function(qtc_enable_sanitize _target _sanitize_flags)
+  target_compile_options("${_target}" PUBLIC -fsanitize=${SANITIZE_FLAGS})
+
   if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=${_sanitize_flags}")
+    target_link_options("${_target}" PUBLIC -fsanitize=${SANITIZE_FLAGS})
   endif()
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}" PARENT_SCOPE)
 endfunction()
 
 function(qtc_add_link_flags_no_undefined target)

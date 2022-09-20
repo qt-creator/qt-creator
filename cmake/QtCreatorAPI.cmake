@@ -290,7 +290,7 @@ function(add_qtc_library name)
   qtc_enable_separate_debug_info(${name} "${IDE_LIBRARY_PATH}")
 
   if (WITH_SANITIZE)
-    qtc_enable_sanitize(${SANITIZE_FLAGS})
+    qtc_enable_sanitize("${name}" ${SANITIZE_FLAGS})
   endif()
 
   if (NAMELINK_OPTION AND NOT QTC_STATIC_BUILD)
@@ -460,7 +460,7 @@ function(add_qtc_plugin target_name)
   endif()
 
   if (WITH_SANITIZE)
-    qtc_enable_sanitize(${SANITIZE_FLAGS})
+    qtc_enable_sanitize("${name}" ${SANITIZE_FLAGS})
   endif()
 
   extend_qtc_target(${target_name}
@@ -673,6 +673,10 @@ function(add_qtc_executable name)
   endif()
 
   add_executable("${name}" ${_arg_SOURCES})
+
+  if (WITH_SANITIZE)
+    qtc_enable_sanitize("${name}" ${SANITIZE_FLAGS})
+  endif()
 
   extend_qtc_target("${name}"
     INCLUDES "${CMAKE_BINARY_DIR}/src" ${_arg_INCLUDES}
