@@ -266,10 +266,14 @@ void SymbolSupport::renameSymbol(TextEditor::TextDocument *document, const QText
 
     QTextCursor tc = cursor;
     tc.select(QTextCursor::WordUnderCursor);
+    const QString oldSymbolName = tc.selectedText();
+    const QString placeHolder = m_defaultSymbolMapper ? m_defaultSymbolMapper(oldSymbolName)
+                                                      : oldSymbolName;
+
     if (prepareSupported)
-        requestPrepareRename(generateDocPosParams(document, cursor), tc.selectedText());
+        requestPrepareRename(generateDocPosParams(document, cursor), placeHolder);
     else
-        startRenameSymbol(generateDocPosParams(document, cursor), tc.selectedText());
+        startRenameSymbol(generateDocPosParams(document, cursor), placeHolder);
 }
 
 void SymbolSupport::requestPrepareRename(const TextDocumentPositionParams &params,
@@ -408,6 +412,11 @@ Core::Search::TextRange SymbolSupport::convertRange(const Range &range)
         return Core::Search::TextPosition(pos.line() + 1, pos.character());
     };
     return Core::Search::TextRange(convertPosition(range.start()), convertPosition(range.end()));
+}
+
+void SymbolSupport::setDefaultRenamingSymbolMapper(const SymbolMapper &mapper)
+{
+    m_defaultSymbolMapper = mapper;
 }
 
 } // namespace LanguageClient

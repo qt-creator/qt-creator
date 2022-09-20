@@ -10,6 +10,8 @@
 
 #include <languageserverprotocol/languagefeatures.h>
 
+#include <functional>
+
 namespace Core {
 class SearchResult;
 class SearchResultItem;
@@ -44,6 +46,9 @@ public:
     static Core::Search::TextRange convertRange(const LanguageServerProtocol::Range &range);
     static QStringList getFileContents(const Utils::FilePath &filePath);
 
+    using SymbolMapper = std::function<QString(const QString &)>;
+    void setDefaultRenamingSymbolMapper(const SymbolMapper &mapper);
+
 private:
     void handleFindReferencesResponse(
         const LanguageServerProtocol::FindReferencesRequest::Response &response,
@@ -61,6 +66,7 @@ private:
     void applyRename(const QList<Core::SearchResultItem> &checkedItems);
 
     Client *m_client = nullptr;
+    SymbolMapper m_defaultSymbolMapper;
 };
 
 } // namespace LanguageClient
