@@ -103,9 +103,9 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     auto messageLayout = new QHBoxLayout(m_messageWidget);
     messageLayout->setContentsMargins(2, 2, 2, 2);
     m_messageWidget->setLayout(messageLayout);
-    QLabel *messageLabel = new QLabel(tr("Search was canceled."));
-    messageLabel->setPalette(pal);
-    messageLayout->addWidget(messageLabel);
+    m_messageLabel = new QLabel;
+    m_messageLabel->setPalette(pal);
+    messageLayout->addWidget(m_messageLabel);
     layout->addWidget(m_messageWidget);
     m_messageWidget->setVisible(false);
 
@@ -435,7 +435,7 @@ void SearchResultWidget::setReplaceEnabled(bool enabled)
     m_replaceButton->setEnabled(enabled);
 }
 
-void SearchResultWidget::finishSearch(bool canceled)
+void SearchResultWidget::finishSearch(bool canceled, const QString &reason)
 {
     Id sizeWarningId(SIZE_WARNING_ID);
     m_infoBar.removeInfo(sizeWarningId);
@@ -444,6 +444,8 @@ void SearchResultWidget::finishSearch(bool canceled)
     m_replaceButton->setEnabled(m_count > 0);
     m_preserveCaseCheck->setEnabled(m_count > 0);
     m_cancelButton->setVisible(false);
+    if (canceled)
+        m_messageLabel->setText(reason.isEmpty() ? tr("Search was canceled.") : reason);
     m_messageWidget->setVisible(canceled);
     m_searchAgainButton->setVisible(m_searchAgainSupported);
     m_searching = false;

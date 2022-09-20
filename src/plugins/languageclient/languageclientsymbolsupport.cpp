@@ -401,8 +401,11 @@ void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
                                          const RenameRequest::Response &response)
 {
     const std::optional<PrepareRenameRequest::Response::Error> &error = response.error();
-    if (error.has_value())
+    QString errorMessage;
+    if (error.has_value()) {
         m_client->log(*error);
+        errorMessage = error->toString();
+    }
 
     const std::optional<WorkspaceEdit> &edits = response.result();
     if (edits.has_value()) {
@@ -412,7 +415,7 @@ void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
         search->setSearchAgainEnabled(false);
         search->finishSearch(false);
     } else {
-        search->finishSearch(error.has_value());
+        search->finishSearch(error.has_value(), errorMessage);
     }
 }
 

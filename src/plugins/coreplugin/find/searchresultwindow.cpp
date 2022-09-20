@@ -838,9 +838,9 @@ void SearchResult::setFilter(SearchResultFilter *filter)
     Notifies the \uicontrol {Search Results} output pane that the current search
     has been \a canceled, and the UI should reflect that.
 */
-void SearchResult::finishSearch(bool canceled)
+void SearchResult::finishSearch(bool canceled, const QString &reason)
 {
-    m_widget->finishSearch(canceled);
+    m_widget->finishSearch(canceled, reason);
 }
 
 /*!

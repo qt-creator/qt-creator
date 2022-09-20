@@ -58,7 +58,7 @@ public slots:
     void addResult(const SearchResultItem &item);
     void addResults(const QList<SearchResultItem> &items, AddMode mode);
     void setFilter(SearchResultFilter *filter); // Takes ownership
-    void finishSearch(bool canceled);
+    void finishSearch(bool canceled, const QString &reason = {});
     void setTextToReplace(const QString &textToReplace);
     void restart();
     void setReplaceEnabled(bool enabled);
