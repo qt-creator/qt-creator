@@ -41,7 +41,7 @@ public:
         ExitCode,
     };
 
-    DeviceShell();
+    DeviceShell(bool forceFailScriptInstallation = false);
     virtual ~DeviceShell();
 
     bool start();
@@ -90,6 +90,9 @@ private:
 
     State m_shellScriptState = State::Unknown;
     QStringList m_missingFeatures;
+
+    // Only used for tests
+    bool m_forceFailScriptInstallation = false;
 };
 
 } // namespace Utils

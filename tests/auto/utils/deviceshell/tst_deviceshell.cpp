@@ -20,8 +20,9 @@ using namespace Utils;
 class TestShell : public DeviceShell
 {
 public:
-    TestShell(CommandLine cmdLine)
-        : m_cmdLine(std::move(cmdLine))
+    TestShell(CommandLine cmdLine, bool failScript = false)
+        : DeviceShell(failScript)
+        , m_cmdLine(std::move(cmdLine))
     {
         start();
     }
@@ -339,6 +340,25 @@ private slots:
         });
 
         QVERIFY (!Utils::anyOf(results, [&results](const QByteArray r){ return r != results[0]; }));
+    }
+
+    void testNoScript_data()
+    {
+        QTest::addColumn<CommandLine>("cmdLine");
+        for (const auto &cmdLine : m_availableShells) {
+            QTest::newRow(cmdLine.executable().baseName().toUtf8()) << cmdLine;
+        }
+    }
+
+    void testNoScript()
+    {
+        QFETCH(CommandLine, cmdLine);
+
+        TestShell shell(cmdLine, true);
+        QCOMPARE(shell.state(), DeviceShell::State::NoScript);
+
+        const bool result = shell.runInShell({"echo", {"Hello"}});
+        QCOMPARE(result, true);
     }
 };
 

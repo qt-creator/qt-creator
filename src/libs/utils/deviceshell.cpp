@@ -151,7 +151,8 @@ done) > $FINAL_OUT
 
 } // namespace
 
-DeviceShell::DeviceShell()
+DeviceShell::DeviceShell(bool forceFailScriptInstallation)
+: m_forceFailScriptInstallation(forceFailScriptInstallation)
 {
     m_thread.setObjectName("DeviceShell");
     m_thread.start();
@@ -389,6 +390,11 @@ bool DeviceShell::checkCommand(const QByteArray &command)
 
 bool DeviceShell::installShellScript()
 {
+    if (m_forceFailScriptInstallation) {
+        m_shellScriptState = State::NoScript;
+        return false;
+    }
+
     if (!checkCommand("base64")) {
         m_shellScriptState = State::NoScript;
         return false;
