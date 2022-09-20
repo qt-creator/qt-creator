@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "coreplugin.h"
+#include "coreplugintr.h"
 #include "designmode.h"
 #include "editmode.h"
 #include "foldernavigationwidget.h"
@@ -229,6 +230,47 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     return true;
 }
 
+static Id generateOpenPageCommandId(IOptionsPage *page)
+{
+    // The page and category are prioritized by their alphabetical order so usually the ids are
+    // prepended by some prioritizing characters like D.ProjectExplorer.KitsOptions separated
+    // by dots. Create a new actions id by joining the last parts of the page and category id
+    // with an additional ".SettingsPage."
+    const QStringList pageIdParts = page->id().toString().split('.');
+    const QStringList categoryIdParts = page->category().toString().split('.');
+    if (pageIdParts.isEmpty() || categoryIdParts.isEmpty())
+        return {};
+
+    const Id candidate = Id::fromString(
+        QStringList{"Preferences", categoryIdParts.last(), pageIdParts.last()}.join('.'));
+    QString suffix;
+    int i = 0;
+    while (ActionManager::command(candidate.withSuffix(suffix)))
+        suffix = QString::number(++i);
+    return candidate.withSuffix(suffix);
+}
+
+static void registerActionsForOptions()
+{
+    QMap<Utils::Id, QString> categoryDisplay;
+    for (IOptionsPage *page : IOptionsPage::allOptionsPages()) {
+        if (!categoryDisplay.contains(page->category()) && !page->displayCategory().isEmpty())
+            categoryDisplay[page->category()] = page->displayCategory();
+    }
+    for (IOptionsPage *page : IOptionsPage::allOptionsPages()) {
+        Id commandId = generateOpenPageCommandId(page);
+        if (!commandId.isValid())
+            continue;
+        const QString actionTitle = Tr::tr("%1 > %2 Preferences...")
+            .arg(categoryDisplay.value(page->category()), page->displayName());
+        auto action = new QAction(actionTitle);
+        QObject::connect(action, &QAction::triggered, m_instance, [id = page->id()]() {
+            ICore::showOptionsDialog(id);
+        });
+        ActionManager::registerAction(action, commandId);
+    }
+}
+
 void CorePlugin::extensionsInitialized()
 {
     DesignMode::createModeIfRequired();
@@ -242,6 +284,7 @@ void CorePlugin::extensionsInitialized()
         errorOverview->show();
     }
     checkSettings();
+    registerActionsForOptions();
 }
 
 bool CorePlugin::delayedInitialize()
