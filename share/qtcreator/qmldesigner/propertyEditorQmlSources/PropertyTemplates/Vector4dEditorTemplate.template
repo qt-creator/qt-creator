@@ -4,6 +4,7 @@ PropertyLabel {
 }
 
 ColumnLayout {
+    spacing: StudioTheme.Values.sectionRowSpacing / 2
     SecondColumnLayout {
         SpinBox {
             minimumValue: -9999999
