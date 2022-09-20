@@ -144,7 +144,7 @@ SquishServerSettings::SquishServerSettings()
 }
 
 enum InfoMode {None, Applications, AutPaths, AttachableAuts, AutTimeout, AutPMTimeout,
-      AutResponseTimeout, AnimatedCursor};
+      AutResponseTimeout, AnimatedCursor, ToolkitWrappers};
 
 InfoMode infoModeFromType(const QString &type)
 {
@@ -162,6 +162,8 @@ InfoMode infoModeFromType(const QString &type)
         return AutResponseTimeout;
     if (type == "cursorAnimation")
         return AnimatedCursor;
+    if (type == "toolkitWrappers")
+        return ToolkitWrappers;
     return None;
 }
 
@@ -209,6 +211,9 @@ void SquishServerSettings::setFromXmlOutput(const QString &output)
                 case AnimatedCursor:
                     newSettings.animatedCursor.setValue(attributes.value("value").toString() == "on");
                     break;
+                case ToolkitWrappers:
+                    newSettings.licensedToolkits.append(attributes.value("value").toString());
+                    break;
                 default:
                     break;
                 }
@@ -219,6 +224,7 @@ void SquishServerSettings::setFromXmlOutput(const QString &output)
     mappedAuts = newSettings.mappedAuts;
     autPaths = newSettings.autPaths;
     attachableAuts = newSettings.attachableAuts;
+    licensedToolkits = newSettings.licensedToolkits;
     autTimeout.setValue(newSettings.autTimeout.value());
     postMortemWaitTime.setValue(newSettings.postMortemWaitTime.value());
     responseTimeout.setValue(newSettings.responseTimeout.value());

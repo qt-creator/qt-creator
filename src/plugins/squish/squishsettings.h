@@ -27,6 +27,7 @@ public:
     QMap<QString, QString> mappedAuts; // name, path
     QMap<QString, QString> attachableAuts; // name, host:port
     QStringList autPaths; // absolute path
+    QStringList licensedToolkits;
     Utils::IntegerAspect autTimeout;
     Utils::IntegerAspect responseTimeout;
     Utils::IntegerAspect postMortemWaitTime;
