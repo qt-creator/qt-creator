@@ -657,7 +657,7 @@ void ClangFormatBaseIndenter::indentBlock(const QTextBlock &block,
 }
 
 int ClangFormatBaseIndenter::indentFor(const QTextBlock &block,
-                                       const TextEditor::TabSettings &tabSettings,
+                                       const TextEditor::TabSettings & /*tabSettings*/,
                                        int cursorPositionInEditor)
 {
     Utils::Text::Replacements toReplace = indentsFor(block,
