@@ -112,22 +112,6 @@ SquishSettingsPage::SquishSettingsPage(SquishSettings *settings)
     });
 }
 
-class SquishServerSettings : public AspectContainer
-{
-public:
-    SquishServerSettings();
-
-    void setFromXmlOutput(const QString &output);
-
-    QMap<QString, QString> mappedAuts; // name, path
-    QMap<QString, QString> attachableAuts; // name, host:port
-    QStringList autPaths; // absolute path
-    IntegerAspect autTimeout;
-    IntegerAspect responseTimeout;
-    IntegerAspect postMortemWaitTime;
-    BoolAspect animatedCursor;
-};
-
 SquishServerSettings::SquishServerSettings()
 {
     registerAspect(&autTimeout);

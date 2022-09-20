@@ -17,6 +17,22 @@ QT_END_NAMESPACE
 namespace Squish {
 namespace Internal {
 
+class SquishServerSettings : public Utils::AspectContainer
+{
+public:
+    SquishServerSettings();
+
+    void setFromXmlOutput(const QString &output);
+
+    QMap<QString, QString> mappedAuts; // name, path
+    QMap<QString, QString> attachableAuts; // name, host:port
+    QStringList autPaths; // absolute path
+    Utils::IntegerAspect autTimeout;
+    Utils::IntegerAspect responseTimeout;
+    Utils::IntegerAspect postMortemWaitTime;
+    Utils::BoolAspect animatedCursor;
+};
+
 class SquishSettings : public Utils::AspectContainer
 {
 public:
