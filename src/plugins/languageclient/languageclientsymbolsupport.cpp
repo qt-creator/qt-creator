@@ -384,7 +384,7 @@ void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
         search->setSearchAgainEnabled(false);
         search->finishSearch(false);
     } else {
-        search->finishSearch(true);
+        search->finishSearch(error.has_value());
     }
 }
 
