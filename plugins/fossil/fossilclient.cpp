@@ -1087,8 +1087,8 @@ void FossilClient::revertFile(const FilePath &workingDir,
     // Indicate file list
     VcsCommand *cmd = createCommand(workingDir);
     const QStringList files = QStringList(workingDir.toString() + "/" + file);
-    connect(cmd, &VcsCommand::finished, this, [this, files](bool success) {
-        if (success)
+    connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
+        if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
     });
     enqueueJob(cmd, args);
@@ -1116,8 +1116,8 @@ void FossilClient::revertAll(const FilePath &workingDir, const QString &revision
     // Indicate repository change
     VcsCommand *cmd = createCommand(workingDir);
     const QStringList files = QStringList(workingDir.toString());
-    connect(cmd, &VcsCommand::finished, this, [this, files](bool success) {
-        if (success)
+    connect(cmd, &VcsCommand::done, this, [this, files, cmd] {
+        if (cmd->result() == ProcessResult::FinishedWithSuccess)
             emit changed(files);
     });
     enqueueJob(createCommand(workingDir), args);
