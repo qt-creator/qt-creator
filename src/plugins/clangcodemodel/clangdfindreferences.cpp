@@ -494,7 +494,8 @@ void ClangdFindLocalReferences::Private::getDefinitionAst(const Link &link)
     qCDebug(clangdLog) << "received go to definition response" << link.targetFilePath
                        << link.targetLine << (link.targetColumn + 1);
 
-    if (!link.hasValidTarget() || !document) {
+    if (!link.hasValidTarget() || !document
+            || link.targetFilePath.canonicalPath() != document->filePath().canonicalPath()) {
         finish();
         return;
     }
