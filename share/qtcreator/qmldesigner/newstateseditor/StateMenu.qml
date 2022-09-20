@@ -76,7 +76,7 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         id: extend
-        visible: !root.isBaseState
+        visible: !root.isBaseState && !root.hasExtend
         text: qsTr("Extend")
         height: extend.visible ? extend.implicitHeight : 0
         onTriggered: root.extend()
