@@ -507,7 +507,6 @@ Rectangle {
                     x: scrollView.leftPadding
                     y: scrollView.height - height
                     width: scrollView.availableWidth
-                    active: scrollView.ScrollBar.vertical.active
                     orientation: Qt.Horizontal
                 }
 
@@ -516,18 +515,7 @@ Rectangle {
                     x: scrollView.mirrored ? 0 : scrollView.width - width
                     y: scrollView.topPadding
                     height: scrollView.availableHeight
-                    active: scrollView.ScrollBar.horizontal.active
                     orientation: Qt.Vertical
-                }
-
-                flickableDirection: {
-                    if (frame.contentHeight <= scrollView.height)
-                        return Flickable.HorizontalFlick
-
-                    if (frame.contentWidth <= scrollView.width)
-                        return Flickable.VerticalFlick
-
-                    return Flickable.HorizontalAndVerticalFlick
                 }
 
                 Flickable {
@@ -542,6 +530,15 @@ Rectangle {
                     contentHeight: {
                         let ext = root.showExtendGroups ? (2 * root.extend) : 0
                         return innerGrid.height + ext
+                    }
+                    flickableDirection: {
+                        if (frame.contentHeight <= scrollView.height)
+                            return Flickable.HorizontalFlick
+
+                        if (frame.contentWidth <= scrollView.width)
+                            return Flickable.VerticalFlick
+
+                        return Flickable.HorizontalAndVerticalFlick
                     }
 
                     Behavior on contentY {

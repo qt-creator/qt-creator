@@ -24,11 +24,16 @@
 ****************************************************************************/
 
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Templates as T
 import StudioTheme 1.0 as StudioTheme
 
-ScrollBar {
+T.ScrollBar {
     id: scrollBar
+
+    implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
+                            implicitContentWidth + leftPadding + rightPadding)
+    implicitHeight: Math.max(implicitBackgroundHeight + topInset + bottomInset,
+                             implicitContentHeight + topPadding + bottomPadding)
 
     contentItem: Rectangle {
         implicitWidth: scrollBar.interactive ? 6 : 2
@@ -40,8 +45,7 @@ ScrollBar {
 
         states: State {
             name: "active"
-            when: scrollBar.policy === ScrollBar.AlwaysOn
-                  || (scrollBar.active && scrollBar.size < 1.0)
+            when: scrollBar.active && scrollBar.size < 1.0
             PropertyChanges {
                 target: scrollBar.contentItem
                 opacity: 0.75

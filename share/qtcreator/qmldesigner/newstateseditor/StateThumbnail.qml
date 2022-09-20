@@ -286,11 +286,21 @@ Item {
                 }
 
                 Flickable {
+                    id: frame
                     boundsMovement: Flickable.StopAtBounds
                     boundsBehavior: Flickable.StopAtBounds
                     interactive: true
                     contentWidth: column.width
                     contentHeight: column.height
+                    flickableDirection: {
+                        if (frame.contentHeight <= scrollView.height)
+                            return Flickable.HorizontalFlick
+
+                        if (frame.contentWidth <= scrollView.width)
+                            return Flickable.VerticalFlick
+
+                        return Flickable.HorizontalAndVerticalFlick
+                    }
 
                     // ScrollView needs an extra TapHandler on top in order to receive click
                     // events. MouseAreas below ScrollView do not let clicks through.
