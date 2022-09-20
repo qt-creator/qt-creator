@@ -44,25 +44,12 @@ public:
     ClangdAstNode ast;
 };
 
-class ReplacementData {
-public:
-    QString oldSymbolName;
-    QString newSymbolName;
-    QSet<Utils::FilePath> fileRenameCandidates;
-};
-
 class ClangdFindReferences::Private
 {
 public:
     Private(ClangdFindReferences *q) : q(q) {}
 
     ClangdClient *client() const { return qobject_cast<ClangdClient *>(q->parent()); }
-    static void handleRenameRequest(
-            const SearchResult *search,
-            const ReplacementData &replacementData,
-            const QString &newSymbolName,
-            const QList<SearchResultItem> &checkedItems,
-            bool preserveCase);
     void handleFindUsagesResult(const QList<Location> &locations);
     void finishSearch();
     void reportAllSearchResultsAndFinish();
@@ -74,50 +61,24 @@ public:
     QMap<DocumentUri, ReferencesFileData> fileData;
     QList<MessageId> pendingAstRequests;
     QPointer<SearchResult> search;
-    std::optional<ReplacementData> replacementData;
     bool canceled = false;
     bool categorize = false;
 };
 
 ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *document,
-        const QTextCursor &cursor, const QString &searchTerm,
-        const std::optional<QString> &replacement, bool categorize)
+        const QTextCursor &cursor, const QString &searchTerm, bool categorize)
     : QObject(client), d(new ClangdFindReferences::Private(this))
 {
     d->categorize = categorize;
-    if (replacement) {
-        ReplacementData replacementData;
-        replacementData.oldSymbolName = searchTerm;
-        replacementData.newSymbolName = *replacement;
-        if (replacementData.newSymbolName.isEmpty())
-            replacementData.newSymbolName = replacementData.oldSymbolName;
-        d->replacementData = replacementData;
-    }
-
     d->search = SearchResultWindow::instance()->startNewSearch(
                 tr("C++ Usages:"),
                 {},
                 searchTerm,
-                replacement ? SearchResultWindow::SearchAndReplace : SearchResultWindow::SearchOnly,
+                SearchResultWindow::SearchOnly,
                 SearchResultWindow::PreserveCaseDisabled,
                 "CppEditor");
     if (categorize)
         d->search->setFilter(new CppSearchResultFilter);
-    if (d->replacementData) {
-        d->search->setTextToReplace(d->replacementData->newSymbolName);
-        const auto renameFilesCheckBox = new QCheckBox;
-        renameFilesCheckBox->setVisible(false);
-        d->search->setAdditionalReplaceWidget(renameFilesCheckBox);
-        const auto renameHandler =
-                [search = d->search](const QString &newSymbolName,
-                       const QList<SearchResultItem> &checkedItems,
-                       bool preserveCase) {
-            const auto replacementData = search->userData().value<ReplacementData>();
-            Private::handleRenameRequest(search, replacementData, newSymbolName, checkedItems,
-                                         preserveCase);
-        };
-        connect(d->search, &SearchResult::replaceButtonClicked, renameHandler);
-    }
     connect(d->search, &SearchResult::activated, [](const SearchResultItem& item) {
         EditorManager::openEditorAtSearchResult(item);
     });
@@ -149,31 +110,6 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, TextDocument *d
 ClangdFindReferences::~ClangdFindReferences()
 {
     delete d;
-}
-
-void ClangdFindReferences::Private::handleRenameRequest(
-        const SearchResult *search,
-        const ReplacementData &replacementData,
-        const QString &newSymbolName,
-        const QList<SearchResultItem> &checkedItems,
-        bool preserveCase)
-{
-    const Utils::FilePaths filePaths = BaseFileFind::replaceAll(newSymbolName, checkedItems,
-                                                                preserveCase);
-    if (!filePaths.isEmpty()) {
-        DocumentManager::notifyFilesChangedInternally(filePaths);
-        SearchResultWindow::instance()->hide();
-    }
-
-    const auto renameFilesCheckBox = qobject_cast<QCheckBox *>(search->additionalReplaceWidget());
-    QTC_ASSERT(renameFilesCheckBox, return);
-    if (!renameFilesCheckBox->isChecked())
-        return;
-
-    ProjectExplorerPlugin::renameFilesForSymbol(
-                replacementData.oldSymbolName, newSymbolName,
-                Utils::toList(replacementData.fileRenameCandidates),
-                CppEditor::preferLowerCaseFileNames());
 }
 
 void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location> &locations)
@@ -218,7 +154,7 @@ void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location>
     }
 
     qCDebug(clangdLog) << "document count is" << fileData.size();
-    if (replacementData || !categorize) {
+    if (!categorize) {
         qCDebug(clangdLog) << "skipping AST retrieval";
         reportAllSearchResultsAndFinish();
         return;
@@ -262,18 +198,6 @@ void ClangdFindReferences::Private::finishSearch()
     if (!client()->testingEnabled() && search) {
         search->finishSearch(canceled);
         search->disconnect(q);
-        if (replacementData) {
-            const auto renameCheckBox = qobject_cast<QCheckBox *>(
-                        search->additionalReplaceWidget());
-            QTC_CHECK(renameCheckBox);
-            const QSet<Utils::FilePath> files = replacementData->fileRenameCandidates;
-            renameCheckBox->setText(tr("Re&name %n files", nullptr, files.size()));
-            const QStringList filesForUser = Utils::transform<QStringList>(files,
-                        [](const Utils::FilePath &fp) { return fp.toUserOutput(); });
-            renameCheckBox->setToolTip(tr("Files:\n%1").arg(filesForUser.join('\n')));
-            renameCheckBox->setVisible(true);
-            search->setUserData(QVariant::fromValue(*replacementData));
-        }
     }
     emit q->done();
     q->deleteLater();
@@ -307,15 +231,6 @@ void ClangdFindReferences::Private::addSearchResultsForFile(const FilePath &file
         item.setUseTextEditorFont(true);
         item.setLineText(rangeWithText.second);
         item.setContainingFunctionName(getContainingFunctionName(astPath, range));
-
-        if (search->supportsReplace()) {
-            const bool fileInSession = SessionManager::projectForFile(file);
-            item.setSelectForReplacement(fileInSession);
-            if (fileInSession && file.baseName().compare(replacementData->oldSymbolName,
-                                                         Qt::CaseInsensitive) == 0) {
-                replacementData->fileRenameCandidates << file;
-            }
-        }
         items << item;
     }
     if (client()->testingEnabled())
@@ -569,5 +484,3 @@ void ClangdFindLocalReferences::Private::finish()
 }
 
 } // namespace ClangCodeModel::Internal
-
-Q_DECLARE_METATYPE(ClangCodeModel::Internal::ReplacementData)
