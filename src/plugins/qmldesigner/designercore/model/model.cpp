@@ -55,7 +55,6 @@
  All write access is running through this interface
 
 The Model is the central place to access a qml files data (see e.g. rootNode() ) and meta data (see metaInfo() ).
-
 Components that want to be informed about changes in the model can register a subclass of AbstractView via attachView().
 
 \see QmlDesigner::ModelNode, QmlDesigner::AbstractProperty, QmlDesigner::AbstractView
@@ -1908,6 +1907,26 @@ NodeMetaInfo Model::qtQuickTimelineTimelineMetaInfo() const
         return createNodeMetaInfo<QtQuick_Timeline, Timeline>();
     } else {
         return metaInfo("QtQuick.Timeline.Timeline");
+    }
+}
+
+NodeMetaInfo Model::qtQuickConnectionsMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, Connections>();
+    } else {
+        return metaInfo("QtQuick.Connections");
+    }
+}
+
+NodeMetaInfo Model::qtQuickStateGroupMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, StateGroup>();
+    } else {
+        return metaInfo("QtQuick.StateGroup");
     }
 }
 

@@ -99,6 +99,8 @@ public:
     NodeMetaInfo qtQuickTextMetaInfo() const;
     NodeMetaInfo qtQuickTimelineKeyframeGroupMetaInfo() const;
     NodeMetaInfo qtQuickTimelineTimelineMetaInfo() const;
+    NodeMetaInfo qtQuickConnectionsMetaInfo() const;
+    NodeMetaInfo qtQuickStateGroupMetaInfo() const;
 
     void attachView(AbstractView *view);
     void detachView(AbstractView *view, ViewNotification emitDetachNotify = NotifyView);

@@ -29,6 +29,7 @@ inline constexpr char Buffer[] = "Buffer";
 inline constexpr char Camera[] = "Camera";
 inline constexpr char Command[] = "Command";
 inline constexpr char Component[] = "Component";
+inline constexpr char Connections[] = "Connections";
 inline constexpr char DefaultMaterial[] = "DefaultMaterial";
 inline constexpr char Dialog[] = "Dialog";
 inline constexpr char DoubleType[] = "double";
@@ -97,6 +98,7 @@ inline constexpr char Shader[] = "Shader";
 inline constexpr char SoundEffect[] = "SoundEffect";
 inline constexpr char SplitView[] = "SplitView";
 inline constexpr char SpriteParticle3D[] = "SpriteParticle3D";
+inline constexpr char StateGroup[] = "StateGroup";
 inline constexpr char State[] = "State";
 inline constexpr char SwipeView[] = "SwipeView";
 inline constexpr char TabBar[] = "TabBar";
@@ -155,6 +157,7 @@ class CommonTypeCache
                                    CacheType<QML_cppnative, QQuickStateOperation>,
                                    CacheType<QtMultimedia, SoundEffect>,
                                    CacheType<QtQuick, BorderImage>,
+                                   CacheType<QtQuick, Connections>,
                                    CacheType<QtQuick, GridView>,
                                    CacheType<QtQuick, Image>,
                                    CacheType<QtQuick, Item>,
@@ -169,6 +172,7 @@ class CommonTypeCache
                                    CacheType<QtQuick, Rectangle>,
                                    CacheType<QtQuick, Repeater>,
                                    CacheType<QtQuick, State>,
+                                   CacheType<QtQuick, StateGroup>,
                                    CacheType<QtQuick, Text>,
                                    CacheType<QtQuick, TextEdit>,
                                    CacheType<QtQuick, Transition>,
