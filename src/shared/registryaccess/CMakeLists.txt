@@ -6,3 +6,7 @@ if (WIN32)
 else()
     add_library(registryaccess INTERFACE)
 endif()
+
+if (WITH_SANITIZE)
+  qtc_enable_sanitize(registryaccess ${SANITIZE_FLAGS})
+endif()

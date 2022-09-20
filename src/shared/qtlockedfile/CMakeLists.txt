@@ -11,3 +11,7 @@ if (WIN32)
   target_compile_definitions(shared_qtlockedfile PRIVATE
       "QT_QTLOCKEDFILE_EXPORT=__declspec(dllexport)" _UNICODE UNICODE)
 endif()
+
+if (WITH_SANITIZE)
+  qtc_enable_sanitize(shared_qtlockedfile ${SANITIZE_FLAGS})
+endif()

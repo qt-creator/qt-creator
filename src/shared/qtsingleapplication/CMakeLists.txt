@@ -7,3 +7,7 @@ target_include_directories(shared_qtsingleapplication PUBLIC "${CMAKE_CURRENT_SO
 if (WIN32)
   target_compile_definitions(shared_qtsingleapplication PRIVATE "QT_QTSINGLEAPPLICATION_EXPORT=__declspec(dllexport)")
 endif()
+
+if (WITH_SANITIZE)
+  qtc_enable_sanitize(shared_qtsingleapplication ${SANITIZE_FLAGS})
+endif()
