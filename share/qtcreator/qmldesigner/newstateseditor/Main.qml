@@ -520,6 +520,16 @@ Rectangle {
                     orientation: Qt.Vertical
                 }
 
+                flickableDirection: {
+                    if (frame.contentHeight <= scrollView.height)
+                        return Flickable.HorizontalFlick
+
+                    if (frame.contentWidth <= scrollView.width)
+                        return Flickable.VerticalFlick
+
+                    return Flickable.HorizontalAndVerticalFlick
+                }
+
                 Flickable {
                     id: frame
                     boundsMovement: Flickable.StopAtBounds
