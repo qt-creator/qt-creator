@@ -121,6 +121,8 @@ public:
 
     QList<ModelNode> allTimelines() const;
 
+    QList<ModelNode> getAllConnections() const;
+
 protected:
     NodeInstance nodeInstance() const;
     QmlObjectNode nodeForInstance(const NodeInstance &instance) const;

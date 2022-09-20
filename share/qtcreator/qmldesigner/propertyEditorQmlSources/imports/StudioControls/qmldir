@@ -8,7 +8,11 @@ CheckIndicator 1.0 CheckIndicator.qml
 ComboBox 1.0 ComboBox.qml
 ComboBoxInput 1.0 ComboBoxInput.qml
 ContextMenu 1.0 ContextMenu.qml
+Dialog 1.0 Dialog.qml
+DialogButton 1.0 DialogButton.qml
+DialogButtonBox 1.0 DialogButtonBox.qml
 FilterComboBox 1.0 FilterComboBox.qml
+Indicator 1.0 Indicator.qml
 InfinityLoopIndicator 1.0 InfinityLoopIndicator.qml
 ItemDelegate 1.0 ItemDelegate.qml
 LinkIndicator2D 1.0 LinkIndicator2D.qml
@@ -18,6 +22,7 @@ Menu 1.0 Menu.qml
 MenuItem 1.0 MenuItem.qml
 MenuItemWithIcon 1.0 MenuItemWithIcon.qml
 MenuSeparator 1.0 MenuSeparator.qml
+ProgressBar 1.0 ProgressBar.qml
 RadioButton 1.0 RadioButton.qml
 RealSliderPopup 1.0 RealSliderPopup.qml
 RealSpinBox 1.0 RealSpinBox.qml

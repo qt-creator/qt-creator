@@ -22,7 +22,7 @@ QmlModelState::QmlModelState()
 }
 
 QmlModelState::QmlModelState(const ModelNode &modelNode)
-        : QmlModelNodeFacade(modelNode)
+    : QmlModelNodeFacade(modelNode)
 {
 }
 
@@ -48,7 +48,7 @@ QList<QmlModelStateOperation> QmlModelState::stateOperations(const ModelNode &no
 {
     QList<QmlModelStateOperation> returnList;
 
-    if (!isBaseState() &&  modelNode().hasNodeListProperty("changes")) {
+    if (!isBaseState() && modelNode().hasNodeListProperty("changes")) {
         const QList<ModelNode> nodes = modelNode().nodeListProperty("changes").toModelNodeList();
         for (const ModelNode &childNode : nodes) {
             if (QmlModelStateOperation::isValidQmlModelStateOperation(childNode)) {
@@ -67,7 +67,7 @@ QList<QmlPropertyChanges> QmlModelState::propertyChanges() const
 {
     QList<QmlPropertyChanges> returnList;
 
-    if (!isBaseState() &&  modelNode().hasNodeListProperty("changes")) {
+    if (!isBaseState() && modelNode().hasNodeListProperty("changes")) {
         const QList<ModelNode> nodes = modelNode().nodeListProperty("changes").toModelNodeList();
         for (const ModelNode &childNode : nodes) {
             //### exception if not valid QmlModelStateOperation
@@ -82,7 +82,7 @@ QList<QmlPropertyChanges> QmlModelState::propertyChanges() const
 
 bool QmlModelState::hasPropertyChanges(const ModelNode &node) const
 {
-    if (!isBaseState() &&  modelNode().hasNodeListProperty("changes")) {
+    if (!isBaseState() && modelNode().hasNodeListProperty("changes")) {
         const QList<QmlPropertyChanges> changes = propertyChanges();
         for (const QmlPropertyChanges &changeSet : changes) {
             if (changeSet.target().isValid() && changeSet.target() == node)
@@ -110,7 +110,7 @@ QList<QmlModelStateOperation> QmlModelState::stateOperations() const
     //### exception if not valid
     QList<QmlModelStateOperation> returnList;
 
-    if (!isBaseState() &&  modelNode().hasNodeListProperty("changes")) {
+    if (!isBaseState() && modelNode().hasNodeListProperty("changes")) {
         const QList<ModelNode> nodes = modelNode().nodeListProperty("changes").toModelNodeList();
         for (const ModelNode &childNode : nodes) {
             //### exception if not valid QmlModelStateOperation
@@ -345,6 +345,28 @@ void QmlModelState::removeAnnotation()
         modelNode().removeCustomId();
         modelNode().removeAnnotation();
     }
+}
+
+QString QmlModelState::extend() const
+{
+    if (isBaseState())
+        return QString();
+
+    return modelNode().variantProperty("extend").value().toString();
+}
+
+void QmlModelState::setExtend(const QString &name)
+{
+    if ((!isBaseState()) && (modelNode().isValid()))
+        modelNode().variantProperty("extend").setValue(name);
+}
+
+bool QmlModelState::hasExtend() const
+{
+    if (!isBaseState() && modelNode().isValid())
+        return modelNode().hasVariantProperty("extend");
+
+    return false;
 }
 
 QmlModelState QmlModelState::createBaseState(const AbstractView *view)

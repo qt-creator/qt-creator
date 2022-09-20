@@ -46,6 +46,9 @@ class PropertyEditorContextObject : public QObject
 
     Q_PROPERTY(QQmlComponent* specificQmlComponent READ specificQmlComponent NOTIFY specificQmlComponentChanged)
 
+    Q_PROPERTY(bool hasMultiSelection READ hasMultiSelection WRITE setHasMultiSelection NOTIFY
+                   hasMultiSelectionChanged)
+
 public:
     PropertyEditorContextObject(QObject *parent = nullptr);
 
@@ -104,6 +107,10 @@ public:
 
     bool hasAliasExport() const { return m_aliasExport; }
 
+    bool hasMultiSelection() const;
+
+    void setHasMultiSelection(bool);
+
 signals:
     void specificsUrlChanged();
     void specificQmlDataChanged();
@@ -120,6 +127,7 @@ signals:
     void hasAliasExportChanged();
     void hasActiveTimelineChanged();
     void activeDragSuffixChanged();
+    void hasMultiSelectionChanged();
 
 public slots:
 
@@ -170,6 +178,8 @@ private:
     bool m_setHasActiveTimeline = false;
 
     QString m_activeDragSuffix;
+
+    bool m_hasMultiSelection = false;
 };
 
 class EasingCurveEditor : public QObject

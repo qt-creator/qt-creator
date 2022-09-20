@@ -4,14 +4,15 @@
 #include "qmldesignerplugin.h"
 #include "designmodecontext.h"
 #include "designmodewidget.h"
+#include "dynamiclicensecheck.h"
 #include "exception.h"
 #include "generateresource.h"
 #include "nodeinstanceview.h"
 #include "openuiqmlfiledialog.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerprojectmanager.h"
+#include "quick2propertyeditorview.h"
 #include "settingspage.h"
-#include "dynamiclicensecheck.h"
 
 #include <metainfo.h>
 #include <connectionview.h>
@@ -258,7 +259,8 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     designerActionManager().addDesignerAction(shutDownNanotraceAction);
 #endif
-
+    //TODO Move registering those types out of the property editor, since they are used also in the states editor
+    Quick2PropertyEditorView::registerQmlTypes();
     return true;
 }
 

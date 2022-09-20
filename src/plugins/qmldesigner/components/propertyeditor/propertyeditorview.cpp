@@ -75,7 +75,6 @@ PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache)
 
     m_stackedWidget->insertWidget(0, new QWidget(m_stackedWidget));
 
-    Quick2PropertyEditorView::registerQmlTypes();
     m_stackedWidget->setWindowTitle(tr("Properties"));
 }
 

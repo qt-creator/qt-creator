@@ -24,6 +24,7 @@ QtcProduct {
         "../components/navigator",
         "../components/propertyeditor",
         "../components/stateseditor",
+        "../components/stateseditornew",
         "../designercore",
         "../designercore/include",
         "../../../../share/qtcreator/qml/qmlpuppet/interfaces",

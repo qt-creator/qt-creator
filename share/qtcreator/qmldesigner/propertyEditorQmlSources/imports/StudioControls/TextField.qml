@@ -8,21 +8,23 @@ import StudioTheme 1.0 as StudioTheme
 T.TextField {
     id: root
 
-    property alias actionIndicator: actionIndicator
-    property alias translationIndicator: translationIndicator
-
     // This property is used to indicate the global hover state
-    property bool hover: (actionIndicator.hover || mouseArea.containsMouse
+    property bool hover: (actionIndicator.hover || mouseArea.containsMouse || indicator.hover
                          || translationIndicator.hover) && root.enabled
     property bool edit: root.activeFocus
 
+    property alias actionIndicator: actionIndicator
     property alias actionIndicatorVisible: actionIndicator.visible
     property real __actionIndicatorWidth: StudioTheme.Values.actionIndicatorWidth
     property real __actionIndicatorHeight: StudioTheme.Values.actionIndicatorHeight
 
+    property alias translationIndicator: translationIndicator
     property alias translationIndicatorVisible: translationIndicator.visible
     property real __translationIndicatorWidth: StudioTheme.Values.translationIndicatorWidth
     property real __translationIndicatorHeight: StudioTheme.Values.translationIndicatorHeight
+
+    property alias indicator: indicator
+    property alias indicatorVisible: indicator.visible
 
     property string preFocusText: ""
 
@@ -46,7 +48,7 @@ T.TextField {
     implicitHeight: StudioTheme.Values.defaultControlHeight
 
     leftPadding: StudioTheme.Values.inputHorizontalPadding + actionIndicator.width
-    rightPadding: StudioTheme.Values.inputHorizontalPadding + translationIndicator.width
+    rightPadding: StudioTheme.Values.inputHorizontalPadding + translationIndicator.width + indicator.width
 
     MouseArea {
         id: mouseArea
@@ -122,6 +124,14 @@ T.TextField {
         height: root.height
     }
 
+    Indicator {
+        id: indicator
+        visible: false
+        x: root.width - translationIndicator.width - indicator.width
+        width: indicator.visible ? root.height : 0
+        height: indicator.visible ? root.height : 0
+    }
+
     TranslationIndicator {
         id: translationIndicator
         myControl: root
@@ -151,8 +161,8 @@ T.TextField {
         },
         State {
             name: "globalHover"
-            when: (actionIndicator.hover || translationIndicator.hover) && !root.edit
-                  && root.enabled
+            when: (actionIndicator.hover || translationIndicator.hover || indicator.hover)
+                  && !root.edit && root.enabled
             PropertyChanges {
                 target: textFieldBackground
                 color: StudioTheme.Values.themeControlBackgroundGlobalHover
@@ -167,7 +177,7 @@ T.TextField {
         State {
             name: "hover"
             when: mouseArea.containsMouse && !actionIndicator.hover && !translationIndicator.hover
-                  && !root.edit && root.enabled
+                  && !indicator.hover && !root.edit && root.enabled
             PropertyChanges {
                 target: textFieldBackground
                 color: StudioTheme.Values.themeControlBackgroundHover

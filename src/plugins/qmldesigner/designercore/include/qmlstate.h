@@ -16,9 +16,14 @@ class Annotation;
 class AnnotationEditor;
 class StatesEditorView;
 
+namespace Experimental {
+class StatesEditorView;
+}
+
 class QMLDESIGNERCORE_EXPORT QmlModelState final : public QmlModelNodeFacade
 {
     friend StatesEditorView;
+    friend Experimental::StatesEditorView;
 
 public:
     QmlModelState();
@@ -60,6 +65,10 @@ public:
     QString annotationName() const;
     bool hasAnnotation() const;
     void removeAnnotation();
+
+    QString extend() const;
+    void setExtend(const QString &name);
+    bool hasExtend() const;
 
 protected:
     void addChangeSetIfNotExists(const ModelNode &node);
