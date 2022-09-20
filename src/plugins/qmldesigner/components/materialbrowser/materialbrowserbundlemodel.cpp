@@ -30,6 +30,7 @@
 #include "bundlematerialcategory.h"
 #include "utils/qtcassert.h"
 
+#include <QCoreApplication>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QUrl>
@@ -82,15 +83,24 @@ QHash<int, QByteArray> MaterialBrowserBundleModel::roleNames() const
 
 void MaterialBrowserBundleModel::loadMaterialBundle()
 {
-    if (m_matBundleExists)
+    if (m_matBundleExists || m_probeMatBundleDir)
         return;
 
-    QString bundlePath = qEnvironmentVariable("MATERIAL_BUNDLE_PATH");
+    QDir matBundleDir(qEnvironmentVariable("MATERIAL_BUNDLE_PATH"));
 
-    if (bundlePath.isEmpty())
-        return;
+    // search for matBundleDir from exec dir and up
+    if (matBundleDir.dirName() == ".") {
+        m_probeMatBundleDir = true; // probe only once
 
-    QString matBundlePath = bundlePath + "material_bundle.json";
+        matBundleDir.setPath(QCoreApplication::applicationDirPath());
+        while (!matBundleDir.cd("material_bundle") && matBundleDir.cdUp())
+            ; // do nothing
+
+        if (matBundleDir.dirName() != "material_bundle") // bundlePathDir not found
+            return;
+    }
+
+    QString matBundlePath = matBundleDir.filePath("material_bundle.json");
 
     if (m_matBundleObj.isEmpty()) {
         QFile matPropsFile(matBundlePath);
@@ -127,7 +137,7 @@ void MaterialBrowserBundleModel::loadMaterialBundle()
                 files.append(asset.toString());
 
             auto bundleMat = new BundleMaterial(category, mat, matObj.value("qml").toString(),
-                                                QUrl::fromLocalFile(bundlePath + matObj.value("icon").toString()), files);
+                                                QUrl::fromLocalFile(matBundleDir.filePath(matObj.value("icon").toString())), files);
 
             category->addBundleMaterial(bundleMat);
         }
@@ -139,7 +149,7 @@ void MaterialBrowserBundleModel::loadMaterialBundle()
     for (const QJsonValueRef &file : sharedFilesArr)
         sharedFiles.append(file.toString());
 
-    m_importer = new Internal::BundleImporter(bundlePath, "MaterialBundle", sharedFiles);
+    m_importer = new Internal::BundleImporter(matBundleDir.path(), "MaterialBundle", sharedFiles);
     connect(m_importer, &Internal::BundleImporter::importFinished, this, [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
         if (metaInfo.isValid())
             emit addBundleMaterialToProjectRequested(metaInfo);

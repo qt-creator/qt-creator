@@ -92,6 +92,7 @@ private:
     bool m_hasQuick3DImport = false;
     bool m_hasMaterialRoot = false;
     bool m_matBundleExists = false;
+    bool m_probeMatBundleDir = false;
 };
 
 } // namespace QmlDesigner
