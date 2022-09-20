@@ -677,10 +677,10 @@ QString QmlObjectNode::generateTranslatableText(const QString &text)
 {
 #ifndef QMLDESIGNER_TEST
 
-    if (QmlDesignerPlugin::instance()->settings().value(
+    if (QmlDesignerPlugin::settings().value(
             DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt())
 
-        switch (QmlDesignerPlugin::instance()->settings().value(
+        switch (QmlDesignerPlugin::settings().value(
                     DesignerSettingsKey::TYPE_OF_QSTR_FUNCTION).toInt()) {
         case 0: return QString(QStringLiteral("qsTr(\"%1\")")).arg(text);
         case 1: return QString(QStringLiteral("qsTrId(\"%1\")")).arg(text);

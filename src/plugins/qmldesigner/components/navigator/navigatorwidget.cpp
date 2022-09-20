@@ -138,7 +138,7 @@ QList<QToolButton *> NavigatorWidget::createToolBarWidgets()
     auto filterAction = new QAction(tr("Show Only Visible Components"), nullptr);
     filterAction->setCheckable(true);
 
-    bool filterFlag = DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool();
+    bool filterFlag = QmlDesignerPlugin::settings().value(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool();
     filterAction->setChecked(filterFlag);
 
     connect(filterAction, &QAction::toggled, this, &NavigatorWidget::filterToggled);
@@ -147,7 +147,7 @@ QList<QToolButton *> NavigatorWidget::createToolBarWidgets()
     auto reverseAction = new QAction(tr("Reverse Component Order"), nullptr);
     reverseAction->setCheckable(true);
 
-    bool reverseFlag = DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
+    bool reverseFlag = QmlDesignerPlugin::settings().value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
     reverseAction->setChecked(reverseFlag);
 
     connect(reverseAction, &QAction::toggled, this, &NavigatorWidget::reverseOrderToggled);

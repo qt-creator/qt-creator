@@ -535,7 +535,7 @@ void Edit3DView::createEdit3DActions()
         m_particlesRestartAction->action()->setEnabled(particlemode);
         if (m_seeker)
             m_seeker->setEnabled(false);
-        QmlDesigner::DesignerSettings::setValue("particleMode", particlemode);
+        QmlDesignerPlugin::settings().insert("particleMode", particlemode);
         setCurrentStateNode(rootModelNode());
         resetPuppet();
     };

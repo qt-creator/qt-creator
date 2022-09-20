@@ -40,7 +40,7 @@ class Edit3DViewConfig
 public:
     static QList<QColor> load(const char key[])
     {
-        QVariant var = DesignerSettings::getValue(key);
+        QVariant var = QmlDesignerPlugin::settings().value(key);
 
         if (!var.isValid())
             return {};
@@ -91,7 +91,7 @@ private:
 
     static void saveVariant(const QByteArray &key, const QVariant &colorConfig)
     {
-        DesignerSettings::setValue(key, colorConfig);
+        QmlDesignerPlugin::settings().insert(key, colorConfig);
     }
 };
 

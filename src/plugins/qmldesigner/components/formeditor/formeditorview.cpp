@@ -36,6 +36,7 @@
 #include "formeditorscene.h"
 #include "abstractcustomtool.h"
 
+#include <qmldesignerplugin.h>
 #include <bindingproperty.h>
 #include <variantproperty.h>
 #include <designersettings.h>
@@ -685,8 +686,8 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
 void FormEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangedHash)
 {
     QList<FormEditorItem*> changedItems;
-    const int rootElementInitWidth = DesignerSettings::getValue(DesignerSettingsKey::ROOT_ELEMENT_INIT_WIDTH).toInt();
-    const int rootElementInitHeight = DesignerSettings::getValue(DesignerSettingsKey::ROOT_ELEMENT_INIT_HEIGHT).toInt();
+    const int rootElementInitWidth = QmlDesignerPlugin::settings().value(DesignerSettingsKey::ROOT_ELEMENT_INIT_WIDTH).toInt();
+    const int rootElementInitHeight = QmlDesignerPlugin::settings().value(DesignerSettingsKey::ROOT_ELEMENT_INIT_HEIGHT).toInt();
 
     QList<ModelNode> informationChangedNodes = Utils::filtered(informationChangedHash.keys(), [](const ModelNode &node) {
         return QmlItemNode::isValidQmlItemNode(node);

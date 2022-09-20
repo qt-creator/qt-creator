@@ -55,9 +55,8 @@ OpenUiQmlFileDialog::OpenUiQmlFileDialog(QWidget *parent) :
         close();
     });
     connect(ui->checkBox, &QCheckBox::toggled, this, [](bool b){
-        DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-        settings.insert(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES, !b);
-        QmlDesignerPlugin::instance()->setSettings(settings);
+        QmlDesignerPlugin::settings().insert(
+            DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES, !b);
     });
 }
 

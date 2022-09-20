@@ -25,8 +25,6 @@
 
 #include "designersettings.h"
 
-#include <qmldesignerplugin.h>
-
 #include <QSettings>
 
 namespace QmlDesigner {
@@ -36,11 +34,35 @@ namespace DesignerSettingsGroupKey {
     const char QML_DESIGNER_SETTINGS_GROUP[] = "Designer";
 }
 
-DesignerSettings::DesignerSettings() = default;
+DesignerSettings::DesignerSettings(QSettings *settings) :
+    m_settings(settings)
+{
+    fromSettings(settings);
+}
+
+void DesignerSettings::insert(const QByteArray &key, const QVariant &value)
+{
+    QMutexLocker locker(&m_mutex);
+    m_cache.insert(key, value);
+    toSettings(m_settings);
+}
+
+void DesignerSettings::insert(const QHash<QByteArray, QVariant> &settingsHash)
+{
+    QMutexLocker locker(&m_mutex);
+    m_cache.insert(settingsHash);
+    toSettings(m_settings);
+}
+
+QVariant DesignerSettings::value(const QByteArray &key, const QVariant &defaultValue) const
+{
+    QMutexLocker locker(&m_mutex);
+    return m_cache.value(key);
+}
 
 void DesignerSettings::restoreValue(QSettings *settings, const QByteArray &key, const QVariant &defaultValue)
 {
-    insert(key, settings->value(QString::fromLatin1(key), defaultValue));
+    m_cache.insert(key, settings->value(QString::fromLatin1(key), defaultValue));
 }
 
 void DesignerSettings::fromSettings(QSettings *settings)
@@ -80,8 +102,8 @@ void DesignerSettings::fromSettings(QSettings *settings)
     restoreValue(settings, DesignerSettingsKey::ALWAYS_DESIGN_MODE, true);
     restoreValue(settings, DesignerSettingsKey::DISABLE_ITEM_LIBRARY_UPDATE_TIMER, false);
     restoreValue(settings, DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET, true);
-    const QStringList defaultValue = QStringList() << "#222222" << "#999999";
-    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR, defaultValue);
+    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR,
+                 QStringList{"#222222", "#999999"});
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, "#aaaaaa");
     restoreValue(settings, DesignerSettingsKey::SMOOTH_RENDERING, false);
     restoreValue(settings, DesignerSettingsKey::SHOW_DEBUG_SETTINGS, false);
@@ -103,27 +125,14 @@ void DesignerSettings::toSettings(QSettings *settings) const
     settings->beginGroup(QLatin1String(DesignerSettingsGroupKey::QML_SETTINGS_GROUP));
     settings->beginGroup(QLatin1String(DesignerSettingsGroupKey::QML_DESIGNER_SETTINGS_GROUP));
 
-    QHash<QByteArray, QVariant>::const_iterator i = constBegin();
-    while (i != constEnd()) {
+    QHash<QByteArray, QVariant>::const_iterator i = m_cache.constBegin();
+    while (i != m_cache.constEnd()) {
         storeValue(settings, i.key(), i.value());
         ++i;
     }
 
     settings->endGroup();
     settings->endGroup();
-}
-
-QVariant DesignerSettings::getValue(const QByteArray &key)
-{
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    return settings.value(key);
-}
-
-void DesignerSettings::setValue(const QByteArray &key, const QVariant &value)
-{
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    settings.insert(key, value);
-    QmlDesignerPlugin::instance()->setSettings(settings);
 }
 
 } // namespace QmlDesigner

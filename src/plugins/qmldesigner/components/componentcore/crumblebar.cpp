@@ -145,7 +145,7 @@ Utils::CrumblePath *CrumbleBar::crumblePath()
 bool CrumbleBar::showSaveDialog()
 {
     bool canceled = false;
-    bool alwaysSave = DesignerSettings::getValue(DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR).toBool();
+    bool alwaysSave = QmlDesignerPlugin::settings().value(DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR).toBool();
     if (alwaysSave) {
         Core::DocumentManager::saveModifiedDocumentSilently(currentDesignDocument()->editor()->document());
     } else {
@@ -155,7 +155,7 @@ bool CrumbleBar::showSaveDialog()
                                                     tr("Always save when leaving subcomponent"),
                                                     &alwaysSave);
 
-        DesignerSettings::setValue(DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR, alwaysSave);
+        QmlDesignerPlugin::settings().insert(DesignerSettingsKey::ALWAYS_SAVE_IN_CRUMBLEBAR, alwaysSave);
     }
     return !canceled;
 }

@@ -124,7 +124,7 @@ QtQuickDesignerFactory::QtQuickDesignerFactory()
     setDocumentCreator([this]() {
         auto document = new QmlJSEditor::QmlJSEditorDocument(id());
         document->setIsDesignModePreferred(
-                    QmlDesigner::DesignerSettings::getValue(
+                    QmlDesigner::QmlDesignerPlugin::settings().value(
                         QmlDesigner::DesignerSettingsKey::ALWAYS_DESIGN_MODE).toBool());
         return document;
     });
@@ -135,6 +135,7 @@ QtQuickDesignerFactory::QtQuickDesignerFactory()
 class QmlDesignerPluginPrivate
 {
 public:
+    DesignerSettings settings{Core::ICore::instance()->settings()};
     QmlDesignerProjectManager projectManager;
     ViewManager viewManager{projectManager.asynchronousImageCache(),
                             projectManager.asynchronousMeshImageCache()};
@@ -142,7 +143,6 @@ public:
     ShortCutManager shortCutManager;
     SettingsPage settingsPage;
     DesignModeWidget mainWidget;
-    DesignerSettings settings;
     QtQuickDesignerFactory m_qtQuickDesignerFactory;
     bool blockEditorChange = false;
 };
@@ -196,7 +196,7 @@ static bool shouldAssertInException()
 
 static bool warningsForQmlFilesInsteadOfUiQmlEnabled()
 {
-    return DesignerSettings::getValue(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES).toBool();
+    return QmlDesignerPlugin::settings().value(DesignerSettingsKey::WARNING_FOR_QML_FILES_INSTEAD_OF_UIQML_FILES).toBool();
 }
 
 QmlDesignerPlugin::QmlDesignerPlugin()
@@ -296,8 +296,6 @@ bool QmlDesignerPlugin::delayedInitialize()
             return QString(p + postfix);
         });
     MetaInfo::setPluginPaths(pluginPaths);
-
-    d->settings.fromSettings(Core::ICore::settings());
 
     d->viewManager.registerView(std::make_unique<QmlDesigner::Internal::ConnectionView>());
 
@@ -645,7 +643,7 @@ void QmlDesignerPlugin::emitCurrentTextEditorChanged(Core::IEditor *editor)
 
 double QmlDesignerPlugin::formEditorDevicePixelRatio()
 {
-    if (DesignerSettings::getValue(DesignerSettingsKey::IGNORE_DEVICE_PIXEL_RATIO).toBool())
+    if (QmlDesignerPlugin::settings().value(DesignerSettingsKey::IGNORE_DEVICE_PIXEL_RATIO).toBool())
         return 1;
 
     const QList<QWindow *> topLevelWindows = QApplication::topLevelWindows();
@@ -753,18 +751,9 @@ const DesignerActionManager &QmlDesignerPlugin::designerActionManager() const
     return d->viewManager.designerActionManager();
 }
 
-DesignerSettings QmlDesignerPlugin::settings()
+DesignerSettings& QmlDesignerPlugin::settings()
 {
-    d->settings.fromSettings(Core::ICore::settings());
-    return d->settings;
-}
-
-void QmlDesignerPlugin::setSettings(const DesignerSettings &s)
-{
-    if (s != d->settings) {
-        d->settings = s;
-        d->settings.toSettings(Core::ICore::settings());
-    }
+    return instance()->d->settings;
 }
 
 } // namespace QmlDesigner

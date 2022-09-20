@@ -285,7 +285,7 @@ void ItemLibraryWidget::goIntoComponent(const QString &source)
 
 void ItemLibraryWidget::delayedUpdateModel()
 {
-    static bool disableTimer = DesignerSettings::getValue(DesignerSettingsKey::DISABLE_ITEM_LIBRARY_UPDATE_TIMER).toBool();
+    static bool disableTimer = QmlDesignerPlugin::settings().value(DesignerSettingsKey::DISABLE_ITEM_LIBRARY_UPDATE_TIMER).toBool();
     if (disableTimer)
         updateModel();
     else

@@ -50,15 +50,14 @@ void InteractiveConnectionManager::setUp(NodeInstanceServerInterface *nodeInstan
 {
     ConnectionManager::setUp(nodeInstanceServer, qrcMappingString, target, view);
 
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
-    int timeOutTime = settings.value(DesignerSettingsKey::PUPPET_KILL_TIMEOUT).toInt();
+    int timeOutTime = QmlDesignerPlugin::settings()
+            .value(DesignerSettingsKey::PUPPET_KILL_TIMEOUT).toInt();
     for (Connection &connection : connections()) {
         connection.timer.reset(new QTimer);
         connection.timer->setInterval(timeOutTime);
     }
 
-    if (QmlDesignerPlugin::instance()
-            ->settings()
+    if (QmlDesignerPlugin::settings()
             .value(DesignerSettingsKey::DEBUG_PUPPET)
             .toString()
             .isEmpty()) {
