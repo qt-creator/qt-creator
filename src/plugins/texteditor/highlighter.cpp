@@ -119,8 +119,15 @@ Highlighter::Definitions Highlighter::definitionsForDocument(const TextDocument 
     }
     if (definitions.isEmpty()) {
         const MimeType &mimeType = Utils::mimeTypeForName(document->mimeType());
-        if (mimeType.isValid())
-            definitions = definitionsForMimeType(mimeType.name());
+        if (mimeType.isValid()) {
+            // highlight definitions might not use the canonical name but an alias
+            const QStringList names = QStringList(mimeType.name()) + mimeType.aliases();
+            for (const QString &name : names) {
+                definitions = definitionsForMimeType(name);
+                if (!definitions.isEmpty())
+                    break;
+            }
+        }
     }
 
     return definitions;
