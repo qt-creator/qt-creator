@@ -1691,7 +1691,8 @@ void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cu
                            << link.targetLine << (link.targetColumn + 1);
         if (!d->localRefsData || id != d->localRefsData->id)
             return;
-        if (!link.hasValidTarget()) {
+        if (!link.hasValidTarget() || !d->localRefsData->document
+                || d->localRefsData->document->filePath() != link.targetFilePath) {
             d->localRefsData.reset();
             return;
         }
