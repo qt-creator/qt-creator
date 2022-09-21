@@ -98,5 +98,8 @@
         <file>images/timeline-16px.png</file>
         <file>images/keyframe-16px.png</file>
         <file>images/timeline-animation-16px.png</file>
+        <file>images/timer-16px.png</file>
+        <file>images/timer-24px.png</file>
+        <file>images/timer-24px@2x.png</file>
     </qresource>
 </RCC>
