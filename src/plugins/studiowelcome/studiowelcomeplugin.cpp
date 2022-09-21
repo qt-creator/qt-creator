@@ -576,6 +576,7 @@ void StudioWelcomePlugin::extensionsInitialized()
 
             s_view->show();
             s_view->raise();
+            s_view->setFocus();
         });
     }
 }

@@ -27,6 +27,14 @@ import QtQuick 2.0
 
 Item {
     id: root
+
+    focus: true
+    Keys.onPressed: (event)=> {
+        if (event.key == Qt.Key_Escape)
+            root.doNotShowAgain = false
+            root.closeClicked()
+    }
+
     width: 600 * root.mainScale
     height: 720 * root.mainScale
 
