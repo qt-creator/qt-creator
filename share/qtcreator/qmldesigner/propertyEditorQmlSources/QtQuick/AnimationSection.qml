@@ -157,6 +157,7 @@ Section {
             BoolButtonRowButton {
                 visible: section.showEasingCurve
                 buttonIcon: StudioTheme.Constants.curveDesigner
+                checkable: false
 
                 EasingCurveEditor {
                     id: easingCurveEditor
