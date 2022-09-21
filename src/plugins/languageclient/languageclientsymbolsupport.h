@@ -42,7 +42,8 @@ public:
             const ResultHandler &handler = {});
 
     bool supportsRename(TextEditor::TextDocument *document);
-    void renameSymbol(TextEditor::TextDocument *document, const QTextCursor &cursor);
+    void renameSymbol(TextEditor::TextDocument *document, const QTextCursor &cursor,
+                      const QString &newSymbolName = {});
 
     static Core::Search::TextRange convertRange(const LanguageServerProtocol::Range &range);
     static QStringList getFileContents(const Utils::FilePath &filePath);

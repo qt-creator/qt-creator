@@ -288,14 +288,16 @@ bool SymbolSupport::supportsRename(TextEditor::TextDocument *document)
     return LanguageClient::supportsRename(m_client, document, prepareSupported);
 }
 
-void SymbolSupport::renameSymbol(TextEditor::TextDocument *document, const QTextCursor &cursor)
+void SymbolSupport::renameSymbol(TextEditor::TextDocument *document, const QTextCursor &cursor,
+                                 const QString &newSymbolName)
 {
     const TextDocumentPositionParams params = generateDocPosParams(document, cursor);
     QTextCursor tc = cursor;
     tc.select(QTextCursor::WordUnderCursor);
     const QString oldSymbolName = tc.selectedText();
-    const QString placeholder = m_defaultSymbolMapper ? m_defaultSymbolMapper(oldSymbolName)
-                                                      : oldSymbolName;
+    QString placeholder = newSymbolName;
+    if (placeholder.isEmpty())
+        placeholder = m_defaultSymbolMapper ? m_defaultSymbolMapper(oldSymbolName) : oldSymbolName;
 
     bool prepareSupported;
     if (!LanguageClient::supportsRename(m_client, document, prepareSupported)) {
