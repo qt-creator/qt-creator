@@ -136,6 +136,9 @@ public:
     static bool isProjectFile(const Utils::FilePath &filePath);
     static RecentProjectsEntries recentProjects();
 
+    static void renameFilesForSymbol(const QString &oldSymbolName, const QString &newSymbolName,
+                                     const Utils::FilePaths &files, bool preferLowerCaseFileNames);
+
     static bool canRunStartupProject(Utils::Id runMode, QString *whyNot = nullptr);
     static void runProject(Project *pro, Utils::Id, const bool forceSkipDeploy = false);
     static void runStartupProject(Utils::Id runMode, bool forceSkipDeploy = false);

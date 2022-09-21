@@ -5,7 +5,6 @@
 
 #include "cppcodemodelsettings.h"
 #include "cppeditorconstants.h"
-#include "cppfilesettingspage.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
@@ -42,8 +41,6 @@ using namespace std::placeholders;
 
 namespace CppEditor {
 
-namespace { static bool isAllLowerCase(const QString &text) { return text.toLower() == text; } }
-
 SearchResultColor::Style colorStyleForUsageType(CPlusPlus::Usage::Type type)
 {
     switch (type) {
@@ -58,51 +55,6 @@ SearchResultColor::Style colorStyleForUsageType(CPlusPlus::Usage::Type type)
         return SearchResultColor::Style::Default;
     }
     return SearchResultColor::Style::Default; // For dumb compilers.
-}
-
-void renameFilesForSymbol(const QString &oldSymbolName, const QString &newSymbolName,
-                          const QVector<Node *> &files)
-{
-    Internal::CppFileSettings settings;
-    settings.fromSettings(Core::ICore::settings());
-
-    const QStringList newPaths =
-            Utils::transform<QList>(files,
-                                    [&oldSymbolName, newSymbolName, &settings](const Node *node) -> QString {
-        const QFileInfo fi = node->filePath().toFileInfo();
-        const QString oldBaseName = fi.baseName();
-        QString newBaseName = newSymbolName;
-
-        // 1) new symbol lowercase: new base name lowercase
-        if (isAllLowerCase(newSymbolName)) {
-            newBaseName = newSymbolName;
-
-        // 2) old base name mixed case: new base name is verbatim symbol name
-        } else if (!isAllLowerCase(oldBaseName)) {
-            newBaseName = newSymbolName;
-
-        // 3) old base name lowercase, old symbol mixed case: new base name lowercase
-        } else if (!isAllLowerCase(oldSymbolName)) {
-            newBaseName = newSymbolName.toLower();
-
-        // 4) old base name lowercase, old symbol lowercase, new symbol mixed case:
-        //    use the preferences setting for new base name case
-        } else if (settings.lowerCaseFiles) {
-            newBaseName = newSymbolName.toLower();
-        }
-
-        if (newBaseName == oldBaseName)
-            return QString();
-
-        return fi.absolutePath() + "/" + newBaseName + '.' + fi.completeSuffix();
-    });
-
-    for (int i = 0; i < files.size(); ++i) {
-        if (!newPaths.at(i).isEmpty()) {
-            Node *node = files.at(i);
-            ProjectExplorerPlugin::renameFile(node, newPaths.at(i));
-        }
-    }
 }
 
 QWidget *CppSearchResultFilter::createWidget()
@@ -531,7 +483,9 @@ void CppFindReferences::onReplaceButtonClicked(Core::SearchResult *search,
     if (!renameFilesCheckBox || !renameFilesCheckBox->isChecked())
         return;
 
-    renameFilesForSymbol(parameters.prettySymbolName, text, parameters.filesToRename);
+    ProjectExplorerPlugin::renameFilesForSymbol(
+                parameters.prettySymbolName, text, parameters.filesToRename,
+                preferLowerCaseFileNames());
 }
 
 void CppFindReferences::searchAgain(SearchResult *search)
@@ -639,16 +593,14 @@ static void displayResults(SearchResult *search,
         if (parameters.prettySymbolName.isEmpty())
             continue;
 
-        if (Utils::contains(parameters.filesToRename, Utils::equal(&Node::filePath, result.path)))
+        if (parameters.filesToRename.contains(result.path))
             continue;
 
-        Node *node = ProjectTree::nodeForFile(result.path);
-        if (!node) // Not part of any project
+        if (!SessionManager::projectForFile(result.path))
             continue;
 
-        const QFileInfo fi = node->filePath().toFileInfo();
-        if (fi.baseName().compare(parameters.prettySymbolName, Qt::CaseInsensitive) == 0)
-            parameters.filesToRename.append(node);
+        if (result.path.baseName().compare(parameters.prettySymbolName, Qt::CaseInsensitive) == 0)
+            parameters.filesToRename.append(result.path);
     }
 
     search->setUserData(QVariant::fromValue(parameters));
@@ -661,9 +613,7 @@ static void searchFinished(SearchResult *search, QFutureWatcher<CPlusPlus::Usage
     CppFindReferencesParameters parameters = search->userData().value<CppFindReferencesParameters>();
     if (!parameters.filesToRename.isEmpty()) {
         const QStringList filesToRename
-                = Utils::transform<QList>(parameters.filesToRename, [](const Node *node) {
-            return node->filePath().toUserOutput();
-        });
+                = Utils::transform<QList>(parameters.filesToRename, &FilePath::toUserOutput);
 
         auto renameCheckBox = qobject_cast<QCheckBox *>(search->additionalReplaceWidget());
         if (renameCheckBox) {

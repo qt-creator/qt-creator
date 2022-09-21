@@ -9,6 +9,7 @@
 #include "cppcompletionassist.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
+#include "cppfilesettingspage.h"
 #include "cpphighlighter.h"
 #include "cppqtstyleindenter.h"
 #include "cppquickfixassistant.h"
@@ -612,6 +613,11 @@ void openEditor(const Utils::FilePath &filePath, bool inNextSplit, Utils::Id edi
     using Core::EditorManager;
     EditorManager::openEditor(filePath, editorId, inNextSplit ? EditorManager::OpenInOtherSplit
                                                               : EditorManager::NoFlags);
+}
+
+bool preferLowerCaseFileNames()
+{
+    return Internal::CppEditorPlugin::fileSettings()->lowerCaseFiles;
 }
 
 namespace Internal {

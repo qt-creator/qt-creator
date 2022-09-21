@@ -4350,6 +4350,46 @@ RecentProjectsEntries ProjectExplorerPlugin::recentProjects()
     return dd->recentProjects();
 }
 
+void ProjectExplorerPlugin::renameFilesForSymbol(
+        const QString &oldSymbolName, const QString &newSymbolName, const Utils::FilePaths &files,
+        bool preferLowerCaseFileNames)
+{
+    static const auto isAllLowerCase = [](const QString &text) { return text.toLower() == text; };
+
+    for (const FilePath &file : files) {
+        Node * const node = ProjectTree::nodeForFile(file);
+        if (!node)
+            continue;
+        const QString oldBaseName = file.baseName();
+        QString newBaseName = newSymbolName;
+
+        // 1) new symbol lowercase: new base name lowercase
+        if (isAllLowerCase(newSymbolName)) {
+            newBaseName = newSymbolName;
+
+        // 2) old base name mixed case: new base name is verbatim symbol name
+        } else if (!isAllLowerCase(oldBaseName)) {
+            newBaseName = newSymbolName;
+
+        // 3) old base name lowercase, old symbol mixed case: new base name lowercase
+        } else if (!isAllLowerCase(oldSymbolName)) {
+            newBaseName = newSymbolName.toLower();
+
+        // 4) old base name lowercase, old symbol lowercase, new symbol mixed case:
+        //    use the preferences setting for new base name case
+        } else if (preferLowerCaseFileNames) {
+            newBaseName = newSymbolName.toLower();
+        }
+
+        if (newBaseName == oldBaseName)
+            continue;
+
+        const QString newFilePath = file.absolutePath().toString() + '/' + newBaseName + '.'
+                + file.completeSuffix();
+        renameFile(node, newFilePath);
+    }
+}
+
 void ProjectManager::registerProjectCreator(const QString &mimeType,
     const std::function<Project *(const FilePath &)> &creator)
 {

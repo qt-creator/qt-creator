@@ -15,6 +15,7 @@
 #include <cppeditor/cpptoolsreuse.h>
 #include <languageclient/languageclientsymbolsupport.h>
 #include <languageserverprotocol/lsptypes.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/session.h>
@@ -169,14 +170,10 @@ void ClangdFindReferences::Private::handleRenameRequest(
     if (!renameFilesCheckBox->isChecked())
         return;
 
-    QVector<Node *> fileNodes;
-    for (const Utils::FilePath &file : replacementData.fileRenameCandidates) {
-        Node * const node = ProjectTree::nodeForFile(file);
-        if (node)
-            fileNodes << node;
-    }
-    if (!fileNodes.isEmpty())
-        renameFilesForSymbol(replacementData.oldSymbolName, newSymbolName, fileNodes);
+    ProjectExplorerPlugin::renameFilesForSymbol(
+                replacementData.oldSymbolName, newSymbolName,
+                Utils::toList(replacementData.fileRenameCandidates),
+                CppEditor::preferLowerCaseFileNames());
 }
 
 void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location> &locations)

@@ -7,6 +7,7 @@
 
 #include <coreplugin/find/searchresultwindow.h>
 #include <cplusplus/FindUsages.h>
+#include <utils/filepath.h>
 
 #include <QObject>
 #include <QPointer>
@@ -19,17 +20,11 @@ class SearchResultItem;
 class SearchResult;
 } // namespace Core
 
-namespace ProjectExplorer { class Node; }
-
 namespace CppEditor {
 class CppModelManager;
 
 Core::SearchResultColor::Style CPPEDITOR_EXPORT
 colorStyleForUsageType(CPlusPlus::Usage::Type type);
-
-void CPPEDITOR_EXPORT renameFilesForSymbol(const QString &oldSymbolName,
-                                           const QString &newSymbolName,
-                                           const QVector<ProjectExplorer::Node *> &files);
 
 class CPPEDITOR_EXPORT CppSearchResultFilter : public Core::SearchResultFilter
 {
@@ -52,7 +47,7 @@ public:
     QList<QByteArray> symbolId;
     QByteArray symbolFileName;
     QString prettySymbolName;
-    QVector<ProjectExplorer::Node *> filesToRename;
+    Utils::FilePaths filesToRename;
     bool categorize = false;
 };
 

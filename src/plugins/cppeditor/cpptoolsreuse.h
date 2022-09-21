@@ -70,6 +70,8 @@ void CPPEDITOR_EXPORT openEditor(const Utils::FilePath &filePath, bool inNextSpl
 class CppCodeModelSettings;
 CppCodeModelSettings CPPEDITOR_EXPORT *codeModelSettings();
 
+bool CPPEDITOR_EXPORT preferLowerCaseFileNames();
+
 UsePrecompiledHeaders CPPEDITOR_EXPORT getPchUsage();
 
 int indexerFileSizeLimitInMb();
