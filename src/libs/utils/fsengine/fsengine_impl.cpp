@@ -61,8 +61,8 @@ bool FSEngineImpl::open(QIODevice::OpenMode openMode)
 bool FSEngineImpl::close()
 {
     QTC_ASSERT(flush(), return false);
-    QTC_ASSERT(m_tempStorage, ensureStorage());
-    m_tempStorage->close();
+    if (m_tempStorage)
+        m_tempStorage->close();
     return true;
 }
 
@@ -343,7 +343,6 @@ void FSEngineImpl::ensureStorage()
 {
     if (!m_tempStorage)
         m_tempStorage = new QTemporaryFile;
-
 }
 
 } // namespace Internal

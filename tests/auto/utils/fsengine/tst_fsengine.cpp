@@ -187,15 +187,15 @@ void tst_fsengine::testFilePathFromToString()
 
 void tst_fsengine::testRootPathContainsFakeDir()
 {
-    const auto rootList = QDir::root().entryList();
+    const QStringList rootList = QDir::root().entryList();
     QVERIFY(rootList.contains(FilePath::specialPath(FilePath::SpecialPathComponent::RootName)));
 
     QDir schemes(FilePath::specialPath(FilePath::SpecialPathComponent::RootPath));
-    const auto schemeList = schemes.entryList();
+    const QStringList schemeList = schemes.entryList();
     QVERIFY(schemeList.contains("device"));
 
     QDir deviceRoot(FilePath::specialPath(FilePath::SpecialPathComponent::DeviceRootPath) + "/test" + startWithSlash(QDir::rootPath()));
-    const auto deviceRootList = deviceRoot.entryList();
+    const QStringList deviceRootList = deviceRoot.entryList();
     QVERIFY(!deviceRootList.isEmpty());
 }
 
@@ -247,7 +247,7 @@ void tst_fsengine::testListDir()
         QVERIFY(f.open(QIODevice::WriteOnly));
     }
 
-    const auto list = d.entryList();
+    const QStringList list = d.entryList();
     QVERIFY(list.contains("f1.txt"));
 }
 
