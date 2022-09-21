@@ -270,7 +270,6 @@ Item {
                     x: scrollView.leftPadding
                     y: scrollView.height - height
                     width: scrollView.availableWidth
-                    active: scrollView.ScrollBar.vertical.active
                     orientation: Qt.Horizontal
                     onPressedChanged: root.focusSignal()
                 }
@@ -280,7 +279,6 @@ Item {
                     x: scrollView.mirrored ? 0 : scrollView.width - width
                     y: scrollView.topPadding
                     height: scrollView.availableHeight
-                    active: scrollView.ScrollBar.horizontal.active
                     orientation: Qt.Vertical
                     onPressedChanged: root.focusSignal()
                 }
