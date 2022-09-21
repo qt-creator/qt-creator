@@ -9,20 +9,24 @@
 
 namespace QmlDesigner {
 
-class  QMLDESIGNERCORE_EXPORT QmlModelStateOperation : public QmlModelNodeFacade
+class QMLDESIGNERCORE_EXPORT QmlModelStateOperation : public QmlModelNodeFacade
 {
 public:
     QmlModelStateOperation() : QmlModelNodeFacade() {}
     QmlModelStateOperation(const ModelNode &modelNode) : QmlModelNodeFacade(modelNode) {}
     ModelNode target() const;
     void setTarget(const ModelNode &target);
+    bool explicitValue() const;
+    void setExplicitValue(bool value);
+    bool restoreEntryValues() const;
+    void setRestoreEntryValues(bool value);
+    QList<AbstractProperty> targetProperties() const;
     bool isValid() const override;
     explicit operator bool() const { return isValid(); }
     static bool isValidQmlModelStateOperation(const ModelNode &modelNode);
 };
 
-
-class  QMLDESIGNERCORE_EXPORT QmlPropertyChanges : public QmlModelStateOperation
+class QMLDESIGNERCORE_EXPORT QmlPropertyChanges : public QmlModelStateOperation
 {
 public:
     QmlPropertyChanges() : QmlModelStateOperation() {}

@@ -60,6 +60,7 @@ Project {
              "components/navigator",
              "components/pluginmanager",
              "components/stateseditor",
+             "components/stateseditornew",
              "components/texteditor",
              "components/timelineeditor",
              "components/listmodeleditor",
@@ -821,6 +822,18 @@ Project {
                 "stateseditor/stateseditorview.h",
                 "stateseditor/stateseditorwidget.cpp",
                 "stateseditor/stateseditorwidget.h",
+                "stateseditornew/propertychangesmodel.cpp",
+                "stateseditornew/propertychangesmodel.h",
+                "stateseditornew/propertymodel.cpp",
+                "stateseditornew/propertymodel.h",
+                "stateseditornew/stateseditorimageprovider.cpp",
+                "stateseditornew/stateseditorimageprovider.h",
+                "stateseditornew/stateseditormodel.cpp",
+                "stateseditornew/stateseditormodel.h",
+                "stateseditornew/stateseditorview.cpp",
+                "stateseditornew/stateseditorview.h",
+                "stateseditornew/stateseditorwidget.cpp",
+                "stateseditornew/stateseditorwidget.h",
             ]
         }
 

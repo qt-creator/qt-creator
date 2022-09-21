@@ -416,6 +416,9 @@ public:
         DSgreenLight,
         DSamberLight,
         DSredLight,
+
+        DSstatePanelBackground,
+        DSstateHighlight,
     };
 
     enum ImageFile {

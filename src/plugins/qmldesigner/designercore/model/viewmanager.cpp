@@ -6,6 +6,7 @@
 #ifndef QMLDESIGNER_TEST
 
 #include <abstractview.h>
+#include <assetslibraryview.h>
 #include <capturingconnectionmanager.h>
 #include <componentaction.h>
 #include <componentview.h>
@@ -16,13 +17,13 @@
 #include <edit3dview.h>
 #include <formeditorview.h>
 #include <itemlibraryview.h>
-#include <assetslibraryview.h>
+#include <materialbrowserview.h>
+#include <materialeditorview.h>
 #include <navigatorview.h>
 #include <nodeinstanceview.h>
 #include <propertyeditorview.h>
-#include <materialeditorview.h>
-#include <materialbrowserview.h>
 #include <rewriterview.h>
+#include <stateseditornew/stateseditorview.h>
 #include <stateseditorview.h>
 #include <texteditorview.h>
 #include <qmldesignerplugin.h>
@@ -34,6 +35,14 @@
 #include <QTabWidget>
 
 namespace QmlDesigner {
+
+static bool useOldStatesEditor()
+{
+    return QmlDesignerPlugin::instance()
+        ->settings()
+        .value(DesignerSettingsKey::OLD_STATES_EDITOR)
+        .toBool();
+}
 
 static Q_LOGGING_CATEGORY(viewBenchmark, "qtc.viewmanager.attach", QtWarningMsg)
 
@@ -64,6 +73,7 @@ public:
     MaterialEditorView materialEditorView;
     MaterialBrowserView materialBrowserView;
     StatesEditorView statesEditorView;
+    Experimental::StatesEditorView newStatesEditorView;
 
     std::vector<std::unique_ptr<AbstractView>> additionalViews;
     bool disableStandardViews = false;
@@ -142,16 +152,30 @@ void ViewManager::detachRewriterView()
 
 void ViewManager::switchStateEditorViewToBaseState()
 {
-    if (d->statesEditorView.isAttached()) {
-        d->savedState = d->statesEditorView.currentState();
-        d->statesEditorView.setCurrentState(d->statesEditorView.baseState());
+    if (useOldStatesEditor()) {
+        if (d->statesEditorView.isAttached()) {
+            d->savedState = d->statesEditorView.currentState();
+            d->statesEditorView.setCurrentState(d->statesEditorView.baseState());
+        }
+    } else {
+        // TODO remove old statesview
+        if (d->newStatesEditorView.isAttached()) {
+            d->savedState = d->newStatesEditorView.currentState();
+            d->newStatesEditorView.setCurrentState(d->newStatesEditorView.baseState());
+        }
     }
 }
 
 void ViewManager::switchStateEditorViewToSavedState()
 {
-    if (d->savedState.isValid() && d->statesEditorView.isAttached())
-        d->statesEditorView.setCurrentState(d->savedState);
+    if (useOldStatesEditor()) {
+        if (d->savedState.isValid() && d->statesEditorView.isAttached())
+            d->statesEditorView.setCurrentState(d->savedState);
+    } else {
+        // TODO remove old statesview
+        if (d->savedState.isValid() && d->newStatesEditorView.isAttached())
+            d->newStatesEditorView.setCurrentState(d->savedState);
+    }
 }
 
 QList<AbstractView *> ViewManager::views() const
@@ -174,11 +198,19 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->materialEditorView,
                                   &d->materialBrowserView,
                                   &d->statesEditorView,
+                                  &d->newStatesEditorView, // TODO
                                   &d->designerActionManagerView};
 
-    if (QmlDesignerPlugin::instance()->settings().value(
-                DesignerSettingsKey::ENABLE_DEBUGVIEW).toBool())
-         list.append(&d->debugView);
+    if (useOldStatesEditor())
+        list.removeAll(&d->newStatesEditorView);
+    else
+        list.removeAll(&d->statesEditorView);
+
+    if (QmlDesignerPlugin::instance()
+            ->settings()
+            .value(DesignerSettingsKey::ENABLE_DEBUGVIEW)
+            .toBool())
+        list.append(&d->debugView);
 
     return list;
 }
@@ -308,7 +340,11 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->propertyEditorView.widgetInfo());
     widgetInfoList.append(d->materialEditorView.widgetInfo());
     widgetInfoList.append(d->materialBrowserView.widgetInfo());
-    widgetInfoList.append(d->statesEditorView.widgetInfo());
+    if (useOldStatesEditor())
+        widgetInfoList.append(d->statesEditorView.widgetInfo());
+    else
+        widgetInfoList.append(d->newStatesEditorView.widgetInfo());
+
     if (d->debugView.hasWidget())
         widgetInfoList.append(d->debugView.widgetInfo());
 

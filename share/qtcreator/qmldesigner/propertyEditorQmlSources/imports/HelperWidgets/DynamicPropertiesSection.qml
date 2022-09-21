@@ -677,6 +677,7 @@ Section {
                         translationIndicatorVisible: false
                         width: cePopup.itemWidth
                         rightPadding: 8
+                        validator: RegExpValidator { regExp: /[a-z]+[0-9A-Za-z]*/ }
                     }
                 }
                 RowLayout {

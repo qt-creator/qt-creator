@@ -103,6 +103,7 @@ class QMLDESIGNERCORE_EXPORT QmlModelStateGroup
 {
     friend class QmlObjectNode;
     friend class StatesEditorView;
+    friend class Experimental::StatesEditorView;
 
 public:
     QmlModelStateGroup() = default;
