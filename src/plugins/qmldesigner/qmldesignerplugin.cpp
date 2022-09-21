@@ -261,6 +261,12 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
 #endif
     //TODO Move registering those types out of the property editor, since they are used also in the states editor
     Quick2PropertyEditorView::registerQmlTypes();
+
+    Exception::setWarnAboutException(!QmlDesignerPlugin::instance()
+                                          ->settings()
+                                          .value(DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT)
+                                          .toBool());
+
     return true;
 }
 

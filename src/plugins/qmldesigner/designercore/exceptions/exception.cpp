@@ -66,15 +66,16 @@ bool Exception::shouldAssert()
     return s_shouldAssert;
 }
 
+bool Exception::s_warnAboutException = true;
+
+void Exception::setWarnAboutException(bool warn)
+{
+    s_warnAboutException = warn;
+}
+
 bool Exception::warnAboutException()
 {
-#ifndef QMLDESIGNER_TEST
-    static bool warnException = !QmlDesignerPlugin::instance()->settings().value(
-                DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT).toBool();
-    return warnException;
-#else
-    return true;
-#endif
+    return s_warnAboutException;
 }
 
 #ifdef Q_OS_LINUX

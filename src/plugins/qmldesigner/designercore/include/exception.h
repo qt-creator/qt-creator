@@ -31,6 +31,7 @@ public:
 
     static void setShouldAssert(bool assert);
     static bool shouldAssert();
+    static void setWarnAboutException(bool warn);
     static bool warnAboutException();
 
 protected:
@@ -48,6 +49,7 @@ private:
     const QString m_description;
     const QString m_backTrace;
     static bool s_shouldAssert;
+    static bool s_warnAboutException;
 };
 
 QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const Exception &exception);
