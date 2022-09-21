@@ -46,6 +46,9 @@ private slots:
     void relativePath_data();
     void relativePath();
 
+    void absoluteFilePath_data();
+    void absoluteFilePath();
+
     void fromToString_data();
     void fromToString();
 
@@ -368,6 +371,26 @@ void tst_fileutils::schemeAndHostLength()
 
     int actual = FilePath::schemeAndHostLength(path);
     QCOMPARE(actual, result);
+}
+
+void tst_fileutils::absoluteFilePath_data()
+{
+    QTest::addColumn<FilePath>("path");
+    QTest::addColumn<FilePath>("result");
+
+    QTest::newRow("absolute1") << FilePath::fromString("/") << FilePath::fromString("/");
+    QTest::newRow("absolute2") << FilePath::fromString("C:/a/b") << FilePath::fromString("C:/a/b");
+    QTest::newRow("absolute3") << FilePath::fromString("/a/b") << FilePath::fromString("/a/b");
+    QTest::newRow("default-constructed") << FilePath() << FilePath();
+    QTest::newRow("relative") << FilePath::fromString("a/b")
+                              << FilePath::fromString(QDir::currentPath() + "/a/b");
+}
+
+void tst_fileutils::absoluteFilePath()
+{
+    QFETCH(FilePath, path);
+    QFETCH(FilePath, result);
+    QCOMPARE(path.absoluteFilePath(), result);
 }
 
 void tst_fileutils::toString_data()

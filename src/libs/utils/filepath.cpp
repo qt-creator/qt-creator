@@ -721,13 +721,19 @@ FilePath FilePath::parentDir() const
 
 FilePath FilePath::absolutePath() const
 {
-    const FilePath parentPath = isAbsolutePath() ? parentDir() : FilePath::currentWorkingPath().resolvePath(*this).parentDir();
+    if (!needsDevice() && isEmpty())
+        return *this;
+    const FilePath parentPath = isAbsolutePath()
+                                    ? parentDir()
+                                    : FilePath::currentWorkingPath().resolvePath(*this).parentDir();
     return parentPath.isEmpty() ? *this : parentPath;
 }
 
 FilePath FilePath::absoluteFilePath() const
 {
     if (isAbsolutePath())
+        return *this;
+    if (!needsDevice() && isEmpty())
         return *this;
 
     return FilePath::currentWorkingPath().resolvePath(*this);
