@@ -252,7 +252,6 @@ public:
         CASE_ERRORCODES(serverErrorStart);
         CASE_ERRORCODES(serverErrorEnd);
         CASE_ERRORCODES(ServerNotInitialized);
-        CASE_ERRORCODES(UnknownErrorCode);
         CASE_ERRORCODES(RequestCancelled);
         default:
             return QCoreApplication::translate("LanguageClient::ResponseError",
