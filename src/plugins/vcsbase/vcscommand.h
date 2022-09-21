@@ -53,6 +53,8 @@ class VCSBASE_EXPORT CommandResult
 public:
     CommandResult() = default;
     CommandResult(const Utils::QtcProcess &process);
+    CommandResult(Utils::ProcessResult result, const QString &exitMessage)
+        : m_result(result), m_exitMessage(exitMessage) {}
 
     Utils::ProcessResult result() const { return m_result; }
     int exitCode() const { return m_exitCode; }
