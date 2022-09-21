@@ -75,6 +75,10 @@ class CPPEDITOR_EXPORT ClangdSettings : public QObject
 {
     Q_OBJECT
 public:
+    enum class IndexingPriority { Off, Background, Normal, Low, };
+
+    static QString priorityToString(const IndexingPriority &priority);
+    static QString priorityToDisplayString(const IndexingPriority &priority);
 
     class CPPEDITOR_EXPORT Data
     {
@@ -90,7 +94,7 @@ public:
                     && s1.customDiagnosticConfigs == s2.customDiagnosticConfigs
                     && s1.diagnosticConfigId == s2.diagnosticConfigId
                     && s1.workerThreadLimit == s2.workerThreadLimit
-                    && s1.enableIndexing == s2.enableIndexing
+                    && s1.indexingPriority == s2.indexingPriority
                     && s1.autoIncludeHeaders == s2.autoIncludeHeaders
                     && s1.documentUpdateThreshold == s2.documentUpdateThreshold
                     && s1.sizeThresholdEnabled == s2.sizeThresholdEnabled
@@ -110,7 +114,7 @@ public:
         int documentUpdateThreshold = 500;
         qint64 sizeThresholdInKb = 1024;
         bool useClangd = true;
-        bool enableIndexing = true;
+        IndexingPriority indexingPriority = IndexingPriority::Low;
         bool autoIncludeHeaders = false;
         bool sizeThresholdEnabled = false;
         bool haveCheckedHardwareReqirements = false;
@@ -129,7 +133,7 @@ public:
     static void setDefaultClangdPath(const Utils::FilePath &filePath);
     static void setCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs);
     Utils::FilePath clangdFilePath() const;
-    bool indexingEnabled() const { return m_data.enableIndexing; }
+    IndexingPriority indexingPriority() const { return m_data.indexingPriority; }
     bool autoIncludeHeaders() const { return m_data.autoIncludeHeaders; }
     int workerThreadLimit() const { return m_data.workerThreadLimit; }
     int documentUpdateThreshold() const { return m_data.documentUpdateThreshold; }

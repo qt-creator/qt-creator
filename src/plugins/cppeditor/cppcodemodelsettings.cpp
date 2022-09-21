@@ -55,6 +55,7 @@ static QString clangdSettingsKey() { return QLatin1String("ClangdSettings"); }
 static QString useClangdKey() { return QLatin1String("UseClangdV7"); }
 static QString clangdPathKey() { return QLatin1String("ClangdPath"); }
 static QString clangdIndexingKey() { return QLatin1String("ClangdIndexing"); }
+static QString clangdIndexingPriorityKey() { return QLatin1String("ClangdIndexingPriority"); }
 static QString clangdHeaderInsertionKey() { return QLatin1String("ClangdHeaderInsertion"); }
 static QString clangdThreadLimitKey() { return QLatin1String("ClangdThreadLimit"); }
 static QString clangdDocumentThresholdKey() { return QLatin1String("ClangdDocumentThreshold"); }
@@ -167,6 +168,28 @@ void CppCodeModelSettings::setEnableLowerClazyLevels(bool yesno)
     m_enableLowerClazyLevels = yesno;
 }
 
+
+QString ClangdSettings::priorityToString(const IndexingPriority &priority)
+{
+    switch (priority) {
+    case IndexingPriority::Background: return "background";
+    case IndexingPriority::Normal: return "normal";
+    case IndexingPriority::Low: return "low";
+    case IndexingPriority::Off: return {};
+    }
+    return {};
+}
+
+QString ClangdSettings::priorityToDisplayString(const IndexingPriority &priority)
+{
+    switch (priority) {
+    case IndexingPriority::Background: return tr("Background Priority");
+    case IndexingPriority::Normal: return tr("Normal Priority");
+    case IndexingPriority::Low: return tr("Low Priority");
+    case IndexingPriority::Off: return tr("Off");
+    }
+    return {};
+}
 
 ClangdSettings &ClangdSettings::instance()
 {
@@ -465,7 +488,8 @@ QVariantMap ClangdSettings::Data::toMap() const
     map.insert(clangdPathKey(),
                executableFilePath != fallbackClangdFilePath() ? executableFilePath.toString()
                                                               : QString());
-    map.insert(clangdIndexingKey(), enableIndexing);
+    map.insert(clangdIndexingKey(), indexingPriority != IndexingPriority::Off);
+    map.insert(clangdIndexingPriorityKey(), int(indexingPriority));
     map.insert(clangdHeaderInsertionKey(), autoIncludeHeaders);
     map.insert(clangdThreadLimitKey(), workerThreadLimit);
     map.insert(clangdDocumentThresholdKey(), documentUpdateThreshold);
@@ -482,7 +506,11 @@ void ClangdSettings::Data::fromMap(const QVariantMap &map)
 {
     useClangd = map.value(useClangdKey(), true).toBool();
     executableFilePath = FilePath::fromString(map.value(clangdPathKey()).toString());
-    enableIndexing = map.value(clangdIndexingKey(), true).toBool();
+    indexingPriority = IndexingPriority(
+        map.value(clangdIndexingPriorityKey(), int(this->indexingPriority)).toInt());
+    const auto it = map.find(clangdIndexingKey());
+    if (it != map.end() && !it->toBool())
+        indexingPriority = IndexingPriority::Off;
     autoIncludeHeaders = map.value(clangdHeaderInsertionKey(), false).toBool();
     workerThreadLimit = map.value(clangdThreadLimitKey(), 0).toInt();
     documentUpdateThreshold = map.value(clangdDocumentThresholdKey(), 500).toInt();

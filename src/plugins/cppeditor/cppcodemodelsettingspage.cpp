@@ -20,6 +20,7 @@
 #include <utils/qtcassert.h>
 
 #include <QCheckBox>
+#include <QComboBox>
 #include <QDesktopServices>
 #include <QFormLayout>
 #include <QGroupBox>
@@ -164,7 +165,7 @@ class ClangdSettingsWidget::Private
 {
 public:
     QCheckBox useClangdCheckBox;
-    QCheckBox indexingCheckBox;
+    QComboBox indexingComboBox;
     QCheckBox autoIncludeHeadersCheckBox;
     QCheckBox sizeThresholdCheckBox;
     QSpinBox threadLimitSpinBox;
@@ -190,7 +191,13 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         "The indexing result is persisted in the project's build directory.\n"
         "\n"
         "If you disable background indexing, a faster, but less accurate,\n"
-        "built-in indexer is used instead.");
+        "built-in indexer is used instead.\n"
+        "\n"
+        "The thread priority for building the background index can be adjusted since clangd 15.\n"
+        "Background Priority: Minimum priority, runs on idle CPUs. May leave 'performance' cores "
+        "unused.\n"
+        "Normal Priority: Reduced priority compared to interactive work.\n"
+        "Low Priority: Same priority as other clangd work.");
     const QString workerThreadsToolTip = tr(
         "Number of worker threads used by clangd. Background indexing also uses this many "
         "worker threads.");
@@ -211,9 +218,13 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     d->clangdChooser.setExpectedKind(Utils::PathChooser::ExistingCommand);
     d->clangdChooser.setFilePath(settings.clangdFilePath());
     d->clangdChooser.setEnabled(d->useClangdCheckBox.isChecked());
-    d->indexingCheckBox.setText(tr("Enable background indexing"));
-    d->indexingCheckBox.setChecked(settings.indexingEnabled());
-    d->indexingCheckBox.setToolTip(indexingToolTip);
+    using Priority = ClangdSettings::IndexingPriority;
+    for (Priority prio : {Priority::Off, Priority::Background, Priority::Low, Priority::Normal}) {
+        d->indexingComboBox.addItem(ClangdSettings::priorityToDisplayString(prio), int(prio));
+        if (prio == settings.indexingPriority())
+            d->indexingComboBox.setCurrentIndex(d->indexingComboBox.count() - 1);
+    }
+    d->indexingComboBox.setToolTip(indexingToolTip);
     d->autoIncludeHeadersCheckBox.setText(tr("Insert header files on completion"));
     d->autoIncludeHeadersCheckBox.setChecked(settings.autoIncludeHeaders());
     d->autoIncludeHeadersCheckBox.setToolTip(autoIncludeToolTip);
@@ -251,7 +262,14 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     const auto chooserLabel = new QLabel(tr("Path to executable:"));
     formLayout->addRow(chooserLabel, &d->clangdChooser);
     formLayout->addRow(QString(), &d->versionWarningLabel);
-    formLayout->addRow(QString(), &d->indexingCheckBox);
+
+    const auto indexingPriorityLayout = new QHBoxLayout;
+    indexingPriorityLayout->addWidget(&d->indexingComboBox);
+    indexingPriorityLayout->addStretch(1);
+    const auto indexingPriorityLabel = new QLabel(tr("Background indexing:"));
+    indexingPriorityLabel->setToolTip(indexingToolTip);
+    formLayout->addRow(indexingPriorityLabel, indexingPriorityLayout);
+
     const auto threadLimitLayout = new QHBoxLayout;
     threadLimitLayout->addWidget(&d->threadLimitSpinBox);
     threadLimitLayout->addStretch(1);
@@ -413,7 +431,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
 
     connect(&d->useClangdCheckBox, &QCheckBox::toggled,
             this, &ClangdSettingsWidget::settingsDataChanged);
-    connect(&d->indexingCheckBox, &QCheckBox::toggled,
+    connect(&d->indexingComboBox, &QComboBox::currentIndexChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->autoIncludeHeadersCheckBox, &QCheckBox::toggled,
             this, &ClangdSettingsWidget::settingsDataChanged);
@@ -443,7 +461,8 @@ ClangdSettings::Data ClangdSettingsWidget::settingsData() const
     ClangdSettings::Data data;
     data.useClangd = d->useClangdCheckBox.isChecked();
     data.executableFilePath = d->clangdChooser.filePath();
-    data.enableIndexing = d->indexingCheckBox.isChecked();
+    data.indexingPriority = ClangdSettings::IndexingPriority(
+        d->indexingComboBox.currentData().toInt());
     data.autoIncludeHeaders = d->autoIncludeHeadersCheckBox.isChecked();
     data.workerThreadLimit = d->threadLimitSpinBox.value();
     data.documentUpdateThreshold = d->documentUpdateThreshold.value();

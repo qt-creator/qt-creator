@@ -137,9 +137,12 @@ void setupClangdConfigFile()
 
 static BaseClientInterface *clientInterface(Project *project, const Utils::FilePath &jsonDbDir)
 {
+    using CppEditor::ClangdSettings;
     QString indexingOption = "--background-index";
-    const CppEditor::ClangdSettings settings(CppEditor::ClangdProjectSettings(project).settings());
-    if (!settings.indexingEnabled() || jsonDbDir.isEmpty())
+    const ClangdSettings settings(CppEditor::ClangdProjectSettings(project).settings());
+    const ClangdSettings::IndexingPriority indexingPriority = settings.indexingPriority();
+    const bool indexingEnabled = indexingPriority != ClangdSettings::IndexingPriority::Off;
+    if (!indexingEnabled)
         indexingOption += "=0";
     const QString headerInsertionOption = QString("--header-insertion=")
             + (settings.autoIncludeHeaders() ? "iwyu" : "never");
@@ -152,6 +155,10 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
                             "--clang-tidy=0"}};
     if (settings.workerThreadLimit() != 0)
         cmd.addArg("-j=" + QString::number(settings.workerThreadLimit()));
+    if (indexingEnabled && settings.clangdVersion() >= QVersionNumber(15)) {
+        cmd.addArg("--background-index-priority="
+                   + ClangdSettings::priorityToString(indexingPriority));
+    }
     if (!jsonDbDir.isEmpty())
         cmd.addArg("--compile-commands-dir=" + jsonDbDir.toString());
     if (clangdLogServer().isDebugEnabled())
