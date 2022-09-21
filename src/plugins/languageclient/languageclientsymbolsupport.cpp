@@ -7,12 +7,14 @@
 #include "dynamiccapabilities.h"
 #include "languageclientutils.h"
 
+#include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultwindow.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
 
+#include <utils/algorithm.h>
 #include <utils/mimeutils.h>
 
 #include <QCheckBox>
@@ -523,16 +525,24 @@ void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
 void SymbolSupport::applyRename(const QList<Core::SearchResultItem> &checkedItems,
                                 Core::SearchResult *search)
 {
+    QSet<Utils::FilePath> affectedNonOpenFilePaths;
     QMap<DocumentUri, QList<TextEdit>> editsForDocuments;
     for (const Core::SearchResultItem &item : checkedItems) {
-        auto uri = DocumentUri::fromFilePath(Utils::FilePath::fromString(item.path().value(0)));
+        const auto filePath = Utils::FilePath::fromString(item.path().value(0));
+        if (!m_client->documentForFilePath(filePath))
+            affectedNonOpenFilePaths << filePath;
         TextEdit edit(item.userData().toJsonObject());
         if (edit.isValid())
-            editsForDocuments[uri] << edit;
+            editsForDocuments[DocumentUri::fromFilePath(filePath)] << edit;
     }
 
     for (auto it = editsForDocuments.begin(), end = editsForDocuments.end(); it != end; ++it)
         applyTextEdits(m_client, it.key(), it.value());
+
+    if (!affectedNonOpenFilePaths.isEmpty()) {
+        Core::DocumentManager::notifyFilesChangedInternally(
+                    Utils::toList(affectedNonOpenFilePaths));
+    }
 
     const auto extraWidget = qobject_cast<ReplaceWidget *>(search->additionalReplaceWidget());
     QTC_ASSERT(extraWidget, return);
