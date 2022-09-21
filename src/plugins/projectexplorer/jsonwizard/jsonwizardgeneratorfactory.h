@@ -16,7 +16,7 @@ namespace Utils { class MacroExpander; }
 
 namespace ProjectExplorer {
 
-class JsonWizardGenerator
+class PROJECTEXPLORER_EXPORT JsonWizardGenerator
 {
 public:
     virtual ~JsonWizardGenerator() = default;
@@ -42,7 +42,7 @@ public:
     static bool allDone(const JsonWizard *wizard, JsonWizard::GeneratorFiles *files, QString *errorMessage);
 };
 
-class JsonWizardGeneratorFactory : public QObject
+class PROJECTEXPLORER_EXPORT JsonWizardGeneratorFactory : public QObject
 {
     Q_OBJECT
 
