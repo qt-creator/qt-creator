@@ -7,9 +7,13 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <languageserverprotocol/progresssupport.h>
 
+#include <QTime>
+
 using namespace LanguageServerProtocol;
 
 namespace LanguageClient {
+
+static Q_LOGGING_CATEGORY(LOGPROGRESS, "qtc.languageclient.progress", QtWarningMsg);
 
 ProgressManager::ProgressManager()
 {}
@@ -69,6 +73,8 @@ void ProgressManager::beginProgress(const ProgressToken &token, const WorkDonePr
     Core::FutureProgress *progress = Core::ProgressManager::addTask(
             interface->future(), title, languageClientProgressId(token));
     m_progress[token] = {progress, interface};
+    if (LOGPROGRESS().isDebugEnabled())
+        m_timer[token].start();
     reportProgress(token, begin);
 }
 
@@ -101,6 +107,13 @@ void ProgressManager::endProgress(const ProgressToken &token, const WorkDoneProg
         }
         progress.progressInterface->setSubtitle(message);
         progress.progressInterface->setSubtitleVisibleInStatusBar(!message.isEmpty());
+        auto timer = m_timer.take(token);
+        if (timer.isValid()) {
+            qCDebug(LOGPROGRESS) << QString("%1 took %2")
+                                        .arg(progress.progressInterface->title())
+                                        .arg(QTime::fromMSecsSinceStartOfDay(timer.elapsed())
+                                                 .toString(Qt::ISODateWithMs));
+        }
     }
     endProgress(token);
 }

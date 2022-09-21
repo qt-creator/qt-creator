@@ -5,6 +5,7 @@
 
 #include <coreplugin/progressmanager/futureprogress.h>
 
+#include <QElapsedTimer>
 #include <QFutureInterface>
 #include <QPointer>
 
@@ -46,6 +47,7 @@ private:
 
     QMap<LanguageServerProtocol::ProgressToken, LanguageClientProgress> m_progress;
     QMap<LanguageServerProtocol::ProgressToken, QString> m_titles;
+    QMap<LanguageServerProtocol::ProgressToken, QElapsedTimer> m_timer;
 };
 
 } // namespace LanguageClient
