@@ -650,7 +650,12 @@ Item {
                 }
 
                 onEditingFinished: {
-                    if (whenCondition.previousCondition === whenCondition.text)
+                    // The check for contenxtMenuAboutToShow is necessary in order to make a the
+                    // popup stay open if the when condition was changed. Otherwise editingFinished
+                    // will be called and the model will be reset. The popup will trigger a focus
+                    // change and editingFinished is triggered.
+                    if (whenCondition.previousCondition === whenCondition.text
+                        || whenCondition.contextMenuAboutToShow)
                         return
 
                     whenCondition.previousCondition = whenCondition.text

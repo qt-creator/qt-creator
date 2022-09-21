@@ -50,6 +50,8 @@ T.TextField {
 
     property string preFocusText: ""
 
+    property bool contextMenuAboutToShow: false
+
     horizontalAlignment: Qt.AlignLeft
     verticalAlignment: Qt.AlignVCenter
 
@@ -62,7 +64,7 @@ T.TextField {
 
     readOnly: false
     selectByMouse: true
-    persistentSelection: focus // QTBUG-73807
+    persistentSelection: contextMenu.visible || root.focus
     clip: true
 
     width: StudioTheme.Values.defaultControlWidth
@@ -78,24 +80,22 @@ T.TextField {
         enabled: true
         hoverEnabled: true
         propagateComposedEvents: true
-        acceptedButtons: Qt.LeftButton | Qt.RightButton
+        acceptedButtons: Qt.NoButton
         cursorShape: Qt.PointingHandCursor
-        onPressed: function(mouse) {
-            if (mouse.button === Qt.RightButton)
-                contextMenu.popup(root)
-
-            mouse.accepted = false
-        }
     }
 
-    onPersistentSelectionChanged: {
-        if (!persistentSelection)
-            root.deselect()
+    onPressed: function(event) {
+        if (event.button === Qt.RightButton)
+            contextMenu.popup(root)
     }
 
     ContextMenu {
         id: contextMenu
         myTextEdit: root
+
+        onClosed: root.forceActiveFocus()
+        onAboutToShow: root.contextMenuAboutToShow = true
+        onAboutToHide: root.contextMenuAboutToShow = false
     }
 
     onActiveFocusChanged: {
@@ -165,7 +165,7 @@ T.TextField {
     states: [
         State {
             name: "default"
-            when: root.enabled && !root.hover && !root.edit
+            when: root.enabled && !root.hover && !root.edit && !contextMenu.visible
             PropertyChanges {
                 target: textFieldBackground
                 color: StudioTheme.Values.themeControlBackground
@@ -184,7 +184,7 @@ T.TextField {
         State {
             name: "globalHover"
             when: (actionIndicator.hover || translationIndicator.hover || indicator.hover)
-                  && !root.edit && root.enabled
+                  && !root.edit && root.enabled && !contextMenu.visible
             PropertyChanges {
                 target: textFieldBackground
                 color: StudioTheme.Values.themeControlBackgroundGlobalHover
@@ -199,7 +199,7 @@ T.TextField {
         State {
             name: "hover"
             when: mouseArea.containsMouse && !actionIndicator.hover && !translationIndicator.hover
-                  && !indicator.hover && !root.edit && root.enabled
+                  && !indicator.hover && !root.edit && root.enabled && !contextMenu.visible
             PropertyChanges {
                 target: textFieldBackground
                 color: StudioTheme.Values.themeControlBackgroundHover
@@ -213,7 +213,7 @@ T.TextField {
         },
         State {
             name: "edit"
-            when: root.edit
+            when: root.edit || contextMenu.visible
             PropertyChanges {
                 target: textFieldBackground
                 color: StudioTheme.Values.themeControlBackgroundInteraction
