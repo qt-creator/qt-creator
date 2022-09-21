@@ -88,9 +88,11 @@ QVariant PropertyModel::data(const QModelIndex &index, int role) const
         if (!propertyChanges.target().isValid())
             return {};
 
-        return {};
-        //        return propertyChanges.target().metaInfo().propertyType(
-        //            m_properties.at(index.row()).name());
+        return propertyChanges.target()
+            .metaInfo()
+            .property(m_properties.at(index.row()).name())
+            .propertyType()
+            .typeName();
     }
     }
     return {};

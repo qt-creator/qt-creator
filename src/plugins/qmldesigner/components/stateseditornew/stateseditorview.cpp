@@ -111,17 +111,18 @@ void StatesEditorView::setActiveStatesGroupNode(const ModelNode &modelNode)
 int StatesEditorView::activeStatesGroupIndex() const
 {
     return 1;
-    //    return Utils::indexOf(allModelNodesOfType("QtQuick.StateGroup"),
-    //                          [this](const ModelNode &node) { return node == m_activeStatesGroupNode; })
-    //           + 1;
+    return Utils::indexOf(allModelNodesOfType(model()->qtQuickStateGroupMetaInfo()),
+                          [this](const ModelNode &node) { return node == m_activeStatesGroupNode; })
+           + 1;
 }
 
 void StatesEditorView::setActiveStatesGroupIndex(int index)
 {
     if (index > 0) {
-        //        const ModelNode statesGroup = allModelNodesOfType("QtQuick.StateGroup").at(index - 1);
-        //        if (statesGroup.isValid())
-        //            setActiveStatesGroupNode(statesGroup);
+        const ModelNode statesGroup = allModelNodesOfType(model()->qtQuickStateGroupMetaInfo())
+                                          .at(index - 1);
+        if (statesGroup.isValid())
+            setActiveStatesGroupNode(statesGroup);
     } else {
         setActiveStatesGroupNode(rootModelNode());
     }

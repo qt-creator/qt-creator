@@ -596,14 +596,14 @@ QList<ModelNode> QmlObjectNode::allTimelines() const
 
 QList<ModelNode> QmlObjectNode::getAllConnections() const
 {
-    //    if (!isValid())
-    return {};
+    if (!isValid())
+        return {};
 
-    //    auto list = view()->allModelNodesOfType("QtQuick.Connections");
-    //    return Utils::filtered(list, [this](const ModelNode &connection) {
-    //        return connection.hasBindingProperty("target")
-    //               && connection.bindingProperty("target").resolveToModelNode() == modelNode();
-    //    });
+    auto list = view()->allModelNodesOfType(model()->qtQuickConnectionsMetaInfo());
+    return Utils::filtered(list, [this](const ModelNode &connection) {
+        return connection.hasBindingProperty("target")
+               && connection.bindingProperty("target").resolveToModelNode() == modelNode();
+    });
 }
 
 /*!

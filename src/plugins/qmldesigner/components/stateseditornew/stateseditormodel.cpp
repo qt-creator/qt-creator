@@ -285,37 +285,41 @@ bool StatesEditorModel::hasAnnotation(int internalNodeId) const
 
 QStringList StatesEditorModel::stateGroups() const
 {
-    return {};
-    //    auto stateGroups = Utils::transform(m_statesEditorView->allModelNodesOfType(
-    //                                            "QtQuick.StateGroup"),
-    //                                        [](const ModelNode &node) { return node.displayName(); });
-    //    stateGroups.prepend(tr("Root"));
-    //    return stateGroups;
+    if (!m_statesEditorView->isAttached())
+        return {};
+
+    const auto groupMetaInfo = m_statesEditorView->model()->qtQuickStateGroupMetaInfo();
+
+    auto stateGroups = Utils::transform(m_statesEditorView->allModelNodesOfType(groupMetaInfo),
+                                        [](const ModelNode &node) { return node.displayName(); });
+    stateGroups.prepend(tr("Root"));
+    return stateGroups;
 }
 
 QString StatesEditorModel::activeStateGroup() const
 {
+    if (auto stateGroup = m_statesEditorView->activeStatesGroupNode())
+        return stateGroup.displayName();
+  
     return {};
-    //    auto stateGroup = m_statesEditorView->activeStatesGroupNode();
-
-    //    if (!stateGroup.isValid())
-    //        return QString();
-
-    //    return stateGroup.displayName();
 }
 
 void StatesEditorModel::setActiveStateGroup(const QString &name)
 {
-    //    auto modelNode = Utils::findOrDefault(m_statesEditorView->allModelNodesOfType(
-    //                                              "QtQuick.StateGroup"),
-    //                                          [&name](const ModelNode &node) {
-    //                                              return node.displayName() == name;
-    //                                          });
+    if (!m_statesEditorView->isAttached())
+        return;
 
-    //    QTC_ASSERT(!modelNode.isValid(), return );
+    const auto groupMetaInfo = m_statesEditorView->model()->qtQuickStateGroupMetaInfo();
 
-    //    if (modelNode.isValid())
-    //        m_statesEditorView->setActiveStatesGroupNode(modelNode);
+    auto modelNode = Utils::findOrDefault(m_statesEditorView->allModelNodesOfType(groupMetaInfo),
+                                          [&name](const ModelNode &node) {
+                                              return node.displayName() == name;
+                                          });
+
+    QTC_ASSERT(!modelNode.isValid(), return );
+
+    if (modelNode.isValid())
+        m_statesEditorView->setActiveStatesGroupNode(modelNode);
 }
 
 int StatesEditorModel::activeStateGroupIndex() const
