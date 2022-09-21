@@ -297,7 +297,7 @@ Section {
 
             onVecSizeChanged: updateProxyValues()
 
-            spacing: StudioTheme.Values.sectionRowSpacing
+            spacing: StudioTheme.Values.sectionRowSpacing / 2
 
             function isValidValue(v) {
                 return !(v === undefined || isNaN(v))

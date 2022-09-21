@@ -408,6 +408,9 @@ extend_qtc_plugin(QmlDesigner
     materialbrowserwidget.cpp materialbrowserwidget.h
     materialbrowsermodel.cpp materialbrowsermodel.h
     bundleimporter.cpp bundleimporter.h
+    materialbrowserbundlemodel.cpp materialbrowserbundlemodel.h
+    bundlematerial.cpp bundlematerial.h
+    bundlematerialcategory.cpp bundlematerialcategory.h
 )
 
 extend_qtc_plugin(QmlDesigner

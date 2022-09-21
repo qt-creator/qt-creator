@@ -437,6 +437,9 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
             }
         );
 
+        contextObject()->setHasMultiSelection(
+            !qmlObjectNode.view()->singleSelectedModelNode().isValid());
+
         qCInfo(propertyEditorBenchmark) << "anchors:" << time.elapsed();
 
         qCInfo(propertyEditorBenchmark) << "context:" << time.elapsed();

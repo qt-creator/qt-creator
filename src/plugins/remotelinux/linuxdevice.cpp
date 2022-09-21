@@ -802,7 +802,9 @@ public:
         cmd.addArg("/bin/sh");
 
         m_shell.reset(new LinuxDeviceShell(cmd, FilePath::fromString(QString("ssh://%1/").arg(parameters.userAtHost()))));
-        connect(m_shell.get(), &DeviceShell::done, this, [this] { m_shell.reset(); });
+        connect(m_shell.get(), &DeviceShell::done, this, [this] {
+            m_shell.release()->deleteLater();
+        });
         return m_shell->start();
     }
 

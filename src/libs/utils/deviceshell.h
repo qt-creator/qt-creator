@@ -79,7 +79,7 @@ private:
         QWaitCondition *waiter;
     };
 
-    QtcProcess *m_shellProcess = nullptr;
+    std::unique_ptr<QtcProcess> m_shellProcess;
     QThread m_thread;
     int m_currentId{0};
 

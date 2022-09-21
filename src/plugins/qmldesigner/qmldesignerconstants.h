@@ -62,6 +62,7 @@ const char EDIT3D_BACKGROUND_COLOR_ACTIONS[] = "QmlDesigner.Editor3D.BackgroundC
 
 const char QML_DESIGNER_SUBFOLDER[] = "/designer/";
 const char COMPONENT_BUNDLES_FOLDER[] = "/ComponentBundles";
+const char COMPONENT_BUNDLES_ASSET_REF_FILE[] = "_asset_ref.json";
 const char QUICK_3D_ASSETS_FOLDER[] = "/Quick3DAssets";
 const char QUICK_3D_ASSET_LIBRARY_ICON_SUFFIX[] = "_libicon";
 const char QUICK_3D_ASSET_ICON_DIR[] = "_icons";
@@ -74,6 +75,7 @@ const char MATERIAL_LIB_ID[] = "__materialLibrary__";
 const char MIME_TYPE_ITEM_LIBRARY_INFO[] = "application/vnd.qtdesignstudio.itemlibraryinfo";
 const char MIME_TYPE_ASSETS[]            = "application/vnd.qtdesignstudio.assets";
 const char MIME_TYPE_MATERIAL[]          = "application/vnd.qtdesignstudio.material";
+const char MIME_TYPE_BUNDLE_MATERIAL[]   = "application/vnd.qtdesignstudio.bundlematerial";
 const char MIME_TYPE_ASSET_IMAGE[]       = "application/vnd.qtdesignstudio.asset.image";
 const char MIME_TYPE_ASSET_FONT[]        = "application/vnd.qtdesignstudio.asset.font";
 const char MIME_TYPE_ASSET_SHADER[]      = "application/vnd.qtdesignstudio.asset.shader";

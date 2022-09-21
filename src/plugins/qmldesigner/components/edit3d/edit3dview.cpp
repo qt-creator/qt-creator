@@ -1,15 +1,16 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
+#include "edit3dview.h"
+#include "backgroundcolorselection.h"
 #include "edit3dactions.h"
 #include "edit3dcanvas.h"
-#include "edit3dview.h"
-#include "edit3dwidget.h"
 #include "edit3dviewconfig.h"
-#include "backgroundcolorselection.h"
+#include "edit3dwidget.h"
 #include "metainfo.h"
-#include "seekerslider.h"
 #include "nodehints.h"
+#include "seekerslider.h"
+#include "view3dactioncommand.h"
 
 #include <auxiliarydataproperties.h>
 #include <coreplugin/icore.h>
@@ -287,6 +288,8 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
                 assignMaterialTo3dModel(modelNode, m_droppedMaterial);
             });
         }
+    } else if (m_nodeAtPosReqType == NodeAtPosReqType::BundleMaterialDrop) {
+        emitCustomNotification("drop_bundle_material", {modelNode}); // To MaterialBrowserView
     }
     m_nodeAtPosReqType = NodeAtPosReqType::None;
 }
@@ -835,6 +838,13 @@ void Edit3DView::dropMaterial(const ModelNode &matNode, const QPointF &pos)
     m_nodeAtPosReqType = NodeAtPosReqType::MaterialDrop;
     m_droppedMaterial = matNode;
     emitView3DAction(View3DActionType::GetNodeAtPos, pos);
+}
+
+void Edit3DView::dropBundleMaterial(const QPointF &pos)
+{
+    m_nodeAtPosReqType = NodeAtPosReqType::BundleMaterialDrop;
+    QmlDesignerPlugin::instance()->viewManager().nodeInstanceView()->view3DAction(
+        View3DActionType::GetNodeAtPos, pos);
 }
 
 } // namespace QmlDesigner

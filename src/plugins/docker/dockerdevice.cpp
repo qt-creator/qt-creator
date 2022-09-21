@@ -479,7 +479,7 @@ void DockerDevicePrivate::startContainer()
             return;
 
         qCWarning(dockerDeviceLog) << "Container shell encountered error:" << resultData.m_error;
-        m_shell.reset();
+        m_shell.release()->deleteLater();
 
         DockerApi::recheckDockerDaemon();
         MessageManager::writeFlashing(Tr::tr("Docker daemon appears to be not running. "
@@ -501,7 +501,7 @@ void DockerDevicePrivate::updateContainerAccess()
     if (m_shell)
         return;
 
-     startContainer();
+    startContainer();
 }
 
 void DockerDevice::setMounts(const QStringList &mounts) const

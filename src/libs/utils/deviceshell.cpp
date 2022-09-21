@@ -159,12 +159,12 @@ DeviceShell::DeviceShell()
 
 DeviceShell::~DeviceShell()
 {
-    m_shellProcess->deleteLater();
-
     if (m_thread.isRunning()) {
         m_thread.quit();
         m_thread.wait();
     }
+
+    QTC_CHECK(!m_shellProcess);
 }
 
 /*!
@@ -237,7 +237,7 @@ DeviceShell::RunResult DeviceShell::run(const CommandLine &cmd, const QByteArray
     const int id = ++m_currentId;
     const auto it = m_commandOutput.insert(id, CommandRun{{-1, {}, {}}, &waiter});
 
-    QMetaObject::invokeMethod(m_shellProcess, [this, id, cmd, stdInData]() {
+    QMetaObject::invokeMethod(m_shellProcess.get(), [this, id, cmd, stdInData]() {
         const QString command = QString("%1 \"%2\" %3\n")
                                     .arg(id)
                                     .arg(QString::fromLatin1(stdInData.toBase64()))
@@ -304,13 +304,12 @@ void DeviceShell::startupFailed(const CommandLine &cmdLine)
  */
 bool DeviceShell::start()
 {
-    m_shellProcess = new QtcProcess();
-    connect(m_shellProcess, &QtcProcess::done, m_shellProcess,
+    m_shellProcess = std::make_unique<QtcProcess>();
+    connect(m_shellProcess.get(), &QtcProcess::done, m_shellProcess.get(),
             [this] { emit done(m_shellProcess->resultData()); });
-    connect(m_shellProcess, &QObject::destroyed, this, [this] { m_shellProcess = nullptr; });
-    connect(&m_thread, &QThread::finished, m_shellProcess, [this] { closeShellProcess(); });
+    connect(&m_thread, &QThread::finished, m_shellProcess.get(), [this] { closeShellProcess(); }, Qt::DirectConnection);
 
-    setupShellProcess(m_shellProcess);
+    setupShellProcess(m_shellProcess.get());
 
     m_shellProcess->setProcessMode(ProcessMode::Writer);
 
@@ -319,7 +318,7 @@ bool DeviceShell::start()
 
     bool result = false;
     QMetaObject::invokeMethod(
-        m_shellProcess,
+        m_shellProcess.get(),
         [this] {
             qCDebug(deviceShellLog) << "Starting shell process:" << m_shellProcess->commandLine().toUserOutput();
             m_shellProcess->start();
@@ -333,16 +332,21 @@ bool DeviceShell::start()
                 if (m_shellScriptState == State::FailedToStart)
                     closeShellProcess();
             } else {
-                connect(m_shellProcess, &QtcProcess::readyReadStandardOutput, m_shellProcess, [this] {
-                    onReadyRead();
-                });
-                connect(m_shellProcess, &QtcProcess::readyReadStandardError, m_shellProcess, [this] {
-                    const QByteArray stdErr = m_shellProcess->readAllStandardError();
-                    qCWarning(deviceShellLog) << "Received unexpected output on stderr:" << stdErr;
-                });
+                connect(m_shellProcess.get(),
+                        &QtcProcess::readyReadStandardOutput,
+                        m_shellProcess.get(),
+                        [this] { onReadyRead(); });
+                connect(m_shellProcess.get(),
+                        &QtcProcess::readyReadStandardError,
+                        m_shellProcess.get(),
+                        [this] {
+                            const QByteArray stdErr = m_shellProcess->readAllStandardError();
+                            qCWarning(deviceShellLog)
+                                << "Received unexpected output on stderr:" << stdErr;
+                        });
             }
 
-            connect(m_shellProcess, &QtcProcess::done, m_shellProcess, [this] {
+            connect(m_shellProcess.get(), &QtcProcess::done, m_shellProcess.get(), [this] {
                 if (m_shellProcess->resultData().m_exitCode != EXIT_SUCCESS
                     || m_shellProcess->resultData().m_exitStatus != QProcess::NormalExit) {
                     qCWarning(deviceShellLog) << "Shell exited with error code:"
@@ -428,6 +432,7 @@ void DeviceShell::closeShellProcess()
             if (!m_shellProcess->waitForFinished(2000))
                 m_shellProcess->terminate();
         }
+        m_shellProcess.reset();
     }
 }
 

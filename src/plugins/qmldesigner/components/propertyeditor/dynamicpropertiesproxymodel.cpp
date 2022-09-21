@@ -35,6 +35,7 @@
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
+#include <coreplugin/messagebox.h>
 #include <utils/qtcassert.h>
 
 #include <QScopeGuard>
@@ -150,6 +151,12 @@ void DynamicPropertiesProxyModel::createProperty(const QString &name, const QStr
     if (selectedNodes.count() == 1) {
         const ModelNode modelNode = selectedNodes.constFirst();
         if (modelNode.isValid()) {
+            if (modelNode.hasProperty(name.toUtf8())) {
+                Core::AsynchronousMessageBox::warning(tr("Property already exists"),
+                                                      tr("Property '%1' already exists")
+                                                          .arg(name));
+                return;
+            }
             try {
                 if (Internal::DynamicPropertiesModel::isValueType(typeName)) {
                     QVariant value = Internal::DynamicPropertiesModel::defaultValueForType(typeName);
