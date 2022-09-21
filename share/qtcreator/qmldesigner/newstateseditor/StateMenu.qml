@@ -87,9 +87,7 @@ StudioControls.Menu {
     StudioControls.MenuItem {
         enabled: !root.isBaseState && root.hasWhenCondition
         text: qsTr("Reset when Condition")
-        onTriggered: {
-           statesEditorModel.resetWhenCondition(internalNodeId)
-        }
+        onTriggered: root.resetWhenCondition()
     }
 
     StudioControls.MenuSeparator {}
