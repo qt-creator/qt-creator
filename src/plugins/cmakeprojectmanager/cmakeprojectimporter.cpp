@@ -124,10 +124,9 @@ QStringList CMakeProjectImporter::importCandidates()
         if (configPreset.hidden.value())
             continue;
 
-        const QString presetDirName = m_presetsTempDir.filePath(configPreset.name).toString();
-        const QDir presetDir;
-        presetDir.mkpath(presetDirName);
-        candidates << presetDirName;
+        const FilePath configPresetDir = m_presetsTempDir.filePath(configPreset.name);
+        configPresetDir.createDir();
+        candidates << configPresetDir.toString();
     }
 
     const QStringList finalists = Utils::filteredUnique(candidates);
@@ -138,16 +137,11 @@ QStringList CMakeProjectImporter::importCandidates()
 static CMakeConfig configurationFromPresetProbe(
     const FilePath &importPath, const PresetsDetails::ConfigurePreset &configurePreset)
 {
-    QFile cmakeListTxt(importPath.pathAppended("CMakeLists.txt").toString());
-    if (!cmakeListTxt.open(QIODevice::WriteOnly)) {
-        return {};
-    }
-
-    cmakeListTxt.write(QByteArray("cmake_minimum_required(VERSION 3.15)\n"
-                                  "\n"
-                                  "project(preset-probe)\n"
-                                  "\n"));
-    cmakeListTxt.close();
+    const FilePath cmakeListTxt = importPath / "CMakeLists.txt";
+    cmakeListTxt.writeFileContents(QByteArray("cmake_minimum_required(VERSION 3.15)\n"
+                                              "\n"
+                                              "project(preset-probe)\n"
+                                              "\n"));
 
     QtcProcess cmake;
     cmake.setTimeoutS(30);
