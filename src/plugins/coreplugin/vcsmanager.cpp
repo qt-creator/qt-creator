@@ -209,8 +209,10 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
     // Make sure we an absolute path:
     QString directory = absoluteWithNoTrailingSlash(inputDirectory.toString());
 #ifdef WITH_TESTS
-    if (directory[0].isLetter() && directory.indexOf(QLatin1Char(':') + QLatin1String(TEST_PREFIX)) == 1)
+    if (!directory.isEmpty() && directory[0].isLetter()
+        && directory.indexOf(QLatin1Char(':') + QLatin1String(TEST_PREFIX)) == 1) {
         directory = directory.mid(2);
+    }
 #endif
     auto cachedData = d->findInCache(directory);
     if (cachedData) {
