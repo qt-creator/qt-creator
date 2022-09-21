@@ -93,7 +93,7 @@ void OpenSquishSuitesDialog::onDirectoryChanged()
     for (const QFileInfo &subDir : subDirs) {
         if (!subDir.baseName().startsWith("suite_"))
             continue;
-        if (SuiteConf::validTestCases(subDir.absoluteFilePath()).size()) {
+        if (Utils::FilePath::fromFileInfo(subDir).pathAppended("suite.conf").isReadableFile()) {
             QListWidgetItem *item = new QListWidgetItem(subDir.baseName(), m_suitesListWidget);
             item->setCheckState(Qt::Checked);
             connect(m_suitesListWidget,
