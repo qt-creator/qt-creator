@@ -16,6 +16,7 @@ class FSEngineImpl : public QAbstractFileEngine
 {
 public:
     FSEngineImpl(FilePath filePath);
+    ~FSEngineImpl();
 
 public:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0)
@@ -66,8 +67,10 @@ public:
     bool supportsExtension(Extension extension) const override;
 
 private:
+    void ensureStorage();
+
     FilePath m_filePath;
-    QTemporaryFile m_tempStorage;
+    QTemporaryFile *m_tempStorage = nullptr;
 
     bool m_hasChangedContent{false};
 };

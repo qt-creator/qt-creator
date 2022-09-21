@@ -19,13 +19,20 @@ FSEngineImpl::FSEngineImpl(FilePath filePath)
     : m_filePath(std::move(filePath))
 {}
 
+FSEngineImpl::~FSEngineImpl()
+{
+    delete m_tempStorage;
+}
+
 #if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0)
 bool FSEngineImpl::open(QIODeviceBase::OpenMode openMode, std::optional<QFile::Permissions>)
 #else
 bool FSEngineImpl::open(QIODevice::OpenMode openMode)
 #endif
 {
-    QTC_ASSERT(m_tempStorage.open(), return false);
+    ensureStorage();
+
+    QTC_ASSERT(m_tempStorage->open(), return false);
 
     bool read = openMode & QIODevice::ReadOnly;
     bool write = openMode & QIODevice::WriteOnly;
@@ -39,10 +46,10 @@ bool FSEngineImpl::open(QIODevice::OpenMode openMode)
 
     if (read || append) {
         const std::optional<QByteArray> contents = m_filePath.fileContents();
-        QTC_ASSERT(contents && m_tempStorage.write(*contents) >= 0, return false);
+        QTC_ASSERT(contents && m_tempStorage->write(*contents) >= 0, return false);
 
         if (!append)
-            m_tempStorage.seek(0);
+            m_tempStorage->seek(0);
     }
 
     if (write && !append)
@@ -54,7 +61,8 @@ bool FSEngineImpl::open(QIODevice::OpenMode openMode)
 bool FSEngineImpl::close()
 {
     QTC_ASSERT(flush(), return false);
-    m_tempStorage.close();
+    QTC_ASSERT(m_tempStorage, ensureStorage());
+    m_tempStorage->close();
     return true;
 }
 
@@ -66,10 +74,11 @@ bool FSEngineImpl::flush()
 bool FSEngineImpl::syncToDisk()
 {
     if (m_hasChangedContent) {
-        const qint64 oldPos = m_tempStorage.pos();
-        QTC_ASSERT(m_tempStorage.seek(0), return false);
-        QTC_ASSERT(m_filePath.writeFileContents(m_tempStorage.readAll()), return false);
-        m_tempStorage.seek(oldPos);
+        ensureStorage();
+        const qint64 oldPos = m_tempStorage->pos();
+        QTC_ASSERT(m_tempStorage->seek(0), return false);
+        QTC_ASSERT(m_filePath.writeFileContents(m_tempStorage->readAll()), return false);
+        m_tempStorage->seek(oldPos);
         m_hasChangedContent = false;
         return true;
     }
@@ -84,12 +93,14 @@ qint64 FSEngineImpl::size() const
 
 qint64 FSEngineImpl::pos() const
 {
-    return m_tempStorage.pos();
+    QTC_ASSERT(m_tempStorage, return 0);
+    return m_tempStorage->pos();
 }
 
 bool FSEngineImpl::seek(qint64 pos)
 {
-    return m_tempStorage.seek(pos);
+    QTC_ASSERT(m_tempStorage, return false);
+    return m_tempStorage->seek(pos);
 }
 
 bool FSEngineImpl::isSequential() const
@@ -145,7 +156,8 @@ bool FSEngineImpl::rmdir(const QString &dirName, bool recurseParentDirectories) 
 
 bool FSEngineImpl::setSize(qint64 size)
 {
-    return m_tempStorage.resize(size);
+    QTC_ASSERT(m_tempStorage, return false);
+    return m_tempStorage->resize(size);
 }
 
 bool FSEngineImpl::caseSensitive() const
@@ -293,17 +305,17 @@ QAbstractFileEngine::Iterator *FSEngineImpl::endEntryList()
 
 qint64 FSEngineImpl::read(char *data, qint64 maxlen)
 {
-    return m_tempStorage.read(data, maxlen);
+    return m_tempStorage->read(data, maxlen);
 }
 
 qint64 FSEngineImpl::readLine(char *data, qint64 maxlen)
 {
-    return m_tempStorage.readLine(data, maxlen);
+    return m_tempStorage->readLine(data, maxlen);
 }
 
 qint64 FSEngineImpl::write(const char *data, qint64 len)
 {
-    qint64 bytesWritten = m_tempStorage.write(data, len);
+    qint64 bytesWritten = m_tempStorage->write(data, len);
 
     if (bytesWritten > 0)
         m_hasChangedContent = true;
@@ -325,6 +337,13 @@ bool FSEngineImpl::supportsExtension(Extension extension) const
 {
     Q_UNUSED(extension)
     return false;
+}
+
+void FSEngineImpl::ensureStorage()
+{
+    if (!m_tempStorage)
+        m_tempStorage = new QTemporaryFile;
+
 }
 
 } // namespace Internal
