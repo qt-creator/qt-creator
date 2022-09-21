@@ -78,6 +78,9 @@ public:
     WriteLocker(ModelPrivate *model);
     ~WriteLocker();
 
+    static void unlock(Model *model);
+    static void lock(Model *model);
+
 private:
     QPointer<ModelPrivate> m_model;
 };

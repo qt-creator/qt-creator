@@ -1387,10 +1387,20 @@ WriteLocker::WriteLocker(Model *model)
 WriteLocker::~WriteLocker()
 {
     if (!m_model->m_writeLock)
-        qWarning() << "QmlDesigner: Misbehaving view calls back to model!!!";
+        qWarning() << "QmlDesigner: WriterLocker out of sync!!!";
     // FIXME: Enable it again
     Q_ASSERT(m_model->m_writeLock);
     m_model->m_writeLock = false;
+}
+
+void WriteLocker::unlock(Model *model)
+{
+    model->d->m_writeLock = false;
+}
+
+void WriteLocker::lock(Model *model)
+{
+    model->d->m_writeLock = true;
 }
 
 } // namespace Internal
