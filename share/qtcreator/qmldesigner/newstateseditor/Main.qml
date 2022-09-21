@@ -639,6 +639,9 @@ Rectangle {
                                         return
                                     }
 
+                                    if (statesRepeater.grabIndex === stateThumbnail.visualIndex)
+                                        return
+
                                     statesRepeater.executeDrop(statesRepeater.grabIndex,
                                                                stateThumbnail.visualIndex)
                                 }
