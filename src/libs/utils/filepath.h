@@ -219,9 +219,10 @@ private:
     [[nodiscard]] QString mapToDevicePath() const;
     [[nodiscard]] QString encodedHost() const;
 
-    QString m_scheme;
-    QString m_host; // May contain raw slashes.
-    QString m_path; // Includes the root bits
+    QString m_data; // Concatenated m_path, m_scheme, m_host
+    unsigned int m_pathLen = 0;
+    unsigned short m_schemeLen = 0;
+    unsigned short m_hostLen = 0;
 };
 
 inline size_t qHash(const Utils::FilePath &a, uint seed = 0)
