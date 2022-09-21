@@ -133,7 +133,7 @@ void MaterialBrowserBundleModel::loadMaterialBundle()
 
             QStringList files;
             const QJsonArray assetsArr = matObj.value("files").toArray();
-            for (const QJsonValueRef &asset : assetsArr)
+            for (const auto /*QJson{Const,}ValueRef*/ &asset : assetsArr)
                 files.append(asset.toString());
 
             auto bundleMat = new BundleMaterial(category, mat, matObj.value("qml").toString(),
@@ -146,7 +146,7 @@ void MaterialBrowserBundleModel::loadMaterialBundle()
 
     QStringList sharedFiles;
     const QJsonArray sharedFilesArr = m_matBundleObj.value("sharedFiles").toArray();
-    for (const QJsonValueRef &file : sharedFilesArr)
+    for (const auto /*QJson{Const,}ValueRef*/ &file : sharedFilesArr)
         sharedFiles.append(file.toString());
 
     m_importer = new Internal::BundleImporter(matBundleDir.path(), "MaterialBundle", sharedFiles);
