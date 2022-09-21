@@ -92,7 +92,7 @@ void VcsBaseClientImpl::enqueueJob(VcsCommand *cmd, const QStringList &args,
                                    const ExitCodeInterpreter &interpreter) const
 {
     cmd->addJob({vcsBinary(), args}, vcsTimeoutS(), {}, interpreter);
-    cmd->execute();
+    cmd->start();
 }
 
 Environment VcsBaseClientImpl::processEnvironment() const

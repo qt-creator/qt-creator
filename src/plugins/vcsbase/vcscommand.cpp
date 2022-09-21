@@ -337,7 +337,7 @@ void VcsCommand::addJob(const CommandLine &command, int timeoutS,
                          ? workingDirectory : d->m_defaultWorkingDirectory, interpreter});
 }
 
-void VcsCommand::execute()
+void VcsCommand::start()
 {
     if (d->m_jobs.empty())
         return;

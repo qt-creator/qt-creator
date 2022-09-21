@@ -3407,7 +3407,7 @@ VcsCommand *GitClient::vcsExecAbortable(const FilePath &workingDirectory,
     ConflictHandler::attachToCommand(command, workingDirectory, abortCommand);
     if (isRebase)
         GitProgressParser::attachToCommand(command);
-    command->execute();
+    command->start();
 
     return command;
 }

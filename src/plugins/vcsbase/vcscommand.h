@@ -104,7 +104,7 @@ public:
     void addJob(const Utils::CommandLine &command, int timeoutS,
                 const Utils::FilePath &workingDirectory = {},
                 const Utils::ExitCodeInterpreter &interpreter = {});
-    void execute(); // Execute tasks asynchronously!
+    void start();
 
     void addFlags(unsigned f);
 

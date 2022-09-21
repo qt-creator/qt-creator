@@ -159,7 +159,7 @@ void VcsBaseDiffEditorController::runCommand(const QList<QStringList> &args, uns
         d->m_command->addJob({d->m_vcsBinary, arg}, d->m_vscTimeoutS);
     }
 
-    d->m_command->execute();
+    d->m_command->start();
 }
 
 void VcsBaseDiffEditorController::processCommandOutput(const QString &output)

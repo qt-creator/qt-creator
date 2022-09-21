@@ -155,7 +155,7 @@ void GitLabCloneDialog::cloneProject()
     m_pathChooser->setReadOnly(true);
     m_directoryLE->setReadOnly(true);
     m_commandRunning = true;
-    m_command->execute();
+    m_command->start();
 }
 
 void GitLabCloneDialog::cancel()

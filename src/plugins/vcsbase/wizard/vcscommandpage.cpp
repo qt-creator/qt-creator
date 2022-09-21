@@ -374,7 +374,7 @@ void VcsCommandPage::start(VcsCommand *command)
     m_statusLabel->setText(m_startedStatus);
     m_statusLabel->setPalette(QPalette());
     m_state = Running;
-    command->execute();
+    command->start();
 
     wizard()->button(QWizard::BackButton)->setEnabled(false);
 }
