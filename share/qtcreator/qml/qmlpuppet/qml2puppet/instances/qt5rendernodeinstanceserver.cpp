@@ -100,7 +100,13 @@ void Qt5RenderNodeInstanceServer::collectItemChangesAndSendChangeCommands()
                                     m_dirtyInstanceSet.insert(instanceForObject(effectParent));
                                 }
                             }
-                        } else if (DesignerSupport::isDirty(item, DesignerSupport::AllMask)) {
+                        } else if (DesignerSupport::isDirty(
+                                item,
+                                DesignerSupport::DirtyType(
+                                    DesignerSupport::AllMask
+                                    | DesignerSupport::ZValue
+                                    | DesignerSupport::OpacityValue
+                                    | DesignerSupport::Visible))) {
                             ServerNodeInstance ancestorInstance = findNodeInstanceForItem(
                                 item->parentItem());
                             if (ancestorInstance.isValid())
