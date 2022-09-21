@@ -10,6 +10,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/searchresultwindow.h>
 
+#include <projectexplorer/session.h>
+
 #include <utils/mimeutils.h>
 
 #include <QFile>
@@ -162,7 +164,9 @@ QStringList SymbolSupport::getFileContents(const Utils::FilePath &filePath)
 }
 
 QList<Core::SearchResultItem> generateSearchResultItems(
-    const QMap<Utils::FilePath, QList<ItemData>> &rangesInDocument)
+        const QMap<Utils::FilePath, QList<ItemData>> &rangesInDocument,
+        Core::SearchResult *search = nullptr,
+        bool limitToProjects = false)
 {
     QList<Core::SearchResultItem> result;
     for (auto it = rangesInDocument.begin(); it != rangesInDocument.end(); ++it) {
@@ -171,6 +175,8 @@ QList<Core::SearchResultItem> generateSearchResultItems(
         Core::SearchResultItem item;
         item.setFilePath(filePath);
         item.setUseTextEditorFont(true);
+        if (search && search->supportsReplace() && limitToProjects)
+            item.setSelectForReplacement(ProjectExplorer::SessionManager::projectForFile(filePath));
 
         QStringList lines = SymbolSupport::getFileContents(filePath);
         for (const ItemData &data : it.value()) {
@@ -343,7 +349,9 @@ void SymbolSupport::requestRename(const TextDocumentPositionParams &positionPara
     search->popup();
 }
 
-QList<Core::SearchResultItem> generateReplaceItems(const WorkspaceEdit &edits)
+QList<Core::SearchResultItem> generateReplaceItems(const WorkspaceEdit &edits,
+                                                   Core::SearchResult *search,
+                                                   bool limitToProjects)
 {
     auto convertEdits = [](const QList<TextEdit> &edits) {
         return Utils::transform(edits, [](const TextEdit &edit) {
@@ -362,7 +370,7 @@ QList<Core::SearchResultItem> generateReplaceItems(const WorkspaceEdit &edits)
         for (auto it = changes.begin(), end = changes.end(); it != end; ++it)
             rangesInDocument[it.key().toFilePath()] = convertEdits(it.value());
     }
-    return generateSearchResultItems(rangesInDocument);
+    return generateSearchResultItems(rangesInDocument, search, limitToProjects);
 }
 
 Core::SearchResult *SymbolSupport::createSearch(const TextDocumentPositionParams &positionParams,
@@ -419,7 +427,8 @@ void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
 
     const std::optional<WorkspaceEdit> &edits = response.result();
     if (edits.has_value()) {
-        search->addResults(generateReplaceItems(*edits), Core::SearchResult::AddOrdered);
+        search->addResults(generateReplaceItems(*edits, search, m_limitRenamingToProjects),
+                           Core::SearchResult::AddOrdered);
         search->additionalReplaceWidget()->setVisible(false);
         search->setReplaceEnabled(true);
         search->setSearchAgainEnabled(false);

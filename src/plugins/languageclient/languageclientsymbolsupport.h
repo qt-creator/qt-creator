@@ -50,6 +50,8 @@ public:
     using SymbolMapper = std::function<QString(const QString &)>;
     void setDefaultRenamingSymbolMapper(const SymbolMapper &mapper);
 
+    void setLimitRenamingToProjects(bool limit) { m_limitRenamingToProjects = limit; }
+
 private:
     void handleFindReferencesResponse(
         const LanguageServerProtocol::FindReferencesRequest::Response &response,
@@ -71,6 +73,7 @@ private:
 
     Client *m_client = nullptr;
     SymbolMapper m_defaultSymbolMapper;
+    bool m_limitRenamingToProjects = false;
 };
 
 } // namespace LanguageClient
