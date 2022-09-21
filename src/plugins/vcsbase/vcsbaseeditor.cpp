@@ -1211,15 +1211,6 @@ DiffChunk VcsBaseEditorWidget::diffChunk(QTextCursor cursor) const
     return rc;
 }
 
-void VcsBaseEditorWidget::reportCommandFinished(bool success)
-{
-    hideProgressIndicator();
-    if (!success)
-        textDocument()->setPlainText(tr("Failed to retrieve data."));
-    else if (d->m_defaultLineNumber >= 0)
-        gotoLine(d->m_defaultLineNumber);
-}
-
 const VcsBaseEditorParameters *VcsBaseEditor::findType(const VcsBaseEditorParameters *array,
                                                        int arraySize,
                                                        EditorContentType et)
@@ -1394,9 +1385,7 @@ void VcsBaseEditorWidget::setCommand(VcsCommand *command)
     if (command) {
         d->m_progressIndicator = new ProgressIndicator(ProgressIndicatorSize::Large);
         d->m_progressIndicator->attachToWidget(this);
-        connect(command, &VcsCommand::done, this, [this] {
-            reportCommandFinished(d->m_command->result() == ProcessResult::FinishedWithSuccess);
-        });
+        connect(command, &VcsCommand::done, this, &VcsBaseEditorWidget::hideProgressIndicator);
         QTimer::singleShot(100, this, &VcsBaseEditorWidget::showProgressIndicator);
     }
 }
@@ -1404,6 +1393,12 @@ void VcsBaseEditorWidget::setCommand(VcsCommand *command)
 void VcsBaseEditorWidget::setDefaultLineNumber(int line)
 {
     d->m_defaultLineNumber = line;
+}
+
+void VcsBaseEditorWidget::gotoDefaultLine()
+{
+    if (d->m_defaultLineNumber >= 0)
+        gotoLine(d->m_defaultLineNumber);
 }
 
 void VcsBaseEditorWidget::setPlainText(const QString &text)

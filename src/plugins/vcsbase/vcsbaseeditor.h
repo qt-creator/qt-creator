@@ -192,6 +192,7 @@ public:
 
     void setCommand(VcsCommand *command);
     void setDefaultLineNumber(int line);
+    void gotoDefaultLine();
 
     virtual void setPlainText(const QString &text);
 
@@ -204,9 +205,6 @@ signals:
                                    const QString &change, int lineNumber);
     void diffChunkApplied(const VcsBase::DiffChunk &dc);
     void diffChunkReverted(const VcsBase::DiffChunk &dc);
-
-public slots:
-    void reportCommandFinished(bool success);
 
 protected:
     void contextMenuEvent(QContextMenuEvent *e) override;

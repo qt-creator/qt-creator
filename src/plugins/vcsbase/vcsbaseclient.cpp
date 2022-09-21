@@ -15,6 +15,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/idocument.h>
 
+#include <texteditor/textdocument.h>
+
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
@@ -81,8 +83,14 @@ VcsCommand *VcsBaseClientImpl::createCommand(const FilePath &workingDirectory,
         if (editor) // assume that the commands output is the important thing
             cmd->addFlags(VcsCommand::SilentOutput);
     } else if (editor) {
-        connect(cmd, &VcsCommand::done, editor,
-                [editor, cmd] { editor->setPlainText(cmd->cleanedStdOut()); });
+        connect(cmd, &VcsCommand::done, editor, [editor, cmd] {
+            if (cmd->result() != ProcessResult::FinishedWithSuccess) {
+                editor->textDocument()->setPlainText(tr("Failed to retrieve data."));
+                return;
+            }
+            editor->setPlainText(cmd->cleanedStdOut());
+            editor->gotoDefaultLine();
+        });
     }
 
     return cmd;
