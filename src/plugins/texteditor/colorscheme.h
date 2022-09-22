@@ -15,6 +15,8 @@ QT_BEGIN_NAMESPACE
 class QWidget;
 QT_END_NAMESPACE
 
+namespace Utils { class FilePath; }
+
 namespace TextEditor {
 
 /*! Format for a particular piece of text (text/comment, etc). */
@@ -81,14 +83,10 @@ private:
 class TEXTEDITOR_EXPORT ColorScheme
 {
 public:
-    void setDisplayName(const QString &name)
-    { m_displayName = name; }
+    void setDisplayName(const QString &name) { m_displayName = name; }
+    QString displayName() const { return m_displayName; }
 
-    QString displayName() const
-    { return m_displayName; }
-
-    inline bool isEmpty() const
-    { return m_formats.isEmpty(); }
+    bool isEmpty() const { return m_formats.isEmpty(); }
 
     bool contains(TextStyle category) const;
 
@@ -99,15 +97,15 @@ public:
 
     void clear();
 
-    bool save(const QString &fileName, QWidget *parent) const;
-    bool load(const QString &fileName);
+    bool save(const Utils::FilePath &filePath, QWidget *parent) const;
+    bool load(const Utils::FilePath &filePath);
 
     bool equals(const ColorScheme &cs) const
     {
         return m_formats == cs.m_formats && m_displayName == cs.m_displayName;
     }
 
-    static QString readNameOfScheme(const QString &fileName);
+    static QString readNameOfScheme(const Utils::FilePath &filePath);
 
     friend bool operator==(const ColorScheme &cs1, const ColorScheme &cs2) { return cs1.equals(cs2); }
     friend bool operator!=(const ColorScheme &cs1, const ColorScheme &cs2) { return !cs1.equals(cs2); }

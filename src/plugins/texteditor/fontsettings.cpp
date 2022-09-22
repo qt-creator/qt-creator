@@ -20,17 +20,16 @@
 
 #include <cmath>
 
-static const char fontFamilyKey[] = "FontFamily";
-static const char fontSizeKey[] = "FontSize";
-static const char fontZoomKey[] = "FontZoom";
-static const char lineSpacingKey[] = "LineSpacing";
-static const char antialiasKey[] = "FontAntialias";
-static const char schemeFileNamesKey[] = "ColorSchemes";
+using namespace Utils;
 
-namespace {
-static const bool DEFAULT_ANTIALIAS = true;
+const char fontFamilyKey[] = "FontFamily";
+const char fontSizeKey[] = "FontSize";
+const char fontZoomKey[] = "FontZoom";
+const char lineSpacingKey[] = "LineSpacing";
+const char antialiasKey[] = "FontAntialias";
+const char schemeFileNamesKey[] = "ColorSchemes";
 
-} // anonymous namespace
+const bool DEFAULT_ANTIALIAS = true;
 
 namespace TextEditor {
 
@@ -81,7 +80,7 @@ void FontSettings::toSettings(QSettings *s) const
 
     auto schemeFileNames = s->value(QLatin1String(schemeFileNamesKey)).toMap();
     if (m_schemeFileName != defaultSchemeFileName() || schemeFileNames.contains(Utils::creatorTheme()->id())) {
-        schemeFileNames.insert(Utils::creatorTheme()->id(), m_schemeFileName);
+        schemeFileNames.insert(Utils::creatorTheme()->id(), m_schemeFileName.toVariant());
         s->setValue(QLatin1String(schemeFileNamesKey), schemeFileNames);
     }
 
@@ -108,7 +107,7 @@ bool FontSettings::fromSettings(const FormatDescriptions &descriptions, const QS
         // Load the selected color scheme for the current theme
         auto schemeFileNames = s->value(group + QLatin1String(schemeFileNamesKey)).toMap();
         if (schemeFileNames.contains(Utils::creatorTheme()->id())) {
-            const QString scheme = schemeFileNames.value(Utils::creatorTheme()->id()).toString();
+            const FilePath scheme = FilePath::fromVariant(schemeFileNames.value(Utils::creatorTheme()->id()));
             loadColorScheme(scheme, descriptions);
         }
     }
@@ -400,7 +399,7 @@ Format FontSettings::formatFor(TextStyle category) const
 /**
  * Returns the file name of the currently selected color scheme.
  */
-QString FontSettings::colorSchemeFileName() const
+Utils::FilePath FontSettings::colorSchemeFileName() const
 {
     return m_schemeFileName;
 }
@@ -409,23 +408,23 @@ QString FontSettings::colorSchemeFileName() const
  * Sets the file name of the color scheme. Does not load the scheme from the
  * given file. If you want to load a scheme, use loadColorScheme() instead.
  */
-void FontSettings::setColorSchemeFileName(const QString &fileName)
+void FontSettings::setColorSchemeFileName(const Utils::FilePath &filePath)
 {
-    m_schemeFileName = fileName;
+    m_schemeFileName = filePath;
 }
 
-bool FontSettings::loadColorScheme(const QString &fileName,
+bool FontSettings::loadColorScheme(const Utils::FilePath &filePath,
                                    const FormatDescriptions &descriptions)
 {
     clearCaches();
 
     bool loaded = true;
-    m_schemeFileName = fileName;
+    m_schemeFileName = filePath;
 
     if (!m_scheme.load(m_schemeFileName)) {
         loaded = false;
         m_schemeFileName.clear();
-        qWarning() << "Failed to load color scheme:" << fileName;
+        qWarning() << "Failed to load color scheme:" << filePath;
     }
 
     // Apply default formats to undefined categories
@@ -463,7 +462,7 @@ bool FontSettings::loadColorScheme(const QString &fileName,
     return loaded;
 }
 
-bool FontSettings::saveColorScheme(const QString &fileName)
+bool FontSettings::saveColorScheme(const Utils::FilePath &fileName)
 {
     const bool saved = m_scheme.save(fileName, Core::ICore::dialogParent());
     if (saved)
@@ -524,9 +523,9 @@ int FontSettings::defaultFontSize()
  * Returns the default scheme file name, or the path to a shipped scheme when
  * one exists with the given \a fileName.
  */
-QString FontSettings::defaultSchemeFileName(const QString &fileName)
+FilePath FontSettings::defaultSchemeFileName(const QString &fileName)
 {
-    Utils::FilePath defaultScheme = Core::ICore::resourcePath("styles");
+    FilePath defaultScheme = Core::ICore::resourcePath("styles");
 
     if (!fileName.isEmpty() && (defaultScheme / fileName).exists()) {
         defaultScheme = defaultScheme / fileName;
@@ -538,7 +537,7 @@ QString FontSettings::defaultSchemeFileName(const QString &fileName)
             defaultScheme = defaultScheme / "default.xml";
     }
 
-    return defaultScheme.toString();
+    return defaultScheme;
 }
 
 } // namespace TextEditor

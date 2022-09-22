@@ -8,6 +8,8 @@
 #include "colorscheme.h"
 #include "textstyles.h"
 
+#include <utils/filepath.h>
+
 #include <QHash>
 #include <QList>
 #include <QString>
@@ -65,10 +67,10 @@ public:
     Format &formatFor(TextStyle category);
     Format formatFor(TextStyle category) const;
 
-    QString colorSchemeFileName() const;
-    void setColorSchemeFileName(const QString &fileName);
-    bool loadColorScheme(const QString &fileName, const FormatDescriptions &descriptions);
-    bool saveColorScheme(const QString &fileName);
+    Utils::FilePath colorSchemeFileName() const;
+    void setColorSchemeFileName(const Utils::FilePath &filePath);
+    bool loadColorScheme(const Utils::FilePath &filePath, const FormatDescriptions &descriptions);
+    bool saveColorScheme(const Utils::FilePath &filePath);
 
     const ColorScheme &colorScheme() const;
     void setColorScheme(const ColorScheme &scheme);
@@ -78,7 +80,7 @@ public:
     static QString defaultFixedFontFamily();
     static int defaultFontSize();
 
-    static QString defaultSchemeFileName(const QString &fileName = QString());
+    static Utils::FilePath defaultSchemeFileName(const QString &fileName = {});
 
     friend bool operator==(const FontSettings &f1, const FontSettings &f2) { return f1.equals(f2); }
     friend bool operator!=(const FontSettings &f1, const FontSettings &f2) { return !f1.equals(f2); }
@@ -89,7 +91,7 @@ private:
 
 private:
     QString m_family;
-    QString m_schemeFileName;
+    Utils::FilePath m_schemeFileName;
     int m_fontSize;
     int m_fontZoom;
     int m_lineSpacing;

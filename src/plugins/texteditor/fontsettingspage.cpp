@@ -50,13 +50,13 @@ namespace Internal {
 
 struct ColorSchemeEntry
 {
-    ColorSchemeEntry(const QString &fileName, bool readOnly) :
-        fileName(fileName),
-        name(ColorScheme::readNameOfScheme(fileName)),
+    ColorSchemeEntry(const FilePath &filePath, bool readOnly) :
+        filePath(filePath),
+        name(ColorScheme::readNameOfScheme(filePath)),
         readOnly(readOnly)
     { }
 
-    QString fileName;
+    FilePath filePath;
     QString name;
     QString id;
     bool readOnly;
@@ -514,7 +514,7 @@ void FontSettingsPageWidget::colorSchemeSelected(int index)
 
         const ColorSchemeEntry &entry = m_schemeListModel.colorSchemeAt(index);
         readOnly = entry.readOnly;
-        m_value.loadColorScheme(entry.fileName, m_descriptions);
+        m_value.loadColorScheme(entry.filePath, m_descriptions);
         m_schemeEdit->setColorScheme(m_value.colorScheme());
     }
     m_copyButton->setEnabled(index != -1);
@@ -543,11 +543,11 @@ void FontSettingsPageWidget::copyColorScheme(const QString &name)
 
     const ColorSchemeEntry &entry = m_schemeListModel.colorSchemeAt(index);
 
-    QString baseFileName = QFileInfo(entry.fileName).completeBaseName();
+    QString baseFileName = entry.filePath.completeBaseName();
     baseFileName += QLatin1String("_copy%1.xml");
-    FilePath fileName = createColorSchemeFileName(baseFileName);
+    FilePath filePath = createColorSchemeFileName(baseFileName);
 
-    if (!fileName.isEmpty()) {
+    if (!filePath.isEmpty()) {
         // Ask about saving any existing modifications
         maybeSaveColorScheme();
 
@@ -556,8 +556,8 @@ void FontSettingsPageWidget::copyColorScheme(const QString &name)
 
         ColorScheme scheme = m_value.colorScheme();
         scheme.setDisplayName(name);
-        if (scheme.save(fileName.path(), Core::ICore::dialogParent()))
-            m_value.setColorSchemeFileName(fileName.path());
+        if (scheme.save(filePath, Core::ICore::dialogParent()))
+            m_value.setColorSchemeFileName(filePath);
 
         refreshColorSchemeList();
     }
@@ -598,7 +598,7 @@ void FontSettingsPageWidget::deleteColorScheme()
     const ColorSchemeEntry &entry = m_schemeListModel.colorSchemeAt(index);
     QTC_ASSERT(!entry.readOnly, return);
 
-    if (QFile::remove(entry.fileName))
+    if (entry.filePath.removeFile())
         m_schemeListModel.removeColorScheme(index);
 }
 
@@ -631,10 +631,10 @@ void FontSettingsPageWidget::importScheme()
                     importedFile.baseName() + "%1." + importedFile.suffix());
 
                 ColorScheme scheme;
-                if (scheme.load(importedFile.path())) {
+                if (scheme.load(importedFile)) {
                     scheme.setDisplayName(name);
-                    scheme.save(saveFileName.path(), Core::ICore::dialogParent());
-                    m_value.loadColorScheme(saveFileName.path(), m_descriptions);
+                    scheme.save(saveFileName, Core::ICore::dialogParent());
+                    m_value.loadColorScheme(saveFileName, m_descriptions);
                 } else {
                     qWarning() << "Failed to import color scheme:" << importedFile;
                 }
@@ -656,11 +656,11 @@ void FontSettingsPageWidget::exportScheme()
     const FilePath filePath
         = Utils::FileUtils::getSaveFilePath(this,
                                             tr("Export Color Scheme"),
-                                            FilePath::fromString(entry.fileName),
+                                            entry.filePath,
                                             tr("Color scheme (*.xml);;All files (*)"));
 
     if (!filePath.isEmpty())
-        m_value.colorScheme().save(filePath.toString(), Core::ICore::dialogParent());
+        m_value.colorScheme().save(filePath, Core::ICore::dialogParent());
 }
 
 void FontSettingsPageWidget::maybeSaveColorScheme()
@@ -695,7 +695,7 @@ void FontSettingsPageWidget::refreshColorSchemeList()
     const FilePath styleDir = Core::ICore::resourcePath("styles");
 
     FilePaths schemeList = styleDir.dirEntries(FileFilter({"*.xml"}, QDir::Files));
-    const FilePath defaultScheme = FilePath::fromString(FontSettings::defaultSchemeFileName());
+    const FilePath defaultScheme = FontSettings::defaultSchemeFileName();
 
     if (schemeList.removeAll(defaultScheme))
         schemeList.prepend(defaultScheme);
@@ -703,9 +703,9 @@ void FontSettingsPageWidget::refreshColorSchemeList()
     int selected = 0;
 
     for (const FilePath &file : qAsConst(schemeList)) {
-        if (FilePath::fromString(m_value.colorSchemeFileName()) == file)
+        if (m_value.colorSchemeFileName() == file)
             selected = colorSchemes.size();
-        colorSchemes.append(ColorSchemeEntry(file.toString(), true));
+        colorSchemes.append(ColorSchemeEntry(file, true));
     }
 
     if (colorSchemes.isEmpty())
@@ -713,9 +713,9 @@ void FontSettingsPageWidget::refreshColorSchemeList()
 
     const FilePaths files = customStylesPath().dirEntries(FileFilter({"*.xml"}, QDir::Files));
     for (const FilePath &file : files) {
-        if (FilePath::fromString(m_value.colorSchemeFileName()) == file)
+        if (m_value.colorSchemeFileName() == file)
             selected = colorSchemes.size();
-        colorSchemes.append(ColorSchemeEntry(file.toString(), false));
+        colorSchemes.append(ColorSchemeEntry(file, false));
     }
 
     m_refreshingSchemeList = true;
@@ -743,8 +743,8 @@ void FontSettingsPageWidget::apply()
     int index = m_schemeComboBox->currentIndex();
     if (index != -1) {
         const ColorSchemeEntry &entry = m_schemeListModel.colorSchemeAt(index);
-        if (entry.fileName != m_value.colorSchemeFileName())
-            m_value.loadColorScheme(entry.fileName, m_descriptions);
+        if (entry.filePath != m_value.colorSchemeFileName())
+            m_value.loadColorScheme(entry.filePath, m_descriptions);
     }
 
     saveSettings();
