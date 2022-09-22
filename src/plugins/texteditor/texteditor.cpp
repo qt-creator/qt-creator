@@ -1120,8 +1120,18 @@ void TextEditorWidgetPrivate::ctor(const QSharedPointer<TextDocument> &doc)
     m_searchResultOverlay = new TextEditorOverlay(q);
     m_refactorOverlay = new RefactorOverlay(q);
 
-    m_document = doc;
-    setupDocumentSignals();
+    {
+        // QPlainTextEdit keeps pointer to the old QTextDocumentLayout,
+        // and QPlainTextEdit::setDocument() disconnects unconditionally from the old layout.
+        // Since the old layout it being deleted together with the old text document when
+        // dropping the shared pointer reference, QPlainTextEdit::setDocument() will crash.
+        // We prolong the lifetime of the old document and its layout by keeping the
+        // shared pointer still for a while.
+        QSharedPointer<TextDocument> lifetimeProlonger = m_document;
+        m_document = doc;
+        setupDocumentSignals();
+    }
+
     m_blockCount = doc->document()->blockCount();
 
     // from RESEARCH
