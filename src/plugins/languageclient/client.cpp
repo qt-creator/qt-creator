@@ -190,19 +190,23 @@ public:
         // temporary container needed since m_resetAssistProvider is changed in resetAssistProviders
         for (TextDocument *document : m_resetAssistProvider.keys())
             resetAssistProviders(document);
-        const QList<Core::IEditor *> &editors = Core::DocumentModel::editorsForOpenedDocuments();
-        for (Core::IEditor *editor : editors) {
-            if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
-                TextEditorWidget *widget = textEditor->editorWidget();
-                widget->setRefactorMarkers(RefactorMarker::filterOutType(widget->refactorMarkers(), m_id));
-                widget->removeHoverHandler(&m_hoverHandler);
+        if (!LanguageClientManager::isShuttingDown()) {
+            // prevent accessing deleted editors on Creator shutdown
+            const QList<Core::IEditor *> &editors = Core::DocumentModel::editorsForOpenedDocuments();
+            for (Core::IEditor *editor : editors) {
+                if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
+                    TextEditorWidget *widget = textEditor->editorWidget();
+                    widget->setRefactorMarkers(
+                        RefactorMarker::filterOutType(widget->refactorMarkers(), m_id));
+                    widget->removeHoverHandler(&m_hoverHandler);
+                }
             }
+            updateEditorToolBar(m_openedDocument.keys());
         }
         for (IAssistProcessor *processor : qAsConst(m_runningAssistProcessors))
             processor->setAsyncProposalAvailable(nullptr);
         qDeleteAll(m_documentHighlightsTimer);
         m_documentHighlightsTimer.clear();
-        updateEditorToolBar(m_openedDocument.keys());
         // do not handle messages while shutting down
         disconnect(m_clientInterface, &InterfaceController::messageReceived,
                    q, &Client::handleMessage);

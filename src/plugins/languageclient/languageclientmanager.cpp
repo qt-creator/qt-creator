@@ -232,6 +232,11 @@ void LanguageClientManager::shutdown()
     });
 }
 
+bool LanguageClientManager::isShuttingDown()
+{
+    return managerInstance->m_shuttingDown;
+}
+
 LanguageClientManager *LanguageClientManager::instance()
 {
     return managerInstance;
