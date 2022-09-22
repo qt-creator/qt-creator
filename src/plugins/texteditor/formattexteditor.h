@@ -7,6 +7,8 @@
 
 #include "command.h"
 
+#include <utils/filepath.h>
+
 #include <QPlainTextEdit>
 #include <QPointer>
 
@@ -17,17 +19,18 @@ class TextEditorWidget;
 class TEXTEDITOR_EXPORT FormatTask
 {
 public:
-    FormatTask(QPlainTextEdit *_editor, const QString &_filePath, const QString &_sourceData,
+    FormatTask(QPlainTextEdit *_editor, const Utils::FilePath &_filePath, const QString &_sourceData,
                const Command &_command, int _startPos = -1, int _endPos = 0) :
         editor(_editor),
         filePath(_filePath),
         sourceData(_sourceData),
         command(_command),
         startPos(_startPos),
-        endPos(_endPos) {}
+        endPos(_endPos)
+    {}
 
     QPointer<QPlainTextEdit> editor;
-    QString filePath;
+    Utils::FilePath filePath;
     QString sourceData;
     TextEditor::Command command;
     int startPos = -1;
