@@ -1621,7 +1621,7 @@ void QtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const Target 
 QSet<Id> QtVersion::features() const
 {
     if (d->m_overrideFeatures.isEmpty())
-        return versionedIds(qtVersion());
+        return availableFeatures();
     return d->m_overrideFeatures;
 }
 
