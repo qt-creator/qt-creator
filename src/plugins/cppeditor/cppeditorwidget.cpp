@@ -837,6 +837,9 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
 bool CppEditorWidget::followQrcUrl(const QTextCursor &cursor,
                                    const Utils::LinkHandler &processLinkCallback)
 {
+    if (!isSemanticInfoValidExceptLocalUses())
+        return false;
+
     const Project * const project = ProjectTree::currentProject();
     if (!project || !project->rootProjectNode())
         return false;
