@@ -97,8 +97,9 @@ QString BundleImporter::importComponent(const QString &qmlFile,
     FilePath qmlSourceFile = bundleImportPath.resolvePath(FilePath::fromString(qmlFile));
     const bool qmlFileExists = qmlSourceFile.exists();
     const QString qmlType = qmlSourceFile.baseName();
-    m_pendingTypes.append(QStringLiteral("%1.%2")
-                          .arg(QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1), qmlType));
+    m_pendingTypes.append(QStringLiteral("%1.%2.%3")
+                          .arg(QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1),
+                               m_bundleId, qmlType));
     if (!qmldirContent.contains(qmlFile)) {
         qmldirContent.append(qmlType);
         qmldirContent.append(" 1.0 ");
