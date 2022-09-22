@@ -23,6 +23,45 @@ namespace Internal {
 
 class DiffEditorDocument;
 
+class UnifiedDiffOutput
+{
+public:
+    QString diffText;
+    // 'foldingIndent' is populated with <block number> and folding indentation
+    // value where 1 indicates start of new file and 2 indicates a diff chunk.
+    // Remaining lines (diff contents) are assigned 3.
+    QHash<int, int> foldingIndent;
+
+    QMap<int, QList<DiffSelection>> selections;
+};
+
+class UnifiedDiffData
+{
+public:
+    UnifiedDiffOutput showDiff(const DiffEditorInput &input);
+
+    // block number, visual line number, chunk row number
+    QMap<int, QPair<int, int>> m_leftLineNumbers;
+    QMap<int, QPair<int, int>> m_rightLineNumbers;
+
+    int m_leftLineNumberDigits = 1;
+    int m_rightLineNumberDigits = 1;
+
+    // block number, visual line number.
+    QMap<int, QPair<DiffFileInfo, DiffFileInfo>> m_fileInfo;
+    // start block number, block count of a chunk, chunk index inside a file.
+    QMap<int, QPair<int, int>> m_chunkInfo;
+
+private:
+    void setLeftLineNumber(int blockNumber, int lineNumber, int rowNumberInChunk);
+    void setRightLineNumber(int blockNumber, int lineNumber, int rowNumberInChunk);
+    void setFileInfo(int blockNumber, const DiffFileInfo &leftInfo, const DiffFileInfo &rightInfo);
+    void setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex);
+    QString showChunk(const DiffEditorInput &input, const ChunkData &chunkData, bool lastChunk,
+                      int *blockNumber, int *charNumber,
+                      QMap<int, QList<DiffSelection>> *selections);
+};
+
 class UnifiedDiffEditorWidget final : public SelectableTextEditorWidget
 {
     Q_OBJECT
@@ -58,18 +97,7 @@ private:
 
     void slotCursorPositionChangedInEditor();
 
-    void setLeftLineNumber(int blockNumber, int lineNumber, int rowNumberInChunk);
-    void setRightLineNumber(int blockNumber, int lineNumber, int rowNumberInChunk);
-    void setFileInfo(int blockNumber,
-                     const DiffFileInfo &leftFileInfo,
-                     const DiffFileInfo &rightFileInfo);
-    void setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex);
     void showDiff();
-    QString showChunk(const ChunkData &chunkData,
-                      bool lastChunk,
-                      int *blockNumber,
-                      int *charNumber,
-                      QMap<int, QList<DiffSelection> > *selections);
     int blockNumberForFileIndex(int fileIndex) const;
     int fileIndexForBlockNumber(int blockNumber) const;
     int chunkIndexForBlockNumber(int blockNumber) const;
@@ -79,19 +107,8 @@ private:
                                int chunkIndex,
                                const ChunkSelection &selection);
 
-    // block number, visual line number, chunk row number
-    QMap<int, QPair<int, int> > m_leftLineNumbers;
-    QMap<int, QPair<int, int> > m_rightLineNumbers;
-
+    UnifiedDiffData m_data;
     DiffEditorWidgetController m_controller;
-
-    int m_leftLineNumberDigits = 1;
-    int m_rightLineNumberDigits = 1;
-    // block number, visual line number.
-    QMap<int, QPair<DiffFileInfo, DiffFileInfo> > m_fileInfo;
-    // start block number, block count of a chunk, chunk index inside a file.
-    QMap<int, QPair<int, int> > m_chunkInfo;
-
     QByteArray m_state;
 };
 

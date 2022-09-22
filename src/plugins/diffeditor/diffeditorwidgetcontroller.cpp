@@ -213,7 +213,7 @@ void DiffEditorWidgetController::addCodePasterAction(QMenu *menu, int fileIndex,
     if (ExtensionSystem::PluginManager::getObject<CodePaster::Service>()) {
         // optional code pasting service
         QAction *sendChunkToCodePasterAction = menu->addAction(tr("Send Chunk to CodePaster..."));
-        connect(sendChunkToCodePasterAction, &QAction::triggered, this, [this, fileIndex, chunkIndex]() {
+        connect(sendChunkToCodePasterAction, &QAction::triggered, this, [this, fileIndex, chunkIndex] {
             sendChunkToCodePaster(fileIndex, chunkIndex);
         });
     }
@@ -257,7 +257,7 @@ bool DiffEditorWidgetController::fileNamesAreDifferent(int fileIndex) const
 void DiffEditorWidgetController::addApplyAction(QMenu *menu, int fileIndex, int chunkIndex)
 {
     QAction *applyAction = menu->addAction(tr("Apply Chunk..."));
-    connect(applyAction, &QAction::triggered, this, [this, fileIndex, chunkIndex]() {
+    connect(applyAction, &QAction::triggered, this, [this, fileIndex, chunkIndex] {
         patch(false, fileIndex, chunkIndex);
     });
     applyAction->setEnabled(chunkExists(fileIndex, chunkIndex) && fileNamesAreDifferent(fileIndex));
@@ -266,7 +266,7 @@ void DiffEditorWidgetController::addApplyAction(QMenu *menu, int fileIndex, int 
 void DiffEditorWidgetController::addRevertAction(QMenu *menu, int fileIndex, int chunkIndex)
 {
     QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
-    connect(revertAction, &QAction::triggered, this, [this, fileIndex, chunkIndex]() {
+    connect(revertAction, &QAction::triggered, this, [this, fileIndex, chunkIndex] {
         patch(true, fileIndex, chunkIndex);
     });
     revertAction->setEnabled(chunkExists(fileIndex, chunkIndex));
@@ -293,7 +293,7 @@ void DiffEditorWidgetController::updateCannotDecodeInfo()
                                  tr("<b>Error:</b> Could not decode \"%1\" with \"%2\"-encoding.")
                                      .arg(m_document->displayName(),
                                           QString::fromLatin1(m_document->codec()->name())));
-        info.addCustomButton(tr("Select Encoding"), [this]() { m_document->selectEncoding(); });
+        info.addCustomButton(tr("Select Encoding"), [this] { m_document->selectEncoding(); });
         infoBar->addInfo(info);
     } else {
         infoBar->removeInfo(selectEncodingId);
@@ -317,6 +317,17 @@ void DiffEditorWidgetController::sendChunkToCodePaster(int fileIndex, int chunkI
 
     pasteService->postText(patch, Constants::DIFF_EDITOR_MIMETYPE);
 }
+
+DiffEditorInput::DiffEditorInput(DiffEditorWidgetController *controller)
+    : m_contextFileData(controller->m_contextFileData)
+    , m_fileLineFormat(&controller->m_fileLineFormat)
+    , m_chunkLineFormat(&controller->m_chunkLineFormat)
+    , m_leftLineFormat(&controller->m_leftLineFormat)
+    , m_rightLineFormat(&controller->m_rightLineFormat)
+    , m_leftCharFormat(&controller->m_leftCharFormat)
+    , m_rightCharFormat(&controller->m_rightCharFormat)
+{ }
+
 
 } // namespace Internal
 } // namespace DiffEditor

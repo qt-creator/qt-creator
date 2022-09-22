@@ -74,5 +74,18 @@ private:
     QTimer m_timer;
 };
 
+class DiffEditorInput
+{
+public:
+    DiffEditorInput(DiffEditorWidgetController *controller);
+    QList<FileData> m_contextFileData;
+    QTextCharFormat *m_fileLineFormat = nullptr;
+    QTextCharFormat *m_chunkLineFormat = nullptr;
+    QTextCharFormat *m_leftLineFormat = nullptr;
+    QTextCharFormat *m_rightLineFormat = nullptr;
+    QTextCharFormat *m_leftCharFormat = nullptr;
+    QTextCharFormat *m_rightCharFormat = nullptr;
+};
+
 } // namespace Internal
 } // namespace DiffEditor
