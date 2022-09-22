@@ -175,6 +175,8 @@ void MaterialBrowserView::applyBundleMaterialToDropTarget(const ModelNode &bundl
 
             static QRegularExpression rgx("([A-Z])([a-z]*)");
             QString newName = QString::fromLatin1(metaInfo.simplifiedTypeName()).replace(rgx, " \\1\\2").trimmed();
+            if (newName.endsWith(" Material"))
+                newName.chop(9); // remove trailing " Material"
             QString newId = model()->generateIdFromName(newName, "material");
             newMatNode.setIdWithRefactoring(newId);
 
