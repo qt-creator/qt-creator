@@ -96,6 +96,14 @@ void LanguageClient::LanguageClientManager::addClient(Client *client)
             [client](const DynamicCapabilities &capabilities) {
                 managerInstance->m_inspector.updateCapabilities(client->name(), capabilities);
             });
+    connect(client,
+            &Client::destroyed,
+            managerInstance, [client]() {
+                QTC_ASSERT(!managerInstance->m_clients.contains(client),
+                           managerInstance->m_clients.removeAll(client));
+                for (QList<Client *> &clients : managerInstance->m_clientsForSetting)
+                    QTC_CHECK(clients.removeAll(client) == 0);
+            });
     emit managerInstance->clientAdded(client);
 }
 
