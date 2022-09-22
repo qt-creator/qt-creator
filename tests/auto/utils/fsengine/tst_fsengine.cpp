@@ -29,6 +29,8 @@ private slots:
     void testWindowsPaths();
     void testUrl();
     void testBrokenWindowsPath();
+    void testRead();
+    void testWrite();
 
 private:
     QString makeTestPath(QString path, bool asUrl = false);
@@ -280,6 +282,38 @@ void tst_fsengine::testBrokenWindowsPath()
     QFile file(localFileName);
     QVERIFY(file.open(QIODevice::ReadOnly));
     QCOMPARE(tmp.fileName(), QFileInfo(localFileName).canonicalFilePath());
+}
+
+void tst_fsengine::testRead()
+{
+    QTemporaryFile tmp;
+    QVERIFY(tmp.open());
+
+    const QByteArray data = "Hello World!";
+
+    tmp.write(data);
+    tmp.flush();
+
+    QFile file(FilePath::specialPath(FilePath::SpecialPathComponent::DeviceRootPath) + "/test"
+               + tmp.fileName());
+    QVERIFY(file.open(QIODevice::ReadOnly));
+    QCOMPARE(file.readAll(), data);
+}
+
+void tst_fsengine::testWrite()
+{
+    QTemporaryDir dir;
+    const QString path = dir.path() + "/testWrite.txt";
+    const QByteArray data = "Hello World!";
+    {
+        QFile file(FilePath::specialPath(FilePath::SpecialPathComponent::DeviceRootPath) + "/test"
+                   + path);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        QCOMPARE(file.write(data), qint64(data.size()));
+    }
+    QFile f(path);
+    QVERIFY(f.open(QIODevice::ReadOnly));
+    QCOMPARE(f.readAll(), data);
 }
 
 QTEST_GUILESS_MAIN(tst_fsengine)
