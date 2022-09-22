@@ -25,9 +25,9 @@
 
 import QtQuick
 import QtQuick.Controls
-import StudioTheme 1.0 as StudioTheme
+import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
-import QtQuick.Layouts 6.0
+import StudioTheme 1.0 as StudioTheme
 
 Item {
     id: root
@@ -148,13 +148,14 @@ Item {
                 rows: 1
                 spacing: stateBackground.thumbSpacing
 
-                StudioControls.AbstractButton {
+                HelperWidgets.AbstractButton {
                     id: defaultButton
                     width: 50
                     height: stateBackground.controlHeight
                     checkedInverted: true
                     buttonIcon: qsTr("Default")
                     iconFont: StudioTheme.Constants.font
+                    tooltip: qsTr("Set State as default")
                     onClicked: {
                         root.defaultClicked()
                         root.focusSignal()

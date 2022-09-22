@@ -26,6 +26,7 @@
 import QtQuick
 import QtQuick.Controls
 import StatesEditor
+import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme as StudioTheme
 
@@ -369,6 +370,23 @@ Rectangle {
                     width: stateGroupLabel.visible ? StudioTheme.Values.defaultControlWidth
                                                    : root.width - 2 * root.padding
 
+                    HelperWidgets.Tooltip { id: comboBoxTooltip }
+
+                    Timer {
+                        interval: 1000
+                        running: stateGroupComboBox.hovered
+                        onTriggered: comboBoxTooltip.showText(stateGroupComboBox,
+                                                              hoverHandler.point.position,
+                                                              qsTr("Switch State Group"))
+                    }
+
+                    onHoverChanged: {
+                        if (!stateGroupComboBox.hovered)
+                            comboBoxTooltip.hideText()
+                    }
+
+                    HoverHandler { id: hoverHandler }
+
                     popup.onOpened: editDialog.close()
 
                     // currentIndex needs special treatment, because if model is changed, it will be
@@ -398,25 +416,28 @@ Rectangle {
                     spacing: StudioTheme.Values.toolbarSpacing
                     leftPadding: toolBar.doubleRow ? root.padding : 0
 
-                    StudioControls.AbstractButton {
+                    HelperWidgets.AbstractButton {
                         buttonIcon: StudioTheme.Constants.plus
                         anchors.verticalCenter: parent.verticalCenter
+                        tooltip: qsTr("Create State Group")
                         onClicked: statesEditorModel.addStateGroup("stateGroup")
                     }
 
-                    StudioControls.AbstractButton {
+                    HelperWidgets.AbstractButton {
                         buttonIcon: StudioTheme.Constants.minus
                         anchors.verticalCenter: parent.verticalCenter
                         enabled: statesEditorModel.activeStateGroupIndex !== 0
+                        tooltip: qsTr("Remove State Group")
                         onClicked: statesEditorModel.removeStateGroup()
                     }
 
-                    StudioControls.AbstractButton {
+                    HelperWidgets.AbstractButton {
                         id: editButton
                         buttonIcon: StudioTheme.Constants.edit
                         anchors.verticalCenter: parent.verticalCenter
                         enabled: statesEditorModel.activeStateGroupIndex !== 0
                         checked: editDialog.visible
+                        tooltip: qsTr("Rename State Group")
                         onClicked: {
                             if (editDialog.opened)
                                 editDialog.close()
@@ -439,20 +460,22 @@ Rectangle {
                     spacing: StudioTheme.Values.toolbarSpacing
                     rightPadding: root.padding
 
-                    StudioControls.AbstractButton {
+                    HelperWidgets.AbstractButton {
                         buttonIcon: StudioTheme.Constants.gridView
                         anchors.verticalCenter: parent.verticalCenter
                         enabled: !root.tinyMode
+                        tooltip: qsTr("Show thumbnails")
                         onClicked: {
                             for (var i = 0; i < statesRepeater.count; ++i)
                                 statesRepeater.itemAt(i).setPropertyChangesVisible(false)
                         }
                     }
 
-                    StudioControls.AbstractButton {
+                    HelperWidgets.AbstractButton {
                         buttonIcon: StudioTheme.Constants.textFullJustification
                         anchors.verticalCenter: parent.verticalCenter
                         enabled: !root.tinyMode
+                        tooltip: qsTr("Show property changes")
                         onClicked: {
                             for (var i = 0; i < statesRepeater.count; ++i)
                                 statesRepeater.itemAt(i).setPropertyChangesVisible(true)
