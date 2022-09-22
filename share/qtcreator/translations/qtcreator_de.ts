@@ -6605,8 +6605,8 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
         <translation>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;Was ist eine Sitzung?&lt;/a&gt;</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>&amp;Verwenden</translation>
+        <source>&amp;Open</source>
+        <translation>&amp;Öffnen</translation>
     </message>
 </context>
 <context>

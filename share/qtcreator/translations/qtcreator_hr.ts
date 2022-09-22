@@ -5947,8 +5947,8 @@ Greška: %5</translation>
         <translation>&amp;Ukloni</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>&amp;Prebaci na</translation>
+        <source>&amp;Open</source>
+        <translation>&amp;Otvori</translation>
     </message>
     <message>
         <source>Restore last session on startup</source>

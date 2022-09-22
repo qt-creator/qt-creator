@@ -15576,8 +15576,8 @@ to project &apos;%2&apos;.</source>
         <translation>Ви&amp;далити</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>&amp;Перемкнутись до</translation>
+        <source>&amp;Open</source>
+        <translation>&amp;Відкрити</translation>
     </message>
     <message>
         <source>New session name</source>

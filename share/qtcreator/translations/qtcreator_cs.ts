@@ -10999,8 +10999,8 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation>&amp;Smazat</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>&amp;Přepnout na sezení</translation>
+        <source>&amp;Open</source>
+        <translation>&amp;Otevřít</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>

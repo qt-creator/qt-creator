@@ -119,17 +119,17 @@ SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
 
     auto createNewButton = new QPushButton(tr("&New"));
 
+    m_openButton = new QPushButton(tr("&Open"));
     m_renameButton = new QPushButton(tr("&Rename"));
     m_cloneButton = new QPushButton(tr("C&lone"));
     m_deleteButton = new QPushButton(tr("&Delete"));
-    m_switchButton = new QPushButton(tr("&Switch To"));
 
     m_autoLoadCheckBox = new QCheckBox(tr("Restore last session on startup"));
 
     auto buttonBox = new QDialogButtonBox(this);
     buttonBox->setStandardButtons(QDialogButtonBox::Close);
 
-    m_switchButton->setDefault(true);
+    m_openButton->setDefault(true);
 
     // FIXME: Simplify translator's work.
     auto whatsASessionLabel = new QLabel(
@@ -144,10 +144,10 @@ SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
             sessionView,
             Column {
                 createNewButton,
+                m_openButton,
                 m_renameButton,
                 m_cloneButton,
                 m_deleteButton,
-                m_switchButton,
                 st
             }
         },
@@ -158,14 +158,14 @@ SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
 
     connect(createNewButton, &QAbstractButton::clicked,
             sessionView, &SessionView::createNewSession);
+    connect(m_openButton, &QAbstractButton::clicked,
+            sessionView, &SessionView::switchToCurrentSession);
+    connect(m_renameButton, &QAbstractButton::clicked,
+            sessionView, &SessionView::renameCurrentSession);
     connect(m_cloneButton, &QAbstractButton::clicked,
             sessionView, &SessionView::cloneCurrentSession);
     connect(m_deleteButton, &QAbstractButton::clicked,
             sessionView, &SessionView::deleteSelectedSessions);
-    connect(m_switchButton, &QAbstractButton::clicked,
-            sessionView, &SessionView::switchToCurrentSession);
-    connect(m_renameButton, &QAbstractButton::clicked,
-            sessionView, &SessionView::renameCurrentSession);
     connect(sessionView, &SessionView::sessionActivated,
             sessionView, &SessionView::switchToCurrentSession);
 
@@ -191,20 +191,20 @@ bool SessionDialog::autoLoadSession() const
 void SessionDialog::updateActions(const QStringList &sessions)
 {
     if (sessions.isEmpty()) {
-        m_deleteButton->setEnabled(false);
+        m_openButton->setEnabled(false);
         m_renameButton->setEnabled(false);
         m_cloneButton->setEnabled(false);
-        m_switchButton->setEnabled(false);
+        m_deleteButton->setEnabled(false);
         return;
     }
     const bool defaultIsSelected = sessions.contains("default");
     const bool activeIsSelected = Utils::anyOf(sessions, [](const QString &session) {
         return session == SessionManager::activeSession();
     });
-    m_deleteButton->setEnabled(!defaultIsSelected && !activeIsSelected);
+    m_openButton->setEnabled(sessions.size() == 1);
     m_renameButton->setEnabled(sessions.size() == 1 && !defaultIsSelected);
     m_cloneButton->setEnabled(sessions.size() == 1);
-    m_switchButton->setEnabled(sessions.size() == 1);
+    m_deleteButton->setEnabled(!defaultIsSelected && !activeIsSelected);
 }
 
 } // ProjectExplorer::Internal

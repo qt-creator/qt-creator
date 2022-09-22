@@ -4609,8 +4609,8 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>セッションのリネーム</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>切り替え(&amp;S)</translation>
+        <source>&amp;Open</source>
+        <translation>開く(&amp;O)</translation>
     </message>
 </context>
 <context>

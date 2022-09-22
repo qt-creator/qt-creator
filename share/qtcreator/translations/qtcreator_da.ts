@@ -24405,8 +24405,8 @@ til projektet &quot;%2&quot;.</translation>
         <translation>&amp;Slet</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>&amp;Skift til</translation>
+        <source>&amp;Open</source>
+        <translation>&amp;Åbn</translation>
     </message>
     <message>
         <source>Restore last session on startup</source>

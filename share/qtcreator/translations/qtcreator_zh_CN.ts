@@ -10526,8 +10526,8 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp
         <translation>删除(&amp;D)</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>切换到(&amp;S)</translation>
+        <source>&amp;Open</source>
+        <translation>打开(&amp;S)</translation>
     </message>
     <message>
         <source>New session name</source>

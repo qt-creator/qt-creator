@@ -95,8 +95,8 @@
         <translation>Сбросить</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>&amp;Активировать</translation>
+        <source>&amp;Open</source>
+        <translation>&amp;Открыть</translation>
     </message>
     <message>
         <source>Restore last workspace on startup</source>

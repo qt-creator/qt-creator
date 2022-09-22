@@ -6980,8 +6980,8 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>刪除(&amp;D)</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>切換至(&amp;S)</translation>
+        <source>&amp;Open</source>
+        <translation>開啟(&amp;S)</translation>
     </message>
     <message>
         <source>New session name</source>

@@ -11390,8 +11390,8 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <translation>&amp;Supprimer</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>&amp;Basculer vers</translation>
+        <source>&amp;Open</source>
+        <translation>&amp;Ouvrir</translation>
     </message>
     <message>
         <source>New session name</source>

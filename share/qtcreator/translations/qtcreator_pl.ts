@@ -958,8 +958,8 @@
         <translation>&amp;Usuń</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>&amp;Przełącz sesję</translation>
+        <source>&amp;Open</source>
+        <translation>&amp;Otwórz</translation>
     </message>
     <message>
         <source>&lt;a href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-project-managing-sessions.html&quot;&gt;What is a Session?&lt;/a&gt;</source>
