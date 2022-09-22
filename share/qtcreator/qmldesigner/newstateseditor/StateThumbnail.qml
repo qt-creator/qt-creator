@@ -270,7 +270,6 @@ Item {
                     x: scrollView.leftPadding
                     y: scrollView.height - height
                     width: scrollView.availableWidth
-                    active: scrollView.ScrollBar.vertical.active
                     orientation: Qt.Horizontal
                     onPressedChanged: root.focusSignal()
                 }
@@ -280,7 +279,6 @@ Item {
                     x: scrollView.mirrored ? 0 : scrollView.width - width
                     y: scrollView.topPadding
                     height: scrollView.availableHeight
-                    active: scrollView.ScrollBar.horizontal.active
                     orientation: Qt.Vertical
                     onPressedChanged: root.focusSignal()
                 }
@@ -656,7 +654,12 @@ Item {
                         return
 
                     whenCondition.previousCondition = whenCondition.text
-                    root.whenConditionFinished()
+
+                    if (whenCondition.text !== "")
+                        root.whenConditionFinished()
+                    else
+                        statesEditorModel.resetWhenCondition(root.internalNodeId)
+
                 }
 
                 Component.onCompleted: whenCondition.previousCondition = whenCondition.text
@@ -696,6 +699,7 @@ Item {
         onExtend: root.extend()
         onRemove: root.remove()
         onToggle: root.propertyChangesVisible = !root.propertyChangesVisible
+        onResetWhenCondition: statesEditorModel.resetWhenCondition(root.internalNodeId)
         onEditAnnotation: {
             statesEditorModel.setAnnotation(root.internalNodeId)
             stateMenu.hasAnnotation = root.checkAnnotation()

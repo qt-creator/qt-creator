@@ -41,7 +41,7 @@ public:
 
     void apply() final;
 
-    DesignerSettings settings() const;
+    QHash<QByteArray, QVariant> newSettings() const;
     void setSettings(const DesignerSettings &settings);
 
 private:
@@ -86,9 +86,9 @@ SettingsPageWidget::SettingsPageWidget()
     setSettings(QmlDesignerPlugin::instance()->settings());
 }
 
-DesignerSettings SettingsPageWidget::settings() const
+QHash<QByteArray, QVariant> SettingsPageWidget::newSettings() const
 {
-    DesignerSettings settings = QmlDesignerPlugin::instance()->settings();
+    QHash<QByteArray, QVariant> settings;
     settings.insert(DesignerSettingsKey::ITEMSPACING, m_ui.spinItemSpacing->value());
     settings.insert(DesignerSettingsKey::CONTAINERPADDING, m_ui.spinSnapMargin->value());
     settings.insert(DesignerSettingsKey::CANVASWIDTH, m_ui.spinCanvasWidth->value());
@@ -132,7 +132,8 @@ DesignerSettings SettingsPageWidget::settings() const
               m_ui.fallbackPuppetPathLineEdit->lineEdit()->placeholderText());
     if (newFallbackPuppetPath.isEmpty())
         newFallbackPuppetPath = m_ui.fallbackPuppetPathLineEdit->lineEdit()->placeholderText();
-    QString oldFallbackPuppetPath = PuppetCreator::qmlPuppetFallbackDirectory(settings);
+
+    QString oldFallbackPuppetPath = PuppetCreator::qmlPuppetFallbackDirectory(QmlDesignerPlugin::settings());
 
     if (oldFallbackPuppetPath != newFallbackPuppetPath && QFileInfo::exists(newFallbackPuppetPath)) {
         if (newFallbackPuppetPath == PuppetCreator::defaultPuppetFallbackDirectory())
@@ -248,8 +249,7 @@ void SettingsPageWidget::setSettings(const DesignerSettings &settings)
 
 void SettingsPageWidget::apply()
 {
-    DesignerSettings currentSettings(QmlDesignerPlugin::instance()->settings());
-    DesignerSettings newSettings = settings();
+    auto settings = newSettings();
 
     const auto restartNecessaryKeys = {
       DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY,
@@ -263,7 +263,7 @@ void SettingsPageWidget::apply()
     };
 
     for (const char * const key : restartNecessaryKeys) {
-        if (currentSettings.value(key) != newSettings.value(key)) {
+        if (QmlDesignerPlugin::settings().value(key) != settings.value(key)) {
             QMessageBox::information(Core::ICore::dialogParent(), tr("Restart Required"),
                 tr("The made changes will take effect after a "
                    "restart of the QML Emulation layer or %1.")
@@ -272,7 +272,7 @@ void SettingsPageWidget::apply()
         }
     }
 
-    QmlDesignerPlugin::instance()->setSettings(newSettings);
+    QmlDesignerPlugin::settings().insert(settings);
 }
 
 SettingsPage::SettingsPage()

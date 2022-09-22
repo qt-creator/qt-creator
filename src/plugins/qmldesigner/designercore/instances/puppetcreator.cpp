@@ -127,7 +127,7 @@ bool PuppetCreator::useOnlyFallbackPuppet() const
 #ifndef QMLDESIGNER_TEST
     if (!m_target || !m_target->kit()->isValid())
         qWarning() << "Invalid kit for QML puppet";
-    return m_designerSettings.value(DesignerSettingsKey::USE_DEFAULT_PUPPET).toBool()
+    return QmlDesignerPlugin::settings().value(DesignerSettingsKey::USE_DEFAULT_PUPPET).toBool()
             || m_target == nullptr || !m_target->kit()->isValid();
 #else
     return true;
@@ -166,9 +166,6 @@ PuppetCreator::PuppetCreator(ProjectExplorer::Target *target, const Model *model
     : m_target(target)
     , m_availablePuppetType(FallbackPuppet)
     , m_model(model)
-#ifndef QMLDESIGNER_TEST
-    , m_designerSettings(QmlDesignerPlugin::instance()->settings())
-#endif
 {
 }
 
@@ -210,7 +207,7 @@ QProcessUniquePointer PuppetCreator::puppetProcess(
                      processFinishCallback);
 
 #ifndef QMLDESIGNER_TEST
-    QString forwardOutput = m_designerSettings.value(DesignerSettingsKey::
+    QString forwardOutput = QmlDesignerPlugin::settings().value(DesignerSettingsKey::
         FORWARD_PUPPET_OUTPUT).toString();
 #else
     QString forwardOutput("all");
@@ -243,7 +240,7 @@ QProcessUniquePointer PuppetCreator::puppetProcess(
     }
 
 #ifndef QMLDESIGNER_TEST
-    QString debugPuppet = m_designerSettings.value(DesignerSettingsKey::
+    QString debugPuppet = QmlDesignerPlugin::settings().value(DesignerSettingsKey::
         DEBUG_PUPPET).toString();
 #else
     QString debugPuppet("all");
@@ -393,7 +390,7 @@ QString PuppetCreator::defaultPuppetToplevelBuildDirectory()
 QString PuppetCreator::qmlPuppetToplevelBuildDirectory() const
 {
 #ifndef QMLDESIGNER_TEST
-    QString puppetToplevelBuildDirectory = m_designerSettings.value(
+    QString puppetToplevelBuildDirectory = QmlDesignerPlugin::settings().value(
                 DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY).toString();
     if (puppetToplevelBuildDirectory.isEmpty())
         return defaultPuppetToplevelBuildDirectory();
@@ -413,7 +410,7 @@ QString PuppetCreator::qmlPuppetDirectory(PuppetType puppetType) const
     if (puppetType == BinPathPuppet)
         return pathForBinPuppet(m_target).toFileInfo().absoluteDir().canonicalPath();
 
-    return qmlPuppetFallbackDirectory(m_designerSettings);
+    return qmlPuppetFallbackDirectory(QmlDesignerPlugin::settings());
 #else
     return QString();
 #endif
@@ -475,10 +472,10 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
         environment.set("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
 
 #ifndef QMLDESIGNER_TEST
-    const QString controlsStyle = m_designerSettings.value(DesignerSettingsKey::
+    const QString controlsStyle = QmlDesignerPlugin::settings().value(DesignerSettingsKey::
             CONTROLS_STYLE).toString();
 
-    const bool smoothRendering = m_designerSettings.value(DesignerSettingsKey::SMOOTH_RENDERING)
+    const bool smoothRendering = QmlDesignerPlugin::settings().value(DesignerSettingsKey::SMOOTH_RENDERING)
                                      .toBool();
 
     if (smoothRendering)
@@ -525,7 +522,7 @@ QProcessEnvironment PuppetCreator::processEnvironment() const
             environment.set("QMLDESIGNER_FORCE_QAPPLICATION", "true");
     }
 
-    bool particlemode = QmlDesigner::DesignerSettings::getValue("particleMode").toBool();
+    bool particlemode = QmlDesigner::QmlDesignerPlugin::settings().value("particleMode").toBool();
     if (!particlemode)
         environment.set("QT_QUICK3D_DISABLE_PARTICLE_SYSTEMS", "1");
     else

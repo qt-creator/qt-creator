@@ -87,7 +87,7 @@ void AssetsLibraryModel::toggleExpandAll(bool expand)
 
 void AssetsLibraryModel::deleteFiles(const QStringList &filePaths)
 {
-    bool askBeforeDelete = DesignerSettings::getValue(
+    bool askBeforeDelete = QmlDesignerPlugin::settings().value(
                 DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET).toBool();
     bool assetDelete = true;
 
@@ -107,7 +107,7 @@ void AssetsLibraryModel::deleteFiles(const QStringList &filePaths)
             assetDelete = false;
 
         if (cb.isChecked())
-            DesignerSettings::setValue(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET, false);
+            QmlDesignerPlugin::settings().insert(DesignerSettingsKey::ASK_BEFORE_DELETING_ASSET, false);
     }
 
     if (assetDelete) {

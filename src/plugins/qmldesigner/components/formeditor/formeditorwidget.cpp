@@ -469,12 +469,12 @@ ToolBox *FormEditorWidget::toolBox() const
 
 double FormEditorWidget::spacing() const
 {
-    return DesignerSettings::getValue(DesignerSettingsKey::ITEMSPACING).toDouble();
+    return QmlDesignerPlugin::settings().value(DesignerSettingsKey::ITEMSPACING).toDouble();
 }
 
 double FormEditorWidget::containerPadding() const
 {
-    return DesignerSettings::getValue(DesignerSettingsKey::CONTAINERPADDING).toDouble();
+    return QmlDesignerPlugin::settings().value(DesignerSettingsKey::CONTAINERPADDING).toDouble();
 }
 
 void FormEditorWidget::contextHelp(const Core::IContext::HelpCallback &callback) const

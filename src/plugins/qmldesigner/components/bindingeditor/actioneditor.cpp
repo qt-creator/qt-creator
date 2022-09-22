@@ -232,6 +232,9 @@ void ActionEditor::prepareConnections()
                 QmlJS::ValueOwner *interp = context->valueOwner();
                 const QmlJS::Value *value = interp->convertToObject(scopeChain.evaluate(expression));
 
+                if (value->asNullValue() && !methodBlackList.contains(slotName))
+                    connection.methods.append(QString::fromUtf8(slotName));
+
                 if (const QmlJS::FunctionValue *f = value->asFunctionValue()) {
                     // Only add slots with zero arguments
                     if (f->namedArgumentCount() == 0 && !methodBlackList.contains(slotName))

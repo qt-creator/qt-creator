@@ -6,17 +6,18 @@
 #include "texttomodelmerger.h"
 #include "modeltotextmerger.h"
 
-#include <variantproperty.h>
 #include <bindingproperty.h>
+#include <customnotifications.h>
+#include <filemanager/astobjecttextextractor.h>
+#include <filemanager/firstdefinitionfinder.h>
+#include <filemanager/objectlengthcalculator.h>
+#include <model_p.h>
+#include <modelnode.h>
+#include <modelnodepositionstorage.h>
+#include <nodeproperty.h>
 #include <rewritingexception.h>
 #include <signalhandlerproperty.h>
-#include <filemanager/astobjecttextextractor.h>
-#include <filemanager/objectlengthcalculator.h>
-#include <filemanager/firstdefinitionfinder.h>
-#include <customnotifications.h>
-#include <modelnodepositionstorage.h>
-#include <modelnode.h>
-#include <nodeproperty.h>
+#include <variantproperty.h>
 #include <qmlobjectnode.h>
 #include <qmltimelinekeyframegroup.h>
 
@@ -755,7 +756,9 @@ void RewriterView::resetToLastCorrectQml()
     m_textModifier->textDocument()->undo();
     m_textModifier->textDocument()->clearUndoRedoStacks(QTextDocument::RedoStack);
     ModelAmender differenceHandler(m_textToModelMerger.data());
+    Internal::WriteLocker::unlock(model());
     m_textToModelMerger->load(m_textModifier->text(), differenceHandler);
+    Internal::WriteLocker::lock(model());
 
     leaveErrorState();
 }
