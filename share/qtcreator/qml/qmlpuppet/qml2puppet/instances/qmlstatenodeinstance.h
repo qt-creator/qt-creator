@@ -49,6 +49,10 @@ public:
     bool updateStateBinding(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QString &expression) override;
     bool resetStateProperty(const ObjectNodeInstance::Pointer &target, const PropertyName &propertyName, const QVariant &resetValue) override;
 
+    void reparent(const ObjectNodeInstance::Pointer &oldParentInstance,
+                  const PropertyName &oldParentProperty,
+                  const ObjectNodeInstance::Pointer &newParentInstance,
+                  const PropertyName &newParentProperty) override;
 
 protected:
     QmlStateNodeInstance(QObject *object);
