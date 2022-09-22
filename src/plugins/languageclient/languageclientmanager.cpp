@@ -434,10 +434,7 @@ void LanguageClientManager::showInspector()
     QString clientName;
     if (Client *client = clientForDocument(TextEditor::TextDocument::currentTextDocument()))
         clientName = client->name();
-    QWidget *inspectorWidget = instance()->m_inspector.createWidget(clientName);
-    inspectorWidget->setAttribute(Qt::WA_DeleteOnClose);
-    Core::ICore::registerWindow(inspectorWidget, Core::Context("LanguageClient.Inspector"));
-    inspectorWidget->show();
+    instance()->m_inspector.show(clientName);
 }
 
 QList<Client *> LanguageClientManager::reachableClients()
