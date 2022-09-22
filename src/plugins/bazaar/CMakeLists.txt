@@ -12,6 +12,5 @@ add_qtc_plugin(Bazaar
     commiteditor.cpp commiteditor.h
     constants.h
     pullorpushdialog.cpp pullorpushdialog.h
-    revertdialog.ui
     uncommitdialog.ui
 )

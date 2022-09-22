@@ -11,7 +11,6 @@
 #include "constants.h"
 #include "pullorpushdialog.h"
 
-#include "ui_revertdialog.h"
 #include "ui_uncommitdialog.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -29,6 +28,7 @@
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/layoutbuilder.h>
 
 #include <vcsbase/basevcseditorfactory.h>
 #include <vcsbase/basevcssubmiteditorfactory.h>
@@ -43,7 +43,11 @@
 #include <QAction>
 #include <QDebug>
 #include <QDialog>
-#include <QDir>
+#include <QDialogButtonBox>
+#include <QFormLayout>
+#include <QGroupBox>
+#include <QLabel>
+#include <QLineEdit>
 #include <QMenu>
 #include <QPushButton>
 
@@ -114,6 +118,41 @@ const VcsBaseSubmitEditorParameters submitEditorParameters {
     COMMIT_ID,
     COMMIT_DISPLAY_NAME,
     VcsBaseSubmitEditorParameters::DiffFiles
+};
+
+class RevertDialog : public QDialog
+{
+    Q_DECLARE_TR_FUNCTIONS(Bazaar::Internal::RevertDialog)
+
+public:
+    RevertDialog() : QDialog(ICore::dialogParent())
+    {
+        resize(400, 162);
+        setWindowTitle(tr("Revert"));
+
+        auto groupBox = new QGroupBox(tr("Specify a revision other than the default?"));
+        groupBox->setCheckable(true);
+        groupBox->setChecked(false);
+
+        revisionLineEdit = new QLineEdit;
+
+        auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+        using namespace Layouting;
+        Form {
+            tr("Revision:"), revisionLineEdit
+        }.attachTo(groupBox);
+
+        Column {
+            groupBox,
+            buttonBox,
+        }.attachTo(this);
+
+        connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    }
+
+    QLineEdit *revisionLineEdit;
 };
 
 class BazaarPluginPrivate final : public VcsBasePluginPrivate
@@ -410,14 +449,12 @@ void BazaarPluginPrivate::revertCurrentFile()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
 
-    QDialog dialog(ICore::dialogParent());
-    Ui::RevertDialog revertUi;
-    revertUi.setupUi(&dialog);
+    RevertDialog dialog;
     if (dialog.exec() != QDialog::Accepted)
         return;
     m_client.revertFile(state.currentFileTopLevel(),
                          state.relativeCurrentFile(),
-                         revertUi.revisionLineEdit->text());
+                         dialog.revisionLineEdit->text());
 }
 
 void BazaarPluginPrivate::statusCurrentFile()
@@ -479,12 +516,10 @@ void BazaarPluginPrivate::revertAll()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    QDialog dialog(ICore::dialogParent());
-    Ui::RevertDialog revertUi;
-    revertUi.setupUi(&dialog);
+    RevertDialog dialog;
     if (dialog.exec() != QDialog::Accepted)
         return;
-    m_client.revertAll(state.topLevel(), revertUi.revisionLineEdit->text());
+    m_client.revertAll(state.topLevel(), dialog.revisionLineEdit->text());
 }
 
 void BazaarPluginPrivate::statusMulti()
@@ -585,13 +620,11 @@ void BazaarPluginPrivate::update()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
 
-    QDialog dialog(ICore::dialogParent());
-    Ui::RevertDialog revertUi;
-    revertUi.setupUi(&dialog);
+    RevertDialog dialog;
     dialog.setWindowTitle(tr("Update"));
     if (dialog.exec() != QDialog::Accepted)
         return;
-    m_client.update(state.topLevel(), revertUi.revisionLineEdit->text());
+    m_client.update(state.topLevel(), dialog.revisionLineEdit->text());
 }
 
 void BazaarPluginPrivate::commit()
