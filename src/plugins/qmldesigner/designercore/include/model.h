@@ -86,21 +86,26 @@ public:
     NodeMetaInfo flowViewFlowDecisionMetaInfo() const;
     NodeMetaInfo flowViewFlowTransitionMetaInfo() const;
     NodeMetaInfo flowViewFlowWildcardMetaInfo() const;
+    NodeMetaInfo fontMetaInfo() const;
     NodeMetaInfo qtQuick3DDefaultMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DModelMetaInfo() const;
     NodeMetaInfo qtQuick3DNodeMetaInfo() const;
+    NodeMetaInfo qtQuick3DTextureMetaInfo() const;
+    NodeMetaInfo qtQuickConnectionsMetaInfo() const;
     NodeMetaInfo qtQuickControlsTextAreaMetaInfo() const;
     NodeMetaInfo qtQuickImageMetaInfo() const;
     NodeMetaInfo qtQuickItemMetaInfo() const;
     NodeMetaInfo qtQuickPropertyAnimationMetaInfo() const;
     NodeMetaInfo qtQuickRectangleMetaInfo() const;
+    NodeMetaInfo qtQuickStateGroupMetaInfo() const;
     NodeMetaInfo qtQuickTextEditMetaInfo() const;
     NodeMetaInfo qtQuickTextMetaInfo() const;
     NodeMetaInfo qtQuickTimelineKeyframeGroupMetaInfo() const;
     NodeMetaInfo qtQuickTimelineTimelineMetaInfo() const;
-    NodeMetaInfo qtQuickConnectionsMetaInfo() const;
-    NodeMetaInfo qtQuickStateGroupMetaInfo() const;
+    NodeMetaInfo vector2dMetaInfo() const;
+    NodeMetaInfo vector3dMetaInfo() const;
+    NodeMetaInfo vector4dMetaInfo() const;
 
     void attachView(AbstractView *view);
     void detachView(AbstractView *view, ViewNotification emitDetachNotify = NotifyView);

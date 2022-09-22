@@ -1784,6 +1784,16 @@ NodeMetaInfo Model::createNodeMetaInfo() const
     return {typeId, d->projectStorage};
 }
 
+NodeMetaInfo Model::fontMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, font>();
+    } else {
+        return metaInfo("QtQuick.font");
+    }
+}
+
 NodeMetaInfo Model::qtQuickItemMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
@@ -1894,6 +1904,16 @@ NodeMetaInfo Model::qtQuick3DNodeMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuick3DTextureMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, Texture>();
+    } else {
+        return metaInfo("QtQuick3D.Texture");
+    }
+}
+
 NodeMetaInfo Model::qtQuick3DMaterialMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
@@ -1941,6 +1961,36 @@ NodeMetaInfo Model::qtQuickStateGroupMetaInfo() const
         return createNodeMetaInfo<QtQuick, StateGroup>();
     } else {
         return metaInfo("QtQuick.StateGroup");
+    }
+}
+
+NodeMetaInfo Model::vector2dMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, vector2d>();
+    } else {
+        return metaInfo("QtQuick.vector2d");
+    }
+}
+
+NodeMetaInfo Model::vector3dMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, vector3d>();
+    } else {
+        return metaInfo("QtQuick.vector3d");
+    }
+}
+
+NodeMetaInfo Model::vector4dMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, vector4d>();
+    } else {
+        return metaInfo("QtQuick.vector4d");
     }
 }
 

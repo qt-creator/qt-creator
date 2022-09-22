@@ -74,6 +74,28 @@ public:
     bool isBasedOn(const NodeMetaInfo &metaInfo1,
                    const NodeMetaInfo &metaInfo2,
                    const NodeMetaInfo &metaInfo3) const;
+    bool isBasedOn(const NodeMetaInfo &metaInfo1,
+                   const NodeMetaInfo &metaInfo2,
+                   const NodeMetaInfo &metaInfo3,
+                   const NodeMetaInfo &metaInfo4) const;
+    bool isBasedOn(const NodeMetaInfo &metaInfo1,
+                   const NodeMetaInfo &metaInfo2,
+                   const NodeMetaInfo &metaInfo3,
+                   const NodeMetaInfo &metaInfo4,
+                   const NodeMetaInfo &metaInfo5) const;
+    bool isBasedOn(const NodeMetaInfo &metaInfo1,
+                   const NodeMetaInfo &metaInfo2,
+                   const NodeMetaInfo &metaInfo3,
+                   const NodeMetaInfo &metaInfo4,
+                   const NodeMetaInfo &metaInfo5,
+                   const NodeMetaInfo &metaInfo6) const;
+    bool isBasedOn(const NodeMetaInfo &metaInfo1,
+                   const NodeMetaInfo &metaInfo2,
+                   const NodeMetaInfo &metaInfo3,
+                   const NodeMetaInfo &metaInfo4,
+                   const NodeMetaInfo &metaInfo5,
+                   const NodeMetaInfo &metaInfo6,
+                   const NodeMetaInfo &metaInfo7) const;
 
     bool isAlias() const;
     bool isBool() const;
@@ -87,7 +109,6 @@ public:
     bool isFlowViewFlowWildcard() const;
     bool isFlowViewItem() const;
     bool isFont() const;
-    bool isSuitableForMouseAreaFill() const;
     bool isGraphicalItem() const;
     bool isInteger() const;
     bool isLayoutable() const;
@@ -145,13 +166,17 @@ public:
     bool isQtQuickTimelineTimelineAnimation() const;
     bool isQtQuickTransition() const;
     bool isQtQuickWindowWindow() const;
-    bool isQtSafeRendererSafeRendererPicture() const;
     bool isQtSafeRendererSafePicture() const;
+    bool isQtSafeRendererSafeRendererPicture() const;
     bool isQuick3DParticleAbstractShape() const;
     bool isQuickStateOperation() const;
     bool isString() const;
+    bool isSuitableForMouseAreaFill() const;
     bool isUrl() const;
     bool isVariant() const;
+    bool isVector2D() const;
+    bool isVector3D() const;
+    bool isVector4D() const;
     bool isView() const;
 
     bool isEnumeration() const;

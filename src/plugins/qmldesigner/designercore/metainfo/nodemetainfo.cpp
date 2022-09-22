@@ -1738,6 +1738,141 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                                    metaInfo3.minorVersion()));
     }
 }
+
+bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
+                             const NodeMetaInfo &metaInfo2,
+                             const NodeMetaInfo &metaInfo3,
+                             const NodeMetaInfo &metaInfo4) const
+{
+    if constexpr (useProjectStorage()) {
+        return m_projectStorage->isBasedOn(m_typeId,
+                                           metaInfo1.m_typeId,
+                                           metaInfo2.m_typeId,
+                                           metaInfo3.m_typeId,
+                                           metaInfo4.m_typeId);
+    } else {
+        return isValid()
+               && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
+                   || isSubclassOf(metaInfo2.typeName(),
+                                   metaInfo2.majorVersion(),
+                                   metaInfo2.minorVersion())
+                   || isSubclassOf(metaInfo3.typeName(),
+                                   metaInfo3.majorVersion(),
+                                   metaInfo3.minorVersion())
+                   || isSubclassOf(metaInfo4.typeName(),
+                                   metaInfo4.majorVersion(),
+                                   metaInfo4.minorVersion()));
+    }
+}
+
+bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
+                             const NodeMetaInfo &metaInfo2,
+                             const NodeMetaInfo &metaInfo3,
+                             const NodeMetaInfo &metaInfo4,
+                             const NodeMetaInfo &metaInfo5) const
+{
+    if constexpr (useProjectStorage()) {
+        return m_projectStorage->isBasedOn(m_typeId,
+                                           metaInfo1.m_typeId,
+                                           metaInfo2.m_typeId,
+                                           metaInfo3.m_typeId,
+                                           metaInfo4.m_typeId,
+                                           metaInfo5.m_typeId);
+    } else {
+        return isValid()
+               && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
+                   || isSubclassOf(metaInfo2.typeName(),
+                                   metaInfo2.majorVersion(),
+                                   metaInfo2.minorVersion())
+                   || isSubclassOf(metaInfo3.typeName(),
+                                   metaInfo3.majorVersion(),
+                                   metaInfo3.minorVersion())
+                   || isSubclassOf(metaInfo4.typeName(),
+                                   metaInfo4.majorVersion(),
+                                   metaInfo4.minorVersion())
+                   || isSubclassOf(metaInfo5.typeName(),
+                                   metaInfo5.majorVersion(),
+                                   metaInfo5.minorVersion()));
+    }
+}
+
+bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
+                             const NodeMetaInfo &metaInfo2,
+                             const NodeMetaInfo &metaInfo3,
+                             const NodeMetaInfo &metaInfo4,
+                             const NodeMetaInfo &metaInfo5,
+                             const NodeMetaInfo &metaInfo6) const
+{
+    if constexpr (useProjectStorage()) {
+        return m_projectStorage->isBasedOn(m_typeId,
+                                           metaInfo1.m_typeId,
+                                           metaInfo2.m_typeId,
+                                           metaInfo3.m_typeId,
+                                           metaInfo4.m_typeId,
+                                           metaInfo5.m_typeId,
+                                           metaInfo6.m_typeId);
+    } else {
+        return isValid()
+               && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
+                   || isSubclassOf(metaInfo2.typeName(),
+                                   metaInfo2.majorVersion(),
+                                   metaInfo2.minorVersion())
+                   || isSubclassOf(metaInfo3.typeName(),
+                                   metaInfo3.majorVersion(),
+                                   metaInfo3.minorVersion())
+                   || isSubclassOf(metaInfo4.typeName(),
+                                   metaInfo4.majorVersion(),
+                                   metaInfo4.minorVersion())
+                   || isSubclassOf(metaInfo5.typeName(),
+                                   metaInfo5.majorVersion(),
+                                   metaInfo5.minorVersion())
+                   || isSubclassOf(metaInfo6.typeName(),
+                                   metaInfo6.majorVersion(),
+                                   metaInfo6.minorVersion()));
+    }
+}
+
+bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
+                             const NodeMetaInfo &metaInfo2,
+                             const NodeMetaInfo &metaInfo3,
+                             const NodeMetaInfo &metaInfo4,
+                             const NodeMetaInfo &metaInfo5,
+                             const NodeMetaInfo &metaInfo6,
+                             const NodeMetaInfo &metaInfo7) const
+{
+    if constexpr (useProjectStorage()) {
+        return m_projectStorage->isBasedOn(m_typeId,
+                                           metaInfo1.m_typeId,
+                                           metaInfo2.m_typeId,
+                                           metaInfo3.m_typeId,
+                                           metaInfo4.m_typeId,
+                                           metaInfo5.m_typeId,
+                                           metaInfo6.m_typeId,
+                                           metaInfo7.m_typeId);
+    } else {
+        return isValid()
+               && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
+                   || isSubclassOf(metaInfo2.typeName(),
+                                   metaInfo2.majorVersion(),
+                                   metaInfo2.minorVersion())
+                   || isSubclassOf(metaInfo3.typeName(),
+                                   metaInfo3.majorVersion(),
+                                   metaInfo3.minorVersion())
+                   || isSubclassOf(metaInfo4.typeName(),
+                                   metaInfo4.majorVersion(),
+                                   metaInfo4.minorVersion())
+                   || isSubclassOf(metaInfo5.typeName(),
+                                   metaInfo5.majorVersion(),
+                                   metaInfo5.minorVersion())
+                   || isSubclassOf(metaInfo6.typeName(),
+                                   metaInfo6.majorVersion(),
+                                   metaInfo6.minorVersion())
+                   || isSubclassOf(metaInfo7.typeName(),
+                                   metaInfo7.majorVersion(),
+                                   metaInfo7.minorVersion()));
+    }
+}
+
 namespace {
 template<const char *moduleName, const char *typeName>
 bool isBasedOnCommonType(NotNullPointer<const ProjectStorage<Sqlite::Database>> projectStorage,
@@ -1816,6 +1951,63 @@ bool NodeMetaInfo::isView() const
         return isValid()
                && (isSubclassOf("QtQuick.ListView") || isSubclassOf("QtQuick.GridView")
                    || isSubclassOf("QtQuick.PathView"));
+    }
+}
+
+namespace {
+
+template<typename... TypeIds>
+bool isTypeId(TypeId typeId, TypeIds... otherTypeIds)
+{
+    static_assert(((std::is_same_v<TypeId, TypeIds>) &&...), "Parameter must be a TypeId!");
+
+    return ((typeId == otherTypeIds) || ...);
+}
+
+} // namespace
+
+bool NodeMetaInfo::isVector2D() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isTypeId(m_typeId, m_projectStorage->commonTypeId<QtQuick, vector2d>());
+    } else {
+        if (!m_privateData)
+            return false;
+
+        auto type = m_privateData->qualfiedTypeName();
+
+        return type == "vector2d" || type == "QtQuick.vector2d" || type == "QVector2D";
+    }
+}
+
+bool NodeMetaInfo::isVector3D() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isTypeId(m_typeId, m_projectStorage->commonTypeId<QtQuick, vector3d>());
+    } else {
+        if (!m_privateData)
+            return false;
+
+        auto type = m_privateData->qualfiedTypeName();
+
+        return type == "vector3d" || type == "QtQuick.vector3d" || type == "QVector3D";
+    }
+}
+
+bool NodeMetaInfo::isVector4D() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return isTypeId(m_typeId, m_projectStorage->commonTypeId<QtQuick, vector4d>());
+    } else {
+        if (!m_privateData)
+            return false;
+
+        auto type = m_privateData->qualfiedTypeName();
+
+        return type == "vector4d" || type == "QtQuick.vector4d" || type == "QVector4D";
     }
 }
 
@@ -2302,18 +2494,6 @@ bool NodeMetaInfo::isQmlComponent() const
                || type == "QQmlComponent";
     }
 }
-
-namespace {
-
-template<typename... TypeIds>
-bool isTypeId(TypeId typeId, TypeIds... otherTypeIds)
-{
-    static_assert(((std::is_same_v<TypeId, TypeIds>) &&...), "Parameter must be a TypeId!");
-
-    return ((typeId == otherTypeIds) || ...);
-}
-
-} // namespace
 
 bool NodeMetaInfo::isFont() const
 {
