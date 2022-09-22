@@ -53,8 +53,7 @@ public:
     DesignerActionManager &designerActionManager();
     const DesignerActionManager &designerActionManager() const;
 
-    DesignerSettings settings();
-    void setSettings(const DesignerSettings &s);
+    static DesignerSettings& settings();
 
     DesignDocument *currentDesignDocument() const;
     Internal::DesignModeWidget *mainWidget() const;

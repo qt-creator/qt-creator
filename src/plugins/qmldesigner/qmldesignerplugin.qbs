@@ -828,18 +828,26 @@ Project {
                 "stateseditor/stateseditorview.h",
                 "stateseditor/stateseditorwidget.cpp",
                 "stateseditor/stateseditorwidget.h",
-                "stateseditornew/propertychangesmodel.cpp",
-                "stateseditornew/propertychangesmodel.h",
-                "stateseditornew/propertymodel.cpp",
-                "stateseditornew/propertymodel.h",
-                "stateseditornew/stateseditorimageprovider.cpp",
-                "stateseditornew/stateseditorimageprovider.h",
-                "stateseditornew/stateseditormodel.cpp",
-                "stateseditornew/stateseditormodel.h",
-                "stateseditornew/stateseditorview.cpp",
-                "stateseditornew/stateseditorview.h",
-                "stateseditornew/stateseditorwidget.cpp",
-                "stateseditornew/stateseditorwidget.h",
+            ]
+        }
+
+        Group {
+            name: "new states editor"
+            prefix: "components/stateseditornew/"
+            Qt.core.generatedHeadersDir: product.buildDirectory + "/qt.headers/stateseditornew"
+            files: [
+                "propertychangesmodel.cpp",
+                "propertychangesmodel.h",
+                "propertymodel.cpp",
+                "propertymodel.h",
+                "stateseditorimageprovider.cpp",
+                "stateseditorimageprovider.h",
+                "stateseditormodel.cpp",
+                "stateseditormodel.h",
+                "stateseditorview.cpp",
+                "stateseditorview.h",
+                "stateseditorwidget.cpp",
+                "stateseditorwidget.h",
             ]
         }
 

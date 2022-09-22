@@ -480,10 +480,6 @@ Section {
             model: root.propertiesModel
 
             property bool loadActive: true
-            onCountChanged: {
-                repeater.loadActive = false
-                repeater.loadActive = true
-            }
 
             SectionLayout {
                 DynamicPropertyRow {

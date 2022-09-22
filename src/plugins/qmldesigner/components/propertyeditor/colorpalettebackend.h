@@ -13,6 +13,7 @@
 #include <QPixmap>
 
 #include "designersettings.h"
+#include <qmldesignerplugin.h>
 #include <coreplugin/icore.h>
 
 namespace QmlDesigner {
@@ -37,7 +38,7 @@ struct Palette
 
     bool read()
     {
-        QStringList data = QmlDesigner::DesignerSettings::getValue(m_settingsKey).toStringList();
+        QStringList data = QmlDesignerPlugin::settings().value(m_settingsKey).toStringList();
         if (data.isEmpty())
             return false;
 
@@ -49,7 +50,7 @@ struct Palette
 
     void write() const
     {
-        QmlDesigner::DesignerSettings::setValue(m_settingsKey, m_colors);
+        QmlDesignerPlugin::settings().insert(m_settingsKey, m_colors);
     }
 
     QByteArray m_settingsKey;

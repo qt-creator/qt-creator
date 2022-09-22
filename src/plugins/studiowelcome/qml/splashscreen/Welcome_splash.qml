@@ -233,56 +233,6 @@ Rectangle {
     }
 
     Row {
-        y: 690
-        visible: false
-        anchors.horizontalCenter: parent.horizontalCenter
-        spacing: 20
-        layoutDirection: Qt.LeftToRight
-
-        CheckBox {
-            visible: true
-            id: usageStatisticCheckBox
-            text: qsTr("Send Usage Statistics")
-            checked: usageStatisticModel.usageStatisticEnabled
-            padding: 0
-            spacing: 12
-
-            onCheckedChanged: usageStatisticModel.setTelemetryEnabled(
-                                  usageStatisticCheckBox.checked)
-
-            contentItem: Text {
-                text: usageStatisticCheckBox.text
-                color: "#ffffff"
-                leftPadding: usageStatisticCheckBox.indicator.width + usageStatisticCheckBox.spacing
-                font.pixelSize: 12
-            }
-        }
-
-        CheckBox {
-            visible: true
-            id: crashReportCheckBox
-            text: qsTr("Send Crash Reports")
-            spacing: 12
-            checked: usageStatisticModel.crashReporterEnabled
-
-            onCheckedChanged: {
-                usageStatisticModel.setCrashReporterEnabled(
-                            crashReportCheckBox.checked)
-                welcome_splash.onPluginInitialized(true,
-                                                   crashReportCheckBox.checked)
-            }
-
-            contentItem: Text {
-                color: "#ffffff"
-                text: crashReportCheckBox.text
-                leftPadding: crashReportCheckBox.indicator.width + crashReportCheckBox.spacing
-                font.pixelSize: 12
-            }
-            padding: 0
-        }
-    }
-
-    Row {
         id: designStudioVersion
         anchors.top: logo.bottom
         anchors.topMargin: 5

@@ -74,8 +74,6 @@ ConnectionViewWidget::ConnectionViewWidget(QWidget *parent) :
     for (auto toolButton : buttons)
         ui->toolBar->addWidget(toolButton);
 
-    auto settings = QmlDesignerPlugin::instance()->settings();
-
     if (!QmlProjectManager::QmlProject::isQtDesignStudio())
         ui->tabBar->addTab(tr("Backends", "Title of dynamic properties view"));
 

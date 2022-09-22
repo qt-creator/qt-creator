@@ -136,10 +136,10 @@ void NavigatorView::modelAttached(Model *model)
 
     QTimer::singleShot(0, this, [this, treeView]() {
         m_currentModelInterface->setFilter(
-                    DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool());
+                    QmlDesignerPlugin::settings().value(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS).toBool());
 
         m_currentModelInterface->setOrder(
-                    DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool());
+                    QmlDesignerPlugin::settings().value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool());
 
         // Expand everything to begin with to ensure model node to index cache is populated
         treeView->expandAll();
@@ -501,7 +501,7 @@ void NavigatorView::rightButtonClicked()
         return; //Semantics are unclear for multi selection.
 
     bool blocked = blockSelectionChangedSignal(true);
-    bool reverse = DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
+    bool reverse = QmlDesignerPlugin::settings().value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
 
     for (const ModelNode &node : selectedModelNodes()) {
         if (!node.isRootNode() && node.parentProperty().isNodeListProperty() && node.parentProperty().count() > 1) {
@@ -541,7 +541,7 @@ void NavigatorView::rightButtonClicked()
 void NavigatorView::upButtonClicked()
 {
     bool blocked = blockSelectionChangedSignal(true);
-    bool reverse = DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
+    bool reverse = QmlDesignerPlugin::settings().value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
 
     if (reverse)
         moveNodesDown(selectedModelNodes());
@@ -555,7 +555,7 @@ void NavigatorView::upButtonClicked()
 void NavigatorView::downButtonClicked()
 {
     bool blocked = blockSelectionChangedSignal(true);
-    bool reverse = DesignerSettings::getValue(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
+    bool reverse = QmlDesignerPlugin::settings().value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
 
     if (reverse)
         moveNodesUp(selectedModelNodes());
@@ -570,14 +570,14 @@ void NavigatorView::filterToggled(bool flag)
 {
     m_currentModelInterface->setFilter(flag);
     treeWidget()->expandAll();
-    DesignerSettings::setValue(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS, flag);
+    QmlDesignerPlugin::settings().insert(DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS, flag);
 }
 
 void NavigatorView::reverseOrderToggled(bool flag)
 {
     m_currentModelInterface->setOrder(flag);
     treeWidget()->expandAll();
-    DesignerSettings::setValue(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER, flag);
+    QmlDesignerPlugin::settings().insert(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER, flag);
 }
 
 void NavigatorView::textFilterChanged(const QString &text)
