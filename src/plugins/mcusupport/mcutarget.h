@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "mcupackage.h"
 #include "mcusupport_global.h"
 
 #include <QObject>

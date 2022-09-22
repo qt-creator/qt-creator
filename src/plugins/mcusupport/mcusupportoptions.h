@@ -48,12 +48,12 @@ public:
     McuSdkRepository sdkRepository;
 
     void setQulDir(const Utils::FilePath &dir);
-    Utils::FilePath qulDirFromSettings() const;
-    Utils::FilePath qulDocsDir() const;
+    [[nodiscard]] Utils::FilePath qulDirFromSettings() const;
+    [[nodiscard]] Utils::FilePath qulDocsDir() const;
     static McuKitManager::UpgradeOption askForKitUpgrades();
 
-    void registerQchFiles();
-    void registerExamples();
+    void registerQchFiles() const;
+    void registerExamples() const;
 
     static const QVersionNumber &minimalQulVersion();
     static bool isLegacyVersion(const QVersionNumber &version);
@@ -63,7 +63,7 @@ public:
 
     static bool kitsNeedQtVersion();
 
-    bool automaticKitCreationEnabled() const;
+    [[nodiscard]] bool automaticKitCreationEnabled() const;
     void setAutomaticKitCreationEnabled(const bool enabled);
 
 private:

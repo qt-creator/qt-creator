@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "mcusupport_global.h"
 #include "settingshandler.h"
 
 #include <extensionsystem/iplugin.h>

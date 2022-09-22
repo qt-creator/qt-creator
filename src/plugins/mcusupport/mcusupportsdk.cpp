@@ -64,7 +64,7 @@ static FilePath findInProgramFiles(const QString &folder)
     for (const auto &envVar : QStringList{"ProgramFiles", "ProgramFiles(x86)", "ProgramW6432"}) {
         if (!qtcEnvironmentVariableIsSet(envVar))
             continue;
-        const FilePath dir = FilePath::fromUserInput(qtcEnvironmentVariable(envVar)) / folder;
+        FilePath dir = FilePath::fromUserInput(qtcEnvironmentVariable(envVar)) / folder;
         if (dir.exists())
             return dir;
     }
@@ -114,7 +114,7 @@ McuPackagePtr createBoardSdkPackage(const SettingsHandler::Ptr &settingsHandler,
         return FilePath();
     }();
 
-    const auto versionDetector = generatePackageVersionDetector(desc.boardSdk.envVar);
+    const auto *versionDetector = generatePackageVersionDetector(desc.boardSdk.envVar);
 
     return McuPackagePtr{new McuPackage(settingsHandler,
                                         sdkName,
@@ -190,10 +190,9 @@ McuToolChainPackagePtr createMsvcToolChainPackage(const SettingsHandler::Ptr &se
     const FilePath detectionPath = FilePath("cl").withExecutableSuffix();
     const FilePath defaultPath = toolChain ? toolChain->compilerCommand().parentDir() : FilePath();
 
-    const auto versionDetector
-        = new McuPackageExecutableVersionDetector(detectionPath,
-                                                  {"--version"},
-                                                  "\\b(\\d+\\.\\d+)\\.\\d+\\b");
+    const auto *versionDetector = new McuPackageExecutableVersionDetector(detectionPath,
+                                                                          {"--version"},
+                                                                          R"(\b(\d+\.\d+)\.\d+\b)");
 
     return McuToolChainPackagePtr{new McuToolChainPackage(settingsHandler,
                                                           McuPackage::tr("MSVC Binary directory"),
@@ -217,10 +216,9 @@ McuToolChainPackagePtr createGccToolChainPackage(const SettingsHandler::Ptr &set
     const FilePath defaultPath = toolChain ? toolChain->compilerCommand().parentDir().parentDir()
                                            : FilePath();
 
-    const auto versionDetector
-        = new McuPackageExecutableVersionDetector(detectionPath,
-                                                  {"--version"},
-                                                  "\\b(\\d+\\.\\d+\\.\\d+)\\b");
+    const auto *versionDetector = new McuPackageExecutableVersionDetector(detectionPath,
+                                                                          {"--version"},
+                                                                          R"(\b(\d+\.\d+\.\d+)\b)");
 
     return McuToolChainPackagePtr{new McuToolChainPackage(settingsHandler,
                                                           McuPackage::tr("GCC Toolchain"),
@@ -254,9 +252,9 @@ McuToolChainPackagePtr createArmGccToolchainPackage(const SettingsHandler::Ptr &
     }
 
     const FilePath detectionPath = FilePath("bin/arm-none-eabi-g++").withExecutableSuffix();
-    const auto versionDetector = new McuPackageExecutableVersionDetector(detectionPath,
-                                                                         {"--version"},
-                                                                         R"(\b(\d+\.\d+\.\d+)\b)");
+    const auto *versionDetector = new McuPackageExecutableVersionDetector(detectionPath,
+                                                                          {"--version"},
+                                                                          R"(\b(\d+\.\d+\.\d+)\b)");
 
     return McuToolChainPackagePtr{
         new McuToolChainPackage(settingsHandler,
@@ -278,7 +276,7 @@ McuToolChainPackagePtr createGhsToolchainPackage(const SettingsHandler::Ptr &set
 
     const FilePath defaultPath = FilePath::fromUserInput(qtcEnvironmentVariable(envVar));
 
-    const auto versionDetector
+    const auto *versionDetector
         = new McuPackageExecutableVersionDetector(FilePath("as850").withExecutableSuffix(),
                                                   {"-V"},
                                                   R"(\bv(\d+\.\d+\.\d+)\b)");
@@ -303,7 +301,7 @@ McuToolChainPackagePtr createGhsArmToolchainPackage(const SettingsHandler::Ptr &
 
     const FilePath defaultPath = FilePath::fromUserInput(qtcEnvironmentVariable(envVar));
 
-    const auto versionDetector
+    const auto *versionDetector
         = new McuPackageExecutableVersionDetector(FilePath("asarm").withExecutableSuffix(),
                                                   {"-V"},
                                                   R"(\bv(\d+\.\d+\.\d+)\b)");
@@ -679,11 +677,6 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
                                                                      [&](const QVariant &version) {
                                                                          return version.toString();
                                                                      });
-    const QVariantList boardSdkVersions = boardSdk.value("versions").toArray().toVariantList();
-    const auto boardSdkVersionsList = Utils::transform<QStringList>(boardSdkVersions,
-                                                                    [&](const QVariant &version) {
-                                                                        return version.toString();
-                                                                    });
 
     const QVariantList colorDepths = platform.value("colorDepths").toArray().toVariantList();
     const auto colorDepthsVector = Utils::transform<QVector<int>>(colorDepths,
@@ -710,7 +703,7 @@ McuTargetDescription parseDescriptionJson(const QByteArray &data)
 }
 
 // https://doc.qt.io/qtcreator/creator-developing-mcu.html#supported-qt-for-mcus-sdks
-static const QString legacySupportVersionFor(const QString &sdkVersion)
+static QString legacySupportVersionFor(const QString &sdkVersion)
 {
     static const QHash<QString, QString> oldSdkQtcRequiredVersion
         = {{{"1.0"}, {"4.11.x"}}, {{"1.1"}, {"4.12.0 or 4.12.1"}}, {{"1.2"}, {"4.12.2 or 4.12.3"}}};

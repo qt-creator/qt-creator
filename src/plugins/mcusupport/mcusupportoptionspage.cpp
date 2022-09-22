@@ -41,7 +41,7 @@ public:
 
     void updateStatus();
     void showMcuTargetPackages();
-    McuTargetPtr currentMcuTarget() const;
+    [[nodiscard]] McuTargetPtr currentMcuTarget() const;
 
 private:
     void apply() final;
@@ -73,7 +73,7 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
     : m_options{options}
     , m_settingsHandler(settingsHandler)
 {
-    auto mainLayout = new QVBoxLayout(this);
+    auto *mainLayout = new QVBoxLayout(this);
 
     {
         m_statusInfoLabel = new Utils::InfoLabel;
@@ -88,7 +88,7 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
     {
         m_qtForMCUsSdkGroupBox = new QGroupBox(m_options.qtForMCUsSdkPackage->label());
         m_qtForMCUsSdkGroupBox->setFlat(true);
-        auto layout = new QVBoxLayout(m_qtForMCUsSdkGroupBox);
+        auto *layout = new QVBoxLayout(m_qtForMCUsSdkGroupBox);
         layout->addWidget(m_options.qtForMCUsSdkPackage->widget());
         mainLayout->addWidget(m_qtForMCUsSdkGroupBox);
     }
@@ -99,7 +99,7 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
         m_mcuTargetsGroupBox->setFlat(true);
         mainLayout->addWidget(m_mcuTargetsGroupBox);
         m_mcuTargetsComboBox = new QComboBox;
-        auto layout = new QVBoxLayout(m_mcuTargetsGroupBox);
+        auto *layout = new QVBoxLayout(m_mcuTargetsGroupBox);
         layout->addWidget(m_mcuTargetsComboBox);
         connect(m_mcuTargetsComboBox,
                 &QComboBox::currentTextChanged,
@@ -138,7 +138,7 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
         m_kitCreationGroupBox->setFlat(true);
         mainLayout->addWidget(m_kitCreationGroupBox);
         m_kitCreationInfoLabel = new Utils::InfoLabel;
-        auto vLayout = new QHBoxLayout(m_kitCreationGroupBox);
+        auto *vLayout = new QHBoxLayout(m_kitCreationGroupBox);
         vLayout->addWidget(m_kitCreationInfoLabel);
         m_kitCreationPushButton = new QPushButton(tr("Create Kit"));
         m_kitCreationPushButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
@@ -150,8 +150,8 @@ McuSupportOptionsWidget::McuSupportOptionsWidget(McuSupportOptions &options,
         m_kitUpdatePushButton = new QPushButton(tr("Update Kit"));
         m_kitUpdatePushButton->setSizePolicy(m_kitCreationPushButton->sizePolicy());
         connect(m_kitUpdatePushButton, &QPushButton::clicked, this, [this] {
-            for (auto kit : McuKitManager::upgradeableKits(currentMcuTarget().get(),
-                                                           m_options.qtForMCUsSdkPackage))
+            for (auto *kit : McuKitManager::upgradeableKits(currentMcuTarget().get(),
+                                                            m_options.qtForMCUsSdkPackage))
                 McuKitManager::upgradeKitInPlace(kit,
                                                  currentMcuTarget().get(),
                                                  m_options.qtForMCUsSdkPackage);
@@ -289,7 +289,7 @@ void McuSupportOptionsWidget::apply()
 
     m_settingsHandler->setAutomaticKitCreation(m_options.automaticKitCreationEnabled());
     pathsChanged |= m_options.qtForMCUsSdkPackage->writeToSettings();
-    for (auto package : qAsConst(m_options.sdkRepository.packages))
+    for (const auto &package : qAsConst(m_options.sdkRepository.packages))
         pathsChanged |= package->writeToSettings();
 
     if (pathsChanged) {

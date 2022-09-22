@@ -4,7 +4,6 @@
 #include "settingshandler.h"
 
 #include "mcusupportconstants.h"
-#include "mcusupportsdk.h"
 
 #include <coreplugin/icore.h>
 #include <utils/filepath.h>

@@ -3,12 +3,9 @@
 
 #include "mcusupportoptions.h"
 
-#include "mcukitinformation.h"
 #include "mcukitmanager.h"
-#include "mculegacyconstants.h"
 #include "mcupackage.h"
 #include "mcusupportconstants.h"
-#include "mcusupportplugin.h"
 #include "mcusupportsdk.h"
 #include "mcutarget.h"
 #include "settingshandler.h"
@@ -33,12 +30,12 @@ McuSupportOptions::McuSupportOptions(const SettingsHandler::Ptr &settingsHandler
     : QObject(parent)
     , qtForMCUsSdkPackage(createQtForMCUsPackage(settingsHandler))
     , settingsHandler(settingsHandler)
+    , m_automaticKitCreation(settingsHandler->isAutomaticKitCreationEnabled())
 {
     connect(qtForMCUsSdkPackage.get(),
             &McuAbstractPackage::changed,
             this,
             &McuSupportOptions::populatePackagesAndTargets);
-    m_automaticKitCreation = settingsHandler->isAutomaticKitCreationEnabled();
 }
 
 void McuSupportOptions::populatePackagesAndTargets()
@@ -55,7 +52,7 @@ FilePath McuSupportOptions::qulDocsDir() const
     return docsDir.exists() ? docsDir : FilePath();
 }
 
-void McuSupportOptions::registerQchFiles()
+void McuSupportOptions::registerQchFiles() const
 {
     const QString docsDir = qulDocsDir().toString();
     if (docsDir.isEmpty())
@@ -67,7 +64,7 @@ void McuSupportOptions::registerQchFiles()
                                       [](const QFileInfo &fi) { return fi.absoluteFilePath(); }));
 }
 
-void McuSupportOptions::registerExamples()
+void McuSupportOptions::registerExamples() const
 {
     const FilePath docsDir = qulDocsDir();
     if (docsDir.isEmpty())
