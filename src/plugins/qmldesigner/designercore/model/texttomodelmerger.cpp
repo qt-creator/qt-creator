@@ -507,7 +507,8 @@ public:
                 qDebug() << Q_FUNC_INFO;
                 qDebug() << astTypeNode->name.toString() << typeName;
                 qDebug() << metaInfo.isValid() << metaInfo.typeName();
-                qDebug() << metaInfo.superClasses().front().typeName();
+                if (metaInfo.isValid())
+                    qDebug() << metaInfo.superClasses().front().typeName();
 
                 if (!typeName.startsWith("...") && m_model == m_model->metaInfoProxyModel()
                     && metaInfo.isValid())
