@@ -25,7 +25,8 @@
 
 #pragma once
 
-#include <abstractview.h>
+#include "abstractview.h"
+#include "nodemetainfo.h"
 
 #include <QPointer>
 
@@ -67,6 +68,8 @@ private:
     void refreshModel(bool updateImages);
     bool isMaterial(const ModelNode &node) const;
     void loadPropertyGroups();
+    void applyBundleMaterialToDropTarget(const ModelNode &bundleMat, const NodeMetaInfo &metaInfo = {});
+    ModelNode getBundleMaterialDefaultInstance(const TypeName &type);
 
     QPointer<MaterialBrowserWidget> m_widget;
     ModelNode m_bundleMaterialDropTarget;
