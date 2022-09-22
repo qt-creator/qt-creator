@@ -43,6 +43,23 @@ DiffEditorWidgetController::DiffEditorWidgetController(QWidget *diffEditorWidget
     connect(&m_timer, &QTimer::timeout, this, &DiffEditorWidgetController::showProgress);
 }
 
+bool DiffEditorWidgetController::isInProgress() const
+{
+    return m_isBusyShowing || (m_document && m_document->state() == DiffEditorDocument::Reloading);
+}
+
+void DiffEditorWidgetController::toggleProgress(bool wasInProgress)
+{
+    const bool inProgress = isInProgress();
+    if (wasInProgress == inProgress)
+        return;
+
+    if (inProgress)
+        scheduleShowProgress();
+    else
+        hideProgress();
+}
+
 void DiffEditorWidgetController::setDocument(DiffEditorDocument *document)
 {
     if (!m_progressIndicator) {
@@ -59,30 +76,31 @@ void DiffEditorWidgetController::setDocument(DiffEditorDocument *document)
         disconnect(m_document, &IDocument::reloadFinished, this, &DiffEditorWidgetController::onDocumentReloadFinished);
     }
 
-    const bool wasRunning = m_document && m_document->state() == DiffEditorDocument::Reloading;
+    const bool wasInProgress = isInProgress();
 
     m_document = document;
-
     if (m_document) {
         connect(m_document, &IDocument::aboutToReload, this, &DiffEditorWidgetController::scheduleShowProgress);
         connect(m_document, &IDocument::reloadFinished, this, &DiffEditorWidgetController::onDocumentReloadFinished);
         updateCannotDecodeInfo();
     }
 
-    const bool isRunning = m_document && m_document->state() == DiffEditorDocument::Reloading;
-
-    if (wasRunning == isRunning)
-        return;
-
-    if (isRunning)
-        scheduleShowProgress();
-    else
-        hideProgress();
+    toggleProgress(wasInProgress);
 }
 
 DiffEditorDocument *DiffEditorWidgetController::document() const
 {
     return m_document;
+}
+
+void DiffEditorWidgetController::setBusyShowing(bool busy)
+{
+    if (m_isBusyShowing == busy)
+        return;
+
+    const bool wasInProgress = isInProgress();
+    m_isBusyShowing = busy;
+    toggleProgress(wasInProgress);
 }
 
 void DiffEditorWidgetController::scheduleShowProgress()
@@ -107,7 +125,8 @@ void DiffEditorWidgetController::hideProgress()
 void DiffEditorWidgetController::onDocumentReloadFinished()
 {
     updateCannotDecodeInfo();
-    hideProgress();
+    if (!isInProgress())
+        hideProgress();
 }
 
 void DiffEditorWidgetController::patch(bool revert, int fileIndex, int chunkIndex)

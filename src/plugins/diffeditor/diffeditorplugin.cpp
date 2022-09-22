@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "diffeditorplugin.h"
-#include "diffeditor.h"
 #include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
 #include "diffeditordocument.h"
@@ -24,10 +23,10 @@
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-#include "texteditor/texteditoractionhandler.h"
 
 #include <utils/algorithm.h>
 #include <utils/differ.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/mapreduce.h>
 #include <utils/qtcassert.h>
 
@@ -440,12 +439,14 @@ public:
     QAction *m_diffCurrentFileAction = nullptr;
     QAction *m_diffOpenFilesAction = nullptr;
 
-    DiffEditorFactory editorFactory;
-    DiffEditorServiceImpl service;
+    DiffEditorFactory m_editorFactory;
+    DiffEditorServiceImpl m_service;
+    FutureSynchronizer m_futureSynchronizer;
 };
 
 DiffEditorPluginPrivate::DiffEditorPluginPrivate()
 {
+    m_futureSynchronizer.setCancelOnWait(true);
     //register actions
     ActionContainer *toolsContainer
             = ActionManager::actionContainer(Core::Constants::M_TOOLS);
@@ -571,9 +572,17 @@ void DiffEditorPluginPrivate::diffExternalFiles()
     document->reload();
 }
 
+static DiffEditorPlugin *s_instance = nullptr;
+
+DiffEditorPlugin::DiffEditorPlugin()
+{
+    s_instance = this;
+}
+
 DiffEditorPlugin::~DiffEditorPlugin()
 {
     delete d;
+    s_instance = nullptr;
 }
 
 bool DiffEditorPlugin::initialize(const QStringList &arguments, QString *errorMessage)
@@ -585,6 +594,13 @@ bool DiffEditorPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     return true;
 }
+
+void DiffEditorPlugin::addFuture(const QFuture<void> &future)
+{
+    QTC_ASSERT(s_instance, return);
+    s_instance->d->m_futureSynchronizer.addFuture(future);
+}
+
 
 } // namespace Internal
 } // namespace DiffEditor

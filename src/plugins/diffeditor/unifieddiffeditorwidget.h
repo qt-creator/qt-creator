@@ -6,6 +6,8 @@
 #include "selectabletexteditorwidget.h"
 #include "diffeditorwidgetcontroller.h"
 
+#include <QFutureWatcher>
+
 namespace Core { class IContext; }
 
 namespace TextEditor {
@@ -38,7 +40,8 @@ public:
 class UnifiedDiffData
 {
 public:
-    UnifiedDiffOutput showDiff(const DiffEditorInput &input);
+    UnifiedDiffOutput showDiff(QFutureInterface<void> &fi, int progressMin, int progressMax,
+                               const DiffEditorInput &input);
 
     // block number, visual line number, chunk row number
     QMap<int, QPair<int, int>> m_leftLineNumbers;
@@ -67,6 +70,7 @@ class UnifiedDiffEditorWidget final : public SelectableTextEditorWidget
     Q_OBJECT
 public:
     UnifiedDiffEditorWidget(QWidget *parent = nullptr);
+    ~UnifiedDiffEditorWidget();
 
     void setDocument(DiffEditorDocument *document);
     DiffEditorDocument *diffDocument() const;
@@ -110,6 +114,16 @@ private:
     UnifiedDiffData m_data;
     DiffEditorWidgetController m_controller;
     QByteArray m_state;
+
+    struct ShowResult
+    {
+        QSharedPointer<TextEditor::TextDocument> textDocument;
+        UnifiedDiffData diffData;
+        QHash<int, int> foldingIndent;
+        QMap<int, QList<DiffSelection>> selections;
+    };
+
+    std::unique_ptr<QFutureWatcher<ShowResult>> m_watcher;
 };
 
 } // namespace Internal

@@ -5,6 +5,7 @@
 
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
+#include "diffeditorplugin.h"
 #include "diffutils.h"
 
 #include <QHash>
@@ -14,6 +15,7 @@
 #include <QTextBlock>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
@@ -21,6 +23,8 @@
 #include <texteditor/fontsettings.h>
 #include <texteditor/displaysettings.h>
 
+#include <utils/qtcassert.h>
+#include <utils/runextensions.h>
 #include <utils/tooltip/tooltip.h>
 
 using namespace Core;
@@ -34,17 +38,18 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     : SelectableTextEditorWidget("DiffEditor.UnifiedDiffEditor", parent)
     , m_controller(this)
 {
+    setReadOnly(true);
+
     DisplaySettings settings = displaySettings();
     settings.m_textWrapping = false;
     settings.m_displayLineNumbers = true;
     settings.m_markTextChanges = false;
     settings.m_highlightBlocks = false;
     SelectableTextEditorWidget::setDisplaySettings(settings);
-
-    setReadOnly(true);
     connect(TextEditorSettings::instance(), &TextEditorSettings::displaySettingsChanged,
             this, &UnifiedDiffEditorWidget::setDisplaySettings);
     setDisplaySettings(TextEditorSettings::displaySettings());
+
     setCodeStyle(TextEditorSettings::codeStyle());
 
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
@@ -63,14 +68,20 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     setCodeFoldingSupported(true);
 }
 
+UnifiedDiffEditorWidget::~UnifiedDiffEditorWidget()
+{
+    if (m_watcher) {
+        m_watcher->cancel();
+        DiffEditorPlugin::addFuture(m_watcher->future());
+    }
+}
+
 void UnifiedDiffEditorWidget::setDocument(DiffEditorDocument *document)
 {
+    m_controller.setBusyShowing(true);
     m_controller.setDocument(document);
     clear();
-    QList<FileData> diffFileList;
-    if (document)
-        diffFileList = document->diffFiles();
-    setDiff(diffFileList);
+    setDiff(document ? document->diffFiles() : QList<FileData>());
 }
 
 DiffEditorDocument *UnifiedDiffEditorWidget::diffDocument() const
@@ -113,11 +124,15 @@ void UnifiedDiffEditorWidget::setFontSettings(const FontSettings &fontSettings)
 
 void UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor()
 {
+    const int fileIndex = fileIndexForBlockNumber(textCursor().blockNumber());
+    if (fileIndex < 0)
+        return;
+
     if (m_controller.m_ignoreChanges.isLocked())
         return;
 
     const GuardLocker locker(m_controller.m_ignoreChanges);
-    emit currentDiffFileIndexChanged(fileIndexForBlockNumber(textCursor().blockNumber()));
+    emit currentDiffFileIndexChanged(fileIndex);
 }
 
 void UnifiedDiffEditorWidget::mouseDoubleClickEvent(QMouseEvent *e)
@@ -214,6 +229,12 @@ void UnifiedDiffEditorWidget::clear(const QString &message)
 {
     m_data = {};
     setSelections({});
+    if (m_watcher) {
+        m_watcher->cancel();
+        DiffEditorPlugin::addFuture(m_watcher->future());
+        m_watcher.reset();
+        m_controller.setBusyShowing(false);
+    }
 
     const GuardLocker locker(m_controller.m_ignoreChanges);
     SelectableTextEditorWidget::clear();
@@ -279,7 +300,7 @@ void UnifiedDiffData::setChunkIndex(int startBlockNumber, int blockCount, int ch
 void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
 {
     const GuardLocker locker(m_controller.m_ignoreChanges);
-    clear();
+    clear(tr("Waiting for data..."));
     m_controller.m_contextFileData = diffFileList;
     showDiff();
 }
@@ -457,12 +478,28 @@ QString UnifiedDiffData::showChunk(const DiffEditorInput &input, const ChunkData
     return diffText;
 }
 
-UnifiedDiffOutput UnifiedDiffData::showDiff(const DiffEditorInput &input)
+static int interpolate(int x, int x1, int x2, int y1, int y2)
+{
+    if (x1 == x2)
+        return x1;
+    if (x == x1)
+        return y1;
+    if (x == x2)
+        return y2;
+    const int numerator = (y2 - y1) * x + x2 * y1 - x1 * y2;
+    const int denominator = x2 - x1;
+    return qRound((double)numerator / denominator);
+}
+
+UnifiedDiffOutput UnifiedDiffData::showDiff(QFutureInterface<void> &fi, int progressMin,
+                                            int progressMax, const DiffEditorInput &input)
 {
     UnifiedDiffOutput output;
 
     int blockNumber = 0;
     int charNumber = 0;
+    int i = 0;
+    const int count = input.m_contextFileData.size();
 
     for (const FileData &fileData : qAsConst(input.m_contextFileData)) {
         const QString leftFileInfo = "--- " + fileData.leftFileInfo.fileName + '\n';
@@ -504,6 +541,9 @@ UnifiedDiffOutput UnifiedDiffData::showDiff(const DiffEditorInput &input)
                     setChunkIndex(oldBlockNumber, blockNumber - oldBlockNumber, j);
             }
         }
+        fi.setProgressValue(interpolate(++i, 0, count, progressMin, progressMax));
+        if (fi.isCanceled())
+            return {};
     }
 
     output.diffText.replace('\r', ' ');
@@ -512,24 +552,87 @@ UnifiedDiffOutput UnifiedDiffData::showDiff(const DiffEditorInput &input)
 
 void UnifiedDiffEditorWidget::showDiff()
 {
-    const DiffEditorInput input = {&m_controller};
-    const UnifiedDiffOutput output = m_data.showDiff(input);
-
-    if (output.diffText.isEmpty()) {
+    if (m_controller.m_contextFileData.isEmpty()) {
         setPlainText(tr("No difference."));
         return;
     }
 
-    {
-        const GuardLocker locker(m_controller.m_ignoreChanges);
-        setPlainText(output.diffText);
+    m_watcher.reset(new QFutureWatcher<ShowResult>());
+    m_controller.setBusyShowing(true);
+    connect(m_watcher.get(), &QFutureWatcherBase::finished, this, [this] {
+        if (m_watcher->isCanceled()) {
+            setPlainText(tr("Retrieving data failed."));
+        } else {
+            const ShowResult result = m_watcher->result();
+            m_data = result.diffData;
+            TextDocumentPtr doc(result.textDocument);
+            {
+                const GuardLocker locker(m_controller.m_ignoreChanges);
+                // TextDocument was living in no thread, so it's safe to pull it
+                doc->moveToThread(thread());
+                setTextDocument(doc);
 
-        QTextBlock block = document()->firstBlock();
-        for (int b = 0; block.isValid(); block = block.next(), ++b)
-            setFoldingIndent(block, output.foldingIndent.value(b, 3));
-    }
+                setReadOnly(true);
 
-    setSelections(output.selections);
+                QTextBlock block = document()->firstBlock();
+                for (int b = 0; block.isValid(); block = block.next(), ++b)
+                    setFoldingIndent(block, result.foldingIndent.value(b, 3));
+            }
+            // TODO: this could probably be done in thread, too
+            setSelections(result.selections);
+        }
+        m_watcher.release()->deleteLater();
+        m_controller.setBusyShowing(false);
+    });
+
+    const DiffEditorInput input(&m_controller);
+
+    auto getDocument = [=](QFutureInterface<ShowResult> &futureInterface) {
+        auto cleanup = qScopeGuard([&futureInterface] {
+            if (futureInterface.isCanceled())
+                futureInterface.reportCanceled();
+        });
+        const int progressMax = 100;
+        const int firstPartMax = 20; // showDiff is about 4 times quicker than filling document
+        futureInterface.setProgressRange(0, progressMax);
+        futureInterface.setProgressValue(0);
+        QFutureInterface<void> fi = futureInterface;
+        UnifiedDiffData diffData;
+        const UnifiedDiffOutput output = diffData.showDiff(fi, 0, firstPartMax, input);
+        if (futureInterface.isCanceled())
+            return;
+
+        const ShowResult result = {TextDocumentPtr(new TextDocument("DiffEditor.UnifiedDiffEditor")),
+                                   diffData, output.foldingIndent, output.selections};
+        // No need to store the change history
+        result.textDocument->document()->setUndoRedoEnabled(false);
+
+        // We could do just:
+        //   result.textDocument->setPlainText(output.diffText);
+        // but this would freeze the thread for couple of seconds without progress reporting
+        // and without checking for canceled.
+        const int diffSize = output.diffText.size();
+        const int packageSize = 100000;
+        int currentPos = 0;
+        QTextCursor cursor(result.textDocument->document());
+        while (currentPos < diffSize) {
+            const QString package = output.diffText.mid(currentPos, packageSize);
+            cursor.insertText(package);
+            currentPos += package.size();
+            fi.setProgressValue(interpolate(currentPos, 0, diffSize, firstPartMax, progressMax));
+            if (futureInterface.isCanceled())
+                return;
+        }
+
+        // If future was canceled, the destructor runs in this thread, so we can't move it
+        // to caller's thread. We push it to no thread (make object to have no thread affinity),
+        // and later, in the caller's thread, we pull it back to the caller's thread.
+        result.textDocument->moveToThread(nullptr);
+        futureInterface.reportResult(result);
+    };
+
+    m_watcher->setFuture(runAsync(getDocument));
+    ProgressManager::addTask(m_watcher->future(), tr("Rendering diff"), "DiffEditor");
 }
 
 int UnifiedDiffEditorWidget::blockNumberForFileIndex(int fileIndex) const

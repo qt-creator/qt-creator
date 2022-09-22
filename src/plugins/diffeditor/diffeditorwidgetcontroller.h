@@ -42,6 +42,7 @@ public:
     void addRevertAction(QMenu *menu, int fileIndex, int chunkIndex);
     void addExtraActions(QMenu *menu, int fileIndex, int chunkIndex, const ChunkSelection &selection);
     void updateCannotDecodeInfo();
+    void setBusyShowing(bool busy);
 
     ChunkData chunkData(int fileIndex, int chunkIndex) const;
 
@@ -56,6 +57,9 @@ public:
     QTextCharFormat m_rightCharFormat;
 
 private:
+    bool isInProgress() const;
+    void toggleProgress(bool wasInProgress);
+
     void patch(bool revert, int fileIndex, int chunkIndex);
     void sendChunkToCodePaster(int fileIndex, int chunkIndex);
     bool chunkExists(int fileIndex, int chunkIndex) const;
@@ -70,6 +74,7 @@ private:
 
     DiffEditorDocument *m_document = nullptr;
 
+    bool m_isBusyShowing = false;
     Utils::ProgressIndicator *m_progressIndicator = nullptr;
     QTimer m_timer;
 };
