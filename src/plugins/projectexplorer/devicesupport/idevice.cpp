@@ -12,6 +12,9 @@
 #include "../kitinformation.h"
 
 #include <coreplugin/icore.h>
+
+#include <projectexplorer/target.h>
+
 #include <utils/displayname.h>
 #include <utils/icon.h>
 #include <utils/portlist.h>
@@ -820,6 +823,12 @@ bool IDevice::ensureReachable(const FilePath &other) const
 {
     Q_UNUSED(other)
     return false;
+}
+
+bool IDevice::prepareForBuild(const Target *target)
+{
+    Q_UNUSED(target)
+    return true;
 }
 
 void DeviceProcessSignalOperation::setDebuggerCommand(const FilePath &cmd)

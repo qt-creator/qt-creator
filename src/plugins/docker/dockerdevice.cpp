@@ -14,11 +14,14 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/kitinformation.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/runcontrol.h>
+#include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 
@@ -144,6 +147,8 @@ public:
     Environment environment();
 
     CommandLine withDockerExecCmd(const CommandLine &cmd, bool interactive = false) const;
+
+    bool prepareForBuild(const Target *target);
 
 private:
     bool createContainer();
@@ -441,6 +446,14 @@ static QString getLocalIPv4Address()
             return a.toString();
     }
     return QString();
+}
+
+bool DockerDevicePrivate::prepareForBuild(const Target *target)
+{
+    QTC_ASSERT(QThread::currentThread() == thread(), return false);
+
+    return ensureReachable(target->project()->projectDirectory())
+           && ensureReachable(target->activeBuildConfiguration()->buildDirectory());
 }
 
 bool DockerDevicePrivate::createContainer()
@@ -1353,6 +1366,11 @@ void DockerDevicePrivate::setData(const DockerDeviceData &data)
             stopCurrentContainer();
         }
     }
+}
+
+bool DockerDevice::prepareForBuild(const Target *target)
+{
+    return d->prepareForBuild(target);
 }
 
 } // namespace Docker::Internal

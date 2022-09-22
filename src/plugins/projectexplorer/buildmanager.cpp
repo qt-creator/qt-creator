@@ -159,6 +159,24 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
                         .arg(pro->displayName()) + QLatin1Char('\n'));
         }
     }
+    for (const Project *pro : projects) {
+        for (const Target *const t : targetsForSelection(pro, configSelection)) {
+            for (const BuildConfiguration *bc : buildConfigsForSelection(t, configSelection)) {
+                const IDevice::Ptr device = BuildDeviceKitAspect::device(bc->kit())
+                                                .constCast<IDevice>();
+
+                if (device && !device->prepareForBuild(t)) {
+                    preambleMessage.append(
+                        BuildManager::tr("The build device failed to prepare for the build of %1 "
+                                         "(%2).")
+                            .arg(pro->displayName())
+                            .arg(t->displayName())
+                        + QLatin1Char('\n'));
+                }
+            }
+        }
+    }
+
     for (const Id id : stepIds) {
         const bool isBuild = id == Constants::BUILDSTEPS_BUILD;
         const bool isClean = id == Constants::BUILDSTEPS_CLEAN;

@@ -42,6 +42,7 @@ class FileTransferInterface;
 class FileTransferSetupData;
 class Kit;
 class SshParameters;
+class Target;
 class Task;
 
 namespace Internal { class IDevicePrivate; }
@@ -262,6 +263,8 @@ public:
                                         const QByteArray &data) const;
 
     virtual bool ensureReachable(const Utils::FilePath &other) const;
+
+    virtual bool prepareForBuild(const Target *target);
 
 protected:
     IDevice();
