@@ -7,6 +7,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <utils/filepath.h>
+
 namespace ProjectExplorer {
 class Project;
 class RunConfiguration;
@@ -20,12 +22,12 @@ struct TestSettings;
 
 struct ChoicePair
 {
-    explicit ChoicePair(const QString &name = QString(), const QString &exe = QString())
+    explicit ChoicePair(const QString &name = {}, const Utils::FilePath &exe = {})
         : displayName(name), executable(exe) {}
     bool matches(const ProjectExplorer::RunConfiguration *rc) const;
 
     QString displayName;
-    QString executable;
+    Utils::FilePath executable;
 };
 
 class AutotestPlugin : public ExtensionSystem::IPlugin

@@ -446,11 +446,11 @@ static RunConfiguration *getRunConfiguration(const QString &buildTargetKey)
         if (dName.isEmpty())
             return nullptr;
         // run configuration has been selected - fill config based on this one..
-        const QString exe = dialog.executable();
+        const FilePath exe = FilePath::fromString(dialog.executable());
         runConfig = Utils::findOr(runConfigurations, nullptr, [&dName, &exe] (const RunConfiguration *rc) {
             if (rc->displayName() != dName)
                 return false;
-            return rc->runnable().command.executable().toString() == exe;
+            return rc->runnable().command.executable() == exe;
         });
         if (runConfig && dialog.rememberChoice())
             AutotestPlugin::cacheRunConfigChoice(buildTargetKey, ChoicePair(dName, exe));
