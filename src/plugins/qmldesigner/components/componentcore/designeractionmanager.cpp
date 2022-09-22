@@ -654,7 +654,7 @@ bool isNotInLayout(const SelectionContext &context)
         if (selectedModelNode.hasParentProperty())
             parentModelNode = selectedModelNode.parentProperty().parentModelNode();
 
-        if (parentModelNode.isValid() && parentModelNode.metaInfo().isValid())
+        if (parentModelNode.metaInfo().isValid())
             return !parentModelNode.metaInfo().isLayoutable();
     }
 
@@ -725,9 +725,6 @@ bool singleSelectionAndInQtQuickLayout(const SelectionContext &context)
     ModelNode parentModelNode = currentSelectedNode.parentProperty().parentModelNode();
 
     NodeMetaInfo metaInfo = parentModelNode.metaInfo();
-
-    if (!metaInfo.isValid())
-        return false;
 
     return metaInfo.isQtQuickLayoutsLayout();
 }
@@ -813,15 +810,7 @@ bool isGroup(const SelectionContext &context)
     if (!singleSelection(context))
         return false;
 
-    ModelNode currentSelectedNode = context.currentSingleSelectedNode();
-
-    if (!currentSelectedNode.isValid())
-        return false;
-
-    NodeMetaInfo metaInfo = currentSelectedNode.metaInfo();
-
-    if (!metaInfo.isValid())
-        return false;
+    NodeMetaInfo metaInfo = context.currentSingleSelectedNode().metaInfo();
 
     return metaInfo.isQtQuickStudioComponentsGroupItem();
 }
@@ -834,12 +823,7 @@ bool isLayout(const SelectionContext &context)
     if (!singleSelection(context))
         return false;
 
-    ModelNode currentSelectedNode = context.currentSingleSelectedNode();
-
-    if (!currentSelectedNode.isValid())
-        return false;
-
-    NodeMetaInfo metaInfo = currentSelectedNode.metaInfo();
+    NodeMetaInfo metaInfo = context.currentSingleSelectedNode().metaInfo();
 
     if (!metaInfo.isValid())
         return false;
@@ -859,12 +843,7 @@ bool isPositioner(const SelectionContext &context)
     if (!singleSelection(context))
         return false;
 
-    ModelNode currentSelectedNode = context.currentSingleSelectedNode();
-
-    if (!currentSelectedNode.isValid())
-        return false;
-
-    NodeMetaInfo metaInfo = currentSelectedNode.metaInfo();
+    const NodeMetaInfo metaInfo = context.currentSingleSelectedNode().metaInfo();
 
     return metaInfo.isQtQuickPositioner();
 }

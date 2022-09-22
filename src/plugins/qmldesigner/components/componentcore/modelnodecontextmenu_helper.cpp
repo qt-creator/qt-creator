@@ -89,15 +89,14 @@ bool fileComponentExists(const ModelNode &modelNode)
 
 bool selectionIsComponent(const SelectionContext &selectionState)
 {
-    return selectionState.currentSingleSelectedNode().isValid()
-            && selectionState.currentSingleSelectedNode().isComponent()
-            && fileComponentExists(selectionState.currentSingleSelectedNode());
+    return selectionState.currentSingleSelectedNode().isComponent()
+           && fileComponentExists(selectionState.currentSingleSelectedNode());
 }
 
 bool selectionIsImported3DAsset(const SelectionContext &selectionState)
 {
     ModelNode node = selectionState.currentSingleSelectedNode();
-    if (selectionState.view() && node.isValid() && node.hasMetaInfo()) {
+    if (selectionState.view() && node.hasMetaInfo()) {
         QString fileName = node.metaInfo().componentFileName(); // absolute path
         if (fileName.isEmpty()) {
             // Node is not a file component, so we have to check if the current doc itself is

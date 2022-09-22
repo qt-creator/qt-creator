@@ -758,8 +758,7 @@ void removeLayout(const SelectionContext &selectionContext)
                     modelNode.variantProperty("y").setValue(pos.y());
                 }
             }
-            if (modelNode.isValid())
-                parent.modelNode().defaultNodeListProperty().reparentHere(modelNode);
+            parent.modelNode().defaultNodeListProperty().reparentHere(modelNode);
         }
         layoutItem.destroy();
     });
@@ -1594,9 +1593,7 @@ void removeGroup(const SelectionContext &selectionContext)
         "DesignerActionManager::removeGroup", [selectionContext, &groupItem, parent]() {
             for (const ModelNode &modelNode :
                  selectionContext.currentSingleSelectedNode().directSubModelNodes()) {
-                if (modelNode.isValid()) {
-                    QmlItemNode qmlItem(modelNode);
-
+                if (QmlItemNode qmlItem = modelNode) {
                     QPointF pos = qmlItem.instancePosition();
                     pos = groupItem.instanceTransform().map(pos);
                     modelNode.variantProperty("x").setValue(pos.x());

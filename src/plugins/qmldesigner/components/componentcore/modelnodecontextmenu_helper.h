@@ -57,15 +57,12 @@ inline bool addMouseAreaFillCheck(const SelectionContext &selectionContext)
 inline bool isModel(const SelectionContext &selectionState)
 {
     ModelNode node = selectionState.currentSingleSelectedNode();
-    return node.isValid() && node.metaInfo().isQtQuick3DModel();
+    return node.metaInfo().isQtQuick3DModel();
 }
 
 inline bool modelHasMaterial(const SelectionContext &selectionState)
 {
     ModelNode node = selectionState.currentSingleSelectedNode();
-
-    if (!node.isValid())
-        return false;
 
     BindingProperty prop = node.bindingProperty("materials");
 
