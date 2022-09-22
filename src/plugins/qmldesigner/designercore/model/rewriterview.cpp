@@ -27,13 +27,13 @@
 
 #include "texttomodelmerger.h"
 #include "modeltotextmerger.h"
+#include "model_p.h"
 
 #include <bindingproperty.h>
 #include <customnotifications.h>
 #include <filemanager/astobjecttextextractor.h>
 #include <filemanager/firstdefinitionfinder.h>
 #include <filemanager/objectlengthcalculator.h>
-#include <model_p.h>
 #include <modelnode.h>
 #include <modelnodepositionstorage.h>
 #include <nodeproperty.h>
