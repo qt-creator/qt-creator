@@ -316,7 +316,6 @@ void QmakeBuildSystem::updateCppCodeModel()
     RawProjectParts rpps;
     for (const QmakeProFile *pro : rootProFile()->allProFiles()) {
         warnOnToolChainMismatch(pro);
-
         RawProjectPart rpp;
         rpp.setDisplayName(pro->displayName());
         rpp.setProjectFileLocation(pro->filePath().toString());
@@ -334,10 +333,26 @@ void QmakeBuildSystem::updateCppCodeModel()
             break;
         }
         const QString includeFileBaseDir = pro->sourceDir().toString();
-        rpp.setFlagsForCxx({kitInfo.cxxToolChain, pro->variableValue(Variable::CppFlags),
-                            includeFileBaseDir});
-        rpp.setFlagsForC({kitInfo.cToolChain, pro->variableValue(Variable::CFlags),
-                          includeFileBaseDir});
+
+        QStringList cxxArgs = pro->variableValue(Variable::CppFlags);
+        QStringList cArgs = pro->variableValue(Variable::CFlags);
+
+        // For broken mkspecs, see QTCREATORBUG-28201.
+        const auto getExtraFlagsFromCompilerVar = [pro](Variable var) {
+            const QStringList value = pro->variableValue(var);
+            const int firstOptIndex = Utils::indexOf(value, [](const QString &arg) {
+                return arg.startsWith('-');
+            });
+            if (firstOptIndex <= 0)
+                return QStringList();
+            return value.mid(firstOptIndex);
+        };
+
+        const QStringList extraCxxArgs = getExtraFlagsFromCompilerVar(Variable::QmakeCxx);
+        const QStringList extraCArgs = getExtraFlagsFromCompilerVar(Variable::QmakeCc);
+
+        rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxArgs << extraCxxArgs, includeFileBaseDir});
+        rpp.setFlagsForC({kitInfo.cToolChain, cArgs << extraCArgs, includeFileBaseDir});
         rpp.setMacros(ProjectExplorer::Macro::toMacros(pro->cxxDefines()));
         rpp.setPreCompiledHeaders(pro->variableValue(Variable::PrecompiledHeader));
         rpp.setSelectedForBuilding(pro->includedInExactParse());
