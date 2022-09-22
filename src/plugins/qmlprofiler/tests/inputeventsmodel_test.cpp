@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "inputeventsmodel_test.h"
-#include "qmlprofilertr.h"
+#include "../qmlprofilertr.h"
 
 #include <tracing/timelinemodel_p.h>
 #include <tracing/timelineformattime.h>
