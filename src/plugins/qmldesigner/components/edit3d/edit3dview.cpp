@@ -280,9 +280,7 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
             setSelectedModelNode(modelNode);
         m_edit3DWidget->showContextMenu(m_contextMenuPos, modelNode, pos3d);
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::MaterialDrop) {
-        // TODO: this is from 8.0 branch that doesn't apply anymore:
-        //        const bool isModel = modelNode.isSubclassOf("QtQuick3D.Model");
-        const bool isModel = false;
+        const bool isModel = modelNode.metaInfo().isQtQuick3DModel();
         if (m_droppedMaterial.isValid() && modelNode.isValid() && isModel) {
             executeInTransaction(__FUNCTION__, [&] {
                 assignMaterialTo3dModel(modelNode, m_droppedMaterial);

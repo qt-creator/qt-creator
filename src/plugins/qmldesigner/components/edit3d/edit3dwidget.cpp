@@ -279,9 +279,7 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     m_contextMenuPos3d = pos3d;
 
     const bool isValid = modelNode.isValid();
-    // TODO: this is from 8.0 branch that doesn't apply anymore:
-    //    const bool isModel = isValid && modelNode.isSubclassOf("QtQuick3D.Model");
-    const bool isModel = false;
+    const bool isModel = modelNode.metaInfo().isQtQuick3DModel();
     m_editMaterialAction->setEnabled(isModel);
     m_deleteAction->setEnabled(isValid && !modelNode.isRootNode());
 

@@ -566,17 +566,13 @@ inline bool dotPropertyHeuristic(const QmlObjectNode &node, const NodeMetaInfo &
     NodeMetaInfo textInfo = node.view()->model()->qtQuickTextMetaInfo();
     NodeMetaInfo rectangleInfo = node.view()->model()->qtQuickRectangleMetaInfo();
     NodeMetaInfo imageInfo = node.view()->model()->qtQuickImageMetaInfo();
+    NodeMetaInfo fontInfo = node.view()->model()->fontMetaInfo();
+    NodeMetaInfo vector4dInfo = node.view()->model()->vector4dMetaInfo();
+    NodeMetaInfo textureInfo = node.view()->model()->qtQuick3DTextureMetaInfo();
 
-    if (propertyType.isFont() || itemInfo.hasProperty(itemProperty)
-        || propertyType.isBasedOn(textInfo, rectangleInfo, imageInfo))
+    if (itemInfo.hasProperty(itemProperty)
+        || propertyType.isBasedOn(textInfo, fontInfo, rectangleInfo, imageInfo, vector4dInfo, textureInfo))
         return false;
-    // TODO In 8.0 this is now the following, which conflicts with master:
-    //    if (typeName == "font" || typeName == "Texture" || typeName == "vector4d"
-    //        || itemInfo.hasProperty(itemProperty)
-    //        || textInfo.isSubclassOf(typeName)
-    //        || rectangleInfo.isSubclassOf(typeName)
-    //        || imageInfo.isSubclassOf(typeName))
-    //        return false;
 
     return true;
 }
