@@ -2277,6 +2277,9 @@ void ProjectExplorerPlugin::extensionsInitialized()
     });
     mtools->addAction(cmd);
 
+    // Load devices immediately, as other plugins might want to use them
+    DeviceManager::instance()->load();
+
     // delay restoring kits until UI is shown for improved perceived startup performance
     QTimer::singleShot(0, this, &ProjectExplorerPlugin::restoreKits);
 }
@@ -2285,7 +2288,6 @@ void ProjectExplorerPlugin::restoreKits()
 {
     dd->determineSessionToRestoreAtStartup();
     ExtraAbi::load(); // Load this before Toolchains!
-    DeviceManager::instance()->load();
     ToolChainManager::restoreToolChains();
     KitManager::restoreKits();
     QTimer::singleShot(0, dd, &ProjectExplorerPluginPrivate::restoreSession); // delay a bit...

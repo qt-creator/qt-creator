@@ -22,6 +22,8 @@ public:
     DebuggerItemManager();
     ~DebuggerItemManager();
 
+    void extensionsInitialized();
+
     static const QList<DebuggerItem> debuggers();
 
     static QVariant registerDebugger(const DebuggerItem &item);
