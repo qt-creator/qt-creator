@@ -253,6 +253,13 @@ void SquishFileHandler::runTestSuite(const QString &suiteName)
     }
 
     QStringList testCases = SquishTestTreeModel::instance()->getSelectedSquishTestCases(suiteConf);
+    if (testCases.isEmpty()) {
+        QMessageBox::information(Core::ICore::dialogParent(),
+                                 Tr::tr("No Test Cases Defined"),
+                                 Tr::tr("Test suite \"%1\" does not contain any test cases.")
+                                 .arg(suiteName));
+        return;
+    }
     SquishTools::instance()->runTestCases(suitePath.absolutePath(), testCases);
 }
 
