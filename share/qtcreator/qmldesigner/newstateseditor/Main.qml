@@ -771,7 +771,12 @@ Rectangle {
 
                                     onClone: root.cloneState(delegateRoot.internalNodeId)
                                     onExtend: root.extendState(delegateRoot.internalNodeId)
-                                    onRemove: root.deleteState(delegateRoot.internalNodeId)
+                                    onRemove: {
+                                        if (delegateRoot.isDefault)
+                                            statesEditorModel.resetDefaultState()
+
+                                        root.deleteState(delegateRoot.internalNodeId)
+                                    }
 
                                     onStateNameFinished: statesEditorModel.renameState(
                                                              delegateRoot.internalNodeId,
