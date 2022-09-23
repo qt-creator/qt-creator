@@ -534,7 +534,7 @@ void NodeInstanceServer::setupOnlyWorkingImports(const QStringList &workingImpor
         quickView()->setContent(fileUrl(), m_importComponent, quickView()->rootObject());
 
     m_importComponent->setData(componentCode.append("\nItem {}\n"), fileUrl());
-    m_importComponentObject = m_importComponent->create();
+    m_importComponentObject = m_importComponent->create(engine()->rootContext());
 
     Q_ASSERT(m_importComponent && m_importComponentObject);
     Q_ASSERT_X(m_importComponent->errors().isEmpty(), __FUNCTION__, m_importComponent->errorString().toLatin1());
