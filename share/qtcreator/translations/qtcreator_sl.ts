@@ -7647,7 +7647,7 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
     </message>
     <message>
         <location/>
-        <source>&amp;Switch to</source>
+        <source>&amp;Switch To</source>
         <translation>P&amp;reklopi na</translation>
     </message>
     <message>

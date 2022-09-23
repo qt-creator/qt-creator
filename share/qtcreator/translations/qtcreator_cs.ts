@@ -11261,7 +11261,7 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation>&amp;Smazat</translation>
     </message>
     <message>
-        <source>&amp;Switch to</source>
+        <source>&amp;Switch To</source>
         <translation>&amp;Přepnout na sezení</translation>
     </message>
     <message>

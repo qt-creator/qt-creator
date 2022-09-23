@@ -11685,7 +11685,7 @@ francis : voila une nouvelle suggestion :)</translatorcomment>
         <translation>&amp;Supprimer</translation>
     </message>
     <message>
-        <source>&amp;Switch to</source>
+        <source>&amp;Switch To</source>
         <translation>&amp;Basculer vers</translation>
     </message>
     <message>

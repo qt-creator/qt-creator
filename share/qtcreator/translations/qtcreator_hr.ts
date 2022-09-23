@@ -6112,7 +6112,7 @@ Greška: %5</translation>
         <translation>&amp;Ukloni</translation>
     </message>
     <message>
-        <source>&amp;Switch to</source>
+        <source>&amp;Switch To</source>
         <translation>&amp;Prebaci na</translation>
     </message>
     <message>

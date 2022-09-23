@@ -10739,7 +10739,7 @@ SOURCES *= .../ide/main/bin/dumper/dumper.cpp
         <translation>删除(&amp;D)</translation>
     </message>
     <message>
-        <source>&amp;Switch to</source>
+        <source>&amp;Switch To</source>
         <translation>切换到(&amp;S)</translation>
     </message>
     <message>

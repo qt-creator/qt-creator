@@ -15974,7 +15974,7 @@ to project &apos;%2&apos;.</source>
         <translation>Ви&amp;далити</translation>
     </message>
     <message>
-        <source>&amp;Switch to</source>
+        <source>&amp;Switch To</source>
         <translation>&amp;Перемкнутись до</translation>
     </message>
     <message>

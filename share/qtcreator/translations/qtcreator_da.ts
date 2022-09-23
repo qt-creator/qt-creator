@@ -25434,7 +25434,7 @@ til projektet &quot;%2&quot;.</translation>
         <translation>&amp;Slet</translation>
     </message>
     <message>
-        <source>&amp;Switch to</source>
+        <source>&amp;Switch To</source>
         <translation>&amp;Skift til</translation>
     </message>
     <message>

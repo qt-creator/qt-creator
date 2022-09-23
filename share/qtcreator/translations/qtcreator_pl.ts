@@ -967,7 +967,7 @@
         <translation>&amp;Usuń</translation>
     </message>
     <message>
-        <source>&amp;Switch to</source>
+        <source>&amp;Switch To</source>
         <translation>&amp;Przełącz sesję</translation>
     </message>
     <message>
