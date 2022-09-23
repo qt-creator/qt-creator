@@ -99,7 +99,9 @@ T.TextField {
     }
 
     onActiveFocusChanged: {
-        if (root.activeFocus)
+        // OtherFocusReason in this case means, if the TextField gets focus after the context menu
+        // was closed due to an menu item click.
+        if (root.activeFocus && root.focusReason !== Qt.OtherFocusReason)
             root.preFocusText = root.text
     }
 

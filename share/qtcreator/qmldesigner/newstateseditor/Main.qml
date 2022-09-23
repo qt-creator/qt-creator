@@ -807,10 +807,6 @@ Rectangle {
                                     onStateNameFinished: statesEditorModel.renameState(
                                                              delegateRoot.internalNodeId,
                                                              stateThumbnail.stateName)
-
-                                    onWhenConditionFinished: statesEditorModel.setWhenCondition(
-                                                                 delegateRoot.internalNodeId,
-                                                                 stateThumbnail.whenCondition)
                                 }
                             }
                         }

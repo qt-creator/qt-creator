@@ -65,7 +65,6 @@ Item {
     signal extend
     signal remove
     signal stateNameFinished
-    signal whenConditionFinished
 
     signal grabbing
     signal letGo
@@ -608,8 +607,16 @@ Item {
                     running: false
                     interval: 50
                     repeat: false
-                    onTriggered: statesEditorModel.setWhenCondition(root.internalNodeId,
-                                                                    bindingEditor.newWhenCondition)
+                    onTriggered: {
+                        if (whenCondition.previousCondition === bindingEditor.newWhenCondition)
+                            return
+
+                        if ( bindingEditor.newWhenCondition !== "")
+                            statesEditorModel.setWhenCondition(root.internalNodeId,
+                                                               bindingEditor.newWhenCondition)
+                        else
+                            statesEditorModel.resetWhenCondition(root.internalNodeId)
+                    }
                 }
 
                 stateModelNodeProperty: statesEditorModel.stateModelNode(root.internalNodeId)
@@ -635,6 +642,8 @@ Item {
                 indicatorVisible: true
                 indicator.icon.text: StudioTheme.Constants.edit
                 indicator.onClicked: {
+                    whenCondition.previousCondition = whenCondition.text
+
                     bindingEditor.showWidget()
                     bindingEditor.text = whenCondition.text
                     bindingEditor.prepareBindings()
@@ -662,7 +671,7 @@ Item {
                     whenCondition.previousCondition = whenCondition.text
 
                     if (whenCondition.text !== "")
-                        root.whenConditionFinished()
+                        statesEditorModel.setWhenCondition(root.internalNodeId, root.whenCondition)
                     else
                         statesEditorModel.resetWhenCondition(root.internalNodeId)
 
