@@ -31,7 +31,6 @@ QtcPlugin {
         "constants.h",
         "pullorpushdialog.cpp",
         "pullorpushdialog.h",
-        "uncommitdialog.ui",
     ]
 }
 

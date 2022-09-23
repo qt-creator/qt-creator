@@ -11,8 +11,6 @@
 #include "constants.h"
 #include "pullorpushdialog.h"
 
-#include "ui_uncommitdialog.h"
-
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/command.h>
@@ -25,6 +23,7 @@
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
+#include <utils/layoutbuilder.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -41,10 +40,10 @@
 #include <vcsbase/vcsoutputwindow.h>
 
 #include <QAction>
+#include <QCheckBox>
 #include <QDebug>
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QFormLayout>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -276,36 +275,65 @@ public:
     explicit UnCommitDialog(BazaarPluginPrivate *plugin)
         : QDialog(ICore::dialogParent())
     {
-        m_ui.setupUi(this);
+        resize(412, 124);
+        setWindowTitle(tr("Uncommit"));
+
+        keepTagsCheckBox = new QCheckBox(tr("Keep tags that point to removed revisions"));
+
+        localCheckBox = new QCheckBox(tr("Only remove the commits from the local branch when in a checkout"));
+
+        revisionLineEdit = new QLineEdit(this);
+        revisionLineEdit->setToolTip(tr("If a revision is specified, uncommits revisions to leave "
+            "the branch at the specified revision.\n"
+            "For example, \"Revision: 15\" will leave the branch at revision 15."));
+        revisionLineEdit->setPlaceholderText(tr("Last committed"));
+
+        auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
         auto dryRunBtn = new QPushButton(tr("Dry Run"));
         dryRunBtn->setToolTip(tr("Test the outcome of removing the last committed revision, without actually removing anything."));
-        m_ui.buttonBox->addButton(dryRunBtn, QDialogButtonBox::ApplyRole);
+        buttonBox->addButton(dryRunBtn, QDialogButtonBox::ApplyRole);
+
+        using namespace Utils::Layouting;
+        Column {
+            Form {
+                keepTagsCheckBox, br,
+                localCheckBox, br,
+                tr("Revision:"), revisionLineEdit, br,
+            },
+            st,
+            buttonBox,
+        }.attachTo(this);
+
         connect(dryRunBtn, &QPushButton::clicked, this, [this, plugin] {
             QTC_ASSERT(plugin->currentState().hasTopLevel(), return);
             plugin->m_client.synchronousUncommit(plugin->currentState().topLevel(),
                                                  revision(),
                                                  extraOptions() << "--dry-run");
         });
+        connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     }
 
     QStringList extraOptions() const
     {
         QStringList opts;
-        if (m_ui.keepTagsCheckBox->isChecked())
+        if (keepTagsCheckBox->isChecked())
             opts += "--keep-tags";
-        if (m_ui.localCheckBox->isChecked())
+        if (localCheckBox->isChecked())
             opts += "--local";
         return opts;
     }
 
     QString revision() const
     {
-        return m_ui.revisionLineEdit->text().trimmed();
+        return revisionLineEdit->text().trimmed();
     }
 
 private:
-    Ui::UnCommitDialog m_ui;
+    QCheckBox *keepTagsCheckBox;
+    QCheckBox *localCheckBox;
+    QLineEdit *revisionLineEdit;
 };
 
 BazaarPlugin::~BazaarPlugin()
