@@ -8,8 +8,7 @@
 
 namespace VcsBase { class SubmitFileModel; }
 
-namespace Bazaar {
-namespace Internal {
+namespace Bazaar::Internal {
 
 class BranchInfo;
 class BazaarCommitWidget;
@@ -31,5 +30,4 @@ private:
     VcsBase::SubmitFileModel *m_fileModel = nullptr;
 };
 
-} // namespace Internal
-} // namespace Bazaar
+} // Bazaar::Internal

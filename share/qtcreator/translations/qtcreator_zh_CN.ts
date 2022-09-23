@@ -30480,7 +30480,7 @@ Please check the directory&apos;s access rights.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarCommitPanel</name>
+    <name>Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>概要信息</translation>
@@ -30521,22 +30521,11 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <translation>本地提交到一个受限的分支.
 直到一次正常提交之前，本地提交不会被推送到master分支。</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::CloneOptionsPanel</name>
-    <message>
-        <source>Options</source>
-        <translation>选项</translation>
-    </message>
     <message>
         <source>By default, branch will fail if the target directory exists, but does not already have a control directory.
 This flag will allow branch to proceed</source>
         <translation type="obsolete">默认情况下, 如果目标文件夹存在则分支将会失败, 但是如果还没有控制目录.
 那么分支将被执行</translation>
-    </message>
-    <message>
-        <source>Use existing directory</source>
-        <translation>使用存在的目录</translation>
     </message>
     <message>
         <source>Create a stacked branch referring to the source branch.
@@ -30585,10 +30574,6 @@ The new branch will depend on the availability of the source branch for all oper
         <translation>无工作树</translation>
     </message>
     <message>
-        <source>Revision:</source>
-        <translation>修订版本:</translation>
-    </message>
-    <message>
         <source>By default, branch will fail if the target directory exists, but does not already have a control directory.
 This flag will allow branch to proceed.</source>
         <translation>默认情况下，如果目标目录存在但还没有控制目录则branch将会失败。
@@ -30618,7 +30603,7 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPage</name>
+    <name>Bazaar</name>
     <message>
         <source>Form</source>
         <translation>界面</translation>
@@ -30676,16 +30661,12 @@ The new branch will depend on the availability of the source branch for all oper
         <translation>提交时弹出提示</translation>
     </message>
     <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
-    <message>
         <source>The number of recent commit logs to show. Choose 0 to see all entries.</source>
         <translation>要显示的最近提交日志的数目，选择 0 查看所有内容。</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::PullOrPushDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Dialog</source>
         <translation>对话框</translation>
@@ -30796,7 +30777,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::RevertDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Revert</source>
         <translation>还原</translation>
@@ -30804,10 +30785,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Specify a revision other than the default?</source>
         <translation>指定一个修订版本而不使用默认版本?</translation>
-    </message>
-    <message>
-        <source>Revision:</source>
-        <translation>修订版本:</translation>
     </message>
 </context>
 <context>
@@ -32516,14 +32493,14 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarControl</name>
+    <name>Bazaar</name>
     <message>
         <source>Bazaar</source>
         <translation>Bazaar</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarEditor</name>
+    <name>Bazaar</name>
     <message>
         <source>Annotate %1</source>
         <translation>注释 &quot;%1&quot; </translation>
@@ -32534,11 +32511,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarPlugin</name>
-    <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
+    <name>Bazaar</name>
     <message>
         <source>Annotate Current File</source>
         <translation>Annotate 当前文件</translation>
@@ -32721,7 +32694,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CloneWizard</name>
+    <name>Bazaar</name>
     <message>
         <source>Clones a Bazaar branch and tries to load the contained project.</source>
         <translation>克隆一个Bazaar 分支并尝试载入其中的项目。</translation>
@@ -32732,7 +32705,7 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CloneWizardPage</name>
+    <name>Bazaar</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -32747,14 +32720,14 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CommitEditor</name>
+    <name>Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>提交编辑器</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPageWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Bazaar 命令</translation>
@@ -36867,7 +36840,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarDiffParameterWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
@@ -40761,7 +40734,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarLogParameterWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Verbose</source>
         <translation>详细</translation>

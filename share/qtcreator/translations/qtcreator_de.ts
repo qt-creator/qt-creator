@@ -13052,7 +13052,7 @@ Soll es noch einmal versucht werden?</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarCommitPanel</name>
+    <name>Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>Allgemeine Informationen</translation>
@@ -13089,7 +13089,7 @@ Lokale Commits werden nicht zum Master-Branch gepusht, bis ein normaler Commit e
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPage</name>
+    <name>Bazaar</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -13140,7 +13140,7 @@ Lokale Commits werden nicht zum Master-Branch gepusht, bis ein normaler Commit e
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::PullOrPushDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -13168,10 +13168,6 @@ Lokale Commits werden nicht zum Master-Branch gepusht, bis ein normaler Commit e
     <message>
         <source>Create prefix</source>
         <translation>Präfix erzeugen</translation>
-    </message>
-    <message>
-        <source>Revision:</source>
-        <translation>Revision:</translation>
     </message>
     <message>
         <source>Local</source>
@@ -13223,9 +13219,6 @@ Local pulls are not applied to the master branch.</source>
         <translation>Führt eine lokale Pull-Operation in einem gebundenem Branch aus.
 Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>Rückgängig machen</translation>
@@ -13233,10 +13226,6 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
     <message>
         <source>Specify a revision other than the default?</source>
         <translation>Möchten Sie eine Revision angeben?</translation>
-    </message>
-    <message>
-        <source>Revision:</source>
-        <translation>Revision:</translation>
     </message>
 </context>
 <context>
@@ -13390,11 +13379,7 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarPlugin</name>
-    <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
+    <name>Bazaar</name>
     <message>
         <source>Annotate Current File</source>
         <translation>Annotation für Datei</translation>
@@ -13545,14 +13530,14 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CommitEditor</name>
+    <name>Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>Commit-Editor</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPageWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Bazaar-Kommando</translation>
@@ -25919,7 +25904,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::UnCommitDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Uncommit</source>
         <translation>Commit rückgängig machen</translation>
@@ -28297,7 +28282,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarEditorWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation>&amp;Annotation für %1</translation>
@@ -37582,7 +37567,7 @@ Fehler: %5</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarDiffConfig</name>
+    <name>Bazaar</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Leerzeichen ignorieren</translation>
@@ -37593,7 +37578,7 @@ Fehler: %5</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarLogConfig</name>
+    <name>Bazaar</name>
     <message>
         <source>Verbose</source>
         <translation>Ausführlich</translation>

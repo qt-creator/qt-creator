@@ -5,8 +5,7 @@
 
 #include <QtGlobal>
 
-namespace Bazaar {
-namespace Constants {
+namespace Bazaar::Constants {
 
 const char BAZAAR[] = "bazaar";
 const char BAZAARREPO[] = ".bzr";
@@ -41,5 +40,4 @@ const char FSTATUS_DELETED[] = "Deleted";
 const char FSTATUS_MODIFIED[] = "Modified";
 const char FSTATUS_RENAMED[] = "Renamed";
 
-} // namespace Constants
-} // namespace Bazaar
+} // Bazaar::Constants

@@ -5,8 +5,7 @@
 
 #include <QString>
 
-namespace Bazaar {
-namespace Internal {
+namespace Bazaar::Internal {
 
 class BranchInfo
 {
@@ -16,5 +15,4 @@ public:
     const bool isBoundToBranch;
 };
 
-} // namespace Internal
-} // namespace Bazaar
+} // Bazaar::Internal

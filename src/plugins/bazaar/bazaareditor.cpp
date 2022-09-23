@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "bazaareditor.h"
+
 #include "annotationhighlighter.h"
+#include "bazaartr.h"
 #include "constants.h"
 
 #include <utils/qtcassert.h>
@@ -12,15 +14,14 @@
 
 #define BZR_CHANGE_PATTERN "[0-9]+"
 
-using namespace Bazaar::Internal;
-using namespace Bazaar;
+namespace Bazaar::Internal {
 
 BazaarEditorWidget::BazaarEditorWidget() :
     m_changesetId(QLatin1String(Constants::CHANGESET_ID)),
     m_exactChangesetId(QLatin1String(Constants::CHANGESET_ID_EXACT))
 {
-    setAnnotateRevisionTextFormat(tr("&Annotate %1"));
-    setAnnotatePreviousRevisionTextFormat(tr("Annotate &parent revision %1"));
+    setAnnotateRevisionTextFormat(Tr::tr("&Annotate %1"));
+    setAnnotatePreviousRevisionTextFormat(Tr::tr("Annotate &parent revision %1"));
     // Diff format:
     // === <change> <file|dir> 'mainwindow.cpp'
     setDiffFilePattern("^=== [a-z]+ [a-z]+ '(.+)'\\s*");
@@ -62,3 +63,5 @@ VcsBase::BaseAnnotationHighlighter *BazaarEditorWidget::createAnnotationHighligh
 {
     return new BazaarAnnotationHighlighter(changes);
 }
+
+} // Bazaar::Internal

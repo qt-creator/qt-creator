@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "bazaarcommitwidget.h"
+
+#include "bazaartr.h"
 #include "branchinfo.h"
 
 #include <texteditor/texteditorsettings.h>
@@ -11,7 +13,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
 #include <QCheckBox>
 #include <QDebug>
 #include <QLineEdit>
@@ -23,8 +24,7 @@
 
 //TODO Check to see when the Highlighter has been moved to a base class and use that instead
 
-namespace Bazaar {
-namespace Internal {
+namespace Bazaar::Internal {
 
 // Retrieve the comment char format from the text editor.
 static QTextCharFormat commentFormat()
@@ -34,18 +34,16 @@ static QTextCharFormat commentFormat()
 
 class BazaarCommitPanel : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(Bazaar::Internal::BazaarCommitPanel)
-
 public:
     BazaarCommitPanel()
     {
         branchLineEdit = new QLineEdit;
         branchLineEdit->setReadOnly(true);
 
-        isLocalCheckBox = new QCheckBox(tr("Local commit"));
-        isLocalCheckBox->setToolTip(tr("Performs a local commit in a bound branch.\n"
-                                       "Local commits are not pushed to the master "
-                                       "branch until a normal commit is performed."));
+        isLocalCheckBox = new QCheckBox(Tr::tr("Local commit"));
+        isLocalCheckBox->setToolTip(Tr::tr("Performs a local commit in a bound branch.\n"
+                                           "Local commits are not pushed to the master "
+                                           "branch until a normal commit is performed."));
 
         authorLineEdit = new QLineEdit;
         emailLineEdit = new QLineEdit;
@@ -54,19 +52,22 @@ public:
         using namespace Utils::Layouting;
         Column {
             Group {
-                title(tr("General Information")),
+                title(Tr::tr("General Information")),
                 Form {
-                    tr("Branch:"), branchLineEdit, br,
+                    Tr::tr("Branch:"), branchLineEdit, br,
                     empty, isLocalCheckBox
                 }
             },
             Group {
-                title(tr("Commit Information")),
-                Form {
-                    tr("Author:"), authorLineEdit, br,
-                    tr("Email:"), emailLineEdit, br,
-                    tr("Fixed bugs:"), fixedBugsLineEdit
-                },
+                title(Tr::tr("Commit Information")),
+                Row {
+                    Form {
+                        Tr::tr("Author:"), authorLineEdit, br,
+                        Tr::tr("Email:"), emailLineEdit, br,
+                        Tr::tr("Fixed bugs:"), fixedBugsLineEdit
+                    },
+                    st
+                }
             }
         }.attachTo(this, WithoutMargins);
     }
@@ -181,5 +182,4 @@ bool BazaarCommitWidget::isLocalOptionEnabled() const
     return m_bazaarCommitPanel->isLocalCheckBox->isChecked();
 }
 
-} // namespace Internal
-} // namespace Bazaar
+} // Bazaar::Internal

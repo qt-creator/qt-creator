@@ -7,13 +7,10 @@
 
 #include <QRegularExpression>
 
-namespace Bazaar {
-namespace Internal {
+namespace Bazaar::Internal {
 
 class BazaarEditorWidget : public VcsBase::VcsBaseEditorWidget
 {
-    Q_OBJECT
-
 public:
     BazaarEditorWidget();
 
@@ -26,5 +23,4 @@ private:
     const QRegularExpression m_exactChangesetId;
 };
 
-} // namespace Internal
-} // namespace Bazaar
+} // Bazaar::Internal

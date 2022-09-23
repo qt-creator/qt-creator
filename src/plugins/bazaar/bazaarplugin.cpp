@@ -7,6 +7,7 @@
 #include "bazaarcommitwidget.h"
 #include "bazaareditor.h"
 #include "bazaarsettings.h"
+#include "bazaartr.h"
 #include "commiteditor.h"
 #include "constants.h"
 #include "pullorpushdialog.h"
@@ -59,8 +60,7 @@ using namespace Utils;
 using namespace VcsBase;
 using namespace std::placeholders;
 
-namespace Bazaar {
-namespace Internal {
+namespace Bazaar::Internal {
 
 // Submit editor parameters
 const char COMMIT_ID[] = "Bazaar Commit Log Editor";
@@ -121,15 +121,13 @@ const VcsBaseSubmitEditorParameters submitEditorParameters {
 
 class RevertDialog : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(Bazaar::Internal::RevertDialog)
-
 public:
     RevertDialog() : QDialog(ICore::dialogParent())
     {
         resize(400, 162);
-        setWindowTitle(tr("Revert"));
+        setWindowTitle(Tr::tr("Revert"));
 
-        auto groupBox = new QGroupBox(tr("Specify a revision other than the default?"));
+        auto groupBox = new QGroupBox(Tr::tr("Specify a revision other than the default?"));
         groupBox->setCheckable(true);
         groupBox->setChecked(false);
 
@@ -139,7 +137,7 @@ public:
 
         using namespace Layouting;
         Form {
-            tr("Revision:"), revisionLineEdit
+            Tr::tr("Revision:"), revisionLineEdit
         }.attachTo(groupBox);
 
         Column {
@@ -156,8 +154,6 @@ public:
 
 class BazaarPluginPrivate final : public VcsBasePluginPrivate
 {
-    Q_DECLARE_TR_FUNCTIONS(Bazaar::Internal::BazaarPlugin)
-
 public:
     BazaarPluginPrivate();
 
@@ -269,29 +265,27 @@ public:
 
 class UnCommitDialog : public QDialog
 {
-    Q_DECLARE_TR_FUNCTIONS(Bazaar::Internal::UnCommitDialog)
-
 public:
     explicit UnCommitDialog(BazaarPluginPrivate *plugin)
         : QDialog(ICore::dialogParent())
     {
         resize(412, 124);
-        setWindowTitle(tr("Uncommit"));
+        setWindowTitle(Tr::tr("Uncommit"));
 
-        keepTagsCheckBox = new QCheckBox(tr("Keep tags that point to removed revisions"));
+        keepTagsCheckBox = new QCheckBox(Tr::tr("Keep tags that point to removed revisions"));
 
-        localCheckBox = new QCheckBox(tr("Only remove the commits from the local branch when in a checkout"));
+        localCheckBox = new QCheckBox(Tr::tr("Only remove the commits from the local branch when in a checkout"));
 
         revisionLineEdit = new QLineEdit(this);
-        revisionLineEdit->setToolTip(tr("If a revision is specified, uncommits revisions to leave "
+        revisionLineEdit->setToolTip(Tr::tr("If a revision is specified, uncommits revisions to leave "
             "the branch at the specified revision.\n"
             "For example, \"Revision: 15\" will leave the branch at revision 15."));
-        revisionLineEdit->setPlaceholderText(tr("Last committed"));
+        revisionLineEdit->setPlaceholderText(Tr::tr("Last committed"));
 
         auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
-        auto dryRunBtn = new QPushButton(tr("Dry Run"));
-        dryRunBtn->setToolTip(tr("Test the outcome of removing the last committed revision, without actually removing anything."));
+        auto dryRunBtn = new QPushButton(Tr::tr("Dry Run"));
+        dryRunBtn->setToolTip(Tr::tr("Test the outcome of removing the last committed revision, without actually removing anything."));
         buttonBox->addButton(dryRunBtn, QDialogButtonBox::ApplyRole);
 
         using namespace Utils::Layouting;
@@ -299,7 +293,7 @@ public:
             Form {
                 keepTagsCheckBox, br,
                 localCheckBox, br,
-                tr("Revision:"), revisionLineEdit, br,
+                Tr::tr("Revision:"), revisionLineEdit, br,
             },
             st,
             buttonBox,
@@ -364,12 +358,12 @@ BazaarPluginPrivate::BazaarPluginPrivate()
 
     const QString prefix = QLatin1String("bzr");
     m_commandLocator = new CommandLocator("Bazaar", prefix, prefix, this);
-    m_commandLocator->setDescription(tr("Triggers a Bazaar version control operation."));
+    m_commandLocator->setDescription(Tr::tr("Triggers a Bazaar version control operation."));
 
     // Create menu item for Bazaar
     m_bazaarContainer = ActionManager::createMenu("Bazaar.BazaarMenu");
     QMenu *menu = m_bazaarContainer->menu();
-    menu->setTitle(tr("Bazaar"));
+    menu->setTitle(Tr::tr("Bazaar"));
 
     createFileActions(context);
     m_bazaarContainer->addSeparator(context);
@@ -388,54 +382,54 @@ BazaarPluginPrivate::BazaarPluginPrivate()
 
 void BazaarPluginPrivate::createFileActions(const Context &context)
 {
-    m_annotateFile = new ParameterAction(tr("Annotate Current File"), tr("Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_annotateFile = new ParameterAction(Tr::tr("Annotate Current File"), Tr::tr("Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
     Command *command = ActionManager::registerAction(m_annotateFile, ANNOTATE, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_annotateFile, &QAction::triggered, this, &BazaarPluginPrivate::annotateCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_diffFile = new ParameterAction(tr("Diff Current File"), tr("Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_diffFile = new ParameterAction(Tr::tr("Diff Current File"), Tr::tr("Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_diffFile, DIFF, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Z,Meta+D") : tr("ALT+Z,Alt+D")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Z,Meta+D") : Tr::tr("ALT+Z,Alt+D")));
     connect(m_diffFile, &QAction::triggered, this, &BazaarPluginPrivate::diffCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_logFile = new ParameterAction(tr("Log Current File"), tr("Log \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_logFile = new ParameterAction(Tr::tr("Log Current File"), Tr::tr("Log \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_logFile, LOG, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Z,Meta+L") : tr("ALT+Z,Alt+L")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Z,Meta+L") : Tr::tr("ALT+Z,Alt+L")));
     connect(m_logFile, &QAction::triggered, this, &BazaarPluginPrivate::logCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_statusFile = new ParameterAction(tr("Status Current File"), tr("Status \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_statusFile = new ParameterAction(Tr::tr("Status Current File"), Tr::tr("Status \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_statusFile, STATUS, context);
     command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Z,Meta+S") : tr("ALT+Z,Alt+S")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Z,Meta+S") : Tr::tr("ALT+Z,Alt+S")));
     connect(m_statusFile, &QAction::triggered, this, &BazaarPluginPrivate::statusCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
     m_bazaarContainer->addSeparator(context);
 
-    m_addAction = new ParameterAction(tr("Add"), tr("Add \"%1\""), ParameterAction::EnabledWithParameter, this);
+    m_addAction = new ParameterAction(Tr::tr("Add"), Tr::tr("Add \"%1\""), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_addAction, ADD, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_addAction, &QAction::triggered, this, &BazaarPluginPrivate::addCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_deleteAction = new ParameterAction(tr("Delete..."), tr("Delete \"%1\"..."), ParameterAction::EnabledWithParameter, this);
+    m_deleteAction = new ParameterAction(Tr::tr("Delete..."), Tr::tr("Delete \"%1\"..."), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_deleteAction, DELETE, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_deleteAction, &QAction::triggered, this, &BazaarPluginPrivate::promptToDeleteCurrentFile);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_revertFile = new ParameterAction(tr("Revert Current File..."), tr("Revert \"%1\"..."), ParameterAction::EnabledWithParameter, this);
+    m_revertFile = new ParameterAction(Tr::tr("Revert Current File..."), Tr::tr("Revert \"%1\"..."), ParameterAction::EnabledWithParameter, this);
     command = ActionManager::registerAction(m_revertFile, REVERT, context);
     command->setAttribute(Command::CA_UpdateText);
     connect(m_revertFile, &QAction::triggered, this, &BazaarPluginPrivate::revertCurrentFile);
@@ -494,28 +488,28 @@ void BazaarPluginPrivate::statusCurrentFile()
 
 void BazaarPluginPrivate::createDirectoryActions(const Context &context)
 {
-    auto action = new QAction(tr("Diff"), this);
+    auto action = new QAction(Tr::tr("Diff"), this);
     m_repositoryActionList.append(action);
     Command *command = ActionManager::registerAction(action, DIFFMULTI, context);
     connect(action, &QAction::triggered, this, &BazaarPluginPrivate::diffRepository);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    action = new QAction(tr("Log"), this);
+    action = new QAction(Tr::tr("Log"), this);
     m_repositoryActionList.append(action);
     command = ActionManager::registerAction(action, LOGMULTI, context);
     connect(action, &QAction::triggered, this, &BazaarPluginPrivate::logRepository);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    action = new QAction(tr("Revert..."), this);
+    action = new QAction(Tr::tr("Revert..."), this);
     m_repositoryActionList.append(action);
     command = ActionManager::registerAction(action, REVERTMULTI, context);
     connect(action, &QAction::triggered, this, &BazaarPluginPrivate::revertAll);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    action = new QAction(tr("Status"), this);
+    action = new QAction(Tr::tr("Status"), this);
     m_repositoryActionList.append(action);
     command = ActionManager::registerAction(action, STATUSMULTI, context);
     connect(action, &QAction::triggered, this, &BazaarPluginPrivate::statusMulti);
@@ -559,43 +553,43 @@ void BazaarPluginPrivate::statusMulti()
 
 void BazaarPluginPrivate::createRepositoryActions(const Context &context)
 {
-    auto action = new QAction(tr("Pull..."), this);
+    auto action = new QAction(Tr::tr("Pull..."), this);
     m_repositoryActionList.append(action);
     Command *command = ActionManager::registerAction(action, PULL, context);
     connect(action, &QAction::triggered, this, &BazaarPluginPrivate::pull);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    action = new QAction(tr("Push..."), this);
+    action = new QAction(Tr::tr("Push..."), this);
     m_repositoryActionList.append(action);
     command = ActionManager::registerAction(action, PUSH, context);
     connect(action, &QAction::triggered, this, &BazaarPluginPrivate::push);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    action = new QAction(tr("Update..."), this);
+    action = new QAction(Tr::tr("Update..."), this);
     m_repositoryActionList.append(action);
     command = ActionManager::registerAction(action, UPDATE, context);
     connect(action, &QAction::triggered, this, &BazaarPluginPrivate::update);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    action = new QAction(tr("Commit..."), this);
+    action = new QAction(Tr::tr("Commit..."), this);
     m_repositoryActionList.append(action);
     command = ActionManager::registerAction(action, COMMIT, context);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+Z,Meta+C") : tr("ALT+Z,Alt+C")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Z,Meta+C") : Tr::tr("ALT+Z,Alt+C")));
     connect(action, &QAction::triggered, this, &BazaarPluginPrivate::commit);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    action = new QAction(tr("Uncommit..."), this);
+    action = new QAction(Tr::tr("Uncommit..."), this);
     m_repositoryActionList.append(action);
     command = ActionManager::registerAction(action, UNCOMMIT, context);
     connect(action, &QAction::triggered, this, &BazaarPluginPrivate::uncommit);
     m_bazaarContainer->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    auto createRepositoryAction = new QAction(tr("Create Repository..."), this);
+    auto createRepositoryAction = new QAction(Tr::tr("Create Repository..."), this);
     command = ActionManager::registerAction(createRepositoryAction, CREATE_REPOSITORY, context);
     connect(createRepositoryAction, &QAction::triggered, this, &BazaarPluginPrivate::createRepository);
     m_bazaarContainer->addAction(command);
@@ -649,7 +643,7 @@ void BazaarPluginPrivate::update()
     QTC_ASSERT(state.hasTopLevel(), return);
 
     RevertDialog dialog;
-    dialog.setWindowTitle(tr("Update"));
+    dialog.setWindowTitle(Tr::tr("Update"));
     if (dialog.exec() != QDialog::Accepted)
         return;
     m_client.update(state.topLevel(), dialog.revisionLineEdit->text());
@@ -681,7 +675,7 @@ void BazaarPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
                         this, &BazaarPluginPrivate::showCommitWidget);
 
     if (status.isEmpty()) {
-        VcsOutputWindow::appendError(tr("There are no changes to commit."));
+        VcsOutputWindow::appendError(Tr::tr("There are no changes to commit."));
         return;
     }
 
@@ -696,14 +690,14 @@ void BazaarPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
 
     IEditor *editor = EditorManager::openEditor(saver.filePath(), COMMIT_ID);
     if (!editor) {
-        VcsOutputWindow::appendError(tr("Unable to create an editor for the commit."));
+        VcsOutputWindow::appendError(Tr::tr("Unable to create an editor for the commit."));
         return;
     }
 
     auto commitEditor = qobject_cast<CommitEditor *>(editor);
 
     if (!commitEditor) {
-        VcsOutputWindow::appendError(tr("Unable to create a commit editor."));
+        VcsOutputWindow::appendError(Tr::tr("Unable to create a commit editor."));
         return;
     }
     setSubmitEditor(commitEditor);
@@ -712,7 +706,7 @@ void BazaarPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
             this, &BazaarPluginPrivate::diffFromEditorSelected);
     commitEditor->setCheckScriptWorkingDirectory(m_submitRepository);
 
-    const QString msg = tr("Commit changes for \"%1\".").arg(m_submitRepository.toUserOutput());
+    const QString msg = Tr::tr("Commit changes for \"%1\".").arg(m_submitRepository.toUserOutput());
     commitEditor->document()->setPreferredDisplayName(msg);
 
     const BranchInfo branch = m_client.synchronousBranchQuery(m_submitRepository);
@@ -876,7 +870,7 @@ void BazaarPluginPrivate::updateActions(VcsBasePluginPrivate::ActionState as)
 
 QString BazaarPluginPrivate::displayName() const
 {
-    return tr("Bazaar");
+    return Tr::tr("Bazaar");
 }
 
 Utils::Id BazaarPluginPrivate::id() const
@@ -992,5 +986,4 @@ void BazaarPluginPrivate::changed(const QVariant &v)
     }
 }
 
-} // namespace Internal
-} // namespace Bazaar
+} // Bazaar::Internal

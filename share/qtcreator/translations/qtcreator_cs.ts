@@ -29236,7 +29236,7 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarCommitPanel</name>
+    <name>Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>Obecné informace</translation>
@@ -29279,20 +29279,12 @@ Místní zápisy nejsou odevzdány do hlavní větve, dokud není proveden norm�
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CloneOptionsPanel</name>
-    <message>
-        <source>Options</source>
-        <translation>Volby</translation>
-    </message>
+    <name>Bazaar</name>
     <message>
         <source>By default, branch will fail if the target directory exists, but does not already have a control directory.
 This flag will allow branch to proceed.</source>
         <translation>Ve výchozím nastavení se větvení (branch) nepodaří, pokud existuje cílový adresář, ale ještě nemá adresář na správu verzí.
 Toto nastavení dovolí za těchto okolností v operaci pokračovat.</translation>
-    </message>
-    <message>
-        <source>Use existing directory</source>
-        <translation>Použít existující adresář</translation>
     </message>
     <message>
         <source>Create a stacked branch referring to the source branch.
@@ -29341,10 +29333,6 @@ Nová větev bude ve všech operacích závislá na dostupnosti zdrojové větve
         <translation>Bez pracovního stromu</translation>
     </message>
     <message>
-        <source>Revision:</source>
-        <translation>Revize:</translation>
-    </message>
-    <message>
         <source>Creates a stacked branch referring to the source branch.
 The new branch will depend on the availability of the source branch for all operations.</source>
         <translation>Vytvoří nastavující (stacked) větev, která nastavuje zdrojovou větev.
@@ -29368,7 +29356,7 @@ Nová větev bude ve všech operacích závislá na dostupnosti zdrojové větve
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPage</name>
+    <name>Bazaar</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -29425,13 +29413,6 @@ Nová větev bude ve všech operacích závislá na dostupnosti zdrojové větve
         <source>Prompt on submit</source>
         <translation>Ptát se na potvrzení</translation>
     </message>
-    <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::PullOrPushDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -29493,10 +29474,6 @@ Toto nastavení dovolí za těchto okolností v operaci odvedení pokračovat.</
         <translation>Vytvořit předponu</translation>
     </message>
     <message>
-        <source>Revision:</source>
-        <translation>Revize:</translation>
-    </message>
-    <message>
         <source>Perform a local pull in a bound branch.
 Local pulls are not applied to the master branch.</source>
         <translation>Provést místní přivedení (pull) ve vázané větvi.
@@ -29536,7 +29513,7 @@ Místní přivedení nejsou použita na hlavní větev.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::RevertDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Revert</source>
         <translation>Vrátit</translation>
@@ -29544,10 +29521,6 @@ Místní přivedení nejsou použita na hlavní větev.</translation>
     <message>
         <source>Specify a revision other than the default?</source>
         <translation>Chcete jinou než výchozí revizi?</translation>
-    </message>
-    <message>
-        <source>Revision:</source>
-        <translation>Revize:</translation>
     </message>
 </context>
 <context>
@@ -33573,7 +33546,7 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarDiffParameterWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Nevšímat si bílých znaků</translation>
@@ -33590,16 +33563,6 @@ Server: %2.</translation>
         <source>Ignore Blank Lines</source>
         <translation>Nevšímat si prázdných řádků</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarControl</name>
-    <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarEditor</name>
     <message>
         <source>Annotate %1</source>
         <translation>Opatřit anotacemi %1</translation>
@@ -33608,9 +33571,6 @@ Server: %2.</translation>
         <source>Annotate parent revision %1</source>
         <translation>Opatření anotacemi nadřazenou revizi &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarPlugin</name>
     <message>
         <source>Bazaar</source>
         <translation>Bazaar</translation>
@@ -33798,7 +33758,7 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CloneWizard</name>
+    <name>Bazaar</name>
     <message>
         <source>Cloning</source>
         <translation>Klonování</translation>
@@ -33817,7 +33777,7 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CloneWizardPage</name>
+    <name>Bazaar</name>
     <message>
         <source>Location</source>
         <translation>Umístění</translation>
@@ -33832,14 +33792,14 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CommitEditor</name>
+    <name>Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>Editor zápisu (commit)</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPageWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Příkaz Bazaar</translation>
@@ -42862,7 +42822,7 @@ Prověřte, prosím, oprávnění pro přístup k adresáři.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarLogParameterWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Verbose</source>
         <translation>Podrobný</translation>
@@ -61726,7 +61686,7 @@ Projekty Qt Quick 2 UI není potřeba sestavovat a lze je spouštět přímo v p
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::UnCommitDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Uncommit</source>
         <translation type="unfinished"></translation>

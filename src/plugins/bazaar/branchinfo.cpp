@@ -3,12 +3,10 @@
 
 #include "branchinfo.h"
 
-namespace Bazaar {
-namespace Internal {
+namespace Bazaar::Internal {
 
 BranchInfo::BranchInfo(const QString &branchLoc, bool isBound) : branchLocation(branchLoc),
     isBoundToBranch(isBound)
 { }
 
-} // namespace Internal
-} // namespace Bazaar
+} // Bazaar::Internal

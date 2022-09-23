@@ -3001,7 +3001,7 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarCommitPanel</name>
+    <name>Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>Generel information</translation>
@@ -3036,16 +3036,6 @@ Lokale commits pushes ikke til master-grenen inden en normal commit udføres.</t
         <source>Fixed bugs:</source>
         <translation>Rettede fejl:</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarControl</name>
-    <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarDiffConfig</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Ignorer blanktegn</translation>
@@ -3054,9 +3044,6 @@ Lokale commits pushes ikke til master-grenen inden en normal commit udføres.</t
         <source>Ignore Blank Lines</source>
         <translation>Ignorer tomme linjer</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarEditorWidget</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation>&amp;Annotate %1</translation>
@@ -3065,9 +3052,6 @@ Lokale commits pushes ikke til master-grenen inden en normal commit udføres.</t
         <source>Annotate &amp;parent revision %1</source>
         <translation>Annotate &amp;forælder revision %1</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarLogConfig</name>
     <message>
         <source>Verbose</source>
         <translation>Detaljeret</translation>
@@ -3107,13 +3091,6 @@ Lokale commits pushes ikke til master-grenen inden en normal commit udføres.</t
     <message>
         <source>GNU Change Log</source>
         <translation>GNU-ændringslog</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarPlugin</name>
-    <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
@@ -3293,14 +3270,14 @@ Lokale commits pushes ikke til master-grenen inden en normal commit udføres.</t
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CommitEditor</name>
+    <name>Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>Commit-redigering</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPage</name>
+    <name>Bazaar</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -3355,14 +3332,14 @@ Lokale commits pushes ikke til master-grenen inden en normal commit udføres.</t
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPageWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Bazaar-kommando</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::PullOrPushDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -3424,10 +3401,6 @@ Dette flag vil tillade push at fortsætte.</translation>
         <translation>Opret præfiks</translation>
     </message>
     <message>
-        <source>Revision:</source>
-        <translation>Revision:</translation>
-    </message>
-    <message>
         <source>Performs a local pull in a bound branch.
 Local pulls are not applied to the master branch.</source>
         <translation>Udfører en lokal pull på en bound gren.
@@ -3445,9 +3418,6 @@ Lokale pulls anvendes ikke på master-grenen.</translation>
         <source>Push Destination</source>
         <translation>Push destination</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>Tilbagefør</translation>
@@ -3456,13 +3426,6 @@ Lokale pulls anvendes ikke på master-grenen.</translation>
         <source>Specify a revision other than the default?</source>
         <translation>Angiv en revision anden end den som er standard?</translation>
     </message>
-    <message>
-        <source>Revision:</source>
-        <translation>Revision:</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::UnCommitDialog</name>
     <message>
         <source>Uncommit</source>
         <translation>Uncommit</translation>

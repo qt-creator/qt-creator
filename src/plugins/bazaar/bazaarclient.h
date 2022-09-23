@@ -3,19 +3,16 @@
 
 #pragma once
 
-#include "bazaarsettings.h"
 #include "branchinfo.h"
+
 #include <vcsbase/vcsbaseclient.h>
 
-namespace Bazaar {
-namespace Internal {
+namespace Bazaar::Internal {
 
 class BazaarSettings;
 
 class BazaarClient : public VcsBase::VcsBaseClient
 {
-    Q_OBJECT
-
 public:
     explicit BazaarClient(BazaarSettings *settings);
 
@@ -44,5 +41,4 @@ private:
     friend class CloneWizard;
 };
 
-} // namespace Internal
-} // namespace Bazaar
+} // Bazaar::Internal

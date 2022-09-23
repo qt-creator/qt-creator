@@ -3,10 +3,11 @@
 
 #include "pullorpushdialog.h"
 
+#include "bazaartr.h"
+
 #include <utils/qtcassert.h>
 #include <utils/layoutbuilder.h>
 
-#include <QApplication>
 #include <QCheckBox>
 #include <QDialogButtonBox>
 #include <QLabel>
@@ -20,61 +21,61 @@ PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent)
 {
     resize(477, 388);
 
-    setWindowTitle(tr("Dialog"));
+    setWindowTitle(Tr::tr("Dialog"));
 
-    m_defaultButton = new QRadioButton(tr("Default location"));
+    m_defaultButton = new QRadioButton(Tr::tr("Default location"));
     m_defaultButton->setChecked(true);
 
-    m_localButton = new QRadioButton(tr("Local filesystem:"));
+    m_localButton = new QRadioButton(Tr::tr("Local filesystem:"));
 
     m_localPathChooser = new Utils::PathChooser;
     m_localPathChooser->setEnabled(false);
 
-    auto urlButton = new QRadioButton(tr("Specify URL:"));
-    urlButton->setToolTip(tr("For example: 'https://[user[:pass]@]host[:port]/[path]'."));
+    auto urlButton = new QRadioButton(Tr::tr("Specify URL:"));
+    urlButton->setToolTip(Tr::tr("For example: 'https://[user[:pass]@]host[:port]/[path]'."));
 
     m_urlLineEdit = new QLineEdit;
     m_urlLineEdit->setEnabled(false);
-    m_urlLineEdit->setToolTip(tr("For example: 'https://[user[:pass]@]host[:port]/[path]'."));
+    m_urlLineEdit->setToolTip(Tr::tr("For example: 'https://[user[:pass]@]host[:port]/[path]'."));
 
-    m_rememberCheckBox = new QCheckBox(tr("Remember specified location as default"));
+    m_rememberCheckBox = new QCheckBox(Tr::tr("Remember specified location as default"));
     m_rememberCheckBox->setEnabled(false);
 
-    m_overwriteCheckBox = new QCheckBox(tr("Overwrite"));
-    m_overwriteCheckBox->setToolTip(tr("Ignores differences between branches and overwrites\n"
+    m_overwriteCheckBox = new QCheckBox(Tr::tr("Overwrite"));
+    m_overwriteCheckBox->setToolTip(Tr::tr("Ignores differences between branches and overwrites\n"
         "unconditionally."));
 
-    m_useExistingDirCheckBox = new QCheckBox(tr("Use existing directory"));
-    m_useExistingDirCheckBox->setToolTip(tr("By default, push will fail if the target directory "
+    m_useExistingDirCheckBox = new QCheckBox(Tr::tr("Use existing directory"));
+    m_useExistingDirCheckBox->setToolTip(Tr::tr("By default, push will fail if the target directory "
         "exists, but does not already have a control directory.\n"
         "This flag will allow push to proceed."));
 
-    m_createPrefixCheckBox = new QCheckBox(tr("Create prefix"));
-    m_createPrefixCheckBox->setToolTip(tr("Creates the path leading up to the branch "
+    m_createPrefixCheckBox = new QCheckBox(Tr::tr("Create prefix"));
+    m_createPrefixCheckBox->setToolTip(Tr::tr("Creates the path leading up to the branch "
                                           "if it does not already exist."));
 
     m_revisionLineEdit = new QLineEdit;
 
-    m_localCheckBox = new QCheckBox(tr("Local"));
-    m_localCheckBox->setToolTip(tr("Performs a local pull in a bound branch.\n"
+    m_localCheckBox = new QCheckBox(Tr::tr("Local"));
+    m_localCheckBox->setToolTip(Tr::tr("Performs a local pull in a bound branch.\n"
         "Local pulls are not applied to the master branch."));
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
     m_localPathChooser->setExpectedKind(Utils::PathChooser::Directory);
     if (m_mode == PullMode) {
-        setWindowTitle(tr("Pull Source"));
+        setWindowTitle(Tr::tr("Pull Source"));
         m_useExistingDirCheckBox->setVisible(false);
         m_createPrefixCheckBox->setVisible(false);
     } else {
-        setWindowTitle(tr("Push Destination"));
+        setWindowTitle(Tr::tr("Push Destination"));
         m_localCheckBox->setVisible(false);
     }
 
     using namespace Utils::Layouting;
     Column {
         Group {
-            title(tr("Branch Location")),
+            title(Tr::tr("Branch Location")),
             Form {
                 m_defaultButton, br,
                 m_localButton, m_localPathChooser, br,
@@ -82,14 +83,14 @@ PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent)
             }
         },
         Group {
-            title(tr("Options")),
+            title(Tr::tr("Options")),
             Column {
                 m_rememberCheckBox,
                 m_overwriteCheckBox,
                 m_localCheckBox,
                 m_useExistingDirCheckBox,
                 m_createPrefixCheckBox,
-                Row { tr("Revision:"), m_revisionLineEdit },
+                Row { Tr::tr("Revision:"), m_revisionLineEdit },
             }
         },
         buttonBox,
@@ -151,6 +152,5 @@ bool PullOrPushDialog::isCreatePrefixOptionEnabled() const
     QTC_ASSERT(m_mode == PushMode, return false);
     return m_createPrefixCheckBox->isChecked();
 }
-
 
 } // Bazaar::Internal

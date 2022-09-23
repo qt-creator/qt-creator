@@ -5,8 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Bazaar {
-namespace Internal {
+namespace Bazaar::Internal {
 
 class BazaarPlugin final : public ExtensionSystem::IPlugin
 {
@@ -29,5 +28,4 @@ private:
     class BazaarPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace Bazaar
+} // Bazaar::Internal

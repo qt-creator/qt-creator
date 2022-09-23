@@ -4,10 +4,10 @@
 #pragma once
 
 #include <vcsbase/baseannotationhighlighter.h>
+
 #include <QRegularExpression>
 
-namespace Bazaar {
-namespace Internal {
+namespace Bazaar::Internal {
 
 class BazaarAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
@@ -20,5 +20,4 @@ private:
     const QRegularExpression m_changeset;
 };
 
-} // namespace Internal
-} // namespace Bazaar
+} // Bazaar::Internal

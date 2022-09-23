@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "bazaarclient.h"
+
+#include "bazaarsettings.h"
+#include "bazaartr.h"
 #include "constants.h"
 
 #include <vcsbase/vcsbaseplugin.h>
@@ -20,20 +23,18 @@
 using namespace Utils;
 using namespace VcsBase;
 
-namespace Bazaar {
-namespace Internal {
+namespace Bazaar::Internal {
 
 // Parameter widget controlling whitespace diff mode, associated with a parameter
 class BazaarDiffConfig : public VcsBaseEditorConfig
 {
-    Q_OBJECT
 public:
     BazaarDiffConfig(BazaarSettings &settings, QToolBar *toolBar) :
         VcsBaseEditorConfig(toolBar)
     {
-        mapSetting(addToggleButton("-w", tr("Ignore Whitespace")),
+        mapSetting(addToggleButton("-w", Tr::tr("Ignore Whitespace")),
                    &settings.diffIgnoreWhiteSpace);
-        mapSetting(addToggleButton("-B", tr("Ignore Blank Lines")),
+        mapSetting(addToggleButton("-B", Tr::tr("Ignore Blank Lines")),
                    &settings.diffIgnoreBlankLines);
     }
 
@@ -52,28 +53,27 @@ public:
 
 class BazaarLogConfig : public VcsBaseEditorConfig
 {
-    Q_OBJECT
 public:
     BazaarLogConfig(BazaarSettings &settings, QToolBar *toolBar) :
         VcsBaseEditorConfig(toolBar)
     {
-        mapSetting(addToggleButton("--verbose", tr("Verbose"),
-                                   tr("Show files changed in each revision.")),
+        mapSetting(addToggleButton("--verbose", Tr::tr("Verbose"),
+                                   Tr::tr("Show files changed in each revision.")),
                    &settings.logVerbose);
-        mapSetting(addToggleButton("--forward", tr("Forward"),
-                                   tr("Show from oldest to newest.")),
+        mapSetting(addToggleButton("--forward", Tr::tr("Forward"),
+                                   Tr::tr("Show from oldest to newest.")),
                    &settings.logForward);
-        mapSetting(addToggleButton("--include-merges", tr("Include Merges"),
-                                   tr("Show merged revisions.")),
+        mapSetting(addToggleButton("--include-merges", Tr::tr("Include Merges"),
+                                   Tr::tr("Show merged revisions.")),
                    &settings.logIncludeMerges);
 
         const QList<ChoiceItem> logChoices = {
-            {tr("Detailed"), "long"},
-            {tr("Moderately Short"), "short"},
-            {tr("One Line"), "line"},
-            {tr("GNU Change Log"), "gnu-changelog"}
+            {Tr::tr("Detailed"), "long"},
+            {Tr::tr("Moderately Short"), "short"},
+            {Tr::tr("One Line"), "line"},
+            {Tr::tr("GNU Change Log"), "gnu-changelog"}
         };
-        mapSetting(addChoices(tr("Format"), { "--log-format=%1" }, logChoices),
+        mapSetting(addChoices(Tr::tr("Format"), { "--log-format=%1" }, logChoices),
                    &settings.logFormat);
     }
 };
@@ -267,7 +267,4 @@ BazaarClient::StatusItem BazaarClient::parseStatusLine(const QString &line) cons
     return item;
 }
 
-} // namespace Internal
-} // namespace Bazaar
-
-#include "bazaarclient.moc"
+} // namespace Bazaar::Internal

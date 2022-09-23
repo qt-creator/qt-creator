@@ -7,13 +7,10 @@
 
 #include <vcsbase/vcsbaseclientsettings.h>
 
-namespace Bazaar {
-namespace Internal {
+namespace Bazaar::Internal {
 
 class BazaarSettings final : public VcsBase::VcsBaseSettings
 {
-    Q_DECLARE_TR_FUNCTIONS(Bazaar::Internal::BazaarSettings)
-
 public:
     BazaarSettings();
 
@@ -31,5 +28,4 @@ public:
     explicit BazaarSettingsPage(BazaarSettings *settings);
 };
 
-} // namespace Internal
-} // namespace Bazaar
+} // Bazaar::Internal

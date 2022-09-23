@@ -18338,7 +18338,7 @@ Please check the directory&apos;s access rights.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarCommitPanel</name>
+    <name>Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>一般資訊</translation>
@@ -18375,15 +18375,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CloneOptionsPanel</name>
-    <message>
-        <source>Options</source>
-        <translation>選項</translation>
-    </message>
-    <message>
-        <source>Use existing directory</source>
-        <translation>使用現有的目錄</translation>
-    </message>
+    <name>Bazaar</name>
     <message>
         <source>Stacked</source>
         <translation>已堆疊</translation>
@@ -18407,10 +18399,6 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     <message>
         <source>No working-tree</source>
         <translation>沒有工作樹</translation>
-    </message>
-    <message>
-        <source>Revision:</source>
-        <translation>版本：</translation>
     </message>
     <message>
         <source>By default, branch will fail if the target directory exists, but does not already have a control directory.
@@ -18442,7 +18430,7 @@ The new branch will depend on the availability of the source branch for all oper
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPage</name>
+    <name>Bazaar</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -18496,16 +18484,12 @@ The new branch will depend on the availability of the source branch for all oper
         <translation>提交時彈出提示</translation>
     </message>
     <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
-    <message>
         <source>The number of recent commit logs to show. Choose 0 to see all entries.</source>
         <translation>要顯示的最近提交的紀錄數。選擇 0 表示看全部的紀錄。</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::PullOrPushDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Dialog</source>
         <translation>對話框</translation>
@@ -18547,10 +18531,6 @@ The new branch will depend on the availability of the source branch for all oper
         <translation>建立前置字串</translation>
     </message>
     <message>
-        <source>Revision:</source>
-        <translation>版本：</translation>
-    </message>
-    <message>
         <source>Local</source>
         <translation>本地</translation>
     </message>
@@ -18589,7 +18569,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::RevertDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Revert</source>
         <translation>還原</translation>
@@ -19244,14 +19224,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarControl</name>
-    <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarEditor</name>
+    <name>Bazaar</name>
     <message>
         <source>Annotate %1</source>
         <translation>最後註記 %1</translation>
@@ -19260,9 +19233,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Annotate parent revision %1</source>
         <translation>父版本 %1 最後註記</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarPlugin</name>
     <message>
         <source>Bazaar</source>
         <translation>Bazaar</translation>
@@ -19445,7 +19415,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CloneWizard</name>
+    <name>Bazaar</name>
     <message>
         <source>Clones a Bazaar branch and tries to load the contained project.</source>
         <translation>複製一個 Bazaar 分支，並試著載入裡面包含的專案。</translation>
@@ -19456,7 +19426,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CloneWizardPage</name>
+    <name>Bazaar</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -19471,14 +19441,14 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CommitEditor</name>
+    <name>Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>提交編輯器</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPageWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Bazaar 指令</translation>
@@ -22726,7 +22696,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarDiffParameterWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
@@ -25327,7 +25297,7 @@ To compile QML Observer, go to the Qt Versions page, select the current Qt versi
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarLogParameterWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Verbose</source>
         <translation>詳細</translation>

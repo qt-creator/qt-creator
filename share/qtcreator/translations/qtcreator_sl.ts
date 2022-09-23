@@ -18660,7 +18660,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarCommitPanel</name>
+    <name>Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>Splošni podatki</translation>
@@ -18704,22 +18704,13 @@ Krajevnih zapisov se v vejo »master« ne potisne dokler ni izvršen običajen z
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CloneOptionsPanel</name>
-    <message>
-        <source>Options</source>
-        <translation>Možnosti</translation>
-    </message>
+    <name>Bazaar</name>
     <message>
         <location/>
         <source>By default, branch will fail if the target directory exists, but does not already have a control directory.
 This flag will allow branch to proceed.</source>
         <translation>Če ciljna mapa obstaja in ne vsebuje nadzorne mape, ustvarjanje veje privzeto ne bo uspelo.
 Ta možnost omogoči, da se ustvarjanje veje nadaljuje.</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Use existing directory</source>
-        <translation>Uporabi obstoječo mapo</translation>
     </message>
     <message>
         <location/>
@@ -18778,14 +18769,6 @@ Nova veja bo za vsa dejanja odvisna od razpoložljivosti izvorne veje.</translat
         <source>No working-tree</source>
         <translation>Brez delovnega drevesa</translation>
     </message>
-    <message>
-        <location/>
-        <source>Revision:</source>
-        <translation>Različica:</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -18855,13 +18838,6 @@ Nova veja bo za vsa dejanja odvisna od razpoložljivosti izvorne veje.</translat
         <source>Prompt on submit</source>
         <translation>Vprašaj ob pošiljanju</translation>
     </message>
-    <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::PullOrPushDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -18961,7 +18937,7 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::RevertDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Revert</source>
         <translation>Povrnitev</translation>
@@ -18970,11 +18946,6 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
         <location/>
         <source>Specify a revision other than the default?</source>
         <translation>Ali ste poskusili navesti različico, ki je različna od privzete?</translation>
-    </message>
-    <message>
-        <location/>
-        <source>Revision:</source>
-        <translation>Različica:</translation>
     </message>
 </context>
 <context>
@@ -22862,7 +22833,7 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarDiffParameterWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Prezri presledke</translation>
@@ -22871,16 +22842,6 @@ Seznam za strežnik je: %2.</translation>
         <source>Ignore blank lines</source>
         <translation>Prezri prazne vrstice</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarControl</name>
-    <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarEditor</name>
     <message>
         <source>Annotate %1</source>
         <translation>Dodaj opombo za %1</translation>
@@ -22889,9 +22850,6 @@ Seznam za strežnik je: %2.</translation>
         <source>Annotate parent revision %1</source>
         <translation>Dodaj opombo za starševsko različico %1</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarPlugin</name>
     <message>
         <source>Bazaar</source>
         <translation>Bazaar</translation>
@@ -23058,7 +23016,7 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CloneWizard</name>
+    <name>Bazaar</name>
     <message>
         <source>Clones a Bazaar branch and tries to load the contained project.</source>
         <translation>Sklonira vejo Bazaar in poskusi naložiti vsebovani projekt.</translation>
@@ -23069,7 +23027,7 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CloneWizardPage</name>
+    <name>Bazaar</name>
     <message>
         <source>Location</source>
         <translation>Mesto</translation>
@@ -23084,14 +23042,14 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CommitEditor</name>
+    <name>Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>Urejevalnik zapisov</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPageWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Ukaz Bazaar</translation>

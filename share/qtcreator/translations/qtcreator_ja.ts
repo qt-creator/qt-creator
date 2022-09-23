@@ -897,7 +897,7 @@
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarCommitPanel</name>
+    <name>Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>概要</translation>
@@ -934,7 +934,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPage</name>
+    <name>Bazaar</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -988,13 +988,6 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <translation>秒</translation>
     </message>
     <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::PullOrPushDialog</name>
-    <message>
         <source>Dialog</source>
         <translation>ダイアログ</translation>
     </message>
@@ -1041,10 +1034,6 @@ This flag will allow push to proceed.</source>
         <translation>プレフィックスを作成する</translation>
     </message>
     <message>
-        <source>Revision:</source>
-        <translation>リビジョン:</translation>
-    </message>
-    <message>
         <source>Local</source>
         <translation>ローカルで実行する</translation>
     </message>
@@ -1077,7 +1066,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::RevertDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Revert</source>
         <translation>元に戻す</translation>
@@ -1085,10 +1074,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Specify a revision other than the default?</source>
         <translation>既定以外のリビジョンを指定しますか？</translation>
-    </message>
-    <message>
-        <source>Revision:</source>
-        <translation>リビジョン:</translation>
     </message>
 </context>
 <context>
@@ -12616,7 +12601,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarDiffParameterWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>空白を無視</translation>
@@ -12624,63 +12609,6 @@ in the system&apos;s browser for manual download.</source>
     <message>
         <source>Ignore Blank Lines</source>
         <translation>空行を無視</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarLogParameterWidget</name>
-    <message>
-        <source>Verbose</source>
-        <translation>冗長表示</translation>
-    </message>
-    <message>
-        <source>Show files changed in each revision.</source>
-        <translation>各リビジョンで変更されたファイルを表示します。</translation>
-    </message>
-    <message>
-        <source>Forward</source>
-        <translation>時系列順</translation>
-    </message>
-    <message>
-        <source>Show from oldest to newest.</source>
-        <translation>古いリビジョンから開始して最新のリビジョンを最後に表示します。</translation>
-    </message>
-    <message>
-        <source>Include Merges</source>
-        <translation>マージ込み</translation>
-    </message>
-    <message>
-        <source>Show merged revisions.</source>
-        <translation>マージされたリビジョンを表示します。</translation>
-    </message>
-    <message>
-        <source>Detailed</source>
-        <translation>詳細形式</translation>
-    </message>
-    <message>
-        <source>Moderately Short</source>
-        <translation>概略表示</translation>
-    </message>
-    <message>
-        <source>One Line</source>
-        <translation>一行表示</translation>
-    </message>
-    <message>
-        <source>GNU Change Log</source>
-        <translation>GNU形式</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarControl</name>
-    <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarPlugin</name>
-    <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
@@ -12860,7 +12788,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CommitEditor</name>
+    <name>Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>コミットエディタ</translation>
@@ -13002,7 +12930,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPageWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Bazaar コマンド</translation>
@@ -34150,7 +34078,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::UnCommitDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Uncommit</source>
         <translation>コミットの取り消し</translation>
@@ -39168,7 +39096,7 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarEditorWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation>%1 のアノテーション(&amp;A)</translation>
@@ -49402,18 +49330,7 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarDiffConfig</name>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>空白を無視</translation>
-    </message>
-    <message>
-        <source>Ignore Blank Lines</source>
-        <translation>空行を無視</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarLogConfig</name>
+    <name>Bazaar</name>
     <message>
         <source>Verbose</source>
         <translation>冗長表示</translation>

@@ -14144,7 +14144,7 @@ Adds the library and include paths to the .pro file.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarCommitPanel</name>
+    <name>Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>Ogólne informacje</translation>
@@ -14181,7 +14181,7 @@ Poprawki utworzone lokalnie nie są wrzucane do głównej gałęzi, dopóki nie 
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPage</name>
+    <name>Bazaar</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -14231,16 +14231,9 @@ Poprawki utworzone lokalnie nie są wrzucane do głównej gałęzi, dopóki nie 
         <translation>s</translation>
     </message>
     <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
-    <message>
         <source>The number of recent commit logs to show. Choose 0 to see all entries.</source>
         <translation>Liczba ostatnich poprawek, wyświetlanych w logu. Wybierz 0 aby ujrzeć wszystkie zmiany.</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::PullOrPushDialog</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -14282,10 +14275,6 @@ Poprawki utworzone lokalnie nie są wrzucane do głównej gałęzi, dopóki nie 
         <translation>Utwórz przedrostek</translation>
     </message>
     <message>
-        <source>Revision:</source>
-        <translation>Wersja:</translation>
-    </message>
-    <message>
         <source>Local</source>
         <translation>Lokalnie</translation>
     </message>
@@ -14322,7 +14311,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::RevertDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Revert</source>
         <translation>Odwróć zmiany</translation>
@@ -14330,10 +14319,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Specify a revision other than the default?</source>
         <translation>Podaj inną wersję niż domyślna</translation>
-    </message>
-    <message>
-        <source>Revision:</source>
-        <translation>Wersja:</translation>
     </message>
 </context>
 <context>
@@ -14859,14 +14844,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarControl</name>
-    <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarPlugin</name>
+    <name>Bazaar</name>
     <message>
         <source>Bazaar</source>
         <translation>Bazaar</translation>
@@ -15049,14 +15027,14 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CommitEditor</name>
+    <name>Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>Edytor poprawek</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPageWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Komenda Bazaar</translation>
@@ -28549,7 +28527,7 @@ Proszę zamknąć wszystkie instancje tej aplikacji przed uruchomieniem budowani
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::UnCommitDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Uncommit</source>
         <translation>Wycofaj poprawkę</translation>
@@ -30627,7 +30605,7 @@ Zainstaluj SDK o wersji %1 lub wyższej.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarEditorWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation>Dołącz &amp;adnotację do %1</translation>
@@ -41924,7 +41902,7 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarDiffConfig</name>
+    <name>Bazaar</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Ignoruj białe znaki</translation>
@@ -41933,9 +41911,6 @@ Błąd: %2</translation>
         <source>Ignore Blank Lines</source>
         <translation>Ignoruj puste linie</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarLogConfig</name>
     <message>
         <source>Verbose</source>
         <translation>Gadatliwy</translation>

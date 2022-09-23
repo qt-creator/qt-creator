@@ -1396,7 +1396,7 @@ Upozorenje: ovo je eksperimentalna funkcija i može dovesti do neuspjeha izvrša
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarCommitPanel</name>
+    <name>Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>Opće informacije</translation>
@@ -1433,7 +1433,7 @@ Lokalne obveze se ne guraju u glavnu granu sve dok se ne izvrši normalna obveza
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPage</name>
+    <name>Bazaar</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -1482,13 +1482,9 @@ Lokalne obveze se ne guraju u glavnu granu sve dok se ne izvrši normalna obveza
         <source>s</source>
         <translation>s</translation>
     </message>
-    <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
 </context>
 <context>
-    <name>Bazaar::Internal::PullOrPushDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Dialog</source>
         <translation>Dijalog</translation>
@@ -1550,10 +1546,6 @@ Ova oznaka će omogućiti nastavak guranja.</translation>
         <translation>Stvori predznak</translation>
     </message>
     <message>
-        <source>Revision:</source>
-        <translation>Revizija:</translation>
-    </message>
-    <message>
         <source>Performs a local pull in a bound branch.
 Local pulls are not applied to the master branch.</source>
         <translation>Izvodi lokalno povlačenje u ograničenoj grani.
@@ -1571,9 +1563,6 @@ Lokalne povlačenja se ne primjenjuju na glavnu granu.</translation>
         <source>Push Destination</source>
         <translation>Odredište za guranje</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::RevertDialog</name>
     <message>
         <source>Revert</source>
         <translation>Vrati na izvorno</translation>
@@ -1582,13 +1571,6 @@ Lokalne povlačenja se ne primjenjuju na glavnu granu.</translation>
         <source>Specify a revision other than the default?</source>
         <translation>Odrediti jednu drugu reviziju od zadane?</translation>
     </message>
-    <message>
-        <source>Revision:</source>
-        <translation>Revizija:</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::UnCommitDialog</name>
     <message>
         <source>Uncommit</source>
         <translation>Ukini obvezu</translation>
@@ -16028,7 +16010,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarDiffConfig</name>
+    <name>Bazaar</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Zanemari razmake</translation>
@@ -16039,7 +16021,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarLogConfig</name>
+    <name>Bazaar</name>
     <message>
         <source>Verbose</source>
         <translation>Verbalno</translation>
@@ -16080,16 +16062,6 @@ Check the test environment.</source>
         <source>GNU Change Log</source>
         <translation>Log-zapis GNU promjene</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarControl</name>
-    <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarEditorWidget</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation>Pri&amp;bilježi %1</translation>
@@ -16223,7 +16195,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarPlugin</name>
+    <name>Bazaar</name>
     <message>
         <source>Bazaar</source>
         <translation>Bazaar</translation>
@@ -16378,14 +16350,14 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CommitEditor</name>
+    <name>Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPageWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Bazaar naredba</translation>

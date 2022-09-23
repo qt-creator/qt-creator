@@ -6,8 +6,7 @@
 
 #include <QRegularExpression>
 
-using namespace Bazaar::Internal;
-using namespace Bazaar;
+namespace Bazaar::Internal {
 
 BazaarAnnotationHighlighter::BazaarAnnotationHighlighter(const ChangeNumbers &changeNumbers,
                                                          QTextDocument *document)
@@ -22,3 +21,5 @@ QString BazaarAnnotationHighlighter::changeNumber(const QString &block) const
         return match.captured(1);
     return QString();
 }
+
+} // Bazaar::Internal

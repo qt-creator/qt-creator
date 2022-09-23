@@ -344,7 +344,7 @@
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarCommitPanel</name>
+    <name>Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>Загальна інформація</translation>
@@ -378,16 +378,6 @@
 Local commits are not pushed to the master branch until a normal commit is performed.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarControl</name>
-    <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarDiffParameterWidget</name>
     <message>
         <source>Ignore whitespace</source>
         <translation type="vanished">Ігнорувати пропуски</translation>
@@ -404,9 +394,6 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <source>Ignore Blank Lines</source>
         <translation>Ігнорувати порожні рядки</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarLogParameterWidget</name>
     <message>
         <source>Verbose</source>
         <translation>Детально</translation>
@@ -462,13 +449,6 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     <message>
         <source>GNU ChangeLog</source>
         <translation type="vanished">GNU ChangeLog</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarPlugin</name>
-    <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
     </message>
     <message>
         <source>Annotate Current File</source>
@@ -619,10 +599,6 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <translation>&amp;Зміни у вибраних файлах</translation>
     </message>
     <message>
-        <source>Clones a Bazaar branch and tries to load the contained project.</source>
-        <translation type="vanished">Клонує гілку Bazaar та намагається завантажити з нього проект.</translation>
-    </message>
-    <message>
         <source>There are no changes to commit.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -650,24 +626,6 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <source>Message check failed. Do you want to proceed?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::CloneOptionsPanel</name>
-    <message>
-        <source>Options</source>
-        <translation type="vanished">Опції</translation>
-    </message>
-    <message>
-        <source>Use existing directory</source>
-        <translation type="vanished">Використовувати існуючу теку</translation>
-    </message>
-    <message>
-        <source>Revision:</source>
-        <translation type="vanished">Ревізія:</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::CloneWizard</name>
     <message>
         <source>Cloning</source>
         <translation type="vanished">Клонування</translation>
@@ -677,26 +635,13 @@ Local commits are not pushed to the master branch until a normal commit is perfo
         <translation type="vanished">Клонування почалось...</translation>
     </message>
     <message>
-        <source>Clones a Bazaar branch and tries to load the contained project.</source>
-        <translation type="vanished">Клонує гілку Bazaar та намагається завантажити з нього проект.</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::CloneWizardPage</name>
-    <message>
         <source>Location</source>
         <translation type="vanished">Розташування</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::CommitEditor</name>
     <message>
         <source>Commit Editor</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::OptionsPage</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
@@ -755,14 +700,14 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPageWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Команда Bazaar</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::PullOrPushDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Dialog</source>
         <translation>Діалог</translation>
@@ -802,10 +747,6 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     <message>
         <source>Create prefix</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Revision:</source>
-        <translation>Ревізія:</translation>
     </message>
     <message>
         <source>Local</source>
@@ -854,7 +795,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::RevertDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Revert</source>
         <translation type="unfinished"></translation>
@@ -862,10 +803,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Specify a revision other than the default?</source>
         <translation>Вказати ревізію відмінну від типової?</translation>
-    </message>
-    <message>
-        <source>Revision:</source>
-        <translation>Ревізія:</translation>
     </message>
 </context>
 <context>
@@ -40474,7 +40411,7 @@ Please close all running instances of your application before starting a build.<
     <name>QbsProjectManager</name>
 </context>
 <context>
-    <name>Bazaar::Internal::UnCommitDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Uncommit</source>
         <translation type="unfinished"></translation>
@@ -42937,7 +42874,7 @@ Install an SDK of at least API version %1.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CloneWizardFactory</name>
+    <name>Bazaar</name>
     <message>
         <source>Clones a Bazaar branch and tries to load the contained project.</source>
         <translation type="vanished">Клонує гілку Bazaar та намагається завантажити з нього проект.</translation>
@@ -48080,7 +48017,7 @@ Affected are breakpoints %1</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarEditorWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation type="unfinished"></translation>

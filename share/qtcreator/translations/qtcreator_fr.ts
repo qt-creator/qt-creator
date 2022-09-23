@@ -32495,7 +32495,7 @@ Veuillez vérifier les droits d&apos;accès du répertoire.</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarCommitPanel</name>
+    <name>Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>Informations générales</translation>
@@ -32538,19 +32538,11 @@ Les commits locaux ne sont pas transmis à la branche principale avant qu&apos;u
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CloneOptionsPanel</name>
-    <message>
-        <source>Options</source>
-        <translation>Options</translation>
-    </message>
+    <name>Bazaar</name>
     <message>
         <source>By default, branch will fail if the target directory exists, but does not already have a control directory.
 This flag will allow branch to proceed</source>
         <translation type="obsolete">Par défaut, la branche va échouer si le répertoire cible existe, mais n&apos;a pas déjà de répertoire de contrôle. Ce drapeau autorisera la branche à procéder</translation>
-    </message>
-    <message>
-        <source>Use existing directory</source>
-        <translation>Utiliser le répertoire existant</translation>
     </message>
     <message>
         <source>Create a stacked branch referring to the source branch.
@@ -32598,10 +32590,6 @@ The new branch will depend on the availability of the source branch for all oper
         <translation>Pas d&apos;arbre de travail</translation>
     </message>
     <message>
-        <source>Revision:</source>
-        <translation>Révision :</translation>
-    </message>
-    <message>
         <source>By default, branch will fail if the target directory exists, but does not already have a control directory.
 This flag will allow branch to proceed.</source>
         <translation>Par défaut, la branche va échouer si le répertoire cible existe, mais n&apos;a pas déjà de répertoire de contrôle. 
@@ -32631,7 +32619,7 @@ La nouvelle branche dépendra de la disponibilité de la branche source pour tou
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPage</name>
+    <name>Bazaar</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -32689,16 +32677,12 @@ La nouvelle branche dépendra de la disponibilité de la branche source pour tou
         <translation>Invite lors du submit</translation>
     </message>
     <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
-    <message>
         <source>The number of recent commit logs to show. Choose 0 to see all entries.</source>
         <translation>Le nombre de logs de commit récents à afficher, 0 pour tout afficher. </translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::PullOrPushDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Dialog</source>
         <translation>Boîte de dialogue</translation>
@@ -32759,10 +32743,6 @@ Ce drapeau autorisera le push à procéder</translation>
         <translation>Créer le préfixe</translation>
     </message>
     <message>
-        <source>Revision:</source>
-        <translation>Révision :</translation>
-    </message>
-    <message>
         <source>Perform a local pull in a bound branch.
 Local pulls are not applied to the master branch</source>
         <translation type="obsolete">Réalise un pull locale dans une branche limité. 
@@ -32808,7 +32788,7 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::RevertDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Revert</source>
         <translation>Rétablir</translation>
@@ -34728,16 +34708,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <source> (External)</source>
         <translation> (externe)</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarControl</name>
-    <message>
-        <source>Bazaar</source>
-        <translation>Bazaar</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarEditor</name>
     <message>
         <source>Annotate %1</source>
         <translation>Annoter %1</translation>
@@ -34746,9 +34716,6 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
         <source>Annotate parent revision %1</source>
         <translation>Annoter la révision parente %1</translation>
     </message>
-</context>
-<context>
-    <name>Bazaar::Internal::BazaarPlugin</name>
     <message>
         <source>Bazaar</source>
         <translation>Bazaar</translation>
@@ -34935,7 +34902,7 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CloneWizard</name>
+    <name>Bazaar</name>
     <message>
         <source>Cloning</source>
         <translation>Cloner</translation>
@@ -34954,7 +34921,7 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CloneWizardPage</name>
+    <name>Bazaar</name>
     <message>
         <source>Location</source>
         <translation>Emplacement</translation>
@@ -34969,14 +34936,14 @@ Specifie comment retour arrière se comporte avec l&apos;indentation.
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CommitEditor</name>
+    <name>Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>Faire un commit de l&apos;éditeur</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPageWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Commande Bazaar</translation>
@@ -39843,7 +39810,7 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarDiffParameterWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Ignorer les espaces</translation>
@@ -43007,7 +42974,7 @@ Pour compiler l&apos;observateur QML, allez à la page des versions de Qt, séle
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarLogParameterWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Verbose</source>
         <translation>Journal</translation>

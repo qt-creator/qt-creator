@@ -4677,7 +4677,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarCommitPanel</name>
+    <name>Bazaar</name>
     <message>
         <source>General Information</source>
         <translation>Основная информация</translation>
@@ -4714,7 +4714,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarDiffConfig</name>
+    <name>Bazaar</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Игнорировать пробелы</translation>
@@ -4725,7 +4725,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarEditorWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>&amp;Annotate %1</source>
         <translation>&amp;Аннотация %1</translation>
@@ -4736,7 +4736,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarLogConfig</name>
+    <name>Bazaar</name>
     <message>
         <source>Verbose</source>
         <translation>Подробно</translation>
@@ -4783,11 +4783,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::BazaarPlugin</name>
-    <message>
-        <source>Bazaar</source>
-        <translation></translation>
-    </message>
+    <name>Bazaar</name>
     <message>
         <source>Annotate Current File</source>
         <translation>Аннотация текущего файла (annotate)</translation>
@@ -4938,14 +4934,14 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::CommitEditor</name>
+    <name>Bazaar</name>
     <message>
         <source>Commit Editor</source>
         <translation>Редактор фиксаций</translation>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPage</name>
+    <name>Bazaar</name>
     <message>
         <source>Configuration</source>
         <translation>Настройка</translation>
@@ -4997,7 +4993,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::OptionsPageWidget</name>
+    <name>Bazaar</name>
     <message>
         <source>Bazaar Command</source>
         <translation>Команда Bazaar</translation>
@@ -5008,7 +5004,7 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::PullOrPushDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Dialog</source>
         <translation></translation>
@@ -5032,10 +5028,6 @@ Local commits are not pushed to the master branch until a normal commit is perfo
     <message>
         <source>Create prefix</source>
         <translation>Создавать родительские каталоги</translation>
-    </message>
-    <message>
-        <source>Revision:</source>
-        <translation>Ревизия:</translation>
     </message>
     <message>
         <source>Local</source>
@@ -5094,7 +5086,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Bazaar::Internal::RevertDialog</name>
+    <name>Bazaar</name>
     <message>
         <source>Revert</source>
         <translation>Откатить</translation>
@@ -5103,13 +5095,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Specify a revision other than the default?</source>
         <translation>Указать ревизию отличную от умолчальной?</translation>
     </message>
-    <message>
-        <source>Revision:</source>
-        <translation>Ревизия:</translation>
-    </message>
-</context>
-<context>
-    <name>Bazaar::Internal::UnCommitDialog</name>
     <message>
         <source>Uncommit</source>
         <translation>Отмена фиксации</translation>

@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "commiteditor.h"
-#include "branchinfo.h"
+
+#include "bazaartr.h"
 #include "bazaarcommitwidget.h"
+#include "branchinfo.h"
 #include "constants.h"
 
 #include <coreplugin/idocument.h>
@@ -11,12 +13,12 @@
 
 #include <QDebug>
 
-using namespace Bazaar::Internal;
+namespace Bazaar::Internal {
 
 CommitEditor::CommitEditor() :
     VcsBase::VcsBaseSubmitEditor(new BazaarCommitWidget)
 {
-    document()->setPreferredDisplayName(tr("Commit Editor"));
+    document()->setPreferredDisplayName(Tr::tr("Commit Editor"));
 }
 
 BazaarCommitWidget *CommitEditor::commitWidget()
@@ -36,9 +38,7 @@ void CommitEditor::setFields(const QString &repositoryRoot,
 
     m_fileModel = new VcsBase::SubmitFileModel(this);
     m_fileModel->setRepositoryRoot(repositoryRoot);
-    m_fileModel->setFileStatusQualifier([](const QString &status, const QVariant &)
-                                           -> VcsBase::SubmitFileModel::FileStatusHint
-    {
+    m_fileModel->setFileStatusQualifier([](const QString &status, const QVariant &) {
         if (status == QLatin1String(Constants::FSTATUS_CREATED))
             return VcsBase::SubmitFileModel::FileAdded;
         if (status == QLatin1String(Constants::FSTATUS_MODIFIED))
@@ -55,3 +55,5 @@ void CommitEditor::setFields(const QString &repositoryRoot,
             m_fileModel->addFile(item.file, item.flags);
     setFileModel(m_fileModel);
 }
+
+} // Bazaar::Internal
