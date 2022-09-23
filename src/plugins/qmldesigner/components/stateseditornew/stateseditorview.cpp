@@ -719,7 +719,7 @@ void StatesEditorView::propertiesRemoved(const QList<AbstractProperty>& property
     for (const AbstractProperty &property : propertyList) {
         if (property.name() == "states" && property.parentModelNode() == activeStateGroup().modelNode())
             resetModel();
-        if (property.name() == "when"
+        if ((property.name() == "when" || property.name() == "name")
             && QmlModelState::isValidQmlModelState(property.parentModelNode()))
             resetModel();
         if (property.name() == "extend")
@@ -847,7 +847,8 @@ void StatesEditorView::variantPropertiesChanged(const QList<VariantProperty> &pr
     auto guard = qScopeGuard([&]() { m_block = false; });
 
     for (const VariantProperty &property : propertyList) {
-        if (property.name() == "name" && QmlModelState::isValidQmlModelState(property.parentModelNode()))
+        if (property.name() == "name"
+            && QmlModelState::isValidQmlModelState(property.parentModelNode()))
             resetModel();
         else if (property.name() == "state"
                  && property.parentModelNode() == activeStateGroup().modelNode())
