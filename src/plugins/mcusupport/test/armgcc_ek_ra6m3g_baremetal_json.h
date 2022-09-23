@@ -25,15 +25,6 @@ constexpr auto armgcc_ek_ra6m3g_baremetal_json = R"(
                     "unix": "/opt/SEGGER/JLink"
                 },
                 "optional": true
-            },
-            {
-                "cmakeVar": "EK_RA6M3G_E2_PROJECT_PATH",
-                "defaultValue": "%{Env:HOME}/e2_studio/workspace/",
-                "id": "EK_RA6M3G_E2_PROJECT_PATH",
-                "label": "Path to project for Renesas e2 Studio",
-                "optional": true,
-                "setting": "RenesasE2ProjectPath",
-                "type": "path"
             }
         ]
     },
