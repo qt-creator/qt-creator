@@ -272,7 +272,7 @@ QString FilePath::fileNameWithPathComponents(int pathComponents) const
         return fullPath.mid(component);
 
     // If there are no more slashes before the found one, return the entire string
-    return displayName();
+    return toString();
 }
 
 /// \returns the base name of the file without the path.
