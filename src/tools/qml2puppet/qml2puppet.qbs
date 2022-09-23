@@ -105,7 +105,6 @@ QtcTool {
             "commands/reparentinstancescommand.h",
             "commands/statepreviewimagechangedcommand.cpp",
             "commands/statepreviewimagechangedcommand.h",
-            "commands/synchronizecommand.cpp",
             "commands/synchronizecommand.h",
             "commands/changepreviewimagesizecommand.cpp",
             "commands/changepreviewimagesizecommand.h",
