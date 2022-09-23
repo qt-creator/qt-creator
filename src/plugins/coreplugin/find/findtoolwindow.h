@@ -3,17 +3,21 @@
 
 #pragma once
 
-#include "ui_finddialog.h"
-#include "findplugin.h"
-
 #include <QList>
+#include <QWidget>
 
-QT_FORWARD_DECLARE_CLASS(QCompleter)
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QComboBox;
+class QCompleter;
+class QLabel;
+class QPushButton;
+QT_END_NAMESPACE
 
-namespace Core {
-class IFindFilter;
+namespace Core { class IFindFilter; }
+namespace Utils { class FancyLineEdit; }
 
-namespace Internal {
+namespace Core::Internal {
 
 class FindToolWindow : public QWidget
 {
@@ -47,13 +51,22 @@ private:
 
     void acceptAndGetParameters(QString *term, IFindFilter **filter);
 
-    Ui::FindDialog m_ui;
     QList<IFindFilter *> m_filters;
     QCompleter *m_findCompleter;
     QWidgetList m_configWidgets;
     IFindFilter *m_currentFilter;
     QWidget *m_configWidget;
+
+    QWidget *m_uiConfigWidget;
+    QPushButton *m_searchButton;
+    QPushButton *m_replaceButton;
+    QLabel *m_searchLabel;
+    QComboBox *m_filterList;
+    QWidget *m_optionsWidget;
+    QCheckBox *m_matchCase;
+    QCheckBox *m_wholeWords;
+    QCheckBox *m_regExp;
+    Utils::FancyLineEdit *m_searchTerm;
 };
 
-} // namespace Internal
-} // namespace Core
+} // Core::Internal

@@ -294,7 +294,6 @@ Project {
                 "currentdocumentfind.cpp",
                 "currentdocumentfind.h",
                 "find.qrc",
-                "finddialog.ui",
                 "findplugin.cpp",
                 "findplugin.h",
                 "findtoolbar.cpp",

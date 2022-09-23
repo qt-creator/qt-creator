@@ -64,7 +64,6 @@ add_qtc_plugin(Core
     find/basetextfind.cpp find/basetextfind.h
     find/currentdocumentfind.cpp find/currentdocumentfind.h
     find/find.qrc
-    find/finddialog.ui
     find/findplugin.cpp find/findplugin.h
     find/findtoolbar.cpp find/findtoolbar.h
     find/findtoolwindow.cpp find/findtoolwindow.h
