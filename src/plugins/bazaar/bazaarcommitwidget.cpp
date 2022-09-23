@@ -6,14 +6,18 @@
 
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
+
 #include <utils/completingtextedit.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
+#include <QCheckBox>
+#include <QDebug>
+#include <QLineEdit>
+#include <QRegularExpression>
 #include <QSyntaxHighlighter>
 #include <QTextEdit>
-
-#include <QDebug>
-#include <QRegularExpression>
 
 //see the git submit widget for details of the syntax Highlighter
 
@@ -27,6 +31,52 @@ static QTextCharFormat commentFormat()
 {
     return TextEditor::TextEditorSettings::fontSettings().toTextCharFormat(TextEditor::C_COMMENT);
 }
+
+class BazaarCommitPanel : public QWidget
+{
+    Q_DECLARE_TR_FUNCTIONS(Bazaar::Internal::BazaarCommitPanel)
+
+public:
+    BazaarCommitPanel()
+    {
+        branchLineEdit = new QLineEdit;
+        branchLineEdit->setReadOnly(true);
+
+        isLocalCheckBox = new QCheckBox(tr("Local commit"));
+        isLocalCheckBox->setToolTip(tr("Performs a local commit in a bound branch.\n"
+                                       "Local commits are not pushed to the master "
+                                       "branch until a normal commit is performed."));
+
+        authorLineEdit = new QLineEdit;
+        emailLineEdit = new QLineEdit;
+        fixedBugsLineEdit = new QLineEdit;
+
+        using namespace Utils::Layouting;
+        Column {
+            Group {
+                title(tr("General Information")),
+                Form {
+                    tr("Branch:"), branchLineEdit, br,
+                    empty, isLocalCheckBox
+                }
+            },
+            Group {
+                title(tr("Commit Information")),
+                Form {
+                    tr("Author:"), authorLineEdit, br,
+                    tr("Email:"), emailLineEdit, br,
+                    tr("Fixed bugs:"), fixedBugsLineEdit
+                },
+            }
+        }.attachTo(this, WithoutMargins);
+    }
+
+    QLineEdit *branchLineEdit;
+    QCheckBox *isLocalCheckBox;
+    QLineEdit *authorLineEdit;
+    QLineEdit *emailLineEdit;
+    QLineEdit *fixedBugsLineEdit;
+};
 
 // Highlighter for Bazaar submit messages. Make the first line bold, indicates
 // comments as such (retrieving the format from the text editor) and marks up
@@ -89,9 +139,9 @@ void BazaarSubmitHighlighter::highlightBlock(const QString &text)
 }
 
 
-BazaarCommitWidget::BazaarCommitWidget() : m_bazaarCommitPanel(new QWidget)
+BazaarCommitWidget::BazaarCommitWidget()
+    : m_bazaarCommitPanel(new BazaarCommitPanel)
 {
-    m_bazaarCommitPanelUi.setupUi(m_bazaarCommitPanel);
     insertTopWidget(m_bazaarCommitPanel);
     new BazaarSubmitHighlighter(descriptionEdit());
 }
@@ -99,16 +149,16 @@ BazaarCommitWidget::BazaarCommitWidget() : m_bazaarCommitPanel(new QWidget)
 void BazaarCommitWidget::setFields(const BranchInfo &branch,
                                    const QString &userName, const QString &email)
 {
-    m_bazaarCommitPanelUi.branchLineEdit->setText(branch.branchLocation);
-    m_bazaarCommitPanelUi.isLocalCheckBox->setVisible(branch.isBoundToBranch);
-    m_bazaarCommitPanelUi.authorLineEdit->setText(userName);
-    m_bazaarCommitPanelUi.emailLineEdit->setText(email);
+    m_bazaarCommitPanel->branchLineEdit->setText(branch.branchLocation);
+    m_bazaarCommitPanel->isLocalCheckBox->setVisible(branch.isBoundToBranch);
+    m_bazaarCommitPanel->authorLineEdit->setText(userName);
+    m_bazaarCommitPanel->emailLineEdit->setText(email);
 }
 
 QString BazaarCommitWidget::committer() const
 {
-    const QString author = m_bazaarCommitPanelUi.authorLineEdit->text();
-    const QString email = m_bazaarCommitPanelUi.emailLineEdit->text();
+    const QString author = m_bazaarCommitPanel->authorLineEdit->text();
+    const QString email = m_bazaarCommitPanel->emailLineEdit->text();
     if (author.isEmpty())
         return QString();
 
@@ -123,12 +173,12 @@ QString BazaarCommitWidget::committer() const
 
 QStringList BazaarCommitWidget::fixedBugs() const
 {
-    return m_bazaarCommitPanelUi.fixedBugsLineEdit->text().split(QRegularExpression("\\s+"));
+    return m_bazaarCommitPanel->fixedBugsLineEdit->text().split(QRegularExpression("\\s+"));
 }
 
 bool BazaarCommitWidget::isLocalOptionEnabled() const
 {
-    return m_bazaarCommitPanelUi.isLocalCheckBox->isChecked();
+    return m_bazaarCommitPanel->isLocalCheckBox->isChecked();
 }
 
 } // namespace Internal

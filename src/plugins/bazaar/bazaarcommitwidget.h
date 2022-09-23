@@ -3,14 +3,12 @@
 
 #pragma once
 
-#include "ui_bazaarcommitpanel.h"
-
 #include <vcsbase/submiteditorwidget.h>
 
-namespace Bazaar {
-namespace Internal {
+namespace Bazaar::Internal {
 
 class BranchInfo;
+class BazaarCommitPanel;
 
 /*submit editor widget based on git SubmitEditor
   Some extra fields have been added to the standard SubmitEditorWidget,
@@ -21,17 +19,14 @@ class BazaarCommitWidget : public VcsBase::SubmitEditorWidget
 public:
     BazaarCommitWidget();
 
-    void setFields(const BranchInfo &branch,
-                   const QString &userName, const QString &email);
+    void setFields(const BranchInfo &branch, const QString &userName, const QString &email);
 
     QString committer() const;
     QStringList fixedBugs() const;
     bool isLocalOptionEnabled() const;
 
 private:
-    QWidget *m_bazaarCommitPanel;
-    Ui::BazaarCommitPanel m_bazaarCommitPanelUi;
+    BazaarCommitPanel *m_bazaarCommitPanel;
 };
 
-} // namespace Internal
-} // namespace Bazaar
+} // Bazaar::Insteral

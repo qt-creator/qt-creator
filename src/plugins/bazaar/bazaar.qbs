@@ -15,7 +15,6 @@ QtcPlugin {
         "annotationhighlighter.h",
         "bazaarclient.cpp",
         "bazaarclient.h",
-        "bazaarcommitpanel.ui",
         "bazaarcommitwidget.cpp",
         "bazaarcommitwidget.h",
         "bazaareditor.cpp",

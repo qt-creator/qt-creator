@@ -3,7 +3,6 @@ add_qtc_plugin(Bazaar
   SOURCES
     annotationhighlighter.cpp annotationhighlighter.h
     bazaarclient.cpp bazaarclient.h
-    bazaarcommitpanel.ui
     bazaarcommitwidget.cpp bazaarcommitwidget.h
     bazaareditor.cpp bazaareditor.h
     bazaarplugin.cpp bazaarplugin.h
