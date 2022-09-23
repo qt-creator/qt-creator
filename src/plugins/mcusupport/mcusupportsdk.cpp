@@ -629,12 +629,23 @@ static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
                                                         [&](const QVariant &version) {
                                                             return version.toString();
                                                         });
+
+    //Parse the default value depending on the operating system
+    QString defaultPathString;
+    if (cmakeEntry["defaultValue"].isObject())
+        defaultPathString
+            = cmakeEntry["defaultValue"]
+                  .toObject()[HostOsInfo::isWindowsHost() ? QString("windows") : QString("unix")]
+                  .toString("");
+    else
+        defaultPathString = cmakeEntry["defaultValue"].toString();
+
     return {cmakeEntry["label"].toString(),
             cmakeEntry["envVar"].toString(),
             cmakeEntry["cmakeVar"].toString(),
             cmakeEntry["description"].toString(),
             cmakeEntry["setting"].toString(),
-            FilePath::fromUserInput(cmakeEntry["defaultValue"].toString()),
+            FilePath::fromUserInput(defaultPathString),
             FilePath::fromUserInput(cmakeEntry["validation"].toString()),
             versions,
             parseVersionDetection(cmakeEntry),

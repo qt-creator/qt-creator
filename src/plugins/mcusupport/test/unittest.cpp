@@ -1444,4 +1444,14 @@ void McuSupportTest::test_legacy_createThirdPartyPackage()
         QVERIFY(qunsetenv(envVar.toLocal8Bit()));
 }
 
+void McuSupportTest::test_defaultValueForEachOperationSystem()
+{
+    const auto packageDescription = parseDescriptionJson(armgcc_mimxrt1050_evk_freertos_json);
+    auto default_path_entry = packageDescription.platform.entries[0].defaultPath.toString();
+
+    if (HostOsInfo::isWindowsHost())
+        QCOMPARE(QString("%{Env:ROOT}/nxp/MCUXpressoIDE*"), default_path_entry);
+    else
+        QCOMPARE(QString("/usr/local/mcuxpressoide"), default_path_entry);
+};
 } // namespace McuSupport::Internal::Test

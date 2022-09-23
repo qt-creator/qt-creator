@@ -95,6 +95,8 @@ private slots:
     void test_legacy_createThirdPartyPackage_data();
     void test_legacy_createThirdPartyPackage();
 
+    void test_defaultValueForEachOperationSystem();
+
 private:
     QVersionNumber currentQulVersion{2, 0};
     PackageMock *freeRtosPackage{new PackageMock};
