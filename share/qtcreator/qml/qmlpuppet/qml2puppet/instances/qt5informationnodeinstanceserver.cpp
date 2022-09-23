@@ -345,7 +345,6 @@ void Qt5InformationNodeInstanceServer::resolveImportSupport()
 
 void Qt5InformationNodeInstanceServer::updateMaterialPreviewData(const QVector<PropertyValueContainer> &valueChanges)
 {
-    const PropertyName matPrevPrefix("matPrev");
     for (const auto &container : valueChanges) {
         if (container.instanceId() == 0) {
             if (container.name() == "matPrevEnv")
