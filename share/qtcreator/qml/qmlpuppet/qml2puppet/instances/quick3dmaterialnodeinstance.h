@@ -41,11 +41,10 @@ public:
 
     ~Quick3DMaterialNodeInstance() override;
     static Pointer create(QObject *objectToBeWrapped);
-    void initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
-                    InstanceContainer::NodeFlags flags) override;
 
 protected:
     explicit Quick3DMaterialNodeInstance(QObject *node);
+    void invokeDummyViewCreate() const override;
 };
 
 } // namespace Internal

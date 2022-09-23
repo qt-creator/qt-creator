@@ -50,7 +50,7 @@ Quick3DRenderableNodeInstance::~Quick3DRenderableNodeInstance()
 }
 
 void Quick3DRenderableNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
-                                     InstanceContainer::NodeFlags flags)
+                                               InstanceContainer::NodeFlags flags)
 {
 #ifdef QUICK3D_MODULE
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
@@ -67,8 +67,7 @@ void Quick3DRenderableNodeInstance::initialize(const ObjectNodeInstance::Pointer
         component.loadUrl(QUrl("qrc:/qtquickplugin/mockfiles/qt6/ModelNode3DImageView.qml"));
         m_dummyRootView = qobject_cast<QQuickItem *>(component.create());
 
-        QMetaObject::invokeMethod(m_dummyRootView, m_dummyRootViewCreateFunction,
-                                  Q_ARG(QVariant, QVariant::fromValue(object())));
+        invokeDummyViewCreate();
 
         nodeInstanceServer()->setRootItem(m_dummyRootView);
     }
@@ -213,6 +212,10 @@ void Quick3DRenderableNodeInstance::setPropertyVariant(const PropertyName &name,
 Qt5NodeInstanceServer *Quick3DRenderableNodeInstance::qt5NodeInstanceServer() const
 {
     return qobject_cast<Qt5NodeInstanceServer *>(nodeInstanceServer());
+}
+
+void Quick3DRenderableNodeInstance::invokeDummyViewCreate() const
+{
 }
 
 } // namespace Internal

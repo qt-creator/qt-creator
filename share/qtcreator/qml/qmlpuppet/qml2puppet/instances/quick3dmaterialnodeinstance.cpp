@@ -37,12 +37,13 @@ Quick3DMaterialNodeInstance::~Quick3DMaterialNodeInstance()
 {
 }
 
-void Quick3DMaterialNodeInstance::initialize(const ObjectNodeInstance::Pointer &objectNodeInstance,
-                                             InstanceContainer::NodeFlags flags)
+void Quick3DMaterialNodeInstance::invokeDummyViewCreate() const
 {
-    m_dummyRootViewCreateFunction = "createViewForMaterial";
-
-    Quick3DRenderableNodeInstance::initialize(objectNodeInstance, flags);
+    QMetaObject::invokeMethod(m_dummyRootView, "createViewForMaterial",
+                              Q_ARG(QVariant, QVariant::fromValue(object())),
+                              Q_ARG(QVariant, ""),
+                              Q_ARG(QVariant, ""),
+                              Q_ARG(QVariant, ""));
 }
 
 Quick3DMaterialNodeInstance::Pointer Quick3DMaterialNodeInstance::create(QObject *object)

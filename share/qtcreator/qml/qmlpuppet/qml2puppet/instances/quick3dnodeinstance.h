@@ -47,6 +47,7 @@ public:
 
 protected:
     explicit Quick3DNodeInstance(QObject *node);
+    void invokeDummyViewCreate() const override;
 
 private:
     QQuick3DNode *quick3DNode() const;

@@ -57,10 +57,8 @@ public:
 protected:
     explicit Quick3DRenderableNodeInstance(QObject *node);
     Qt5NodeInstanceServer *qt5NodeInstanceServer() const;
+    virtual void invokeDummyViewCreate() const;
 
-    QByteArray m_dummyRootViewCreateFunction;
-
-private:
     QQuickItem *m_dummyRootView = nullptr;
 };
 
