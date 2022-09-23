@@ -112,6 +112,30 @@ void SymbolSupport::findLinkAt(TextEditor::TextDocument *document,
 
 }
 
+bool SymbolSupport::supportsFindUsages(TextEditor::TextDocument *document) const
+{
+    if (!m_client || !m_client->reachable())
+        return false;
+    if (m_client->dynamicCapabilities().isRegistered(FindReferencesRequest::methodName)) {
+        QJsonObject options
+            = m_client->dynamicCapabilities().option(FindReferencesRequest::methodName).toObject();
+        const TextDocumentRegistrationOptions docOps(options);
+        if (docOps.isValid()
+            && !docOps.filterApplies(document->filePath(),
+                                     Utils::mimeTypeForName(document->mimeType()))) {
+            return false;
+        }
+    } else if (auto referencesProvider = m_client->capabilities().referencesProvider()) {
+        if (std::holds_alternative<bool>(*referencesProvider)) {
+            if (!std::get<bool>(*referencesProvider))
+                return false;
+        }
+    } else {
+        return false;
+    }
+    return true;
+}
+
 struct ItemData
 {
     Core::Search::TextRange range;
@@ -199,7 +223,7 @@ void SymbolSupport::handleFindReferencesResponse(const FindReferencesRequest::Re
 std::optional<MessageId> SymbolSupport::findUsages(
         TextEditor::TextDocument *document, const QTextCursor &cursor, const ResultHandler &handler)
 {
-    if (!m_client->reachable())
+    if (!supportsFindUsages(document))
         return {};
     ReferenceParams params(generateDocPosParams(document, cursor));
     params.setContext(ReferenceParams::ReferenceContext(true));

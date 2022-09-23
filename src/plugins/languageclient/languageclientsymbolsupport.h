@@ -34,6 +34,7 @@ public:
                     Utils::LinkHandler callback,
                     const bool resolveTarget);
 
+    bool supportsFindUsages(TextEditor::TextDocument *document) const;
     using ResultHandler = std::function<void(const QList<LanguageServerProtocol::Location> &)>;
     std::optional<LanguageServerProtocol::MessageId> findUsages(
             TextEditor::TextDocument *document,
