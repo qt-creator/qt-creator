@@ -70,8 +70,9 @@ public:
             const LanguageServerProtocol::HoverRequest::Response &hoverResponse,
             const LanguageServerProtocol::DocumentUri &uri);
     bool gatherMemberFunctionOverrideHelpItemForTooltip(
-            const LanguageServerProtocol::MessageId &token,
-            const QList<ClangdAstNode> &path);
+        const LanguageServerProtocol::MessageId &token,
+        const LanguageServerProtocol::DocumentUri &uri,
+        const QList<ClangdAstNode> &path);
 
     void setVirtualRanges(const Utils::FilePath &filePath,
                           const QList<LanguageServerProtocol::Range> &ranges, int revision);

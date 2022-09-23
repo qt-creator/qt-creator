@@ -11,14 +11,16 @@
 
 using namespace Core;
 
+Q_GLOBAL_STATIC(HelpItem::LinkNarrower, m_linkNarrower);
+
 HelpItem::HelpItem() = default;
 
 HelpItem::HelpItem(const char *helpId)
-    : HelpItem(QStringList(QString::fromUtf8(helpId)), {}, Unknown)
+    : HelpItem(QStringList(QString::fromUtf8(helpId)), {}, {}, Unknown)
 {}
 
 HelpItem::HelpItem(const QString &helpId)
-    : HelpItem(QStringList(helpId), {}, Unknown)
+    : HelpItem(QStringList(helpId), {}, {}, Unknown)
 {}
 
 HelpItem::HelpItem(const QUrl &url)
@@ -31,13 +33,20 @@ HelpItem::HelpItem(const QUrl &url, const QString &docMark, HelpItem::Category c
     , m_category(category)
 {}
 
-HelpItem::HelpItem(const QString &helpId, const QString &docMark, Category category)
-    : HelpItem(QStringList(helpId), docMark, category)
+HelpItem::HelpItem(const QString &helpId,
+                   const Utils::FilePath &filePath,
+                   const QString &docMark,
+                   Category category)
+    : HelpItem(QStringList(helpId), filePath, docMark, category)
 {}
 
-HelpItem::HelpItem(const QStringList &helpIds, const QString &docMark, Category category)
+HelpItem::HelpItem(const QStringList &helpIds,
+                   const Utils::FilePath &filePath,
+                   const QString &docMark,
+                   Category category)
     : m_docMark(docMark)
     , m_category(category)
+    , m_filePath(filePath)
 {
     setHelpIds(helpIds);
 }
@@ -74,6 +83,24 @@ void HelpItem::setCategory(Category cat)
 
 HelpItem::Category HelpItem::category() const
 { return m_category; }
+
+/*!
+    Sets the \a filePath that this help item originates from, for example
+    in case of context help.
+*/
+void HelpItem::setFilePath(const Utils::FilePath &filePath)
+{
+    m_filePath = filePath;
+}
+
+/*!
+    Returns the filePath that this help item originates from, for example
+    in case of context help.
+*/
+Utils::FilePath HelpItem::filePath() const
+{
+    return m_filePath;
+}
 
 bool HelpItem::isEmpty() const
 {
@@ -184,7 +211,7 @@ static QVersionNumber qtVersionHeuristic(const QString &digits)
     return {};
 }
 
-static std::pair<QUrl, QVersionNumber> extractVersion(const QUrl &url)
+std::pair<QUrl, QVersionNumber> HelpItem::extractQtVersionNumber(const QUrl &url)
 {
     const QString host = url.host();
     const QStringList hostParts = host.split('.');
@@ -203,8 +230,8 @@ static std::pair<QUrl, QVersionNumber> extractVersion(const QUrl &url)
 // sort primary by "url without version" and seconday by "version"
 static bool helpUrlLessThan(const QUrl &a, const QUrl &b)
 {
-    const std::pair<QUrl, QVersionNumber> va = extractVersion(a);
-    const std::pair<QUrl, QVersionNumber> vb = extractVersion(b);
+    const std::pair<QUrl, QVersionNumber> va = HelpItem::extractQtVersionNumber(a);
+    const std::pair<QUrl, QVersionNumber> vb = HelpItem::extractQtVersionNumber(b);
     const QString sa = va.first.toString();
     const QString sb = vb.first.toString();
     if (sa == sb)
@@ -258,7 +285,7 @@ static const HelpItem::Links getBestLinks(const HelpItem::Links &links)
     HelpItem::Links bestLinks;
     QUrl currentUnversionedUrl;
     for (const HelpItem::Link &link : links) {
-        const QUrl unversionedUrl = extractVersion(link.second).first;
+        const QUrl unversionedUrl = HelpItem::extractQtVersionNumber(link.second).first;
         if (unversionedUrl != currentUnversionedUrl) {
             currentUnversionedUrl = unversionedUrl;
             bestLinks.push_back(link);
@@ -279,7 +306,7 @@ static const HelpItem::Links getBestLink(const HelpItem::Links &links)
     // Default to first link if version extraction failed, possibly because it is not a Qt doc link
     HelpItem::Link bestLink = links.front();
     for (const HelpItem::Link &link : links) {
-        const QVersionNumber version = extractVersion(link.second).second;
+        const QVersionNumber version = HelpItem::extractQtVersionNumber(link.second).second;
         if (version > highestVersion) {
             highestVersion = version;
             bestLink = link;
@@ -292,7 +319,8 @@ const HelpItem::Links HelpItem::bestLinks() const
 {
     if (isFuzzyMatch())
         return getBestLinks(links());
-    return getBestLink(links());
+    const Links filteredLinks = *m_linkNarrower ? (*m_linkNarrower)(*this, links()) : links();
+    return getBestLink(filteredLinks);
 }
 
 const QString HelpItem::keyword() const
@@ -305,4 +333,9 @@ bool HelpItem::isFuzzyMatch() const
     // make sure m_isFuzzyMatch is correct
     links();
     return m_isFuzzyMatch;
+}
+
+void HelpItem::setLinkNarrower(const LinkNarrower &narrower)
+{
+    *m_linkNarrower = narrower;
 }

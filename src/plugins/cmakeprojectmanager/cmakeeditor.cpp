@@ -70,8 +70,10 @@ void CMakeEditor::contextHelp(const HelpCallback &callback) const
     }
 
     const QString id = "command/" + textAt(begin, end - begin).toLower();
-    callback(
-        {{id, Utils::Text::wordUnderCursor(editorWidget()->textCursor())}, {}, HelpItem::Unknown});
+    callback({{id, Utils::Text::wordUnderCursor(editorWidget()->textCursor())},
+              {},
+              {},
+              HelpItem::Unknown});
 }
 
 //

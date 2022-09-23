@@ -50,16 +50,20 @@ private:
             tip += evaluator.diagnosis();
             setPriority(Priority_Diagnostic);
         }
+        const Utils::FilePath filePath = editorWidget->textDocument()->filePath();
         const QStringList fallback = identifierWordsUnderCursor(tc);
         if (evaluator.identifiedCppElement()) {
             const QSharedPointer<CppElement> &cppElement = evaluator.cppElement();
             const QStringList candidates = cppElement->helpIdCandidates;
-            const HelpItem helpItem(candidates + fallback, cppElement->helpMark, cppElement->helpCategory);
+            const HelpItem helpItem(candidates + fallback,
+                                    filePath,
+                                    cppElement->helpMark,
+                                    cppElement->helpCategory);
             setLastHelpItemIdentified(helpItem);
             if (!helpItem.isValid())
                 tip += cppElement->tooltip;
         } else {
-            setLastHelpItemIdentified({fallback, {}, HelpItem::Unknown});
+            setLastHelpItemIdentified({fallback, filePath, {}, HelpItem::Unknown});
         }
         setToolTip(tip);
     }

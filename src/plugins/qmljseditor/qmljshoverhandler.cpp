@@ -143,7 +143,10 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
     helpIdPieces.removeAt(1);
     helpIdCandidates += helpIdPieces.join('.');
 
-    const HelpItem helpItem(helpIdCandidates, qName.join('.'), HelpItem::QmlComponent);
+    const HelpItem helpItem(helpIdCandidates,
+                            qmlDocument->fileName(),
+                            qName.join('.'),
+                            HelpItem::QmlComponent);
     const HelpItem::Links links = helpItem.links();
 
     // Check if the module name contains a major version.
@@ -474,7 +477,10 @@ bool QmlJSHoverHandler::setQmlHelpItem(const ScopeChain &scopeChain,
                                                           + "::" + name,
                                                       "QML." + className + "::" + name,
                                                       className + "::" + name};
-                const HelpItem helpItem(helpIdCandidates, name, HelpItem::QmlProperty);
+                const HelpItem helpItem(helpIdCandidates,
+                                        qmlDocument->fileName(),
+                                        name,
+                                        HelpItem::QmlProperty);
                 if (helpItem.isValid()) {
                     setLastHelpItemIdentified(helpItem);
                     return true;

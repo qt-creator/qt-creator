@@ -261,7 +261,9 @@ public:
     QString searchTermFromCursor(const QTextCursor &cursor) const;
     QTextCursor adjustedCursor(const QTextCursor &cursor, const TextDocument *doc);
 
-    void setHelpItemForTooltip(const MessageId &token, const QString &fqn = {},
+    void setHelpItemForTooltip(const MessageId &token,
+                               const DocumentUri &uri,
+                               const QString &fqn = {},
                                HelpItem::Category category = HelpItem::Unknown,
                                const QString &type = {});
 
@@ -928,7 +930,10 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                     if (closingQuoteIndex != -1) {
                         const QString macroName = markupString.mid(nameStart,
                                                                    closingQuoteIndex - nameStart);
-                        d->setHelpItemForTooltip(hoverResponse.id(), macroName, HelpItem::Macro);
+                        d->setHelpItemForTooltip(hoverResponse.id(),
+                                                 uri,
+                                                 macroName,
+                                                 HelpItem::Macro);
                         return;
                     }
                 }
@@ -941,6 +946,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                     const auto filePath = Utils::FilePath::fromUserInput(lines.last().simplified());
                     if (filePath.exists()) {
                         d->setHelpItemForTooltip(hoverResponse.id(),
+                                                 uri,
                                                  filePath.fileName(),
                                                  HelpItem::Brief);
                         return;
@@ -961,7 +967,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
         }
         const ClangdAstPath path = getAstPath(ast, range);
         if (path.isEmpty()) {
-            d->setHelpItemForTooltip(id);
+            d->setHelpItemForTooltip(id, uri);
             return;
         }
         ClangdAstNode node = path.last();
@@ -985,7 +991,7 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                 type = type.left(angleBracketIndex);
         };
 
-        if (gatherMemberFunctionOverrideHelpItemForTooltip(id, path))
+        if (gatherMemberFunctionOverrideHelpItemForTooltip(id, uri, path))
             return;
 
         const bool isMemberFunction = node.role() == "expression" && node.kind() == "Member"
@@ -993,8 +999,9 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
         const bool isFunction = node.role() == "expression" && node.kind() == "DeclRef"
                 && type.contains('(');
         if (isMemberFunction || isFunction) {
-            const auto symbolInfoHandler = [this, id, type, isFunction]
-                    (const QString &name, const QString &prefix, const MessageId &) {
+            const auto symbolInfoHandler = [this, id, uri, type, isFunction](const QString &name,
+                                                                             const QString &prefix,
+                                                                             const MessageId &) {
                 qCDebug(clangdLog) << "handling symbol info reply";
                 const QString fqn = prefix + name;
 
@@ -1003,7 +1010,11 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                 // But since HtmlDocExtractor::getFunctionDescription() is always called
                 // with mainOverload = true, such information would get ignored anyway.
                 if (!fqn.isEmpty())
-                    d->setHelpItemForTooltip(id, fqn, HelpItem::Function, isFunction ? type : "()");
+                    d->setHelpItemForTooltip(id,
+                                             uri,
+                                             fqn,
+                                             HelpItem::Function,
+                                             isFunction ? type : "()");
             };
             requestSymbolInfo(uri.toFilePath(), range.start(), symbolInfoHandler);
             return;
@@ -1013,8 +1024,11 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                     && (node.kind() == "Var" || node.kind() == "ParmVar"
                         || node.kind() == "Field"))) {
             if (node.arcanaContains("EnumConstant")) {
-                d->setHelpItemForTooltip(id, node.detail().value_or(QString()),
-                                         HelpItem::Enum, type);
+                d->setHelpItemForTooltip(id,
+                                         uri,
+                                         node.detail().value_or(QString()),
+                                         HelpItem::Enum,
+                                         type);
                 return;
             }
             stripTemplatePartOffType();
@@ -1025,10 +1039,13 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                     && type != "char" && !type.contains(" char")
                     && type != "double" && !type.contains(" double")
                     && type != "float" && type != "bool") {
-                d->setHelpItemForTooltip(id, type, node.qdocCategoryForDeclaration(
+                d->setHelpItemForTooltip(id,
+                                         uri,
+                                         type,
+                                         node.qdocCategoryForDeclaration(
                                              HelpItem::ClassOrNamespace));
             } else {
-                d->setHelpItemForTooltip(id);
+                d->setHelpItemForTooltip(id, uri);
             }
             return;
         }
@@ -1041,19 +1058,19 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                         ns.prepend("::").prepend(name);
                 }
             }
-            d->setHelpItemForTooltip(hoverResponse.id(), ns, HelpItem::ClassOrNamespace);
+            d->setHelpItemForTooltip(id, uri, ns, HelpItem::ClassOrNamespace);
             return;
         }
         if (node.role() == "type") {
             if (node.kind() == "Enum") {
-                d->setHelpItemForTooltip(id, node.detail().value_or(QString()), HelpItem::Enum);
+                d->setHelpItemForTooltip(id, uri, node.detail().value_or(QString()), HelpItem::Enum);
             } else if (node.kind() == "Record" || node.kind() == "TemplateSpecialization") {
                 stripTemplatePartOffType();
-                d->setHelpItemForTooltip(id, type, HelpItem::ClassOrNamespace);
+                d->setHelpItemForTooltip(id, uri, type, HelpItem::ClassOrNamespace);
             } else if (node.kind() == "Typedef") {
-                d->setHelpItemForTooltip(id, type, HelpItem::Typedef);
+                d->setHelpItemForTooltip(id, uri, type, HelpItem::Typedef);
             } else {
-                d->setHelpItemForTooltip(id);
+                d->setHelpItemForTooltip(id, uri);
             }
             return;
         }
@@ -1061,21 +1078,24 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
             const QString name = node.detail().value_or(QString());
             if (!name.isEmpty())
                 type = name;
-            d->setHelpItemForTooltip(id, type, HelpItem::ClassOrNamespace);
+            d->setHelpItemForTooltip(id, uri, type, HelpItem::ClassOrNamespace);
         }
         if (node.role() == "specifier" && node.kind() == "NamespaceAlias") {
-            d->setHelpItemForTooltip(id, node.detail().value_or(QString()).chopped(2),
+            d->setHelpItemForTooltip(id,
+                                     uri,
+                                     node.detail().value_or(QString()).chopped(2),
                                      HelpItem::ClassOrNamespace);
             return;
         }
-        d->setHelpItemForTooltip(id);
+        d->setHelpItemForTooltip(id, uri);
     };
     d->getAndHandleAst(doc, astHandler, AstCallbackMode::SyncIfPossible);
 }
 
 bool ClangdClient::gatherMemberFunctionOverrideHelpItemForTooltip(
-        const LanguageServerProtocol::MessageId &token,
-        const QList<ClangdAstNode> &path)
+    const LanguageServerProtocol::MessageId &token,
+    const DocumentUri &uri,
+    const QList<ClangdAstNode> &path)
 {
     // Heuristic: If we encounter a member function re-declaration, continue under the
     // assumption that the base class holds the documentation.
@@ -1112,8 +1132,11 @@ bool ClangdClient::gatherMemberFunctionOverrideHelpItemForTooltip(
     const ClangdAstNode baseClassNode = baseTypeNodeChildren->first();
     if (!baseClassNode.detail())
         return false;
-    d->setHelpItemForTooltip(token, *baseClassNode.detail() + "::" + *methodNode.detail(),
-                             HelpItem::Function, "()");
+    d->setHelpItemForTooltip(token,
+                             uri,
+                             *baseClassNode.detail() + "::" + *methodNode.detail(),
+                             HelpItem::Function,
+                             "()");
     return true;
 }
 
@@ -1233,7 +1256,9 @@ QTextCursor ClangdClient::Private::adjustedCursor(const QTextCursor &cursor,
     return cursor;
 }
 
-void ClangdClient::Private::setHelpItemForTooltip(const MessageId &token, const QString &fqn,
+void ClangdClient::Private::setHelpItemForTooltip(const MessageId &token,
+                                                  const DocumentUri &uri,
+                                                  const QString &fqn,
                                                   HelpItem::Category category,
                                                   const QString &type)
 {
@@ -1256,7 +1281,7 @@ void ClangdClient::Private::setHelpItemForTooltip(const MessageId &token, const 
     if (category == HelpItem::Enum && !type.isEmpty())
         mark = type;
 
-    HelpItem helpItem(helpIds, mark, category);
+    const HelpItem helpItem(helpIds, uri.toFilePath(), mark, category);
     if (isTesting)
         emit q->helpItemGathered(helpItem);
     else

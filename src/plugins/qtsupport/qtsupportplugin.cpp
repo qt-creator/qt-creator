@@ -28,10 +28,12 @@
 #include <projectexplorer/session.h>
 #include <projectexplorer/target.h>
 
+#include <utils/filepath.h>
 #include <utils/infobar.h>
 #include <utils/macroexpander.h>
 
 using namespace Core;
+using namespace Utils;
 using namespace ProjectExplorer;
 
 namespace QtSupport {
@@ -179,6 +181,53 @@ void QtSupportPlugin::extensionsInitialized()
             const QtVersion *const qt = activeQtVersion();
             return qt ? qt->hostLibexecPath().toUserOutput() : QString();
         });
+
+    HelpItem::setLinkNarrower([](const HelpItem &item, const HelpItem::Links &links) {
+        const FilePath filePath = item.filePath();
+        if (filePath.isEmpty())
+            return links;
+        const Project *project = SessionManager::projectForFile(filePath);
+        Target *target = project ? project->activeTarget() : nullptr;
+        QtVersion *qt = target ? QtKitAspect::qtVersion(target->kit()) : nullptr;
+        if (!qt)
+            return links;
+
+        // Find best-suited documentation version, so
+        // sort into buckets of links with exact, same minor, and same major, and return the first
+        // that has entries.
+        const QVersionNumber qtVersion = qt->qtVersion();
+        HelpItem::Links exactVersion;
+        HelpItem::Links sameMinor;
+        HelpItem::Links sameMajor;
+        bool hasExact = false;
+        bool hasSameMinor = false;
+        bool hasSameMajor = false;
+        for (const HelpItem::Link &link : links) {
+            const QUrl url = link.second;
+            const QVersionNumber version = HelpItem::extractQtVersionNumber(url).second;
+            // version.isNull() means it's not a Qt documentation URL, so include regardless
+            if (version.isNull() || version.majorVersion() == qtVersion.majorVersion()) {
+                sameMajor.push_back(link);
+                hasSameMajor = true;
+                if (version.isNull() || version.minorVersion() == qtVersion.minorVersion()) {
+                    sameMinor.push_back(link);
+                    hasSameMinor = true;
+                    if (version.isNull() || version.microVersion() == qtVersion.microVersion()) {
+                        exactVersion.push_back(link);
+                        hasExact = true;
+                    }
+                }
+            }
+        }
+        // HelpItem itself finds the highest version within sameMinor/Major/etc itself
+        if (hasExact)
+            return exactVersion;
+        if (hasSameMinor)
+            return sameMinor;
+        if (hasSameMajor)
+            return sameMajor;
+        return links;
+    });
 
     askAboutQtInstallation();
 }
