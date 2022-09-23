@@ -471,10 +471,9 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
                     if (client->reachable())
                         client->cursorPositionChanged(widget);
             });
-            updateEditorToolBar(editor);
             if (TextEditor::TextDocument *document = textEditor->textDocument()) {
                 if (Client *client = m_clientForDocument[document])
-                    widget->addHoverHandler(client->hoverHandler());
+                    client->activateEditor(editor);
             }
         }
     }

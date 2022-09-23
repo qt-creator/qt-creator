@@ -111,6 +111,7 @@ public:
     virtual void openDocument(TextEditor::TextDocument *document);
     void closeDocument(TextEditor::TextDocument *document);
     void activateDocument(TextEditor::TextDocument *document);
+    void activateEditor(Core::IEditor *editor);
     void deactivateDocument(TextEditor::TextDocument *document);
     bool documentOpen(const TextEditor::TextDocument *document) const;
     TextEditor::TextDocument *documentForFilePath(const Utils::FilePath &file) const;

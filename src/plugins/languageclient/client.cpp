@@ -845,21 +845,25 @@ void Client::activateDocument(TextEditor::TextDocument *document)
         document->setQuickFixAssistProvider(d->m_clientProviders.quickFixAssistProvider);
     }
     document->setFormatter(new LanguageClientFormatter(document, this));
-    for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document)) {
-        updateEditorToolBar(editor);
-        if (editor == Core::EditorManager::currentEditor())
-            TextEditor::IOutlineWidgetFactory::updateOutline();
-        if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
-            TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
-            widget->addHoverHandler(&d->m_hoverHandler);
-            d->requestDocumentHighlights(widget);
-            uint optionalActions = widget->optionalActions();
-            if (symbolSupport().supportsFindUsages(document))
-                optionalActions |= TextEditor::TextEditorActionHandler::FindUsage;
-            if (symbolSupport().supportsRename(document))
-                optionalActions |= TextEditor::TextEditorActionHandler::RenameSymbol;
-            widget->setOptionalActions(optionalActions);
-        }
+    for (Core::IEditor *editor : Core::DocumentModel::editorsForDocument(document))
+        activateEditor(editor);
+}
+
+void Client::activateEditor(Core::IEditor *editor)
+{
+    updateEditorToolBar(editor);
+    if (editor == Core::EditorManager::currentEditor())
+        TextEditor::IOutlineWidgetFactory::updateOutline();
+    if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor)) {
+        TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
+        widget->addHoverHandler(&d->m_hoverHandler);
+        d->requestDocumentHighlights(widget);
+        uint optionalActions = widget->optionalActions();
+        if (symbolSupport().supportsFindUsages(widget->textDocument()))
+            optionalActions |= TextEditor::TextEditorActionHandler::FindUsage;
+        if (symbolSupport().supportsRename(widget->textDocument()))
+            optionalActions |= TextEditor::TextEditorActionHandler::RenameSymbol;
+        widget->setOptionalActions(optionalActions);
     }
 }
 
