@@ -200,6 +200,15 @@ T.Popup {
         }
     }
 
+    StudioControls.Menu {
+        id: contextMenu
+
+        StudioControls.MenuItem {
+            text: qsTr("Open Color Dialog")
+            onTriggered: colorPalette.showColorDialog(colorEditor.color)
+        }
+    }
+
     GradientModel {
         id: gradientModel
         anchorBackendProperty: anchorBackend
