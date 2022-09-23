@@ -34,6 +34,7 @@ public:
 
     Qt::ItemFlags flags(int column) const override;
     QString displayName() const { return m_displayName; }
+    QString toolTip(int column) const;
     void setFilePath(const QString &filePath);
     QString filePath() const { return m_filePath; }
     void setParentName(const QString &parentName);

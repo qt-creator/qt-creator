@@ -49,6 +49,25 @@ Qt::ItemFlags SquishTestTreeItem::flags(int /*column*/) const
     return m_flags;
 }
 
+QString SquishTestTreeItem::toolTip(int column) const
+{
+    if (m_type == SquishTestTreeItem::SquishSuite) {
+        if (column == 1)
+            return Tr::tr("Run Test Suite");
+        if (column == 2)
+            return Tr::tr("Object Map");
+    } else if (m_type == SquishTestTreeItem::SquishTestCase) {
+        if (column == 1)
+            return Tr::tr("Run Test Case");
+        if (column == 2)
+            return Tr::tr("Record Test Case");
+    }
+    if (m_displayName == m_filePath)
+        return m_displayName;
+
+    return QString{m_displayName + '\n' + m_filePath};
+}
+
 void SquishTestTreeItem::setFilePath(const QString &filePath)
 {
     m_filePath = filePath;
@@ -236,10 +255,7 @@ QVariant SquishTestTreeModel::data(const QModelIndex &idx, int role) const
         case Qt::ToolTipRole:
             if (type == SquishTestTreeItem::Root)
                 return QVariant();
-            if (item->displayName() == item->filePath())
-                return item->displayName();
-
-            return item->displayName().append('\n').append(item->filePath());
+            return item->toolTip(idx.column());
         case LinkRole:
             return item->filePath();
         case TypeRole:
