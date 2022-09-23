@@ -7935,10 +7935,13 @@ void TextEditorWidget::setupFallBackEditor(Id id)
 
 void TextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 {
+    if (optionalActions() & TextEditorActionHandler::FindUsage)
+        menu->addAction(ActionManager::command(Constants::FIND_USAGES)->action());
+
     menu->addSeparator();
     appendMenuActionsFromContext(menu, Constants::M_STANDARDCONTEXTMENU);
-    Command *bomCmd = ActionManager::command(Constants::SWITCH_UTF8BOM);
-    if (bomCmd) {
+
+    if (Command *bomCmd = ActionManager::command(Constants::SWITCH_UTF8BOM)) {
         QAction *a = bomCmd->action();
         TextDocument *doc = textDocument();
         if (doc->codec()->name() == QByteArray("UTF-8") && doc->supportsUtf8Bom()) {
