@@ -853,8 +853,12 @@ void Client::activateDocument(TextEditor::TextDocument *document)
             TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
             widget->addHoverHandler(&d->m_hoverHandler);
             d->requestDocumentHighlights(widget);
+            uint optionalActions = widget->optionalActions();
+            if (symbolSupport().supportsFindUsages(document))
+                optionalActions |= TextEditor::TextEditorActionHandler::FindUsage;
             if (symbolSupport().supportsRename(document))
-                widget->addOptionalActions(TextEditor::TextEditorActionHandler::RenameSymbol);
+                optionalActions |= TextEditor::TextEditorActionHandler::RenameSymbol;
+            widget->setOptionalActions(optionalActions);
         }
     }
 }

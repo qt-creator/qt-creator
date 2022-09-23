@@ -1083,7 +1083,8 @@ QmlJSEditorFactory::QmlJSEditorFactory(Utils::Id _id)
                             | TextEditorActionHandler::UnCommentSelection
                             | TextEditorActionHandler::UnCollapseAll
                             | TextEditorActionHandler::FollowSymbolUnderCursor
-                            | TextEditorActionHandler::RenameSymbol);
+                            | TextEditorActionHandler::RenameSymbol
+                            | TextEditorActionHandler::FindUsage);
 }
 
 void QmlJSEditorFactory::decorateEditor(TextEditorWidget *editor)

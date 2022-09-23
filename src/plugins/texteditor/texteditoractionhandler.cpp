@@ -116,6 +116,7 @@ public:
     QAction *m_unfoldAllAction = nullptr;
     QAction *m_followSymbolAction = nullptr;
     QAction *m_followSymbolInNextSplitAction = nullptr;
+    QAction *m_findUsageAction = nullptr;
     QAction *m_renameSymbolAction = nullptr;
     QAction *m_jumpToFileAction = nullptr;
     QAction *m_jumpToFileInNextSplitAction = nullptr;
@@ -216,7 +217,7 @@ void TextEditorActionHandlerPrivate::createActions()
     m_followSymbolInNextSplitAction = registerAction(FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT,
             [] (TextEditorWidget *w) { w->openLinkUnderCursorInNextSplit(); }, true, tr("Follow Symbol Under Cursor in Next Split"),
             QKeySequence(Utils::HostOsInfo::isMacHost() ? tr("Meta+E, F2") : tr("Ctrl+E, F2")));
-    registerAction(FIND_USAGES,
+    m_findUsageAction = registerAction(FIND_USAGES,
             [] (TextEditorWidget *w) { w->findUsages(); }, true, tr("Find References to Symbol Under Cursor"),
             QKeySequence(tr("Ctrl+Shift+U")));
     m_renameSymbolAction = registerAction(RENAME_SYMBOL,
@@ -474,6 +475,8 @@ void TextEditorActionHandlerPrivate::updateOptionalActions()
         optionalActions & TextEditorActionHandler::FollowSymbolUnderCursor);
     m_followSymbolInNextSplitAction->setEnabled(
         optionalActions & TextEditorActionHandler::FollowSymbolUnderCursor);
+    m_findUsageAction->setEnabled(
+        optionalActions & TextEditorActionHandler::FindUsage);
     m_jumpToFileAction->setEnabled(
         optionalActions & TextEditorActionHandler::JumpToFileUnderCursor);
     m_jumpToFileInNextSplitAction->setEnabled(

@@ -148,7 +148,8 @@ public:
                                 | TextEditorActionHandler::UnCommentSelection
                                 | TextEditorActionHandler::UnCollapseAll
                                 | TextEditorActionHandler::FollowSymbolUnderCursor
-                                | TextEditorActionHandler::RenameSymbol);
+                                | TextEditorActionHandler::RenameSymbol
+                                | TextEditorActionHandler::FindUsage);
     }
 };
 
