@@ -711,14 +711,10 @@ FilePath FilePath::parentDir() const
     if (basePath.isEmpty())
         return FilePath();
 
-    // TODO: Replace usage of QDir !!
-    const QDir base(basePath);
-    if (base.isRoot())
-        return FilePath();
-
     const QString path = basePath + QLatin1String("/..");
     const QString parent = doCleanPath(path);
-    QTC_ASSERT(parent != path, return FilePath());
+    if (parent == path)
+        return FilePath();
 
     return withNewPath(parent);
 }
