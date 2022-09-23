@@ -13229,7 +13229,7 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
     </message>
 </context>
 <context>
-    <name>Core::Internal::ExternalToolConfig</name>
+    <name>Core::ExternalToolConfig</name>
     <message>
         <source>Add</source>
         <translation>Hinzufügen</translation>

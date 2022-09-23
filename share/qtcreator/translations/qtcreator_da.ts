@@ -7383,7 +7383,7 @@ Vil du dræbe den?</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ExternalToolConfig</name>
+    <name>Core::ExternalToolConfig</name>
     <message>
         <source>Add tool.</source>
         <translation>Tilføj værktøj.</translation>

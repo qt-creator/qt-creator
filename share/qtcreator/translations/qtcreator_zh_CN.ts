@@ -30788,7 +30788,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ExternalToolConfig</name>
+    <name>Core::ExternalToolConfig</name>
     <message>
         <source>Form</source>
         <translation>界面</translation>

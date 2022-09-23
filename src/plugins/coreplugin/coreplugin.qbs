@@ -203,7 +203,7 @@ Project {
             files: [
                 "addtovcsdialog.cpp", "addtovcsdialog.h",
                 "codecselector.cpp", "codecselector.h",
-                "externaltoolconfig.cpp", "externaltoolconfig.h", "externaltoolconfig.ui",
+                "externaltoolconfig.cpp", "externaltoolconfig.h",
                 "filepropertiesdialog.cpp", "filepropertiesdialog.h",
                 "ioptionspage.cpp", "ioptionspage.h",
                 "newdialog.cpp", "newdialog.h",

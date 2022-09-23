@@ -10368,7 +10368,7 @@ Do you want to kill it?</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ExternalToolConfig</name>
+    <name>Core::ExternalToolConfig</name>
     <message>
         <source>Add</source>
         <translation>Добавить</translation>

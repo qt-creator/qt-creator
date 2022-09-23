@@ -18960,7 +18960,7 @@ Krajevnih potegov se v vejo »master« ne uveljavi.</translation>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ExternalToolConfig</name>
+    <name>Core::ExternalToolConfig</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>

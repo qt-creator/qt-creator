@@ -1266,7 +1266,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>Core::Internal::ExternalToolConfig</name>
+    <name>Core::ExternalToolConfig</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -50466,26 +50466,6 @@ Output:
         <source>Useful text</source>
         <extracomment>Sample external tool text</extracomment>
         <translation>テキスト</translation>
-    </message>
-    <message>
-        <source>Add Tool</source>
-        <translation>ツールを追加</translation>
-    </message>
-    <message>
-        <source>Add Category</source>
-        <translation>カテゴリを追加</translation>
-    </message>
-    <message>
-        <source>PATH=C:\dev\bin;${PATH}</source>
-        <translation>PATH=C:\dev\bin;${PATH}</translation>
-    </message>
-    <message>
-        <source>PATH=/opt/bin:${PATH}</source>
-        <translation>PATH=/opt/bin:${PATH}</translation>
-    </message>
-    <message>
-        <source>No changes to apply.</source>
-        <translation>変更しません。</translation>
     </message>
     <message>
         <source>External Tools</source>
