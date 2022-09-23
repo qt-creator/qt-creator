@@ -4,7 +4,6 @@
 #pragma once
 
 #include "ilocatorfilter.h"
-#include "ui_filesystemfilter.h"
 
 #include <QByteArray>
 #include <QFutureInterface>

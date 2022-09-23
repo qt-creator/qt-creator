@@ -4,7 +4,6 @@
 #include "filesystemfilter.h"
 
 #include "basefilefilter.h"
-#include "locatorwidget.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/documentmanager.h>
@@ -13,12 +12,20 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/vcsmanager.h>
+
 #include <utils/checkablemessagebox.h>
 #include <utils/filepath.h>
+#include <utils/layoutbuilder.h>
 #include <utils/link.h>
 
+#include <QApplication>
+#include <QCheckBox>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QJsonObject>
+#include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
 #include <QRegularExpression>
 
@@ -192,25 +199,62 @@ void FileSystemFilter::accept(const LocatorFilterEntry &selection,
     }
 }
 
+class FileSystemFilterOptions : public QDialog
+{
+    Q_DECLARE_TR_FUNCTIONS(Core::Internal::FileSystemFilterOptions)
+
+public:
+    FileSystemFilterOptions(QWidget *parent)
+        : QDialog(parent)
+    {
+        resize(360, 131);
+        setWindowTitle(ILocatorFilter::msgConfigureDialogTitle());
+
+        auto prefixLabel = new QLabel;
+        prefixLabel->setText(ILocatorFilter::msgPrefixLabel());
+        prefixLabel->setToolTip(ILocatorFilter::msgPrefixToolTip());
+
+        shortcutEdit = new QLineEdit;
+        includeByDefault = new QCheckBox;
+        hiddenFilesFlag = new QCheckBox(tr("Include hidden files"));
+
+        prefixLabel->setBuddy(shortcutEdit);
+
+        auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+        using namespace Layouting;
+        Column {
+            Grid {
+                prefixLabel, shortcutEdit, includeByDefault, br,
+                tr("Filter:"), hiddenFilesFlag, br,
+            },
+            st,
+            Row {st, buttonBox }
+        }.attachTo(this);
+
+        connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    }
+
+    QLineEdit *shortcutEdit;
+    QCheckBox *includeByDefault;
+    QCheckBox *hiddenFilesFlag;
+};
+
 bool FileSystemFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)
 {
     Q_UNUSED(needsRefresh)
-    Ui::FileSystemFilterOptions ui;
-    QDialog dialog(parent);
-    ui.setupUi(&dialog);
-    dialog.setWindowTitle(ILocatorFilter::msgConfigureDialogTitle());
-    ui.prefixLabel->setText(ILocatorFilter::msgPrefixLabel());
-    ui.prefixLabel->setToolTip(ILocatorFilter::msgPrefixToolTip());
-    ui.includeByDefault->setText(msgIncludeByDefault());
-    ui.includeByDefault->setToolTip(msgIncludeByDefaultToolTip());
-    ui.hiddenFilesFlag->setChecked(m_includeHidden);
-    ui.includeByDefault->setChecked(isIncludedByDefault());
-    ui.shortcutEdit->setText(shortcutString());
+    FileSystemFilterOptions dialog(parent);
+    dialog.includeByDefault->setText(msgIncludeByDefault());
+    dialog.includeByDefault->setToolTip(msgIncludeByDefaultToolTip());
+    dialog.includeByDefault->setChecked(isIncludedByDefault());
+    dialog.hiddenFilesFlag->setChecked(m_includeHidden);
+    dialog.shortcutEdit->setText(shortcutString());
 
     if (dialog.exec() == QDialog::Accepted) {
-        m_includeHidden = ui.hiddenFilesFlag->isChecked();
-        setShortcutString(ui.shortcutEdit->text().trimmed());
-        setIncludedByDefault(ui.includeByDefault->isChecked());
+        m_includeHidden = dialog.hiddenFilesFlag->isChecked();
+        setShortcutString(dialog.shortcutEdit->text().trimmed());
+        setIncludedByDefault(dialog.includeByDefault->isChecked());
         return true;
     }
     return false;

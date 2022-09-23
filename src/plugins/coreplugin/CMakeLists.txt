@@ -108,7 +108,7 @@ add_qtc_plugin(Core
     locator/directoryfilter.cpp locator/directoryfilter.h locator/directoryfilter.ui
     locator/executefilter.cpp locator/executefilter.h
     locator/externaltoolsfilter.cpp locator/externaltoolsfilter.h
-    locator/filesystemfilter.cpp locator/filesystemfilter.h locator/filesystemfilter.ui
+    locator/filesystemfilter.cpp locator/filesystemfilter.h
     locator/ilocatorfilter.cpp locator/ilocatorfilter.h
     locator/javascriptfilter.cpp locator/javascriptfilter.h
     locator/locator.cpp locator/locator.h

@@ -348,7 +348,6 @@ Project {
                 "externaltoolsfilter.h",
                 "filesystemfilter.cpp",
                 "filesystemfilter.h",
-                "filesystemfilter.ui",
                 "ilocatorfilter.cpp",
                 "ilocatorfilter.h",
                 "javascriptfilter.cpp",
