@@ -13,11 +13,6 @@
 #include <QMutex>
 
 namespace Core {
-namespace Internal {
-namespace Ui {
-class DirectoryFilterOptions;
-} // namespace Ui
-} // namespace Internal
 
 class CORE_EXPORT DirectoryFilter : public BaseFileFilter
 {
@@ -53,8 +48,7 @@ private:
     QStringList m_exclusionFilters;
     // Our config dialog, uses in addDirectory and editDirectory
     // to give their dialogs the right parent
-    QDialog *m_dialog = nullptr;
-    Internal::Ui::DirectoryFilterOptions *m_ui = nullptr;
+    class DirectoryFilterOptions *m_dialog = nullptr;
     mutable QMutex m_lock;
     Utils::FilePaths m_files;
     bool m_isCustomFilter = true;

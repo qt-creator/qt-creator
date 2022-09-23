@@ -105,7 +105,7 @@ add_qtc_plugin(Core
     jsexpander.cpp jsexpander.h
     locator/basefilefilter.cpp locator/basefilefilter.h
     locator/commandlocator.cpp locator/commandlocator.h
-    locator/directoryfilter.cpp locator/directoryfilter.h locator/directoryfilter.ui
+    locator/directoryfilter.cpp locator/directoryfilter.h
     locator/executefilter.cpp locator/executefilter.h
     locator/externaltoolsfilter.cpp locator/externaltoolsfilter.h
     locator/filesystemfilter.cpp locator/filesystemfilter.h

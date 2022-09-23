@@ -341,7 +341,6 @@ Project {
                 "commandlocator.h",
                 "directoryfilter.cpp",
                 "directoryfilter.h",
-                "directoryfilter.ui",
                 "executefilter.cpp",
                 "executefilter.h",
                 "externaltoolsfilter.cpp",
