@@ -599,11 +599,6 @@ Rectangle {
 
                             property int grabIndex: -1
 
-                            function executeDrop(from, to) {
-                                statesEditorModel.drop(from, to)
-                                statesRepeater.grabIndex = -1
-                            }
-
                             model: statesEditorModel
 
                             onItemAdded: root.responsiveResize(root.width, root.height)
@@ -646,27 +641,27 @@ Rectangle {
                                         return
                                     }
 
-                                    statesEditorModel.move(
-                                                (drag.source as StateThumbnail).visualIndex,
-                                                stateThumbnail.visualIndex)
+                                    statesEditorModel.move(dragSource.visualIndex,
+                                                           stateThumbnail.visualIndex)
                                 }
 
                                 onDropped: function (drop) {
-                                    let dragSource = (drop.source as StateThumbnail)
+                                    let dropSource = (drop.source as StateThumbnail)
 
-                                    if (dragSource === undefined)
+                                    if (dropSource === undefined)
                                         return
 
-                                    if (dragSource.extendString !== stateThumbnail.extendString
+                                    if (dropSource.extendString !== stateThumbnail.extendString
                                             || stateThumbnail.extendedState) {
                                         return
                                     }
 
-                                    if (statesRepeater.grabIndex === stateThumbnail.visualIndex)
+                                    if (statesRepeater.grabIndex === dropSource.visualIndex)
                                         return
 
-                                    statesRepeater.executeDrop(statesRepeater.grabIndex,
-                                                               stateThumbnail.visualIndex)
+                                    statesEditorModel.drop(statesRepeater.grabIndex,
+                                                           dropSource.visualIndex)
+                                    statesRepeater.grabIndex = -1
                                 }
 
                                 // Extend Groups Visualization
@@ -768,20 +763,14 @@ Rectangle {
 
                                     hasWhenCondition: delegateRoot.hasWhenCondition
 
+                                    dragParent: scrollView
+
                                     // Fix ScrollView taking over the dragging event
                                     onGrabbing: {
                                         frame.interactive = false
                                         statesRepeater.grabIndex = stateThumbnail.visualIndex
                                     }
                                     onLetGo: frame.interactive = true
-
-                                    // Fix for ScrollView clipping while dragging of StateThumbnail
-                                    onDragActiveChanged: {
-                                        if (stateThumbnail.dragActive)
-                                            parent = scrollViewWrapper
-                                        else
-                                            parent = delegateRoot
-                                    }
 
                                     stateName: delegateRoot.stateName
                                     thumbnailImageSource: delegateRoot.stateImageSource

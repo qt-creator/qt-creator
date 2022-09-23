@@ -55,6 +55,8 @@ Item {
 
     property bool hasWhenCondition: false
 
+    property Item dragParent
+
     property int visualIndex: 0
 
     property int internalNodeId
@@ -764,6 +766,11 @@ Item {
         State {
             name: "drag"
             when: dragHandler.active
+
+            ParentChange {
+                target: root
+                parent: root.dragParent
+            }
 
             AnchorChanges {
                 target: root
