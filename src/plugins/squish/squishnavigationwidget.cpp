@@ -9,10 +9,10 @@
 #include "squishtesttreeview.h"
 #include "squishtr.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/iwizardfactory.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
@@ -173,18 +173,12 @@ void SquishNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
 
     connect(createNewTestSuite,
             &QAction::triggered,
-            this, [this]() {
-        if (!Core::ICore::isNewItemDialogRunning()) {
-            Core::ICore::showNewItemDialog(
-                        Tr::tr("New Project", "Title of dialog"),
-                        Utils::filtered(Core::IWizardFactory::allWizardFactories(),
-                                        [](Core::IWizardFactory *f) {
-                            return f->supportedProjectTypes().contains("Squish");
-                        }));
-        } else {
-            Core::ICore::raiseWindow(Core::ICore::newItemDialog());
-        }
-
+            this, []() {
+        auto command = Core::ActionManager::command(Utils::Id("Wizard.Impl.S.SquishTestSuite"));
+        if (command && command->action())
+            command->action()->trigger();
+        else
+            qWarning("Failed to get wizard command. UI changed?");
     });
     connect(openSquishSuites,
             &QAction::triggered,
