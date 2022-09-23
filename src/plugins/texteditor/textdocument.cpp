@@ -208,6 +208,7 @@ void TextDocumentPrivate::updateRevisions()
 TextDocument::TextDocument(Id id)
     : d(new TextDocumentPrivate)
 {
+    d->m_document.setParent(this);
     connect(&d->m_document, &QTextDocument::modificationChanged,
             this, &TextDocument::modificationChanged);
     connect(&d->m_document, &QTextDocument::contentsChanged,
