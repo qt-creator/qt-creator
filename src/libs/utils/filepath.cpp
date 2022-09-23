@@ -770,11 +770,11 @@ QString FilePath::displayName(const QString &args) const
 {
     QString deviceName;
     if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.deviceDisplayName, return path());
+        QTC_ASSERT(s_deviceHooks.deviceDisplayName, return nativePath());
         deviceName = s_deviceHooks.deviceDisplayName(*this);
     }
 
-    const QString fullPath = path();
+    const QString fullPath = nativePath();
 
     if (args.isEmpty()) {
         if (deviceName.isEmpty())
