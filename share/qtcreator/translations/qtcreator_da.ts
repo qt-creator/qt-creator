@@ -29179,7 +29179,7 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
     </message>
 </context>
 <context>
-    <name>QmakePriFile</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Failed</source>
         <translation>Mislykkedes</translation>
@@ -29192,9 +29192,6 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
         <source>File Error</source>
         <translation>Filfejl</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProFile</name>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
         <translation>Fejl under parsing af filen %1. Opgiver.</translation>
@@ -29203,25 +29200,16 @@ Filerne i Android-pakke kildemappen kopieres til bygmappens Android-mappe og sta
         <source>Could not find .pro file for subdirectory &quot;%1&quot; in &quot;%2&quot;.</source>
         <translation>Kunne ikke finde .pro-fil for undermappen &quot;%1&quot; i &quot;%2&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager</name>
     <message>
         <source>&quot;%1&quot; is used by qmake, but &quot;%2&quot; is configured in the kit.
 Please update your kit or choose a mkspec for qmake that matches your target environment better.</source>
         <translation>&quot;%1&quot; bruges af qmake, men &quot;%2&quot; er konfigureret i kittet.
 Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-miljø bedre.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::AddLibraryWizard</name>
     <message>
         <source>Add Library</source>
         <translation>Tilføj bibliotek</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ClassDefinition</name>
     <message>
         <source>The header file</source>
         <translation>Headerfilen</translation>
@@ -29322,9 +29310,6 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <source>Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)</source>
         <translation>Ikonfiler (*.png *.ico *.jpg *.xpm *.tif *.svg)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ClassList</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;ny klasse&gt;</translation>
@@ -29337,9 +29322,6 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <source>Delete class %1 from list?</source>
         <translation>Slet klassen %1 fra liste?</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>Assistent side</translation>
@@ -29380,9 +29362,6 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <source>Plugin Details</source>
         <translation>Plugindetaljer</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
     <message>
         <source>Custom Qt Widget Wizard</source>
         <translation>Brugerdefineret Qt widget-assistent</translation>
@@ -29407,9 +29386,6 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <source>Custom Widgets</source>
         <translation>Brugerdefineret widgets</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt Custom Designer Widget</source>
         <translation>Qt brugerdefineret Designer-widget</translation>
@@ -29418,16 +29394,10 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
         <translation>Opretter et Qt brugerdefineret Designer-widget eller en brugerdefineret widget-samling.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
         <translation>Denne assistent genererer en Qt Designer brugerdefineret widget eller et Qt Designer brugerdefineret widget-samling-projekt.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation>Qt Designer svarer ikke (%1).</translation>
@@ -29436,16 +29406,10 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <source>Unable to create server socket: %1</source>
         <translation>Kunne ikke oprette server-socket: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesktopQmakeRunConfiguration</name>
     <message>
         <source>Qt Run Configuration</source>
         <translation>Qt kør-konfiguration</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DetailsPage</name>
     <message>
         <source>Details</source>
         <translation>Detaljer</translation>
@@ -29482,9 +29446,6 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <source>Specify the package to link to</source>
         <translation>Angiv pakken som der skal linkes til</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <source>Unable to start &quot;%1&quot;</source>
         <translation>Kunne ikke starte &quot;%1&quot;</translation>
@@ -29493,9 +29454,6 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <source>The application &quot;%1&quot; could not be found.</source>
         <translation>Programmet &quot;%1&quot; kunne ikke findes.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::FilesPage</name>
     <message>
         <source>Class Information</source>
         <translation>Klasseinformation</translation>
@@ -29505,19 +29463,9 @@ Opdater venligst dit kit eller vælg en mkspec for qmake som matcher dit mål-mi
         <translation>Angiv grundlæggende information om klasserne for hvilke du vil generere skelet kildekode-fil.</translation>
     </message>
     <message>
-        <source>Details</source>
-        <translation>Detaljer</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::FilesSelectionWizardPage</name>
-    <message>
         <source>Files</source>
         <translation>Filer</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizard</name>
     <message>
         <source>Qt Widgets Application</source>
         <translation>Qt widgets-program</translation>
@@ -29530,16 +29478,10 @@ Preselects a desktop Qt for building the application if available.</source>
 
 Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Widgets Application project. The application derives by default from QApplication and includes an empty widget.</source>
         <translation>Denne assistent genererer et Qt Widgets-programprojekt. Programmet stammer som standard fra QApplication og inkluderer en tom widget.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsController</name>
     <message>
         <source>Linkage:</source>
         <translation>Linkning:</translation>
@@ -29564,9 +29506,6 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
         <source>%1 Library</source>
         <translation>%1 bibliotek</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsWidget</name>
     <message>
         <source>Library:</source>
         <translation>Bibliotek:</translation>
@@ -29600,20 +29539,12 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
         <translation>Windows</translation>
     </message>
     <message>
-        <source>Linkage:</source>
-        <translation>Linkning:</translation>
-    </message>
-    <message>
         <source>Dynamic</source>
         <translation>Dynamisk</translation>
     </message>
     <message>
         <source>Static</source>
         <translation>Statisk</translation>
-    </message>
-    <message>
-        <source>Mac:</source>
-        <translation>Mac:</translation>
     </message>
     <message>
         <source>Library</source>
@@ -29639,9 +29570,6 @@ Prævælger en desktop Qt til bygning af programmet, hvis tilgængeligt.</transl
         <source>Remove &quot;d&quot; suffix for release version</source>
         <translation>Fjern &quot;d&quot;-suffiks for udgiv-version</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryTypePage</name>
     <message>
         <source>Library Type</source>
         <translation>Bibliotekstype</translation>
@@ -29692,9 +29620,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Type</source>
         <translation>Type</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizard</name>
     <message>
         <source>C++ Library</source>
         <translation>C++-bibliotek</translation>
@@ -29703,9 +29628,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
         <translation>Opretter et C++-bibliotek baseret på qmake. Dette kan bruges til at oprette:&lt;ul&gt;&lt;li&gt;et delt C++-bibliotek til brug sammen med &lt;tt&gt;QPluginLoader&lt;/tt&gt; og runtime (plugins)&lt;/li&gt;&lt;li&gt;et delt eller statisk C++-bibliotek til brug sammen med et andet projekt ved linktime&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizardDialog</name>
     <message>
         <source>Shared Library</source>
         <translation>Delt bibliotek</translation>
@@ -29719,20 +29641,9 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <translation>Qt-plugin</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Type</translation>
-    </message>
-    <message>
         <source>This wizard generates a C++ Library project.</source>
         <translation>Denne assistent genererer et C++-bibliotek-projekt.</translation>
     </message>
-    <message>
-        <source>Details</source>
-        <translation>Detaljer</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MakeStep</name>
     <message>
         <source>Override %1:</source>
         <translation>Tilsidesæt %1:</translation>
@@ -29741,16 +29652,10 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Make arguments:</source>
         <translation>Make-argumenter:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ModulesPage</name>
     <message>
         <source>Select Required Modules</source>
         <translation>Vælg krævet moduler</translation>
@@ -29763,27 +29668,13 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Modules</source>
         <translation>Moduler</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PluginGenerator</name>
     <message>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
         <translation>Oprettelse af flere widget-biblioteker (%1, %2) i et projekt (%3) understøttes ikke.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStep</name>
     <message>
         <source>qmake build configuration:</source>
         <translation>qmake-byggekonfiguration:</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>Fejlretning</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Udgivelse</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
@@ -29805,16 +29696,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Effective qmake call:</source>
         <translation>Virkende qmake kald:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStepFactory</name>
-    <message>
-        <source>qmake</source>
-        <translation>qmake</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeKitConfigWidget</name>
     <message>
         <source>Qt mkspec:</source>
         <translation>Qt mkspec:</translation>
@@ -29823,9 +29704,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation>Mkspec som skal bruges når projektet bygges med qmake.&lt;br&gt;Denne indstilling ignoreres når der bruges andre byggesystemer.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectConfigWidget</name>
     <message>
         <source>Shadow build:</source>
         <translation>Skygge-byg:</translation>
@@ -29872,20 +29750,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <comment>%1 error message, %2 build directory</comment>
         <translation>%1 Byggen i %2 overskrives.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectImporter</name>
-    <message>
-        <source>Debug</source>
-        <translation>Fejlret</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Udgiv</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
     <message>
         <source>Build</source>
         <translation>Byg</translation>
@@ -29946,9 +29810,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Add Library...</source>
         <translation>Tilføj bibliotek...</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Qt4Target</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -29964,9 +29825,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <comment>Qt4 Maemo Device target display name</comment>
         <translation>Maemo-enhed</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SimpleProjectWizard</name>
     <message>
         <source>Import as qmake Project (Limited Functionality)</source>
         <translation>Importér som qmake-projekt (begrænset funktionalitet)</translation>
@@ -29975,9 +29833,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Imports existing projects that do not use qmake, CMake or Autotools.&lt;p&gt;This creates a qmake .pro file that allows you to use %1 as a code editor and as a launcher for debugging and analyzing tools. If you want to build the project, you might need to edit the generated .pro file.</source>
         <translation>Importerer eksisterende projekter som ikke bruger qmake, CMake eller Autotools.&lt;p&gt;Dette opretter en qmake .pro-fil der giver dig mulighed for at bruge %1 som en koderedigering og som en starter til fejlretnings- of analyseringsværktøjer. Hvis du vil bygge projektet, så kan det være du skal redigere den genererede .pro-fil.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SimpleProjectWizardDialog</name>
     <message>
         <source>Import Existing Project</source>
         <translation>Importér eksisterende projekt</translation>
@@ -29998,9 +29853,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>File Selection</source>
         <translation>Valg af fil</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizard</name>
     <message>
         <source>Subdirs Project</source>
         <translation>Undermapper-projekt</translation>
@@ -30022,16 +29874,10 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <comment>Title of dialog</comment>
         <translation>Nyt underprojekt</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation>Denne assistent genererer et Qt undermapper-projekt. Tilføj underprojekter til det senere ved at bruge de andre assistenter.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SummaryPage</name>
     <message>
         <source>Summary</source>
         <translation>Opsummering</translation>
@@ -30040,9 +29886,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>The following snippet will be added to the&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; file:</source>
         <translation>Følgende snippet skal tilføjes til &lt;br&gt;&lt;b&gt;%1&lt;/b&gt;-filen:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStep</name>
     <message>
         <source>Make</source>
         <comment>Qt MakeStep display name.</comment>
@@ -30051,13 +29894,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
     <message>
         <source>Cannot find Makefile. Check your build settings.</source>
         <translation>Kan ikke finde Makefile. Tjek dine bygindstillinger.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStepConfigWidget</name>
-    <message>
-        <source>Override %1:</source>
-        <translation>Tilsidesæt %1:</translation>
     </message>
     <message>
         <source>Make:</source>
@@ -30075,9 +29911,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 not found in the environment.</source>
         <translation>&lt;b&gt;Make:&lt;/b&gt; %1 ikke fundet i miljøet.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStep</name>
     <message>
         <source>qmake</source>
         <extracomment>QMakeStep default display name</extracomment>
@@ -30103,9 +29936,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>&lt;no Make step found&gt;</source>
         <translation>&lt;intet Make-trin fundet&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>QML Debugging</source>
         <translation>QML-fejlretning</translation>
@@ -30142,9 +29972,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Disables QML debugging. QML profiling will still work.</source>
         <translation>Deaktiverer QML-fejlretning. QML-profilering vil stadig virke.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfiguration</name>
     <message>
         <source>Could not parse Makefile.</source>
         <translation>Kunne ikke parse Makefile.</translation>
@@ -30169,9 +29996,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Parsing the .pro file</source>
         <translation>Parser .pro-fil</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
     <message>
         <source>Release</source>
         <extracomment>The name of the release build configuration created by default for a qmake project.</extracomment>
@@ -30205,9 +30029,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation>Profile</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeKitInformation</name>
     <message>
         <source>No Qt version set, so mkspec is ignored.</source>
         <translation>Ingen Qt version sat, så mkspec ignoreres.</translation>
@@ -30224,16 +30045,10 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Mkspec configured for qmake by the Kit.</source>
         <translation>Mkspec konfigureret for qmake af kittet.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeManager</name>
     <message>
         <source>QMake</source>
         <translation>QMake</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakePriFile</name>
     <message>
         <source>Headers</source>
         <translation>Headere</translation>
@@ -30262,9 +30077,6 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
         <source>Other files</source>
         <translation>Andre filer</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeProject</name>
     <message>
         <source>Reading Project &quot;%1&quot;</source>
         <translation>Læser projektet &quot;%1&quot;</translation>
@@ -30292,7 +30104,7 @@ Hverken stien til biblioteket eller stien til dets includere tilføjes til .pro-
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>The build directory needs to be at the same level as the source directory.</source>
         <translation>Bygmappen skal være på samme niveau som kildemappen.</translation>

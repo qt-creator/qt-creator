@@ -9,6 +9,7 @@
 #include "qmakenodetreebuilder.h"
 #include "qmakeprojectimporter.h"
 #include "qmakeprojectmanagerconstants.h"
+#include "qmakeprojectmanagertr.h"
 #include "qmakestep.h"
 
 #include <coreplugin/documentmanager.h>
@@ -661,7 +662,7 @@ void QmakeBuildSystem::asyncUpdate()
     m_asyncUpdateFutureInterface.reset(new QFutureInterface<void>);
     m_asyncUpdateFutureInterface->setProgressRange(0, 0);
     Core::ProgressManager::addTask(m_asyncUpdateFutureInterface->future(),
-                                   tr("Reading Project \"%1\"").arg(project()->displayName()),
+                                   Tr::tr("Reading Project \"%1\"").arg(project()->displayName()),
                                    Constants::PROFILE_EVALUATE);
 
     m_asyncUpdateFutureInterface->reportStarted();
@@ -683,10 +684,10 @@ void QmakeBuildSystem::asyncUpdate()
     QtSupport::QtVersion *const qtVersion = QtSupport::QtKitAspect::qtVersion(k);
     if (!qtVersion || !qtVersion->isValid()) {
         const QString errorMessage
-            = k ? tr("Cannot parse project \"%1\": The currently selected kit \"%2\" does not "
-                     "have a valid Qt.")
+            = k ? Tr::tr("Cannot parse project \"%1\": The currently selected kit \"%2\" does not "
+                         "have a valid Qt.")
                       .arg(project()->displayName(), k->displayName())
-                : tr("Cannot parse project \"%1\": No kit selected.").arg(project()->displayName());
+                : Tr::tr("Cannot parse project \"%1\": No kit selected.").arg(project()->displayName());
         proFileParseError(errorMessage, project()->projectFilePath());
         m_asyncUpdateFutureInterface->reportCanceled();
         m_asyncUpdateFutureInterface->reportFinished();
@@ -735,11 +736,11 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
     Tasks result = Project::projectIssues(k);
     const QtSupport::QtVersion *const qtFromKit = QtSupport::QtKitAspect::qtVersion(k);
     if (!qtFromKit)
-        result.append(createProjectTask(Task::TaskType::Error, tr("No Qt version set in kit.")));
+        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No Qt version set in kit.")));
     else if (!qtFromKit->isValid())
-        result.append(createProjectTask(Task::TaskType::Error, tr("Qt version is invalid.")));
+        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Qt version is invalid.")));
     if (!ToolChainKitAspect::cxxToolChain(k))
-        result.append(createProjectTask(Task::TaskType::Error, tr("No C++ compiler set in kit.")));
+        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No C++ compiler set in kit.")));
 
     // A project can be considered part of more than one Qt version, for instance if it is an
     // example shipped via the installer.
@@ -752,8 +753,8 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
     if (!qtsContainingThisProject.isEmpty()
             && !qtsContainingThisProject.contains(const_cast<QtVersion *>(qtFromKit))) {
         result.append(CompileTask(Task::Warning,
-                                  tr("Project is part of Qt sources that do not match "
-                                     "the Qt defined in the kit.")));
+                                  Tr::tr("Project is part of Qt sources that do not match "
+                                         "the Qt defined in the kit.")));
     }
 
     return result;
@@ -1398,8 +1399,7 @@ void QmakeBuildSystem::testToolChain(ToolChain *tc, const FilePath &path) const
     }
     TaskHub::addTask(
         BuildSystemTask(Task::Warning,
-                        QCoreApplication::translate(
-                            "QmakeProjectManager",
+                        Tr::tr(
                             "\"%1\" is used by qmake, but \"%2\" is configured in the kit.\n"
                             "Please update your kit (%3) or choose a mkspec for qmake that matches "
                             "your target environment better.")

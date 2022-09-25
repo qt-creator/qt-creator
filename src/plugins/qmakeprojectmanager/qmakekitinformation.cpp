@@ -4,6 +4,7 @@
 #include "qmakekitinformation.h"
 
 #include "qmakeprojectmanagerconstants.h"
+#include "qmakeprojectmanagertr.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
@@ -27,8 +28,6 @@ namespace Internal {
 
 class QmakeKitAspectWidget final : public KitAspectWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(QmakeProjectManager::Internal::QmakeKitAspect)
-
 public:
     QmakeKitAspectWidget(Kit *k, const KitAspect *ki)
         : KitAspectWidget(k, ki), m_lineEdit(createSubWidget<QLineEdit>())
@@ -70,8 +69,8 @@ QmakeKitAspect::QmakeKitAspect()
 {
     setObjectName(QLatin1String("QmakeKitAspect"));
     setId(QmakeKitAspect::id());
-    setDisplayName(tr("Qt mkspec"));
-    setDescription(tr("The mkspec to use when building the project with qmake.<br>"
+    setDisplayName(Tr::tr("Qt mkspec"));
+    setDescription(Tr::tr("The mkspec to use when building the project with qmake.<br>"
                       "This setting is ignored when using other build systems."));
     setPriority(24000);
 }
@@ -83,9 +82,9 @@ Tasks QmakeKitAspect::validate(const Kit *k) const
 
     const QString mkspec = QmakeKitAspect::mkspec(k);
     if (!version && !mkspec.isEmpty())
-        result << BuildSystemTask(Task::Warning, tr("No Qt version set, so mkspec is ignored."));
+        result << BuildSystemTask(Task::Warning, Tr::tr("No Qt version set, so mkspec is ignored."));
     if (version && !version->hasMkspec(mkspec))
-        result << BuildSystemTask(Task::Error, tr("Mkspec not found for Qt version."));
+        result << BuildSystemTask(Task::Error, Tr::tr("Mkspec not found for Qt version."));
 
     return result;
 }
@@ -97,12 +96,12 @@ KitAspectWidget *QmakeKitAspect::createConfigWidget(Kit *k) const
 
 KitAspect::ItemList QmakeKitAspect::toUserOutput(const Kit *k) const
 {
-    return {qMakePair(tr("mkspec"), QDir::toNativeSeparators(mkspec(k)))};
+    return {qMakePair(Tr::tr("mkspec"), QDir::toNativeSeparators(mkspec(k)))};
 }
 
 void QmakeKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
-    expander->registerVariable("Qmake:mkspec", tr("Mkspec configured for qmake by the kit."),
+    expander->registerVariable("Qmake:mkspec", Tr::tr("Mkspec configured for qmake by the kit."),
                 [kit]() -> QString {
                     return QDir::toNativeSeparators(mkspec(kit));
                 });

@@ -6274,7 +6274,7 @@ Greška: %5</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ClassDefinition</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>The header file</source>
         <translation>Datoteka zaglavlja</translation>
@@ -6375,9 +6375,6 @@ Greška: %5</translation>
         <source>Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)</source>
         <translation>Datoteke ikona (*.png *.ico *.jpg *.xpm *.tif *.svg)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>Stranice čarobnjaka</translation>
@@ -6418,9 +6415,6 @@ Greška: %5</translation>
         <source>Plugin Details</source>
         <translation>Detalji o priključku</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
     <message>
         <source>Custom Qt Widget Wizard</source>
         <translation>Prilagođeni čarobnjak za QT programčiće</translation>
@@ -6445,9 +6439,6 @@ Greška: %5</translation>
         <source>Custom Widgets</source>
         <translation>Prilagođeni programčići</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsWidget</name>
     <message>
         <source>Library file:</source>
         <translation>Datoteka biblioteke:</translation>
@@ -6524,9 +6515,6 @@ Greška: %5</translation>
         <source>Remove &quot;d&quot; suffix for release version</source>
         <translation>Ukloni nastavak &quot;d&quot; iz verzije za objavljivanje</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectConfigWidget</name>
     <message>
         <source>Shadow build:</source>
         <translation>Prikaži gradnju:</translation>
@@ -6573,20 +6561,9 @@ Greška: %5</translation>
         <comment>%1 error message, %2 build directory</comment>
         <translation>%1 Gradnja %2 će se prepisati.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStep</name>
     <message>
         <source>qmake build configuration:</source>
         <translation>Konfiguracija qmake gradnje:</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>Uklanjanje grešaka</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Objavljivanje</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
@@ -33080,14 +33057,11 @@ These files are preserved.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::AddLibraryWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Add Library</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryTypePage</name>
     <message>
         <source>Library Type</source>
         <translation type="unfinished"></translation>
@@ -33135,9 +33109,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Type</source>
         <translation>Vrsta</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DetailsPage</name>
     <message>
         <source>Details</source>
         <translation type="unfinished">Detalji</translation>
@@ -33174,9 +33145,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Specify the package to link to</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SummaryPage</name>
     <message>
         <source>Summary</source>
         <translation type="unfinished"></translation>
@@ -33185,9 +33153,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>The following snippet will be added to the&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; file:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ClassList</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation type="unfinished"></translation>
@@ -33200,9 +33165,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Delete class %1 from list?</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt Custom Designer Widget</source>
         <translation type="unfinished"></translation>
@@ -33211,30 +33173,18 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PluginGenerator</name>
     <message>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesktopQmakeRunConfiguration</name>
     <message>
         <source>Qt Run Configuration</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <source>Unable to start &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
@@ -33243,22 +33193,12 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>The application &quot;%1&quot; could not be found.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unable to create server socket: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsController</name>
-    <message>
-        <source>Linkage:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -33270,10 +33210,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Mac:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>%1 Framework</source>
         <translation type="unfinished"></translation>
     </message>
@@ -33281,9 +33217,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>%1 Library</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfiguration</name>
     <message>
         <source>Could not parse Makefile.</source>
         <translation type="unfinished"></translation>
@@ -33308,9 +33241,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Parsing the .pro file</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QtVersion</name>
     <message>
         <source>The build directory needs to be at the same level as the source directory.</source>
         <translation type="unfinished"></translation>
@@ -33330,7 +33260,7 @@ Neither the path to the library nor the path to its includes is added to the .pr
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Release</source>
         <extracomment>The name of the release build configuration created by default for a qmake project.</extracomment>
@@ -33364,9 +33294,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeKitConfigWidget</name>
     <message>
         <source>Qt mkspec</source>
         <translation type="unfinished"></translation>
@@ -33375,9 +33302,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeKitInformation</name>
     <message>
         <source>No Qt version set, so mkspec is ignored.</source>
         <translation type="unfinished"></translation>
@@ -33394,16 +33318,10 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Mkspec configured for qmake by the Kit.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeMakeStep</name>
     <message>
         <source>Cannot find Makefile. Check your build settings.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakePriFile</name>
     <message>
         <source>Headers</source>
         <translation type="unfinished"></translation>
@@ -33432,9 +33350,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Other files</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakePriFile</name>
     <message>
         <source>Failed</source>
         <translation type="unfinished"></translation>
@@ -33447,9 +33362,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>File Error</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProFile</name>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
         <translation type="unfinished"></translation>
@@ -33458,9 +33370,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Could not find .pro file for subdirectory &quot;%1&quot; in &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeProject</name>
     <message>
         <source>Reading Project &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
@@ -33477,35 +33386,15 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>No C++ compiler set in kit.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager</name>
     <message>
         <source>&quot;%1&quot; is used by qmake, but &quot;%2&quot; is configured in the kit.
 Please update your kit (%3) or choose a mkspec for qmake that matches your target environment better.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectImporter</name>
-    <message>
-        <source>Debug</source>
-        <translation>Ispravi greške</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Objavi</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeManager</name>
     <message>
         <source>QMake</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
     <message>
         <source>Build</source>
         <translation type="unfinished"></translation>
@@ -33566,9 +33455,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>Add Library...</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStep</name>
     <message>
         <source>qmake</source>
         <extracomment>QMakeStep default display name</extracomment>
@@ -33594,9 +33480,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>&lt;no Make step found&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>QML Debugging</source>
         <translation type="unfinished"></translation>
@@ -33734,7 +33617,7 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::FilesPage</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Class Information</source>
         <translation type="unfinished"></translation>
@@ -33743,13 +33626,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>Specify basic information about the classes for which you want to generate skeleton source code files.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Details</source>
-        <translation type="unfinished">Detalji</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizard</name>
     <message>
         <source>Qt Widgets Application</source>
         <translation type="unfinished"></translation>
@@ -33760,16 +33636,10 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
 Preselects a desktop Qt for building the application if available.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Widgets Application project. The application derives by default from QApplication and includes an empty widget.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizard</name>
     <message>
         <source>C++ Library</source>
         <translation type="unfinished"></translation>
@@ -33778,9 +33648,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizardDialog</name>
     <message>
         <source>Shared Library</source>
         <translation type="unfinished"></translation>
@@ -33794,20 +33661,9 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Vrsta</translation>
-    </message>
-    <message>
         <source>This wizard generates a C++ Library project.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Details</source>
-        <translation type="unfinished">Detalji</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ModulesPage</name>
     <message>
         <source>Select Required Modules</source>
         <translation type="unfinished"></translation>
@@ -33820,16 +33676,10 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Modules</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::FilesSelectionWizardPage</name>
     <message>
         <source>Files</source>
         <translation type="unfinished">Datoteke</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SimpleProjectWizardDialog</name>
     <message>
         <source>Import Existing Project</source>
         <translation type="unfinished"></translation>
@@ -33850,9 +33700,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>File Selection</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SimpleProjectWizard</name>
     <message>
         <source>Import as qmake Project (Limited Functionality)</source>
         <translation type="unfinished"></translation>
@@ -33861,9 +33708,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Imports existing projects that do not use qmake, CMake or Autotools.&lt;p&gt;This creates a qmake .pro file that allows you to use %1 as a code editor and as a launcher for debugging and analyzing tools. If you want to build the project, you might need to edit the generated .pro file.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizard</name>
     <message>
         <source>Subdirs Project</source>
         <translation type="unfinished"></translation>
@@ -33885,9 +33729,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <comment>Title of dialog</comment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation type="unfinished"></translation>

@@ -984,7 +984,7 @@
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ClassDefinition</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -1089,9 +1089,6 @@
         <source>Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)</source>
         <translation>Pliki z ikonami (*.png *.ico *.jpg *.xpm *.tif *.svg)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>StronaKreatora</translation>
@@ -1132,9 +1129,6 @@
         <source>Plugin Details</source>
         <translation>Szczegóły wtyczki</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
     <message>
         <source>Custom Qt Widget Wizard</source>
         <translation>Kreator własnych widżetów Qt</translation>
@@ -1159,9 +1153,6 @@
         <source>Custom Widgets</source>
         <translation>Własne widżety</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectConfigWidget</name>
     <message>
         <source>Shadow Build Directory</source>
         <translation>Katalog kompilacji w innym miejscu</translation>
@@ -8462,7 +8453,7 @@ do projektu &quot;%2&quot;.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ClassList</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;Nowa klasa&gt;</translation>
@@ -8475,9 +8466,6 @@ do projektu &quot;%2&quot;.</translation>
         <source>Delete class %1 from list?</source>
         <translation>Czy usunąć klasę %1 z listy?</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt Custom Designer Widget</source>
         <translation>Własny widżet Qt Designera</translation>
@@ -8486,23 +8474,14 @@ do projektu &quot;%2&quot;.</translation>
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
         <translation>Tworzy własny widżet Qt Designera lub kolekcję własnych widżetów.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
         <translation>Ten kreator generuje projekt własnego widżetu Qt Designera lub projekt kolekcji własnych widżetów Qt4 Designera.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PluginGenerator</name>
     <message>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
         <translation>Tworzenie wielu bibliotek z widżetami (%1, %2) w jednym projekcie (%3) nie jest obsługiwane.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <source>Unable to start &quot;%1&quot;</source>
         <translation>Nie można uruchomić &quot;%1&quot;</translation>
@@ -8511,9 +8490,6 @@ do projektu &quot;%2&quot;.</translation>
         <source>The application &quot;%1&quot; could not be found.</source>
         <translation>Nie można odnaleźć aplikacji &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation>Qt Designer nie odpowiada (%1).</translation>
@@ -8522,9 +8498,6 @@ do projektu &quot;%2&quot;.</translation>
         <source>Unable to create server socket: %1</source>
         <translation>Nie można utworzyć gniazda serwera: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStep</name>
     <message>
         <source>Make</source>
         <comment>Qt MakeStep display name.</comment>
@@ -8534,9 +8507,6 @@ do projektu &quot;%2&quot;.</translation>
         <source>Cannot find Makefile. Check your build settings.</source>
         <translation>Nie można odnaleźć pliku Makefile. Sprawdź swoje ustawienia budowania.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStepConfigWidget</name>
     <message>
         <source>Override %1:</source>
         <translation>Nadpisz %1:</translation>
@@ -8557,16 +8527,10 @@ do projektu &quot;%2&quot;.</translation>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 not found in the environment.</source>
         <translation>&lt;b&gt;Make:&lt;/b&gt; Nie odnaleziono %1 w środowisku.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStep</name>
     <message>
         <source>qmake</source>
         <extracomment>QMakeStep default display name</extracomment>
@@ -8592,9 +8556,6 @@ do projektu &quot;%2&quot;.</translation>
         <source>&lt;no Make step found&gt;</source>
         <translation>&lt;brak kroku Make&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>QML Debugging</source>
         <translation>Debugowanie QML</translation>
@@ -8627,23 +8588,10 @@ do projektu &quot;%2&quot;.</translation>
         <source>Disables QML debugging. QML profiling will still work.</source>
         <translation>Blokuje debugowanie QML, profilowanie QML pozostawia włączone.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStepFactory</name>
-    <message>
-        <source>qmake</source>
-        <translation>qmake</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeManager</name>
     <message>
         <source>QMake</source>
         <translation>QMake</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
     <message>
         <source>Run qmake</source>
         <translation>Uruchom qmake</translation>
@@ -8805,7 +8753,7 @@ do projektu &quot;%2&quot;.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::FilesPage</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Class Information</source>
         <translation>Informacje o klasie</translation>
@@ -8818,9 +8766,6 @@ do projektu &quot;%2&quot;.</translation>
         <source>Details</source>
         <translation>Szczegóły</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizard</name>
     <message>
         <source>Qt Widgets Application</source>
         <translation>Aplikacja Qt Widgets</translation>
@@ -8833,16 +8778,10 @@ Preselects a desktop Qt for building the application if available.</source>
 
 Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dostępna).</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Widgets Application project. The application derives by default from QApplication and includes an empty widget.</source>
         <translation>Ten kreator generuje projekt aplikacji Qt Widgets. Aplikacja domyślnie dziedziczy z QApplication i zawiera pusty widżet.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizard</name>
     <message>
         <source>C++ Library</source>
         <translation>Biblioteka C++</translation>
@@ -8851,9 +8790,6 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
         <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;</source>
         <translation>Tworzy bibliotekę C++ bazującą na qmake. Umożliwia utworzenie:&lt;ul&gt;&lt;li&gt;dzielonej biblioteki C++, zdolnej do ładowania wtyczek za pomocą &lt;tt&gt;QPluginLoader&lt;/tt&gt;&lt;/li&gt;&lt;li&gt;dzielonej lub statycznej biblioteki C++, którą można dowiązać do innego projektu&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizardDialog</name>
     <message>
         <source>Shared Library</source>
         <translation>Biblioteka współdzielona</translation>
@@ -8874,13 +8810,6 @@ Wstępnie wybiera wersję desktopową Qt do budowania aplikacji (jeśli jest dos
         <source>This wizard generates a C++ Library project.</source>
         <translation>Ten kreator generuje projekt biblioteki C++.</translation>
     </message>
-    <message>
-        <source>Details</source>
-        <translation>Szczegóły</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ModulesPage</name>
     <message>
         <source>Select Required Modules</source>
         <translation>Wybierz wymagane moduły</translation>
@@ -10636,11 +10565,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::TestWizardPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>StronaKreatora</translation>
-    </message>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Specify basic information about the test class for which you want to generate skeleton source code file.</source>
         <translation>Podaj podstawowe informacje o klasie testowej, dla której ma zostać wygenerowany szkielet pliku z kodem źródłowym.</translation>
@@ -10684,10 +10609,6 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
     <message>
         <source>Test Class Information</source>
         <translation>Informacje o klasie testowej</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Szczegóły</translation>
     </message>
 </context>
 <context>
@@ -12238,7 +12159,7 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::TestWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Qt Unit Test</source>
         <translation>Test jednostkowy Qt</translation>
@@ -12247,9 +12168,6 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
         <source>Creates a QTestLib-based unit test for a feature or a class. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
         <translation>Tworzy test jednostkowy funkcjonalności lub klasy, dziedzicząc z QTestLib. Testy jednostkowe pozwalają na weryfikowanie działania kodu i wykrywanie regresji.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Unit Test consisting of a single source file with a test class.</source>
         <translation>Ten kreator generuje test jednostkowy Qt składający się z pojedynczego pliku źródłowego z klasą testową.</translation>
@@ -12540,7 +12458,7 @@ które można ustawić poniżej.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmakeProject</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Reading Project &quot;%1&quot;</source>
         <translation>Odczyt projektu &quot;%1&quot;</translation>
@@ -12576,7 +12494,7 @@ które można ustawić poniżej.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>The build directory needs to be at the same level as the source directory.</source>
         <translation>Katalog przeznaczony do budowania musi być na tym samym poziomie co katalog ze źródłami.</translation>
@@ -13055,7 +12973,7 @@ Identyfikatory muszą rozpoczynać się małą literą.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsWidget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Library:</source>
         <translation>Biblioteka:</translation>
@@ -13810,14 +13728,11 @@ zamiast w jego katalogu instalacyjnym.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::AddLibraryWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Add Library</source>
         <translation>Dodaj bibliotekę</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryTypePage</name>
     <message>
         <source>Library Type</source>
         <translation>Typ biblioteki</translation>
@@ -13845,10 +13760,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <translation>Dowiązuje bibliotekę systemową używając pkg-config.</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Typ</translation>
-    </message>
-    <message>
         <source>External library</source>
         <translation>Zewnętrzna biblioteka</translation>
     </message>
@@ -13868,9 +13779,6 @@ Adds the library and include paths to the .pro file.</source>
         <translation>Dowiązuje bibliotekę, która jest wewnątrz drzewa budowy projektu.
 Ścieżki do biblioteki i jej nagłówków zostaną dodane do pliku .pro.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DetailsPage</name>
     <message>
         <source>System Library</source>
         <translation>Biblioteka systemowa</translation>
@@ -13892,10 +13800,6 @@ Adds the library and include paths to the .pro file.</source>
         <translation>Zewnętrzna biblioteka</translation>
     </message>
     <message>
-        <source>Details</source>
-        <translation>Szczegóły</translation>
-    </message>
-    <message>
         <source>Specify the library to link to and the includes path</source>
         <translation>Wskaż bibliotekę, która ma zostać dowiązana i podaj ścieżkę do jej nagłówków</translation>
     </message>
@@ -13907,9 +13811,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>Choose the project file of the library to link to</source>
         <translation>Wybierz plik projektu biblioteki, która ma zostać dowiązana</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SummaryPage</name>
     <message>
         <source>Summary</source>
         <translation>Podsumowanie</translation>
@@ -13918,13 +13819,6 @@ Adds the library and include paths to the .pro file.</source>
         <source>The following snippet will be added to the&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; file:</source>
         <translation>Do pliku &lt;b&gt;%1&lt;/b&gt;&lt;br&gt;zostanie dodany następujący fragment:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsController</name>
-    <message>
-        <source>Linkage:</source>
-        <translation>Dowiązanie:</translation>
-    </message>
     <message>
         <source>%1 Dynamic</source>
         <translation>%1 Dynamiczne</translation>
@@ -13932,10 +13826,6 @@ Adds the library and include paths to the .pro file.</source>
     <message>
         <source>%1 Static</source>
         <translation>%1 Statyczne</translation>
-    </message>
-    <message>
-        <source>Mac:</source>
-        <translation>Mac:</translation>
     </message>
     <message>
         <source>%1 Framework</source>
@@ -16177,7 +16067,7 @@ Ponowić próbę?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Subdirs Project</source>
         <translation>Projekt z podkatalogami</translation>
@@ -16199,9 +16089,6 @@ Ponowić próbę?</translation>
         <comment>Title of dialog</comment>
         <translation>Nowy podprojekt</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation>Ten kreator generuje projekt z podkatalogami Qt. Podprojekty mogą być dodane później przy użyciu innych kreatorów.</translation>
@@ -17748,7 +17635,7 @@ Do you want to save the data first?</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmakeBuildConfiguration</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Could not parse Makefile.</source>
         <translation>Błąd parsowania pliku Makefile.</translation>
@@ -17773,9 +17660,6 @@ Do you want to save the data first?</source>
         <source>Parsing the .pro file</source>
         <translation>Parsowanie pliku .pro</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
     <message>
         <source>Release</source>
         <comment>Shadow build directory suffix</comment>
@@ -19990,29 +19874,14 @@ Przedrostki te, w dodatku do nazwy bieżącego pliku, używane są do przełącz
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::MakeStep</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Make arguments:</source>
         <translation>Argumenty make&apos;a:</translation>
     </message>
     <message>
-        <source>Override %1:</source>
-        <translation>Nadpisz %1:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStep</name>
-    <message>
         <source>qmake build configuration:</source>
         <translation>Konfiguracja qmake:</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>Debug</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Release</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
@@ -23974,7 +23843,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::QmakeKitConfigWidget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation>Mkspec, który należy użyć do budowania projektów qmake.&lt;br&gt;To ustawienie zostanie zignorowane dla innych systemów budowania.</translation>
@@ -23983,9 +23852,6 @@ You can choose another communication channel here, such as a serial line or cust
         <source>Qt mkspec:</source>
         <translation>Qt mkspec:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeKitInformation</name>
     <message>
         <source>No Qt version set, so mkspec is ignored.</source>
         <translation>Brak ustawionej wersji Qt, mkspec zostanie zignorowany.</translation>
@@ -28213,7 +28079,7 @@ Proszę zamknąć wszystkie instancje tej aplikacji przed uruchomieniem budowani
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::Qt4Target</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -28276,7 +28142,7 @@ Proszę zamknąć wszystkie instancje tej aplikacji przed uruchomieniem budowani
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::DesktopQmakeRunConfiguration</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>The .pro file &quot;%1&quot; is currently being parsed.</source>
         <translation>Trwa parsowanie pliku .pro &quot;%1&quot;.</translation>
@@ -28285,9 +28151,6 @@ Proszę zamknąć wszystkie instancje tej aplikacji przed uruchomieniem budowani
         <source>Qt Run Configuration</source>
         <translation>Konfiguracja uruchamiania Qt</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesktopQmakeRunConfigurationWidget</name>
     <message>
         <source>Executable:</source>
         <translation>Plik wykonywalny:</translation>
@@ -28315,17 +28178,6 @@ Proszę zamknąć wszystkie instancje tej aplikacji przed uruchomieniem budowani
     <message>
         <source>Add build library search path to LD_LIBRARY_PATH</source>
         <translation>Dodaj ścieżkę poszukiwań bibliotek na potrzeby budowania do zmiennej LD_LIBRARY_PATH</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectImporter</name>
-    <message>
-        <source>Debug</source>
-        <translation>Debug</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Release</translation>
     </message>
 </context>
 <context>
@@ -39541,14 +39393,11 @@ w ścieżce.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::FilesSelectionWizardPage</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Files</source>
         <translation>Pliki</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SimpleProjectWizardDialog</name>
     <message>
         <source>Import Existing Project</source>
         <translation>Import istniejącego projektu</translation>
@@ -39569,9 +39418,6 @@ w ścieżce.</translation>
         <source>File Selection</source>
         <translation>Wybór pliku</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SimpleProjectWizard</name>
     <message>
         <source>Import as qmake Project (Limited Functionality)</source>
         <translation>Zaimportuj jako projekt qmake (ograniczona funkcjonalność)</translation>
@@ -42503,7 +42349,7 @@ Termin wygaśnięcia: %3</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmakePriFile</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Headers</source>
         <translation>Nagłówki</translation>
@@ -42532,9 +42378,6 @@ Termin wygaśnięcia: %3</translation>
         <source>Other files</source>
         <translation>Inne pliki</translation>
     </message>
-</context>
-<context>
-    <name>QmakePriFile</name>
     <message>
         <source>Failed</source>
         <translation>Niepoprawnie zakończone</translation>
@@ -42547,9 +42390,6 @@ Termin wygaśnięcia: %3</translation>
         <source>File Error</source>
         <translation>Błąd pliku</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProFile</name>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
         <translation>Błąd parsowania pliku %1. Przetwarzanie przerwane.</translation>

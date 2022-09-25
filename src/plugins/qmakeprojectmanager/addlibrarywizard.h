@@ -27,8 +27,6 @@ class SummaryPage;
 
 class LibraryDetailsWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(QmakeProjectManager::Internal::LibraryDetailsWidget)
-
 public:
     explicit LibraryDetailsWidget(QWidget *parent);
 

@@ -8453,7 +8453,7 @@ v sistem za nadzor različic (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QMakeStep</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Additional arguments:</source>
         <translation>Dodatni argumenti:</translation>
@@ -8517,7 +8517,7 @@ v sistem za nadzor različic (%2)?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ConsoleAppWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Qt Console Application</source>
         <translation>Konzolni program Qt</translation>
@@ -8530,16 +8530,10 @@ Preselects a desktop Qt for building the application if available.</source>
 
 Če je na voljo, za gradnjo programa Izbere Qt za namizje.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ConsoleAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
         <translation>Ta čarovnik ustvari projekt konzolnega programa Qt 4. Program je izpeljan iz QCoreApplication in nima grafičnega uporabniškega vmesnika.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmptyProjectWizard</name>
     <message>
         <source>Empty Qt Project</source>
         <translation>Prazen projekt Qt</translation>
@@ -8548,16 +8542,10 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Creates a qmake-based project without any files. This allows you to create an application without any default classes.</source>
         <translation>Ustvari projekt temelječ na QMake, ki ne vsebuje nobene datoteke. To vam omogoča ustvariti program brez privzetega razreda.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmptyProjectWizardDialog</name>
     <message>
         <source>This wizard generates an empty Qt4 project. Add files to it later on by using the other wizards.</source>
         <translation>Ta čarovnik ustvari prazen projekt Qt 4. Datoteke dodajte kasneje z uporabo drugih čarovnikov.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::FilesPage</name>
     <message>
         <source>Class Information</source>
         <translation>Podatki o razredih</translation>
@@ -8566,9 +8554,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Specify basic information about the classes for which you want to generate skeleton source code files.</source>
         <translation>Podajte osnovne podatke o razredih, za katere želite ustvariti datoteke z ogrodjem izvorne kode.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizard</name>
     <message>
         <source>Qt Gui Application</source>
         <translation>Grafični program Qt</translation>
@@ -8585,9 +8570,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>The template file &apos;%1&apos; could not be opened for reading: %2</source>
         <translation type="obsolete">Datoteke s predlogo »%1« ni bilo moč odpreti za branje: %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 GUI application project. The application derives by default from QApplication and includes an empty widget.</source>
         <translation>Ta čarovnik ustvari projekt programa Qt 4 z grafičnim uporabniškim vmesnikom. Program je privzeto izpeljan iz QApplication in vsebuje prazen gradnik.</translation>
@@ -8596,9 +8578,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Details</source>
         <translation>Podrobnosti</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizard</name>
     <message>
         <source>C++ Library</source>
         <translation>Knjižnica C++</translation>
@@ -8607,9 +8586,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Creates a C++ library based on qmake. This can be used to create:&lt;ul&gt;&lt;li&gt;a shared C++ library for use with &lt;tt&gt;QPluginLoader&lt;/tt&gt; and runtime (Plugins)&lt;/li&gt;&lt;li&gt;a shared or static C++ library for use with another project at linktime&lt;/li&gt;&lt;/ul&gt;.</source>
         <translation>Ustvari knjižnico C++ temelječo na QMake. To lahko uporabite, da ustvarite:&lt;ul&gt;&lt;li&gt;deljeno knjižnico C++ za uporabo s &lt;tt&gt;QPluginLoader&lt;/tt&gt;, ko program že teče (vstavki)&lt;/li&gt;&lt;li&gt;deljeno ali statično knjižnico C++ za uporabo v drugem projektu v času povezovanja&lt;/li&gt;&lt;/ul&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizardDialog</name>
     <message>
         <source>Shared Library</source>
         <translation>Deljena knjižnica</translation>
@@ -8635,10 +8611,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Posebno za Symbian</translation>
     </message>
     <message>
-        <source>Details</source>
-        <translation>Podrobnosti</translation>
-    </message>
-    <message>
         <source>Shared library</source>
         <translation type="obsolete">Deljena knjižnica</translation>
     </message>
@@ -8650,9 +8622,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Qt 4 plugin</source>
         <translation type="obsolete">Vstavek Qt 4</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ModulesPage</name>
     <message>
         <source>Select Required Modules</source>
         <translation>Izberite potrebne module</translation>
@@ -8665,9 +8634,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Select required modules</source>
         <translation type="obsolete">Izberite potrebne module</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ProjectLoadWizard</name>
     <message>
         <source>Project Setup</source>
         <translation>Nastavitev projekta</translation>
@@ -8676,9 +8642,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Project setup</source>
         <translation type="obsolete">Nastavitev projekta</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakePriFileNode</name>
     <message>
         <source>Headers</source>
         <translation>Glave</translation>
@@ -8747,9 +8710,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Error while reading PRO file %1: %2</source>
         <translation type="obsolete">Napaka med branjem projektne datoteke %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectConfigWidget</name>
     <message>
         <source>&lt;a href=&quot;import&quot;&gt;Import existing build&lt;/a&gt;</source>
         <translation>&lt;a href=&quot;import&quot;&gt;Uvozi obstoječo gradnjo&lt;/a&gt;</translation>
@@ -8794,22 +8754,6 @@ Preselects a desktop Qt for building the application if available.</source>
     <message>
         <source>Warning:</source>
         <translation>Opozorilo:</translation>
-    </message>
-    <message>
-        <source>%1 Debug</source>
-        <extracomment>Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.
-</extracomment>
-        <translation>%1, za razhroščevanje</translation>
-    </message>
-    <message>
-        <source>%1 Release</source>
-        <extracomment>Name of a release build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.
-</extracomment>
-        <translation>%1, za izdajo</translation>
-    </message>
-    <message>
-        <source>&lt;No tool chain selected&gt;</source>
-        <translation>&lt;izbrano ni nobeno zaporedje orodij&gt;</translation>
     </message>
     <message>
         <source>An incompatible build exists in %1, which will be overwritten.</source>
@@ -8865,9 +8809,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Building in subdirectories of the source directory is not supported by qmake.</source>
         <translation type="obsolete">QMake ne podpira gradnje v podmapah mape z izvorno kodo.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
     <message>
         <source>Run qmake</source>
         <translation>Zaženi qmake</translation>
@@ -8900,9 +8841,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Build in %1</source>
         <translation type="obsolete">Zgradi v %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeRunConfiguration</name>
     <message>
         <source>The .pro file is currently being parsed.</source>
         <translation>Datoteko *.pro se trenutno razčlenjuje.</translation>
@@ -8927,9 +8865,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Qt4 RunConfiguration</source>
         <translation>Qt4 nastavitve za zaganjanje</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeRunConfigurationWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Argumenti:</translation>
@@ -8959,18 +8894,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Osnovno okolje za te nastavitve zagona:</translation>
     </message>
     <message>
-        <source>Clean Environment</source>
-        <translation>Čisto okolje</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation>Sistemsko okolje</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation>Okolje za gradnjo</translation>
-    </message>
-    <message>
         <source>Executable:</source>
         <translation>Izvršljiva datoteka:</translation>
     </message>
@@ -8986,9 +8909,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Name:</source>
         <translation type="obsolete">Ime:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStep</name>
     <message>
         <source>Make</source>
         <comment>Qt4 MakeStep display name.</comment>
@@ -9010,9 +8930,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>Could not find make command: %1 in the build environment</source>
         <translation type="obsolete">Ni bilo moč najti ukaza make: %1 v okolju za gradnjo</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStepConfigWidget</name>
     <message>
         <source>Override %1:</source>
         <translation>Povozi %1:</translation>
@@ -9025,16 +8942,10 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2 in %3</source>
         <translation type="obsolete">&lt;b&gt;Make:&lt;/b&gt; %1 %2 v %3</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStep</name>
     <message>
         <source>qmake</source>
         <extracomment>QMakeStep default display name
@@ -9078,9 +8989,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <comment>QMakeStep display name.</comment>
         <translation type="obsolete">QMake</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>Building helpers</source>
         <translation>Pomočniki za gradnjo</translation>
@@ -9098,10 +9006,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <translation>Omogoči razhroščevanje QML:</translation>
     </message>
     <message>
-        <source>Link QML debugging library:</source>
-        <translation>Poveži razhroščevalno knjižnico QML:</translation>
-    </message>
-    <message>
         <source>Might make your application vulnerable. Only use in a safe environment.</source>
         <translation>Vaš program lahko postane ranljiv. Uporabite le v varnem okolju.</translation>
     </message>
@@ -9109,16 +9013,6 @@ Preselects a desktop Qt for building the application if available.</source>
         <source>&lt;No Qt version&gt;</source>
         <translation>&lt;ni različice Qt&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStepFactory</name>
-    <message>
-        <source>qmake</source>
-        <translation>QMake</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeManager</name>
     <message>
         <source>Full path to the bin/ install directory of the current project&apos;s Qt version.</source>
         <translation>Celotna pot do mape »bin« z namestitvijo različice Qt za trenutni projekt.</translation>
@@ -11711,7 +11605,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ClassDefinition</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -11839,9 +11733,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)</source>
         <translation>Datoteke z ikono (*.png *.ico *.jpg *.xpm *.tif *.svg)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>StranČarovnika</translation>
@@ -11886,9 +11777,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>icons.qrc</source>
         <translation>icons.qrc</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
     <message>
         <source>Custom Qt Widget Wizard</source>
         <translation>Čarovnik za gradnike Qt po meri</translation>
@@ -13335,7 +13223,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ClassList</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;nov razred&gt;</translation>
@@ -13348,9 +13236,6 @@ Razlog: %2</translation>
         <source>Delete class %1 from list?</source>
         <translation>Ali želite izbrisati razred %1 s seznama?</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt Custom Designer Widget</source>
         <translation>Gradnik za Qt Designer po meri</translation>
@@ -13359,9 +13244,6 @@ Razlog: %2</translation>
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
         <translation>Ustvari gradnik za Qt Designer po meri ali pa zbirko gradnikov po meri</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 Designer Custom Widget or a Qt4 Designer Custom Widget Collection project.</source>
         <translation>Ta čarovnik ustvari projekt gradnika po meri za Qt Designer ali pa projekt zbirke gradnikov po meri za Qt Designer.</translation>
@@ -13374,9 +13256,6 @@ Razlog: %2</translation>
         <source>Plugin Details</source>
         <translation>Podrobnosti vstavka</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PluginGenerator</name>
     <message>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
         <translation>Ustvarjanje več knjižnic gradnikov (%1, %2) v enem projektu (%3) ni podprto.</translation>
@@ -13389,9 +13268,6 @@ Razlog: %2</translation>
         <source>Cannot open %1: %2</source>
         <translation type="obsolete">Ni moč odpreti %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <source>Unable to start &quot;%1&quot;</source>
         <translation>Ni moč zagnati »%1«</translation>
@@ -13400,9 +13276,6 @@ Razlog: %2</translation>
         <source>The application &quot;%1&quot; could not be found.</source>
         <translation>Programa »%1« ni bilo moč najti.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation>Qt Designer se ne odziva (%1).</translation>
@@ -14534,7 +14407,7 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::TargetSetupPage</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Setup targets for your project</source>
         <translation>Nastavite cilje za svoj projekt</translation>
@@ -14576,11 +14449,6 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <translation type="obsolete">Nova</translation>
     </message>
     <message>
-        <source>Qt Creator can set up the following targets for project &lt;b&gt;%1&lt;/b&gt;:</source>
-        <comment>%1: Project name</comment>
-        <translation type="obsolete">Qt Creator lahko nastavi naslednje cilje za projekt &lt;b&gt;%1&lt;/b&gt;:</translation>
-    </message>
-    <message>
         <source>Choose a directory to scan for additional shadow builds</source>
         <translation type="obsolete">Izberite mapo, v kateri se bo preveril obstoj dodatne gradnje</translation>
     </message>
@@ -14592,23 +14460,6 @@ Spremembe lahko zapišete na stran ali pa jih zavržete.</translation>
         <source>No builds for project file &quot;%1&quot; were found in the folder &quot;%2&quot;.</source>
         <comment>%1: pro-file, %2: directory that was checked.</comment>
         <translation type="obsolete">V mapi »%2« ni bilo najdene nobene gradnje za projektno datoteko »%1«.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Error:&lt;/b&gt; </source>
-        <comment>Severity is Task::Error</comment>
-        <translation type="obsolete">&lt;b&gt;Napaka:&lt;/b&gt; </translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Warning:&lt;/b&gt; </source>
-        <comment>Severity is Task::Warning</comment>
-        <translation type="obsolete">&lt;b&gt;Opozorilo:&lt;/b&gt; </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizardPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>StranČarovnika</translation>
     </message>
     <message>
         <location/>
@@ -17136,7 +16987,7 @@ cilj »%1«?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::QmakeTarget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -17166,23 +17017,6 @@ cilj »%1«?</translation>
         <source>Maemo</source>
         <comment>Qt4 Maemo target display name</comment>
         <translation type="obsolete">Maemo</translation>
-    </message>
-    <message>
-        <source>Qt Simulator</source>
-        <comment>Qt4 Simulator target display name</comment>
-        <translation type="obsolete">Qt Simulator</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Device:&lt;/b&gt; Not connected</source>
-        <translation type="obsolete">&lt;b&gt;Naprava:&lt;/b&gt; Ni povezana</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Device:&lt;/b&gt; %1</source>
-        <translation type="obsolete">&lt;b&gt;Naprava:&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Device:&lt;/b&gt; %1, %2</source>
-        <translation type="obsolete">&lt;b&gt;Naprava:&lt;/b&gt; %1, %2</translation>
     </message>
 </context>
 <context>
@@ -17914,14 +17748,11 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmakeProject</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Evaluating</source>
         <translation>Vrednotenje</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager</name>
     <message>
         <source>Qt4</source>
         <translation>Qt 4</translation>
@@ -17959,7 +17790,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Qmake does not support build directories below the source directory.</source>
         <translation>QMake ne podpira map za gradnjo v mapi z izvorno kodo.</translation>
@@ -18080,7 +17911,7 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::BaseQmakeProjectWizardDialog</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Modules</source>
         <translation>Moduli</translation>
@@ -18090,13 +17921,6 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
         <translation>Cilji</translation>
     </message>
     <message>
-        <source>Qt Versions</source>
-        <translation type="obsolete">Različice Qt</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizard</name>
-    <message>
         <source>Qt Unit Test</source>
         <translation>Preizkus enot Qt</translation>
     </message>
@@ -18104,16 +17928,9 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
         <source>Creates a QTestLib-based unit test for a feature or a class. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
         <translation>Ustvari preizkus enote, ki temelji na QTestLib. Preizkusi enot vam omogočajo preverjanje izvorne kode, da se prepričate ali je primerna za uporabo in brez regresij.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizardDialog</name>
     <message>
         <source>This wizard generates a Qt unit test consisting of a single source file with a test class.</source>
         <translation>Ta čarovnik ustvari preizkus enote Qt, ki je sestavljen iz ene datoteke z izvorno kodo za razred preizkusa.</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Podrobnosti</translation>
     </message>
 </context>
 <context>
@@ -20030,7 +19847,7 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsWidget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Library:</source>
         <translation>Knjižnica:</translation>
@@ -20092,11 +19909,6 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
     </message>
     <message>
         <location/>
-        <source>Mac:</source>
-        <translation>Mac:</translation>
-    </message>
-    <message>
-        <location/>
         <source>Library</source>
         <translation>Knjižnica</translation>
     </message>
@@ -20124,13 +19936,6 @@ GDB omogoča navedbo zaporedja ukazov, ki so ločeni z »\n«.</translation>
         <location/>
         <source>Remove &quot;d&quot; suffix for release version</source>
         <translation>Različici za izdajo odstrani pripono »d«</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::RvctToolChainConfigWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Obrazec</translation>
     </message>
     <message>
         <location/>
@@ -20244,7 +20049,7 @@ Starejše različice so pri gradnji ustreznih datotek SIS omejene.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::WinscwToolChainConfigWidget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Dialog</source>
         <translation>Pogovorno okno</translation>
@@ -26205,26 +26010,15 @@ Raje uporabite gumb za ustavitev.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::AddLibraryWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Add Library</source>
         <translation>Dodajanje knjižnice</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Vrsta</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Podrobnosti</translation>
-    </message>
-    <message>
         <source>Summary</source>
         <translation>Povzetek</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryTypePage</name>
     <message>
         <source>Library Type</source>
         <translation>Vrsta knjižnice</translation>
@@ -26271,9 +26065,6 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
         <source>Links to a system library using pkg-config.</source>
         <translation>S pomočjo pkg-config se poveže s sistemsko knjižnico.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DetailsPage</name>
     <message>
         <source>Internal Library</source>
         <translation>Notranja knjižnica</translation>
@@ -26306,23 +26097,9 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
         <source>Specify the package to link to</source>
         <translation>Določite paket za povezavo</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SummaryPage</name>
-    <message>
-        <source>Summary</source>
-        <translation>Povzetek</translation>
-    </message>
     <message>
         <source>The following snippet will be added to the&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; file:</source>
         <translation>Naslednji izrezek bo dodan v&lt;br&gt; datoteko &lt;b&gt;%1&lt;/b&gt;:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsController</name>
-    <message>
-        <source>Linkage:</source>
-        <translation>Povezovanje:</translation>
     </message>
     <message>
         <source>%1 Dynamic</source>
@@ -26344,28 +26121,10 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
         <source>%1 Library</source>
         <translation>Knjižnica %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeTarget</name>
-    <message>
-        <source>Desktop</source>
-        <comment>Qt4 Desktop target display name</comment>
-        <translation>Namizje</translation>
-    </message>
     <message>
         <source>Qt Simulator</source>
         <comment>Qt4 Simulator target display name</comment>
         <translation>Qt Simulator</translation>
-    </message>
-    <message>
-        <source>Symbian Emulator</source>
-        <comment>Qt4 Symbian Emulator target display name</comment>
-        <translation>Posnemovalnik Symbian</translation>
-    </message>
-    <message>
-        <source>Symbian Device</source>
-        <comment>Qt4 Symbian Device target display name</comment>
-        <translation>Naprava Symbian</translation>
     </message>
     <message>
         <source>Maemo5</source>
@@ -26382,9 +26141,6 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
         <comment>Qt4 Meego target display name</comment>
         <translation>MeeGo</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::CodaRunControl</name>
     <message>
         <source>No device is connected. Please connect a device and try again.
 </source>
@@ -26489,9 +26245,6 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
         <translation>Povezava z napravo »%1« je bila prekinjena.
 </translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GcceToolChainFactory</name>
     <message>
         <source>GCCE</source>
         <translation>GCCE</translation>
@@ -26504,9 +26257,6 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
         <source>GCCE (%1)</source>
         <translation>GCCE (%1)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::PassphraseForKeyDialog</name>
     <message>
         <source>Passphrase:</source>
         <translation>Šifrirna fraza:</translation>
@@ -26523,9 +26273,6 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
         <source>Passphrase for %1</source>
         <translation>Šifrirna fraza za %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeSymbianTarget</name>
     <message>
         <source>&lt;b&gt;Device:&lt;/b&gt; Not connected</source>
         <translation>&lt;b&gt;Naprava:&lt;/b&gt; ni povezana</translation>
@@ -26542,9 +26289,6 @@ V datoteko *.pro se ne doda niti poti do knjižnice niti poti do vključitev.</t
         <source>&lt;b&gt;IP address:&lt;/b&gt; %1:%2</source>
         <translation>&lt;b&gt;Naslov IP:&lt;/b&gt; %1:%2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::RvctToolChainFactory</name>
     <message>
         <source>ARMv5</source>
         <translation>ARMv5</translation>
@@ -27013,7 +26757,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::SbsV2Parser</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>SBSv2 build log</source>
         <translation>Dnevnik gradnje SBS 2</translation>
@@ -27034,9 +26778,6 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
 </extracomment>
         <translation>Recept %1 je spodletel z izvorno kodo %2.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SymbianQtConfigWidget</name>
     <message>
         <source>S60 SDK:</source>
         <translation>S60 SDK:</translation>
@@ -27045,9 +26786,6 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
         <source>SBS v2 directory:</source>
         <translation>Mapa za SBS 2:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::WinscwToolChainFactory</name>
     <message>
         <source>WINSCW</source>
         <translation>WINSCW</translation>
@@ -27056,16 +26794,10 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
         <source>WINSCW from Qt version</source>
         <translation>WINSCW iz različice Qt</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfiguration</name>
     <message>
         <source>Parsing the .pro file</source>
         <translation>Razčlenjevanje datoteke *.pro</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
     <message>
         <source>Using Qt Version &quot;%1&quot;</source>
         <translation>Uporablja Qt različice »%1«</translation>
@@ -27090,9 +26822,6 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
 </extracomment>
         <translation>%1 (izdaja)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeProFileNode</name>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
         <translation>Napaka med razčlenjevanjem datoteke %1.</translation>
@@ -27100,21 +26829,6 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     <message>
         <source>Could not find .pro file for sub dir &apos;%1&apos; in &apos;%2&apos;</source>
         <translation>Ni bilo moč najti datoteke *.pro za podmapo »%1« v »%2«</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBaseTargetFactory</name>
-    <message>
-        <source>%1 Debug</source>
-        <extracomment>Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.
-</extracomment>
-        <translation>%1 (razhroščevanje)</translation>
-    </message>
-    <message>
-        <source>%1 Release</source>
-        <extracomment>Name of a release build configuration to be created by a project wizard, %1 being the Qt version name. We recommend not translating it.
-</extracomment>
-        <translation>%1 (izdaja)</translation>
     </message>
 </context>
 <context>
@@ -27131,7 +26845,7 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmakeDefaultTargetSetupWidget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Add build from:</source>
         <translation>Dodaj gradnjo it:</translation>
@@ -27186,20 +26900,9 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
         <comment>Severity is Task::Warning</comment>
         <translation>&lt;b&gt;Opozorilo:&lt;/b&gt; </translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::AbstractMobileAppWizardDialog</name>
-    <message>
-        <source>Qt Versions</source>
-        <translation>Različice Qt</translation>
-    </message>
     <message>
         <source>Mobile Options</source>
         <translation>Možnosti za mobilne naprave</translation>
-    </message>
-    <message>
-        <source>Symbian Specific</source>
-        <translation>Posebno za Symbian</translation>
     </message>
     <message>
         <source>Maemo5 And Meego Specific</source>
@@ -27209,16 +26912,10 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
         <source>Harmattan Specific</source>
         <translation>Posebno za Harmattan</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::AbstractMobileApp</name>
     <message>
         <source>Could not open template file &apos;%1&apos;.</source>
         <translation>Datoteke s predlogo »%1« ni bilo moč odpreti.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizardDialog</name>
     <message>
         <source>New HTML5 Application</source>
         <translation>Nov program HTML 5</translation>
@@ -27231,9 +26928,6 @@ Da preprečite to popravljanje, uporabite potrdilo razvijalca ali pa kak drug na
         <source>HTML Options</source>
         <translation>Možnosti za HTML</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizard</name>
     <message>
         <source>HTML5 Application</source>
         <translation>Program HTML 5</translation>
@@ -27246,9 +26940,6 @@ You can build the application and deploy it on desktop and mobile target platfor
 
 Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. Na primer: ustvarite lahko podpisane pakete za MeeGo.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizardOptionsPage</name>
     <message>
         <source>Select HTML File</source>
         <translation>Izberite datoteko HTML</translation>
@@ -27270,7 +26961,7 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::MobileAppWizardGenericOptionsPage</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Automatically Rotate Orientation</source>
         <translation>Samodejno spreminjaj usmeritev</translation>
@@ -27283,9 +26974,6 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
         <source>Lock to Portrait Orientation</source>
         <translation>Zakleni na pokončno usmeritev</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileAppWizardMaemoOptionsPage</name>
     <message>
         <source>Invalid Icon</source>
         <translation>Neveljavna ikona</translation>
@@ -27303,16 +26991,9 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
         <translation>Datoteka mora biti velika %1 ⨯ %2 pik, vendar ni. Ali želite, da Qt Creator prilagodi njeno velikost?</translation>
     </message>
     <message>
-        <source>File Error</source>
-        <translation>Napaka glede datoteke</translation>
-    </message>
-    <message>
         <source>Could not copy icon file: %1</source>
         <translation>Datoteke z ikono ni bilo moč skopirati: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickApp</name>
     <message>
         <source>The QML import path &apos;%1&apos; cannot be found.</source>
         <translation>Uvozne poti QML »%1« ni moč najti.</translation>
@@ -27329,9 +27010,6 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
         <source>No .pro file for plugin &apos;%1&apos; cannot be found.</source>
         <translation>Za vstavek »%1« ni moč najti nobene datoteke *.pro.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickAppWizardDialog</name>
     <message>
         <source>New Qt Quick Application</source>
         <translation>Nov program Qt Quick</translation>
@@ -27344,9 +27022,6 @@ V naprej izbere Qt za simulator in razpoložljive ciljne mobilne naprave.</trans
         <source>Application Type</source>
         <translation>Vrsta programa</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickAppWizard</name>
     <message>
         <source>Qt Quick Application</source>
         <translation>Program Qt Quick</translation>
@@ -27359,16 +27034,10 @@ You can build the application and deploy it on desktop and mobile target platfor
 
 Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. Na primer: ustvarite lahko podpisane pakete za MeeGo. Poleg tega se lahko odločite za uporabo nabora v naprej pripravljenih komponent za uporabniški vmesnik. Za uporabo komponent je potreben Qt 4.7.3 ali novejši</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickComponentSetOptionsPage</name>
     <message>
         <source>Select QML File</source>
         <translation>Izberite datoteko QML</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizard</name>
     <message>
         <source>Subdirs Project</source>
         <translation>Projekt podmap</translation>
@@ -27390,16 +27059,10 @@ Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. N
         <comment>Title of dialog</comment>
         <translation>Nov podprojekt</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation>Ta čarovnik ustvari projekt podmap Qt 4. Podprojekte lahko vanj dodate kasneje z uporabo drugih čarovnikov.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::TargetSetupPage</name>
     <message>
         <source>Target Setup</source>
         <translation>Nastavitev ciljev</translation>
@@ -27485,14 +27148,10 @@ Program lahko zgradite in ga razmestite na namizju ali na mobilnih platformah. N
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmlDebuggingLibrary</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Only available for Qt 4.7.1 or newer.</source>
         <translation>Na voljo samo za Qt 4.7.1 ali novejši.</translation>
-    </message>
-    <message>
-        <source>QML Debugging</source>
-        <translation>Razhroščevanje QML</translation>
     </message>
     <message>
         <source>The target directory %1 could not be created.</source>
@@ -27508,16 +27167,9 @@ Reason: %2</source>
 
 Razlog: %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmlDumpTool</name>
     <message>
         <source>Only available for Qt for Desktop and Qt for Qt Simulator.</source>
         <translation>Na voljo samo za Qt za namizje in Qt za Qt Simulator.</translation>
-    </message>
-    <message>
-        <source>Only available for Qt 4.7.1 or newer.</source>
-        <translation>Na voljo samo za Qt 4.7.1 ali novejši.</translation>
     </message>
     <message>
         <source>Private headers are missing for this Qt version.</source>
@@ -27549,14 +27201,10 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmlObserverTool</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Only available for Qt for Desktop or Qt for Qt Simulator.</source>
         <translation>Na voljo samo za Qt za namizje in Qt za Qt Simulator.</translation>
-    </message>
-    <message>
-        <source>Only available for Qt 4.7.1 or newer.</source>
-        <translation>Na voljo samo za Qt 4.7.1 ali novejši.</translation>
     </message>
     <message>
         <source>QMLObserver</source>
@@ -31031,18 +30679,7 @@ Preverite pravice za dostop do mape.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::QmakeProFileNode</name>
-    <message>
-        <source>Error while parsing file %1. Giving up.</source>
-        <translation type="obsolete">Napaka med razčlenjevanjem datoteke %1.</translation>
-    </message>
-    <message>
-        <source>Could not find .pro file for sub dir &apos;%1&apos; in &apos;%2&apos;</source>
-        <translation type="obsolete">Ni bilo moč najti datoteke *.pro za podmapo »%1« v »%2«</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtOptionsPageWidget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation type="obsolete">&lt;vnesite ime&gt;</translation>
@@ -31080,10 +30717,6 @@ Preverite pravice za dostop do mape.</translation>
         <translation type="obsolete">Ročno</translation>
     </message>
     <message>
-        <source>Building helpers</source>
-        <translation type="obsolete">Pomočniki za gradnjo</translation>
-    </message>
-    <message>
         <source>&lt;html&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;File:&lt;/td&gt;&lt;td&gt;&lt;pre&gt;%1&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Last&amp;nbsp;modified:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Size:&lt;/td&gt;&lt;td&gt;%3 Bytes&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <extracomment>Tooltip showing the debugging helper library file.
 </extracomment>
@@ -31109,11 +30742,6 @@ Preverite pravice za dostop do mape.</translation>
         <translation type="obsolete">Maemo</translation>
     </message>
     <message>
-        <source>Qt Simulator</source>
-        <comment>Qt Version is meant for Qt Simulator</comment>
-        <translation type="obsolete">Qt Simulator</translation>
-    </message>
-    <message>
         <source>unkown</source>
         <comment>No idea what this Qt Version is meant for!</comment>
         <translation type="obsolete">neznano</translation>
@@ -31122,9 +30750,6 @@ Preverite pravice za dostop do mape.</translation>
         <source>Found Qt version %1, using mkspec %2 (%3)</source>
         <translation type="obsolete">Najden je Qt različice %1, uporabljen mkspec %2 (%3)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtVersionManager</name>
     <message>
         <source>+</source>
         <translation type="obsolete">+</translation>
@@ -31162,10 +30787,6 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;Ni moč zaznati različice MSVC.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <source>S60 SDK:</source>
-        <translation type="obsolete">S60 SDK:</translation>
-    </message>
-    <message>
         <source>qmake Location</source>
         <translation type="obsolete">Lokacija QMake</translation>
     </message>
@@ -31197,9 +30818,6 @@ p, li { white-space: pre-wrap; }
         <source>Debugging helper:</source>
         <translation type="obsolete">Razhroščevalni pomočnik:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QtVersionManager</name>
     <message>
         <source>&lt;not found&gt;</source>
         <translation type="obsolete">&lt;ni najdeno&gt;</translation>
@@ -31207,10 +30825,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Qt in PATH</source>
         <translation type="obsolete">Qt v PATH</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Ime:</translation>
     </message>
     <message>
         <source>Source:</source>
@@ -31231,10 +30845,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Version:</source>
         <translation type="obsolete">Različica:</translation>
-    </message>
-    <message>
-        <source>Debugging helper:</source>
-        <translation type="obsolete">Razhroščevalni pomočnik:</translation>
     </message>
 </context>
 <context>
@@ -33478,7 +33088,7 @@ Preverite nastavitve projekta.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::MaemoConfigTestDialog</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Testing configuration...</source>
         <translation type="obsolete">Preizkušanje nastavitve …</translation>
@@ -33533,9 +33143,6 @@ Preverite nastavitve projekta.</translation>
         <source>List of installed Qt packages:</source>
         <translation type="obsolete">Seznam nameščenih paketov Qt:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPackageContents</name>
     <message>
         <source>Local File Path</source>
         <translation type="obsolete">Pot do krajevne datoteke</translation>
@@ -33544,9 +33151,6 @@ Preverite nastavitve projekta.</translation>
         <source>Remote File Path</source>
         <translation type="obsolete">Pot do oddaljene datoteke</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPackageCreationStep</name>
     <message>
         <source>Creating package file ...</source>
         <translation type="obsolete">Ustvarjanje datoteke paketa …</translation>
@@ -33603,9 +33207,6 @@ Preverite nastavitve projekta.</translation>
         <source>Exit code: %1</source>
         <translation type="obsolete">Izhodna koda. %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoPackageCreationWidget</name>
     <message>
         <source>&lt;b&gt;Create Package:&lt;/b&gt; </source>
         <translation type="obsolete">&lt;b&gt;Ustvarjanje paketa:&lt;/b&gt; </translation>
@@ -33622,16 +33223,10 @@ Preverite nastavitve projekta.</translation>
         <source>You have already added this file.</source>
         <translation type="obsolete">To datoteko ste že dodali.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRunConfiguration</name>
     <message>
         <source>New Maemo Run Configuration</source>
         <translation type="obsolete">Nove nastavitve za zagon za Maemo</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MaemoRunConfigurationWidget</name>
     <message>
         <source>Run configuration name:</source>
         <translation type="obsolete">Ime nastavitev za zagon:</translation>
@@ -33648,17 +33243,6 @@ Preverite nastavitve projekta.</translation>
         <source>Device configuration:</source>
         <translation type="obsolete">Nastavitev naprave:</translation>
     </message>
-    <message>
-        <source>Executable:</source>
-        <translation type="obsolete">Program:</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">Argumenti:</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::AbstractMaemoRunControl</name>
     <message>
         <source>No device configuration set for run configuration.</source>
         <translation type="obsolete">V nastavitvah za zagon ni bilo nastavljenih nobenih nastavitev naprave.</translation>
@@ -33715,9 +33299,6 @@ Preverite nastavitve projekta.</translation>
         <source>Remote Execution Failure</source>
         <translation type="obsolete">Napaka pri oddaljeni izvedbi</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QemuRuntimeManager</name>
     <message>
         <source>Start Maemo Emulator</source>
         <translation type="obsolete">Zaženi posnemovalnik Maemo</translation>
@@ -33793,11 +33374,7 @@ Preverite nastavitve projekta.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::QmakeBuildConfigurationFactory</name>
-    <message>
-        <source>Using Qt Version &quot;%1&quot;</source>
-        <translation type="obsolete">Uporablja Qt različice »%1«</translation>
-    </message>
+    <name>QmakeProjectManager</name>
     <message>
         <source>New configuration</source>
         <translation type="obsolete">Nova nastavitev</translation>
@@ -33806,28 +33383,6 @@ Preverite nastavitve projekta.</translation>
         <source>New Configuration Name:</source>
         <translation type="obsolete">Ime nove nastavitve:</translation>
     </message>
-    <message>
-        <source>%1 Debug</source>
-        <translation type="obsolete">%1, za razhroščevanje</translation>
-    </message>
-    <message>
-        <source>%1 Release</source>
-        <translation type="obsolete">%1, za izdajo</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeTargetFactory</name>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">Razhroščevanje</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation type="obsolete">Izdaja</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileGuiAppWizard</name>
     <message>
         <source>Mobile Qt Application</source>
         <translation type="obsolete">Mobilni program Qt</translation>

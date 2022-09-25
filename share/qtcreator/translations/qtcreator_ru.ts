@@ -37486,7 +37486,7 @@ The affected files are:
     </message>
 </context>
 <context>
-    <name>QmakePriFile</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Failed</source>
         <translation>Сбой</translation>
@@ -37499,9 +37499,6 @@ The affected files are:
         <source>File Error</source>
         <translation>Ошибка файла</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProFile</name>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
         <translation>Ошибка разбора файла %1. Отмена.</translation>
@@ -37510,25 +37507,16 @@ The affected files are:
         <source>Could not find .pro file for subdirectory &quot;%1&quot; in &quot;%2&quot;.</source>
         <translation>Не удалось найти .pro файл для подкаталога «%1» в «%2».</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager</name>
     <message>
         <source>&quot;%1&quot; is used by qmake, but &quot;%2&quot; is configured in the kit.
 Please update your kit (%3) or choose a mkspec for qmake that matches your target environment better.</source>
         <translation>«%1» используется qmake, но «%2» задан в комплекте.
 Обновите комплект (%3) или выберите подходящей для вашей целевой платформы mkspec для qmake.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::AddLibraryWizard</name>
     <message>
         <source>Add Library</source>
         <translation>Добавить библиотеку</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::BaseQmakeProjectWizardDialog</name>
     <message>
         <source>Required Qt features not present.</source>
         <translation>Отсутствуют необходимые особенности Qt.</translation>
@@ -37541,9 +37529,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>Qt version does not provide all features.</source>
         <translation>Профиль Qt не имеет всех особенностей.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ClassDefinition</name>
     <message>
         <source>The header file</source>
         <translation>Заголовочный файл</translation>
@@ -37644,9 +37629,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)</source>
         <translation>Файлы значков (*.png *.ico *.jpg *.xpm *.tif *.svg)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ClassList</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;Новый класс&gt;</translation>
@@ -37659,9 +37641,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>Delete class %1 from list?</source>
         <translation>Удалить класс %1 из списка?</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation></translation>
@@ -37702,9 +37681,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>Plugin Details</source>
         <translation>Подробнее о модуле</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
     <message>
         <source>Custom Qt Widget Wizard</source>
         <translation>Мастер пользовательских виджетов</translation>
@@ -37729,9 +37705,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>Custom Widgets</source>
         <translation>Особые виджеты</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt Custom Designer Widget</source>
         <translation>Пользовательский виджет Qt Designer</translation>
@@ -37740,16 +37713,10 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
         <translation>Создание пользовательского виджета Qt Designer или набора пользовательских виджетов.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
         <translation>Этот мастер создаст пользовательский виджет или набор пользовательских виджетов для Qt Designer.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation>Qt Designer не отвечает (%1).</translation>
@@ -37758,9 +37725,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>Unable to create server socket: %1</source>
         <translation>Невозможно создать серверный сокет: %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DetailsPage</name>
     <message>
         <source>Details</source>
         <translation>Подробнее</translation>
@@ -37797,9 +37761,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>Specify the package to link to</source>
         <translation>Выберите пакет для компоновки</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <source>Unable to start &quot;%1&quot;</source>
         <translation>Не удалось запустить «%1»</translation>
@@ -37808,9 +37769,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>The application &quot;%1&quot; could not be found.</source>
         <translation>Не удалось найти приложение «%1».</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsController</name>
     <message>
         <source>Linkage:</source>
         <translation>Компоновка:</translation>
@@ -37835,9 +37793,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>%1 Library</source>
         <translation>%1 Библиотека</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsWidget</name>
     <message>
         <source>Library:</source>
         <translation>Библиотека:</translation>
@@ -37871,20 +37826,12 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <translation>Windows</translation>
     </message>
     <message>
-        <source>Linkage:</source>
-        <translation>Компоновка:</translation>
-    </message>
-    <message>
         <source>Dynamic</source>
         <translation>Динамическая</translation>
     </message>
     <message>
         <source>Static</source>
         <translation>Статическая</translation>
-    </message>
-    <message>
-        <source>Mac:</source>
-        <translation>Mac:</translation>
     </message>
     <message>
         <source>Library</source>
@@ -37914,9 +37861,6 @@ Please update your kit (%3) or choose a mkspec for qmake that matches your targe
         <source>Library type:</source>
         <translation>Тип библиотеки:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryTypePage</name>
     <message>
         <source>Library Type</source>
         <translation>Тип библиотеки</translation>
@@ -37967,16 +37911,10 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Type</source>
         <translation>Тип</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PluginGenerator</name>
     <message>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
         <translation>Создание нескольких библиотек виджетов (%1, %2) в одном проекте (%3) не поддерживается.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeKitAspect</name>
     <message>
         <source>Qt mkspec</source>
         <translation>Qt mkspec</translation>
@@ -38001,9 +37939,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Mkspec configured for qmake by the kit.</source>
         <translation>Mkspec настроенный комплектом для qmake.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectImporter</name>
     <message>
         <source>Debug</source>
         <translation>Отладка</translation>
@@ -38012,9 +37947,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Release</source>
         <translation>Выпуск</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
     <message>
         <source>Build</source>
         <translation>Собрать</translation>
@@ -38079,9 +38011,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>QMake</source>
         <translation>QMake</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeSettingsPage</name>
     <message>
         <source>Warn if a project&apos;s source and build directories are not at the same level</source>
         <translation>Предупреждать, если каталоги сборки и исходников проекта находятся на разных уровнях</translation>
@@ -38102,9 +38031,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Qmake</source>
         <translation>QMake</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizard</name>
     <message>
         <source>Subdirs Project</source>
         <translation>Проект с поддиректориями</translation>
@@ -38126,16 +38052,10 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <comment>Title of dialog</comment>
         <translation>Создание подпроекта</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation>Этот мастер создаст проект Qt с подкаталогами. Затем с помощью других мастеров добавьте в него подпроекты.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SummaryPage</name>
     <message>
         <source>Summary</source>
         <translation>Итог</translation>
@@ -38144,9 +38064,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>The following snippet will be added to the&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; file:</source>
         <translation>Следующий код будет добавлен в&lt;br&gt;файл &lt;b&gt;%1&lt;/b&gt;:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStep</name>
     <message>
         <source>qmake</source>
         <extracomment>QMakeStep default display name</extracomment>
@@ -38172,9 +38089,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>&lt;no Make step found&gt;</source>
         <translation>&lt;этап Make не найден&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>QML Debugging</source>
         <translation>Отладка QML</translation>
@@ -38182,14 +38096,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
     <message>
         <source>qmake build configuration:</source>
         <translation>Конфигурация сборки qmake:</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>Отладка</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Выпуск</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
@@ -38223,9 +38129,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</source>
         <translation>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfiguration</name>
     <message>
         <source>General</source>
         <translation>Основное</translation>
@@ -38293,9 +38196,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation>Profile</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildSystem</name>
     <message>
         <source>Reading Project &quot;%1&quot;</source>
         <translation>Чтение проекта «%1»</translation>
@@ -38308,9 +38208,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Cannot parse project &quot;%1&quot;: No kit selected.</source>
         <translation>Не удалось разобрать проект «%1»: комплект не выбран.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeMakeStep</name>
     <message>
         <source>Cannot find Makefile. Check your build settings.</source>
         <translation>Не удалось обнаружить Makefile. Проверьте настройки сборки.</translation>
@@ -38319,9 +38216,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>The build directory is not at the same level as the source directory, which could be the reason for the build failure.</source>
         <translation>Каталог сборки не на том же уровне, что каталог исходников. Из-за этого может возникнуть сбой сборки.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakePriFile</name>
     <message>
         <source>Headers</source>
         <translation>Заголовочные</translation>
@@ -38354,9 +38248,6 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <source>Generated Files</source>
         <translation>Созданные файлы</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeProject</name>
     <message>
         <source>No Qt version set in kit.</source>
         <translation>Для комплекта не задан профиль Qt.</translation>

@@ -6,6 +6,7 @@
 #include "qmakebuildconfiguration.h"
 #include "qmakeparsernodes.h"
 #include "qmakeproject.h"
+#include "qmakeprojectmanagertr.h"
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/session.h>
@@ -197,16 +198,16 @@ bool LibraryDetailsController::isIncludePathChanged() const
 void LibraryDetailsController::showLinkageType(
         AddLibraryWizard::LinkageType linkageType)
 {
-    const QString linkage(tr("Linkage:"));
+    const QString linkage(Tr::tr("Linkage:"));
     QString linkageTitle;
     switch (linkageType) {
     case AddLibraryWizard::DynamicLinkage:
         libraryDetailsWidget()->dynamicRadio->setChecked(true);
-        linkageTitle = tr("%1 Dynamic").arg(linkage);
+        linkageTitle = Tr::tr("%1 Dynamic").arg(linkage);
         break;
     case AddLibraryWizard::StaticLinkage:
         libraryDetailsWidget()->staticRadio->setChecked(true);
-        linkageTitle = tr("%1 Static").arg(linkage);
+        linkageTitle = Tr::tr("%1 Static").arg(linkage);
         break;
     default:
         libraryDetailsWidget()->dynamicRadio->setChecked(false);
@@ -220,16 +221,16 @@ void LibraryDetailsController::showLinkageType(
 void LibraryDetailsController::showMacLibraryType(
         AddLibraryWizard::MacLibraryType libType)
 {
-    const QString libraryType(tr("Mac:"));
+    const QString libraryType(Tr::tr("Mac:"));
     QString libraryTypeTitle;
     switch (libType) {
     case AddLibraryWizard::FrameworkType:
         libraryDetailsWidget()->frameworkRadio->setChecked(true);
-        libraryTypeTitle = tr("%1 Framework").arg(libraryType);
+        libraryTypeTitle = Tr::tr("%1 Framework").arg(libraryType);
         break;
     case AddLibraryWizard::LibraryType:
         libraryDetailsWidget()->libraryRadio->setChecked(true);
-        libraryTypeTitle = tr("%1 Library").arg(libraryType);
+        libraryTypeTitle = Tr::tr("%1 Library").arg(libraryType);
         break;
     default:
         libraryDetailsWidget()->frameworkRadio->setChecked(false);

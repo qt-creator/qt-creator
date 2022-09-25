@@ -13012,46 +13012,10 @@ au système de gestion de version (%2) ?</translation>
     </message>
 </context>
 <context>
-    <name>QMakeStep</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>QMake Build Configuration:</source>
         <translation type="obsolete">Configuration de QMake pour la compilation :</translation>
-    </message>
-    <message>
-        <source>debug</source>
-        <translation type="obsolete">debug</translation>
-    </message>
-    <message>
-        <source>release</source>
-        <translation type="obsolete">release</translation>
-    </message>
-    <message>
-        <source>Additional arguments:</source>
-        <translation type="obsolete">Arguments supplémentaires :</translation>
-    </message>
-    <message>
-        <source>Effective qmake call:</source>
-        <translation type="obsolete">Appels qmake :</translation>
-    </message>
-    <message>
-        <source>qmake build configuration:</source>
-        <translation type="obsolete">Configuration de QMake pour la compilation :</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">debug</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation type="obsolete">release</translation>
-    </message>
-    <message>
-        <source>Debug and release</source>
-        <translation type="obsolete">Debug et release</translation>
-    </message>
-    <message>
-        <source>Link QML debugging library:</source>
-        <translation type="obsolete">Lier les bibliothèques de débogage QML : </translation>
     </message>
 </context>
 <context>
@@ -13242,7 +13206,7 @@ au système de gestion de version (%2) ?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ConsoleAppWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Qt4 Console Application</source>
         <translation type="obsolete">Application Qt4 en console</translation>
@@ -13263,9 +13227,6 @@ Preselects a desktop Qt for building the application if available.</source>
 
 Présélectionne un bureau Qt pour compiler l&apos;application si disponible.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ConsoleAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
         <translation type="obsolete">Cet assistant génère un projet d&apos;application Qt4 console. L&apos;application dérive de QCoreApplication et ne fournit pas d&apos;interface graphique.</translation>
@@ -13274,9 +13235,6 @@ Présélectionne un bureau Qt pour compiler l&apos;application si disponible.</t
         <source>This wizard generates a Qt console application project. The application derives from QCoreApplication and does not provide a GUI.</source>
         <translation>Cet assistant génère un projet d&apos;application Qt console. L&apos;application dérive de QCoreApplication et ne fournit pas d&apos;interface graphique.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation>Qt Designer ne répond pas (%1).</translation>
@@ -13285,16 +13243,10 @@ Présélectionne un bureau Qt pour compiler l&apos;application si disponible.</t
         <source>Unable to create server socket: %1</source>
         <translation>Impossible de créer le socket serveur : %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmbeddedPropertiesPanel</name>
     <message>
         <source>Embedded Linux</source>
         <translation type="obsolete">Linux embarqué</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmptyProjectWizard</name>
     <message>
         <source>Empty Qt4 Project</source>
         <translation type="obsolete">Projet Qt4 vide</translation>
@@ -13311,9 +13263,6 @@ Présélectionne un bureau Qt pour compiler l&apos;application si disponible.</t
         <source>Creates a qmake-based project without any files. This allows you to create an application without any default classes.</source>
         <translation>Créer un proje basé sur qmake sans aucun fichier. Cela vous permet de créer une application sans aucune classe par défaut.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::EmptyProjectWizardDialog</name>
     <message>
         <source>This wizard generates an empty Qt4 project. Add files to it later on by using the other wizards.</source>
         <translation type="obsolete">Cet assistant génère un projet Qt4 vide. Vous pouvez ajouter des fichiers plus tard en utilisant les autres assistants.</translation>
@@ -13322,9 +13271,6 @@ Présélectionne un bureau Qt pour compiler l&apos;application si disponible.</t
         <source>This wizard generates an empty Qt project. Add files to it later on by using the other wizards.</source>
         <translation>Cet assistant génère un projet Qt vide. Vous pouvez ajouter des fichiers plus tard en utilisant les autres assistants.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <source>Unable to start &quot;%1&quot;</source>
         <translation>Impossible de démarrer &quot;%1&quot;</translation>
@@ -13333,9 +13279,6 @@ Présélectionne un bureau Qt pour compiler l&apos;application si disponible.</t
         <source>The application &quot;%1&quot; could not be found.</source>
         <translation>L&apos;application &quot;%1&quot; est introuvable.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::FilesPage</name>
     <message>
         <source>Class Information</source>
         <translation>Information sur la classe</translation>
@@ -13344,9 +13287,6 @@ Présélectionne un bureau Qt pour compiler l&apos;application si disponible.</t
         <source>Specify basic information about the classes for which you want to generate skeleton source code files.</source>
         <translation>Définit les informations de base des classes pour lesquelles vous souhaitez générer des fichiers squelettes de code source.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizard</name>
     <message>
         <source>Qt4 Gui Application</source>
         <translation type="obsolete">Application graphique Qt4</translation>
@@ -13376,9 +13316,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <source>The template file &apos;%1&apos; could not be opened for reading: %2</source>
         <translation type="obsolete">Le fichier modèle &quot;%1&apos; n&quot;a pas pu être ouvert en lecture : %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GuiAppWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 GUI application project. The application derives by default from QApplication and includes an empty widget.</source>
         <translation type="obsolete">Cet assistant génère un projet d&apos;application graphique Qt4. L&apos;application dérive par défaut de QApplication et inclut un widget vide.</translation>
@@ -13395,9 +13332,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <source>Details</source>
         <translation>Détails</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizard</name>
     <message>
         <source>C++ Library</source>
         <translation>Bibliothèque C++</translation>
@@ -13414,9 +13348,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <source>Creates a C++ Library.</source>
         <translation type="obsolete">Crée une bibliothèque C++.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryWizardDialog</name>
     <message>
         <source>Shared library</source>
         <translation type="obsolete">Bibliothèque partagée</translation>
@@ -13454,16 +13385,9 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <translation>Cet assistant génère un projet de bibliothèque C++.</translation>
     </message>
     <message>
-        <source>Details</source>
-        <translation>Détails</translation>
-    </message>
-    <message>
         <source>Symbian Specific</source>
         <translation type="obsolete">Spécifique à Symbian</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ModulesPage</name>
     <message>
         <source>Select required modules</source>
         <translation type="obsolete">Sélectionner les modules requis</translation>
@@ -13475,13 +13399,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     <message>
         <source>Select the modules you want to include in your project. The recommended modules for this project are selected by default.</source>
         <translation>Sélectionnez les modules que vous souhaitez inclure au projet. Les modules recommandés pour ce projet sont sélectionnés par défaut.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ProEditor</name>
-    <message>
-        <source>New</source>
-        <translation type="obsolete">Nouveau</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -13531,9 +13448,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <source>Add Block</source>
         <translation type="obsolete">Ajouter un bloc</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ProEditorModel</name>
     <message>
         <source>&lt;Global Scope&gt;</source>
         <translation type="obsolete">&lt;Portée Globale&gt;</translation>
@@ -13570,9 +13484,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <source>Insert Item</source>
         <translation type="obsolete">Insérer un élément</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ProjectLoadWizard</name>
     <message>
         <source>Import existing build settings</source>
         <translation type="obsolete">Importer des paramètres de compilation existants</translation>
@@ -13597,9 +13508,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <source>Project Setup</source>
         <translation type="obsolete">Configuration du projet</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeBuildEnvironmentWidget</name>
     <message>
         <source>Clear system environment</source>
         <translation type="obsolete">Nettoyer l&apos;environnement système</translation>
@@ -13607,33 +13515,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     <message>
         <source>Build Environment</source>
         <translation type="obsolete">Environnement de compilation</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakePriFileNode</name>
-    <message>
-        <source>Headers</source>
-        <translation type="obsolete">En-têtes</translation>
-    </message>
-    <message>
-        <source>Sources</source>
-        <translation type="obsolete">Sources</translation>
-    </message>
-    <message>
-        <source>Forms</source>
-        <translation type="obsolete">Formulaires</translation>
-    </message>
-    <message>
-        <source>Resources</source>
-        <translation type="obsolete">Ressources</translation>
-    </message>
-    <message>
-        <source>QML</source>
-        <translation type="obsolete">QML</translation>
-    </message>
-    <message>
-        <source>Other files</source>
-        <translation type="obsolete">Autres fichiers</translation>
     </message>
     <message>
         <source>Cannot Open File</source>
@@ -13652,14 +13533,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <translation type="obsolete">Impossible d&apos;attribuer les droits en écriture.</translation>
     </message>
     <message>
-        <source>Failed!</source>
-        <translation type="obsolete">Échec !</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="obsolete">Erreur de fichier</translation>
-    </message>
-    <message>
         <source>Could not open the file for edit with VCS.</source>
         <translation type="obsolete">Impossible d&apos;ouvrir le fichier pour édition avec VCS. </translation>
     </message>
@@ -13676,39 +13549,13 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <translation type="obsolete">Impossible d&apos;attribuer les droits en écriture.</translation>
     </message>
     <message>
-        <source>There are unsaved changes for project file %1.</source>
-        <translation type="obsolete">Des modifications n&apos;ont pas été enregistrées pour le fichier de projet %1.</translation>
-    </message>
-    <message>
-        <source>Could not write project file %1.</source>
-        <translation type="obsolete">Impossible d&apos;écrire dans le fichier de projet %1.</translation>
-    </message>
-    <message>
         <source>Error while reading PRO file %1: %2</source>
         <translation type="obsolete">Erreur pendant la lecture du fichier PRO %1 : %2</translation>
-    </message>
-    <message>
-        <source>Error while parsing file %1. Giving up.</source>
-        <translation type="obsolete">Erreur pendant le parcours du fichier %1. Abandon.</translation>
     </message>
     <message>
         <source>Error while changing pro file %1.</source>
         <translation type="obsolete">Erreur pendant la modification du fichier pro %1.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProFileNode</name>
-    <message>
-        <source>Error while parsing file %1. Giving up.</source>
-        <translation type="obsolete">Erreur pendant le parcours du fichier %1. Abandon.</translation>
-    </message>
-    <message>
-        <source>Could not find .pro file for sub dir &apos;%1&apos; in &apos;%2&apos;</source>
-        <translation type="obsolete">Impossible de trouver le fichier .pro pour le sous répertoire &apos;%1&apos; dans &quot;%2&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectConfigWidget</name>
     <message>
         <source>Configuration Name:</source>
         <translation type="obsolete">Nom de la configuration :</translation>
@@ -13800,16 +13647,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <translation>Avertissement : </translation>
     </message>
     <message>
-        <source>%1 Debug</source>
-        <extracomment>Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 Debug</translation>
-    </message>
-    <message>
-        <source>%1 Release</source>
-        <extracomment>Name of a release build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 Release</translation>
-    </message>
-    <message>
         <source>&lt;No tool chain selected&gt;</source>
         <translation type="obsolete">&lt;Pas de chaîne de compilation sélectionnée&gt;</translation>
     </message>
@@ -13825,10 +13662,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
     <message>
         <source>Manage</source>
         <translation type="obsolete">Gérer</translation>
-    </message>
-    <message>
-        <source>Tool Chain:</source>
-        <translation type="obsolete">Chaîne d&apos;outil :</translation>
     </message>
     <message>
         <source>Configuration name:</source>
@@ -13859,13 +13692,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <translatorcomment>placeholder je pense</translatorcomment>
         <translation>problemLabel</translation>
     </message>
-    <message>
-        <source>Manage...</source>
-        <translation type="obsolete">Gérer...</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
     <message>
         <source>Run qmake</source>
         <translation>Exécuter qmake</translation>
@@ -13938,9 +13764,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <source>Build in %1</source>
         <translation type="obsolete">Compiler dans %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeRunConfiguration</name>
     <message>
         <source>Qt4RunConfiguration</source>
         <translation type="obsolete">Qt4RunConfiguration</translation>
@@ -13958,20 +13781,12 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <translation type="obsolete">Le fichier .pro n&apos;a pas pu être analysé. </translation>
     </message>
     <message>
-        <source>The .pro file &apos;%1&apos; is currently being parsed.</source>
-        <translation>Le fichier de projet &quot;%1&quot; est en cours d&apos;analyse. </translation>
-    </message>
-    <message>
         <source>Clean Environment</source>
         <translation type="obsolete">Environnement vierge</translation>
     </message>
     <message>
         <source>System Environment</source>
         <translation type="obsolete">Environnement système</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Environnement de compilation</translation>
     </message>
     <message>
         <source>Qt Run Configuration</source>
@@ -13985,9 +13800,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <source>Qt4 RunConfiguration</source>
         <translation type="obsolete">Configuration d&apos;exécution Qt4</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeRunConfigurationWidget</name>
     <message>
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2 (in terminal)</source>
         <translation type="obsolete">Lancement de l&apos;exécutable &lt;b&gt;%1&lt;/b&gt; %2 (dans un terminal)</translation>
@@ -14029,18 +13841,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <translation type="obsolete">Environnement de base pour cette configuration d&apos;exécution : </translation>
     </message>
     <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Environnement de nettoyage</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement du système</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Environnement de compilation</translation>
-    </message>
-    <message>
         <source>Name:</source>
         <translation type="obsolete">Nom :</translation>
     </message>
@@ -14068,9 +13868,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <source>Base environment for this runconfiguration:</source>
         <translation type="obsolete">Environnement de base pour cette configuration d&apos;éxecution :</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtOptionsPageWidget</name>
     <message>
         <source>&lt;specify a name&gt;</source>
         <translation type="obsolete">&lt;spécifier un nom&gt;</translation>
@@ -14203,9 +14000,6 @@ Présélectionne une version desktop Qt pour compiler l&apos;application si disp
         <source>Found Qt version %1, using mkspec %2</source>
         <translation type="obsolete">Version %1 de Qt trouvée, utilise le mkspec %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtVersionManager</name>
     <message>
         <source>Qt versions</source>
         <translation type="obsolete">Versions de Qt</translation>
@@ -14335,19 +14129,9 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Ajouter</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtWizard</name>
-    <message>
         <source>The project %1 could not be opened.</source>
         <translation type="obsolete">Le projet %1 ne peut pas être ouvert.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ValueEditor</name>
     <message>
         <source>Edit Variable</source>
         <translation type="obsolete">Éditer une variable</translation>
@@ -14401,14 +14185,6 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Éditer les éléments</translation>
     </message>
     <message>
-        <source>New</source>
-        <translation type="obsolete">Nouveau</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Supprimer</translation>
-    </message>
-    <message>
         <source>Edit Values</source>
         <translation type="obsolete">Éditer les valeurs</translation>
     </message>
@@ -14423,14 +14199,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Edit Advanced Expression</source>
         <translation type="obsolete">Éditer les expressions avancées</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStep</name>
-    <message>
-        <source>Make</source>
-        <comment>Qt4 MakeStep display name.</comment>
-        <translation type="obsolete">Make</translation>
     </message>
     <message>
         <source>Qt Creator needs a build configuration set up to build. Configure a tool chain in Project mode.</source>
@@ -14485,13 +14253,6 @@ p, li { white-space: pre-wrap; }
         <source>&lt;font color=&quot;#0000ff&quot;&gt;&lt;b&gt;No Makefile found, assuming project is clean.&lt;/b&gt;&lt;/font&gt;</source>
         <translation type="obsolete">&lt;font color=&quot;#0000ff&quot;&gt;&lt;b&gt;Aucun Makefile trouvé, assume que le projet est nettoyé.&lt;/b&gt;&lt;/font&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::MakeStepConfigWidget</name>
-    <message>
-        <source>Override %1:</source>
-        <translation>Supplanter %1 :</translation>
-    </message>
     <message>
         <source>Make:</source>
         <translation>Make :</translation>
@@ -14520,16 +14281,6 @@ p, li { white-space: pre-wrap; }
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2 in %3</source>
         <translation type="obsolete">&lt;b&gt;Make:&lt;/b&gt; %1 %2 dans %3</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MakeStepFactory</name>
-    <message>
-        <source>Make</source>
-        <translation>Make</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStep</name>
     <message>
         <source>
 &lt;font color=&quot;#ff0000&quot;&gt;&lt;b&gt;No valid Qt version set. Set one in Preferences &lt;/b&gt;&lt;/font&gt;
@@ -14552,17 +14303,8 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>qmake</source>
-        <comment>QMakeStep display name.</comment>
-        <translation type="obsolete">qmake</translation>
-    </message>
-    <message>
-        <source>qmake</source>
         <extracomment>QMakeStep default display name</extracomment>
         <translation>qmake</translation>
-    </message>
-    <message>
-        <source>Configuration is faulty, please check the Build Issues view for details.</source>
-        <translation type="obsolete">La configuration est défectueuse, veuillez vérifier la vue des problèmes de compilation pour obtenir des détails.</translation>
     </message>
     <message>
         <source>Configuration is faulty, please check the Issues view for details.</source>
@@ -14589,17 +14331,6 @@ p, li { white-space: pre-wrap; }
         <translation type="obsolete">Bibliothèque non disponible. &lt;a href=&apos;compile&apos;&gt;Compiler...&lt;/a&gt;</translation>
     </message>
     <message>
-        <source>QML Debugging</source>
-        <translation type="obsolete">Débogage QML</translation>
-    </message>
-    <message>
-        <source>The option will only take effect if the project is recompiled. Do you want to recompile now?</source>
-        <translation type="obsolete">Cette option ne prendra effet que si le projet est recompilé. Voulez-vous le recompiler maintenant ?</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
-    <message>
         <source>&lt;b&gt;QMake:&lt;/b&gt; No Qt version set. QMake can not be run.</source>
         <translation type="obsolete">&lt;b&gt;QMake:&lt;/b&gt; Aucune version de Qt définie. QMake ne peut être lancé.</translation>
     </message>
@@ -14618,10 +14349,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>The option will only take effect if the project is recompiled. Do you want to recompile now?</source>
         <translation>Cette option ne prendra effet que si le projet est recompilé. Voulez-vous le recompiler maintenant ?</translation>
-    </message>
-    <message>
-        <source>Building helpers</source>
-        <translation type="obsolete">Aide à la compilation</translation>
     </message>
     <message>
         <source>&lt;b&gt;qmake:&lt;/b&gt; No Qt version set. Cannot run qmake.</source>
@@ -14644,10 +14371,6 @@ p, li { white-space: pre-wrap; }
         <translation>Activer le débogage QML :</translation>
     </message>
     <message>
-        <source>Link QML debugging library:</source>
-        <translation type="obsolete">Lier les bibliothèques de débogage QML : </translation>
-    </message>
-    <message>
         <source>Might make your application vulnerable. Only use in a safe environment.</source>
         <translation>Peut rendre l&apos;application vulnérable. À n&apos;utiliser qu&apos;en environnement protégé. </translation>
     </message>
@@ -14659,20 +14382,6 @@ p, li { white-space: pre-wrap; }
         <source>Might make the application vulnerable. Use only in a safe environment.</source>
         <translation type="obsolete">Peut rendre l&apos;application vulnérable. À utiliser dans un environnement sécurisé.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStepFactory</name>
-    <message>
-        <source>QMake</source>
-        <translation type="obsolete">QMake</translation>
-    </message>
-    <message>
-        <source>qmake</source>
-        <translation>qmake</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeManager</name>
     <message>
         <source>Loading project %1 ...</source>
         <translation type="obsolete">Chargement du projet %1...</translation>
@@ -14735,9 +14444,6 @@ p, li { white-space: pre-wrap; }
         <source>Done opening project</source>
         <translation type="obsolete">Ouverture du projet terminée</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QtVersionManager</name>
     <message>
         <source>MinGW from %1</source>
         <translation type="obsolete">MinGW depuis %1</translation>
@@ -14749,14 +14455,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Qt in PATH</source>
         <translation type="obsolete">Qt dans le PATH</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Nom :</translation>
-    </message>
-    <message>
-        <source>Invalid Qt version</source>
-        <translation type="obsolete">Version de Qt invalide</translation>
     </message>
     <message>
         <source>ABI:</source>
@@ -14785,10 +14483,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Version:</source>
         <translation type="obsolete">Version :</translation>
-    </message>
-    <message>
-        <source>Debugging helper:</source>
-        <translation type="obsolete">Assistance au débogage :</translation>
     </message>
 </context>
 <context>
@@ -18899,7 +18593,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ClassDefinition</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -19004,9 +18698,6 @@ p, li { white-space: pre-wrap; }
         <source>Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)</source>
         <translation>Fichier d&apos;icône (*.png *.ico *.jpg *.xpm *.tif *.svg)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -19043,9 +18734,6 @@ p, li { white-space: pre-wrap; }
         <source>icons.qrc</source>
         <translation>icons.qrc</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
     <message>
         <source>Custom Qt Widget Wizard</source>
         <translation>Assistant de Widget Qt personnalisé</translation>
@@ -20646,7 +20334,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ClassList</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;Nouvelle classe&gt;</translation>
@@ -20659,9 +20347,6 @@ Raison : %2</translation>
         <source>Delete class %1 from list?</source>
         <translation>Supprimer la classe %1 de la liste ?</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt4 Designer Custom Widget</source>
         <translation type="obsolete">Widget personnalisé pour Qt4 Designer</translation>
@@ -20678,9 +20363,6 @@ Raison : %2</translation>
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
         <translation>Crée un widget personnalisé ou une collection de widgets personnalisés pour Qt4 Designer.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 Designer Custom Widget or a Qt4 Designer Custom Widget Collection project.</source>
         <translation type="obsolete">Cet assistant génère un projet pour créer un widget personnalisé ou une collection de widgets personnalisés pour Qt4 Designer.</translation>
@@ -20698,9 +20380,6 @@ Raison : %2</translation>
         <source>Plugin Details</source>
         <translation>Détails du plug-in</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PluginGenerator</name>
     <message>
         <source>Cannot open icon file %1.</source>
         <translation type="obsolete">Impossible d&apos;ouvrir le fichier d&apos;icône %1.</translation>
@@ -20718,7 +20397,7 @@ Raison : %2</translation>
     <name>Welcome</name>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfiguration</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>QtS60DeviceRunConfiguration</source>
         <translation type="obsolete">QtS60DeviceRunConfiguration</translation>
@@ -20737,24 +20416,9 @@ Raison : %2</translation>
         <extracomment>S60 device runconfiguration default display name (no profile set)</extracomment>
         <translation type="obsolete">Exécuter sur un périphérique Symbian</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationWidget</name>
     <message>
         <source>Device:</source>
         <translation type="obsolete">Appareil mobile :</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Nom :</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="obsolete">Arguments :</translation>
-    </message>
-    <message>
-        <source>Debugger:</source>
-        <translation type="obsolete">Débogueur :</translation>
     </message>
     <message>
         <source>Installation file:</source>
@@ -20822,16 +20486,6 @@ Raison : %2</translation>
         <translatorcomment>right translation of timeout in this context?</translatorcomment>
         <translation type="obsolete">L&apos;appareil mobile ne répond pas. Veuillez vérifier sir TRK est lancé</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunConfigurationFactory</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <translation type="obsolete">%1 sur appareil Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceRunControlBase</name>
     <message>
         <source>Creating %1.sisx ...</source>
         <translation type="obsolete">Création de %1.sisx...</translation>
@@ -20975,9 +20629,6 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
         <source>An error has occurred while running %1.</source>
         <translation type="obsolete">Une erreur s&apos;est produite lors de l&apos;exécution de %1.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeviceDebugRunControl</name>
     <message>
         <source>Warning: Cannot locate the symbol file belonging to %1.</source>
         <translation type="obsolete">Attention : Impossible de trouver le fichier de symboles appartenant à %1.</translation>
@@ -20991,10 +20642,6 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
         <source>Launching debugger...
 </source>
         <translation type="obsolete">Lancement du débogueur...</translation>
-    </message>
-    <message>
-        <source>Debugger for Symbian Platform</source>
-        <translation type="obsolete">Débogueur pour plateforme Symbian</translation>
     </message>
     <message>
         <source>Debug on Device</source>
@@ -21012,31 +20659,14 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
         <source>Debugging finished.</source>
         <translation type="obsolete">Débogage terminé.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DevicesWidget</name>
     <message>
         <source>No Qt installed</source>
         <translation type="obsolete">Qt non installé</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationWidget</name>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Nom :</translation>
-    </message>
-    <message>
-        <source>Executable:</source>
-        <translation type="obsolete">Exécutable :</translation>
     </message>
     <message>
         <source>Summary: Run %1 in emulator</source>
         <translation type="obsolete">Sommaire : démarrer %1 sur l&apos;émulateur</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfiguration</name>
     <message>
         <source>%1 in Symbian Emulator</source>
         <extracomment>S60 emulator run configuration default display name, %1 is base pro-File name
@@ -21050,14 +20680,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <translation type="obsolete">Exécuter sur l&apos;émulateur Symbian</translation>
     </message>
     <message>
-        <source>The .pro file is currently being parsed.</source>
-        <translation type="obsolete">Le fichier .pro est en cours d&apos;analyse. </translation>
-    </message>
-    <message>
-        <source>The .pro file could not be parsed.</source>
-        <translation type="obsolete">Le fichier .pro n&apos;a pas pu être analysé. </translation>
-    </message>
-    <message>
         <source>Qt Symbian Emulator RunConfiguration</source>
         <translation type="obsolete">Configuration d&apos;exécution de l&apos;émulateur Qt Symbian</translation>
     </message>
@@ -21069,16 +20691,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Could not parse %1. The Qt for Symbian emulator run configuration %2 can not be started.</source>
         <translation type="obsolete">Impossible d&apos;analyser %1. Qt pour la configuration d&apos;éxecution de l&apos;émulateur Symbian %2 ne peut pas être démarré.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunConfigurationFactory</name>
-    <message>
-        <source>%1 in Symbian Emulator</source>
-        <translation type="obsolete">%1 sur l&apos;émulateur Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60EmulatorRunControl</name>
     <message>
         <source>Starting %1...</source>
         <translation type="obsolete">Démarrage %1...</translation>
@@ -21101,9 +20713,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>%1 exited with code %2</source>
         <translation type="obsolete">%1 a retourné le code %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60Manager</name>
     <message>
         <source>Run in Emulator</source>
         <translation type="obsolete">Démarrer sur l&apos;émulateur</translation>
@@ -21112,13 +20721,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Run on Device</source>
         <translation type="obsolete">Démarrer sur l&apos;appareil</translation>
     </message>
-    <message>
-        <source>Debug on Device</source>
-        <translation type="obsolete">Déboguer sur l&apos;appareil mobile</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfigurationFactory</name>
     <message>
         <source>Using Default Qt Version</source>
         <translation type="obsolete">Utiliser la version de Qt par défaut</translation>
@@ -21161,10 +20763,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
         <source>Debug</source>
         <extracomment>The name of the debug build configuration created by default for a qmake project.</extracomment>
         <translation>Debug</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>Compiler</translation>
     </message>
     <message>
         <source>Release</source>
@@ -21668,14 +21266,10 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60Devices::Device</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Id:</source>
         <translation type="obsolete">Id :</translation>
-    </message>
-    <message>
-        <source>Name:</source>
-        <translation type="obsolete">Nom :</translation>
     </message>
     <message>
         <source>EPOC:</source>
@@ -23101,27 +22695,7 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageStepWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>Self-signed certificate</source>
-        <translation type="obsolete">Certificat autosigné</translation>
-    </message>
-    <message>
-        <source>Custom certificate:</source>
-        <translation type="obsolete">Certificat personnalisé :</translation>
-    </message>
-    <message>
-        <source>Choose certificate file (.cer)</source>
-        <translation type="obsolete">Choisir un fichier de certificat (.cer)</translation>
-    </message>
-    <message>
-        <source>Key file:</source>
-        <translation type="obsolete">Fichier contenant la clé :</translation>
-    </message>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Not signed</source>
         <translation type="obsolete">Non signé</translation>
@@ -23146,9 +22720,6 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
         <source>Certificate&apos;s details</source>
         <translation type="obsolete">Détails du certificat</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TargetSetupPage</name>
     <message>
         <source>Setup targets for your project</source>
         <translation type="obsolete">Installer les cibles pour votre projet</translation>
@@ -23228,16 +22799,6 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
         <translation type="obsolete">Décocher toutes les versions</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Error:&lt;/b&gt; </source>
-        <comment>Severity is Task::Error</comment>
-        <translation type="obsolete">&lt;b&gt;Erreur :&lt;/b&gt; </translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Warning:&lt;/b&gt; </source>
-        <comment>Severity is Task::Warning</comment>
-        <translation type="obsolete">&lt;b&gt;Alerte :&lt;/b&gt; </translation>
-    </message>
-    <message>
         <source>debug and release</source>
         <extracomment>We are going to build debug and release</extracomment>
         <translation type="obsolete">debug et release</translation>
@@ -23290,13 +22851,6 @@ Vous pouvez choisir entre mettre les changements dans une remise ou de les aband
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;No valid Qt versions found.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Please add a Qt version in &lt;span style=&quot; font-style:italic;&quot;&gt;Tools &amp;gt; Options &amp;gt; Build &amp;amp; Run&lt;/span&gt; (&lt;span style=&quot; font-style:italic;&quot;&gt;Qt Creator &amp;gt; Preferences &amp;gt; Build &amp;amp; Run&lt;/span&gt; on Mac OS) or via the maintenance tool of the SDK.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Aucune versions de Qt valide trouvées.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Veuillez ajouter une version de Qt dans &lt;span style=&quot; font-style:italic;&quot;&gt;Outils&amp;gt; Options &amp;gt; Compiler &amp;amp; Exécuter&lt;/span&gt; (&lt;span style=&quot; font-style:italic;&quot;&gt;Qt Creator &amp;gt; Préferences &amp;gt; Compiler &amp;amp; Exécuter&lt;/span&gt; sur Mac OS) ou via l&apos;outil de maintenance du SDK.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizardPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
     </message>
     <message>
         <source>Specify basic information about the test class for which you want to generate skeleton source code file.</source>
@@ -26948,7 +26502,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::QmakeTarget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>Qt4 Desktop target display name</comment>
@@ -26978,11 +26532,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Maemo</source>
         <comment>Qt4 Maemo target display name</comment>
         <translation type="obsolete">Maemo</translation>
-    </message>
-    <message>
-        <source>Qt Simulator</source>
-        <comment>Qt4 Simulator target display name</comment>
-        <translation type="obsolete">Qt Simulator</translation>
     </message>
     <message>
         <source>&lt;b&gt;Device:&lt;/b&gt; Not connected</source>
@@ -28474,7 +28023,7 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::GnuPocS60DevicesWidget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Step 1 of 2: Choose GnuPoc folder</source>
         <translation type="obsolete">Étape 1 sur 2 : Choisir le répertoire GnuPoc</translation>
@@ -28520,40 +28069,7 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::QmakeBuildConfigurationFactory</name>
-    <message>
-        <source>Using Qt Version &quot;%1&quot;</source>
-        <translation type="obsolete">Utiliser la version Qt &quot;%1&quot;</translation>
-    </message>
-    <message>
-        <source>New configuration</source>
-        <translation type="obsolete">Nouvelle configuration</translation>
-    </message>
-    <message>
-        <source>New Configuration Name:</source>
-        <translation type="obsolete">Nom de la nouvelle configuration :</translation>
-    </message>
-    <message>
-        <source>New Configuration</source>
-        <translation type="obsolete">Nouvelle configuration</translation>
-    </message>
-    <message>
-        <source>New configuration name:</source>
-        <translation type="obsolete">Nom de la nouvelle configuration :</translation>
-    </message>
-    <message>
-        <source>%1 Debug</source>
-        <extracomment>Debug build configuration. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 Debug</translation>
-    </message>
-    <message>
-        <source>%1 Release</source>
-        <extracomment>Release build configuration. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 Release</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeProject</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Evaluating</source>
         <translation>Évaluation</translation>
@@ -28574,17 +28090,6 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
         <source>The .pro file &apos;%1&apos; could not be parsed.</source>
         <translation>Le fichier .pro &quot;%1&quot; ne peut pas être analysé.</translation>
     </message>
-    <message>
-        <source>Debug</source>
-        <translation>Debug</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Release</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager</name>
     <message>
         <source>Qt4</source>
         <translation type="obsolete">Qt4</translation>
@@ -28615,17 +28120,6 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::QmakeTargetFactory</name>
-    <message>
-        <source>Debug</source>
-        <translation type="obsolete">Debug</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation type="obsolete">Release</translation>
-    </message>
-</context>
-<context>
     <name>QtSupport</name>
     <message>
         <source>The Qt version is invalid: %1</source>
@@ -28639,7 +28133,7 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtVersion</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Qmake does not support build directories below the source directory.</source>
         <translation>Qmake ne permet pas d&apos;avoir des répertoires de compilation à un niveau en-dessous des répertoires sources.</translation>
@@ -28836,7 +28330,7 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::MobileGuiAppWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Mobile Qt Application</source>
         <translation type="obsolete">Application Qt pour mobiles</translation>
@@ -28847,9 +28341,6 @@ Nécessite &lt;b&gt;Qt 4.8&lt;/b&gt; ou plus récent.</translation>
 Preselects Qt for Simulator and mobile targets if available</source>
         <translation type="obsolete">Créer une application Qt optimisée pour les mobiles avec une fenêtre principale conçue dans Qt Designer.\n\nPrésélectionne la version de Qt pour le simulateur et les mobiles si disponible</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::BaseQmakeProjectWizardDialog</name>
     <message>
         <source>Modules</source>
         <translation>Modules</translation>
@@ -28859,17 +28350,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
         <translation>Kits</translation>
     </message>
     <message>
-        <source>Targets</source>
-        <translation type="obsolete">Cibles</translation>
-    </message>
-    <message>
-        <source>Qt Versions</source>
-        <translation type="obsolete">Versions de Qt</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizard</name>
-    <message>
         <source>Qt Unit Test</source>
         <translation>Test unitaire Qt</translation>
     </message>
@@ -28877,16 +28357,9 @@ Preselects Qt for Simulator and mobile targets if available</source>
         <source>Creates a QTestLib-based unit test for a feature or a class. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
         <translation>Créer un test unitaire basé sur QTestList pour une fonctionnalité ou une classe.Les tests unitaires vous permettent de vérifier que le code est utilisable et qu&apos;il n&apos;y a pas de régression.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TestWizardDialog</name>
     <message>
         <source>This wizard generates a Qt unit test consisting of a single source file with a test class.</source>
         <translation>Cet assistant génère un test unitaire Qt consistant en un fichier source unique avec une classe de test.</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Détails</translation>
     </message>
 </context>
 <context>
@@ -29347,7 +28820,7 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsWidget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Library:</source>
         <translation>Bibliothèque :</translation>
@@ -31335,26 +30808,15 @@ utilisez import Qt 4.7 au lieu de import QtQuick 1.0</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::AddLibraryWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Add Library</source>
         <translation>Ajouter une bibliothèque</translation>
     </message>
     <message>
-        <source>Type</source>
-        <translation>Type</translation>
-    </message>
-    <message>
-        <source>Details</source>
-        <translation>Détails</translation>
-    </message>
-    <message>
         <source>Summary</source>
         <translation>Résumé</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryTypePage</name>
     <message>
         <source>Library Type</source>
         <translation>Type de bibliothèque</translation>
@@ -31403,9 +30865,6 @@ Adds the library and include paths to the .pro file.</source>
         <translation>Faire un lien vers une bibliothèque localisée dans votre arbre de compilation.
 Ajoute la bibliothèque et les chemins d&apos;inclusion dans le fichier .pro.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DetailsPage</name>
     <message>
         <source>System Library</source>
         <translation>Bibliothèque  système</translation>
@@ -31438,23 +30897,9 @@ Ajoute la bibliothèque et les chemins d&apos;inclusion dans le fichier .pro.</t
         <source>Choose the project file of the library to link to</source>
         <translation>Choisir le fichier projet de la bibliothèque vers laquelle faire un lien</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SummaryPage</name>
-    <message>
-        <source>Summary</source>
-        <translation>Résumé</translation>
-    </message>
     <message>
         <source>The following snippet will be added to the&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; file:</source>
         <translation>Le fragment de code suivant va être ajouté au &lt;br&gt; fichier &lt;b&gt;%1&lt;/b&gt; :</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsController</name>
-    <message>
-        <source>Linkage:</source>
-        <translation>Edition de liens :</translation>
     </message>
     <message>
         <source>%1 Dynamic</source>
@@ -31466,10 +30911,6 @@ Ajoute la bibliothèque et les chemins d&apos;inclusion dans le fichier .pro.</t
         <translation>%1 statique</translation>
     </message>
     <message>
-        <source>Mac:</source>
-        <translation>Mac :</translation>
-    </message>
-    <message>
         <source>%1 Framework</source>
         <translatorcomment>traduire framework ? pas certain que ça ait un sens en français dans le context OSX. John : non on ne traduit pas</translatorcomment>
         <translation>Framework %1</translation>
@@ -31479,9 +30920,6 @@ Ajoute la bibliothèque et les chemins d&apos;inclusion dans le fichier .pro.</t
         <translatorcomment>On inverse l&apos;ordre non ?</translatorcomment>
         <translation>Bibliothèque %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmlDumpTool</name>
     <message>
         <source>Only available for Qt for Desktop and Qt for Qt Simulator.</source>
         <translation>Seulement disponible pour Qt for Desktop et Qt for Qt Simulator. </translation>
@@ -31525,18 +30963,10 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmlObserverTool</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Only available for Qt for Desktop or Qt for Qt Simulator.</source>
         <translation>Seulement disponible pour Qt for Desktop et Qt for Qt Simulateur. </translation>
-    </message>
-    <message>
-        <source>Only available for Qt 4.7.1 or newer.</source>
-        <translation>Seulement disponible pour Qt 4.7.1 ou plus récent.</translation>
-    </message>
-    <message>
-        <source>Not needed.</source>
-        <translation>Non nécessaire.</translation>
     </message>
     <message>
         <source>QMLObserver</source>
@@ -31561,7 +30991,7 @@ Raison : %2</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::PassphraseForKeyDialog</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Passphrase:</source>
         <translatorcomment>Terme anglais utilisé pour un mot de passe généralement long et plus sécurisé</translatorcomment>
@@ -31583,9 +31013,6 @@ Raison : %2</translation>
         <source>Passphrase for %1</source>
         <translation type="obsolete">Mot de passe pour %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeployConfiguration</name>
     <message>
         <source>Deploy %1 to Symbian device</source>
         <translation type="obsolete">Déployer %1 sur périphérique Symbian</translation>
@@ -31593,24 +31020,6 @@ Raison : %2</translation>
     <message>
         <source>Deploy to Symbian device</source>
         <translation type="obsolete">Déployer sur périphérique Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeployConfigurationFactory</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <translation type="obsolete">%1 sur périphérique Symbian</translation>
-    </message>
-    <message>
-        <source>Deploy to Symbian device</source>
-        <translation type="obsolete">Déployer sur un périphérique Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeployConfigurationWidget</name>
-    <message>
-        <source>Device:</source>
-        <translation type="obsolete">Appareil mobile :</translation>
     </message>
     <message>
         <source>Silent installation</source>
@@ -31635,10 +31044,6 @@ Raison : %2</translation>
     <message>
         <source>&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-developing-symbian.html&quot;&gt;What are the prerequisites?&lt;/a&gt;</source>
         <translation type="obsolete">&lt;a href=&quot;qthelp://com.nokia.qtcreator/doc/creator-developing-symbian.html&quot;&gt;Quels sont les prérequis ?&lt;/a&gt;</translation>
-    </message>
-    <message>
-        <source>Installation file:</source>
-        <translation type="obsolete">Fichier d&apos;installation :</translation>
     </message>
     <message>
         <source>Silent installation is an installation mode that does not require user&apos;s intervention. In case it fails the non silent installation is launched.</source>
@@ -31688,10 +31093,6 @@ Raison : %2</translation>
     <message>
         <source>Not installed on device</source>
         <translation type="obsolete">Pas installé sur le périphérique</translation>
-    </message>
-    <message>
-        <source>Qt version:</source>
-        <translation type="obsolete">Version de Qt :</translation>
     </message>
     <message>
         <source>Unrecognised Symbian version 0x%1</source>
@@ -31758,29 +31159,6 @@ Raison : %2</translation>
         <translation type="obsolete">Taille de l&apos;écran : </translation>
     </message>
     <message>
-        <source>Device on serial port:</source>
-        <translation type="obsolete">Appareil mobile sur port série :</translation>
-    </message>
-    <message>
-        <source>Queries the device for information</source>
-        <translation type="obsolete">Inspecter l&apos;appareil mobile pour mettre à jour les informations</translation>
-    </message>
-    <message>
-        <source>Connecting...</source>
-        <translation type="obsolete">Connexion...</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeployStep</name>
-    <message>
-        <source>Unable to remove existing file &apos;%1&apos;: %2</source>
-        <translation type="obsolete">Impossible de supprimer le fichier existant &quot;%1&quot; : %2</translation>
-    </message>
-    <message>
-        <source>Unable to rename file &apos;%1&apos; to &apos;%2&apos;: %3</source>
-        <translation type="obsolete">Impossible de renommer le fichier &quot;%1&quot; en &quot;%2&quot; : %3</translation>
-    </message>
-    <message>
         <source>Deploy</source>
         <extracomment>Qt4 Deploystep display name</extracomment>
         <translation type="obsolete">Déployer</translation>
@@ -31790,21 +31168,9 @@ Raison : %2</translation>
         <translation type="obsolete">Pas de paquet trouvé. Veuillez spécifier au moins un paquet d&apos;installation. </translation>
     </message>
     <message>
-        <source>Renaming new package &apos;%1&apos; to &apos;%2&apos;</source>
-        <translation type="obsolete">Renommer le nouveau paquet &quot;%1&quot; en &quot;%2&quot;</translation>
-    </message>
-    <message>
-        <source>Removing old package &apos;%1&apos;</source>
-        <translation type="obsolete">Supprimer l&apos;ancien paquet &quot;%1&quot;</translation>
-    </message>
-    <message>
         <source>&apos;%1&apos;: Package file not found</source>
         <translatorcomment>dourouc : du paquet ou de paquet ? </translatorcomment>
         <translation type="obsolete">&quot;%1&quot; : fichier de paquet non trouvé</translation>
-    </message>
-    <message>
-        <source>There is no device plugged in.</source>
-        <translation type="obsolete">Il n&apos;y a aucun appareil mobile connecté.</translation>
     </message>
     <message>
         <source>Failed to find package %1</source>
@@ -31813,32 +31179,6 @@ Raison : %2</translation>
     <message>
         <source>Deploying application to &apos;%2&apos;...</source>
         <translation type="obsolete">Déploiement de l&apos;application sur &quot;%2&quot;...</translation>
-    </message>
-    <message>
-        <source>Could not connect to phone on port &apos;%1&apos;: %2
-Check if the phone is connected and App TRK is running.</source>
-        <translation type="obsolete">Impossible de connecter le téléphone sur le port &apos;%1&apos; : %2
-Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</translation>
-    </message>
-    <message>
-        <source>Canceled.</source>
-        <translation type="obsolete">Annulé.</translation>
-    </message>
-    <message>
-        <source>Could not create file %1 on device: %2</source>
-        <translation type="obsolete">Impossible de créer le fichier %1 sur l&apos;appareil mobile %2</translation>
-    </message>
-    <message>
-        <source>Could not write to file %1 on device: %2</source>
-        <translation type="obsolete">Impossible d&apos;écrire le fichier %1 sur l&apos;appareil mobile : %2</translation>
-    </message>
-    <message>
-        <source>Could not close file %1 on device: %2. It will be closed when App TRK is closed.</source>
-        <translation type="obsolete">Impossible de fermer le fichier %1 sur l&apos;appareil mobile %2. Il sera fermé lorsque App TRK sera fermé.</translation>
-    </message>
-    <message>
-        <source>Could not connect to App TRK on device: %1. Restarting App TRK might help.</source>
-        <translation type="obsolete">Impossible de se connecter à App TRK sur l&apos;appareil mobile : %1. Redémarrer App TRK pourrait résoudre le problème.</translation>
     </message>
     <message>
         <source>Copying &quot;%1&quot;...</source>
@@ -31934,38 +31274,13 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
         <translation type="obsolete">Installation</translation>
     </message>
     <message>
-        <source>Could not install from package %1 on device: %2</source>
-        <translation type="obsolete">Impossible d&apos;installer à partir du package %1 sur l&apos;appareil mobile : %2</translation>
-    </message>
-    <message>
         <source>Deployment has been cancelled.</source>
         <translation type="obsolete">Déployement annulé.</translation>
-    </message>
-    <message>
-        <source>The device &apos;%1&apos; has been disconnected</source>
-        <translation type="obsolete">L&apos;appareil mobile &quot;%1&quot; a été déconnecté</translation>
     </message>
     <message>
         <source>Copy progress: %1%</source>
         <translation type="obsolete">Copie en cours : %1 %</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeployStepWidget</name>
-    <message>
-        <source>Deploy SIS Package</source>
-        <translation type="obsolete">Déployer le paquet SIS</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60DeployStepFactory</name>
-    <message>
-        <source>Deploy SIS Package</source>
-        <translation type="obsolete">Déployer le paquet SIS</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::SbsV2Parser</name>
     <message>
         <source>SBSv2 build log</source>
         <translation type="obsolete">Journal de compilation de SBSv2</translation>
@@ -31986,20 +31301,10 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
         <translatorcomment>je vois vraiment pas ce que recipe (recette) viens faire ici... dourouc : certains parlent bien de spells, donc bon... une recette, c&apos;ets une liste d&apos;instructions à suivre, ça peut se comprendre mais pas vraiment se traduire tel quel... </translatorcomment>
         <translation type="obsolete">Échec de %1 avec comme code de retour %2.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeDeployConfigurationFactory</name>
-    <message>
-        <source>Deploy to Symbian device</source>
-        <translation type="obsolete">Déployer sur périphérique Symbian</translation>
-    </message>
     <message>
         <source>Deploy to Maemo device</source>
         <translation type="obsolete">Déployer sur périphérique Maemo</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::AbstractMobileApp</name>
     <message>
         <source>Could not open desktop file template</source>
         <translation type="obsolete">Impossible d&apos;ouvrir le fichier template d&apos;ordinateur de bureau</translation>
@@ -32015,13 +31320,6 @@ Veuillez vérifier que le téléphone est connecté et que App TRK est lancé.</
     <message>
         <source>Could not open template file &apos;%1&apos;.</source>
         <translation>Impossible d&apos;ouvrir le fichier template &quot;%1&quot;.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::AbstractMobileAppWizardDialog</name>
-    <message>
-        <source>Qt Versions</source>
-        <translation type="obsolete">Versions de Qt</translation>
     </message>
     <message>
         <source>Application Options</source>
@@ -32044,19 +31342,7 @@ Présélectionne la version de Qt pour le simulateur et les mobiles si disponibl
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::MobileAppWizardOptionsPage</name>
-    <message>
-        <source>Automatically Rotate Orientation</source>
-        <translation type="obsolete">Pivoter l&apos;orientation automatiquement</translation>
-    </message>
-    <message>
-        <source>Lock to Landscape Orientation</source>
-        <translation type="obsolete">Verrouiller en orientation paysage</translation>
-    </message>
-    <message>
-        <source>Lock to Portrait Orientation</source>
-        <translation type="obsolete">Verrouiller en oriantation portrait</translation>
-    </message>
+    <name>QmakeProjectManager</name>
     <message>
         <source>The file is not a valid image.</source>
         <translation type="obsolete">Le fichier n&apos;est pas une image valide.</translation>
@@ -32069,9 +31355,6 @@ Présélectionne la version de Qt pour le simulateur et les mobiles si disponibl
         <source>Icon unusable</source>
         <translation type="obsolete">Icône inutilisable</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickApp</name>
     <message>
         <source>The QML import path &apos;%1&apos; cannot be found.</source>
         <translation type="obsolete">Le chemin d&apos;import QML &quot;%1&quot; est introuvable.</translation>
@@ -32096,9 +31379,6 @@ Présélectionne la version de Qt pour le simulateur et les mobiles si disponibl
         <source>Could not write file &apos;%1&apos;.</source>
         <translation type="obsolete">Impossible d&apos;enregistrer le fichier &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickAppWizardDialog</name>
     <message>
         <source>New Qt Quick Application</source>
         <translation>Nouvelle application Qt Quick</translation>
@@ -32123,9 +31403,6 @@ Présélectionne la version de Qt pour le simulateur et les mobiles si disponibl
         <source>QML Sources</source>
         <translation type="obsolete">Sources QML</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickAppWizard</name>
     <message>
         <source>Qt Quick Application</source>
         <translation>Application Qt Quick</translation>
@@ -32294,13 +31571,6 @@ Requires &lt;b&gt;Qt 4.7.0&lt;/b&gt; or newer.</source>
         <translation>Créer une application Qt Quick déployable à partir de fichiers QML existants. Tous les fichiers et répertoires qui sont dans le même répertoire  que le fichier .qml principal sont déployés. Vous pouvez modifier le contenu du répertoire à n&apos;importe quel moment avant le déploiement.
 
 Requiert &lt;b&gt;Qt 4.7.0&lt;/b&gt; ou plus récent.</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickAppWizardSourcesPage</name>
-    <message>
-        <source>Select QML File</source>
-        <translation type="obsolete">Sélectionner un fichier QML</translation>
     </message>
 </context>
 <context>
@@ -33172,7 +32442,7 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::DebuggingHelper</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Used to extract QML type information from library-based plugins.</source>
         <translation type="obsolete">Utilisé pour extraire le type d&apos;information QML pour les plugins bibliothèques.</translation>
@@ -33188,10 +32458,6 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     <message>
         <source>QML Observer:</source>
         <translation type="obsolete">Observateur QML :</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation type="obsolete">Compiler</translation>
     </message>
     <message>
         <source>QML Debugging Library:</source>
@@ -33459,11 +32725,7 @@ Les pulls locaux ne sont pas appliqués à la branche maître. </translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::RvctToolChainConfigWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
+    <name>QmakeProjectManager</name>
     <message>
         <source>ARM &amp;version:</source>
         <translation type="obsolete">&amp;Version ARM : </translation>
@@ -33572,7 +32834,7 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::WinscwToolChainConfigWidget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Dialog</source>
         <translation type="obsolete">Boîte de dialogue</translation>
@@ -33588,21 +32850,6 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
     <message>
         <source>System library path:</source>
         <translation type="obsolete">Chemins des bibliothèques système : </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtVersionInfo</name>
-    <message>
-        <source>Version name:</source>
-        <translation type="obsolete">Nom de version :</translation>
-    </message>
-    <message>
-        <source>qmake location:</source>
-        <translation type="obsolete">Emplacement de QMake :</translation>
-    </message>
-    <message>
-        <source>S60 SDK:</source>
-        <translation type="obsolete">SDK S60 :</translation>
     </message>
     <message>
         <source>SBS v2 directory:</source>
@@ -36909,19 +36156,7 @@ Please build the debugging helpers on the Qt version options page.</source>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmlDebuggingLibrary</name>
-    <message>
-        <source>Only available for Qt 4.7.1 or newer.</source>
-        <translation>Seulement disponible pour Qt 4.7.1 ou plus récent.</translation>
-    </message>
-    <message>
-        <source>Not needed.</source>
-        <translation>Non nécessaire.</translation>
-    </message>
-    <message>
-        <source>QML Debugging</source>
-        <translation>Débogage QML</translation>
-    </message>
+    <name>QmakeProjectManager</name>
     <message>
         <source>The target directory %1 could not be created.</source>
         <translation>Le dossier cible %1 n&apos;a pas pu être créé.</translation>
@@ -36935,19 +36170,6 @@ Reason: %2</source>
 - %1
 
 Raison : %2</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeTarget</name>
-    <message>
-        <source>Desktop</source>
-        <comment>Qt4 Desktop target display name</comment>
-        <translation type="obsolete">Desktop</translation>
-    </message>
-    <message>
-        <source>Qt Simulator</source>
-        <comment>Qt4 Simulator target display name</comment>
-        <translation type="obsolete">Qt Simulator</translation>
     </message>
     <message>
         <source>Maemo5</source>
@@ -36970,19 +36192,6 @@ Raison : %2</translation>
         <translation type="obsolete">Meego</translation>
     </message>
     <message>
-        <source>Symbian Emulator</source>
-        <comment>Qt4 Symbian Emulator target display name</comment>
-        <translation type="obsolete">Émulateur Symbian</translation>
-    </message>
-    <message>
-        <source>Symbian Device</source>
-        <comment>Qt4 Symbian Device target display name</comment>
-        <translation type="obsolete">Périphérique Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::GcceToolChainFactory</name>
-    <message>
         <source>GCCE</source>
         <translation type="obsolete">GCCE</translation>
     </message>
@@ -36994,28 +36203,10 @@ Raison : %2</translation>
         <source>GCCE (%1)</source>
         <translation type="obsolete">GCCE (%1)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeSymbianTarget</name>
-    <message>
-        <source>&lt;b&gt;Device:&lt;/b&gt; Not connected</source>
-        <translation type="obsolete">&lt;b&gt;Périphérique :&lt;/b&gt;Non connecté</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Device:&lt;/b&gt; %1</source>
-        <translation type="obsolete">&lt;b&gt;Périphérique :&lt;/b&gt; %1</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Device:&lt;/b&gt; %1, %2</source>
-        <translation type="obsolete">&lt;b&gt;Périphérique :&lt;/b&gt; %1, %2</translation>
-    </message>
     <message>
         <source>&lt;b&gt;IP address:&lt;/b&gt; %1:%2</source>
         <translation type="obsolete">&lt;b&gt;adresse IP :&lt;/b&gt; %1:%2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::RvctToolChainFactory</name>
     <message>
         <source>ARMv5</source>
         <translation type="obsolete">ARMv5</translation>
@@ -37033,9 +36224,6 @@ Raison : %2</translation>
         <extracomment>%1 arm version, %2 major version, %3 minor version, %4 build number</extracomment>
         <translation type="obsolete">RVCT (%1 %2.%3 Build %4)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CertificateInfo</name>
     <message>
         <source>The certificate &quot;%1&quot; has already expired and cannot be used.
 Expiration date: %2.</source>
@@ -37091,9 +36279,6 @@ Valid from: %2.</source>
             <numerusform>Supportant %n périphériques : </numerusform>
         </translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CreatePackageParser</name>
     <message>
         <source>The binary package &apos;%1&apos; was patched to be installable after being self-signed.
 %2
@@ -37106,13 +36291,6 @@ Utilisez un certificat développeur ou une autre option de signature pour évite
     <message>
         <source>Cannot create Smart Installer package as the Smart Installer&apos;s base file is missing. Please ensure that it is located in the SDK.</source>
         <translation type="obsolete">Impossible de créer le paquet Smart Installer, puisque le fichier de base Smart Installer est manquant. Veuillez vous assurer qu&apos;il est bien situé dans le SDK. </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublisherOvi</name>
-    <message>
-        <source>Error while reading .pro file %1: %2</source>
-        <translation type="obsolete">Erreur lors de la lecture du fichier .pro %1 : %2</translation>
     </message>
     <message>
         <source>Created %1
@@ -37133,18 +36311,6 @@ Utilisez un certificat développeur ou une autre option de signature pour évite
         <source>Sis file not created due to previous errors
 </source>
         <translation type="obsolete">Fichier SIS non créé à cause d&apos;erreurs précédentes</translation>
-    </message>
-    <message>
-        <source>Clean</source>
-        <translation type="obsolete">Nettoyer</translation>
-    </message>
-    <message>
-        <source>qmake</source>
-        <translation type="obsolete">qmake</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation type="obsolete">Compiler</translation>
     </message>
     <message>
         <source>Freeze</source>
@@ -37181,9 +36347,6 @@ Utilisez un certificat développeur ou une autre option de signature pour évite
 </source>
         <translation type="obsolete">%1 créé.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::WinscwToolChainFactory</name>
     <message>
         <source>WINSCW</source>
         <translation type="obsolete">WINSCW</translation>
@@ -37191,19 +36354,6 @@ Utilisez un certificat développeur ou une autre option de signature pour évite
     <message>
         <source>WINSCW from Qt version</source>
         <translation type="obsolete">WINSCW depuis la version de Qt</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBaseTargetFactory</name>
-    <message>
-        <source>%1 Debug</source>
-        <extracomment>Name of a debug build configuration to created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 Debug</translation>
-    </message>
-    <message>
-        <source>%1 Release</source>
-        <extracomment>Name of a release build configuration to be created by a project wizard, %1 being the Qt version name. We recommend not translating it.</extracomment>
-        <translation type="obsolete">%1 Release</translation>
     </message>
 </context>
 <context>
@@ -37220,7 +36370,7 @@ Utilisez un certificat développeur ou une autre option de signature pour évite
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmakeDefaultTargetSetupWidget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Add build from:</source>
         <translation type="obsolete">Ajouter une compilation depuis : </translation>
@@ -37258,14 +36408,6 @@ Utilisez un certificat développeur ou une autre option de signature pour évite
         <translation type="obsolete">Shadow build</translation>
     </message>
     <message>
-        <source>Qt version:</source>
-        <translation type="obsolete">Version de Qt :</translation>
-    </message>
-    <message>
-        <source>No Build Found</source>
-        <translation type="obsolete">Pas de compilation trouvée</translation>
-    </message>
-    <message>
         <source>Incompatible Build Found</source>
         <translation type="obsolete">Compilation incompatible trouvée</translation>
     </message>
@@ -37290,26 +36432,8 @@ Utilisez un certificat développeur ou une autre option de signature pour évite
         <translation type="obsolete">Utiliser les shadow build</translation>
     </message>
     <message>
-        <source>Qt Version:</source>
-        <translation type="obsolete">Version de Qt :</translation>
-    </message>
-    <message>
-        <source>debug</source>
-        <extracomment>Debug build</extracomment>
-        <translation type="obsolete">debug</translation>
-    </message>
-    <message>
-        <source>release</source>
-        <extracomment>release build</extracomment>
-        <translation type="obsolete">release</translation>
-    </message>
-    <message>
         <source>No build found</source>
         <translation type="obsolete">Pas de compilation trouvée</translation>
-    </message>
-    <message>
-        <source>No build found in %1 matching project %2.</source>
-        <translation type="obsolete">Pas de compilation trouvée dans %1 pour le projet %2 correspondant. </translation>
     </message>
     <message>
         <source>The build found in %1 is incompatible with this target</source>
@@ -37332,33 +36456,12 @@ Utilisez un certificat développeur ou une autre option de signature pour évite
         <translation type="obsolete">Importer la compilation depuis %1</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Error:&lt;/b&gt; </source>
-        <comment>Severity is Task::Error</comment>
-        <translation type="obsolete">&lt;b&gt;Erreur :&lt;/b&gt; </translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Warning:&lt;/b&gt; </source>
-        <comment>Severity is Task::Warning</comment>
-        <translation type="obsolete">&lt;b&gt;Alerte :&lt;/b&gt; </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::AbstractMobileAppWizardDialog</name>
-    <message>
-        <source>Qt Versions</source>
-        <translation type="obsolete">Versions de Qt</translation>
-    </message>
-    <message>
         <source>Targets</source>
         <translation>Cibles</translation>
     </message>
     <message>
         <source>Mobile Options</source>
         <translation>Options mobiles</translation>
-    </message>
-    <message>
-        <source>Symbian Specific</source>
-        <translation type="obsolete">Spécifique à Symbian</translation>
     </message>
     <message>
         <source>Maemo5 And MeeGo Specific</source>
@@ -37377,13 +36480,6 @@ Utilisez un certificat développeur ou une autre option de signature pour évite
         <translation type="obsolete">Spécifique à Maemo</translation>
     </message>
     <message>
-        <source>Kits</source>
-        <translation>Kits</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizardDialog</name>
-    <message>
         <source>New HTML5 Application</source>
         <translation>Nouvelle application HTML5</translation>
     </message>
@@ -37395,9 +36491,6 @@ Utilisez un certificat développeur ou une autre option de signature pour évite
         <source>HTML Options</source>
         <translation>Options HTML</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizard</name>
     <message>
         <source>HTML5 Application</source>
         <translation>Application HTML5</translation>
@@ -37418,17 +36511,11 @@ You can build the application and deploy it on desktop and mobile target platfor
 
 Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. Par exemple, vous pouvez créer des paquest Symbian Installation System (SIS) pour ce type de projets. </translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizardOptionsPage</name>
     <message>
         <source>Select HTML File</source>
         <translatorcomment>impératif ?</translatorcomment>
         <translation>Sélectionner le fichier HTML</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileAppWizardGenericOptionsPage</name>
     <message>
         <source>Automatically Rotate Orientation</source>
         <translation>Pivoter l&apos;orientation automatiquement</translation>
@@ -37442,59 +36529,29 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
         <translation>Verrouiller en oriantation portrait</translation>
     </message>
     <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
         <source>Orientation behavior:</source>
         <translation>Comportement de l&apos;orientation :</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileAppWizardMaemoOptionsPage</name>
     <message>
         <source>Invalid Icon</source>
         <translation type="obsolete">Icône invalide</translation>
-    </message>
-    <message>
-        <source>The file is not a valid image.</source>
-        <translation type="obsolete">Le fichier n&apos;est pas une image valide.</translation>
-    </message>
-    <message>
-        <source>Wrong Icon Size</source>
-        <translation type="obsolete">Mauvaise taille d&apos;icône</translation>
     </message>
     <message>
         <source>The icon needs to be %1x%2 pixels big, but is not. Do you want Creator to scale it?</source>
         <translation type="obsolete">L&apos;icône doit faire %1x%2 pixels, mais elle ne remplit pas cette condition. Qt Creator doit-il la mettre à l&apos;échelle ? </translation>
     </message>
     <message>
-        <source>Could not copy icon file: %1</source>
-        <translation type="obsolete">Impossible de copier le fichier de l&apos;icône : %1</translation>
-    </message>
-    <message>
         <source>The icon needs to be 64x64 pixels big, but is not. Do you want Creator to scale it?</source>
         <translation type="obsolete">L&apos;icône doit faire 64x64 pixels, mais elle ne remplit pas cette condition. Qt Creator doit-il la mettre à l&apos;échelle ? </translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation type="obsolete">Erreur de fichier</translation>
     </message>
     <message>
         <source>Could not copy icon file.</source>
         <translation type="obsolete">Impossible de copier le fichier de l&apos;icône. </translation>
     </message>
     <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
         <source>Application icon (64x64):</source>
         <translation>Icône de l&apos;application (64x64) :</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizard</name>
     <message>
         <source>Subdirs Project</source>
         <translation>Projet de sous-répertoires</translation>
@@ -37516,9 +36573,6 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
         <comment>Title of dialog</comment>
         <translation>Nouveau sous-projet</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
     <message>
         <source>This wizard generates a Qt4 subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation type="obsolete">Cet assistant génère un projet Qt4 avec sous-répertoires. Ajoutez-y des sous-projets plus tard en utilisant d&apos;autres assistants. </translation>
@@ -37527,17 +36581,9 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
         <source>This wizard generates a Qt subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation>Cet assistant génère un projet Qt avec des sous-répertoires. Ajoutez-y des sous-projets plus tard avec d&apos;autres assistants.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::TargetSetupPage</name>
     <message>
         <source>Target Setup</source>
         <translation type="obsolete">Installation de la cible</translation>
-    </message>
-    <message>
-        <source>Qt Creator can set up the following targets for project &lt;b&gt;%1&lt;/b&gt;:</source>
-        <comment>%1: Project name</comment>
-        <translation type="obsolete">Qt Creator peut mettre en place les cibles suivantes pour le projet &lt;b&gt;%1&lt;/b&gt; :</translation>
     </message>
     <message>
         <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
@@ -37567,10 +36613,6 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     <message>
         <source>No Build Found</source>
         <translation>Pas de compilation trouvée</translation>
-    </message>
-    <message>
-        <source>No build found in %1 matching project %2.</source>
-        <translation>Pas de compilation trouvée dans %1 pour le projet %2 correspondant. </translation>
     </message>
 </context>
 <context>
@@ -37834,7 +36876,7 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::MaemoToolChainConfigWidget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE:&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Path to MADDE target:&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debugger:&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="obsolete">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Chemin de MADDE :&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Chemin de la cible MADDE :&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Débogueur :&lt;/td/&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/body&gt;&lt;/html&gt;</translation>
@@ -40692,7 +39734,7 @@ Souhaitez-vous réessayer ?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::CodaRunControl</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>No device is connected. Please connect a device and try again.
 </source>
@@ -40796,67 +39838,11 @@ Souhaitez-vous réessayer ?</translation>
         <translation type="obsolete">Le périphérique &quot;%1&quot; a été déconnecté.
 </translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::S60DeployConfiguration</name>
-    <message>
-        <source>Deploy %1 to Symbian device</source>
-        <translation type="obsolete">Déployer %1 sur périphérique Symbian</translation>
-    </message>
-    <message>
-        <source>Deploy to Symbian device</source>
-        <translation type="obsolete">Déployer sur périphérique Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::S60DeployConfigurationFactory</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <translation type="obsolete">%1 sur périphérique Symbian</translation>
-    </message>
-    <message>
-        <source>Deploy to Symbian device</source>
-        <translation type="obsolete">Déployer sur périphérique Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::S60DeviceRunConfiguration</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <extracomment>S60 device runconfiguration default display name, %1 is base pro-File name</extracomment>
-        <translation type="obsolete">%1 sur périphérique Symbian</translation>
-    </message>
-    <message>
-        <source>Run on Symbian device</source>
-        <extracomment>S60 device runconfiguration default display name (no profile set)</extracomment>
-        <translation type="obsolete">Exécuter sur un périphérique Symbian</translation>
-    </message>
-    <message>
-        <source>The .pro file is currently being parsed.</source>
-        <translation type="obsolete">Le fichier .pro est en cours d&apos;analyse. </translation>
-    </message>
-    <message>
-        <source>The .pro file could not be parsed.</source>
-        <translation type="obsolete">Le fichier .pro n&apos;a pas pu être analysé. </translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::S60DeviceRunConfigurationFactory</name>
-    <message>
-        <source>%1 on Symbian Device</source>
-        <translation type="obsolete">%1 sur périphérique Symbian</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CommandPublishStep</name>
     <message>
         <source>Running %1</source>
         <extracomment>%1 is a name of the Publish Step i.e. Clean Step</extracomment>
         <translation type="obsolete">Exécution de %1</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60PublishingBuildSettingsPageOvi</name>
     <message>
         <source>No valid Qt version has been detected.&lt;br&gt;Define a correct Qt version in &quot;Options &gt; Qt4&quot;</source>
         <translation type="obsolete">Aucune version de Qt valide n&apos;a été détecté. &lt;br/&gt; Définissez-en une correcte dans &quot;Options &gt; Qt4&quot;</translation>
@@ -40864,10 +39850,6 @@ Souhaitez-vous réessayer ?</translation>
     <message>
         <source>No valid tool chain has been detected.&lt;br&gt;Define a correct tool chain in &quot;Options &gt; Tool Chains&quot;</source>
         <translation type="obsolete">Aucune chaîne de compilation valide n&apos;a été détecté. &lt;br/&gt; Définissez-en une correcte dans &quot;Options &gt; Chaînes de compilation&quot;</translation>
-    </message>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
     </message>
     <message>
         <source>Choose a build configuration:</source>
@@ -40883,16 +39865,10 @@ Previous Qt versions have limitations in building suitable SIS files.</source>
         <translation type="obsolete">Seules les versions de Qt plus récentes que la 4.6.3 sont disponibles dans cet assistant. 
 Les version de Qt précédentes ont des limitations lors de la compilation des fichiers SIS. </translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildConfiguration</name>
     <message>
         <source>Parsing the .pro file</source>
         <translation>Analyse du fichier .pro</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeProFileNode</name>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
         <translation>Erreur pendant l&apos;analyse du fichier %1. Abandon.</translation>
@@ -40901,9 +39877,6 @@ Les version de Qt précédentes ont des limitations lors de la compilation des f
         <source>Could not find .pro file for sub dir &apos;%1&apos; in &apos;%2&apos;</source>
         <translation>Impossible de trouver le fichier .pro pour le sous-répertoire &apos;%1&apos; dans &quot;%2&quot;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickComponentSetOptionsPage</name>
     <message>
         <source>Select QML File</source>
         <translation>Sélectionner un fichier QML</translation>
@@ -43382,7 +42355,7 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmakePriFileNode</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Headers</source>
         <translation>En-têtes</translation>
@@ -43408,20 +42381,8 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <translation>Autres fichiers</translation>
     </message>
     <message>
-        <source>Cannot Open File</source>
-        <translation type="obsolete">Impossible d&apos;ouvrir le fichier</translation>
-    </message>
-    <message>
         <source>Cannot open the file for editing with VCS.</source>
         <translation type="obsolete">Impossible d&apos;ouvrir le fichier pour édition avec le gestionnaire de versions.</translation>
-    </message>
-    <message>
-        <source>Cannot Set Permissions</source>
-        <translation type="obsolete">Impossible de définir les permissions</translation>
-    </message>
-    <message>
-        <source>Cannot set permissions to writable.</source>
-        <translation type="obsolete">Impossible d&apos;attribuer les droits en écriture.</translation>
     </message>
     <message>
         <source>There are unsaved changes for project file %1.</source>
@@ -43439,9 +42400,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
         <source>File Error</source>
         <translation>Erreur de fichier</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PngIconScaler</name>
     <message>
         <source>Wrong Icon Size</source>
         <translation>Mauvaise taille d&apos;icône</translation>
@@ -43449,10 +42407,6 @@ globalement dans l&apos;éditeur QML. Vous pouvez ajouter une annotation &apos;/
     <message>
         <source>The icon needs to be %1x%2 pixels big, but is not. Do you want Qt Creator to scale it?</source>
         <translation>L&apos;icône doit être de la taille %1x%2, mais ne l&apos;est pas. Souhaitez vous que Qt Creator la redimensionne ?</translation>
-    </message>
-    <message>
-        <source>File Error</source>
-        <translation>Erreur de fichier</translation>
     </message>
     <message>
         <source>Could not copy icon file: %1</source>
@@ -44705,7 +43659,7 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::MakeStep</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Make arguments:</source>
         <translation>Arguments de Make :</translation>
@@ -44714,20 +43668,9 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
         <source>Override %1:</source>
         <translation>Écraser %1 :</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QMakeStep</name>
     <message>
         <source>qmake build configuration:</source>
         <translation>Configuration de qmake pour la compilation :</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>Déboguer</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Release</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
@@ -44741,19 +43684,9 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
         <source>Effective qmake call:</source>
         <translation>Appels qmake :</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::S60CertificateDetailsDialog</name>
     <message>
         <source>Details of Certificate</source>
         <translation type="obsolete">Détails du certificat</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::Html5AppWizardSourcesPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
     </message>
     <message>
         <source>Main HTML File</source>
@@ -44791,13 +43724,6 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
         <source>Touch optimized navigation will make the HTML page flickable and enlarge the area of touch sensitive elements. If you use a JavaScript framework which optimizes the touch interaction, leave the checkbox unchecked.</source>
         <translation>La navigation optimisée pour le toucher rendre la page HTML flickable et élargira la zone des éléments sensibles au toucher. Si vous utilisez un framework JavaScript qui optimise l&apos;interaction au toucher, laissez cette case décochée. </translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileAppWizardHarmattanOptionsPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
     <message>
         <source>Application icon (80x80):</source>
         <translation>Icône de l&apos;application (80x80) :</translation>
@@ -44809,13 +43735,6 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
     <message>
         <source>Make application boostable</source>
         <translation>Créer une application boostable</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileAppWizardSymbianOptionsPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation type="obsolete">WizardPage</translation>
     </message>
     <message>
         <source>Application icon (.svg):</source>
@@ -44829,24 +43748,9 @@ Ces chemines sont utilisés en complément au répertoire courant pour basculer 
         <source>Enable network access</source>
         <translation type="obsolete">Activer l&apos;accès réseau</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::MobileLibraryWizardOptionPage</name>
-    <message>
-        <source>WizardPage</source>
-        <translation>WizardPage</translation>
-    </message>
-    <message>
-        <source>Target UID3:</source>
-        <translation type="obsolete">Cible UID3 :</translation>
-    </message>
     <message>
         <source>Plugin&apos;s directory name:</source>
         <translation>Nom du répertoire du plug-in :</translation>
-    </message>
-    <message>
-        <source>Enable network access</source>
-        <translation type="obsolete">Activer l&apos;accès réseau</translation>
     </message>
 </context>
 <context>
@@ -47160,14 +46064,7 @@ des références à des éléments dans d&apos;autres fichiers, des boucles, etc
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::UnconfiguredProjectPanel</name>
-    <message>
-        <source>Configure Project</source>
-        <translation>Configurer le projet</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::TargetSetupPageWrapper</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Configure Project</source>
         <translation>Configurer le projet</translation>
@@ -47204,19 +46101,12 @@ des références à des éléments dans d&apos;autres fichiers, des boucles, etc
         <source>&lt;p&gt;The project &lt;b&gt;%1&lt;/b&gt; is not yet configured.&lt;/p&gt;&lt;p&gt;Qt Creator uses &lt;b&gt;no Qt version&lt;/b&gt; and &lt;b&gt;no tool chain&lt;/b&gt; to parse the project. You can edit these in the &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;settings&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</source>
         <translation type="obsolete">&lt;p&gt;Le projet &lt;b&gt;%1&lt;/b&gt; n&apos;est pas encore configuré.&lt;/p&gt;&lt;p&gt;Qt Creator n&apos;utilise &lt;b&gt;aucune version de Qt&lt;/b&gt; et &lt;b&gt;aucune chaîne de compilation&lt;/b&gt; pour analyser le projet. Vous pouvez modifier ces paramètres dans la &lt;b&gt;&lt;a href=&quot;edit&quot;&gt;configuration&lt;/a&gt;&lt;/b&gt;&lt;/p&gt;</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::UnConfiguredSettingsWidget</name>
     <message>
         <source>Qt Creator can open qmake projects without configuring them for building.
 The C++ and QML code models need a Qt version and tool chain to offer code completion.
 </source>
         <translation type="obsolete">Qt Creator peut ouvrir des projets qmake sans les configurer pour la compilation.
 Les modèles de code C++ et QML ont besoin d&apos;une version de Qt et d&apos;une chaîne de compilation pour proposer la complétion de code.</translation>
-    </message>
-    <message>
-        <source>Qt Version:</source>
-        <translation type="obsolete">Version de Qt :</translation>
     </message>
     <message>
         <source>Tool Chain:</source>
@@ -52255,7 +51145,7 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::QmakeKitConfigWidget</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>The mkspec to use when building the project with qmake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation>Le mkspec à utiliser lors de la compilation du projet avec qmake.&lt;br&gt;Ce paramètre est ignoré lors de l&apos;utilisation avec d&apos;autres systèmes de compilation.</translation>
@@ -52264,9 +51154,6 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
         <source>Qt mkspec:</source>
         <translation>Qt mkspec :</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeKitInformation</name>
     <message>
         <source>No Qt version set, so mkspec is ignored.</source>
         <translation>Aucune version de Qt définie, mkspec est donc ignoré.</translation>
@@ -52279,9 +51166,6 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
         <source>mkspec</source>
         <translation>mkspec</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeTargetSetupWidget</name>
     <message>
         <source>Manage...</source>
         <translation>Gérer...</translation>
@@ -52296,16 +51180,9 @@ Voulez-vous que Qt Creator le génère pour votre projet ?</translation>
         <comment>Severity is Task::Warning</comment>
         <translation>&lt;b&gt;Alerte :&lt;/b&gt; </translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ImportWidget</name>
     <message>
         <source>Import Build from...</source>
         <translation>Importer la compilation depuis...</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation>Importer</translation>
     </message>
 </context>
 <context>
@@ -58825,24 +57702,6 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::Qt4Target</name>
-    <message>
-        <source>Desktop</source>
-        <comment>Qt4 Desktop target display name</comment>
-        <translation>Desktop</translation>
-    </message>
-    <message>
-        <source>Maemo Emulator</source>
-        <comment>Qt4 Maemo Emulator target display name</comment>
-        <translation>Émulateur Maemo</translation>
-    </message>
-    <message>
-        <source>Maemo Device</source>
-        <comment>Qt4 Maemo Device target display name</comment>
-        <translation>Périphérique Maemo</translation>
-    </message>
-</context>
-<context>
     <name>ProjectExplorer::TargetSetupPage</name>
     <message>
         <source>&lt;span style=&quot; font-weight:600;&quot;&gt;No valid kits found.&lt;/span&gt;</source>
@@ -58936,41 +57795,10 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::DesktopQmakeRunConfiguration</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>The .pro file &apos;%1&apos; is currently being parsed.</source>
         <translation>Le fichier de projet &quot;%1&quot; est en cours d&apos;analyse.</translation>
-    </message>
-    <message>
-        <source>Qt Run Configuration</source>
-        <translation>Configuration d&apos;exécution Qt</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesktopQmakeRunConfigurationWidget</name>
-    <message>
-        <source>Executable:</source>
-        <translation>Exécutable :</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Arguments :</translation>
-    </message>
-    <message>
-        <source>Select Working Directory</source>
-        <translation>Sélectionner le répertoire de travail</translation>
-    </message>
-    <message>
-        <source>Reset to default</source>
-        <translation>Restaurer les paramètres par défaut</translation>
-    </message>
-    <message>
-        <source>Working directory:</source>
-        <translation>Répertoire de travail :</translation>
-    </message>
-    <message>
-        <source>Run in terminal</source>
-        <translation>Exécuter dans un terminal</translation>
     </message>
     <message>
         <source>Run on QVFb</source>
@@ -58981,31 +57809,9 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
         <translation>Cocher cette option pour exécuter l&apos;application sur un framebuffer virtuel Qt.</translation>
     </message>
     <message>
-        <source>Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)</source>
-        <translation>Utiliser les versions Debug des frameworks (DYLD_IMAGE_SUFFIX=_debug)</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectImporter</name>
-    <message>
-        <source>Debug</source>
-        <translation>Debug</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Release</translation>
-    </message>
-    <message>
-        <source>No Build Found</source>
-        <translation>Pas de compilation trouvée</translation>
-    </message>
-    <message>
         <source>No build found in %1 matching project %2.</source>
         <translation>Pas de compilation trouvée dans %1 pour le projet %2 correspondant.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QtQuickComponentSetPage</name>
     <message>
         <source>Select Qt Quick Component Set</source>
         <translation>Sélectionner l&apos;ensemble des composant Qt Quick</translation>
@@ -59516,7 +58322,7 @@ Veuillez fermer toutes les instances de votre application en cours d&apos;exécu
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QtQuickAppWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Creates a deployable Qt Quick 1 application using the QtQuick 1.1 import. Requires Qt 4.8 or newer.</source>
         <translation>Crée une application Qt Quick 1 déployable utilisant l&apos;importation de QtQuick 1.1. Nécessite Qt 4.8 ou plus récent.</translation>

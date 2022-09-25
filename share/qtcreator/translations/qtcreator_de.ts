@@ -17448,7 +17448,7 @@ Diese Präfixe werden zusätzlich zum Dateinamen beim Wechseln zwischen Header- 
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QMakeStep</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>qmake</source>
         <extracomment>QMakeStep default display name</extracomment>
@@ -24892,7 +24892,7 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::ClassDefinition</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>The header file</source>
         <translation>Header-Datei</translation>
@@ -24993,9 +24993,6 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
         <source>Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)</source>
         <translation>Symboldateien (*.png *.ico *.jpg *.xpm *.tif *.svg)</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetPluginWizardPage</name>
     <message>
         <source>WizardPage</source>
         <translation>WizardPage</translation>
@@ -25036,9 +25033,6 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
         <source>Plugin Details</source>
         <translation>Plugin-Details</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWidgetsWizardPage</name>
     <message>
         <source>Custom Qt Widget Wizard</source>
         <translation>Assistent zur Erstellung benutzerdefinierter Qt-Widgets</translation>
@@ -25063,9 +25057,6 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
         <source>Custom Widgets</source>
         <translation>Benutzerdefinierte Widgets</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsWidget</name>
     <message>
         <source>Library:</source>
         <translation>Bibliothek:</translation>
@@ -25205,14 +25196,11 @@ das beim Drücken unter dem Zeiger oder Berührungspunkt war, unter diesem Punkt
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::AddLibraryWizard</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Add Library</source>
         <translation>Bibliothek hinzufügen</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryTypePage</name>
     <message>
         <source>Library Type</source>
         <translation>Typ der Bibliothek</translation>
@@ -25263,9 +25251,6 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <source>Type</source>
         <translation>Typ</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DetailsPage</name>
     <message>
         <source>Details</source>
         <translation>Details</translation>
@@ -25302,9 +25287,6 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <source>Specify the package to link to</source>
         <translation>Geben Sie das zu bindende Paket an</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SummaryPage</name>
     <message>
         <source>Summary</source>
         <translation>Zusammenfassung</translation>
@@ -25313,9 +25295,6 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <source>The following snippet will be added to the&lt;br&gt;&lt;b&gt;%1&lt;/b&gt; file:</source>
         <translation>Die folgende Angabe wird in die Datei &lt;br&gt;&lt;b&gt;%1&lt;/b&gt; eingefügt:</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ClassList</name>
     <message>
         <source>&lt;New class&gt;</source>
         <translation>&lt;Neue Klasse&gt;</translation>
@@ -25328,9 +25307,6 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <source>Delete class %1 from list?</source>
         <translation>Soll die Klasse %1 aus der Liste gelöscht werden?</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizard</name>
     <message>
         <source>Qt Custom Designer Widget</source>
         <translation>Benutzerdefiniertes Widget für Qt Designer</translation>
@@ -25339,23 +25315,14 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <source>Creates a Qt Custom Designer Widget or a Custom Widget Collection.</source>
         <translation>Erstellt ein oder mehrere benutzerdefinierte Widgets für Qt Designer.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::CustomWidgetWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Designer Custom Widget or a Qt Designer Custom Widget Collection project.</source>
         <translation>Dieser Assistent erstellt ein Projekt mit einem oder mehreren benutzerdefinierten Widgets für Qt Designer.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::PluginGenerator</name>
     <message>
         <source>Creating multiple widget libraries (%1, %2) in one project (%3) is not supported.</source>
         <translation>Die Erzeugung von mehreren Bibliotheken (%1, %2) in einem Projekt (%3) wird nicht unterstützt.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::ExternalQtEditor</name>
     <message>
         <source>Unable to start &quot;%1&quot;</source>
         <translation>&quot;%1&quot; kann nicht gestartet werden</translation>
@@ -25364,9 +25331,6 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <source>The application &quot;%1&quot; could not be found.</source>
         <translation>Die Anwendung &quot;%1&quot; konnte nicht gefunden werden.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::DesignerExternalEditor</name>
     <message>
         <source>Qt Designer is not responding (%1).</source>
         <translation>Qt Designer antwortet nicht (%1).</translation>
@@ -25374,13 +25338,6 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     <message>
         <source>Unable to create server socket: %1</source>
         <translation>Der Server-Socket konnte nicht erzeugt werden: %1</translation>
-    </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::LibraryDetailsController</name>
-    <message>
-        <source>Linkage:</source>
-        <translation>Linken:</translation>
     </message>
     <message>
         <source>%1 Dynamic</source>
@@ -25391,10 +25348,6 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <translation>%1 statisch</translation>
     </message>
     <message>
-        <source>Mac:</source>
-        <translation>Mac:</translation>
-    </message>
-    <message>
         <source>%1 Framework</source>
         <translation>%1 Framework</translation>
     </message>
@@ -25402,9 +25355,6 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <source>%1 Library</source>
         <translation>%1 Bibliothek</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectImporter</name>
     <message>
         <source>Debug</source>
         <translation>Debug</translation>
@@ -25413,9 +25363,6 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <source>Release</source>
         <translation>Release</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QMakeStepConfigWidget</name>
     <message>
         <source>QML Debugging</source>
         <translation>QML-Debuggen</translation>
@@ -25423,14 +25370,6 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     <message>
         <source>qmake build configuration:</source>
         <translation>qmake Build-Konfiguration:</translation>
-    </message>
-    <message>
-        <source>Debug</source>
-        <translation>Debug</translation>
-    </message>
-    <message>
-        <source>Release</source>
-        <translation>Release</translation>
     </message>
     <message>
         <source>Additional arguments:</source>
@@ -25464,9 +25403,6 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <source>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</source>
         <translation>&lt;b&gt;qmake:&lt;/b&gt; %1 %2</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizard</name>
     <message>
         <source>Subdirs Project</source>
         <translation>Subdirs-Projekt</translation>
@@ -25488,9 +25424,6 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <comment>Title of dialog</comment>
         <translation>Neues Teilprojekt</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::SubdirsProjectWizardDialog</name>
     <message>
         <source>This wizard generates a Qt Subdirs project. Add subprojects to it later on by using the other wizards.</source>
         <translation>Dieser Assistent erstellt ein Qt-Projekt vom Typ subdirs. Unterprojekte können später mit anderen Assistenten hinzugefügt werden.</translation>
@@ -25626,7 +25559,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmakeBuildConfiguration</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>General</source>
         <translation>Allgemein</translation>
@@ -25694,9 +25627,6 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <extracomment>Non-ASCII characters in directory suffix may cause build issues.</extracomment>
         <translation>Profile</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeProject</name>
     <message>
         <source>No Qt version set in kit.</source>
         <translation>Im Kit ist keine Qt-Version gesetzt.</translation>
@@ -25713,9 +25643,6 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
         <source>Project is part of Qt sources that do not match the Qt defined in the kit.</source>
         <translation>Das Projekt ist Teil von Qt-Quellen, die nicht zum im Kit definierten Qt passen.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::Internal::QmakeProjectManagerPlugin</name>
     <message>
         <source>Build</source>
         <translation>Erstellen</translation>
@@ -38504,7 +38431,7 @@ Ablaufdatum: %3</translation>
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmakePriFile</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Headers</source>
         <translation>Header-Dateien</translation>
@@ -38537,9 +38464,6 @@ Ablaufdatum: %3</translation>
         <source>Generated Files</source>
         <translation>Erzeugte Dateien</translation>
     </message>
-</context>
-<context>
-    <name>QmakePriFile</name>
     <message>
         <source>Failed</source>
         <translation>Fehlgeschlagen</translation>
@@ -38552,9 +38476,6 @@ Ablaufdatum: %3</translation>
         <source>File Error</source>
         <translation>Dateifehler</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProFile</name>
     <message>
         <source>Error while parsing file %1. Giving up.</source>
         <translation>Fehler beim Auswerten der Datei %1. Abbruch.</translation>
@@ -38563,9 +38484,6 @@ Ablaufdatum: %3</translation>
         <source>Could not find .pro file for subdirectory &quot;%1&quot; in &quot;%2&quot;.</source>
         <translation>Die .pro-Datei des Unterverzeichnisses &quot;%1&quot; konnte in &quot;%2&quot; nicht gefunden werden.</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager</name>
     <message>
         <source>&quot;%1&quot; is used by qmake, but &quot;%2&quot; is configured in the kit.
 Please update your kit (%3) or choose a mkspec for qmake that matches your target environment better.</source>
@@ -42575,7 +42493,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::QmakeMakeStep</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Cannot find Makefile. Check your build settings.</source>
         <translation>Die Makefile-Datei konnte nicht gefunden werden. Bitte überprüfen Sie die Einstellungen zur Erstellung.</translation>
@@ -47800,7 +47718,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>QmakeProjectManager::Internal::QmakeKitAspect</name>
+    <name>QmakeProjectManager</name>
     <message>
         <source>Qt mkspec</source>
         <translation>Qt-mkspec</translation>
@@ -47821,9 +47739,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>mkspec</source>
         <translation>mkspec</translation>
     </message>
-</context>
-<context>
-    <name>QmakeProjectManager::QmakeBuildSystem</name>
     <message>
         <source>Reading Project &quot;%1&quot;</source>
         <translation>Lese Projekt &quot;%1&quot;</translation>

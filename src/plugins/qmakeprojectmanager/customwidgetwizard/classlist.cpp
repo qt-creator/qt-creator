@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "classlist.h"
+#include "../qmakeprojectmanagertr.h"
 
 #include <utils/qtcassert.h>
 
@@ -38,7 +39,7 @@ private:
 ClassModel::ClassModel(QObject *parent) :
     QStandardItemModel(0, 1, parent),
     m_validator(QLatin1String("^[a-zA-Z][a-zA-Z0-9_]*$")),
-    m_newClassPlaceHolder(ClassList::tr("<New class>"))
+    m_newClassPlaceHolder(Tr::tr("<New class>"))
 {
     QTC_ASSERT(m_validator.isValid(), return);
     appendPlaceHolder();
@@ -112,8 +113,8 @@ void ClassList::removeCurrentClass()
     if (!index.isValid() || index == m_model->placeHolderIndex())
         return;
     if (QMessageBox::question(this,
-                              tr("Confirm Delete"),
-                              tr("Delete class %1 from list?").arg(className(index.row())),
+                              Tr::tr("Confirm Delete"),
+                              Tr::tr("Delete class %1 from list?").arg(className(index.row())),
                               QMessageBox::Ok|QMessageBox::Cancel) != QMessageBox::Ok)
         return;
     // Delete row and set current on same item.

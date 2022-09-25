@@ -4,6 +4,7 @@
 #include "qmakenodetreebuilder.h"
 
 #include "qmakeproject.h"
+#include "qmakeprojectmanagertr.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -37,19 +38,19 @@ public:
 };
 
 const FileTypeDataStorage fileTypeDataStorage[] = {
-    { FileType::Header, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "Headers"),
+    { FileType::Header, QT_TRANSLATE_NOOP("QmakeProjectManager", "Headers"),
       ProjectExplorer::Constants::FILEOVERLAY_H, "*.h; *.hh; *.hpp; *.hxx;"},
-    { FileType::Source, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "Sources"),
+    { FileType::Source, QT_TRANSLATE_NOOP("QmakeProjectManager", "Sources"),
       ProjectExplorer::Constants::FILEOVERLAY_CPP, "*.c; *.cc; *.cpp; *.cp; *.cxx; *.c++;" },
-    { FileType::Form, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "Forms"),
+    { FileType::Form, QT_TRANSLATE_NOOP("QmakeProjectManager", "Forms"),
       ProjectExplorer::Constants::FILEOVERLAY_UI, "*.ui;" },
-    { FileType::StateChart, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "State charts"),
+    { FileType::StateChart, QT_TRANSLATE_NOOP("QmakeProjectManager", "State charts"),
       ProjectExplorer::Constants::FILEOVERLAY_SCXML, "*.scxml;" },
-    { FileType::Resource, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "Resources"),
+    { FileType::Resource, QT_TRANSLATE_NOOP("QmakeProjectManager", "Resources"),
       ProjectExplorer::Constants::FILEOVERLAY_QRC, "*.qrc;" },
-    { FileType::QML, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "QML"),
+    { FileType::QML, QT_TRANSLATE_NOOP("QmakeProjectManager", "QML"),
       ProjectExplorer::Constants::FILEOVERLAY_QML, "*.qml;" },
-    { FileType::Unknown, QT_TRANSLATE_NOOP("QmakeProjectManager::QmakePriFile", "Other files"),
+    { FileType::Unknown, QT_TRANSLATE_NOOP("QmakeProjectManager", "Other files"),
       ProjectExplorer::Constants::FILEOVERLAY_UNKNOWN, "*;" }
 };
 
@@ -86,7 +87,7 @@ QmakeStaticData::QmakeStaticData()
     fileTypeData.reserve(count);
 
     for (const FileTypeDataStorage &fileType : fileTypeDataStorage) {
-        const QString desc = QCoreApplication::translate("QmakeProjectManager::QmakePriFile", fileType.typeName);
+        const QString desc = QmakeProjectManager::Tr::tr(fileType.typeName);
         const QString filter = QString::fromUtf8(fileType.addFileFilter);
         fileTypeData.push_back(QmakeStaticData::FileTypeData(fileType.type,
                                                              desc, filter,
@@ -204,8 +205,7 @@ static void createTree(QmakeBuildSystem *buildSystem,
         const FilePath baseDir = generatedFiles.size() == 1 ? generatedFiles.first().parentDir()
                                                             : buildSystem->buildDir(proFile->filePath());
         auto genFolder = std::make_unique<VirtualFolderNode>(baseDir);
-        genFolder->setDisplayName(QCoreApplication::translate("QmakeProjectManager::QmakePriFile",
-                                                              "Generated Files"));
+        genFolder->setDisplayName(Tr::tr("Generated Files"));
         genFolder->setIsGenerated(true);
         for (const FilePath &fp : qAsConst(generatedFiles)) {
             auto fileNode = std::make_unique<FileNode>(fp, FileNode::fileTypeForFileName(fp));

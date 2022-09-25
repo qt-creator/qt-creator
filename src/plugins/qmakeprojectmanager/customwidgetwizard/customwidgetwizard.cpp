@@ -6,6 +6,7 @@
 #include "plugingenerator.h"
 #include "filenamingparameters.h"
 #include "pluginoptions.h"
+#include "../qmakeprojectmanagertr.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -24,8 +25,8 @@ CustomWidgetWizard::CustomWidgetWizard()
     setCategory(QLatin1String(ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY));
     setDisplayCategory(QCoreApplication::translate("ProjectExplorer",
              ProjectExplorer::Constants::QT_PROJECT_WIZARD_CATEGORY_DISPLAY));
-    setDisplayName(tr("Qt Custom Designer Widget"));
-    setDescription(tr("Creates a Qt Custom Designer Widget or a Custom Widget Collection."));
+    setDisplayName(Tr::tr("Qt Custom Designer Widget"));
+    setDescription(Tr::tr("Creates a Qt Custom Designer Widget or a Custom Widget Collection."));
     setIcon(themedIcon(":/wizards/images/gui.png"));
     setRequiredFeatures({QtSupport::Constants::FEATURE_QWIDGETS});
 }

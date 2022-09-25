@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "classdefinition.h"
+#include "../qmakeprojectmanagertr.h"
 
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -24,18 +25,18 @@ ClassDefinition::ClassDefinition(QWidget *parent) :
 
     // "Sources" tab
     auto sourceTab = new QWidget;
-    m_libraryRadio = new QRadioButton(tr("&Link library"));
-    auto includeRadio = new QRadioButton(tr("Include pro&ject"));
+    m_libraryRadio = new QRadioButton(Tr::tr("&Link library"));
+    auto includeRadio = new QRadioButton(Tr::tr("Include pro&ject"));
     includeRadio->setChecked(true);
-    m_skeletonCheck = new QCheckBox(tr("Create s&keleton"));
-    m_widgetLibraryLabel = new QLabel(tr("Widget librar&y:"));
+    m_skeletonCheck = new QCheckBox(Tr::tr("Create s&keleton"));
+    m_widgetLibraryLabel = new QLabel(Tr::tr("Widget librar&y:"));
     m_widgetLibraryEdit = new QLineEdit;
-    m_widgetProjectLabel = new QLabel(tr("Widget project &file:"));
+    m_widgetProjectLabel = new QLabel(Tr::tr("Widget project &file:"));
     m_widgetProjectEdit = new QLineEdit;
     m_widgetHeaderEdit = new QLineEdit;
-    m_widgetSourceLabel = new QLabel(tr("Widge&t source file:"));
+    m_widgetSourceLabel = new QLabel(Tr::tr("Widge&t source file:"));
     m_widgetSourceEdit = new QLineEdit;
-    m_widgetBaseClassLabel = new QLabel(tr("Widget &base class:"));
+    m_widgetBaseClassLabel = new QLabel(Tr::tr("Widget &base class:"));
     m_widgetBaseClassEdit = new QLineEdit("QWidget");
     m_pluginClassEdit = new QLineEdit;
     m_pluginHeaderEdit = new QLineEdit;
@@ -43,46 +44,46 @@ ClassDefinition::ClassDefinition(QWidget *parent) :
     m_iconPathChooser = new Utils::PathChooser;
     m_iconPathChooser->setExpectedKind(Utils::PathChooser::File);
     m_iconPathChooser->setHistoryCompleter(QLatin1String("Qmake.Icon.History"));
-    m_iconPathChooser->setPromptDialogTitle(tr("Select Icon"));
-    m_iconPathChooser->setPromptDialogFilter(tr("Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)"));
+    m_iconPathChooser->setPromptDialogTitle(Tr::tr("Select Icon"));
+    m_iconPathChooser->setPromptDialogFilter(Tr::tr("Icon files (*.png *.ico *.jpg *.xpm *.tif *.svg)"));
     Form {
         empty, Row { Column { m_libraryRadio, includeRadio }, m_skeletonCheck}, br,
         m_widgetLibraryLabel, m_widgetLibraryEdit, br,
         m_widgetProjectLabel, m_widgetProjectEdit, br,
-        tr("Widget h&eader file:"), m_widgetHeaderEdit, br,
+        Tr::tr("Widget h&eader file:"), m_widgetHeaderEdit, br,
         m_widgetSourceLabel, m_widgetSourceEdit, br,
         m_widgetBaseClassLabel, m_widgetBaseClassEdit, br,
-        tr("Plugin class &name:"), m_pluginClassEdit, br,
-        tr("Plugin &header file:"), m_pluginHeaderEdit, br,
-        tr("Plugin sou&rce file:"), m_pluginSourceEdit, br,
-        tr("Icon file:"), m_iconPathChooser, br,
+        Tr::tr("Plugin class &name:"), m_pluginClassEdit, br,
+        Tr::tr("Plugin &header file:"), m_pluginHeaderEdit, br,
+        Tr::tr("Plugin sou&rce file:"), m_pluginSourceEdit, br,
+        Tr::tr("Icon file:"), m_iconPathChooser, br,
     }.attachTo(sourceTab);
-    addTab(sourceTab, tr("&Sources"));
+    addTab(sourceTab, Tr::tr("&Sources"));
 
     // "Description" tab
     auto descriptionTab = new QWidget;
     m_groupEdit = new QLineEdit;
     m_tooltipEdit = new QLineEdit;
     m_whatsthisEdit = new QTextEdit;
-    m_containerCheck = new QCheckBox(tr("The widget is a &container"));
+    m_containerCheck = new QCheckBox(Tr::tr("The widget is a &container"));
     Form {
-        tr("G&roup:"), m_groupEdit, br,
-        tr("&Tooltip:"), m_tooltipEdit, br,
-        tr("W&hat's this:"), m_whatsthisEdit, br,
+        Tr::tr("G&roup:"), m_groupEdit, br,
+        Tr::tr("&Tooltip:"), m_tooltipEdit, br,
+        Tr::tr("W&hat's this:"), m_whatsthisEdit, br,
         empty, m_containerCheck, br,
     }.attachTo(descriptionTab);
-    addTab(descriptionTab, tr("&Description"));
+    addTab(descriptionTab, Tr::tr("&Description"));
 
     // "Property defaults" tab
     auto propertyDefaultsTab = new QWidget;
-    auto domXmlLabel = new QLabel(tr("dom&XML:"));
+    auto domXmlLabel = new QLabel(Tr::tr("dom&XML:"));
     m_domXmlEdit = new QTextEdit;
     domXmlLabel->setBuddy(m_domXmlEdit);
     Column {
         domXmlLabel,
         m_domXmlEdit,
     }.attachTo(propertyDefaultsTab);
-    addTab(propertyDefaultsTab, tr("Property defa&ults"));
+    addTab(propertyDefaultsTab, Tr::tr("Property defa&ults"));
 
     connect(m_libraryRadio, &QRadioButton::toggled, this, &ClassDefinition::enableButtons);
     connect(m_skeletonCheck, &QCheckBox::toggled, this, &ClassDefinition::enableButtons);
