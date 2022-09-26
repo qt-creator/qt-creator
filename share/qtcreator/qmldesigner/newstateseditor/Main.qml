@@ -593,6 +593,7 @@ Rectangle {
                             NumberAnimation {
                                 properties: "x,y"
                                 easing.type: Easing.OutQuad
+                                duration: 100
                             }
                         }
 
