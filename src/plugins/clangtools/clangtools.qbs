@@ -56,7 +56,6 @@ QtcPlugin {
         "clangtoolssettings.h",
         "clangtoolsutils.cpp",
         "clangtoolsutils.h",
-        "clazychecks.ui",
         "diagnosticconfigswidget.cpp",
         "diagnosticconfigswidget.h",
         "diagnosticmark.cpp",
@@ -73,7 +72,6 @@ QtcPlugin {
         "runsettingswidget.h",
         "settingswidget.cpp",
         "settingswidget.h",
-        "tidychecks.ui",
         "virtualfilesystemoverlay.cpp",
         "virtualfilesystemoverlay.h",
     ]

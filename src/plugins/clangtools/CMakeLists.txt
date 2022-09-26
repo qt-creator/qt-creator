@@ -33,7 +33,6 @@ add_qtc_plugin(ClangTools
     clangtoolsprojectsettingswidget.cpp clangtoolsprojectsettingswidget.h
     clangtoolssettings.cpp clangtoolssettings.h
     clangtoolsutils.cpp clangtoolsutils.h
-    clazychecks.ui
     diagnosticconfigswidget.cpp diagnosticconfigswidget.h
     diagnosticmark.cpp diagnosticmark.h
     documentclangtoolrunner.cpp documentclangtoolrunner.h
@@ -42,7 +41,6 @@ add_qtc_plugin(ClangTools
     filterdialog.cpp filterdialog.h
     runsettingswidget.cpp runsettingswidget.h
     settingswidget.cpp settingswidget.h
-    tidychecks.ui
     virtualfilesystemoverlay.cpp virtualfilesystemoverlay.h
 )
 

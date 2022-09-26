@@ -9,23 +9,16 @@
 
 #include <memory>
 
-namespace ClangTools {
-namespace Internal {
-class Diagnostic;
+namespace ClangTools::Internal {
 
-// Not UI-related, but requires the tree model (or else a huge refactoring or code duplication).
-QString removeClangTidyCheck(const QString &checks, const QString &check);
-QString removeClazyCheck(const QString &checks, const QString &check);
-void disableChecks(const QList<Diagnostic> &diagnostics);
-
-namespace Ui {
-class ClazyChecks;
-class TidyChecks;
-}
-
-class TidyChecksTreeModel;
-class ClazyChecksTreeModel;
 class ClazyChecksSortFilterModel;
+class ClazyChecksTreeModel;
+class ClazyChecksWidget;
+class Diagnostic;
+class TidyChecksTreeModel;
+class TidyChecksWidget;
+
+void disableChecks(const QList<Diagnostic> &diagnostics);
 
 // Like CppEditor::ClangDiagnosticConfigsWidget, but with tabs/widgets for clang-tidy and clazy
 class DiagnosticConfigsWidget : public CppEditor::ClangDiagnosticConfigsWidget
@@ -60,18 +53,15 @@ private:
 
 private:
     // Clang-Tidy
-    std::unique_ptr<Ui::TidyChecks> m_tidyChecks;
-    QWidget *m_tidyChecksWidget = nullptr;
+    TidyChecksWidget *m_tidyChecks = nullptr;
     std::unique_ptr<TidyChecksTreeModel> m_tidyTreeModel;
     ClangTidyInfo m_tidyInfo;
 
     // Clazy
-    std::unique_ptr<Ui::ClazyChecks> m_clazyChecks;
-    QWidget *m_clazyChecksWidget = nullptr;
-    std::unique_ptr<ClazyChecksTreeModel> m_clazyTreeModel;
+    ClazyChecksWidget *m_clazyChecks = nullptr;
     ClazyChecksSortFilterModel *m_clazySortFilterProxyModel = nullptr;
+    std::unique_ptr<ClazyChecksTreeModel> m_clazyTreeModel;
     ClazyStandaloneInfo m_clazyInfo;
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // ClangTools::Internal
