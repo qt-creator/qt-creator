@@ -33,11 +33,13 @@
 #include <memory>
 
 using namespace ProjectExplorer;
-using namespace QmakeProjectManager;
 using namespace QtSupport;
 using namespace Utils;
 
-namespace {
+namespace QmakeProjectManager::Internal {
+
+const Utils::Id QT_IS_TEMPORARY("Qmake.TempQt");
+const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // ugly
 
 struct DirectoryData
 {
@@ -52,38 +54,29 @@ struct DirectoryData
     QMakeStepConfig::OsType osType;
 };
 
-} // namespace
-
-namespace QmakeProjectManager::Internal {
-
-const Utils::Id QT_IS_TEMPORARY("Qmake.TempQt");
-const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // ugly
-
 QmakeProjectImporter::QmakeProjectImporter(const FilePath &path) :
     QtProjectImporter(path)
 { }
 
 FilePaths QmakeProjectImporter::importCandidates()
 {
-    QStringList candidates;
+    FilePaths candidates;
 
-    QFileInfo pfi = projectFilePath().toFileInfo();
-    const QString prefix = pfi.baseName();
-    candidates << pfi.absolutePath();
+    const FilePath pfp = projectFilePath();
+    const QString prefix = pfp.baseName();
+    candidates << pfp.absolutePath();
 
-    foreach (Kit *k, KitManager::kits()) {
+    for (Kit *k : KitManager::kits()) {
         const FilePath sbdir = QmakeBuildConfiguration::shadowBuildDirectory
                     (projectFilePath(), k, QString(), BuildConfiguration::Unknown);
 
-        const QString baseDir = sbdir.toFileInfo().absolutePath();
-
-        foreach (const QString &dir, QDir(baseDir).entryList()) {
-            const QString path = baseDir + QLatin1Char('/') + dir;
-            if (dir.startsWith(prefix) && !candidates.contains(path))
+        const FilePath baseDir = sbdir.absolutePath();
+        for (const FilePath &path : baseDir.dirEntries(QDir::Filters())) {
+            if (path.fileName().startsWith(prefix) && !candidates.contains(path))
                 candidates << path;
         }
     }
-    return Utils::transform(candidates, &FilePath::fromString);
+    return candidates;
 }
 
 QList<void *> QmakeProjectImporter::examineDirectory(const FilePath &importPath,
