@@ -9,12 +9,14 @@
 
 #include <memory>
 
-namespace Utils { class FilePath; }
+namespace Utils {
+class FilePath;
+class PathChooser;
+} // Utils
 
-namespace ClangTools {
-namespace Internal {
+namespace ClangTools::Internal {
 
-namespace Ui { class SettingsWidget; }
+class RunSettingsWidget;
 
 class SettingsWidget : public Core::IOptionsPageWidget
 {
@@ -32,8 +34,11 @@ public:
 private:
     void apply() final;
 
-    std::unique_ptr<Ui::SettingsWidget> m_ui;
     ClangToolsSettings *m_settings;
+
+    Utils::PathChooser *m_clangTidyPathChooser;
+    Utils::PathChooser *m_clazyStandalonePathChooser;
+    RunSettingsWidget *m_runSettingsWidget;
 };
 
 class ClangToolsOptionsPage final : public Core::IOptionsPage
@@ -42,5 +47,4 @@ public:
     ClangToolsOptionsPage();
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // ClangTools::Internal

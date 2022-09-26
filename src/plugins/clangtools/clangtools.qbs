@@ -74,7 +74,6 @@ QtcPlugin {
         "runsettingswidget.ui",
         "settingswidget.cpp",
         "settingswidget.h",
-        "settingswidget.ui",
         "tidychecks.ui",
         "virtualfilesystemoverlay.cpp",
         "virtualfilesystemoverlay.h",

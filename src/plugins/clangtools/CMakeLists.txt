@@ -41,7 +41,7 @@ add_qtc_plugin(ClangTools
     executableinfo.cpp executableinfo.h
     filterdialog.cpp filterdialog.h
     runsettingswidget.cpp runsettingswidget.h runsettingswidget.ui
-    settingswidget.cpp settingswidget.h settingswidget.ui
+    settingswidget.cpp settingswidget.h
     tidychecks.ui
     virtualfilesystemoverlay.cpp virtualfilesystemoverlay.h
 )
