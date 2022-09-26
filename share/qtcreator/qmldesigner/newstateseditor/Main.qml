@@ -526,6 +526,7 @@ Rectangle {
                 anchors.leftMargin: root.leftMargin
 
                 ScrollBar.horizontal: StateScrollBar {
+                    id: horizontalBar
                     parent: scrollView
                     x: scrollView.leftPadding
                     y: scrollView.height - height
@@ -534,6 +535,7 @@ Rectangle {
                 }
 
                 ScrollBar.vertical: StateScrollBar {
+                    id: verticalBar
                     parent: scrollView
                     x: scrollView.mirrored ? 0 : scrollView.width - width
                     y: scrollView.topPadding
@@ -762,6 +764,8 @@ Rectangle {
                                                        delegateRoot.stateName)
 
                                     hasWhenCondition: delegateRoot.hasWhenCondition
+
+                                    scrollViewActive: horizontalBar.active || verticalBar.active
 
                                     dragParent: scrollView
 

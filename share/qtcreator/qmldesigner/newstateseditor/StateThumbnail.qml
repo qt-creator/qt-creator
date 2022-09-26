@@ -55,6 +55,8 @@ Item {
 
     property bool hasWhenCondition: false
 
+    property bool scrollViewActive: false
+
     property Item dragParent
 
     property int visualIndex: 0
@@ -89,7 +91,7 @@ Item {
 
     DragHandler {
         id: dragHandler
-        enabled: !root.baseState && !root.extendedState
+        enabled: !root.baseState && !root.extendedState && !root.scrollViewActive
         onGrabChanged: function (transition, point) {
             if (transition === PointerDevice.GrabPassive
                     || transition === PointerDevice.GrabExclusive)
