@@ -71,7 +71,6 @@ QtcPlugin {
         "filterdialog.h",
         "runsettingswidget.cpp",
         "runsettingswidget.h",
-        "runsettingswidget.ui",
         "settingswidget.cpp",
         "settingswidget.h",
         "tidychecks.ui",

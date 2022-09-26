@@ -40,7 +40,7 @@ add_qtc_plugin(ClangTools
     documentquickfixfactory.cpp documentquickfixfactory.h
     executableinfo.cpp executableinfo.h
     filterdialog.cpp filterdialog.h
-    runsettingswidget.cpp runsettingswidget.h runsettingswidget.ui
+    runsettingswidget.cpp runsettingswidget.h
     settingswidget.cpp settingswidget.h
     tidychecks.ui
     virtualfilesystemoverlay.cpp virtualfilesystemoverlay.h

@@ -7,18 +7,17 @@
 
 #include <QWidget>
 
-namespace CppEditor {
-class ClangDiagnosticConfigsSelectionWidget;
-}
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QSpinBox;
+QT_END_NAMESPACE
 
-namespace ClangTools {
-namespace Internal {
+
+namespace CppEditor { class ClangDiagnosticConfigsSelectionWidget; }
+
+namespace ClangTools::Internal {
 
 class RunSettings;
-
-namespace Ui {
-class RunSettingsWidget;
-}
 
 class RunSettingsWidget : public QWidget
 {
@@ -37,8 +36,10 @@ signals:
     void changed();
 
 private:
-    Ui::RunSettingsWidget *m_ui;
+    CppEditor::ClangDiagnosticConfigsSelectionWidget *m_diagnosticWidget;
+    QCheckBox *m_buildBeforeAnalysis;
+    QCheckBox *m_analyzeOpenFiles;
+    QSpinBox *m_parallelJobsSpinBox;
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // ClangTools::Internal
