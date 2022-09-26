@@ -22,7 +22,7 @@ public:
     ~SquishFileHandler() override = default;
     static SquishFileHandler *instance();
     void openTestSuites();
-    void openTestSuite(const Utils::FilePath &suitePath);
+    void openTestSuite(const Utils::FilePath &suitePath, bool isReopen = false);
     void closeTestSuite(const QString &suiteName);
     void closeAllTestSuites();
     void runTestCase(const QString &suiteName, const QString &testCaseName);

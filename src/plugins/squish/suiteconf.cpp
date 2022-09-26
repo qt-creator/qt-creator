@@ -3,6 +3,9 @@
 
 #include "suiteconf.h"
 
+#include <coreplugin/documentmanager.h>
+
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QRegularExpression>
@@ -31,6 +34,32 @@ bool SuiteConf::read()
     m_objectMap = suiteConf.value(objectsMapKey).toString();
     m_objectMapStyle = suiteConf.value(objectMapStyleKey).toString();
     return true;
+}
+
+static QString languageEntry(Language language)
+{
+    switch (language) {
+    case Language::Python: return "Python";
+    case Language::Perl: return "Perl";
+    case Language::JavaScript: return "JavaScript";
+    case Language::Ruby: return "Ruby";
+    case Language::Tcl: return "Tcl";
+    }
+    return {};
+}
+
+bool SuiteConf::write()
+{
+    Core::DocumentManager::expectFileChange(m_filePath);
+    QSettings suiteConf(m_filePath.toString(), QSettings::IniFormat);
+    suiteConf.setValue(squishAutKey, m_aut);
+    suiteConf.setValue(squishLanguageKey, languageEntry(m_language));
+    suiteConf.setValue(objectsMapKey, m_objectMap);
+    if (!m_objectMap.isEmpty())
+        suiteConf.setValue(objectMapStyleKey, m_objectMapStyle);
+    suiteConf.setValue(squishTestCasesKey, m_testcases);
+    suiteConf.sync();
+    return suiteConf.status() == QSettings::NoError;
 }
 
 QString SuiteConf::langParameter() const
@@ -62,6 +91,37 @@ QString SuiteConf::scriptExtension() const
 QStringList SuiteConf::testCases() const
 {
     return m_testcases.split(QRegularExpression("\\s+"));
+}
+
+QStringList SuiteConf::usedTestCases() const
+{
+    QStringList result = testCases();
+
+    auto suiteDir = m_filePath.parentDir();
+    const Utils::FilePaths entries = Utils::filtered(
+                suiteDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot),
+                [](const Utils::FilePath &fp) {
+        return fp.fileName().startsWith("tst_");
+    });
+    const QStringList testCaseNames = Utils::transform(entries, &Utils::FilePath::fileName);
+    for (const QString &testCaseName : testCaseNames) {
+        if (result.contains(testCaseName))
+            continue;
+        result.append(testCaseName); // should this check for test.*?
+    }
+    return result;
+}
+
+void SuiteConf::addTestCase(const QString &name)
+{
+    QStringList current = testCases();
+    int insertAt = 0;
+    for (int count = current.count(); insertAt < count; ++insertAt) {
+        if (current.at(insertAt) > name)
+            break;
+    }
+    current.insert(insertAt, name);
+    m_testcases = current.join(' ');
 }
 
 void SuiteConf::setLanguage(const QString &language)

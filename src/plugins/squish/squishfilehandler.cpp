@@ -193,13 +193,17 @@ void SquishFileHandler::openTestSuites()
     emit suitesOpened();
 }
 
-void SquishFileHandler::openTestSuite(const Utils::FilePath &suitePath)
+void SquishFileHandler::openTestSuite(const Utils::FilePath &suitePath, bool isReopen)
 {
     const QString suiteName = suitePath.parentDir().fileName();
     const QString suitePathStr = suitePath.toString();
     const QStringList cases = SuiteConf::validTestCases(suitePath.parentDir().toString());
 
     if (m_suites.contains(suiteName)) {
+        if (isReopen) {
+            modifySuiteItem(suiteName, suitePathStr, cases);
+            return;
+        }
         QMessageBox::Button replaceSuite
                 = QMessageBox::question(Core::ICore::dialogParent(),
                                         Tr::tr("Suite Already Open"),
