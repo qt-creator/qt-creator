@@ -117,6 +117,8 @@ WidgetInfo MaterialBrowserView::widgetInfo()
                         mat.setVariantProperty(prop.name(), prop.toVariantProperty().value());
                     else if (prop.isBindingProperty())
                         mat.setBindingProperty(prop.name(), prop.toBindingProperty().expression());
+                    else if (!all)
+                        mat.removeProperty(prop.name());
                 }
             });
         });
