@@ -18,6 +18,12 @@ namespace Utils { class Diff; }
 
 namespace DiffEditor {
 
+enum DiffSide {
+    LeftSide,
+    RightSide,
+    SideCount // Use only in array declarations
+};
+
 class DIFFEDITOR_EXPORT DiffFileInfo {
 public:
     enum PatchBehaviour {

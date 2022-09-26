@@ -193,8 +193,8 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         if (currentChunkIndex > chunkIndex)
             break;
 
-        const int leftRow = m_data.m_leftLineNumbers.value(i, qMakePair(-1, -1)).second;
-        const int rightRow = m_data.m_rightLineNumbers.value(i, qMakePair(-1, -1)).second;
+        const int leftRow = m_data.m_lineNumbers[LeftSide].value(i, qMakePair(-1, -1)).second;
+        const int rightRow = m_data.m_lineNumbers[RightSide].value(i, qMakePair(-1, -1)).second;
 
         if (leftRow >= 0)
             leftSelection.append(leftRow);
@@ -246,22 +246,22 @@ QString UnifiedDiffEditorWidget::lineNumber(int blockNumber) const
 {
     QString lineNumberString;
 
-    const bool leftLineExists = m_data.m_leftLineNumbers.contains(blockNumber);
-    const bool rightLineExists = m_data.m_rightLineNumbers.contains(blockNumber);
+    const bool leftLineExists = m_data.m_lineNumbers[LeftSide].contains(blockNumber);
+    const bool rightLineExists = m_data.m_lineNumbers[RightSide].contains(blockNumber);
 
     if (leftLineExists || rightLineExists) {
         const QString leftLine = leftLineExists
-                ? QString::number(m_data.m_leftLineNumbers.value(blockNumber).first)
+                ? QString::number(m_data.m_lineNumbers[LeftSide].value(blockNumber).first)
                 : QString();
-        lineNumberString += QString(m_data.m_leftLineNumberDigits - leftLine.count(),
+        lineNumberString += QString(m_data.m_lineNumberDigits[LeftSide] - leftLine.count(),
                                     ' ') + leftLine;
 
         lineNumberString += '|';
 
         const QString rightLine = rightLineExists
-                ? QString::number(m_data.m_rightLineNumbers.value(blockNumber).first)
+                ? QString::number(m_data.m_lineNumbers[RightSide].value(blockNumber).first)
                 : QString();
-        lineNumberString += QString(m_data.m_rightLineNumberDigits - rightLine.count(),
+        lineNumberString += QString(m_data.m_lineNumberDigits[RightSide] - rightLine.count(),
                                     ' ') + rightLine;
     }
     return lineNumberString;
@@ -269,21 +269,15 @@ QString UnifiedDiffEditorWidget::lineNumber(int blockNumber) const
 
 int UnifiedDiffEditorWidget::lineNumberDigits() const
 {
-    return m_data.m_leftLineNumberDigits + m_data.m_rightLineNumberDigits + 1;
+    return m_data.m_lineNumberDigits[LeftSide] + m_data.m_lineNumberDigits[RightSide] + 1;
 }
 
-void UnifiedDiffData::setLeftLineNumber(int blockNumber, int lineNumber, int rowNumberInChunk)
+void UnifiedDiffData::setLineNumber(DiffSide side, int blockNumber, int lineNumber, int rowNumberInChunk)
 {
+    QTC_ASSERT(side < SideCount, return);
     const QString lineNumberString = QString::number(lineNumber);
-    m_leftLineNumbers.insert(blockNumber, qMakePair(lineNumber, rowNumberInChunk));
-    m_leftLineNumberDigits = qMax(m_leftLineNumberDigits, lineNumberString.count());
-}
-
-void UnifiedDiffData::setRightLineNumber(int blockNumber, int lineNumber, int rowNumberInChunk)
-{
-    const QString lineNumberString = QString::number(lineNumber);
-    m_rightLineNumbers.insert(blockNumber, qMakePair(lineNumber, rowNumberInChunk));
-    m_rightLineNumberDigits = qMax(m_rightLineNumberDigits, lineNumberString.count());
+    m_lineNumbers[side].insert(blockNumber, qMakePair(lineNumber, rowNumberInChunk));
+    m_lineNumberDigits[side] = qMax(m_lineNumberDigits[side], lineNumberString.count());
 }
 
 void UnifiedDiffData::setFileInfo(int blockNumber, const DiffFileInfo &leftInfo,
@@ -305,9 +299,9 @@ void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
     showDiff();
 }
 
-QString UnifiedDiffData::showChunk(const DiffEditorInput &input, const ChunkData &chunkData,
-                                   bool lastChunk, int *blockNumber, int *charNumber,
-                                   QMap<int, QList<DiffSelection>> *selections)
+QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData &chunkData,
+                                  bool lastChunk, int *blockNumber, int *charNumber,
+                                  QMap<int, QList<DiffSelection>> *selections)
 {
     if (chunkData.contextChunk)
         return QString();
@@ -366,10 +360,10 @@ QString UnifiedDiffData::showChunk(const DiffEditorInput &input, const ChunkData
                     }
 
                     if (!line.isEmpty()) {
-                        setLeftLineNumber(*blockNumber + blockCount + 1,
-                                          chunkData.leftStartingLineNumber
-                                          + leftLineCount + 1,
-                                          leftRowsBuffer.at(j));
+                        setLineNumber(LeftSide,
+                                      *blockNumber + blockCount + 1,
+                                      chunkData.leftStartingLineNumber + leftLineCount + 1,
+                                      leftRowsBuffer.at(j));
                         blockCount += blockDelta;
                         ++leftLineCount;
                     }
@@ -408,10 +402,10 @@ QString UnifiedDiffData::showChunk(const DiffEditorInput &input, const ChunkData
                     }
 
                     if (!line.isEmpty()) {
-                        setRightLineNumber(*blockNumber + blockCount + 1,
-                                           chunkData.rightStartingLineNumber
-                                           + rightLineCount + 1,
-                                           rightRowsBuffer.at(j));
+                        setLineNumber(RightSide,
+                                      *blockNumber + blockCount + 1,
+                                      chunkData.rightStartingLineNumber + rightLineCount + 1,
+                                      rightRowsBuffer.at(j));
                         blockCount += blockDelta;
                         ++rightLineCount;
                     }
@@ -430,14 +424,10 @@ QString UnifiedDiffData::showChunk(const DiffEditorInput &input, const ChunkData
                                           i == chunkData.rows.count() - 1);
 
                 if (!line.isEmpty()) {
-                    setLeftLineNumber(*blockNumber + blockCount + 1,
-                                      chunkData.leftStartingLineNumber
-                                      + leftLineCount + 1,
-                                      i);
-                    setRightLineNumber(*blockNumber + blockCount + 1,
-                                       chunkData.rightStartingLineNumber
-                                       + rightLineCount + 1,
-                                       i);
+                    setLineNumber(LeftSide, *blockNumber + blockCount + 1,
+                                  chunkData.leftStartingLineNumber + leftLineCount + 1, i);
+                    setLineNumber(RightSide, *blockNumber + blockCount + 1,
+                                  chunkData.rightStartingLineNumber + rightLineCount + 1, i);
                     blockCount += line.count('\n');
                     ++leftLineCount;
                     ++rightLineCount;
@@ -491,8 +481,8 @@ static int interpolate(int x, int x1, int x2, int y1, int y2)
     return qRound((double)numerator / denominator);
 }
 
-UnifiedDiffOutput UnifiedDiffData::showDiff(QFutureInterface<void> &fi, int progressMin,
-                                            int progressMax, const DiffEditorInput &input)
+UnifiedDiffOutput UnifiedDiffData::setDiff(QFutureInterface<void> &fi, int progressMin,
+                                           int progressMax, const DiffEditorInput &input)
 {
     UnifiedDiffOutput output;
 
@@ -531,12 +521,12 @@ UnifiedDiffOutput UnifiedDiffData::showDiff(QFutureInterface<void> &fi, int prog
             for (int j = 0; j < fileData.chunks.count(); j++) {
                 const int oldBlockNumber = blockNumber;
                 output.foldingIndent.insert(blockNumber, 2);
-                output.diffText += showChunk(input, fileData.chunks.at(j),
-                                      (j == fileData.chunks.count() - 1)
-                                      && fileData.lastChunkAtTheEndOfFile,
-                                      &blockNumber,
-                                      &charNumber,
-                                      &output.selections);
+                output.diffText += setChunk(input, fileData.chunks.at(j),
+                                            (j == fileData.chunks.count() - 1)
+                                            && fileData.lastChunkAtTheEndOfFile,
+                                            &blockNumber,
+                                            &charNumber,
+                                            &output.selections);
                 if (!fileData.chunks.at(j).contextChunk)
                     setChunkIndex(oldBlockNumber, blockNumber - oldBlockNumber, j);
             }
@@ -598,7 +588,7 @@ void UnifiedDiffEditorWidget::showDiff()
         futureInterface.setProgressValue(0);
         QFutureInterface<void> fi = futureInterface;
         UnifiedDiffData diffData;
-        const UnifiedDiffOutput output = diffData.showDiff(fi, 0, firstPartMax, input);
+        const UnifiedDiffOutput output = diffData.setDiff(fi, 0, firstPartMax, input);
         if (futureInterface.isCanceled())
             return;
 
@@ -687,13 +677,13 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
 
     const int columnNumber = cursor.positionInBlock() - 1; // -1 for the first character in line
 
-    const int rightLineNumber = m_data.m_rightLineNumbers.value(blockNumber, qMakePair(-1, 0)).first;
+    const int rightLineNumber = m_data.m_lineNumbers[RightSide].value(blockNumber, qMakePair(-1, 0)).first;
     if (rightLineNumber >= 0) {
         m_controller.jumpToOriginalFile(rightFileName, rightLineNumber, columnNumber);
         return;
     }
 
-    const int leftLineNumber = m_data.m_leftLineNumbers.value(blockNumber, qMakePair(-1, 0)).first;
+    const int leftLineNumber = m_data.m_lineNumbers[LeftSide].value(blockNumber, qMakePair(-1, 0)).first;
     if (leftLineNumber >= 0) {
         if (leftFileName == rightFileName) {
             for (const ChunkData &chunkData : fileData.chunks) {

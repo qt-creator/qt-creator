@@ -40,15 +40,13 @@ public:
 class UnifiedDiffData
 {
 public:
-    UnifiedDiffOutput showDiff(QFutureInterface<void> &fi, int progressMin, int progressMax,
-                               const DiffEditorInput &input);
+    UnifiedDiffOutput setDiff(QFutureInterface<void> &fi, int progressMin, int progressMax,
+                              const DiffEditorInput &input);
 
     // block number, visual line number, chunk row number
-    QMap<int, QPair<int, int>> m_leftLineNumbers;
-    QMap<int, QPair<int, int>> m_rightLineNumbers;
-
-    int m_leftLineNumberDigits = 1;
-    int m_rightLineNumberDigits = 1;
+    using LineNumbers = QMap<int, QPair<int, int>>;
+    std::array<LineNumbers, SideCount> m_lineNumbers{};
+    std::array<int, SideCount> m_lineNumberDigits{1, 1};
 
     // block number, visual line number.
     QMap<int, QPair<DiffFileInfo, DiffFileInfo>> m_fileInfo;
@@ -56,13 +54,12 @@ public:
     QMap<int, QPair<int, int>> m_chunkInfo;
 
 private:
-    void setLeftLineNumber(int blockNumber, int lineNumber, int rowNumberInChunk);
-    void setRightLineNumber(int blockNumber, int lineNumber, int rowNumberInChunk);
+    void setLineNumber(DiffSide side, int blockNumber, int lineNumber, int rowNumberInChunk);
     void setFileInfo(int blockNumber, const DiffFileInfo &leftInfo, const DiffFileInfo &rightInfo);
     void setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex);
-    QString showChunk(const DiffEditorInput &input, const ChunkData &chunkData, bool lastChunk,
-                      int *blockNumber, int *charNumber,
-                      QMap<int, QList<DiffSelection>> *selections);
+    QString setChunk(const DiffEditorInput &input, const ChunkData &chunkData, bool lastChunk,
+                     int *blockNumber, int *charNumber,
+                     QMap<int, QList<DiffSelection>> *selections);
 };
 
 class UnifiedDiffEditorWidget final : public SelectableTextEditorWidget
