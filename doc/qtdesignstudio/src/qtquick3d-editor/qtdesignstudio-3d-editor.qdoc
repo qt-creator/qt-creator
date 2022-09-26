@@ -76,7 +76,7 @@
       \li Create cameras, lights, and models.
       \li Open \uicontrol {Material Editor} and edit materials.
       \li Delete components
-    \list
+    \endlist
 
     \image 3d-view-context-menu.png
 
