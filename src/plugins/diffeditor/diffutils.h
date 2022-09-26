@@ -5,6 +5,7 @@
 
 #include "diffeditor_global.h"
 
+#include <utils/algorithm.h>
 #include <utils/filepath.h>
 
 #include <QMap>
@@ -83,11 +84,10 @@ class DIFFEDITOR_EXPORT ChunkSelection {
 public:
     ChunkSelection() = default;
     ChunkSelection(const QList<int> &left, const QList<int> &right)
-        : leftSelection(left), rightSelection(right) {}
-    bool isNull() const { return leftSelection.isEmpty() && rightSelection.isEmpty(); }
+        : selection({left, right}) {}
+    bool isNull() const { return Utils::allOf(selection, &QList<int>::isEmpty); }
     int selectedRowsCount() const;
-    QList<int> leftSelection;
-    QList<int> rightSelection;
+    std::array<QList<int>, SideCount> selection{};
 };
 
 class DIFFEDITOR_EXPORT FileData {

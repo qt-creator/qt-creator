@@ -17,7 +17,7 @@ namespace DiffEditor {
 
 int ChunkSelection::selectedRowsCount() const
 {
-    return Utils::toSet(leftSelection).unite(Utils::toSet(rightSelection)).size();
+    return Utils::toSet(selection[LeftSide]).unite(Utils::toSet(selection[RightSide])).size();
 }
 
 static QList<TextLineData> assemblyRows(const QList<TextLineData> &lines,

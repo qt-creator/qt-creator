@@ -74,8 +74,8 @@ ChunkData DiffEditorDocument::filterChunk(const ChunkData &data,
     chunk.rows.clear();
     for (int i = 0; i < data.rows.count(); ++i) {
         RowData row = data.rows[i];
-        const bool isLeftSelected = selection.leftSelection.contains(i);
-        const bool isRightSelected = selection.rightSelection.contains(i);
+        const bool isLeftSelected = selection.selection[LeftSide].contains(i);
+        const bool isRightSelected = selection.selection[RightSide].contains(i);
 
         if (isLeftSelected || isRightSelected) {
             if (row.equal || (isLeftSelected && isRightSelected)) {
