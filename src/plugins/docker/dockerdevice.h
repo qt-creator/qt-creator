@@ -10,8 +10,6 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 
-#include <utils/aspects.h>
-
 #include <QMutex>
 
 namespace Docker::Internal {
