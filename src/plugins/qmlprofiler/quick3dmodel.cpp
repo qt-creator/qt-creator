@@ -156,7 +156,9 @@ int Quick3DModel::collapsedRow(int index) const
 
 void Quick3DModel::loadEvent(const QmlEvent &event, const QmlEventType &type)
 {
-    auto detailType = type.detailType();
+    int detailType = type.detailType();
+    if (detailType >= MaximumQuick3DFrameType)
+        return;
     qint64 eventDuration = event.number<qint64>(0);
     qint64 eventTime = event.timestamp() - eventDuration;
     QVector<quint64> numbers = event.numbers<QVector<quint64>>();

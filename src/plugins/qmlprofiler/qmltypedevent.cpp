@@ -54,6 +54,8 @@ QDataStream &operator>>(QDataStream &stream, QmlTypedEvent &event)
 
     switch (messageType) {
     case Event: {
+        if (subtype >= MaximumEventType)
+            subtype = UndefinedEventType;
         event.type = QmlEventType(static_cast<Message>(messageType), UndefinedRangeType, subtype);
         switch (subtype) {
         case StartTrace:

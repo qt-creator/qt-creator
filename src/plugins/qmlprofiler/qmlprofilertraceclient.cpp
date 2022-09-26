@@ -350,6 +350,8 @@ void QmlProfilerTraceClient::setFlushInterval(quint32 flushInterval)
 
 bool QmlProfilerTraceClientPrivate::updateFeatures(quint8 feature)
 {
+    if (feature == UndefinedProfileFeature)
+        return true;
     quint64 flag = 1ULL << feature;
     if (!(requestedFeatures & flag))
         return false;

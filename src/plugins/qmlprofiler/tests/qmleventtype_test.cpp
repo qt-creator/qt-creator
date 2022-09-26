@@ -43,7 +43,7 @@ void QmlEventTypeTest::testAccessors()
     QVERIFY(!type.location().isValid());
     QVERIFY(type.data().isEmpty());
     QVERIFY(type.displayName().isEmpty());
-    QCOMPARE(static_cast<ProfileFeature>(type.feature()), MaximumProfileFeature);
+    QCOMPARE(static_cast<ProfileFeature>(type.feature()), UndefinedProfileFeature);
 
     type.setLocation(QmlEventLocation("blah.js", 12, 13));
     QCOMPARE(type.location().filename(), QString("blah.js"));
@@ -71,23 +71,23 @@ void QmlEventTypeTest::testFeature()
 {
     const quint8 features[][MaximumEventType] = {
         // Event
-        {MaximumProfileFeature, ProfileInputEvents, ProfileInputEvents,
-         ProfileAnimations, MaximumProfileFeature, MaximumProfileFeature},
+        {UndefinedProfileFeature, ProfileInputEvents, ProfileInputEvents,
+         ProfileAnimations, UndefinedProfileFeature, UndefinedProfileFeature},
         // RangeStart
-        {MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature,
-         MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature},
+        {UndefinedProfileFeature, UndefinedProfileFeature, UndefinedProfileFeature,
+         UndefinedProfileFeature, UndefinedProfileFeature, UndefinedProfileFeature},
         // RangeData
-        {MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature,
-         MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature},
+        {UndefinedProfileFeature, UndefinedProfileFeature, UndefinedProfileFeature,
+         UndefinedProfileFeature, UndefinedProfileFeature, UndefinedProfileFeature},
         // RangeLocation
-        {MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature,
-         MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature},
+        {UndefinedProfileFeature, UndefinedProfileFeature, UndefinedProfileFeature,
+         UndefinedProfileFeature, UndefinedProfileFeature, UndefinedProfileFeature},
         // RangeEnd
-        {MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature,
-         MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature},
+        {UndefinedProfileFeature, UndefinedProfileFeature, UndefinedProfileFeature,
+         UndefinedProfileFeature, UndefinedProfileFeature, UndefinedProfileFeature},
         // Complete
-        {MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature,
-         MaximumProfileFeature, MaximumProfileFeature, MaximumProfileFeature},
+        {UndefinedProfileFeature, UndefinedProfileFeature, UndefinedProfileFeature,
+         UndefinedProfileFeature, UndefinedProfileFeature, UndefinedProfileFeature},
         // PixmapCacheEvent
         {ProfilePixmapCache, ProfilePixmapCache, ProfilePixmapCache,
          ProfilePixmapCache, ProfilePixmapCache, ProfilePixmapCache},

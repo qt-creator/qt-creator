@@ -39,7 +39,7 @@ static ProfileFeature qmlFeatureFromType(Message message, RangeType rangeType, i
         case AnimationFrame:
             return ProfileAnimations;
         default:
-            return MaximumProfileFeature;
+            return UndefinedProfileFeature;
         }
     }
     case PixmapCacheEvent:
@@ -51,7 +51,11 @@ static ProfileFeature qmlFeatureFromType(Message message, RangeType rangeType, i
     case DebugMessage:
         return ProfileDebugMessages;
     case Quick3DEvent:
-        return ProfileQuick3D;
+        // Check if it's actually Quick3DEvent since old traces used MaximumMessage
+        // (whose value is now Quick3DEvent value) as undefined value
+        if (rangeType == UndefinedRangeType)
+            return ProfileQuick3D;
+        return featureFromRangeType(rangeType);
     default:
         return featureFromRangeType(rangeType);
     }
@@ -68,6 +72,9 @@ QDataStream &operator>>(QDataStream &stream, QmlEventType &type)
     type.m_message = static_cast<Message>(message);
     type.m_rangeType = static_cast<RangeType>(rangeType);
     type.setFeature(qmlFeatureFromType(type.m_message, type.m_rangeType, type.m_detailType));
+    // Update message if qmlFeatureFromType determined it is not Quick3D event
+    if (type.m_message == Quick3DEvent && type.feature() != ProfileQuick3D)
+        type.m_message = UndefinedMessage;
     return stream;
 }
 
