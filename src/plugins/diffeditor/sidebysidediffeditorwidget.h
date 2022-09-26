@@ -29,6 +29,46 @@ namespace Internal {
 class DiffEditorDocument;
 class SideDiffEditorWidget;
 
+class SideDiffData
+{
+public:
+    // block number, visual line number.
+    QMap<int, int> m_lineNumbers;
+    // block number, fileInfo. Set for file lines only.
+    QMap<int, DiffFileInfo> m_fileInfo;
+    // block number, skipped lines and context info. Set for chunk lines only.
+    QMap<int, QPair<int, QString>> m_skippedLines;
+    // start block number, block count of a chunk, chunk index inside a file.
+    QMap<int, QPair<int, int>> m_chunkInfo;
+    // block number, separator. Set for file, chunk or span line.
+    QMap<int, bool> m_separators;
+
+    int m_lineNumberDigits = 1;
+
+    void setLineNumber(int blockNumber, int lineNumber);
+    void setFileInfo(int blockNumber, const DiffFileInfo &fileInfo);
+    void setSkippedLines(int blockNumber, int skippedLines, const QString &contextInfo = QString()) {
+        m_skippedLines[blockNumber] = qMakePair(skippedLines, contextInfo);
+        setSeparator(blockNumber, true);
+    }
+    void setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex);
+    void setSeparator(int blockNumber, bool separator) {
+        m_separators[blockNumber] = separator;
+    }
+    bool isFileLine(int blockNumber) const {
+        return m_fileInfo.contains(blockNumber);
+    }
+    int blockNumberForFileIndex(int fileIndex) const;
+    int fileIndexForBlockNumber(int blockNumber) const;
+    int chunkIndexForBlockNumber(int blockNumber) const;
+    int chunkRowForBlockNumber(int blockNumber) const;
+    int chunkRowsCountForBlockNumber(int blockNumber) const;
+    bool isChunkLine(int blockNumber) const {
+        return m_skippedLines.contains(blockNumber);
+    }
+private:
+};
+
 class SideBySideDiffEditorWidget : public QWidget
 {
     Q_OBJECT
