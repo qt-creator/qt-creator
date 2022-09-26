@@ -54,6 +54,7 @@ public:
     void selectAll() override;
 
     void switchDeclarationDefinition(bool inNextSplit);
+    void followSymbolToType(bool inNextSplit);
     void showPreProcessorWidget();
 
     void findUsages() override;

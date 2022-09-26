@@ -40,6 +40,9 @@ public:
     virtual void followSymbol(const CursorInEditor &data,
                               const Utils::LinkHandler &processLinkCallback,
                               bool resolveTarget, bool inNextSplit) = 0;
+    virtual void followSymbolToType(const CursorInEditor &data,
+                                   const Utils::LinkHandler &processLinkCallback,
+                                   bool inNextSplit) = 0;
     virtual void switchDeclDef(const CursorInEditor &data,
                                const Utils::LinkHandler &processLinkCallback) = 0;
     virtual void startLocalRenaming(const CursorInEditor &data,

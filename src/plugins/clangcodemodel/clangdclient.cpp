@@ -832,7 +832,7 @@ void ClangdClient::followSymbol(TextDocument *document,
     d->followSymbol = nullptr;
 
     const QTextCursor adjustedCursor = d->adjustedCursor(cursor, document);
-    if (!resolveTarget) {
+    if (followTo == FollowTo::SymbolDef && !resolveTarget) {
         symbolSupport().findLinkAt(document, adjustedCursor, callback, false);
         return;
     }

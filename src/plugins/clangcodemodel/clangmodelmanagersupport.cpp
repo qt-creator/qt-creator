@@ -270,6 +270,19 @@ void ClangModelManagerSupport::followSymbol(const CppEditor::CursorInEditor &dat
                                   CppModelManager::Backend::Builtin);
 }
 
+void ClangModelManagerSupport::followSymbolToType(const CppEditor::CursorInEditor &data,
+                                                  const Utils::LinkHandler &processLinkCallback,
+                                                  bool inNextSplit)
+{
+    if (ClangdClient * const client = clientForFile(data.filePath())) {
+        client->followSymbol(data.textDocument(), data.cursor(), data.editorWidget(),
+                             processLinkCallback, false, FollowTo::SymbolType, inNextSplit);
+        return;
+    }
+    CppModelManager::followSymbolToType(data, processLinkCallback, inNextSplit,
+                                        CppModelManager::Backend::Builtin);
+}
+
 void ClangModelManagerSupport::switchDeclDef(const CppEditor::CursorInEditor &data,
                    const Utils::LinkHandler &processLinkCallback)
 {

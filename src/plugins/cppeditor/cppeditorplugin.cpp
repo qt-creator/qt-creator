@@ -357,6 +357,30 @@ bool CppEditorPlugin::initialize(const QStringList & /*arguments*/, QString *err
             this, &CppEditorPlugin::openDeclarationDefinitionInNextSplit);
     cppToolsMenu->addAction(cmd);
 
+    QAction * const followSymbolToType = new QAction(tr("Follow Symbol Under Cursor to Type"),
+                                                     this);
+    cmd = ActionManager::registerAction(followSymbolToType, Constants::FOLLOW_SYMBOL_TO_TYPE,
+                                        context, true);
+    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Shift+F2")));
+    connect(followSymbolToType, &QAction::triggered, this, []{
+        if (CppEditorWidget *editorWidget = currentCppEditorWidget())
+            editorWidget->followSymbolToType(false);
+    });
+    contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
+    cppToolsMenu->addAction(cmd);
+    QAction * const followSymbolToTypeInNextSplit =
+            new QAction(tr("Follow Symbol To Type in Next Split"), this);
+    cmd = ActionManager::registerAction(followSymbolToTypeInNextSplit,
+        Constants::FOLLOW_SYMBOL_TO_TYPE_IN_NEXT_SPLIT, context, true);
+    cmd->setDefaultKeySequence(QKeySequence(HostOsInfo::isMacHost()
+                                            ? tr("Meta+E, Ctrl+Shift+F2")
+                                            : tr("Ctrl+E, Ctrl+Shift+F2")));
+    connect(followSymbolToTypeInNextSplit, &QAction::triggered, this, []{
+        if (CppEditorWidget *editorWidget = currentCppEditorWidget())
+            editorWidget->followSymbolToType(true);
+    });
+    cppToolsMenu->addAction(cmd);
+
     cmd = ActionManager::command(TextEditor::Constants::FIND_USAGES);
     contextMenu->addAction(cmd, Constants::G_CONTEXT_FIRST);
     cppToolsMenu->addAction(cmd);
