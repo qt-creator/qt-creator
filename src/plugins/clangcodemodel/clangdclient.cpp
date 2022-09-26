@@ -63,6 +63,7 @@
 #include <QRegularExpression>
 
 #include <cmath>
+#include <new>
 #include <set>
 #include <unordered_map>
 #include <utility>
@@ -1349,8 +1350,13 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
                              doc = QPointer(doc), rev = doc->document()->revision(),
                              clangdVersion = q->versionNumber(),
                              this] {
-            return Utils::runAsync(doSemanticHighlighting, filePath, tokens, text, ast, doc, rev,
-                                   clangdVersion, highlightingTimer);
+            try {
+                return Utils::runAsync(doSemanticHighlighting, filePath, tokens, text, ast, doc,
+                                       rev, clangdVersion, highlightingTimer);
+            } catch (const std::exception &e) {
+                qWarning() << "caught" << e.what() << "in main highlighting thread";
+                return QFuture<HighlightingResult>();
+            }
         };
 
         if (isTesting) {
