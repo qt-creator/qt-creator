@@ -123,6 +123,11 @@ FilePaths CMakeProjectImporter::importCandidates()
         if (configPreset.hidden.value())
             continue;
 
+        if (configPreset.condition) {
+            if (!CMakePresets::Macros::evaluatePresetCondition(configPreset, projectFilePath()))
+                continue;
+        }
+
         const FilePath configPresetDir = m_presetsTempDir.filePath(configPreset.name);
         configPresetDir.createDir();
         candidates << configPresetDir;
@@ -403,12 +408,14 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         auto data = std::make_unique<DirectoryData>();
 
         const QString presetName = importPath.fileName();
-
         PresetsDetails::ConfigurePreset configurePreset
             = Utils::findOrDefault(m_presetsData.configurePresets,
                                    [presetName](const PresetsDetails::ConfigurePreset &preset) {
                                        return preset.name == presetName;
                                    });
+
+        Environment env = Environment::systemEnvironment();
+        CMakePresets::Macros::expand(configurePreset, env, projectDirectory());
 
         if (configurePreset.displayName)
             data->cmakePresetDisplayname = configurePreset.displayName.value();
@@ -435,13 +442,15 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         QString binaryDir = importPath.toString();
         if (configurePreset.binaryDir) {
             binaryDir = configurePreset.binaryDir.value();
-            CMakePresets::Macros::expand(configurePreset,
-                                         Environment::systemEnvironment(),
-                                         projectDirectory(),
-                                         binaryDir);
+            CMakePresets::Macros::expand(configurePreset, env, projectDirectory(), binaryDir);
         }
 
         data->buildDirectory = Utils::FilePath::fromString(binaryDir);
+
+        CMakePresets::Macros::updateToolchainFile(configurePreset,
+                                                  env,
+                                                  projectDirectory(),
+                                                  data->buildDirectory);
 
         const CMakeConfig cache = configurePreset.cacheVariables
                                       ? configurePreset.cacheVariables.value()

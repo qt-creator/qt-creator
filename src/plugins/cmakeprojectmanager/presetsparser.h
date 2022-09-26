@@ -43,6 +43,47 @@ public:
     std::optional<bool> find = false;
 };
 
+class Condition {
+public:
+    QString type;
+
+    bool isNull() const { return type == "null"; }
+    bool isConst() const  { return type == "const"; }
+    bool isEquals() const  { return type == "equals"; }
+    bool isNotEquals() const  { return type == "notEquals"; }
+    bool isInList() const  { return type == "inList"; }
+    bool isNotInList() const { return type == "notInList"; }
+    bool isMatches() const { return type == "matches"; }
+    bool isNotMatches() const { return type == "notMatches"; }
+    bool isAnyOf() const { return type == "anyOf"; }
+    bool isAllOf() const { return type == "allOf"; }
+    bool isNot() const { return type == "not"; }
+
+    bool evaluate() const;
+
+    // const
+    std::optional<bool> constValue;
+
+    // equals, notEquals
+    std::optional<QString> lhs;
+    std::optional<QString> rhs;
+
+    // inList, notInList
+    std::optional<QString> string;
+    std::optional<QStringList> list;
+
+    // matches, notMatches
+    std::optional<QString> regex;
+
+    using ConditionPtr = std::shared_ptr<Condition>;
+
+    // anyOf, allOf
+    std::optional<std::vector<ConditionPtr>> conditions;
+
+    // not
+    std::optional<ConditionPtr> condition;
+};
+
 class ConfigurePreset {
 public:
     void inheritFrom(const ConfigurePreset &other);
@@ -50,12 +91,14 @@ public:
     QString name;
     std::optional<bool> hidden = false;
     std::optional<QStringList> inherits;
+    std::optional<Condition> condition;
     std::optional<QHash<QString, QString>> vendor;
     std::optional<QString> displayName;
     std::optional<QString> description;
     std::optional<QString> generator;
     std::optional<ValueStrategyPair> architecture;
     std::optional<ValueStrategyPair> toolset;
+    std::optional<QString> toolchainFile;
     std::optional<QString> binaryDir;
     std::optional<QString> cmakeExecutable;
     std::optional<CMakeConfig> cacheVariables;
@@ -72,6 +115,7 @@ public:
     QString name;
     std::optional<bool> hidden = false;
     std::optional<QStringList> inherits;
+    std::optional<Condition> condition;
     std::optional<QHash<QString, QString>> vendor;
     std::optional<QString> displayName;
     std::optional<QString> description;

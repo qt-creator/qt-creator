@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "presetsparser.h"
+#include "utils/algorithm.h"
 
 #include "cmakeprojectmanagertr.h"
 
@@ -32,6 +33,102 @@ bool parseCMakeMinimumRequired(const QJsonValue &jsonValue, QVersionNumber &vers
                                    object.value("patch").toInt());
 
     return true;
+}
+
+std::optional<PresetsDetails::Condition> parseCondition(const QJsonValue &jsonValue)
+{
+    std::optional<PresetsDetails::Condition> condition;
+
+    if (jsonValue.isUndefined())
+        return condition;
+
+    condition = PresetsDetails::Condition();
+
+    if (jsonValue.isNull()) {
+        condition->type = "null";
+        return condition;
+    }
+
+    if (jsonValue.isBool()) {
+        condition->type = "const";
+        condition->constValue = jsonValue.toBool();
+        return condition;
+    }
+
+    if (!jsonValue.isObject())
+        return condition;
+
+    QJsonObject object = jsonValue.toObject();
+    QString type = object.value("type").toString();
+    if (type.isEmpty())
+        return condition;
+
+    if (type == "const") {
+        condition->type = type;
+        condition->constValue = object.value("const").toBool();
+        return condition;
+    }
+
+    for (const auto &equals : {QString("equals"), QString("notEquals")}) {
+        if (type == equals) {
+            condition->type = equals;
+            condition->lhs = object.value("lhs").toString();
+            condition->rhs = object.value("rhs").toString();
+        }
+    }
+    if (!condition->type.isEmpty())
+        return condition;
+
+    for (const auto &inList : {QString("inList"), QString("notInList")}) {
+        if (type == inList) {
+            condition->type = inList;
+            condition->string = object.value("string").toString();
+            if (object.value("list").isArray()) {
+                condition->list = QStringList();
+                const QJsonArray listArray = object.value("list").toArray();
+                for (const QJsonValue &listValue : listArray)
+                    condition->list.value() << listValue.toString();
+            }
+        }
+    }
+    if (!condition->type.isEmpty())
+        return condition;
+
+    for (const auto &matches : {QString("matches"), QString("notMatches")}) {
+        if (type == matches) {
+            condition->type = matches;
+            condition->string = object.value("string").toString();
+            condition->regex = object.value("regex").toString();
+        }
+    }
+    if (!condition->type.isEmpty())
+        return condition;
+
+    for (const auto &anyOf : {QString("anyOf"), QString("allOf")}) {
+        if (type == anyOf) {
+            condition->type = anyOf;
+            if (object.value("conditions").isArray()) {
+                condition->conditions = std::vector<PresetsDetails::Condition::ConditionPtr>();
+                const QJsonArray conditionsArray = object.value("conditions").toArray();
+                for (const QJsonValue &conditionsValue : conditionsArray) {
+                    condition->conditions.value().emplace_back(
+                        std::make_shared<PresetsDetails::Condition>(
+                            parseCondition(conditionsValue).value()));
+                }
+            }
+        }
+    }
+    if (!condition->type.isEmpty())
+        return condition;
+
+    if (type == "not") {
+        condition->type = type;
+        condition->condition = std::make_shared<PresetsDetails::Condition>(
+            parseCondition(object.value("condition")).value());
+        return condition;
+    }
+
+    return condition;
 }
 
 bool parseConfigurePresets(const QJsonValue &jsonValue,
@@ -68,6 +165,10 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
                     preset.inherits.value() << inheritsValue;
             }
         }
+
+        if (object.contains("condition"))
+            preset.condition = parseCondition(object.value("condition"));
+
         if (object.contains("displayName"))
             preset.displayName = object.value("displayName").toString();
         if (object.contains("description"))
@@ -76,6 +177,8 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
             preset.generator = object.value("generator").toString();
         if (object.contains("binaryDir"))
             preset.binaryDir = object.value("binaryDir").toString();
+        if (object.contains("toolchainFile"))
+            preset.toolchainFile = object.value("toolchainFile").toString();
         if (object.contains("cmakeExecutable"))
             preset.cmakeExecutable = object.value("cmakeExecutable").toString();
 
@@ -218,6 +321,10 @@ bool parseBuildPresets(const QJsonValue &jsonValue,
                     preset.inherits.value() << inheritsValue;
             }
         }
+
+        if (object.contains("condition"))
+            preset.condition = parseCondition(object.value("condition"));
+
         if (object.contains("displayName"))
             preset.displayName = object.value("displayName").toString();
         if (object.contains("description"))
@@ -334,6 +441,9 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
 
 void PresetsDetails::ConfigurePreset::inheritFrom(const ConfigurePreset &other)
 {
+    if (!condition && other.condition && !other.condition.value().isNull())
+        condition = other.condition;
+
     if (!vendor && other.vendor)
         vendor = other.vendor;
 
@@ -345,6 +455,9 @@ void PresetsDetails::ConfigurePreset::inheritFrom(const ConfigurePreset &other)
 
     if (!toolset && other.toolset)
         toolset = other.toolset;
+
+    if (!toolchainFile && other.toolchainFile)
+        toolchainFile = other.toolchainFile;
 
     if (!binaryDir && other.binaryDir)
         binaryDir = other.binaryDir;
@@ -370,6 +483,9 @@ void PresetsDetails::ConfigurePreset::inheritFrom(const ConfigurePreset &other)
 
 void PresetsDetails::BuildPreset::inheritFrom(const BuildPreset &other)
 {
+    if (!condition && other.condition && !other.condition.value().isNull())
+        condition = other.condition;
+
     if (!vendor && other.vendor)
         vendor = other.vendor;
 
@@ -399,6 +515,48 @@ void PresetsDetails::BuildPreset::inheritFrom(const BuildPreset &other)
 
     if (!nativeToolOptions && other.nativeToolOptions)
         nativeToolOptions = other.nativeToolOptions;
+}
+
+bool PresetsDetails::Condition::evaluate() const
+{
+    if (isNull())
+        return true;
+
+    if (isConst() && constValue)
+        return constValue.value();
+
+    if (isEquals() && lhs && rhs)
+        return lhs.value() == rhs.value();
+
+    if (isNotEquals() && lhs && rhs)
+        return lhs.value() != rhs.value();
+
+    if (isInList() && string && list)
+        return list.value().contains(string.value());
+
+    if (isNotInList() && string && list)
+        return !list.value().contains(string.value());
+
+    if (isMatches() && string && regex) {
+        QRegularExpression qRegex(regex.value());
+        return qRegex.match(string.value()).hasMatch();
+    }
+
+    if (isNotMatches() && string && regex) {
+        QRegularExpression qRegex(regex.value());
+        return !qRegex.match(string.value()).hasMatch();
+    }
+
+    if (isAnyOf() && conditions)
+        return Utils::anyOf(conditions.value(), [](const ConditionPtr &c) { return c->evaluate(); });
+
+    if (isAllOf() && conditions)
+        return Utils::allOf(conditions.value(), [](const ConditionPtr &c) { return c->evaluate(); });
+
+    if (isNot() && condition)
+        return !condition.value()->evaluate();
+
+    return false;
 }
 
 } // CMakeProjectManager::Internal
