@@ -33,6 +33,8 @@ Item {
 
     property alias text: searchFilterText.text
 
+    signal searchChanged(string searchText);
+
     function clear()
     {
         searchFilterText.text = "";
@@ -80,7 +82,7 @@ Item {
         selectByMouse: true
         hoverEnabled: true
 
-        onTextChanged: rootView.handleSearchfilterChanged(text)
+        onTextChanged: root.searchChanged(text)
 
         Label {
             text: StudioTheme.Constants.search
