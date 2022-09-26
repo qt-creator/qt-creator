@@ -60,13 +60,10 @@ public:
             },
             Group {
                 title(Tr::tr("Commit Information")),
-                Row {
-                    Form {
-                        Tr::tr("Author:"), authorLineEdit, br,
-                        Tr::tr("Email:"), emailLineEdit, br,
-                        Tr::tr("Fixed bugs:"), fixedBugsLineEdit
-                    },
-                    st
+                Form {
+                    Tr::tr("Author:"), authorLineEdit, br,
+                    Tr::tr("Email:"), emailLineEdit, br,
+                    Tr::tr("Fixed bugs:"), fixedBugsLineEdit
                 }
             }
         }.attachTo(this, WithoutMargins);
