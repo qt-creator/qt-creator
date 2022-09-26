@@ -129,7 +129,7 @@ FilePaths CMakeProjectImporter::importCandidates()
 
     const FilePaths finalists = Utils::filteredUnique(candidates);
     qCInfo(cmInputLog) << "import candidates:" << finalists;
-    return Utils::transform(finalists, &FilePath::fromString);
+    return finalists;
 }
 
 static CMakeConfig configurationFromPresetProbe(
