@@ -39,6 +39,7 @@ Item {
     property var currentMaterial: null
     property int currentMaterialIdx: 0
     property var currentBundleMaterial: null
+    property int copiedMaterialInternalId: -1
 
     property var matSectionsModel: []
 
@@ -147,15 +148,20 @@ Item {
                 StudioControls.MenuItem {
                     text: modelData
                     enabled: root.currentMaterial
-                    onTriggered: materialBrowserModel.copyMaterialProperties(root.currentMaterialIdx, modelData)
+                    onTriggered: {
+                        root.copiedMaterialInternalId = root.currentMaterial.materialInternalId
+                        materialBrowserModel.copyMaterialProperties(root.currentMaterialIdx, modelData)
+                    }
                 }
             }
         }
 
         StudioControls.MenuItem {
             text: qsTr("Paste properties")
-            enabled: root.currentMaterial && root.currentMaterial.materialType
-                                             === materialBrowserModel.copiedMaterialType
+            enabled: root.currentMaterial
+                     && root.copiedMaterialInternalId !== root.currentMaterial.materialInternalId
+                     && root.currentMaterial.materialType === materialBrowserModel.copiedMaterialType
+                     && materialBrowserModel.isCopiedMaterialValid()
             onTriggered: materialBrowserModel.pasteMaterialProperties(root.currentMaterialIdx)
         }
 

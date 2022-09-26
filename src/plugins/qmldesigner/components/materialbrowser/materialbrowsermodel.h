@@ -92,6 +92,7 @@ public:
     Q_INVOKABLE void addNewMaterial();
     Q_INVOKABLE void applyToSelected(qint64 internalId, bool add = false);
     Q_INVOKABLE void openMaterialEditor();
+    Q_INVOKABLE bool isCopiedMaterialValid() const;
 
 signals:
     void isEmptyChanged();
@@ -118,6 +119,7 @@ private:
     QStringList m_defaultMaterialSections;
     QStringList m_principledMaterialSections;
     QStringList m_customMaterialSections;
+    ModelNode m_copiedMaterial;
     QList<AbstractProperty> m_copiedMaterialProps;
     QHash<qint32, int> m_materialIndexHash; // internalId -> index
     QJsonObject m_propertyGroupsObj;

@@ -110,7 +110,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 
                 // apply pasted properties
                 for (const AbstractProperty &prop : props) {
-                    if (prop.name() == "objectName")
+                    if (prop.name() == "objectName" || !prop.isValid())
                         continue;
 
                     if (prop.isVariantProperty())
