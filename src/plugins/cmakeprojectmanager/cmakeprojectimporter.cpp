@@ -59,15 +59,15 @@ struct DirectoryData
     QVector<ToolChainDescription> toolChains;
 };
 
-static QStringList scanDirectory(const FilePath &path, const QString &prefix)
+static FilePaths scanDirectory(const FilePath &path, const QString &prefix)
 {
-    QStringList result;
+    FilePaths result;
     qCDebug(cmInputLog) << "Scanning for directories matching" << prefix << "in" << path;
 
     const FilePaths entries = path.dirEntries({{prefix + "*"}, QDir::Dirs | QDir::NoDotAndDotDot});
     for (const FilePath &entry : entries) {
         QTC_ASSERT(entry.isDir(), continue);
-        result.append(entry.toString());
+        result.append(entry);
     }
     return result;
 }
@@ -106,7 +106,7 @@ CMakeProjectImporter::CMakeProjectImporter(const FilePath &path, const PresetsDa
 
 QStringList CMakeProjectImporter::importCandidates()
 {
-    QStringList candidates;
+    FilePaths candidates;
 
     candidates << scanDirectory(projectFilePath().absolutePath(), "build");
 
@@ -126,10 +126,10 @@ QStringList CMakeProjectImporter::importCandidates()
 
         const FilePath configPresetDir = m_presetsTempDir.filePath(configPreset.name);
         configPresetDir.createDir();
-        candidates << configPresetDir.toString();
+        candidates << configPresetDir;
     }
 
-    const QStringList finalists = Utils::filteredUnique(candidates);
+    const FilePaths finalists = Utils::filteredUnique(candidates);
     qCInfo(cmInputLog) << "import candidates:" << finalists;
     return finalists;
 }
