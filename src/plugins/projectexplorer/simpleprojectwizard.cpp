@@ -294,7 +294,6 @@ GeneratedFiles generateCmakeFiles(const SimpleProjectWizardDialog *wizard,
           "# You may attempt to use it for building too, by modifying this file here.\n\n"
           "cmake_minimum_required(VERSION 3.5)\n"
           "project("+ projectName +")\n\n"
-          "set(CMAKE_INCLUDE_CURRENT_DIR ON)\n"
           "set(CMAKE_AUTOUIC ON)\n"
           "set(CMAKE_AUTOMOC ON)\n"
           "set(CMAKE_AUTORCC ON)\n"

@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.14)
 
 project(%{ProjectName} LANGUAGES CXX)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 @if '%{QtModule}' != 'none'
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
