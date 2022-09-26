@@ -288,8 +288,7 @@ FileData DiffUtils::calculateContextData(const ChunkData &originalData, int cont
         const bool contextChunk = hiddenRows.contains(i);
         ChunkData chunkData;
         chunkData.contextChunk = contextChunk;
-        chunkData.leftStartingLineNumber = leftLineNumber;
-        chunkData.rightStartingLineNumber = rightLineNumber;
+        chunkData.startingLineNumber = {leftLineNumber, rightLineNumber};
         while (i < originalData.rows.size()) {
             if (contextChunk != hiddenRows.contains(i))
                 break;
@@ -430,11 +429,11 @@ QString DiffUtils::makePatch(const ChunkData &chunkData,
     }
 
     const QString chunkLine = "@@ -"
-            + QString::number(chunkData.leftStartingLineNumber + 1)
+            + QString::number(chunkData.startingLineNumber[LeftSide] + 1)
             + ','
             + QString::number(leftLineCount)
             + " +"
-            + QString::number(chunkData.rightStartingLineNumber + 1)
+            + QString::number(chunkData.startingLineNumber[RightSide] + 1)
             + ','
             + QString::number(rightLineCount)
             + " @@"
@@ -778,8 +777,7 @@ static bool detectChunkData(QStringView chunkDiff, ChunkData *chunkData, QString
     if (!ok)
         return false;
 
-    chunkData->leftStartingLineNumber = leftLineNumber - 1;
-    chunkData->rightStartingLineNumber = rightLineNumber - 1;
+    chunkData->startingLineNumber = {leftLineNumber - 1, rightLineNumber - 1};
     chunkData->contextInfo = optionalHint.toString();
 
     return true;

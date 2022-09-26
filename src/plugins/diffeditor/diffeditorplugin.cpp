@@ -843,8 +843,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch()
         QCOMPARE(resultFileData.chunks.count(), 1);
         for (int j = 0; j < resultFileData.chunks.count(); j++) {
             const ChunkData &resultChunkData = resultFileData.chunks.at(j);
-            QCOMPARE(resultChunkData.leftStartingLineNumber, sourceChunk.leftStartingLineNumber);
-            QCOMPARE(resultChunkData.rightStartingLineNumber, sourceChunk.rightStartingLineNumber);
+            QCOMPARE(resultChunkData.startingLineNumber[LeftSide], sourceChunk.startingLineNumber[LeftSide]);
+            QCOMPARE(resultChunkData.startingLineNumber[RightSide], sourceChunk.startingLineNumber[RightSide]);
             QCOMPARE(resultChunkData.contextChunk, sourceChunk.contextChunk);
             QCOMPARE(resultChunkData.rows.count(), sourceChunk.rows.count());
             for (int k = 0; k < sourceChunk.rows.count(); k++) {
@@ -949,8 +949,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData1.leftFileInfo = DiffFileInfo("src/plugins/diffeditor/diffeditor.cpp", "eab9e9b");
     fileData1.rightFileInfo = DiffFileInfo("src/plugins/diffeditor/diffeditor.cpp", "082c135");
     ChunkData chunkData1;
-    chunkData1.leftStartingLineNumber = 186;
-    chunkData1.rightStartingLineNumber = 186;
+    chunkData1.startingLineNumber = {186, 186};
     QList<RowData> rows1;
     rows1 << RowData(_("    m_controller = m_document->controller();"));
     rows1 << RowData(_("    m_guiController = new DiffEditorGuiController(m_controller, this);"));
@@ -968,8 +967,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData2.leftFileInfo = DiffFileInfo(_("src/plugins/diffeditor/diffutils.cpp"), _("2f641c9"));
     fileData2.rightFileInfo = DiffFileInfo(_("src/plugins/diffeditor/diffutils.cpp"), _("f8ff795"));
     ChunkData chunkData2;
-    chunkData2.leftStartingLineNumber = 463;
-    chunkData2.rightStartingLineNumber = 463;
+    chunkData2.startingLineNumber = {463, 463};
     QList<RowData> rows2;
     rows2 << RowData(_("    return diffText;"));
     rows2 << RowData(_("}"));
@@ -991,8 +989,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData3.rightFileInfo = DiffFileInfo("new", "257cc56");
     fileData3.fileOperation = FileData::NewFile;
     ChunkData chunkData3;
-    chunkData3.leftStartingLineNumber = -1;
-    chunkData3.rightStartingLineNumber = 0;
+    chunkData3.startingLineNumber = {-1, 0};
     QList<RowData> rows3;
     rows3 << RowData(TextLineData::Separator, _("foo"));
     TextLineData textLineData3(TextLineData::TextLine);
@@ -1005,8 +1002,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData4.rightFileInfo = DiffFileInfo("deleted", "0000000");
     fileData4.fileOperation = FileData::DeleteFile;
     ChunkData chunkData4;
-    chunkData4.leftStartingLineNumber = 0;
-    chunkData4.rightStartingLineNumber = -1;
+    chunkData4.startingLineNumber = {0, -1};
     QList<RowData> rows4;
     rows4 << RowData(_("foo"), TextLineData::Separator);
     TextLineData textLineData4(TextLineData::TextLine);
@@ -1029,8 +1025,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData7.rightFileInfo = DiffFileInfo("file b.txt", "9876543");
     fileData7.fileOperation = FileData::CopyFile;
     ChunkData chunkData7;
-    chunkData7.leftStartingLineNumber = 19;
-    chunkData7.rightStartingLineNumber = 19;
+    chunkData7.startingLineNumber = {19, 19};
     QList<RowData> rows7;
     rows7 << RowData(_("A"));
     rows7 << RowData(_("B"), _("C"));
@@ -1069,8 +1064,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData1.leftFileInfo = DiffFileInfo("file foo.txt", "1234567");
     fileData1.rightFileInfo = DiffFileInfo("file foo.txt", "9876543");
     fileData1.fileOperation = FileData::ChangeFile;
-    chunkData1.leftStartingLineNumber = 49;
-    chunkData1.rightStartingLineNumber = 49;
+    chunkData1.startingLineNumber = {49, 49};
     rows1.clear();
     rows1 << RowData(_("A"));
     rows1 << RowData(_("B"));
@@ -1100,8 +1094,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData1.leftFileInfo = DiffFileInfo("file foo.txt", "1234567");
     fileData1.rightFileInfo = DiffFileInfo("file foo.txt", "9876543");
     fileData1.fileOperation = FileData::ChangeFile;
-    chunkData1.leftStartingLineNumber = 0;
-    chunkData1.rightStartingLineNumber = 0;
+    chunkData1.startingLineNumber = {0, 0};
     rows1.clear();
     rows1 << RowData(_("ABCD"));
     rows1 << RowData(TextLineData::Separator, _(""));
@@ -1136,8 +1129,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData1.leftFileInfo = DiffFileInfo("difftest.txt", "1234567");
     fileData1.rightFileInfo = DiffFileInfo("difftest.txt", "9876543");
     fileData1.fileOperation = FileData::ChangeFile;
-    chunkData1.leftStartingLineNumber = 1;
-    chunkData1.rightStartingLineNumber = 1;
+    chunkData1.startingLineNumber = {1, 1};
     rows1.clear();
     rows1 << RowData(_("A"));
     rows1 << RowData(_("B"));
@@ -1146,8 +1138,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     rows1 << RowData(_(""));
     chunkData1.rows = rows1;
 
-    chunkData2.leftStartingLineNumber = 8;
-    chunkData2.rightStartingLineNumber = 8;
+    chunkData2.startingLineNumber = {8, 8};
     rows2.clear();
     rows2 << RowData(_(""));
     rows2 << RowData(_("D"));
@@ -1179,8 +1170,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData1.leftFileInfo = DiffFileInfo("file foo.txt", "1234567");
     fileData1.rightFileInfo = DiffFileInfo("file foo.txt", "9876543");
     fileData1.fileOperation = FileData::ChangeFile;
-    chunkData1.leftStartingLineNumber = 0;
-    chunkData1.rightStartingLineNumber = 0;
+    chunkData1.startingLineNumber = {0, 0};
     rows1.clear();
     rows1 << RowData(_("ABCD"));
     rows1 << RowData(TextLineData::Separator, _(""));
@@ -1226,8 +1216,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData2.leftFileInfo = DiffFileInfo("src/plugins/texteditor/basetextdocumentlayout.cpp", "0121933");
     fileData2.rightFileInfo = DiffFileInfo("src/plugins/texteditor/textdocumentlayout.cpp", "01cc3a0");
     fileData2.fileOperation = FileData::RenameFile;
-    chunkData2.leftStartingLineNumber = 1;
-    chunkData2.rightStartingLineNumber = 1;
+    chunkData2.startingLineNumber = {1, 1};
     rows2.clear();
     rows2 << RowData(_("A"));
     rows2 << RowData(_("B"));
@@ -1257,8 +1246,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData1 = FileData();
     fileData1.leftFileInfo = DiffFileInfo("src/shared/qbs");
     fileData1.rightFileInfo = DiffFileInfo("src/shared/qbs");
-    chunkData1.leftStartingLineNumber = 0;
-    chunkData1.rightStartingLineNumber = 0;
+    chunkData1.startingLineNumber = {0, 0};
     rows1.clear();
     rows1 << RowData(_("Subproject commit eda76354077a427d692fee05479910de31040d3f"),
                      _("Subproject commit eda76354077a427d692fee05479910de31040d3f-dirty"));
@@ -1294,8 +1282,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData1.rightFileInfo = DiffFileInfo("demos/arthurplugin/arthurplugin.pro", "c5132b4");
     fileData1.fileOperation = FileData::NewFile;
     chunkData1 = ChunkData();
-    chunkData1.leftStartingLineNumber = -1;
-    chunkData1.rightStartingLineNumber = 0;
+    chunkData1.startingLineNumber = {-1, 0};
     rows1.clear();
     rows1 << RowData(TextLineData::Separator, _("XXX"));
     rows1 << RowData(TextLineData::Separator, TextLineData(TextLineData::TextLine));
@@ -1366,8 +1353,7 @@ rename to new.sh
     fileData1.leftFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
     fileData1.rightFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
     chunkData1 = ChunkData();
-    chunkData1.leftStartingLineNumber = -1;
-    chunkData1.rightStartingLineNumber = 124;
+    chunkData1.startingLineNumber = {-1, 124};
     fileData1.chunks << chunkData1;
     QList<FileData> fileDataList21;
     fileDataList21 << fileData1;
@@ -1386,8 +1372,7 @@ rename to new.sh
     fileData1.leftFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
     fileData1.rightFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
     chunkData1 = ChunkData();
-    chunkData1.leftStartingLineNumber = 0;
-    chunkData1.rightStartingLineNumber = -1;
+    chunkData1.startingLineNumber = {0, -1};
     fileData1.chunks << chunkData1;
     QList<FileData> fileDataList22;
     fileDataList22 << fileData1;
@@ -1406,8 +1391,7 @@ rename to new.sh
     fileData1.leftFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
     fileData1.rightFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
     chunkData1 = ChunkData();
-    chunkData1.leftStartingLineNumber = 119;
-    chunkData1.rightStartingLineNumber = 119;
+    chunkData1.startingLineNumber = {119, 119};
     fileData1.chunks << chunkData1;
     QList<FileData> fileDataList23;
     fileDataList23 << fileData1;
@@ -1437,8 +1421,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
         for (int j = 0; j < origFileData.chunks.count(); j++) {
             const ChunkData &origChunkData = origFileData.chunks.at(j);
             const ChunkData &resultChunkData = resultFileData.chunks.at(j);
-            QCOMPARE(resultChunkData.leftStartingLineNumber, origChunkData.leftStartingLineNumber);
-            QCOMPARE(resultChunkData.rightStartingLineNumber, origChunkData.rightStartingLineNumber);
+            QCOMPARE(resultChunkData.startingLineNumber[LeftSide], origChunkData.startingLineNumber[LeftSide]);
+            QCOMPARE(resultChunkData.startingLineNumber[RightSide], origChunkData.startingLineNumber[RightSide]);
             QCOMPARE(resultChunkData.contextChunk, origChunkData.contextChunk);
             QCOMPARE(resultChunkData.rows.count(), origChunkData.rows.count());
             for (int k = 0; k < origChunkData.rows.count(); k++) {
@@ -1467,8 +1451,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
         ChunkData chunk;
         chunk.contextInfo = "void DiffEditor::ctor()";
         chunk.contextChunk = false;
-        chunk.leftStartingLineNumber = 49;
-        chunk.rightStartingLineNumber = 49;
+        chunk.startingLineNumber = {49, 49};
         return chunk;
     };
     auto appendRow = [](ChunkData *chunk, const QString &left, const QString &right) {

@@ -913,8 +913,8 @@ void SideBySideDiffEditorWidget::showDiff()
             for (int j = 0; j < contextFileData.chunks.count(); j++) {
                 const ChunkData &chunkData = contextFileData.chunks.at(j);
 
-                int leftLineNumber = chunkData.leftStartingLineNumber;
-                int rightLineNumber = chunkData.rightStartingLineNumber;
+                int leftLineNumber = chunkData.startingLineNumber[LeftSide];
+                int rightLineNumber = chunkData.startingLineNumber[RightSide];
 
                 if (!chunkData.contextChunk) {
                     const int skippedLines = leftLineNumber - lastLeftLineNumber - 1;
@@ -1059,8 +1059,8 @@ void SideBySideDiffEditorWidget::slotLeftJumpToOriginalFileRequested(
         // (when Working tree has changed in meantime) will not work properly.
         for (const ChunkData &chunkData : fileData.chunks) {
 
-            int leftLineNumber = chunkData.leftStartingLineNumber;
-            int rightLineNumber = chunkData.rightStartingLineNumber;
+            int leftLineNumber = chunkData.startingLineNumber[LeftSide];
+            int rightLineNumber = chunkData.startingLineNumber[RightSide];
 
             for (int j = 0; j < chunkData.rows.count(); j++) {
                 const RowData rowData = chunkData.rows.at(j);
