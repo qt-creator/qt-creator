@@ -12,6 +12,7 @@ import argparse
 import pathlib
 import sys
 from dataclasses import dataclass
+from enum import Enum, auto
 
 def rewriteLines(input, scrubbedContext, tsFilePath):
     result = []
@@ -94,19 +95,46 @@ def findDistinctDuplicates(input, scrubbedContext, tsFilePath):
             continue
         if inContext:
             sourceXml = []
-            lineNr = inputLineNr
-            for sourceLine in lineIter: # <source>..</source> (possibly multi-line)
-                inputLineNr += 1
-                sourceXml.append(sourceLine)
-                if sourceLine.count(r"</source>") == 1:
-                    break
-            sourceXmlHash = hash(str(sourceXml))
             translationXml = []
-            for translationLine in lineIter: #  <translation>..</translation> (possibly multi-line)
+            lineNr = inputLineNr
+
+            class Position(Enum):
+                MESSAGESTART = auto()
+                LOCATION = auto()
+                SOURCE = auto()
+                COMMENT = auto()
+                EXTRACOMMENT = auto()
+                TRANSLATORCOMMENT = auto()
+                TRANSLATION = auto()
+                MESSAGEOVER = auto()
+
+            pos = Position.MESSAGESTART
+
+            for messageLine in lineIter:
                 inputLineNr += 1
-                translationXml.append(translationLine)
-                if translationLine.count(r"</translation>") == 1:
+                if messageLine.count(r"<location") == 1:
+                    pos = Position.LOCATION
+                elif messageLine.count(r"<source") == 1:
+                    pos = Position.SOURCE
+                elif messageLine.count(r"<comment") == 1:
+                    pos = Position.COMMENT
+                elif messageLine.count(r"<extracomment") == 1:
+                    pos = Position.EXTRACOMMENT
+                elif messageLine.count(r"<translatorcomment") == 1:
+                    pos = Position.TRANSLATORCOMMENT
+                elif messageLine.count(r"<translation") == 1:
+                    pos = Position.TRANSLATION
+                elif messageLine.count(r"</message>") == 1:
+                    pos = Position.MESSAGEOVER
+
+                if pos == Position.SOURCE or pos == Position.COMMENT:
+                    sourceXml.append(messageLine)
+                elif pos == Position.TRANSLATION or pos == Position.EXTRACOMMENT or pos == Position.TRANSLATORCOMMENT:
+                    translationXml.append(messageLine)
+                elif pos == Position.MESSAGEOVER:
                     break
+
+            sourceXmlHash = hash(str(sourceXml))
             translation = Translation(lineNr, translationXml)
             if sourceXmlHash in messages:
                 messages[sourceXmlHash].translations.append(translation)
@@ -117,13 +145,14 @@ def findDistinctDuplicates(input, scrubbedContext, tsFilePath):
         source = messages[sourceId]
         translationsCount = len(source.translations)
         if translationsCount > 1:
+            print (f"\n==========================================")
             print (f"\n{translationsCount} duplicates for source:")
             for sourceXmlLine in source.sourceXml:
-                 print (sourceXmlLine.rstrip())
+                print (sourceXmlLine.rstrip())
             for translation in source.translations:
                 print (f"\n{tsFilePath}:{translation.lineNr}")
                 for translationXmlLine in translation.translationXml:
-                     print (translationXmlLine.rstrip())
+                    print (translationXmlLine.rstrip())
 
 
 def processTsFile(tsFilePath, scrubbedContext):
