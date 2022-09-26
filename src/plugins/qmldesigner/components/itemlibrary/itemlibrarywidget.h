@@ -91,7 +91,7 @@ public:
     Q_INVOKABLE void startDragAndDrop(const QVariant &itemLibEntry, const QPointF &mousePos);
     Q_INVOKABLE void removeImport(const QString &importUrl);
     Q_INVOKABLE void addImportForItem(const QString &importUrl);
-    Q_INVOKABLE void handleSearchfilterChanged(const QString &filterText);
+    Q_INVOKABLE void handleSearchFilterChanged(const QString &filterText);
     Q_INVOKABLE void handleAddImport(int index);
     Q_INVOKABLE void goIntoComponent(const QString &source);
 

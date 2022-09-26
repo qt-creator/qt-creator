@@ -235,7 +235,7 @@ Item {
 
                 width: root.width - addMaterialButton.width
 
-                onSearchChanged: (searchText) => rootView.handleSearchfilterChanged(searchText)
+                onSearchChanged: (searchText) => rootView.handleSearchFilterChanged(searchText)
             }
 
             IconButton {

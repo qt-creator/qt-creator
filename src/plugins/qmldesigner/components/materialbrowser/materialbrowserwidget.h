@@ -73,7 +73,7 @@ public:
     QPointer<MaterialBrowserBundleModel> materialBrowserBundleModel() const;
     void updateMaterialPreview(const ModelNode &node, const QPixmap &pixmap);
 
-    Q_INVOKABLE void handleSearchfilterChanged(const QString &filterText);
+    Q_INVOKABLE void handleSearchFilterChanged(const QString &filterText);
     Q_INVOKABLE void startDragMaterial(int index, const QPointF &mousePos);
     Q_INVOKABLE void startDragBundleMaterial(QmlDesigner::BundleMaterial *bundleMat, const QPointF &mousePos);
 

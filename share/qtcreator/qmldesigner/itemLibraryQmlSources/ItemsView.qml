@@ -226,7 +226,7 @@ Item {
 
                 width: parent.width - addModuleButton.width - 5
 
-                onSearchChanged: (searchText) => rootView.handleSearchfilterChanged(searchText)
+                onSearchChanged: (searchText) => rootView.handleSearchFilterChanged(searchText)
             }
 
             IconButton {

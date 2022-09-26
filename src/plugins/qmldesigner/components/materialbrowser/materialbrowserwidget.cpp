@@ -214,7 +214,7 @@ void MaterialBrowserWidget::contextHelp(const Core::IContext::HelpCallback &call
         callback({});
 }
 
-void MaterialBrowserWidget::handleSearchfilterChanged(const QString &filterText)
+void MaterialBrowserWidget::handleSearchFilterChanged(const QString &filterText)
 {
     if (filterText != m_filterText) {
         m_filterText = filterText;
