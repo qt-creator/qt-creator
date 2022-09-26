@@ -34,6 +34,8 @@ Q_DECLARE_LOGGING_CATEGORY(clangdLogAst);
 
 void setupClangdConfigFile();
 
+enum class FollowTo { SymbolDef, SymbolType };
+
 class ClangdClient : public LanguageClient::Client
 {
     Q_OBJECT
@@ -55,6 +57,7 @@ public:
             CppEditor::CppEditorWidget *editorWidget,
             const Utils::LinkHandler &callback,
             bool resolveTarget,
+            FollowTo followTo,
             bool openInSplit);
 
     void switchDeclDef(TextEditor::TextDocument *document,

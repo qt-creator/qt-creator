@@ -83,6 +83,7 @@ public:
           docRevision(editorWidget ? editorWidget->textDocument()->document()->revision() : -1),
           openInSplit(openInSplit) {}
 
+    void goToTypeDefinition();
     void handleGotoDefinitionResult();
     void sendGotoImplementationRequest(const Utils::Link &link);
     void handleGotoImplementationResult(const GotoImplementationRequest::Response &response);
@@ -118,7 +119,7 @@ public:
 
 ClangdFollowSymbol::ClangdFollowSymbol(ClangdClient *client, const QTextCursor &cursor,
         CppEditorWidget *editorWidget, TextDocument *document, const LinkHandler &callback,
-        bool openInSplit)
+        FollowTo followTo, bool openInSplit)
     : QObject(client),
       d(new Private(this, client, cursor, editorWidget, document->filePath(), callback,
                     openInSplit))
@@ -132,6 +133,11 @@ ClangdFollowSymbol::ClangdFollowSymbol(ClangdClient *client, const QTextCursor &
     }
     d->focusChangedConnection = connect(qApp, &QApplication::focusChanged,
                                         this, [this] { emitDone(); }, Qt::QueuedConnection);
+
+    if (followTo == FollowTo::SymbolType) {
+        d->goToTypeDefinition();
+        return;
+    }
 
     // Step 1: Follow the symbol via "Go to Definition". At the same time, request the
     //         AST node corresponding to the cursor position, so we can find out whether
@@ -351,6 +357,30 @@ ClangdFollowSymbol::VirtualFunctionAssistProvider::createProcessor(const AssistI
 {
     return m_followSymbol->d->virtualFuncAssistProcessor
             = new VirtualFunctionAssistProcessor(m_followSymbol);
+}
+
+void ClangdFollowSymbol::Private::goToTypeDefinition()
+{
+    GotoTypeDefinitionRequest req(TextDocumentPositionParams(TextDocumentIdentifier{uri},
+                                                             Position(cursor)));
+    req.setResponseCallback([sentinel = QPointer(q), this, reqId = req.id()]
+                            (const GotoTypeDefinitionRequest::Response &response) {
+        qCDebug(clangdLog) << "received go to type definition reply";
+        if (!sentinel)
+            return;
+        Link link;
+        if (const std::optional<GotoResult> &result = response.result()) {
+            if (const auto ploc = std::get_if<Location>(&*result)) {
+                link = {ploc->toLink()};
+            } else if (const auto plloc = std::get_if<QList<Location>>(&*result)) {
+                if (!plloc->empty())
+                    link = plloc->first().toLink();
+            }
+        }
+        q->emitDone(link);
+    });
+    client->sendMessage(req, ClangdClient::SendDocUpdates::Ignore);
+    qCDebug(clangdLog) << "sending go to type definition request";
 }
 
 void ClangdFollowSymbol::Private::handleGotoDefinitionResult()

@@ -262,7 +262,7 @@ void ClangModelManagerSupport::followSymbol(const CppEditor::CursorInEditor &dat
     if (ClangdClient * const client = clientForFile(data.filePath());
             client && client->isFullyIndexed()) {
         client->followSymbol(data.textDocument(), data.cursor(), data.editorWidget(),
-                             processLinkCallback, resolveTarget, inNextSplit);
+                             processLinkCallback, resolveTarget, FollowTo::SymbolDef, inNextSplit);
         return;
     }
 

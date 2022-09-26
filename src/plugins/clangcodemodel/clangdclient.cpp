@@ -822,6 +822,7 @@ void ClangdClient::followSymbol(TextDocument *document,
         CppEditor::CppEditorWidget *editorWidget,
         const Utils::LinkHandler &callback,
         bool resolveTarget,
+        FollowTo followTo,
         bool openInSplit
         )
 {
@@ -839,7 +840,7 @@ void ClangdClient::followSymbol(TextDocument *document,
     qCDebug(clangdLog) << "follow symbol requested" << document->filePath()
                        << adjustedCursor.blockNumber() << adjustedCursor.positionInBlock();
     d->followSymbol = new ClangdFollowSymbol(this, adjustedCursor, editorWidget, document, callback,
-                                             openInSplit);
+                                             followTo, openInSplit);
     connect(d->followSymbol, &ClangdFollowSymbol::done, this, [this] {
         d->followSymbol->deleteLater();
         d->followSymbol = nullptr;

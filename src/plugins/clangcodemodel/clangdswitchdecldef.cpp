@@ -169,7 +169,7 @@ void ClangdSwitchDeclDef::Private::handleDeclDefSwitchReplies()
     const QTextCursor funcNameCursor = cursorForFunctionName(*functionNode);
     if (!funcNameCursor.isNull()) {
         client->followSymbol(document.data(), funcNameCursor, editorWidget, callback,
-                             true, false);
+                             true, FollowTo::SymbolDef, false);
     }
     q->emitDone();
 }

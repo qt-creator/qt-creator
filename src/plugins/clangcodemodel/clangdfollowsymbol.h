@@ -17,6 +17,7 @@ QT_END_NAMESPACE
 namespace ClangCodeModel::Internal {
 class ClangdAstNode;
 class ClangdClient;
+enum class FollowTo;
 
 class ClangdFollowSymbol : public QObject
 {
@@ -25,7 +26,7 @@ public:
     ClangdFollowSymbol(ClangdClient *client, const QTextCursor &cursor,
                        CppEditor::CppEditorWidget *editorWidget,
                        TextEditor::TextDocument *document, const Utils::LinkHandler &callback,
-                       bool openInSplit);
+                       FollowTo followTo, bool openInSplit);
     ~ClangdFollowSymbol();
     void clear();
 

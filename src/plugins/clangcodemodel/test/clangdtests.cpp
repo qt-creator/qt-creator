@@ -313,38 +313,50 @@ void ClangdTestFollowSymbol::test_data()
     QTest::addColumn<QString>("targetFile");
     QTest::addColumn<int>("targetLine");
     QTest::addColumn<int>("targetColumn");
+    QTest::addColumn<bool>("goToType");
 
-    QTest::newRow("on namespace") << "main.cpp" << 27 << 1 << "header.h" << 28 << 11;
-    QTest::newRow("class ref") << "main.cpp" << 27 << 9 << "header.h" << 34 << 7;
-    QTest::newRow("forward decl (same file)") << "header.h" << 32 << 7 << "header.h" << 34 << 7;
-    QTest::newRow("forward decl (different file") << "header.h" << 48 << 9 << "main.cpp" << 54 << 7;
-    QTest::newRow("class definition (same file)") << "header.h" << 34 << 7 << "header.h" << 32 << 7;
+    QTest::newRow("on namespace") << "main.cpp" << 27 << 1 << "header.h" << 28 << 11 << false;
+    QTest::newRow("class ref") << "main.cpp" << 27 << 9 << "header.h" << 34 << 7 << false;
+    QTest::newRow("forward decl (same file)") << "header.h" << 32 << 7 << "header.h" << 34 << 7
+                                              << false;
+    QTest::newRow("forward decl (different file") << "header.h" << 48 << 9 << "main.cpp" << 54 << 7
+                                                  << false;
+    QTest::newRow("class definition (same file)") << "header.h" << 34 << 7 << "header.h" << 32 << 7
+                                                  << false;
     QTest::newRow("class definition (different file)") << "main.cpp" << 54 << 7
-                                                       << "header.h" << 48 << 7;
-    QTest::newRow("constructor decl") << "header.h" << 36 << 5 << "main.cpp" << 27 << 14;
-    QTest::newRow("constructor definition") << "main.cpp" << 27 << 14 << "header.h" << 36 << 5;
-    QTest::newRow("member ref") << "main.cpp" << 39 << 10 << "header.h" << 38 << 18;
-    QTest::newRow("union member ref") << "main.cpp" << 91 << 20 << "main.cpp" << 86 << 13;
-    QTest::newRow("member decl") << "header.h" << 38 << 18 << "header.h" << 38 << 18;
-    QTest::newRow("function ref") << "main.cpp" << 66 << 12 << "main.cpp" << 35 << 5;
-    QTest::newRow("member function ref") << "main.cpp" << 42 << 12 << "main.cpp" << 49 << 21;
-    QTest::newRow("function with no def ref") << "main.cpp" << 43 << 5 << "header.h" << 59 << 5;
-    QTest::newRow("function def") << "main.cpp" << 35 << 5 << "header.h" << 52 << 5;
-    QTest::newRow("member function def") << "main.cpp" << 49 << 21 << "header.h" << 43 << 9;
-    QTest::newRow("member function decl") << "header.h" << 43 << 9 << "main.cpp" << 49 << 21;
-    QTest::newRow("include") << "main.cpp" << 25 << 13 << "header.h" << 1 << 1;
-    QTest::newRow("local var") << "main.cpp" << 39 << 6 << "main.cpp" << 36 << 9;
-    QTest::newRow("alias") << "main.cpp" << 36 << 5 << "main.cpp" << 33 << 7;
-    QTest::newRow("static var") << "main.cpp" << 40 << 27 << "header.h" << 30 << 7;
+                                                       << "header.h" << 48 << 7  << false;
+    QTest::newRow("constructor decl") << "header.h" << 36 << 5 << "main.cpp" << 27 << 14 << false;
+    QTest::newRow("constructor definition") << "main.cpp" << 27 << 14 << "header.h" << 36 << 5
+                                            << false;
+    QTest::newRow("member ref") << "main.cpp" << 39 << 10 << "header.h" << 38 << 18 << false;
+    QTest::newRow("union member ref") << "main.cpp" << 91 << 20 << "main.cpp" << 86 << 13 << false;
+    QTest::newRow("member decl") << "header.h" << 38 << 18 << "header.h" << 38 << 18 << false;
+    QTest::newRow("function ref") << "main.cpp" << 66 << 12 << "main.cpp" << 35 << 5 << false;
+    QTest::newRow("member function ref") << "main.cpp" << 42 << 12 << "main.cpp" << 49 << 21
+                                         << false;
+    QTest::newRow("function with no def ref") << "main.cpp" << 43 << 5 << "header.h" << 59 << 5
+                                              << false;
+    QTest::newRow("function def") << "main.cpp" << 35 << 5 << "header.h" << 52 << 5 << false;
+    QTest::newRow("member function def") << "main.cpp" << 49 << 21 << "header.h" << 43 << 9
+                                         << false;
+    QTest::newRow("member function decl") << "header.h" << 43 << 9 << "main.cpp" << 49 << 21
+                                          << false;
+    QTest::newRow("include") << "main.cpp" << 25 << 13 << "header.h" << 1 << 1 << false;
+    QTest::newRow("local var") << "main.cpp" << 39 << 6 << "main.cpp" << 36 << 9 << false;
+    QTest::newRow("alias") << "main.cpp" << 36 << 5 << "main.cpp" << 33 << 7 << false;
+    QTest::newRow("static var") << "main.cpp" << 40 << 27 << "header.h" << 30 << 7 << false;
     QTest::newRow("member function ref (other class)") << "main.cpp" << 62 << 39
-                                                       << "cursor.cpp" << 104 << 22;
-    QTest::newRow("macro ref") << "main.cpp" << 66 << 43 << "header.h" << 27 << 9;
-    QTest::newRow("on namespace 2") << "main.cpp" << 27 << 3 << "header.h" << 28 << 11;
-    QTest::newRow("after namespace") << "main.cpp" << 27 << 7 << "header.h" << 28 << 11;
-    QTest::newRow("operator def") << "main.cpp" << 76 << 13 << "main.cpp" << 72 << 9;
-    QTest::newRow("operator def 2") << "main.cpp" << 80 << 15 << "main.cpp" << 73 << 10;
-    QTest::newRow("operator decl") << "main.cpp" << 72 << 12 << "main.cpp" << 76 << 10;
-    QTest::newRow("operator decl 2") << "main.cpp" << 73 << 12 << "main.cpp" << 80 << 11;
+                                                       << "cursor.cpp" << 104 << 22 << false;
+    QTest::newRow("macro ref") << "main.cpp" << 66 << 43 << "header.h" << 27 << 9 << false;
+    QTest::newRow("on namespace 2") << "main.cpp" << 27 << 3 << "header.h" << 28 << 11 << false;
+    QTest::newRow("after namespace") << "main.cpp" << 27 << 7 << "header.h" << 28 << 11 << false;
+    QTest::newRow("operator def") << "main.cpp" << 76 << 13 << "main.cpp" << 72 << 9 << false;
+    QTest::newRow("operator def 2") << "main.cpp" << 80 << 15 << "main.cpp" << 73 << 10 << false;
+    QTest::newRow("operator decl") << "main.cpp" << 72 << 12 << "main.cpp" << 76 << 10 << false;
+    QTest::newRow("operator decl 2") << "main.cpp" << 73 << 12 << "main.cpp" << 80 << 11 << false;
+
+    QTest::newRow("go to typedef") << "main.cpp" << 100 << 19 << "main.cpp" << 33 << 7 << true;
+    QTest::newRow("go to type") << "main.cpp" << 101 << 19 << "main.cpp" << 69 << 7 << true;
 }
 
 void ClangdTestFollowSymbol::test()
@@ -355,6 +367,7 @@ void ClangdTestFollowSymbol::test()
     QFETCH(QString, targetFile);
     QFETCH(int, targetLine);
     QFETCH(int, targetColumn);
+    QFETCH(bool, goToType);
 
     TextEditor::TextDocument * const doc = document(sourceFile);
     QVERIFY(doc);
@@ -371,7 +384,8 @@ void ClangdTestFollowSymbol::test()
     QTextCursor cursor(doc->document());
     const int pos = Utils::Text::positionInText(doc->document(), sourceLine, sourceColumn);
     cursor.setPosition(pos);
-    client()->followSymbol(doc, cursor, nullptr, handler, true, false);
+    client()->followSymbol(doc, cursor, nullptr, handler, true,
+                           goToType ? FollowTo::SymbolType : FollowTo::SymbolDef, false);
     timer.start(10000);
     loop.exec();
     QVERIFY(timer.isActive());

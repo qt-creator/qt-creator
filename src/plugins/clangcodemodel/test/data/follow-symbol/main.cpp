@@ -92,4 +92,10 @@ struct S {
         int i = 42;
         return i;
     }
+
+    YYY getYYY() const { return YYY(); }
+    Bar getBar() const { return Bar(); }
 };
+
+static const auto yyyVar = S().getYYY();
+static const auto barVar = S().getBar();
