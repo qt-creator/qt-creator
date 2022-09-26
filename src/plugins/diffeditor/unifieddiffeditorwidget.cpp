@@ -492,9 +492,9 @@ UnifiedDiffOutput UnifiedDiffData::setDiff(QFutureInterface<void> &fi, int progr
     const int count = input.m_contextFileData.size();
 
     for (const FileData &fileData : qAsConst(input.m_contextFileData)) {
-        const QString leftFileInfo = "--- " + fileData.leftFileInfo.fileName + '\n';
-        const QString rightFileInfo = "+++ " + fileData.rightFileInfo.fileName + '\n';
-        setFileInfo(blockNumber, fileData.leftFileInfo, fileData.rightFileInfo);
+        const QString leftFileInfo = "--- " + fileData.fileInfo[LeftSide].fileName + '\n';
+        const QString rightFileInfo = "+++ " + fileData.fileInfo[RightSide].fileName + '\n';
+        setFileInfo(blockNumber, fileData.fileInfo[LeftSide], fileData.fileInfo[RightSide]);
         output.foldingIndent.insert(blockNumber, 1);
         output.selections[blockNumber].append(DiffSelection(input.m_fileLineFormat));
         blockNumber++;
@@ -511,9 +511,9 @@ UnifiedDiffOutput UnifiedDiffData::setDiff(QFutureInterface<void> &fi, int progr
             output.selections[blockNumber].append(DiffSelection(input.m_chunkLineFormat));
             blockNumber++;
             const QString binaryLine = "Binary files "
-                    + fileData.leftFileInfo.fileName
+                    + fileData.fileInfo[LeftSide].fileName
                     + " and "
-                    + fileData.rightFileInfo.fileName
+                    + fileData.fileInfo[RightSide].fileName
                     + " differ\n";
             output.diffText += binaryLine;
             charNumber += binaryLine.count();
@@ -672,8 +672,8 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
         return;
 
     const FileData fileData = m_controller.m_contextFileData.at(fileIndex);
-    const QString leftFileName = fileData.leftFileInfo.fileName;
-    const QString rightFileName = fileData.rightFileInfo.fileName;
+    const QString leftFileName = fileData.fileInfo[LeftSide].fileName;
+    const QString rightFileName = fileData.fileInfo[RightSide].fileName;
 
     const int columnNumber = cursor.positionInBlock() - 1; // -1 for the first character in line
 

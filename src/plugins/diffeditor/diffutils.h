@@ -104,8 +104,7 @@ public:
     FileData() = default;
     FileData(const ChunkData &chunkData) { chunks.append(chunkData); }
     QList<ChunkData> chunks;
-    DiffFileInfo leftFileInfo;
-    DiffFileInfo rightFileInfo;
+    std::array<DiffFileInfo, SideCount> fileInfo{};
     FileOperation fileOperation = ChangeFile;
     bool binaryFiles = false;
     bool lastChunkAtTheEndOfFile = false;

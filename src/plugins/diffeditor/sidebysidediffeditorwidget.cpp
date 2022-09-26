@@ -892,8 +892,8 @@ void SideBySideDiffEditorWidget::showDiff()
         foldingIndent.insert(blockNumber, 1);
         leftFormats[blockNumber].append(DiffSelection(&m_controller.m_fileLineFormat));
         rightFormats[blockNumber].append(DiffSelection(&m_controller.m_fileLineFormat));
-        m_leftEditor->setFileInfo(blockNumber, contextFileData.leftFileInfo);
-        m_rightEditor->setFileInfo(blockNumber, contextFileData.rightFileInfo);
+        m_leftEditor->setFileInfo(blockNumber, contextFileData.fileInfo[LeftSide]);
+        m_rightEditor->setFileInfo(blockNumber, contextFileData.fileInfo[RightSide]);
         leftText = separator;
         rightText = separator;
         blockNumber++;
@@ -1051,8 +1051,8 @@ void SideBySideDiffEditorWidget::slotLeftJumpToOriginalFileRequested(
         return;
 
     const FileData fileData = m_controller.m_contextFileData.at(diffFileIndex);
-    const QString leftFileName = fileData.leftFileInfo.fileName;
-    const QString rightFileName = fileData.rightFileInfo.fileName;
+    const QString leftFileName = fileData.fileInfo[LeftSide].fileName;
+    const QString rightFileName = fileData.fileInfo[RightSide].fileName;
     if (leftFileName == rightFileName) {
         // The same file (e.g. in git diff), jump to the line number taken from the right editor.
         // Warning: git show SHA^ vs SHA or git diff HEAD vs Index
@@ -1090,7 +1090,7 @@ void SideBySideDiffEditorWidget::slotRightJumpToOriginalFileRequested(
         return;
 
     const FileData fileData = m_controller.m_contextFileData.at(diffFileIndex);
-    const QString fileName = fileData.rightFileInfo.fileName;
+    const QString fileName = fileData.fileInfo[RightSide].fileName;
     m_controller.jumpToOriginalFile(fileName, lineNumber, columnNumber);
 }
 

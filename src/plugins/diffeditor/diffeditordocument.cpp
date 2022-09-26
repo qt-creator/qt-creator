@@ -135,8 +135,8 @@ QString DiffEditorDocument::makePatch(int fileIndex, int chunkIndex,
 
     const QString fileName = !overriddenFileName.isEmpty()
             ? overriddenFileName : revert
-              ? fileData.rightFileInfo.fileName
-              : fileData.leftFileInfo.fileName;
+              ? fileData.fileInfo[RightSide].fileName
+              : fileData.fileInfo[LeftSide].fileName;
 
     QString leftPrefix, rightPrefix;
     if (addPrefix) {

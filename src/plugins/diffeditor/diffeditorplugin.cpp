@@ -90,8 +90,7 @@ public:
                         outputLeftDiffList, outputRightDiffList);
             fileData = DiffUtils::calculateContextData(chunkData, m_contextLineCount, 0);
         }
-        fileData.leftFileInfo = reloadInfo.leftFileInfo;
-        fileData.rightFileInfo = reloadInfo.rightFileInfo;
+        fileData.fileInfo = {reloadInfo.leftFileInfo, reloadInfo.rightFileInfo};
         fileData.fileOperation = reloadInfo.fileOperation;
         fileData.binaryFiles = reloadInfo.binaryFiles;
         futureInterface.reportResult(fileData);
@@ -838,8 +837,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch()
     QCOMPARE(resultList.count(), 1);
     for (int i = 0; i < resultList.count(); i++) {
         const FileData &resultFileData = resultList.at(i);
-        QCOMPARE(resultFileData.leftFileInfo.fileName, fileName);
-        QCOMPARE(resultFileData.rightFileInfo.fileName, fileName);
+        QCOMPARE(resultFileData.fileInfo[LeftSide].fileName, fileName);
+        QCOMPARE(resultFileData.fileInfo[RightSide].fileName, fileName);
         QCOMPARE(resultFileData.chunks.count(), 1);
         for (int j = 0; j < resultFileData.chunks.count(); j++) {
             const ChunkData &resultChunkData = resultFileData.chunks.at(j);
@@ -946,8 +945,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
                     ;
 
     FileData fileData1;
-    fileData1.leftFileInfo = DiffFileInfo("src/plugins/diffeditor/diffeditor.cpp", "eab9e9b");
-    fileData1.rightFileInfo = DiffFileInfo("src/plugins/diffeditor/diffeditor.cpp", "082c135");
+    fileData1.fileInfo = {DiffFileInfo("src/plugins/diffeditor/diffeditor.cpp", "eab9e9b"),
+                          DiffFileInfo("src/plugins/diffeditor/diffeditor.cpp", "082c135")};
     ChunkData chunkData1;
     chunkData1.startingLineNumber = {186, 186};
     QList<RowData> rows1;
@@ -964,8 +963,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData1.chunks << chunkData1;
 
     FileData fileData2;
-    fileData2.leftFileInfo = DiffFileInfo(_("src/plugins/diffeditor/diffutils.cpp"), _("2f641c9"));
-    fileData2.rightFileInfo = DiffFileInfo(_("src/plugins/diffeditor/diffutils.cpp"), _("f8ff795"));
+    fileData2.fileInfo = {DiffFileInfo(_("src/plugins/diffeditor/diffutils.cpp"), _("2f641c9")),
+                          DiffFileInfo(_("src/plugins/diffeditor/diffutils.cpp"), _("f8ff795"))};
     ChunkData chunkData2;
     chunkData2.startingLineNumber = {463, 463};
     QList<RowData> rows2;
@@ -985,8 +984,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData2.chunks << chunkData2;
 
     FileData fileData3;
-    fileData3.leftFileInfo = DiffFileInfo("new", "0000000");
-    fileData3.rightFileInfo = DiffFileInfo("new", "257cc56");
+    fileData3.fileInfo = {DiffFileInfo("new", "0000000"), DiffFileInfo("new", "257cc56")};
     fileData3.fileOperation = FileData::NewFile;
     ChunkData chunkData3;
     chunkData3.startingLineNumber = {-1, 0};
@@ -998,8 +996,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData3.chunks << chunkData3;
 
     FileData fileData4;
-    fileData4.leftFileInfo = DiffFileInfo("deleted", "257cc56");
-    fileData4.rightFileInfo = DiffFileInfo("deleted", "0000000");
+    fileData4.fileInfo = {DiffFileInfo("deleted", "257cc56"), DiffFileInfo("deleted", "0000000")};
     fileData4.fileOperation = FileData::DeleteFile;
     ChunkData chunkData4;
     chunkData4.startingLineNumber = {0, -1};
@@ -1011,18 +1008,16 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData4.chunks << chunkData4;
 
     FileData fileData5;
-    fileData5.leftFileInfo = DiffFileInfo("empty", "0000000");
-    fileData5.rightFileInfo = DiffFileInfo("empty", "e69de29");
+    fileData5.fileInfo = {DiffFileInfo("empty", "0000000"), DiffFileInfo("empty", "e69de29")};
     fileData5.fileOperation = FileData::NewFile;
 
     FileData fileData6;
-    fileData6.leftFileInfo = DiffFileInfo("empty", "e69de29");
-    fileData6.rightFileInfo = DiffFileInfo("empty", "0000000");
+    fileData6.fileInfo = {DiffFileInfo("empty", "e69de29"), DiffFileInfo("empty", "0000000")};
     fileData6.fileOperation = FileData::DeleteFile;
 
     FileData fileData7;
-    fileData7.leftFileInfo = DiffFileInfo("file a.txt", "1234567");
-    fileData7.rightFileInfo = DiffFileInfo("file b.txt", "9876543");
+    fileData7.fileInfo = {DiffFileInfo("file a.txt", "1234567"),
+                          DiffFileInfo("file b.txt", "9876543")};
     fileData7.fileOperation = FileData::CopyFile;
     ChunkData chunkData7;
     chunkData7.startingLineNumber = {19, 19};
@@ -1034,13 +1029,11 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     fileData7.chunks << chunkData7;
 
     FileData fileData8;
-    fileData8.leftFileInfo = DiffFileInfo("file a.txt");
-    fileData8.rightFileInfo = DiffFileInfo("file b.txt");
+    fileData8.fileInfo = {DiffFileInfo("file a.txt"), DiffFileInfo("file b.txt")};
     fileData8.fileOperation = FileData::RenameFile;
 
     FileData fileData9;
-    fileData9.leftFileInfo = DiffFileInfo("file.txt", "1234567");
-    fileData9.rightFileInfo = DiffFileInfo("file.txt", "9876543");
+    fileData9.fileInfo = {DiffFileInfo("file.txt", "1234567"), DiffFileInfo("file.txt", "9876543")};
     fileData9.chunks << chunkData7;
     QList<FileData> fileDataList1;
     fileDataList1 << fileData1 << fileData2 << fileData3 << fileData4 << fileData5
@@ -1061,8 +1054,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
             " C\n"
             "+\n";
 
-    fileData1.leftFileInfo = DiffFileInfo("file foo.txt", "1234567");
-    fileData1.rightFileInfo = DiffFileInfo("file foo.txt", "9876543");
+    fileData1.fileInfo = {DiffFileInfo("file foo.txt", "1234567"),
+                          DiffFileInfo("file foo.txt", "9876543")};
     fileData1.fileOperation = FileData::ChangeFile;
     chunkData1.startingLineNumber = {49, 49};
     rows1.clear();
@@ -1091,8 +1084,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
             "\\ No newline at end of file\n"
             "+ABCD\n";
 
-    fileData1.leftFileInfo = DiffFileInfo("file foo.txt", "1234567");
-    fileData1.rightFileInfo = DiffFileInfo("file foo.txt", "9876543");
+    fileData1.fileInfo = {DiffFileInfo("file foo.txt", "1234567"),
+                          DiffFileInfo("file foo.txt", "9876543")};
     fileData1.fileOperation = FileData::ChangeFile;
     chunkData1.startingLineNumber = {0, 0};
     rows1.clear();
@@ -1126,8 +1119,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
             "+F\n"
             ;
 
-    fileData1.leftFileInfo = DiffFileInfo("difftest.txt", "1234567");
-    fileData1.rightFileInfo = DiffFileInfo("difftest.txt", "9876543");
+    fileData1.fileInfo = {DiffFileInfo("difftest.txt", "1234567"),
+                          DiffFileInfo("difftest.txt", "9876543")};
     fileData1.fileOperation = FileData::ChangeFile;
     chunkData1.startingLineNumber = {1, 1};
     rows1.clear();
@@ -1167,8 +1160,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
             "+EFGH\n"
             "\\ No newline at end of file\n";
 
-    fileData1.leftFileInfo = DiffFileInfo("file foo.txt", "1234567");
-    fileData1.rightFileInfo = DiffFileInfo("file foo.txt", "9876543");
+    fileData1.fileInfo = {DiffFileInfo("file foo.txt", "1234567"),
+                          DiffFileInfo("file foo.txt", "9876543")};
     fileData1.fileOperation = FileData::ChangeFile;
     chunkData1.startingLineNumber = {0, 0};
     rows1.clear();
@@ -1209,12 +1202,12 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
             ;
 
     fileData1 = FileData();
-    fileData1.leftFileInfo = DiffFileInfo("src/plugins/texteditor/basetextdocument.h");
-    fileData1.rightFileInfo = DiffFileInfo("src/plugins/texteditor/textdocument.h");
+    fileData1.fileInfo = {DiffFileInfo("src/plugins/texteditor/basetextdocument.h"),
+                          DiffFileInfo("src/plugins/texteditor/textdocument.h")};
     fileData1.fileOperation = FileData::RenameFile;
     fileData2 = FileData();
-    fileData2.leftFileInfo = DiffFileInfo("src/plugins/texteditor/basetextdocumentlayout.cpp", "0121933");
-    fileData2.rightFileInfo = DiffFileInfo("src/plugins/texteditor/textdocumentlayout.cpp", "01cc3a0");
+    fileData2.fileInfo = {DiffFileInfo("src/plugins/texteditor/basetextdocumentlayout.cpp", "0121933"),
+                          DiffFileInfo("src/plugins/texteditor/textdocumentlayout.cpp", "01cc3a0")};
     fileData2.fileOperation = FileData::RenameFile;
     chunkData2.startingLineNumber = {1, 1};
     rows2.clear();
@@ -1244,8 +1237,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
             "+Subproject commit eda76354077a427d692fee05479910de31040d3f-dirty\n"
             ;
     fileData1 = FileData();
-    fileData1.leftFileInfo = DiffFileInfo("src/shared/qbs");
-    fileData1.rightFileInfo = DiffFileInfo("src/shared/qbs");
+    fileData1.fileInfo = {DiffFileInfo("src/shared/qbs"), DiffFileInfo("src/shared/qbs")};
     chunkData1.startingLineNumber = {0, 0};
     rows1.clear();
     rows1 << RowData(_("Subproject commit eda76354077a427d692fee05479910de31040d3f"),
@@ -1278,8 +1270,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
             ;
 
     fileData1 = FileData();
-    fileData1.leftFileInfo = DiffFileInfo("demos/arthurplugin/arthurplugin.pro", "0000000");
-    fileData1.rightFileInfo = DiffFileInfo("demos/arthurplugin/arthurplugin.pro", "c5132b4");
+    fileData1.fileInfo = {DiffFileInfo("demos/arthurplugin/arthurplugin.pro", "0000000"),
+                          DiffFileInfo("demos/arthurplugin/arthurplugin.pro", "c5132b4")};
     fileData1.fileOperation = FileData::NewFile;
     chunkData1 = ChunkData();
     chunkData1.startingLineNumber = {-1, 0};
@@ -1289,13 +1281,13 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
     chunkData1.rows = rows1;
     fileData1.chunks << chunkData1;
     fileData2 = FileData();
-    fileData2.leftFileInfo = DiffFileInfo("demos/arthurplugin/bg1.jpg", "0000000");
-    fileData2.rightFileInfo = DiffFileInfo("demos/arthurplugin/bg1.jpg", "dfc7cee");
+    fileData2.fileInfo = {DiffFileInfo("demos/arthurplugin/bg1.jpg", "0000000"),
+                          DiffFileInfo("demos/arthurplugin/bg1.jpg", "dfc7cee")};
     fileData2.fileOperation = FileData::NewFile;
     fileData2.binaryFiles = true;
     fileData3 = FileData();
-    fileData3.leftFileInfo = DiffFileInfo("demos/arthurplugin/flower.jpg", "0000000");
-    fileData3.rightFileInfo = DiffFileInfo("demos/arthurplugin/flower.jpg", "f8e022c");
+    fileData3.fileInfo = {DiffFileInfo("demos/arthurplugin/flower.jpg", "0000000"),
+                          DiffFileInfo("demos/arthurplugin/flower.jpg", "f8e022c")};
     fileData3.fileOperation = FileData::NewFile;
     fileData3.binaryFiles = true;
 
@@ -1312,8 +1304,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
             ;
 
     fileData1 = FileData();
-    fileData1.leftFileInfo = DiffFileInfo("script.sh");
-    fileData1.rightFileInfo = DiffFileInfo("script.sh");
+    fileData1.fileInfo = {DiffFileInfo("script.sh"), DiffFileInfo("script.sh")};
     fileData1.fileOperation = FileData::ChangeMode;
 
     QList<FileData> fileDataList9;
@@ -1332,8 +1323,7 @@ rename to new.sh
             ;
 
     fileData1 = FileData();
-    fileData1.leftFileInfo = DiffFileInfo("old.sh");
-    fileData1.rightFileInfo = DiffFileInfo("new.sh");
+    fileData1.fileInfo = {DiffFileInfo("old.sh"), DiffFileInfo("new.sh")};
     fileData1.fileOperation = FileData::RenameFile;
 
     QList<FileData> fileDataList10;
@@ -1350,8 +1340,8 @@ rename to new.sh
             "+++ src/plugins/subversion/subversioneditor.cpp\t(revision 0)\n"
             "@@ -0,0 +125 @@\n\n";
     fileData1 = FileData();
-    fileData1.leftFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
-    fileData1.rightFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
+    fileData1.fileInfo = {DiffFileInfo("src/plugins/subversion/subversioneditor.cpp"),
+                          DiffFileInfo("src/plugins/subversion/subversioneditor.cpp")};
     chunkData1 = ChunkData();
     chunkData1.startingLineNumber = {-1, 124};
     fileData1.chunks << chunkData1;
@@ -1369,8 +1359,8 @@ rename to new.sh
             "+++ src/plugins/subversion/subversioneditor.cpp\t(working copy)\n"
             "@@ -1,125 +0,0 @@\n\n";
     fileData1 = FileData();
-    fileData1.leftFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
-    fileData1.rightFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
+    fileData1.fileInfo = {DiffFileInfo("src/plugins/subversion/subversioneditor.cpp"),
+                          DiffFileInfo("src/plugins/subversion/subversioneditor.cpp")};
     chunkData1 = ChunkData();
     chunkData1.startingLineNumber = {0, -1};
     fileData1.chunks << chunkData1;
@@ -1388,8 +1378,8 @@ rename to new.sh
             "+++ src/plugins/subversion/subversioneditor.cpp\t(working copy)\n"
             "@@ -120,7 +120,7 @@\n\n";
     fileData1 = FileData();
-    fileData1.leftFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
-    fileData1.rightFileInfo = DiffFileInfo("src/plugins/subversion/subversioneditor.cpp");
+    fileData1.fileInfo = {DiffFileInfo("src/plugins/subversion/subversioneditor.cpp"),
+                          DiffFileInfo("src/plugins/subversion/subversioneditor.cpp")};
     chunkData1 = ChunkData();
     chunkData1.startingLineNumber = {119, 119};
     fileData1.chunks << chunkData1;
@@ -1412,10 +1402,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
     for (int i = 0; i < fileDataList.count(); i++) {
         const FileData &origFileData = fileDataList.at(i);
         const FileData &resultFileData = result.at(i);
-        QCOMPARE(resultFileData.leftFileInfo.fileName, origFileData.leftFileInfo.fileName);
-        QCOMPARE(resultFileData.leftFileInfo.typeInfo, origFileData.leftFileInfo.typeInfo);
-        QCOMPARE(resultFileData.rightFileInfo.fileName, origFileData.rightFileInfo.fileName);
-        QCOMPARE(resultFileData.rightFileInfo.typeInfo, origFileData.rightFileInfo.typeInfo);
+        QCOMPARE(resultFileData.fileInfo[LeftSide].fileName, origFileData.fileInfo[LeftSide].fileName);
+        QCOMPARE(resultFileData.fileInfo[LeftSide].typeInfo, origFileData.fileInfo[LeftSide].typeInfo);
+        QCOMPARE(resultFileData.fileInfo[RightSide].fileName, origFileData.fileInfo[RightSide].fileName);
+        QCOMPARE(resultFileData.fileInfo[RightSide].typeInfo, origFileData.fileInfo[RightSide].typeInfo);
         QCOMPARE(resultFileData.chunks.count(), origFileData.chunks.count());
         QCOMPARE(resultFileData.fileOperation, origFileData.fileOperation);
         for (int j = 0; j < origFileData.chunks.count(); j++) {

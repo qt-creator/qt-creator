@@ -311,8 +311,8 @@ void DiffEditor::documentHasChanged()
 
     m_entriesComboBox->clear();
     for (const FileData &diffFile : diffFileList) {
-        const DiffFileInfo &leftEntry = diffFile.leftFileInfo;
-        const DiffFileInfo &rightEntry = diffFile.rightFileInfo;
+        const DiffFileInfo &leftEntry = diffFile.fileInfo[LeftSide];
+        const DiffFileInfo &rightEntry = diffFile.fileInfo[RightSide];
         const QString leftShortFileName = Utils::FilePath::fromString(leftEntry.fileName).fileName();
         const QString rightShortFileName = Utils::FilePath::fromString(rightEntry.fileName).fileName();
         QString itemText;
@@ -445,8 +445,8 @@ void DiffEditor::reloadHasFinished(bool success)
     const int count = diffFileList.count();
     for (int i = 0; i < count; i++) {
         const FileData &diffFile = diffFileList.at(i);
-        const DiffFileInfo &leftEntry = diffFile.leftFileInfo;
-        const DiffFileInfo &rightEntry = diffFile.rightFileInfo;
+        const DiffFileInfo &leftEntry = diffFile.fileInfo[LeftSide];
+        const DiffFileInfo &rightEntry = diffFile.fileInfo[RightSide];
         if ((m_currentFileChunk.first.isEmpty()
              && m_currentFileChunk.second.isEmpty()
              && startupFile.endsWith(rightEntry.fileName))

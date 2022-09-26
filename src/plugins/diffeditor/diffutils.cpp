@@ -470,7 +470,7 @@ static QString leftFileName(const FileData &fileData, unsigned formatFlags)
     } else {
         if (formatFlags & DiffUtils::AddLevel)
             str << "a/";
-        str << fileData.leftFileInfo.fileName;
+        str << fileData.fileInfo[LeftSide].fileName;
     }
     return diffText;
 }
@@ -484,7 +484,7 @@ static QString rightFileName(const FileData &fileData, unsigned formatFlags)
     } else {
         if (formatFlags & DiffUtils::AddLevel)
             str << "b/";
-        str << fileData.rightFileInfo.fileName;
+        str << fileData.fileInfo[RightSide].fileName;
     }
     return diffText;
 }
@@ -497,8 +497,8 @@ QString DiffUtils::makePatch(const QList<FileData> &fileDataList, unsigned forma
     for (int i = 0; i < fileDataList.size(); i++) {
         const FileData &fileData = fileDataList.at(i);
         if (formatFlags & GitFormat) {
-            str << "diff --git a/" << fileData.leftFileInfo.fileName
-                << " b/" << fileData.rightFileInfo.fileName << '\n';
+            str << "diff --git a/" << fileData.fileInfo[LeftSide].fileName
+                << " b/" << fileData.fileInfo[RightSide].fileName << '\n';
         }
         if (fileData.fileOperation == FileData::NewFile
                 || fileData.fileOperation == FileData::DeleteFile) { // git only?
@@ -508,7 +508,7 @@ QString DiffUtils::makePatch(const QList<FileData> &fileDataList, unsigned forma
                 str << "deleted";
             str << " file mode 100644\n";
         }
-        str << "index " << fileData.leftFileInfo.typeInfo << ".." << fileData.rightFileInfo.typeInfo;
+        str << "index " << fileData.fileInfo[LeftSide].typeInfo << ".." << fileData.fileInfo[RightSide].typeInfo;
         if (fileData.fileOperation == FileData::ChangeFile)
             str << " 100644";
         str << "\n";
@@ -853,13 +853,13 @@ static FileData readDiffHeaderAndChunks(QStringView headerAndChunks, bool *ok)
     const QRegularExpressionMatch leftMatch = leftFileRegExp.match(patch);
     if (leftMatch.hasMatch() && leftMatch.capturedStart() == 0) {
         patch = patch.mid(leftMatch.capturedEnd());
-        fileData.leftFileInfo.fileName = leftMatch.captured(1);
+        fileData.fileInfo[LeftSide].fileName = leftMatch.captured(1);
 
         // followed by rightFileRegExp
         const QRegularExpressionMatch rightMatch = rightFileRegExp.match(patch);
         if (rightMatch.hasMatch() && rightMatch.capturedStart() == 0) {
             patch = patch.mid(rightMatch.capturedEnd());
-            fileData.rightFileInfo.fileName = rightMatch.captured(1);
+            fileData.fileInfo[RightSide].fileName = rightMatch.captured(1);
 
             fileData.chunks = readChunks(patch,
                                          &fileData.lastChunkAtTheEndOfFile,
@@ -869,8 +869,8 @@ static FileData readDiffHeaderAndChunks(QStringView headerAndChunks, bool *ok)
         // or by binaryRegExp
         const QRegularExpressionMatch binaryMatch = binaryRegExp.match(patch);
         if (binaryMatch.hasMatch() && binaryMatch.capturedStart() == 0) {
-            fileData.leftFileInfo.fileName = binaryMatch.captured(1);
-            fileData.rightFileInfo.fileName = binaryMatch.captured(2);
+            fileData.fileInfo[LeftSide].fileName = binaryMatch.captured(1);
+            fileData.fileInfo[RightSide].fileName = binaryMatch.captured(2);
             fileData.binaryFiles = true;
             readOk = true;
         }
@@ -1012,12 +1012,12 @@ static bool detectIndexAndBinary(QStringView patch, FileData *fileData, QStringV
         const int dotsPosition = indices.indexOf(QStringLiteral(".."));
         if (dotsPosition < 0)
             return false;
-        fileData->leftFileInfo.typeInfo = indices.left(dotsPosition).toString();
+        fileData->fileInfo[LeftSide].typeInfo = indices.left(dotsPosition).toString();
 
         // if there is no space we take the remaining string
         const int spacePosition = indices.indexOf(QChar::Space, dotsPosition + 2);
         const int length = spacePosition < 0 ? -1 : spacePosition - dotsPosition - 2;
-        fileData->rightFileInfo.typeInfo = indices.mid(dotsPosition + 2, length).toString();
+        fileData->fileInfo[RightSide].typeInfo = indices.mid(dotsPosition + 2, length).toString();
 
         *remainingPatch = afterNextLine;
     } else if (fileData->fileOperation != FileData::ChangeFile) {
@@ -1034,9 +1034,9 @@ static bool detectIndexAndBinary(QStringView patch, FileData *fileData, QStringV
 
     const QString devNull("/dev/null");
     const QString leftFileName = fileData->fileOperation == FileData::NewFile
-            ? devNull : QLatin1String("a/") + fileData->leftFileInfo.fileName;
+            ? devNull : QLatin1String("a/") + fileData->fileInfo[LeftSide].fileName;
     const QString rightFileName = fileData->fileOperation == FileData::DeleteFile
-            ? devNull : QLatin1String("b/") + fileData->rightFileInfo.fileName;
+            ? devNull : QLatin1String("b/") + fileData->fileInfo[RightSide].fileName;
 
     const QString binaryLine = "Binary files "
             + leftFileName + " and "
@@ -1116,7 +1116,7 @@ static bool detectFileData(QStringView patch, FileData *fileData, QStringView *r
         // change / new / delete
 
         fileData->fileOperation = FileData::ChangeFile;
-        fileData->leftFileInfo.fileName = fileData->rightFileInfo.fileName = commonFileName.toString();
+        fileData->fileInfo[LeftSide].fileName = fileData->fileInfo[RightSide].fileName = commonFileName.toString();
 
         QStringView afterSecondLine;
         const QStringView secondLine = readLine(afterDiffGit, &afterSecondLine, &hasNewLine);
@@ -1172,10 +1172,10 @@ static bool detectFileData(QStringView patch, FileData *fileData, QStringView *r
         const QLatin1String renameFrom("rename from ");
         if (copyRenameFrom.startsWith(copyFrom)) {
             fileData->fileOperation = FileData::CopyFile;
-            fileData->leftFileInfo.fileName = copyRenameFrom.mid(copyFrom.size()).toString();
+            fileData->fileInfo[LeftSide].fileName = copyRenameFrom.mid(copyFrom.size()).toString();
         } else if (copyRenameFrom.startsWith(renameFrom)) {
             fileData->fileOperation = FileData::RenameFile;
-            fileData->leftFileInfo.fileName = copyRenameFrom.mid(renameFrom.size()).toString();
+            fileData->fileInfo[LeftSide].fileName = copyRenameFrom.mid(renameFrom.size()).toString();
         } else {
             return false;
         }
@@ -1189,9 +1189,9 @@ static bool detectFileData(QStringView patch, FileData *fileData, QStringView *r
         const QLatin1String copyTo("copy to ");
         const QLatin1String renameTo("rename to ");
         if (fileData->fileOperation == FileData::CopyFile && copyRenameTo.startsWith(copyTo)) {
-            fileData->rightFileInfo.fileName = copyRenameTo.mid(copyTo.size()).toString();
+            fileData->fileInfo[RightSide].fileName = copyRenameTo.mid(copyTo.size()).toString();
         } else if (fileData->fileOperation == FileData::RenameFile && copyRenameTo.startsWith(renameTo)) {
-            fileData->rightFileInfo.fileName = copyRenameTo.mid(renameTo.size()).toString();
+            fileData->fileInfo[RightSide].fileName = copyRenameTo.mid(renameTo.size()).toString();
         } else {
             return false;
         }

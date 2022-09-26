@@ -150,11 +150,11 @@ void DiffEditorWidgetController::patch(bool revert, int fileIndex, int chunkInde
 
     const FileData fileData = m_contextFileData.at(fileIndex);
     const QString fileName = revert
-            ? fileData.rightFileInfo.fileName
-            : fileData.leftFileInfo.fileName;
+            ? fileData.fileInfo[RightSide].fileName
+            : fileData.fileInfo[LeftSide].fileName;
     const DiffFileInfo::PatchBehaviour patchBehaviour = revert
-            ? fileData.rightFileInfo.patchBehaviour
-            : fileData.leftFileInfo.patchBehaviour;
+            ? fileData.fileInfo[RightSide].patchBehaviour
+            : fileData.fileInfo[LeftSide].patchBehaviour;
 
     const FilePath workingDirectory = m_document->baseDirectory().isEmpty()
             ? FilePath::fromString(fileName).absolutePath()
@@ -270,7 +270,7 @@ ChunkData DiffEditorWidgetController::chunkData(int fileIndex, int chunkIndex) c
 bool DiffEditorWidgetController::fileNamesAreDifferent(int fileIndex) const
 {
     const FileData fileData = m_contextFileData.at(fileIndex);
-    return fileData.leftFileInfo.fileName != fileData.rightFileInfo.fileName;
+    return fileData.fileInfo[LeftSide].fileName != fileData.fileInfo[RightSide].fileName;
 }
 
 void DiffEditorWidgetController::addApplyAction(QMenu *menu, int fileIndex, int chunkIndex)
