@@ -747,8 +747,7 @@ Rectangle {
                                     height: extendGap.portraitOneColumn ? root.innerGridSpacing : Constants.thumbnailSize
                                                                           + 2 * root.extend
                                     color: StudioTheme.Values.themeStateHighlight
-                                    visible: extendBackground.radius !== 0
-                                             && extendBackground.visible
+                                    visible: extendBackground.visible
                                 }
 
                                 StateThumbnail {
