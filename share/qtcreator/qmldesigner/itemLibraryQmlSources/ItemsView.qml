@@ -221,7 +221,7 @@ Item {
         Row {
             width: parent.width
 
-            SearchBox {
+            StudioControls.SearchBox {
                 id: searchBox
 
                 width: parent.width - addModuleButton.width - 5

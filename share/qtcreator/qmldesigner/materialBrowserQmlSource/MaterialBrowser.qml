@@ -230,7 +230,7 @@ Item {
             width: root.width
             enabled: !materialBrowserModel.hasMaterialRoot && materialBrowserModel.hasQuick3DImport
 
-            SearchBox {
+            StudioControls.SearchBox {
                 id: searchBox
 
                 width: root.width - addMaterialButton.width

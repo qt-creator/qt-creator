@@ -436,7 +436,7 @@ Item {
 
             width: parent.width
 
-            SearchBox {
+            StudioControls.SearchBox {
                 id: searchBox
 
                 width: parent.width - addAssetButton.width - 5

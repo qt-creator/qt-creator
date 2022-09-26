@@ -61,7 +61,6 @@ RoundedPanel 2.0 RoundedPanel.qml
 ScrollView 2.0 ScrollView.qml
 SecondColumnLayout 2.0 SecondColumnLayout.qml
 Section 2.0 Section.qml
-SearchBox 2.0 SearchBox.qml
 SectionLayout 2.0 SectionLayout.qml
 Spacer 2.0 Spacer.qml
 SpinBox 2.0 SpinBox.qml
