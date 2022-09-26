@@ -9570,10 +9570,6 @@ Continue?</source>
         <translation>PATH=/opt/bin:${PATH}</translation>
     </message>
     <message>
-        <source>No changes to apply.</source>
-        <translation>Без изменений.</translation>
-    </message>
-    <message>
         <source>External Tools</source>
         <translation>Внешние утилиты</translation>
     </message>

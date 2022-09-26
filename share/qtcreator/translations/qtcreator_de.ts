@@ -46192,10 +46192,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>PATH=/opt/bin:${PATH}</translation>
     </message>
     <message>
-        <source>No changes to apply.</source>
-        <translation>Keine anzuwendenden Änderungen.</translation>
-    </message>
-    <message>
         <source>External Tools</source>
         <translation>Externe Werkzeuge</translation>
     </message>
