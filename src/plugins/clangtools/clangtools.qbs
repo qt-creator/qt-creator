@@ -69,7 +69,6 @@ QtcPlugin {
         "executableinfo.h",
         "filterdialog.cpp",
         "filterdialog.h",
-        "filterdialog.ui",
         "runsettingswidget.cpp",
         "runsettingswidget.h",
         "runsettingswidget.ui",

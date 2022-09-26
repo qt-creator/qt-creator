@@ -39,7 +39,7 @@ add_qtc_plugin(ClangTools
     documentclangtoolrunner.cpp documentclangtoolrunner.h
     documentquickfixfactory.cpp documentquickfixfactory.h
     executableinfo.cpp executableinfo.h
-    filterdialog.cpp filterdialog.h filterdialog.ui
+    filterdialog.cpp filterdialog.h
     runsettingswidget.cpp runsettingswidget.h runsettingswidget.ui
     settingswidget.cpp settingswidget.h settingswidget.ui
     tidychecks.ui

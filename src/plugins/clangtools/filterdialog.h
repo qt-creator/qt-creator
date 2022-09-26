@@ -5,14 +5,16 @@
 
 #include <QDialog>
 
-namespace ClangTools {
-namespace Internal {
+QT_BEGIN_NAMESPACE
+class QTreeView;
+QT_END_NAMESPACE
 
-namespace Ui { class FilterDialog; }
+namespace ClangTools::Internal {
 
 class FilterChecksModel;
 
-class Check {
+class Check
+{
 public:
     QString name;
     QString displayName;
@@ -33,9 +35,8 @@ public:
     QSet<QString> selectedChecks() const;
 
 private:
-    Ui::FilterDialog *m_ui;
     FilterChecksModel *m_model;
+    QTreeView *m_view;
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // ClangTools::Internal
