@@ -4733,10 +4733,6 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>削除(&amp;D)</translation>
     </message>
     <message>
-        <source>&amp;Switch To</source>
-        <translation>切替(&amp;S)</translation>
-    </message>
-    <message>
         <source>Restore last session on startup</source>
         <translation>起動時に最後のセッションを復元する</translation>
     </message>
