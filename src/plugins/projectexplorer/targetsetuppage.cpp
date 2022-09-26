@@ -334,9 +334,9 @@ void TargetSetupPage::setupImports()
     if (!m_importer || m_projectPath.isEmpty())
         return;
 
-    const QStringList toImport = m_importer->importCandidates();
-    for (const QString &path : toImport)
-        import(FilePath::fromString(path), true);
+    const FilePaths toImport = m_importer->importCandidates();
+    for (const FilePath &path : toImport)
+        import(path, true);
 }
 
 void TargetSetupPage::handleKitAddition(Kit *k)

@@ -7,8 +7,7 @@
 
 #include <qtsupport/qtprojectimporter.h>
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 // Documentation inside.
 class QmakeProjectImporter : public QtSupport::QtProjectImporter
@@ -16,7 +15,7 @@ class QmakeProjectImporter : public QtSupport::QtProjectImporter
 public:
     QmakeProjectImporter(const Utils::FilePath &path);
 
-    QStringList importCandidates() final;
+    Utils::FilePaths importCandidates() final;
 
 private:
     QList<void *> examineDirectory(const Utils::FilePath &importPath, QString *warningMessage) const final;
@@ -31,5 +30,4 @@ private:
                                              const QMakeStepConfig::OsType &osType) const;
 };
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // QmakeProjectManager::Internal

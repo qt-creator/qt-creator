@@ -25,15 +25,13 @@
 #include <utils/temporarydirectory.h>
 
 #include <QApplication>
-#include <QDir>
 #include <QLoggingCategory>
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 static Q_LOGGING_CATEGORY(cmInputLog, "qtc.cmake.import", QtWarningMsg);
 
@@ -104,7 +102,7 @@ CMakeProjectImporter::CMakeProjectImporter(const FilePath &path, const PresetsDa
 
 }
 
-QStringList CMakeProjectImporter::importCandidates()
+FilePaths CMakeProjectImporter::importCandidates()
 {
     FilePaths candidates;
 
@@ -131,7 +129,7 @@ QStringList CMakeProjectImporter::importCandidates()
 
     const FilePaths finalists = Utils::filteredUnique(candidates);
     qCInfo(cmInputLog) << "import candidates:" << finalists;
-    return finalists;
+    return Utils::transform(finalists, &FilePath::fromString);
 }
 
 static CMakeConfig configurationFromPresetProbe(
@@ -685,8 +683,7 @@ void CMakeProjectImporter::persistTemporaryCMake(Kit *k, const QVariantList &vl)
     qCDebug(cmInputLog) << "Temporary CMake tool made persistent.";
 }
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal
 
 #ifdef WITH_TESTS
 

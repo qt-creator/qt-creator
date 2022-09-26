@@ -5,8 +5,7 @@
 
 #include <qtsupport/qtprojectimporter.h>
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 class QbsProjectImporter final : public QtSupport::QtProjectImporter
 {
@@ -16,7 +15,7 @@ public:
     QbsProjectImporter(const Utils::FilePath &path);
 
 private:
-    QStringList importCandidates() override;
+    Utils::FilePaths importCandidates() override;
     QList<void *> examineDirectory(const Utils::FilePath &importPath, QString *warningMessage) const override;
     bool matchKit(void *directoryData, const ProjectExplorer::Kit *k) const override;
     ProjectExplorer::Kit *createKit(void *directoryData) const override;
@@ -24,5 +23,4 @@ private:
     void deleteDirectoryData(void *directoryData) const override;
 };
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // QbsProjectManager::Internal

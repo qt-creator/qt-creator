@@ -16,7 +16,7 @@ MesonProjectImporter::MesonProjectImporter(const Utils::FilePath &path)
     : QtSupport::QtProjectImporter{path}
 {}
 
-QStringList MesonProjectImporter::importCandidates()
+Utils::FilePaths MesonProjectImporter::importCandidates()
 {
     //TODO, this can be done later
     return {};

@@ -21,7 +21,7 @@ class CMakeProjectImporter : public QtSupport::QtProjectImporter
 public:
     CMakeProjectImporter(const Utils::FilePath &path, const Internal::PresetsData &presetsData);
 
-    QStringList importCandidates() final;
+    Utils::FilePaths importCandidates() final;
 
 private:
     QList<void *> examineDirectory(const Utils::FilePath &importPath,

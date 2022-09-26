@@ -34,7 +34,7 @@ public:
     const Utils::FilePath projectDirectory() const { return m_projectPath.parentDir(); }
 
     virtual const QList<BuildInfo> import(const Utils::FilePath &importPath, bool silent = false);
-    virtual QStringList importCandidates() = 0;
+    virtual Utils::FilePaths importCandidates() = 0;
     virtual Target *preferredTarget(const QList<Target *> &possibleTargets);
 
     bool isUpdating() const { return m_isUpdating; }

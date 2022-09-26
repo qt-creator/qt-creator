@@ -24,8 +24,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 struct BuildGraphData
 {
@@ -88,7 +87,7 @@ static QStringList candidatesForDirectory(const QString &dir)
     return candidates;
 }
 
-QStringList QbsProjectImporter::importCandidates()
+FilePaths QbsProjectImporter::importCandidates()
 {
     const QString projectDir = projectFilePath().toFileInfo().absolutePath();
     QStringList candidates = candidatesForDirectory(projectDir);
@@ -105,7 +104,7 @@ QStringList QbsProjectImporter::importCandidates()
         }
     }
     qCDebug(qbsPmLog) << "build directory candidates:" << candidates;
-    return candidates;
+    return Utils::transform(candidates, &FilePath::fromString);
 }
 
 QList<void *> QbsProjectImporter::examineDirectory(const FilePath &importPath,
@@ -212,5 +211,4 @@ void QbsProjectImporter::deleteDirectoryData(void *directoryData) const
     delete static_cast<BuildGraphData *>(directoryData);
 }
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // QbsProjectManager::Internal

@@ -54,8 +54,7 @@ struct DirectoryData
 
 } // namespace
 
-namespace QmakeProjectManager {
-namespace Internal {
+namespace QmakeProjectManager::Internal {
 
 const Utils::Id QT_IS_TEMPORARY("Qmake.TempQt");
 const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // ugly
@@ -64,7 +63,7 @@ QmakeProjectImporter::QmakeProjectImporter(const FilePath &path) :
     QtProjectImporter(path)
 { }
 
-QStringList QmakeProjectImporter::importCandidates()
+FilePaths QmakeProjectImporter::importCandidates()
 {
     QStringList candidates;
 
@@ -84,7 +83,7 @@ QStringList QmakeProjectImporter::importCandidates()
                 candidates << path;
         }
     }
-    return candidates;
+    return Utils::transform(candidates, &FilePath::fromString);
 }
 
 QList<void *> QmakeProjectImporter::examineDirectory(const FilePath &importPath,
@@ -255,5 +254,4 @@ Kit *QmakeProjectImporter::createTemporaryKit(const QtProjectImporter::QtVersion
     });
 }
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // QmakeProjectManager::Internal

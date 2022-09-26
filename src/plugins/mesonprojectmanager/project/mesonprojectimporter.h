@@ -3,21 +3,18 @@
 
 #pragma once
 
-#include "exewrappers/mesonwrapper.h"
-
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kit.h>
 
 #include <qtsupport/qtprojectimporter.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 class MesonProjectImporter final : public QtSupport::QtProjectImporter
 {
 public:
     MesonProjectImporter(const Utils::FilePath &path);
-    QStringList importCandidates() final;
+    Utils::FilePaths importCandidates() final;
 
 private:
     // importPath is an existing directory at this point!
@@ -32,5 +29,4 @@ private:
     void deleteDirectoryData(void *directoryData) const final;
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

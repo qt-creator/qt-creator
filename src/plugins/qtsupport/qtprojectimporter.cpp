@@ -16,7 +16,6 @@
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
-#include <QFileInfo>
 #include <QList>
 
 using namespace ProjectExplorer;
@@ -153,7 +152,7 @@ public:
         m_testData(testData)
     { }
 
-    QStringList importCandidates() override;
+    FilePaths importCandidates() override { return {}; }
 
     bool allDeleted() const { return m_deletedTestData.count() == m_testData.count();}
 
@@ -172,11 +171,6 @@ private:
 
     QList<Kit *> m_deletedKits;
 };
-
-QStringList TestQtProjectImporter::importCandidates()
-{
-    return QStringList();
-}
 
 QList<void *> TestQtProjectImporter::examineDirectory(const Utils::FilePath &importPath,
                                                       QString *warningMessage) const
