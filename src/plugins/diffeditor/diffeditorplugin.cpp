@@ -851,10 +851,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch()
                 const RowData &sourceRowData = sourceChunk.rows.at(k);
                 const RowData &resultRowData = resultChunkData.rows.at(k);
                 QCOMPARE(resultRowData.equal, sourceRowData.equal);
-                QCOMPARE(resultRowData.leftLine.text, sourceRowData.leftLine.text);
-                QCOMPARE(resultRowData.leftLine.textLineType, sourceRowData.leftLine.textLineType);
-                QCOMPARE(resultRowData.rightLine.text, sourceRowData.rightLine.text);
-                QCOMPARE(resultRowData.rightLine.textLineType, sourceRowData.rightLine.textLineType);
+                QCOMPARE(resultRowData.line[LeftSide].text, sourceRowData.line[LeftSide].text);
+                QCOMPARE(resultRowData.line[LeftSide].textLineType, sourceRowData.line[LeftSide].textLineType);
+                QCOMPARE(resultRowData.line[RightSide].text, sourceRowData.line[RightSide].text);
+                QCOMPARE(resultRowData.line[RightSide].textLineType, sourceRowData.line[RightSide].textLineType);
             }
         }
     }
@@ -1429,10 +1429,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch()
                 const RowData &origRowData = origChunkData.rows.at(k);
                 const RowData &resultRowData = resultChunkData.rows.at(k);
                 QCOMPARE(resultRowData.equal, origRowData.equal);
-                QCOMPARE(resultRowData.leftLine.text, origRowData.leftLine.text);
-                QCOMPARE(resultRowData.leftLine.textLineType, origRowData.leftLine.textLineType);
-                QCOMPARE(resultRowData.rightLine.text, origRowData.rightLine.text);
-                QCOMPARE(resultRowData.rightLine.textLineType, origRowData.rightLine.textLineType);
+                QCOMPARE(resultRowData.line[LeftSide].text, origRowData.line[LeftSide].text);
+                QCOMPARE(resultRowData.line[LeftSide].textLineType, origRowData.line[LeftSide].textLineType);
+                QCOMPARE(resultRowData.line[RightSide].text, origRowData.line[RightSide].text);
+                QCOMPARE(resultRowData.line[RightSide].textLineType, origRowData.line[RightSide].textLineType);
             }
         }
     }
@@ -1457,10 +1457,10 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
     auto appendRow = [](ChunkData *chunk, const QString &left, const QString &right) {
         RowData row;
         row.equal = (left == right);
-        row.leftLine.text = left;
-        row.leftLine.textLineType = left.isEmpty() ? TextLineData::Separator : TextLineData::TextLine;
-        row.rightLine.text = right;
-        row.rightLine.textLineType = right.isEmpty() ? TextLineData::Separator : TextLineData::TextLine;
+        row.line[LeftSide].text = left;
+        row.line[LeftSide].textLineType = left.isEmpty() ? TextLineData::Separator : TextLineData::TextLine;
+        row.line[RightSide].text = right;
+        row.line[RightSide].textLineType = right.isEmpty() ? TextLineData::Separator : TextLineData::TextLine;
         chunk->rows.append(row);
     };
     ChunkData chunk;
@@ -1664,8 +1664,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch()
     const ChunkData result = DiffEditorDocument::filterChunk(chunk, selection, revert);
     QCOMPARE(result.rows.size(), rows.size());
     for (int i = 0; i < rows.size(); ++i) {
-        QCOMPARE(result.rows.at(i).leftLine.text, rows.at(i).first);
-        QCOMPARE(result.rows.at(i).rightLine.text, rows.at(i).second);
+        QCOMPARE(result.rows.at(i).line[LeftSide].text, rows.at(i).first);
+        QCOMPARE(result.rows.at(i).line[RightSide].text, rows.at(i).second);
     }
 }
 

@@ -933,8 +933,8 @@ void SideBySideDiffEditorWidget::showDiff()
                     m_rightEditor->setChunkIndex(blockNumber, chunkData.rows.count(), j);
 
                     for (const RowData &rowData : chunkData.rows) {
-                        TextLineData leftLineData = rowData.leftLine;
-                        TextLineData rightLineData = rowData.rightLine;
+                        TextLineData leftLineData = rowData.line[LeftSide];
+                        TextLineData rightLineData = rowData.line[RightSide];
                         if (leftLineData.textLineType == TextLineData::TextLine) {
                             leftText += leftLineData.text;
                             lastLeftLineNumber = leftLineNumber;
@@ -953,11 +953,11 @@ void SideBySideDiffEditorWidget::showDiff()
                         }
 
                         if (!rowData.equal) {
-                            if (rowData.leftLine.textLineType == TextLineData::TextLine)
+                            if (rowData.line[LeftSide].textLineType == TextLineData::TextLine)
                                 leftFormats[blockNumber].append(DiffSelection(&m_controller.m_leftLineFormat));
                             else
                                 leftFormats[blockNumber].append(DiffSelection(&m_spanLineFormat));
-                            if (rowData.rightLine.textLineType == TextLineData::TextLine)
+                            if (rowData.line[RightSide].textLineType == TextLineData::TextLine)
                                 rightFormats[blockNumber].append(DiffSelection(&m_controller.m_rightLineFormat));
                             else
                                 rightFormats[blockNumber].append(DiffSelection(&m_spanLineFormat));
@@ -1064,9 +1064,9 @@ void SideBySideDiffEditorWidget::slotLeftJumpToOriginalFileRequested(
 
             for (int j = 0; j < chunkData.rows.count(); j++) {
                 const RowData rowData = chunkData.rows.at(j);
-                if (rowData.leftLine.textLineType == TextLineData::TextLine)
+                if (rowData.line[LeftSide].textLineType == TextLineData::TextLine)
                     leftLineNumber++;
-                if (rowData.rightLine.textLineType == TextLineData::TextLine)
+                if (rowData.line[RightSide].textLineType == TextLineData::TextLine)
                     rightLineNumber++;
                 if (leftLineNumber == lineNumber) {
                     int colNr = rowData.equal ? columnNumber : 0;

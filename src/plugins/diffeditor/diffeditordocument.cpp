@@ -58,8 +58,8 @@ DiffEditorController *DiffEditorDocument::controller() const
 
 static void appendRow(ChunkData *chunk, const RowData &row)
 {
-    const bool isSeparator = row.leftLine.textLineType == TextLineData::Separator
-            && row.rightLine.textLineType == TextLineData::Separator;
+    const bool isSeparator = row.line[LeftSide].textLineType == TextLineData::Separator
+            && row.line[RightSide].textLineType == TextLineData::Separator;
     if (!isSeparator)
         chunk->rows.append(row);
 }
@@ -83,30 +83,30 @@ ChunkData DiffEditorDocument::filterChunk(const ChunkData &data,
             } else if (isLeftSelected) {
                 RowData newRow = row;
 
-                row.rightLine = TextLineData(TextLineData::Separator);
+                row.line[RightSide] = TextLineData(TextLineData::Separator);
                 appendRow(&chunk, row);
 
                 if (revert) {
-                    newRow.leftLine = newRow.rightLine;
+                    newRow.line[LeftSide] = newRow.line[RightSide];
                     newRow.equal = true;
                     appendRow(&chunk, newRow);
                 }
             } else { // isRightSelected
                 if (!revert) {
                     RowData newRow = row;
-                    newRow.rightLine = newRow.leftLine;
+                    newRow.line[RightSide] = newRow.line[LeftSide];
                     newRow.equal = true;
                     appendRow(&chunk, newRow);
                 }
 
-                row.leftLine = TextLineData(TextLineData::Separator);
+                row.line[LeftSide] = TextLineData(TextLineData::Separator);
                 appendRow(&chunk, row);
             }
         } else {
             if (revert)
-                row.leftLine = row.rightLine;
+                row.line[LeftSide] = row.line[RightSide];
             else
-                row.rightLine = row.leftLine;
+                row.line[RightSide] = row.line[LeftSide];
             row.equal = true;
             appendRow(&chunk, row);
         }

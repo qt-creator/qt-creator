@@ -64,11 +64,10 @@ class DIFFEDITOR_EXPORT RowData {
 public:
     RowData() = default;
     RowData(const TextLineData &l)
-        : leftLine(l), rightLine(l), equal(true) {}
+        : line({l, l}), equal(true) {}
     RowData(const TextLineData &l, const TextLineData &r)
-        : leftLine(l), rightLine(r) {}
-    TextLineData leftLine;
-    TextLineData rightLine;
+        : line({l, r}) {}
+    std::array<TextLineData, SideCount> line{};
     bool equal = false;
 };
 

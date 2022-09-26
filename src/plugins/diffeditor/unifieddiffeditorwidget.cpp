@@ -419,7 +419,7 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
             }
             if (i < chunkData.rows.count()) {
                 const QString line = DiffUtils::makePatchLine(' ',
-                                          rowData.rightLine.text,
+                                          rowData.line[RightSide].text,
                                           lastChunk,
                                           i == chunkData.rows.count() - 1);
 
@@ -438,12 +438,12 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
                 charCount += line.count();
             }
         } else {
-            if (rowData.leftLine.textLineType == TextLineData::TextLine) {
-                leftBuffer.append(rowData.leftLine);
+            if (rowData.line[LeftSide].textLineType == TextLineData::TextLine) {
+                leftBuffer.append(rowData.line[LeftSide]);
                 leftRowsBuffer.append(i);
             }
-            if (rowData.rightLine.textLineType == TextLineData::TextLine) {
-                rightBuffer.append(rowData.rightLine);
+            if (rowData.line[RightSide].textLineType == TextLineData::TextLine) {
+                rightBuffer.append(rowData.line[RightSide]);
                 rightRowsBuffer.append(i);
             }
         }
@@ -692,9 +692,9 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
                 int newRightLineNumber = chunkData.startingLineNumber[RightSide];
 
                 for (const RowData &rowData : chunkData.rows) {
-                    if (rowData.leftLine.textLineType == TextLineData::TextLine)
+                    if (rowData.line[LeftSide].textLineType == TextLineData::TextLine)
                         newLeftLineNumber++;
-                    if (rowData.rightLine.textLineType == TextLineData::TextLine)
+                    if (rowData.line[RightSide].textLineType == TextLineData::TextLine)
                         newRightLineNumber++;
                     if (newLeftLineNumber == leftLineNumber) {
                         m_controller.jumpToOriginalFile(leftFileName, newRightLineNumber, 0);

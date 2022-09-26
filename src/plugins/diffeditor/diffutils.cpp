@@ -294,9 +294,9 @@ FileData DiffUtils::calculateContextData(const ChunkData &originalData, int cont
                 break;
             RowData rowData = originalData.rows.at(i);
             chunkData.rows.append(rowData);
-            if (rowData.leftLine.textLineType == TextLineData::TextLine)
+            if (rowData.line[LeftSide].textLineType == TextLineData::TextLine)
                 ++leftLineNumber;
-            if (rowData.rightLine.textLineType == TextLineData::TextLine)
+            if (rowData.line[RightSide].textLineType == TextLineData::TextLine)
                 ++rightLineNumber;
             ++i;
         }
@@ -351,15 +351,15 @@ QString DiffUtils::makePatch(const ChunkData &chunkData,
         int i = 0;
         for (i = rowCount; i > 0; i--) {
             const RowData &rowData = chunkData.rows.at(i - 1);
-            if (rowData.leftLine.textLineType != TextLineData::Separator
-                    || rowData.rightLine.textLineType != TextLineData::TextLine)
+            if (rowData.line[LeftSide].textLineType != TextLineData::Separator
+                    || rowData.line[RightSide].textLineType != TextLineData::TextLine)
                 break;
         }
         const int leftSeparator = i;
         for (i = rowCount; i > 0; i--) {
             const RowData &rowData = chunkData.rows.at(i - 1);
-            if (rowData.rightLine.textLineType != TextLineData::Separator
-                    || rowData.leftLine.textLineType != TextLineData::TextLine)
+            if (rowData.line[RightSide].textLineType != TextLineData::Separator
+                    || rowData.line[LeftSide].textLineType != TextLineData::TextLine)
                 break;
         }
         const int rightSeparator = i;
@@ -409,7 +409,7 @@ QString DiffUtils::makePatch(const ChunkData &chunkData,
             }
             if (i < chunkData.rows.size()) {
                 const QString line = makePatchLine(' ',
-                                                   rowData.rightLine.text,
+                                                   rowData.line[RightSide].text,
                                                    lastChunk,
                                                    i == chunkData.rows.size() - 1);
 
@@ -421,10 +421,10 @@ QString DiffUtils::makePatch(const ChunkData &chunkData,
                 diffText += line;
             }
         } else {
-            if (rowData.leftLine.textLineType == TextLineData::TextLine)
-                leftBuffer.append(rowData.leftLine);
-            if (rowData.rightLine.textLineType == TextLineData::TextLine)
-                rightBuffer.append(rowData.rightLine);
+            if (rowData.line[LeftSide].textLineType == TextLineData::TextLine)
+                leftBuffer.append(rowData.line[LeftSide]);
+            if (rowData.line[RightSide].textLineType == TextLineData::TextLine)
+                rightBuffer.append(rowData.line[RightSide]);
         }
     }
 
