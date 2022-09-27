@@ -25,7 +25,8 @@ constexpr auto ghs_rh850_d1m1a_baremetal_json = R"(
                     "unix": "%{Env:HOME}"
                 },
                 "envVar": "RenesasFlashProgrammer_PATH",
-                "optional": true
+                "optional": true,
+                "addToSystemPath": true
             }
         ]
     },

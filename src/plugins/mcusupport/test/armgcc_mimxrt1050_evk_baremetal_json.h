@@ -27,7 +27,8 @@ constexpr auto armgcc_mimxrt1050_evk_baremetal_json = R"(
                 "versionDetection": {
                     "filePattern": "ide/binaries/crt_emu_cm_redlink"
                 },
-                "optional": false
+                "optional": false,
+                "addToSystemPath": true
             }
         ]
     },

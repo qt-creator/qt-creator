@@ -1454,4 +1454,21 @@ void McuSupportTest::test_defaultValueForEachOperationSystem()
     else
         QCOMPARE(QString("/usr/local/mcuxpressoide"), default_path_entry);
 };
+void McuSupportTest::test_addToSystemPathFlag()
+{
+    const auto targetDescription = parseDescriptionJson(armgcc_stm32f769i_discovery_freertos_json);
+
+    const auto programmerPackage = targetDescription.platform.entries[0];
+    const auto compilerPackage = targetDescription.toolchain.compiler;
+    const auto toolchainFilePackage = targetDescription.toolchain.file;
+    const auto boardSdkPackage = targetDescription.boardSdk;
+    const auto freeRtosPackage = targetDescription.freeRTOS.package;
+
+    QCOMPARE(programmerPackage.shouldAddToSystemPath, true);
+    QCOMPARE(compilerPackage.shouldAddToSystemPath, false);
+    QCOMPARE(toolchainFilePackage.shouldAddToSystemPath, false);
+    QCOMPARE(boardSdkPackage.shouldAddToSystemPath, false);
+    QCOMPARE(freeRtosPackage.shouldAddToSystemPath, false);
+}
+
 } // namespace McuSupport::Internal::Test

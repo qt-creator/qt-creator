@@ -24,7 +24,8 @@ constexpr auto armgcc_ek_ra6m3g_baremetal_json = R"(
                     "windows": "%{Env:PROGRAMSANDFILES}/SEGGER/JLink",
                     "unix": "/opt/SEGGER/JLink"
                 },
-                "optional": true
+                "optional": true,
+                "addToSystemPath": true
             }
         ]
     },

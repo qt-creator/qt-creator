@@ -23,7 +23,8 @@ constexpr auto iar_stm32f769i_discovery_freertos_json = R"(
                     "windows": "%{Env:PROGRAMSANDFILES}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
                     "unix": "%{Env:HOME}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/"
                 },
-                "optional": false
+                "optional": false,
+                "addToSystemPath": true
             }
         ]
     },
