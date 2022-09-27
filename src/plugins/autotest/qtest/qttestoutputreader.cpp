@@ -10,8 +10,6 @@
 #include <qtsupport/qtoutputformatter.h>
 #include <utils/qtcassert.h>
 
-#include <QDir>
-#include <QFileInfo>
 #include <QRegularExpression>
 
 #include <cctype>
