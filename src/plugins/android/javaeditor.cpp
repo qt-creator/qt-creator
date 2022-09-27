@@ -5,21 +5,18 @@
 #include "javaindenter.h"
 #include "androidconstants.h"
 
-#include <texteditor/codeassist/keywordscompletionassist.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
+
+#include <texteditor/codeassist/keywordscompletionassist.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditor.h>
 
-#include <extensionsystem/pluginmanager.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/uncommentselection.h>
 
-#include <QFileInfo>
-
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 static TextEditor::TextDocument *createJavaDocument()
 {
@@ -55,5 +52,4 @@ JavaEditorFactory::JavaEditorFactory()
     setCompletionAssistProvider(new TextEditor::KeywordsCompletionAssistProvider(keywords));
 }
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

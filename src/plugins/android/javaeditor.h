@@ -5,8 +5,7 @@
 
 #include <texteditor/texteditor.h>
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class JavaEditorFactory : public TextEditor::TextEditorFactory
 {
@@ -14,5 +13,4 @@ public:
     JavaEditorFactory();
 };
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal
