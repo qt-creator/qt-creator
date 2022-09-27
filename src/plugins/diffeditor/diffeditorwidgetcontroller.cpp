@@ -219,13 +219,13 @@ void DiffEditorWidgetController::jumpToOriginalFile(const QString &fileName,
 
 void DiffEditorWidgetController::setFontSettings(const FontSettings &fontSettings)
 {
-    m_fileLineFormat  = fontSettings.toTextCharFormat(C_DIFF_FILE_LINE);
-    m_chunkLineFormat = fontSettings.toTextCharFormat(C_DIFF_CONTEXT_LINE);
-    m_spanLineFormat  = fontSettings.toTextCharFormat(C_LINE_NUMBER);
-    m_leftLineFormat  = fontSettings.toTextCharFormat(C_DIFF_SOURCE_LINE);
-    m_leftCharFormat  = fontSettings.toTextCharFormat(C_DIFF_SOURCE_CHAR);
-    m_rightLineFormat = fontSettings.toTextCharFormat(C_DIFF_DEST_LINE);
-    m_rightCharFormat = fontSettings.toTextCharFormat(C_DIFF_DEST_CHAR);
+    m_fileLineFormat        = fontSettings.toTextCharFormat(C_DIFF_FILE_LINE);
+    m_chunkLineFormat       = fontSettings.toTextCharFormat(C_DIFF_CONTEXT_LINE);
+    m_spanLineFormat        = fontSettings.toTextCharFormat(C_LINE_NUMBER);
+    m_lineFormat[LeftSide]  = fontSettings.toTextCharFormat(C_DIFF_SOURCE_LINE);
+    m_charFormat[LeftSide]  = fontSettings.toTextCharFormat(C_DIFF_SOURCE_CHAR);
+    m_lineFormat[RightSide] = fontSettings.toTextCharFormat(C_DIFF_DEST_LINE);
+    m_charFormat[RightSide] = fontSettings.toTextCharFormat(C_DIFF_DEST_CHAR);
 }
 
 void DiffEditorWidgetController::addCodePasterAction(QMenu *menu, int fileIndex, int chunkIndex)
@@ -336,10 +336,8 @@ DiffEditorInput::DiffEditorInput(DiffEditorWidgetController *controller)
     , m_fileLineFormat(&controller->m_fileLineFormat)
     , m_chunkLineFormat(&controller->m_chunkLineFormat)
     , m_spanLineFormat(&controller->m_spanLineFormat)
-    , m_leftLineFormat(&controller->m_leftLineFormat)
-    , m_rightLineFormat(&controller->m_rightLineFormat)
-    , m_leftCharFormat(&controller->m_leftCharFormat)
-    , m_rightCharFormat(&controller->m_rightCharFormat)
+    , m_lineFormat{&controller->m_lineFormat[LeftSide], &controller->m_lineFormat[RightSide]}
+    , m_charFormat{&controller->m_charFormat[LeftSide], &controller->m_charFormat[RightSide]}
 { }
 
 

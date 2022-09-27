@@ -52,10 +52,8 @@ public:
     QTextCharFormat m_fileLineFormat;
     QTextCharFormat m_chunkLineFormat;
     QTextCharFormat m_spanLineFormat;
-    QTextCharFormat m_leftLineFormat;
-    QTextCharFormat m_rightLineFormat;
-    QTextCharFormat m_leftCharFormat;
-    QTextCharFormat m_rightCharFormat;
+    std::array<QTextCharFormat, SideCount> m_lineFormat{};
+    std::array<QTextCharFormat, SideCount> m_charFormat{};
 
 private:
     bool isInProgress() const;
@@ -88,10 +86,8 @@ public:
     QTextCharFormat *m_fileLineFormat = nullptr;
     QTextCharFormat *m_chunkLineFormat = nullptr;
     QTextCharFormat *m_spanLineFormat = nullptr;
-    QTextCharFormat *m_leftLineFormat = nullptr;
-    QTextCharFormat *m_rightLineFormat = nullptr;
-    QTextCharFormat *m_leftCharFormat = nullptr;
-    QTextCharFormat *m_rightCharFormat = nullptr;
+    std::array<QTextCharFormat *, SideCount> m_lineFormat{};
+    std::array<QTextCharFormat *, SideCount> m_charFormat{};
 };
 
 } // namespace Internal

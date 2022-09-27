@@ -346,14 +346,14 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
                     const int blockDelta = line.count('\n'); // no new line
                                                      // could have been added
                     for (int k = 0; k < blockDelta; k++)
-                        (*selections)[*blockNumber + blockCount + 1 + k].append({input.m_leftLineFormat});
+                        (*selections)[*blockNumber + blockCount + 1 + k].append({input.m_lineFormat[LeftSide]});
 
                     for (auto it = lineData.changedPositions.cbegin(),
                               end = lineData.changedPositions.cend(); it != end; ++it) {
                         const int startPos = it.key() < 0 ? 1 : it.key() + 1;
                         const int endPos = it.value() < 0 ? it.value() : it.value() + 1;
                         (*selections)[*blockNumber + blockCount + 1].append(
-                                    {input.m_leftCharFormat, startPos, endPos});
+                                    {input.m_charFormat[LeftSide], startPos, endPos});
                     }
 
                     if (!line.isEmpty()) {
@@ -385,14 +385,14 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
                                                      // could have been added
 
                     for (int k = 0; k < blockDelta; k++)
-                        (*selections)[*blockNumber + blockCount + 1 + k].append({input.m_rightLineFormat});
+                        (*selections)[*blockNumber + blockCount + 1 + k].append({input.m_lineFormat[RightSide]});
 
                     for (auto it = lineData.changedPositions.cbegin(),
                               end = lineData.changedPositions.cend(); it != end; ++it) {
                         const int startPos = it.key() < 0 ? 1 : it.key() + 1;
                         const int endPos = it.value() < 0 ? it.value() : it.value() + 1;
                         (*selections)[*blockNumber + blockCount + 1].append(
-                                    {input.m_rightCharFormat, startPos, endPos});
+                                    {input.m_charFormat[RightSide], startPos, endPos});
                     }
 
                     if (!line.isEmpty()) {

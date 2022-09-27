@@ -338,11 +338,11 @@ SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterface<void> &fi, int pr
 
                         if (!rowData.equal) {
                             if (rowData.line[LeftSide].textLineType == TextLineData::TextLine)
-                                leftFormats[blockNumber].append({input.m_leftLineFormat});
+                                leftFormats[blockNumber].append({input.m_lineFormat[LeftSide]});
                             else
                                 leftFormats[blockNumber].append({input.m_spanLineFormat});
                             if (rowData.line[RightSide].textLineType == TextLineData::TextLine)
-                                rightFormats[blockNumber].append({input.m_rightLineFormat});
+                                rightFormats[blockNumber].append({input.m_lineFormat[RightSide]});
                             else
                                 rightFormats[blockNumber].append({input.m_spanLineFormat});
                         }
@@ -350,13 +350,13 @@ SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterface<void> &fi, int pr
                         for (auto it = leftLineData.changedPositions.cbegin(),
                                   end = leftLineData.changedPositions.cend(); it != end; ++it) {
                             leftFormats[blockNumber].append(
-                                        {input.m_leftCharFormat, it.key(), it.value()});
+                                        {input.m_charFormat[LeftSide], it.key(), it.value()});
                         }
 
                         for (auto it = rightLineData.changedPositions.cbegin(),
                                   end = rightLineData.changedPositions.cend(); it != end; ++it) {
                             rightFormats[blockNumber].append(
-                                        {input.m_rightCharFormat, it.key(), it.value()});
+                                        {input.m_charFormat[RightSide], it.key(), it.value()});
                         }
 
                         leftText += separator;
