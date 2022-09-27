@@ -588,6 +588,7 @@ public:
     void slotUpdateRequest(const QRect &r, int dy);
     void slotUpdateBlockNotify(const QTextBlock &);
     void updateTabStops();
+    void applyTabSettings();
     void applyFontSettingsDelayed();
     void markRemoved(TextMark *mark);
 
@@ -3484,10 +3485,8 @@ void TextEditorWidgetPrivate::setupDocumentSignals()
     QObject::connect(m_document.data(), &TextDocument::reloadFinished,
                      this, &TextEditorWidgetPrivate::documentReloadFinished);
 
-    QObject::connect(m_document.data(), &TextDocument::tabSettingsChanged, this, [this] {
-        updateTabStops();
-        m_autoCompleter->setTabSettings(m_document->tabSettings());
-    });
+    QObject::connect(m_document.data(), &TextDocument::tabSettingsChanged,
+                     this, &TextEditorWidgetPrivate::applyTabSettings);
 
     QObject::connect(m_document.data(), &TextDocument::fontSettingsChanged,
                      this, &TextEditorWidgetPrivate::applyFontSettingsDelayed);
@@ -3518,8 +3517,18 @@ void TextEditorWidgetPrivate::setupDocumentSignals()
             q, &TextEditorWidget::setExtraEncodingSettings);
 
     // Apply current settings
-    m_document->setFontSettings(TextEditorSettings::fontSettings());
-    m_document->setTabSettings(TextEditorSettings::codeStyle()->tabSettings()); // also set through code style ???
+    // the document might already have the same settings as we set here in which case we do not
+    // get an update, so we have to trigger updates manually here
+    const FontSettings fontSettings = TextEditorSettings::fontSettings();
+    if (m_document->fontSettings() == fontSettings)
+        applyFontSettingsDelayed();
+    else
+        m_document->setFontSettings(fontSettings);
+    const TabSettings tabSettings = TextEditorSettings::codeStyle()->tabSettings();
+    if (m_document->tabSettings() == tabSettings)
+        applyTabSettings();
+    else
+        m_document->setTabSettings(tabSettings); // also set through code style ???
     q->setTypingSettings(TextEditorSettings::typingSettings());
     q->setStorageSettings(TextEditorSettings::storageSettings());
     q->setBehaviorSettings(TextEditorSettings::behaviorSettings());
@@ -4520,7 +4529,6 @@ void TextEditorWidgetPrivate::paintCursor(const PaintEventData &data, QPainter &
 void TextEditorWidgetPrivate::setupBlockLayout(const PaintEventData &data,
                                                QPainter &painter,
                                                PaintEventBlockData &blockData) const
-
 {
     blockData.layout = data.block.layout();
 
@@ -7378,6 +7386,11 @@ void TextEditorWidget::applyFontSettings()
     if (font != this->font()) {
         setFont(font);
         d->updateTabStops(); // update tab stops, they depend on the font
+    } else if (font != document()->defaultFont()) {
+        // When the editor already have the correct font configured it wont generate a font change
+        // signal. In turn the default font of the document wont get updated so we need to do that
+        // manually here
+        document()->setDefaultFont(font);
     }
 
     // Line numbers
@@ -8278,6 +8291,12 @@ void TextEditorWidgetPrivate::updateTabStops()
     QTextOption option = q->document()->defaultTextOption();
     option.setTabStopDistance(charWidth * m_document->tabSettings().m_tabSize);
     q->document()->setDefaultTextOption(option);
+}
+
+void TextEditorWidgetPrivate::applyTabSettings()
+{
+    updateTabStops();
+    m_autoCompleter->setTabSettings(m_document->tabSettings());
 }
 
 int TextEditorWidget::columnCount() const
