@@ -30,7 +30,7 @@
 
     \title Managing Workspaces
 
-    In the \uicontrol Design mode, you can arrange a set of \QC
+    In the \uicontrol Design mode, you can arrange a set of \QDS
     views as a \e workspace on the screen.
 
     To detach views:
@@ -56,10 +56,10 @@
 
     \section1 Saving Workspaces
 
-    The changes you make to a workspace are saved when you exit \QC.
+    The changes you make to a workspace are saved when you exit \QDS.
     Select \uicontrol View > \uicontrol Workspaces >
     \uicontrol Manage > \uicontrol {Restore last workspace on startup}
-    to restore the current workspace the next time you start \QC.
+    to restore the current workspace the next time you start \QDS.
 
     \image qtcreator-workspace-manager.png "Workspace Manager"
 

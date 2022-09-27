@@ -68,7 +68,7 @@
 
     \section2 Timeline and Keyframe Based Animation
 
-    Timeline animation is based on \e keyframes. In \QC, keyframes determine the
+    Timeline animation is based on \e keyframes. In \QDS, keyframes determine the
     value of the property of a \l{glossary_component}{component} at a certain
     time. Animating properties enables their values to move through intermediate
     values instead of immediately changing to the target value.

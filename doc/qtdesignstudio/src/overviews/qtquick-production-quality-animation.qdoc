@@ -70,7 +70,7 @@
     \section1 Profiling UI Code
 
     You can use \l{Profiling QML Applications}{QML Profiler} that is integrated
-    into \QC to find causes for typical performance problems in your UI. For
+    into \QDS to find causes for typical performance problems in your UI. For
     example, your UI might be slow, unresponsive, or stuttering. Typically, such
     problems are caused by executing too much JavaScript in too few frames. All
     JavaScript must return before the GUI thread can proceed, and frames are

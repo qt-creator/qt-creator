@@ -34,7 +34,7 @@
 
     \title Creating Optimized 3D Scenes
 
-    In \QC, you can use various means to create a 3D scene. Your choice of
+    In \QDS, you can use various means to create a 3D scene. Your choice of
     strategy should always depend on the target platform of your scene.
     The way the content of your scene is authored can have dramatic effects on
     the runtime performance of your UI. The Optimal 3D Scene described
@@ -110,7 +110,7 @@
     The scene graph is the hierarchy of nodes that describe the scene to be
     rendered.
 
-    In \QC, the scene graph is represented by the tree-like view in
+    In \QDS, the scene graph is represented by the tree-like view in
     \uicontrol Navigator. You can also view the hierarchy of nodes in the
     \l {Code} view. By minimizing the size of the scene graph,
     you can minimize the effort needed when running the scene. In terms of

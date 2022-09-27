@@ -49,7 +49,7 @@
     working Qt 6 application that you can build and run in Qt Creator using
     CMake. Therefore, you can open, build, and run the projects with Qt Creator.
 
-    \QDS continues to use the \e .qmlproject file format, while \QC uses a
+    \QDS continues to use the \e .qmlproject file format, while Qt Creator uses a
     \e CMakeLists.txt file as the project file. This enables you to share
     your project as a fully working C++ application with developers.
 
@@ -68,9 +68,10 @@
 
     \section1 Converting Project Structure for CMake
 
-    \QDS can generate \e CMakeLists.txt and other related files to use with \QC and to compile into
-    an executable application but only if the project has a certain folder structure. If you have a
-    \QDS QML project that doesn't have the CMake configuration, follow these steps to convert it's
+    \QDS can generate \e CMakeLists.txt and other related files to use with
+    Qt Creator and to compile into an executable application but only if the
+    project has a certain folder structure. If you have a \QDS QML project that
+    doesn't have the CMake configuration, follow these steps to convert it's
     file structure to correct format.
 
     \list 1

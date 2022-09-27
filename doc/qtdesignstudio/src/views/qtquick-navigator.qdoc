@@ -129,7 +129,7 @@
     \section1 Locking Components
 
     When designing complex applications, it is easy to accidentally modify
-    the properties of a component in one of the \QC views in ways that lead to
+    the properties of a component in one of the \QDS views in ways that lead to
     surprising results. For example, the \uicontrol {2D} view can become
     crowded and other components can get in the way when you are trying to
     select or transform a particular component, so that you end up transforming
@@ -137,7 +137,7 @@
 
     To lock components that you are not currently editing and their children,
     click \inlineimage icons/lockon.png
-    in \uicontrol Navigator. Locked components cannot be handled in any \QC
+    in \uicontrol Navigator. Locked components cannot be handled in any \QDS
     views. You can unlock the components when you want to edit them again.
 
     \image qtquick-designer-navigator-lock.gif "Locking components in Navigator"
