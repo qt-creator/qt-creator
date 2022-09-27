@@ -25,9 +25,9 @@
 
 import QtQuick
 import QtQuick.Controls
-import StudioTheme 1.0 as StudioTheme
+import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
-import QtQuick.Layouts 6.0
+import StudioTheme 1.0 as StudioTheme
 
 Item {
     id: root
@@ -55,6 +55,10 @@ Item {
 
     property bool hasWhenCondition: false
 
+    property bool scrollViewActive: false
+
+    property Item dragParent
+
     property int visualIndex: 0
 
     property int internalNodeId
@@ -65,7 +69,6 @@ Item {
     signal extend
     signal remove
     signal stateNameFinished
-    signal whenConditionFinished
 
     signal grabbing
     signal letGo
@@ -88,7 +91,7 @@ Item {
 
     DragHandler {
         id: dragHandler
-        enabled: !root.baseState && !root.extendedState
+        enabled: !root.baseState && !root.extendedState && !root.scrollViewActive
         onGrabChanged: function (transition, point) {
             if (transition === PointerDevice.GrabPassive
                     || transition === PointerDevice.GrabExclusive)
@@ -148,13 +151,14 @@ Item {
                 rows: 1
                 spacing: stateBackground.thumbSpacing
 
-                StudioControls.AbstractButton {
+                HelperWidgets.AbstractButton {
                     id: defaultButton
                     width: 50
                     height: stateBackground.controlHeight
                     checkedInverted: true
                     buttonIcon: qsTr("Default")
                     iconFont: StudioTheme.Constants.font
+                    tooltip: qsTr("Set State as default")
                     onClicked: {
                         root.defaultClicked()
                         root.focusSignal()
@@ -607,8 +611,16 @@ Item {
                     running: false
                     interval: 50
                     repeat: false
-                    onTriggered: statesEditorModel.setWhenCondition(root.internalNodeId,
-                                                                    bindingEditor.newWhenCondition)
+                    onTriggered: {
+                        if (whenCondition.previousCondition === bindingEditor.newWhenCondition)
+                            return
+
+                        if ( bindingEditor.newWhenCondition !== "")
+                            statesEditorModel.setWhenCondition(root.internalNodeId,
+                                                               bindingEditor.newWhenCondition)
+                        else
+                            statesEditorModel.resetWhenCondition(root.internalNodeId)
+                    }
                 }
 
                 stateModelNodeProperty: statesEditorModel.stateModelNode(root.internalNodeId)
@@ -634,6 +646,8 @@ Item {
                 indicatorVisible: true
                 indicator.icon.text: StudioTheme.Constants.edit
                 indicator.onClicked: {
+                    whenCondition.previousCondition = whenCondition.text
+
                     bindingEditor.showWidget()
                     bindingEditor.text = whenCondition.text
                     bindingEditor.prepareBindings()
@@ -650,13 +664,18 @@ Item {
                 }
 
                 onEditingFinished: {
-                    if (whenCondition.previousCondition === whenCondition.text)
+                    // The check for contenxtMenuAboutToShow is necessary in order to make a the
+                    // popup stay open if the when condition was changed. Otherwise editingFinished
+                    // will be called and the model will be reset. The popup will trigger a focus
+                    // change and editingFinished is triggered.
+                    if (whenCondition.previousCondition === whenCondition.text
+                        || whenCondition.contextMenuAboutToShow)
                         return
 
                     whenCondition.previousCondition = whenCondition.text
 
                     if (whenCondition.text !== "")
-                        root.whenConditionFinished()
+                        statesEditorModel.setWhenCondition(root.internalNodeId, root.whenCondition)
                     else
                         statesEditorModel.resetWhenCondition(root.internalNodeId)
 
@@ -749,6 +768,11 @@ Item {
         State {
             name: "drag"
             when: dragHandler.active
+
+            ParentChange {
+                target: root
+                parent: root.dragParent
+            }
 
             AnchorChanges {
                 target: root

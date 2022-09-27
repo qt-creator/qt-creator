@@ -527,9 +527,17 @@ void DebugView::instancesToken(const QString &/*tokenName*/, int /*tokenNumber*/
 
 }
 
-void DebugView::currentStateChanged(const ModelNode &/*node*/)
+void DebugView::currentStateChanged(const ModelNode &node)
 {
+    if (isDebugViewEnabled()) {
+        QTextStream message;
+        QString string;
+        message.setString(&string);
 
+        message << node;
+
+        log("::currentStateChanged:", string);
+    }
 }
 
 void DebugView::nodeOrderChanged([[maybe_unused]] const NodeListProperty &listProperty)

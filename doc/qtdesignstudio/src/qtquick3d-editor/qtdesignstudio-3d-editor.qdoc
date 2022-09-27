@@ -48,6 +48,16 @@
     Additionally, you can toggle the visibility of the grid, selection boxes,
     icon gizmos, and camera frustums in the 3D scene.
 
+    There is a context menu in the \uicontrol 3D view. To open it, right-click
+    in the \uicontrol 3D view. From the context menu you can:
+    \list
+      \li Create cameras, lights, and models.
+      \li Open \uicontrol {Material Editor} and edit materials.
+      \li Delete components
+    \endlist
+
+    \image 3d-view-context-menu.png
+
     To refresh the contents of the \uicontrol{3D} view, press \key P or
     select the \inlineimage icons/reset.png
     (\uicontrol {Reset View}) button.

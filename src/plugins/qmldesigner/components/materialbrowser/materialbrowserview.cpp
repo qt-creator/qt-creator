@@ -93,6 +93,8 @@ WidgetInfo MaterialBrowserView::widgetInfo()
                         mat.setVariantProperty(prop.name(), prop.toVariantProperty().value());
                     else if (prop.isBindingProperty())
                         mat.setBindingProperty(prop.name(), prop.toBindingProperty().expression());
+                    else if (!all)
+                        mat.removeProperty(prop.name());
                 }
             });
         });
@@ -105,70 +107,23 @@ WidgetInfo MaterialBrowserView::widgetInfo()
         MaterialBrowserBundleModel *matBrowserBundleModel = m_widget->materialBrowserBundleModel().data();
 
         connect(matBrowserBundleModel, &MaterialBrowserBundleModel::applyToSelectedTriggered, this,
-                [&] (BundleMaterial *material, bool add) {
+                [&] (BundleMaterial *bundleMat, bool add) {
             if (!m_selectedModel.isValid())
                 return;
 
             m_bundleMaterialDropTarget = m_selectedModel;
             m_bundleMaterialAddToSelected = add;
-            m_widget->materialBrowserBundleModel()->addMaterial(material);
+
+            ModelNode defaultMat = getBundleMaterialDefaultInstance(bundleMat->type());
+            if (defaultMat.isValid())
+                applyBundleMaterialToDropTarget(defaultMat);
+            else
+                m_widget->materialBrowserBundleModel()->addMaterial(bundleMat);
         });
 
         connect(matBrowserBundleModel, &MaterialBrowserBundleModel::addBundleMaterialToProjectRequested, this,
                 [&] (const QmlDesigner::NodeMetaInfo &metaInfo) {
-            ModelNode matLib = materialLibraryNode();
-            if (!matLib.isValid())
-                return;
-
-            executeInTransaction("MaterialBrowserView::widgetInfo", [&] {
-                ModelNode newMatNode = createModelNode(metaInfo.typeName(), metaInfo.majorVersion(),
-                                                                            metaInfo.minorVersion());
-                matLib.defaultNodeListProperty().reparentHere(newMatNode);
-
-                static QRegularExpression rgx("([A-Z])([a-z]*)");
-                QString newName = QString::fromLatin1(metaInfo.simplifiedTypeName()).replace(rgx, " \\1\\2").trimmed();
-                QString newId = model()->generateIdFromName(newName, "material");
-                newMatNode.setIdWithRefactoring(newId);
-
-                VariantProperty objNameProp = newMatNode.variantProperty("objectName");
-                objNameProp.setValue(newName);
-
-                if (m_bundleMaterialDropTarget.isValid()) {
-                    QmlObjectNode qmlObjNode(m_bundleMaterialDropTarget);
-                    if (m_bundleMaterialAddToSelected) {
-                        // TODO: unify this logic as it exist elsewhere also
-                        auto expToList = [](const QString &exp) {
-                            QString copy = exp;
-                            copy = copy.remove("[").remove("]");
-
-                            QStringList tmp = copy.split(',', Qt::SkipEmptyParts);
-                            for (QString &str : tmp)
-                                str = str.trimmed();
-
-                            return tmp;
-                        };
-
-                        auto listToExp = [](QStringList &stringList) {
-                            if (stringList.size() > 1)
-                                return QString("[" + stringList.join(",") + "]");
-
-                            if (stringList.size() == 1)
-                                return stringList.first();
-
-                            return QString();
-                        };
-                        QStringList matList = expToList(qmlObjNode.expression("materials"));
-                        matList.append(newMatNode.id());
-                        QString updatedExp = listToExp(matList);
-                        qmlObjNode.setBindingProperty("materials", updatedExp);
-                    } else {
-                        qmlObjNode.setBindingProperty("materials", newMatNode.id());
-                    }
-                    m_bundleMaterialDropTarget = {};
-                }
-
-                m_bundleMaterialAddToSelected = false;
-            });
+            applyBundleMaterialToDropTarget({}, metaInfo);
         });
     }
 
@@ -177,6 +132,74 @@ WidgetInfo MaterialBrowserView::widgetInfo()
                             WidgetInfo::LeftPane,
                             0,
                             tr("Material Browser"));
+}
+
+void MaterialBrowserView::applyBundleMaterialToDropTarget(const ModelNode &bundleMat,
+                                                          const NodeMetaInfo &metaInfo)
+{
+    if (!bundleMat.isValid() && !metaInfo.isValid())
+        return;
+
+    ModelNode matLib = materialLibraryNode();
+    if (!matLib.isValid())
+        return;
+
+    executeInTransaction("MaterialBrowserView::applyBundleMaterialToDropTarget", [&] {
+        ModelNode newMatNode;
+        if (metaInfo.isValid()) {
+            newMatNode = createModelNode(metaInfo.typeName(), metaInfo.majorVersion(),
+                                                              metaInfo.minorVersion());
+            matLib.defaultNodeListProperty().reparentHere(newMatNode);
+
+            static QRegularExpression rgx("([A-Z])([a-z]*)");
+            QString newName = QString::fromLatin1(metaInfo.simplifiedTypeName()).replace(rgx, " \\1\\2").trimmed();
+            if (newName.endsWith(" Material"))
+                newName.chop(9); // remove trailing " Material"
+            QString newId = model()->generateIdFromName(newName, "material");
+            newMatNode.setIdWithRefactoring(newId);
+
+            VariantProperty objNameProp = newMatNode.variantProperty("objectName");
+            objNameProp.setValue(newName);
+        } else {
+            newMatNode = bundleMat;
+        }
+
+        if (m_bundleMaterialDropTarget.isValid()) {
+            QmlObjectNode qmlObjNode(m_bundleMaterialDropTarget);
+            if (m_bundleMaterialAddToSelected) {
+                // TODO: unify this logic as it exist elsewhere also
+                auto expToList = [](const QString &exp) {
+                    QString copy = exp;
+                    copy = copy.remove("[").remove("]");
+
+                    QStringList tmp = copy.split(',', Qt::SkipEmptyParts);
+                    for (QString &str : tmp)
+                        str = str.trimmed();
+
+                    return tmp;
+                };
+
+                auto listToExp = [](QStringList &stringList) {
+                    if (stringList.size() > 1)
+                        return QString("[" + stringList.join(",") + "]");
+
+                    if (stringList.size() == 1)
+                        return stringList.first();
+
+                    return QString();
+                };
+                QStringList matList = expToList(qmlObjNode.expression("materials"));
+                matList.append(newMatNode.id());
+                QString updatedExp = listToExp(matList);
+                qmlObjNode.setBindingProperty("materials", updatedExp);
+            } else {
+                qmlObjNode.setBindingProperty("materials", newMatNode.id());
+            }
+
+            m_bundleMaterialDropTarget = {};
+            m_bundleMaterialAddToSelected = false;
+        }
+    });
 }
 
 void MaterialBrowserView::modelAttached(Model *model)
@@ -347,6 +370,28 @@ void QmlDesigner::MaterialBrowserView::loadPropertyGroups()
     m_propertyGroupsLoaded = m_widget->materialBrowserModel()->loadPropertyGroups(matPropsPath);
 }
 
+ModelNode MaterialBrowserView::getBundleMaterialDefaultInstance(const TypeName &type)
+{
+    const QList<ModelNode> materials = m_widget->materialBrowserModel()->materials();
+    for (const ModelNode &mat : materials) {
+        if (mat.type() == type) {
+            bool isDefault = true;
+            const QList<AbstractProperty> props = mat.properties();
+            for (const AbstractProperty &prop : props) {
+                if (prop.name() != "objectName") {
+                    isDefault = false;
+                    break;
+                }
+            }
+
+            if (isDefault)
+                return mat;
+        }
+    }
+
+    return {};
+}
+
 void MaterialBrowserView::importsChanged([[maybe_unused]] const QList<Import> &addedImports,
                                          [[maybe_unused]] const QList<Import> &removedImports)
 {
@@ -383,7 +428,14 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
         m_widget->materialBrowserModel()->deleteSelectedMaterial();
     } else if (identifier == "drop_bundle_material") {
         m_bundleMaterialDropTarget = nodeList.first();
-        m_widget->materialBrowserBundleModel()->addMaterial(m_draggedBundleMaterial);
+
+
+        ModelNode defaultMat = getBundleMaterialDefaultInstance(m_draggedBundleMaterial->type());
+        if (defaultMat.isValid())
+            applyBundleMaterialToDropTarget(defaultMat);
+        else
+            m_widget->materialBrowserBundleModel()->addMaterial(m_draggedBundleMaterial);
+
         m_draggedBundleMaterial = nullptr;
     }
 }

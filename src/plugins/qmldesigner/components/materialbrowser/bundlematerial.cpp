@@ -30,9 +30,10 @@ namespace QmlDesigner {
 BundleMaterial::BundleMaterial(QObject *parent,
                                const QString &name,
                                const QString &qml,
+                               const TypeName &type,
                                const QUrl &icon,
                                const QStringList &files)
-    : QObject(parent), m_name(name), m_qml(qml), m_icon(icon), m_files(files) {}
+    : QObject(parent), m_name(name), m_qml(qml), m_type(type), m_icon(icon), m_files(files) {}
 
 bool BundleMaterial::filter(const QString &searchText)
 {
@@ -52,6 +53,11 @@ QUrl BundleMaterial::icon() const
 QString BundleMaterial::qml() const
 {
     return m_qml;
+}
+
+TypeName BundleMaterial::type() const
+{
+    return m_type;
 }
 
 QStringList BundleMaterial::files() const

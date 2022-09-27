@@ -266,8 +266,7 @@ void MaterialBrowserModel::removeMaterial(const ModelNode &material)
 
 void MaterialBrowserModel::deleteSelectedMaterial()
 {
-    if (isValidIndex(m_selectedIndex))
-        m_materialList[m_selectedIndex].destroy();
+    deleteMaterial(m_selectedIndex);
 }
 
 void MaterialBrowserModel::updateSelectedMaterial()
@@ -365,7 +364,11 @@ void MaterialBrowserModel::pasteMaterialProperties(int idx)
 
 void MaterialBrowserModel::deleteMaterial(int idx)
 {
-    m_materialList[idx].destroy();
+    if (isValidIndex(idx)) {
+        ModelNode node = m_materialList[idx];
+        if (node.isValid())
+            QmlObjectNode(node).destroy();
+    }
 }
 
 void MaterialBrowserModel::renameMaterial(int idx, const QString &newName)

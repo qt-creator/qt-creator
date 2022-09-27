@@ -199,10 +199,12 @@ Item {
         Row {
             width: parent.width
 
-            SearchBox {
+            StudioControls.SearchBox {
                 id: searchBox
 
                 width: parent.width - addModuleButton.width - 5
+
+                onSearchChanged: (searchText) => rootView.handleSearchFilterChanged(searchText)
             }
 
             IconButton {

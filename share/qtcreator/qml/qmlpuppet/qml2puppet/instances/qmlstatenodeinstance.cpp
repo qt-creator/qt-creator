@@ -94,5 +94,21 @@ bool QmlStateNodeInstance::resetStateProperty(const ObjectNodeInstance::Pointer 
     return QmlPrivateGate::States::resetStateProperty(object(), target->object(), propertyName, resetValue);
 }
 
+void QmlStateNodeInstance::reparent(const ObjectNodeInstance::Pointer &oldParentInstance,
+                                    const PropertyName &oldParentProperty,
+                                    const ObjectNodeInstance::Pointer &newParentInstance,
+                                    const PropertyName &newParentProperty)
+{
+    ServerNodeInstance oldState = nodeInstanceServer()->activeStateInstance();
+
+    ObjectNodeInstance::reparent(oldParentInstance,
+                                 oldParentProperty,
+                                 newParentInstance,
+                                 newParentProperty);
+
+    if (oldState.isValid())
+        oldState.activateState();
+}
+
 } // namespace Internal
 } // namespace QmlDesigner

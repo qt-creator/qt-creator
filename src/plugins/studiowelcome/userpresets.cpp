@@ -21,7 +21,14 @@ FileStoreIo::FileStoreIo(const QString &fileName)
 
 QByteArray FileStoreIo::read() const
 {
-    m_file->open(QFile::ReadOnly | QFile::Text);
+    if (!m_file->exists())
+        return {};
+
+    if (!m_file->open(QFile::ReadOnly | QFile::Text)) {
+        qWarning() << "Cannot load User Preset(s)";
+        return {};
+    }
+
     QByteArray data = m_file->readAll();
     m_file->close();
 
@@ -30,7 +37,11 @@ QByteArray FileStoreIo::read() const
 
 void FileStoreIo::write(const QByteArray &data)
 {
-    m_file->open(QFile::WriteOnly | QFile::Text);
+    if (!m_file->open(QFile::WriteOnly | QFile::Text)) {
+        qWarning() << "Cannot save User Preset(s)";
+        return;
+    }
+
     m_file->write(data);
     m_file->close();
 }
