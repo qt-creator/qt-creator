@@ -69,7 +69,7 @@ private:
 
     // Create all wizards. As other plugins might register factories for derived
     // classes. Called when the new file dialog is shown for the first time.
-    static QList<IWizardFactory *> createWizardFactories();
+    static void createWizardFactories();
     static JsonWizardFactory *createWizardFactory(const QVariantMap &data,
                                                   const Utils::FilePath &baseDir,
                                                   QString *errorMessage);

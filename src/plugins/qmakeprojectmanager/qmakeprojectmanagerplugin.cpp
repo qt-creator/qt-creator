@@ -140,12 +140,8 @@ bool QmakeProjectManagerPlugin::initialize(const QStringList &arguments, QString
     //create and register objects
     ProjectManager::registerProjectType<QmakeProject>(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
 
-    IWizardFactory::registerFactoryCreator([] {
-        return QList<IWizardFactory *> {
-            new SubdirsProjectWizard,
-            new CustomWidgetWizard
-        };
-    });
+    IWizardFactory::registerFactoryCreator([] { return new SubdirsProjectWizard; });
+    IWizardFactory::registerFactoryCreator([] { return new CustomWidgetWizard; });
 
     //menus
     ActionContainer *mbuild =

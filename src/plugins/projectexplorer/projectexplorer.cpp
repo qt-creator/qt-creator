@@ -833,13 +833,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     IWizardFactory::registerFeatureProvider(new KitFeatureProvider);
 
-    IWizardFactory::registerFactoryCreator([]() -> QList<IWizardFactory *> {
-        QList<IWizardFactory *> result;
-        result << CustomWizard::createWizards();
-        result << JsonWizardFactory::createWizardFactories();
-        result << new SimpleProjectWizard;
-        return result;
-    });
+    IWizardFactory::registerFactoryCreator([] { return new SimpleProjectWizard; });
+    CustomWizard::createWizards();
+    JsonWizardFactory::createWizardFactories();
 
     connect(&dd->m_welcomePage, &ProjectWelcomePage::manageSessions,
             dd, &ProjectExplorerPluginPrivate::showSessionManager);

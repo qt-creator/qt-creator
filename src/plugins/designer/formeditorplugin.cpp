@@ -64,19 +64,18 @@ bool FormEditorPlugin::initialize(const QStringList &arguments, QString *error)
     d = new FormEditorPluginPrivate;
 
 #ifdef CPP_ENABLED
-    IWizardFactory::registerFactoryCreator(
-                []() -> QList<IWizardFactory *> {
-                    IWizardFactory *wizard = new FormClassWizard;
-                    wizard->setCategory(Core::Constants::WIZARD_CATEGORY_QT);
-                    wizard->setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
-                    wizard->setDisplayName(Tr::tr("Qt Designer Form Class"));
-                    wizard->setIcon({}, "ui/h");
-                    wizard->setId("C.FormClass");
-                    wizard->setDescription(Tr::tr("Creates a Qt Designer form along with a matching class (C++ header and source file) "
-                    "for implementation purposes. You can add the form and class to an existing Qt Widget Project."));
+    IWizardFactory::registerFactoryCreator([]() -> IWizardFactory * {
+        IWizardFactory *wizard = new FormClassWizard;
+        wizard->setCategory(Core::Constants::WIZARD_CATEGORY_QT);
+        wizard->setDisplayCategory(QCoreApplication::translate("Core", Core::Constants::WIZARD_TR_CATEGORY_QT));
+        wizard->setDisplayName(Tr::tr("Qt Designer Form Class"));
+        wizard->setIcon({}, "ui/h");
+        wizard->setId("C.FormClass");
+        wizard->setDescription(Tr::tr("Creates a Qt Designer form along with a matching class (C++ header and source file) "
+        "for implementation purposes. You can add the form and class to an existing Qt Widget Project."));
 
-                    return {wizard};
-                });
+        return wizard;
+    });
 #endif
 
     ProjectExplorer::JsonWizardFactory::registerPageFactory(new Internal::FormPageFactory);

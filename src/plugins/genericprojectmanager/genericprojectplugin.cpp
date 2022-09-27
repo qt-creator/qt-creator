@@ -63,7 +63,7 @@ GenericProjectPluginPrivate::GenericProjectPluginPrivate()
 {
     ProjectManager::registerProjectType<GenericProject>(Constants::GENERICMIMETYPE);
 
-    IWizardFactory::registerFactoryCreator([] { return QList<IWizardFactory *>{new GenericProjectWizard}; });
+    IWizardFactory::registerFactoryCreator([] { return new GenericProjectWizard; });
 
     ActionContainer *mproject = ActionManager::actionContainer(PEC::M_PROJECTCONTEXT);
 
