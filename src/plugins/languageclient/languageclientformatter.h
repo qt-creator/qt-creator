@@ -7,6 +7,8 @@
 
 #include <texteditor/formatter.h>
 
+#include <QPointer>
+
 namespace TextEditor { class TextDocument; }
 namespace LanguageClient {
 
@@ -26,7 +28,7 @@ private:
     void handleResponse(
         const LanguageServerProtocol::DocumentRangeFormattingRequest::Response &response);
 
-    Client *m_client = nullptr; // not owned
+    QPointer<Client> m_client = nullptr; // not owned
     QMetaObject::Connection m_cancelConnection;
     TextEditor::TextDocument *m_document; // not owned
     bool m_ignoreCancel = false;
