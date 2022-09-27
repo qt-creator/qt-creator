@@ -303,18 +303,50 @@ Rectangle {
 
         width: Math.min(300, root.width)
 
-        onApplied: {
+        function apply() {
             let renamed = statesEditorModel.renameActiveStateGroup(editTextField.text)
             if (renamed)
                 editDialog.close()
         }
 
+        onApplied: editDialog.accept()
+
         StudioControls.TextField {
             id: editTextField
-            text: statesEditorModel.activeStateGroup
             actionIndicatorVisible: false
             translationIndicatorVisible: false
             anchors.fill: parent
+
+            onTextChanged: {
+                let btn = editDialog.standardButton(Dialog.Apply)
+                if (!btn)
+                    return
+
+                if (editDialog.previousString !== editTextField.text) {
+                    btn.enabled = true
+                } else {
+                    btn.enabled = false
+                }
+            }
+
+            onAccepted: editDialog.accept()
+            onRejected: editDialog.reject()
+        }
+
+        onAccepted: {
+            let renamed = statesEditorModel.renameActiveStateGroup(editTextField.text)
+            if (renamed)
+                editDialog.close()
+        }
+
+        property string previousString
+
+        onAboutToShow: {
+            editTextField.text = statesEditorModel.activeStateGroup
+            editDialog.previousString = statesEditorModel.activeStateGroup
+
+            let btn = editDialog.standardButton(Dialog.Apply)
+            btn.enabled = false
         }
     }
 
