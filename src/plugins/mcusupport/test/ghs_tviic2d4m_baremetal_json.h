@@ -19,7 +19,8 @@ constexpr auto ghs_tviic2d4m_baremetal_json = R"(
                 "label": "Cypress Auto Flash Utility",
                 "type": "path",
                 "cmakeVar": "INFINEON_AUTO_FLASH_UTILITY_DIR",
-                "optional": false
+                "optional": false,
+                "addToSystemPath": true
             }
         ]
     },

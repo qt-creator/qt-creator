@@ -23,7 +23,8 @@ constexpr auto armgcc_mimxrt1060_evk_baremetal_json = R"(
                     "windows": "%{Env:ROOT}/nxp/MCUXpressoIDE*",
                     "unix": "/usr/local/mcuxpressoide/"
                 },
-                "optional": false
+                "optional": false,
+                "addToSystemPath": true
             }
         ]
     },

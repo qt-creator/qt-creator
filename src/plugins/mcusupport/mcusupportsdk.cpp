@@ -649,7 +649,7 @@ static PackageDescription parsePackage(const QJsonObject &cmakeEntry)
             FilePath::fromUserInput(cmakeEntry["validation"].toString()),
             versions,
             parseVersionDetection(cmakeEntry),
-            false};
+            cmakeEntry["addToSystemPath"].toBool()};
 }
 
 static QList<PackageDescription> parsePackages(const QJsonArray &cmakeEntries)

@@ -96,6 +96,7 @@ private slots:
     void test_legacy_createThirdPartyPackage();
 
     void test_defaultValueForEachOperationSystem();
+    void test_addToSystemPathFlag();
 
 private:
     QVersionNumber currentQulVersion{2, 0};
