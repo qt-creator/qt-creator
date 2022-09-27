@@ -7,8 +7,7 @@
 #include <functional>
 #include <memory>
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidAvdManager
 {
@@ -40,5 +39,4 @@ private:
     const AndroidConfig &m_config;
 };
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

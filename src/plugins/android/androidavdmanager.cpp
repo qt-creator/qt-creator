@@ -15,7 +15,6 @@
 #include <utils/runextensions.h>
 
 #include <QApplication>
-#include <QFileInfo>
 #include <QLoggingCategory>
 #include <QMainWindow>
 #include <QMessageBox>
@@ -26,16 +25,13 @@
 
 using namespace Utils;
 
-namespace {
-static Q_LOGGING_CATEGORY(avdManagerLog, "qtc.android.avdManager", QtWarningMsg)
-}
-
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 using namespace std;
 
 const int avdCreateTimeoutMs = 30000;
+
+static Q_LOGGING_CATEGORY(avdManagerLog, "qtc.android.avdManager", QtWarningMsg)
 
 /*!
     Runs the \c avdmanager tool specific to configuration \a config with arguments \a args. Returns
@@ -244,16 +240,15 @@ QString AndroidAvdManager::startAvd(const QString &name) const
 
 bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
 {
-    QFileInfo info(m_config.emulatorToolPath().toString());
-    if (!info.exists()) {
-        const QString emulatorToolPath = m_config.emulatorToolPath().toUserOutput();
-        QMetaObject::invokeMethod(Core::ICore::mainWindow(), [emulatorToolPath] {
+    const FilePath emulator = m_config.emulatorToolPath();
+    if (!emulator.exists()) {
+        QMetaObject::invokeMethod(Core::ICore::mainWindow(), [emulator] {
             QMessageBox::critical(Core::ICore::dialogParent(),
                                   AndroidAvdManager::tr("Emulator Tool Is Missing"),
                                   AndroidAvdManager::tr(
                                       "Install the missing emulator tool (%1) to the"
                                       " installed Android SDK.")
-                                      .arg(emulatorToolPath));
+                                      .arg(emulator.displayName()));
         });
         return false;
     }
@@ -343,16 +338,13 @@ bool AndroidAvdManager::waitForBooted(const QString &serialNumber,
     for (int i = 0; i < 60; ++i) {
         if (cancelChecker && cancelChecker())
             return false;
-        if (isAvdBooted(serialNumber)) {
+        if (isAvdBooted(serialNumber))
             return true;
-        } else {
-            QThread::sleep(2);
-            if (!m_config.isConnected(serialNumber)) // device was disconnected
-                return false;
-        }
+        QThread::sleep(2);
+        if (!m_config.isConnected(serialNumber)) // device was disconnected
+            return false;
     }
     return false;
 }
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal
