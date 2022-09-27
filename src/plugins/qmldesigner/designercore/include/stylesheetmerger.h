@@ -3,6 +3,8 @@
 #ifndef STYLESHEETMERGER_H
 #define STYLESHEETMERGER_H
 
+#include "qmldesignercorelib_global.h"
+
 #include <QString>
 #include <QHash>
 #include <modelnode.h>
@@ -19,8 +21,8 @@ struct ReparentInfo {
     bool alreadyReparented;
 };
 
-
-class StylesheetMerger {
+class QMLDESIGNERCORE_EXPORT StylesheetMerger
+{
 public:
     StylesheetMerger(AbstractView*, AbstractView*);
     void merge();

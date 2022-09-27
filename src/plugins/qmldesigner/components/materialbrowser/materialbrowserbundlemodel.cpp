@@ -28,6 +28,7 @@
 #include "bundleimporter.h"
 #include "bundlematerial.h"
 #include "bundlematerialcategory.h"
+#include "qmldesignerconstants.h"
 #include "utils/qtcassert.h"
 
 #include <QCoreApplication>
@@ -121,6 +122,8 @@ void MaterialBrowserBundleModel::loadMaterialBundle()
 
     m_matBundleExists = true;
 
+    const QString bundleId = m_matBundleObj.value("id").toString();
+
     const QJsonObject catsObj = m_matBundleObj.value("categories").toObject();
     const QStringList categories = catsObj.keys();
     for (const QString &cat : categories) {
@@ -136,8 +139,14 @@ void MaterialBrowserBundleModel::loadMaterialBundle()
             for (const auto /*QJson{Const,}ValueRef*/ &asset : assetsArr)
                 files.append(asset.toString());
 
-            auto bundleMat = new BundleMaterial(category, mat, matObj.value("qml").toString(),
-                                                QUrl::fromLocalFile(matBundleDir.filePath(matObj.value("icon").toString())), files);
+            QUrl icon = QUrl::fromLocalFile(matBundleDir.filePath(matObj.value("icon").toString()));
+            QString qml = matObj.value("qml").toString();
+            TypeName type = QLatin1String("%1.%2.%3").arg(
+                                    QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1),
+                                    bundleId,
+                                    qml.chopped(4)).toLatin1(); // chopped(4): remove .qml
+
+            auto bundleMat = new BundleMaterial(category, mat, qml, type, icon, files);
 
             category->addBundleMaterial(bundleMat);
         }
@@ -149,7 +158,7 @@ void MaterialBrowserBundleModel::loadMaterialBundle()
     for (const auto /*QJson{Const,}ValueRef*/ &file : sharedFilesArr)
         sharedFiles.append(file.toString());
 
-    m_importer = new Internal::BundleImporter(matBundleDir.path(), "MaterialBundle", sharedFiles);
+    m_importer = new Internal::BundleImporter(matBundleDir.path(), bundleId, sharedFiles);
     connect(m_importer, &Internal::BundleImporter::importFinished, this, [&](const QmlDesigner::NodeMetaInfo &metaInfo) {
         if (metaInfo.isValid())
             emit addBundleMaterialToProjectRequested(metaInfo);
@@ -223,7 +232,10 @@ void MaterialBrowserBundleModel::applyToSelected(BundleMaterial *mat, bool add)
 
 void MaterialBrowserBundleModel::addMaterial(BundleMaterial *mat)
 {
-    m_importer->importComponent(mat->qml(), mat->files());
+    QString err = m_importer->importComponent(mat->qml(), mat->files());
+
+    if (!err.isEmpty())
+        qWarning() << __FUNCTION__ << err;
 }
 
 } // namespace QmlDesigner

@@ -205,7 +205,7 @@ QList<QToolButton *> ItemLibraryWidget::createToolBarWidgets()
 }
 
 
-void ItemLibraryWidget::handleSearchfilterChanged(const QString &filterText)
+void ItemLibraryWidget::handleSearchFilterChanged(const QString &filterText)
 {
     if (filterText != m_filterText) {
         m_filterText = filterText;

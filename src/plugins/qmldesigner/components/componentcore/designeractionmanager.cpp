@@ -22,6 +22,7 @@
 #include <documentmanager.h>
 #include <qmldesignerplugin.h>
 #include <viewmanager.h>
+#include <actioneditor.h>
 
 #include <listmodeleditor/listmodeleditordialog.h>
 #include <listmodeleditor/listmodeleditormodel.h>
@@ -430,6 +431,302 @@ public:
             if (menu()->isEmpty())
                 action()->setEnabled(false);
         }
+    }
+};
+
+QString prependSignal(QString signalHandlerName)
+{
+    if (signalHandlerName.isNull() || signalHandlerName.isEmpty())
+        return {};
+
+    QChar firstChar = signalHandlerName.at(0).toUpper();
+    signalHandlerName[0] = firstChar;
+    signalHandlerName.prepend(QLatin1String("on"));
+
+    return signalHandlerName;
+}
+
+QStringList getSignalsList(const ModelNode &node)
+{
+    if (!node.isValid())
+        return {};
+
+    if (!node.hasMetaInfo())
+        return {};
+
+    QStringList signalsList;
+    NodeMetaInfo nodeMetaInfo = node.metaInfo();
+
+    for (const auto &signalName : nodeMetaInfo.signalNames()) {
+        signalsList << QString::fromUtf8(signalName);
+    }
+
+    //on...Changed are the most regular signals, we assign them the lowest priority,
+    //we don't need them right now
+//    QStringList signalsWithChanged = signalsList.filter("Changed");
+
+    //these are item specific, like MouseArea.clicked, they have higher priority
+    QStringList signalsWithoutChanged = signalsList;
+    signalsWithoutChanged.removeIf([](QString str) {
+        if (str.endsWith("Changed"))
+            return true;
+        return false;
+    });
+
+    QStringList finalResult;
+    finalResult.append(signalsWithoutChanged);
+
+
+    if (finalResult.isEmpty())
+        finalResult = signalsList;
+
+    finalResult.removeDuplicates();
+
+    return finalResult;
+}
+
+struct SlotEntry
+{
+    QString category;
+    QString name;
+    std::function<void(SignalHandlerProperty)> action;
+};
+
+QList<SlotEntry> getSlotsLists(const ModelNode &node)
+{
+    if (!node.isValid())
+        return {};
+
+    if (!node.view()->rootModelNode().isValid())
+        return {};
+
+    QList<SlotEntry> resultList;
+
+    ModelNode rootNode = node.view()->rootModelNode();
+    QmlObjectNode rootObjectNode(rootNode);
+
+    const QString stateCategory = "Change State";
+
+    //For now we are using category as part of the state name
+    //We should change it, once we extend number of categories
+    const SlotEntry defaultState = {stateCategory,
+                                    (stateCategory + " to " + "Default State"),
+                                    [rootNode](SignalHandlerProperty signalHandler) {
+                                        signalHandler.setSource(
+                                            QString("%1.state = \"\"").arg(rootNode.id()));
+                                    }};
+    resultList.push_back(defaultState);
+
+    for (const auto &stateName : rootObjectNode.states().names()) {
+        SlotEntry entry = {stateCategory,
+                           (stateCategory + " to " + stateName),
+                           [rootNode, stateName](SignalHandlerProperty signalHandler) {
+                               signalHandler.setSource(
+                                   QString("%1.state = \"%2\"").arg(rootNode.id(), stateName));
+                           }};
+
+        resultList.push_back(entry);
+    }
+
+    return resultList;
+}
+
+//creates connection without signalHandlerProperty
+ModelNode createNewConnection(ModelNode targetNode)
+{
+    NodeMetaInfo connectionsMetaInfo = targetNode.view()->model()->metaInfo("QtQuick.Connections");
+    ModelNode newConnectionNode = targetNode.view()
+                                      ->createModelNode("QtQuick.Connections",
+                                                        connectionsMetaInfo.majorVersion(),
+                                                        connectionsMetaInfo.minorVersion());
+    if (QmlItemNode::isValidQmlItemNode(targetNode))
+        targetNode.nodeAbstractProperty("data").reparentHere(newConnectionNode);
+
+    newConnectionNode.bindingProperty("target").setExpression(targetNode.id());
+
+    return newConnectionNode;
+}
+
+void removeSignal(SignalHandlerProperty signalHandler)
+{
+    auto connectionNode = signalHandler.parentModelNode();
+    auto connectionSignals = connectionNode.signalProperties();
+    if (connectionSignals.size() > 1) {
+        if (connectionSignals.contains(signalHandler))
+            connectionNode.removeProperty(signalHandler.name());
+    } else {
+        connectionNode.destroy();
+    }
+}
+
+class ConnectionsModelNodeActionGroup : public ActionGroup
+{
+public:
+    ConnectionsModelNodeActionGroup(const QString &displayName,
+                                    const QByteArray &menuId,
+                                    int priority)
+        : ActionGroup(displayName,
+                      menuId,
+                      priority,
+                      &SelectionContextFunctors::always,
+                      &SelectionContextFunctors::selectionEnabled)
+    {}
+
+    void updateContext() override
+    {
+        menu()->clear();
+
+        const auto selection = selectionContext();
+        if (!selection.isValid())
+            return;
+        if (!selection.singleNodeIsSelected())
+            return;
+        if (!action()->isEnabled())
+            return;
+
+        ModelNode currentNode = selection.currentSingleSelectedNode();
+        QmlObjectNode currentObjectNode(currentNode);
+
+        QStringList signalsList = getSignalsList(currentNode);
+        QList<SlotEntry> slotsList = getSlotsLists(currentNode);
+        currentNode.validId();
+
+        for (const ModelNode &connectionNode : currentObjectNode.getAllConnections()) {
+            for (const AbstractProperty &property : connectionNode.properties()) {
+                if (property.isSignalHandlerProperty() && property.name() != "target") {
+                    const auto signalHandler = property.toSignalHandlerProperty();
+
+                    const QString propertyName = QString::fromUtf8(signalHandler.name());
+
+                    QMenu *activeSignalHandlerGroup = new QMenu(propertyName, menu());
+
+                    QMenu *editSignalGroup = new QMenu("Change Signal", menu());
+
+                    for (const auto &signalStr : signalsList) {
+                        if (prependSignal(signalStr).toUtf8() == signalHandler.name())
+                            continue;
+
+                        ActionTemplate *newSignalAction = new ActionTemplate(
+                            (signalStr + "Id").toLatin1(),
+                            signalStr,
+                            [signalStr, signalHandler](const SelectionContext &) {
+                                signalHandler.parentModelNode().view()->executeInTransaction(
+                                    "ConnectionsModelNodeActionGroup::"
+                                    "changeSignal",
+                                    [signalStr, signalHandler]() {
+                                        auto connectionNode = signalHandler.parentModelNode();
+                                        auto newHandler = connectionNode.signalHandlerProperty(
+                                            prependSignal(signalStr).toLatin1());
+                                        newHandler.setSource(signalHandler.source());
+                                        connectionNode.removeProperty(signalHandler.name());
+                                    });
+                            });
+                        editSignalGroup->addAction(newSignalAction);
+                    }
+
+                    activeSignalHandlerGroup->addMenu(editSignalGroup);
+
+                    if (!slotsList.isEmpty()) {
+                        QMenu *editSlotGroup = new QMenu("Change Slot", menu());
+
+                        for (const auto &slot : slotsList) {
+                            ActionTemplate *newSlotAction = new ActionTemplate(
+                                (slot.name + "Id").toLatin1(),
+                                slot.name,
+                                [slot, signalHandler](const SelectionContext &) {
+                                    signalHandler.parentModelNode()
+                                        .view()
+                                        ->executeInTransaction("ConnectionsModelNodeActionGroup::"
+                                                               "changeSlot",
+                                                               [slot, signalHandler]() {
+                                                                   slot.action(signalHandler);
+                                                               });
+                                });
+                            editSlotGroup->addAction(newSlotAction);
+                        }
+                        activeSignalHandlerGroup->addMenu(editSlotGroup);
+                    }
+
+                    ActionTemplate *openEditorAction = new ActionTemplate(
+                        (propertyName + "OpenEditorId").toLatin1(),
+                        QString(
+                            QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Open Connections Editor")),
+                        [=](const SelectionContext &) {
+                            signalHandler.parentModelNode().view()->executeInTransaction(
+                                "ConnectionsModelNodeActionGroup::"
+                                "openConnectionsEditor",
+                                [signalHandler]() { ActionEditor::invokeEditor(signalHandler); });
+                        });
+
+                    activeSignalHandlerGroup->addAction(openEditorAction);
+
+                    ActionTemplate *removeSignalHandlerAction = new ActionTemplate(
+                        (propertyName + "RemoveSignalHandlerId").toLatin1(),
+                        QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove this handler")),
+                        [signalHandler](const SelectionContext &) {
+                            signalHandler.parentModelNode().view()->executeInTransaction(
+                                "ConnectionsModelNodeActionGroup::"
+                                "removeSignalHandler",
+                                [signalHandler]() {
+                                    removeSignal(signalHandler);
+                                });
+                        });
+
+                    activeSignalHandlerGroup->addAction(removeSignalHandlerAction);
+
+                    menu()->addMenu(activeSignalHandlerGroup);
+                }
+            }
+        }
+
+        //singular add connection:
+        QMenu *addConnection = new QMenu(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                                   "Add signal handler")),
+                                         menu());
+
+        for (const auto &signalStr : signalsList) {
+            QMenu *newSignal = new QMenu(signalStr, addConnection);
+
+            for (const auto &slot : slotsList) {
+                ActionTemplate *newSlot = new ActionTemplate(
+                    QString(signalStr + slot.name + "Id").toLatin1(),
+                    slot.name,
+                    [=](const SelectionContext &) {
+                        currentNode.view()->executeInTransaction(
+                            "ConnectionsModelNodeActionGroup::addConnection", [=]() {
+                                ModelNode newConnectionNode = createNewConnection(currentNode);
+                                slot.action(newConnectionNode.signalHandlerProperty(
+                                    prependSignal(signalStr).toLatin1()));
+                            });
+                    });
+                newSignal->addAction(newSlot);
+            }
+
+            ActionTemplate *openEditorAction = new ActionTemplate(
+                (signalStr + "OpenEditorId").toLatin1(),
+                QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Open Connections Editor")),
+                [=](const SelectionContext &) {
+                    currentNode.view()->executeInTransaction(
+                        "ConnectionsModelNodeActionGroup::"
+                        "openConnectionsEditor",
+                        [=]() {
+                            ModelNode newConnectionNode = createNewConnection(currentNode);
+
+                            SignalHandlerProperty newHandler
+                                = newConnectionNode.signalHandlerProperty(
+                                    prependSignal(signalStr).toLatin1());
+
+                            newHandler.setSource(
+                                QString("console.log(\"%1.%2\")").arg(currentNode.id(), signalStr));
+                            ActionEditor::invokeEditor(newHandler, removeSignal);
+                        });
+                });
+            newSignal->addAction(openEditorAction);
+
+            addConnection->addMenu(newSignal);
+        }
+
+        menu()->addMenu(addConnection);
     }
 };
 
@@ -952,6 +1249,11 @@ void DesignerActionManager::createDefaultDesignerActions()
                           selectionCategoryDisplayName,
                           selectionCategory,
                           prioritySelectionCategory));
+
+    addDesignerAction(new ConnectionsModelNodeActionGroup(
+                          connectionsCategoryDisplayName,
+                          connectionsCategory,
+                          priorityConnectionsCategory));
 
     addDesignerAction(new ActionGroup(
                           arrangeCategoryDisplayName,

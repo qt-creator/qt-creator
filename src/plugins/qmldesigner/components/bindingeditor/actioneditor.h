@@ -7,6 +7,7 @@
 #include <bindingeditor/actioneditordialog.h>
 #include <qmldesignercorelib_global.h>
 #include <modelnode.h>
+#include <signalhandlerproperty.h>
 
 #include <QtQml>
 #include <QObject>
@@ -43,6 +44,10 @@ public:
     void prepareConnections();
 
     Q_INVOKABLE void updateWindowName(const QString &targetName = {});
+
+    static void invokeEditor(SignalHandlerProperty signalHandler,
+                             std::function<void(SignalHandlerProperty)> onReject = nullptr,
+                             QObject *parent = nullptr);
 
 signals:
     void accepted();

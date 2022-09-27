@@ -266,15 +266,6 @@ SecondColumnLayout {
         id: spacer
     }
 
-    StudioControls.Menu {
-        id: contextMenu
-
-        StudioControls.MenuItem {
-            text: qsTr("Open Color Dialog")
-            onTriggered: colorPalette.showColorDialog(colorEditor.color)
-        }
-    }
-
     Component.onCompleted: popupLoader.determineActiveColorMode()
 
     onBackendValueChanged: {

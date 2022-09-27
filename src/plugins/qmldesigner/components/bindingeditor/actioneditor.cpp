@@ -292,4 +292,68 @@ void ActionEditor::updateWindowName(const QString &targetName)
     }
 }
 
+void ActionEditor::invokeEditor(SignalHandlerProperty signalHandler,
+                                std::function<void(SignalHandlerProperty)> onReject,
+                                QObject * parent)
+{
+    if (!signalHandler.isValid())
+        return;
+
+    ModelNode connectionNode = signalHandler.parentModelNode();
+    if (!connectionNode.isValid())
+        return;
+
+    if (!connectionNode.bindingProperty("target").isValid())
+        return;
+
+    ModelNode targetNode = connectionNode.bindingProperty("target").resolveToModelNode();
+    if (!targetNode.isValid())
+        return;
+
+    const QString source = signalHandler.source();
+
+    QPointer<ActionEditor> editor = new ActionEditor(parent);
+
+    editor->showWidget();
+    editor->setModelNode(connectionNode);
+    editor->setConnectionValue(source);
+    editor->prepareConnections();
+    editor->updateWindowName(targetNode.validId() + "." + signalHandler.name());
+
+    QObject::connect(editor, &ActionEditor::accepted, [=]() {
+        if (!editor)
+            return;
+        if (editor->m_modelNode.isValid()) {
+            editor->m_modelNode.view()->executeInTransaction("ActionEditor::"
+                                                             "invokeEditorAccepted",
+                                                             [=]() {
+                                                                 editor->m_modelNode
+                                                                     .signalHandlerProperty(
+                                                                         signalHandler.name())
+                                                                     .setSource(
+                                                                         editor->connectionValue());
+                                                             });
+        }
+
+        //closing editor widget somewhy triggers rejected() signal. Lets disconect before it affects us:
+        editor->disconnect();
+        editor->deleteLater();
+    });
+
+    QObject::connect(editor, &ActionEditor::rejected, [=]() {
+        if (!editor)
+            return;
+
+        if (onReject) {
+            editor->m_modelNode.view()->executeInTransaction("ActionEditor::"
+                                                             "invokeEditorOnRejectFunc",
+                                                             [=]() { onReject(signalHandler); });
+        }
+
+        //closing editor widget somewhy triggers rejected() signal 2nd time. Lets disconect before it affects us:
+        editor->disconnect();
+        editor->deleteLater();
+    });
+}
+
 } // QmlDesigner namespace

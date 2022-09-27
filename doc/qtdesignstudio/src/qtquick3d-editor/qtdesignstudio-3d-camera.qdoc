@@ -16,10 +16,18 @@
 
      \image studio-qtquick-3d-components.png "Qt Quick 3D components in Components"
 
-    Add a camera by dragging-and-dropping one of the camera components from
-    \uicontrol Components > \uicontrol {Qt Quick 3D} > \uicontrol
-    {Qt Quick 3D} to the \l {3D} view or to a 3D view in \l Navigator.
-    If the cameras are not displayed in \uicontrol {Components}, add the
+    To add a camera component to your UI, do one of the following:
+    \list
+      \li Drag a camera component from \uicontrol Components >
+      \uicontrol {Qt Quick 3D} to the \l {3D} view or to
+      \l Navigator > \uicontrol {View3D} > \uicontrol Scene.
+      \li Right-click in the \uicontrol 3D view and select
+      \uicontrol Create > \uicontrol Cameras from the context menu.
+      \note You can only create \uicontrol {Camera Perspective} and
+      \uicontrol {Camera Ortographic} this way.
+    \endlist
+
+    If you cannot find the camera components in \uicontrol {Components}, add the
     \uicontrol QtQuick3D module to your project, as described in
     \l {Adding and Removing Modules}.
 

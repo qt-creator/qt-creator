@@ -414,10 +414,12 @@ Item {
 
             width: parent.width
 
-            SearchBox {
+            StudioControls.SearchBox {
                 id: searchBox
 
                 width: parent.width - addAssetButton.width - 5
+
+                onSearchChanged: (searchText) => rootView.handleSearchFilterChanged(searchText)
             }
 
             IconButton {

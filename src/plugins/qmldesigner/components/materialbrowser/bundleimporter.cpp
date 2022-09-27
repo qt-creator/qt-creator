@@ -97,8 +97,9 @@ QString BundleImporter::importComponent(const QString &qmlFile,
     FilePath qmlSourceFile = bundleImportPath.resolvePath(FilePath::fromString(qmlFile));
     const bool qmlFileExists = qmlSourceFile.exists();
     const QString qmlType = qmlSourceFile.baseName();
-    m_pendingTypes.append(QStringLiteral("%1.%2")
-                          .arg(QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1), qmlType));
+    m_pendingTypes.append(QStringLiteral("%1.%2.%3")
+                          .arg(QLatin1String(Constants::COMPONENT_BUNDLES_FOLDER).mid(1),
+                               m_bundleId, qmlType));
     if (!qmldirContent.contains(qmlFile)) {
         qmldirContent.append(qmlType);
         qmldirContent.append(" 1.0 ");
@@ -159,10 +160,6 @@ QString BundleImporter::importComponent(const QString &qmlFile,
             // If import is not yet possible, import statement needs to be added asynchronously to
             // avoid errors, as code model update takes a while.
             m_importAddPending = true;
-
-            // Full reset is not necessary if new import directory appearing will trigger scanning,
-            // but if directory existed but was not valid possible import, we need to do a reset.
-            m_fullReset = bundleImportPathExists;
         }
     }
     m_importTimerCount = 0;
