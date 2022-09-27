@@ -211,12 +211,14 @@ MainWindow::MainWindow()
     connect(dropSupport, &DropSupport::filesDropped,
             this, &MainWindow::openDroppedFiles);
 
+    if (HostOsInfo::isLinuxHost()) {
+        m_trimTimer.setSingleShot(true);
+        m_trimTimer.setInterval(60000);
+        // glibc may not actually free memory in free().
 #ifdef Q_OS_LINUX
-    m_trimTimer.setSingleShot(true);
-    m_trimTimer.setInterval(60000);
-    // glibc may not actually free memory in free().
-    connect(&m_trimTimer, &QTimer::timeout, this, [] { malloc_trim(0); });
+        connect(&m_trimTimer, &QTimer::timeout, this, [] { malloc_trim(0); });
 #endif
+    }
 }
 
 NavigationWidget *MainWindow::navigationWidget(Side side) const
@@ -358,7 +360,7 @@ void MainWindow::restart()
 
 void MainWindow::restartTrimmer()
 {
-    if (!m_trimTimer.isActive())
+    if (HostOsInfo::isLinuxHost() && !m_trimTimer.isActive())
         m_trimTimer.start();
 }
 
