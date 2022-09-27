@@ -462,19 +462,6 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
     return diffText;
 }
 
-static int interpolate(int x, int x1, int x2, int y1, int y2)
-{
-    if (x1 == x2)
-        return x1;
-    if (x == x1)
-        return y1;
-    if (x == x2)
-        return y2;
-    const int numerator = (y2 - y1) * x + x2 * y1 - x1 * y2;
-    const int denominator = x2 - x1;
-    return qRound((double)numerator / denominator);
-}
-
 UnifiedDiffOutput UnifiedDiffData::setDiff(QFutureInterface<void> &fi, int progressMin,
                                            int progressMax, const DiffEditorInput &input)
 {
@@ -525,7 +512,7 @@ UnifiedDiffOutput UnifiedDiffData::setDiff(QFutureInterface<void> &fi, int progr
                     setChunkIndex(oldBlockNumber, blockNumber - oldBlockNumber, j);
             }
         }
-        fi.setProgressValue(interpolate(++i, 0, count, progressMin, progressMax));
+        fi.setProgressValue(DiffUtils::interpolate(++i, 0, count, progressMin, progressMax));
         if (fi.isCanceled())
             return {};
     }
@@ -603,7 +590,7 @@ void UnifiedDiffEditorWidget::showDiff()
             const QString package = output.diffText.mid(currentPos, packageSize);
             cursor.insertText(package);
             currentPos += package.size();
-            fi.setProgressValue(interpolate(currentPos, 0, diffSize, firstPartMax, progressMax));
+            fi.setProgressValue(DiffUtils::interpolate(currentPos, 0, diffSize, firstPartMax, progressMax));
             if (futureInterface.isCanceled())
                 return;
         }

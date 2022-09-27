@@ -252,6 +252,158 @@ QString SideDiffEditorWidget::plainTextFromSelection(const QTextCursor &cursor) 
     return convertToPlainText(text);
 }
 
+SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterface<void> &fi, int progressMin,
+                                              int progressMax, const DiffEditorInput &input)
+{
+    SideBySideDiffOutput output;
+
+    DiffSelections &leftFormats = output.side[LeftSide].selections;
+    DiffSelections &rightFormats = output.side[RightSide].selections;
+    SideDiffData &leftData = output.side[LeftSide].diffData;
+    SideDiffData &rightData = output.side[RightSide].diffData;
+    QString &leftTexts = output.side[LeftSide].diffText;
+    QString &rightTexts = output.side[RightSide].diffText;
+    QHash<int, int> &foldingIndent = output.foldingIndent;
+
+    const QChar separator = '\n';
+    int blockNumber = 0;
+    int i = 0;
+    const int count = input.m_contextFileData.size();
+
+    for (const FileData &contextFileData : qAsConst(input.m_contextFileData)) {
+        QString leftText, rightText;
+
+        foldingIndent.insert(blockNumber, 1);
+        leftFormats[blockNumber].append(DiffSelection(input.m_fileLineFormat));
+        rightFormats[blockNumber].append(DiffSelection(input.m_fileLineFormat));
+        leftData.setFileInfo(blockNumber, contextFileData.fileInfo[LeftSide]);
+        rightData.setFileInfo(blockNumber, contextFileData.fileInfo[RightSide]);
+        leftText = separator;
+        rightText = separator;
+        blockNumber++;
+
+        int lastLeftLineNumber = -1;
+
+        if (contextFileData.binaryFiles) {
+            foldingIndent.insert(blockNumber, 2);
+            leftFormats[blockNumber].append(DiffSelection(input.m_chunkLineFormat));
+            rightFormats[blockNumber].append(DiffSelection(input.m_chunkLineFormat));
+            leftData.setSkippedLines(blockNumber, -2);
+            rightData.setSkippedLines(blockNumber, -2);
+            leftText += separator;
+            rightText += separator;
+            blockNumber++;
+        } else {
+            for (int j = 0; j < contextFileData.chunks.count(); j++) {
+                const ChunkData &chunkData = contextFileData.chunks.at(j);
+
+                int leftLineNumber = chunkData.startingLineNumber[LeftSide];
+                int rightLineNumber = chunkData.startingLineNumber[RightSide];
+
+                if (!chunkData.contextChunk) {
+                    const int skippedLines = leftLineNumber - lastLeftLineNumber - 1;
+                    if (skippedLines > 0) {
+                        foldingIndent.insert(blockNumber, 2);
+                        leftFormats[blockNumber].append(DiffSelection(input.m_chunkLineFormat));
+                        rightFormats[blockNumber].append(DiffSelection(input.m_chunkLineFormat));
+                        leftData.setSkippedLines(blockNumber, skippedLines, chunkData.contextInfo);
+                        rightData.setSkippedLines(blockNumber, skippedLines, chunkData.contextInfo);
+                        leftText += separator;
+                        rightText += separator;
+                        blockNumber++;
+                    }
+
+                    leftData.setChunkIndex(blockNumber, chunkData.rows.count(), j);
+                    rightData.setChunkIndex(blockNumber, chunkData.rows.count(), j);
+
+                    for (const RowData &rowData : chunkData.rows) {
+                        TextLineData leftLineData = rowData.line[LeftSide];
+                        TextLineData rightLineData = rowData.line[RightSide];
+                        if (leftLineData.textLineType == TextLineData::TextLine) {
+                            leftText += leftLineData.text;
+                            lastLeftLineNumber = leftLineNumber;
+                            leftLineNumber++;
+                            leftData.setLineNumber(blockNumber, leftLineNumber);
+                        } else if (leftLineData.textLineType == TextLineData::Separator) {
+                            leftData.setSeparator(blockNumber, true);
+                        }
+
+                        if (rightLineData.textLineType == TextLineData::TextLine) {
+                            rightText += rightLineData.text;
+                            rightLineNumber++;
+                            rightData.setLineNumber(blockNumber, rightLineNumber);
+                        } else if (rightLineData.textLineType == TextLineData::Separator) {
+                            rightData.setSeparator(blockNumber, true);
+                        }
+
+                        if (!rowData.equal) {
+                            if (rowData.line[LeftSide].textLineType == TextLineData::TextLine)
+                                leftFormats[blockNumber].append(DiffSelection(input.m_leftLineFormat));
+                            else
+                                leftFormats[blockNumber].append(DiffSelection(input.m_spanLineFormat));
+                            if (rowData.line[RightSide].textLineType == TextLineData::TextLine)
+                                rightFormats[blockNumber].append(DiffSelection(input.m_rightLineFormat));
+                            else
+                                rightFormats[blockNumber].append(DiffSelection(input.m_spanLineFormat));
+                        }
+
+                        for (auto it = leftLineData.changedPositions.cbegin(),
+                                  end = leftLineData.changedPositions.cend(); it != end; ++it) {
+                            leftFormats[blockNumber].append(
+                                        {it.key(), it.value(), input.m_leftCharFormat});
+                        }
+
+                        for (auto it = rightLineData.changedPositions.cbegin(),
+                                  end = rightLineData.changedPositions.cend(); it != end; ++it) {
+                            rightFormats[blockNumber].append(
+                                        {it.key(), it.value(), input.m_rightCharFormat});
+                        }
+
+                        leftText += separator;
+                        rightText += separator;
+                        blockNumber++;
+                    }
+                }
+
+                if (j == contextFileData.chunks.count() - 1) { // the last chunk
+                    int skippedLines = -2;
+                    if (chunkData.contextChunk) {
+                        // if it's context chunk
+                        skippedLines = chunkData.rows.count();
+                    } else if (!contextFileData.lastChunkAtTheEndOfFile
+                               && !contextFileData.contextChunksIncluded) {
+                        // if not a context chunk and not a chunk at the end of file
+                        // and context lines not included
+                        skippedLines = -1; // unknown count skipped by the end of file
+                    }
+
+                    if (skippedLines >= -1) {
+                        leftFormats[blockNumber].append(DiffSelection(input.m_chunkLineFormat));
+                        rightFormats[blockNumber].append(DiffSelection(input.m_chunkLineFormat));
+                        leftData.setSkippedLines(blockNumber, skippedLines);
+                        rightData.setSkippedLines(blockNumber, skippedLines);
+                        leftText += separator;
+                        rightText += separator;
+                        blockNumber++;
+                    } // otherwise nothing skipped
+                }
+            }
+        }
+        leftText.replace('\r', ' ');
+        rightText.replace('\r', ' ');
+        leftTexts += leftText;
+        rightTexts += rightText;
+        fi.setProgressValue(DiffUtils::interpolate(++i, 0, count, progressMin, progressMax));
+        if (fi.isCanceled())
+            return {};
+    }
+    output.side[LeftSide].selections = SelectableTextEditorWidget::polishedSelections(
+                output.side[LeftSide].selections);
+    output.side[RightSide].selections = SelectableTextEditorWidget::polishedSelections(
+                output.side[RightSide].selections);
+    return output;
+}
+
 void SideDiffData::setLineNumber(int blockNumber, int lineNumber)
 {
     const QString lineNumberString = QString::number(lineNumber);
@@ -493,7 +645,7 @@ void SideDiffEditorWidget::paintEvent(QPaintEvent *e)
     SelectableTextEditorWidget::paintEvent(e);
 
     QPainter painter(viewport());
-    QPointF offset = contentOffset();
+    const QPointF offset = contentOffset();
     QTextBlock currentBlock = firstVisibleBlock();
 
     while (currentBlock.isValid()) {
@@ -588,10 +740,9 @@ void SideDiffEditorWidget::customDrawCollapsedBlockPopup(QPainter &painter,
         const int blockNumber = b.blockNumber();
         if (!m_data.m_skippedLines.contains(blockNumber) && !m_data.m_separators.contains(blockNumber)) {
             b.setVisible(true); // make sure block bounding rect works
-            QRectF r = blockBoundingRect(b).translated(offset);
+            const QRectF r = blockBoundingRect(b).translated(offset);
             QTextLayout *layout = b.layout();
-            QVector<QTextLayout::FormatRange> selections;
-            layout->draw(&painter, offset, selections, clip);
+            layout->draw(&painter, offset, {}, clip);
 
             b.setVisible(false); // restore previous state
             b.setLineCount(0); // restore 0 line count for invisible block
@@ -836,171 +987,33 @@ void SideBySideDiffEditorWidget::restoreState()
 
 void SideBySideDiffEditorWidget::showDiff()
 {
-    DiffSelections leftFormats;
-    DiffSelections rightFormats;
+    QFutureInterface<void> fi;
+    const SideBySideDiffOutput output = SideDiffData::diffOutput(fi, 0, 100, {&m_controller});
 
-    SideDiffData leftData;
-    SideDiffData rightData;
-
-    QString leftTexts, rightTexts;
-    int blockNumber = 0;
-    QChar separator = '\n';
-    QHash<int, int> foldingIndent;
-    for (const FileData &contextFileData : qAsConst(m_controller.m_contextFileData)) {
-        QString leftText, rightText;
-
-        foldingIndent.insert(blockNumber, 1);
-        leftFormats[blockNumber].append(DiffSelection(&m_controller.m_fileLineFormat));
-        rightFormats[blockNumber].append(DiffSelection(&m_controller.m_fileLineFormat));
-        leftData.setFileInfo(blockNumber, contextFileData.fileInfo[LeftSide]);
-        rightData.setFileInfo(blockNumber, contextFileData.fileInfo[RightSide]);
-        leftText = separator;
-        rightText = separator;
-        blockNumber++;
-
-        int lastLeftLineNumber = -1;
-
-        if (contextFileData.binaryFiles) {
-            foldingIndent.insert(blockNumber, 2);
-            leftFormats[blockNumber].append(DiffSelection(&m_controller.m_chunkLineFormat));
-            rightFormats[blockNumber].append(DiffSelection(&m_controller.m_chunkLineFormat));
-            leftData.setSkippedLines(blockNumber, -2);
-            rightData.setSkippedLines(blockNumber, -2);
-            leftText += separator;
-            rightText += separator;
-            blockNumber++;
-        } else {
-            for (int j = 0; j < contextFileData.chunks.count(); j++) {
-                const ChunkData &chunkData = contextFileData.chunks.at(j);
-
-                int leftLineNumber = chunkData.startingLineNumber[LeftSide];
-                int rightLineNumber = chunkData.startingLineNumber[RightSide];
-
-                if (!chunkData.contextChunk) {
-                    const int skippedLines = leftLineNumber - lastLeftLineNumber - 1;
-                    if (skippedLines > 0) {
-                        foldingIndent.insert(blockNumber, 2);
-                        leftFormats[blockNumber].append(DiffSelection(&m_controller.m_chunkLineFormat));
-                        rightFormats[blockNumber].append(DiffSelection(&m_controller.m_chunkLineFormat));
-                        leftData.setSkippedLines(blockNumber, skippedLines, chunkData.contextInfo);
-                        rightData.setSkippedLines(blockNumber, skippedLines, chunkData.contextInfo);
-                        leftText += separator;
-                        rightText += separator;
-                        blockNumber++;
-                    }
-
-                    leftData.setChunkIndex(blockNumber, chunkData.rows.count(), j);
-                    rightData.setChunkIndex(blockNumber, chunkData.rows.count(), j);
-
-                    for (const RowData &rowData : chunkData.rows) {
-                        TextLineData leftLineData = rowData.line[LeftSide];
-                        TextLineData rightLineData = rowData.line[RightSide];
-                        if (leftLineData.textLineType == TextLineData::TextLine) {
-                            leftText += leftLineData.text;
-                            lastLeftLineNumber = leftLineNumber;
-                            leftLineNumber++;
-                            leftData.setLineNumber(blockNumber, leftLineNumber);
-                        } else if (leftLineData.textLineType == TextLineData::Separator) {
-                            leftData.setSeparator(blockNumber, true);
-                        }
-
-                        if (rightLineData.textLineType == TextLineData::TextLine) {
-                            rightText += rightLineData.text;
-                            rightLineNumber++;
-                            rightData.setLineNumber(blockNumber, rightLineNumber);
-                        } else if (rightLineData.textLineType == TextLineData::Separator) {
-                            rightData.setSeparator(blockNumber, true);
-                        }
-
-                        if (!rowData.equal) {
-                            if (rowData.line[LeftSide].textLineType == TextLineData::TextLine)
-                                leftFormats[blockNumber].append(DiffSelection(&m_controller.m_leftLineFormat));
-                            else
-                                leftFormats[blockNumber].append(DiffSelection(&m_spanLineFormat));
-                            if (rowData.line[RightSide].textLineType == TextLineData::TextLine)
-                                rightFormats[blockNumber].append(DiffSelection(&m_controller.m_rightLineFormat));
-                            else
-                                rightFormats[blockNumber].append(DiffSelection(&m_spanLineFormat));
-                        }
-
-                        for (auto it = leftLineData.changedPositions.cbegin(),
-                                  end = leftLineData.changedPositions.cend(); it != end; ++it) {
-                            leftFormats[blockNumber].append(
-                                        DiffSelection(it.key(), it.value(),
-                                                      &m_controller.m_leftCharFormat));
-                        }
-
-                        for (auto it = rightLineData.changedPositions.cbegin(),
-                                  end = rightLineData.changedPositions.cend(); it != end; ++it) {
-                            rightFormats[blockNumber].append(
-                                        DiffSelection(it.key(), it.value(),
-                                                      &m_controller.m_rightCharFormat));
-                        }
-
-                        leftText += separator;
-                        rightText += separator;
-                        blockNumber++;
-                    }
-                }
-
-                if (j == contextFileData.chunks.count() - 1) { // the last chunk
-                    int skippedLines = -2;
-                    if (chunkData.contextChunk) {
-                        // if it's context chunk
-                        skippedLines = chunkData.rows.count();
-                    } else if (!contextFileData.lastChunkAtTheEndOfFile
-                               && !contextFileData.contextChunksIncluded) {
-                        // if not a context chunk and not a chunk at the end of file
-                        // and context lines not included
-                        skippedLines = -1; // unknown count skipped by the end of file
-                    }
-
-                    if (skippedLines >= -1) {
-                        leftFormats[blockNumber].append(DiffSelection(&m_controller.m_chunkLineFormat));
-                        rightFormats[blockNumber].append(DiffSelection(&m_controller.m_chunkLineFormat));
-                        leftData.setSkippedLines(blockNumber, skippedLines);
-                        rightData.setSkippedLines(blockNumber, skippedLines);
-                        leftText += separator;
-                        rightText += separator;
-                        blockNumber++;
-                    } // otherwise nothing skipped
-                }
-            }
-        }
-        leftText.replace('\r', ' ');
-        rightText.replace('\r', ' ');
-        leftTexts += leftText;
-        rightTexts += rightText;
-    }
-    m_leftEditor->setDiffData(leftData);
-    m_rightEditor->setDiffData(rightData);
-
-    if (leftTexts.isEmpty() && rightTexts.isEmpty())
-        return;
+    m_leftEditor->setDiffData(output.side[LeftSide].diffData);
+    m_rightEditor->setDiffData(output.side[RightSide].diffData);
 
     {
         const GuardLocker locker(m_controller.m_ignoreChanges);
         m_leftEditor->clear();
-        m_leftEditor->setPlainText(leftTexts);
+        m_leftEditor->setPlainText(output.side[LeftSide].diffText);
         m_rightEditor->clear();
-        m_rightEditor->setPlainText(rightTexts);
+        m_rightEditor->setPlainText(output.side[RightSide].diffText);
     }
 
     QTextBlock block = m_leftEditor->document()->firstBlock();
     for (int b = 0; block.isValid(); block = block.next(), ++b)
-        SelectableTextEditorWidget::setFoldingIndent(block, foldingIndent.value(b, 3));
+        SelectableTextEditorWidget::setFoldingIndent(block, output.foldingIndent.value(b, 3));
     block = m_rightEditor->document()->firstBlock();
     for (int b = 0; block.isValid(); block = block.next(), ++b)
-        SelectableTextEditorWidget::setFoldingIndent(block, foldingIndent.value(b, 3));
+        SelectableTextEditorWidget::setFoldingIndent(block, output.foldingIndent.value(b, 3));
 
-    m_leftEditor->setSelections(SelectableTextEditorWidget::polishedSelections(leftFormats));
-    m_rightEditor->setSelections(SelectableTextEditorWidget::polishedSelections(rightFormats));
+    m_leftEditor->setSelections(output.side[LeftSide].selections);
+    m_rightEditor->setSelections(output.side[RightSide].selections);
 }
 
-void SideBySideDiffEditorWidget::setFontSettings(
-        const FontSettings &fontSettings)
+void SideBySideDiffEditorWidget::setFontSettings(const FontSettings &fontSettings)
 {
-    m_spanLineFormat  = fontSettings.toTextCharFormat(C_LINE_NUMBER);
     m_controller.setFontSettings(fontSettings);
 }
 

@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "selectabletexteditorwidget.h"
 #include "diffeditorwidgetcontroller.h"
+#include "selectabletexteditorwidget.h"
 
 #include <QFutureWatcher>
 

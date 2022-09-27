@@ -51,6 +51,7 @@ public:
                                        // contextLineCount taken into account
     QTextCharFormat m_fileLineFormat;
     QTextCharFormat m_chunkLineFormat;
+    QTextCharFormat m_spanLineFormat;
     QTextCharFormat m_leftLineFormat;
     QTextCharFormat m_rightLineFormat;
     QTextCharFormat m_leftCharFormat;
@@ -86,6 +87,7 @@ public:
     QList<FileData> m_contextFileData;
     QTextCharFormat *m_fileLineFormat = nullptr;
     QTextCharFormat *m_chunkLineFormat = nullptr;
+    QTextCharFormat *m_spanLineFormat = nullptr;
     QTextCharFormat *m_leftLineFormat = nullptr;
     QTextCharFormat *m_rightLineFormat = nullptr;
     QTextCharFormat *m_leftCharFormat = nullptr;

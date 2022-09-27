@@ -4,9 +4,11 @@
 #pragma once
 
 #include "diffeditorwidgetcontroller.h"
+#include "selectabletexteditorwidget.h" // TODO: we need DiffSelections here only
 
-#include <QWidget>
+#include <QFutureWatcher>
 #include <QTextCharFormat>
+#include <QWidget>
 
 namespace Core { class IContext; }
 
@@ -28,10 +30,14 @@ namespace Internal {
 
 class DiffEditorDocument;
 class SideDiffEditorWidget;
+class SideBySideDiffOutput;
 
 class SideDiffData
 {
 public:
+    static SideBySideDiffOutput diffOutput(QFutureInterface<void> &fi, int progressMin,
+                                           int progressMax, const DiffEditorInput &input);
+
     // block number, visual line number.
     QMap<int, int> m_lineNumbers;
     // block number, fileInfo. Set for file lines only.
@@ -45,29 +51,43 @@ public:
 
     int m_lineNumberDigits = 1;
 
-    void setLineNumber(int blockNumber, int lineNumber);
-    void setFileInfo(int blockNumber, const DiffFileInfo &fileInfo);
-    void setSkippedLines(int blockNumber, int skippedLines, const QString &contextInfo = {}) {
-        m_skippedLines[blockNumber] = qMakePair(skippedLines, contextInfo);
-        setSeparator(blockNumber, true);
-    }
-    void setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex);
-    void setSeparator(int blockNumber, bool separator) {
-        m_separators[blockNumber] = separator;
-    }
-    bool isFileLine(int blockNumber) const {
-        return m_fileInfo.contains(blockNumber);
-    }
+    bool isFileLine(int blockNumber) const { return m_fileInfo.contains(blockNumber); }
+    bool isChunkLine(int blockNumber) const { return m_skippedLines.contains(blockNumber); }
     int blockNumberForFileIndex(int fileIndex) const;
     int fileIndexForBlockNumber(int blockNumber) const;
     int chunkIndexForBlockNumber(int blockNumber) const;
     int chunkRowForBlockNumber(int blockNumber) const;
     int chunkRowsCountForBlockNumber(int blockNumber) const;
-    bool isChunkLine(int blockNumber) const {
-        return m_skippedLines.contains(blockNumber);
-    }
+
 private:
+    void setLineNumber(int blockNumber, int lineNumber);
+    void setFileInfo(int blockNumber, const DiffFileInfo &fileInfo);
+    void setSkippedLines(int blockNumber, int skippedLines, const QString &contextInfo = {}) {
+        m_skippedLines[blockNumber] = {skippedLines, contextInfo};
+        setSeparator(blockNumber, true);
+    }
+    void setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex);
+    void setSeparator(int blockNumber, bool separator) { m_separators[blockNumber] = separator; }
 };
+
+class SideDiffOutput
+{
+public:
+    SideDiffData diffData;
+    QString diffText;
+    DiffSelections selections;
+};
+
+class SideBySideDiffOutput
+{
+public:
+    std::array<SideDiffOutput, SideCount> side{};
+    // 'foldingIndent' is populated with <block number> and folding indentation
+    // value where 1 indicates start of new file and 2 indicates a diff chunk.
+    // Remaining lines (diff contents) are assigned 3.
+    QHash<int, int> foldingIndent;
+};
+
 
 class SideBySideDiffEditorWidget : public QWidget
 {
@@ -123,8 +143,6 @@ private:
     DiffEditorWidgetController m_controller;
 
     bool m_horizontalSync = false;
-
-    QTextCharFormat m_spanLineFormat;
 };
 
 } // namespace Internal

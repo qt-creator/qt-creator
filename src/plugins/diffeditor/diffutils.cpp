@@ -1310,4 +1310,17 @@ QList<FileData> DiffUtils::readPatch(const QString &patch, bool *ok,
     return fileDataList;
 }
 
+int DiffUtils::interpolate(int x, int x1, int x2, int y1, int y2)
+{
+    if (x1 == x2)
+        return x1;
+    if (x == x1)
+        return y1;
+    if (x == x2)
+        return y2;
+    const int numerator = (y2 - y1) * x + x2 * y1 - x1 * y2;
+    const int denominator = x2 - x1;
+    return qRound((double)numerator / denominator);
+}
+
 } // namespace DiffEditor

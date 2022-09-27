@@ -12,6 +12,7 @@ class DiffSelection
 {
 public:
     DiffSelection() = default;
+    // TODO: remove this constructors and make format the first field of this class
     DiffSelection(QTextCharFormat *f) : format(f) {}
     DiffSelection(int s, int e, QTextCharFormat *f) : start(s), end(e), format(f) {}
 

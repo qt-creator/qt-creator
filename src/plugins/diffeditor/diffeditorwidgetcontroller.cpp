@@ -221,6 +221,7 @@ void DiffEditorWidgetController::setFontSettings(const FontSettings &fontSetting
 {
     m_fileLineFormat  = fontSettings.toTextCharFormat(C_DIFF_FILE_LINE);
     m_chunkLineFormat = fontSettings.toTextCharFormat(C_DIFF_CONTEXT_LINE);
+    m_spanLineFormat  = fontSettings.toTextCharFormat(C_LINE_NUMBER);
     m_leftLineFormat  = fontSettings.toTextCharFormat(C_DIFF_SOURCE_LINE);
     m_leftCharFormat  = fontSettings.toTextCharFormat(C_DIFF_SOURCE_CHAR);
     m_rightLineFormat = fontSettings.toTextCharFormat(C_DIFF_DEST_LINE);
@@ -334,6 +335,7 @@ DiffEditorInput::DiffEditorInput(DiffEditorWidgetController *controller)
     : m_contextFileData(controller->m_contextFileData)
     , m_fileLineFormat(&controller->m_fileLineFormat)
     , m_chunkLineFormat(&controller->m_chunkLineFormat)
+    , m_spanLineFormat(&controller->m_spanLineFormat)
     , m_leftLineFormat(&controller->m_leftLineFormat)
     , m_rightLineFormat(&controller->m_rightLineFormat)
     , m_leftCharFormat(&controller->m_leftCharFormat)
