@@ -36,10 +36,6 @@ public:
 class VCSBASE_EXPORT VcsBaseSubmitEditor : public Core::IEditor
 {
     Q_OBJECT
-    Q_PROPERTY(QAbstractItemView::SelectionMode fileListSelectionMode READ fileListSelectionMode WRITE setFileListSelectionMode DESIGNABLE true)
-    Q_PROPERTY(bool lineWrap READ lineWrap WRITE setLineWrap DESIGNABLE true)
-    Q_PROPERTY(int lineWrapWidth READ lineWrapWidth WRITE setLineWrapWidth DESIGNABLE true)
-    Q_PROPERTY(bool emptyFileListEnabled READ isEmptyFileListEnabled WRITE setEmptyFileListEnabled DESIGNABLE true)
 
 protected:
     explicit VcsBaseSubmitEditor(SubmitEditorWidget *editorWidget);

@@ -110,11 +110,6 @@ public:
 
 class VCSBASE_EXPORT VcsBaseEditorWidget : public TextEditor::TextEditorWidget
 {
-    Q_PROPERTY(QString source READ source WRITE setSource)
-    Q_PROPERTY(Utils::FilePath workingDirectory READ workingDirectory WRITE setWorkingDirectory)
-    Q_PROPERTY(QTextCodec *codec READ codec WRITE setCodec)
-    Q_PROPERTY(QString annotateRevisionTextFormat READ annotateRevisionTextFormat WRITE setAnnotateRevisionTextFormat)
-    Q_PROPERTY(bool isFileLogAnnotateEnabled READ isFileLogAnnotateEnabled WRITE setFileLogAnnotateEnabled)
     Q_OBJECT
 
 protected:
