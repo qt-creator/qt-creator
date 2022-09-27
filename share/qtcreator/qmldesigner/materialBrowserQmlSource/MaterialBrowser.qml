@@ -125,7 +125,10 @@ Item {
             width: parent.width
 
             onAboutToShow: {
-                root.matSectionsModel = ["All"];
+                if (root.currentMaterial.hasDynamicProperties)
+                    root.matSectionsModel = ["All", "Custom"];
+                else
+                    root.matSectionsModel = ["All"];
 
                 switch (root.currentMaterial.materialType) {
                 case "DefaultMaterial":

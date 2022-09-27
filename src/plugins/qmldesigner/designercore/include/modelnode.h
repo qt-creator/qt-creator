@@ -145,6 +145,7 @@ public:
     QList<NodeListProperty> nodeListProperties() const;
     QList<BindingProperty> bindingProperties() const;
     QList<SignalHandlerProperty> signalProperties() const;
+    QList<AbstractProperty> dynamicProperties() const;
     PropertyNameList propertyNames() const;
 
     bool hasProperties() const;

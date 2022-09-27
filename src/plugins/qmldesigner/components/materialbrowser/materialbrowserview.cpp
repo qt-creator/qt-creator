@@ -25,6 +25,7 @@
 
 #include "materialbrowserview.h"
 
+#include "bindingproperty.h"
 #include "bundlematerial.h"
 #include "materialbrowserwidget.h"
 #include "materialbrowsermodel.h"
@@ -105,13 +106,19 @@ WidgetInfo MaterialBrowserView::widgetInfo()
                     // remove current properties
                     PropertyNameList propNames;
                     if (mat.isInBaseState()) {
-                        propNames = material.propertyNames();
+                        const QList<AbstractProperty> baseProps = material.properties();
+                        for (const auto &baseProp : baseProps) {
+                            if (!baseProp.isDynamic())
+                                propNames.append(baseProp.name());
+                        }
                     } else {
                         QmlPropertyChanges changes = mat.propertyChangeForCurrentState();
                         if (changes.isValid()) {
                             const QList<AbstractProperty> changedProps = changes.targetProperties();
-                            for (const auto &changedProp : changedProps)
-                                propNames.append(changedProp.name());
+                            for (const auto &changedProp : changedProps) {
+                                if (!changedProp.isDynamic())
+                                    propNames.append(changedProp.name());
+                            }
                         }
                     }
                     for (const PropertyName &propName : qAsConst(propNames)) {
@@ -122,14 +129,29 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 
                 // apply pasted properties
                 for (const QmlDesigner::MaterialBrowserModel::PropertyCopyData &propData : propDatas) {
-                    if (propData.name == "objectName")
-                        continue;
-
                     if (propData.isValid) {
-                        if (propData.isBinding)
+                        const bool isDynamic = !propData.dynamicTypeName.isEmpty();
+                        const bool isBaseState = currentState().isBaseState();
+                        const bool hasProperty = mat.hasProperty(propData.name);
+                        if (propData.isBinding) {
+                            if (isDynamic && (!hasProperty || isBaseState)) {
+                                mat.modelNode().bindingProperty(propData.name)
+                                        .setDynamicTypeNameAndExpression(
+                                            propData.dynamicTypeName, propData.value.toString());
+                                continue;
+                            }
                             mat.setBindingProperty(propData.name, propData.value.toString());
-                        else
+                        } else {
+                            const bool isRecording = mat.timelineIsActive()
+                                    && mat.currentTimeline().isRecording();
+                            if (isDynamic && (!hasProperty || (isBaseState && !isRecording))) {
+                                mat.modelNode().variantProperty(propData.name)
+                                        .setDynamicTypeNameAndValue(
+                                            propData.dynamicTypeName, propData.value);
+                                continue;
+                            }
                             mat.setVariantProperty(propData.name, propData.value);
+                        }
                     } else {
                         mat.removeProperty(propData.name);
                     }

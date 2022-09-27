@@ -73,6 +73,9 @@ QVariant MaterialBrowserModel::data(const QModelIndex &index, int role) const
         return matType;
     }
 
+    if (roleName == "hasDynamicProperties")
+        return !m_materialList.at(index.row()).dynamicProperties().isEmpty();
+
     return {};
 }
 
@@ -143,7 +146,8 @@ QHash<int, QByteArray> MaterialBrowserModel::roleNames() const
         {Qt::UserRole + 1, "materialName"},
         {Qt::UserRole + 2, "materialInternalId"},
         {Qt::UserRole + 3, "materialVisible"},
-        {Qt::UserRole + 4, "materialType"}
+        {Qt::UserRole + 4, "materialType"},
+        {Qt::UserRole + 5, "hasDynamicProperties"}
     };
     return roles;
 }
@@ -360,33 +364,47 @@ void MaterialBrowserModel::copyMaterialProperties(int idx, const QString &sectio
 
     setCopiedMaterialType(matType);
     m_allPropsCopied = section == "All";
+    bool dynamicPropsCopied = section == "Custom";
     QmlObjectNode mat(m_copiedMaterial);
 
     QSet<PropertyName> validProps;
+    QHash<PropertyName, TypeName> dynamicProps;
     PropertyNameList copiedProps;
 
-    // Base state properties are always valid
-    const auto baseProps = m_copiedMaterial.propertyNames();
-    for (const auto &baseProp : baseProps)
-        validProps.insert(baseProp);
-
-    if (!mat.isInBaseState()) {
-        QmlPropertyChanges changes = mat.propertyChangeForCurrentState();
-        if (changes.isValid()) {
-            const QList<AbstractProperty> changedProps = changes.targetProperties();
-            for (const auto &changedProp : changedProps)
-                validProps.insert(changedProp.name());
+    if (dynamicPropsCopied || m_allPropsCopied) {
+        // Dynamic properties must always be set in base state
+        const QList<AbstractProperty> dynProps = m_copiedMaterial.dynamicProperties();
+        for (const auto &prop : dynProps) {
+            dynamicProps.insert(prop.name(), prop.dynamicTypeName());
+            validProps.insert(prop.name());
         }
     }
 
-    if (mat.timelineIsActive()) {
-        const QList<QmlTimelineKeyframeGroup> keyframeGroups
-                = mat.currentTimeline().keyframeGroupsForTarget(m_copiedMaterial);
-        for (const auto &kfg : keyframeGroups)
-            validProps.insert(kfg.propertyName());
-    }
+    if (!dynamicPropsCopied) {
+        // Base state properties are always valid
+        const auto baseProps = m_copiedMaterial.propertyNames();
+        for (const auto &baseProp : baseProps)
+            validProps.insert(baseProp);
 
-    if (m_allPropsCopied || m_propertyGroupsObj.empty()) {
+        if (!mat.isInBaseState()) {
+            QmlPropertyChanges changes = mat.propertyChangeForCurrentState();
+            if (changes.isValid()) {
+                const QList<AbstractProperty> changedProps = changes.targetProperties();
+                for (const auto &changedProp : changedProps)
+                    validProps.insert(changedProp.name());
+            }
+        }
+
+        if (mat.timelineIsActive()) {
+            const QList<QmlTimelineKeyframeGroup> keyframeGroups
+                    = mat.currentTimeline().keyframeGroupsForTarget(m_copiedMaterial);
+            for (const auto &kfg : keyframeGroups)
+                validProps.insert(kfg.propertyName());
+        }
+    }
+    validProps.remove("objectName");
+
+    if (m_allPropsCopied || dynamicPropsCopied || m_propertyGroupsObj.empty()) {
         copiedProps = validProps.values();
     } else {
         QJsonObject propsSpecObj = m_propertyGroupsObj.value(m_copiedMaterialType).toObject();
@@ -411,8 +429,10 @@ void MaterialBrowserModel::copyMaterialProperties(int idx, const QString &sectio
         PropertyCopyData data;
         data.name = propName;
         data.isValid = m_allPropsCopied || validProps.contains(propName);
-        data.isBinding = mat.hasBindingProperty(propName);
         if (data.isValid) {
+            if (dynamicProps.contains(propName))
+                data.dynamicTypeName = dynamicProps[propName];
+            data.isBinding = mat.hasBindingProperty(propName);
             if (data.isBinding)
                 data.value = mat.expression(propName);
             else
