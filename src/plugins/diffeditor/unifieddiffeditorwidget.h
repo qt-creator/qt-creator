@@ -115,7 +115,6 @@ private:
     {
         QSharedPointer<TextEditor::TextDocument> textDocument;
         UnifiedDiffData diffData;
-        QHash<int, int> foldingIndent;
         DiffSelections selections;
     };
 

@@ -545,10 +545,6 @@ void UnifiedDiffEditorWidget::showDiff()
                 setTextDocument(doc);
 
                 setReadOnly(true);
-
-                QTextBlock block = document()->firstBlock();
-                for (int b = 0; block.isValid(); block = block.next(), ++b)
-                    setFoldingIndent(block, result.foldingIndent.value(b, 3));
             }
             setSelections(result.selections);
         }
@@ -574,7 +570,7 @@ void UnifiedDiffEditorWidget::showDiff()
             return;
 
         const ShowResult result = {TextDocumentPtr(new TextDocument("DiffEditor.UnifiedDiffEditor")),
-                                   diffData, output.foldingIndent, output.selections};
+                                   diffData, output.selections};
         // No need to store the change history
         result.textDocument->document()->setUndoRedoEnabled(false);
 
@@ -594,6 +590,10 @@ void UnifiedDiffEditorWidget::showDiff()
             if (futureInterface.isCanceled())
                 return;
         }
+
+        QTextBlock block = result.textDocument->document()->firstBlock();
+        for (int b = 0; block.isValid(); block = block.next(), ++b)
+            setFoldingIndent(block, output.foldingIndent.value(b, 3));
 
         // If future was canceled, the destructor runs in this thread, so we can't move it
         // to caller's thread. We push it to no thread (make object to have no thread affinity),
