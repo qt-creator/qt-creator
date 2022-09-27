@@ -3,7 +3,6 @@
 
 #include "theme.h"
 #include "theme_p.h"
-#include "../algorithm.h"
 #include "../hostosinfo.h"
 #include "../qtcassert.h"
 #ifdef Q_OS_MACOS
@@ -11,7 +10,6 @@
 #endif
 
 #include <QApplication>
-#include <QFileInfo>
 #include <QMetaEnum>
 #include <QPalette>
 #include <QSettings>
@@ -223,11 +221,13 @@ bool Theme::systemUsesDarkMode()
         constexpr char regkey[]
             = "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
         bool ok;
-        const auto setting = QSettings(regkey, QSettings::NativeFormat).value("AppsUseLightTheme").toInt(&ok);
+        const int setting = QSettings(regkey, QSettings::NativeFormat).value("AppsUseLightTheme").toInt(&ok);
         return ok && setting == 0;
-    } else if (HostOsInfo::isMacHost()) {
-        return macOSSystemIsDark();
     }
+
+    if (HostOsInfo::isMacHost())
+        return macOSSystemIsDark();
+
     return false;
 }
 
