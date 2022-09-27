@@ -42,6 +42,7 @@
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QVBoxLayout>
 
 using namespace ProjectExplorer;
