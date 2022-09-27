@@ -38,6 +38,7 @@ add_qtc_plugin(QmlDesigner
     dynamiclicensecheck.h
     generateresource.cpp generateresource.h
     openuiqmlfiledialog.cpp openuiqmlfiledialog.h openuiqmlfiledialog.ui
+    puppetenvironmentbuilder.cpp puppetenvironmentbuilder.h
     qmldesignerconstants.h
     qmldesignericons.h
     qmldesignerplugin.cpp qmldesignerplugin.h

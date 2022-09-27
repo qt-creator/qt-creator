@@ -225,6 +225,9 @@ function(extend_with_qmldesigner_core target_name)
       instances/puppetbuildprogressdialog.h
       instances/puppetcreator.cpp
       instances/puppetcreator.h
+      instances/puppetstarter.cpp
+      instances/puppetstarter.h
+      instances/puppetstartdata.h
       instances/puppetdialog.cpp
       instances/puppetdialog.h
       instances/qprocessuniqueptr.h
