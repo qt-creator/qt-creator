@@ -301,7 +301,7 @@ void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
 
 QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData &chunkData,
                                   bool lastChunk, int *blockNumber, int *charNumber,
-                                  QMap<int, QList<DiffSelection>> *selections)
+                                  DiffSelections *selections)
 {
     if (chunkData.contextChunk)
         return QString();
@@ -537,6 +537,7 @@ UnifiedDiffOutput UnifiedDiffData::setDiff(QFutureInterface<void> &fi, int progr
     }
 
     output.diffText.replace('\r', ' ');
+    output.selections = SelectableTextEditorWidget::polishedSelections(output.selections);
     return output;
 }
 
@@ -568,7 +569,6 @@ void UnifiedDiffEditorWidget::showDiff()
                 for (int b = 0; block.isValid(); block = block.next(), ++b)
                     setFoldingIndent(block, result.foldingIndent.value(b, 3));
             }
-            // TODO: this could probably be done in thread, too
             setSelections(result.selections);
         }
         m_watcher.release()->deleteLater();

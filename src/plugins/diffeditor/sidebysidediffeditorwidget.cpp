@@ -353,7 +353,7 @@ void SideDiffEditorWidget::clearAll(const QString &message)
 void SideDiffEditorWidget::clearAllData()
 {
     m_data = {};
-    setSelections(QMap<int, QList<DiffSelection>>());
+    setSelections({});
 }
 
 void SideDiffEditorWidget::scrollContentsBy(int dx, int dy)
@@ -844,8 +844,8 @@ void SideBySideDiffEditorWidget::restoreState()
 
 void SideBySideDiffEditorWidget::showDiff()
 {
-    QMap<int, QList<DiffSelection>> leftFormats;
-    QMap<int, QList<DiffSelection>> rightFormats;
+    DiffSelections leftFormats;
+    DiffSelections rightFormats;
 
     SideDiffData leftData;
     SideDiffData rightData;
@@ -1001,8 +1001,8 @@ void SideBySideDiffEditorWidget::showDiff()
     for (int b = 0; block.isValid(); block = block.next(), ++b)
         SelectableTextEditorWidget::setFoldingIndent(block, foldingIndent.value(b, 3));
 
-    m_leftEditor->setSelections(leftFormats);
-    m_rightEditor->setSelections(rightFormats);
+    m_leftEditor->setSelections(SelectableTextEditorWidget::polishedSelections(leftFormats));
+    m_rightEditor->setSelections(SelectableTextEditorWidget::polishedSelections(rightFormats));
 }
 
 void SideBySideDiffEditorWidget::setFontSettings(

@@ -33,8 +33,7 @@ public:
     // value where 1 indicates start of new file and 2 indicates a diff chunk.
     // Remaining lines (diff contents) are assigned 3.
     QHash<int, int> foldingIndent;
-
-    QMap<int, QList<DiffSelection>> selections;
+    DiffSelections selections;
 };
 
 class UnifiedDiffData
@@ -59,7 +58,7 @@ private:
     void setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex);
     QString setChunk(const DiffEditorInput &input, const ChunkData &chunkData, bool lastChunk,
                      int *blockNumber, int *charNumber,
-                     QMap<int, QList<DiffSelection>> *selections);
+                     DiffSelections *selections);
 };
 
 class UnifiedDiffEditorWidget final : public SelectableTextEditorWidget
@@ -117,7 +116,7 @@ private:
         QSharedPointer<TextEditor::TextDocument> textDocument;
         UnifiedDiffData diffData;
         QHash<int, int> foldingIndent;
-        QMap<int, QList<DiffSelection>> selections;
+        DiffSelections selections;
     };
 
     std::unique_ptr<QFutureWatcher<ShowResult>> m_watcher;
