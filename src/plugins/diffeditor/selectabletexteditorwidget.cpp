@@ -47,9 +47,9 @@ static QList<DiffSelection> subtractSelection(
 
     QList<DiffSelection> diffList;
     if (makeMinuendSubtrahendStart)
-        diffList << DiffSelection(minuendSelection.start, subtrahendSelection.start, minuendSelection.format);
+        diffList += {minuendSelection.format, minuendSelection.start, subtrahendSelection.start};
     if (makeSubtrahendMinuendEnd)
-        diffList << DiffSelection(subtrahendSelection.end, minuendSelection.end, minuendSelection.format);
+        diffList += {minuendSelection.format, subtrahendSelection.end, minuendSelection.end};
 
     return diffList;
 }

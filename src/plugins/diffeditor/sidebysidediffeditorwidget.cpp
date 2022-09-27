@@ -274,8 +274,8 @@ SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterface<void> &fi, int pr
         QString leftText, rightText;
 
         foldingIndent.insert(blockNumber, 1);
-        leftFormats[blockNumber].append(DiffSelection(input.m_fileLineFormat));
-        rightFormats[blockNumber].append(DiffSelection(input.m_fileLineFormat));
+        leftFormats[blockNumber].append({input.m_fileLineFormat});
+        rightFormats[blockNumber].append({input.m_fileLineFormat});
         leftData.setFileInfo(blockNumber, contextFileData.fileInfo[LeftSide]);
         rightData.setFileInfo(blockNumber, contextFileData.fileInfo[RightSide]);
         leftText = separator;
@@ -286,8 +286,8 @@ SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterface<void> &fi, int pr
 
         if (contextFileData.binaryFiles) {
             foldingIndent.insert(blockNumber, 2);
-            leftFormats[blockNumber].append(DiffSelection(input.m_chunkLineFormat));
-            rightFormats[blockNumber].append(DiffSelection(input.m_chunkLineFormat));
+            leftFormats[blockNumber].append({input.m_chunkLineFormat});
+            rightFormats[blockNumber].append({input.m_chunkLineFormat});
             leftData.setSkippedLines(blockNumber, -2);
             rightData.setSkippedLines(blockNumber, -2);
             leftText += separator;
@@ -304,8 +304,8 @@ SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterface<void> &fi, int pr
                     const int skippedLines = leftLineNumber - lastLeftLineNumber - 1;
                     if (skippedLines > 0) {
                         foldingIndent.insert(blockNumber, 2);
-                        leftFormats[blockNumber].append(DiffSelection(input.m_chunkLineFormat));
-                        rightFormats[blockNumber].append(DiffSelection(input.m_chunkLineFormat));
+                        leftFormats[blockNumber].append({input.m_chunkLineFormat});
+                        rightFormats[blockNumber].append({input.m_chunkLineFormat});
                         leftData.setSkippedLines(blockNumber, skippedLines, chunkData.contextInfo);
                         rightData.setSkippedLines(blockNumber, skippedLines, chunkData.contextInfo);
                         leftText += separator;
@@ -338,25 +338,25 @@ SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterface<void> &fi, int pr
 
                         if (!rowData.equal) {
                             if (rowData.line[LeftSide].textLineType == TextLineData::TextLine)
-                                leftFormats[blockNumber].append(DiffSelection(input.m_leftLineFormat));
+                                leftFormats[blockNumber].append({input.m_leftLineFormat});
                             else
-                                leftFormats[blockNumber].append(DiffSelection(input.m_spanLineFormat));
+                                leftFormats[blockNumber].append({input.m_spanLineFormat});
                             if (rowData.line[RightSide].textLineType == TextLineData::TextLine)
-                                rightFormats[blockNumber].append(DiffSelection(input.m_rightLineFormat));
+                                rightFormats[blockNumber].append({input.m_rightLineFormat});
                             else
-                                rightFormats[blockNumber].append(DiffSelection(input.m_spanLineFormat));
+                                rightFormats[blockNumber].append({input.m_spanLineFormat});
                         }
 
                         for (auto it = leftLineData.changedPositions.cbegin(),
                                   end = leftLineData.changedPositions.cend(); it != end; ++it) {
                             leftFormats[blockNumber].append(
-                                        {it.key(), it.value(), input.m_leftCharFormat});
+                                        {input.m_leftCharFormat, it.key(), it.value()});
                         }
 
                         for (auto it = rightLineData.changedPositions.cbegin(),
                                   end = rightLineData.changedPositions.cend(); it != end; ++it) {
                             rightFormats[blockNumber].append(
-                                        {it.key(), it.value(), input.m_rightCharFormat});
+                                        {input.m_rightCharFormat, it.key(), it.value()});
                         }
 
                         leftText += separator;
@@ -378,8 +378,8 @@ SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterface<void> &fi, int pr
                     }
 
                     if (skippedLines >= -1) {
-                        leftFormats[blockNumber].append(DiffSelection(input.m_chunkLineFormat));
-                        rightFormats[blockNumber].append(DiffSelection(input.m_chunkLineFormat));
+                        leftFormats[blockNumber].append({input.m_chunkLineFormat});
+                        rightFormats[blockNumber].append({input.m_chunkLineFormat});
                         leftData.setSkippedLines(blockNumber, skippedLines);
                         rightData.setSkippedLines(blockNumber, skippedLines);
                         leftText += separator;

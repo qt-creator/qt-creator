@@ -11,14 +11,9 @@ namespace Internal {
 class DiffSelection
 {
 public:
-    DiffSelection() = default;
-    // TODO: remove this constructors and make format the first field of this class
-    DiffSelection(QTextCharFormat *f) : format(f) {}
-    DiffSelection(int s, int e, QTextCharFormat *f) : start(s), end(e), format(f) {}
-
+    QTextCharFormat *format = nullptr;
     int start = -1;
     int end = -1;
-    QTextCharFormat *format = nullptr;
 };
 
 // block number, list of ranges

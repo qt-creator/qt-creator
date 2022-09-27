@@ -314,7 +314,7 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
     QList<TextLineData> leftBuffer, rightBuffer;
     QList<int> leftRowsBuffer, rightRowsBuffer;
 
-    (*selections)[*blockNumber].append(DiffSelection(input.m_chunkLineFormat));
+    (*selections)[*blockNumber].append({input.m_chunkLineFormat});
 
     int lastEqualRow = -1;
     if (lastChunk) {
@@ -346,14 +346,14 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
                     const int blockDelta = line.count('\n'); // no new line
                                                      // could have been added
                     for (int k = 0; k < blockDelta; k++)
-                        (*selections)[*blockNumber + blockCount + 1 + k].append(input.m_leftLineFormat);
+                        (*selections)[*blockNumber + blockCount + 1 + k].append({input.m_leftLineFormat});
 
                     for (auto it = lineData.changedPositions.cbegin(),
                               end = lineData.changedPositions.cend(); it != end; ++it) {
                         const int startPos = it.key() < 0 ? 1 : it.key() + 1;
                         const int endPos = it.value() < 0 ? it.value() : it.value() + 1;
                         (*selections)[*blockNumber + blockCount + 1].append(
-                                    DiffSelection(startPos, endPos, input.m_leftCharFormat));
+                                    {input.m_leftCharFormat, startPos, endPos});
                     }
 
                     if (!line.isEmpty()) {
@@ -385,14 +385,14 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
                                                      // could have been added
 
                     for (int k = 0; k < blockDelta; k++)
-                        (*selections)[*blockNumber + blockCount + 1 + k].append(input.m_rightLineFormat);
+                        (*selections)[*blockNumber + blockCount + 1 + k].append({input.m_rightLineFormat});
 
                     for (auto it = lineData.changedPositions.cbegin(),
                               end = lineData.changedPositions.cend(); it != end; ++it) {
                         const int startPos = it.key() < 0 ? 1 : it.key() + 1;
                         const int endPos = it.value() < 0 ? it.value() : it.value() + 1;
-                        (*selections)[*blockNumber + blockCount + 1].append
-                                (DiffSelection(startPos, endPos, input.m_rightCharFormat));
+                        (*selections)[*blockNumber + blockCount + 1].append(
+                                    {input.m_rightCharFormat, startPos, endPos});
                     }
 
                     if (!line.isEmpty()) {
@@ -477,10 +477,10 @@ UnifiedDiffOutput UnifiedDiffData::setDiff(QFutureInterface<void> &fi, int progr
         const QString rightFileInfo = "+++ " + fileData.fileInfo[RightSide].fileName + '\n';
         setFileInfo(blockNumber, fileData.fileInfo[LeftSide], fileData.fileInfo[RightSide]);
         output.foldingIndent.insert(blockNumber, 1);
-        output.selections[blockNumber].append(DiffSelection(input.m_fileLineFormat));
+        output.selections[blockNumber].append({input.m_fileLineFormat});
         blockNumber++;
         output.foldingIndent.insert(blockNumber, 1);
-        output.selections[blockNumber].append(DiffSelection(input.m_fileLineFormat));
+        output.selections[blockNumber].append({input.m_fileLineFormat});
         blockNumber++;
 
         output.diffText += leftFileInfo;
@@ -489,7 +489,7 @@ UnifiedDiffOutput UnifiedDiffData::setDiff(QFutureInterface<void> &fi, int progr
 
         if (fileData.binaryFiles) {
             output.foldingIndent.insert(blockNumber, 2);
-            output.selections[blockNumber].append(DiffSelection(input.m_chunkLineFormat));
+            output.selections[blockNumber].append({input.m_chunkLineFormat});
             blockNumber++;
             const QString binaryLine = "Binary files "
                     + fileData.fileInfo[LeftSide].fileName
