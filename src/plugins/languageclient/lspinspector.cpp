@@ -14,6 +14,7 @@
 #include <utils/listmodel.h>
 
 #include <QAction>
+#include <QApplication>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QElapsedTimer>
@@ -342,7 +343,7 @@ void LspInspector::show(const QString &defaultClient)
         m_currentWidget->setAttribute(Qt::WA_DeleteOnClose);
         Core::ICore::registerWindow(m_currentWidget, Core::Context("LanguageClient.Inspector"));
     } else {
-        qApp->setActiveWindow(m_currentWidget);
+        QApplication::setActiveWindow(m_currentWidget);
     }
     if (!defaultClient.isEmpty())
         static_cast<LspInspectorWidget *>(m_currentWidget.data())->selectClient(defaultClient);

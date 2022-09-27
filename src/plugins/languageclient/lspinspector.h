@@ -5,6 +5,7 @@
 
 #include "dynamiccapabilities.h"
 
+#include <QPointer>
 #include <QTime>
 #include <QWidget>
 
