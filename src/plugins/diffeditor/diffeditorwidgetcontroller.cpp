@@ -164,7 +164,7 @@ void DiffEditorWidgetController::patch(bool revert, int fileIndex, int chunkInde
     if (patchBehaviour == DiffFileInfo::PatchFile) {
         const int strip = m_document->baseDirectory().isEmpty() ? -1 : 0;
 
-        const QString patch = m_document->makePatch(fileIndex, chunkIndex, ChunkSelection(), revert);
+        const QString patch = m_document->makePatch(fileIndex, chunkIndex, {}, revert);
 
         if (patch.isEmpty())
             return;
@@ -190,7 +190,7 @@ void DiffEditorWidgetController::patch(bool revert, int fileIndex, int chunkInde
         const QString contentsCopyDir = QFileInfo(contentsCopyFileName).absolutePath();
 
         const QString patch = m_document->makePatch(fileIndex, chunkIndex,
-                                                    ChunkSelection(), revert, false,
+                                                    {}, revert, false,
                                                     QFileInfo(contentsCopyFileName).fileName());
 
         if (patch.isEmpty())
@@ -251,18 +251,12 @@ bool DiffEditorWidgetController::chunkExists(int fileIndex, int chunkIndex) cons
 
 ChunkData DiffEditorWidgetController::chunkData(int fileIndex, int chunkIndex) const
 {
-    if (!m_document)
-        return ChunkData();
-
-    if (fileIndex < 0 || chunkIndex < 0)
-        return ChunkData();
-
-    if (fileIndex >= m_contextFileData.count())
-        return ChunkData();
+    if (!m_document || fileIndex < 0 || chunkIndex < 0 || fileIndex >= m_contextFileData.count())
+        return {};
 
     const FileData fileData = m_contextFileData.at(fileIndex);
     if (chunkIndex >= fileData.chunks.count())
-        return ChunkData();
+        return {};
 
     return fileData.chunks.at(chunkIndex);
 }
@@ -328,8 +322,7 @@ void DiffEditorWidgetController::sendChunkToCodePaster(int fileIndex, int chunkI
     auto pasteService = ExtensionSystem::PluginManager::getObject<CodePaster::Service>();
     QTC_ASSERT(pasteService, return);
 
-    const QString patch = m_document->makePatch(fileIndex, chunkIndex,
-                                                ChunkSelection(), false);
+    const QString patch = m_document->makePatch(fileIndex, chunkIndex, {}, false);
 
     if (patch.isEmpty())
         return;

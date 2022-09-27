@@ -31,11 +31,11 @@ static QList<DiffSelection> subtractSelection(
 {
     // tha case that whole minuend is before the whole subtrahend
     if (minuendSelection.end >= 0 && minuendSelection.end <= subtrahendSelection.start)
-        return QList<DiffSelection>() << minuendSelection;
+        return {minuendSelection};
 
     // the case that whole subtrahend is before the whole minuend
     if (subtrahendSelection.end >= 0 && subtrahendSelection.end <= minuendSelection.start)
-        return QList<DiffSelection>() << minuendSelection;
+        return {minuendSelection};
 
     bool makeMinuendSubtrahendStart = false;
     bool makeSubtrahendMinuendEnd = false;

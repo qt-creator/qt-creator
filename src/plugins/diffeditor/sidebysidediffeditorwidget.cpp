@@ -39,7 +39,6 @@ public:
     SideDiffEditorWidget(QWidget *parent = nullptr);
 
     void clearAll(const QString &message);
-    void clearAllData();
     void saveState();
     using TextEditor::TextEditorWidget::restoreState;
     void restoreState();
@@ -193,7 +192,7 @@ QString SideDiffEditorWidget::lineNumber(int blockNumber) const
     const auto it = m_data.m_lineNumbers.constFind(blockNumber);
     if (it != m_data.m_lineNumbers.constEnd())
         return QString::number(it.value());
-    return QString();
+    return {};
 }
 
 int SideDiffEditorWidget::lineNumberDigits() const
@@ -223,7 +222,7 @@ QString SideDiffEditorWidget::plainTextFromSelection(const QTextCursor &cursor) 
     const int startPosition = cursor.selectionStart();
     const int endPosition = cursor.selectionEnd();
     if (startPosition == endPosition)
-        return QString(); // no selection
+        return {}; // no selection
 
     const QTextBlock startBlock = document()->findBlock(startPosition);
     const QTextBlock endBlock = document()->findBlock(endPosition);
@@ -344,16 +343,10 @@ int SideDiffData::chunkRowsCountForBlockNumber(int blockNumber) const
 void SideDiffEditorWidget::clearAll(const QString &message)
 {
     clear();
-    clearAllData();
-    setExtraSelections(TextEditorWidget::OtherSelection,
-                       QList<QTextEdit::ExtraSelection>());
-    setPlainText(message);
-}
-
-void SideDiffEditorWidget::clearAllData()
-{
     m_data = {};
     setSelections({});
+    setExtraSelections(TextEditorWidget::OtherSelection, {});
+    setPlainText(message);
 }
 
 void SideDiffEditorWidget::scrollContentsBy(int dx, int dy)
@@ -544,7 +537,7 @@ void SideDiffEditorWidget::paintEvent(QPaintEvent *e)
                                       m_drawCollapsedOffset,
                                       m_drawCollapsedClip);
         // reset the data for the drawing
-        m_drawCollapsedBlock = QTextBlock();
+        m_drawCollapsedBlock = {};
     }
 }
 
@@ -565,8 +558,8 @@ void SideDiffEditorWidget::customDrawCollapsedBlockPopup(QPainter &painter,
             QRectF r = blockBoundingRect(b).translated(offset);
 
             QTextLayout *layout = b.layout();
-            for (int i = layout->lineCount()-1; i >= 0; --i)
-                maxWidth = qMax(maxWidth, layout->lineAt(i).naturalTextWidth() + 2*margin);
+            for (int i = layout->lineCount() - 1; i >= 0; --i)
+                maxWidth = qMax(maxWidth, layout->lineAt(i).naturalTextWidth() + 2 * margin);
 
             blockHeight += r.height();
 
@@ -585,9 +578,8 @@ void SideDiffEditorWidget::customDrawCollapsedBlockPopup(QPainter &painter,
     if (ifdefedOutFormat.hasProperty(QTextFormat::BackgroundBrush))
         brush = ifdefedOutFormat.background();
     painter.setBrush(brush);
-    painter.drawRoundedRect(QRectF(offset.x(),
-                                   offset.y(),
-                                   maxWidth, blockHeight).adjusted(0, 0, 0, 0), 3, 3);
+    painter.drawRoundedRect(QRectF(offset.x(), offset.y(), maxWidth, blockHeight)
+                            .adjusted(0, 0, 0, 0), 3, 3);
     painter.restore();
 
     QTextBlock end = b;
@@ -782,7 +774,7 @@ DiffEditorDocument *SideBySideDiffEditorWidget::diffDocument() const
 void SideBySideDiffEditorWidget::clear(const QString &message)
 {
     const GuardLocker locker(m_controller.m_ignoreChanges);
-    setDiff(QList<FileData>());
+    setDiff({});
     m_leftEditor->clearAll(message);
     m_rightEditor->clearAll(message);
 }

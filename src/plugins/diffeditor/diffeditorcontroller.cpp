@@ -63,7 +63,7 @@ Core::IDocument *DiffEditorController::findOrCreateDocument(const QString &vcsId
 {
     QString preferredDisplayName = displayName;
     Core::IEditor *editor = Core::EditorManager::openEditorWithContents(
-                Constants::DIFF_EDITOR_ID, &preferredDisplayName, QByteArray(), vcsId);
+                Constants::DIFF_EDITOR_ID, &preferredDisplayName, {}, vcsId);
     return editor ? editor->document() : nullptr;
 }
 

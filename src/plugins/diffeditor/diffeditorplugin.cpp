@@ -146,7 +146,7 @@ void DiffFilesController::cancelReload()
 {
     if (m_futureWatcher.future().isRunning()) {
         m_futureWatcher.future().cancel();
-        m_futureWatcher.setFuture(QFuture<FileData>());
+        m_futureWatcher.setFuture({});
     }
 }
 
@@ -850,7 +850,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testMakePatch()
 void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
 {
     QTest::addColumn<QString>("sourcePatch");
-    QTest::addColumn<QList<FileData> >("fileDataList");
+    QTest::addColumn<QList<FileData>>("fileDataList");
 
     QString patch = "diff --git a/src/plugins/diffeditor/diffeditor.cpp b/src/plugins/diffeditor/diffeditor.cpp\n"
                     "index eab9e9b..082c135 100644\n"
@@ -1189,11 +1189,11 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
             " \n"
             ;
 
-    fileData1 = FileData();
+    fileData1 = {};
     fileData1.fileInfo = {DiffFileInfo("src/plugins/texteditor/basetextdocument.h"),
                           DiffFileInfo("src/plugins/texteditor/textdocument.h")};
     fileData1.fileOperation = FileData::RenameFile;
-    fileData2 = FileData();
+    fileData2 = {};
     fileData2.fileInfo = {DiffFileInfo("src/plugins/texteditor/basetextdocumentlayout.cpp", "0121933"),
                           DiffFileInfo("src/plugins/texteditor/textdocumentlayout.cpp", "01cc3a0")};
     fileData2.fileOperation = FileData::RenameFile;
@@ -1224,7 +1224,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
             "-Subproject commit eda76354077a427d692fee05479910de31040d3f\n"
             "+Subproject commit eda76354077a427d692fee05479910de31040d3f-dirty\n"
             ;
-    fileData1 = FileData();
+    fileData1 = {};
     fileData1.fileInfo = {DiffFileInfo("src/shared/qbs"), DiffFileInfo("src/shared/qbs")};
     chunkData1.startingLineNumber = {0, 0};
     rows1.clear();
@@ -1257,23 +1257,23 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
             "Binary files /dev/null and b/demos/arthurplugin/flower.jpg differ\n"
             ;
 
-    fileData1 = FileData();
+    fileData1 = {};
     fileData1.fileInfo = {DiffFileInfo("demos/arthurplugin/arthurplugin.pro", "0000000"),
                           DiffFileInfo("demos/arthurplugin/arthurplugin.pro", "c5132b4")};
     fileData1.fileOperation = FileData::NewFile;
-    chunkData1 = ChunkData();
+    chunkData1 = {};
     chunkData1.startingLineNumber = {-1, 0};
     rows1.clear();
     rows1 << RowData(TextLineData::Separator, _("XXX"));
     rows1 << RowData(TextLineData::Separator, TextLineData(TextLineData::TextLine));
     chunkData1.rows = rows1;
     fileData1.chunks << chunkData1;
-    fileData2 = FileData();
+    fileData2 = {};
     fileData2.fileInfo = {DiffFileInfo("demos/arthurplugin/bg1.jpg", "0000000"),
                           DiffFileInfo("demos/arthurplugin/bg1.jpg", "dfc7cee")};
     fileData2.fileOperation = FileData::NewFile;
     fileData2.binaryFiles = true;
-    fileData3 = FileData();
+    fileData3 = {};
     fileData3.fileInfo = {DiffFileInfo("demos/arthurplugin/flower.jpg", "0000000"),
                           DiffFileInfo("demos/arthurplugin/flower.jpg", "f8e022c")};
     fileData3.fileOperation = FileData::NewFile;
@@ -1291,7 +1291,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testReadPatch_data()
             "new mode 100755\n"
             ;
 
-    fileData1 = FileData();
+    fileData1 = {};
     fileData1.fileInfo = {DiffFileInfo("script.sh"), DiffFileInfo("script.sh")};
     fileData1.fileOperation = FileData::ChangeMode;
 
@@ -1310,7 +1310,7 @@ rename to new.sh
 )"
             ;
 
-    fileData1 = FileData();
+    fileData1 = {};
     fileData1.fileInfo = {DiffFileInfo("old.sh"), DiffFileInfo("new.sh")};
     fileData1.fileOperation = FileData::RenameFile;
 
@@ -1327,10 +1327,10 @@ rename to new.sh
             "--- src/plugins/subversion/subversioneditor.cpp\t(revision 0)\n"
             "+++ src/plugins/subversion/subversioneditor.cpp\t(revision 0)\n"
             "@@ -0,0 +125 @@\n\n";
-    fileData1 = FileData();
+    fileData1 = {};
     fileData1.fileInfo = {DiffFileInfo("src/plugins/subversion/subversioneditor.cpp"),
                           DiffFileInfo("src/plugins/subversion/subversioneditor.cpp")};
-    chunkData1 = ChunkData();
+    chunkData1 = {};
     chunkData1.startingLineNumber = {-1, 124};
     fileData1.chunks << chunkData1;
     QList<FileData> fileDataList21;
@@ -1346,10 +1346,10 @@ rename to new.sh
             "--- src/plugins/subversion/subversioneditor.cpp\t(revision 42)\n"
             "+++ src/plugins/subversion/subversioneditor.cpp\t(working copy)\n"
             "@@ -1,125 +0,0 @@\n\n";
-    fileData1 = FileData();
+    fileData1 = {};
     fileData1.fileInfo = {DiffFileInfo("src/plugins/subversion/subversioneditor.cpp"),
                           DiffFileInfo("src/plugins/subversion/subversioneditor.cpp")};
-    chunkData1 = ChunkData();
+    chunkData1 = {};
     chunkData1.startingLineNumber = {0, -1};
     fileData1.chunks << chunkData1;
     QList<FileData> fileDataList22;
@@ -1365,10 +1365,10 @@ rename to new.sh
             "--- src/plugins/subversion/subversioneditor.cpp\t(revision 42)\n"
             "+++ src/plugins/subversion/subversioneditor.cpp\t(working copy)\n"
             "@@ -120,7 +120,7 @@\n\n";
-    fileData1 = FileData();
+    fileData1 = {};
     fileData1.fileInfo = {DiffFileInfo("src/plugins/subversion/subversioneditor.cpp"),
                           DiffFileInfo("src/plugins/subversion/subversioneditor.cpp")};
-    chunkData1 = ChunkData();
+    chunkData1 = {};
     chunkData1.startingLineNumber = {119, 119};
     fileData1.chunks << chunkData1;
     QList<FileData> fileDataList23;
@@ -1425,7 +1425,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
     QTest::addColumn<ChunkSelection>("selection");
     QTest::addColumn<bool>("revert");
 
-    auto createChunk = []() {
+    auto createChunk = [] {
         ChunkData chunk;
         chunk.contextInfo = "void DiffEditor::ctor()";
         chunk.contextChunk = false;

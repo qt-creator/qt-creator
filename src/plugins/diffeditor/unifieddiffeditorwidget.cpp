@@ -304,7 +304,7 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
                                   DiffSelections *selections)
 {
     if (chunkData.contextChunk)
-        return QString();
+        return {};
 
     QString diffText;
     int leftLineCount = 0;
@@ -341,8 +341,7 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
                                 '-',
                                 lineData.text,
                                 lastChunk,
-                                i == chunkData.rows.count()
-                                && j == leftBuffer.count() - 1);
+                                i == chunkData.rows.count() && j == leftBuffer.count() - 1);
 
                     const int blockDelta = line.count('\n'); // no new line
                                                      // could have been added
@@ -351,10 +350,8 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
 
                     for (auto it = lineData.changedPositions.cbegin(),
                               end = lineData.changedPositions.cend(); it != end; ++it) {
-                        const int startPos = it.key() < 0
-                                ? 1 : it.key() + 1;
-                        const int endPos = it.value() < 0
-                                ? it.value() : it.value() + 1;
+                        const int startPos = it.key() < 0 ? 1 : it.key() + 1;
+                        const int endPos = it.value() < 0 ? it.value() : it.value() + 1;
                         (*selections)[*blockNumber + blockCount + 1].append(
                                     DiffSelection(startPos, endPos, input.m_leftCharFormat));
                     }
@@ -382,8 +379,7 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
                                 '+',
                                 lineData.text,
                                 lastChunk,
-                                i == chunkData.rows.count()
-                                && j == rightBuffer.count() - 1);
+                                i == chunkData.rows.count() && j == rightBuffer.count() - 1);
 
                     const int blockDelta = line.count('\n'); // no new line
                                                      // could have been added
@@ -393,10 +389,8 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
 
                     for (auto it = lineData.changedPositions.cbegin(),
                               end = lineData.changedPositions.cend(); it != end; ++it) {
-                        const int startPos = it.key() < 0
-                                ? 1 : it.key() + 1;
-                        const int endPos = it.value() < 0
-                                ? it.value() : it.value() + 1;
+                        const int startPos = it.key() < 0 ? 1 : it.key() + 1;
+                        const int endPos = it.value() < 0 ? it.value() : it.value() + 1;
                         (*selections)[*blockNumber + blockCount + 1].append
                                 (DiffSelection(startPos, endPos, input.m_rightCharFormat));
                     }

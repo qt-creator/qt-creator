@@ -120,15 +120,12 @@ QString DiffEditorDocument::makePatch(int fileIndex, int chunkIndex,
                                       bool revert, bool addPrefix,
                                       const QString &overriddenFileName) const
 {
-    if (fileIndex < 0 || chunkIndex < 0)
-        return QString();
-
-    if (fileIndex >= m_diffFiles.count())
-        return QString();
+    if (fileIndex < 0 || chunkIndex < 0 || fileIndex >= m_diffFiles.count())
+        return {};
 
     const FileData &fileData = m_diffFiles.at(fileIndex);
     if (chunkIndex >= fileData.chunks.count())
-        return QString();
+        return {};
 
     const ChunkData chunkData = filterChunk(fileData.chunks.at(chunkIndex), selection, revert);
     const bool lastChunk = (chunkIndex == fileData.chunks.count() - 1);
@@ -257,12 +254,12 @@ bool DiffEditorDocument::save(QString *errorString, const FilePath &filePath, bo
         return false;
 
     setController(nullptr);
-    setDescription(QString());
+    setDescription({});
     Core::EditorManager::clearUniqueId(this);
 
     setTemporary(false);
     setFilePath(filePath.absoluteFilePath());
-    setPreferredDisplayName(QString());
+    setPreferredDisplayName({});
     emit temporaryStateChanged();
 
     return true;
@@ -393,8 +390,8 @@ void DiffEditorDocument::beginReload()
     m_state = Reloading;
     emit changed();
     QSignalBlocker blocker(this);
-    setDiffFiles(QList<FileData>(), {});
-    setDescription(QString());
+    setDiffFiles({}, {});
+    setDescription({});
 }
 
 void DiffEditorDocument::endReload(bool success)

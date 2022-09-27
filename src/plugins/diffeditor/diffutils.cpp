@@ -38,12 +38,8 @@ static QList<TextLineData> assemblyRows(const QList<TextLineData> &lines,
 static bool lastLinesEqual(const QList<TextLineData> &leftLines,
                            const QList<TextLineData> &rightLines)
 {
-    const bool leftLineEqual = !leftLines.isEmpty()
-            ? leftLines.last().text.isEmpty()
-            : true;
-    const bool rightLineEqual = !rightLines.isEmpty()
-            ? rightLines.last().text.isEmpty()
-            : true;
+    const bool leftLineEqual = leftLines.isEmpty() || leftLines.last().text.isEmpty();
+    const bool rightLineEqual = rightLines.isEmpty() || rightLines.last().text.isEmpty();
     return leftLineEqual && rightLineEqual;
 }
 
@@ -207,10 +203,8 @@ ChunkData DiffUtils::calculateOriginalData(const QList<Diff> &leftDiffList,
         }
     }
 
-    QList<TextLineData> leftData = assemblyRows(leftLines,
-                                                leftSpans);
-    QList<TextLineData> rightData = assemblyRows(rightLines,
-                                                 rightSpans);
+    QList<TextLineData> leftData = assemblyRows(leftLines, leftSpans);
+    QList<TextLineData> rightData = assemblyRows(rightLines, rightSpans);
 
     // fill ending separators
     for (int i = leftData.size(); i < rightData.size(); i++)
@@ -334,7 +328,7 @@ QString DiffUtils::makePatch(const ChunkData &chunkData,
                              bool lastChunk)
 {
     if (chunkData.contextChunk)
-        return QString();
+        return {};
 
     QString diffText;
     int leftLineCount = 0;
@@ -623,7 +617,7 @@ static QList<RowData> readLines(QStringView patch, bool lastChunk, bool *lastChu
         || (noNewLineInInsert >= 0 && (noNewLineInInsert != lastInsert || lastEqual > lastInsert))) {
         if (ok)
             *ok = false;
-        return QList<RowData>();
+        return {};
     }
 
     if (ok)
@@ -712,7 +706,7 @@ static QStringView readLine(QStringView text, QStringView *remainingText, bool *
     const int indexOfFirstNewLine = text.indexOf(newLine);
     if (indexOfFirstNewLine < 0) {
         if (remainingText)
-            *remainingText = QStringView();
+            *remainingText = {};
         if (hasNewLine)
             *hasNewLine = false;
         return text;
@@ -880,7 +874,7 @@ static FileData readDiffHeaderAndChunks(QStringView headerAndChunks, bool *ok)
         *ok = readOk;
 
     if (!readOk)
-        return FileData();
+        return {};
 
     return fileData;
 
@@ -914,7 +908,7 @@ static QList<FileData> readDiffPatch(QStringView patch, bool *ok, QFutureInterfa
         int lastPos = -1;
         do {
             if (jobController && jobController->isCanceled())
-                return QList<FileData>();
+                return {};
 
             int pos = diffMatch.capturedStart();
             if (lastPos >= 0) {
@@ -948,7 +942,7 @@ static QList<FileData> readDiffPatch(QStringView patch, bool *ok, QFutureInterfa
         *ok = readOk;
 
     if (!readOk)
-        return QList<FileData>();
+        return {};
 
     return fileDataList;
 }
@@ -1044,7 +1038,7 @@ static bool detectIndexAndBinary(QStringView patch, FileData *fileData, QStringV
 
     if (*remainingPatch == binaryLine) {
         fileData->binaryFiles = true;
-        *remainingPatch = QStringView();
+        *remainingPatch = {};
         return true;
     }
 
@@ -1225,7 +1219,7 @@ static QList<FileData> readGitPatch(QStringView patch, bool *ok, QFutureInterfac
     const int count = startingPositions.size();
     for (int i = 0; i < count; i++) {
         if (jobController && jobController->isCanceled())
-            return QList<FileData>();
+            return {};
 
         const int diffStart = startingPositions.at(i);
         const int diffEnd = (i < count - 1)
@@ -1251,7 +1245,7 @@ static QList<FileData> readGitPatch(QStringView patch, bool *ok, QFutureInterfac
     if (!readOk) {
         if (ok)
             *ok = readOk;
-        return QList<FileData>();
+        return {};
     }
 
     if (jobController)
@@ -1263,7 +1257,7 @@ static QList<FileData> readGitPatch(QStringView patch, bool *ok, QFutureInterfac
     for (const auto &patchInfo : qAsConst(patches)) {
         if (jobController) {
             if (jobController->isCanceled())
-                return QList<FileData>();
+                return {};
             jobController->setProgressValue(i++);
         }
 
@@ -1283,7 +1277,7 @@ static QList<FileData> readGitPatch(QStringView patch, bool *ok, QFutureInterfac
         *ok = readOk;
 
     if (!readOk)
-        return QList<FileData>();
+        return {};
 
     return fileDataList;
 }

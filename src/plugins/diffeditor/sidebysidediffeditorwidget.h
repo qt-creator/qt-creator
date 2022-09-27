@@ -47,7 +47,7 @@ public:
 
     void setLineNumber(int blockNumber, int lineNumber);
     void setFileInfo(int blockNumber, const DiffFileInfo &fileInfo);
-    void setSkippedLines(int blockNumber, int skippedLines, const QString &contextInfo = QString()) {
+    void setSkippedLines(int blockNumber, int skippedLines, const QString &contextInfo = {}) {
         m_skippedLines[blockNumber] = qMakePair(skippedLines, contextInfo);
         setSeparator(blockNumber, true);
     }
@@ -89,7 +89,7 @@ public:
     void saveState();
     void restoreState();
 
-    void clear(const QString &message = QString());
+    void clear(const QString &message = {});
 
 signals:
     void currentDiffFileIndexChanged(int index);

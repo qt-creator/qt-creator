@@ -79,7 +79,7 @@ public:
     using TextEditor::TextEditorWidget::restoreState;
     void restoreState();
 
-    void clear(const QString &message = QString());
+    void clear(const QString &message = {});
     void setDisplaySettings(const TextEditor::DisplaySettings &ds) override;
 
 signals:

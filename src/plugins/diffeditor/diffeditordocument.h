@@ -35,10 +35,10 @@ public:
                                  const ChunkSelection &selection, bool revert);
     QString makePatch(int fileIndex, int chunkIndex, const ChunkSelection &selection,
                       bool revert, bool addPrefix = false,
-                      const QString &overriddenFileName = QString()) const;
+                      const QString &overriddenFileName = {}) const;
 
     void setDiffFiles(const QList<FileData> &data, const Utils::FilePath &directory,
-                      const QString &startupFile = QString());
+                      const QString &startupFile = {});
     QList<FileData> diffFiles() const;
     Utils::FilePath baseDirectory() const;
     void setBaseDirectory(const Utils::FilePath &directory);
