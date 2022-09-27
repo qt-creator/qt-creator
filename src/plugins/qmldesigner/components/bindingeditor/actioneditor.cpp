@@ -305,7 +305,8 @@ void ActionEditor::updateWindowName(const QString &targetName)
 }
 
 void ActionEditor::invokeEditor(SignalHandlerProperty signalHandler,
-                                std::function<void(SignalHandlerProperty)> onReject,
+                                std::function<void(SignalHandlerProperty)> removeSignalFunction,
+                                bool removeOnReject,
                                 QObject * parent)
 {
     if (!signalHandler.isValid())
@@ -336,15 +337,23 @@ void ActionEditor::invokeEditor(SignalHandlerProperty signalHandler,
         if (!editor)
             return;
         if (editor->m_modelNode.isValid()) {
-            editor->m_modelNode.view()->executeInTransaction("ActionEditor::"
-                                                             "invokeEditorAccepted",
-                                                             [=]() {
-                                                                 editor->m_modelNode
-                                                                     .signalHandlerProperty(
-                                                                         signalHandler.name())
-                                                                     .setSource(
-                                                                         editor->connectionValue());
-                                                             });
+            editor->m_modelNode.view()
+                ->executeInTransaction("ActionEditor::"
+                                       "invokeEditorAccepted",
+                                       [=]() {
+                                           if (!editor)
+                                               return;
+
+                                           const QString newSource = editor->connectionValue();
+                                           if ((newSource.isNull() || newSource.trimmed().isEmpty())
+                                               && removeSignalFunction) {
+                                               removeSignalFunction(signalHandler);
+                                           } else {
+                                               editor->m_modelNode
+                                                   .signalHandlerProperty(signalHandler.name())
+                                                   .setSource(newSource);
+                                           }
+                                       });
         }
 
         //closing editor widget somewhy triggers rejected() signal. Lets disconect before it affects us:
@@ -356,10 +365,10 @@ void ActionEditor::invokeEditor(SignalHandlerProperty signalHandler,
         if (!editor)
             return;
 
-        if (onReject) {
+        if (removeOnReject && removeSignalFunction) {
             editor->m_modelNode.view()->executeInTransaction("ActionEditor::"
                                                              "invokeEditorOnRejectFunc",
-                                                             [=]() { onReject(signalHandler); });
+                                                             [=]() { removeSignalFunction(signalHandler); });
         }
 
         //closing editor widget somewhy triggers rejected() signal 2nd time. Lets disconect before it affects us:

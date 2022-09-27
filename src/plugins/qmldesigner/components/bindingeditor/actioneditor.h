@@ -68,7 +68,8 @@ public:
     Q_INVOKABLE void updateWindowName(const QString &targetName = {});
 
     static void invokeEditor(SignalHandlerProperty signalHandler,
-                             std::function<void(SignalHandlerProperty)> onReject = nullptr,
+                             std::function<void(SignalHandlerProperty)> removeSignalFunction = nullptr,
+                             bool removeOnReject = false,
                              QObject *parent = nullptr);
 
 signals:
