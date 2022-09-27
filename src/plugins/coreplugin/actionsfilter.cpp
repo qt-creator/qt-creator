@@ -110,8 +110,8 @@ QList<LocatorFilterEntry> ActionsFilter::matchesFor(QFutureInterface<LocatorFilt
                     return FilterResult{MatchLevel::Normal, withHighlight(filterEntry)};
             }
 
-            FuzzyMatcher::HighlightingPositions positions = FuzzyMatcher::highlightingPositions(
-                allTextMatch);
+            const FuzzyMatcher::HighlightingPositions positions
+                = FuzzyMatcher::highlightingPositions(allTextMatch);
             const int positionsCount = positions.starts.count();
             QTC_ASSERT(positionsCount == positions.lengths.count(), return {});
             const int border = first == Highlight::DisplayName ? filterEntry.displayName.length()
@@ -126,8 +126,21 @@ QList<LocatorFilterEntry> ActionsFilter::matchesFor(QFutureInterface<LocatorFilt
                     type = first == Highlight::DisplayName ? Highlight::ExtraInfo
                                                            : Highlight::DisplayName;
                 } else if (start + length > border) {
-                    // skip this highlight since it starts before and ends after the border
-                    // between the concatenated strings
+                    const int firstStart = start;
+                    const int firstLength = border - start;
+                    const int secondStart = 0;
+                    const int secondLength = length - firstLength - 1;
+                    if (first == Highlight::DisplayName) {
+                        highlight.startsDisplay.append(firstStart);
+                        highlight.lengthsDisplay.append(firstLength);
+                        highlight.startsExtraInfo.append(secondStart);
+                        highlight.lengthsExtraInfo.append(secondLength);
+                    } else {
+                        highlight.startsExtraInfo.append(firstStart);
+                        highlight.lengthsExtraInfo.append(firstLength);
+                        highlight.startsDisplay.append(secondStart);
+                        highlight.lengthsDisplay.append(secondLength);
+                    }
                     continue;
                 }
                 if (type == Highlight::DisplayName) {

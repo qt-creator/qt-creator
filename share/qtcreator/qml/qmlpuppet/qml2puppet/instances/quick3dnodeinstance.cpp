@@ -24,6 +24,12 @@ Quick3DNodeInstance::Quick3DNodeInstance(QObject *node)
 {
 }
 
+void Quick3DNodeInstance::invokeDummyViewCreate() const
+{
+    QMetaObject::invokeMethod(m_dummyRootView, "createViewForNode",
+                              Q_ARG(QVariant, QVariant::fromValue(object())));
+}
+
 Quick3DNodeInstance::~Quick3DNodeInstance()
 {
 }
@@ -57,8 +63,6 @@ void Quick3DNodeInstance::initialize(
             }
         }
     }
-
-    m_dummyRootViewCreateFunction = "createViewForNode";
 
     Quick3DRenderableNodeInstance::initialize(objectNodeInstance, flags);
 #endif // QUICK3D_MODULE

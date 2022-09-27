@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "qmldesignercorelib_global.h"
+
 #include <QDataStream>
 #include <QObject>
 #include <QUrl>
@@ -43,6 +45,7 @@ public:
     BundleMaterial(QObject *parent,
                    const QString &name,
                    const QString &qml,
+                   const TypeName &type,
                    const QUrl &icon,
                    const QStringList &files);
 
@@ -50,6 +53,7 @@ public:
 
     QUrl icon() const;
     QString qml() const;
+    TypeName type() const;
     QStringList files() const;
     bool visible() const;
 
@@ -59,6 +63,7 @@ signals:
 private:
     QString m_name;
     QString m_qml;
+    TypeName m_type;
     QUrl m_icon;
     QStringList m_files;
 

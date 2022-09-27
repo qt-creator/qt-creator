@@ -7411,15 +7411,15 @@ void TextEditorWidget::setDisplaySettings(const DisplaySettings &ds)
     setParenthesesMatchingEnabled(ds.m_highlightMatchingParentheses);
     d->m_fileEncodingLabelAction->setVisible(ds.m_displayFileEncoding);
 
-    if (d->m_displaySettings.m_visualizeWhitespace != ds.m_visualizeWhitespace) {
+    const QTextOption::Flags currentOptionFlags = document()->defaultTextOption().flags();
+    QTextOption::Flags optionFlags = currentOptionFlags;
+    optionFlags.setFlag(QTextOption::AddSpaceForLineAndParagraphSeparators);
+    optionFlags.setFlag(QTextOption::ShowTabsAndSpaces, ds.m_visualizeWhitespace);
+    if (optionFlags != currentOptionFlags) {
         if (SyntaxHighlighter *highlighter = textDocument()->syntaxHighlighter())
             highlighter->rehighlight();
-        QTextOption option =  document()->defaultTextOption();
-        if (ds.m_visualizeWhitespace)
-            option.setFlags(option.flags() | QTextOption::ShowTabsAndSpaces);
-        else
-            option.setFlags(option.flags() & ~QTextOption::ShowTabsAndSpaces);
-        option.setFlags(option.flags() | QTextOption::AddSpaceForLineAndParagraphSeparators);
+        QTextOption option = document()->defaultTextOption();
+        option.setFlags(optionFlags);
         document()->setDefaultTextOption(option);
     }
 

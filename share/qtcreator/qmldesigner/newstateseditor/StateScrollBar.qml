@@ -36,19 +36,19 @@ T.ScrollBar {
                              implicitContentHeight + topPadding + bottomPadding)
 
     contentItem: Rectangle {
-        implicitWidth: scrollBar.interactive ? 6 : 2
-        implicitHeight: scrollBar.interactive ? 6 : 2
+        implicitWidth: scrollBar.interactive ? 14 : 8
+        implicitHeight: scrollBar.interactive ? 14 : 8
         radius: width / 2
         opacity: 0.0
-        color: scrollBar.pressed ? StudioTheme.Values.themeSliderActiveTrackHover
-                                 : StudioTheme.Values.themeSliderHandle
+        color: scrollBar.pressed ? StudioTheme.Values.themeScrollBarHandle //"#4C4C4C"//DARK
+                                 : StudioTheme.Values.themeScrollBarTrack //"#3E3E3E"//DARK
 
         states: State {
             name: "active"
             when: scrollBar.active && scrollBar.size < 1.0
             PropertyChanges {
                 target: scrollBar.contentItem
-                opacity: 0.75
+                opacity: 0.9
             }
         }
 

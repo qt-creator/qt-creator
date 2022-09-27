@@ -12,6 +12,7 @@ namespace ComponentCoreConstants {
 const char rootCategory[] = "";
 
 const char selectionCategory[] = "Selection";
+const char connectionsCategory[] = "Connections";
 const char arrangeCategory[] = "Arrange";
 const char qmlPreviewCategory[] = "QmlPreview";
 const char editCategory[] = "Edit";
@@ -76,6 +77,7 @@ const char openSignalDialogCommandId[] = "OpenSignalDialog";
 const char update3DAssetCommandId[] = "Update3DAsset";
 
 const char selectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Selection");
+const char connectionsCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Connections");
 const char flowConnectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Connect");
 const char selectEffectDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select Effect");
 const char arrangeCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Arrange");
@@ -183,6 +185,7 @@ const char editListModelDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMen
 
 const int priorityFirst = 280;
 const int prioritySelectionCategory = 220;
+const int priorityConnectionsCategory = 210;
 const int priorityQmlPreviewCategory = 200;
 const int priorityStackCategory = 180;
 const int priorityEditCategory = 160;

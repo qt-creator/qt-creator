@@ -846,6 +846,10 @@ void QuickItemNodeInstance::setPropertyVariant(const PropertyName &name, const Q
 
 void QuickItemNodeInstance::setPropertyBinding(const PropertyName &name, const QString &expression)
 {
+    static QList<PropertyName> anchorsTargets = {"anchors.top",
+                                                 "acnhors.bottom",
+                                                 "anchors.left",
+                                                 "achors.right"};
     if (ignoredProperties().contains(name))
         return;
 
@@ -857,7 +861,15 @@ void QuickItemNodeInstance::setPropertyBinding(const PropertyName &name, const Q
 
     markRepeaterParentDirty();
 
-    ObjectNodeInstance::setPropertyBinding(name, expression);
+    if (anchorsTargets.contains(name)) {
+        //When resolving anchor targets we have to provide the root context the ids are defined in.
+        QmlPrivateGate::setPropertyBinding(object(),
+                                           context()->engine()->rootContext(),
+                                           name,
+                                           expression);
+    } else {
+        ObjectNodeInstance::setPropertyBinding(name, expression);
+    }
 
     refresh();
 

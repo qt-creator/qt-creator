@@ -166,7 +166,7 @@ QList<QToolButton *> AssetsLibraryWidget::createToolBarWidgets()
     return {};
 }
 
-void AssetsLibraryWidget::handleSearchfilterChanged(const QString &filterText)
+void AssetsLibraryWidget::handleSearchFilterChanged(const QString &filterText)
 {
     if (filterText == m_filterText || (m_assetsModel->isEmpty() && filterText.contains(m_filterText)))
             return;

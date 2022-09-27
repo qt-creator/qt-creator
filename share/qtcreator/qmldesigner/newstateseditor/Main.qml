@@ -26,6 +26,7 @@
 import QtQuick
 import QtQuick.Controls
 import StatesEditor
+import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme as StudioTheme
 
@@ -369,6 +370,23 @@ Rectangle {
                     width: stateGroupLabel.visible ? StudioTheme.Values.defaultControlWidth
                                                    : root.width - 2 * root.padding
 
+                    HelperWidgets.Tooltip { id: comboBoxTooltip }
+
+                    Timer {
+                        interval: 1000
+                        running: stateGroupComboBox.hovered
+                        onTriggered: comboBoxTooltip.showText(stateGroupComboBox,
+                                                              hoverHandler.point.position,
+                                                              qsTr("Switch State Group"))
+                    }
+
+                    onHoverChanged: {
+                        if (!stateGroupComboBox.hovered)
+                            comboBoxTooltip.hideText()
+                    }
+
+                    HoverHandler { id: hoverHandler }
+
                     popup.onOpened: editDialog.close()
 
                     // currentIndex needs special treatment, because if model is changed, it will be
@@ -398,25 +416,28 @@ Rectangle {
                     spacing: StudioTheme.Values.toolbarSpacing
                     leftPadding: toolBar.doubleRow ? root.padding : 0
 
-                    StudioControls.AbstractButton {
+                    HelperWidgets.AbstractButton {
                         buttonIcon: StudioTheme.Constants.plus
                         anchors.verticalCenter: parent.verticalCenter
+                        tooltip: qsTr("Create State Group")
                         onClicked: statesEditorModel.addStateGroup("stateGroup")
                     }
 
-                    StudioControls.AbstractButton {
+                    HelperWidgets.AbstractButton {
                         buttonIcon: StudioTheme.Constants.minus
                         anchors.verticalCenter: parent.verticalCenter
                         enabled: statesEditorModel.activeStateGroupIndex !== 0
+                        tooltip: qsTr("Remove State Group")
                         onClicked: statesEditorModel.removeStateGroup()
                     }
 
-                    StudioControls.AbstractButton {
+                    HelperWidgets.AbstractButton {
                         id: editButton
                         buttonIcon: StudioTheme.Constants.edit
                         anchors.verticalCenter: parent.verticalCenter
                         enabled: statesEditorModel.activeStateGroupIndex !== 0
                         checked: editDialog.visible
+                        tooltip: qsTr("Rename State Group")
                         onClicked: {
                             if (editDialog.opened)
                                 editDialog.close()
@@ -439,20 +460,22 @@ Rectangle {
                     spacing: StudioTheme.Values.toolbarSpacing
                     rightPadding: root.padding
 
-                    StudioControls.AbstractButton {
+                    HelperWidgets.AbstractButton {
                         buttonIcon: StudioTheme.Constants.gridView
                         anchors.verticalCenter: parent.verticalCenter
                         enabled: !root.tinyMode
+                        tooltip: qsTr("Show thumbnails")
                         onClicked: {
                             for (var i = 0; i < statesRepeater.count; ++i)
                                 statesRepeater.itemAt(i).setPropertyChangesVisible(false)
                         }
                     }
 
-                    StudioControls.AbstractButton {
+                    HelperWidgets.AbstractButton {
                         buttonIcon: StudioTheme.Constants.textFullJustification
                         anchors.verticalCenter: parent.verticalCenter
                         enabled: !root.tinyMode
+                        tooltip: qsTr("Show property changes")
                         onClicked: {
                             for (var i = 0; i < statesRepeater.count; ++i)
                                 statesRepeater.itemAt(i).setPropertyChangesVisible(true)
@@ -503,6 +526,7 @@ Rectangle {
                 anchors.leftMargin: root.leftMargin
 
                 ScrollBar.horizontal: StateScrollBar {
+                    id: horizontalBar
                     parent: scrollView
                     x: scrollView.leftPadding
                     y: scrollView.height - height
@@ -511,6 +535,7 @@ Rectangle {
                 }
 
                 ScrollBar.vertical: StateScrollBar {
+                    id: verticalBar
                     parent: scrollView
                     x: scrollView.mirrored ? 0 : scrollView.width - width
                     y: scrollView.topPadding
@@ -568,6 +593,7 @@ Rectangle {
                             NumberAnimation {
                                 properties: "x,y"
                                 easing.type: Easing.OutQuad
+                                duration: 100
                             }
                         }
 
@@ -575,11 +601,6 @@ Rectangle {
                             id: statesRepeater
 
                             property int grabIndex: -1
-
-                            function executeDrop(from, to) {
-                                statesEditorModel.drop(from, to)
-                                statesRepeater.grabIndex = -1
-                            }
 
                             model: statesEditorModel
 
@@ -623,24 +644,27 @@ Rectangle {
                                         return
                                     }
 
-                                    statesEditorModel.move(
-                                                (drag.source as StateThumbnail).visualIndex,
-                                                stateThumbnail.visualIndex)
+                                    statesEditorModel.move(dragSource.visualIndex,
+                                                           stateThumbnail.visualIndex)
                                 }
 
                                 onDropped: function (drop) {
-                                    let dragSource = (drop.source as StateThumbnail)
+                                    let dropSource = (drop.source as StateThumbnail)
 
-                                    if (dragSource === undefined)
+                                    if (dropSource === undefined)
                                         return
 
-                                    if (dragSource.extendString !== stateThumbnail.extendString
+                                    if (dropSource.extendString !== stateThumbnail.extendString
                                             || stateThumbnail.extendedState) {
                                         return
                                     }
 
-                                    statesRepeater.executeDrop(statesRepeater.grabIndex,
-                                                               stateThumbnail.visualIndex)
+                                    if (statesRepeater.grabIndex === dropSource.visualIndex)
+                                        return
+
+                                    statesEditorModel.drop(statesRepeater.grabIndex,
+                                                           dropSource.visualIndex)
+                                    statesRepeater.grabIndex = -1
                                 }
 
                                 // Extend Groups Visualization
@@ -742,20 +766,16 @@ Rectangle {
 
                                     hasWhenCondition: delegateRoot.hasWhenCondition
 
+                                    scrollViewActive: horizontalBar.active || verticalBar.active
+
+                                    dragParent: scrollView
+
                                     // Fix ScrollView taking over the dragging event
                                     onGrabbing: {
                                         frame.interactive = false
                                         statesRepeater.grabIndex = stateThumbnail.visualIndex
                                     }
                                     onLetGo: frame.interactive = true
-
-                                    // Fix for ScrollView clipping while dragging of StateThumbnail
-                                    onDragActiveChanged: {
-                                        if (stateThumbnail.dragActive)
-                                            parent = scrollViewWrapper
-                                        else
-                                            parent = delegateRoot
-                                    }
 
                                     stateName: delegateRoot.stateName
                                     thumbnailImageSource: delegateRoot.stateImageSource
@@ -771,15 +791,16 @@ Rectangle {
 
                                     onClone: root.cloneState(delegateRoot.internalNodeId)
                                     onExtend: root.extendState(delegateRoot.internalNodeId)
-                                    onRemove: root.deleteState(delegateRoot.internalNodeId)
+                                    onRemove: {
+                                        if (delegateRoot.isDefault)
+                                            statesEditorModel.resetDefaultState()
+
+                                        root.deleteState(delegateRoot.internalNodeId)
+                                    }
 
                                     onStateNameFinished: statesEditorModel.renameState(
                                                              delegateRoot.internalNodeId,
                                                              stateThumbnail.stateName)
-
-                                    onWhenConditionFinished: statesEditorModel.setWhenCondition(
-                                                                 delegateRoot.internalNodeId,
-                                                                 stateThumbnail.whenCondition)
                                 }
                             }
                         }
