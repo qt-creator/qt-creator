@@ -250,19 +250,15 @@ QString UnifiedDiffEditorWidget::lineNumber(int blockNumber) const
     const bool rightLineExists = m_data.m_lineNumbers[RightSide].contains(blockNumber);
 
     if (leftLineExists || rightLineExists) {
-        const QString leftLine = leftLineExists
-                ? QString::number(m_data.m_lineNumbers[LeftSide].value(blockNumber).first)
-                : QString();
-        lineNumberString += QString(m_data.m_lineNumberDigits[LeftSide] - leftLine.count(),
-                                    ' ') + leftLine;
-
+        auto addSideNumber = [&](DiffSide side, bool lineExists) {
+            const QString line = lineExists
+                    ? QString::number(m_data.m_lineNumbers[side].value(blockNumber).first)
+                    : QString();
+            lineNumberString += QString(m_data.m_lineNumberDigits[side] - line.count(), ' ') + line;
+        };
+        addSideNumber(LeftSide, leftLineExists);
         lineNumberString += '|';
-
-        const QString rightLine = rightLineExists
-                ? QString::number(m_data.m_lineNumbers[RightSide].value(blockNumber).first)
-                : QString();
-        lineNumberString += QString(m_data.m_lineNumberDigits[RightSide] - rightLine.count(),
-                                    ' ') + rightLine;
+        addSideNumber(RightSide, rightLineExists);
     }
     return lineNumberString;
 }
@@ -283,7 +279,7 @@ void UnifiedDiffData::setLineNumber(DiffSide side, int blockNumber, int lineNumb
 void UnifiedDiffData::setFileInfo(int blockNumber, const DiffFileInfo &leftInfo,
                                                    const DiffFileInfo &rightInfo)
 {
-    m_fileInfo[blockNumber] = qMakePair(leftInfo, rightInfo);
+    m_fileInfo[blockNumber] = {leftInfo, rightInfo};
 }
 
 void UnifiedDiffData::setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex)
@@ -307,12 +303,11 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
         return {};
 
     QString diffText;
-    int leftLineCount = 0;
-    int rightLineCount = 0;
     int blockCount = 0;
     int charCount = 0;
-    QList<TextLineData> leftBuffer, rightBuffer;
-    QList<int> leftRowsBuffer, rightRowsBuffer;
+    std::array<int, SideCount> lineCount{};
+    std::array<QList<TextLineData>, SideCount> buffer{};
+    std::array<QList<int>, SideCount> rowsBuffer{};
 
     (*selections)[*blockNumber].append({input.m_chunkLineFormat});
 
@@ -327,130 +322,96 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
         }
     }
 
+    auto processSideChunk = [&](DiffSide side, int chunkIndex) {
+        if (buffer[side].isEmpty())
+            return;
+
+        for (int j = 0; j < buffer[side].count(); j++) {
+            const TextLineData &lineData = buffer[side].at(j);
+            const QString line = DiffUtils::makePatchLine(
+                        '-',
+                        lineData.text,
+                        lastChunk,
+                        chunkIndex == chunkData.rows.count() && j == buffer[side].count() - 1);
+
+            const int blockDelta = line.count('\n'); // no new line
+            // could have been added
+            for (int k = 0; k < blockDelta; k++)
+                (*selections)[*blockNumber + blockCount + 1 + k].append({input.m_lineFormat[side]});
+
+            for (auto it = lineData.changedPositions.cbegin(),
+                 end = lineData.changedPositions.cend(); it != end; ++it) {
+                const int startPos = it.key() < 0 ? 1 : it.key() + 1;
+                const int endPos = it.value() < 0 ? it.value() : it.value() + 1;
+                (*selections)[*blockNumber + blockCount + 1].append(
+                            {input.m_charFormat[side], startPos, endPos});
+            }
+
+            if (!line.isEmpty()) {
+                setLineNumber(side,
+                              *blockNumber + blockCount + 1,
+                              chunkData.startingLineNumber[side] + lineCount[side] + 1,
+                              rowsBuffer[side].at(j));
+                blockCount += blockDelta;
+                ++lineCount[side];
+            }
+            diffText += line;
+            charCount += line.count();
+        }
+        buffer[side].clear();
+        rowsBuffer[side].clear();
+    };
+
+    auto processSideChunkEmpty = [&](DiffSide side, int chunkIndex) {
+        setLineNumber(side, *blockNumber + blockCount + 1,
+                      chunkData.startingLineNumber[side] + lineCount[side] + 1, chunkIndex);
+        ++lineCount[side];
+    };
+
+    auto processSideChunkDifferent = [&](DiffSide side, int chunkIndex, const RowData &rowData) {
+        if (rowData.line[side].textLineType == TextLineData::TextLine) {
+            buffer[side].append(rowData.line[side]);
+            rowsBuffer[side].append(chunkIndex);
+        }
+    };
+
     for (int i = 0; i <= chunkData.rows.count(); i++) {
         const RowData &rowData = i < chunkData.rows.count()
                 ? chunkData.rows.at(i)
-                : RowData(TextLineData(TextLineData::Separator)); // dummy,
-                                       // ensure we process buffers to the end.
-                                       // rowData will be equal
+                  // dummy, ensure we process buffers to the end. rowData will be equal
+                : RowData(TextLineData(TextLineData::Separator));
+
+
         if (rowData.equal && i != lastEqualRow) {
-            if (!leftBuffer.isEmpty()) {
-                for (int j = 0; j < leftBuffer.count(); j++) {
-                    const TextLineData &lineData = leftBuffer.at(j);
-                    const QString line = DiffUtils::makePatchLine(
-                                '-',
-                                lineData.text,
-                                lastChunk,
-                                i == chunkData.rows.count() && j == leftBuffer.count() - 1);
-
-                    const int blockDelta = line.count('\n'); // no new line
-                                                     // could have been added
-                    for (int k = 0; k < blockDelta; k++)
-                        (*selections)[*blockNumber + blockCount + 1 + k].append({input.m_lineFormat[LeftSide]});
-
-                    for (auto it = lineData.changedPositions.cbegin(),
-                              end = lineData.changedPositions.cend(); it != end; ++it) {
-                        const int startPos = it.key() < 0 ? 1 : it.key() + 1;
-                        const int endPos = it.value() < 0 ? it.value() : it.value() + 1;
-                        (*selections)[*blockNumber + blockCount + 1].append(
-                                    {input.m_charFormat[LeftSide], startPos, endPos});
-                    }
-
-                    if (!line.isEmpty()) {
-                        setLineNumber(LeftSide,
-                                      *blockNumber + blockCount + 1,
-                                      chunkData.startingLineNumber[LeftSide] + leftLineCount + 1,
-                                      leftRowsBuffer.at(j));
-                        blockCount += blockDelta;
-                        ++leftLineCount;
-                    }
-
-                    diffText += line;
-
-                    charCount += line.count();
-                }
-                leftBuffer.clear();
-                leftRowsBuffer.clear();
-            }
-            if (!rightBuffer.isEmpty()) {
-                for (int j = 0; j < rightBuffer.count(); j++) {
-                    const TextLineData &lineData = rightBuffer.at(j);
-                    const QString line = DiffUtils::makePatchLine(
-                                '+',
-                                lineData.text,
-                                lastChunk,
-                                i == chunkData.rows.count() && j == rightBuffer.count() - 1);
-
-                    const int blockDelta = line.count('\n'); // no new line
-                                                     // could have been added
-
-                    for (int k = 0; k < blockDelta; k++)
-                        (*selections)[*blockNumber + blockCount + 1 + k].append({input.m_lineFormat[RightSide]});
-
-                    for (auto it = lineData.changedPositions.cbegin(),
-                              end = lineData.changedPositions.cend(); it != end; ++it) {
-                        const int startPos = it.key() < 0 ? 1 : it.key() + 1;
-                        const int endPos = it.value() < 0 ? it.value() : it.value() + 1;
-                        (*selections)[*blockNumber + blockCount + 1].append(
-                                    {input.m_charFormat[RightSide], startPos, endPos});
-                    }
-
-                    if (!line.isEmpty()) {
-                        setLineNumber(RightSide,
-                                      *blockNumber + blockCount + 1,
-                                      chunkData.startingLineNumber[RightSide] + rightLineCount + 1,
-                                      rightRowsBuffer.at(j));
-                        blockCount += blockDelta;
-                        ++rightLineCount;
-                    }
-
-                    diffText += line;
-
-                    charCount += line.count();
-                }
-                rightBuffer.clear();
-                rightRowsBuffer.clear();
-            }
+            processSideChunk(LeftSide, i);
+            processSideChunk(RightSide, i);
             if (i < chunkData.rows.count()) {
                 const QString line = DiffUtils::makePatchLine(' ',
                                           rowData.line[RightSide].text,
                                           lastChunk,
                                           i == chunkData.rows.count() - 1);
-
                 if (!line.isEmpty()) {
-                    setLineNumber(LeftSide, *blockNumber + blockCount + 1,
-                                  chunkData.startingLineNumber[LeftSide] + leftLineCount + 1, i);
-                    setLineNumber(RightSide, *blockNumber + blockCount + 1,
-                                  chunkData.startingLineNumber[RightSide] + rightLineCount + 1, i);
+                    processSideChunkEmpty(LeftSide, i);
+                    processSideChunkEmpty(RightSide, i);
                     blockCount += line.count('\n');
-                    ++leftLineCount;
-                    ++rightLineCount;
                 }
-
                 diffText += line;
-
                 charCount += line.count();
             }
         } else {
-            if (rowData.line[LeftSide].textLineType == TextLineData::TextLine) {
-                leftBuffer.append(rowData.line[LeftSide]);
-                leftRowsBuffer.append(i);
-            }
-            if (rowData.line[RightSide].textLineType == TextLineData::TextLine) {
-                rightBuffer.append(rowData.line[RightSide]);
-                rightRowsBuffer.append(i);
-            }
+            processSideChunkDifferent(LeftSide, i, rowData);
+            processSideChunkDifferent(RightSide, i, rowData);
         }
     }
 
     const QString chunkLine = "@@ -"
             + QString::number(chunkData.startingLineNumber[LeftSide] + 1)
             + ','
-            + QString::number(leftLineCount)
+            + QString::number(lineCount[LeftSide])
             + " +"
             + QString::number(chunkData.startingLineNumber[RightSide]+ 1)
             + ','
-            + QString::number(rightLineCount)
+            + QString::number(lineCount[RightSide])
             + " @@"
             + chunkData.contextInfo
             + '\n';
