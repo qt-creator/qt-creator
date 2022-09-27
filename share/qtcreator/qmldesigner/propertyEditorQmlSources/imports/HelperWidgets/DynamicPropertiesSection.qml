@@ -35,7 +35,7 @@ Section {
     id: root
     anchors.left: parent.left
     anchors.right: parent.right
-    caption: qsTr("User Added Properties")
+    caption: qsTr("Local Custom Properties")
 
     property DynamicPropertiesModel propertiesModel: null
 
