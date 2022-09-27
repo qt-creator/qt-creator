@@ -14,13 +14,10 @@
 #include <utils/algorithm.h>
 
 #include <QDebug>
-#include <QDir>
-#include <QFileInfo>
 
 using namespace Utils;
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 // --------------------------------------------------------------------
 // CMakeToolSettingsUpgraders:
@@ -75,11 +72,10 @@ static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools()
         if (base.isEmpty())
             continue;
 
-        QFileInfo fi;
         for (const QString &exec : execs) {
-            fi.setFile(QDir(base.toString()), exec);
-            if (fi.exists() && fi.isFile() && fi.isExecutable())
-                suspects << FilePath::fromString(fi.absoluteFilePath());
+            const FilePath suspect = base.resolvePath(exec);
+            if (suspect.isExecutableFile())
+                suspects << suspect;
         }
     }
 
@@ -238,5 +234,4 @@ CMakeToolSettingsAccessor::cmakeTools(const QVariantMap &data, bool fromSdk) con
     return result;
 }
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal
