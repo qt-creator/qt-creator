@@ -18,6 +18,7 @@ constexpr auto iar_stm32f469i_discovery_baremetal_json = R"(
                 "id": "STM32CubeProgrammer_PATH",
                 "label": "STM32CubeProgrammer",
                 "type": "path",
+                "setting": "Stm32CubeProgrammer",
                 "defaultValue": {
                     "windows": "%{Env:PROGRAMSANDFILES}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/",
                     "unix": "%{Env:HOME}/STMicroelectronics/STM32Cube/STM32CubeProgrammer/"
