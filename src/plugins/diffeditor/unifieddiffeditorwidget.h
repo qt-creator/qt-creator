@@ -46,9 +46,8 @@ private:
     void setLineNumber(DiffSide side, int blockNumber, int lineNumber, int rowNumberInChunk);
     void setFileInfo(int blockNumber, const DiffFileInfo &leftInfo, const DiffFileInfo &rightInfo);
     void setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex);
-    QString setChunk(const DiffEditorInput &input, const ChunkData &chunkData, bool lastChunk,
-                     int *blockNumber, int *charNumber,
-                     DiffSelections *selections);
+    QString setChunk(const DiffEditorInput &input, const ChunkData &chunkData,
+                     bool lastChunk, int *blockNumber, DiffSelections *selections);
 };
 
 class UnifiedDiffOutput

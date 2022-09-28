@@ -296,15 +296,13 @@ void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
 }
 
 QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData &chunkData,
-                                  bool lastChunk, int *blockNumber, int *charNumber,
-                                  DiffSelections *selections)
+                                  bool lastChunk, int *blockNumber, DiffSelections *selections)
 {
     if (chunkData.contextChunk)
         return {};
 
     QString diffText;
     int blockCount = 0;
-    int charCount = 0;
     std::array<int, SideCount> lineCount{};
     std::array<QList<TextLineData>, SideCount> buffer{};
     std::array<QList<int>, SideCount> rowsBuffer{};
@@ -356,7 +354,6 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
                 ++lineCount[side];
             }
             diffText += line;
-            charCount += line.count();
         }
         buffer[side].clear();
         rowsBuffer[side].clear();
@@ -396,7 +393,6 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
                     blockCount += line.count('\n');
                 }
                 diffText += line;
-                charCount += line.count();
             }
         } else {
             processSideChunkDifferent(LeftSide, i, rowData);
@@ -419,7 +415,6 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
     diffText.prepend(chunkLine);
 
     *blockNumber += blockCount + 1; // +1 for chunk line
-    *charNumber += charCount + chunkLine.count();
     return diffText;
 }
 
@@ -429,7 +424,6 @@ UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterface<void> &fi, int pr
     UnifiedDiffOutput output;
 
     int blockNumber = 0;
-    int charNumber = 0;
     int i = 0;
     const int count = input.m_contextFileData.size();
 
@@ -446,7 +440,6 @@ UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterface<void> &fi, int pr
 
         output.diffText += leftFileInfo;
         output.diffText += rightFileInfo;
-        charNumber += leftFileInfo.count() + rightFileInfo.count();
 
         if (fileData.binaryFiles) {
             output.foldingIndent.insert(blockNumber, 2);
@@ -458,7 +451,6 @@ UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterface<void> &fi, int pr
                     + fileData.fileInfo[RightSide].fileName
                     + " differ\n";
             output.diffText += binaryLine;
-            charNumber += binaryLine.count();
         } else {
             for (int j = 0; j < fileData.chunks.count(); j++) {
                 const int oldBlockNumber = blockNumber;
@@ -467,7 +459,6 @@ UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterface<void> &fi, int pr
                                                             (j == fileData.chunks.count() - 1)
                                                             && fileData.lastChunkAtTheEndOfFile,
                                                             &blockNumber,
-                                                            &charNumber,
                                                             &output.selections);
                 if (!fileData.chunks.at(j).contextChunk)
                     output.diffData.setChunkIndex(oldBlockNumber, blockNumber - oldBlockNumber, j);
