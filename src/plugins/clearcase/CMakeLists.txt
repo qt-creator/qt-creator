@@ -11,7 +11,7 @@ add_qtc_plugin(ClearCase
     clearcasesubmiteditor.cpp clearcasesubmiteditor.h
     clearcasesubmiteditorwidget.cpp clearcasesubmiteditorwidget.h
     clearcasesync.cpp clearcasesync.h
-    settingspage.cpp settingspage.h settingspage.ui
+    settingspage.cpp settingspage.h
     undocheckout.ui
     versionselector.cpp versionselector.h versionselector.ui
 )

@@ -5,8 +5,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace ClearCase {
-namespace Internal {
+namespace ClearCase::Internal {
 
 class ClearCaseSettingsPage final : public Core::IOptionsPage
 {
@@ -14,5 +13,4 @@ public:
     ClearCaseSettingsPage();
 };
 
-} // namespace ClearCase
-} // namespace Internal
+} // ClearCase::Internal

@@ -36,7 +36,6 @@ QtcPlugin {
         "clearcasesync.h",
         "settingspage.cpp",
         "settingspage.h",
-        "settingspage.ui",
         "undocheckout.ui",
         "versionselector.cpp",
         "versionselector.h",
