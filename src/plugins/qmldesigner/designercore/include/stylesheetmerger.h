@@ -48,6 +48,8 @@ class QMLDESIGNERCORE_EXPORT StylesheetMerger
 public:
     StylesheetMerger(AbstractView*, AbstractView*);
     void merge();
+    static void styleMerge(Model *model, const QString &templateFile);
+
 private:
     void preprocessStyleSheet();
     bool idExistsInBothModels(const QString& id);

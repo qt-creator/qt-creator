@@ -1505,68 +1505,6 @@ QString getTemplateDialog(const Utils::FilePath &projectPath)
     return result;
 }
 
-void styleMerge(const SelectionContext &selectionContext, const QString &templateFile)
-{
-    Model *parentModel = selectionContext.view()->model();
-
-    QTC_ASSERT(parentModel, return);
-
-    QScopedPointer<Model> templateModel(Model::create("QtQuick.Item", 2, 1, parentModel));
-    Q_ASSERT(templateModel.data());
-
-    templateModel->setFileUrl(selectionContext.view()->model()->fileUrl());
-
-    QPlainTextEdit textEditTemplate;
-    Utils::FileReader reader;
-
-    QTC_ASSERT(reader.fetch(Utils::FilePath::fromString(templateFile)), return);
-    QString qmlTemplateString = QString::fromUtf8(reader.data());
-    QString imports;
-
-    for (const Import &import : parentModel->imports())
-        imports += QStringLiteral("import ") + import.toString(true) + QLatin1Char(';') + QLatin1Char('\n');
-
-    textEditTemplate.setPlainText(imports + qmlTemplateString);
-    NotIndentingTextEditModifier textModifierTemplate(&textEditTemplate);
-
-    QScopedPointer<RewriterView> templateRewriterView(new RewriterView(RewriterView::Amend, nullptr));
-    templateRewriterView->setTextModifier(&textModifierTemplate);
-    templateModel->attachView(templateRewriterView.data());
-    templateRewriterView->setCheckSemanticErrors(false);
-
-    ModelNode templateRootNode = templateRewriterView->rootModelNode();
-    QTC_ASSERT(templateRootNode.isValid(), return);
-
-    QScopedPointer<Model> styleModel(Model::create("QtQuick.Item", 2, 1, parentModel));
-    Q_ASSERT(styleModel.data());
-
-    styleModel->setFileUrl(selectionContext.view()->model()->fileUrl());
-
-    QPlainTextEdit textEditStyle;
-    RewriterView *parentRewriterView = selectionContext.view()->model()->rewriterView();
-    QTC_ASSERT(parentRewriterView, return);
-    textEditStyle.setPlainText(parentRewriterView->textModifierContent());
-    NotIndentingTextEditModifier textModifierStyle(&textEditStyle);
-
-    QScopedPointer<RewriterView> styleRewriterView(new RewriterView(RewriterView::Amend, nullptr));
-    styleRewriterView->setTextModifier(&textModifierStyle);
-    styleModel->attachView(styleRewriterView.data());
-
-    StylesheetMerger merger(templateRewriterView.data(), styleRewriterView.data());
-
-    try {
-        merger.merge();
-    } catch (Exception &e) {
-        e.showException();
-    }
-
-    try {
-        parentRewriterView->textModifier()->textDocument()->setPlainText(templateRewriterView->textModifierContent());
-    } catch (Exception &e) {
-        e.showException();
-    }
-}
-
 void mergeWithTemplate(const SelectionContext &selectionContext)
 {
     const Utils::FilePath projectPath = Utils::FilePath::fromString(baseDirectory(selectionContext.view()->model()->fileUrl()));
@@ -1574,7 +1512,7 @@ void mergeWithTemplate(const SelectionContext &selectionContext)
     const QString templateFile = getTemplateDialog(projectPath);
 
     if (QFileInfo::exists(templateFile))
-        styleMerge(selectionContext, templateFile);
+        StylesheetMerger::styleMerge(selectionContext.view()->model(), templateFile);
 }
 
 void removeGroup(const SelectionContext &selectionContext)
