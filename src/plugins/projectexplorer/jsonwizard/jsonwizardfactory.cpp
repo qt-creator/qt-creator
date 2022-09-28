@@ -39,7 +39,6 @@ using namespace Utils;
 namespace ProjectExplorer {
 
 const char WIZARD_PATH[] = "templates/wizards";
-const char WIZARD_FILE[] = "wizard.json";
 
 const char VERSION_KEY[] = "version";
 const char ENABLED_EXPRESSION_KEY[] = "enabled";
@@ -381,10 +380,10 @@ void JsonWizardFactory::createWizardFactories()
 {
     QString errorMessage;
     QString verboseLog;
-    const QString wizardFileName = QLatin1String(WIZARD_FILE);
+    const QString wizardFileName = QLatin1String("wizard.json");
 
-    const Utils::FilePaths paths = searchPaths();
-    for (const Utils::FilePath &path : paths) {
+    const FilePaths paths = searchPaths();
+    for (const FilePath &path : paths) {
         if (path.isEmpty())
             continue;
 
@@ -396,72 +395,55 @@ void JsonWizardFactory::createWizardFactories()
         }
 
         const FileFilter filter {
-            {}, QDir::Dirs|QDir::Readable|QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags
+            {wizardFileName}, QDir::Files|QDir::Readable|QDir::NoDotAndDotDot, QDirIterator::Subdirectories
         };
         const QDir::SortFlags sortflags = QDir::Name|QDir::IgnoreCase;
-        FilePaths dirs = path.dirEntries(filter, sortflags);
+        const FilePaths wizardFiles = path.dirEntries(filter, sortflags);
 
-        while (!dirs.isEmpty()) {
-            const FilePath currentDir = dirs.takeFirst();
-            if (verbose())
-                verboseLog.append(tr("Checking \"%1\" for %2.\n")
-                                  .arg(currentDir.toUserOutput())
-                                  .arg(wizardFileName));
-            const FilePath currentFile = currentDir / wizardFileName;
-            if (currentFile.exists()) {
-                QJsonParseError error;
-                const QByteArray fileData = currentFile.fileContents().value_or(QByteArray());
-                const QJsonDocument json = QJsonDocument::fromJson(fileData, &error);
+        for (const FilePath &currentFile : wizardFiles) {
+            QJsonParseError error;
+            const QByteArray fileData = currentFile.fileContents().value_or(QByteArray());
+            const QJsonDocument json = QJsonDocument::fromJson(fileData, &error);
 
-                if (error.error != QJsonParseError::NoError) {
-                    int line = 1;
-                    int column = 1;
-                    for (int i = 0; i < error.offset; ++i) {
-                        if (fileData.at(i) == '\n') {
-                            ++line;
-                            column = 1;
-                        } else {
-                            ++column;
-                        }
+            if (error.error != QJsonParseError::NoError) {
+                int line = 1;
+                int column = 1;
+                for (int i = 0; i < error.offset; ++i) {
+                    if (fileData.at(i) == '\n') {
+                        ++line;
+                        column = 1;
+                    } else {
+                        ++column;
                     }
-                    verboseLog.append(tr("* Failed to parse \"%1\":%2:%3: %4\n")
-                                      .arg(currentFile.fileName())
-                                      .arg(line).arg(column)
-                                      .arg(error.errorString()));
-                    continue;
                 }
-
-                if (!json.isObject()) {
-                    verboseLog.append(tr("* Did not find a JSON object in \"%1\".\n")
-                                      .arg(currentFile.fileName()));
-                    continue;
-                }
-
-                if (verbose())
-                    verboseLog.append(tr("* Configuration found and parsed.\n"));
-
-                QVariantMap data = json.object().toVariantMap();
-
-                int version = data.value(QLatin1String(VERSION_KEY), 0).toInt();
-                if (version < 1 || version > 1) {
-                    verboseLog.append(tr("* Version %1 not supported.\n").arg(version));
-                    continue;
-                }
-
-                IWizardFactory::registerFactoryCreator([data, currentDir] {
-                    QString errorMessage;
-                    return createWizardFactory(data, currentDir, &errorMessage);
-                });
-            } else {
-                FilePaths subDirs = currentDir.dirEntries(filter, sortflags);
-                if (!subDirs.isEmpty()) {
-                    // There is no QList::prepend(QList)...
-                    dirs.swap(subDirs);
-                    dirs.append(subDirs);
-                } else if (verbose()) {
-                    verboseLog.append(tr("JsonWizard: \"%1\" not found\n").arg(wizardFileName));
-                }
+                verboseLog.append(tr("* Failed to parse \"%1\":%2:%3: %4\n")
+                                  .arg(currentFile.fileName())
+                                  .arg(line).arg(column)
+                                  .arg(error.errorString()));
+                continue;
             }
+
+            if (!json.isObject()) {
+                verboseLog.append(tr("* Did not find a JSON object in \"%1\".\n")
+                                  .arg(currentFile.fileName()));
+                continue;
+            }
+
+            if (verbose())
+                verboseLog.append(tr("* Configuration found and parsed.\n"));
+
+            QVariantMap data = json.object().toVariantMap();
+
+            int version = data.value(QLatin1String(VERSION_KEY), 0).toInt();
+            if (version < 1 || version > 1) {
+                verboseLog.append(tr("* Version %1 not supported.\n").arg(version));
+                continue;
+            }
+
+            IWizardFactory::registerFactoryCreator([data, currentFile] {
+                QString errorMessage;
+                return createWizardFactory(data, currentFile.parentDir(), &errorMessage);
+            });
         }
     }
 
@@ -469,7 +451,6 @@ void JsonWizardFactory::createWizardFactories()
         qWarning("%s", qPrintable(verboseLog));
         Core::MessageManager::writeDisrupting(verboseLog);
     }
-
 }
 
 JsonWizardFactory *JsonWizardFactory::createWizardFactory(const QVariantMap &data,
