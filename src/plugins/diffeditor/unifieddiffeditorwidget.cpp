@@ -124,11 +124,11 @@ void UnifiedDiffEditorWidget::setFontSettings(const FontSettings &fontSettings)
 
 void UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor()
 {
-    const int fileIndex = fileIndexForBlockNumber(textCursor().blockNumber());
-    if (fileIndex < 0)
+    if (m_controller.m_ignoreChanges.isLocked())
         return;
 
-    if (m_controller.m_ignoreChanges.isLocked())
+    const int fileIndex = fileIndexForBlockNumber(textCursor().blockNumber());
+    if (fileIndex < 0)
         return;
 
     const GuardLocker locker(m_controller.m_ignoreChanges);
@@ -515,7 +515,7 @@ void UnifiedDiffEditorWidget::showDiff()
 
     const DiffEditorInput input(&m_controller);
 
-    auto getDocument = [=](QFutureInterface<ShowResult> &futureInterface) {
+    auto getDocument = [input](QFutureInterface<ShowResult> &futureInterface) {
         auto cleanup = qScopeGuard([&futureInterface] {
             if (futureInterface.isCanceled())
                 futureInterface.reportCanceled();
@@ -540,7 +540,7 @@ void UnifiedDiffEditorWidget::showDiff()
         // but this would freeze the thread for couple of seconds without progress reporting
         // and without checking for canceled.
         const int diffSize = output.diffText.size();
-        const int packageSize = 100000;
+        const int packageSize = 10000;
         int currentPos = 0;
         QTextCursor cursor(result.textDocument->document());
         while (currentPos < diffSize) {

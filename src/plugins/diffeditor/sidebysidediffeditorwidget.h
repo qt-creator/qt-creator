@@ -94,6 +94,7 @@ class SideBySideDiffEditorWidget : public QWidget
     Q_OBJECT
 public:
     explicit SideBySideDiffEditorWidget(QWidget *parent = nullptr);
+    ~SideBySideDiffEditorWidget();
 
     TextEditor::TextEditorWidget *leftEditorWidget() const;
     TextEditor::TextEditorWidget *rightEditorWidget() const;
@@ -143,6 +144,16 @@ private:
     DiffEditorWidgetController m_controller;
 
     bool m_horizontalSync = false;
+
+    struct ShowResult
+    {
+        QSharedPointer<TextEditor::TextDocument> textDocument{};
+        SideDiffData diffData;
+        DiffSelections selections;
+    };
+    using ShowResults = std::array<ShowResult, SideCount>;
+
+    std::unique_ptr<QFutureWatcher<ShowResults>> m_watcher;
 };
 
 } // namespace Internal

@@ -5,6 +5,7 @@
 #include "selectabletexteditorwidget.h"
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
+#include "diffeditorplugin.h"
 #include "diffutils.h"
 
 #include <QMenu>
@@ -22,7 +23,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/find/highlightscrollbarcontroller.h>
 #include <coreplugin/minisplitter.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
+#include <utils/runextensions.h>
 #include <utils/tooltip/tooltip.h>
 
 using namespace Core;
@@ -876,6 +879,14 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     Core::ICore::addContextObject(rightContext);
 }
 
+SideBySideDiffEditorWidget::~SideBySideDiffEditorWidget()
+{
+    if (m_watcher) {
+        m_watcher->cancel();
+        DiffEditorPlugin::addFuture(m_watcher->future());
+    }
+}
+
 TextEditorWidget *SideBySideDiffEditorWidget::leftEditorWidget() const
 {
     return m_leftEditor;
@@ -907,13 +918,19 @@ void SideBySideDiffEditorWidget::clear(const QString &message)
     setDiff({});
     m_leftEditor->clearAll(message);
     m_rightEditor->clearAll(message);
+    if (m_watcher) {
+        m_watcher->cancel();
+        DiffEditorPlugin::addFuture(m_watcher->future());
+        m_watcher.reset();
+        m_controller.setBusyShowing(false);
+    }
 }
 
 void SideBySideDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
 {
     const GuardLocker locker(m_controller.m_ignoreChanges);
-    m_leftEditor->clear();
-    m_rightEditor->clear();
+    m_leftEditor->clearAll(tr("Waiting for data..."));
+    m_rightEditor->clearAll(tr("Waiting for data..."));
 
     m_controller.m_contextFileData = diffFileList;
     if (m_controller.m_contextFileData.isEmpty()) {
@@ -966,29 +983,104 @@ void SideBySideDiffEditorWidget::restoreState()
 
 void SideBySideDiffEditorWidget::showDiff()
 {
-    QFutureInterface<void> fi;
-    const SideBySideDiffOutput output = SideDiffData::diffOutput(fi, 0, 100, {&m_controller});
+    m_watcher.reset(new QFutureWatcher<ShowResults>());
+    m_controller.setBusyShowing(true);
 
-    m_leftEditor->setDiffData(output.side[LeftSide].diffData);
-    m_rightEditor->setDiffData(output.side[RightSide].diffData);
+    connect(m_watcher.get(), &QFutureWatcherBase::finished, this, [this] {
+        if (m_watcher->isCanceled()) {
+            m_leftEditor->clearAll(tr("Retrieving data failed."));
+            m_rightEditor->clearAll(tr("Retrieving data failed."));
+        } else {
+            const ShowResults results = m_watcher->result();
+            m_leftEditor->setDiffData(results[LeftSide].diffData);
+            m_rightEditor->setDiffData(results[RightSide].diffData);
+            TextDocumentPtr leftDoc(results[LeftSide].textDocument);
+            TextDocumentPtr rightDoc(results[RightSide].textDocument);
+            {
+                const GuardLocker locker(m_controller.m_ignoreChanges);
+                // TextDocument was living in no thread, so it's safe to pull it
+                leftDoc->moveToThread(thread());
+                rightDoc->moveToThread(thread());
+                m_leftEditor->setTextDocument(leftDoc);
+                m_rightEditor->setTextDocument(rightDoc);
 
-    {
-        const GuardLocker locker(m_controller.m_ignoreChanges);
-        m_leftEditor->clear();
-        m_leftEditor->setPlainText(output.side[LeftSide].diffText);
-        m_rightEditor->clear();
-        m_rightEditor->setPlainText(output.side[RightSide].diffText);
-    }
+                m_leftEditor->setReadOnly(true);
+                m_rightEditor->setReadOnly(true);
+            }
+            m_leftEditor->setSelections(results[LeftSide].selections);
+            m_rightEditor->setSelections(results[RightSide].selections);
+        }
+        m_watcher.release()->deleteLater();
+        m_controller.setBusyShowing(false);
+    });
 
-    QTextBlock block = m_leftEditor->document()->firstBlock();
-    for (int b = 0; block.isValid(); block = block.next(), ++b)
-        SelectableTextEditorWidget::setFoldingIndent(block, output.foldingIndent.value(b, 3));
-    block = m_rightEditor->document()->firstBlock();
-    for (int b = 0; block.isValid(); block = block.next(), ++b)
-        SelectableTextEditorWidget::setFoldingIndent(block, output.foldingIndent.value(b, 3));
+    const DiffEditorInput input(&m_controller);
 
-    m_leftEditor->setSelections(output.side[LeftSide].selections);
-    m_rightEditor->setSelections(output.side[RightSide].selections);
+    auto getDocument = [input](QFutureInterface<ShowResults> &futureInterface) {
+        auto cleanup = qScopeGuard([&futureInterface] {
+            if (futureInterface.isCanceled())
+                futureInterface.reportCanceled();
+        });
+        const int firstPartMax = 20; // showDiff is about 4 times quicker than filling document
+        const int leftPartMax = 60;
+        const int rightPartMax = 100;
+        futureInterface.setProgressRange(0, rightPartMax);
+        futureInterface.setProgressValue(0);
+        QFutureInterface<void> fi = futureInterface;
+        const SideBySideDiffOutput output = SideDiffData::diffOutput(fi, 0, firstPartMax, input);
+        if (futureInterface.isCanceled())
+            return;
+
+        const ShowResult leftResult{TextDocumentPtr(new TextDocument("DiffEditor.SideDiffEditor")),
+                    output.side[LeftSide].diffData, output.side[LeftSide].selections};
+        const ShowResult rightResult{TextDocumentPtr(new TextDocument("DiffEditor.SideDiffEditor")),
+                    output.side[RightSide].diffData, output.side[RightSide].selections};
+        const ShowResults result{leftResult, rightResult};
+
+        auto propagateDocument = [&output, &fi](DiffSide side, const ShowResult &result,
+                                                int progressMin, int progressMax) {
+            // No need to store the change history
+            result.textDocument->document()->setUndoRedoEnabled(false);
+
+            // We could do just:
+            //   result.textDocument->setPlainText(output.diffText);
+            // but this would freeze the thread for couple of seconds without progress reporting
+            // and without checking for canceled.
+            const int diffSize = output.side[side].diffText.size();
+            const int packageSize = 10000;
+            int currentPos = 0;
+            QTextCursor cursor(result.textDocument->document());
+            while (currentPos < diffSize) {
+                const QString package = output.side[side].diffText.mid(currentPos, packageSize);
+                cursor.insertText(package);
+                currentPos += package.size();
+                fi.setProgressValue(DiffUtils::interpolate(currentPos, 0, diffSize, progressMin, progressMax));
+                if (fi.isCanceled())
+                    return;
+            }
+
+            QTextBlock block = result.textDocument->document()->firstBlock();
+            for (int b = 0; block.isValid(); block = block.next(), ++b)
+                SelectableTextEditorWidget::setFoldingIndent(block, output.foldingIndent.value(b, 3));
+
+            // If future was canceled, the destructor runs in this thread, so we can't move it
+            // to caller's thread. We push it to no thread (make object to have no thread affinity),
+            // and later, in the caller's thread, we pull it back to the caller's thread.
+            result.textDocument->moveToThread(nullptr);
+        };
+
+        propagateDocument(LeftSide, leftResult, firstPartMax, leftPartMax);
+        if (fi.isCanceled())
+            return;
+        propagateDocument(RightSide, rightResult, leftPartMax, rightPartMax);
+        if (fi.isCanceled())
+            return;
+
+        futureInterface.reportResult(result);
+    };
+
+    m_watcher->setFuture(runAsync(getDocument));
+    ProgressManager::addTask(m_watcher->future(), tr("Rendering diff"), "DiffEditor");
 }
 
 void SideBySideDiffEditorWidget::setFontSettings(const FontSettings &fontSettings)
@@ -1143,10 +1235,13 @@ void SideBySideDiffEditorWidget::handlePositionChange(SideDiffEditorWidget *sour
     if (m_controller.m_ignoreChanges.isLocked())
         return;
 
+    const int fileIndex = source->diffData().fileIndexForBlockNumber(source->textCursor().blockNumber());
+    if (fileIndex < 0)
+        return;
+
     const GuardLocker locker(m_controller.m_ignoreChanges);
     syncCursor(source, dest);
-    emit currentDiffFileIndexChanged(
-                source->diffData().fileIndexForBlockNumber(source->textCursor().blockNumber()));
+    emit currentDiffFileIndexChanged(fileIndex);
 }
 
 void SideBySideDiffEditorWidget::syncCursor(SideDiffEditorWidget *source, SideDiffEditorWidget *dest)
