@@ -72,12 +72,12 @@ public:
                 : OsSpecificAspects::fileNameCaseSensitivity(hostOs());
     }
 
-    static QChar pathListSeparator()
+    static constexpr QChar pathListSeparator()
     {
         return OsSpecificAspects::pathListSeparator(hostOs());
     }
 
-    static Qt::KeyboardModifier controlModifier()
+    static constexpr Qt::KeyboardModifier controlModifier()
     {
         return OsSpecificAspects::controlModifier(hostOs());
     }
