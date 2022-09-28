@@ -13,7 +13,6 @@
 #include "clearcasesync.h"
 #include "settingspage.h"
 #include "versionselector.h"
-#include "ui_undocheckout.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -32,6 +31,7 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/infobar.h>
+#include <utils/layoutbuilder.h>
 #include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -47,7 +47,10 @@
 #include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcscommand.h>
 
+#include <QAbstractButton>
 #include <QAction>
+#include <QApplication>
+#include <QCheckBox>
 #include <QDebug>
 #include <QDialog>
 #include <QDialogButtonBox>
@@ -56,6 +59,7 @@
 #include <QFuture>
 #include <QFutureInterface>
 #include <QInputDialog>
+#include <QLabel>
 #include <QList>
 #include <QMenu>
 #include <QMessageBox>
@@ -66,6 +70,7 @@
 #include <QTextCodec>
 #include <QUuid>
 #include <QVBoxLayout>
+
 #ifdef WITH_TESTS
 #include <QTest>
 #include <coreplugin/vcsmanager.h>
@@ -80,22 +85,22 @@ using namespace std::placeholders;
 namespace ClearCase {
 namespace Internal {
 
-static const char CLEARCASE_CONTEXT[]         = "ClearCase Context";
-static const char CMD_ID_CLEARCASE_MENU[]     = "ClearCase.Menu";
-static const char CMD_ID_CHECKOUT[]           = "ClearCase.CheckOut";
-static const char CMD_ID_CHECKIN[]            = "ClearCase.CheckInCurrent";
-static const char CMD_ID_UNDOCHECKOUT[]       = "ClearCase.UndoCheckOut";
-static const char CMD_ID_UNDOHIJACK[]         = "ClearCase.UndoHijack";
-static const char CMD_ID_DIFF_CURRENT[]       = "ClearCase.DiffCurrent";
-static const char CMD_ID_HISTORY_CURRENT[]    = "ClearCase.HistoryCurrent";
-static const char CMD_ID_ANNOTATE[]           = "ClearCase.Annotate";
-static const char CMD_ID_ADD_FILE[]           = "ClearCase.AddFile";
-static const char CMD_ID_DIFF_ACTIVITY[]      = "ClearCase.DiffActivity";
-static const char CMD_ID_CHECKIN_ACTIVITY[]   = "ClearCase.CheckInActivity";
-static const char CMD_ID_UPDATEINDEX[]        = "ClearCase.UpdateIndex";
-static const char CMD_ID_UPDATE_VIEW[]        = "ClearCase.UpdateView";
-static const char CMD_ID_CHECKIN_ALL[]        = "ClearCase.CheckInAll";
-static const char CMD_ID_STATUS[]             = "ClearCase.Status";
+const char CLEARCASE_CONTEXT[]         = "ClearCase Context";
+const char CMD_ID_CLEARCASE_MENU[]     = "ClearCase.Menu";
+const char CMD_ID_CHECKOUT[]           = "ClearCase.CheckOut";
+const char CMD_ID_CHECKIN[]            = "ClearCase.CheckInCurrent";
+const char CMD_ID_UNDOCHECKOUT[]       = "ClearCase.UndoCheckOut";
+const char CMD_ID_UNDOHIJACK[]         = "ClearCase.UndoHijack";
+const char CMD_ID_DIFF_CURRENT[]       = "ClearCase.DiffCurrent";
+const char CMD_ID_HISTORY_CURRENT[]    = "ClearCase.HistoryCurrent";
+const char CMD_ID_ANNOTATE[]           = "ClearCase.Annotate";
+const char CMD_ID_ADD_FILE[]           = "ClearCase.AddFile";
+const char CMD_ID_DIFF_ACTIVITY[]      = "ClearCase.DiffActivity";
+const char CMD_ID_CHECKIN_ACTIVITY[]   = "ClearCase.CheckInActivity";
+const char CMD_ID_UPDATEINDEX[]        = "ClearCase.UpdateIndex";
+const char CMD_ID_UPDATE_VIEW[]        = "ClearCase.UpdateView";
+const char CMD_ID_CHECKIN_ALL[]        = "ClearCase.CheckInAll";
+const char CMD_ID_STATUS[]             = "ClearCase.Status";
 
 const int s_silentRun = VcsCommand::NoOutput | VcsCommand::FullySynchronously;
 const int s_verboseRun = VcsCommand::ShowStdOut | VcsCommand::FullySynchronously;
@@ -1017,6 +1022,53 @@ void ClearCasePluginPrivate::setStatus(const QString &file, FileStatus::Status s
         QMetaObject::invokeMethod(this, &ClearCasePluginPrivate::updateStatusActions);
 }
 
+class UndoCheckOutDialog : public QDialog
+{
+    Q_DECLARE_TR_FUNCTIONS(ClearCase::Internal::UndoCheckOut)
+
+public:
+    UndoCheckOutDialog()
+    {
+        resize(323, 105);
+        setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        setWindowTitle(tr("Dialog"));
+
+        lblMessage = new QLabel(this);
+
+        QPalette palette;
+        QBrush brush(QColor(255, 0, 0, 255));
+        brush.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Active, QPalette::WindowText, brush);
+        palette.setBrush(QPalette::Inactive, QPalette::WindowText, brush);
+        QBrush brush1(QColor(68, 96, 92, 255));
+        brush1.setStyle(Qt::SolidPattern);
+        palette.setBrush(QPalette::Disabled, QPalette::WindowText, brush1);
+
+        auto lblModified = new QLabel(tr("The file was changed."));
+        lblModified->setPalette(palette);
+
+        chkKeep = new QCheckBox(tr("&Save copy of the file with a '.keep' extension"));
+        chkKeep->setChecked(true);
+
+        auto buttonBox = new QDialogButtonBox(QDialogButtonBox::No|QDialogButtonBox::Yes);
+
+        using namespace Layouting;
+
+        Column {
+            lblMessage,
+            lblModified,
+            chkKeep,
+            buttonBox
+        }.attachTo(this);
+
+        connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+        connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    }
+
+    QLabel *lblMessage;
+    QCheckBox *chkKeep;
+};
+
 void ClearCasePluginPrivate::undoCheckOutCurrent()
 {
     const VcsBasePluginState state = currentState();
@@ -1033,14 +1085,12 @@ void ClearCasePluginPrivate::undoCheckOutCurrent()
 
     bool keep = false;
     if (result.exitCode()) { // return value is 1 if there is any difference
-        Ui::UndoCheckOut uncoUi;
-        QDialog uncoDlg;
-        uncoUi.setupUi(&uncoDlg);
-        uncoUi.lblMessage->setText(tr("Do you want to undo the check out of \"%1\"?").arg(fileName));
-        uncoUi.chkKeep->setChecked(m_settings.keepFileUndoCheckout);
-        if (uncoDlg.exec() != QDialog::Accepted)
+        UndoCheckOutDialog dialog;
+        dialog.lblMessage->setText(tr("Do you want to undo the check out of \"%1\"?").arg(fileName));
+        dialog.chkKeep->setChecked(m_settings.keepFileUndoCheckout);
+        if (dialog.exec() != QDialog::Accepted)
             return;
-        keep = uncoUi.chkKeep->isChecked();
+        keep = dialog.chkKeep->isChecked();
         if (keep != m_settings.keepFileUndoCheckout) {
             m_settings.keepFileUndoCheckout = keep;
             m_settings.toSettings(ICore::settings());
@@ -1117,15 +1167,13 @@ void ClearCasePluginPrivate::undoHijackCurrent()
             askKeep = false;
     }
     if (askKeep) {
-        Ui::UndoCheckOut unhijackUi;
-        QDialog unhijackDlg;
-        unhijackUi.setupUi(&unhijackDlg);
+        UndoCheckOutDialog unhijackDlg;
         unhijackDlg.setWindowTitle(tr("Undo Hijack File"));
-        unhijackUi.lblMessage->setText(tr("Do you want to undo hijack of \"%1\"?")
+        unhijackDlg.lblMessage->setText(tr("Do you want to undo hijack of \"%1\"?")
                                        .arg(QDir::toNativeSeparators(fileName)));
         if (unhijackDlg.exec() != QDialog::Accepted)
             return;
-        keep = unhijackUi.chkKeep->isChecked();
+        keep = unhijackDlg.chkKeep->isChecked();
     }
 
     FileChangeBlocker fcb(FilePath::fromString(state.currentFile()));
