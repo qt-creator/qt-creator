@@ -9,7 +9,7 @@ add_qtc_plugin(VcsBase
     cleandialog.cpp cleandialog.h
     commonvcssettings.cpp commonvcssettings.h
     diffandloghighlighter.cpp diffandloghighlighter.h
-    nicknamedialog.cpp nicknamedialog.h nicknamedialog.ui
+    nicknamedialog.cpp nicknamedialog.h
     submiteditorfile.cpp submiteditorfile.h
     submiteditorwidget.cpp submiteditorwidget.h submiteditorwidget.ui
     submitfieldwidget.cpp submitfieldwidget.h

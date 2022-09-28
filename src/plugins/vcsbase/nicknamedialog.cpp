@@ -2,11 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "nicknamedialog.h"
-#include "ui_nicknamedialog.h"
 
+#include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
+#include <utils/itemviews.h>
+#include <utils/layoutbuilder.h>
 
 #include <QDebug>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QPushButton>
 #include <QStandardItemModel>
@@ -28,8 +31,7 @@ enum { NickNameRole = Qt::UserRole + 1 };
     be preferred.
 */
 
-namespace VcsBase {
-namespace Internal {
+namespace VcsBase::Internal {
 
 // For code clarity, a struct representing the entries of a mail map file
 // with parse and model functions.
@@ -143,42 +145,54 @@ QDebug operator<<(QDebug d, const NickNameEntry &e)
 
 NickNameDialog::NickNameDialog(QStandardItemModel *model, QWidget *parent) :
         QDialog(parent),
-        m_ui(new Internal::Ui::NickNameDialog),
         m_model(model),
         m_filterModel(new QSortFilterProxyModel(this))
 {
-    m_ui->setupUi(this);
+    auto filterLineEdit = new FancyLineEdit;
+
+    m_filterTreeView = new TreeView;
+
+    m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
     okButton()->setEnabled(false);
 
     // Populate model and grow tree to accommodate it
     m_filterModel->setSourceModel(model);
     m_filterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    m_ui->filterTreeView->setModel(m_filterModel);
-    m_ui->filterTreeView->setActivationMode(DoubleClickActivation);
+    m_filterTreeView->setModel(m_filterModel);
+    m_filterTreeView->setActivationMode(DoubleClickActivation);
     const int columnCount = m_filterModel->columnCount();
     int treeWidth = 0;
     for (int c = 0; c < columnCount; c++) {
-        m_ui->filterTreeView->resizeColumnToContents(c);
-        treeWidth += m_ui->filterTreeView->columnWidth(c);
+        m_filterTreeView->resizeColumnToContents(c);
+        treeWidth += m_filterTreeView->columnWidth(c);
     }
-    m_ui->filterTreeView->setMinimumWidth(treeWidth + 20);
-    m_ui->filterLineEdit->setFiltering(true);
-    connect(m_ui->filterTreeView, &QAbstractItemView::activated, this,
+    m_filterTreeView->setMinimumWidth(treeWidth + 20);
+    filterLineEdit->setFiltering(true);
+
+    using namespace Layouting;
+    Column {
+        filterLineEdit,
+        m_filterTreeView,
+        m_buttonBox
+    }.attachTo(this);
+
+    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    connect(m_filterTreeView, &QAbstractItemView::activated, this,
             &NickNameDialog::slotActivated);
-    connect(m_ui->filterTreeView->selectionModel(), &QItemSelectionModel::currentRowChanged,
+    connect(m_filterTreeView->selectionModel(), &QItemSelectionModel::currentRowChanged,
             this, &NickNameDialog::slotCurrentItemChanged);
-    connect(m_ui->filterLineEdit, &FancyLineEdit::filterChanged,
+    connect(filterLineEdit, &FancyLineEdit::filterChanged,
             m_filterModel, &QSortFilterProxyModel::setFilterFixedString);
 }
 
-NickNameDialog::~NickNameDialog()
-{
-    delete m_ui;
-}
+NickNameDialog::~NickNameDialog() = default;
 
 QPushButton *NickNameDialog::okButton() const
 {
-    return m_ui->buttonBox->button(QDialogButtonBox::Ok);
+    return m_buttonBox->button(QDialogButtonBox::Ok);
 }
 
 void NickNameDialog::slotCurrentItemChanged(const QModelIndex &index)
@@ -194,7 +208,7 @@ void NickNameDialog::slotActivated(const QModelIndex &)
 
 QString NickNameDialog::nickName() const
 {
-    const QModelIndex index = m_ui->filterTreeView->selectionModel()->currentIndex();
+    const QModelIndex index = m_filterTreeView->selectionModel()->currentIndex();
     if (index.isValid()) {
         const QModelIndex sourceIndex = m_filterModel->mapToSource(index);
         if (const QStandardItem *item = m_model->itemFromIndex(sourceIndex))
@@ -250,5 +264,4 @@ QStringList NickNameDialog::nickNameList(const QStandardItemModel *model)
     return rc;
 }
 
-} // namespace Internal
-} // namespace VcsBase
+} // VcsBase::Internal

@@ -33,7 +33,6 @@ QtcPlugin {
         "diffandloghighlighter.h",
         "nicknamedialog.cpp",
         "nicknamedialog.h",
-        "nicknamedialog.ui",
         "submiteditorfile.cpp",
         "submiteditorfile.h",
         "submiteditorwidget.cpp",
