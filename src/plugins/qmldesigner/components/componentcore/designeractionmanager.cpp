@@ -595,6 +595,8 @@ public:
     {
         menu()->clear();
 
+        menu()->setEnabled(true);
+
         const auto selection = selectionContext();
         if (!selection.isValid())
             return;
@@ -604,11 +606,19 @@ public:
             return;
 
         ModelNode currentNode = selection.currentSingleSelectedNode();
+
+        if (!currentNode.isValid())
+            return;
+
         QmlObjectNode currentObjectNode(currentNode);
 
         QStringList signalsList = getSignalsList(currentNode);
         QList<SlotEntry> slotsList = getSlotsLists(currentNode);
-        currentNode.validId();
+
+        if (!currentNode.hasId()) {
+            menu()->setEnabled(false);
+            return;
+        }
 
         for (const ModelNode &connectionNode : currentObjectNode.getAllConnections()) {
             for (const AbstractProperty &property : connectionNode.properties()) {
