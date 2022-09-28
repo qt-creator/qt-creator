@@ -216,7 +216,7 @@ void ActionsFilter::collectEntriesForAction(QAction *action,
                 collectEntriesForAction(menuAction, menuPath, processedMenus);
         }
     } else if (!text.isEmpty()) {
-        const ActionFilterEntryData data{action};
+        const ActionFilterEntryData data{action, {}};
         LocatorFilterEntry filterEntry(this, text, QVariant::fromValue(data), action->icon());
         filterEntry.extraInfo = path.join(" > ");
         updateEntry(action, filterEntry);
