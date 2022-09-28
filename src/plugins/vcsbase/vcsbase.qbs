@@ -37,7 +37,6 @@ QtcPlugin {
         "submiteditorfile.h",
         "submiteditorwidget.cpp",
         "submiteditorwidget.h",
-        "submiteditorwidget.ui",
         "submitfieldwidget.cpp",
         "submitfieldwidget.h",
         "submitfilemodel.cpp",

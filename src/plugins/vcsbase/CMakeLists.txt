@@ -11,7 +11,7 @@ add_qtc_plugin(VcsBase
     diffandloghighlighter.cpp diffandloghighlighter.h
     nicknamedialog.cpp nicknamedialog.h
     submiteditorfile.cpp submiteditorfile.h
-    submiteditorwidget.cpp submiteditorwidget.h submiteditorwidget.ui
+    submiteditorwidget.cpp submiteditorwidget.h
     submitfieldwidget.cpp submitfieldwidget.h
     submitfilemodel.cpp submitfilemodel.h
     vcsbase.qrc
