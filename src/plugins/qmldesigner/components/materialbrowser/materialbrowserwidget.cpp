@@ -141,6 +141,9 @@ bool MaterialBrowserWidget::eventFilter(QObject *obj, QEvent *event)
                 m_bundleMaterialToDrag = {};
             }
         }
+    } else if (event->type() == QMouseEvent::MouseButtonRelease) {
+        m_materialToDrag = {};
+        m_bundleMaterialToDrag = {};
     }
 
     return QObject::eventFilter(obj, event);
