@@ -67,24 +67,20 @@ namespace VcsBase {
 // (similar to a QToolButton)
 class QActionPushButton : public QToolButton
 {
-    Q_OBJECT
 public:
-    explicit QActionPushButton(QAction *a);
-};
-
-QActionPushButton::QActionPushButton(QAction *a) :
-     QToolButton()
-{
-    setIcon(a->icon());
-    setText(a->text());
-    setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    connect(a, &QAction::changed, this, [this, a] {
-        setEnabled(a->isEnabled());
+    explicit QActionPushButton(QAction *a)
+    {
+        setIcon(a->icon());
         setText(a->text());
-    });
-    connect(this, &QAbstractButton::clicked, a, &QAction::trigger);
-    setEnabled(a->isEnabled());
-}
+        setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        connect(a, &QAction::changed, this, [this, a] {
+            setEnabled(a->isEnabled());
+            setText(a->text());
+        });
+        connect(this, &QAbstractButton::clicked, a, &QAction::trigger);
+        setEnabled(a->isEnabled());
+    }
+};
 
 // Helpers to retrieve model data
 // Convenience to extract a list of selected indexes
@@ -765,5 +761,3 @@ void SubmitEditorWidget::setEmptyFileListEnabled(bool e)
 }
 
 } // namespace VcsBase
-
-#include "submiteditorwidget.moc"
