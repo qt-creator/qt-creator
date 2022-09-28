@@ -257,41 +257,70 @@ SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterface<void> &fi, int pr
 {
     SideBySideDiffOutput output;
 
-    DiffSelections &leftFormats = output.side[LeftSide].selections;
-    DiffSelections &rightFormats = output.side[RightSide].selections;
-    SideDiffData &leftData = output.side[LeftSide].diffData;
-    SideDiffData &rightData = output.side[RightSide].diffData;
-    QString &leftTexts = output.side[LeftSide].diffText;
-    QString &rightTexts = output.side[RightSide].diffText;
-    QHash<int, int> &foldingIndent = output.foldingIndent;
-
     const QChar separator = '\n';
     int blockNumber = 0;
     int i = 0;
     const int count = input.m_contextFileData.size();
+    std::array<QString, SideCount> diffText{};
 
-    for (const FileData &contextFileData : qAsConst(input.m_contextFileData)) {
-        QString leftText, rightText;
+    auto addFileLine = [&](DiffSide side, const FileData &fileData) {
+        output.side[side].selections[blockNumber].append({input.m_fileLineFormat});
+        output.side[side].diffData.setFileInfo(blockNumber, fileData.fileInfo[side]);
+        diffText[side] += separator;
+    };
 
-        foldingIndent.insert(blockNumber, 1);
-        leftFormats[blockNumber].append({input.m_fileLineFormat});
-        rightFormats[blockNumber].append({input.m_fileLineFormat});
-        leftData.setFileInfo(blockNumber, contextFileData.fileInfo[LeftSide]);
-        rightData.setFileInfo(blockNumber, contextFileData.fileInfo[RightSide]);
-        leftText = separator;
-        rightText = separator;
+    auto addChunkLine = [&](DiffSide side, int skippedLines, const QString &contextInfo = {}) {
+        output.side[side].selections[blockNumber].append({input.m_chunkLineFormat});
+        output.side[side].diffData.setSkippedLines(blockNumber, skippedLines, contextInfo);
+        diffText[side] += separator;
+    };
+
+    auto addRowLine = [&](DiffSide side, const RowData &rowData,
+                          int *lineNumber, int *lastLineNumber = nullptr) {
+        if (rowData.line[side].textLineType == TextLineData::TextLine) {
+            diffText[side] += rowData.line[side].text;
+            if (lastLineNumber)
+                *lastLineNumber = *lineNumber;
+            ++(*lineNumber);
+            output.side[side].diffData.setLineNumber(blockNumber, *lineNumber);
+        } else if (rowData.line[side].textLineType == TextLineData::Separator) {
+            output.side[side].diffData.setSeparator(blockNumber, true);
+        }
+
+        if (!rowData.equal) {
+            if (rowData.line[side].textLineType == TextLineData::TextLine)
+                output.side[side].selections[blockNumber].append({input.m_lineFormat[side]});
+            else
+                output.side[side].selections[blockNumber].append({input.m_spanLineFormat});
+        }
+        for (auto it = rowData.line[side].changedPositions.cbegin(),
+                  end = rowData.line[side].changedPositions.cend(); it != end; ++it) {
+            output.side[side].selections[blockNumber].append(
+                        {input.m_charFormat[side], it.key(), it.value()});
+        }
+        diffText[side] += separator;
+    };
+
+    auto addSkippedLine = [&](DiffSide side, int skippedLines) {
+        output.side[side].selections[blockNumber].append({input.m_chunkLineFormat});
+        output.side[side].diffData.setSkippedLines(blockNumber, skippedLines);
+        diffText[side] += separator;
+    };
+
+    for (const FileData &contextFileData : input.m_contextFileData) {
+        diffText = {};
+        output.foldingIndent.insert(blockNumber, 1);
+
+        addFileLine(LeftSide, contextFileData);
+        addFileLine(RightSide, contextFileData);
         blockNumber++;
 
         int lastLeftLineNumber = -1;
 
         if (contextFileData.binaryFiles) {
-            foldingIndent.insert(blockNumber, 2);
-            leftFormats[blockNumber].append({input.m_chunkLineFormat});
-            rightFormats[blockNumber].append({input.m_chunkLineFormat});
-            leftData.setSkippedLines(blockNumber, -2);
-            rightData.setSkippedLines(blockNumber, -2);
-            leftText += separator;
-            rightText += separator;
+            output.foldingIndent.insert(blockNumber, 2);
+            addChunkLine(LeftSide, -2);
+            addChunkLine(RightSide, -2);
             blockNumber++;
         } else {
             for (int j = 0; j < contextFileData.chunks.count(); j++) {
@@ -303,64 +332,18 @@ SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterface<void> &fi, int pr
                 if (!chunkData.contextChunk) {
                     const int skippedLines = leftLineNumber - lastLeftLineNumber - 1;
                     if (skippedLines > 0) {
-                        foldingIndent.insert(blockNumber, 2);
-                        leftFormats[blockNumber].append({input.m_chunkLineFormat});
-                        rightFormats[blockNumber].append({input.m_chunkLineFormat});
-                        leftData.setSkippedLines(blockNumber, skippedLines, chunkData.contextInfo);
-                        rightData.setSkippedLines(blockNumber, skippedLines, chunkData.contextInfo);
-                        leftText += separator;
-                        rightText += separator;
+                        output.foldingIndent.insert(blockNumber, 2);
+                        addChunkLine(LeftSide, skippedLines, chunkData.contextInfo);
+                        addChunkLine(RightSide, skippedLines, chunkData.contextInfo);
                         blockNumber++;
                     }
 
-                    leftData.setChunkIndex(blockNumber, chunkData.rows.count(), j);
-                    rightData.setChunkIndex(blockNumber, chunkData.rows.count(), j);
+                    output.side[LeftSide].diffData.setChunkIndex(blockNumber, chunkData.rows.count(), j);
+                    output.side[RightSide].diffData.setChunkIndex(blockNumber, chunkData.rows.count(), j);
 
                     for (const RowData &rowData : chunkData.rows) {
-                        TextLineData leftLineData = rowData.line[LeftSide];
-                        TextLineData rightLineData = rowData.line[RightSide];
-                        if (leftLineData.textLineType == TextLineData::TextLine) {
-                            leftText += leftLineData.text;
-                            lastLeftLineNumber = leftLineNumber;
-                            leftLineNumber++;
-                            leftData.setLineNumber(blockNumber, leftLineNumber);
-                        } else if (leftLineData.textLineType == TextLineData::Separator) {
-                            leftData.setSeparator(blockNumber, true);
-                        }
-
-                        if (rightLineData.textLineType == TextLineData::TextLine) {
-                            rightText += rightLineData.text;
-                            rightLineNumber++;
-                            rightData.setLineNumber(blockNumber, rightLineNumber);
-                        } else if (rightLineData.textLineType == TextLineData::Separator) {
-                            rightData.setSeparator(blockNumber, true);
-                        }
-
-                        if (!rowData.equal) {
-                            if (rowData.line[LeftSide].textLineType == TextLineData::TextLine)
-                                leftFormats[blockNumber].append({input.m_lineFormat[LeftSide]});
-                            else
-                                leftFormats[blockNumber].append({input.m_spanLineFormat});
-                            if (rowData.line[RightSide].textLineType == TextLineData::TextLine)
-                                rightFormats[blockNumber].append({input.m_lineFormat[RightSide]});
-                            else
-                                rightFormats[blockNumber].append({input.m_spanLineFormat});
-                        }
-
-                        for (auto it = leftLineData.changedPositions.cbegin(),
-                                  end = leftLineData.changedPositions.cend(); it != end; ++it) {
-                            leftFormats[blockNumber].append(
-                                        {input.m_charFormat[LeftSide], it.key(), it.value()});
-                        }
-
-                        for (auto it = rightLineData.changedPositions.cbegin(),
-                                  end = rightLineData.changedPositions.cend(); it != end; ++it) {
-                            rightFormats[blockNumber].append(
-                                        {input.m_charFormat[RightSide], it.key(), it.value()});
-                        }
-
-                        leftText += separator;
-                        rightText += separator;
+                        addRowLine(LeftSide, rowData, &leftLineNumber, &lastLeftLineNumber);
+                        addRowLine(RightSide, rowData, &rightLineNumber);
                         blockNumber++;
                     }
                 }
@@ -378,21 +361,17 @@ SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterface<void> &fi, int pr
                     }
 
                     if (skippedLines >= -1) {
-                        leftFormats[blockNumber].append({input.m_chunkLineFormat});
-                        rightFormats[blockNumber].append({input.m_chunkLineFormat});
-                        leftData.setSkippedLines(blockNumber, skippedLines);
-                        rightData.setSkippedLines(blockNumber, skippedLines);
-                        leftText += separator;
-                        rightText += separator;
+                        addSkippedLine(LeftSide, skippedLines);
+                        addSkippedLine(RightSide, skippedLines);
                         blockNumber++;
                     } // otherwise nothing skipped
                 }
             }
         }
-        leftText.replace('\r', ' ');
-        rightText.replace('\r', ' ');
-        leftTexts += leftText;
-        rightTexts += rightText;
+        diffText[LeftSide].replace('\r', ' ');
+        diffText[RightSide].replace('\r', ' ');
+        output.side[LeftSide].diffText += diffText[LeftSide];
+        output.side[RightSide].diffText += diffText[RightSide];
         fi.setProgressValue(DiffUtils::interpolate(++i, 0, count, progressMin, progressMax));
         if (fi.isCanceled())
             return {};
