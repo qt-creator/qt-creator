@@ -5,10 +5,14 @@
 
 #include <QDialog>
 
-namespace ClearCase {
-namespace Internal {
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QLabel;
+class QPlainTextEdit;
+class QVBoxLayout;
+QT_END_NAMESPACE
 
-namespace Ui { class CheckOutDialog; }
+namespace ClearCase::Internal {
 
 class ActivitySelector;
 
@@ -34,9 +38,15 @@ public:
 private:
     void toggleUnreserved(bool checked);
 
-    Ui::CheckOutDialog *ui;
     ActivitySelector *m_actSelector = nullptr;
+
+    QVBoxLayout *m_verticalLayout;
+    QLabel *m_lblComment;
+    QPlainTextEdit *m_txtComment;
+    QCheckBox *m_chkReserved;
+    QCheckBox *m_chkUnreserved;
+    QCheckBox *m_chkPTime;
+    QCheckBox *m_hijackedCheckBox;
 };
 
-} // namespace Internal
-} // namespace ClearCase
+} // ClearCase::Internal

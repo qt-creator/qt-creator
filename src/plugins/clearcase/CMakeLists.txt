@@ -3,7 +3,7 @@ add_qtc_plugin(ClearCase
   SOURCES
     activityselector.cpp activityselector.h
     annotationhighlighter.cpp annotationhighlighter.h
-    checkoutdialog.cpp checkoutdialog.h checkoutdialog.ui
+    checkoutdialog.cpp checkoutdialog.h
     clearcaseconstants.h
     clearcaseeditor.cpp clearcaseeditor.h
     clearcaseplugin.cpp clearcaseplugin.h

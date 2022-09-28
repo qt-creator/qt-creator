@@ -4,45 +4,90 @@
 #include "checkoutdialog.h"
 
 #include "activityselector.h"
-#include "ui_checkoutdialog.h"
 
 #include <utils/layoutbuilder.h>
 
 #include <QPushButton>
 
-namespace ClearCase {
-namespace Internal {
+#include <QAbstractButton>
+#include <QApplication>
+#include <QCheckBox>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QPlainTextEdit>
+#include <QVBoxLayout>
+
+namespace ClearCase::Internal {
 
 CheckOutDialog::CheckOutDialog(const QString &fileName, bool isUcm, bool showComment,
                                QWidget *parent) :
-    QDialog(parent), ui(new Ui::CheckOutDialog)
+    QDialog(parent)
 {
-    ui->setupUi(this);
-    ui->lblFileName->setText(fileName);
+    resize(352, 317);
+    setWindowTitle(tr("Check Out"));
+
+    auto lblFileName = new QLabel(fileName);
+    lblFileName->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse);
+
+    m_txtComment = new QPlainTextEdit(this);
+    m_txtComment->setTabChangesFocus(true);
+
+    m_lblComment = new QLabel(tr("&Checkout comment:"));
+    m_lblComment->setBuddy(m_txtComment);
+
+    m_chkReserved = new QCheckBox(tr("&Reserved"));
+    m_chkReserved->setChecked(true);
+
+    m_chkUnreserved = new QCheckBox(tr("&Unreserved if already reserved"));
+
+    m_chkPTime = new QCheckBox(tr("&Preserve file modification time"));
+
+    m_hijackedCheckBox = new QCheckBox(tr("Use &Hijacked file"));
+    m_hijackedCheckBox->setChecked(true);
+
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+    using namespace Utils::Layouting;
+
+    Column {
+        lblFileName,
+        m_lblComment,
+        m_txtComment,
+        m_chkReserved,
+        Row { Space(16), m_chkUnreserved },
+        m_chkPTime,
+        m_hijackedCheckBox,
+        buttonBox
+    }.attachTo(this);
+
+    m_verticalLayout = static_cast<QVBoxLayout *>(layout());
 
     if (isUcm) {
         m_actSelector = new ActivitySelector(this);
 
-        ui->verticalLayout->insertWidget(0, m_actSelector);
-        ui->verticalLayout->insertWidget(1, Utils::Layouting::createHr());
+        m_verticalLayout->insertWidget(0, m_actSelector);
+        m_verticalLayout->insertWidget(1, Utils::Layouting::createHr());
     }
 
     if (!showComment)
         hideComment();
 
-    ui->buttonBox->button(QDialogButtonBox::Ok)->setFocus();
+    buttonBox->button(QDialogButtonBox::Ok)->setFocus();
+
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(m_chkReserved, &QAbstractButton::toggled, this, &CheckOutDialog::toggleUnreserved);
 }
 
-CheckOutDialog::~CheckOutDialog()
-{
-    delete ui;
-}
+CheckOutDialog::~CheckOutDialog() = default;
 
 void CheckOutDialog::hideComment()
 {
-    ui->lblComment->hide();
-    ui->txtComment->hide();
-    ui->verticalLayout->invalidate();
+    m_lblComment->hide();
+    m_txtComment->hide();
+    m_verticalLayout->invalidate();
     adjustSize();
 }
 
@@ -53,41 +98,40 @@ QString CheckOutDialog::activity() const
 
 QString CheckOutDialog::comment() const
 {
-    return ui->txtComment->toPlainText();
+    return m_txtComment->toPlainText();
 }
 
 bool CheckOutDialog::isReserved() const
 {
-    return ui->chkReserved->isChecked();
+    return m_chkReserved->isChecked();
 }
 
 bool CheckOutDialog::isUnreserved() const
 {
-    return ui->chkUnreserved->isChecked();
+    return m_chkUnreserved->isChecked();
 }
 
 bool CheckOutDialog::isPreserveTime() const
 {
-    return ui->chkPTime->isChecked();
+    return m_chkPTime->isChecked();
 }
 
 bool CheckOutDialog::isUseHijacked() const
 {
-    return ui->hijackedCheckBox->isChecked();
+    return m_hijackedCheckBox->isChecked();
 }
 
 void CheckOutDialog::hideHijack()
 {
-    ui->hijackedCheckBox->setVisible(false);
-    ui->hijackedCheckBox->setChecked(false);
+    m_hijackedCheckBox->setVisible(false);
+    m_hijackedCheckBox->setChecked(false);
 }
 
 void CheckOutDialog::toggleUnreserved(bool checked)
 {
-    ui->chkUnreserved->setEnabled(checked);
+    m_chkUnreserved->setEnabled(checked);
     if (!checked)
-        ui->chkUnreserved->setChecked(false);
+        m_chkUnreserved->setChecked(false);
 }
 
-} // namespace Internal
-} // namespace ClearCase
+} // ClearCase::Internal
