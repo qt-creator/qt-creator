@@ -1514,7 +1514,7 @@ void styleMerge(const SelectionContext &selectionContext, const QString &templat
     QScopedPointer<Model> templateModel(Model::create("QtQuick.Item", 2, 1, parentModel));
     Q_ASSERT(templateModel.data());
 
-    templateModel->setFileUrl(QUrl::fromLocalFile(templateFile));
+    templateModel->setFileUrl(selectionContext.view()->model()->fileUrl());
 
     QPlainTextEdit textEditTemplate;
     Utils::FileReader reader;
@@ -1540,7 +1540,7 @@ void styleMerge(const SelectionContext &selectionContext, const QString &templat
     QScopedPointer<Model> styleModel(Model::create("QtQuick.Item", 2, 1, parentModel));
     Q_ASSERT(styleModel.data());
 
-    styleModel->setFileUrl(QUrl::fromLocalFile(templateFile));
+    styleModel->setFileUrl(selectionContext.view()->model()->fileUrl());
 
     QPlainTextEdit textEditStyle;
     RewriterView *parentRewriterView = selectionContext.view()->model()->rewriterView();
