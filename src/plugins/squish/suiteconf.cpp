@@ -9,7 +9,6 @@
 #include <utils/qtcassert.h>
 
 #include <QRegularExpression>
-#include <QSettings>
 
 namespace Squish {
 namespace Internal {
@@ -20,19 +19,120 @@ const char squishAutKey[] = "AUT";
 const char objectsMapKey[] = "OBJECTMAP";
 const char objectMapStyleKey[] = "OBJECTMAPSTYLE";
 
+// splits an input string into chunks separated by ws, but keeps quoted items without splitting
+// them (quotes get removed inside the resulting list)
+static QStringList parseHelper(const QStringView input)
+{
+    if (input.isEmpty())
+        return {};
+
+    QStringList result;
+    QString chunk;
+
+    auto appendChunk = [&]() {
+        if (!chunk.isEmpty())
+            result.append(chunk);
+        chunk.clear();
+    };
+
+    bool inQuote = false;
+    for (const QChar &inChar : input) {
+        switch (inChar.toLatin1()) {
+        case '"':
+            appendChunk();
+            inQuote = !inQuote;
+            break;
+        case ' ':
+            if (!inQuote) {
+                appendChunk();
+                break;
+            }
+            Q_FALLTHROUGH();
+        default:
+            chunk.append(inChar);
+        }
+    }
+    appendChunk();
+    return result;
+}
+
+static QString quoteIfNeeded(const QString &input)
+{
+    if (input.contains(' '))
+        return QString('"' + input + '"');
+    return input;
+}
+
+// joins items, separating them by single ws and quoting items if needed
+static QString joinItems(const QStringList &items)
+{
+    QStringList result;
+    for (const QString &current : items)
+        result.append(quoteIfNeeded(current));
+    return result.join(' ');
+}
+
+static QMap<QString, QString> readSuiteConfContent(const Utils::FilePath &file)
+{
+    if (!file.isReadableFile())
+        return {};
+
+    std::optional<QByteArray> suiteConfContent = file.fileContents();
+    if (!suiteConfContent)
+        return {};
+
+    QMap<QString, QString> suiteConf;
+    int invalidCounter = 0;
+    static const QRegularExpression validLine("^(?<key>[A-Z_]+)=(?<value>.*)$");
+    for (const QByteArray &line : suiteConfContent->split('\n')) {
+        const QString utf8Line = QString::fromUtf8(line.trimmed());
+        if (utf8Line.isEmpty()) // skip empty lines
+            continue;
+        const QRegularExpressionMatch match = validLine.match(utf8Line);
+        if (match.hasMatch())
+            suiteConf.insert(match.captured("key"), match.captured("value"));
+        else // save invalid lines
+            suiteConf.insert(QString::number(++invalidCounter), utf8Line);
+    }
+    return suiteConf;
+}
+
+static bool writeSuiteConfContent(const Utils::FilePath &file, const QMap<QString, QString> &data)
+{
+    auto isNumber = [](const QString &str) {
+        return !str.isEmpty() && Utils::allOf(str, &QChar::isDigit);
+    };
+    QByteArray outData;
+    for (auto it = data.begin(), end = data.end(); it != end; ++it) {
+        if (isNumber(it.key())) // an invalid line we just write out as we got it
+            outData.append(it.value().toUtf8()).append('\n');
+        else
+            outData.append(it.key().toUtf8()).append('=').append(it.value().toUtf8()).append('\n');
+    }
+    return file.writeFileContents(outData);
+}
+
 bool SuiteConf::read()
 {
-    if (!m_filePath.isReadableFile())
-        return false;
+    const QMap<QString, QString> suiteConf = readSuiteConfContent(m_filePath);
 
-    const QSettings suiteConf(m_filePath.toString(), QSettings::IniFormat);
     // TODO get all information - actually only the information needed now is fetched
-    m_aut = suiteConf.value(squishAutKey).toString();
-    // TODO args are listed in config.xml?
-    setLanguage(suiteConf.value(squishLanguageKey).toString());
-    m_testcases = suiteConf.value(squishTestCasesKey).toString();
-    m_objectMap = suiteConf.value(objectsMapKey).toString();
-    m_objectMapStyle = suiteConf.value(objectMapStyleKey).toString();
+    const QStringList parsedAUT = parseHelper(suiteConf.value(squishAutKey));
+    if (parsedAUT.isEmpty()) {
+        m_aut.clear();
+        m_arguments.clear();
+    } else {
+        m_aut = parsedAUT.first();
+        if (parsedAUT.size() > 1)
+            m_arguments = joinItems(parsedAUT.mid(1));
+        else
+            m_arguments.clear();
+    }
+
+    setLanguage(suiteConf.value(squishLanguageKey));
+    m_testcases = suiteConf.value(squishTestCasesKey);
+    m_objectMap = suiteConf.value(objectsMapKey);
+    m_objectMapStyle = suiteConf.value(objectMapStyleKey);
     return true;
 }
 
@@ -51,15 +151,21 @@ static QString languageEntry(Language language)
 bool SuiteConf::write()
 {
     Core::DocumentManager::expectFileChange(m_filePath);
-    QSettings suiteConf(m_filePath.toString(), QSettings::IniFormat);
-    suiteConf.setValue(squishAutKey, m_aut);
-    suiteConf.setValue(squishLanguageKey, languageEntry(m_language));
-    suiteConf.setValue(objectsMapKey, m_objectMap);
+
+    // we need the original suite.conf content to handle invalid content "correctly"
+    QMap<QString, QString> suiteConf = readSuiteConfContent(m_filePath);
+    if (m_arguments.isEmpty())
+        suiteConf.insert(squishAutKey, quoteIfNeeded(m_aut));
+    else if (QTC_GUARD(!m_aut.isEmpty()))
+        suiteConf.insert(squishAutKey, QString(quoteIfNeeded(m_aut) + ' ' + m_arguments));
+
+    suiteConf.insert(squishLanguageKey, languageEntry(m_language));
+    suiteConf.insert(objectsMapKey, m_objectMap);
     if (!m_objectMap.isEmpty())
-        suiteConf.setValue(objectMapStyleKey, m_objectMapStyle);
-    suiteConf.setValue(squishTestCasesKey, m_testcases);
-    suiteConf.sync();
-    return suiteConf.status() == QSettings::NoError;
+        suiteConf.insert(objectMapStyleKey, m_objectMapStyle);
+    suiteConf.insert(squishTestCasesKey, m_testcases);
+
+    return writeSuiteConfContent(m_filePath, suiteConf);
 }
 
 QString SuiteConf::langParameter() const
@@ -90,7 +196,7 @@ QString SuiteConf::scriptExtension() const
 
 QStringList SuiteConf::testCases() const
 {
-    return m_testcases.split(QRegularExpression("\\s+"));
+    return parseHelper(m_testcases);
 }
 
 QStringList SuiteConf::usedTestCases() const
@@ -121,7 +227,7 @@ void SuiteConf::addTestCase(const QString &name)
             break;
     }
     current.insert(insertAt, name);
-    m_testcases = current.join(' ');
+    m_testcases = joinItems(current);
 }
 
 void SuiteConf::setLanguage(const QString &language)
