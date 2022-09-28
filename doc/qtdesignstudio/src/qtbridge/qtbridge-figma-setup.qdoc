@@ -29,6 +29,8 @@
     \nextpage qtbridge-figma-using.html
 
     \title Setting Up \QBF
+    \note \QBF is included in the
+    \l{https://www.qt.io/pricing}{\QDS Enterprise license}.
 
     \QBF is delivered with \QDS as a developer plugin that you can install to
     the Desktop version of Figma. To install the plugin, open the Plugin Manager
