@@ -38,7 +38,6 @@ QtcPlugin {
         "settingspage.h",
         "versionselector.cpp",
         "versionselector.h",
-        "versionselector.ui",
     ]
 }
 
