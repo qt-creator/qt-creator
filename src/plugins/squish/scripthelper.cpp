@@ -12,23 +12,25 @@
 namespace Squish {
 namespace Internal {
 
-static QByteArray startApplication(Language language, const QString &application,
-                                   const QStringList &args)
+static QByteArray startApplication(Language language,
+                                   const QString &application,
+                                   const QString &args)
 {
+    const QString app = application.contains(' ') ? QString("\\\"" + application + "\\\"")
+                                                  : application;
+    QStringList parameters;
+    parameters << app;
+    if (args.isEmpty())
+        parameters << QString(args).replace('"', "\\\"");
+
     switch (language) {
     case Language::Python:
     case Language::Perl:
     case Language::JavaScript:
     case Language::Ruby:
-        if (args.isEmpty())
-            return QByteArray("startApplication(\"" + application.toUtf8() + "\")");
-        return QByteArray("startApplication(\"" + application.toUtf8() + ' '
-                          + args.join(' ').toUtf8() + "\")");
+        return QByteArray("startApplication(\"" + parameters.join(' ').toUtf8() + "\")");
     case Language::Tcl:
-        if (args.isEmpty())
-            return QByteArray("startApplication \"" + application.toUtf8() + "\"");
-        return QByteArray("startApplication \"" + application.toUtf8() + ' '
-                          + args.join(' ').toUtf8() + "\"");
+        return QByteArray("startApplication \"" + parameters.join(' ').toUtf8() + "\"");
     }
     return {};
 }
@@ -115,7 +117,7 @@ ScriptHelper::ScriptHelper(Language language)
 bool ScriptHelper::writeScriptFile(const Utils::FilePath &outScriptFile,
                                    const Utils::FilePath &snippetFile,
                                    const QString &application,
-                                   const QStringList &arguments) const
+                                   const QString &arguments) const
 {
     if (!snippetFile.isReadableFile())
         return false;
