@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "qmllssettings.h"
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <QPointer>
 #include <QWidget>
@@ -16,7 +17,7 @@ namespace QmlJSEditor {
 class QmlJsEditingSettings
 {
 public:
-    QmlJsEditingSettings();
+    QmlJsEditingSettings() = default;
 
     static QmlJsEditingSettings get();
     void set();
@@ -41,6 +42,9 @@ public:
     bool foldAuxData() const;
     void setFoldAuxData(const bool foldAuxData);
 
+    QmllsSettings &qmllsSettigs();
+    const QmllsSettings &qmllsSettigs() const;
+
     const QString uiQmlOpenMode() const;
     void setUiQmlOpenMode(const QString &mode);
 
@@ -50,12 +54,13 @@ public:
     { return !s1.equals(s2); }
 
 private:
-    bool m_enableContextPane;
-    bool m_pinContextPane;
-    bool m_autoFormatOnSave;
-    bool m_autoFormatOnlyCurrentProject;
-    bool m_foldAuxData;
-    QString m_uiQmlOpenMode;
+    bool m_enableContextPane = false;
+    bool m_pinContextPane = false;
+    bool m_autoFormatOnSave = false;
+    bool m_autoFormatOnlyCurrentProject = false;
+    bool m_foldAuxData = true;
+    QmllsSettings m_qmllsSettings;
+    QString m_uiQmlOpenMode = {};
 };
 
 namespace Internal {

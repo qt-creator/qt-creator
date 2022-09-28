@@ -20,19 +20,12 @@ const char AUTO_FORMAT_ONLY_CURRENT_PROJECT[] = "QmlJSEditor.AutoFormatOnlyCurre
 const char QML_CONTEXTPANE_KEY[] = "QmlJSEditor.ContextPaneEnabled";
 const char QML_CONTEXTPANEPIN_KEY[] = "QmlJSEditor.ContextPanePinned";
 const char FOLD_AUX_DATA[] = "QmlJSEditor.FoldAuxData";
+const char USE_QMLLS[] = "QmlJSEditor.UseQmlls";
+const char USE_LATEST_QMLLS[] = "QmlJSEditor.UseLatestQmlls";
 const char UIQML_OPEN_MODE[] = "QmlJSEditor.openUiQmlMode";
 
 using namespace QmlJSEditor;
 using namespace QmlJSEditor::Internal;
-
-QmlJsEditingSettings::QmlJsEditingSettings()
-    : m_enableContextPane(false),
-    m_pinContextPane(false),
-    m_autoFormatOnSave(false),
-    m_autoFormatOnlyCurrentProject(false),
-    m_foldAuxData(false),
-    m_uiQmlOpenMode("")
-{}
 
 void QmlJsEditingSettings::set()
 {
@@ -50,6 +43,8 @@ void QmlJsEditingSettings::fromSettings(QSettings *settings)
         = settings->value(AUTO_FORMAT_ONLY_CURRENT_PROJECT, QVariant(false)).toBool();
     m_foldAuxData = settings->value(FOLD_AUX_DATA, QVariant(true)).toBool();
     m_uiQmlOpenMode = settings->value(UIQML_OPEN_MODE, "").toString();
+    m_qmllsSettings.useQmlls = settings->value(USE_QMLLS, QVariant(false)).toBool();
+    m_qmllsSettings.useLatestQmlls = settings->value(USE_LATEST_QMLLS, QVariant(false)).toBool();
     settings->endGroup();
 }
 
@@ -62,7 +57,10 @@ void QmlJsEditingSettings::toSettings(QSettings *settings) const
     settings->setValue(AUTO_FORMAT_ONLY_CURRENT_PROJECT, m_autoFormatOnlyCurrentProject);
     settings->setValue(FOLD_AUX_DATA, m_foldAuxData);
     settings->setValue(UIQML_OPEN_MODE, m_uiQmlOpenMode);
+    settings->setValue(USE_QMLLS, m_qmllsSettings.useQmlls);
+    settings->setValue(USE_LATEST_QMLLS, m_qmllsSettings.useLatestQmlls);
     settings->endGroup();
+    QmllsSettingsManager::instance()->checkForChanges();
 }
 
 bool QmlJsEditingSettings::equals(const QmlJsEditingSettings &other) const
@@ -72,6 +70,7 @@ bool QmlJsEditingSettings::equals(const QmlJsEditingSettings &other) const
            && m_autoFormatOnSave == other.m_autoFormatOnSave
            && m_autoFormatOnlyCurrentProject == other.m_autoFormatOnlyCurrentProject
            && m_foldAuxData == other.m_foldAuxData
+           && m_qmllsSettings == other.m_qmllsSettings
            && m_uiQmlOpenMode == other.m_uiQmlOpenMode;
 }
 
@@ -125,6 +124,16 @@ void QmlJsEditingSettings::setFoldAuxData(const bool foldAuxData)
     m_foldAuxData = foldAuxData;
 }
 
+QmllsSettings &QmlJsEditingSettings::qmllsSettigs()
+{
+    return m_qmllsSettings;
+}
+
+const QmllsSettings &QmlJsEditingSettings::qmllsSettigs() const
+{
+    return m_qmllsSettings;
+}
+
 const QString QmlJsEditingSettings::uiQmlOpenMode() const
 {
     return m_uiQmlOpenMode;
@@ -162,6 +171,14 @@ public:
         uiQmlOpenComboBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         uiQmlOpenComboBox->setSizeAdjustPolicy(QComboBox::QComboBox::AdjustToContents);
 
+        useQmlls = new QCheckBox(tr("Use qmlls (EXPERIMENTAL!)"));
+        useQmlls->setChecked(s.qmllsSettigs().useQmlls);
+        useLatestQmlls = new QCheckBox(tr("Always use latest qmlls"));
+        useLatestQmlls->setChecked(s.qmllsSettigs().useLatestQmlls);
+        useLatestQmlls->setEnabled(s.qmllsSettigs().useQmlls);
+        QObject::connect(useQmlls, &QCheckBox::stateChanged, this, [this](int checked) {
+            useLatestQmlls->setEnabled(checked != Qt::Unchecked);
+        });
         using namespace Utils::Layouting;
         Column {
             Group {
@@ -179,8 +196,13 @@ public:
                     Form { Tr::tr("Open .ui.qml files with:"), uiQmlOpenComboBox },
                 },
             },
+            Group{
+                title(tr("Language Server")),
+                Column{useQmlls, useLatestQmlls},
+            },
             st,
-        }.attachTo(this);
+        }
+            .attachTo(this);
 
         connect(autoFormatOnSave, &QCheckBox::toggled,
                 autoFormatOnlyCurrentProject, &QWidget::setEnabled);
@@ -195,6 +217,8 @@ public:
         s.setAutoFormatOnlyCurrentProject(autoFormatOnlyCurrentProject->isChecked());
         s.setFoldAuxData(foldAuxData->isChecked());
         s.setUiQmlOpenMode(uiQmlOpenComboBox->currentData().toString());
+        s.qmllsSettigs().useQmlls = useQmlls->isChecked();
+        s.qmllsSettigs().useLatestQmlls = useLatestQmlls->isChecked();
         s.set();
     }
 
@@ -204,6 +228,8 @@ private:
     QCheckBox *pinContextPane;
     QCheckBox *enableContextPane;
     QCheckBox *foldAuxData;
+    QCheckBox *useQmlls;
+    QCheckBox *useLatestQmlls;
     QComboBox *uiQmlOpenComboBox;
 };
 
@@ -222,4 +248,3 @@ QmlJsEditingSettingsPage::QmlJsEditingSettingsPage()
     setCategory(Constants::SETTINGS_CATEGORY_QML);
     setWidgetCreator([] { return new QmlJsEditingSettingsPageWidget; });
 }
-

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <languageserverprotocol/servercapabilities.h>
 #include <qmljs/qmljsdocument.h>
 #include <qmljstools/qmljssemanticinfo.h>
 
@@ -22,6 +23,17 @@ namespace Internal {
 class QmlOutlineModel;
 
 class SemanticInfoUpdater;
+
+class QmllsStatus
+{
+public:
+    enum class Source { Qmlls, EmbeddedCodeModel };
+
+    Source semanticWarningsSource;
+    Source semanticHighlightSource;
+    Source completionSource;
+    Utils::FilePath qmllsPath;
+};
 
 class QmlJSEditorDocumentPrivate : public QObject
 {
@@ -43,6 +55,14 @@ public:
     void createTextMarks(const QmlJSTools::SemanticInfo &info);
     void cleanSemanticMarks();
 
+    // qmlls change source
+    void setSemanticWarningSource(QmllsStatus::Source newSource);
+    void setSemanticHighlightSource(QmllsStatus::Source newSource);
+    void setCompletionSource(QmllsStatus::Source newSource);
+public slots:
+    void setSourcesWithCapabilities(const LanguageServerProtocol::ServerCapabilities &);
+    void settingsChanged();
+
 public:
     QmlJSEditorDocument *q = nullptr;
     QTimer m_updateDocumentTimer; // used to compress multiple document changes
@@ -59,6 +79,10 @@ public:
     QVector<TextEditor::TextMark *> m_diagnosticMarks;
     QVector<TextEditor::TextMark *> m_semanticMarks;
     bool m_isDesignModePreferred = false;
+    QmllsStatus m_qmllsStatus = {QmllsStatus::Source::EmbeddedCodeModel,
+                                 QmllsStatus::Source::EmbeddedCodeModel,
+                                 QmllsStatus::Source::EmbeddedCodeModel,
+                                 {}};
 };
 
 } // Internal

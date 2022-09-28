@@ -152,9 +152,14 @@ protected:
 class CollectionTask : protected Visitor
 {
 public:
+    enum Flags {
+        AddMessagesHighlights,
+        SkipMessagesHighlights,
+    };
     CollectionTask(QFutureInterface<SemanticHighlighter::Use> &futureInterface,
                    const QmlJSTools::SemanticInfo &semanticInfo,
-                   const TextEditor::FontSettings &fontSettings)
+                   const TextEditor::FontSettings &fontSettings,
+                   Flags flags)
         : m_futureInterface(futureInterface)
         , m_semanticInfo(semanticInfo)
         , m_fontSettings(fontSettings)
@@ -172,9 +177,11 @@ public:
             m_delayedUses.reserve(nMessages);
             m_diagnosticRanges.reserve(nMessages);
             m_extraFormats.reserve(nMessages);
-            addMessages(m_scopeChain.document()->diagnosticMessages(), m_scopeChain.document());
-            addMessages(m_semanticInfo.semanticMessages, m_semanticInfo.document);
-            addMessages(m_semanticInfo.staticAnalysisMessages, m_semanticInfo.document);
+            if (flags == AddMessagesHighlights) {
+                addMessages(m_scopeChain.document()->diagnosticMessages(), m_scopeChain.document());
+                addMessages(m_semanticInfo.semanticMessages, m_semanticInfo.document);
+                addMessages(m_semanticInfo.staticAnalysisMessages, m_semanticInfo.document);
+            }
 
             Utils::sort(m_delayedUses, sortByLinePredicate);
         }
@@ -563,8 +570,9 @@ void SemanticHighlighter::applyResults(int from, int to)
     if (m_startRevision != m_document->document()->revision())
         return;
 
-    TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
-                m_document->syntaxHighlighter(), m_watcher.future(), from, to, m_extraFormats);
+    if (m_enableHighlighting)
+        TextEditor::SemanticHighlighter::incrementalApplyExtraAdditionalFormats(
+            m_document->syntaxHighlighter(), m_watcher.future(), from, to, m_extraFormats);
 }
 
 void SemanticHighlighter::finished()
@@ -574,17 +582,23 @@ void SemanticHighlighter::finished()
     if (m_startRevision != m_document->document()->revision())
         return;
 
-    m_document->setDiagnosticRanges(m_diagnosticRanges);
+    if (m_enableWarnings)
+        m_document->setDiagnosticRanges(m_diagnosticRanges);
 
-    TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
-                m_document->syntaxHighlighter(), m_watcher.future());
+    if (m_enableHighlighting)
+        TextEditor::SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
+            m_document->syntaxHighlighter(), m_watcher.future());
 }
 
 void SemanticHighlighter::run(QFutureInterface<SemanticHighlighter::Use> &futureInterface,
                               const QmlJSTools::SemanticInfo &semanticInfo,
                               const TextEditor::FontSettings &fontSettings)
 {
-    CollectionTask task(futureInterface, semanticInfo, fontSettings);
+    CollectionTask task(futureInterface,
+                        semanticInfo,
+                        fontSettings,
+                        (m_enableWarnings ? CollectionTask::AddMessagesHighlights
+                                          : CollectionTask::SkipMessagesHighlights));
     reportMessagesInfo(task.diagnosticRanges(), task.extraFormats());
     task.run();
 }
@@ -620,6 +634,16 @@ void SemanticHighlighter::reportMessagesInfo(const QVector<QTextLayout::FormatRa
 int SemanticHighlighter::startRevision() const
 {
     return m_startRevision;
+}
+
+void SemanticHighlighter::setEnableWarnings(bool e)
+{
+    m_enableWarnings = e;
+}
+
+void SemanticHighlighter::setEnableHighlighting(bool e)
+{
+    m_enableHighlighting = e;
 }
 
 } // namespace QmlJSEditor

@@ -212,12 +212,12 @@ void QmlBuildSystem::parseProject(RefreshOptions options)
 
             if (auto modelManager = QmlJS::ModelManagerInterface::instance()) {
                 QStringList files = m_projectItem->files();
-                Utils::FilePaths filePaths(files.size());
-                std::transform(files.cbegin(),
-                               files.cend(),
-                               filePaths.begin(),
-                               [](const QString &p) { return Utils::FilePath::fromString(p); });
-                modelManager->updateSourceFiles(filePaths, true);
+                modelManager
+                    ->updateSourceFiles(Utils::transform(files,
+                                                         [](const QString &p) {
+                                                             return Utils::FilePath::fromString(p);
+                                                         }),
+                                        true);
             }
             QString mainFilePath = m_projectItem->mainFile();
             if (!mainFilePath.isEmpty()) {
@@ -504,12 +504,10 @@ void QmlBuildSystem::refreshFiles(const QSet<QString> &/*added*/, const QSet<QSt
     refresh(Files);
     if (!removed.isEmpty()) {
         if (auto modelManager = QmlJS::ModelManagerInterface::instance()) {
-            Utils::FilePaths pathsRemoved(removed.size());
-            std::transform(removed.cbegin(),
-                           removed.cend(),
-                           pathsRemoved.begin(),
-                           [](const QString &s) { return Utils::FilePath::fromString(s); });
-            modelManager->removeFiles(pathsRemoved);
+            modelManager->removeFiles(
+                Utils::transform<QList<Utils::FilePath>>(removed, [](const QString &s) {
+                    return Utils::FilePath::fromString(s);
+                }));
         }
     }
     refreshTargetDirectory();
@@ -797,4 +795,3 @@ bool QmlBuildSystem::renameFile(Node * context, const FilePath &oldFilePath, con
 }
 
 } // namespace QmlProjectManager
-

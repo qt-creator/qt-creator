@@ -113,6 +113,9 @@ ModelManagerInterface::ModelManagerInterface(QObject *parent)
 
     m_defaultProjectInfo.qtQmlPath =
             FilePath::fromUserInput(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
+    m_defaultProjectInfo.qmllsPath = ModelManagerInterface::qmllsForBinPath(
+        FilePath::fromUserInput(QLibraryInfo::location(QLibraryInfo::BinariesPath)),
+                QLibraryInfo::version());
     m_defaultProjectInfo.qtVersionString = QLibraryInfo::version().toString();
 
     updateImportPaths();
@@ -214,6 +217,16 @@ ModelManagerInterface::WorkingCopy ModelManagerInterface::workingCopy()
     if (ModelManagerInterface *i = instance())
         return i->workingCopyInternal();
     return WorkingCopy();
+}
+
+FilePath ModelManagerInterface::qmllsForBinPath(const Utils::FilePath &binPath, const QVersionNumber &version)
+{
+    if (version < QVersionNumber(6,4,0))
+        return {};
+    QString qmllsExe = "qmlls";
+    if (HostOsInfo::isWindowsHost())
+        qmllsExe = "qmlls.exe";
+    return binPath.resolvePath(qmllsExe);
 }
 
 void ModelManagerInterface::activateScan()
@@ -414,6 +427,10 @@ bool pInfoLessThanImports(const ModelManagerInterface::ProjectInfo &p1,
     if (p1.qtQmlPath < p2.qtQmlPath)
         return true;
     if (p1.qtQmlPath > p2.qtQmlPath)
+        return false;
+    if (p1.qmllsPath < p2.qmllsPath)
+        return true;
+    if (p1.qmllsPath > p2.qmllsPath)
         return false;
     const PathsAndLanguages &s1 = p1.importPaths;
     const PathsAndLanguages &s2 = p2.importPaths;
@@ -628,6 +645,8 @@ ModelManagerInterface::ProjectInfo ModelManagerInterface::projectInfoForPath(
             res.qtQmlPath = pInfo.qtQmlPath;
             res.qtVersionString = pInfo.qtVersionString;
         }
+        if (res.qmllsPath.isEmpty())
+            res.qmllsPath = pInfo.qmllsPath;
         res.applicationDirectories.append(pInfo.applicationDirectories);
         for (const auto &importPath : pInfo.importPaths)
             res.importPaths.maybeInsert(importPath);

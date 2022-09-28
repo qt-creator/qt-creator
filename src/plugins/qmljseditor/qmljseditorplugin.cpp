@@ -114,6 +114,7 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
                                                &QmlJSEditorFactory::decorateEditor);
 
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
+    QmllsSettingsManager::instance();
 
     // QML task updating manager
     connect(modelManager, &QmlJS::ModelManagerInterface::documentChangedOnDisk,
@@ -207,6 +208,7 @@ void QmlJSEditorPlugin::extensionsInitialized()
 
     TaskHub::addCategory(Constants::TASK_CATEGORY_QML, Tr::tr("QML"));
     TaskHub::addCategory(Constants::TASK_CATEGORY_QML_ANALYSIS, Tr::tr("QML Analysis"), false);
+    QmllsSettingsManager::instance()->setupAutoupdate();
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlJSEditorPlugin::aboutToShutdown()

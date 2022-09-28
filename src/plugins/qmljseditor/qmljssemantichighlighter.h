@@ -52,6 +52,8 @@ public:
     void cancel();
 
     int startRevision() const;
+    void setEnableWarnings(bool e);
+    void setEnableHighlighting(bool e);
 
     void updateFontSettings(const TextEditor::FontSettings &fontSettings);
     void reportMessagesInfo(const QVector<QTextLayout::FormatRange> &diagnosticMessages,
@@ -71,6 +73,8 @@ private:
     QHash<int, QTextCharFormat> m_extraFormats;
     QVector<QTextLayout::FormatRange> m_diagnosticRanges;
     Utils::FutureSynchronizer m_futureSynchronizer;
+    bool m_enableWarnings = true;
+    bool m_enableHighlighting = true;
 };
 
 } // namespace QmlJSEditor

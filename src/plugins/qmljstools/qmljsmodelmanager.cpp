@@ -169,9 +169,13 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
     if (qtVersion && qtVersion->isValid()) {
         projectInfo.tryQmlDump = project && qtVersion->type() == QLatin1String(QtSupport::Constants::DESKTOPQT);
         projectInfo.qtQmlPath = qtVersion->qmlPath();
+        auto v = qtVersion->qtVersion();
+        projectInfo.qmllsPath = ModelManagerInterface::qmllsForBinPath(qtVersion->hostBinPath(), v);
         projectInfo.qtVersionString = qtVersion->qtVersionString();
     } else if (!activeKit || !activeKit->value(QtSupport::SuppliesQtQuickImportPath::id(), false).toBool()) {
         projectInfo.qtQmlPath = FilePath::fromUserInput(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
+        projectInfo.qmllsPath = ModelManagerInterface::qmllsForBinPath(
+            FilePath::fromUserInput(QLibraryInfo::location(QLibraryInfo::BinariesPath)), QLibraryInfo::version());
         projectInfo.qtVersionString = QLatin1String(qVersion());
     }
 

@@ -20,6 +20,7 @@
 #include <QPointer>
 #include <QStringList>
 #include <QThreadPool>
+#include <QVersionNumber>
 
 QT_FORWARD_DECLARE_CLASS(QTimer)
 
@@ -62,6 +63,7 @@ public:
         Utils::Environment qmlDumpEnvironment;
 
         Utils::FilePath qtQmlPath;
+        Utils::FilePath qmllsPath;
         QString qtVersionString;
         QmlJS::QmlLanguageBundles activeBundle;
         QmlJS::QmlLanguageBundles extendedBundle;
@@ -109,6 +111,7 @@ public:
     static ModelManagerInterface *instanceForFuture(const QFuture<void> &future);
     static void writeWarning(const QString &msg);
     static WorkingCopy workingCopy();
+    static Utils::FilePath qmllsForBinPath(const Utils::FilePath &binPath, const QVersionNumber &v);
 
     QmlJS::Snapshot snapshot() const;
     QmlJS::Snapshot newestSnapshot() const;
