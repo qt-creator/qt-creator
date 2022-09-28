@@ -1021,7 +1021,7 @@ void SideBySideDiffEditorWidget::showDiff()
             if (futureInterface.isCanceled())
                 futureInterface.reportCanceled();
         });
-        const int firstPartMax = 20; // showDiff is about 4 times quicker than filling document
+        const int firstPartMax = 20; // diffOutput is about 4 times quicker than filling document
         const int leftPartMax = 60;
         const int rightPartMax = 100;
         futureInterface.setProgressRange(0, rightPartMax);

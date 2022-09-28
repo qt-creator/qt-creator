@@ -423,8 +423,8 @@ QString UnifiedDiffData::setChunk(const DiffEditorInput &input, const ChunkData 
     return diffText;
 }
 
-UnifiedDiffOutput UnifiedDiffData::setDiff(QFutureInterface<void> &fi, int progressMin,
-                                           int progressMax, const DiffEditorInput &input)
+UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterface<void> &fi, int progressMin,
+                                              int progressMax, const DiffEditorInput &input)
 {
     UnifiedDiffOutput output;
 
@@ -436,7 +436,7 @@ UnifiedDiffOutput UnifiedDiffData::setDiff(QFutureInterface<void> &fi, int progr
     for (const FileData &fileData : qAsConst(input.m_contextFileData)) {
         const QString leftFileInfo = "--- " + fileData.fileInfo[LeftSide].fileName + '\n';
         const QString rightFileInfo = "+++ " + fileData.fileInfo[RightSide].fileName + '\n';
-        setFileInfo(blockNumber, fileData.fileInfo[LeftSide], fileData.fileInfo[RightSide]);
+        output.diffData.setFileInfo(blockNumber, fileData.fileInfo[LeftSide], fileData.fileInfo[RightSide]);
         output.foldingIndent.insert(blockNumber, 1);
         output.selections[blockNumber].append({input.m_fileLineFormat});
         blockNumber++;
@@ -463,14 +463,14 @@ UnifiedDiffOutput UnifiedDiffData::setDiff(QFutureInterface<void> &fi, int progr
             for (int j = 0; j < fileData.chunks.count(); j++) {
                 const int oldBlockNumber = blockNumber;
                 output.foldingIndent.insert(blockNumber, 2);
-                output.diffText += setChunk(input, fileData.chunks.at(j),
-                                            (j == fileData.chunks.count() - 1)
-                                            && fileData.lastChunkAtTheEndOfFile,
-                                            &blockNumber,
-                                            &charNumber,
-                                            &output.selections);
+                output.diffText += output.diffData.setChunk(input, fileData.chunks.at(j),
+                                                            (j == fileData.chunks.count() - 1)
+                                                            && fileData.lastChunkAtTheEndOfFile,
+                                                            &blockNumber,
+                                                            &charNumber,
+                                                            &output.selections);
                 if (!fileData.chunks.at(j).contextChunk)
-                    setChunkIndex(oldBlockNumber, blockNumber - oldBlockNumber, j);
+                    output.diffData.setChunkIndex(oldBlockNumber, blockNumber - oldBlockNumber, j);
             }
         }
         fi.setProgressValue(DiffUtils::interpolate(++i, 0, count, progressMin, progressMax));
@@ -521,17 +521,16 @@ void UnifiedDiffEditorWidget::showDiff()
                 futureInterface.reportCanceled();
         });
         const int progressMax = 100;
-        const int firstPartMax = 20; // showDiff is about 4 times quicker than filling document
+        const int firstPartMax = 20; // diffOutput is about 4 times quicker than filling document
         futureInterface.setProgressRange(0, progressMax);
         futureInterface.setProgressValue(0);
         QFutureInterface<void> fi = futureInterface;
-        UnifiedDiffData diffData;
-        const UnifiedDiffOutput output = diffData.setDiff(fi, 0, firstPartMax, input);
+        const UnifiedDiffOutput output = UnifiedDiffData::diffOutput(fi, 0, firstPartMax, input);
         if (futureInterface.isCanceled())
             return;
 
         const ShowResult result = {TextDocumentPtr(new TextDocument("DiffEditor.UnifiedDiffEditor")),
-                                   diffData, output.selections};
+                                   output.diffData, output.selections};
         // No need to store the change history
         result.textDocument->document()->setUndoRedoEnabled(false);
 

@@ -24,23 +24,13 @@ class ChunkSelection;
 namespace Internal {
 
 class DiffEditorDocument;
-
-class UnifiedDiffOutput
-{
-public:
-    QString diffText;
-    // 'foldingIndent' is populated with <block number> and folding indentation
-    // value where 1 indicates start of new file and 2 indicates a diff chunk.
-    // Remaining lines (diff contents) are assigned 3.
-    QHash<int, int> foldingIndent;
-    DiffSelections selections;
-};
+class UnifiedDiffOutput;
 
 class UnifiedDiffData
 {
 public:
-    UnifiedDiffOutput setDiff(QFutureInterface<void> &fi, int progressMin, int progressMax,
-                              const DiffEditorInput &input);
+    static UnifiedDiffOutput diffOutput(QFutureInterface<void> &fi, int progressMin, int progressMax,
+                                        const DiffEditorInput &input);
 
     // block number, visual line number, chunk row number
     using LineNumbers = QMap<int, QPair<int, int>>;
@@ -59,6 +49,18 @@ private:
     QString setChunk(const DiffEditorInput &input, const ChunkData &chunkData, bool lastChunk,
                      int *blockNumber, int *charNumber,
                      DiffSelections *selections);
+};
+
+class UnifiedDiffOutput
+{
+public:
+    UnifiedDiffData diffData;
+    QString diffText;
+    // 'foldingIndent' is populated with <block number> and folding indentation
+    // value where 1 indicates start of new file and 2 indicates a diff chunk.
+    // Remaining lines (diff contents) are assigned 3.
+    QHash<int, int> foldingIndent;
+    DiffSelections selections;
 };
 
 class UnifiedDiffEditorWidget final : public SelectableTextEditorWidget
