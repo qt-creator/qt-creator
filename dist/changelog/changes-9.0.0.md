@@ -16,7 +16,16 @@ General
 * Added change log browser `Help > Change Log` (`Qt Creator > Change Log` on
   macOS)
 * Added option for showing locator as a centered popup
-* Added non-menu actions to locator `t` filter
+* Locator `t` filter
+    * Added non-menu actions
+    * Added fuzzy matching
+
+Help
+----
+
+* Added support for dark themes to Qt documentation (QTCREATORBUG-26557)
+* Fixed that Qt 6 documentation was shown for Qt 5 based projects
+  (QTCREATORBUG-10331)
 
 Editing
 -------
@@ -27,6 +36,7 @@ Editing
 * Added `Create Cursors at Selected Line Ends`
 * Improved UI for multiple markers on the same line (QTCREATORBUG-27415)
 * Fixed performance issue with large selections
+* Fixed saving files with non-breaking spaces (QTCREATORBUG-17875)
 * Fixed `Rewrap Paragraph` for Doxygen comments (QTCREATORBUG-9739)
 * Fixed MIME type matching for generic highlighting with MIME type aliases
 
@@ -34,14 +44,18 @@ Editing
 
 * Moved code style editor from dialog directly into the preferences page
 * Added `Show Preprocessed Source`
+* Added `Follow Symbol Under Cursor to Type`
 * Added `Follow Symbol` for QRC files in string literals (QTCREATORBUG-28087)
 * Added option for returning only non-value types by const reference
   (QTCREATORBUG-25790)
+* Added option for using `auto` in `Assign to Local Variable` refactoring
+  action (QTCREATORBUG-28099)
 * Fixed that selection was not considered for refactoring actions
   (QTCREATORBUG-27886)
 * Clangd
     * Added option for using single Clangd instance for the whole session
       (QTCREATORBUG-26526)
+    * Added option for indexing priority (`--background-index-priority`)
     * Added option for maximum number of completion results (default 100)
       (QTCREATORBUG-27152)
     * Added option for document specific preprocessor directives
@@ -51,6 +65,8 @@ Editing
       (QTCREATORBUG-27594)
 * Built-in
     * Added support for structured bindings (QTCREATORBUG-27975)
+    * Fixed that document specific preprocessor directives were not used after
+      session load (QTCREATORBUG-22584)
 * ClangFormat
     * Moved settings back to top level preferences page
 
@@ -69,6 +85,10 @@ Editing
 * Made `Fit to Screen` sticky and added option for the default
   (QTCREATORBUG-27816)
 
+### Diff Viewer
+
+* Fixed that calculating differences blocked Qt Creator
+
 Projects
 --------
 
@@ -81,15 +101,22 @@ Projects
 
 * Moved settings from `Kits` and `Build & Run` into their own `CMake` category
 * Turned `Package manager auto setup` off by default
-* Added support for CMake configure presets (QTCREATORBUG-24555)
+* Added support for CMake configure and build presets, including conditions and
+  toolchain files (QTCREATORBUG-24555)
 * Added option for changing environment for configure step
 * Added option for hiding subfolders in source groups (QTCREATORBUG-27432)
 * Fixed that `PATH` environment variable was not completely set up during first
   CMake run
+* Fixed issues with importing builds using Visual C++ generator
 
 ### Qbs
 
 * Fixed that `qbs.sysroot` was not considered
+
+### Qmake
+
+* Added workaround for `mkspec`s that add compiler flags to `QMAKE_CXX`
+  (QTCREATORBUG-28201)
 
 Debugging
 ---------
@@ -110,6 +137,7 @@ Test Integration
 ----------------
 
 * Added support for Squish
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-9.0/creator-squish.html))
 * Catch 2
     * Fixed handling of exceptions (QTCREATORBUG-28131)
 
@@ -145,7 +173,14 @@ Platforms
 * Added option for `docker` command
 * Added detection of Python
 * Added option to auto-detect in PATH plus additional directories
+* Added option for overwriting `ENTRYPOINT` of docker container
+* Added automatic mounting of source and build directory before building
 * Improved device wizard
+    * Added sorting of images
+    * Added option to hide images without tag
+    * Added double-click for selecting image
+* Fixed interrupting and pausing of GDB
+* Fixed running `ctest` on device
 
 Credits for these changes go to:
 --------------------------------
@@ -168,7 +203,9 @@ Fawzi Mohamed
 Florian Koch  
 Henning Gruendl  
 Jaroslaw Kobus  
+Leena Miettinen  
 Lucie Gérard  
+Marc Mutz  
 Marco Bubke  
 Marcus Tillmanns  
 Miikka Heikkinen  
