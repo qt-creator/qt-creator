@@ -129,7 +129,6 @@ add_qtc_plugin(Core
     messageoutputwindow.cpp messageoutputwindow.h
     mimetypemagicdialog.cpp mimetypemagicdialog.h mimetypemagicdialog.ui
     mimetypesettings.cpp mimetypesettings.h
-    mimetypesettingspage.ui
     minisplitter.cpp minisplitter.h
     modemanager.cpp modemanager.h
     navigationsubwidget.cpp navigationsubwidget.h

@@ -126,7 +126,6 @@ Project {
                 "mimetypemagicdialog.ui",
                 "mimetypesettings.cpp",
                 "mimetypesettings.h",
-                "mimetypesettingspage.ui",
                 "minisplitter.cpp",
                 "minisplitter.h",
                 "modemanager.cpp",

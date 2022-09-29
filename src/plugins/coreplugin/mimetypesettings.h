@@ -5,8 +5,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class MimeTypeSettingsPrivate;
 
@@ -27,5 +26,4 @@ private:
     MimeTypeSettingsPrivate *d;
 };
 
-} // Internal
-} // Core
+} // Core::Internal
