@@ -126,7 +126,7 @@ void UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor()
     if (m_controller.m_ignoreChanges.isLocked())
         return;
 
-    const int fileIndex = fileIndexForBlockNumber(textCursor().blockNumber());
+    const int fileIndex = m_data.fileIndexForBlockNumber(textCursor().blockNumber());
     if (fileIndex < 0)
         return;
 
@@ -171,7 +171,7 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     QTextCursor cursor = cursorForPosition(e->pos());
     const int blockNumber = cursor.blockNumber();
 
-    const int fileIndex = fileIndexForBlockNumber(blockNumber);
+    const int fileIndex = m_data.fileIndexForBlockNumber(blockNumber);
     const int chunkIndex = m_data.m_chunkInfo.chunkIndexForBlockNumber(blockNumber);
 
     const ChunkData chunkData = m_controller.chunkData(fileIndex, chunkIndex);
@@ -179,7 +179,7 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     QList<int> leftSelection, rightSelection;
 
     for (int i = startBlockNumber; i <= endBlockNumber; ++i) {
-        const int currentFileIndex = fileIndexForBlockNumber(i);
+        const int currentFileIndex = m_data.fileIndexForBlockNumber(i);
         if (currentFileIndex < fileIndex)
             continue;
 
@@ -204,7 +204,7 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
 
     const ChunkSelection selection(leftSelection, rightSelection);
 
-    addContextMenuActions(menu, fileIndexForBlockNumber(blockNumber),
+    addContextMenuActions(menu, m_data.fileIndexForBlockNumber(blockNumber),
                           m_data.m_chunkInfo.chunkIndexForBlockNumber(blockNumber), selection);
 
     connect(this, &UnifiedDiffEditorWidget::destroyed, menu.data(), &QMenu::deleteLater);
@@ -264,6 +264,24 @@ QString UnifiedDiffEditorWidget::lineNumber(int blockNumber) const
 int UnifiedDiffEditorWidget::lineNumberDigits() const
 {
     return m_data.m_lineNumberDigits[LeftSide] + m_data.m_lineNumberDigits[RightSide] + 1;
+}
+
+int UnifiedDiffData::blockNumberForFileIndex(int fileIndex) const
+{
+    if (fileIndex < 0 || fileIndex >= m_fileInfo.count())
+        return -1;
+
+    return std::next(m_fileInfo.constBegin(), fileIndex).key();
+}
+
+int UnifiedDiffData::fileIndexForBlockNumber(int blockNumber) const
+{
+    int i = -1;
+    for (auto it = m_fileInfo.cbegin(), end = m_fileInfo.cend(); it != end; ++it, ++i) {
+        if (it.key() > blockNumber)
+            break;
+    }
+    return i;
 }
 
 void UnifiedDiffData::setLineNumber(DiffSide side, int blockNumber, int lineNumber, int rowNumberInChunk)
@@ -545,32 +563,13 @@ void UnifiedDiffEditorWidget::showDiff()
     ProgressManager::addTask(m_watcher->future(), tr("Rendering diff"), "DiffEditor");
 }
 
-int UnifiedDiffEditorWidget::blockNumberForFileIndex(int fileIndex) const
-{
-    if (fileIndex < 0 || fileIndex >= m_data.m_fileInfo.count())
-        return -1;
-
-    return std::next(m_data.m_fileInfo.constBegin(), fileIndex).key();
-}
-
-int UnifiedDiffEditorWidget::fileIndexForBlockNumber(int blockNumber) const
-{
-    int i = -1;
-    for (auto it = m_data.m_fileInfo.cbegin(), end = m_data.m_fileInfo.cend(); it != end; ++it, ++i) {
-        if (it.key() > blockNumber)
-            break;
-    }
-
-    return i;
-}
-
 void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
 {
     if (m_data.m_fileInfo.isEmpty())
         return;
 
     const int blockNumber = cursor.blockNumber();
-    const int fileIndex = fileIndexForBlockNumber(blockNumber);
+    const int fileIndex = m_data.fileIndexForBlockNumber(blockNumber);
     if (fileIndex < 0)
         return;
 
@@ -619,7 +618,7 @@ void UnifiedDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
 
     const GuardLocker locker(m_controller.m_ignoreChanges);
     m_controller.setCurrentDiffFileIndex(diffFileIndex);
-    const int blockNumber = blockNumberForFileIndex(diffFileIndex);
+    const int blockNumber = m_data.blockNumberForFileIndex(diffFileIndex);
 
     QTextBlock block = document()->findBlockByNumber(blockNumber);
     QTextCursor cursor = textCursor();

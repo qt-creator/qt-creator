@@ -40,6 +40,9 @@ public:
     std::array<LineNumbers, SideCount> m_lineNumbers{};
     std::array<int, SideCount> m_lineNumberDigits{1, 1};
 
+    int blockNumberForFileIndex(int fileIndex) const;
+    int fileIndexForBlockNumber(int blockNumber) const;
+
 private:
     void setLineNumber(DiffSide side, int blockNumber, int lineNumber, int rowNumberInChunk);
     QString setChunk(const DiffEditorInput &input, const ChunkData &chunkData,
@@ -91,12 +94,8 @@ protected:
 
 private:
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
-
     void slotCursorPositionChangedInEditor();
-
     void showDiff();
-    int blockNumberForFileIndex(int fileIndex) const;
-    int fileIndexForBlockNumber(int blockNumber) const;
     void jumpToOriginalFile(const QTextCursor &cursor);
     void addContextMenuActions(QMenu *menu, int fileIndex, int chunkIndex,
                                const ChunkSelection &selection);
