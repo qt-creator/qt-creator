@@ -12,6 +12,8 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <projectexplorer/session.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -22,12 +24,17 @@
 namespace Squish {
 namespace Internal {
 
+static const char SK_OpenSuites[] = "SquishOpenSuites";
+
 static SquishFileHandler *m_instance = nullptr;
 
 SquishFileHandler::SquishFileHandler(QObject *parent)
     : QObject(parent)
 {
     m_instance = this;
+    auto sessionManager = ProjectExplorer::SessionManager::instance();
+    connect(sessionManager, &ProjectExplorer::SessionManager::sessionLoaded,
+            this, &SquishFileHandler::onSessionLoaded);
 }
 
 SquishFileHandler *SquishFileHandler::instance()
@@ -191,6 +198,7 @@ void SquishFileHandler::openTestSuites()
         }
     }
     emit suitesOpened();
+    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, m_suites.values());
 }
 
 void SquishFileHandler::openTestSuite(const Utils::FilePath &suitePath, bool isReopen)
@@ -221,6 +229,7 @@ void SquishFileHandler::openTestSuite(const Utils::FilePath &suitePath, bool isR
         m_suites.insert(suiteName, suitePathStr);
         emit testTreeItemCreated(item);
     }
+    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, m_suites.values());
 }
 
 void SquishFileHandler::closeTestSuite(const QString &suiteName)
@@ -232,9 +241,16 @@ void SquishFileHandler::closeTestSuite(const QString &suiteName)
     // TODO remove file watcher
     m_suites.remove(suiteName);
     emit suiteTreeItemRemoved(suiteName);
+    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, m_suites.values());
 }
 
 void SquishFileHandler::closeAllTestSuites()
+{
+    closeAllInternal();
+    ProjectExplorer::SessionManager::setValue(SK_OpenSuites, m_suites.values());
+}
+
+void SquishFileHandler::closeAllInternal()
 {
     // TODO close respective editors if there are any
     // TODO remove file watcher
@@ -392,6 +408,22 @@ void SquishFileHandler::openObjectsMap(const QString &suiteName)
                                   Tr::tr("Failed to open objects.map file at \"%1\".")
                                       .arg(objectsMapPath.toUserOutput()));
         }
+    }
+}
+
+void SquishFileHandler::onSessionLoaded()
+{
+    // remove currently opened "silently" (without storing into session)
+    closeAllInternal();
+
+    const QVariant variant = ProjectExplorer::SessionManager::value(SK_OpenSuites);
+    const Utils::FilePaths suitePaths = Utils::transform(variant.toStringList(),
+                                                         &Utils::FilePath::fromString);
+
+    // open suites of the old session
+    for (const Utils::FilePath &fp : suitePaths) {
+        if (fp.exists())
+            openTestSuite(fp);
     }
 }
 

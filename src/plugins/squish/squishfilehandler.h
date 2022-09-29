@@ -40,6 +40,9 @@ signals:
     void suitesOpened();
 
 private:
+    void closeAllInternal();
+    void onSessionLoaded();
+
     QMap<QString, QString> m_suites;
     QStringList m_sharedFolders;
 
