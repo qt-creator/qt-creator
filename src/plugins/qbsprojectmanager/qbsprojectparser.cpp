@@ -16,15 +16,14 @@
 
 using namespace Utils;
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
 // --------------------------------------------------------------------
 // QbsProjectParser:
 // --------------------------------------------------------------------
 
 QbsProjectParser::QbsProjectParser(QbsBuildSystem *buildSystem, QFutureInterface<bool> *fi)
-    : m_projectFilePath(buildSystem->project()->projectFilePath().toString()),
+    : m_projectFilePath(buildSystem->project()->projectFilePath()),
       m_session(buildSystem->session()),
       m_fi(fi)
 {
@@ -40,8 +39,8 @@ QbsProjectParser::~QbsProjectParser()
     m_fi = nullptr; // we do not own m_fi, do not delete
 }
 
-void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, const QString &dir,
-                             const QString &configName)
+void QbsProjectParser::parse(const QVariantMap &config, const Environment &env,
+                             const FilePath &dir, const QString &configName)
 {
     QTC_ASSERT(m_session, return);
     QTC_ASSERT(!dir.isEmpty(), return);
@@ -61,10 +60,10 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env, 
 
     // People don't like it when files are created as a side effect of opening a project,
     // so do not store the build graph if the build directory does not exist yet.
-    request.insert("dry-run", !QFileInfo::exists(dir));
+    request.insert("dry-run", !dir.exists());
 
-    request.insert("build-root", dir);
-    request.insert("project-file-path", m_projectFilePath);
+    request.insert("build-root", dir.path());
+    request.insert("project-file-path", m_projectFilePath.path());
     request.insert("override-build-graph-data", true);
     static const auto envToJson = [](const Environment &env) {
         QJsonObject envObj;
@@ -108,5 +107,4 @@ void QbsProjectParser::cancel()
         m_session->cancelCurrentJob();
 }
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // QbsProjectManager::Internal

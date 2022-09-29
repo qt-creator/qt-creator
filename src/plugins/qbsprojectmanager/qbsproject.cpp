@@ -616,7 +616,7 @@ void QbsBuildSystem::parseCurrentBuildConfiguration()
                       ->expand(QbsSettings::defaultInstallDirTemplate()));
     }
     Environment env = m_buildConfiguration->environment();
-    QString dir = m_buildConfiguration->buildDirectory().toString();
+    FilePath dir = m_buildConfiguration->buildDirectory();
 
     m_guard = guardParsingRun();
 
