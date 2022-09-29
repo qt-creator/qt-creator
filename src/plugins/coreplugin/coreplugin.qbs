@@ -298,7 +298,6 @@ Project {
                 "findtoolbar.h",
                 "findtoolwindow.cpp",
                 "findtoolwindow.h",
-                "findwidget.ui",
                 "highlightscrollbarcontroller.cpp",
                 "highlightscrollbarcontroller.h",
                 "ifindfilter.cpp",

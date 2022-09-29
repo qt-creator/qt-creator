@@ -67,7 +67,6 @@ add_qtc_plugin(Core
     find/findplugin.cpp find/findplugin.h
     find/findtoolbar.cpp find/findtoolbar.h
     find/findtoolwindow.cpp find/findtoolwindow.h
-    find/findwidget.ui
     find/highlightscrollbarcontroller.cpp find/highlightscrollbarcontroller.h
     find/ifindfilter.cpp find/ifindfilter.h
     find/ifindsupport.cpp find/ifindsupport.h
