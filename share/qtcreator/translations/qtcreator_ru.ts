@@ -5429,7 +5429,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorDocument</name>
+    <name>BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Двоичный редактор не может открывать пустые файлы.</translation>
@@ -5446,9 +5446,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Cannot open %1: %2</source>
         <translation>Не удалось открыть %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorPlugin</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Отменить</translation>
@@ -5457,9 +5454,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>&amp;Redo</source>
         <translation>&amp;Повторить</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorWidget</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Память с 0x%1</translation>
@@ -5570,7 +5564,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>BinEditorWidget::TextEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Масштаб: %1%</translation>

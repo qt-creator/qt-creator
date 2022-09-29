@@ -28146,7 +28146,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorDocument</name>
+    <name>BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Der Binäreditor kann keine leeren Dateien öffnen.</translation>
@@ -37451,7 +37451,7 @@ Fehler: %5</translation>
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Speicher bei 0x%1</translation>
@@ -37562,7 +37562,7 @@ Fehler: %5</translation>
     </message>
 </context>
 <context>
-    <name>BinEditorWidget::TextEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Vergrößerung: %1%</translation>
@@ -42482,7 +42482,7 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorPlugin</name>
+    <name>BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Rückgängig</translation>

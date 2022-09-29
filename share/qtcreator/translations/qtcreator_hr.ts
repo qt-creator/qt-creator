@@ -16431,7 +16431,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>BinEditor::BinEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Memorija pri 0x%1</translation>
@@ -16593,7 +16593,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorDocument</name>
+    <name>BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Binarni uređivač ne može otvoriti prazne datoteke.</translation>
@@ -16610,9 +16610,6 @@ Check the test environment.</source>
         <source>Cannot open %1: %2</source>
         <translation>Nije moguće otvoriti %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorPlugin</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Poništi</translation>
@@ -16621,120 +16618,17 @@ Check the test environment.</source>
         <source>&amp;Redo</source>
         <translation>Po&amp;novi</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorWidget</name>
-    <message>
-        <source>Memory at 0x%1</source>
-        <translation>Memorija pri 0x%1</translation>
-    </message>
-    <message>
-        <source>Decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation>Decimalna&amp;nbsp;nepotpisana&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation>Decimalna&amp;nbsp;potpisana&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation>Prethodna&amp;nbsp;decimalna&amp;nbsp;nepotpisana&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation>Prethodna&amp;nbsp;decimalna&amp;nbsp;potpisana&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>%1-bit&amp;nbsp;Integer&amp;nbsp;Type</source>
-        <translation>%1-bit&amp;nbsp;cjelobrojna&amp;nbsp;vrsta</translation>
-    </message>
-    <message>
-        <source>Little Endian</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Big Endian</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Binary&amp;nbsp;value:</source>
-        <translation>Binarna&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Octal&amp;nbsp;value:</source>
-        <translation>Oktalna&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;binary&amp;nbsp;value:</source>
-        <translation>Prethodna&amp;nbsp;binarna&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;octal&amp;nbsp;value:</source>
-        <translation>Prethodna&amp;nbsp;oktalna&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>&lt;i&gt;dupla&lt;/i&gt;&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>Prethodna &lt;i&gt;dupla&lt;/i&gt;&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>&lt;i&gt;pomična&lt;/i&gt;&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>Prethodna &lt;i&gt;pomična&lt;/i&gt;&amp;nbsp;vrijednost:</translation>
-    </message>
-    <message>
-        <source>Copying Failed</source>
-        <translation>Neuspjelo kopiranje</translation>
-    </message>
-    <message>
-        <source>You cannot copy more than 4 MB of binary data.</source>
-        <translation>Ne možeš kopirati više od 4 MB binarnih podataka.</translation>
-    </message>
-    <message>
-        <source>Copy Selection as ASCII Characters</source>
-        <translation>Kopiraj odabir kao ASCII znakove</translation>
-    </message>
-    <message>
-        <source>Copy Selection as Hex Values</source>
-        <translation>Kopiraj odabir kao heksadecimalne znakove</translation>
-    </message>
-    <message>
-        <source>Set Data Breakpoint on Selection</source>
-        <translation>Postavi točku prekida podataka na odabiru</translation>
-    </message>
     <message>
         <source>Copy 0x%1</source>
         <translation>Kopiraj 0x%1</translation>
     </message>
     <message>
-        <source>Jump to Address in This Window</source>
-        <translation>Prijeđi na adresu u ovom prozoru</translation>
-    </message>
-    <message>
-        <source>Jump to Address in New Window</source>
-        <translation>Prijeđi na adresu u novom prozoru</translation>
-    </message>
-    <message>
         <source>Copy Value</source>
         <translation>Kopiraj vrijednost</translation>
     </message>
-    <message>
-        <source>Jump to Address 0x%1 in This Window</source>
-        <translation>Prijeđi na adresu 0x%1 u ovom prozoru</translation>
-    </message>
-    <message>
-        <source>Jump to Address 0x%1 in New Window</source>
-        <translation>Prijeđi na adresu 0x%1 u novom prozoru</translation>
-    </message>
 </context>
 <context>
-    <name>BinEditorWidget::TextEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Zumiranje: %1%</translation>

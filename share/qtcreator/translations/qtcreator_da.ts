@@ -3754,7 +3754,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorDocument</name>
+    <name>BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Binær-redigeringen kan ikke åbne tomme filer.</translation>
@@ -3771,9 +3771,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Cannot open %1: %2</source>
         <translation>Kan ikke åbne %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorWidget</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Hukommelse ved 0x%1</translation>
@@ -3876,7 +3873,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>BinEditorWidget::TextEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Zoom: %1%</translation>
@@ -42916,7 +42913,7 @@ Spordataene er tabt.</translation>
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorPluginPrivate</name>
+    <name>BinEditor</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Fortryd</translation>

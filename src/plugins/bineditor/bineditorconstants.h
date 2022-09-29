@@ -3,13 +3,10 @@
 
 #pragma once
 
-namespace BinEditor {
-namespace Constants {
+namespace BinEditor::Constants {
 
 const char C_BINEDITOR[] = "BinEditor.BinaryEditor";
-const char C_BINEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("OpenWith::Editors", "Binary Editor");
 const char C_BINEDITOR_MIMETYPE[] = "application/octet-stream";
 const char C_ENCODING_SETTING[] = "BinEditor/TextEncoding";
 
-} // namespace Constants
-} // namespace BinEditor
+} // BinEditor::Constants

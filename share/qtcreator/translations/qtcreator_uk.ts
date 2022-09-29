@@ -43904,7 +43904,7 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
     </message>
 </context>
 <context>
-    <name>BinEditor::BinEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Пам&apos;ять в  0x%1</translation>
@@ -44005,9 +44005,6 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
         <source>Jump to Address 0x%1 in New Window</source>
         <translation>Перейти до адреси 0x%1 в новому вікні</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorDocument</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Двійковий редактор не може відкривати порожні файли.</translation>
@@ -44024,9 +44021,6 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
         <source>Cannot open %1: %2</source>
         <translation>Неможливо відкрити %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorPlugin</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Повернути</translation>

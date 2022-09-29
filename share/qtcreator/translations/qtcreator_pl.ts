@@ -30346,7 +30346,7 @@ Zainstaluj SDK o wersji %1 lub wyższej.</translation>
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorDocument</name>
+    <name>BinEditor</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>Edytor plików binarnych nie może otwierać pustych plików.</translation>
@@ -30363,9 +30363,6 @@ Zainstaluj SDK o wersji %1 lub wyższej.</translation>
         <source>Cannot open %1: %2</source>
         <translation>Nie można otworzyć %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorPlugin</name>
     <message>
         <source>&amp;Undo</source>
         <translation>&amp;Cofnij</translation>
@@ -39906,7 +39903,7 @@ Uwaga: podczas używania zwykłego formatu tekstowego może brakować niektóryc
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>Pamięć w 0x%1</translation>
@@ -41618,7 +41615,7 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>BinEditorWidget::TextEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>Powiększenie:%1%</translation>

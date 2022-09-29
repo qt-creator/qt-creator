@@ -38674,7 +38674,7 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
     </message>
 </context>
 <context>
-    <name>BinEditor::BinEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Memory at 0x%1</source>
         <translation>0x%1 のメモリ</translation>
@@ -38775,9 +38775,6 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
         <source>Jump to Address 0x%1 in New Window</source>
         <translation>新規ウィンドウでアドレス 0x%1 に移動</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorDocument</name>
     <message>
         <source>The Binary Editor cannot open empty files.</source>
         <translation>バイナリエディタでは空のファイルを開けません。</translation>
@@ -38794,9 +38791,6 @@ Only desktop kits are supported. Make sure the currently active kit is a desktop
         <source>Cannot open %1: %2</source>
         <translation>%1 を開けません: %2</translation>
     </message>
-</context>
-<context>
-    <name>BinEditor::Internal::BinEditorPlugin</name>
     <message>
         <source>&amp;Undo</source>
         <translation>元に戻す(&amp;U)</translation>
@@ -48905,118 +48899,18 @@ The name of the release build configuration created by default for a qmake proje
     </message>
 </context>
 <context>
-    <name>BinEditor::Internal::BinEditorWidget</name>
-    <message>
-        <source>Memory at 0x%1</source>
-        <translation>0x%1 のメモリ</translation>
-    </message>
-    <message>
-        <source>Decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation>符号無し10進数:</translation>
-    </message>
-    <message>
-        <source>Decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation>符号付き10進数:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;decimal&amp;nbsp;unsigned&amp;nbsp;value:</source>
-        <translation>直前の符号無し10進数:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;decimal&amp;nbsp;signed&amp;nbsp;value:</source>
-        <translation>直前の符号付き10進数:</translation>
-    </message>
-    <message>
-        <source>%1-bit&amp;nbsp;Integer&amp;nbsp;Type</source>
-        <translation>%1 ビット整数型</translation>
-    </message>
-    <message>
-        <source>Little Endian</source>
-        <translation>リトルエンディアン</translation>
-    </message>
-    <message>
-        <source>Big Endian</source>
-        <translation>ビッグエンディアン</translation>
-    </message>
-    <message>
-        <source>Binary&amp;nbsp;value:</source>
-        <translation>2進数:</translation>
-    </message>
-    <message>
-        <source>Octal&amp;nbsp;value:</source>
-        <translation>8進数:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;binary&amp;nbsp;value:</source>
-        <translation>直前の2進数:</translation>
-    </message>
-    <message>
-        <source>Previous&amp;nbsp;octal&amp;nbsp;value:</source>
-        <translation>直前の8進数:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>&lt;i&gt;倍精度浮動小数点&lt;/i&gt;数:</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;double&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>直前の&lt;i&gt;倍精度浮動小数点&lt;/i&gt;数:</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>&lt;i&gt;単精度浮動小数点&lt;/i&gt;数:</translation>
-    </message>
-    <message>
-        <source>Previous &lt;i&gt;float&lt;/i&gt;&amp;nbsp;value:</source>
-        <translation>直前の&lt;i&gt;単精度浮動小数点&lt;/i&gt;数:</translation>
-    </message>
-    <message>
-        <source>Copying Failed</source>
-        <translation>コピー失敗</translation>
-    </message>
-    <message>
-        <source>You cannot copy more than 4 MB of binary data.</source>
-        <translation>4MB より大きなバイナリデータはコピーできません。</translation>
-    </message>
-    <message>
-        <source>Copy Selection as ASCII Characters</source>
-        <translation>選択内容を ASCII 文字列としてコピーする</translation>
-    </message>
-    <message>
-        <source>Copy Selection as Hex Values</source>
-        <translation>選択内容を16進数の値としてコピーする</translation>
-    </message>
-    <message>
-        <source>Set Data Breakpoint on Selection</source>
-        <translation>選択した箇所にデータブレークポイントを設定</translation>
-    </message>
+    <name>BinEditor</name>
     <message>
         <source>Copy 0x%1</source>
         <translation>0x%1をコピー</translation>
     </message>
     <message>
-        <source>Jump to Address in This Window</source>
-        <translation>ウィンドウ内でアドレスに移動</translation>
-    </message>
-    <message>
-        <source>Jump to Address in New Window</source>
-        <translation>新規ウィンドウでアドレスに移動</translation>
-    </message>
-    <message>
         <source>Copy Value</source>
         <translation>値をコピー</translation>
     </message>
-    <message>
-        <source>Jump to Address 0x%1 in This Window</source>
-        <translation>ウィンドウ内でアドレス 0x%1 に移動</translation>
-    </message>
-    <message>
-        <source>Jump to Address 0x%1 in New Window</source>
-        <translation>新規ウィンドウでアドレス 0x%1 に移動</translation>
-    </message>
 </context>
 <context>
-    <name>BinEditorWidget::TextEditorWidget</name>
+    <name>BinEditor</name>
     <message>
         <source>Zoom: %1%</source>
         <translation>拡大率: %1%</translation>

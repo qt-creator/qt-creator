@@ -31,8 +31,7 @@ namespace Core { class IEditor; }
 
 namespace TextEditor { class FontSettings; }
 
-namespace BinEditor {
-namespace Internal {
+namespace BinEditor::Internal {
 
 class BinEditorWidgetPrivate;
 
@@ -228,5 +227,4 @@ private:
     QList<Markup> m_markup;
 };
 
-} // namespace Internal
-} // namespace BinEditor
+} // BinEditor::Internal
