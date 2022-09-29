@@ -797,7 +797,7 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
 
         auto context = new IContext(this);
         context->setWidget(m_editor[side]);
-        context->setContext(Context(Utils::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(1)));
+        context->setContext(Context(Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(side + 1)));
         ICore::addContextObject(context);
     };
     setupEditor(LeftSide);
