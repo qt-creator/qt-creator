@@ -11217,7 +11217,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="unfinished">Preguntar antes de enviar</translation>
@@ -12219,7 +12219,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CheckoutWizard</name>
+    <name>Cvs</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation type="unfinished"></translation>
@@ -12228,9 +12228,6 @@ p, li { white-space: pre-wrap; }
         <source>CVS Checkout</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Specify repository and path.</source>
         <translation type="unfinished"></translation>
@@ -12239,16 +12236,10 @@ p, li { white-space: pre-wrap; }
         <source>Repository:</source>
         <translation type="unfinished">Repositorio:</translation>
     </message>
-</context>
-<context>
-    <name>CvsPlugin</name>
     <message>
         <source>Cannot find repository for &apos;%1&apos;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation type="unfinished"></translation>
@@ -12439,9 +12430,6 @@ p, li { white-space: pre-wrap; }
         <source>CVS did not respond within timeout limit (%1 ms).</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation type="unfinished"></translation>
@@ -12458,9 +12446,6 @@ p, li { white-space: pre-wrap; }
         <source>CVS Submit</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation type="unfinished"></translation>

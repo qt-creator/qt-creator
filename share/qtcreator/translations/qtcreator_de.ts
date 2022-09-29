@@ -263,7 +263,7 @@
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsPlugin</name>
+    <name>Cvs</name>
     <message>
         <source>&amp;CVS</source>
         <translation>&amp;CVS</translation>
@@ -524,9 +524,6 @@
         <source>The initial revision %1 cannot be described.</source>
         <translation>Die erste Version (%1) kann nicht weiter beschrieben werden.</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Hinzugefügt</translation>
@@ -539,9 +536,6 @@
         <source>Modified</source>
         <translation>Geändert</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -582,9 +576,6 @@
         <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit ID). Otherwise, only the respective file will be displayed.</source>
         <translation>Wenn die Option aktiviert ist, werden beim Klick auf die Revisionsnummer in der Annotationsansicht alle Dateien angezeigt, die zu einem Commit gehören (mittels Commit-ID bestimmt). Ansonsten wird nur die betreffende Datei angezeigt.</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS-Kommando</translation>
@@ -28653,7 +28644,7 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditorWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Annotation für Revision &quot;%1&quot;</translation>

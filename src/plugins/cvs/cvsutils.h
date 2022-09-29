@@ -8,8 +8,7 @@
 #include <QString>
 #include <QList>
 
-namespace Cvs {
-namespace Internal {
+namespace Cvs::Internal {
 
 // Utilities to parse output of a CVS log.
 
@@ -54,5 +53,4 @@ QString previousRevision(const QString &rev);
 // Revision number utilities: Is it "[1.2...].1"?
 bool isFirstRevision(const QString &r);
 
-} // namespace Internal
-} // namespace Cvs
+} // Cvs::Internal

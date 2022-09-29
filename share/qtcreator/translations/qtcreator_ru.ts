@@ -13821,14 +13821,11 @@ Do you want to display them anyway?</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditorWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Аннотация ревизии «%1»</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>&amp;CVS</source>
         <translation>&amp;CVS</translation>
@@ -14089,9 +14086,6 @@ Do you want to display them anyway?</source>
         <source>The initial revision %1 cannot be described.</source>
         <translation>Невозможно описать начальную ревизию %1.</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Добавлен</translation>
@@ -14104,9 +14098,6 @@ Do you want to display them anyway?</source>
         <source>Modified</source>
         <translation>Изменён</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Настройка</translation>
@@ -14147,9 +14138,6 @@ Do you want to display them anyway?</source>
         <source>When checked, all files touched by a commit will be displayed when clicking on a revision number in the annotation view (retrieved via commit ID). Otherwise, only the respective file will be displayed.</source>
         <translation>Если включено, по щелчку на номере ревизии при просмотре аннотации (полученной по идентификатору фиксации) будут отображаться все зафиксированные файлы. В противном случае, только соответствующий файл.</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>Команда CVS</translation>

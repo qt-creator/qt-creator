@@ -17884,7 +17884,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>Prompt to submit</source>
         <translation type="obsolete">Invite lors du submit</translation>
@@ -19194,7 +19194,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CheckoutWizard</name>
+    <name>Cvs</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation type="obsolete">Obtient un projet à partir d&apos;un dépôt CVS.</translation>
@@ -19207,9 +19207,6 @@ p, li { white-space: pre-wrap; }
         <source>CVS Checkout</source>
         <translation>Import CVS</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Emplacement</translation>
@@ -19222,16 +19219,6 @@ p, li { white-space: pre-wrap; }
         <source>Repository:</source>
         <translation>Dépôt :</translation>
     </message>
-</context>
-<context>
-    <name>CvsPlugin</name>
-    <message>
-        <source>Cannot find repository for &apos;%1&apos;</source>
-        <translation type="obsolete">Impossible de trouver le dépot de &quot;%1&quot;</translation>
-    </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>Échec de l&apos;analyse de la sortie </translation>
@@ -19557,9 +19544,6 @@ p, li { white-space: pre-wrap; }
         <source>CVS did not respond within timeout limit (%1 ms).</source>
         <translation type="obsolete">CVS n&apos;a pas répondu dans le temps imparti (%1 ms).</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Ajouté</translation>
@@ -19576,9 +19560,6 @@ p, li { white-space: pre-wrap; }
         <source>CVS Submit</source>
         <translation type="obsolete">CVS Submit</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS Command</translation>
@@ -24729,7 +24710,7 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditor</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Révision annotée &quot;%1&quot;</translation>
@@ -38829,7 +38810,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsDiffParameterWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Ignorer les espaces</translation>
@@ -53553,7 +53534,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsControl</name>
+    <name>Cvs</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Édition</translation>

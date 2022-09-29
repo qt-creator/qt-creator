@@ -515,7 +515,7 @@
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsPlugin</name>
+    <name>Cvs</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>A log kimenet elemzése nem sikerült</translation>
@@ -706,9 +706,6 @@
         <source>CVS did not respond within timeout limit (%1 ms).</source>
         <translation>A CVS nem válaszolt az időtúllépési korláton belül (%1 ms).</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Hozzáadva</translation>
@@ -725,9 +722,6 @@
         <source>CVS Submit</source>
         <translation>CVS feltöltés</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CheckoutWizard</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation>Egy projekt megnézése egy CVS tárolóból.</translation>
@@ -736,9 +730,6 @@
         <source>CVS Checkout</source>
         <translation>CVS megnézés</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Specify repository and path.</source>
         <translation>Határozza meg a tárolót és az útvonalat.</translation>
@@ -747,9 +738,6 @@
         <source>Repository:</source>
         <translation>Tároló:</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPage</name>
     <message>
         <source>Prompt to submit</source>
         <translation>Feltöltési prompt</translation>
@@ -778,16 +766,10 @@
         <source>CVS</source>
         <translation>CVS</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS parancs</translation>
     </message>
-</context>
-<context>
-    <name>CvsPlugin</name>
     <message>
         <source>Cannot find repository for &apos;%1&apos;</source>
         <translation>&apos;%1&apos; tárolóra nem található</translation>

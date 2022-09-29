@@ -339,7 +339,7 @@
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
@@ -2929,7 +2929,7 @@ Kontynuować?</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsPlugin</name>
+    <name>Cvs</name>
     <message>
         <source>&amp;CVS</source>
         <translation>&amp;CVS</translation>
@@ -3202,9 +3202,6 @@ Kontynuować?</translation>
         <source>The initial revision %1 cannot be described.</source>
         <translation>Początkowa wersja %1 nie może być opisana.</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Dodano</translation>
@@ -3217,9 +3214,6 @@ Kontynuować?</translation>
         <source>Modified</source>
         <translation>Zmodyfikowano</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>Komenda CVS</translation>
@@ -25311,7 +25305,7 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsControl</name>
+    <name>Cvs</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Edycja</translation>
@@ -30896,7 +30890,7 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditorWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Dołącz adnotację do wersji &quot;%1&quot;</translation>
@@ -41922,7 +41916,7 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsDiffConfig</name>
+    <name>Cvs</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Ignoruj białe znaki</translation>

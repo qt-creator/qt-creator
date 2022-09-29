@@ -16493,7 +16493,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>CVS Command:</source>
         <translation type="obsolete">CVS 命令:</translation>
@@ -17773,7 +17773,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CheckoutWizard</name>
+    <name>Cvs</name>
     <message>
         <source>Checks out a project from a CVS repository.</source>
         <translation type="obsolete">从CVS仓库中检出项目。</translation>
@@ -17786,9 +17786,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>CVS Checkout</source>
         <translation>CVS Checkout</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -17801,16 +17798,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Repository:</source>
         <translation>代码仓库:</translation>
     </message>
-</context>
-<context>
-    <name>CvsPlugin</name>
-    <message>
-        <source>Cannot find repository for &apos;%1&apos;</source>
-        <translation type="obsolete">无法为&apos;%1&apos;找到仓库</translation>
-    </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>解析日志输出失败</translation>
@@ -18132,9 +18119,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>CVS did not respond within timeout limit (%1 ms).</source>
         <translation type="obsolete">CVS 在超时时间 (%1 毫秒)内无响应。</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>已添加</translation>
@@ -18147,9 +18131,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Modified</source>
         <translation>已更改</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS 命令</translation>
@@ -22457,7 +22438,7 @@ Previous decimal signed value (big endian): %4</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditor</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>注释修订版本 &quot;%1&quot;</translation>
@@ -36067,7 +36048,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsDiffParameterWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>

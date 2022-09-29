@@ -10988,7 +10988,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
@@ -12350,7 +12350,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CheckoutWizard</name>
+    <name>Cvs</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
         <translation>Prevzame skladišče CVS in poskusi naložiti vsebovani projekt.</translation>
@@ -12359,9 +12359,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>CVS Checkout</source>
         <translation>Prevzem iz CVS</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
         <translation>Mesto</translation>
@@ -12374,9 +12371,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>Repository:</source>
         <translation>Skladišče:</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>Razčlenjevanje dnevnika ni uspelo.</translation>
@@ -12665,9 +12659,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>CVS did not respond within timeout limit (%1 ms).</source>
         <translation type="obsolete">CVS se v za to namenjenem času (%1 ms) ni odzval.</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Dodana</translation>
@@ -12680,9 +12671,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>Modified</source>
         <translation>Spremenjena</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>Ukaz CVS</translation>
@@ -15931,7 +15919,7 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditor</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Dodaj opombo za revizijo »%1«</translation>
@@ -23209,7 +23197,7 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsDiffParameterWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>Prezri presledke</translation>

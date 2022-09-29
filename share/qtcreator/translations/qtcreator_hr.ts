@@ -3609,7 +3609,7 @@ Ti se predznaci koriste kao dodatak trenutačnom direktoriju na Switch zaglavlju
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracija</translation>
@@ -21653,7 +21653,7 @@ Oznake: %3</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsDiffConfig</name>
+    <name>Cvs</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation type="unfinished"></translation>
@@ -21662,9 +21662,6 @@ Oznake: %3</translation>
         <source>Ignore Blank Lines</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsControl</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Uredi</translation>
@@ -21673,16 +21670,10 @@ Oznake: %3</translation>
         <source>CVS Checkout</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsEditorWidget</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Cannot find repository for &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
@@ -21927,9 +21918,6 @@ Oznake: %3</translation>
         <source>No CVS executable specified.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation type="unfinished"></translation>
@@ -21942,9 +21930,6 @@ Oznake: %3</translation>
         <source>Modified</source>
         <translation>Posljednja promjena</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation type="unfinished"></translation>

@@ -3,17 +3,20 @@
 
 #include "cvssubmiteditor.h"
 
+#include "cvstr.h"
+
 #include <vcsbase/submiteditorwidget.h>
 #include <vcsbase/submitfilemodel.h>
 
-using namespace Cvs::Internal;
 using namespace VcsBase;
+
+namespace Cvs::Internal {
 
 CvsSubmitEditor::CvsSubmitEditor() :
     VcsBase::VcsBaseSubmitEditor(new SubmitEditorWidget),
-    m_msgAdded(tr("Added")),
-    m_msgRemoved(tr("Removed")),
-    m_msgModified(tr("Modified"))
+    m_msgAdded(Tr::tr("Added")),
+    m_msgRemoved(Tr::tr("Removed")),
+    m_msgModified(Tr::tr("Modified"))
 { }
 
 QString CvsSubmitEditor::stateName(State st) const
@@ -39,3 +42,5 @@ void CvsSubmitEditor::setStateList(const StateFilePairs &statusOutput)
         model->addFile(it->second, stateName(it->first));
     setFileModel(model);
 }
+
+} // Cvs::Internal

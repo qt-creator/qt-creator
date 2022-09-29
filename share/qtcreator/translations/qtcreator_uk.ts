@@ -24975,7 +24975,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>Configuration</source>
         <translation>Конфігурація</translation>
@@ -26565,7 +26565,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CheckoutWizardPage</name>
+    <name>Cvs</name>
     <message>
         <source>Location</source>
         <translation type="vanished">Розташування</translation>
@@ -26578,9 +26578,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Repository:</source>
         <translation type="vanished">Сховище:</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Cannot find repository for &apos;%1&apos;</source>
         <translation type="vanished">Неможливо знайти сховище для &apos;%1&apos;</translation>
@@ -26869,9 +26866,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>No cvs executable specified!</source>
         <translation type="vanished">Виконуваний модуль cvs не вказано!</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsDiffParameterWidget</name>
     <message>
         <source>Ignore whitespace</source>
         <translation type="vanished">Ігнорувати пропуски</translation>
@@ -26888,9 +26882,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Ignore Blank Lines</source>
         <translation>Ігнорувати порожні рядки</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Додано</translation>
@@ -26903,9 +26894,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Modified</source>
         <translation>Змінено</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>Команда CVS</translation>
@@ -36054,7 +36042,7 @@ Partial names can be used if they are unambiguous.</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsControl</name>
+    <name>Cvs</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Редагувати</translation>
@@ -44562,7 +44550,7 @@ The statements may not contain &apos;{&apos; nor &apos;}&apos; characters.</sour
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditorWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation type="unfinished"></translation>

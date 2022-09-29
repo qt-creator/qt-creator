@@ -10182,7 +10182,7 @@ Flag: %3</translation>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsControl</name>
+    <name>Cvs</name>
     <message>
         <source>&amp;Edit</source>
         <translation>&amp;Rediger</translation>
@@ -10191,9 +10191,6 @@ Flag: %3</translation>
         <source>CVS Checkout</source>
         <translation>CVS checkout</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsDiffConfig</name>
     <message>
         <source>Ignore Whitespace</source>
         <translation>Ignorer blanktegn</translation>
@@ -10202,16 +10199,10 @@ Flag: %3</translation>
         <source>Ignore Blank Lines</source>
         <translation>Ignorer tomme linjer</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsEditorWidget</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>Annotate revision &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Cannot find repository for &quot;%1&quot;.</source>
         <translation>Kan ikke finde repository for &quot;%1&quot;.</translation>
@@ -10480,9 +10471,6 @@ Flag: %3</translation>
         <source>No CVS executable specified.</source>
         <translation>Ingen CVS-eksekverbar angivet.</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>Tilføjet</translation>
@@ -10495,9 +10483,6 @@ Flag: %3</translation>
         <source>Modified</source>
         <translation>Ændret</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -10542,9 +10527,6 @@ Flag: %3</translation>
         <source>CVS</source>
         <translation>CVS</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS-kommando</translation>

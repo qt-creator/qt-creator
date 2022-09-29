@@ -5,11 +5,11 @@
 
 #include <QCoreApplication>
 
-namespace CVS {
+namespace Cvs {
 
 struct Tr
 {
     Q_DECLARE_TR_FUNCTIONS(CVS)
 };
 
-} // namespace CVS
+} // Cvs

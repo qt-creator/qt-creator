@@ -2535,7 +2535,7 @@ These prefixes are used in addition to current file name on Switch Header/Source
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>Configuration</source>
         <translation>設定</translation>
@@ -15837,7 +15837,7 @@ Flags: %3</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsControl</name>
+    <name>Cvs</name>
     <message>
         <source>&amp;Edit</source>
         <translation>編集(&amp;E)</translation>
@@ -15846,9 +15846,6 @@ Flags: %3</source>
         <source>CVS Checkout</source>
         <translation>CVS チェックアウト</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Cannot find repository for &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; にリポジトリが見つかりません。</translation>
@@ -15868,14 +15865,6 @@ Flags: %3</source>
     <message>
         <source>Ignore Blank Lines</source>
         <translation>空行を無視</translation>
-    </message>
-    <message>
-        <source>&amp;Edit</source>
-        <translation>編集(&amp;E)</translation>
-    </message>
-    <message>
-        <source>CVS Checkout</source>
-        <translation>CVS チェックアウト</translation>
     </message>
     <message>
         <source>Diff Current File</source>
@@ -16137,20 +16126,6 @@ Flags: %3</source>
         <source>The initial revision %1 cannot be described.</source>
         <translation>初期リビジョン %1 に説明はありません。</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsDiffParameterWidget</name>
-    <message>
-        <source>Ignore Whitespace</source>
-        <translation>空白を無視</translation>
-    </message>
-    <message>
-        <source>Ignore Blank Lines</source>
-        <translation>空行を無視</translation>
-    </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>追加</translation>
@@ -16163,16 +16138,9 @@ Flags: %3</source>
         <source>Modified</source>
         <translation>変更</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS コマンド</translation>
-    </message>
-    <message>
-        <source>CVS</source>
-        <translation>CVS</translation>
     </message>
 </context>
 <context>
@@ -39993,7 +39961,7 @@ Do you want to check them out now?</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditorWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>リビジョン &quot;%1&quot; のアノテーション</translation>

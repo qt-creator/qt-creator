@@ -8,8 +8,7 @@
 #include <QRegularExpression>
 #include <QStringList>
 
-namespace Cvs {
-namespace Internal {
+namespace Cvs::Internal {
 
 CvsRevision::CvsRevision(const QString &rev) : revision(rev)
 { }
@@ -210,5 +209,4 @@ bool isFirstRevision(const QString &r)
     return r.endsWith(QLatin1String(".1"));
 }
 
-} // namespace Internal
-} // namespace Cvs
+} // Cvs::Internal

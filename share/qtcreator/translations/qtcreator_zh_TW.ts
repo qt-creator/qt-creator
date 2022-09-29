@@ -10188,7 +10188,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::SettingsPage</name>
+    <name>Cvs</name>
     <message>
         <source>CVS</source>
         <translation>CVS</translation>
@@ -10788,7 +10788,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CheckoutWizard</name>
+    <name>Cvs</name>
     <message>
         <source>Checks out a CVS repository and tries to load the contained project.</source>
         <translation>從 CVS 主目錄中取出，並試著載入裡面包含的專案。</translation>
@@ -10797,9 +10797,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>CVS Checkout</source>
         <translation>CVS 取出</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CheckoutWizardPage</name>
     <message>
         <source>Location</source>
         <translation>位置</translation>
@@ -10812,9 +10809,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Repository:</source>
         <translation>主目錄：</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsPlugin</name>
     <message>
         <source>Parsing of the log output failed</source>
         <translation>剖析紀錄輸出失敗</translation>
@@ -11075,9 +11069,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>No cvs executable specified!</source>
         <translation>未指定 cvs 的執行檔！</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::CvsSubmitEditor</name>
     <message>
         <source>Added</source>
         <translation>已新增</translation>
@@ -11090,9 +11081,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>Modified</source>
         <translation>已變更</translation>
     </message>
-</context>
-<context>
-    <name>Cvs::Internal::SettingsPageWidget</name>
     <message>
         <source>CVS Command</source>
         <translation>CVS 指令</translation>
@@ -13207,7 +13195,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsEditor</name>
+    <name>Cvs</name>
     <message>
         <source>Annotate revision &quot;%1&quot;</source>
         <translation>註記版本 &quot;%1&quot;</translation>
@@ -22338,7 +22326,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>Cvs::Internal::CvsDiffParameterWidget</name>
+    <name>Cvs</name>
     <message>
         <source>Ignore whitespace</source>
         <translation>忽略空白</translation>
