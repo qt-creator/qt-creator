@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "sidebysidediffeditorwidget.h"
-#include "selectabletexteditorwidget.h"
+
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 #include "diffeditorplugin.h"
@@ -14,16 +14,16 @@
 #include <QTextBlock>
 #include <QVBoxLayout>
 
-#include <texteditor/textdocument.h>
-#include <texteditor/textdocumentlayout.h>
-#include <texteditor/texteditorsettings.h>
-#include <texteditor/fontsettings.h>
-#include <texteditor/displaysettings.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/find/highlightscrollbarcontroller.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+
+#include <texteditor/displaysettings.h>
+#include <texteditor/fontsettings.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/textdocumentlayout.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <utils/runextensions.h>
 #include <utils/tooltip/tooltip.h>

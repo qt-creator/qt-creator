@@ -8,21 +8,19 @@
 
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/patchtool.h>
 
-#include <texteditor/fontsettings.h>
-#include <texteditor/textdocument.h>
+#include <cpaster/codepasterservice.h>
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <cpaster/codepasterservice.h>
+#include <texteditor/fontsettings.h>
+#include <texteditor/textdocument.h>
 
 #include <utils/infobar.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
 
-#include <QDir>
 #include <QMenu>
 #include <QMessageBox>
 #include <QTextCodec>

@@ -6,6 +6,8 @@
 #include "diffeditor_global.h"
 #include "diffutils.h"
 
+#include <utils/filepath.h>
+
 #include <QObject>
 
 QT_FORWARD_DECLARE_CLASS(QMenu)

@@ -7,9 +7,6 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <diffeditor/diffeditorcontroller.h>
-#include <diffeditor/diffutils.h>
-
 #include <utils/algorithm.h>
 #include <utils/commandline.h>
 #include <utils/environment.h>

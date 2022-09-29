@@ -4,7 +4,6 @@
 #include "diffeditordocument.h"
 #include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
-#include "diffutils.h"
 
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>

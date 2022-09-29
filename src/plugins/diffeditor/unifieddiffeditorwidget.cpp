@@ -8,7 +8,6 @@
 #include "diffeditorplugin.h"
 #include "diffutils.h"
 
-#include <QHash>
 #include <QMenu>
 #include <QPainter>
 #include <QScrollBar>
@@ -17,11 +16,11 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <texteditor/displaysettings.h>
+#include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorsettings.h>
-#include <texteditor/fontsettings.h>
-#include <texteditor/displaysettings.h>
 
 #include <utils/qtcassert.h>
 #include <utils/runextensions.h>

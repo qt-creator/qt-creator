@@ -5,7 +5,6 @@
 #include "diffeditorconstants.h"
 #include "diffeditordocument.h"
 #include "diffeditorfactory.h"
-#include "sidebysidediffeditorwidget.h"
 
 #include "texteditor/texteditoractionhandler.h"
 

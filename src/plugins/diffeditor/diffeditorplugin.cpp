@@ -8,10 +8,8 @@
 #include "diffeditorfactory.h"
 
 #include <QAction>
-#include <QFileDialog>
 #include <QFutureWatcher>
 #include <QMenu>
-#include <QTextCodec>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>

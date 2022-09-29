@@ -6,7 +6,6 @@
 #include "diffeditor_global.h"
 
 #include <utils/algorithm.h>
-#include <utils/filepath.h>
 
 #include <QMap>
 #include <QString>

@@ -43,9 +43,7 @@ static bool lastLinesEqual(const QList<TextLineData> &leftLines,
     return leftLineEqual && rightLineEqual;
 }
 
-static void handleLine(const QStringList &newLines,
-                       int line,
-                       QList<TextLineData> *lines,
+static void handleLine(const QStringList &newLines, int line, QList<TextLineData> *lines,
                        int *lineNumber)
 {
     if (line < newLines.size()) {
@@ -60,9 +58,7 @@ static void handleLine(const QStringList &newLines,
     }
 }
 
-static void handleDifference(const QString &text,
-                             QList<TextLineData> *lines,
-                             int *lineNumber)
+static void handleDifference(const QString &text, QList<TextLineData> *lines, int *lineNumber)
 {
     const QStringList newLines = text.split('\n');
     for (int line = 0; line < newLines.size(); ++line) {

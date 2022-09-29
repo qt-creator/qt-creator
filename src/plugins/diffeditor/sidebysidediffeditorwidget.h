@@ -7,7 +7,6 @@
 #include "selectabletexteditorwidget.h" // TODO: we need DiffSelections here only
 
 #include <QFutureWatcher>
-#include <QTextCharFormat>
 #include <QWidget>
 
 namespace Core { class IContext; }
@@ -87,7 +86,6 @@ public:
     // Remaining lines (diff contents) are assigned 3.
     QHash<int, int> foldingIndent;
 };
-
 
 class SideBySideDiffEditorWidget : public QWidget
 {
