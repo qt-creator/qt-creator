@@ -260,9 +260,18 @@ QStringList SuiteConf::validTestCases(const QString &baseDirectory)
             const Utils::FilePath testCaseDir = subDir / testCase;
             if (testCaseDir.isDir()) {
                 Utils::FilePath testCaseTest = testCaseDir.pathAppended("test" + extension);
-                if (testCaseTest.isFile())
-                    validCases.append(testCaseTest.toString());
+                validCases.append(testCaseTest.toString());
             }
+        }
+
+        // now unlisted matching tests (suite.conf's TEST_CASES is used for some ordering)
+        const Utils::FilePaths entries = subDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const Utils::FilePath &entry : entries) {
+            if (!entry.fileName().startsWith("tst_"))
+                continue;
+            const QString testFileStr = entry.pathAppended("test" + extension).toString();
+            if (!validCases.contains(testFileStr))
+                validCases.append(testFileStr);
         }
     }
     return validCases;

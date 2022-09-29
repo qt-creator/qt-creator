@@ -251,8 +251,9 @@ void SquishNavigationWidget::onItemActivated(const QModelIndex &idx)
         break;
     }
 
-    if (!item->filePath().isEmpty())
-        Core::EditorManager::openEditor(Utils::FilePath::fromString(item->filePath()));
+    auto filePath = Utils::FilePath::fromString(item->filePath());
+    if (filePath.exists())
+        Core::EditorManager::openEditor(filePath);
 }
 
 void SquishNavigationWidget::onExpanded(const QModelIndex &idx)
