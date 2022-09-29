@@ -41568,7 +41568,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::CheckOutDialog</name>
+    <name>ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation>Check Out</translation>
@@ -41594,9 +41594,6 @@ This option is useful when you want to try your application on devices which don
         <extracomment>Hijack: Unset read-only flag without check-out. This is used for local changes which the user does not want to commit.</extracomment>
         <translation>使用&amp;Hijack文件</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>配置</translation>
@@ -41670,9 +41667,6 @@ This option is useful when you want to try your application on devices which don
         <source>ClearCase</source>
         <translation>ClearCase</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::UndoCheckOut</name>
     <message>
         <source>Dialog</source>
         <translation>对话框</translation>
@@ -41685,9 +41679,6 @@ This option is useful when you want to try your application on devices which don
         <source>&amp;Save copy of the file with a &apos;.keep&apos; extension</source>
         <translation>以&apos;.keep&apos;为扩展名保存文件的拷贝(&amp;S)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::VersionSelector</name>
     <message>
         <source>Confirm Version to Check Out</source>
         <translation>确定checkout的版本</translation>
@@ -44870,7 +44861,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ActivitySelector</name>
+    <name>ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>选择活动(&amp;A):</translation>
@@ -44883,9 +44874,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Keep item activity</source>
         <translation>保留项的活动</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseControl</name>
     <message>
         <source>&amp;Check Out</source>
         <translation>&amp;Check Out</translation>
@@ -44894,16 +44882,10 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>&amp;Hijack</source>
         <translation>&amp;Hijack</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseEditor</name>
     <message>
         <source>Annotate version &quot;%1&quot;</source>
         <translation>注释版本 &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCasePlugin</name>
     <message>
         <source>C&amp;learCase</source>
         <translation>C&amp;learCase</translation>
@@ -45192,31 +45174,18 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>CC Indexing</source>
         <translation>CC 正在索引</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditor</name>
     <message>
         <source>ClearCase Check In</source>
         <translation>ClearCase Check In</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditorWidget</name>
     <message>
         <source>Chec&amp;k in even if identical to previous version</source>
         <translation>即使与前一版本完全相同仍然checkin (&amp;K)</translation>
     </message>
     <message>
-        <source>&amp;Preserve file modification time</source>
-        <translation>保留文件被修改的时间(&amp;P)</translation>
-    </message>
-    <message>
         <source>&amp;Check In</source>
         <translation>&amp;Check In</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPageWidget</name>
     <message>
         <source>ClearCase Command</source>
         <translation>ClearCase 命令</translation>

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "clearcaseeditor.h"
+#include "clearcasetr.h"
 
 #include "annotationhighlighter.h"
 
@@ -9,8 +10,7 @@
 
 #include <QTextCursor>
 
-using namespace ClearCase;
-using namespace ClearCase::Internal;
+namespace ClearCase::Internal {
 
 ClearCaseEditorWidget::ClearCaseEditorWidget() :
     m_versionNumberPattern(QLatin1String("[\\\\/]main[\\\\/][^ \t\n\"]*"))
@@ -21,7 +21,7 @@ ClearCaseEditorWidget::ClearCaseEditorWidget() :
     // "+++ D:\depot\...\mainwindow.cpp[TAB]Sun May 01 14:22:37 2011" (local)
     setDiffFilePattern("^[-+]{3} ([^\\t]+?)(?:@@|\\t)");
     setLogEntryPattern("version \"([^\"]+)\"");
-    setAnnotateRevisionTextFormat(tr("Annotate version \"%1\""));
+    setAnnotateRevisionTextFormat(Tr::tr("Annotate version \"%1\""));
     setAnnotationEntryPattern("([^|]*)\\|[^\\n]*\\n");
     setAnnotationSeparatorPattern("\\n-{30}");
 }
@@ -46,3 +46,5 @@ VcsBase::BaseAnnotationHighlighter *ClearCaseEditorWidget::createAnnotationHighl
 {
     return new ClearCaseAnnotationHighlighter(changes);
 }
+
+} // ClearCase::Internal

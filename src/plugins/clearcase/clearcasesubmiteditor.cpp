@@ -4,17 +4,18 @@
 #include "clearcasesubmiteditor.h"
 
 #include "clearcasesubmiteditorwidget.h"
+#include "clearcasetr.h"
 
 #include <coreplugin/idocument.h>
 
 #include <vcsbase/submitfilemodel.h>
 
-using namespace ClearCase::Internal;
+namespace ClearCase::Internal {
 
 ClearCaseSubmitEditor::ClearCaseSubmitEditor() :
     VcsBase::VcsBaseSubmitEditor(new ClearCaseSubmitEditorWidget)
 {
-    document()->setPreferredDisplayName(tr("ClearCase Check In"));
+    document()->setPreferredDisplayName(Tr::tr("ClearCase Check In"));
 }
 
 ClearCaseSubmitEditorWidget *ClearCaseSubmitEditor::submitEditorWidget()
@@ -45,3 +46,5 @@ QByteArray ClearCaseSubmitEditor::fileContents() const
 {
     return VcsBase::VcsBaseSubmitEditor::fileContents().trimmed();
 }
+
+} // ClearCase::Internal

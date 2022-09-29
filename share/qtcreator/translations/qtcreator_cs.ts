@@ -49855,7 +49855,7 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::CheckOutDialog</name>
+    <name>ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation>Získat (checkout)</translation>
@@ -49881,9 +49881,6 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
         <extracomment>Hijack: Unset read-only flag without check-out. This is used for local changes which the user does not want to commit.</extracomment>
         <translation>Použít pro místní úpravy (&amp;hijack)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Nastavení</translation>
@@ -49966,9 +49963,6 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
         <source>VOBs list, separated by comma. Indexer will only traverse the specified VOBs. If left blank, all active VOBs will be indexed.</source>
         <translation>Seznam VOB, oddělený čárkou. Indexer překročí pouze zadané VOBs. Bude-li ponecháno prázdné, budou zindexovány všechny činné VOB.</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::UndoCheckOut</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -49981,9 +49975,6 @@ Je zapotřebí mít nějakou verzi Qt a sadu nástrojů, aby modely kódu C++ a 
         <source>&amp;Save copy of the file with a &apos;.keep&apos; extension</source>
         <translation>&amp;Uložit kopii souboru s příponou &apos;.keep&apos;</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::VersionSelector</name>
     <message>
         <source>Confirm Version to Check Out</source>
         <translation>Potvrdit verzi k načtení</translation>
@@ -50634,7 +50625,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ActivitySelector</name>
+    <name>ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>Vybrat č&amp;innost:</translation>
@@ -50647,9 +50638,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Keep item activity</source>
         <translation>Zachovat činnost položky</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseControl</name>
     <message>
         <source>&amp;Check Out</source>
         <translation type="obsolete">&amp;Načíst (checkout)</translation>
@@ -50662,16 +50650,10 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>&amp;Hijack</source>
         <translation>Upravit místně (&amp;hijack)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseEditor</name>
     <message>
         <source>Annotate version &quot;%1&quot;</source>
         <translation>Opatřit anotacemi verzi &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCasePlugin</name>
     <message>
         <source>Editing Derived Object: %1</source>
         <translation>Úpravy odvozeného objektu: %1</translation>
@@ -50966,32 +50948,19 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <translatorcomment>XXX: příliš dlouhé?</translatorcomment>
         <translation>Indexování ClearCase</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditor</name>
     <message>
         <source>ClearCase Check In</source>
         <translation>Zápis-odevzdání do ClearCase</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditorWidget</name>
     <message>
         <source>Chec&amp;k in even if identical to previous version</source>
         <translation>Zapsat-&amp;odevzdat i v případě shody s předchozí verzí</translation>
-    </message>
-    <message>
-        <source>&amp;Preserve file modification time</source>
-        <translation>&amp;Zachovat čas změny souboru</translation>
     </message>
     <message>
         <source>&amp;Check In</source>
         <translatorcomment>XXX: příliš dlouhé?</translatorcomment>
         <translation>&amp;Zapsat-odevzdat (check in)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPageWidget</name>
     <message>
         <source>ClearCase Command</source>
         <translation>Příkaz pro ClearCase</translation>

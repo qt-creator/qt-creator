@@ -6,6 +6,7 @@
 #include "clearcaseconstants.h"
 #include "clearcaseplugin.h"
 #include "clearcasesettings.h"
+#include "clearcasetr.h"
 
 #include <utils/qtcassert.h>
 
@@ -14,8 +15,7 @@
 #include <QLabel>
 #include <QToolButton>
 
-using namespace ClearCase;
-using namespace ClearCase::Internal;
+namespace ClearCase::Internal {
 
 ActivitySelector::ActivitySelector(QWidget *parent) : QWidget(parent)
 {
@@ -24,7 +24,7 @@ ActivitySelector::ActivitySelector(QWidget *parent) : QWidget(parent)
     auto hboxLayout = new QHBoxLayout(this);
     hboxLayout->setContentsMargins(0, 0, 0, 0);
 
-    auto lblActivity = new QLabel(tr("Select &activity:"));
+    auto lblActivity = new QLabel(Tr::tr("Select &activity:"));
     lblActivity->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     hboxLayout->addWidget(lblActivity);
 
@@ -32,7 +32,7 @@ ActivitySelector::ActivitySelector(QWidget *parent) : QWidget(parent)
     m_cmbActivity->setMinimumSize(QSize(350, 0));
     hboxLayout->addWidget(m_cmbActivity);
 
-    QString addText = tr("Add");
+    QString addText = Tr::tr("Add");
     if (!ClearCasePlugin::settings().autoAssignActivityName)
         addText.append(QLatin1String("..."));
     auto btnAdd = new QToolButton;
@@ -67,7 +67,7 @@ bool ActivitySelector::refresh()
 
 void ActivitySelector::addKeep()
 {
-    m_cmbActivity->insertItem(0, tr("Keep item activity"), QLatin1String(Constants::KEEP_ACTIVITY));
+    m_cmbActivity->insertItem(0, Tr::tr("Keep item activity"), QLatin1String(Constants::KEEP_ACTIVITY));
     setActivity(QLatin1String(Constants::KEEP_ACTIVITY));
 }
 
@@ -93,3 +93,5 @@ void ActivitySelector::newActivity()
     if (ClearCasePlugin::newActivity())
         refresh();
 }
+
+} // ClearCase::Internal

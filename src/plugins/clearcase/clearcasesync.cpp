@@ -20,8 +20,7 @@
 
 using namespace Utils;
 
-namespace ClearCase {
-namespace Internal {
+namespace ClearCase::Internal {
 
 static void runProcess(QFutureInterface<void> &future,
                        const ClearCaseSettings &settings,
@@ -333,6 +332,4 @@ void ClearCaseSync::verifyFileNotManagedDynamicView()
 
 #endif
 
-
-} // namespace Internal
-} // namespace ClearCase
+} // ClearCase::Internal

@@ -3,11 +3,11 @@
 
 #include "versionselector.h"
 
+#include "clearcasetr.h"
+
 #include <utils/layoutbuilder.h>
 
-#include <QApplication>
 #include <QDialogButtonBox>
-#include <QFormLayout>
 #include <QLabel>
 #include <QPlainTextEdit>
 #include <QRadioButton>
@@ -22,14 +22,14 @@ VersionSelector::VersionSelector(const QString &fileName, const QString &message
     QDialog(parent)
 {
     resize(413, 435);
-    setWindowTitle(tr("Confirm Version to Check Out"));
+    setWindowTitle(Tr::tr("Confirm Version to Check Out"));
 
-    auto headerLabel = new QLabel(tr("Multiple versions of \"%1\" can be checked out. "
+    auto headerLabel = new QLabel(Tr::tr("Multiple versions of \"%1\" can be checked out. "
                                      "Select the version to check out:").arg(fileName));
     headerLabel->setWordWrap(true);
     headerLabel->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse);
 
-    auto loadedRadioButton = new QRadioButton(tr("&Loaded version"));
+    auto loadedRadioButton = new QRadioButton(Tr::tr("&Loaded version"));
     loadedRadioButton->setChecked(true);
 
     auto loadedLabel = new QLabel;
@@ -42,13 +42,13 @@ VersionSelector::VersionSelector(const QString &fileName, const QString &message
     auto updatedText = new QPlainTextEdit;
     updatedText->setReadOnly(true);
 
-    m_updatedRadioButton = new QRadioButton(tr("Version after &update"));
+    m_updatedRadioButton = new QRadioButton(Tr::tr("Version after &update"));
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
     auto loadedText = new QTextEdit;
     loadedText->setHtml("<html><head/><body><p><b>"
-                            + tr("Note: You will not be able to check in this file without merging "
+                            + Tr::tr("Note: You will not be able to check in this file without merging "
                                  "the changes (not supported by the plugin)")
                             + "</b></p></body></html>");
     m_stream = new QTextStream(message.toLocal8Bit(), QIODevice::ReadOnly | QIODevice::Text);
@@ -76,14 +76,14 @@ VersionSelector::VersionSelector(const QString &fileName, const QString &message
         headerLabel,
         Form {
             loadedRadioButton, loadedLabel, br,
-            tr("Created by:"), loadedCreatedByLabel, br,
-            tr("Created on:"),  loadedCreatedOnLabel, br,
+            Tr::tr("Created by:"), loadedCreatedByLabel, br,
+            Tr::tr("Created on:"),  loadedCreatedOnLabel, br,
             Span(2, loadedText),
         },
         Form {
             m_updatedRadioButton, updatedLabel, br,
-            tr("Created by:"), updatedCreatedByLabel, br,
-            tr("Created on:"),  updatedCreatedOnLabel, br,
+            Tr::tr("Created by:"), updatedCreatedByLabel, br,
+            Tr::tr("Created on:"),  updatedCreatedOnLabel, br,
             Span(2, updatedText)
         },
         buttonBox,

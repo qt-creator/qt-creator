@@ -6,6 +6,7 @@
 #include "clearcaseconstants.h"
 #include "clearcaseplugin.h"
 #include "clearcasesettings.h"
+#include "clearcasetr.h"
 
 #include <vcsbase/vcsbaseconstants.h>
 
@@ -27,8 +28,6 @@ namespace ClearCase::Internal {
 
 class SettingsPageWidget final : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(ClearCase::Internal::SettingsPageWidget)
-
 public:
     SettingsPageWidget();
 
@@ -54,17 +53,17 @@ SettingsPageWidget::SettingsPageWidget()
     resize(512, 589);
 
     commandPathChooser = new PathChooser;
-    commandPathChooser->setPromptDialogTitle(tr("ClearCase Command"));
+    commandPathChooser->setPromptDialogTitle(Tr::Tr::tr("ClearCase Command"));
     commandPathChooser->setExpectedKind(PathChooser::ExistingCommand);
     commandPathChooser->setHistoryCompleter("ClearCase.Command.History");
 
-    graphicalDiffRadioButton = new QRadioButton(tr("&Graphical (single file only)"));
+    graphicalDiffRadioButton = new QRadioButton(Tr::tr("&Graphical (single file only)"));
     graphicalDiffRadioButton->setChecked(true);
 
     auto diffWidget = new QWidget;
     diffWidget->setEnabled(false);
 
-    externalDiffRadioButton = new QRadioButton(tr("&External"));
+    externalDiffRadioButton = new QRadioButton(Tr::tr("&External"));
     QObject::connect(externalDiffRadioButton, &QRadioButton::toggled, diffWidget, &QWidget::setEnabled);
 
     diffArgsEdit = new QLineEdit(diffWidget);
@@ -86,44 +85,44 @@ SettingsPageWidget::SettingsPageWidget()
     historyCountSpinBox->setMaximum(10000);
 
     timeOutSpinBox = new QSpinBox;
-    timeOutSpinBox->setSuffix(tr("s", nullptr));
+    timeOutSpinBox->setSuffix(Tr::tr("s", nullptr));
     timeOutSpinBox->setRange(1, 360);
     timeOutSpinBox->setValue(30);
 
-    autoCheckOutCheckBox = new QCheckBox(tr("&Automatically check out files on edit"));
+    autoCheckOutCheckBox = new QCheckBox(Tr::tr("&Automatically check out files on edit"));
 
-    promptCheckBox = new QCheckBox(tr("&Prompt on check-in"));
+    promptCheckBox = new QCheckBox(Tr::tr("&Prompt on check-in"));
 
-    disableIndexerCheckBox = new QCheckBox(tr("Di&sable indexer"));
+    disableIndexerCheckBox = new QCheckBox(Tr::tr("Di&sable indexer"));
 
     indexOnlyVOBsEdit = new QLineEdit;
-    indexOnlyVOBsEdit->setToolTip(tr("VOBs list, separated by comma. Indexer will only traverse "
+    indexOnlyVOBsEdit->setToolTip(Tr::tr("VOBs list, separated by comma. Indexer will only traverse "
         "the specified VOBs. If left blank, all active VOBs will be indexed."));
 
-    autoAssignActivityCheckBox = new QCheckBox(tr("Aut&o assign activity names"));
-    autoAssignActivityCheckBox->setToolTip(tr("Check this if you have a trigger that renames "
+    autoAssignActivityCheckBox = new QCheckBox(Tr::tr("Aut&o assign activity names"));
+    autoAssignActivityCheckBox->setToolTip(Tr::tr("Check this if you have a trigger that renames "
         "the activity automatically. You will not be prompted for activity name."));
 
-    noCommentCheckBox = new QCheckBox(tr("Do &not prompt for comment during checkout or check-in"));
-    noCommentCheckBox->setToolTip(tr("Check out or check in files with no comment (-nc/omment)."));
+    noCommentCheckBox = new QCheckBox(Tr::tr("Do &not prompt for comment during checkout or check-in"));
+    noCommentCheckBox->setToolTip(Tr::tr("Check out or check in files with no comment (-nc/omment)."));
 
     using namespace Layouting;
 
     Row {
-        tr("Arg&uments:"),
+        Tr::tr("Arg&uments:"),
         diffArgsEdit
     }.attachTo(diffWidget, WithoutMargins);
 
     Column {
         Group {
-            title(tr("Configuration")),
+            title(Tr::tr("Configuration")),
             Form {
-                tr("&Command:"), commandPathChooser
+                Tr::tr("&Command:"), commandPathChooser
             }
         },
 
         Group {
-            title(tr("Diff")),
+            title(Tr::tr("Diff")),
             Form {
                 graphicalDiffRadioButton, br,
                 externalDiffRadioButton, diffWidget, br,
@@ -132,16 +131,16 @@ SettingsPageWidget::SettingsPageWidget()
         },
 
         Group {
-            title(tr("Miscellaneous")),
+            title(Tr::tr("Miscellaneous")),
             Form {
-                tr("&History count:"), historyCountSpinBox, br,
-                tr("&Timeout:"), timeOutSpinBox, br,
+                Tr::tr("&History count:"), historyCountSpinBox, br,
+                Tr::tr("&Timeout:"), timeOutSpinBox, br,
                 autoCheckOutCheckBox, br,
                 autoAssignActivityCheckBox, br,
                 noCommentCheckBox, br,
                 promptCheckBox, br,
                 disableIndexerCheckBox, br,
-                tr("&Index only VOBs:"), indexOnlyVOBsEdit,
+                Tr::tr("&Index only VOBs:"), indexOnlyVOBsEdit,
              }
         },
         st
@@ -158,12 +157,12 @@ SettingsPageWidget::SettingsPageWidget()
     if (extDiffAvailable) {
         diffWarningLabel->setVisible(false);
     } else {
-        QString diffWarning = tr("In order to use External diff, \"diff\" command needs to be accessible.");
+        QString diffWarning = Tr::tr("In order to use External diff, \"diff\" command needs to be accessible.");
         if (HostOsInfo::isWindowsHost()) {
             diffWarning += QLatin1Char(' ');
-            diffWarning.append(tr("DiffUtils is available for free download at "
-                                  "http://gnuwin32.sourceforge.net/packages/diffutils.htm. "
-                                  "Extract it to a directory in your PATH."));
+            diffWarning.append(Tr::tr("DiffUtils is available for free download at "
+                                      "http://gnuwin32.sourceforge.net/packages/diffutils.htm. "
+                                      "Extract it to a directory in your PATH."));
         }
         diffWarningLabel->setText(diffWarning);
         externalDiffRadioButton->setEnabled(false);
@@ -206,7 +205,7 @@ void SettingsPageWidget::apply()
 ClearCaseSettingsPage::ClearCaseSettingsPage()
 {
     setId(ClearCase::Constants::VCS_ID_CLEARCASE);
-    setDisplayName(SettingsPageWidget::tr("ClearCase"));
+    setDisplayName(Tr::tr("ClearCase"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new SettingsPageWidget; });
 }

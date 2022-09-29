@@ -28406,7 +28406,7 @@ The APK will not be usable on any other device.</source>
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::CheckOutDialog</name>
+    <name>ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation type="unfinished"></translation>
@@ -28432,9 +28432,6 @@ The APK will not be usable on any other device.</source>
         <extracomment>Hijack: Unset read-only flag without check-out. This is used for local changes which the user does not want to commit.</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Конфігурація</translation>
@@ -28520,9 +28517,6 @@ The APK will not be usable on any other device.</source>
         <source>Do &amp;not prompt for comment during checkout or check-in</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::UndoCheckOut</name>
     <message>
         <source>Dialog</source>
         <translation>Діалог</translation>
@@ -28535,9 +28529,6 @@ The APK will not be usable on any other device.</source>
         <source>&amp;Save copy of the file with a &apos;.keep&apos; extension</source>
         <translation>&amp;Зберегти копію файлу з розширенням &apos;.keep&apos;</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::VersionSelector</name>
     <message>
         <source>Confirm Version to Check Out</source>
         <translation type="unfinished"></translation>
@@ -29929,7 +29920,7 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ActivitySelector</name>
+    <name>ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation type="unfinished"></translation>
@@ -29942,9 +29933,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>Keep item activity</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseControl</name>
     <message>
         <source>Check &amp;Out</source>
         <translation type="unfinished"></translation>
@@ -29953,9 +29941,6 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>&amp;Hijack</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCasePlugin</name>
     <message>
         <source>Editing Derived Object: %1</source>
         <translation type="unfinished"></translation>
@@ -30248,31 +30233,18 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
         <source>Enter activity headline</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditor</name>
     <message>
         <source>ClearCase Check In</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditorWidget</name>
     <message>
         <source>Chec&amp;k in even if identical to previous version</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Preserve file modification time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Check In</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPageWidget</name>
     <message>
         <source>ClearCase Command</source>
         <translation>Команда ClearCase</translation>
@@ -44296,7 +44268,7 @@ Deploying local Qt libraries is incompatible with Android 5.</source>
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ClearCaseEditorWidget</name>
+    <name>ClearCase</name>
     <message>
         <source>Annotate version &quot;%1&quot;</source>
         <translation type="unfinished"></translation>

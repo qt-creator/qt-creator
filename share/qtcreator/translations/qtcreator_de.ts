@@ -20170,7 +20170,7 @@ hinzufügen, um dem QML-Editor den wahrscheinlichen URI mitzuteilen.</translatio
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::CheckOutDialog</name>
+    <name>ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation>Check Out</translation>
@@ -20196,9 +20196,6 @@ hinzufügen, um dem QML-Editor den wahrscheinlichen URI mitzuteilen.</translatio
         <source>&amp;Checkout comment:</source>
         <translation>&amp;Checkout-Kommentar:</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -20276,9 +20273,6 @@ hinzufügen, um dem QML-Editor den wahrscheinlichen URI mitzuteilen.</translatio
         <source>Do &amp;not prompt for comment during checkout or check-in</source>
         <translation>Beim Check-in oder Check-out &amp;nicht nach Kommentaren fragen</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::UndoCheckOut</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -20291,9 +20285,6 @@ hinzufügen, um dem QML-Editor den wahrscheinlichen URI mitzuteilen.</translatio
         <source>The file was changed.</source>
         <translation>Die Datei wurde geändert.</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::VersionSelector</name>
     <message>
         <source>Confirm Version to Check Out</source>
         <translation>Bestätigung der Check-Out-Version</translation>
@@ -20353,7 +20344,7 @@ hinzufügen, um dem QML-Editor den wahrscheinlichen URI mitzuteilen.</translatio
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ActivitySelector</name>
+    <name>ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>Aktivität &amp;auswählen:</translation>
@@ -20366,31 +20357,18 @@ hinzufügen, um dem QML-Editor den wahrscheinlichen URI mitzuteilen.</translatio
         <source>Keep item activity</source>
         <translation>Aktivität des Elements beibehalten</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditor</name>
     <message>
         <source>ClearCase Check In</source>
         <translation>ClearCase Einchecken</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditorWidget</name>
     <message>
         <source>Chec&amp;k in even if identical to previous version</source>
         <translation>Einchec&amp;ken auch wenn zur Vorgängerversion identisch</translation>
     </message>
     <message>
-        <source>&amp;Preserve file modification time</source>
-        <translation>Änderungsdatum von D&amp;ateien beibehalten</translation>
-    </message>
-    <message>
         <source>&amp;Check In</source>
         <translation>&amp;Einchecken</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPageWidget</name>
     <message>
         <source>ClearCase Command</source>
         <translation>ClearCase-Befehl</translation>
@@ -28239,7 +28217,7 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ClearCaseEditorWidget</name>
+    <name>ClearCase</name>
     <message>
         <source>Annotate version &quot;%1&quot;</source>
         <translation>Annotation für Version &quot;%1&quot;</translation>
@@ -45529,7 +45507,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ClearCasePluginPrivate</name>
+    <name>ClearCase</name>
     <message>
         <source>Editing Derived Object: %1</source>
         <translation>Bearbeite abgeleitetes Objekt: %1</translation>

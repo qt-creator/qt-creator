@@ -5,8 +5,7 @@
 
 #include <vcsbase/vcsbasesubmiteditor.h>
 
-namespace ClearCase {
-namespace Internal {
+namespace ClearCase::Internal {
 
 class ClearCaseSubmitEditorWidget;
 
@@ -28,5 +27,4 @@ protected:
     QByteArray fileContents() const override;
 };
 
-} // namespace Internal
-} // namespace ClearCase
+} // ClearCase::Internal

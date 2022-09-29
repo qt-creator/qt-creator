@@ -5,8 +5,7 @@
 
 #include <vcsbase/baseannotationhighlighter.h>
 
-namespace ClearCase {
-namespace Internal {
+namespace ClearCase::Internal {
 
 // Annotation highlighter for clearcase triggering on 'changenumber '
 class ClearCaseAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
@@ -22,5 +21,4 @@ private:
     const QChar m_separator = QLatin1Char('|');
 };
 
-} // namespace Internal
-} // namespace ClearCase
+} // ClearCase::Internal

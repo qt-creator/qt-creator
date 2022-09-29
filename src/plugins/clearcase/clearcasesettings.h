@@ -12,8 +12,7 @@ QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
 
-namespace ClearCase {
-namespace Internal {
+namespace ClearCase::Internal {
 
 enum DiffType
 {
@@ -55,5 +54,4 @@ public:
     int timeOutS;
 };
 
-} // namespace Internal
-} // namespace ClearCase
+} // ClearCase::Internal

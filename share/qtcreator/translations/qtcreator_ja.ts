@@ -1084,7 +1084,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::CheckOutDialog</name>
+    <name>ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation>チェックアウト</translation>
@@ -1110,9 +1110,6 @@ Local pulls are not applied to the master branch.</source>
         <extracomment>Hijack: Unset read-only flag without check-out. This is used for local changes which the user does not want to commit.</extracomment>
         <translation>ハイジャックファイルを使う(&amp;H)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>設定</translation>
@@ -1194,9 +1191,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Do &amp;not prompt for comment during checkout or check-in</source>
         <translation>チェックアウトまたはチェックイン時にコメントを確認しない(&amp;N)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::UndoCheckOut</name>
     <message>
         <source>Dialog</source>
         <translation>ダイアログ</translation>
@@ -1209,9 +1203,6 @@ Local pulls are not applied to the master branch.</source>
         <source>&amp;Save copy of the file with a &apos;.keep&apos; extension</source>
         <translation>&apos;.keep&apos; 拡張子を付けてコピーを保存する(&amp;S)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::VersionSelector</name>
     <message>
         <source>Confirm Version to Check Out</source>
         <translation>チェックアウトバージョンの確認</translation>
@@ -13089,7 +13080,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ActivitySelector</name>
+    <name>ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>アクティビティの選択 (&amp;A):</translation>
@@ -13102,9 +13093,6 @@ in the system&apos;s browser for manual download.</source>
         <source>Keep item activity</source>
         <translation>アイテムのアクティビティを保持</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseControl</name>
     <message>
         <source>Check &amp;Out</source>
         <translation>チェックアウト(&amp;O)</translation>
@@ -13113,9 +13101,6 @@ in the system&apos;s browser for manual download.</source>
         <source>&amp;Hijack</source>
         <translation>ハイジャック(&amp;H)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCasePlugin</name>
     <message>
         <source>Editing Derived Object: %1</source>
         <translation>派生オブジェクトの編集中: %1</translation>
@@ -13408,31 +13393,18 @@ in the system&apos;s browser for manual download.</source>
         <source>Enter activity headline</source>
         <translation>アクティビティ ヘッドラインに入る</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditor</name>
     <message>
         <source>ClearCase Check In</source>
         <translation>ClearCase チェックイン</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditorWidget</name>
     <message>
         <source>Chec&amp;k in even if identical to previous version</source>
         <translation>以前のバージョンが指定されている場合でもチェックインする(&amp;K)</translation>
     </message>
     <message>
-        <source>&amp;Preserve file modification time</source>
-        <translation>ファイルの更新日時を保持する(&amp;P)</translation>
-    </message>
-    <message>
         <source>&amp;Check In</source>
         <translation>チェックイン(&amp;C)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPageWidget</name>
     <message>
         <source>ClearCase Command</source>
         <translation>ClearCase コマンド</translation>
@@ -13444,10 +13416,6 @@ in the system&apos;s browser for manual download.</source>
     <message>
         <source>DiffUtils is available for free download at http://gnuwin32.sourceforge.net/packages/diffutils.htm. Extract it to a directory in your PATH.</source>
         <translation>DiffUtils は http://gnuwin32.sourceforge.net/packages/diffutils.htm からフリーでダウンロードできます。PATH の通ったディレクトリに展開してください。</translation>
-    </message>
-    <message>
-        <source>ClearCase</source>
-        <translation>ClearCase</translation>
     </message>
 </context>
 <context>
@@ -39192,7 +39160,7 @@ clang の実行ファイルを設定してください。</translation>
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ClearCaseEditorWidget</name>
+    <name>ClearCase</name>
     <message>
         <source>Annotate version &quot;%1&quot;</source>
         <translation>バージョン &quot;%1&quot; のアノテーション</translation>
@@ -49698,277 +49666,6 @@ Output:
     <message>
         <source>Copy to Clipboard</source>
         <translation>クリップボードにコピーする</translation>
-    </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCasePluginPrivate</name>
-    <message>
-        <source>Editing Derived Object: %1</source>
-        <translation>派生オブジェクトの編集中: %1</translation>
-    </message>
-    <message>
-        <source>C&amp;learCase</source>
-        <translation>C&amp;learCase</translation>
-    </message>
-    <message>
-        <source>Check Out...</source>
-        <translation>チェックアウト...</translation>
-    </message>
-    <message>
-        <source>Check &amp;Out &quot;%1&quot;...</source>
-        <translation>&quot;%1&quot; をチェックアウト(&amp;O)...</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+O</source>
-        <translation>Meta+L,Meta+O</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+O</source>
-        <translation>Alt+L,Alt+O</translation>
-    </message>
-    <message>
-        <source>Check &amp;In...</source>
-        <translation>チェックイン(&amp;I)...</translation>
-    </message>
-    <message>
-        <source>Check &amp;In &quot;%1&quot;...</source>
-        <translation>&quot;%1&quot; をチェックイン(&amp;I)...</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+I</source>
-        <translation>Meta+L,Meta+I</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+I</source>
-        <translation>Alt+L,Alt+I</translation>
-    </message>
-    <message>
-        <source>Undo Check Out</source>
-        <translation>チェックアウトを元に戻す</translation>
-    </message>
-    <message>
-        <source>&amp;Undo Check Out &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; のチェックアウトを元に戻す(&amp;U)</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+U</source>
-        <translation>Meta+L,Meta+U</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+U</source>
-        <translation>Alt+L,Alt+U</translation>
-    </message>
-    <message>
-        <source>Undo Hijack</source>
-        <translation>ハイジャックを元に戻す</translation>
-    </message>
-    <message>
-        <source>Undo Hi&amp;jack &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; のハイジャックを元に戻す(&amp;J)</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+R</source>
-        <translation>Meta+L,Meta+R</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+R</source>
-        <translation>Alt+L,Alt+R</translation>
-    </message>
-    <message>
-        <source>&amp;Diff &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; の差分表示(&amp;D)</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+D</source>
-        <translation>Meta+L,Meta+D</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+D</source>
-        <translation>Alt+L,Alt+D</translation>
-    </message>
-    <message>
-        <source>History Current File</source>
-        <translation>現在のファイルの履歴</translation>
-    </message>
-    <message>
-        <source>&amp;History &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; の履歴(&amp;H)</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+H</source>
-        <translation>Meta+L,Meta+H</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+H</source>
-        <translation>Alt+L,Alt+H</translation>
-    </message>
-    <message>
-        <source>&amp;Annotate &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; のアノテーション(&amp;A)</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+A</source>
-        <translation>Meta+L,Meta+A</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+A</source>
-        <translation>Alt+L,Alt+A</translation>
-    </message>
-    <message>
-        <source>Add File...</source>
-        <translation>ファイルを追加...</translation>
-    </message>
-    <message>
-        <source>Add File &quot;%1&quot;</source>
-        <translation>ファイル &quot;%1&quot; を追加</translation>
-    </message>
-    <message>
-        <source>Diff A&amp;ctivity...</source>
-        <translation>アクティビティの差分表示(&amp;C)...</translation>
-    </message>
-    <message>
-        <source>Ch&amp;eck In Activity</source>
-        <translation>アクティビティをチェックイン(&amp;E)</translation>
-    </message>
-    <message>
-        <source>Chec&amp;k In Activity &quot;%1&quot;...</source>
-        <translation>アクティビティ &quot;%1&quot; をチェックイン(&amp;K)...</translation>
-    </message>
-    <message>
-        <source>Update Index</source>
-        <translation>インデックス更新</translation>
-    </message>
-    <message>
-        <source>Update View</source>
-        <translation>ビュー更新</translation>
-    </message>
-    <message>
-        <source>U&amp;pdate View &quot;%1&quot;</source>
-        <translation>ビュー &quot;%1&quot; 更新(&amp;P)</translation>
-    </message>
-    <message>
-        <source>Check In All &amp;Files...</source>
-        <translation>すべてのファイルをチェックイン(&amp;F)...</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+F</source>
-        <translation>Meta+L,Meta+F</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+F</source>
-        <translation>Alt+L,Alt+F</translation>
-    </message>
-    <message>
-        <source>View &amp;Status</source>
-        <translation>ステータス更新(&amp;S)</translation>
-    </message>
-    <message>
-        <source>Meta+L,Meta+S</source>
-        <translation>Meta+L,Meta+S</translation>
-    </message>
-    <message>
-        <source>Alt+L,Alt+S</source>
-        <translation>Alt+L,Alt+S</translation>
-    </message>
-    <message>
-        <source>Check In</source>
-        <translation>チェックイン</translation>
-    </message>
-    <message>
-        <source>Do you want to undo the check out of &quot;%1&quot;?</source>
-        <translation>&quot;%1&quot; のチェックアウトを元に戻しますか？</translation>
-    </message>
-    <message>
-        <source>Undo Hijack File</source>
-        <translation>ハイジャックファイルを元に戻す</translation>
-    </message>
-    <message>
-        <source>Do you want to undo hijack of &quot;%1&quot;?</source>
-        <translation>&quot;%1&quot; のハイジャックを元に戻しますか？</translation>
-    </message>
-    <message>
-        <source>External diff is required to compare multiple files.</source>
-        <translation>外部 diff ツールは、複数のファイルを比較できる必要があります。</translation>
-    </message>
-    <message>
-        <source>Enter Activity</source>
-        <translation>アクティビティに入る</translation>
-    </message>
-    <message>
-        <source>Activity Name</source>
-        <translation>アクティビティ名</translation>
-    </message>
-    <message>
-        <source>Check In Activity</source>
-        <translation>アクティビティをチェックイン</translation>
-    </message>
-    <message>
-        <source>Another check in is currently being executed.</source>
-        <translation>別のチェックインが実行中です。</translation>
-    </message>
-    <message>
-        <source>There are no modified files.</source>
-        <translation>変更されたファイルはありません。</translation>
-    </message>
-    <message>
-        <source>No ClearCase executable specified.</source>
-        <translation>実行可能な ClearCase が指定されていません。</translation>
-    </message>
-    <message>
-        <source>ClearCase Checkout</source>
-        <translation>ClearCase チェックアウト</translation>
-    </message>
-    <message>
-        <source>File is already checked out.</source>
-        <translation>ファイルは、既にチェックアウトされています。</translation>
-    </message>
-    <message>
-        <source>Set current activity failed: %1</source>
-        <translation>アクティビティ設定失敗: %1</translation>
-    </message>
-    <message>
-        <source>Enter &amp;comment:</source>
-        <translation>コメントを入力(&amp;C):</translation>
-    </message>
-    <message>
-        <source>ClearCase Add File %1</source>
-        <translation>ClearCase ファイル %1 を追加</translation>
-    </message>
-    <message>
-        <source>ClearCase Remove Element %1</source>
-        <translation>ClearCase 要素 %1 を削除</translation>
-    </message>
-    <message>
-        <source>This operation is irreversible. Are you sure?</source>
-        <translation>この操作は元に戻せませんが、よろしいですか？</translation>
-    </message>
-    <message>
-        <source>ClearCase Remove File %1</source>
-        <translation>ClearCase ファイル %1 を削除</translation>
-    </message>
-    <message>
-        <source>ClearCase Rename File %1 -&gt; %2</source>
-        <translation>ClearCase ファイル名変更 %1 -&gt; %2</translation>
-    </message>
-    <message>
-        <source>Activity Headline</source>
-        <translation>アクティビティ ヘッドライン</translation>
-    </message>
-    <message>
-        <source>Enter activity headline</source>
-        <translation>アクティビティ ヘッドラインに入る</translation>
-    </message>
-    <message>
-        <source>Updating ClearCase Index</source>
-        <translation>ClearCase インデックスの更新中</translation>
-    </message>
-    <message>
-        <source>Check &amp;Out</source>
-        <translation>チェックアウト(&amp;O)</translation>
-    </message>
-    <message>
-        <source>&amp;Hijack</source>
-        <translation>ハイジャック(&amp;H)</translation>
     </message>
 </context>
 <context>

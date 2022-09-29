@@ -4,10 +4,9 @@
 #include "checkoutdialog.h"
 
 #include "activityselector.h"
+#include "clearcasetr.h"
 
 #include <utils/layoutbuilder.h>
-
-#include <QPushButton>
 
 #include <QAbstractButton>
 #include <QApplication>
@@ -17,6 +16,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPlainTextEdit>
+#include <QPushButton>
 #include <QVBoxLayout>
 
 namespace ClearCase::Internal {
@@ -26,7 +26,7 @@ CheckOutDialog::CheckOutDialog(const QString &fileName, bool isUcm, bool showCom
     QDialog(parent)
 {
     resize(352, 317);
-    setWindowTitle(tr("Check Out"));
+    setWindowTitle(Tr::tr("Check Out"));
 
     auto lblFileName = new QLabel(fileName);
     lblFileName->setTextInteractionFlags(Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse);
@@ -34,17 +34,17 @@ CheckOutDialog::CheckOutDialog(const QString &fileName, bool isUcm, bool showCom
     m_txtComment = new QPlainTextEdit(this);
     m_txtComment->setTabChangesFocus(true);
 
-    m_lblComment = new QLabel(tr("&Checkout comment:"));
+    m_lblComment = new QLabel(Tr::tr("&Checkout comment:"));
     m_lblComment->setBuddy(m_txtComment);
 
-    m_chkReserved = new QCheckBox(tr("&Reserved"));
+    m_chkReserved = new QCheckBox(Tr::tr("&Reserved"));
     m_chkReserved->setChecked(true);
 
-    m_chkUnreserved = new QCheckBox(tr("&Unreserved if already reserved"));
+    m_chkUnreserved = new QCheckBox(Tr::tr("&Unreserved if already reserved"));
 
-    m_chkPTime = new QCheckBox(tr("&Preserve file modification time"));
+    m_chkPTime = new QCheckBox(Tr::tr("&Preserve file modification time"));
 
-    m_hijackedCheckBox = new QCheckBox(tr("Use &Hijacked file"));
+    m_hijackedCheckBox = new QCheckBox(Tr::tr("Use &Hijacked file"));
     m_hijackedCheckBox->setChecked(true);
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);

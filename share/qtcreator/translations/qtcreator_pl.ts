@@ -22877,7 +22877,7 @@ poinstruuje Qt Creatora o URI.</translation>
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::CheckOutDialog</name>
+    <name>ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation>Kopia robocza</translation>
@@ -22903,9 +22903,6 @@ poinstruuje Qt Creatora o URI.</translation>
         <source>&amp;Checkout comment:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguracja</translation>
@@ -22987,9 +22984,6 @@ poinstruuje Qt Creatora o URI.</translation>
         <source>Do &amp;not prompt for comment during checkout or check-in</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::UndoCheckOut</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -23002,9 +22996,6 @@ poinstruuje Qt Creatora o URI.</translation>
         <source>&amp;Save copy of the file with a &apos;.keep&apos; extension</source>
         <translation>&amp;Zachowaj kopię pliku z rozszerzeniem &quot;.keep&quot;</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::VersionSelector</name>
     <message>
         <source>Confirm Version to Check Out</source>
         <translation>Potwierdź wersję dla kopii roboczej</translation>
@@ -23043,7 +23034,7 @@ poinstruuje Qt Creatora o URI.</translation>
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ActivitySelector</name>
+    <name>ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>Wybierz &amp;aktywność:</translation>
@@ -23056,9 +23047,6 @@ poinstruuje Qt Creatora o URI.</translation>
         <source>Keep item activity</source>
         <translation>Zachowaj aktywność elementu</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCasePlugin</name>
     <message>
         <source>C&amp;learCase</source>
         <translation>C&amp;learCase</translation>
@@ -23351,31 +23339,18 @@ poinstruuje Qt Creatora o URI.</translation>
         <source>Enter activity headline</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditor</name>
     <message>
         <source>ClearCase Check In</source>
         <translation>Wrzuć do ClearCase</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditorWidget</name>
     <message>
         <source>Chec&amp;k in even if identical to previous version</source>
         <translation>W&amp;rzuć, nawet jeśli wersja jest identyczna z wersją poprzednią</translation>
     </message>
     <message>
-        <source>&amp;Preserve file modification time</source>
-        <translation>Zachowaj czas modyfikacji &amp;pliku</translation>
-    </message>
-    <message>
         <source>&amp;Check In</source>
         <translation>&amp;Wrzuć</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPageWidget</name>
     <message>
         <source>ClearCase Command</source>
         <translation>Komenda ClearCase</translation>
@@ -23497,7 +23472,7 @@ You can choose another communication channel here, such as a serial line or cust
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ClearCaseControl</name>
+    <name>ClearCase</name>
     <message>
         <source>Check &amp;Out</source>
         <translation type="unfinished"></translation>
@@ -30498,7 +30473,7 @@ Zainstaluj SDK o wersji %1 lub wyższej.</translation>
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ClearCaseEditorWidget</name>
+    <name>ClearCase</name>
     <message>
         <source>Annotate version &quot;%1&quot;</source>
         <translation>Dołącz adnotację do wersji &quot;%1&quot;</translation>

@@ -46846,7 +46846,7 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::CheckOutDialog</name>
+    <name>ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation>Importer</translation>
@@ -46873,9 +46873,6 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <translatorcomment>ça sent le dikkenek un peu tout ça: http://www.lembrouille.com/dikkenek/dikkenek-je-viens-de-me-faire-carjacker</translatorcomment>
         <translation>Utiliser fichier &amp;Hijacké</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Configuration</translation>
@@ -46952,9 +46949,6 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <source>ClearCase</source>
         <translation>ClearCase</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::UndoCheckOut</name>
     <message>
         <source>Dialog</source>
         <translation>Boîte de dialogue</translation>
@@ -46967,9 +46961,6 @@ Le fichier APL ne sera pas utilisable sur d&apos;autres périphériques.</transl
         <source>&amp;Save copy of the file with a &apos;.keep&apos; extension</source>
         <translation>&amp;Sauvergarder une copie du fichier avec une extension &quot;.keep&quot;</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::VersionSelector</name>
     <message>
         <source>Confirm Version to Check Out</source>
         <translation>Confirmer la version à importer</translation>
@@ -48300,7 +48291,7 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ActivitySelector</name>
+    <name>ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>Sélectionner une &amp;activité :</translation>
@@ -48313,9 +48304,6 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
         <source>Keep item activity</source>
         <translation>Garder l&apos;élément de l&apos;activité</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseControl</name>
     <message>
         <source>&amp;Check Out</source>
         <translation type="obsolete">&amp;Importer</translation>
@@ -48328,16 +48316,10 @@ Veuillez choisir un nom de paquet valide pour votre application (par exemple &qu
         <source>&amp;Hijack</source>
         <translation>&amp;Hijack</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseEditor</name>
     <message>
         <source>Annotate version &quot;%1&quot;</source>
         <translation>Annoter la version &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCasePlugin</name>
     <message>
         <source>C&amp;learCase</source>
         <translation>C&amp;learCase</translation>
@@ -48628,31 +48610,18 @@ Oui :)</translatorcomment>
         <source>CC Indexing</source>
         <translation>CC Indexing</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditor</name>
     <message>
         <source>ClearCase Check In</source>
         <translation>Import ClearCase</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditorWidget</name>
     <message>
         <source>Chec&amp;k in even if identical to previous version</source>
         <translation>Importer même si identique à la version précédente (&amp;K)</translation>
     </message>
     <message>
-        <source>&amp;Preserve file modification time</source>
-        <translation>&amp;Préserver la date de modification du fichier</translation>
-    </message>
-    <message>
         <source>&amp;Check In</source>
         <translation>Importer (&amp;C)</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPageWidget</name>
     <message>
         <source>ClearCase Command</source>
         <translation>Commande ClearCase</translation>

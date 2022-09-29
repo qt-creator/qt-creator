@@ -29604,7 +29604,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::CheckOutDialog</name>
+    <name>ClearCase</name>
     <message>
         <source>Check Out</source>
         <translation type="unfinished"></translation>
@@ -29630,9 +29630,6 @@ This option is useful when you want to try your application on devices which don
         <extracomment>Hijack: Unset read-only flag without check-out. This is used for local changes which the user does not want to commit.</extracomment>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation type="unfinished">設置</translation>
@@ -29706,9 +29703,6 @@ This option is useful when you want to try your application on devices which don
         <source>ClearCase</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::UndoCheckOut</name>
     <message>
         <source>Dialog</source>
         <translation type="unfinished">對話框</translation>
@@ -29721,9 +29715,6 @@ This option is useful when you want to try your application on devices which don
         <source>&amp;Save copy of the file with a &apos;.keep&apos; extension</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::VersionSelector</name>
     <message>
         <source>Confirm Version to Check Out</source>
         <translation type="unfinished"></translation>
@@ -30910,7 +30901,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ActivitySelector</name>
+    <name>ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation type="unfinished"></translation>
@@ -30923,9 +30914,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Keep item activity</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseControl</name>
     <message>
         <source>&amp;Check Out</source>
         <translation type="unfinished"></translation>
@@ -30934,16 +30922,10 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>&amp;Hijack</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseEditor</name>
     <message>
         <source>Annotate version &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCasePlugin</name>
     <message>
         <source>C&amp;learCase</source>
         <translation type="unfinished"></translation>
@@ -31232,31 +31214,18 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>CC Indexing</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditor</name>
     <message>
         <source>ClearCase Check In</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditorWidget</name>
     <message>
         <source>Chec&amp;k in even if identical to previous version</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Preserve file modification time</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Check In</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPageWidget</name>
     <message>
         <source>ClearCase Command</source>
         <translation type="unfinished"></translation>

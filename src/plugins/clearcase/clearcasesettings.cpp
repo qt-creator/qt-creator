@@ -7,23 +7,25 @@
 
 #include <QSettings>
 
-static const char groupC[] = "ClearCase";
-static const char commandKeyC[] = "Command";
+namespace ClearCase::Internal {
 
-static const char historyCountKeyC[] = "HistoryCount";
-static const char timeOutKeyC[] = "TimeOut";
-static const char autoCheckOutKeyC[] = "AutoCheckOut";
-static const char noCommentKeyC[] = "NoComment";
-static const char keepFileUndoCheckoutKeyC[] = "KeepFileUnDoCheckout";
-static const char diffTypeKeyC[] = "DiffType";
-static const char diffArgsKeyC[] = "DiffArgs";
-static const char autoAssignActivityKeyC[] = "AutoAssignActivityName";
-static const char promptToCheckInKeyC[] = "PromptToCheckIn";
-static const char disableIndexerKeyC[] = "DisableIndexer";
-static const char totalFilesKeyC[] = "TotalFiles";
-static const char indexOnlyVOBsC[] = "IndexOnlyVOBs";
+const char groupC[] = "ClearCase";
+const char commandKeyC[] = "Command";
 
-static const char defaultDiffArgs[] = "-ubp";
+const char historyCountKeyC[] = "HistoryCount";
+const char timeOutKeyC[] = "TimeOut";
+const char autoCheckOutKeyC[] = "AutoCheckOut";
+const char noCommentKeyC[] = "NoComment";
+const char keepFileUndoCheckoutKeyC[] = "KeepFileUnDoCheckout";
+const char diffTypeKeyC[] = "DiffType";
+const char diffArgsKeyC[] = "DiffArgs";
+const char autoAssignActivityKeyC[] = "AutoAssignActivityName";
+const char promptToCheckInKeyC[] = "PromptToCheckIn";
+const char disableIndexerKeyC[] = "DisableIndexer";
+const char totalFilesKeyC[] = "TotalFiles";
+const char indexOnlyVOBsC[] = "IndexOnlyVOBs";
+
+const char defaultDiffArgs[] = "-ubp";
 
 enum { defaultTimeOutS = 30, defaultHistoryCount = 50 };
 
@@ -31,8 +33,6 @@ static QString defaultCommand()
 {
     return QLatin1String("cleartool" QTC_HOST_EXE_SUFFIX);
 }
-
-using namespace ClearCase::Internal;
 
 ClearCaseSettings::ClearCaseSettings() :
     ccCommand(defaultCommand()),
@@ -118,3 +118,5 @@ bool ClearCaseSettings::equals(const ClearCaseSettings &s) const
         && indexOnlyVOBs          == s.indexOnlyVOBs
         && totalFiles             == s.totalFiles;
 }
+
+} // ClearCase::Internal

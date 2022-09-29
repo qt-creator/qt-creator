@@ -9,8 +9,7 @@ QT_BEGIN_NAMESPACE
 class QComboBox;
 QT_END_NAMESPACE
 
-namespace ClearCase {
-namespace Internal {
+namespace ClearCase::Internal {
 
 class ActivitySelector : public QWidget
 {
@@ -33,5 +32,4 @@ private:
     QComboBox *m_cmbActivity = nullptr;
 };
 
-} // namespace Internal
-} // namespace ClearCase
+} // ClearCase::Internal

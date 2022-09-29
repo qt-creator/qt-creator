@@ -8072,7 +8072,7 @@ Set a valid executable first.</source>
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ActivitySelector</name>
+    <name>ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>Выбрать &amp;активность:</translation>
@@ -8085,9 +8085,6 @@ Set a valid executable first.</source>
         <source>Keep item activity</source>
         <translation>Сохранить активность элемента</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::CheckOutDialog</name>
     <message>
         <source>Check Out</source>
         <translation>Создание изменяемой копии</translation>
@@ -8113,16 +8110,10 @@ Set a valid executable first.</source>
         <source>&amp;Checkout comment:</source>
         <translation>&amp;Комментарий:</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseEditorWidget</name>
     <message>
         <source>Annotate version &quot;%1&quot;</source>
         <translation>Аннотация версии «%1»</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCasePluginPrivate</name>
     <message>
         <source>Editing Derived Object: %1</source>
         <translation>Изменение производного объекта: %1</translation>
@@ -8399,31 +8390,18 @@ Set a valid executable first.</source>
         <source>&amp;Hijack</source>
         <translation>&amp;Исправить</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditor</name>
     <message>
         <source>ClearCase Check In</source>
         <translation>Фиксация ClearCase</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditorWidget</name>
     <message>
         <source>Chec&amp;k in even if identical to previous version</source>
         <translation>Фиксироват&amp;ь, даже если совпадает с предыдущей версией</translation>
     </message>
     <message>
-        <source>&amp;Preserve file modification time</source>
-        <translation>&amp;Сохранять время изменения файлов</translation>
-    </message>
-    <message>
         <source>&amp;Check In</source>
         <translation>&amp;Фиксировать</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Конфигурация</translation>
@@ -8503,9 +8481,6 @@ Set a valid executable first.</source>
         <source>Do &amp;not prompt for comment during checkout or check-in</source>
         <translation>&amp;Не спрашивать комментарии при получении и фиксации</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPageWidget</name>
     <message>
         <source>ClearCase Command</source>
         <translation>Команда ClearCase</translation>
@@ -8522,9 +8497,6 @@ Set a valid executable first.</source>
         <source>ClearCase</source>
         <translation>ClearCase</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::UndoCheckOut</name>
     <message>
         <source>Dialog</source>
         <translation></translation>
@@ -8537,9 +8509,6 @@ Set a valid executable first.</source>
         <source>&amp;Save copy of the file with a &apos;.keep&apos; extension</source>
         <translation>&amp;Сохранить копию файла с расширением «.keep»</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::VersionSelector</name>
     <message>
         <source>Confirm Version to Check Out</source>
         <translation>Подтвердите версию для извлечения</translation>

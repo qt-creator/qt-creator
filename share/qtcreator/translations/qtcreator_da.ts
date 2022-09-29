@@ -5343,7 +5343,7 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
     </message>
 </context>
 <context>
-    <name>ClearCase::Internal::ActivitySelector</name>
+    <name>ClearCase</name>
     <message>
         <source>Select &amp;activity:</source>
         <translation>Vælg &amp;aktivitet:</translation>
@@ -5356,9 +5356,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>Keep item activity</source>
         <translation>Hold post aktivitet</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::CheckOutDialog</name>
     <message>
         <source>Check Out</source>
         <translation>Check out</translation>
@@ -5384,9 +5381,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <extracomment>Hijack: Unset read-only flag without check-out. This is used for local changes which the user does not want to commit.</extracomment>
         <translation>Brug &amp;hijacked fil</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseControl</name>
     <message>
         <source>Check &amp;Out</source>
         <translation>Check &amp;out</translation>
@@ -5395,16 +5389,10 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>&amp;Hijack</source>
         <translation>&amp;Hijack</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseEditorWidget</name>
     <message>
         <source>Annotate version &quot;%1&quot;</source>
         <translation>Annotate version &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCasePlugin</name>
     <message>
         <source>Editing Derived Object: %1</source>
         <translation>Redigerer afledt objekt: %1</translation>
@@ -5702,31 +5690,18 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>Updating ClearCase Index</source>
         <translation>Opdaterer ClearCase-indeks</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditor</name>
     <message>
         <source>ClearCase Check In</source>
         <translation>ClearCase check in</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::ClearCaseSubmitEditorWidget</name>
     <message>
         <source>Chec&amp;k in even if identical to previous version</source>
         <translation>Chec&amp;k in selv hvis identisk med forrige version</translation>
     </message>
     <message>
-        <source>&amp;Preserve file modification time</source>
-        <translation>&amp;Bevar filændringstid</translation>
-    </message>
-    <message>
         <source>&amp;Check In</source>
         <translation>&amp;Check in</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPage</name>
     <message>
         <source>Configuration</source>
         <translation>Konfiguration</translation>
@@ -5808,9 +5783,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>ClearCase</source>
         <translation>ClearCase</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::SettingsPageWidget</name>
     <message>
         <source>ClearCase Command</source>
         <translation>ClearCase-kommando</translation>
@@ -5823,9 +5795,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>DiffUtils is available for free download at http://gnuwin32.sourceforge.net/packages/diffutils.htm. Extract it to a directory in your PATH.</source>
         <translation>DiffUtils kan frit downloades på http://gnuwin32.sourceforge.net/packages/diffutils.htm. Udpak den til en mappe i din PATH.</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::UndoCheckOut</name>
     <message>
         <source>Dialog</source>
         <translation>Dialog</translation>
@@ -5838,9 +5807,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>&amp;Save copy of the file with a &apos;.keep&apos; extension</source>
         <translation>&amp;Gem kopi af filen med en &apos;.keep&apos;-endelse</translation>
     </message>
-</context>
-<context>
-    <name>ClearCase::Internal::VersionSelector</name>
     <message>
         <source>Confirm Version to Check Out</source>
         <translation>Bekræft version som skal check out</translation>
