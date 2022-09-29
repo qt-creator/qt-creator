@@ -1156,6 +1156,7 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
     const ToolChain *const tcC = ToolChainKitAspect::cToolChain(k);
     const ToolChain *const tcCxx = ToolChainKitAspect::cxxToolChain(k);
     const CMakeConfig config = configuration(k);
+    const CMakeTool *const cmake = CMakeKitAspect::cmakeTool(k);
 
     const bool isQt4 = version && version->qtVersion() < QVersionNumber(5, 0, 0);
     FilePath qmakePath; // This is relative to the cmake used for building.
@@ -1167,11 +1168,11 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
         const FilePath expandedValue
             = FilePath::fromString(k->macroExpander()->expand(QString::fromUtf8(i.value)));
         if (i.key == CMAKE_QMAKE_KEY)
-            qmakePath = expandedValue;
+            qmakePath = expandedValue.onDevice(cmake->cmakeExecutable());
         else if (i.key == CMAKE_C_TOOLCHAIN_KEY)
-            tcCPath = expandedValue;
+            tcCPath = expandedValue.onDevice(cmake->cmakeExecutable());
         else if (i.key == CMAKE_CXX_TOOLCHAIN_KEY)
-            tcCxxPath = expandedValue;
+            tcCxxPath = expandedValue.onDevice(cmake->cmakeExecutable());
         else if (i.key == CMAKE_PREFIX_PATH_KEY)
             qtInstallDirs = CMakeConfigItem::cmakeSplitValue(expandedValue.path());
     }
