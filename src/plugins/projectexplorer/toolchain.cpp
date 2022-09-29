@@ -70,6 +70,7 @@ public:
 
     ToolChain::MacrosCache m_predefinedMacrosCache;
     ToolChain::HeaderPathsCache m_headerPathsCache;
+    std::optional<bool> m_isValid;
 };
 
 
@@ -185,9 +186,10 @@ Abis ToolChain::supportedAbis() const
 
 bool ToolChain::isValid() const
 {
-    if (compilerCommand().isEmpty())
-        return false;
-    return compilerCommand().isExecutableFile();
+    if (!d->m_isValid.has_value())
+        d->m_isValid = !compilerCommand().isEmpty() && compilerCommand().isExecutableFile();
+
+    return d->m_isValid.value_or(false);
 }
 
 QStringList ToolChain::includedFiles(const QStringList &flags, const QString &directory) const
@@ -315,6 +317,8 @@ FilePath ToolChain::compilerCommand() const
 
 void ToolChain::setCompilerCommand(const FilePath &command)
 {
+    d->m_isValid.reset();
+
     if (command == d->m_compilerCommand)
         return;
     d->m_compilerCommand = command;
@@ -379,6 +383,7 @@ bool ToolChain::fromMap(const QVariantMap &data)
         d->m_targetAbi = Abi::fromString(data.value(d->m_targetAbiKey).toString());
 
     d->m_compilerCommand = FilePath::fromVariant(data.value(d->m_compilerCommandKey));
+    d->m_isValid.reset();
 
     return true;
 }
