@@ -15,9 +15,9 @@
 
     \section1 Credits
 
-    We would like to thank our contributors, who are listed in the \QC
-    \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/dist}{change logs}
-    for each release.
+    We would like to thank our contributors, who are listed in the \QC change
+    logs for each release. To view the change logs, select \uicontrol Help >
+    \uicontrol {Change Log}.
 
     \section1 Qbs
 
