@@ -96,8 +96,8 @@ public:
     int version = 0;
     QVersionNumber cmakeMinimimRequired;
     QHash<QString, QString> vendor;
-    std::vector<PresetsDetails::ConfigurePreset> configurePresets;
-    std::vector<PresetsDetails::BuildPreset> buildPresets;
+    QList<PresetsDetails::ConfigurePreset> configurePresets;
+    QList<PresetsDetails::BuildPreset> buildPresets;
 };
 
 class PresetsParser

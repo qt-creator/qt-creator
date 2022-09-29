@@ -35,7 +35,7 @@ bool parseCMakeMinimumRequired(const QJsonValue &jsonValue, QVersionNumber &vers
 }
 
 bool parseConfigurePresets(const QJsonValue &jsonValue,
-                           std::vector<PresetsDetails::ConfigurePreset> &configurePresets)
+                           QList<PresetsDetails::ConfigurePreset> &configurePresets)
 {
     // The whole section is optional
     if (jsonValue.isUndefined())
@@ -185,7 +185,7 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
 }
 
 bool parseBuildPresets(const QJsonValue &jsonValue,
-                       std::vector<PresetsDetails::BuildPreset> &buildPresets)
+                       QList<PresetsDetails::BuildPreset> &buildPresets)
 {
     // The whole section is optional
     if (jsonValue.isUndefined())
