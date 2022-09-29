@@ -1590,12 +1590,8 @@ void VcsBaseEditorWidget::slotApplyDiffChunk(const DiffChunk &chunk, PatchAction
     if (!PatchTool::confirmPatching(this, patchAction))
         return;
 
-    if (applyDiffChunk(chunk, patchAction)) {
-        if (patchAction == PatchAction::Revert) // TODO: make just one signal
-            emit diffChunkReverted(chunk);
-        else
-            emit diffChunkApplied(chunk);
-    }
+    if (applyDiffChunk(chunk, patchAction) && patchAction == PatchAction::Revert)
+        emit diffChunkReverted();
 }
 
 // Tagging of editors for re-use.

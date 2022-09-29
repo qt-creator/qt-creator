@@ -199,8 +199,7 @@ signals:
     void describeRequested(const Utils::FilePath &source, const QString &change);
     void annotateRevisionRequested(const Utils::FilePath &workingDirectory, const QString &file,
                                    const QString &change, int lineNumber);
-    void diffChunkApplied(const VcsBase::DiffChunk &dc);
-    void diffChunkReverted(const VcsBase::DiffChunk &dc);
+    void diffChunkReverted();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *e) override;

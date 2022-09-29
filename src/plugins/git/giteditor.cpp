@@ -234,9 +234,7 @@ void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, PatchAction patchAc
         else
             VcsOutputWindow::append(errorMessage);
         if (patchAction == PatchAction::Revert)
-            emit diffChunkReverted(chunk);
-        else
-            emit diffChunkApplied(chunk);
+            emit diffChunkReverted();
     } else {
         VcsOutputWindow::appendError(errorMessage);
     }
