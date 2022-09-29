@@ -34,13 +34,13 @@ DiffEditorFactory::DiffEditorFactory() :
         Constants::DIFF_EDITOR_ID,
         Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(1),
         TextEditorActionHandler::None,
-        [](IEditor *e) { return static_cast<DiffEditor *>(e)->leftEditorWidget(); }
+        [](IEditor *e) { return static_cast<DiffEditor *>(e)->sideEditorWidget(LeftSide); }
     },
     rightHandler {
         Constants::DIFF_EDITOR_ID,
         Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(2),
         TextEditorActionHandler::None,
-        [](Core::IEditor *e) { return static_cast<DiffEditor *>(e)->rightEditorWidget(); }
+        [](Core::IEditor *e) { return static_cast<DiffEditor *>(e)->sideEditorWidget(RightSide); }
     }
 {
     setId(Constants::DIFF_EDITOR_ID);

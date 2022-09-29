@@ -212,16 +212,14 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     delete menu;
 }
 
-void UnifiedDiffEditorWidget::addContextMenuActions(QMenu *menu,
-                                                    int fileIndex,
-                                                    int chunkIndex,
+void UnifiedDiffEditorWidget::addContextMenuActions(QMenu *menu, int fileIndex, int chunkIndex,
                                                     const ChunkSelection &selection)
 {
     menu->addSeparator();
 
     m_controller.addCodePasterAction(menu, fileIndex, chunkIndex);
-    m_controller.addApplyAction(menu, fileIndex, chunkIndex);
-    m_controller.addRevertAction(menu, fileIndex, chunkIndex);
+    m_controller.addApplyRevertAction(menu, fileIndex, chunkIndex, LeftSide);
+    m_controller.addApplyRevertAction(menu, fileIndex, chunkIndex, RightSide);
     m_controller.addExtraActions(menu, fileIndex, chunkIndex, selection);
 }
 

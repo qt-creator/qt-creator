@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "diffenums.h"
 #include "diffeditorwidgetcontroller.h"
 #include "selectabletexteditorwidget.h" // TODO: we need DiffSelections here only
 
@@ -94,8 +95,7 @@ public:
     explicit SideBySideDiffEditorWidget(QWidget *parent = nullptr);
     ~SideBySideDiffEditorWidget();
 
-    TextEditor::TextEditorWidget *leftEditorWidget() const;
-    TextEditor::TextEditorWidget *rightEditorWidget() const;
+    TextEditor::TextEditorWidget *sideEditorWidget(DiffSide side) const;
 
     void setDocument(DiffEditorDocument *document);
     DiffEditorDocument *diffDocument() const;
@@ -115,28 +115,20 @@ signals:
 
 private:
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
-    void slotLeftJumpToOriginalFileRequested(int diffFileIndex,
-                                             int lineNumber, int columnNumber);
-    void slotRightJumpToOriginalFileRequested(int diffFileIndex,
-                                              int lineNumber, int columnNumber);
-    void slotLeftContextMenuRequested(QMenu *menu, int fileIndex,
-                                      int chunkIndex, const ChunkSelection &selection);
-    void slotRightContextMenuRequested(QMenu *menu, int fileIndex,
-                                       int chunkIndex, const ChunkSelection &selection);
-    void leftVSliderChanged();
-    void rightVSliderChanged();
-    void leftHSliderChanged();
-    void rightHSliderChanged();
-    void leftCursorPositionChanged();
-    void rightCursorPositionChanged();
+    void jumpToOriginalFileRequested(DiffSide side, int diffFileIndex,
+                                     int lineNumber, int columnNumber);
+    void contextMenuRequested(DiffSide side, QMenu *menu, int fileIndex, int chunkIndex,
+                              const ChunkSelection &selection);
+    void verticalSliderChanged(DiffSide side);
+    void horizontalSliderChanged(DiffSide side);
+    void cursorPositionChanged(DiffSide side);
     void syncHorizontalScrollBarPolicy();
     void handlePositionChange(SideDiffEditorWidget *source, SideDiffEditorWidget *dest);
     void syncCursor(SideDiffEditorWidget *source, SideDiffEditorWidget *dest);
 
     void showDiff();
 
-    SideDiffEditorWidget *m_leftEditor = nullptr;
-    SideDiffEditorWidget *m_rightEditor = nullptr;
+    std::array<SideDiffEditorWidget *, SideCount> m_editor{};
     QSplitter *m_splitter = nullptr;
 
     DiffEditorWidgetController m_controller;

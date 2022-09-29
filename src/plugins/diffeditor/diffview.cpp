@@ -166,16 +166,10 @@ QWidget *SideBySideView::widget()
     return m_widget;
 }
 
-TextEditor::TextEditorWidget *SideBySideView::leftEditorWidget()
+TextEditor::TextEditorWidget *SideBySideView::sideEditorWidget(DiffSide side)
 {
     widget(); // ensure widget creation
-    return m_widget->leftEditorWidget();
-}
-
-TextEditor::TextEditorWidget *SideBySideView::rightEditorWidget()
-{
-    widget(); // ensure widget creation
-    return m_widget->rightEditorWidget();
+    return m_widget->sideEditorWidget(side);
 }
 
 void SideBySideView::setDocument(DiffEditorDocument *document)

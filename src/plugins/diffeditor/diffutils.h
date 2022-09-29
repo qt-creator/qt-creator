@@ -4,6 +4,7 @@
 #pragma once
 
 #include "diffeditor_global.h"
+#include "diffenums.h"
 
 #include <utils/algorithm.h>
 
@@ -17,12 +18,6 @@ QT_END_NAMESPACE
 namespace Utils { class Diff; }
 
 namespace DiffEditor {
-
-enum DiffSide {
-    LeftSide,
-    RightSide,
-    SideCount // Use only in array declarations
-};
 
 class DIFFEDITOR_EXPORT DiffFileInfo {
 public:

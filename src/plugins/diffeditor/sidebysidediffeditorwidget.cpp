@@ -32,8 +32,15 @@ using namespace Core;
 using namespace TextEditor;
 using namespace Utils;
 
+using namespace std::placeholders;
+
 namespace DiffEditor {
 namespace Internal {
+
+static DiffSide oppositeSide(DiffSide side)
+{
+    return side == LeftSide ? RightSide : LeftSide;
+}
 
 class SideDiffEditorWidget : public SelectableTextEditorWidget
 {
@@ -760,61 +767,76 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
     : QWidget(parent)
     , m_controller(this)
 {
-    m_leftEditor = new SideDiffEditorWidget(this);
-    m_leftEditor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    m_leftEditor->setReadOnly(true);
-    m_leftEditor->setCodeStyle(TextEditorSettings::codeStyle());
-    connect(m_leftEditor, &SideDiffEditorWidget::jumpToOriginalFileRequested,
-            this, &SideBySideDiffEditorWidget::slotLeftJumpToOriginalFileRequested);
-    connect(m_leftEditor, &SideDiffEditorWidget::contextMenuRequested,
-            this, &SideBySideDiffEditorWidget::slotLeftContextMenuRequested,
-            Qt::DirectConnection);
+    auto setupEditor = [this](DiffSide side) {
+        m_editor[side] = new SideDiffEditorWidget(this);
+        m_editor[side]->setReadOnly(true);
+        m_editor[side]->setCodeStyle(TextEditorSettings::codeStyle());
 
-    m_rightEditor = new SideDiffEditorWidget(this);
-    m_rightEditor->setReadOnly(true);
-    m_rightEditor->setCodeStyle(TextEditorSettings::codeStyle());
-    connect(m_rightEditor, &SideDiffEditorWidget::jumpToOriginalFileRequested,
-            this, &SideBySideDiffEditorWidget::slotRightJumpToOriginalFileRequested);
-    connect(m_rightEditor, &SideDiffEditorWidget::contextMenuRequested,
-            this, &SideBySideDiffEditorWidget::slotRightContextMenuRequested,
-            Qt::DirectConnection);
+        connect(m_editor[side], &SideDiffEditorWidget::jumpToOriginalFileRequested,
+                this, std::bind(&SideBySideDiffEditorWidget::jumpToOriginalFileRequested, this,
+                                side, _1, _2, _3));
+        connect(m_editor[side], &SideDiffEditorWidget::contextMenuRequested,
+                this, std::bind(&SideBySideDiffEditorWidget::contextMenuRequested, this,
+                                side, _1, _2, _3, _4));
 
-    auto setupHighlightController = [this] {
-        HighlightScrollBarController *highlightController = m_leftEditor->highlightScrollBarController();
-        if (highlightController)
-            highlightController->setScrollArea(m_rightEditor);
+        connect(m_editor[side]->verticalScrollBar(), &QAbstractSlider::valueChanged,
+                this, std::bind(&SideBySideDiffEditorWidget::verticalSliderChanged, this, side));
+        connect(m_editor[side]->verticalScrollBar(), &QAbstractSlider::actionTriggered,
+                this, std::bind(&SideBySideDiffEditorWidget::verticalSliderChanged, this, side));
+
+        connect(m_editor[side]->horizontalScrollBar(), &QAbstractSlider::valueChanged,
+                this, std::bind(&SideBySideDiffEditorWidget::horizontalSliderChanged, this, side));
+        connect(m_editor[side]->horizontalScrollBar(), &QAbstractSlider::actionTriggered,
+                this, std::bind(&SideBySideDiffEditorWidget::horizontalSliderChanged, this, side));
+
+        connect(m_editor[side], &QPlainTextEdit::cursorPositionChanged,
+                this, std::bind(&SideBySideDiffEditorWidget::cursorPositionChanged, this, side));
+
+        connect(m_editor[side]->horizontalScrollBar(), &QAbstractSlider::rangeChanged,
+                this, &SideBySideDiffEditorWidget::syncHorizontalScrollBarPolicy);
+
+        auto context = new IContext(this);
+        context->setWidget(m_editor[side]);
+        context->setContext(Context(Utils::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(1)));
+        ICore::addContextObject(context);
     };
+    setupEditor(LeftSide);
+    setupEditor(RightSide);
+    m_editor[LeftSide]->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    setupHighlightController();
-    connect(m_leftEditor, &SideDiffEditorWidget::gotDisplaySettings, this, setupHighlightController);
+    auto setupHighlight = [this] {
+        HighlightScrollBarController *ctrl = m_editor[LeftSide]->highlightScrollBarController();
+        if (ctrl)
+            ctrl->setScrollArea(m_editor[RightSide]);
+    };
+    setupHighlight();
+    connect(m_editor[LeftSide], &SideDiffEditorWidget::gotDisplaySettings, this, setupHighlight);
 
-    m_rightEditor->verticalScrollBar()->setFocusProxy(m_leftEditor);
-    connect(m_leftEditor, &SideDiffEditorWidget::gotFocus, this, [this] {
-        if (m_rightEditor->verticalScrollBar()->focusProxy() == m_leftEditor)
+    m_editor[RightSide]->verticalScrollBar()->setFocusProxy(m_editor[LeftSide]);
+    connect(m_editor[LeftSide], &SideDiffEditorWidget::gotFocus, this, [this] {
+        if (m_editor[RightSide]->verticalScrollBar()->focusProxy() == m_editor[LeftSide])
             return; // We already did it before.
 
-        // Hack #1. If the left editor got a focus last time
-        // we don't want to focus right editor when clicking the right
-        // scrollbar.
-        m_rightEditor->verticalScrollBar()->setFocusProxy(m_leftEditor);
+        // Hack #1. If the left editor got a focus last time we don't want to focus right editor
+        // when clicking the right scrollbar.
+        m_editor[RightSide]->verticalScrollBar()->setFocusProxy(m_editor[LeftSide]);
 
-        // Hack #2. If the focus is currently not on the scrollbar's proxy
-        // and we click on the scrollbar, the focus will go to the parent
-        // of the scrollbar. In order to give the focus to the proxy
-        // we need to set a click focus policy on the scrollbar.
+        // Hack #2. If the focus is currently not on the scrollbar's proxy and we click on
+        // the scrollbar, the focus will go to the parent of the scrollbar. In order to give
+        // the focus to the proxy we need to set a click focus policy on the scrollbar.
         // See QApplicationPrivate::giveFocusAccordingToFocusPolicy().
-        m_rightEditor->verticalScrollBar()->setFocusPolicy(Qt::ClickFocus);
+        m_editor[RightSide]->verticalScrollBar()->setFocusPolicy(Qt::ClickFocus);
 
-        // Hack #3. Setting the focus policy is not orthogonal to setting
-        // the focus proxy and unfortuantely it changes the policy of the proxy
-        // too. We bring back the original policy to keep tab focus working.
-        m_leftEditor->setFocusPolicy(Qt::StrongFocus);
+        // Hack #3. Setting the focus policy is not orthogonal to setting the focus proxy and
+        // unfortuantely it changes the policy of the proxy too. We bring back the original policy
+        // to keep tab focus working.
+        m_editor[LeftSide]->setFocusPolicy(Qt::StrongFocus);
     });
-    connect(m_rightEditor, &SideDiffEditorWidget::gotFocus, this, [this] {
+    connect(m_editor[RightSide], &SideDiffEditorWidget::gotFocus, this, [this] {
         // Unhack #1.
-        m_rightEditor->verticalScrollBar()->setFocusProxy(nullptr);
+        m_editor[RightSide]->verticalScrollBar()->setFocusProxy(nullptr);
         // Unhack #2.
-        m_rightEditor->verticalScrollBar()->setFocusPolicy(Qt::NoFocus);
+        m_editor[RightSide]->verticalScrollBar()->setFocusPolicy(Qt::NoFocus);
     });
 
     connect(TextEditorSettings::instance(),
@@ -822,61 +844,20 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
             this, &SideBySideDiffEditorWidget::setFontSettings);
     setFontSettings(TextEditorSettings::fontSettings());
 
-    connect(m_leftEditor->verticalScrollBar(), &QAbstractSlider::valueChanged,
-            this, &SideBySideDiffEditorWidget::leftVSliderChanged);
-    connect(m_leftEditor->verticalScrollBar(), &QAbstractSlider::actionTriggered,
-            this, &SideBySideDiffEditorWidget::leftVSliderChanged);
-
-    connect(m_leftEditor->horizontalScrollBar(), &QAbstractSlider::valueChanged,
-            this, &SideBySideDiffEditorWidget::leftHSliderChanged);
-    connect(m_leftEditor->horizontalScrollBar(), &QAbstractSlider::actionTriggered,
-            this, &SideBySideDiffEditorWidget::leftHSliderChanged);
-
-    connect(m_leftEditor, &QPlainTextEdit::cursorPositionChanged,
-            this, &SideBySideDiffEditorWidget::leftCursorPositionChanged);
-
-    connect(m_rightEditor->verticalScrollBar(), &QAbstractSlider::valueChanged,
-            this, &SideBySideDiffEditorWidget::rightVSliderChanged);
-    connect(m_rightEditor->verticalScrollBar(), &QAbstractSlider::actionTriggered,
-            this, &SideBySideDiffEditorWidget::rightVSliderChanged);
-
-    connect(m_rightEditor->horizontalScrollBar(), &QAbstractSlider::valueChanged,
-            this, &SideBySideDiffEditorWidget::rightHSliderChanged);
-    connect(m_rightEditor->horizontalScrollBar(), &QAbstractSlider::actionTriggered,
-            this, &SideBySideDiffEditorWidget::rightHSliderChanged);
-
-    connect(m_rightEditor, &QPlainTextEdit::cursorPositionChanged,
-            this, &SideBySideDiffEditorWidget::rightCursorPositionChanged);
-
-    connect(m_leftEditor, &SideDiffEditorWidget::foldChanged,
-            m_rightEditor, &SideDiffEditorWidget::setFolded);
-    connect(m_rightEditor, &SideDiffEditorWidget::foldChanged,
-            m_leftEditor, &SideDiffEditorWidget::setFolded);
-
-    connect(m_leftEditor->horizontalScrollBar(), &QAbstractSlider::rangeChanged,
-            this, &SideBySideDiffEditorWidget::syncHorizontalScrollBarPolicy);
-
-    connect(m_rightEditor->horizontalScrollBar(), &QAbstractSlider::rangeChanged,
-            this, &SideBySideDiffEditorWidget::syncHorizontalScrollBarPolicy);
+    connect(m_editor[LeftSide], &SideDiffEditorWidget::foldChanged,
+            m_editor[RightSide], &SideDiffEditorWidget::setFolded);
+    connect(m_editor[RightSide], &SideDiffEditorWidget::foldChanged,
+            m_editor[LeftSide], &SideDiffEditorWidget::setFolded);
 
     syncHorizontalScrollBarPolicy();
 
     m_splitter = new MiniSplitter(this);
-    m_splitter->addWidget(m_leftEditor);
-    m_splitter->addWidget(m_rightEditor);
+    m_splitter->addWidget(m_editor[LeftSide]);
+    m_splitter->addWidget(m_editor[RightSide]);
     QVBoxLayout *l = new QVBoxLayout(this);
     l->setContentsMargins(0, 0, 0, 0);
     l->addWidget(m_splitter);
-    setFocusProxy(m_leftEditor);
-
-    auto leftContext = new IContext(this);
-    leftContext->setWidget(m_leftEditor);
-    leftContext->setContext(Core::Context(Utils::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(1)));
-    Core::ICore::addContextObject(leftContext);
-    auto rightContext = new IContext(this);
-    rightContext->setWidget(m_rightEditor);
-    rightContext->setContext(Core::Context(Utils::Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(2)));
-    Core::ICore::addContextObject(rightContext);
+    setFocusProxy(m_editor[LeftSide]);
 }
 
 SideBySideDiffEditorWidget::~SideBySideDiffEditorWidget()
@@ -887,14 +868,9 @@ SideBySideDiffEditorWidget::~SideBySideDiffEditorWidget()
     }
 }
 
-TextEditorWidget *SideBySideDiffEditorWidget::leftEditorWidget() const
+TextEditorWidget *SideBySideDiffEditorWidget::sideEditorWidget(DiffSide side) const
 {
-    return m_leftEditor;
-}
-
-TextEditorWidget *SideBySideDiffEditorWidget::rightEditorWidget() const
-{
-    return m_rightEditor;
+    return m_editor[side];
 }
 
 void SideBySideDiffEditorWidget::setDocument(DiffEditorDocument *document)
@@ -916,8 +892,8 @@ void SideBySideDiffEditorWidget::clear(const QString &message)
 {
     const GuardLocker locker(m_controller.m_ignoreChanges);
     setDiff({});
-    m_leftEditor->clearAll(message);
-    m_rightEditor->clearAll(message);
+    for (SideDiffEditorWidget *editor : m_editor)
+        editor->clearAll(message);
     if (m_watcher) {
         m_watcher->cancel();
         DiffEditorPlugin::addFuture(m_watcher->future());
@@ -929,14 +905,14 @@ void SideBySideDiffEditorWidget::clear(const QString &message)
 void SideBySideDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
 {
     const GuardLocker locker(m_controller.m_ignoreChanges);
-    m_leftEditor->clearAll(tr("Waiting for data..."));
-    m_rightEditor->clearAll(tr("Waiting for data..."));
+    for (SideDiffEditorWidget *editor : m_editor)
+        editor->clearAll(tr("Waiting for data..."));
 
     m_controller.m_contextFileData = diffFileList;
     if (m_controller.m_contextFileData.isEmpty()) {
         const QString msg = tr("No difference.");
-        m_leftEditor->setPlainText(msg);
-        m_rightEditor->setPlainText(msg);
+        for (SideDiffEditorWidget *editor : m_editor)
+            editor->setPlainText(msg);
     } else {
         showDiff();
     }
@@ -947,40 +923,36 @@ void SideBySideDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
     if (m_controller.m_ignoreChanges.isLocked())
         return;
 
-    const int blockNumber = m_leftEditor->diffData().blockNumberForFileIndex(diffFileIndex);
+    const int blockNumber = m_editor[LeftSide]->diffData().blockNumberForFileIndex(diffFileIndex);
 
     const GuardLocker locker(m_controller.m_ignoreChanges);
     m_controller.setCurrentDiffFileIndex(diffFileIndex);
 
-    QTextBlock leftBlock = m_leftEditor->document()->findBlockByNumber(blockNumber);
-    QTextCursor leftCursor = m_leftEditor->textCursor();
-    leftCursor.setPosition(leftBlock.position());
-    m_leftEditor->setTextCursor(leftCursor);
-    m_leftEditor->verticalScrollBar()->setValue(blockNumber);
-
-    QTextBlock rightBlock = m_rightEditor->document()->findBlockByNumber(blockNumber);
-    QTextCursor rightCursor = m_rightEditor->textCursor();
-    rightCursor.setPosition(rightBlock.position());
-    m_rightEditor->setTextCursor(rightCursor);
-    m_rightEditor->verticalScrollBar()->setValue(blockNumber);
+    for (SideDiffEditorWidget *editor : m_editor) {
+        QTextBlock block = editor->document()->findBlockByNumber(blockNumber);
+        QTextCursor cursor = editor->textCursor();
+        cursor.setPosition(block.position());
+        editor->setTextCursor(cursor);
+        editor->verticalScrollBar()->setValue(blockNumber);
+    }
 }
 
 void SideBySideDiffEditorWidget::setHorizontalSync(bool sync)
 {
     m_horizontalSync = sync;
-    rightHSliderChanged();
+    horizontalSliderChanged(RightSide);
 }
 
 void SideBySideDiffEditorWidget::saveState()
 {
-    m_leftEditor->saveState();
-    m_rightEditor->saveState();
+    for (SideDiffEditorWidget *editor : m_editor)
+        editor->saveState();
 }
 
 void SideBySideDiffEditorWidget::restoreState()
 {
-    m_leftEditor->restoreState();
-    m_rightEditor->restoreState();
+    for (SideDiffEditorWidget *editor : m_editor)
+        editor->restoreState();
 }
 
 void SideBySideDiffEditorWidget::showDiff()
@@ -990,12 +962,12 @@ void SideBySideDiffEditorWidget::showDiff()
 
     connect(m_watcher.get(), &QFutureWatcherBase::finished, this, [this] {
         if (m_watcher->isCanceled()) {
-            m_leftEditor->clearAll(tr("Retrieving data failed."));
-            m_rightEditor->clearAll(tr("Retrieving data failed."));
+            for (SideDiffEditorWidget *editor : m_editor)
+                editor->clearAll(tr("Retrieving data failed."));
         } else {
             const ShowResults results = m_watcher->result();
-            m_leftEditor->setDiffData(results[LeftSide].diffData);
-            m_rightEditor->setDiffData(results[RightSide].diffData);
+            m_editor[LeftSide]->setDiffData(results[LeftSide].diffData);
+            m_editor[RightSide]->setDiffData(results[RightSide].diffData);
             TextDocumentPtr leftDoc(results[LeftSide].textDocument);
             TextDocumentPtr rightDoc(results[RightSide].textDocument);
             {
@@ -1003,14 +975,14 @@ void SideBySideDiffEditorWidget::showDiff()
                 // TextDocument was living in no thread, so it's safe to pull it
                 leftDoc->moveToThread(thread());
                 rightDoc->moveToThread(thread());
-                m_leftEditor->setTextDocument(leftDoc);
-                m_rightEditor->setTextDocument(rightDoc);
+                m_editor[LeftSide]->setTextDocument(leftDoc);
+                m_editor[RightSide]->setTextDocument(rightDoc);
 
-                m_leftEditor->setReadOnly(true);
-                m_rightEditor->setReadOnly(true);
+                m_editor[LeftSide]->setReadOnly(true);
+                m_editor[RightSide]->setReadOnly(true);
             }
-            m_leftEditor->setSelections(results[LeftSide].selections);
-            m_rightEditor->setSelections(results[RightSide].selections);
+            m_editor[LeftSide]->setSelections(results[LeftSide].selections);
+            m_editor[RightSide]->setSelections(results[RightSide].selections);
             setCurrentDiffFileIndex(m_controller.currentDiffFileIndex());
         }
         m_watcher.release()->deleteLater();
@@ -1091,146 +1063,92 @@ void SideBySideDiffEditorWidget::setFontSettings(const FontSettings &fontSetting
     m_controller.setFontSettings(fontSettings);
 }
 
-void SideBySideDiffEditorWidget::slotLeftJumpToOriginalFileRequested(
-        int diffFileIndex,
-        int lineNumber,
-        int columnNumber)
+void SideBySideDiffEditorWidget::jumpToOriginalFileRequested(DiffSide side, int diffFileIndex,
+                                                             int lineNumber, int columnNumber)
 {
     if (diffFileIndex < 0 || diffFileIndex >= m_controller.m_contextFileData.count())
         return;
 
     const FileData fileData = m_controller.m_contextFileData.at(diffFileIndex);
-    const QString leftFileName = fileData.fileInfo[LeftSide].fileName;
-    const QString rightFileName = fileData.fileInfo[RightSide].fileName;
-    if (leftFileName == rightFileName) {
-        // The same file (e.g. in git diff), jump to the line number taken from the right editor.
-        // Warning: git show SHA^ vs SHA or git diff HEAD vs Index
-        // (when Working tree has changed in meantime) will not work properly.
-        for (const ChunkData &chunkData : fileData.chunks) {
+    const QString fileName = fileData.fileInfo[side].fileName;
+    const DiffSide otherSide = oppositeSide(side);
+    const QString otherFileName = fileData.fileInfo[otherSide].fileName;
+    if (side == RightSide || fileName != otherFileName) {
+        // different file (e.g. in Tools | Diff...)
+        m_controller.jumpToOriginalFile(fileName, lineNumber, columnNumber);
+        return;
+    }
 
-            int leftLineNumber = chunkData.startingLineNumber[LeftSide];
-            int rightLineNumber = chunkData.startingLineNumber[RightSide];
+    // The same file (e.g. in git diff), jump to the line number taken from the right editor.
+    // Warning: git show SHA^ vs SHA or git diff HEAD vs Index
+    // (when Working tree has changed in meantime) will not work properly.
+    for (const ChunkData &chunkData : fileData.chunks) {
 
-            for (int j = 0; j < chunkData.rows.count(); j++) {
-                const RowData rowData = chunkData.rows.at(j);
-                if (rowData.line[LeftSide].textLineType == TextLineData::TextLine)
-                    leftLineNumber++;
-                if (rowData.line[RightSide].textLineType == TextLineData::TextLine)
-                    rightLineNumber++;
-                if (leftLineNumber == lineNumber) {
-                    int colNr = rowData.equal ? columnNumber : 0;
-                    m_controller.jumpToOriginalFile(leftFileName, rightLineNumber, colNr);
-                    return;
-                }
+        int thisLineNumber = chunkData.startingLineNumber[side];
+        int otherLineNumber = chunkData.startingLineNumber[otherSide];
+
+        for (int j = 0; j < chunkData.rows.count(); j++) {
+            const RowData rowData = chunkData.rows.at(j);
+            if (rowData.line[side].textLineType == TextLineData::TextLine)
+                thisLineNumber++;
+            if (rowData.line[otherSide].textLineType == TextLineData::TextLine)
+                otherLineNumber++;
+            if (thisLineNumber == lineNumber) {
+                int colNr = rowData.equal ? columnNumber : 0;
+                m_controller.jumpToOriginalFile(fileName, otherLineNumber, colNr);
+                return;
             }
         }
-    } else {
-        // different file (e.g. in Tools | Diff...)
-        m_controller.jumpToOriginalFile(leftFileName, lineNumber, columnNumber);
     }
 }
 
-void SideBySideDiffEditorWidget::slotRightJumpToOriginalFileRequested(
-        int diffFileIndex,
-        int lineNumber,
-        int columnNumber)
-{
-    if (diffFileIndex < 0 || diffFileIndex >= m_controller.m_contextFileData.count())
-        return;
-
-    const FileData fileData = m_controller.m_contextFileData.at(diffFileIndex);
-    const QString fileName = fileData.fileInfo[RightSide].fileName;
-    m_controller.jumpToOriginalFile(fileName, lineNumber, columnNumber);
-}
-
-void SideBySideDiffEditorWidget::slotLeftContextMenuRequested(QMenu *menu,
-                                                              int fileIndex,
-                                                              int chunkIndex,
-                                                              const ChunkSelection &selection)
+void SideBySideDiffEditorWidget::contextMenuRequested(DiffSide side, QMenu *menu, int fileIndex,
+                                 int chunkIndex, const ChunkSelection &selection)
 {
     menu->addSeparator();
 
     m_controller.addCodePasterAction(menu, fileIndex, chunkIndex);
-    m_controller.addApplyAction(menu, fileIndex, chunkIndex);
+    m_controller.addApplyRevertAction(menu, fileIndex, chunkIndex, side);
     m_controller.addExtraActions(menu, fileIndex, chunkIndex, selection);
 }
 
-void SideBySideDiffEditorWidget::slotRightContextMenuRequested(QMenu *menu,
-                                                               int fileIndex,
-                                                               int chunkIndex,
-                                                               const ChunkSelection &selection)
-{
-    menu->addSeparator();
-
-    m_controller.addCodePasterAction(menu, fileIndex, chunkIndex);
-    m_controller.addRevertAction(menu, fileIndex, chunkIndex);
-    m_controller.addExtraActions(menu, fileIndex, chunkIndex, selection);
-}
-
-void SideBySideDiffEditorWidget::leftVSliderChanged()
+void SideBySideDiffEditorWidget::verticalSliderChanged(DiffSide side)
 {
     if (m_controller.m_ignoreChanges.isLocked())
         return;
 
-    m_rightEditor->verticalScrollBar()->setValue(m_leftEditor->verticalScrollBar()->value());
+    m_editor[oppositeSide(side)]->verticalScrollBar()->setValue(
+                  m_editor[side]->verticalScrollBar()->value());
 }
 
-void SideBySideDiffEditorWidget::rightVSliderChanged()
+void SideBySideDiffEditorWidget::horizontalSliderChanged(DiffSide side)
+{
+    if (m_controller.m_ignoreChanges.isLocked() || !m_horizontalSync)
+        return;
+
+    m_editor[oppositeSide(side)]->horizontalScrollBar()->setValue(
+                  m_editor[side]->horizontalScrollBar()->value());
+}
+
+void SideBySideDiffEditorWidget::cursorPositionChanged(DiffSide side)
 {
     if (m_controller.m_ignoreChanges.isLocked())
         return;
 
-    m_leftEditor->verticalScrollBar()->setValue(m_rightEditor->verticalScrollBar()->value());
-}
-
-void SideBySideDiffEditorWidget::leftHSliderChanged()
-{
-    if (m_controller.m_ignoreChanges.isLocked())
-        return;
-
-    if (m_horizontalSync)
-        m_rightEditor->horizontalScrollBar()->setValue(m_leftEditor->horizontalScrollBar()->value());
-}
-
-void SideBySideDiffEditorWidget::rightHSliderChanged()
-{
-    if (m_controller.m_ignoreChanges.isLocked())
-        return;
-
-    if (m_horizontalSync)
-        m_leftEditor->horizontalScrollBar()->setValue(m_rightEditor->horizontalScrollBar()->value());
-}
-
-void SideBySideDiffEditorWidget::leftCursorPositionChanged()
-{
-    if (m_controller.m_ignoreChanges.isLocked())
-        return;
-
-    handlePositionChange(m_leftEditor, m_rightEditor);
-    leftVSliderChanged();
-    leftHSliderChanged();
-}
-
-void SideBySideDiffEditorWidget::rightCursorPositionChanged()
-{
-    if (m_controller.m_ignoreChanges.isLocked())
-        return;
-
-    handlePositionChange(m_rightEditor, m_leftEditor);
-    rightVSliderChanged();
-    rightHSliderChanged();
+    handlePositionChange(m_editor[side], m_editor[oppositeSide(side)]);
+    verticalSliderChanged(side);
+    horizontalSliderChanged(side);
 }
 
 void SideBySideDiffEditorWidget::syncHorizontalScrollBarPolicy()
 {
-    const bool alwaysOn = m_leftEditor->horizontalScrollBar()->maximum()
-            || m_rightEditor->horizontalScrollBar()->maximum();
-    const Qt::ScrollBarPolicy newPolicy = alwaysOn
-            ? Qt::ScrollBarAlwaysOn : Qt::ScrollBarAsNeeded;
-    if (m_leftEditor->horizontalScrollBarPolicy() != newPolicy)
-        m_leftEditor->setHorizontalScrollBarPolicy(newPolicy);
-    if (m_rightEditor->horizontalScrollBarPolicy() != newPolicy)
-        m_rightEditor->setHorizontalScrollBarPolicy(newPolicy);
+    const bool alwaysOn = m_editor[LeftSide]->horizontalScrollBar()->maximum()
+            || m_editor[RightSide]->horizontalScrollBar()->maximum();
+    const Qt::ScrollBarPolicy newPolicy = alwaysOn ? Qt::ScrollBarAlwaysOn : Qt::ScrollBarAsNeeded;
+    for (SideDiffEditorWidget *editor : m_editor) {
+        if (editor->horizontalScrollBarPolicy() != newPolicy)
+            editor->setHorizontalScrollBarPolicy(newPolicy);
+    }
 }
 
 void SideBySideDiffEditorWidget::handlePositionChange(SideDiffEditorWidget *source, SideDiffEditorWidget *dest)

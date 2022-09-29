@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "diffenums.h"
+
 #include <utils/id.h>
 
 #include <QIcon>
@@ -95,8 +97,7 @@ public:
     SideBySideView();
 
     QWidget *widget() override;
-    TextEditor::TextEditorWidget *leftEditorWidget();
-    TextEditor::TextEditorWidget *rightEditorWidget();
+    TextEditor::TextEditorWidget *sideEditorWidget(DiffSide side);
 
     void setDocument(DiffEditorDocument *document) override;
 

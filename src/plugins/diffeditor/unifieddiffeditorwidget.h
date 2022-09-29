@@ -103,9 +103,7 @@ private:
     int fileIndexForBlockNumber(int blockNumber) const;
     int chunkIndexForBlockNumber(int blockNumber) const;
     void jumpToOriginalFile(const QTextCursor &cursor);
-    void addContextMenuActions(QMenu *menu,
-                               int fileIndex,
-                               int chunkIndex,
+    void addContextMenuActions(QMenu *menu, int fileIndex, int chunkIndex,
                                const ChunkSelection &selection);
 
     UnifiedDiffData m_data;

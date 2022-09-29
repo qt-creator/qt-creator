@@ -38,8 +38,7 @@ public:
                             int columnNumber);
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
     void addCodePasterAction(QMenu *menu, int fileIndex, int chunkIndex);
-    void addApplyAction(QMenu *menu, int fileIndex, int chunkIndex);
-    void addRevertAction(QMenu *menu, int fileIndex, int chunkIndex);
+    void addApplyRevertAction(QMenu *menu, int fileIndex, int chunkIndex, DiffSide side);
     void addExtraActions(QMenu *menu, int fileIndex, int chunkIndex, const ChunkSelection &selection);
     void updateCannotDecodeInfo();
     void setBusyShowing(bool busy);

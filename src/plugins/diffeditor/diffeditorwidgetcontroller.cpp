@@ -266,22 +266,16 @@ bool DiffEditorWidgetController::fileNamesAreDifferent(int fileIndex) const
     return fileData.fileInfo[LeftSide].fileName != fileData.fileInfo[RightSide].fileName;
 }
 
-void DiffEditorWidgetController::addApplyAction(QMenu *menu, int fileIndex, int chunkIndex)
+void DiffEditorWidgetController::addApplyRevertAction(QMenu *menu, int fileIndex, int chunkIndex, DiffSide side)
 {
-    QAction *applyAction = menu->addAction(tr("Apply Chunk..."));
-    connect(applyAction, &QAction::triggered, this, [this, fileIndex, chunkIndex] {
-        patch(false, fileIndex, chunkIndex);
+    const QString actionName = side == LeftSide ? tr("Apply Chunk...") : tr("Revert Chunk...");
+    QAction *action = menu->addAction(actionName);
+    connect(action, &QAction::triggered, this, [this, fileIndex, chunkIndex, side] {
+        patch(side == RightSide, fileIndex, chunkIndex);
     });
-    applyAction->setEnabled(chunkExists(fileIndex, chunkIndex) && fileNamesAreDifferent(fileIndex));
-}
-
-void DiffEditorWidgetController::addRevertAction(QMenu *menu, int fileIndex, int chunkIndex)
-{
-    QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
-    connect(revertAction, &QAction::triggered, this, [this, fileIndex, chunkIndex] {
-        patch(true, fileIndex, chunkIndex);
-    });
-    revertAction->setEnabled(chunkExists(fileIndex, chunkIndex));
+    const bool enabled = chunkExists(fileIndex, chunkIndex)
+            && (side == RightSide || fileNamesAreDifferent(fileIndex));
+    action->setEnabled(enabled);
 }
 
 void DiffEditorWidgetController::addExtraActions(QMenu *menu, int fileIndex, int chunkIndex,

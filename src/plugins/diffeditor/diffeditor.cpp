@@ -292,15 +292,11 @@ TextEditorWidget *DiffEditor::unifiedEditorWidget() const
     return m_unifiedView->textEditorWidget();
 }
 
-TextEditorWidget *DiffEditor::leftEditorWidget() const
+TextEditorWidget *DiffEditor::sideEditorWidget(DiffSide side) const
 {
-    return m_sideBySideView->leftEditorWidget();
+    return m_sideBySideView->sideEditorWidget(side);
 }
 
-TextEditorWidget *DiffEditor::rightEditorWidget() const
-{
-    return m_sideBySideView->rightEditorWidget();
-}
 
 void DiffEditor::documentHasChanged()
 {
