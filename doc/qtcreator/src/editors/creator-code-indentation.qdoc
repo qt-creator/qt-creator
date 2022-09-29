@@ -64,13 +64,18 @@
 
     To visualize whitespace in the editor, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol Display >
-    \uicontrol {Visualize whitespace}.
+    \uicontrol {Visualize whitespace}. To visualize indentation, select
+    \uicontrol {Visualize Indent}.
 
     \image qtcreator-options-text-editor-display.png "Text Editor Display preferences"
 
     To help you keep line length at a particular number of characters, set the
     number of characters in the \uicontrol {Display right margin at column}
-    field. To use a context-specific margin when available, select the
+    field. To use a different color for the margin area, select the
+    \uicontrol {Tint whole margin area} check box. Deselect the check box to show
+    the margin as a vertical line.
+
+    To use a context-specific margin when available, select the
     \uicontrol {Use context-specific margin} check box.
     \if defined(qtcreator)
     For example, the margin could be set by the \c ColumnLimit option of the
