@@ -172,7 +172,7 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     const int blockNumber = cursor.blockNumber();
 
     const int fileIndex = fileIndexForBlockNumber(blockNumber);
-    const int chunkIndex = chunkIndexForBlockNumber(blockNumber);
+    const int chunkIndex = m_data.m_chunkInfo.chunkIndexForBlockNumber(blockNumber);
 
     const ChunkData chunkData = m_controller.chunkData(fileIndex, chunkIndex);
 
@@ -186,7 +186,7 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         if (currentFileIndex > fileIndex)
             break;
 
-        const int currentChunkIndex = chunkIndexForBlockNumber(i);
+        const int currentChunkIndex = m_data.m_chunkInfo.chunkIndexForBlockNumber(i);
         if (currentChunkIndex < chunkIndex)
             continue;
 
@@ -205,7 +205,7 @@ void UnifiedDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     const ChunkSelection selection(leftSelection, rightSelection);
 
     addContextMenuActions(menu, fileIndexForBlockNumber(blockNumber),
-                          chunkIndexForBlockNumber(blockNumber), selection);
+                          m_data.m_chunkInfo.chunkIndexForBlockNumber(blockNumber), selection);
 
     connect(this, &UnifiedDiffEditorWidget::destroyed, menu.data(), &QMenu::deleteLater);
     menu->exec(e->globalPos());
@@ -272,11 +272,6 @@ void UnifiedDiffData::setLineNumber(DiffSide side, int blockNumber, int lineNumb
     const QString lineNumberString = QString::number(lineNumber);
     m_lineNumbers[side].insert(blockNumber, qMakePair(lineNumber, rowNumberInChunk));
     m_lineNumberDigits[side] = qMax(m_lineNumberDigits[side], lineNumberString.count());
-}
-
-void UnifiedDiffData::setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex)
-{
-    m_chunkInfo.insert(startBlockNumber, qMakePair(blockCount, chunkIndex));
 }
 
 void UnifiedDiffEditorWidget::setDiff(const QList<FileData> &diffFileList)
@@ -445,7 +440,7 @@ UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterface<void> &fi, int pr
             output.diffText += binaryLine;
         } else {
             for (int j = 0; j < fileData.chunks.count(); j++) {
-                const int oldBlockNumber = blockNumber;
+                const int oldBlock = blockNumber;
                 output.foldingIndent.insert(blockNumber, 2);
                 output.diffText += output.diffData.setChunk(input, fileData.chunks.at(j),
                                                             (j == fileData.chunks.count() - 1)
@@ -453,7 +448,7 @@ UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterface<void> &fi, int pr
                                                             &blockNumber,
                                                             &output.selections);
                 if (!fileData.chunks.at(j).contextChunk)
-                    output.diffData.setChunkIndex(oldBlockNumber, blockNumber - oldBlockNumber, j);
+                    output.diffData.m_chunkInfo.setChunkIndex(oldBlock, blockNumber - oldBlock, j);
             }
         }
         fi.setProgressValue(DiffUtils::interpolate(++i, 0, count, progressMin, progressMax));
@@ -567,23 +562,6 @@ int UnifiedDiffEditorWidget::fileIndexForBlockNumber(int blockNumber) const
     }
 
     return i;
-}
-
-int UnifiedDiffEditorWidget::chunkIndexForBlockNumber(int blockNumber) const
-{
-    if (m_data.m_chunkInfo.isEmpty())
-        return -1;
-
-    auto it = m_data.m_chunkInfo.upperBound(blockNumber);
-    if (it == m_data.m_chunkInfo.constBegin())
-        return -1;
-
-    --it;
-
-    if (blockNumber < it.key() + it.value().first)
-        return it.value().second;
-
-    return -1;
 }
 
 void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)

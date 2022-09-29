@@ -32,19 +32,16 @@ public:
     static UnifiedDiffOutput diffOutput(QFutureInterface<void> &fi, int progressMin, int progressMax,
                                         const DiffEditorInput &input);
 
+    DiffChunkInfo m_chunkInfo;
+    // block number, visual line number.
+    QMap<int, DiffFileInfoArray> m_fileInfo;
     // block number, visual line number, chunk row number
     using LineNumbers = QMap<int, QPair<int, int>>;
     std::array<LineNumbers, SideCount> m_lineNumbers{};
     std::array<int, SideCount> m_lineNumberDigits{1, 1};
 
-    // block number, visual line number.
-    QMap<int, DiffFileInfoArray> m_fileInfo;
-    // start block number, block count of a chunk, chunk index inside a file.
-    QMap<int, QPair<int, int>> m_chunkInfo;
-
 private:
     void setLineNumber(DiffSide side, int blockNumber, int lineNumber, int rowNumberInChunk);
-    void setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex);
     QString setChunk(const DiffEditorInput &input, const ChunkData &chunkData,
                      bool lastChunk, int *blockNumber, DiffSelections *selections);
 };
@@ -100,7 +97,6 @@ private:
     void showDiff();
     int blockNumberForFileIndex(int fileIndex) const;
     int fileIndexForBlockNumber(int blockNumber) const;
-    int chunkIndexForBlockNumber(int blockNumber) const;
     void jumpToOriginalFile(const QTextCursor &cursor);
     void addContextMenuActions(QMenu *menu, int fileIndex, int chunkIndex,
                                const ChunkSelection &selection);

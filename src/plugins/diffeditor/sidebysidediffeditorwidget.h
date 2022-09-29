@@ -38,14 +38,13 @@ public:
     static SideBySideDiffOutput diffOutput(QFutureInterface<void> &fi, int progressMin,
                                            int progressMax, const DiffEditorInput &input);
 
-    // block number, visual line number.
-    QMap<int, int> m_lineNumbers;
+    DiffChunkInfo m_chunkInfo;
     // block number, fileInfo. Set for file lines only.
     QMap<int, DiffFileInfo> m_fileInfo;
+    // block number, visual line number.
+    QMap<int, int> m_lineNumbers;
     // block number, skipped lines and context info. Set for chunk lines only.
     QMap<int, QPair<int, QString>> m_skippedLines;
-    // start block number, block count of a chunk, chunk index inside a file.
-    QMap<int, QPair<int, int>> m_chunkInfo;
     // block number, separator. Set for file, chunk or span line.
     QMap<int, bool> m_separators;
 
@@ -55,9 +54,6 @@ public:
     bool isChunkLine(int blockNumber) const { return m_skippedLines.contains(blockNumber); }
     int blockNumberForFileIndex(int fileIndex) const;
     int fileIndexForBlockNumber(int blockNumber) const;
-    int chunkIndexForBlockNumber(int blockNumber) const;
-    int chunkRowForBlockNumber(int blockNumber) const;
-    int chunkRowsCountForBlockNumber(int blockNumber) const;
 
 private:
     void setLineNumber(int blockNumber, int lineNumber);
@@ -66,7 +62,6 @@ private:
         m_skippedLines[blockNumber] = {skippedLines, contextInfo};
         setSeparator(blockNumber, true);
     }
-    void setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex);
     void setSeparator(int blockNumber, bool separator) { m_separators[blockNumber] = separator; }
 };
 

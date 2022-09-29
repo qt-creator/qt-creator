@@ -21,7 +21,7 @@ namespace Utils { class Diff; }
 
 namespace DiffEditor {
 
-class DIFFEDITOR_EXPORT DiffFileInfo {
+class DiffFileInfo {
 public:
     enum PatchBehaviour {
         PatchFile,
@@ -37,6 +37,21 @@ public:
 };
 
 using DiffFileInfoArray = std::array<DiffFileInfo, SideCount>;
+
+class DiffChunkInfo {
+public:
+    int chunkIndexForBlockNumber(int blockNumber) const;
+    int chunkRowForBlockNumber(int blockNumber) const;
+    int chunkRowsCountForBlockNumber(int blockNumber) const;
+
+    void setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex) {
+        m_chunkInfo.insert(startBlockNumber, {blockCount, chunkIndex});
+    }
+
+private:
+    // start block number, block count of a chunk, chunk index inside a file.
+    QMap<int, QPair<int, int>> m_chunkInfo;
+};
 
 class DIFFEDITOR_EXPORT TextLineData {
 public:

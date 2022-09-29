@@ -348,8 +348,9 @@ SideBySideDiffOutput SideDiffData::diffOutput(QFutureInterface<void> &fi, int pr
                         blockNumber++;
                     }
 
-                    output.side[LeftSide].diffData.setChunkIndex(blockNumber, chunkData.rows.count(), j);
-                    output.side[RightSide].diffData.setChunkIndex(blockNumber, chunkData.rows.count(), j);
+                    const int rows = chunkData.rows.count();
+                    output.side[LeftSide].diffData.m_chunkInfo.setChunkIndex(blockNumber, rows, j);
+                    output.side[RightSide].diffData.m_chunkInfo.setChunkIndex(blockNumber, rows, j);
 
                     for (const RowData &rowData : chunkData.rows) {
                         addRowLine(LeftSide, rowData, &leftLineNumber, &lastLeftLineNumber);
@@ -406,11 +407,6 @@ void SideDiffData::setFileInfo(int blockNumber, const DiffFileInfo &fileInfo)
     setSeparator(blockNumber, true);
 }
 
-void SideDiffData::setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex)
-{
-    m_chunkInfo.insert(startBlockNumber, qMakePair(blockCount, chunkIndex));
-}
-
 int SideDiffData::blockNumberForFileIndex(int fileIndex) const
 {
     if (fileIndex < 0 || fileIndex >= m_fileInfo.count())
@@ -428,57 +424,6 @@ int SideDiffData::fileIndexForBlockNumber(int blockNumber) const
     }
 
     return i;
-}
-
-int SideDiffData::chunkIndexForBlockNumber(int blockNumber) const
-{
-    if (m_chunkInfo.isEmpty())
-        return -1;
-
-    auto it = m_chunkInfo.upperBound(blockNumber);
-    if (it == m_chunkInfo.constBegin())
-        return -1;
-
-    --it;
-
-    if (blockNumber < it.key() + it.value().first)
-        return it.value().second;
-
-    return -1;
-}
-
-int SideDiffData::chunkRowForBlockNumber(int blockNumber) const
-{
-    if (m_chunkInfo.isEmpty())
-        return -1;
-
-    auto it = m_chunkInfo.upperBound(blockNumber);
-    if (it == m_chunkInfo.constBegin())
-        return -1;
-
-    --it;
-
-    if (blockNumber < it.key() + it.value().first)
-        return blockNumber - it.key();
-
-    return -1;
-}
-
-int SideDiffData::chunkRowsCountForBlockNumber(int blockNumber) const
-{
-    if (m_chunkInfo.isEmpty())
-        return -1;
-
-    auto it = m_chunkInfo.upperBound(blockNumber);
-    if (it == m_chunkInfo.constBegin())
-        return -1;
-
-    --it;
-
-    if (blockNumber < it.key() + it.value().first)
-        return it.value().first;
-
-    return -1;
 }
 
 void SideDiffEditorWidget::clearAll(const QString &message)
@@ -572,22 +517,22 @@ void SideDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     const int blockNumber = cursor.blockNumber();
 
     const int fileIndex = m_data.fileIndexForBlockNumber(blockNumber);
-    const int chunkIndex = m_data.chunkIndexForBlockNumber(blockNumber);
+    const int chunkIndex = m_data.m_chunkInfo.chunkIndexForBlockNumber(blockNumber);
 
     const int selectionStartFileIndex = m_data.fileIndexForBlockNumber(startBlockNumber);
-    const int selectionStartChunkIndex = m_data.chunkIndexForBlockNumber(startBlockNumber);
+    const int selectionStartChunkIndex = m_data.m_chunkInfo.chunkIndexForBlockNumber(startBlockNumber);
     const int selectionEndFileIndex = m_data.fileIndexForBlockNumber(endBlockNumber);
-    const int selectionEndChunkIndex = m_data.chunkIndexForBlockNumber(endBlockNumber);
+    const int selectionEndChunkIndex = m_data.m_chunkInfo.chunkIndexForBlockNumber(endBlockNumber);
 
     const int selectionStart = selectionStartFileIndex == fileIndex
             && selectionStartChunkIndex == chunkIndex
-            ? m_data.chunkRowForBlockNumber(startBlockNumber)
+            ? m_data.m_chunkInfo.chunkRowForBlockNumber(startBlockNumber)
             : 0;
 
     const int selectionEnd = selectionEndFileIndex == fileIndex
             && selectionEndChunkIndex == chunkIndex
-            ? m_data.chunkRowForBlockNumber(endBlockNumber)
-            : m_data.chunkRowsCountForBlockNumber(blockNumber);
+            ? m_data.m_chunkInfo.chunkRowForBlockNumber(endBlockNumber)
+            : m_data.m_chunkInfo.chunkRowsCountForBlockNumber(blockNumber);
 
     QList<int> rows;
     for (int i = selectionStart; i <= selectionEnd; ++i)
@@ -596,7 +541,7 @@ void SideDiffEditorWidget::contextMenuEvent(QContextMenuEvent *e)
     const ChunkSelection selection(rows, rows);
 
     emit contextMenuRequested(menu, m_data.fileIndexForBlockNumber(blockNumber),
-                              m_data.chunkIndexForBlockNumber(blockNumber),
+                              m_data.m_chunkInfo.chunkIndexForBlockNumber(blockNumber),
                               selection);
 
     connect(this, &SideDiffEditorWidget::destroyed, menu.data(), &QMenu::deleteLater);

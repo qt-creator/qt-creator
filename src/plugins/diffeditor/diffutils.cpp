@@ -15,6 +15,42 @@ using namespace Utils;
 
 namespace DiffEditor {
 
+static int forBlockNumber(const QMap<int, QPair<int, int>> &chunkInfo, int blockNumber,
+                          const std::function<int (int, int, int)> &func)
+{
+    if (chunkInfo.isEmpty())
+        return -1;
+
+    auto it = chunkInfo.upperBound(blockNumber);
+    if (it == chunkInfo.constBegin())
+        return -1;
+
+    --it;
+
+    if (blockNumber < it.key() + it.value().first)
+        return func(it.key(), it.value().first, it.value().second);
+
+    return -1;
+}
+
+int DiffChunkInfo::chunkRowForBlockNumber(int blockNumber) const
+{
+    return forBlockNumber(m_chunkInfo, blockNumber, [blockNumber](int startBlockNumber, int, int)
+                          { return blockNumber - startBlockNumber; });
+}
+
+int DiffChunkInfo::chunkRowsCountForBlockNumber(int blockNumber) const
+{
+    return forBlockNumber(m_chunkInfo, blockNumber,
+                          [](int, int rowsCount, int) { return rowsCount; });
+}
+
+int DiffChunkInfo::chunkIndexForBlockNumber(int blockNumber) const
+{
+    return forBlockNumber(m_chunkInfo, blockNumber,
+                          [](int, int, int chunkIndex) { return chunkIndex; });
+}
+
 int ChunkSelection::selectedRowsCount() const
 {
     return Utils::toSet(selection[LeftSide]).unite(Utils::toSet(selection[RightSide])).size();
