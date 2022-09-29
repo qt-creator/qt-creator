@@ -165,6 +165,14 @@ static CMakeConfig configurationFromPresetProbe(
         args.emplace_back("-G");
         args.emplace_back(configurePreset.generator.value());
     }
+    if (configurePreset.architecture && configurePreset.architecture.value().value) {
+        args.emplace_back("-A");
+        args.emplace_back(configurePreset.architecture.value().value.value());
+    }
+    if (configurePreset.toolset && configurePreset.toolset.value().value) {
+        args.emplace_back("-T");
+        args.emplace_back(configurePreset.toolset.value().value.value());
+    }
 
     if (configurePreset.cacheVariables) {
         const CMakeConfig cache = configurePreset.cacheVariables
@@ -233,7 +241,9 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
         prefixPath = config.stringValueOf("CMAKE_PREFIX_PATH");
     }
     qCDebug(cmInputLog) << "PrefixPath:" << prefixPath;
-    if (prefixPath.isEmpty())
+
+    FilePath toolchainFile = config.filePathValueOf(QByteArray("CMAKE_TOOLCHAIN_FILE"));
+    if (prefixPath.isEmpty() && toolchainFile.isEmpty())
         return FilePath();
 
     // Run a CMake project that would do qmake probing
@@ -284,9 +294,10 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
     cmake.setTimeOutMessageBoxEnabled(false);
 
     QString cmakeGenerator = config.stringValueOf(QByteArray("CMAKE_GENERATOR"));
+    QString cmakeGeneratorPlatform = config.stringValueOf(QByteArray("CMAKE_GENERATOR_PLATFORM"));
+    QString cmakeGeneratorToolset = config.stringValueOf(QByteArray("CMAKE_GENERATOR_TOOLSET"));
     FilePath cmakeExecutable = config.filePathValueOf(QByteArray("CMAKE_COMMAND"));
     FilePath cmakeMakeProgram = config.filePathValueOf(QByteArray("CMAKE_MAKE_PROGRAM"));
-    FilePath toolchainFile = config.filePathValueOf(QByteArray("CMAKE_TOOLCHAIN_FILE"));
     FilePath hostPath = config.filePathValueOf(QByteArray("QT_HOST_PATH"));
 
     QStringList args;
@@ -296,6 +307,14 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
     args.push_back(qtcQMakeProbeDir.filePath("build").path());
     args.push_back("-G");
     args.push_back(cmakeGenerator);
+    if (!cmakeGeneratorPlatform.isEmpty()) {
+        args.push_back("-A");
+        args.push_back(cmakeGeneratorPlatform);
+    }
+    if (!cmakeGeneratorToolset.isEmpty()) {
+        args.push_back("-T");
+        args.push_back(cmakeGeneratorToolset);
+    }
 
     if (!cmakeMakeProgram.isEmpty()) {
         args.push_back(QStringLiteral("-DCMAKE_MAKE_PROGRAM=%1").arg(cmakeMakeProgram.toString()));
@@ -303,7 +322,8 @@ static FilePath qmakeFromCMakeCache(const CMakeConfig &config)
     if (toolchainFile.isEmpty()) {
         args.push_back(QStringLiteral("-DCMAKE_PREFIX_PATH=%1").arg(prefixPath));
     } else {
-        args.push_back(QStringLiteral("-DCMAKE_FIND_ROOT_PATH=%1").arg(prefixPath));
+        if (!prefixPath.isEmpty())
+            args.push_back(QStringLiteral("-DCMAKE_FIND_ROOT_PATH=%1").arg(prefixPath));
         args.push_back(QStringLiteral("-DCMAKE_TOOLCHAIN_FILE=%1").arg(toolchainFile.toString()));
     }
     if (!hostPath.isEmpty()) {
