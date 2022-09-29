@@ -31,6 +31,8 @@
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/parameteraction.h>
 
+#include <QTimer>
+
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -118,8 +120,8 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
 
 void CMakeProjectPlugin::extensionsInitialized()
 {
-    //restore the cmake tools before loading the kits
-    CMakeToolManager::restoreCMakeTools();
+    // Delay the restoration to allow the devices to load first.
+    QTimer::singleShot(0, this, [] { CMakeToolManager::restoreCMakeTools(); });
 }
 
 void CMakeProjectPlugin::updateContextActions(Node *node)
