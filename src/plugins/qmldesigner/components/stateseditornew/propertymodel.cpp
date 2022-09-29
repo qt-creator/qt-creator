@@ -149,6 +149,22 @@ void PropertyModel::removeProperty(const QString &name)
     m_modelNode.removeProperty(name.toUtf8());
 }
 
+namespace {
+constexpr AuxiliaryDataKeyDefaultValue expandedProperty{AuxiliaryDataType::Temporary,
+                                                        "propertyModelExpanded",
+                                                        false};
+}
+
+void PropertyModel::setExpanded(bool value)
+{
+    m_modelNode.setAuxiliaryData(expandedProperty, value);
+}
+
+bool PropertyModel::expanded() const
+{
+    return m_modelNode.auxiliaryDataWithDefault(expandedProperty).toBool();
+}
+
 void PropertyModel::registerDeclarativeType()
 {
     qmlRegisterType<PropertyModel>("HelperWidgets", 2, 0, "PropertyModel");

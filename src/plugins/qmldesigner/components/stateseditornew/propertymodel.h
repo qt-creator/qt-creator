@@ -55,6 +55,9 @@ public:
     Q_INVOKABLE void setRestoreEntryValues(bool value);
     Q_INVOKABLE void removeProperty(const QString &name);
 
+    Q_INVOKABLE void setExpanded(bool value);
+    Q_INVOKABLE bool expanded() const;
+
     static void registerDeclarativeType();
 
 signals:

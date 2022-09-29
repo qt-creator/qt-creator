@@ -138,6 +138,21 @@ int PropertyChangesModel::count() const
     return rowCount();
 }
 
+namespace {
+constexpr AuxiliaryDataKeyDefaultValue propertyChangesVisibleProperty{AuxiliaryDataType::Temporary,
+                                                                      "propertyChangesVisible",
+                                                                      false};
+}
+void PropertyChangesModel::setPropertyChangesVisible(bool value)
+{
+    m_modelNode.setAuxiliaryData(propertyChangesVisibleProperty, value);
+}
+
+bool PropertyChangesModel::propertyChangesVisible() const
+{
+    return m_modelNode.auxiliaryDataWithDefault(propertyChangesVisibleProperty).toBool();
+}
+
 void PropertyChangesModel::registerDeclarativeType()
 {
     qmlRegisterType<PropertyChangesModel>("HelperWidgets", 2, 0, "PropertyChangesModel");

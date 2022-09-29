@@ -62,6 +62,9 @@ public:
     void reset();
     int count() const;
 
+    Q_INVOKABLE void setPropertyChangesVisible(bool value);
+    Q_INVOKABLE bool propertyChangesVisible() const;
+
     static void registerDeclarativeType();
 
 signals:
