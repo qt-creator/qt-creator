@@ -41,7 +41,6 @@
 #include <QFileInfo>
 #include <QKeyEvent>
 #include <QMenu>
-#include <QMessageBox>
 #include <QRegularExpression>
 #include <QSet>
 #include <QTextBlock>
@@ -979,12 +978,12 @@ void VcsBaseEditorWidget::contextMenuEvent(QContextMenuEvent *e)
         // fileNameFromDiffSpecification() works.
         QAction *applyAction = menu->addAction(tr("Apply Chunk..."));
         connect(applyAction, &QAction::triggered, this, [this, chunk] {
-            slotApplyDiffChunk(chunk, false);
+            slotApplyDiffChunk(chunk, PatchAction::Apply);
         });
         // Revert a chunk from a VCS diff, which might be linked to reloading the diff.
         QAction *revertAction = menu->addAction(tr("Revert Chunk..."));
         connect(revertAction, &QAction::triggered, this, [this, chunk] {
-            slotApplyDiffChunk(chunk, true);
+            slotApplyDiffChunk(chunk, PatchAction::Revert);
         });
         // Custom diff actions
         addDiffActions(menu, chunk);
@@ -1506,10 +1505,10 @@ bool VcsBaseEditorWidget::canApplyDiffChunk(const DiffChunk &dc) const
 
 // Default implementation of revert: Apply a chunk by piping it into patch,
 // (passing '-R' for revert), assuming we got absolute paths from the VCS plugins.
-bool VcsBaseEditorWidget::applyDiffChunk(const DiffChunk &dc, bool revert) const
+bool VcsBaseEditorWidget::applyDiffChunk(const DiffChunk &dc, PatchAction patchAction) const
 {
     return Core::PatchTool::runPatch(dc.asPatch(d->m_workingDirectory),
-                                     FilePath::fromString(d->m_workingDirectory), 0, revert);
+                                     FilePath::fromString(d->m_workingDirectory), 0, patchAction);
 }
 
 QString VcsBaseEditorWidget::fileNameFromDiffSpecification(const QTextBlock &inBlock, QString *header) const
@@ -1586,16 +1585,13 @@ bool VcsBaseEditorWidget::hasDiff() const
     }
 }
 
-void VcsBaseEditorWidget::slotApplyDiffChunk(const DiffChunk &chunk, bool revert)
+void VcsBaseEditorWidget::slotApplyDiffChunk(const DiffChunk &chunk, PatchAction patchAction)
 {
-    const QString title = revert ? tr("Revert Chunk") : tr("Apply Chunk");
-    const QString question = revert ? tr("Would you like to revert the chunk?")
-                                    : tr("Would you like to apply the chunk?");
-    if (QMessageBox::No == QMessageBox::question(this, title, question, QMessageBox::Yes|QMessageBox::No))
+    if (!PatchTool::confirmPatching(this, patchAction))
         return;
 
-    if (applyDiffChunk(chunk, revert)) {
-        if (revert)
+    if (applyDiffChunk(chunk, patchAction)) {
+        if (patchAction == PatchAction::Revert) // TODO: make just one signal
             emit diffChunkReverted(chunk);
         else
             emit diffChunkApplied(chunk);

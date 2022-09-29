@@ -218,8 +218,8 @@ void UnifiedDiffEditorWidget::addContextMenuActions(QMenu *menu, int fileIndex, 
     menu->addSeparator();
 
     m_controller.addCodePasterAction(menu, fileIndex, chunkIndex);
-    m_controller.addApplyRevertAction(menu, fileIndex, chunkIndex, LeftSide);
-    m_controller.addApplyRevertAction(menu, fileIndex, chunkIndex, RightSide);
+    m_controller.addPatchAction(menu, fileIndex, chunkIndex, PatchAction::Apply);
+    m_controller.addPatchAction(menu, fileIndex, chunkIndex, PatchAction::Revert);
     m_controller.addExtraActions(menu, fileIndex, chunkIndex, selection);
 }
 

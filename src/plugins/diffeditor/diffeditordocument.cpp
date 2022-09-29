@@ -19,6 +19,7 @@
 #include <QTextCodec>
 #include <QUuid>
 
+using namespace Core;
 using namespace Utils;
 
 namespace DiffEditor {
@@ -63,8 +64,8 @@ static void appendRow(ChunkData *chunk, const RowData &row)
         chunk->rows.append(row);
 }
 
-ChunkData DiffEditorDocument::filterChunk(const ChunkData &data,
-                                          const ChunkSelection &selection, bool revert)
+ChunkData DiffEditorDocument::filterChunk(const ChunkData &data, const ChunkSelection &selection,
+                                          PatchAction patchAction)
 {
     if (selection.isNull())
         return data;
@@ -85,13 +86,13 @@ ChunkData DiffEditorDocument::filterChunk(const ChunkData &data,
                 row.line[RightSide] = TextLineData(TextLineData::Separator);
                 appendRow(&chunk, row);
 
-                if (revert) {
+                if (patchAction == PatchAction::Revert) {
                     newRow.line[LeftSide] = newRow.line[RightSide];
                     newRow.equal = true;
                     appendRow(&chunk, newRow);
                 }
             } else { // isRightSelected
-                if (!revert) {
+                if (patchAction == PatchAction::Apply) {
                     RowData newRow = row;
                     newRow.line[RightSide] = newRow.line[LeftSide];
                     newRow.equal = true;
@@ -102,10 +103,10 @@ ChunkData DiffEditorDocument::filterChunk(const ChunkData &data,
                 appendRow(&chunk, row);
             }
         } else {
-            if (revert)
-                row.line[LeftSide] = row.line[RightSide];
-            else
+            if (patchAction == PatchAction::Apply)
                 row.line[RightSide] = row.line[LeftSide];
+            else
+                row.line[LeftSide] = row.line[RightSide];
             row.equal = true;
             appendRow(&chunk, row);
         }
@@ -115,9 +116,8 @@ ChunkData DiffEditorDocument::filterChunk(const ChunkData &data,
 }
 
 QString DiffEditorDocument::makePatch(int fileIndex, int chunkIndex,
-                                      const ChunkSelection &selection,
-                                      bool revert, bool addPrefix,
-                                      const QString &overriddenFileName) const
+                                      const ChunkSelection &selection, PatchAction patchAction,
+                                      bool addPrefix, const QString &overriddenFileName) const
 {
     if (fileIndex < 0 || chunkIndex < 0 || fileIndex >= m_diffFiles.count())
         return {};
@@ -126,22 +126,16 @@ QString DiffEditorDocument::makePatch(int fileIndex, int chunkIndex,
     if (chunkIndex >= fileData.chunks.count())
         return {};
 
-    const ChunkData chunkData = filterChunk(fileData.chunks.at(chunkIndex), selection, revert);
+    const ChunkData chunkData = filterChunk(fileData.chunks.at(chunkIndex), selection, patchAction);
     const bool lastChunk = (chunkIndex == fileData.chunks.count() - 1);
 
     const QString fileName = !overriddenFileName.isEmpty()
-            ? overriddenFileName : revert
-              ? fileData.fileInfo[RightSide].fileName
-              : fileData.fileInfo[LeftSide].fileName;
+            ? overriddenFileName : patchAction == PatchAction::Apply
+              ? fileData.fileInfo[LeftSide].fileName : fileData.fileInfo[RightSide].fileName;
 
-    QString leftPrefix, rightPrefix;
-    if (addPrefix) {
-        leftPrefix = "a/";
-        rightPrefix = "b/";
-    }
-    return DiffUtils::makePatch(chunkData,
-                                leftPrefix + fileName,
-                                rightPrefix + fileName,
+    const QString leftFileName = addPrefix ? QString("a/") + fileName : fileName;
+    const QString rightFileName = addPrefix ? QString("b/") + fileName : fileName;
+    return DiffUtils::makePatch(chunkData, leftFileName, rightFileName,
                                 lastChunk && fileData.lastChunkAtTheEndOfFile);
 }
 

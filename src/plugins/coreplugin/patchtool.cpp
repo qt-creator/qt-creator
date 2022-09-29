@@ -1,14 +1,15 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "patchtool.h"
-#include "messagemanager.h"
+#include "coreplugintr.h"
 #include "icore.h"
+#include "messagemanager.h"
+#include "patchtool.h"
 
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
 
-#include <QApplication>
+#include <QMessageBox>
 
 using namespace Utils;
 
@@ -37,22 +38,30 @@ void PatchTool::setPatchCommand(const FilePath &newCommand)
     s->endGroup();
 }
 
+bool PatchTool::confirmPatching(QWidget *parent, PatchAction patchAction)
+{
+    const QString title = patchAction == PatchAction::Apply ? Tr::tr("Apply Chunk")
+                                                            : Tr::tr("Revert Chunk");
+    const QString question = patchAction == PatchAction::Apply
+            ? Tr::tr("Would you like to apply the chunk?")
+            : Tr::tr("Would you like to revert the chunk?");
+    return QMessageBox::question(parent, title, question, QMessageBox::Yes | QMessageBox::No)
+            == QMessageBox::Yes;
+}
+
 static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirectory,
-                           int strip, bool reverse, bool withCrlf)
+                           int strip, PatchAction patchAction, bool withCrlf)
 {
     const FilePath patch = PatchTool::patchCommand();
     if (patch.isEmpty()) {
-        MessageManager::writeDisrupting(QApplication::translate(
-            "Core::PatchTool",
-            "There is no patch-command configured in the general \"Environment\" settings."));
+        MessageManager::writeDisrupting(Tr::tr("There is no patch-command configured in "
+                                               "the general \"Environment\" settings."));
         return false;
     }
 
     if (!patch.exists() && !patch.searchInPath().exists()) {
-        MessageManager::writeDisrupting(
-            QApplication::translate("Core::PatchTool",
-                                    "The patch-command configured in the general \"Environment\" "
-                                    "settings does not exist."));
+        MessageManager::writeDisrupting(Tr::tr("The patch-command configured in the general "
+                                               "\"Environment\" settings does not exist."));
         return false;
     }
 
@@ -70,20 +79,18 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
 
     if (strip >= 0)
         args << ("-p" + QString::number(strip));
-    if (reverse)
+    if (patchAction == PatchAction::Revert)
         args << "-R";
     if (withCrlf)
         args << "--binary";
-    MessageManager::writeDisrupting(
-        QApplication::translate("Core::PatchTool", "Running in %1: %2 %3")
+    MessageManager::writeDisrupting(Tr::tr("Running in %1: %2 %3")
             .arg(workingDirectory.toUserOutput(), patch.toUserOutput(), args.join(' ')));
     patchProcess.setCommand({patch, args});
     patchProcess.setWriteData(input);
     patchProcess.start();
     if (!patchProcess.waitForStarted()) {
-        MessageManager::writeFlashing(
-            QApplication::translate("Core::PatchTool", "Unable to launch \"%1\": %2")
-                .arg(patch.toUserOutput(), patchProcess.errorString()));
+        MessageManager::writeFlashing(Tr::tr("Unable to launch \"%1\": %2")
+                                      .arg(patch.toUserOutput(), patchProcess.errorString()));
         return false;
     }
 
@@ -92,9 +99,8 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
     if (!patchProcess.readDataFromProcess(&stdOut, &stdErr)) {
         patchProcess.stop();
         patchProcess.waitForFinished();
-        MessageManager::writeFlashing(
-            QApplication::translate("Core::PatchTool", "A timeout occurred running \"%1\"")
-                .arg(patch.toUserOutput()));
+        MessageManager::writeFlashing(Tr::tr("A timeout occurred running \"%1\"")
+                                      .arg(patch.toUserOutput()));
         return false;
 
     }
@@ -102,7 +108,7 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
         if (stdOut.contains("(different line endings)") && !withCrlf) {
             QByteArray crlfInput = input;
             crlfInput.replace('\n', "\r\n");
-            return runPatchHelper(crlfInput, workingDirectory, strip, reverse, true);
+            return runPatchHelper(crlfInput, workingDirectory, strip, patchAction, true);
         } else {
             MessageManager::writeFlashing(QString::fromLocal8Bit(stdOut));
         }
@@ -111,24 +117,21 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
         MessageManager::writeFlashing(QString::fromLocal8Bit(stdErr));
 
     if (patchProcess.exitStatus() != QProcess::NormalExit) {
-        MessageManager::writeFlashing(
-            QApplication::translate("Core::PatchTool", "\"%1\" crashed.").arg(patch.toUserOutput()));
+        MessageManager::writeFlashing(Tr::tr("\"%1\" crashed.").arg(patch.toUserOutput()));
         return false;
     }
     if (patchProcess.exitCode() != 0) {
-        MessageManager::writeFlashing(
-            QApplication::translate("Core::PatchTool", "\"%1\" failed (exit code %2).")
-                .arg(patch.toUserOutput())
-                .arg(patchProcess.exitCode()));
+        MessageManager::writeFlashing(Tr::tr("\"%1\" failed (exit code %2).")
+                                      .arg(patch.toUserOutput()).arg(patchProcess.exitCode()));
         return false;
     }
     return true;
 }
 
 bool PatchTool::runPatch(const QByteArray &input, const FilePath &workingDirectory,
-                         int strip, bool reverse)
+                         int strip, PatchAction patchAction)
 {
-    return runPatchHelper(input, workingDirectory, strip, reverse, false);
+    return runPatchHelper(input, workingDirectory, strip, patchAction, false);
 }
 
 } // namespace Core

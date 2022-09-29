@@ -4,10 +4,8 @@
 #include "giteditor.h"
 
 #include "annotationhighlighter.h"
-#include "branchadddialog.h"
 #include "gitclient.h"
 #include "gitsettings.h"
-#include "gitsubmiteditorwidget.h"
 #include "gitconstants.h"
 #include "githighlighters.h"
 
@@ -32,6 +30,7 @@
 
 #define CHANGE_PATTERN "[a-f0-9]{7,40}"
 
+using namespace Core;
 using namespace Utils;
 using namespace VcsBase;
 
@@ -214,7 +213,7 @@ void GitEditorWidget::setPlainText(const QString &text)
     textDocument()->setPlainText(modText);
 }
 
-void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
+void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, PatchAction patchAction)
 {
     Utils::TemporaryFile patchFile("git-apply-chunk");
     if (!patchFile.open())
@@ -226,7 +225,7 @@ void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
     patchFile.close();
 
     QStringList args = {"--cached"};
-    if (revert)
+    if (patchAction == PatchAction::Revert)
         args << "--reverse";
     QString errorMessage;
     if (GitClient::instance()->synchronousApplyPatch(baseDir, patchFile.fileName(), &errorMessage, args)) {
@@ -234,7 +233,7 @@ void GitEditorWidget::applyDiffChunk(const DiffChunk& chunk, bool revert)
             VcsOutputWindow::append(tr("Chunk successfully staged"));
         else
             VcsOutputWindow::append(errorMessage);
-        if (revert)
+        if (patchAction == PatchAction::Revert)
             emit diffChunkReverted(chunk);
         else
             emit diffChunkApplied(chunk);
@@ -264,12 +263,12 @@ void GitEditorWidget::addDiffActions(QMenu *menu, const DiffChunk &chunk)
 
     QAction *stageAction = menu->addAction(tr("Stage Chunk..."));
     connect(stageAction, &QAction::triggered, this, [this, chunk] {
-        applyDiffChunk(chunk, false);
+        applyDiffChunk(chunk, PatchAction::Apply);
     });
 
     QAction *unstageAction = menu->addAction(tr("Unstage Chunk..."));
     connect(unstageAction, &QAction::triggered, this, [this, chunk] {
-        applyDiffChunk(chunk, true);
+        applyDiffChunk(chunk, PatchAction::Revert);
     });
 }
 

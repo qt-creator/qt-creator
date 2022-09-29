@@ -5,6 +5,7 @@
 
 #include "diffutils.h"
 
+#include <coreplugin/patchtool.h>
 #include <utils/guard.h>
 
 #include <QObject>
@@ -38,7 +39,7 @@ public:
                             int columnNumber);
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
     void addCodePasterAction(QMenu *menu, int fileIndex, int chunkIndex);
-    void addApplyRevertAction(QMenu *menu, int fileIndex, int chunkIndex, DiffSide side);
+    void addPatchAction(QMenu *menu, int fileIndex, int chunkIndex, Core::PatchAction patchAction);
     void addExtraActions(QMenu *menu, int fileIndex, int chunkIndex, const ChunkSelection &selection);
     void updateCannotDecodeInfo();
     void setBusyShowing(bool busy);
@@ -60,7 +61,7 @@ private:
     bool isInProgress() const;
     void toggleProgress(bool wasInProgress);
 
-    void patch(bool revert, int fileIndex, int chunkIndex);
+    void patch(Core::PatchAction patchAction, int fileIndex, int chunkIndex);
     void sendChunkToCodePaster(int fileIndex, int chunkIndex);
     bool chunkExists(int fileIndex, int chunkIndex) const;
     bool fileNamesAreDifferent(int fileIndex) const;

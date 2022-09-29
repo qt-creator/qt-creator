@@ -1107,8 +1107,9 @@ void SideBySideDiffEditorWidget::contextMenuRequested(DiffSide side, QMenu *menu
 {
     menu->addSeparator();
 
+    const PatchAction patchAction = side == LeftSide ? PatchAction::Apply : PatchAction::Revert;
     m_controller.addCodePasterAction(menu, fileIndex, chunkIndex);
-    m_controller.addApplyRevertAction(menu, fileIndex, chunkIndex, side);
+    m_controller.addPatchAction(menu, fileIndex, chunkIndex, patchAction);
     m_controller.addExtraActions(menu, fileIndex, chunkIndex, selection);
 }
 

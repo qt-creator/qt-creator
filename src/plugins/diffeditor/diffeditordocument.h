@@ -5,6 +5,7 @@
 
 #include "diffutils.h"
 
+#include <coreplugin/patchtool.h>
 #include <coreplugin/textdocument.h>
 
 QT_FORWARD_DECLARE_CLASS(QMenu)
@@ -31,10 +32,10 @@ public:
         LoadFailed
     };
 
-    static ChunkData filterChunk(const ChunkData &data,
-                                 const ChunkSelection &selection, bool revert);
+    static ChunkData filterChunk(const ChunkData &data, const ChunkSelection &selection,
+                                 Core::PatchAction patchAction);
     QString makePatch(int fileIndex, int chunkIndex, const ChunkSelection &selection,
-                      bool revert, bool addPrefix = false,
+                      Core::PatchAction patchAction, bool addPrefix = false,
                       const QString &overriddenFileName = {}) const;
 
     void setDiffFiles(const QList<FileData> &data, const Utils::FilePath &directory,

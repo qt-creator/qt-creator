@@ -1421,7 +1421,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
     QTest::addColumn<ChunkData>("chunk");
     QTest::addColumn<ListOfStringPairs>("rows");
     QTest::addColumn<ChunkSelection>("selection");
-    QTest::addColumn<bool>("revert");
+    QTest::addColumn<PatchAction>("patchAction");
 
     auto createChunk = [] {
         ChunkData chunk;
@@ -1451,7 +1451,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
         {"", "B"},
         {"C", "C"}
     };
-    QTest::newRow("one added") << chunk << rows << ChunkSelection() << false;
+    QTest::newRow("one added") << chunk << rows << ChunkSelection() << PatchAction::Apply;
 
     chunk = createChunk();
     appendRow(&chunk, "A", "A"); // 50
@@ -1462,7 +1462,7 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
         {"B", ""},
         {"C", "C"}
     };
-    QTest::newRow("one removed") << chunk << rows << ChunkSelection() << false;
+    QTest::newRow("one removed") << chunk << rows << ChunkSelection() << PatchAction::Apply;
 
     chunk = createChunk();
     appendRow(&chunk, "A", "A"); // 50
@@ -1477,7 +1477,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
         {"", "D"},
         {"F", "F"}
     };
-    QTest::newRow("stage selected added") << chunk << rows << ChunkSelection({2, 3}, {2, 3}) << false;
+    QTest::newRow("stage selected added") << chunk << rows << ChunkSelection({2, 3}, {2, 3})
+                                          << PatchAction::Apply;
 
     chunk = createChunk();
     appendRow(&chunk, "A", "A"); // 50
@@ -1490,7 +1491,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
         {"C", "C"},
         {"E", "E"}
     };
-    QTest::newRow("stage selected added keep changed") << chunk << rows << ChunkSelection({1}, {1}) << false;
+    QTest::newRow("stage selected added keep changed") << chunk << rows << ChunkSelection({1}, {1})
+                                                       << PatchAction::Apply;
 
     chunk = createChunk();
     appendRow(&chunk, "A", "A"); // 50
@@ -1507,7 +1509,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
         {"E", "E"},
         {"F", "F"}
     };
-    QTest::newRow("stage selected removed") << chunk << rows << ChunkSelection({2, 3}, {2, 3}) << false;
+    QTest::newRow("stage selected removed") << chunk << rows << ChunkSelection({2, 3}, {2, 3})
+                                            << PatchAction::Apply;
 
     chunk = createChunk();
     appendRow(&chunk, "A", "A"); // 50
@@ -1523,7 +1526,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
         {"", "D"},
         {"F", "F"}
     };
-    QTest::newRow("stage selected added/removed") << chunk << rows << ChunkSelection({2, 3}, {2, 3}) << false;
+    QTest::newRow("stage selected added/removed") << chunk << rows << ChunkSelection({2, 3}, {2, 3})
+                                                  << PatchAction::Apply;
 
     chunk = createChunk();
     appendRow(&chunk, "A", "A"); // 50
@@ -1534,7 +1538,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
         {"B", "C"},
         {"D", "D"}
     };
-    QTest::newRow("stage modified row") << chunk << rows << ChunkSelection({1}, {1}) << false;
+    QTest::newRow("stage modified row") << chunk << rows << ChunkSelection({1}, {1})
+                                        << PatchAction::Apply;
 
     chunk = createChunk();
     appendRow(&chunk, "A", "A"); // 50
@@ -1545,7 +1550,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
         {"B", "C"},
         {"D", "D"}
     };
-    QTest::newRow("stage modified and unmodified rows") << chunk << rows << ChunkSelection({0, 1, 2}, {0, 1, 2}) << false;
+    QTest::newRow("stage modified and unmodified rows") << chunk << rows
+                  << ChunkSelection({0, 1, 2}, {0, 1, 2}) << PatchAction::Apply;
 
     chunk = createChunk();
     appendRow(&chunk, "A", "A"); // 50
@@ -1556,7 +1562,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
         {"B", "C"},
         {"D", "D"}
     };
-    QTest::newRow("stage unmodified left rows") << chunk << rows << ChunkSelection({0, 1, 2}, {1}) << false;
+    QTest::newRow("stage unmodified left rows") << chunk << rows << ChunkSelection({0, 1, 2}, {1})
+                                                << PatchAction::Apply;
 
     chunk = createChunk();
     appendRow(&chunk, "A", "A"); // 50
@@ -1567,7 +1574,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
         {"B", "C"},
         {"D", "D"}
     };
-    QTest::newRow("stage unmodified right rows") << chunk << rows << ChunkSelection({1}, {0, 1, 2}) << false;
+    QTest::newRow("stage unmodified right rows") << chunk << rows << ChunkSelection({1}, {0, 1, 2})
+                                                 << PatchAction::Apply;
 
     chunk = createChunk();
     appendRow(&chunk, "A", "A"); // 50
@@ -1578,7 +1586,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
         {"B", ""},
         {"D", "D"}
     };
-    QTest::newRow("stage left only") << chunk << rows << ChunkSelection({1}, {}) << false;
+    QTest::newRow("stage left only") << chunk << rows << ChunkSelection({1}, {})
+                                     << PatchAction::Apply;
 
     chunk = createChunk();
     appendRow(&chunk, "A", "A"); // 50
@@ -1590,7 +1599,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
         {"", "C"},
         {"D", "D"}
     };
-    QTest::newRow("stage right only") << chunk << rows << ChunkSelection({}, {1}) << false;
+    QTest::newRow("stage right only") << chunk << rows << ChunkSelection({}, {1})
+                                      << PatchAction::Apply;
 
     chunk = createChunk();
     appendRow(&chunk, "A", "A"); // 50
@@ -1601,7 +1611,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
         {"B", "C"},
         {"D", "D"}
     };
-    QTest::newRow("stage modified row and revert") << chunk << rows << ChunkSelection({1}, {1}) << true;
+    QTest::newRow("stage modified row and revert") << chunk << rows << ChunkSelection({1}, {1})
+                                                   << PatchAction::Revert;
 
     chunk = createChunk();
     appendRow(&chunk, "A", "A"); // 50
@@ -1614,7 +1625,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
         {"D", "D"}
     };
     // symmetric to: "stage right only"
-    QTest::newRow("stage left only and revert") << chunk << rows << ChunkSelection({1}, {}) << true;
+    QTest::newRow("stage left only and revert") << chunk << rows << ChunkSelection({1}, {})
+                                                << PatchAction::Revert;
 
     chunk = createChunk();
     appendRow(&chunk, "A", "A"); // 50
@@ -1626,8 +1638,8 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch_data()
         {"D", "D"}
     };
     // symmetric to: "stage left only"
-    QTest::newRow("stage right only and revert") << chunk << rows << ChunkSelection({}, {1}) << true;
-
+    QTest::newRow("stage right only and revert") << chunk << rows << ChunkSelection({}, {1})
+                                                 << PatchAction::Revert;
 }
 
 void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch()
@@ -1635,9 +1647,9 @@ void DiffEditor::Internal::DiffEditorPlugin::testFilterPatch()
     QFETCH(ChunkData, chunk);
     QFETCH(ListOfStringPairs, rows);
     QFETCH(ChunkSelection, selection);
-    QFETCH(bool, revert);
+    QFETCH(PatchAction, patchAction);
 
-    const ChunkData result = DiffEditorDocument::filterChunk(chunk, selection, revert);
+    const ChunkData result = DiffEditorDocument::filterChunk(chunk, selection, patchAction);
     QCOMPARE(result.rows.size(), rows.size());
     for (int i = 0; i < rows.size(); ++i) {
         QCOMPARE(result.rows.at(i).line[LeftSide].text, rows.at(i).first);

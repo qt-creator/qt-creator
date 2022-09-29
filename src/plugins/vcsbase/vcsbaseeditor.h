@@ -5,6 +5,7 @@
 
 #include "vcsbase_global.h"
 
+#include <coreplugin/patchtool.h>
 #include <texteditor/texteditor.h>
 
 #include <QSet>
@@ -245,14 +246,14 @@ private:
     void slotJumpToEntry(int);
     void slotCursorPositionChanged() override;
     void slotAnnotateRevision(const QString &change);
-    void slotApplyDiffChunk(const DiffChunk &chunk, bool revert);
+    void slotApplyDiffChunk(const DiffChunk &chunk, Core::PatchAction patchAction);
     void slotPaste();
     void showProgressIndicator();
     void hideProgressIndicator();
 
     bool canApplyDiffChunk(const DiffChunk &dc) const;
     // Revert a patch chunk. Default implementation uses patch.exe
-    bool applyDiffChunk(const DiffChunk &dc, bool revert = false) const;
+    bool applyDiffChunk(const DiffChunk &dc, Core::PatchAction patchAction) const;
 
     // Indicates if the editor has diff contents. If true, an appropriate
     // highlighter is used and double-click inside a diff chunk jumps to
