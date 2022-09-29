@@ -38,7 +38,7 @@ namespace Internal {
 class ReloadInput {
 public:
     std::array<QString, SideCount> text{};
-    std::array<DiffFileInfo, SideCount> fileInfo{};
+    DiffFileInfoArray fileInfo{};
     FileData::FileOperation fileOperation = FileData::ChangeFile;
     bool binaryFiles = false;
 };

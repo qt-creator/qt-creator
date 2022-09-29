@@ -11,6 +11,8 @@
 #include <QMap>
 #include <QString>
 
+#include <array>
+
 QT_BEGIN_NAMESPACE
 class QFutureInterfaceBase;
 QT_END_NAMESPACE
@@ -33,6 +35,8 @@ public:
     QString typeInfo;
     PatchBehaviour patchBehaviour = PatchFile;
 };
+
+using DiffFileInfoArray = std::array<DiffFileInfo, SideCount>;
 
 class DIFFEDITOR_EXPORT TextLineData {
 public:
@@ -98,7 +102,7 @@ public:
     FileData() = default;
     FileData(const ChunkData &chunkData) { chunks.append(chunkData); }
     QList<ChunkData> chunks;
-    std::array<DiffFileInfo, SideCount> fileInfo{};
+    DiffFileInfoArray fileInfo{};
     FileOperation fileOperation = ChangeFile;
     bool binaryFiles = false;
     bool lastChunkAtTheEndOfFile = false;

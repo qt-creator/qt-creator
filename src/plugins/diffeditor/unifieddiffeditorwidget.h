@@ -38,13 +38,12 @@ public:
     std::array<int, SideCount> m_lineNumberDigits{1, 1};
 
     // block number, visual line number.
-    QMap<int, QPair<DiffFileInfo, DiffFileInfo>> m_fileInfo;
+    QMap<int, DiffFileInfoArray> m_fileInfo;
     // start block number, block count of a chunk, chunk index inside a file.
     QMap<int, QPair<int, int>> m_chunkInfo;
 
 private:
     void setLineNumber(DiffSide side, int blockNumber, int lineNumber, int rowNumberInChunk);
-    void setFileInfo(int blockNumber, const DiffFileInfo &leftInfo, const DiffFileInfo &rightInfo);
     void setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex);
     QString setChunk(const DiffEditorInput &input, const ChunkData &chunkData,
                      bool lastChunk, int *blockNumber, DiffSelections *selections);

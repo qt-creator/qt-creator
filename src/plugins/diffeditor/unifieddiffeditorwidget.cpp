@@ -274,12 +274,6 @@ void UnifiedDiffData::setLineNumber(DiffSide side, int blockNumber, int lineNumb
     m_lineNumberDigits[side] = qMax(m_lineNumberDigits[side], lineNumberString.count());
 }
 
-void UnifiedDiffData::setFileInfo(int blockNumber, const DiffFileInfo &leftInfo,
-                                                   const DiffFileInfo &rightInfo)
-{
-    m_fileInfo[blockNumber] = {leftInfo, rightInfo};
-}
-
 void UnifiedDiffData::setChunkIndex(int startBlockNumber, int blockCount, int chunkIndex)
 {
     m_chunkInfo.insert(startBlockNumber, qMakePair(blockCount, chunkIndex));
@@ -428,7 +422,7 @@ UnifiedDiffOutput UnifiedDiffData::diffOutput(QFutureInterface<void> &fi, int pr
     for (const FileData &fileData : qAsConst(input.m_contextFileData)) {
         const QString leftFileInfo = "--- " + fileData.fileInfo[LeftSide].fileName + '\n';
         const QString rightFileInfo = "+++ " + fileData.fileInfo[RightSide].fileName + '\n';
-        output.diffData.setFileInfo(blockNumber, fileData.fileInfo[LeftSide], fileData.fileInfo[RightSide]);
+        output.diffData.m_fileInfo[blockNumber] = fileData.fileInfo;
         output.foldingIndent.insert(blockNumber, 1);
         output.selections[blockNumber].append({input.m_fileLineFormat});
         blockNumber++;
