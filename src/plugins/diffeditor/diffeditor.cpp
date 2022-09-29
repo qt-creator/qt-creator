@@ -48,6 +48,7 @@ static const char diffViewKeyC[] = "DiffEditorType";
 
 using namespace Core;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace DiffEditor {
 namespace Internal {
@@ -239,7 +240,7 @@ void DiffEditor::setDocument(QSharedPointer<DiffEditorDocument> doc)
 
 DiffEditor::DiffEditor(DiffEditorDocument *doc) : DiffEditor()
 {
-    Utils::GuardLocker guard(m_ignoreChanges);
+    GuardLocker guard(m_ignoreChanges);
     setDocument(QSharedPointer<DiffEditorDocument>(doc));
     setupView(loadSettings());
 }
@@ -254,13 +255,13 @@ DiffEditor::~DiffEditor()
 IEditor *DiffEditor::duplicate()
 {
     auto editor = new DiffEditor;
-    Utils::GuardLocker guard(editor->m_ignoreChanges);
+    GuardLocker guard(editor->m_ignoreChanges);
 
     editor->setDocument(m_document);
     editor->m_sync = m_sync;
     editor->m_showDescription = m_showDescription;
 
-    Utils::Id id = currentView()->id();
+    Id id = currentView()->id();
     IDiffView *view = Utils::findOr(editor->m_views, editor->m_views.at(0),
                                     Utils::equal(&IDiffView::id, id));
     QTC_ASSERT(view, view = editor->currentView());
@@ -300,7 +301,7 @@ TextEditorWidget *DiffEditor::sideEditorWidget(DiffSide side) const
 
 void DiffEditor::documentHasChanged()
 {
-    Utils::GuardLocker guard(m_ignoreChanges);
+    GuardLocker guard(m_ignoreChanges);
     const QList<FileData> &diffFileList = m_document->diffFiles();
 
     updateDescription();
@@ -310,8 +311,8 @@ void DiffEditor::documentHasChanged()
     for (const FileData &diffFile : diffFileList) {
         const DiffFileInfo &leftEntry = diffFile.fileInfo[LeftSide];
         const DiffFileInfo &rightEntry = diffFile.fileInfo[RightSide];
-        const QString leftShortFileName = Utils::FilePath::fromString(leftEntry.fileName).fileName();
-        const QString rightShortFileName = Utils::FilePath::fromString(rightEntry.fileName).fileName();
+        const QString leftShortFileName = FilePath::fromString(leftEntry.fileName).fileName();
+        const QString rightShortFileName = FilePath::fromString(rightEntry.fileName).fileName();
         QString itemText;
         QString itemToolTip;
         if (leftEntry.fileName == rightEntry.fileName) {
@@ -374,7 +375,7 @@ void DiffEditor::updateDescription()
     m_descriptionWidget->setPlainText(description);
     m_descriptionWidget->setVisible(m_showDescription && !description.isEmpty());
 
-    Utils::GuardLocker guard(m_ignoreChanges);
+    GuardLocker guard(m_ignoreChanges);
     m_toggleDescriptionAction->setChecked(m_showDescription);
     m_toggleDescriptionAction->setToolTip(m_showDescription ? tr("Hide Change Description")
                                                       : tr("Show Change Description"));
@@ -422,7 +423,7 @@ void DiffEditor::prepareForReload()
     }
 
     {
-        Utils::GuardLocker guard(m_ignoreChanges);
+        GuardLocker guard(m_ignoreChanges);
         m_contextSpinBox->setValue(m_document->contextLineCount());
         m_whitespaceButtonAction->setChecked(m_document->ignoreWhitespace());
     }
@@ -473,7 +474,7 @@ void DiffEditor::setCurrentDiffFileIndex(int index)
 
     QTC_ASSERT((index < 0) != (m_entriesComboBox->count() > 0), return);
 
-    Utils::GuardLocker guard(m_ignoreChanges);
+    GuardLocker guard(m_ignoreChanges);
     m_currentDiffFileIndex = index;
     currentView()->setCurrentDiffFileIndex(index);
 
@@ -524,7 +525,7 @@ IDiffView *DiffEditor::loadSettings()
     m_sync = s->value(horizontalScrollBarSynchronizationKeyC, true).toBool();
     m_document->setIgnoreWhitespace(s->value(ignoreWhitespaceKeyC, false).toBool());
     m_document->setContextLineCount(s->value(contextLineCountKeyC, 3).toInt());
-    Utils::Id id = Utils::Id::fromSetting(s->value(diffViewKeyC));
+    Id id = Id::fromSetting(s->value(diffViewKeyC));
     s->endGroup();
 
     IDiffView *view = Utils::findOr(m_views, m_views.at(0),
@@ -584,7 +585,7 @@ void DiffEditor::setupView(IDiffView *view)
     saveSetting(diffViewKeyC, currentView()->id().toSetting());
 
     {
-        Utils::GuardLocker guard(m_ignoreChanges);
+        GuardLocker guard(m_ignoreChanges);
         m_toggleSyncAction->setVisible(currentView()->supportsSync());
         m_toggleSyncAction->setToolTip(currentView()->syncToolTip());
         m_toggleSyncAction->setText(currentView()->syncToolTip());
