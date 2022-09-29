@@ -3,12 +3,9 @@
 
 #pragma once
 
-#include <projectexplorer/project.h>
-
 #include <extensionsystem/iplugin.h>
 
-namespace AutotoolsProjectManager {
-namespace Internal {
+namespace AutotoolsProjectManager::Internal {
 
 /**
  * @brief Implementation of the ExtensionsSystem::IPlugin interface.
@@ -51,19 +48,4 @@ class AutotoolsProjectPlugin final : public ExtensionSystem::IPlugin
     class AutotoolsProjectPluginPrivate *d;
 };
 
-/**
- * @brief Implementation of the ProjectExplorer::Project interface.
- *
- * Loads the autotools project and embeds it into the QtCreator project tree.
- * The class AutotoolsProject is the core of the autotools project plugin.
- * It is responsible to parse the Makefile.am files and do trigger project
- * updates if a Makefile.am file or a configure.ac file has been changed.
- */
-class AutotoolsProject : public ProjectExplorer::Project
-{
-public:
-    explicit AutotoolsProject(const Utils::FilePath &fileName);
-};
-
-} // namespace Internal
-} // namespace AutotoolsProjectManager
+} // AutotoolsProjectManager::Internal

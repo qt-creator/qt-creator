@@ -4,6 +4,7 @@
 #include "autotoolsbuildconfiguration.h"
 
 #include "autotoolsprojectconstants.h"
+#include "autotoolsprojectmanagertr.h"
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
@@ -14,15 +15,12 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace AutotoolsProjectManager {
-namespace Internal {
+namespace AutotoolsProjectManager::Internal {
 
 // AutotoolsBuildConfiguration
 
 class AutotoolsBuildConfiguration : public BuildConfiguration
 {
-    Q_DECLARE_TR_FUNCTIONS(AutotoolsProjectManager::Internal::AutotoolsBuildConfiguration)
-
 public:
     AutotoolsBuildConfiguration(Target *target, Id id)
         : BuildConfiguration(target, id)
@@ -31,7 +29,7 @@ public:
         // The leading / is to avoid the relative the path expansion in BuildConfiguration::buildDirectory.
         setBuildDirectory("/<foobar>");
         setBuildDirectoryHistoryCompleter("AutoTools.BuildDir.History");
-        setConfigWidgetDisplayName(tr("Autotools Manager"));
+        setConfigWidgetDisplayName(Tr::tr("Autotools Manager"));
 
         // ### Build Steps Build ###
         const FilePath autogenFile = target->project()->projectDirectory() / "autogen.sh";
@@ -69,5 +67,4 @@ AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory()
     });
 }
 
-} // Internal
-} // AutotoolsProjectManager
+} // AutotoolsProjectManager::Internal

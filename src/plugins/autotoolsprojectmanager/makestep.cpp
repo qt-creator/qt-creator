@@ -9,28 +9,25 @@
 
 using namespace AutotoolsProjectManager::Constants;
 
-namespace AutotoolsProjectManager {
-namespace Internal {
+namespace AutotoolsProjectManager::Internal {
 
 // MakeStep
 
 class MakeStep : public ProjectExplorer::MakeStep
 {
 public:
-    MakeStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-};
-
-MakeStep::MakeStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id)
-    : ProjectExplorer::MakeStep(bsl, id)
-{
-    setAvailableBuildTargets({"all", "clean"});
-    if (bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
-        setSelectedBuildTarget("clean");
-        setIgnoreReturnValue(true);
-    } else {
-        setSelectedBuildTarget("all");
+    MakeStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id)
+        : ProjectExplorer::MakeStep(bsl, id)
+    {
+        setAvailableBuildTargets({"all", "clean"});
+        if (bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
+            setSelectedBuildTarget("clean");
+            setIgnoreReturnValue(true);
+        } else {
+            setSelectedBuildTarget("all");
+        }
     }
-}
+};
 
 // MakeStepFactory
 
@@ -41,5 +38,4 @@ MakeStepFactory::MakeStepFactory()
     setSupportedProjectType(AUTOTOOLS_PROJECT_ID);
 }
 
-} // Internal
-} // AutotoolsProjectManager
+} // AutotoolsProjectManager::Internal

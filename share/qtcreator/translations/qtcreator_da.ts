@@ -2406,7 +2406,7 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -2415,9 +2415,6 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation>Konfiguration uændret, springer autogen-trin over.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepConfigWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Argumenter:</translation>
@@ -2427,17 +2424,11 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <comment>AutotoolsProjectManager::AutogenStepConfigWidget display name.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepFactory</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <translation>Autoreconf</translation>
@@ -2446,29 +2437,16 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation>Konfiguration uændret, springer autoreconf-trin over.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenter:</translation>
-    </message>
     <message>
         <source>Autoreconf</source>
         <comment>AutotoolsProjectManager::AutoreconfStepConfigWidget display name.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepFactory</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a autotools project.</extracomment>
@@ -2478,9 +2456,6 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>Build</source>
         <translation>Byg</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Bygmappe:</translation>
@@ -2489,31 +2464,18 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>Autotools Manager</source>
         <translation>Autotools-håndtering</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Autotools-assistent</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. It is not recommended to use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>Indtast venligst mappen hvor du vil bygge dit projekt. Det anbefaler ikke at bruge kildemappen til bygning. Dette sikre at kildemappen forbliver ren og muliggør flere bygninger med forskellige indstillinger.</translation>
     </message>
     <message>
-        <source>Build directory:</source>
-        <translation>Bygmappe:</translation>
-    </message>
-    <message>
         <source>Build Location</source>
         <translation>Bygplacering</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <translation>Konfigurer</translation>
@@ -2522,56 +2484,30 @@ Advarsel: dette er en eksperimentel facilitet og kan lede til at test-eksekverba
         <source>Configuration unchanged, skipping configure step.</source>
         <translation>Konfiguration uændret, springer konfigurationstrin over.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenter:</translation>
-    </message>
     <message>
         <source>Configure</source>
         <comment>AutotoolsProjectManager::ConfigureStepConfigWidget display name.</comment>
         <translation>Konfigurer</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepFactory</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
         <translation>Konfigurer</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenter:</translation>
     </message>
     <message>
         <source>Make</source>
         <comment>AutotoolsProjectManager::MakeStepConfigWidget display name.</comment>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for AutotoolsProjectManager::MakeStep id.</comment>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation>Parser %1 i mappen %2</translation>

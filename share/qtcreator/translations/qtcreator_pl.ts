@@ -21249,15 +21249,12 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepFactory</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -21266,9 +21263,6 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation>Konfiguracja niezmieniona, krok autogen pominięty.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepConfigWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Argumenty:</translation>
@@ -21278,17 +21272,11 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <comment>AutotoolsProjectManager::AutogenStepConfigWidget display name.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepFactory</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <translation>Autoreconf</translation>
@@ -21297,21 +21285,11 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation>Konfiguracja niezmieniona, krok autoreconf pominięty.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenty:</translation>
-    </message>
     <message>
         <source>Autoreconf</source>
         <comment>AutotoolsProjectManager::AutoreconfStepConfigWidget display name.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a autotools project.</extracomment>
@@ -21321,9 +21299,6 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Build</source>
         <translation>Wersja</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Katalog wersji:</translation>
@@ -21332,39 +21307,23 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Autotools Manager</source>
         <translation>Menedżer Autotools</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Kreator Autotools</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>Podaj katalog, w którym zbudować projekt. Zaleca się nie budować projektu w katalogu ze źródłami. Dzięki temu katalog ze źródłami pozostaje czysty i możliwe jest zbudowanie wielu wersji z różnymi ustawieniami, na podstawie tych samych źródeł.</translation>
     </message>
     <message>
-        <source>Build directory:</source>
-        <translation>Katalog wersji:</translation>
-    </message>
-    <message>
         <source>Build Location</source>
         <translation>Położenie wersji</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepFactory</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
         <translation>Konfiguracja</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <translation>Konfiguracja</translation>
@@ -21373,21 +21332,11 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Configuration unchanged, skipping configure step.</source>
         <translation>Konfiguracja niezmieniona, krok konfiguracji pominięty.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenty:</translation>
-    </message>
     <message>
         <source>Configure</source>
         <comment>AutotoolsProjectManager::ConfigureStepConfigWidget display name.</comment>
         <translation>Konfiguracja</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation>Parsowanie %1 w katalogu %2</translation>
@@ -21396,27 +21345,14 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
         <source>Parsing directory %1</source>
         <translation>Parsowanie katalogu %1</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for AutotoolsProjectManager::MakeStep id.</comment>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenty:</translation>
     </message>
     <message>
         <source>Make</source>

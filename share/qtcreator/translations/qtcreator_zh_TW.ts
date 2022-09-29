@@ -28156,15 +28156,12 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepFactory</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -28173,9 +28170,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation>設置未變更，跳過 autogen 步驟。</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepConfigWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>參數：</translation>
@@ -28185,17 +28179,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <comment>AutotoolsProjectManager::AutogenStepConfigWidget display name.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepFactory</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <translation>Autoreconf</translation>
@@ -28204,21 +28192,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation>設置未變更，跳過 autoreconf 步驟。</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>參數：</translation>
-    </message>
     <message>
         <source>Autoreconf</source>
         <comment>AutotoolsProjectManager::AutoreconfStepConfigWidget display name.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
         <source>Build</source>
         <translation>建置</translation>
@@ -28231,9 +28209,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>New configuration name:</source>
         <translation>新設置名稱：</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>建置目錄：</translation>
@@ -28246,9 +28221,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>&lt;Invalid tool chain&gt;</source>
         <translation type="obsolete">&lt;無效的工具鍊&gt;</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project file does not exist</source>
         <translation>開啟專案 &apos;%1&apos; 失敗：專案檔不存在</translation>
@@ -28257,47 +28229,28 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation>開啟專案 &apos;%1&apos; 失敗：專案已經被開啟</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Autotools 精靈</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>請輸入您想建置專案的目錄。Qt Creator 建議您不要直接用源碼的目錄來做建置。這樣可以保持源碼目錄的乾淨，並且可以讓您用不同的設定進行多個建置。</translation>
     </message>
     <message>
-        <source>Build directory:</source>
-        <translation>建置目錄：</translation>
-    </message>
-    <message>
         <source>Build Location</source>
         <translation>建置位置</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsTarget</name>
     <message>
         <source>Desktop</source>
         <comment>Autotools Default target display name</comment>
         <translation type="obsolete">桌面</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepFactory</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
         <translation>設置</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <translation>設置</translation>
@@ -28306,21 +28259,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Configuration unchanged, skipping configure step.</source>
         <translation>設置未變更，跳過設置步驟。</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>參數：</translation>
-    </message>
     <message>
         <source>Configure</source>
         <comment>AutotoolsProjectManager::ConfigureStepConfigWidget display name.</comment>
         <translation>設置</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation>在目錄 %2 剖析 %1 中</translation>
@@ -28329,17 +28272,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Parsing directory %1</source>
         <translation>剖析目錄 %1 中</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for AutotoolsProjectManager::MakeStep id.</comment>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -28351,13 +28288,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation type="unfinished">設置錯誤。請在錯誤檢視中看詳情。</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>參數：</translation>
     </message>
     <message>
         <source>Make</source>

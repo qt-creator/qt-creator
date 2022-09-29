@@ -3543,7 +3543,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -3561,9 +3561,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation>Конфигурация не изменилась, этап autogen пропускается.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
@@ -3574,30 +3571,17 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <translation>Autoreconf</translation>
     </message>
     <message>
-        <source>Arguments:</source>
-        <translation>Параметры:</translation>
-    </message>
-    <message>
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation>Конфигурация не изменилась, этап autoreconf пропускается.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfiguration</name>
     <message>
         <source>Autotools Manager</source>
         <translation>Управление Autotools</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Мастер Autotools</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. It is not recommended to use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>Укажите каталог, в котором желаете собирать проект. Рекомендуется не использовать каталог с исходниками для сборки. Это позволит поддерживать каталог с исходниками в чистоте, а также даст возможность делать несколько сборок с различными настройками.</translation>
@@ -3610,9 +3594,6 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <source>Build Location</source>
         <translation>Каталог сборки</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
@@ -3623,16 +3604,9 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <translation>Configure</translation>
     </message>
     <message>
-        <source>Arguments:</source>
-        <translation>Параметры:</translation>
-    </message>
-    <message>
         <source>Configuration unchanged, skipping configure step.</source>
         <translation>Конфигурация не изменилась, этап configure пропускается.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation>Обрабатывается %1 в каталоге %2</translation>

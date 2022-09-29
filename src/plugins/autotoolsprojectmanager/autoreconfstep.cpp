@@ -4,6 +4,7 @@
 #include "autoreconfstep.h"
 
 #include "autotoolsprojectconstants.h"
+#include "autotoolsprojectmanagertr.h"
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -17,8 +18,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace AutotoolsProjectManager {
-namespace Internal {
+namespace AutotoolsProjectManager::Internal {
 
 // AutoreconfStep class
 
@@ -33,8 +33,6 @@ namespace Internal {
 
 class AutoreconfStep final : public AbstractProcessStep
 {
-    Q_DECLARE_TR_FUNCTIONS(AutotoolsProjectManager::Internal::AutoreconfStep)
-
 public:
     AutoreconfStep(BuildStepList *bsl, Id id);
 
@@ -49,7 +47,7 @@ AutoreconfStep::AutoreconfStep(BuildStepList *bsl, Id id)
 {
     auto arguments = addAspect<StringAspect>();
     arguments->setSettingsKey("AutotoolsProjectManager.AutoreconfStep.AdditionalArguments");
-    arguments->setLabelText(tr("Arguments:"));
+    arguments->setLabelText(Tr::tr("Arguments:"));
     arguments->setValue("--force --install");
     arguments->setDisplayStyle(StringAspect::LineEditDisplay);
     arguments->setHistoryCompleter("AutotoolsPM.History.AutoreconfStepArgs");
@@ -80,7 +78,8 @@ void AutoreconfStep::doRun()
         m_runAutoreconf = true;
 
     if (!m_runAutoreconf) {
-        emit addOutput(tr("Configuration unchanged, skipping autoreconf step."), OutputFormat::NormalMessage);
+        emit addOutput(Tr::tr("Configuration unchanged, skipping autoreconf step."),
+                       OutputFormat::NormalMessage);
         emit finished(true);
         return;
     }
@@ -100,10 +99,9 @@ void AutoreconfStep::doRun()
 AutoreconfStepFactory::AutoreconfStepFactory()
 {
     registerStep<AutoreconfStep>(Constants::AUTORECONF_STEP_ID);
-    setDisplayName(AutoreconfStep::tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id."));
+    setDisplayName(Tr::tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id."));
     setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
 }
 
-} // Internal
-} // AutotoolsProjectManager
+} // AutotoolsProjectManager::Internal

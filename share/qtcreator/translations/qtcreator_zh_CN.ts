@@ -44552,15 +44552,12 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepFactory</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -44569,9 +44566,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation>配置未改变，跳过autogen步骤。</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepConfigWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>参数:</translation>
@@ -44581,17 +44575,11 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <comment>AutotoolsProjectManager::AutogenStepConfigWidget display name.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepFactory</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <translation>Autoreconf</translation>
@@ -44600,21 +44588,11 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation>配置未改变，跳过autoreconf步骤。</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>参数:</translation>
-    </message>
     <message>
         <source>Autoreconf</source>
         <comment>AutotoolsProjectManager::AutoreconfStepConfigWidget display name.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
         <source>Build</source>
         <translation>构建</translation>
@@ -44627,16 +44605,10 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>New configuration name:</source>
         <translation>新配置名称:</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>构建目录:</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project file does not exist</source>
         <translation>打开项目 &apos;%1&apos;失败: 项目文件不存在</translation>
@@ -44645,39 +44617,23 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Failed opening project &apos;%1&apos;: Project already open</source>
         <translation>打开项目 &apos;%1&apos;失败:项目已经被打开</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Autotool向导</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>请进入您想构建项目的目录。Qt Creator 建议不要使用源目录构建。这能确保源目录干净，并且可以针对不同设定多次构建。</translation>
     </message>
     <message>
-        <source>Build directory:</source>
-        <translation>构建目录:</translation>
-    </message>
-    <message>
         <source>Build Location</source>
         <translation>构建路径</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepFactory</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
         <translation>配置</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <translation>配置</translation>
@@ -44686,21 +44642,11 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Configuration unchanged, skipping configure step.</source>
         <translation>配置未改变，跳过configure步骤。</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>参数:</translation>
-    </message>
     <message>
         <source>Configure</source>
         <comment>AutotoolsProjectManager::ConfigureStepConfigWidget display name.</comment>
         <translation>配置</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation>正在目录 %2中分析 %1</translation>
@@ -44709,17 +44655,11 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
         <source>Parsing directory %1</source>
         <translation>正在分析目录 %1</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for AutotoolsProjectManager::MakeStep id.</comment>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -44731,13 +44671,6 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation>配置错误，请检查&quot;问题&quot;视图获得详细信息。</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>参数:</translation>
     </message>
     <message>
         <source>Make</source>

@@ -5,8 +5,7 @@
 
 #include <projectexplorer/makestep.h>
 
-namespace AutotoolsProjectManager {
-namespace Internal {
+namespace AutotoolsProjectManager::Internal {
 
 class MakeStepFactory final : public ProjectExplorer::BuildStepFactory
 {
@@ -14,5 +13,4 @@ public:
     MakeStepFactory();
 };
 
-} // namespace Internal
-} // namespace AutotoolsProjectManager
+} // AutotoolsProjectManager::Internal

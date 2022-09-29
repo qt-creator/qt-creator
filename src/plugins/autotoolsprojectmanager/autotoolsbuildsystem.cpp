@@ -4,7 +4,6 @@
 #include "autotoolsbuildsystem.h"
 
 #include "makefileparserthread.h"
-#include "makestep.h"
 
 #include <cppeditor/cppprojectupdater.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -12,19 +11,18 @@
 #include <qtsupport/qtcppkitinfo.h>
 
 #include <utils/filesystemwatcher.h>
+#include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
 
-namespace AutotoolsProjectManager {
-namespace Internal {
+namespace AutotoolsProjectManager::Internal {
 
 AutotoolsBuildSystem::AutotoolsBuildSystem(Target *target)
     : BuildSystem(target)
     , m_cppCodeModelUpdater(new CppEditor::CppProjectUpdater)
 {
-    connect(target, &Target::activeBuildConfigurationChanged, this, [this]() { requestParse(); });
-
-    connect(target->project(), &Project::projectFileIsDirty, this, [this]() { requestParse(); });
+    connect(target, &Target::activeBuildConfigurationChanged, this, [this] { requestParse(); });
+    connect(target->project(), &Project::projectFileIsDirty, this, [this] { requestParse(); });
 }
 
 AutotoolsBuildSystem::~AutotoolsBuildSystem()
@@ -158,5 +156,4 @@ void AutotoolsBuildSystem::updateCppCodeModel()
     m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), {rpp}});
 }
 
-} // namespace Internal
-} // namespace AutotoolsProjectManager
+} // AutotoolsProjectManager::Internal

@@ -12297,15 +12297,12 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepFactory</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -12320,39 +12317,17 @@ in the system&apos;s browser for manual download.</source>
     </message>
     <message>
         <source>Autogen</source>
-        <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
-        <translation>Autogen</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>引数:</translation>
-    </message>
-    <message>
-        <source>Autogen</source>
         <comment>AutotoolsProjectManager::AutogenStepConfigWidget display name.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepFactory</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <translation>Autoreconf</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>引数:</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping autoreconf step.</source>
@@ -12360,24 +12335,9 @@ in the system&apos;s browser for manual download.</source>
     </message>
     <message>
         <source>Autoreconf</source>
-        <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
-        <translation>Autoreconf</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>引数:</translation>
-    </message>
-    <message>
-        <source>Autoreconf</source>
         <comment>AutotoolsProjectManager::AutoreconfStepConfigWidget display name.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a autotools project.</extracomment>
@@ -12387,9 +12347,6 @@ in the system&apos;s browser for manual download.</source>
         <source>Build</source>
         <translation>ビルド</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>ビルドディレクトリ:</translation>
@@ -12398,23 +12355,14 @@ in the system&apos;s browser for manual download.</source>
         <source>Autotools Manager</source>
         <translation>Autotools マネージャ</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsManager</name>
     <message>
         <source>Failed opening project &quot;%1&quot;: Project is not a file</source>
         <translation>プロジェクト &quot;%1&quot; が開けません: プロジェクトがファイルではありません</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Autotools ウィザード</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>プロジェクトをビルドするディレクトリを指定してください。Qt Creator ではソースディレクトリ内でのビルドは推奨していません。ソースディレクトリとビルドディレクトリを分ける事でソースをきれいに保ち、異なる設定での複数のビルドを行う事ができます。</translation>
@@ -12424,31 +12372,17 @@ in the system&apos;s browser for manual download.</source>
         <translation>プロジェクトをビルドするためのディレクトリを入力してください。ビルドにソースディレクトリを使用することはお勧めしません。これにより、ソース・ディレクトリがクリーンな状態に保たれ、異なる設定での複数回のビルドが可能になります。</translation>
     </message>
     <message>
-        <source>Build directory:</source>
-        <translation>ビルドディレクトリ:</translation>
-    </message>
-    <message>
         <source>Build Location</source>
         <translation>ビルドパス</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepFactory</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
         <translation>設定する</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <translation>設定する</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>引数:</translation>
     </message>
     <message>
         <source>Configuration unchanged, skipping configure step.</source>
@@ -12456,24 +12390,9 @@ in the system&apos;s browser for manual download.</source>
     </message>
     <message>
         <source>Configure</source>
-        <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
-        <translation>設定する</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>引数:</translation>
-    </message>
-    <message>
-        <source>Configure</source>
         <comment>AutotoolsProjectManager::ConfigureStepConfigWidget display name.</comment>
         <translation>設定する</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation>ディレクトリ %2 の %1 を解析中</translation>
@@ -12482,27 +12401,14 @@ in the system&apos;s browser for manual download.</source>
         <source>Parsing directory %1</source>
         <translation>ディレクトリ %1 を解析中</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for AutotoolsProjectManager::MakeStep id.</comment>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>引数:</translation>
     </message>
     <message>
         <source>Make</source>
@@ -48088,11 +47994,7 @@ Android パッケージソースディレクトリのファイルはビルドデ
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfiguration</name>
-    <message>
-        <source>Autotools Manager</source>
-        <translation>Autotools マネージャ</translation>
-    </message>
+    <name>AutotoolsProjectManager</name>
 </context>
 <context>
     <name>BuildConfiguration</name>

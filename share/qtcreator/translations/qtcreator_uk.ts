@@ -26355,19 +26355,12 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepFactory</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
         <translation>Autogen</translation>
     </message>
-    <message>
-        <source>Autogen</source>
-        <translation type="vanished">Autogen</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -26376,9 +26369,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation>Конфігурація не змінилась, пропускаємо крок autogen.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepConfigWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Аргументи:</translation>
@@ -26389,24 +26379,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Autogen</translation>
     </message>
     <message>
-        <source>Autogen</source>
-        <translation type="vanished">Autogen</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepFactory</name>
-    <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
         <translation>Autoreconf</translation>
     </message>
-    <message>
-        <source>Autoreconf</source>
-        <translation type="vanished">Autoreconf</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <translation>Autoreconf</translation>
@@ -26415,25 +26391,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation>Конфігурація не змінилась, пропускаємо крок autoreconf.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Аргументи:</translation>
-    </message>
     <message>
         <source>Autoreconf</source>
         <comment>AutotoolsProjectManager::AutoreconfStepConfigWidget display name.</comment>
         <translation>Autoreconf</translation>
     </message>
-    <message>
-        <source>Autoreconf</source>
-        <translation type="vanished">Autoreconf</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a autotools project.</extracomment>
@@ -26451,9 +26413,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>New configuration name:</source>
         <translation type="vanished">Назва нової конфігурації:</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Тека збірки:</translation>
@@ -26462,9 +26421,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Autotools Manager</source>
         <translation>Управління Autotools</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation type="vanished">Збій відкриття проекту &apos;%1&apos;: Проект не є файлом</translation>
@@ -26473,43 +26429,23 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Failed opening project &quot;%1&quot;: Project is not a file</source>
         <translation>Збій відкриття проекту &quot;%1&quot;: Проект не є файлом</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Майстер Autotools</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>Будь ласка, введіть теку, в якій ви хочете зібрати ваш проект. Qt Creator рекомендує не використовувати теку з кодом для збірки. Це гарантуватиме, що тека з кодом лишатиметься чистою, та дозволить здійснювати декілька збірок з різними налаштуваннями.</translation>
     </message>
     <message>
-        <source>Build directory:</source>
-        <translation>Тека збірки:</translation>
-    </message>
-    <message>
         <source>Build Location</source>
         <translation>Розташування збірки</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepFactory</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
         <translation>Configure</translation>
     </message>
-    <message>
-        <source>Configure</source>
-        <translation type="vanished">Configure</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <translation>Configure</translation>
@@ -26518,25 +26454,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Configuration unchanged, skipping configure step.</source>
         <translation>Конфігурація не змінилась, пропускаємо крок configure.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Аргументи:</translation>
-    </message>
     <message>
         <source>Configure</source>
         <comment>AutotoolsProjectManager::ConfigureStepConfigWidget display name.</comment>
         <translation>Configure</translation>
     </message>
-    <message>
-        <source>Configure</source>
-        <translation type="vanished">Configure</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation>Розбір %1 в теці %2</translation>
@@ -26545,21 +26467,11 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Parsing directory %1</source>
         <translation>Розбір теки %1</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for AutotoolsProjectManager::MakeStep id.</comment>
         <translation>Make</translation>
     </message>
-    <message>
-        <source>Make</source>
-        <translation type="vanished">Make</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -26572,21 +26484,10 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation type="vanished">Конфігурація збійна. Перевірте вид &quot;Проблеми&quot; для деталей.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Аргументи:</translation>
-    </message>
     <message>
         <source>Make</source>
         <comment>AutotoolsProjectManager::MakeStepConfigWidget display name.</comment>
         <translation>Make</translation>
-    </message>
-    <message>
-        <source>Make</source>
-        <translation type="vanished">Make</translation>
     </message>
 </context>
 <context>

@@ -47485,15 +47485,12 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepFactory</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -47502,9 +47499,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation>Nastavení nezměněno. Přeskakuje se krok autogen.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepConfigWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Argumenty:</translation>
@@ -47514,17 +47508,11 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <comment>AutotoolsProjectManager::AutogenStepConfigWidget display name.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepFactory</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <translation>Autoreconf</translation>
@@ -47533,21 +47521,11 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation>Nastavení nezměněno. Přeskakuje se krok autoreconf.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenty:</translation>
-    </message>
     <message>
         <source>Autoreconf</source>
         <comment>AutotoolsProjectManager::AutoreconfStepConfigWidget display name.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a autotools project.</extracomment>
@@ -47565,9 +47543,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>New configuration name:</source>
         <translation>Název nového nastavení:</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Adresář pro sestavování:</translation>
@@ -47584,9 +47559,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>&lt;Invalid tool chain&gt;</source>
         <translation type="obsolete">&lt;Neplatná sada nástrojů&gt;</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project file does not exist</source>
         <translation type="obsolete">Projekt %1 se nepodařil otevřít: Soubor s projektem neexistuje</translation>
@@ -47599,54 +47571,32 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation>Projekt &apos;%1&apos; se nepodařil otevřít: Daný projektový soubor není soubor</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Průvodce Autotools</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>Zadejte, prosím, adresář, ve kterém chcete vytvořit svůj projekt.. Doporučuje se, nepoužívat pro vytvoření projektu zdrojový adresář. Tím se zajistí, že zdrojový adresář zůstane volný, a umožní různá sestavení s rozdílnými nastaveními.</translation>
     </message>
     <message>
-        <source>Build directory:</source>
-        <translation>Adresář pro sestavování:</translation>
-    </message>
-    <message>
         <source>Build Location</source>
         <translation>Umístění sestavování</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsTarget</name>
     <message>
         <source>Desktop</source>
         <comment>Autotools Default target display name</comment>
         <translation type="obsolete">Stolní počítač</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsTargetFactory</name>
     <message>
         <source>Default Build</source>
         <translation type="obsolete">Výchozí sestavení</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepFactory</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
         <translation>Configure</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <translation>Configure</translation>
@@ -47655,21 +47605,11 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Configuration unchanged, skipping configure step.</source>
         <translation>Nastavení nezměněno, přeskakuje se krok nastavení.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenty:</translation>
-    </message>
     <message>
         <source>Configure</source>
         <comment>AutotoolsProjectManager::ConfigureStepConfigWidget display name.</comment>
         <translation>Nastavit</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation>Zpracovává se %1 v adresáři %2</translation>
@@ -47678,17 +47618,11 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
         <source>Parsing directory %1</source>
         <translation>Zpracovává se adresář %1</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for AutotoolsProjectManager::MakeStep id.</comment>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -47700,13 +47634,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation>Nastavení je chybné. Prověřte, prosím, pohled na potíže kvůli podrobnostem.</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenty:</translation>
     </message>
     <message>
         <source>Make</source>

@@ -5,8 +5,7 @@
 
 #include <projectexplorer/buildstep.h>
 
-namespace AutotoolsProjectManager {
-namespace Internal {
+namespace AutotoolsProjectManager::Internal {
 
 class AutogenStepFactory final : public ProjectExplorer::BuildStepFactory
 {
@@ -14,5 +13,4 @@ public:
     AutogenStepFactory();
 };
 
-} // namespace Internal
-} // namespace AutotoolsProjectManager
+} // AutotoolsProjectManager::Internal

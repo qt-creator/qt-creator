@@ -3,6 +3,8 @@
 
 #include "makefileparser.h"
 
+#include "autotoolsprojectmanagertr.h"
+
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/stringutils.h>
@@ -11,7 +13,7 @@
 #include <QFile>
 #include <QFileInfo>
 
-using namespace AutotoolsProjectManager::Internal;
+namespace AutotoolsProjectManager::Internal {
 
 MakefileParser::MakefileParser(const QString &makefile) : m_makefile(makefile)
 { }
@@ -40,7 +42,7 @@ bool MakefileParser::parse()
     QFileInfo info(m_makefile);
     m_makefiles.append(info.fileName());
 
-    emit status(tr("Parsing %1 in directory %2").arg(info.fileName()).arg(info.absolutePath()));
+    emit status(Tr::tr("Parsing %1 in directory %2").arg(info.fileName()).arg(info.absolutePath()));
 
     m_textStream.setDevice(file);
 
@@ -237,7 +239,7 @@ void MakefileParser::parseSubDirs()
 
     // Delegate the parsing of all sub directories to a local
     // makefile parser and merge the results
-    foreach (const QString& subDir, subDirs) {
+    for (const QString &subDir : qAsConst(subDirs)) {
         const QChar slash = QLatin1Char('/');
         const QString subDirMakefile = path + slash + subDir
                                        + slash + makefileName;
@@ -298,7 +300,7 @@ QStringList MakefileParser::directorySources(const QString &directory,
         return QStringList();
     }
 
-    emit status(tr("Parsing directory %1").arg(directory));
+    emit status(Tr::tr("Parsing directory %1").arg(directory));
 
     QStringList list; // return value
 
@@ -550,3 +552,5 @@ void MakefileParser::parseIncludePaths()
     m_cflags.removeDuplicates();
     m_cxxflags.removeDuplicates();
 }
+
+} // AutotoolsProjectManager::Internal

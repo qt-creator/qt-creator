@@ -15521,7 +15521,7 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -15539,9 +15539,6 @@ Check the test environment.</source>
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
@@ -15552,16 +15549,9 @@ Check the test environment.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Arguments:</source>
-        <translation type="unfinished">Argumenti:</translation>
-    </message>
-    <message>
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a autotools project.</extracomment>
@@ -15571,27 +15561,14 @@ Check the test environment.</source>
         <source>Build</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildSettingsWidget</name>
-    <message>
-        <source>Build directory:</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>Autotools Manager</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. It is not recommended to use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation type="unfinished"></translation>
@@ -15604,9 +15581,6 @@ Check the test environment.</source>
         <source>Build Location</source>
         <translation>Mjesto izgradnje</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
@@ -15617,16 +15591,9 @@ Check the test environment.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Arguments:</source>
-        <translation type="unfinished">Argumenti:</translation>
-    </message>
-    <message>
         <source>Configuration unchanged, skipping configure step.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation type="unfinished"></translation>

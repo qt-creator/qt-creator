@@ -45153,15 +45153,12 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepFactory</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
     <message>
         <source>Autogen</source>
         <translation>Autogen</translation>
@@ -45170,9 +45167,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation>Configuration inchangée, étape autogen ignorée.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutogenStepConfigWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Arguments :</translation>
@@ -45182,17 +45176,11 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <comment>AutotoolsProjectManager::AutogenStepConfigWidget display name.</comment>
         <translation>Autogen</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepFactory</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <translation>Autoreconf</translation>
@@ -45201,21 +45189,11 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation>Configuration inchangée, étape autoreconf ignorée.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Arguments :</translation>
-    </message>
     <message>
         <source>Autoreconf</source>
         <comment>AutotoolsProjectManager::AutoreconfStepConfigWidget display name.</comment>
         <translation>Autoreconf</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a autotools project.</extracomment>
@@ -45233,9 +45211,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>New configuration name:</source>
         <translation>Nom de la nouvelle configuration :</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>Répertoire de compilation :</translation>
@@ -45252,9 +45227,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>&lt;Invalid tool chain&gt;</source>
         <translation type="obsolete">&lt;Chaîne d&apos;outils invalide&gt;</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project file does not exist</source>
         <translation type="obsolete">Échec de l&apos;ouverture du projet &quot;%1&apos; : le fichier du projet n&quot;existe pas</translation>
@@ -45267,47 +45239,28 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation>Échec de l&apos;ouverture du projet &quot;%1&quot; : le projet n&apos;est pas un fichier</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Assistant Autotools</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>Veuillez spécifier le répertoire où vous voulez compiler votre projet. Qt Creator recommande de ne pas utiliser le répertoire source pour la compilation. Cela garantit que le répertoire source reste propre et permet des compilations multiples avec différents paramètres.</translation>
     </message>
     <message>
-        <source>Build directory:</source>
-        <translation>Répertoire de compilation :</translation>
-    </message>
-    <message>
         <source>Build Location</source>
         <translation>Emplacement de compilation</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsTarget</name>
     <message>
         <source>Desktop</source>
         <comment>Autotools Default target display name</comment>
         <translation type="obsolete">Desktop</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepFactory</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
         <translation>Configurer</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <translation>Configurer</translation>
@@ -45317,21 +45270,11 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <translatorcomment>ignorée ?</translatorcomment>
         <translation>Configuration inchangée, étape de configuration sautée.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Arguments :</translation>
-    </message>
     <message>
         <source>Configure</source>
         <comment>AutotoolsProjectManager::ConfigureStepConfigWidget display name.</comment>
         <translation>Configurer</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translatorcomment>Analyse, car c&apos;est une action en court</translatorcomment>
@@ -45341,17 +45284,11 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
         <source>Parsing directory %1</source>
         <translation>Analyse du répertoire %1</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for AutotoolsProjectManager::MakeStep id.</comment>
         <translation>Make</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <translation>Make</translation>
@@ -45363,13 +45300,6 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation>La configuration est défectueuse, veuillez vérifier la vue des problèmes pour les détails.</translation>
-    </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakeStepConfigWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Arguments :</translation>
     </message>
     <message>
         <source>Make</source>

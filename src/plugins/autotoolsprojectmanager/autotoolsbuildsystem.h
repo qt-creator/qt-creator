@@ -9,8 +9,7 @@
 
 namespace CppEditor { class CppProjectUpdater; }
 
-namespace AutotoolsProjectManager {
-namespace Internal {
+namespace AutotoolsProjectManager::Internal {
 
 class MakefileParserThread;
 
@@ -46,5 +45,4 @@ private:
     CppEditor::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
 };
 
-} // namespace Internal
-} // namespace AutotoolsProjectManager
+} // AutotoolsProjectManager::Internal

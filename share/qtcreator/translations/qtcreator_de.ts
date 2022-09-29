@@ -18139,7 +18139,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutogenStep</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autogen</source>
         <comment>Display name for AutotoolsProjectManager::AutogenStep id.</comment>
@@ -18157,9 +18157,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Configuration unchanged, skipping autogen step.</source>
         <translation>Unveränderte Konfiguration, autogen-Schritt wird übersprungen.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutoreconfStep</name>
     <message>
         <source>Autoreconf</source>
         <comment>Display name for AutotoolsProjectManager::AutoreconfStep id.</comment>
@@ -18170,23 +18167,13 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Autoreconf</translation>
     </message>
     <message>
-        <source>Arguments:</source>
-        <translation>Argumente:</translation>
-    </message>
-    <message>
         <source>Configuration unchanged, skipping autoreconf step.</source>
         <translation>Unveränderte Konfiguration, autoreconf-Schritt wird übersprungen.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsOpenProjectWizard</name>
     <message>
         <source>Autotools Wizard</source>
         <translation>Autotools-Assistent</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::BuildPathPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. It is not recommended to use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>Bitte geben Sie das Verzeichnis ein, in dem das Projekt erstellt werden soll. Es wird empfohlen, nicht das Quellverzeichnis zum Erstellen zu verwenden. Das ermöglicht es, das Projekt mehrmals mit verschiedenen Einstellungen zu erstellen.</translation>
@@ -18199,9 +18186,6 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <source>Build Location</source>
         <translation>Build-Verzeichnis</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::ConfigureStep</name>
     <message>
         <source>Configure</source>
         <comment>Display name for AutotoolsProjectManager::ConfigureStep id.</comment>
@@ -18212,16 +18196,9 @@ should a repository require SSH-authentication (see documentation on SSH and the
         <translation>Konfigurieren</translation>
     </message>
     <message>
-        <source>Arguments:</source>
-        <translation>Argumente:</translation>
-    </message>
-    <message>
         <source>Configuration unchanged, skipping configure step.</source>
         <translation>Unveränderte Konfiguration, configure-Schritt wird übersprungen.</translation>
     </message>
-</context>
-<context>
-    <name>AutotoolsProjectManager::Internal::MakefileParser</name>
     <message>
         <source>Parsing %1 in directory %2</source>
         <translation>Werte %1 im Verzeichnis %2 aus</translation>
@@ -44782,7 +44759,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>AutotoolsProjectManager::Internal::AutotoolsBuildConfiguration</name>
+    <name>AutotoolsProjectManager</name>
     <message>
         <source>Autotools Manager</source>
         <translation>Autotools-Verwaltung</translation>
