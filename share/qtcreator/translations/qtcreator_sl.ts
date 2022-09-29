@@ -109,7 +109,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Dodaj zaznamek</translation>
@@ -149,13 +149,6 @@
         <source>Add in Folder:</source>
         <translation type="obsolete">Dodaj v mapo:</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Zaznamki</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>Odstrani</translation>
@@ -165,23 +158,8 @@
         <translation>Izbris mape odstrani tudi njeno vsebino.&lt;br&gt;Ali želite nadaljevati?</translation>
     </message>
     <message>
-        <source>New Folder</source>
-        <translation>Nova mapa</translation>
-    </message>
-    <message>
         <source>You are going to delete a Folder which will also&lt;br&gt;remove its content. Are you sure you would like to continue?</source>
         <translation type="obsolete">Nameravate izbrisati mapo, pri čemer bo zbrisana&lt;br&gt;tudi njena vsebina. Ali res želite nadaljevati?</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Izbriši mapo</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Preimenuj mapo</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -202,17 +180,6 @@
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstrani</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Zaznamki</translation>
     </message>
     <message>
         <source>Move Up</source>

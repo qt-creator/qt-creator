@@ -7513,7 +7513,7 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>ブックマークの追加</translation>
@@ -12877,10 +12877,6 @@ in the system&apos;s browser for manual download.</source>
 </context>
 <context>
     <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>ブックマーク</translation>
-    </message>
     <message>
         <source>Move Up</source>
         <translation>上に移動</translation>
@@ -33401,15 +33397,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>フォルダを削除する</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>フォルダ名の変更</translation>
-    </message>
+    <name>Bookmarks</name>
     <message>
         <source>Show Bookmark</source>
         <translation>ブックマークを開く</translation>
@@ -33426,13 +33414,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
         <source>Rename Bookmark</source>
         <translation>ブックマークの名前変更</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>ブックマーク</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>削除</translation>
@@ -33440,10 +33421,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
     <message>
         <source>Deleting a folder also removes its content.&lt;br&gt;Do you want to continue?</source>
         <translation>フォルダを削除すると中身も削除されます。&lt;br&gt;続行しますか？</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>新しいフォルダ</translation>
     </message>
     <message>
         <source>Bookmark</source>

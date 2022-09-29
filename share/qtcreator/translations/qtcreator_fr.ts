@@ -48,7 +48,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Ajouter un signet</translation>
@@ -85,16 +85,9 @@
         <source>Add in folder:</source>
         <translation>Ajouter dans le dossier :</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
     <message>
         <source>Bookmark</source>
         <translation type="obsolete">Signet</translation>
-    </message>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Signets</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -107,21 +100,6 @@
     <message>
         <source>You are going to delete a Folder which will also&lt;br&gt;remove its content. Are you sure you would like to continue?</source>
         <translation type="obsolete">Vous allez supprimer un dossier et tout ce qu&apos;il contient.&lt;br&gt;Êtes vous sûr de vouloir continuer ?</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>Nouveau dossier</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Supprimer le dossier</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Renommer le dossier</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -150,17 +128,6 @@
     <message>
         <source>Add</source>
         <translation>Ajouter</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Supprimer</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Signets</translation>
     </message>
     <message>
         <source>Move Up</source>

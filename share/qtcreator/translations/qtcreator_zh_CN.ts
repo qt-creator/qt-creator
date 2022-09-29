@@ -114,7 +114,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>添加书签</translation>
@@ -151,13 +151,6 @@
         <source>Add in folder:</source>
         <translation>添加到文件夹:</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>书签</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>删除</translation>
@@ -165,21 +158,6 @@
     <message>
         <source>Deleting a folder also removes its content.&lt;br&gt;Do you want to continue?</source>
         <translation>删除文件夹会同时删除文件夹下的文件。&lt;br&gt;您确定继续吗？</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>新文件夹</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>删除文件夹</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>重命名文件夹</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -204,17 +182,6 @@
     <message>
         <source>Add</source>
         <translation>添加</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>删除</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>书签</translation>
     </message>
     <message>
         <source>Move Up</source>

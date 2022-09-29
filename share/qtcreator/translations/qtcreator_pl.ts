@@ -1378,7 +1378,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Dodaj zakładkę</translation>
@@ -1986,10 +1986,6 @@ Przyczyna: %3</translation>
 </context>
 <context>
     <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Zakładki</translation>
-    </message>
     <message>
         <source>Move Up</source>
         <translation>Przenieś do góry</translation>
@@ -9958,15 +9954,7 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     </message>
 </context>
 <context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Usuń katalog</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Zmień nazwę katalogu</translation>
-    </message>
+    <name>Bookmarks</name>
     <message>
         <source>Show Bookmark</source>
         <translation>Pokaż zakładkę</translation>
@@ -9983,13 +9971,6 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
         <source>Rename Bookmark</source>
         <translation>Zmień nazwę zakładki</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Zakładki</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>Usuń</translation>
@@ -9997,10 +9978,6 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     <message>
         <source>Deleting a folder also removes its content.&lt;br&gt;Do you want to continue?</source>
         <translation>Usunięcie katalogu usuwa również jego zawartość.&lt;br&gt;Czy kontynuować?</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>Nowy katalog</translation>
     </message>
     <message>
         <source>Bookmark</source>

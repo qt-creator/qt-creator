@@ -806,7 +806,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Додати закладку</translation>
@@ -839,13 +839,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Add in folder:</source>
         <translation>Додати в теку:</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Закладки</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>Видалити</translation>
@@ -853,21 +846,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Deleting a folder also removes its content.&lt;br&gt;Do you want to continue?</source>
         <translation>Видалення теки призводить до видалення її вмісту.&lt;br&gt;Бажаєте продовжити?</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>Нова тека</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Видалити теку</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Перейменувати теку</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -888,17 +866,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Add</source>
         <translation type="vanished">Додати</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="vanished">Видалити</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Закладки</translation>
     </message>
     <message>
         <source>Move Up</source>

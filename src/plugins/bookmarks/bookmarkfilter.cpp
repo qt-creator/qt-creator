@@ -9,9 +9,10 @@
 
 #include <utils/algorithm.h>
 
-using namespace Bookmarks::Internal;
 using namespace Core;
 using namespace Utils;
+
+namespace Bookmarks::Internal {
 
 BookmarkFilter::BookmarkFilter(BookmarkManager *manager)
     : m_manager(manager)
@@ -114,3 +115,5 @@ void BookmarkFilter::accept(const LocatorFilterEntry &selection, QString *newTex
         m_manager->gotoBookmark(bookmark);
     }
 }
+
+} // Bookmarks::Internal

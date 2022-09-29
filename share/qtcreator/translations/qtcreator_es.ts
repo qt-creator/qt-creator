@@ -89,7 +89,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Agregar marcador</translation>
@@ -126,16 +126,9 @@
         <source>Rename Folder</source>
         <translation>Renombrar directorio</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
     <message>
         <source>Bookmark</source>
         <translation type="obsolete">Marcador</translation>
-    </message>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Marcadores</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -148,17 +141,6 @@
     <message>
         <source>New Folder</source>
         <translation>Nuevo directorio</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Suprimir directorio</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Renombrar directorio</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -183,17 +165,6 @@
     <message>
         <source>Add</source>
         <translation>Agregar</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Suprimir</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Marcadores</translation>
     </message>
     <message>
         <source>&amp;Remove Bookmark</source>

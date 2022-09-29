@@ -5577,7 +5577,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Добавить закладку</translation>
@@ -5610,13 +5610,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <source>Add in folder:</source>
         <translation>Добавить в папку:</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Закладки</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>Удалить</translation>
@@ -5626,23 +5619,8 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <translation>Удаление папки приведёт к удалению её содержимого.&lt;br&gt;Желаете продолжить?</translation>
     </message>
     <message>
-        <source>New Folder</source>
-        <translation>Новая папка</translation>
-    </message>
-    <message>
         <source>Bookmark</source>
         <translation>Закладка</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Удалить папку</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Переименовать папку</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -5659,13 +5637,6 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     <message>
         <source>Rename Bookmark</source>
         <translation>Переименовать закладку</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Закладки</translation>
     </message>
     <message>
         <source>Edit Bookmark</source>

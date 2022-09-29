@@ -5,14 +5,12 @@
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
-namespace Bookmarks {
-namespace Internal {
+namespace Bookmarks::Internal {
 
 class BookmarkManager;
 
 class BookmarkFilter : public Core::ILocatorFilter
 {
-    Q_OBJECT
 public:
     explicit BookmarkFilter(BookmarkManager *manager);
     void prepareSearch(const QString &entry) override;
@@ -26,5 +24,4 @@ private:
     QList<Core::LocatorFilterEntry> m_results;
 };
 
-} // namespace Internal
-} // namespace Bookmarks
+} // Bookmarks::Internal

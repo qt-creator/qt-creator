@@ -98,7 +98,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Aggiungi un Segnalibro</translation>
@@ -135,16 +135,9 @@
         <source>Rename Folder</source>
         <translation>Rinomina la Cartella</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
     <message>
         <source>Bookmark</source>
         <translation type="obsolete">Segnalibro</translation>
-    </message>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Segnalibri</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -157,17 +150,6 @@
     <message>
         <source>New Folder</source>
         <translation>Nuova Cartella</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Cancella la Cartella</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Rinomina la Cartella</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -192,17 +174,6 @@
     <message>
         <source>Add</source>
         <translation>Aggiungi</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Rimuovi</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Segnalibri</translation>
     </message>
     <message>
         <source>&amp;Remove Bookmark</source>

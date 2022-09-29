@@ -3883,7 +3883,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Tilføj bogmærke</translation>
@@ -3916,13 +3916,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Rename Folder</source>
         <translation>Omdøb mappe</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Bogmærker</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>Fjern</translation>
@@ -3932,23 +3925,8 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>Sletning af en mappe fjerner også alt dens indhold.&lt;br&gt;Vil du fortsætte?</translation>
     </message>
     <message>
-        <source>New Folder</source>
-        <translation>Ny mappe</translation>
-    </message>
-    <message>
         <source>Bookmark</source>
         <translation>Bogmærke</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Slet mappe</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Omdøb mappe</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -3966,9 +3944,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Rename Bookmark</source>
         <translation>Omdøb bogmærke</translation>
     </message>
-</context>
-<context>
-    <name>Bookmarks</name>
     <message>
         <source>Edit Bookmark</source>
         <translation>Rediger bogmærke</translation>
@@ -3980,10 +3955,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     <message>
         <source>Line number:</source>
         <translation>Linjenummer:</translation>
-    </message>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Bogmærker</translation>
     </message>
     <message>
         <source>Move Up</source>

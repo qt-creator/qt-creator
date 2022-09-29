@@ -9383,7 +9383,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Dodaj knjižnu oznaku</translation>
@@ -16741,14 +16741,10 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>BookmarkManager</name>
+    <name>Bookmarks</name>
     <message>
         <source>Bookmark</source>
         <translation>Knjižna oznaka</translation>
-    </message>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Knjižne oznake</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -16757,17 +16753,6 @@ Check the test environment.</source>
     <message>
         <source>Deleting a folder also removes its content.&lt;br&gt;Do you want to continue?</source>
         <translation>Brisanjem mape se uklanja i njen sadržaj.&lt;br&gt;Želiš li nastaviti?</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>Nova mapa</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Knjižne oznake</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -40861,15 +40846,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Ukloni mapu</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Preimenuj mapu</translation>
-    </message>
+    <name>Bookmarks</name>
     <message>
         <source>Show Bookmark</source>
         <translation>Prikaži knjižnu oznaku</translation>

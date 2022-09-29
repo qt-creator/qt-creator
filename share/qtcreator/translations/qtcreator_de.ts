@@ -25,7 +25,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Lesezeichen hinzufügen</translation>
@@ -58,13 +58,6 @@
         <source>Add in folder:</source>
         <translation>Im Verzeichnis:</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Lesezeichen</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>Entfernen</translation>
@@ -74,23 +67,8 @@
         <translation>Beim Löschen eines Verzeichnisses wird auch dessen Inhalt gelöscht.&lt;br&gt;Möchten Sie trotzdem fortsetzen?</translation>
     </message>
     <message>
-        <source>New Folder</source>
-        <translation>Neues Verzeichnis</translation>
-    </message>
-    <message>
         <source>Bookmark</source>
         <translation>Lesezeichen</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Verzeichnis löschen</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Verzeichnis umbenennen</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -107,13 +85,6 @@
     <message>
         <source>Rename Bookmark</source>
         <translation>Lesezeichen umbenennen</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Lesezeichen</translation>
     </message>
     <message>
         <source>Move Up</source>

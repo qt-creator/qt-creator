@@ -5,7 +5,7 @@
 
 #include <QMutexLocker>
 
-using namespace AutotoolsProjectManager::Internal;
+namespace AutotoolsProjectManager::Internal {
 
 MakefileParserThread::MakefileParserThread(ProjectExplorer::BuildSystem *bs)
     : m_parser(bs->projectFilePath().toString()),
@@ -92,3 +92,5 @@ void MakefileParserThread::run()
     m_cflags = m_parser.cflags();
     m_cxxflags = m_parser.cxxflags();
 }
+
+} // AutotoolsProjectManager::Internal

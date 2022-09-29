@@ -77,7 +77,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Künyvjelző hozzáadása</translation>
@@ -110,13 +110,6 @@
         <source>Rename Folder</source>
         <translation>Dosszié átnevezése</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Könyvjelzők</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>Eltávolítás</translation>
@@ -125,13 +118,6 @@
         <source>You are going to delete a Folder which will also&lt;br&gt;remove its content. Are you sure you would like to continue?</source>
         <translation>Egy olyan irattárat fog törölni, mely &lt;br&gt;törölni fogja annak tartalmát is. Biztos benne, hogy folytatni szeretné?</translation>
     </message>
-    <message>
-        <source>New Folder</source>
-        <translation>Új dosszié</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
     <message>
         <source>Delete Folder</source>
         <translation>Irattár törlése</translation>
@@ -165,19 +151,8 @@
         <translation>Hozzáadás</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Eltávolítás</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
         <source>&amp;Remove Bookmark</source>
         <translation type="obsolete">Könyvjelző &amp;eltávolítása</translation>
-    </message>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Könyvjelzők</translation>
     </message>
     <message>
         <source>Remove all Bookmarks</source>

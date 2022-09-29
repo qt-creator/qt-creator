@@ -44,7 +44,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Přidat záložku</translation>
@@ -81,13 +81,6 @@
         <source>Add in folder:</source>
         <translation>Přidat do složky:</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Záložky</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>Odstranit</translation>
@@ -99,21 +92,6 @@
     <message>
         <source>You are going to delete a Folder which will also&lt;br&gt;remove its content. Are you sure you would like to continue?</source>
         <translation type="obsolete">Chystáte se smazat složku, přičemž se smaže&lt;br&gt;i její obsah. Jste si jistý, že přesto chcete pokračovat?</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>Nová složka</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>Smazat složku</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>Přejmenovat složku</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -142,17 +120,6 @@
     <message>
         <source>Add</source>
         <translation>Přidat</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>Záložky</translation>
     </message>
     <message>
         <source>Move Up</source>

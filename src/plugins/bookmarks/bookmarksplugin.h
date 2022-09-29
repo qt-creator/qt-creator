@@ -5,8 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Bookmarks {
-namespace Internal {
+namespace Bookmarks::Internal {
 
 class BookmarksPlugin final : public ExtensionSystem::IPlugin
 {
@@ -20,5 +19,4 @@ class BookmarksPlugin final : public ExtensionSystem::IPlugin
     class BookmarksPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace Bookmarks
+} // Bookmarks::Internal

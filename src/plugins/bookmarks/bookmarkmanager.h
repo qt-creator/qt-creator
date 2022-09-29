@@ -16,8 +16,7 @@
 
 namespace Core { class IContext; }
 
-namespace Bookmarks {
-namespace Internal {
+namespace Bookmarks::Internal {
 
 class Bookmark;
 class BookmarksPlugin;
@@ -102,17 +101,13 @@ private:
 
 class BookmarkView final : public Utils::ListView
 {
-    Q_OBJECT
-
 public:
     explicit BookmarkView(BookmarkManager *manager);
 
     QList<QToolButton *> createToolBarWidgets();
 
-public slots:
     void gotoBookmark(const QModelIndex &index);
 
-protected slots:
     void removeFromContextMenu();
     void removeAll();
 
@@ -129,8 +124,6 @@ private:
 
 class BookmarkViewFactory : public Core::INavigationWidgetFactory
 {
-    Q_OBJECT
-
 public:
     BookmarkViewFactory(BookmarkManager *bm);
 
@@ -142,8 +135,6 @@ private:
 
 class BookmarkDelegate : public QStyledItemDelegate
 {
-    Q_OBJECT
-
 public:
     BookmarkDelegate(QObject *parent = nullptr);
 
@@ -156,5 +147,4 @@ private:
     mutable QPixmap m_selectedPixmap;
 };
 
-} // namespace Internal
-} // namespace Bookmarks
+} // Bookmarks::Internal

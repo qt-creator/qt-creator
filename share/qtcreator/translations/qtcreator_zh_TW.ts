@@ -32,7 +32,7 @@
     </message>
 </context>
 <context>
-    <name>BookmarkDialog</name>
+    <name>Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>新增書籤</translation>
@@ -65,13 +65,6 @@
         <source>Add in folder:</source>
         <translation>新增到資料夾:</translation>
     </message>
-</context>
-<context>
-    <name>BookmarkManager</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>書籤</translation>
-    </message>
     <message>
         <source>Remove</source>
         <translation>移除</translation>
@@ -79,21 +72,6 @@
     <message>
         <source>Deleting a folder also removes its content.&lt;br&gt;Do you want to continue?</source>
         <translation>刪除資料夾會同時移除它的內容。&lt;br&gt;您確定要繼續嗎?</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>新資料夾</translation>
-    </message>
-</context>
-<context>
-    <name>BookmarkWidget</name>
-    <message>
-        <source>Delete Folder</source>
-        <translation>刪除資料夾</translation>
-    </message>
-    <message>
-        <source>Rename Folder</source>
-        <translation>重新命名資料夾</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -114,17 +92,6 @@
     <message>
         <source>Add</source>
         <translation>新增</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>移除</translation>
-    </message>
-</context>
-<context>
-    <name>Bookmarks</name>
-    <message>
-        <source>Bookmarks</source>
-        <translation>書籤</translation>
     </message>
     <message>
         <source>Move Up</source>

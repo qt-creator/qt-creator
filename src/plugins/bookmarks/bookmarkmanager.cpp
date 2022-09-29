@@ -43,8 +43,7 @@ using namespace ProjectExplorer;
 using namespace Core;
 using namespace Utils;
 
-namespace Bookmarks {
-namespace Internal {
+namespace Bookmarks::Internal {
 
 BookmarkDelegate::BookmarkDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
@@ -794,5 +793,4 @@ NavigationView BookmarkViewFactory::createWidget()
     return {view, view->createToolBarWidgets()};
 }
 
-} // namespace Internal
-} // namespace Bookmarks
+} // Bookmarks::Internal
