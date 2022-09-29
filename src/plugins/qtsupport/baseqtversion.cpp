@@ -46,6 +46,7 @@
 #include <QProcess>
 #include <QRegularExpression>
 #include <QUrl>
+#include <QtConcurrent>
 
 #include <algorithm>
 
@@ -1271,25 +1272,24 @@ void QtVersionPrivate::updateVersionInfo()
     m_data.hostDataPath = fileProperty("QT_HOST_DATA");
     m_data.hostPrefixPath = fileProperty("QT_HOST_PREFIX");
 
-    // Now check for a qt that is configured with a prefix but not installed
-    if (!m_data.hostBinPath.isReadableDir())
-        m_data.installed = false;
+    struct CheckDir
+    {
+        FilePath *path;
+        bool *isReadable;
+    };
 
-    // Framework builds for Qt 4.8 don't use QT_INSTALL_HEADERS
-    // so we don't check on mac
-    if (!HostOsInfo::isMacHost()) {
-        if (!m_data.headerPath.isReadableDir())
-            m_data.installed = false;
-    }
+    QList<CheckDir> checkDirs = {
+        {&m_data.hostBinPath, &m_data.installed},
+        {&m_data.docsPath, &m_data.hasDocumentation},
+        {&m_data.examplesPath, &m_data.hasExamples},
+        {&m_data.demosPath, &m_data.hasDemos},
+    };
+    if (m_data.binPath.osType() != OsTypeMac)
+        checkDirs.push_back({&m_data.headerPath, &m_data.installed});
 
-    if (m_data.docsPath.isReadableDir())
-        m_data.hasDocumentation = true;
-
-    if (m_data.examplesPath.isReadableDir())
-        m_data.hasExamples = true;
-
-    if (m_data.demosPath.isReadableDir())
-        m_data.hasDemos = true;
+    QtConcurrent::map(checkDirs, [](CheckDir &checkDir) {
+        *checkDir.isReadable = checkDir.path->isReadableDir();
+    }).waitForFinished();
 
     m_data.qtVersionString = qmakeProperty("QT_VERSION");
 
@@ -2227,17 +2227,23 @@ static Abi scanQtBinaryForBuildStringAndRefineAbi(const FilePath &library,
 
 Abis QtVersion::qtAbisFromLibrary(const FilePaths &coreLibraries)
 {
-    Abis res;
-    for (const FilePath &library : coreLibraries) {
-        for (const Abi &abi : Abi::abisOfBinary(library)) {
-            Abi tmp = abi;
+    auto filePathToAbiList = [](const FilePath &library) { // Fetch all abis from all libraries ...
+        Abis abis = Abi::abisOfBinary(library);
+        for (Abi &abi : abis) {
             if (abi.osFlavor() == Abi::UnknownFlavor)
-                tmp = scanQtBinaryForBuildStringAndRefineAbi(library, abi);
-            if (!res.contains(tmp))
-                res.append(tmp);
+                abi = scanQtBinaryForBuildStringAndRefineAbi(library, abi);
         }
-    }
-    return res;
+        return abis;
+    };
+
+    auto uniqueAbis = [](Abis &result, const Abis &abis) { // ... merge the results into one list ...
+        for (const Abi &abi : abis) {
+            if (!result.contains(abi))
+                result.append(abi);
+        }
+    };
+
+    return QtConcurrent::blockingMappedReduced(coreLibraries, filePathToAbiList, uniqueAbis);
 }
 
 void QtVersion::resetCache() const
