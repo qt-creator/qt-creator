@@ -5,8 +5,7 @@
 
 #include <QRegularExpression>
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 CMakeAutoCompleter::CMakeAutoCompleter()
 {
@@ -123,5 +122,4 @@ bool CMakeAutoCompleter::contextAllowsElectricCharacters(const QTextCursor &curs
     return !isInComment(cursor) && !isInString(cursor);
 }
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

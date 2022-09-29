@@ -294,7 +294,7 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildEnvironmentWidget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Clear system environment</source>
         <translation type="unfinished"></translation>
@@ -303,9 +303,6 @@
         <source>Build Environment</source>
         <translation>Ambiente di Compilazione</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
     <message>
         <source>Create</source>
         <translation type="unfinished"></translation>
@@ -318,23 +315,14 @@
         <source>New Configuration Name:</source>
         <translation type="unfinished">Nome della Nuova Configurazione:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
         <source>&amp;Change</source>
         <translation>&amp;Cambia</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeOpenProjectWizard</name>
     <message>
         <source>CMake Wizard</source>
         <translation>Procedura Guidata di CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfigurationWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Parametri:</translation>
@@ -375,9 +363,6 @@
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
     <message>
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation type="unfinished"></translation>
@@ -386,9 +371,6 @@
         <source>Qt Creator has detected an in-source-build which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation type="obsolete">Qt Creator ha rilevato che la compilazione avviene nella cartella dei file sorgenti e ciò impedisce la compilazione in cartelle separate. Qt Creator non permette di di cambiare la cartella di compilazione, perciò se vuoi una compilazione in cartella separata, pulisci la cartella dei file sorgenti e apri nuovamente il progetto.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunPage</name>
     <message>
         <source>Please specify the path to the cmake executable. No cmake executable was found in the path.</source>
         <translation type="unfinished"></translation>
@@ -449,9 +431,6 @@
         <source>No valid cmake executable specified.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
     <message>
         <source>CMake</source>
         <translation>CMake</translation>
@@ -460,9 +439,6 @@
         <source>CMake executable</source>
         <translation>Eseguibile CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepConfigWidget</name>
     <message>
         <source>Additional arguments:</source>
         <translation>Parametri aggiuntivi:</translation>
@@ -475,9 +451,6 @@
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ShadowBuildPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. </source>
         <translation>Inserisci la cartella in cui vuoi compilare il tuo progetto. </translation>
@@ -490,9 +463,6 @@
         <source>Build directory:</source>
         <translation>Cartella di compilazione:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::XmlFileUpToDatePage</name>
     <message>
         <source>Qt Creator has found a recent cbp file, which Qt Creator will parse to gather information about the project. You can change the command line arguments used to create this file in the project mode. Click finish to load the project.</source>
         <translation type="obsolete">Qt Creator ha rilevato un file cbp recente, e lo leggerà per ricavare informazioni sul progetto. Puoi cambiare i parametri usati per creare questo file nella modalità di progetto. Fai clic su fine per caricare il progetto.</translation>

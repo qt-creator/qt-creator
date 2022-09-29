@@ -5,6 +5,7 @@
 
 #include "builddirparameters.h"
 #include "cmakeparser.h"
+#include "cmakeprojectmanagertr.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <projectexplorer/buildsystem.h>
@@ -17,12 +18,11 @@
 
 #include <QFutureWatcher>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
-using namespace ProjectExplorer;
 const int USER_STOP_EXIT_CODE = 15;
 
 static QString stripTrailingNewline(QString str)
@@ -57,7 +57,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     if (!cmakeExecutable.ensureReachable(parameters.sourceDirectory)
         || !cmakeExecutable.ensureReachable(parameters.buildDirectory)) {
-        QString msg = ::CMakeProjectManager::Internal::CMakeProcess::tr(
+        QString msg = ::CMakeProjectManager::Tr::tr(
             "The source or build directory is not reachable by the CMake executable.");
         BuildSystem::appendBuildSystemOutput(msg + '\n');
         emit finished();
@@ -68,8 +68,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     const FilePath buildDirectory = parameters.buildDirectory.onDevice(cmakeExecutable);
 
     if (!buildDirectory.exists()) {
-        QString msg = ::CMakeProjectManager::Internal::CMakeProcess::tr(
-                          "The build directory \"%1\" does not exist")
+        QString msg = ::CMakeProjectManager::Tr::tr( "The build directory \"%1\" does not exist")
                           .arg(buildDirectory.toUserOutput());
         BuildSystem::appendBuildSystemOutput(msg + '\n');
         emit finished();
@@ -78,9 +77,8 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     if (buildDirectory.needsDevice()) {
         if (cmake->cmakeExecutable().host() != buildDirectory.host()) {
-            QString msg = ::CMakeProjectManager::Internal::CMakeProcess::tr(
-                              "CMake executable \"%1\" and build directory "
-                              "\"%2\" must be on the same device.")
+            QString msg = ::CMakeProjectManager::Tr::tr("CMake executable \"%1\" and build directory "
+                                                        "\"%2\" must be on the same device.")
                               .arg(cmake->cmakeExecutable().toUserOutput(),
                                    buildDirectory.toUserOutput());
             BuildSystem::appendBuildSystemOutput(msg + '\n');
@@ -120,15 +118,13 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
 
-    BuildSystem::startNewBuildSystemOutput(
-        ::CMakeProjectManager::Internal::CMakeProcess::tr("Running %1 in %2.")
+    BuildSystem::startNewBuildSystemOutput(::CMakeProjectManager::Tr::tr("Running %1 in %2.")
             .arg(commandLine.toUserOutput(), buildDirectory.toUserOutput()));
 
     m_futureInterface = QFutureInterface<void>();
     m_futureInterface.setProgressRange(0, 1);
     Core::ProgressManager::addTimedTask(m_futureInterface,
-                                        ::CMakeProjectManager::Internal::CMakeProcess::tr(
-                                            "Configuring \"%1\"")
+                                        ::CMakeProjectManager::Tr::tr("Configuring \"%1\"")
                                             .arg(parameters.projectName),
                                         "CMake.Configure",
                                         10);
@@ -160,17 +156,14 @@ void CMakeProcess::handleProcessDone(const Utils::ProcessResultData &resultData)
 
     QString msg;
     if (resultData.m_error == QProcess::FailedToStart) {
-        msg = ::CMakeProjectManager::Internal::CMakeProcess::tr("CMake process failed to start.");
+        msg = ::CMakeProjectManager::Tr::tr("CMake process failed to start.");
     } else if (resultData.m_exitStatus != QProcess::NormalExit) {
         if (m_futureInterface.isCanceled() || code == USER_STOP_EXIT_CODE)
-            msg = ::CMakeProjectManager::Internal::CMakeProcess::tr(
-                "CMake process was canceled by the user.");
+            msg = ::CMakeProjectManager::Tr::tr("CMake process was canceled by the user.");
         else
-            msg = ::CMakeProjectManager::Internal::CMakeProcess::tr("CMake process crashed.");
+            msg = ::CMakeProjectManager::Tr::tr("CMake process crashed.");
     } else if (code != 0) {
-        msg = ::CMakeProjectManager::Internal::CMakeProcess::tr(
-                  "CMake process exited with exit code %1.")
-                  .arg(code);
+        msg = ::CMakeProjectManager::Tr::tr("CMake process exited with exit code %1.") .arg(code);
     }
     m_lastExitCode = code;
 
@@ -190,5 +183,4 @@ void CMakeProcess::handleProcessDone(const Utils::ProcessResultData &resultData)
     BuildSystem::appendBuildSystemOutput(elapsedTime + '\n');
 }
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

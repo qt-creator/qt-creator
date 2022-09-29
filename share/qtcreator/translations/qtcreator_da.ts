@@ -4302,23 +4302,14 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Value requested by kit: %1</source>
         <translation>Værdi anmodet af kit: %1</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeBuildStep</name>
     <message>
         <source>The build configuration is currently disabled.</source>
         <translation>Byggekonfigurationen er deaktiveret på nuværende tidspunkt.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigItem</name>
     <message>
         <source>Failed to open %1 for reading.</source>
         <translation>Kunne ikke åbne %1 til læsning.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigurationKitInformation</name>
     <message>
         <source>CMake configuration has no path to qmake binary set, even though the kit has a valid Qt version.</source>
         <translation>CMake-konfigurationen har ikke sat nogen sti til en qmake-binær, selvom kittet har en gyldig Qt version.</translation>
@@ -4363,9 +4354,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>CMake Configuration</source>
         <translation>CMake-konfiguration</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeGeneratorKitInformation</name>
     <message>
         <source>CMake Tool is unconfigured, CMake generator will be ignored.</source>
         <translation>CMake-værktøj er ikke konfigureret, CMake-generator ignoreres.</translation>
@@ -4406,9 +4394,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>&lt;Use Default Generator&gt;</source>
         <translation>&lt;brug standard generator&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeKitInformation</name>
     <message>
         <source>CMake version %1 is unsupported. Please update to version 3.0 or later.</source>
         <translation>CMake-version %1 understøttes ikke. Opdater venligst til version 3.0 eller senere.</translation>
@@ -4425,9 +4410,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Path to the cmake executable</source>
         <translation>Sti til cmake-eksekverbaren</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeProject</name>
     <message>
         <source>No cmake tool set.</source>
         <translation>Intet cmake-værktøj sat.</translation>
@@ -4440,9 +4422,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Scan &quot;%1&quot; project tree</source>
         <translation>Skan &quot;%1&quot; projekttræ</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeSettingsPage</name>
     <message>
         <source> (Default)</source>
         <translation> (standard)</translation>
@@ -4487,9 +4466,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Path:</source>
         <translation>Sti:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeToolManager</name>
     <message>
         <source>CMake at %1</source>
         <translation>CMake ved %1</translation>
@@ -4498,9 +4474,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>System CMake at %1</source>
         <translation>Systemets CMake ved %1</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::ConfigModel</name>
     <message>
         <source>Key</source>
         <translation>Nøgle</translation>
@@ -4521,9 +4494,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Value</source>
         <translation>Værdi</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::ConfigModelItemDelegate</name>
     <message>
         <source>Select a file for %1</source>
         <translation>Vælg en fil for %1</translation>
@@ -4532,9 +4502,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Select a directory for %1</source>
         <translation>Vælg en mappe for %1</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::BuildDirManager</name>
     <message>
         <source>Failed to create build directory &quot;%1&quot;.</source>
         <translation>Kunne ikke oprette bygmappe &quot;%1&quot;.</translation>
@@ -4556,14 +4523,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>&lt;fjernet&gt;</translation>
     </message>
     <message>
-        <source>Key</source>
-        <translation>Nøgle</translation>
-    </message>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-    <message>
         <source>Project</source>
         <translation>Projekt</translation>
     </message>
@@ -4579,16 +4538,10 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Apply Changes to Project</source>
         <translation>Anvend ændringer til projekt</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfiguration</name>
     <message>
         <source>CMake configuration set by the kit was overridden in the project.</source>
         <translation>CMake-konfiguration sat af kittet blev tilsidesat af projektet.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a cmake project.</extracomment>
@@ -4613,13 +4566,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     <message>
         <source>Release with Debug Information</source>
         <translation>Udgivelse med fejlretinformation</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
     </message>
     <message>
         <source>Build directory:</source>
@@ -4686,10 +4632,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>Anvend konfigurationsændringer</translation>
     </message>
     <message>
-        <source>&lt;UNSET&gt;</source>
-        <translation>&lt;AFSÆT&gt;</translation>
-    </message>
-    <message>
         <source>bool</source>
         <comment>display string for cmake type BOOLEAN</comment>
         <translation>bool</translation>
@@ -4713,9 +4655,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Force to %1</source>
         <translation>Tving til %1</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStep</name>
     <message>
         <source>CMake Build</source>
         <extracomment>Default display name for the cmake make step.</extracomment>
@@ -4741,9 +4680,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Project did not parse successfully, cannot build.</source>
         <translation>Projekt blev ikke parset, kan ikke bygge.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStepConfigWidget</name>
     <message>
         <source>Tool arguments:</source>
         <translation>Værktøjsargumenter:</translation>
@@ -4761,24 +4697,14 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>&lt;b&gt;No build configuration found on this kit.&lt;/b&gt;</source>
         <translation>&lt;b&gt;Ingen byggekonfiguration fundet i dette kit.&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStepFactory</name>
     <message>
         <source>Build</source>
         <comment>Display name for CMakeProjectManager::CMakeBuildStep id.</comment>
         <translation>Byg</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeConfigurationKitConfigWidget</name>
     <message>
         <source>Change...</source>
         <translation>Skift...</translation>
-    </message>
-    <message>
-        <source>CMake Configuration</source>
-        <translation>CMake-konfiguration</translation>
     </message>
     <message>
         <source>Default configuration passed to CMake when setting up a project.</source>
@@ -4792,19 +4718,9 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;You may provide a type hint by adding &quot;:TYPE&quot; before the &quot;=&quot;.</source>
         <translation>Indtast én variabel pr. linje med variabelnavnet separeret fra variablens værdi med &quot;=&quot;.&lt;br&gt;Du kan give et tip om type ved at tilføje &quot;:TYPE&quot; før &quot;=&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeEditorFactory</name>
     <message>
         <source>CMake Editor</source>
         <translation>CMake-redigering</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeGeneratorKitConfigWidget</name>
-    <message>
-        <source>Change...</source>
-        <translation>Skift...</translation>
     </message>
     <message>
         <source>CMake generator:</source>
@@ -4823,10 +4739,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <translation>CMake-generator definerer hvordan et projekt bygges ved brug af CMake.&lt;br&gt;Denne indstilling ignoreres når andre byggesystemer bruges.</translation>
     </message>
     <message>
-        <source>CMake Generator</source>
-        <translation>CMake-generator</translation>
-    </message>
-    <message>
         <source>Generator:</source>
         <translation>Generator:</translation>
     </message>
@@ -4842,9 +4754,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Toolset:</source>
         <translation>Værktøjssæt:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeKitConfigWidget</name>
     <message>
         <source>CMake Tool:</source>
         <translation>CMake-værktøj:</translation>
@@ -4857,16 +4766,10 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>&lt;No CMake Tool available&gt;</source>
         <translation>&lt;Intet tilgængeligt CMake-værktøj&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeLocatorFilter</name>
     <message>
         <source>Build CMake target</source>
         <translation>Byg CMake-mål</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeManager</name>
     <message>
         <source>Run CMake</source>
         <translation>Kør CMake</translation>
@@ -4879,47 +4782,24 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Rescan Project</source>
         <translation>Genskan projekt</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeProjectPlugin</name>
     <message>
         <source>CMake</source>
         <comment>SnippetProvider</comment>
         <translation>CMake</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>Byg</translation>
-    </message>
-    <message>
         <source>Build &quot;%1&quot;</source>
         <translation>Byg &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
     <message>
         <source>The project no longer builds the target associated with this run configuration.</source>
         <translation>Projektet bygger ikke længere målet tilknyttet med denne kør-konfiguration.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeTarget</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
         <translation>Desktop</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeToolConfigWidget</name>
     <message>
         <source>Add</source>
         <translation>Tilføj</translation>
@@ -4948,9 +4828,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>New CMake</source>
         <translation>Ny CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ServerMode</name>
     <message>
         <source>Running &quot;%1 %2&quot; in %3.</source>
         <translation>Kører &quot;%1 %2&quot; i %3.</translation>
@@ -5035,9 +4912,6 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>Received a signal in reply to a request.</source>
         <translation>Modtog et signal som svar til en anmodning.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ServerModeReader</name>
     <message>
         <source>Parsing of CMake project failed: Connection to CMake server lost.</source>
         <translation>Parsing af CMake-projekt mislykkedes: Forbindelse til CMake-server tabt.</translation>
@@ -5094,20 +4968,9 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
         <source>&lt;Headers&gt;</source>
         <translation>&lt;headere&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::TeaLeafReader</name>
     <message>
         <source>The build directory is not for %1 but for %2</source>
         <translation>Bygmappen er ikke til %1 men til %2</translation>
-    </message>
-    <message>
-        <source>Running &quot;%1 %2&quot; in %3.</source>
-        <translation>Kører &quot;%1 %2&quot; i %3.</translation>
-    </message>
-    <message>
-        <source>Configuring &quot;%1&quot;</source>
-        <translation>Konfigurerer &quot;%1&quot;</translation>
     </message>
     <message>
         <source>*** cmake process crashed.</source>
@@ -42843,7 +42706,7 @@ skal være et repository krævet SSH-autentifikation (se dokumentation på SSH o
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeSpecificSettingForm</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Determines whether file paths are copied to the clipboard for pasting to the CMakeLists.txt file when you add new files to CMake projects.</source>
         <translation>Beslutter om filstier kopieres til udklipsholderen til indsættelse i CMakeLists.txt-filen, når du tilføjer nye filer til CMake-projekter.</translation>
@@ -43479,11 +43342,7 @@ Kopiér stien til kildefilerne til udklipsholderen?</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeSpecificSettingsPage</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
+    <name>CMakeProjectManager</name>
 </context>
 <context>
     <name>Core::HelpManager</name>

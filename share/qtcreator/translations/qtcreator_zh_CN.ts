@@ -313,18 +313,11 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildEnvironmentWidget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Clear system environment</source>
         <translation type="obsolete">清除系统环境变量</translation>
     </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">构建时的环境变量</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
     <message>
         <source>Create</source>
         <translation type="obsolete">创建</translation>
@@ -349,9 +342,6 @@
         <source>New Configuration Name:</source>
         <translation type="obsolete">新配置名称:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
         <source>Run cmake</source>
         <translation>执行cmake</translation>
@@ -368,16 +358,10 @@
         <source>Build directory:</source>
         <translation>构建目录:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeOpenProjectWizard</name>
     <message>
         <source>CMake Wizard</source>
         <translation>CMake 向导</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfigurationWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>参数:</translation>
@@ -434,9 +418,6 @@
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
         <translation type="obsolete">运行的执行档: &lt;b&gt;%1&lt;/b&gt; %2</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
     <message>
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation>Qt Creator在&lt;b&gt;%1&lt;/b&gt;检测到一个&lt;b&gt;在源代码中的构建&lt;/b&gt;，无法进行shadow build. Qt Creator将不允许您更改编译目录。如果您想要进行shadow build，请清理源码目录再重新打开此项目。</translation>
@@ -444,29 +425,6 @@
     <message>
         <source>Build Location</source>
         <translation>构建路径</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunPage</name>
-    <message>
-        <source>Please specify the path to the cmake executable. No cmake executable was found in the path.</source>
-        <translation type="obsolete">请指定cmake可执行档的路径，在环境变量path中没有找到cmake执行档。</translation>
-    </message>
-    <message>
-        <source> The cmake executable (%1) does not exist.</source>
-        <translation type="obsolete">cmake执行档 (%1) 不存在。</translation>
-    </message>
-    <message>
-        <source> The path %1 is not a executable.</source>
-        <translation type="obsolete"> 路径 (%1) 不是可执行程序。</translation>
-    </message>
-    <message>
-        <source> The path %1 is not a valid cmake.</source>
-        <translation type="obsolete"> 路径 (%1) 不是有效的cmake。</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>参数:</translation>
     </message>
     <message>
         <source>Generator:</source>
@@ -564,9 +522,6 @@
         <source>No valid cmake executable specified.</source>
         <translation>没有指定有效的cmake执行档。</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
     <message>
         <source>CMake</source>
         <translation>CMake</translation>
@@ -579,9 +534,6 @@
         <source>CMake executable</source>
         <translation type="obsolete">可执行的cmake </translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepConfigWidget</name>
     <message>
         <source>Additional arguments:</source>
         <translation>额外的参数:</translation>
@@ -611,9 +563,6 @@
         <source>&lt;b&gt;Unknown Toolchain&lt;/b&gt;</source>
         <translation type="obsolete">&lt;b&gt;未知工具链&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ShadowBuildPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. </source>
         <translation>请进入您想构建项目的目录。</translation>
@@ -621,14 +570,6 @@
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>请进入您想构建项目的目录。Qt Creator 建议您不要使用源目录构建。这能确保源目录干净，并且可以针对不同设定多次构建。</translation>
-    </message>
-    <message>
-        <source>Build directory:</source>
-        <translation>构建目录:</translation>
-    </message>
-    <message>
-        <source>Build Location</source>
-        <translation>构建路径</translation>
     </message>
 </context>
 <context>
@@ -20033,30 +19974,14 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Run CMake target</source>
         <translation>执行 CMake 目标</translation>
     </message>
     <message>
-        <source>Clean Environment</source>
-        <translation>清理时的环境变量</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation>系统环境变量</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation>构建时的环境变量</translation>
-    </message>
-    <message>
         <source>The executable is not built by the current build configuration</source>
         <translation>这个可执行档不是使用当前的构建配置构建出来的</translation>
-    </message>
-    <message>
-        <source>The executable is not built by the current buildconfiguration</source>
-        <translation type="obsolete">这个可执行档不是使用当前的构建配置制作出来的</translation>
     </message>
     <message>
         <source> (disabled)</source>
@@ -22324,15 +22249,12 @@ Previous decimal signed value (big endian): %4</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeTarget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
         <translation>桌面</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for CMakeProjectManager::MakeStep id.</comment>
@@ -27781,7 +27703,7 @@ Id必须以小写字母开头。</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::MakeStep</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Make</source>
         <extracomment>Default display name for the cmake make step.</extracomment>
@@ -32172,17 +32094,6 @@ Specifies how backspace interacts with indentation.
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeManager</name>
-    <message>
-        <source>Run cmake</source>
-        <translation type="obsolete">执行CMake</translation>
-    </message>
-    <message>
-        <source>Run CMake</source>
-        <translation>执行CMake</translation>
-    </message>
-</context>
-<context>
     <name>Core::Internal::ExternalToolModel</name>
     <message>
         <source>Uncategorized</source>
@@ -36108,7 +36019,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeEditor</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Changes to cmake files are shown in the project tree after building.</source>
         <translation>构建之后在项目树中显示cmake文件的变化。</translation>
@@ -45200,14 +45111,11 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeLocatorFilter</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Build CMake target</source>
         <translation>构建 CMake 目标</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ChooseCMakePage</name>
     <message>
         <source>Choose Cmake Executable</source>
         <translation>选择CMake 的执行档</translation>

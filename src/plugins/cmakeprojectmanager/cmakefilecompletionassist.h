@@ -5,25 +5,12 @@
 
 #include <texteditor/codeassist/keywordscompletionassist.h>
 
-namespace CMakeProjectManager {
-namespace Internal {
-
-class CMakeFileCompletionAssist : public TextEditor::KeywordsCompletionAssistProcessor
-{
-public:
-    CMakeFileCompletionAssist();
-
-    // IAssistProcessor interface
-    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) override;
-};
+namespace CMakeProjectManager::Internal {
 
 class CMakeFileCompletionAssistProvider : public TextEditor::CompletionAssistProvider
 {
-    Q_OBJECT
-
 public:
-    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
+    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const final;
 };
 
-} // Internal
-} // CMakeProjectManager
+} // CMakeProjectManager::Internal

@@ -4,6 +4,7 @@
 #include "cmakesettingspage.h"
 
 #include "cmakeprojectconstants.h"
+#include "cmakeprojectmanagertr.h"
 #include "cmaketool.h"
 #include "cmaketoolmanager.h"
 
@@ -21,7 +22,6 @@
 
 #include <QBoxLayout>
 #include <QCheckBox>
-#include <QCoreApplication>
 #include <QFormLayout>
 #include <QHeaderView>
 #include <QLabel>
@@ -42,8 +42,6 @@ class CMakeToolTreeItem;
 
 class CMakeToolItemModel : public TreeModel<TreeItem, TreeItem, CMakeToolTreeItem>
 {
-    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::CMakeSettingsPage)
-
 public:
     CMakeToolItemModel();
 
@@ -77,8 +75,6 @@ private:
 
 class CMakeToolTreeItem : public TreeItem
 {
-    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::CMakeSettingsPage)
-
 public:
     CMakeToolTreeItem(const CMakeTool *item, bool changed)
         : m_id(item->id())
@@ -122,9 +118,9 @@ public:
         cmake.setFilePath(m_executable);
         m_isSupported = cmake.hasFileApi();
 
-        m_tooltip = tr("Version: %1").arg(cmake.versionDisplay());
-        m_tooltip += "<br>" + tr("Supports fileApi: %1").arg(m_isSupported ? tr("yes") : tr("no"));
-        m_tooltip += "<br>" + tr("Detection source: \"%1\"").arg(m_detectionSource);
+        m_tooltip = Tr::tr("Version: %1").arg(cmake.versionDisplay());
+        m_tooltip += "<br>" + Tr::tr("Supports fileApi: %1").arg(m_isSupported ? Tr::tr("yes") : Tr::tr("no"));
+        m_tooltip += "<br>" + Tr::tr("Detection source: \"%1\"").arg(m_detectionSource);
 
         m_versionDisplay = cmake.versionDisplay();
     }
@@ -141,7 +137,7 @@ public:
             case 0: {
                 QString name = m_name;
                 if (model()->defaultItemId() == m_id)
-                    name += tr(" (Default)");
+                    name += Tr::tr(" (Default)");
                 return name;
             }
             case 1: {
@@ -160,20 +156,13 @@ public:
             QString result = m_tooltip;
             QString error;
             if (!m_pathExists) {
-                error = QCoreApplication::translate(
-                    "CMakeProjectManager::Internal::CMakeToolTreeItem",
-                    "CMake executable path does not exist.");
+                error = Tr::tr("CMake executable path does not exist.");
             } else if (!m_pathIsFile) {
-                error = QCoreApplication::translate(
-                    "CMakeProjectManager::Internal::CMakeToolTreeItem",
-                    "CMake executable path is not a file.");
+                error = Tr::tr("CMake executable path is not a file.");
             } else if (!m_pathIsExecutable) {
-                error = QCoreApplication::translate(
-                    "CMakeProjectManager::Internal::CMakeToolTreeItem",
-                    "CMake executable path is not executable.");
+                error = Tr::tr("CMake executable path is not executable.");
             } else if (!m_isSupported) {
-                error = QCoreApplication::translate(
-                    "CMakeProjectManager::Internal::CMakeToolTreeItem",
+                error = Tr::tr(
                     "CMake executable does not provide required IDE integration features.");
             }
             if (result.isEmpty() || error.isEmpty())
@@ -213,11 +202,11 @@ public:
 
 CMakeToolItemModel::CMakeToolItemModel()
 {
-    setHeader({tr("Name"), tr("Path")});
+    setHeader({Tr::tr("Name"), Tr::tr("Path")});
     rootItem()->appendChild(
         new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
                            {ProjectExplorer::Constants::msgAutoDetectedToolTip()}));
-    rootItem()->appendChild(new StaticTreeItem(tr("Manual")));
+    rootItem()->appendChild(new StaticTreeItem(Tr::tr("Manual")));
 
     const QList<CMakeTool *> items = CMakeToolManager::cmakeTools();
     for (const CMakeTool *item : items)
@@ -400,8 +389,6 @@ QString CMakeToolItemModel::uniqueDisplayName(const QString &base) const
 
 class CMakeToolItemConfigWidget : public QWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::CMakeSettingsPage)
-
 public:
     explicit CMakeToolItemConfigWidget(CMakeToolItemModel *model);
     void load(const CMakeToolTreeItem *item);
@@ -437,20 +424,20 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
     m_qchFileChooser->setMinimumWidth(400);
     m_qchFileChooser->setHistoryCompleter(QLatin1String("Cmake.qchFile.History"));
     m_qchFileChooser->setPromptDialogFilter("*.qch");
-    m_qchFileChooser->setPromptDialogTitle(tr("CMake .qch File"));
+    m_qchFileChooser->setPromptDialogTitle(Tr::tr("CMake .qch File"));
 
     m_versionLabel = new QLabel(this);
 
     m_autoRunCheckBox = new QCheckBox;
-    m_autoRunCheckBox->setText(tr("Autorun CMake"));
-    m_autoRunCheckBox->setToolTip(tr("Automatically run CMake after changes to CMake project files."));
+    m_autoRunCheckBox->setText(Tr::tr("Autorun CMake"));
+    m_autoRunCheckBox->setToolTip(Tr::tr("Automatically run CMake after changes to CMake project files."));
 
     auto formLayout = new QFormLayout(this);
     formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    formLayout->addRow(new QLabel(tr("Name:")), m_displayNameLineEdit);
-    formLayout->addRow(new QLabel(tr("Path:")), m_binaryChooser);
-    formLayout->addRow(new QLabel(tr("Version:")), m_versionLabel);
-    formLayout->addRow(new QLabel(tr("Help file:")), m_qchFileChooser);
+    formLayout->addRow(new QLabel(Tr::tr("Name:")), m_displayNameLineEdit);
+    formLayout->addRow(new QLabel(Tr::tr("Path:")), m_binaryChooser);
+    formLayout->addRow(new QLabel(Tr::tr("Version:")), m_versionLabel);
+    formLayout->addRow(new QLabel(Tr::tr("Help file:")), m_qchFileChooser);
     formLayout->addRow(m_autoRunCheckBox);
 
     connect(m_binaryChooser, &PathChooser::browsingFinished, this, &CMakeToolItemConfigWidget::onBinaryPathEditingFinished);
@@ -517,22 +504,20 @@ void CMakeToolItemConfigWidget::load(const CMakeToolTreeItem *item)
 
 class CMakeToolConfigWidget : public Core::IOptionsPageWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeToolConfigWidget)
-
 public:
     CMakeToolConfigWidget()
     {
-        m_addButton = new QPushButton(tr("Add"), this);
+        m_addButton = new QPushButton(Tr::tr("Add"), this);
 
-        m_cloneButton = new QPushButton(tr("Clone"), this);
+        m_cloneButton = new QPushButton(Tr::tr("Clone"), this);
         m_cloneButton->setEnabled(false);
 
-        m_delButton = new QPushButton(tr("Remove"), this);
+        m_delButton = new QPushButton(Tr::tr("Remove"), this);
         m_delButton->setEnabled(false);
 
-        m_makeDefButton = new QPushButton(tr("Make Default"), this);
+        m_makeDefButton = new QPushButton(Tr::tr("Make Default"), this);
         m_makeDefButton->setEnabled(false);
-        m_makeDefButton->setToolTip(tr("Set as the default CMake Tool to use when creating a new kit or when no value is set."));
+        m_makeDefButton->setToolTip(Tr::tr("Set as the default CMake Tool to use when creating a new kit or when no value is set."));
 
         m_container = new DetailsWidget(this);
         m_container->setState(DetailsWidget::NoSummary);
@@ -613,7 +598,7 @@ void CMakeToolConfigWidget::cloneCMakeTool()
     if (!m_currentItem)
         return;
 
-    QModelIndex newItem = m_model.addCMakeTool(tr("Clone of %1").arg(m_currentItem->m_name),
+    QModelIndex newItem = m_model.addCMakeTool(Tr::tr("Clone of %1").arg(m_currentItem->m_name),
                                                m_currentItem->m_executable,
                                                m_currentItem->m_qchFile,
                                                m_currentItem->m_isAutoRun,
@@ -624,7 +609,7 @@ void CMakeToolConfigWidget::cloneCMakeTool()
 
 void CMakeToolConfigWidget::addCMakeTool()
 {
-    QModelIndex newItem = m_model.addCMakeTool(m_model.uniqueDisplayName(tr("New CMake")),
+    QModelIndex newItem = m_model.addCMakeTool(m_model.uniqueDisplayName(Tr::tr("New CMake")),
                                                FilePath(),
                                                FilePath(),
                                                true,
@@ -681,7 +666,7 @@ void CMakeToolConfigWidget::currentCMakeToolChanged(const QModelIndex &newCurren
 CMakeSettingsPage::CMakeSettingsPage()
 {
     setId(Constants::Settings::TOOLS_ID);
-    setDisplayName(tr("Tools"));
+    setDisplayName(Tr::Tr::tr("Tools"));
     setDisplayCategory("CMake");
     setCategory(Constants::Settings::CATEGORY);
     setWidgetCreator([] { return new CMakeToolConfigWidget; });

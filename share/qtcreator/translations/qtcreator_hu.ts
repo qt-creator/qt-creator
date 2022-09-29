@@ -263,7 +263,7 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::0</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Build Environment</source>
         <translation type="obsolete">Fordítási környezet</translation>
@@ -356,9 +356,6 @@
         <source>Qt Creator has found a recent cbp file, which Qt Creator will parse to gather information about the project. You can change the command line arguments used to create this file in the project mode. Click finish to load the project</source>
         <translation type="obsolete">A Qt Creator megtalálta a legutolsó cbp fájlt, amelyet a Qt Creator elemzésre for használni, hogy információkat nyerhessen a projektről. Megváltoztathatja aparancssori argumentumokat, amelyeket új fájl létrehozására hoztak létre projekt módban. Kattintson a befejezés gombra a projekt betöltéséhez.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
     <message>
         <source>Create</source>
         <translation>Létrehozás</translation>
@@ -371,9 +368,6 @@
         <source>New Configuration Name:</source>
         <translation>Új konfiguráció név:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildEnvironmentWidget</name>
     <message>
         <source>Clear system environment</source>
         <translation>Rendszer környezet megtisztítása</translation>
@@ -382,23 +376,14 @@
         <source>Build Environment</source>
         <translation>Fordítási környezet</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
         <source>&amp;Change</source>
         <translation>&amp;Váltotatás</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeOpenProjectWizard</name>
     <message>
         <source>CMake Wizard</source>
         <translation>CMake Varázsló</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfigurationWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Argumentumok:</translation>
@@ -432,16 +417,9 @@
         <translation>Rendszer környezet</translation>
     </message>
     <message>
-        <source>Build Environment</source>
-        <translation>Fordítási környezet</translation>
-    </message>
-    <message>
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
         <translation></translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunPage</name>
     <message>
         <source>Please specify the path to the cmake executable. No cmake executable was found in the path.</source>
         <translation>Kérem határozza meg a cmake futtatható fájl útvonalát. Nem található cmake futtatható fájl az útvonalon.</translation>
@@ -502,9 +480,6 @@
         <source>No valid cmake executable specified.</source>
         <translation>Nincsen érvényes, meghatározott cmake futtatható.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
     <message>
         <source>CMake</source>
         <translation>CMake</translation>
@@ -513,16 +488,10 @@
         <source>CMake executable</source>
         <translation>CMake futtatható fájl</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
     <message>
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation>A Qt Creator egy &lt;b&gt;beépített forrást észlelt a(z) %1-ben&lt;/b&gt;, amely megelőzi az árnyék építéstől. A Qt Creator nem fogja engedélyezni Önnek, hogy megváltoztassa az építési könyvtárat. Ha árnyék építést szeretne végrehajtani, ürítse ki a forrás könyvtárat és nyissa meg újra a projektet.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepConfigWidget</name>
     <message>
         <source>Additional arguments:</source>
         <translation>További argumentumok:</translation>
@@ -535,9 +504,6 @@
         <source>&lt;b&gt;Make:&lt;/b&gt; %1 %2</source>
         <translation>&lt;b&gt;Make:&lt;/b&gt; %1 %2</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ShadowBuildPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. </source>
         <translation>Kérem gépelje be a könyvtár nevét, amelybe a projektet szeretné felépíteni.</translation>

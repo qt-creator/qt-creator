@@ -13419,7 +13419,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a cmake project.</extracomment>
@@ -13445,16 +13445,10 @@ in the system&apos;s browser for manual download.</source>
         <source>Release with Debug Information</source>
         <translation>デバッグ情報付きリリース</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeLocatorFilter</name>
     <message>
         <source>Build CMake target</source>
         <translation>CMake ターゲットをビルド</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
         <source>Build directory:</source>
         <translation>ビルドディレクトリ:</translation>
@@ -13607,9 +13601,6 @@ To unset a variable, use -U&lt;variable&gt;.
         <source>CMake</source>
         <translation>CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeManager</name>
     <message>
         <source>Run CMake</source>
         <translation>CMake の実行</translation>
@@ -13621,10 +13612,6 @@ To unset a variable, use -U&lt;variable&gt;.
     <message>
         <source>Rescan Project</source>
         <translation>プロジェクトを再スキャン</translation>
-    </message>
-    <message>
-        <source>Build</source>
-        <translation>ビルド</translation>
     </message>
     <message>
         <source>Build File</source>
@@ -13646,16 +13633,6 @@ To unset a variable, use -U&lt;variable&gt;.
         <source>Failed opening project &quot;%1&quot;: Project is not a file</source>
         <translation>プロジェクト &quot;%1&quot; が開けません: プロジェクトがファイルではありません</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
     <message>
         <source>Run CMake kit</source>
         <translation>CMake キットの実行</translation>
@@ -26770,7 +26747,7 @@ to project &quot;%2&quot;.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeTarget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
@@ -39167,7 +39144,7 @@ clang の実行ファイルを設定してください。</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::BuildDirManager</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>The build directory is not for %1 but for %2</source>
         <translation>このビルドディレクトリは %2 向けで %1 向けではありません</translation>
@@ -39208,9 +39185,6 @@ clang の実行ファイルを設定してください。</translation>
         <source>Failed to open %1 for reading.</source>
         <translation>読み込み用に %1 を開くのに失敗しました。</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStep</name>
     <message>
         <source>Make</source>
         <extracomment>Default display name for the cmake make step.</extracomment>
@@ -39278,23 +39252,9 @@ clang の実行ファイルを設定してください。</translation>
         <comment>Display name for CMakeProjectManager::CMakeBuildStep id.</comment>
         <translation>CMake ビルド</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeBuildStep</name>
     <message>
         <source>Qt Creator needs a CMake Tool set up to build. Configure a CMake Tool in the kit options.</source>
         <translation>ビルドする為には CMake ツールの設定が必要です。キットのオプションの CMake ツールを設定してください。</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStepConfigWidget</name>
-    <message>
-        <source>Tool arguments:</source>
-        <translation>ツールの引数:</translation>
-    </message>
-    <message>
-        <source>Targets:</source>
-        <translation>ターゲット:</translation>
     </message>
     <message>
         <source>Build</source>
@@ -39305,17 +39265,11 @@ clang の実行ファイルを設定してください。</translation>
         <source>&lt;b&gt;No build configuration found on this kit.&lt;/b&gt;</source>
         <translation>&lt;b&gt;このキットからビルド設定が見つかりません。&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStepFactory</name>
     <message>
         <source>Build</source>
         <comment>Display name for CMakeProjectManager::CMakeBuildStep id.</comment>
         <translation>ビルド</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeKitConfigWidget</name>
     <message>
         <source>CMake Tool:</source>
         <translation>CMake ツール:</translation>
@@ -39328,9 +39282,6 @@ clang の実行ファイルを設定してください。</translation>
         <source>&lt;No CMake Tool available&gt;</source>
         <translation>&lt;CMake ツールが見つかりません&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeGeneratorKitConfigWidget</name>
     <message>
         <source>CMake Generator:</source>
         <translation>CMake ジェネレータ:</translation>
@@ -39343,9 +39294,6 @@ clang の実行ファイルを設定してください。</translation>
         <source>CMake generator defines how a project is built when using CMake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation>CMake ジェネレータは CMake 使用時のプロジェクトビルド方法を定義します。&lt;br&gt;他のビルドシステム使用時には無視されます。</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeConfigurationKitConfigWidget</name>
     <message>
         <source>Change...</source>
         <translation>変更...</translation>
@@ -39359,19 +39307,8 @@ clang の実行ファイルを設定してください。</translation>
         <translation>プロジェクト設定時に既定の設定が CMake に渡されます。</translation>
     </message>
     <message>
-        <source>Edit CMake Configuration</source>
-        <translation>CMake 設定の編集</translation>
-    </message>
-    <message>
         <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;You may provide a type hint by adding &quot;:TYPE&quot; before the &quot;=&quot;.</source>
         <translation>一行に付き一つの変数をその名と値を &quot;=&quot; で繋ぐ形式で入力してください。&lt;br&gt;&quot;=&quot; の前に &quot;:TYPE&quot; 形式で型のヒントを指定できます。</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeKitInformation</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
     </message>
     <message>
         <source>Unconfigured</source>
@@ -39381,9 +39318,6 @@ clang の実行ファイルを設定してください。</translation>
         <source>Path to the cmake executable</source>
         <translation>cmake 実行ファイルへのパス</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeGeneratorKitInformation</name>
     <message>
         <source>CMake Tool is unconfigured, CMake generator will be ignored.</source>
         <translation>CMake ツールが設定されていないため、CMake ジェネレータは無視されます。</translation>
@@ -39400,13 +39334,6 @@ clang の実行ファイルを設定してください。</translation>
         <source>CMake Generator</source>
         <translation>CMake ジェネレータ</translation>
     </message>
-    <message>
-        <source>&lt;Use Default Generator&gt;</source>
-        <translation>&lt;既定のジェネレータを使用&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigurationKitInformation</name>
     <message>
         <source>CMake configuration has no path to qmake binary set, even though the kit has a valid Qt version.</source>
         <translation>キットに有効な Qt が存在するにもかかわらず、CMake の設定に qmake へのパスが見つかりません。</translation>
@@ -39432,13 +39359,6 @@ clang の実行ファイルを設定してください。</translation>
         <translation>CMake の設定で指定されている C++ コンパイラのパスがキットのツールチェインのパスとは異なります。</translation>
     </message>
     <message>
-        <source>CMake Configuration</source>
-        <translation>CMake 設定</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeProject</name>
-    <message>
         <source>No cmake tool set.</source>
         <translation>CMake ツールが見つかりません。</translation>
     </message>
@@ -39446,9 +39366,6 @@ clang の実行ファイルを設定してください。</translation>
         <source>No compilers set in kit.</source>
         <translation>キットにコンパイラが設定されていません。</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeSettingsPage</name>
     <message>
         <source>yes</source>
         <translation>はい</translation>
@@ -39489,9 +39406,6 @@ clang の実行ファイルを設定してください。</translation>
         <source>Help file:</source>
         <translation>ヘルプファイル:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeToolConfigWidget</name>
     <message>
         <source>Add</source>
         <translation>追加</translation>
@@ -39521,13 +39435,6 @@ clang の実行ファイルを設定してください。</translation>
         <translation>新しい CMake</translation>
     </message>
     <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeToolManager</name>
-    <message>
         <source>CMake at %1</source>
         <translation>CMake(パス: %1)</translation>
     </message>
@@ -39536,19 +39443,8 @@ clang の実行ファイルを設定してください。</translation>
         <translation>システムの CMake(パス: %1)</translation>
     </message>
     <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::ConfigModel</name>
-    <message>
         <source> (ADVANCED)</source>
         <translation> (拡張)</translation>
-    </message>
-    <message>
-        <source>&lt;UNSET&gt;</source>
-        <translation>&lt;未定義&gt;</translation>
     </message>
     <message>
         <source>Setting</source>
@@ -39557,10 +39453,6 @@ clang の実行ファイルを設定してください。</translation>
     <message>
         <source>Value</source>
         <translation>値</translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation>拡張</translation>
     </message>
 </context>
 <context>
@@ -45590,22 +45482,11 @@ Output:
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfiguration</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>CMake configuration set by the kit was overridden in the project.</source>
         <translation>キットで設定された CMake 設定はプロジェクトで上書きされました。</translation>
     </message>
-    <message>
-        <source>Minimum Size Release</source>
-        <translation type="vanished">最小サイズリリース</translation>
-    </message>
-    <message>
-        <source>Release with Debug Information</source>
-        <translation type="vanished">デバッグ情報付きリリース</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeEditorFactory</name>
     <message>
         <source>CMake Editor</source>
         <translation>CMake エディタ</translation>
@@ -49669,7 +49550,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::CMakeBuildConfiguration</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Changing Build Directory</source>
         <translation>ビルドディレクトリの変更</translation>
@@ -49687,157 +49568,12 @@ Output:
         <translation>プロビジョニングプロファイルの CMake フラグ</translation>
     </message>
     <message>
-        <source>Minimum Size Release</source>
-        <translation>最小サイズリリース</translation>
-    </message>
-    <message>
-        <source>Release with Debug Information</source>
-        <translation>デバッグ情報付きリリース</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigItem</name>
-    <message>
-        <source>Failed to open %1 for reading.</source>
-        <translation>読み込み用に %1 を開くのに失敗しました。</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeKitAspect</name>
-    <message>
-        <source>&lt;No CMake Tool available&gt;</source>
-        <translation>&lt;CMake ツールが見つかりません&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeKitAspect</name>
-    <message>
-        <source>The CMake Tool to use when building a project with CMake.&lt;br&gt;This setting is ignored when using other build systems.</source>
-        <translation>CMake ツールはプロジェクトを CMake でビルドする際に使用します。&lt;br&gt;他のビルドシステム使用時には無視されます。</translation>
-    </message>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-    <message>
-        <source>Unconfigured</source>
-        <translation>未設定</translation>
-    </message>
-    <message>
-        <source>Path to the cmake executable</source>
-        <translation>cmake 実行ファイルへのパス</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeGeneratorKitAspect</name>
-    <message>
-        <source>Change...</source>
-        <translation>変更...</translation>
-    </message>
-    <message>
-        <source>CMake Generator</source>
-        <translation>CMake ジェネレータ</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeGeneratorKitAspect</name>
-    <message>
-        <source>CMake generator defines how a project is built when using CMake.&lt;br&gt;This setting is ignored when using other build systems.</source>
-        <translation>CMake ジェネレータは CMake 使用時のプロジェクトビルド方法を定義します。&lt;br&gt;他のビルドシステム使用時には無視されます。</translation>
-    </message>
-    <message>
-        <source>CMake Tool is unconfigured, CMake generator will be ignored.</source>
-        <translation>CMake ツールが設定されていないため、CMake ジェネレータは無視されます。</translation>
-    </message>
-    <message>
-        <source>CMake Tool does not support the configured generator.</source>
-        <translation>CMake ツールがジェネレータに対応していません。</translation>
-    </message>
-    <message>
-        <source>&lt;Use Default Generator&gt;</source>
-        <translation>&lt;既定のジェネレータを使用&gt;</translation>
-    </message>
-    <message>
-        <source>CMake Generator</source>
-        <translation>CMake ジェネレータ</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeConfigurationKitAspect</name>
-    <message>
-        <source>Change...</source>
-        <translation>変更...</translation>
-    </message>
-    <message>
-        <source>Edit CMake Configuration</source>
-        <translation>CMake 設定の編集</translation>
-    </message>
-    <message>
-        <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;You may provide a type hint by adding &quot;:TYPE&quot; before the &quot;=&quot;.</source>
-        <translation>一行に付き一つの変数をその名と値を &quot;=&quot; で繋ぐ形式で入力してください。&lt;br&gt;&quot;=&quot; の前に &quot;:TYPE&quot; 形式で型のヒントを指定できます。</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigurationKitAspect</name>
-    <message>
-        <source>CMake Configuration</source>
-        <translation>CMake 設定</translation>
-    </message>
-    <message>
-        <source>Default configuration passed to CMake when setting up a project.</source>
-        <translation>プロジェクト設定時に既定の設定が CMake に渡されます。</translation>
-    </message>
-    <message>
-        <source>CMake configuration has no path to qmake binary set, even though the kit has a valid Qt version.</source>
-        <translation>キットに有効な Qt が存在するにもかかわらず、CMake の設定に qmake へのパスが見つかりません。</translation>
-    </message>
-    <message>
-        <source>CMake configuration has a path to a qmake binary set, even though the kit has no valid Qt version.</source>
-        <translation>キットに有効な Qt が存在しないにもかかわらず、CMake の設定に qmake へのパスが存在します。</translation>
-    </message>
-    <message>
-        <source>CMake configuration has no path to a C++ compiler set, even though the kit has a valid tool chain.</source>
-        <translation>キットに有効なツールチェインが存在するにもかかわらず、CMake の設定に C++ コンパイラへのパスが見つかりません。</translation>
-    </message>
-    <message>
-        <source>CMake configuration has a path to a C++ compiler set, even though the kit has no valid tool chain.</source>
-        <translation>キットに有効なツールチェインが存在しないにもかかわらず、CMake の設定に C++ コンパイラへのパスが存在します。</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::BuildCMakeTargetLocatorFilter</name>
-    <message>
-        <source>Build CMake target</source>
-        <translation>CMake ターゲットをビルド</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeProcess</name>
-    <message>
-        <source>Configuring &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; の設定中</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeProjectPlugin</name>
-    <message>
-        <source>Build</source>
-        <translation>ビルド</translation>
-    </message>
-    <message>
         <source>Build &quot;%1&quot;</source>
         <translation>&quot;%1&quot; のビルド</translation>
     </message>
     <message>
         <source>CMake</source>
         <comment>SnippetProvider</comment>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSpecificSettingWidget</name>
-    <message>
-        <source>CMake</source>
         <translation>CMake</translation>
     </message>
 </context>

@@ -1047,7 +1047,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a cmake project.</extracomment>
@@ -1081,9 +1081,6 @@ Local pulls are not applied to the master branch.</source>
         <source>New configuration name:</source>
         <translation type="vanished">Назва нової конфігурації:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
         <source>Run cmake</source>
         <translation type="vanished">Запустити cmake</translation>
@@ -1124,20 +1121,6 @@ Local pulls are not applied to the master branch.</source>
         <source>CMake</source>
         <translation>CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeEditor</name>
-    <message>
-        <source>Changes to cmake files are shown in the project tree after building.</source>
-        <translation type="vanished">Зміни у файлах cmake будуть відображені в дереві проекту після збірки.</translation>
-    </message>
-    <message>
-        <source>Build now</source>
-        <translation type="vanished">Зібрати зараз</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeManager</name>
     <message>
         <source>Run CMake</source>
         <translation>Запустити CMake</translation>
@@ -1154,16 +1137,10 @@ Local pulls are not applied to the master branch.</source>
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation type="vanished">Збій відкриття проекту &apos;%1&apos;: Проект не є файлом</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeOpenProjectWizard</name>
     <message>
         <source>CMake Wizard</source>
         <translation type="vanished">Майстер CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
     <message>
         <source>Run CMake kit</source>
         <translation>Запустити комплект cmake</translation>
@@ -1180,9 +1157,6 @@ Local pulls are not applied to the master branch.</source>
         <source> (disabled)</source>
         <translation type="vanished"> (вимкнено)</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfigurationWidget</name>
     <message>
         <source>Arguments:</source>
         <translation type="vanished">Аргументи:</translation>
@@ -1210,17 +1184,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Run in Terminal</source>
         <translation type="vanished">Запускати в терміналі</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunPage</name>
-    <message>
-        <source>Run CMake</source>
-        <translation type="vanished">Запустити CMake</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation type="vanished">Аргументи:</translation>
     </message>
     <message>
         <source>Generator:</source>
@@ -1290,13 +1253,6 @@ Local pulls are not applied to the master branch.</source>
         <source>CMake exited with errors. Please check CMake output.</source>
         <translation type="vanished">CMake завершився з помилками. Будь ласка, перевірте виведення CMake.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
     <message>
         <source>Executable:</source>
         <translation type="vanished">Виконуваний модуль:</translation>
@@ -1305,9 +1261,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Prefer Ninja generator (CMake 2.8.9 or higher required)</source>
         <translation type="vanished">Надавати перевагу генератору Ninja (необхідний CMake 2.8.9 або вище)</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeTarget</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
@@ -1317,9 +1270,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Desktop</source>
         <translation type="vanished">Стаціонарний комп&apos;ютер</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
     <message>
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation type="vanished">Qt Creator знайшов &lt;b&gt;збірку в теці з кодом в%1&lt;/b&gt;, яка заважає тіньовим збіркам. Qt Creator не дозволить вам змінити теку збірки. Якщо ви хочете тіньової збірки, то очистіть теку з кодом та перевідкрийте проект.</translation>
@@ -1327,14 +1277,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Build Location</source>
         <translation type="vanished">Розташування збірки</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStep</name>
-    <message>
-        <source>Make</source>
-        <extracomment>Default display name for the cmake make step.</extracomment>
-        <translation type="vanished">Make</translation>
     </message>
     <message>
         <source>Qt Creator needs a compiler set up to build. Configure a compiler in the kit options.</source>
@@ -1344,9 +1286,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation type="vanished">Конфігурація збійна. Перевірте вид &quot;Проблеми&quot; для деталей.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepConfigWidget</name>
     <message>
         <source>Override command:</source>
         <translation type="vanished">Команда на заміну:</translation>
@@ -1356,37 +1295,10 @@ Local pulls are not applied to the master branch.</source>
         <translation type="vanished">Додаткові аргументи:</translation>
     </message>
     <message>
-        <source>Targets:</source>
-        <translation type="vanished">Цілі:</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;No build configuration found on this kit.&lt;/b&gt;</source>
-        <translation type="vanished">&lt;b&gt;Для цього комплекту відсутня конфігурація збірки.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Make</source>
-        <comment>CMakeProjectManager::MakeStepConfigWidget display name.</comment>
-        <translation type="vanished">Make</translation>
-    </message>
-    <message>
-        <source>Make</source>
-        <translation type="vanished">Make</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepFactory</name>
-    <message>
         <source>Make</source>
         <comment>Display name for CMakeProjectManager::MakeStep id.</comment>
         <translation type="vanished">Make</translation>
     </message>
-    <message>
-        <source>Make</source>
-        <translation type="vanished">Make</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ShadowBuildPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. </source>
         <translation type="vanished">Будь ласка, введіть теку, в якій ви хочете зібрати ваш проект. </translation>
@@ -1398,14 +1310,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation type="vanished">Будь ласка, введіть теку, в якій ви хочете зібрати ваш проект. Qt Creator рекомендує не використовувати теку з кодом для збірки. Це гарантуватиме, що тека з кодом лишатиметься чистою, та дозволить здійснювати декілька збірок з різними налаштуваннями.</translation>
-    </message>
-    <message>
-        <source>Build directory:</source>
-        <translation type="vanished">Тека збірки:</translation>
-    </message>
-    <message>
-        <source>Build Location</source>
-        <translation type="vanished">Розташування збірки</translation>
     </message>
 </context>
 <context>
@@ -26701,7 +26605,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeLocatorFilter</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Build CMake target</source>
         <translation>Зібрати ціль CMake</translation>
@@ -30259,7 +30163,7 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::ChooseCMakePage</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>CMake Executable:</source>
         <translation type="vanished">Виконуваний модуль CMake:</translation>
@@ -34123,7 +34027,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::GeneratorInfo</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Ninja (%1)</source>
         <translation type="vanished">Ninja (%1)</translation>
@@ -34140,9 +34044,6 @@ cannot be found in the path.</source>
         <source>Unix Generator (%1)</source>
         <translation type="vanished">Генератор для Unix (%1)</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::NoKitPage</name>
     <message>
         <source>Show Options</source>
         <translation type="vanished">Показати опції</translation>
@@ -48789,7 +48690,7 @@ Setting breakpoints by file name and line number may fail.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeKitConfigWidget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>CMake Tool:</source>
         <translation>Інструмент CMake:</translation>
@@ -48802,20 +48703,10 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>&lt;No CMake Tool available&gt;</source>
         <translation>&lt;Немає інструмента CMake&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeKitInformation</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
     <message>
         <source>Unconfigured</source>
         <translation>Не сконфігуровано</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::NoCMakePage</name>
     <message>
         <source>Check CMake Tools</source>
         <translation type="vanished">Перевірити інструменти CMake</translation>
@@ -48828,9 +48719,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Qt Creator has no CMake Tools that are required for CMake projects. Please configure at least one.</source>
         <translation type="vanished">В Qt Creator немає інструментів CMake, які необхідні для проектів CMake. Будь ласка, сконфігуруйте хоча б один.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeSettingsPage</name>
     <message>
         <source> (Default)</source>
         <translation> (Типово)</translation>
@@ -48859,9 +48747,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>Path:</source>
         <translation>Шлях:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeToolConfigWidget</name>
     <message>
         <source>Add</source>
         <translation>Додати</translation>
@@ -48887,10 +48772,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <translation type="vanished">Встановити як типовий інструмент CMake для використання при створенні нових комлектів.</translation>
     </message>
     <message>
-        <source>Prefer Ninja generator (CMake 2.8.9 or higher required)</source>
-        <translation type="vanished">Надавати перевагу генератору Ninja (необхідний CMake 2.8.9 або вище)</translation>
-    </message>
-    <message>
         <source>Clone of %1</source>
         <translation>Клон %1</translation>
     </message>
@@ -48898,9 +48779,6 @@ Setting breakpoints by file name and line number may fail.</source>
         <source>New CMake</source>
         <translation>Новий CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeToolManager</name>
     <message>
         <source>CMake at %1</source>
         <translation>CMake в %1</translation>
@@ -50229,7 +50107,7 @@ the program.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::CMakeProject</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Internal Error: No build configuration found in settings file.</source>
         <translation type="vanished">Внутрішня помилка: конфігурацію збірки не знайдено в файлі налаштувань.</translation>
@@ -51680,7 +51558,7 @@ Please set a real Clang executable.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::BuildDirManager</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>The build directory is not for %1</source>
         <translation>Тека збірки не для %1</translation>
@@ -51705,9 +51583,6 @@ Please set a real Clang executable.</source>
         <source>Failed to open %1 for reading.</source>
         <translation>Збій відкриття %1 для читання.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStep</name>
     <message>
         <source>Make</source>
         <extracomment>Default display name for the cmake make step.</extracomment>
@@ -51717,16 +51592,10 @@ Please set a real Clang executable.</source>
         <source>Persisting CMake state...</source>
         <translation>Збереження стану CMake...</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeBuildStep</name>
     <message>
         <source>Qt Creator needs a CMake Tool set up to build. Configure a CMake Tool in the kit options.</source>
         <translation>Qt Creator потребує заданого засобу CMake для збірки. Налаштуйте засіб CMake в опціях комплекту.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStepConfigWidget</name>
     <message>
         <source>Tool arguments:</source>
         <translation>Аргументи для засобу:</translation>
@@ -51744,17 +51613,11 @@ Please set a real Clang executable.</source>
         <source>&lt;b&gt;No build configuration found on this kit.&lt;/b&gt;</source>
         <translation>&lt;b&gt;Для цього комплекту відсутня конфігурація збірки.&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStepFactory</name>
     <message>
         <source>Build</source>
         <comment>Display name for CMakeProjectManager::CMakeBuildStep id.</comment>
         <translation>Збірка</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeGeneratorKitConfigWidget</name>
     <message>
         <source>CMake Generator:</source>
         <translation>Генератор CMake:</translation>
@@ -51767,9 +51630,6 @@ Please set a real Clang executable.</source>
         <source>CMake generator defines how a project is built when using CMake.&lt;br&gt;This setting is ignored when using other build systems.</source>
         <translation>Генератор CMake визначає, як проект буде збудовано за допомогою CMake.&lt;br&gt;Це налаштування ігнорується для інших систем збірки.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeConfigurationKitConfigWidget</name>
     <message>
         <source>Change...</source>
         <translation>Змінити...</translation>
@@ -51794,9 +51654,6 @@ Please set a real Clang executable.</source>
         <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;You may provide a type hint by adding &quot;:TYPE&quot; before the &quot;=&quot;.</source>
         <translation>Введіть змінні, по одній на кожний рядок. Назва змінної має відділятись від значення символом &quot;=&quot;.&lt;br&gt;Ви можете давати підказку типу, додаючи &quot;:TYPE&quot; перед &quot;=&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeGeneratorKitInformation</name>
     <message>
         <source>No CMake Tool configured, CMake generator will be ignored.</source>
         <translation>Засіб CMake не задано, генератор CMake буде зігноровано.</translation>
@@ -51817,13 +51674,6 @@ Please set a real Clang executable.</source>
         <source>CMake Generator</source>
         <translation>Генератор CMake</translation>
     </message>
-    <message>
-        <source>&lt;Use Default Generator&gt;</source>
-        <translation>&lt;Типовий генератор&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigurationKitInformation</name>
     <message>
         <source>CMake configuration has no path to qmake binary set, even though the kit has a valid Qt version.</source>
         <translation>Конфігурація CMake не має встановленого шляху до виконуваного модуля qmake, хоча комплект має правильну версію Qt.</translation>
@@ -51849,13 +51699,6 @@ Please set a real Clang executable.</source>
         <translation>Конфігурація CMake має встановлений шлях до компілятора C++, який не збігається з шляхом до компілятора налаштованим в наборі інструментів комплекту.</translation>
     </message>
     <message>
-        <source>CMake Configuration</source>
-        <translation>Конфігурація CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::ConfigModel</name>
-    <message>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;НЕ ЗАДАНО&gt;</translation>
     </message>
@@ -51866,10 +51709,6 @@ Please set a real Clang executable.</source>
     <message>
         <source>Value</source>
         <translation>Значення</translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation>Додатково</translation>
     </message>
 </context>
 <context>

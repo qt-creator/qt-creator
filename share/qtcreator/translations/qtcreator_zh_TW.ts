@@ -192,7 +192,7 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Build</source>
         <translation>建置</translation>
@@ -205,9 +205,6 @@
         <source>New configuration name:</source>
         <translation>新設置名稱:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
         <source>Run cmake</source>
         <translation>執行 cmake</translation>
@@ -221,19 +218,9 @@
         <translation>變更(&amp;C)</translation>
     </message>
     <message>
-        <source>Build directory:</source>
-        <translation>建置目錄:</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeOpenProjectWizard</name>
-    <message>
         <source>CMake Wizard</source>
         <translation>CMake 精靈</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfigurationWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>參數：</translation>
@@ -274,9 +261,6 @@
         <source>Build Environment</source>
         <translation>建置環境變數</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
     <message>
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation>Qt Creator在&lt;b&gt;%1&lt;/b&gt;中偵測到先前做過&lt;b&gt;直接在源碼中建置&lt;/b&gt;，因此無法進行分離建置（shadow build）。Qt Creator將不會允許您變更建置目錄。如果你想要進行分離建置，請清除源碼中的編譯後再重新開啟此專案。</translation>
@@ -284,29 +268,6 @@
     <message>
         <source>Build Location</source>
         <translation>建置路徑</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunPage</name>
-    <message>
-        <source>Please specify the path to the cmake executable. No cmake executable was found in the path.</source>
-        <translation type="obsolete">請指定 cmake 執行檔的路徑。在環境變數 path 中找不到 cmake 執行檔。</translation>
-    </message>
-    <message>
-        <source> The cmake executable (%1) does not exist.</source>
-        <translation type="obsolete">cmake 執行檔 (%1) 不存在。</translation>
-    </message>
-    <message>
-        <source> The path %1 is not a executable.</source>
-        <translation type="obsolete"> 路徑 (%1) 不是可執行檔。</translation>
-    </message>
-    <message>
-        <source> The path %1 is not a valid cmake.</source>
-        <translation type="obsolete"> 路徑 (%1) 不是有效的 cmake。</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>參數：</translation>
     </message>
     <message>
         <source>Generator:</source>
@@ -368,9 +329,6 @@
         <source>No valid cmake executable specified.</source>
         <translation>沒有指定有效的 cmake 執行檔。</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
     <message>
         <source>CMake</source>
         <translation>CMake</translation>
@@ -379,9 +337,6 @@
         <source>Executable:</source>
         <translation>執行檔:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepConfigWidget</name>
     <message>
         <source>Additional arguments:</source>
         <translation>額外的參數：</translation>
@@ -403,9 +358,6 @@
         <source>&lt;b&gt;Unknown tool chain&lt;/b&gt;</source>
         <translation type="obsolete">&lt;b&gt;未知的工具鍊&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ShadowBuildPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. </source>
         <translation>請輸入您想建置專案的目錄。</translation>
@@ -413,14 +365,6 @@
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>請輸入您想建置專案的目錄。Qt Creator 建議您不要直接用源碼的目錄來做建置。這樣可以保持源碼目錄的乾淨，並且可以讓您用不同的設定進行多個建置。</translation>
-    </message>
-    <message>
-        <source>Build directory:</source>
-        <translation>建置目錄：</translation>
-    </message>
-    <message>
-        <source>Build Location</source>
-        <translation>建置路徑</translation>
     </message>
 </context>
 <context>
@@ -12184,22 +12128,10 @@ Reason: %2</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Run CMake target</source>
         <translation>執行 CMake 目標</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation>清除環境變數</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation>系統環境變數</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation>建置環境變數</translation>
     </message>
     <message>
         <source>The executable is not built by the current build configuration</source>
@@ -13086,15 +13018,12 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeTarget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
         <translation>桌面</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for CMakeProjectManager::MakeStep id.</comment>
@@ -16131,7 +16060,7 @@ Ids must begin with a lowercase letter.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::MakeStep</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Make</source>
         <extracomment>Default display name for the cmake make step.</extracomment>
@@ -19249,11 +19178,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeManager</name>
-    <message>
-        <source>Run CMake</source>
-        <translation>執行 CMake</translation>
-    </message>
+    <name>CMakeProjectManager</name>
 </context>
 <context>
     <name>Core::Internal::ExternalToolModel</name>
@@ -22384,7 +22309,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeEditor</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Changes to cmake files are shown in the project tree after building.</source>
         <translation>建置之後在專案樹中顯示 cmake 檔的變化。</translation>
@@ -28460,7 +28385,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeLocatorFilter</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Build CMake target</source>
         <translation>建置 CMake 目標</translation>
@@ -31259,7 +31184,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::ChooseCMakePage</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Choose Cmake Executable</source>
         <translation type="unfinished"></translation>

@@ -197,7 +197,7 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Filter</source>
         <translation>Filter</translation>
@@ -13548,7 +13548,7 @@ Lokale Pull-Operationen werden nicht auf den Master-Branch angewandt.</translati
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeManager</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Run CMake</source>
         <translation>CMake ausführen</translation>
@@ -31899,7 +31899,7 @@ Senden selbst auch Zeit benötigt.</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::CMakeProject</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>No cmake tool set.</source>
         <translation>Keine CMake Anwendung konfiguriert.</translation>
@@ -31908,9 +31908,6 @@ Senden selbst auch Zeit benötigt.</translation>
         <source>No compilers set in kit.</source>
         <translation>Im Kit sind keine Compiler eingerichtet.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeSettingsPage</name>
     <message>
         <source>Version: %1&lt;br&gt;Supports fileApi: %2</source>
         <translation>Version: %1&lt;br&gt;Unterstützt fileApi: %2</translation>
@@ -31975,9 +31972,6 @@ Senden selbst auch Zeit benötigt.</translation>
         <source>Help file:</source>
         <translation>Hilfedatei:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeToolConfigWidget</name>
     <message>
         <source>Add</source>
         <translation>Hinzufügen</translation>
@@ -32007,19 +32001,8 @@ Senden selbst auch Zeit benötigt.</translation>
         <translation>Neues CMake</translation>
     </message>
     <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeToolManager</name>
-    <message>
         <source>System CMake at %1</source>
         <translation>System-CMake in %1</translation>
-    </message>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
     </message>
 </context>
 <context>
@@ -34923,7 +34906,7 @@ Dies könnte Probleme während der Ausführung verursachen.
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStep</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>CMake Build</source>
         <extracomment>Default display name for the cmake make step.</extracomment>
@@ -34958,9 +34941,6 @@ Dies könnte Probleme während der Ausführung verursachen.
         <comment>Display name for CMakeProjectManager::CMakeBuildStep id.</comment>
         <translation>Erstellen</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStepConfigWidget</name>
     <message>
         <source>CMake arguments:</source>
         <translation>Kommandozeilenargumente für CMake:</translation>
@@ -34978,9 +34958,6 @@ Dies könnte Probleme während der Ausführung verursachen.
         <comment>CMakeProjectManager::CMakeBuildStepConfigWidget display name.</comment>
         <translation>Build</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::ConfigModel</name>
     <message>
         <source>Key</source>
         <translation>Schlüssel</translation>
@@ -34992,10 +34969,6 @@ Dies könnte Probleme während der Ausführung verursachen.
     <message>
         <source>Current kit: %1</source>
         <translation>Aktuelles Kit: %1</translation>
-    </message>
-    <message>
-        <source>&lt;UNSET&gt;</source>
-        <translation>&lt;UNGESETZT&gt;</translation>
     </message>
     <message>
         <source>Value</source>
@@ -36081,7 +36054,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfiguration</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Changing Build Directory</source>
         <translation>Build-Verzeichnis ändern</translation>
@@ -37677,7 +37650,7 @@ Fehler: %5</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::CMakeConfigItem</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Failed to open %1 for reading.</source>
         <translation>Die Datei %1 konnte nicht zum Lesen geöffnet werden.</translation>
@@ -37706,23 +37679,16 @@ Fehler: %5</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeProjectPlugin</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>CMake</source>
         <comment>SnippetProvider</comment>
         <translation>CMake</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>Erstellen</translation>
-    </message>
-    <message>
         <source>Build &quot;%1&quot;</source>
         <translation>&quot;%1&quot; erstellen</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager</name>
     <message>
         <source>Current CMake: %1</source>
         <translation>Aktuelles CMake: %1</translation>
@@ -40352,7 +40318,7 @@ Breche ausstehende Operationen ab...
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::ConfigModelItemDelegate</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Select a file for %1</source>
         <translation>Wählen Sie eine Datei für %1</translation>
@@ -40870,7 +40836,7 @@ Breche ausstehende Operationen ab...
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeSpecificSettingForm</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Determines whether file paths are copied to the clipboard for pasting to the CMakeLists.txt file when you add new files to CMake projects.</source>
         <translation>Legt fest, ob beim Hinzufügen von neuen Dateien zu CMake-Projekten deren Dateipfade in die Zwischenablage kopiert werden, um sie in die CMakeLists.txt-Datei einzufügen.</translation>
@@ -45786,7 +45752,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSystem</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Scan &quot;%1&quot; project tree</source>
         <translation>Durchsuche &quot;%1&quot;-Projektbaum</translation>
@@ -45811,16 +45777,10 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>CMakeCache.txt file not found.</source>
         <translation>Datei CMakeCache.txt nicht gefunden.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeKitAspect</name>
     <message>
         <source>&lt;No CMake Tool available&gt;</source>
         <translation>&lt;Kein CMake-Werkzeug verfügbar&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeKitAspect</name>
     <message>
         <source>CMake Tool</source>
         <translation>CMake-Werkzeug</translation>
@@ -45830,10 +45790,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>Das zum Erstellen eines Projektes mit CMake zu verwendende CMake-Werkzeug.&lt;br&gt;Diese Einstellung wird bei der Verwendung anderer Build-Systeme ignoriert.</translation>
     </message>
     <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-    <message>
         <source>Unconfigured</source>
         <translation>Nicht konfiguriert</translation>
     </message>
@@ -45841,9 +45797,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Path to the cmake executable</source>
         <translation>Pfad zur ausführbaren Datei von cmake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeGeneratorKitAspect</name>
     <message>
         <source>Change...</source>
         <translation>Ändern...</translation>
@@ -45876,9 +45829,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Toolset:</source>
         <translation>Toolset:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeGeneratorKitAspect</name>
     <message>
         <source>CMake generator</source>
         <translation>CMake-Generator</translation>
@@ -45920,17 +45870,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <translation>Toolset: %1</translation>
     </message>
     <message>
-        <source>CMake Generator</source>
-        <translation>CMake-Generator</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeConfigurationKitAspect</name>
-    <message>
-        <source>Change...</source>
-        <translation>Ändern...</translation>
-    </message>
-    <message>
         <source>Edit CMake Configuration</source>
         <translation>CMake-Konfiguration bearbeiten</translation>
     </message>
@@ -45938,9 +45877,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;You may provide a type hint by adding &quot;:TYPE&quot; before the &quot;=&quot;.</source>
         <translation>Eine Variable pro Zeile eingeben, Name und Wert durch &quot;=&quot; trennen.&lt;br&gt;Ein Typhinweis kann mit &quot;:TYPE&quot; vor dem &quot;=&quot; angegeben werden.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigurationKitAspect</name>
     <message>
         <source>CMake Configuration</source>
         <translation>CMake-Konfiguration</translation>
@@ -45989,23 +45925,14 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>CMake configuration has a path to a C++ compiler set that does not match the compiler path configured in the tool chain of the kit.</source>
         <translation>Die CMake-Konfiguration hat einen C++-Compiler gesetzt, der nicht mit dem Compiler der Toolchain übereinstimmt, die vom Kit verwendet wird.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::BuildCMakeTargetLocatorFilter</name>
     <message>
         <source>Build CMake target</source>
         <translation>CMake-Ziel erstellen</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::OpenCMakeTargetLocatorFilter</name>
     <message>
         <source>Open CMake target</source>
         <translation>CMake-Ziel öffnen</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeProcess</name>
     <message>
         <source>Running %1 in %2.</source>
         <translation>Führe %1 in %2 aus.</translation>
@@ -46014,16 +45941,6 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
         <source>Configuring &quot;%1&quot;</source>
         <translation>Konfiguriere &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSpecificSettingWidget</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::FileApi</name>
     <message>
         <source>&lt;Build Directory&gt;</source>
         <translation>&lt;Build-Verzeichnis&gt;</translation>
@@ -48863,21 +48780,10 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::FileApiReader</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Parsing has been canceled.</source>
         <translation>Auswertung wurde abgebrochen.</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ProjectTreeHelper</name>
-    <message>
-        <source>&lt;Build Directory&gt;</source>
-        <translation>&lt;Build-Verzeichnis&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;Other Locations&gt;</source>
-        <translation>&lt;Andere Orte&gt;</translation>
     </message>
     <message>
         <source>&lt;Headers&gt;</source>

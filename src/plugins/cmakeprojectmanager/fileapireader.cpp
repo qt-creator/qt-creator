@@ -4,6 +4,7 @@
 #include "fileapireader.h"
 
 #include "cmakeprocess.h"
+#include "cmakeprojectmanagertr.h"
 #include "fileapidataextractor.h"
 #include "fileapiparser.h"
 
@@ -20,8 +21,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 static Q_LOGGING_CATEGORY(cmakeFileApiMode, "qtc.cmake.fileApiMode", QtWarningMsg);
 
@@ -180,7 +180,7 @@ QList<CMakeBuildTarget> FileApiReader::takeBuildTargets(QString &errorMessage){
 CMakeConfig FileApiReader::takeParsedConfiguration(QString &errorMessage)
 {
     if (m_lastCMakeExitCode != 0)
-        errorMessage = tr("CMake returned error code: %1").arg(m_lastCMakeExitCode);
+        errorMessage = Tr::tr("CMake returned error code: %1").arg(m_lastCMakeExitCode);
 
     return std::exchange(m_cache, {});
 }
@@ -283,7 +283,7 @@ void FileApiReader::makeBackupConfiguration(bool store)
             replyPrev.removeRecursively();
         QTC_CHECK(!replyPrev.exists());
         if (!reply.renameFile(replyPrev))
-            Core::MessageManager::writeFlashing(tr("Failed to rename %1 to %2.")
+            Core::MessageManager::writeFlashing(Tr::tr("Failed to rename %1 to %2.")
                                                 .arg(reply.toString(), replyPrev.toString()));
     }
 
@@ -294,7 +294,7 @@ void FileApiReader::makeBackupConfiguration(bool store)
 
     if (cmakeCacheTxt.exists())
         if (!FileUtils::copyIfDifferent(cmakeCacheTxt, cmakeCacheTxtPrev))
-            Core::MessageManager::writeFlashing(tr("Failed to copy %1 to %2.")
+            Core::MessageManager::writeFlashing(Tr::tr("Failed to copy %1 to %2.")
                                                 .arg(cmakeCacheTxt.toString(), cmakeCacheTxtPrev.toString()));
 
 }
@@ -383,5 +383,4 @@ void FileApiReader::replyDirectoryHasChanged(const QString &directory) const
         emit dirty();
 }
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

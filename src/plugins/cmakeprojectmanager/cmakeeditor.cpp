@@ -21,12 +21,17 @@
 using namespace Core;
 using namespace TextEditor;
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 //
 // CMakeEditor
 //
+
+class CMakeEditor : public TextEditor::BaseTextEditor
+{
+public:
+    void contextHelp(const HelpCallback &callback) const final;
+};
 
 void CMakeEditor::contextHelp(const HelpCallback &callback) const
 {
@@ -239,5 +244,4 @@ CMakeEditorFactory::CMakeEditorFactory()
     contextMenu->addAction(ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION));
 }
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

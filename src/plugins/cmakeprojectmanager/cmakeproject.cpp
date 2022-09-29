@@ -6,6 +6,7 @@
 #include "cmakekitinformation.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectimporter.h"
+#include "cmakeprojectmanagertr.h"
 #include "cmaketool.h"
 
 #include <coreplugin/icontext.h>
@@ -19,10 +20,9 @@
 
 using namespace ProjectExplorer;
 using namespace Utils;
+using namespace CMakeProjectManager::Internal;
 
 namespace CMakeProjectManager {
-
-using namespace Internal;
 
 /*!
   \class CMakeProject
@@ -49,9 +49,9 @@ Tasks CMakeProject::projectIssues(const Kit *k) const
     Tasks result = Project::projectIssues(k);
 
     if (!CMakeKitAspect::cmakeTool(k))
-        result.append(createProjectTask(Task::TaskType::Error, tr("No cmake tool set.")));
+        result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No cmake tool set.")));
     if (ToolChainKitAspect::toolChains(k).isEmpty())
-        result.append(createProjectTask(Task::TaskType::Warning, tr("No compilers set in kit.")));
+        result.append(createProjectTask(Task::TaskType::Warning, Tr::tr("No compilers set in kit.")));
 
     result.append(m_issues);
 
@@ -115,7 +115,7 @@ Internal::PresetsData CMakeProject::combinePresets(Internal::PresetsData &cmakeP
             if (presetsHash.contains(p.name)) {
                 TaskHub::addTask(
                     BuildSystemTask(Task::TaskType::Error,
-                                    tr("CMakeUserPresets.json cannot re-define the %1 preset: %2")
+                                    Tr::tr("CMakeUserPresets.json cannot re-define the %1 preset: %2")
                                         .arg(presetType)
                                         .arg(p.name),
                                     "CMakeUserPresets.json"));
@@ -158,7 +158,7 @@ void CMakeProject::setupBuildPresets(Internal::PresetsData &presetsData)
             if (!buildPreset.configurePreset) {
                 TaskHub::addTask(BuildSystemTask(
                     Task::TaskType::Error,
-                    tr("Build preset %1 is missing a corresponding configure preset.")
+                    Tr::tr("Build preset %1 is missing a corresponding configure preset.")
                         .arg(buildPreset.name)));
                 TaskHub::requestPopup();
             }
@@ -189,7 +189,7 @@ void CMakeProject::readPresets()
                 data = parser.presetsData();
             } else {
                 TaskHub::addTask(BuildSystemTask(Task::TaskType::Error,
-                                                 tr("Failed to load %1: %2")
+                                                 Tr::tr("Failed to load %1: %2")
                                                      .arg(presetFile.fileName())
                                                      .arg(errorMessage),
                                                  presetFile,

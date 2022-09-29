@@ -275,7 +275,7 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildEnvironmentWidget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Clear system environment</source>
         <translation type="obsolete">Nettoyer l&apos;environnement système</translation>
@@ -284,9 +284,6 @@
         <source>Build Environment</source>
         <translation type="obsolete">Environnement de compilation</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
     <message>
         <source>Create</source>
         <translation type="obsolete">Créer</translation>
@@ -316,9 +313,6 @@
         <source>New Configuration Name:</source>
         <translation type="obsolete">Nom de la nouvelle configuration :</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
         <source>Run cmake</source>
         <translation>Exécuter CMake</translation>
@@ -339,16 +333,10 @@
         <source>CMake</source>
         <translation>CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeOpenProjectWizard</name>
     <message>
         <source>CMake Wizard</source>
         <translation>Assistant CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfigurationWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Arguments :</translation>
@@ -394,10 +382,6 @@
         <translation type="obsolete">Environnement système</translation>
     </message>
     <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Environnement de compilation</translation>
-    </message>
-    <message>
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
         <translation type="obsolete">Exécution en cours : &lt;b&gt;%1&lt;/b&gt; %2</translation>
     </message>
@@ -409,9 +393,6 @@
         <source>Base environment for this runconfiguration:</source>
         <translation type="obsolete">Environnement de base pour cette configuration d&apos;éxecution :</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
     <message>
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation>Qt Creator a détecté une &lt;b&gt;compilation dans les sources de %1&lt;/b&gt; qui empêche les shadow builds. Qt Creator ne permettra pas de changer le répertoire de compilation. Si vous voulez effectuer un &quot;shadow build&quot;, nettoyez le répertoire source et rouvrez le projet.</translation>
@@ -423,29 +404,6 @@
     <message>
         <source>Qt Creator has detected an in-source-build which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation type="obsolete">Qt Creator a détecté une compilation dans les sources qui empêche les shadow builds. Qt Creator ne permettra pas de changer le répertoire de compilation. Si vous voulez effectuer un &quot;shadow build&quot;, nettoyez le répertoire source et rouvrez le projet.</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunPage</name>
-    <message>
-        <source>Please specify the path to the cmake executable. No cmake executable was found in the path.</source>
-        <translation type="obsolete">Veuillez spécifier l&apos;emplacement de l&apos;exécutable cmake. Aucun exécutable cmake n&apos;a été trouvé dans le path.</translation>
-    </message>
-    <message>
-        <source> The cmake executable (%1) does not exist.</source>
-        <translation type="obsolete">L&apos;exécutable cmake (%1) n&apos;existe pas.</translation>
-    </message>
-    <message>
-        <source> The path %1 is not a executable.</source>
-        <translation type="obsolete"> %1 n&apos;est pas le chemin d&apos;un exécutable.</translation>
-    </message>
-    <message>
-        <source> The path %1 is not a valid cmake.</source>
-        <translation type="obsolete">%1 n&apos;est pas une installation valide de cmake.</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Arguments :</translation>
     </message>
     <message>
         <source>Generator:</source>
@@ -486,14 +444,6 @@
         <translation type="obsolete">Veuillez spécifier l&apos;emplacement de l&apos;exécutable CMake. Aucun exécutable CMake n&apos;a été trouvé dans la liste de répertoires standards.</translation>
     </message>
     <message>
-        <source> The CMake executable (%1) does not exist.</source>
-        <translation type="obsolete"> L&apos;exécutable CMake (%1) n&apos;existe pas.</translation>
-    </message>
-    <message>
-        <source> The path %1 is not a valid CMake.</source>
-        <translation type="obsolete"> %1 n&apos;est pas un CMake valide.</translation>
-    </message>
-    <message>
         <source>The directory %1 already contains a cbp file, which is recent enough. You can pass special arguments or change the used toolchain here and rerun CMake. Or simply finish the wizard directly.</source>
         <translation type="obsolete">Le répertoire %1 contient déjà un fichier cbp qui est assez récent. Vous pouvez passer des arguments spéciaux ou changer la chaîne de compilation utilisée ici et réexécuter CMake. Vous pouvez aussi terminer l&apos;assistant directement.</translation>
     </message>
@@ -526,14 +476,6 @@
         <translation>Rafraîchissement du fichier cbp dans %1 en cours.</translation>
     </message>
     <message>
-        <source>MinGW Generator (%1)</source>
-        <translation type="obsolete">Générateur MinGW (%1)</translation>
-    </message>
-    <message>
-        <source>Unix Generator (%1)</source>
-        <translation type="obsolete">Générateur UNIX (%1)</translation>
-    </message>
-    <message>
         <source>No generator selected.</source>
         <translation>Pas de générateur sélectionné.</translation>
     </message>
@@ -550,27 +492,12 @@
         <translation type="obsolete">Générateur NMake</translation>
     </message>
     <message>
-        <source>NMake Generator (%1)</source>
-        <translation type="obsolete">Générateur NMake (%1)</translation>
-    </message>
-    <message>
-        <source>MinGW Generator</source>
-        <translation type="obsolete">Générateur MinGW</translation>
-    </message>
-    <message>
         <source>No valid CMake executable specified.</source>
         <translation>L&apos;exécutable CMake spécifié est invalide.</translation>
     </message>
     <message>
         <source>No valid cmake executable specified.</source>
         <translation type="obsolete">L&apos;exécutable CMake spécifié est invalide.</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -584,9 +511,6 @@
         <source>CMake executable</source>
         <translation type="obsolete">Exécutable CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepConfigWidget</name>
     <message>
         <source>Additional arguments:</source>
         <translation>Arguments supplémentaires :</translation>
@@ -620,9 +544,6 @@
         <source>&lt;b&gt;Unknown Toolchain&lt;/b&gt;</source>
         <translation type="obsolete">&lt;b&gt;Chaîne de compilation inconnue&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ShadowBuildPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. </source>
         <translation>Veuillez spécifier le répertoire où vous voulez compiler votre projet. </translation>
@@ -635,17 +556,6 @@
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>Veuillez spécifier le répertoire où vous voulez compiler votre projet. Qt Creator recommande de ne pas utiliser le répertoire source pour la compilation. Cela garantit que le répertoire source reste propre et permet des compilations multiples avec différents paramètres.</translation>
     </message>
-    <message>
-        <source>Build directory:</source>
-        <translation>Répertoire de compilation :</translation>
-    </message>
-    <message>
-        <source>Build Location</source>
-        <translation>Emplacement de compilation</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::XmlFileUpToDatePage</name>
     <message>
         <source>Qt Creator has found a recent cbp file, which Qt Creator will parse to gather information about the project. You can change the command line arguments used to create this file in the project mode. Click finish to load the project.</source>
         <translation type="obsolete">Qt Creator a trouvé un fichier cbp récent, Qt Creator va maintenant l&apos;analyser pour rassembler des informations sur le projet. Vous pouvez changer les arguments de ligne de commande utilisés pour la création de ce fichier depuis le mode &quot;projet&quot;. Cliquer sur Terminer pour charger le projet.</translation>
@@ -24246,7 +24156,7 @@ Valeur précédente au format décimal signé (gros-boutiste) : %4</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Run CMake target</source>
         <translation type="obsolete">Exécuter la cible CMake</translation>
@@ -24260,18 +24170,6 @@ Valeur précédente au format décimal signé (gros-boutiste) : %4</translation>
         <translation>(désactivé)</translation>
     </message>
     <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Environnement de nettoyage</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Environnement système</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Environnement de compilation</translation>
-    </message>
-    <message>
         <source>The executable is not built by the current build configuration</source>
         <translation>L&apos;exécutable n&apos;est pas compilé pour la configuration de compilation courante</translation>
     </message>
@@ -24283,17 +24181,11 @@ Valeur précédente au format décimal signé (gros-boutiste) : %4</translation>
         <source> (disabled)</source>
         <translation> (Désactivé)</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeTarget</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
         <translation>Desktop</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <comment>CMakeProjectManager::MakeStep display name.</comment>
@@ -24312,9 +24204,6 @@ Valeur précédente au format décimal signé (gros-boutiste) : %4</translation>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation>La configuration est défectueuse, veuillez vérifier la vue des problèmes pour les détails.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for CMakeProjectManager::MakeStep id.</comment>
@@ -36858,11 +36747,7 @@ Voys pouvez compiler l&apos;application et la déployer sur desktop et mobile. P
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeManager</name>
-    <message>
-        <source>Run CMake</source>
-        <translation>Exécuter CMake</translation>
-    </message>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
         <translation>Échec de l&apos;ouverture du projet &quot;%1&quot; : le projet n&apos;est pas un fichier</translation>
@@ -38882,7 +38767,7 @@ Avec la simulation de cache, d&apos;autres compteurs d&apos;événements sont ac
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeEditor</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Changes to cmake files are shown in the project tree after building.</source>
         <translation>Les changements aux fichiers CMake sont montrés dans l&apos;arbre du projet après la compilation. </translation>
@@ -45512,7 +45397,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeLocatorFilter</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Build CMake target</source>
         <translation>Compiler la cible CMake</translation>
@@ -48641,7 +48526,7 @@ Oui :)</translatorcomment>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::ChooseCMakePage</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>cmake Executable:</source>
         <translation type="obsolete">Exécutable CMake :</translation>
@@ -48661,10 +48546,6 @@ Oui :)</translatorcomment>
     <message>
         <source> The cmake executable (%1) does not exist.</source>
         <translation type="obsolete">L&apos;exécutable CMake (%1) n&apos;existe pas.</translation>
-    </message>
-    <message>
-        <source> The path %1 is not a executable.</source>
-        <translation type="obsolete"> %1 n&apos;est pas le chemin d&apos;un exécutable.</translation>
     </message>
     <message>
         <source> The path %1 is not a valid cmake.</source>
@@ -53501,7 +53382,7 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::GeneratorInfo</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Ninja (%1)</source>
         <translation>Ninja (%1)</translation>
@@ -53518,9 +53399,6 @@ Les noms partiels peuvent êtres utilisé s&apos;ils ne sont pas ambigües.</tra
         <source>Unix Generator (%1)</source>
         <translation>Générateur UNIX (%1)</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::NoKitPage</name>
     <message>
         <source>Show Options</source>
         <translation>Afficher les options</translation>

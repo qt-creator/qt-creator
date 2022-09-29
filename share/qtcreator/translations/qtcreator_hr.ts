@@ -2076,7 +2076,7 @@ Međutim, korištenje opuštenih i proširenih pravila također znači da nije m
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeSpecificSettingForm</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Determines whether file paths are copied to the clipboard for pasting to the CMakeLists.txt file when you add new files to CMake projects.</source>
         <translation>Određuje, da li se staze datoteke kopiraju u međuspremnik za lijepljenje u datoteku CMakeLists.txt, kad dodaješ nove datoteke CMake projektima.</translation>
@@ -17689,7 +17689,7 @@ Izlaz:
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::BuildDirManager</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Failed to create build directory &quot;%1&quot;.</source>
         <translation>Neupjelo stvaranje direktorija za gradnju &quot;%1&quot;.</translation>
@@ -17734,16 +17734,10 @@ Izlaz:
         <source>Apply Changes to Project</source>
         <translation>Primijeni promjene u CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfiguration</name>
     <message>
         <source>CMake configuration set by the kit was overridden in the project.</source>
         <translation>CMake konfiguracija postavljena od kompleta je prepisana u ovom projektu.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
     <message>
         <source>Default</source>
         <extracomment>The name of the build configuration created by default for a cmake project.</extracomment>
@@ -17768,13 +17762,6 @@ Izlaz:
     <message>
         <source>Release with Debug Information</source>
         <translation>Izdaj s podacima o ispravkama</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
     </message>
     <message>
         <source>Build directory:</source>
@@ -17868,9 +17855,6 @@ Izlaz:
         <source>Force to %1</source>
         <translation>Prisili na %1</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStep</name>
     <message>
         <source>CMake Build</source>
         <extracomment>Default display name for the cmake make step.</extracomment>
@@ -17901,9 +17885,6 @@ Izlaz:
         <comment>Display name for CMakeProjectManager::CMakeBuildStep id.</comment>
         <translation>Gradnja</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeBuildStep</name>
     <message>
         <source>The build configuration is currently disabled.</source>
         <translation>Konfiguracija za gradnju je trenutačno onemogućena.</translation>
@@ -17925,7 +17906,7 @@ Izlaz:
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStepConfigWidget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Build</source>
         <comment>CMakeProjectManager::CMakeBuildStepConfigWidget display name.</comment>
@@ -17943,16 +17924,10 @@ Izlaz:
         <source>&lt;b&gt;No build configuration found on this kit.&lt;/b&gt;</source>
         <translation>&lt;b&gt;U ovom kompletu nije nađena konfiguracija gradnje.&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigItem</name>
     <message>
         <source>Failed to open %1 for reading.</source>
         <translation>Neuspjelo otvaranje od %1 za čitanje.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeKitConfigWidget</name>
     <message>
         <source>CMake Tool</source>
         <translation>CMake alat</translation>
@@ -17965,9 +17940,6 @@ Izlaz:
         <source>&lt;No CMake Tool available&gt;</source>
         <translation>&lt;Nema dostupnog CMake alata&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeGeneratorKitConfigWidget</name>
     <message>
         <source>Change...</source>
         <translation>Promijeni …</translation>
@@ -18008,13 +17980,6 @@ Izlaz:
         <source>Toolset:</source>
         <translation>Skup alata:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeConfigurationKitConfigWidget</name>
-    <message>
-        <source>Change...</source>
-        <translation>Promijeni …</translation>
-    </message>
     <message>
         <source>CMake Configuration</source>
         <translation>CMake konfiguracija</translation>
@@ -18031,16 +17996,9 @@ Izlaz:
         <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;You may provide a type hint by adding &quot;:TYPE&quot; before the &quot;=&quot;.</source>
         <translation>Upiši jednu varijablu po retku, a naziv varijable odvoji od vrijednosti varijable s &quot;=&quot;. &lt;br&gt; Možeš navesti vrstu savjeta dodavanjem &quot;: TYPE&quot; prije &quot;=&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeKitInformation</name>
     <message>
         <source>CMake version %1 is unsupported. Please update to version 3.0 or later.</source>
         <translation>CMake verzija %1 nije podržana. Aktualiziraj na verziju 3.0 ili noviju.</translation>
-    </message>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
     </message>
     <message>
         <source>Unconfigured</source>
@@ -18050,9 +18008,6 @@ Izlaz:
         <source>Path to the cmake executable</source>
         <translation>Staza do izvršne cmake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeGeneratorKitInformation</name>
     <message>
         <source>CMake Tool is unconfigured, CMake generator will be ignored.</source>
         <translation>CMake alat nije konfiguriran, zanemarit će se CMake generator.</translation>
@@ -18089,13 +18044,6 @@ Izlaz:
         <source>Toolset: %1</source>
         <translation>Skup alata: %1</translation>
     </message>
-    <message>
-        <source>CMake Generator</source>
-        <translation>CMake generator</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigurationKitInformation</name>
     <message>
         <source>CMake configuration has no path to qmake binary set, even though the kit has a valid Qt version.</source>
         <translation type="unfinished"></translation>
@@ -18137,19 +18085,9 @@ Izlaz:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>CMake Configuration</source>
-        <translation>CMake konfiguracija</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeLocatorFilter</name>
-    <message>
         <source>Build CMake target</source>
         <translation>Odredište za CMake gradnju</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeProject</name>
     <message>
         <source>No cmake tool set.</source>
         <translation>Nijedan cmake alat nije postavljen.</translation>
@@ -18162,16 +18100,10 @@ Izlaz:
         <source>Scan &quot;%1&quot; project tree</source>
         <translation>Pretraži &quot;%1&quot; stablo projekta</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeEditorFactory</name>
     <message>
         <source>CMake Editor</source>
         <translation>CMake uređivač</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeManager</name>
     <message>
         <source>Run CMake</source>
         <translation>Pokreni CMake</translation>
@@ -18221,30 +18153,20 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeProjectPlugin</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>CMake</source>
         <comment>SnippetProvider</comment>
         <translation>CMake</translation>
     </message>
     <message>
-        <source>Build</source>
-        <translation>Izgradi</translation>
-    </message>
-    <message>
         <source>Build &quot;%1&quot;</source>
         <translation>Izgradi &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
     <message>
         <source>The project no longer builds the target associated with this run configuration.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeSettingsPage</name>
     <message>
         <source> (Default)</source>
         <translation> (Zadano)</translation>
@@ -18289,9 +18211,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>Path:</source>
         <translation>Staza:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeToolConfigWidget</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
@@ -18320,23 +18239,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>New CMake</source>
         <translation>Novi CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSpecificSettingsPage</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeToolManager</name>
     <message>
         <source>CMake at %1</source>
         <translation>CMake pri %1</translation>
@@ -18344,17 +18246,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
     <message>
         <source>System CMake at %1</source>
         <translation>CMake sustava pri %1</translation>
-    </message>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::ConfigModel</name>
-    <message>
-        <source>Key</source>
-        <translation>Ključ</translation>
     </message>
     <message>
         <source>Value</source>
@@ -18369,13 +18260,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <translation>Trenutačni komplet: %1</translation>
     </message>
     <message>
-        <source>&lt;UNSET&gt;</source>
-        <translation>&lt;NEPOSTAVLJENO&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager</name>
-    <message>
         <source>Current CMake: %1</source>
         <translation>Trenutačni CMake: %1</translation>
     </message>
@@ -18387,9 +18271,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>Value requested by kit: %1</source>
         <translation>Komplet zahtijeva vrijednost: %1</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::ConfigModelItemDelegate</name>
     <message>
         <source>Select a file for %1</source>
         <translation>Odaberi datoteku za %1</translation>
@@ -18398,9 +18279,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>Select a directory for %1</source>
         <translation>Odaberi direktorij za %1</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ServerMode</name>
     <message>
         <source>Running &quot;%1 %2&quot; in %3.</source>
         <translation>Pokretanje &quot;%1 %2&quot; u %3.</translation>
@@ -18485,9 +18363,6 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>Received a signal in reply to a request.</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ServerModeReader</name>
     <message>
         <source>Parsing of CMake project failed: Connection to CMake server lost.</source>
         <translation>Obrada CMake projekta neuspjela: Veza sa CMake poslužiteljem izgubljena.</translation>
@@ -18544,20 +18419,9 @@ Kopirati stazu do izvornih datoteka u međuspremnik?</translation>
         <source>&lt;Headers&gt;</source>
         <translation>&lt;Zaglavlja&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::TeaLeafReader</name>
     <message>
         <source>The build directory is not for %1 but for %2</source>
         <translation>Direktorij gradnje nije za %1, već za %2</translation>
-    </message>
-    <message>
-        <source>Running &quot;%1 %2&quot; in %3.</source>
-        <translation>Pokretanje &quot;%1 %2&quot; u %3.</translation>
-    </message>
-    <message>
-        <source>Configuring &quot;%1&quot;</source>
-        <translation>Konfiguriranje &quot;%1&quot;</translation>
     </message>
     <message>
         <source>*** cmake process crashed.</source>

@@ -2072,7 +2072,7 @@ Przyczyna: %3</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Build directory:</source>
         <translation>Katalog wersji:</translation>
@@ -2121,13 +2121,6 @@ Przyczyna: %3</translation>
         <source>&lt;UNSET&gt;</source>
         <translation>&lt;USUNIĘTO&gt;</translation>
     </message>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
     <message>
         <source>CMake</source>
         <translation>CMake</translation>
@@ -10867,7 +10860,7 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Run CMake kit</source>
         <translation>Uruchom zestaw CMake</translation>
@@ -10880,9 +10873,6 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
         <source>The executable is not built by the current build configuration</source>
         <translation>Plik wykonywalny nie został zbudowany przez bieżącą konfigurację budowania</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeTarget</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
@@ -14931,7 +14921,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeManager</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Run CMake</source>
         <translation>Uruchom CMake</translation>
@@ -21446,7 +21436,7 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeLocatorFilter</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Build CMake target</source>
         <translation>Zbudowanie programu CMake&apos;owego</translation>
@@ -34216,7 +34206,7 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeKitConfigWidget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>CMake Tool:</source>
         <translation>Narzędzie CMake:</translation>
@@ -34229,16 +34219,9 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>&lt;No CMake Tool available&gt;</source>
         <translation>&lt;Brak narzędzia CMake&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeKitInformation</name>
     <message>
         <source>CMake version %1 is unsupported. Please update to version 3.0 or later.</source>
         <translation>Wersja CMake %1 nie jest obsługiwana. Należy zainstalować wersję 3.0 lub nowszą.</translation>
-    </message>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
     </message>
     <message>
         <source>Unconfigured</source>
@@ -34248,9 +34231,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>Path to the cmake executable</source>
         <translation>Ścieżka do pliku wykonywalnego cmake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeSettingsPage</name>
     <message>
         <source> (Default)</source>
         <translatorcomment>what default???</translatorcomment>
@@ -34288,9 +34268,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>Path:</source>
         <translation>Ścieżka:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeToolConfigWidget</name>
     <message>
         <source>Add</source>
         <translation>Dodaj</translation>
@@ -34319,9 +34296,6 @@ Pliki z katalogu źródłowego pakietu Android są kopiowane do katalogu budowan
         <source>New CMake</source>
         <translation>Nowy CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeToolManager</name>
     <message>
         <source>CMake at %1</source>
         <translation>CMake w %1</translation>
@@ -36359,7 +36333,7 @@ itself takes time.</source>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::CMakeProject</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>No cmake tool set.</source>
         <translation>Nie ustawiono narzędzia cmake.</translation>
@@ -37739,7 +37713,7 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::BuildDirManager</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Failed to create temporary directory &quot;%1&quot;.</source>
         <translation>Nie można utworzyć katalogu tymczasowego &quot;%1&quot;.</translation>
@@ -37772,16 +37746,10 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
         <source>Apply Changes to Project</source>
         <translation>Zastosuj zmiany w projekcie</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfiguration</name>
     <message>
         <source>CMake configuration set by the kit was overridden in the project.</source>
         <translation>Konfiguracja CMake, ustawiona przez zestaw narzędzi, została nadpisana przez projekt.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStep</name>
     <message>
         <source>CMake Build</source>
         <extracomment>Default display name for the cmake make step.</extracomment>
@@ -37809,16 +37777,10 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
         <translation>Błąd parsowania QMake: %1
 </translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeBuildStep</name>
     <message>
         <source>The build configuration is currently disabled.</source>
         <translation>Konfiguracja budowania aktualnie wyłączona.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStepConfigWidget</name>
     <message>
         <source>Tool arguments:</source>
         <translation>Argumenty narzędzia:</translation>
@@ -37836,17 +37798,11 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
         <source>&lt;b&gt;No build configuration found on this kit.&lt;/b&gt;</source>
         <translation>&lt;b&gt;Brak konfiguracji budowania dla tego zestawu narzędzi.&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildStepFactory</name>
     <message>
         <source>Build</source>
         <comment>Display name for CMakeProjectManager::CMakeBuildStep id.</comment>
         <translation>Budowanie</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeGeneratorKitConfigWidget</name>
     <message>
         <source>Change...</source>
         <translation>Zmień...</translation>
@@ -37887,13 +37843,6 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
         <source>Toolset:</source>
         <translation>Zestaw narzędzi:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeConfigurationKitConfigWidget</name>
-    <message>
-        <source>Change...</source>
-        <translation>Zmień...</translation>
-    </message>
     <message>
         <source>CMake Configuration</source>
         <translation>Konfiguracja CMake</translation>
@@ -37910,9 +37859,6 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
         <source>Enter one variable per line with the variable name separated from the variable value by &quot;=&quot;.&lt;br&gt;You may provide a type hint by adding &quot;:TYPE&quot; before the &quot;=&quot;.</source>
         <translation>W każdej linii podaj jedną zmienną. Nazwa zmiennej powinna być oddzielona od wartości zmiennej przy użyciu &quot;=&quot;.&lt;br&gt;Informacje o typie można dodać poprzez umieszczenie &quot;:TYP&quot; przed &quot;=&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeGeneratorKitInformation</name>
     <message>
         <source>CMake Tool is unconfigured, CMake generator will be ignored.</source>
         <translation>Narzędzie CMake nie jest skonfigurowane. Generator CMake zostanie zignorowany.</translation>
@@ -37946,16 +37892,9 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
         <translation>&lt;br&gt;Zestaw narzędzi: %1</translation>
     </message>
     <message>
-        <source>CMake Generator</source>
-        <translation>Generator CMake</translation>
-    </message>
-    <message>
         <source>&lt;Use Default Generator&gt;</source>
         <translation>&lt;Użyj domyślnego generatora&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::CMakeConfigurationKitInformation</name>
     <message>
         <source>CMake configuration has no path to qmake binary set, even though the kit has a valid Qt version.</source>
         <translation>Brak ścieżki do pliku wykonywalnego qmake w konfiguracji CMake, mimo że zestaw narzędzi posiada poprawną wersję Qt.</translation>
@@ -37997,17 +37936,6 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
         <translation>Konfiguracja CMake posiada ustawioną ścieżkę do kompilatora C++, mimo że zestaw narzędzi nie posiada poprawnej ścieżki.</translation>
     </message>
     <message>
-        <source>CMake Configuration</source>
-        <translation>Konfiguracja CMake</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::ConfigModel</name>
-    <message>
-        <source>&lt;UNSET&gt;</source>
-        <translation>&lt;USUNIĘTO&gt;</translation>
-    </message>
-    <message>
         <source>Kit value: %1</source>
         <translation>Wartość zestawu narzędzi: %1</translation>
     </message>
@@ -38018,10 +37946,6 @@ Ustaw prawdziwy plik wykonywalny Clang.</translation>
     <message>
         <source>Value</source>
         <translation>Wartość</translation>
-    </message>
-    <message>
-        <source>Advanced</source>
-        <translation>Zaawansowane</translation>
     </message>
 </context>
 <context>
@@ -39127,7 +39051,7 @@ Komunikat:
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeEditorFactory</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>CMake Editor</source>
         <translation>Edytor CMake</translation>
@@ -41834,7 +41758,7 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::CMakeConfigItem</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Failed to open %1 for reading.</source>
         <translation>Błąd otwierania %1 do odczytu.</translation>
@@ -41863,7 +41787,7 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeProjectPlugin</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>CMake</source>
         <comment>SnippetProvider</comment>
@@ -41877,9 +41801,6 @@ Błąd: %2</translation>
         <source>Build &quot;%1&quot;</source>
         <translation>Zbuduj &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager</name>
     <message>
         <source>Current CMake: %1</source>
         <translation>Bieżący CMake: %1</translation>
@@ -41888,9 +41809,6 @@ Błąd: %2</translation>
         <source>Not in CMakeCache.txt</source>
         <translation>Brak w CMakeCache.txt</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ServerMode</name>
     <message>
         <source>Running &quot;%1 %2&quot; in %3.</source>
         <translation>Uruchamianie &quot;%1 %2&quot; w %3.</translation>
@@ -41975,9 +41893,6 @@ Błąd: %2</translation>
         <source>Received a signal in reply to a request.</source>
         <translation>Otrzymano sygnał w odpowiedzi na żądanie.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ServerModeReader</name>
     <message>
         <source>Configuring &quot;%1&quot;</source>
         <translation>Konfiguracja &quot;%1&quot;</translation>
@@ -42010,20 +41925,9 @@ Błąd: %2</translation>
         <source>&lt;Headers&gt;</source>
         <translation>&lt;Nagłówki&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::TeaLeafReader</name>
     <message>
         <source>The build directory is not for %1 but for %2</source>
         <translation>Katalog budowania nie jest przeznaczony dla %1, lecz dla %2</translation>
-    </message>
-    <message>
-        <source>Running &quot;%1 %2&quot; in %3.</source>
-        <translation>Uruchamianie &quot;%1 %2&quot; w %3.</translation>
-    </message>
-    <message>
-        <source>Configuring &quot;%1&quot;</source>
-        <translation>Konfiguracja &quot;%1&quot;</translation>
     </message>
     <message>
         <source>*** cmake process crashed.</source>

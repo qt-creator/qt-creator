@@ -5,20 +5,7 @@
 
 #include <texteditor/texteditor.h>
 
-namespace CMakeProjectManager {
-namespace Internal {
-
-class CMakeEditorWidget;
-
-class CMakeEditor : public TextEditor::BaseTextEditor
-{
-    Q_OBJECT
-
-public:
-    void contextHelp(const HelpCallback &callback) const override;
-
-    friend class CMakeEditorWidget;
-};
+namespace CMakeProjectManager::Internal {
 
 class CMakeEditorFactory : public TextEditor::TextEditorFactory
 {
@@ -26,5 +13,4 @@ public:
     CMakeEditorFactory();
 };
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

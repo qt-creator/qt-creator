@@ -18,8 +18,7 @@
 
 using namespace ProjectExplorer;
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 BuildDirParameters::BuildDirParameters() = default;
 
@@ -78,5 +77,4 @@ CMakeTool *BuildDirParameters::cmakeTool() const
     return CMakeToolManager::findById(cmakeToolId);
 }
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

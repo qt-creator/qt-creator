@@ -3,6 +3,7 @@
 
 #include "cmaketoolmanager.h"
 
+#include "cmakeprojectmanagertr.h"
 #include "cmaketoolsettingsaccessor.h"
 
 #include <extensionsystem/pluginmanager.h>
@@ -19,10 +20,6 @@ using namespace Utils;
 
 namespace CMakeProjectManager {
 
-// --------------------------------------------------------------------
-// CMakeToolManagerPrivate:
-// --------------------------------------------------------------------
-
 class CMakeToolManagerPrivate
 {
 public:
@@ -30,12 +27,8 @@ public:
     std::vector<std::unique_ptr<CMakeTool>> m_cmakeTools;
     Internal::CMakeToolSettingsAccessor m_accessor;
 };
+
 static CMakeToolManagerPrivate *d = nullptr;
-
-// --------------------------------------------------------------------
-// CMakeToolManager:
-// --------------------------------------------------------------------
-
 CMakeToolManager *CMakeToolManager::m_instance = nullptr;
 
 CMakeToolManager::CMakeToolManager()
@@ -163,14 +156,14 @@ QList<Id> CMakeToolManager::autoDetectCMakeForDevice(const FilePaths &searchPath
                                                 QString *logMessage)
 {
     QList<Id> result;
-    QStringList messages{tr("Searching CMake binaries...")};
+    QStringList messages{Tr::tr("Searching CMake binaries...")};
     for (const FilePath &path : searchPaths) {
         const FilePath cmake = path.pathAppended("cmake").withExecutableSuffix();
         if (cmake.isExecutableFile()) {
             const Id currentId = registerCMakeByPath(cmake, detectionSource);
             if (currentId.isValid())
                 result.push_back(currentId);
-            messages.append(tr("Found \"%1\"").arg(cmake.toUserOutput()));
+            messages.append(Tr::tr("Found \"%1\"").arg(cmake.toUserOutput()));
         }
     }
     if (logMessage)
@@ -200,12 +193,12 @@ Id CMakeToolManager::registerCMakeByPath(const FilePath &cmakePath, const QStrin
 
 void CMakeToolManager::removeDetectedCMake(const QString &detectionSource, QString *logMessage)
 {
-    QStringList logMessages{tr("Removing CMake entries...")};
+    QStringList logMessages{Tr::tr("Removing CMake entries...")};
     while (true) {
         auto toRemove = Utils::take(d->m_cmakeTools, Utils::equal(&CMakeTool::detectionSource, detectionSource));
         if (!toRemove.has_value())
             break;
-        logMessages.append(tr("Removed \"%1\"").arg((*toRemove)->displayName()));
+        logMessages.append(Tr::tr("Removed \"%1\"").arg((*toRemove)->displayName()));
         emit m_instance->cmakeRemoved((*toRemove)->id());
     }
 
@@ -218,7 +211,7 @@ void CMakeToolManager::removeDetectedCMake(const QString &detectionSource, QStri
 void CMakeToolManager::listDetectedCMake(const QString &detectionSource, QString *logMessage)
 {
     QTC_ASSERT(logMessage, return);
-    QStringList logMessages{tr("CMake:")};
+    QStringList logMessages{Tr::tr("CMake:")};
     for (const auto &tool : qAsConst(d->m_cmakeTools)) {
         if (tool->detectionSource() == detectionSource)
             logMessages.append(tool->displayName());
@@ -257,4 +250,4 @@ void CMakeToolManager::ensureDefaultCMakeToolIsValid()
         emit m_instance->defaultCMakeChanged();
 }
 
-} // namespace CMakeProjectManager
+} // CMakeProjectManager

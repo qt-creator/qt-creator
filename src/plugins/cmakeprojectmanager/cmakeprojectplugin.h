@@ -7,8 +7,7 @@
 
 namespace ProjectExplorer { class Node; }
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 class CMakeSpecificSettings;
 
@@ -45,5 +44,4 @@ private:
     class CMakeProjectPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

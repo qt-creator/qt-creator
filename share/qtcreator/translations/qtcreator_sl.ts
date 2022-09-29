@@ -280,7 +280,7 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Build</source>
         <translation>Zgradi</translation>
@@ -301,9 +301,6 @@
         <source>New Configuration Name:</source>
         <translation type="obsolete">Ime nove nastavitve:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
         <source>Reconfigure project:</source>
         <translation>Ponastavi projekt:</translation>
@@ -312,16 +309,10 @@
         <source>&amp;Change</source>
         <translation>&amp;Spremeni</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeOpenProjectWizard</name>
     <message>
         <source>CMake Wizard</source>
         <translation>Čarovnik za CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
     <message>
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation>Qt Creator je zaznal &lt;b&gt;gradnjo znotraj mape %1 z izvorno kodo&lt;/b&gt;, kar preprečuje gradnje izven te mape, zato vam Qt Creator ne bo dovolil spremeniti mape za gradnjo. Če želite gradnjo v ločeni mapi, počistite mapo z izvorno kodo in projekt odprite znova.</translation>
@@ -330,9 +321,6 @@
         <source>Build Location</source>
         <translation>Mesto gradnje</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunPage</name>
     <message>
         <source>Please specify the path to the cmake executable. No cmake executable was found in the path.</source>
         <translation>Določite pot do programa cmake. Programa cmak ni bilo moč najti v poti.</translation>
@@ -437,9 +425,6 @@
         <source>MinGW Generator</source>
         <translation type="obsolete">Ustvarjalnik za MinGW</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
     <message>
         <source>CMake</source>
         <translation>CMake</translation>
@@ -448,9 +433,6 @@
         <source>Executable:</source>
         <translation>Program:</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepConfigWidget</name>
     <message>
         <source>Additional arguments:</source>
         <translation>Dodatni argumenti:</translation>
@@ -476,9 +458,6 @@
         <source>&lt;b&gt;Unknown Toolchain&lt;/b&gt;</source>
         <translation type="obsolete">&lt;b&gt;Neznana veriga orodij&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ShadowBuildPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. </source>
         <translation>Vnesite mapo, v kateri želite zgraditi svoj projekt. </translation>
@@ -490,10 +469,6 @@
     <message>
         <source>Build directory:</source>
         <translation>Mapa za gradnjo:</translation>
-    </message>
-    <message>
-        <source>Build Location</source>
-        <translation>Mesto gradnje</translation>
     </message>
 </context>
 <context>
@@ -12206,11 +12181,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfigurationWidget</name>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenti:</translation>
-    </message>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Select Working Directory</source>
         <translation>Izberite delovno mapo</translation>
@@ -13598,22 +13569,10 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Run CMake target</source>
         <translation>Zaženi cilj CMake</translation>
-    </message>
-    <message>
-        <source>Clean Environment</source>
-        <translation>Čisto okolje</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation>Sistemsko okolje</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation>Okolje za gradnjo</translation>
     </message>
     <message>
         <source>The executable is not built by the current buildconfiguration</source>
@@ -15613,15 +15572,12 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeTarget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
         <translation>Namizje</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <extracomment>Default display name for the cmake make step.
@@ -15633,9 +15589,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <comment>CMakeProjectManager::MakeStep display name.</comment>
         <translation type="obsolete">Make</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for CMakeProjectManager::MakeStep id.</comment>
@@ -22879,7 +22832,7 @@ Seznam za strežnik je: %2.</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeEditor</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Changes to cmake files are shown in the project tree after building.</source>
         <translation>Spremembe datotek *.cmake so v drevesu projektov vidne po gradnji.</translation>
@@ -22887,13 +22840,6 @@ Seznam za strežnik je: %2.</translation>
     <message>
         <source>Build now</source>
         <translation>Zgradi sedaj</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeManager</name>
-    <message>
-        <source>Run CMake</source>
-        <translation>Zaženi CMake</translation>
     </message>
 </context>
 <context>

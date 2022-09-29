@@ -10,11 +10,11 @@
 #include <projectexplorer/kitmanager.h>
 
 namespace CMakeProjectManager {
+
 class CMakeTool;
 
 class CMAKE_EXPORT CMakeKitAspect : public ProjectExplorer::KitAspect
 {
-    Q_OBJECT
 public:
     CMakeKitAspect();
 
@@ -40,7 +40,6 @@ public:
 
 class CMAKE_EXPORT CMakeGeneratorKitAspect : public ProjectExplorer::KitAspect
 {
-    Q_OBJECT
 public:
     CMakeGeneratorKitAspect();
 
@@ -73,7 +72,6 @@ private:
 
 class CMAKE_EXPORT CMakeConfigurationKitAspect : public ProjectExplorer::KitAspect
 {
-    Q_OBJECT
 public:
     CMakeConfigurationKitAspect();
 
@@ -104,4 +102,4 @@ private:
     QVariant defaultValue(const ProjectExplorer::Kit *k) const;
 };
 
-} // namespace CMakeProjectManager
+} // CMakeProjectManager

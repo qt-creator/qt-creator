@@ -7,8 +7,7 @@
 
 #include <utils/aspects.h>
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 enum AfterAddFileAction : int {
     AskUser,
@@ -18,8 +17,6 @@ enum AfterAddFileAction : int {
 
 class CMakeSpecificSettings final : public Utils::AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeSpecificSettings)
-
 public:
     CMakeSpecificSettings();
 
@@ -36,5 +33,4 @@ public:
     explicit CMakeSpecificSettingsPage(CMakeSpecificSettings *settings);
 };
 
-} // Internal
-} // CMakeProjectManager
+} // CMakeProjectManager::Internal

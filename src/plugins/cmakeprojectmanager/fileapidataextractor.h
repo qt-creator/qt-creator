@@ -8,7 +8,7 @@
 
 #include <projectexplorer/rawprojectpart.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QList>
 #include <QSet>
@@ -17,8 +17,7 @@
 #include <memory>
 #include <optional>
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 class FileApiData;
 
@@ -53,5 +52,4 @@ FileApiQtcData extractData(FileApiData &data,
                            const Utils::FilePath &sourceDirectory,
                            const Utils::FilePath &buildDirectory);
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

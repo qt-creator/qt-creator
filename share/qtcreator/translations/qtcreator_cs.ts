@@ -278,7 +278,7 @@
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildEnvironmentWidget</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Clear system environment</source>
         <translation type="obsolete">Vyprázdnit prostředí systému</translation>
@@ -287,9 +287,6 @@
         <source>Build Environment</source>
         <translation type="obsolete">Prostředí pro sestavování</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeBuildSettingsWidget</name>
     <message>
         <source>Run cmake</source>
         <translation>Provést cmake</translation>
@@ -310,16 +307,10 @@
         <source>CMake</source>
         <translation>CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeOpenProjectWizard</name>
     <message>
         <source>CMake Wizard</source>
         <translation>Průvodce CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfigurationWidget</name>
     <message>
         <source>Arguments:</source>
         <translation>Argumenty:</translation>
@@ -373,16 +364,9 @@
         <translation type="obsolete">Prostředí systému</translation>
     </message>
     <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Prostředí pro sestavování</translation>
-    </message>
-    <message>
         <source>Running executable: &lt;b&gt;%1&lt;/b&gt; %2</source>
         <translation type="obsolete">Spouští se spustitelný soubor: &lt;b&gt;%1&lt;/b&gt; %2</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeRunPage</name>
     <message>
         <source>Please specify the path to the cmake executable. No cmake executable was found in the path.</source>
         <translation type="obsolete">Zadejte, prosím, cestu ke spustitelnému souboru cmake. V cestě nebyl nalezen žádný spustitelný soubor cmake.</translation>
@@ -398,10 +382,6 @@
     <message>
         <source> The path %1 is not a valid cmake.</source>
         <translation type="obsolete">Cesta &apos;%1&apos; není platným cmake.</translation>
-    </message>
-    <message>
-        <source>Arguments:</source>
-        <translation>Argumenty:</translation>
     </message>
     <message>
         <source>Generator:</source>
@@ -440,14 +420,6 @@
         <translation>Soubor cpb ve složce %1 se vytváří znovu.</translation>
     </message>
     <message>
-        <source>MinGW Generator (%1)</source>
-        <translation type="obsolete">Generátor MinGW (%1)</translation>
-    </message>
-    <message>
-        <source>Unix Generator (%1)</source>
-        <translation type="obsolete">Generátor Unix (%1)</translation>
-    </message>
-    <message>
         <source>No generator selected.</source>
         <translation>Nevybrán žádný generátor.</translation>
     </message>
@@ -480,14 +452,6 @@
         <translation type="obsolete">Adresář %1, který byl zadán v nastavení sestavování, neobsahuje soubor cbp. Qt Creator musí soubor vytvořit pomocí vyvolání cmake. U některých projektů jsou k tomu vyžadovány argumenty příkazového řádku. Všimněte si, že cmake ukládá argumenty příkazového řádku z předchozího vyvolání.</translation>
     </message>
     <message>
-        <source>NMake Generator</source>
-        <translation type="obsolete">Tvůrce NMake</translation>
-    </message>
-    <message>
-        <source>NMake Generator (%1)</source>
-        <translation type="obsolete">Generátor NMake (%1)</translation>
-    </message>
-    <message>
         <source>MinGW Generator</source>
         <translation type="obsolete">Tvůrce MinGW</translation>
     </message>
@@ -498,13 +462,6 @@
     <message>
         <source>Qt Creator needs to run cmake in the new build directory. Some projects require command line arguments to the initial cmake call.</source>
         <translation type="obsolete">Qt Creator musí vyvolat cmake v novém adresáři pro sestavování. U některých projektů jsou k tomu vyžadovány argumenty příkazového řádku.</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeSettingsPage</name>
-    <message>
-        <source>CMake</source>
-        <translation>CMake</translation>
     </message>
     <message>
         <source>Executable:</source>
@@ -518,9 +475,6 @@
         <source>CMake executable</source>
         <translation type="obsolete">Spustitelný soubor CMake</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::InSourceBuildPage</name>
     <message>
         <source>Qt Creator has detected an &lt;b&gt;in-source-build in %1&lt;/b&gt; which prevents shadow builds. Qt Creator will not allow you to change the build directory. If you want a shadow build, clean your source directory and re-open the project.</source>
         <translation>Bylo zjištěno &lt;b&gt;sestavování ve zdrojovém adresáři v %1&lt;/b&gt;, které zabraňuje stínovým sestavováním. Adresář se sestavováním nelze v Qt Creatoru změnit. Pokud chcete stínové sestavování, vyčistěte, prosím, svůj zdrojový adresář a otevřte projekt znovu ještě jednou.</translation>
@@ -529,9 +483,6 @@
         <source>Build Location</source>
         <translation>Umístění sestavování</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepConfigWidget</name>
     <message>
         <source>Additional arguments:</source>
         <translation>Dodatečné argumenty:</translation>
@@ -565,9 +516,6 @@
         <source>&lt;b&gt;Unknown Toolchain&lt;/b&gt;</source>
         <translation type="obsolete">&lt;b&gt;Neznámá sada nástrojů&lt;/b&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::ShadowBuildPage</name>
     <message>
         <source>Please enter the directory in which you want to build your project. </source>
         <translation>Zadejte, prosím, adresář, ve kterém chcete vytvořit svůj projekt.</translation>
@@ -579,14 +527,6 @@
     <message>
         <source>Please enter the directory in which you want to build your project. Qt Creator recommends to not use the source directory for building. This ensures that the source directory remains clean and enables multiple builds with different settings.</source>
         <translation>Zadejte, prosím, adresář, ve kterém chcete vytvořit svůj projekt.. Doporučuje se, nepoužívat pro vytvoření projektu zdrojový adresář. Tím se zajistí, že zdrojový adresář zůstane volný, a umožní různá sestavení s rozdílnými nastaveními.</translation>
-    </message>
-    <message>
-        <source>Build directory:</source>
-        <translation>Adresář pro sestavování:</translation>
-    </message>
-    <message>
-        <source>Build Location</source>
-        <translation>Umístění sestavování</translation>
     </message>
 </context>
 <context>
@@ -18430,7 +18370,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeBuildConfigurationFactory</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Create</source>
         <translation type="obsolete">Vytvořit</translation>
@@ -24033,7 +23973,7 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeRunConfiguration</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Run CMake target</source>
         <translation type="obsolete">CMake-Ziel ausführen</translation>
@@ -24047,18 +23987,6 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
         <translation>(vypnuto)</translation>
     </message>
     <message>
-        <source>Clean Environment</source>
-        <translation type="obsolete">Smazat prostředí</translation>
-    </message>
-    <message>
-        <source>System Environment</source>
-        <translation type="obsolete">Prostředí systému</translation>
-    </message>
-    <message>
-        <source>Build Environment</source>
-        <translation type="obsolete">Prostředí pro sestavování</translation>
-    </message>
-    <message>
         <source>The executable is not built by the current build configuration</source>
         <translation>Spustitelný soubor není sestaven současným nastavením pro sestavování</translation>
     </message>
@@ -24070,17 +23998,11 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
         <source> (disabled)</source>
         <translation>(zakázáno)</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeTarget</name>
     <message>
         <source>Desktop</source>
         <comment>CMake Default target display name</comment>
         <translation>Stolní počítač</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStep</name>
     <message>
         <source>Make</source>
         <comment>CMakeProjectManager::MakeStep display name.</comment>
@@ -24099,9 +24021,6 @@ Desetinná hodnota se znaménkem (velký endian): %4</translation>
         <source>Configuration is faulty. Check the Issues view for details.</source>
         <translation>Nastavení je chybné. Prověřte, prosím, pohled na potíže kvůli podrobnostem.</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::MakeStepFactory</name>
     <message>
         <source>Make</source>
         <comment>Display name for CMakeProjectManager::MakeStep id.</comment>
@@ -33291,7 +33210,7 @@ Server: %2.</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeEditor</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Changes to cmake files are shown in the project tree after building.</source>
         <translation>Změny v souborech cmake budou ukázány po vytvoření projektového stromu.</translation>
@@ -33299,13 +33218,6 @@ Server: %2.</translation>
     <message>
         <source>Build now</source>
         <translation>Sestavit nyní</translation>
-    </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::CMakeManager</name>
-    <message>
-        <source>Run CMake</source>
-        <translation>Provést CMake</translation>
     </message>
     <message>
         <source>Failed opening project &apos;%1&apos;: Project is not a file</source>
@@ -47822,7 +47734,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::CMakeLocatorFilter</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Build CMake target</source>
         <translation>Sestavit cíl CMake</translation>
@@ -50979,7 +50891,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::ChooseCMakePage</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Choose Cmake Executable</source>
         <translation type="obsolete">Vybrat spustitelný soubor Cmake</translation>
@@ -50987,22 +50899,6 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     <message>
         <source>The cmake executable is valid.</source>
         <translation type="obsolete">Spustitelný soubor cmake je platný.</translation>
-    </message>
-    <message>
-        <source>Please specify the path to the cmake executable. No cmake executable was found in the path.</source>
-        <translation type="obsolete">Zadejte, prosím, cestu ke spustitelnému souboru cmake. V cestě nebyl nalezen žádný spustitelný soubor cmake.</translation>
-    </message>
-    <message>
-        <source> The cmake executable (%1) does not exist.</source>
-        <translation type="obsolete"> Spustitelný soubor cmake (%1) neexistuje.</translation>
-    </message>
-    <message>
-        <source> The path %1 is not a executable.</source>
-        <translation type="obsolete">Cesta &apos;%1&apos; není spustitelným souborem.</translation>
-    </message>
-    <message>
-        <source> The path %1 is not a valid cmake.</source>
-        <translation type="obsolete">Cesta &apos;%1&apos; není platným cmake.</translation>
     </message>
     <message>
         <source>CMake Executable:</source>
@@ -54348,7 +54244,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>CMakeProjectManager::Internal::GeneratorInfo</name>
+    <name>CMakeProjectManager</name>
     <message>
         <source>Ninja (%1)</source>
         <translation>Ninja (%1)</translation>
@@ -54365,9 +54261,6 @@ nelze najít v cestě.</translation>
         <source>Unix Generator (%1)</source>
         <translation>Generátor Unix (%1)</translation>
     </message>
-</context>
-<context>
-    <name>CMakeProjectManager::Internal::NoKitPage</name>
     <message>
         <source>Show Options</source>
         <translation>Ukázat volby</translation>

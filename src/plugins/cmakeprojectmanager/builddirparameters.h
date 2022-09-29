@@ -8,8 +8,7 @@
 #include <utils/environment.h>
 #include <utils/filepath.h>
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 class CMakeBuildSystem;
 
@@ -37,5 +36,4 @@ public:
     QStringList additionalCMakeArguments;
 };
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

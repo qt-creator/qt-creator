@@ -12,6 +12,7 @@
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanager.h"
+#include "cmakeprojectmanagertr.h"
 #include "cmakeprojectnodes.h"
 #include "cmakesettingspage.h"
 #include "cmakespecificsettings.h"
@@ -20,9 +21,11 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
+
 #include <texteditor/snippets/snippetprovider.h>
 
 #include <utils/fsengine/fileiconprovider.h>
@@ -32,8 +35,7 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 class CMakeProjectPluginPrivate
 {
@@ -41,8 +43,8 @@ public:
     CMakeToolManager cmakeToolManager; // have that before the first CMakeKitAspect
 
     ParameterAction buildTargetContextAction{
-        CMakeProjectPlugin::tr("Build"),
-        CMakeProjectPlugin:: tr("Build \"%1\""),
+        Tr::tr("Build"),
+        Tr::tr("Build \"%1\""),
         ParameterAction::AlwaysEnabled/*handled manually*/
     };
 
@@ -86,7 +88,7 @@ bool CMakeProjectPlugin::initialize(const QStringList & /*arguments*/, QString *
                                                      "CMakeLists.txt");
 
     TextEditor::SnippetProvider::registerGroup(Constants::CMAKE_SNIPPETS_GROUP_ID,
-                                               tr("CMake", "SnippetProvider"));
+                                               Tr::tr("CMake", "SnippetProvider"));
     ProjectManager::registerProjectType<CMakeProject>(Constants::CMAKE_PROJECT_MIMETYPE);
 
     //register actions
@@ -131,6 +133,5 @@ void CMakeProjectPlugin::updateContextActions(Node *node)
     d->buildTargetContextAction.setVisible(targetNode);
 }
 
-} // Internal
-} // CMakeProjectManager
+} // CMakeProjectManager::Internal
 

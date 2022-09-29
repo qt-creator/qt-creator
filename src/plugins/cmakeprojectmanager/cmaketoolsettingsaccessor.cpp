@@ -3,15 +3,15 @@
 
 #include "cmaketoolsettingsaccessor.h"
 
+#include "cmakeprojectmanagertr.h"
 #include "cmaketool.h"
-#include "cmaketoolmanager.h"
 
 #include <coreplugin/icore.h>
 
 #include <app/app_version.h>
-#include <utils/environment.h>
 
 #include <utils/algorithm.h>
+#include <utils/environment.h>
 
 #include <QDebug>
 
@@ -83,8 +83,7 @@ static std::vector<std::unique_ptr<CMakeTool>> autoDetectCMakeTools()
     for (const FilePath &command : qAsConst(suspects)) {
         auto item = std::make_unique<CMakeTool>(CMakeTool::AutoDetection, CMakeTool::createId());
         item->setFilePath(command);
-        item->setDisplayName(::CMakeProjectManager::CMakeToolManager::tr("System CMake at %1")
-                                 .arg(command.toUserOutput()));
+        item->setDisplayName(Tr::tr("System CMake at %1").arg(command.toUserOutput()));
 
         found.emplace_back(std::move(item));
     }
@@ -145,7 +144,7 @@ mergeTools(std::vector<std::unique_ptr<CMakeTool>> &sdkTools,
 
 CMakeToolSettingsAccessor::CMakeToolSettingsAccessor() :
     UpgradingSettingsAccessor("QtCreatorCMakeTools",
-                              QCoreApplication::translate("CMakeProjectManager::CMakeToolManager", "CMake"),
+                              Tr::tr("CMake"),
                               Core::Constants::IDE_DISPLAY_NAME)
 {
     setBaseFilePath(Core::ICore::userResourcePath(CMAKE_TOOL_FILENAME));

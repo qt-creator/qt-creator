@@ -3,12 +3,11 @@
 
 #include "cmakeprojectnodes.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <memory>
 
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 std::unique_ptr<ProjectExplorer::FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
                                                                 int priority,
@@ -44,5 +43,5 @@ CMakeTargetNode *createTargetNode(
 
 void addFileSystemNodes(ProjectExplorer::ProjectNode *root,
                         const std::shared_ptr<ProjectExplorer::FolderNode> &folderNode);
-} // namespace Internal
-} // namespace CMakeProjectManager
+
+} // CMakeProjectManager::Internal

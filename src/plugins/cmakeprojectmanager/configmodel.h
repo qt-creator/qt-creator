@@ -7,10 +7,7 @@
 
 #include <utils/treemodel.h>
 
-#include <QString>
-
-namespace CMakeProjectManager {
-namespace Internal {
+namespace CMakeProjectManager::Internal {
 
 class ConfigModelTreeItem;
 
@@ -136,5 +133,4 @@ public:
     ConfigModel::InternalDataItem *dataItem;
 };
 
-} // namespace Internal
-} // namespace CMakeProjectManager
+} // CMakeProjectManager::Internal

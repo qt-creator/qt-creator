@@ -14,18 +14,18 @@
 
 #include <QFileInfo>
 
-using namespace CMakeProjectManager::Internal;
 using namespace TextEditor;
 using namespace ProjectExplorer;
 
-// -------------------------------
-// CMakeFileCompletionAssistProvider
-// -------------------------------
+namespace CMakeProjectManager::Internal {
 
-IAssistProcessor *CMakeFileCompletionAssistProvider::createProcessor(const AssistInterface *) const
+class CMakeFileCompletionAssist : public TextEditor::KeywordsCompletionAssistProcessor
 {
-    return new CMakeFileCompletionAssist;
-}
+public:
+    CMakeFileCompletionAssist();
+
+    TextEditor::IAssistProposal *perform(const TextEditor::AssistInterface *interface) final;
+};
 
 CMakeFileCompletionAssist::CMakeFileCompletionAssist() :
     KeywordsCompletionAssistProcessor(Keywords())
@@ -50,3 +50,10 @@ IAssistProposal *CMakeFileCompletionAssist::perform(const AssistInterface *inter
     setKeywords(kw);
     return KeywordsCompletionAssistProcessor::perform(interface);
 }
+
+IAssistProcessor *CMakeFileCompletionAssistProvider::createProcessor(const AssistInterface *) const
+{
+    return new CMakeFileCompletionAssist;
+}
+
+} // CMakeProjectManager::Internal

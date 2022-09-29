@@ -1,10 +1,11 @@
 // Copyright (C) 2016 Canonical Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "cmakeconfigitem.h"
 #include "cmakekitinformation.h"
 
+#include "cmakeconfigitem.h"
 #include "cmakeprojectconstants.h"
+#include "cmakeprojectmanagertr.h"
 #include "cmakeprojectplugin.h"
 #include "cmakespecificsettings.h"
 #include "cmaketool.h"
@@ -50,9 +51,6 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CMakeProjectManager {
-// --------------------------------------------------------------------
-// CMakeKitAspect:
-// --------------------------------------------------------------------
 
 static bool isIos(const Kit *k)
 {
@@ -69,7 +67,6 @@ static Id defaultCMakeToolId()
 
 class CMakeKitAspectWidget final : public KitAspectWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeKitAspect)
 public:
     CMakeKitAspectWidget(Kit *kit, const KitAspect *ki) : KitAspectWidget(kit, ki),
         m_comboBox(createSubWidget<QComboBox>()),
@@ -137,7 +134,7 @@ private:
             m_comboBox->removeItem(pos);
 
         if (m_comboBox->count() == 0) {
-            m_comboBox->addItem(tr("<No CMake Tool available>"), Id().toSetting());
+            m_comboBox->addItem(Tr::tr("<No CMake Tool available>"), Id().toSetting());
             m_comboBox->setEnabled(false);
         } else {
             m_comboBox->setEnabled(true);
@@ -199,8 +196,8 @@ CMakeKitAspect::CMakeKitAspect()
 {
     setObjectName(QLatin1String("CMakeKitAspect"));
     setId(Constants::TOOL_ID);
-    setDisplayName(tr("CMake Tool"));
-    setDescription(tr("The CMake Tool to use when building a project with CMake.<br>"
+    setDisplayName(Tr::tr("CMake Tool"));
+    setDescription(Tr::tr("The CMake Tool to use when building a project with CMake.<br>"
                       "This setting is ignored when using other build systems."));
     setPriority(20000);
 
@@ -278,7 +275,7 @@ void CMakeKitAspect::fix(Kit *k)
 KitAspect::ItemList CMakeKitAspect::toUserOutput(const Kit *k) const
 {
     const CMakeTool *const tool = cmakeTool(k);
-    return {{tr("CMake"), tool ? tool->displayName() : tr("Unconfigured")}};
+    return {{Tr::tr("CMake"), tool ? tool->displayName() : Tr::tr("Unconfigured")}};
 }
 
 KitAspectWidget *CMakeKitAspect::createConfigWidget(Kit *k) const
@@ -290,7 +287,7 @@ KitAspectWidget *CMakeKitAspect::createConfigWidget(Kit *k) const
 void CMakeKitAspect::addToMacroExpander(Kit *k, MacroExpander *expander) const
 {
     QTC_ASSERT(k, return);
-    expander->registerFileVariables("CMake:Executable", tr("Path to the cmake executable"),
+    expander->registerFileVariables("CMake:Executable", Tr::tr("Path to the cmake executable"),
         [k] {
             CMakeTool *tool = CMakeKitAspect::cmakeTool(k);
             return tool ? tool->cmakeExecutable() : FilePath();
@@ -306,7 +303,7 @@ QSet<Id> CMakeKitAspect::availableFeatures(const Kit *k) const
 
 QString CMakeKitAspect::msgUnsupportedVersion(const QByteArray &versionString)
 {
-    return tr("CMake version %1 is unsupported. Update to "
+    return Tr::tr("CMake version %1 is unsupported. Update to "
               "version 3.14 (with file-api) or later.")
         .arg(QString::fromUtf8(versionString));
 }
@@ -324,8 +321,6 @@ const char TOOLSET_KEY[] = "Toolset";
 
 class CMakeGeneratorKitAspectWidget final : public KitAspectWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeGeneratorKitAspect)
-
 public:
     CMakeGeneratorKitAspectWidget(Kit *kit, const KitAspect *ki)
         : KitAspectWidget(kit, ki),
@@ -338,7 +333,7 @@ public:
         });
 
         m_label->setToolTip(ki->description());
-        m_changeButton->setText(tr("Change..."));
+        m_changeButton->setText(Tr::tr("Change..."));
         refresh();
         connect(m_changeButton, &QPushButton::clicked,
                 this, &CMakeGeneratorKitAspectWidget::changeGenerator);
@@ -380,9 +375,9 @@ private:
         messageLabel << generator;
 
         if (!platform.isEmpty())
-            messageLabel << ", " << tr("Platform") << ": " << platform;
+            messageLabel << ", " << Tr::tr("Platform") << ": " << platform;
         if (!toolset.isEmpty())
-            messageLabel << ", " << tr("Toolset") << ": " << toolset;
+            messageLabel << ", " << Tr::tr("Toolset") << ": " << toolset;
 
         m_label->setText(messageLabel.join(""));
     }
@@ -396,7 +391,7 @@ private:
         flags |= Qt::MSWindowsFixedSizeDialogHint;
         changeDialog->setWindowFlags(flags);
 
-        changeDialog->setWindowTitle(tr("CMake Generator"));
+        changeDialog->setWindowTitle(Tr::tr("CMake Generator"));
 
         auto layout = new QGridLayout(changeDialog);
         layout->setSizeConstraint(QLayout::SetFixedSize);
@@ -414,19 +409,19 @@ private:
         layout->addWidget(cmakeLabel, row, 1);
 
         ++row;
-        layout->addWidget(new QLabel(tr("Generator:")), row, 0);
+        layout->addWidget(new QLabel(Tr::tr("Generator:")), row, 0);
         layout->addWidget(generatorCombo, row, 1);
 
         ++row;
-        layout->addWidget(new QLabel(tr("Extra generator:")), row, 0);
+        layout->addWidget(new QLabel(Tr::tr("Extra generator:")), row, 0);
         layout->addWidget(extraGeneratorCombo, row, 1);
 
         ++row;
-        layout->addWidget(new QLabel(tr("Platform:")), row, 0);
+        layout->addWidget(new QLabel(Tr::tr("Platform:")), row, 0);
         layout->addWidget(platformEdit, row, 1);
 
         ++row;
-        layout->addWidget(new QLabel(tr("Toolset:")), row, 0);
+        layout->addWidget(new QLabel(Tr::tr("Toolset:")), row, 0);
         layout->addWidget(toolsetEdit, row, 1);
 
         ++row;
@@ -452,7 +447,7 @@ private:
             generatorCombo->setCurrentText(name);
 
             extraGeneratorCombo->clear();
-            extraGeneratorCombo->addItem(tr("<none>"), QString());
+            extraGeneratorCombo->addItem(Tr::tr("<none>"), QString());
             for (const QString &eg : qAsConst(it->extraGenerators))
                 extraGeneratorCombo->addItem(eg, eg);
             extraGeneratorCombo->setEnabled(extraGeneratorCombo->count() > 1);
@@ -550,8 +545,8 @@ CMakeGeneratorKitAspect::CMakeGeneratorKitAspect()
 {
     setObjectName(QLatin1String("CMakeGeneratorKitAspect"));
     setId(GENERATOR_ID);
-    setDisplayName(tr("CMake <a href=\"generator\">generator</a>"));
-    setDescription(tr("CMake generator defines how a project is built when using CMake.<br>"
+    setDisplayName(Tr::tr("CMake <a href=\"generator\">generator</a>"));
+    setDescription(Tr::tr("CMake generator defines how a project is built when using CMake.<br>"
                       "This setting is ignored when using other build systems."));
     setPriority(19000);
 }
@@ -755,7 +750,7 @@ Tasks CMakeGeneratorKitAspect::validate(const Kit *k) const
     };
 
     if (!tool->isValid()) {
-        addWarning(tr("CMake Tool is unconfigured, CMake generator will be ignored."));
+        addWarning(Tr::tr("CMake Tool is unconfigured, CMake generator will be ignored."));
     } else {
         const GeneratorInfo info = generatorInfo(k);
         QList<CMakeTool::Generator> known = tool->supportedGenerators();
@@ -763,15 +758,15 @@ Tasks CMakeGeneratorKitAspect::validate(const Kit *k) const
             return g.matches(info.generator, info.extraGenerator);
         });
         if (it == known.constEnd()) {
-            addWarning(tr("CMake Tool does not support the configured generator."));
+            addWarning(Tr::tr("CMake Tool does not support the configured generator."));
         } else {
             if (!it->supportsPlatform && !info.platform.isEmpty())
-                addWarning(tr("Platform is not supported by the selected CMake generator."));
+                addWarning(Tr::tr("Platform is not supported by the selected CMake generator."));
             if (!it->supportsToolset && !info.toolset.isEmpty())
-                addWarning(tr("Toolset is not supported by the selected CMake generator."));
+                addWarning(Tr::tr("Toolset is not supported by the selected CMake generator."));
         }
         if (!tool->hasFileApi()) {
-            addWarning(tr("The selected CMake binary does not support file-api. "
+            addWarning(Tr::tr("The selected CMake binary does not support file-api. "
                           "%1 will not be able to parse CMake projects.")
                            .arg(Core::Constants::IDE_DISPLAY_NAME));
         }
@@ -838,15 +833,15 @@ KitAspect::ItemList CMakeGeneratorKitAspect::toUserOutput(const Kit *k) const
     const GeneratorInfo info = generatorInfo(k);
     QString message;
     if (info.generator.isEmpty()) {
-        message = tr("<Use Default Generator>");
+        message = Tr::tr("<Use Default Generator>");
     } else {
-        message = tr("Generator: %1<br>Extra generator: %2").arg(info.generator).arg(info.extraGenerator);
+        message = Tr::tr("Generator: %1<br>Extra generator: %2").arg(info.generator).arg(info.extraGenerator);
         if (!info.platform.isEmpty())
-            message += "<br/>" + tr("Platform: %1").arg(info.platform);
+            message += "<br/>" + Tr::tr("Platform: %1").arg(info.platform);
         if (!info.toolset.isEmpty())
-            message += "<br/>" + tr("Toolset: %1").arg(info.toolset);
+            message += "<br/>" + Tr::tr("Toolset: %1").arg(info.toolset);
     }
-    return {{tr("CMake Generator"), message}};
+    return {{Tr::tr("CMake Generator"), message}};
 }
 
 KitAspectWidget *CMakeGeneratorKitAspect::createConfigWidget(Kit *k) const
@@ -880,8 +875,6 @@ const char QTC_CMAKE_PRESET_KEY[] = "QTC_CMAKE_PRESET";
 
 class CMakeConfigurationKitAspectWidget final : public KitAspectWidget
 {
-    Q_DECLARE_TR_FUNCTIONS(CMakeProjectManager::Internal::CMakeConfigurationKitAspect)
-
 public:
     CMakeConfigurationKitAspectWidget(Kit *kit, const KitAspect *ki)
         : KitAspectWidget(kit, ki),
@@ -889,7 +882,7 @@ public:
           m_manageButton(createSubWidget<QPushButton>())
     {
         refresh();
-        m_manageButton->setText(tr("Change..."));
+        m_manageButton->setText(Tr::tr("Change..."));
         connect(m_manageButton, &QAbstractButton::clicked,
                 this, &CMakeConfigurationKitAspectWidget::editConfigurationChanges);
     }
@@ -940,11 +933,11 @@ private:
         const CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
 
         m_dialog = new QDialog(m_summaryLabel->window());
-        m_dialog->setWindowTitle(tr("Edit CMake Configuration"));
+        m_dialog->setWindowTitle(Tr::tr("Edit CMake Configuration"));
         auto layout = new QVBoxLayout(m_dialog);
         m_editor = new QPlainTextEdit;
         auto editorLabel = new QLabel(m_dialog);
-        editorLabel->setText(tr("Enter one CMake <a href=\"variable\">variable</a> per line.<br/>"
+        editorLabel->setText(Tr::tr("Enter one CMake <a href=\"variable\">variable</a> per line.<br/>"
                                 "To set a variable, use -D&lt;variable&gt;:&lt;type&gt;=&lt;value&gt;.<br/>"
                                 "&lt;type&gt; can have one of the following values: FILEPATH, PATH, "
                                 "BOOL, INTERNAL, or STRING."));
@@ -959,7 +952,7 @@ private:
 
         m_additionalEditor = new QLineEdit;
         auto additionalLabel = new QLabel(m_dialog);
-        additionalLabel->setText(tr("Additional CMake <a href=\"options\">options</a>:"));
+        additionalLabel->setText(Tr::tr("Additional CMake <a href=\"options\">options</a>:"));
         connect(additionalLabel, &QLabel::linkActivated, this, [=](const QString &) {
             CMakeTool::openCMakeHelpUrl(tool, "%1/manual/cmake.1.html#options");
         });
@@ -1042,8 +1035,8 @@ CMakeConfigurationKitAspect::CMakeConfigurationKitAspect()
 {
     setObjectName(QLatin1String("CMakeConfigurationKitAspect"));
     setId(CONFIGURATION_ID);
-    setDisplayName(tr("CMake Configuration"));
-    setDescription(tr("Default configuration passed to CMake when setting up a project."));
+    setDisplayName(Tr::tr("CMake Configuration"));
+    setDescription(Tr::tr("Default configuration passed to CMake when setting up a project."));
     setPriority(18000);
 }
 
@@ -1185,22 +1178,22 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
     // Validate Qt:
     if (qmakePath.isEmpty()) {
         if (version && version->isValid() && isQt4) {
-            addWarning(tr("CMake configuration has no path to qmake binary set, "
+            addWarning(Tr::tr("CMake configuration has no path to qmake binary set, "
                           "even though the kit has a valid Qt version."));
         }
     } else {
         if (!version || !version->isValid()) {
-            addWarning(tr("CMake configuration has a path to a qmake binary set, "
+            addWarning(Tr::tr("CMake configuration has a path to a qmake binary set, "
                           "even though the kit has no valid Qt version."));
         } else if (qmakePath != version->qmakeFilePath() && isQt4) {
-            addWarning(tr("CMake configuration has a path to a qmake binary set "
+            addWarning(Tr::tr("CMake configuration has a path to a qmake binary set "
                           "that does not match the qmake binary path "
                           "configured in the Qt version."));
         }
     }
     if (version && !qtInstallDirs.contains(version->prefix().path()) && !isQt4) {
         if (version->isValid()) {
-            addWarning(tr("CMake configuration has no CMAKE_PREFIX_PATH set "
+            addWarning(Tr::tr("CMake configuration has no CMAKE_PREFIX_PATH set "
                           "that points to the kit Qt version."));
         }
     }
@@ -1208,15 +1201,15 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
     // Validate Toolchains:
     if (tcCPath.isEmpty()) {
         if (tcC && tcC->isValid()) {
-            addWarning(tr("CMake configuration has no path to a C compiler set, "
+            addWarning(Tr::tr("CMake configuration has no path to a C compiler set, "
                            "even though the kit has a valid tool chain."));
         }
     } else {
         if (!tcC || !tcC->isValid()) {
-            addWarning(tr("CMake configuration has a path to a C compiler set, "
+            addWarning(Tr::tr("CMake configuration has a path to a C compiler set, "
                           "even though the kit has no valid tool chain."));
         } else if (tcCPath != tcC->compilerCommand() && tcCPath != tcC->compilerCommand().onDevice(tcCPath)) {
-            addWarning(tr("CMake configuration has a path to a C compiler set "
+            addWarning(Tr::tr("CMake configuration has a path to a C compiler set "
                           "that does not match the compiler path "
                           "configured in the tool chain of the kit."));
         }
@@ -1224,15 +1217,15 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
 
     if (tcCxxPath.isEmpty()) {
         if (tcCxx && tcCxx->isValid()) {
-            addWarning(tr("CMake configuration has no path to a C++ compiler set, "
+            addWarning(Tr::tr("CMake configuration has no path to a C++ compiler set, "
                           "even though the kit has a valid tool chain."));
         }
     } else {
         if (!tcCxx || !tcCxx->isValid()) {
-            addWarning(tr("CMake configuration has a path to a C++ compiler set, "
+            addWarning(Tr::tr("CMake configuration has a path to a C++ compiler set, "
                           "even though the kit has no valid tool chain."));
         } else if (tcCxxPath != tcCxx->compilerCommand() && tcCxxPath != tcCxx->compilerCommand().onDevice(tcCxxPath)) {
-            addWarning(tr("CMake configuration has a path to a C++ compiler set "
+            addWarning(Tr::tr("CMake configuration has a path to a C++ compiler set "
                           "that does not match the compiler path "
                           "configured in the tool chain of the kit."));
         }
@@ -1254,7 +1247,7 @@ void CMakeConfigurationKitAspect::fix(Kit *k)
 
 KitAspect::ItemList CMakeConfigurationKitAspect::toUserOutput(const Kit *k) const
 {
-    return {{tr("CMake Configuration"), toStringList(k).join("<br>")}};
+    return {{Tr::tr("CMake Configuration"), toStringList(k).join("<br>")}};
 }
 
 KitAspectWidget *CMakeConfigurationKitAspect::createConfigWidget(Kit *k) const
