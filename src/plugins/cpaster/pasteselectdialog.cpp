@@ -3,6 +3,7 @@
 
 #include "pasteselectdialog.h"
 
+#include "cpastertr.h"
 #include "protocol.h"
 
 #include <utils/hostosinfo.h>
@@ -37,7 +38,7 @@ PasteSelectDialog::PasteSelectDialog(const QList<Protocol*> &protocols, QWidget 
 
     auto buttons = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
 
-    m_refreshButton = buttons->addButton(tr("Refresh"), QDialogButtonBox::ActionRole);
+    m_refreshButton = buttons->addButton(Tr::tr("Refresh"), QDialogButtonBox::ActionRole);
 
     m_listWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     if (!Utils::HostOsInfo::isMacHost())
@@ -52,8 +53,8 @@ PasteSelectDialog::PasteSelectDialog(const QList<Protocol*> &protocols, QWidget 
     using namespace Utils::Layouting;
     Column {
         Form {
-            tr("Protocol:"), m_protocolBox, br,
-            tr("Paste:"), m_pasteEdit
+            Tr::tr("Protocol:"), m_protocolBox, br,
+            Tr::tr("Paste:"), m_pasteEdit
         },
         m_listWidget,
         buttons
@@ -126,7 +127,7 @@ void PasteSelectDialog::list()
 
     m_listWidget->clear();
     if (Protocol::ensureConfiguration(protocol, this)) {
-        m_listWidget->addItem(new QListWidgetItem(tr("Waiting for items")));
+        m_listWidget->addItem(new QListWidgetItem(Tr::tr("Waiting for items")));
         protocol->list();
     }
 }
@@ -139,7 +140,8 @@ void PasteSelectDialog::protocolChanged(int i)
         list();
     } else {
         m_listWidget->clear();
-        m_listWidget->addItem(new QListWidgetItem(tr("This protocol does not support listing")));
+        m_listWidget->addItem(new QListWidgetItem(Tr::tr("This protocol does not support listing")));
     }
 }
-} // namespace CodePaster
+
+} // CodePaster

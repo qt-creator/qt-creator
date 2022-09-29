@@ -527,7 +527,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster::CodepasterPlugin</name>
+    <name>CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Vkládání kódu</translation>
@@ -577,25 +577,6 @@
         <translation>Přijat prázdný úryvek pro &quot;%1&quot;.</translation>
     </message>
     <message>
-        <source>This protocol supports no listing</source>
-        <translation type="obsolete">Tento protokol nepodporuje výpisy</translation>
-    </message>
-    <message>
-        <source>Waiting for items</source>
-        <translation type="obsolete">Čeká se na data</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
-    <message>
-        <source>Paste:</source>
-        <translation type="obsolete">Vložit:</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation type="obsolete">Protokol:</translation>
-    </message>
-    <message>
         <source>Refresh</source>
         <translation>Obnovit</translation>
     </message>
@@ -606,13 +587,6 @@
     <message>
         <source>This protocol does not support listing</source>
         <translation>Tento protokol nepodporuje výpisy</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
-    <message>
-        <source>Username:</source>
-        <translation type="obsolete">Uživatelské jméno:</translation>
     </message>
     <message>
         <source>Copy Paste URL to clipboard</source>
@@ -625,38 +599,6 @@
     <message>
         <source>General</source>
         <translation>Obecné</translation>
-    </message>
-    <message>
-        <source>CodePaster</source>
-        <translation type="obsolete">CodePaster</translation>
-    </message>
-    <message>
-        <source>Default Protocol:</source>
-        <translation type="obsolete">Výchozí protokol:</translation>
-    </message>
-    <message>
-        <source>Pastebin.ca</source>
-        <translation type="obsolete">Pastebin.ca</translation>
-    </message>
-    <message>
-        <source>Pastebin.com</source>
-        <translation type="obsolete">Pastebin.com</translation>
-    </message>
-    <message>
-        <source>Code Pasting</source>
-        <translation type="obsolete">Vkládání kódu</translation>
-    </message>
-    <message>
-        <source>Display Output pane after sending a post</source>
-        <translation type="obsolete">Po odeslání ukázat výstupní tabulku</translation>
-    </message>
-    <message>
-        <source>Copy-paste URL to clipboard</source>
-        <translation type="obsolete">Kopírovat URL do schránky</translation>
-    </message>
-    <message>
-        <source>Default protocol:</source>
-        <translation type="obsolete">Výchozí protokol:</translation>
     </message>
 </context>
 <context>
@@ -18431,7 +18373,7 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     </message>
 </context>
 <context>
-    <name>CodePaster::CodePasterProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
         <translation>V nastavení ke CodePaster nebyl stanoven žádný server.</translation>
@@ -18444,9 +18386,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
         <source>No such paste</source>
         <translation>Požadované vložení neexistuje</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterSettingsPage</name>
     <message>
         <source>CodePaster</source>
         <translation>CodePaster</translation>
@@ -18454,10 +18393,6 @@ Toho se dosáhne vložením této zkratky v zadávacím poli vyhledávače, nás
     <message>
         <source>&lt;i&gt;Note: Specify the host name for the CodePaster service without any protocol prepended (e.g. codepaster.mycompany.com).&lt;/i&gt;</source>
         <translation>&lt;i&gt;Poznámka: Zadejte název hostitelského počítače (serveru) pro službu CodePaster bez protokolové předpony (například: codepaster.mycompany.com).&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>Code Pasting</source>
-        <translation type="obsolete">Vkládání kódu</translation>
     </message>
     <message>
         <source>Server:</source>
@@ -21151,25 +21086,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Reset to default</source>
         <translation type="obsolete">Nastavit znovu výchozí</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulář</translation>
-    </message>
-    <message>
-        <source>&amp;Display:</source>
-        <translation type="obsolete">&amp;Zobrazit:</translation>
-    </message>
-    <message>
-        <source>entries</source>
-        <translation type="obsolete">Záznamy</translation>
-    </message>
-    <message>
-        <source>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</source>
-        <translation type="obsolete">Protokol vložení založený na sdílení souborů umožňuje sdílení kousků kódu pomocí jednoduchých souborů na sdílené síťové diskové jednotce. Soubory nejsou nikdy mazány.</translation>
     </message>
 </context>
 <context>
@@ -24218,9 +24134,6 @@ heslem, jež můžete zadat níže.</translation>
         <source>Code Pasting</source>
         <translation>Úryvky kódu</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocol</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Nelze otevřít soubor &apos;%1&apos;: %2</translation>
@@ -24245,23 +24158,10 @@ heslem, jež můžete zadat níže.</translation>
         <source>Pasted: %1</source>
         <translation>Vloženo: %1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Sdílení souboru</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteBinDotComSettings</name>
-    <message>
-        <source>Pastebin.com</source>
-        <translation type="obsolete">Pastebin.com</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;Poznámka&gt;</translation>
@@ -24270,9 +24170,6 @@ heslem, jež můžete zadat níže.</translation>
         <source>Paste</source>
         <translation>Vložit</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - Chyba v nastavení</translation>
@@ -33553,15 +33450,12 @@ správy verzí (%2)</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster::PasteBinDotComProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>&lt;Unknown&gt;</source>
         <extracomment>Unknown user of paste.</extracomment>
         <translation type="obsolete">&lt;Neznámý&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::NetworkProtocol</name>
     <message>
         <source>Checking connection</source>
         <translation>Ověření spojení</translation>
@@ -44369,7 +44263,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Formulář</translation>
@@ -44390,13 +44284,6 @@ p, li { white-space: pre-wrap; }
         <source>entries</source>
         <translation>záznamů</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulář</translation>
-    </message>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; dovoluje posílání uživatelsky stanovených subdomén (například creator.pastebin.com). Zadejte požadovanou předponu.</translation>
@@ -44409,9 +44296,6 @@ p, li { white-space: pre-wrap; }
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Poznámka: Přídavný modul toto použije pro posílání a stejně tak natahování.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>Protokol:</translation>
@@ -44420,16 +44304,9 @@ p, li { white-space: pre-wrap; }
         <source>Paste:</source>
         <translation>Vložení:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>Poslat na CodePaster</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>Protokol:</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -44479,9 +44356,6 @@ p, li { white-space: pre-wrap; }
         <source>&amp;Expires after:</source>
         <translation>&amp;Vyprší po:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Display Output pane after sending a post</source>
         <translation>Po odeslání ukázat výstupní tabulku</translation>
@@ -44497,14 +44371,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Default protocol:</source>
         <translation>Výchozí protokol:</translation>
-    </message>
-    <message>
-        <source>&amp;Expires after:</source>
-        <translation>&amp;Vyprší po:</translation>
-    </message>
-    <message>
-        <source>Days</source>
-        <translation>dnech</translation>
     </message>
 </context>
 <context>

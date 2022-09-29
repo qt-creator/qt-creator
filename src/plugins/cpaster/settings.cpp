@@ -4,6 +4,7 @@
 #include "settings.h"
 
 #include "cpasterconstants.h"
+#include "cpastertr.h"
 
 #include <utils/layoutbuilder.h>
 
@@ -19,12 +20,12 @@ Settings::Settings()
     registerAspect(&username);
     username.setDisplayStyle(StringAspect::LineEditDisplay);
     username.setSettingsKey("UserName");
-    username.setLabelText(tr("Username:"));
+    username.setLabelText(Tr::tr("Username:"));
 
     registerAspect(&protocols);
     protocols.setSettingsKey("DefaultProtocol");
     protocols.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    protocols.setLabelText(tr("Default protocol:"));
+    protocols.setLabelText(Tr::tr("Default protocol:"));
     protocols.setToSettingsTransformation([this](const QVariant &val) {
         return protocols.displayForIndex(val.toInt());
     });
@@ -35,18 +36,18 @@ Settings::Settings()
     registerAspect(&expiryDays);
     expiryDays.setSettingsKey("ExpiryDays");
     expiryDays.setDefaultValue(1);
-    expiryDays.setSuffix(tr(" Days"));
-    expiryDays.setLabelText(tr("&Expires after:"));
+    expiryDays.setSuffix(Tr::tr(" Days"));
+    expiryDays.setLabelText(Tr::tr("&Expires after:"));
 
     registerAspect(&copyToClipboard);
     copyToClipboard.setSettingsKey("CopyToClipboard");
     copyToClipboard.setDefaultValue(true);
-    copyToClipboard.setLabelText(tr("Copy-paste URL to clipboard"));
+    copyToClipboard.setLabelText(Tr::tr("Copy-paste URL to clipboard"));
 
     registerAspect(&displayOutput);
     displayOutput.setSettingsKey("DisplayOutput");
     displayOutput.setDefaultValue(true);
-    displayOutput.setLabelText(tr("Display General Messages after sending a post"));
+    displayOutput.setLabelText(Tr::tr("Display General Messages after sending a post"));
 }
 
 // SettingsPage
@@ -54,9 +55,9 @@ Settings::Settings()
 SettingsPage::SettingsPage(Settings *settings)
 {
     setId("A.CodePaster.General");
-    setDisplayName(Settings::tr("General"));
+    setDisplayName(Tr::tr("General"));
     setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
-    setDisplayCategory(Settings::tr("Code Pasting"));
+    setDisplayCategory(Tr::tr("Code Pasting"));
     setCategoryIconPath(":/cpaster/images/settingscategory_cpaster.png");
     setSettings(settings);
 
@@ -77,4 +78,4 @@ SettingsPage::SettingsPage(Settings *settings)
     });
 }
 
-} // namespace CodePaster
+} // CodePaster

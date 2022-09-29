@@ -467,7 +467,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster::CodepasterPlugin</name>
+    <name>CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Lepljenje kode</translation>
@@ -496,9 +496,6 @@
         <source>Empty snippet received for &quot;%1&quot;.</source>
         <translation>Za »%1« je bil prejet prazen izrezek.</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Paste:</source>
         <translation>Prilepi:</translation>
@@ -520,9 +517,6 @@
         <source>This protocol does not support listing</source>
         <translation>Protokol ne podpira izpisa seznama</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>Username:</source>
         <translation>Uporabniško ime:</translation>
@@ -12253,7 +12247,7 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
     </message>
 </context>
 <context>
-    <name>CodePaster::CodePasterProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
         <translation>V nastavitvah za CodePaster ni določenega nobenega strežnika.</translation>
@@ -12266,9 +12260,6 @@ Za uporabo v polje Iskalnika vtipkajte to bližnjico in presledek ter nato iskan
         <source>No such paste</source>
         <translation>Tak prilepek ne obstaja</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterSettingsPage</name>
     <message>
         <source>CodePaster</source>
         <translation>CodePaster</translation>
@@ -13605,7 +13596,7 @@ Razlog: %2</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Obrazec</translation>
@@ -15641,9 +15632,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Code Pasting</source>
         <translation>Prilepljanje kode</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocol</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Ni moč odpreti %1: %2</translation>
@@ -15668,23 +15656,14 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Unable to open a file for writing in %1: %2</source>
         <translation type="obsolete">Datoteke ni moč odpreti za pisanje v %1: %2</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Fileshare</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteBinDotComSettings</name>
     <message>
         <source>Pastebin.com</source>
         <translation>Pastebin.com</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;komentar&gt;</translation>
@@ -15693,9 +15672,6 @@ Desetiška predznačena vrednost (najprej veliki konec): %4</translation>
         <source>Paste</source>
         <translation>Prilepi</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - Napaka pri nastavitvi</translation>
@@ -23045,16 +23021,13 @@ Vedite: to lahko odstrani krajevno datoteko.</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster::PasteBinDotComProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>&lt;Unknown&gt;</source>
         <extracomment>Unknown user of paste.
 </extracomment>
         <translation>&lt;neznano&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::NetworkProtocol</name>
     <message>
         <source>Checking connection</source>
         <translation>Preverjanje povezave</translation>

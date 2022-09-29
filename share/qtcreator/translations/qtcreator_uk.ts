@@ -1314,9 +1314,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Code Pasting</source>
         <translation>Вставка коду</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterProtocol</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
         <translation type="vanished">Не вказано сервер в налаштуваннях CodePaster.</translation>
@@ -1329,9 +1326,6 @@ Local pulls are not applied to the master branch.</source>
         <source>No such paste</source>
         <translation type="vanished">Немає такої вставки</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterSettingsPage</name>
     <message>
         <source>CodePaster</source>
         <translation type="vanished">CodePaster</translation>
@@ -1344,9 +1338,6 @@ Local pulls are not applied to the master branch.</source>
         <source>&lt;i&gt;Note: Specify the host name for the CodePaster service without any protocol prepended (e.g. codepaster.mycompany.com).&lt;/i&gt;</source>
         <translation type="vanished">&lt;i&gt;Примітка: Задайте назву вузла сервісу, не вказуючи протокол (наприклад. codepaster.mycompany.com).&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodepasterPlugin</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>Вставка &amp;коду</translation>
@@ -1395,9 +1386,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Empty snippet received for &quot;%1&quot;.</source>
         <translation>Отримано порожній фрагмент для &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocol</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Неможливо відкрити %1: %2</translation>
@@ -1418,16 +1406,10 @@ Local pulls are not applied to the master branch.</source>
         <source>Pasted: %1</source>
         <translation>Вставлено: %1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Fileshare</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::NetworkProtocol</name>
     <message>
         <source>Checking connection</source>
         <translation>Перевірка підключення</translation>
@@ -1436,9 +1418,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Connecting to %1...</source>
         <translation>Підключення до %1...</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Refresh</source>
         <translation>Оновити</translation>
@@ -1451,9 +1430,6 @@ Local pulls are not applied to the master branch.</source>
         <source>This protocol does not support listing</source>
         <translation>Цей протокол не підтримує отримання списку</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;Коментар&gt;</translation>
@@ -1462,9 +1438,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Paste</source>
         <translation>Вставити</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - помилка конфігурації</translation>
@@ -1473,9 +1446,6 @@ Local pulls are not applied to the master branch.</source>
         <source>Settings...</source>
         <translation type="vanished">Налаштування...</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>Загальне</translation>
@@ -24729,7 +24699,7 @@ With cache simulation, further event counters are enabled:
     </message>
 </context>
 <context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Форма</translation>
@@ -24750,13 +24720,6 @@ With cache simulation, further event counters are enabled:
         <source>entries</source>
         <translation> елементів</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Форма</translation>
-    </message>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; дозволяє надсилати дані до піддоменів користувача (наприклад. creator.pastebin.com). Вкажіть бажаний префікс.</translation>
@@ -24769,9 +24732,6 @@ With cache simulation, further event counters are enabled:
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Примітка: Додаток буде використовувати цей префікс і для отримання даних.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>Протокол:</translation>
@@ -24780,16 +24740,9 @@ With cache simulation, further event counters are enabled:
         <source>Paste:</source>
         <translation>Вставка:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>Надіслати до Codepaster</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>Протокол:</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -24843,9 +24796,6 @@ p, li { white-space: pre-wrap; }
         <source> Days</source>
         <translation> днів</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Display Output pane after sending a post</source>
         <translation>Показати панель виведення після надсилання</translation>
@@ -24861,18 +24811,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Default protocol:</source>
         <translation>Типовий протокол:</translation>
-    </message>
-    <message>
-        <source>&amp;Expires after:</source>
-        <translation>&amp;Застаріє через:</translation>
-    </message>
-    <message>
-        <source>Days</source>
-        <translation type="vanished"> днів</translation>
-    </message>
-    <message>
-        <source> Days</source>
-        <translation> днів</translation>
     </message>
 </context>
 <context>

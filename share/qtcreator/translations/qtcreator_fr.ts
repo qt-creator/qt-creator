@@ -559,7 +559,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster::CodepasterPlugin</name>
+    <name>CodePaster</name>
     <message>
         <source>&amp;CodePaster</source>
         <translation type="obsolete">&amp;CodePaster</translation>
@@ -618,13 +618,6 @@
         <translation type="obsolete">Ce protocole ne prend en charge le listage</translation>
     </message>
     <message>
-        <source>Waiting for items</source>
-        <translation type="obsolete">En attente des éléments</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::CustomFetcher</name>
-    <message>
         <source>CodePaster Error</source>
         <translation type="obsolete">Erreur dans CodePaster</translation>
     </message>
@@ -632,28 +625,9 @@
         <source>Could not fetch code</source>
         <translation type="obsolete">Impossible de récuperer le code</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CustomPoster</name>
-    <message>
-        <source>CodePaster Error</source>
-        <translation type="obsolete">Erreur dans CodePaster</translation>
-    </message>
     <message>
         <source>Some error occured while posting</source>
         <translation type="obsolete">Une erreur s&apos;est produite lors de la publication</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
-    <message>
-        <source>Paste:</source>
-        <translatorcomment>quelque chose de plus français pour la référence de paste?</translatorcomment>
-        <translation type="obsolete">Collage :</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation type="obsolete">Protocole :</translation>
     </message>
     <message>
         <source>Refresh</source>
@@ -667,60 +641,9 @@
         <source>This protocol does not support listing</source>
         <translation>Ce protocole ne prend en charge le listage</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>Général</translation>
-    </message>
-    <message>
-        <source>CodePaster Server:</source>
-        <translation type="obsolete">Serveur CodePaster :</translation>
-    </message>
-    <message>
-        <source>Username:</source>
-        <translation type="obsolete">Nom d&apos;utilisateur :</translation>
-    </message>
-    <message>
-        <source>Copy Paste URL to clipboard</source>
-        <translation type="obsolete">Copier l&apos;URL dans le presse papier</translation>
-    </message>
-    <message>
-        <source>Display Output Pane after sending a post</source>
-        <translation type="obsolete">Afficher le résultat après publication</translation>
-    </message>
-    <message>
-        <source>CodePaster</source>
-        <translation type="obsolete">CodePaster</translation>
-    </message>
-    <message>
-        <source>Default Protocol:</source>
-        <translation type="obsolete">Protocole par défaut :</translation>
-    </message>
-    <message>
-        <source>Pastebin.ca</source>
-        <translation type="obsolete">Pastebin.ca</translation>
-    </message>
-    <message>
-        <source>Pastebin.com</source>
-        <translation type="obsolete">Pastebin.com</translation>
-    </message>
-    <message>
-        <source>Code Pasting</source>
-        <translation type="obsolete">Collage de code</translation>
-    </message>
-    <message>
-        <source>Display Output pane after sending a post</source>
-        <translation type="obsolete">Afficher le résultat après publication</translation>
-    </message>
-    <message>
-        <source>Copy-paste URL to clipboard</source>
-        <translation type="obsolete">Copier l&apos;URL dans le presse papier</translation>
-    </message>
-    <message>
-        <source>Default protocol:</source>
-        <translation type="obsolete">Protocole par défaut :</translation>
     </message>
 </context>
 <context>
@@ -19088,7 +19011,7 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CodePaster::CodePasterProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>No Server defined in the CodePaster preferences!</source>
         <translation type="obsolete">Aucun serveur définit dans les préférences CodePaster !</translation>
@@ -19109,9 +19032,6 @@ p, li { white-space: pre-wrap; }
         <source>No such paste</source>
         <translation>Aucun collage de ce type</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterSettingsPage</name>
     <message>
         <source>CodePaster</source>
         <translation>CodePaster</translation>
@@ -19119,10 +19039,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>&lt;i&gt;Note: Specify the host name for the CodePaster service without any protocol prepended (e.g. codepaster.mycompany.com).&lt;/i&gt;</source>
         <translation>&lt;i&gt;Note : spécifier le nom d&apos;hôte pour le service CodePaster sans aucun protocole (par exemple, codepaster.mycompany.com).&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>Code Pasting</source>
-        <translation type="obsolete">Collage de code</translation>
     </message>
     <message>
         <source>Server:</source>
@@ -21362,31 +21278,6 @@ S60 emulator run configuration default display name, %1 is base pro-File name</e
     <message>
         <source>Reset to default</source>
         <translation type="obsolete">Restaurer les paramètres par défaut</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">Formulaire</translation>
-    </message>
-    <message>
-        <source>&amp;Path:</source>
-        <translation type="obsolete">Che&amp;min :</translation>
-    </message>
-    <message>
-        <source>&amp;Display:</source>
-        <translation type="obsolete">&amp;Afficher :</translation>
-    </message>
-    <message>
-        <source>entries</source>
-        <translation type="obsolete">Entrées</translation>
-    </message>
-    <message>
-        <source>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</source>
-        <translatorcomment>J&apos;ai traduis &quot;fileshare&quot;. Mais la phrase me semble lourde...
-cédric : je pense qu&apos;il faut laisser comme ça moi ou alors carrément enlever &quot;basé sur le partage de fichiers&quot; mais du coup on en perd en route ... (j&apos;ai changé &quot;Les fichiers&quot; en &quot;Ces fichiers&quot;, je trouve que ça fait moins pompeux.</translatorcomment>
-        <translation type="obsolete">Le protocole de collage basé sur le partage de fichier permet de partager des fragments de code en utilisant de simples fichiers sur un disque réseau partagé. Ces fichiers ne sont jamais effacés.</translation>
     </message>
 </context>
 <context>
@@ -24343,9 +24234,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Code Pasting</source>
         <translation>Collage de code</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocol</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Imposible d&apos;ouvrir %1 : %2</translation>
@@ -24370,23 +24258,10 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Pasted: %1</source>
         <translation>Copié : %1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Fileshare</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteBinDotComSettings</name>
-    <message>
-        <source>Pastebin.com</source>
-        <translation type="obsolete">Pastebin.com</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;Commentaire&gt;</translation>
@@ -24395,9 +24270,6 @@ avec un mot de passe, que vous pouvez renseigner ci-dessus.</translation>
         <source>Paste</source>
         <translation>Coller</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - Erreur de configuration</translation>
@@ -29168,7 +29040,7 @@ La liste du serveur était %2.</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster::NetworkProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>Checking connection</source>
         <translation>Vérification de la connexion</translation>
@@ -38770,7 +38642,7 @@ Would you like to overwrite them?</source>
     </message>
 </context>
 <context>
-    <name>CodePaster::PasteBinDotComProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>&lt;Unknown&gt;</source>
         <extracomment>Unknown user of paste.</extracomment>
@@ -43082,7 +42954,7 @@ Filtre : %2
     </message>
 </context>
 <context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Formulaire</translation>
@@ -43103,13 +42975,6 @@ Filtre : %2
         <source>entries</source>
         <translation>Entrées</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formulaire</translation>
-    </message>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; permet d&apos;envoyer d&apos;envoyer des messages à des sous-domaines personnalisés (comme creator.pastebin.com). Remplissez le préfixe désiré. </translation>
@@ -43122,9 +42987,6 @@ Filtre : %2
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Note : le plug-in utilisera ceci pour poster et récupérer. &lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>Protocole :</translation>
@@ -43133,16 +42995,9 @@ Filtre : %2
         <source>Paste:</source>
         <translation>Collage :</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>Envoyer sur Codepaster</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>Protocole :</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -43192,9 +43047,6 @@ p, li { white-space: pre-wrap; }
         <source>&amp;Expires after:</source>
         <translation>&amp;Expire après :</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Display Output pane after sending a post</source>
         <translation>Afficher le résultat après publication</translation>
@@ -43210,14 +43062,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Default protocol:</source>
         <translation>Protocole par défaut :</translation>
-    </message>
-    <message>
-        <source>&amp;Expires after:</source>
-        <translation>&amp;Expire après :</translation>
-    </message>
-    <message>
-        <source>Days</source>
-        <translation>Jours</translation>
     </message>
 </context>
 <context>

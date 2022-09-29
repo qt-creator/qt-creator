@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "fileshareprotocol.h"
+
+#include "cpastertr.h"
 #include "fileshareprotocolsettingspage.h"
 
 #include <coreplugin/icore.h>
@@ -74,7 +76,7 @@ static bool parse(const QString &fileName,
 
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly|QIODevice::Text)) {
-        *errorMessage = FileShareProtocol::tr("Cannot open %1: %2").arg(fileName, file.errorString());
+        *errorMessage = Tr::tr("Cannot open %1: %2").arg(fileName, file.errorString());
         return false;
     }
     QXmlStreamReader reader(&file);
@@ -83,7 +85,7 @@ static bool parse(const QString &fileName,
             const auto elementName = reader.name();
             // Check start element
             if (elementCount == 0 && elementName != QLatin1String(pasterElementC)) {
-                *errorMessage = FileShareProtocol::tr("%1 does not appear to be a paster file.").arg(fileName);
+                *errorMessage = Tr::tr("%1 does not appear to be a paster file.").arg(fileName);
                 return false;
             }
             // Parse elements
@@ -97,7 +99,7 @@ static bool parse(const QString &fileName,
         }
     }
     if (reader.hasError()) {
-        *errorMessage = FileShareProtocol::tr("Error in %1 at %2: %3")
+        *errorMessage = Tr::tr("Error in %1 at %2: %3")
                         .arg(fileName).arg(reader.lineNumber()).arg(reader.errorString());
         return false;
     }
@@ -108,7 +110,7 @@ bool FileShareProtocol::checkConfiguration(QString *errorMessage)
 {
     if (m_settings.path.value().isEmpty()) {
         if (errorMessage)
-            *errorMessage = tr("Please configure a path.");
+            *errorMessage = Tr::tr("Please configure a path.");
         return false;
     }
     return true;

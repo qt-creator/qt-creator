@@ -9,7 +9,6 @@ namespace CodePaster {
 
 class DPasteDotComProtocol : public NetworkProtocol
 {
-    Q_OBJECT
 public:
     static QString protocolName();
 
@@ -30,4 +29,4 @@ private:
     static void reportError(const QString &message);
 };
 
-} // namespace CodePaster
+} // CodePaster

@@ -1814,7 +1814,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>Form</source>
         <translation>フォーム</translation>
@@ -1835,13 +1835,6 @@ Local pulls are not applied to the master branch.</source>
         <source>entries</source>
         <translation>エントリ</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>フォーム</translation>
-    </message>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; は、独自のサブドメイン(例:creator.pastebin.com)に送信する事もできます。希望するプレフィックスを入力してください。</translation>
@@ -1854,9 +1847,6 @@ Local pulls are not applied to the master branch.</source>
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;注意: プラグインは受信時だけでなく送信時にも、この設定を使用します。&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>プロトコル:</translation>
@@ -1865,16 +1855,9 @@ Local pulls are not applied to the master branch.</source>
         <source>Paste:</source>
         <translation>貼り付け:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>Codepaster に送る</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>プロトコル:</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -1928,9 +1911,6 @@ p, li { white-space: pre-wrap; }
         <source>Make public:</source>
         <translation>公開する:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Copy-paste URL to clipboard</source>
         <translation>貼り付けた URL をクリップボードにコピーする</translation>
@@ -1940,20 +1920,12 @@ p, li { white-space: pre-wrap; }
         <translation>既定のプロトコル:</translation>
     </message>
     <message>
-        <source>&amp;Expires after:</source>
-        <translation>有効期間(&amp;E):</translation>
-    </message>
-    <message>
         <source>Display Output pane after sending a post</source>
         <translation>送信後にアウトプットペインを表示する</translation>
     </message>
     <message>
         <source>Username:</source>
         <translation>ユーザー名:</translation>
-    </message>
-    <message>
-        <source> Days</source>
-        <translation> 日</translation>
     </message>
     <message>
         <source>Make pasted content public by default</source>
@@ -14827,9 +14799,6 @@ to version control (%2)
         <source>Code Pasting</source>
         <translation>コード貼り付け</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodepasterPlugin</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>コード貼り付け(&amp;C)</translation>
@@ -14874,9 +14843,6 @@ to version control (%2)
         <source>Empty snippet received for &quot;%1&quot;.</source>
         <translation>&quot;%1&quot; から空のテンプレートを受信しました。</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocol</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>%1 を開けません: %2</translation>
@@ -14897,16 +14863,10 @@ to version control (%2)
         <source>Pasted: %1</source>
         <translation>貼り付け: %1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Fileshare</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Refresh</source>
         <translation>更新</translation>
@@ -14919,9 +14879,6 @@ to version control (%2)
         <source>This protocol does not support listing</source>
         <translation>このプロトコルは一覧表示をサポートしていません</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;コメント&gt;</translation>
@@ -14930,16 +14887,10 @@ to version control (%2)
         <source>Paste</source>
         <translation>貼り付け</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - 設定エラー</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::NetworkProtocol</name>
     <message>
         <source>Checking connection</source>
         <translation>接続の確認</translation>
@@ -14948,9 +14899,6 @@ to version control (%2)
         <source>Connecting to %1...</source>
         <translation>%1 に接続中...</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>一般</translation>

@@ -5610,9 +5610,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>Code Pasting</source>
         <translation>Kodeindsætning</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::AuthenticationDialog</name>
     <message>
         <source>Username:</source>
         <translation>Brugernavn:</translation>
@@ -5621,9 +5618,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>Password:</source>
         <translation>Adgangskode:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodepasterPlugin</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Kodeindsætning</translation>
@@ -5668,9 +5662,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>Empty snippet received for &quot;%1&quot;.</source>
         <translation>Tom snippet modtaget fra &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocol</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Kan ikke åbne %1: %2</translation>
@@ -5691,16 +5682,10 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>Pasted: %1</source>
         <translation>Indsatte: %1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Fildeling</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
     <message>
         <source>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</source>
         <translation>Den fildelingsbaseret indsætter-protokol giver mulighed for at dele kode-snippets ved brug af simple filer på et delt netværksdrev. Filer slettes aldrig.</translation>
@@ -5717,9 +5702,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>entries</source>
         <translation>poster</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; giver mulighed for at sende poster til brugerdefineret underdomæner (f.eks. creator.pastebin.com). Udfyld det ønsket præfiks.</translation>
@@ -5732,9 +5714,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Bemærk: pluginet bruger dette til både at sende og hente.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>Protokol:</translation>
@@ -5743,9 +5722,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <source>Paste:</source>
         <translation>Indsæt:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Copy-paste URL to clipboard</source>
         <translation>Kopiér-indsæt URL til udklipsholder</translation>
@@ -5763,23 +5739,12 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
         <translation>Vis outputrude efter afsendelse af en post</translation>
     </message>
     <message>
-        <source>Username:</source>
-        <translation>Brugernavn:</translation>
-    </message>
-    <message>
         <source> Days</source>
         <translation> dag(e)</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>Send til kodeindsætter</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>Protokol:</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -5796,14 +5761,6 @@ Men brug af de afslappede og udvidet regler betyder også at der ikke kan levere
     <message>
         <source>&lt;Description&gt;</source>
         <translation>&lt;beskrivelse&gt;</translation>
-    </message>
-    <message>
-        <source> Days</source>
-        <translation> dag(e)</translation>
-    </message>
-    <message>
-        <source>&amp;Expires after:</source>
-        <translation>&amp;Udløber efter:</translation>
     </message>
     <message>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -5829,9 +5786,6 @@ p, li { white-space: pre-wrap; }
         <source>Patch 2</source>
         <translation>Patch 2</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::KdePasteProtocol</name>
     <message>
         <source>Pasting to KDE paster needs authentication.&lt;br/&gt;Enter your KDE Identity credentials to continue.</source>
         <translation>Indsætning til KDE-indsætter kræver autentifikation.&lt;br/&gt;Indtast din KDE-identitetslegitimationsoplysninger for at fortsætte.</translation>
@@ -5840,9 +5794,6 @@ p, li { white-space: pre-wrap; }
         <source>Login failed</source>
         <translation>Indlogning mislykkedes</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::NetworkProtocol</name>
     <message>
         <source>Pasting needs authentication.&lt;br/&gt;Enter your identity credentials to continue.</source>
         <translation>Indsætning kræver autentifikation.&lt;br/&gt;Indtast din identitetslegitimationsoplysninger for at fortsætte.</translation>
@@ -5859,9 +5810,6 @@ p, li { white-space: pre-wrap; }
         <source>Connecting to %1...</source>
         <translation>Opretter forbindelse til %1...</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Refresh</source>
         <translation>Genindlæs</translation>
@@ -5874,9 +5822,6 @@ p, li { white-space: pre-wrap; }
         <source>This protocol does not support listing</source>
         <translation>Denne protokol understøtter ikke visning</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;kommentar&gt;</translation>
@@ -5885,16 +5830,10 @@ p, li { white-space: pre-wrap; }
         <source>Paste</source>
         <translation>Indsæt</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - konfigurationsfejl</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>Generelt</translation>

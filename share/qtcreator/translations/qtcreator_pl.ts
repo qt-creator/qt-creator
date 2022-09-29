@@ -317,7 +317,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster::PasteSelectDialog</name>
+    <name>CodePaster</name>
     <message>
         <source>Refresh</source>
         <translation>Odśwież</translation>
@@ -330,9 +330,6 @@
         <source>This protocol does not support listing</source>
         <translation>Ten protokół nie obsługuje wyświetlania zawartości</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>Ogólne</translation>
@@ -2766,7 +2763,7 @@ Kontynuować?</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster::CodepasterPlugin</name>
+    <name>CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>Wklejanie &amp;kodu</translation>
@@ -10989,9 +10986,6 @@ Dla projektów CMake, upewnij się, że zmienna QML_IMPORT_PATH jest obecna w CM
         <source>Code Pasting</source>
         <translation>Wklejanie kodu</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;Komentarz&gt;</translation>
@@ -12316,7 +12310,7 @@ które można ustawić poniżej.</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster::FileShareProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Nie można otworzyć %1: %2</translation>
@@ -12337,16 +12331,10 @@ które można ustawić poniżej.</translation>
         <source>Pasted: %1</source>
         <translation>Wklejono: %1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Fileshare</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - Błąd konfiguracji</translation>
@@ -13127,7 +13115,7 @@ Lista serwera: %2.</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster::NetworkProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>Checking connection</source>
         <translation>Sprawdzanie połączenia</translation>
@@ -19398,7 +19386,7 @@ Wykluczenia: %3
     </message>
 </context>
 <context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>Form</source>
         <translation>Formularz</translation>
@@ -19419,13 +19407,6 @@ Wykluczenia: %3
         <source>entries</source>
         <translation>wpisów</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>Formularz</translation>
-    </message>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; pozwala wysyłać fragmenty kodu do własnych poddomen (np. creator.pastebin.com). Podaj przedrostek serwera.</translation>
@@ -19438,9 +19419,6 @@ Wykluczenia: %3
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Uwaga: wtyczka użyje go zarówno do wysyłania jak i pobierania fragmentów kodu.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>Protokół:</translation>
@@ -19449,16 +19427,9 @@ Wykluczenia: %3
         <source>Paste:</source>
         <translation>Wklej:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>Wyślij do Codepaster</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>Protokół:</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -19508,9 +19479,6 @@ p, li { white-space: pre-wrap; }
         <source> Days</source>
         <translation> Dni</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Display Output pane after sending a post</source>
         <translation>Pokazuj panel z komunikatami po wysłaniu kodu</translation>
@@ -19526,14 +19494,6 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Default protocol:</source>
         <translation>Domyślny protokół:</translation>
-    </message>
-    <message>
-        <source>&amp;Expires after:</source>
-        <translation>Okr&amp;es ważności:</translation>
-    </message>
-    <message>
-        <source> Days</source>
-        <translation> Dni</translation>
     </message>
 </context>
 <context>
@@ -41850,18 +41810,11 @@ Błąd: %2</translation>
     </message>
 </context>
 <context>
-    <name>CodePaster::AuthenticationDialog</name>
-    <message>
-        <source>Username:</source>
-        <translation>Nazwa użytkownika:</translation>
-    </message>
+    <name>CodePaster</name>
     <message>
         <source>Password:</source>
         <translation>Hasło:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::KdePasteProtocol</name>
     <message>
         <source>Pasting to KDE paster needs authentication.&lt;br/&gt;Enter your KDE Identity credentials to continue.</source>
         <translation type="unfinished"></translation>

@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "stickynotespasteprotocol.h"
-#ifdef CPASTER_PLUGIN_GUI
-#endif
+
+#include "cpastertr.h"
 
 #include <coreplugin/icore.h>
 #include <utils/qtcassert.h>
@@ -21,7 +21,9 @@
 
 enum { debug = 0 };
 
-static inline QByteArray expiryParameter(int daysRequested)
+namespace CodePaster {
+
+static QByteArray expiryParameter(int daysRequested)
 {
     // Obtained by 'pastebin.kde.org/api/json/parameter/expire' on 26.03.2014
     static const int expiryTimesSec[] = {1800, 21600, 86400, 604800, 2592000, 31536000};
@@ -30,8 +32,6 @@ static inline QByteArray expiryParameter(int daysRequested)
     const int *match = std::lower_bound(expiryTimesSec, end - 1, 24 * 60 * 60 * daysRequested);
     return QByteArray("expire=") + QByteArray::number(*match);
 }
-
-namespace CodePaster {
 
 void StickyNotesPasteProtocol::setHostUrl(const QString &hostUrl)
 {
@@ -246,5 +246,4 @@ void StickyNotesPasteProtocol::listFinished()
     m_listReply = nullptr;
 }
 
-
-} // namespace CodePaster
+} // CodePaster

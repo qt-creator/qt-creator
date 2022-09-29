@@ -513,7 +513,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster::CodepasterPlugin</name>
+    <name>CodePaster</name>
     <message>
         <source>&amp;CodePaster</source>
         <translation></translation>
@@ -542,9 +542,6 @@
         <source>Waiting for items</source>
         <translation>Esperando items</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CustomFetcher</name>
     <message>
         <source>CodePaster Error</source>
         <translation type="obsolete">Error de CodePaster</translation>
@@ -553,20 +550,10 @@
         <source>Could not fetch code</source>
         <translation type="obsolete">No se pudo obtener el código</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CustomPoster</name>
-    <message>
-        <source>CodePaster Error</source>
-        <translation type="obsolete">Error de CodePaster</translation>
-    </message>
     <message>
         <source>Some error occured while posting</source>
         <translation type="obsolete">Ocurrió algún error mientras se enviaba el código</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Paste:</source>
         <translation>Pegar:</translation>
@@ -576,9 +563,6 @@
         <source>Protocol:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>CodePaster Server:</source>
         <translation type="obsolete">Servidor CodePaster:</translation>
@@ -12128,14 +12112,11 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CodePaster::CodePasterProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>No such paste</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterSettingsPage</name>
     <message>
         <source>CodePaster</source>
         <translation type="unfinished"></translation>

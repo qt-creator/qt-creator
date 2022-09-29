@@ -622,7 +622,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster::CodepasterPlugin</name>
+    <name>CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>粘贴代码(&amp;C)</translation>
@@ -672,25 +672,6 @@
         <translation>&quot;%1&quot;接收到空的片段。</translation>
     </message>
     <message>
-        <source>This protocol supports no listing</source>
-        <translation type="obsolete">此协议不支持listing</translation>
-    </message>
-    <message>
-        <source>Waiting for items</source>
-        <translation type="obsolete">等待数据项</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
-    <message>
-        <source>Paste:</source>
-        <translation type="obsolete">粘贴:</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation type="obsolete">协议:</translation>
-    </message>
-    <message>
         <source>Refresh</source>
         <translation>刷新</translation>
     </message>
@@ -701,13 +682,6 @@
     <message>
         <source>This protocol does not support listing</source>
         <translation>此协议不支持列表</translation>
-    </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
-    <message>
-        <source>Username:</source>
-        <translation type="obsolete">用户名:</translation>
     </message>
     <message>
         <source>Copy Paste URL to clipboard</source>
@@ -720,30 +694,6 @@
     <message>
         <source>General</source>
         <translation>概要</translation>
-    </message>
-    <message>
-        <source>CodePaster</source>
-        <translation type="obsolete">CodePaster</translation>
-    </message>
-    <message>
-        <source>Default Protocol:</source>
-        <translation type="obsolete">默认协议:</translation>
-    </message>
-    <message>
-        <source>Code Pasting</source>
-        <translation type="obsolete">代码粘贴</translation>
-    </message>
-    <message>
-        <source>Default protocol:</source>
-        <translation type="obsolete">默认协议:</translation>
-    </message>
-    <message>
-        <source>Display Output pane after sending a post</source>
-        <translation type="obsolete">发送后显示输出对话框</translation>
-    </message>
-    <message>
-        <source>Copy-paste URL to clipboard</source>
-        <translation type="obsolete">复制/粘帖URL到剪贴板</translation>
     </message>
 </context>
 <context>
@@ -17629,7 +17579,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>CodePaster::CodePasterProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
         <translation>在CodePaster首选项中没有定义服务器。</translation>
@@ -17642,9 +17592,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>No such paste</source>
         <translation>没有相关粘贴</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterSettingsPage</name>
     <message>
         <source>CodePaster</source>
         <translation>CodePaster</translation>
@@ -17652,10 +17599,6 @@ Will not be applied to whitespace in comments and strings.</source>
     <message>
         <source>&lt;i&gt;Note: Specify the host name for the CodePaster service without any protocol prepended (e.g. codepaster.mycompany.com).&lt;/i&gt;</source>
         <translation>&lt;i&gt;注意: 为CodePaster服务指定主机名，不包括任何协议前缀。(如 codepaster.mycompany.com).&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>Code Pasting</source>
-        <translation type="obsolete">代码粘贴</translation>
     </message>
     <message>
         <source>Server:</source>
@@ -22262,14 +22205,11 @@ Previous decimal signed value (big endian): %4</source>
     </message>
 </context>
 <context>
-    <name>CodePaster::PasteBinDotComSettings</name>
+    <name>CodePaster</name>
     <message>
         <source>Pastebin.com</source>
         <translation type="obsolete">Pastebin.com</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;注释&gt;</translation>
@@ -25494,30 +25434,6 @@ Preselects Qt for Simulator and mobile targets if available</source>
     </message>
 </context>
 <context>
-    <name>CodePaster::FileShareProtocolSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation type="obsolete">界面</translation>
-    </message>
-    <message>
-        <source>&amp;Path:</source>
-        <translation type="obsolete">路径(&amp;P):</translation>
-    </message>
-    <message>
-        <source>&amp;Display:</source>
-        <translation type="obsolete">显示(&amp;D):</translation>
-    </message>
-    <message>
-        <source>entries</source>
-        <translation type="obsolete">项</translation>
-    </message>
-    <message>
-        <source>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</source>
-        <translation type="obsolete">文件共享剪贴板允许在共享的驱动器上共享代码片段.
-文件永远不会被删除.</translation>
-    </message>
-</context>
-<context>
     <name>StartExternalQmlDialog</name>
     <message>
         <source>Start Simultaneous QML and C++ Debugging </source>
@@ -25757,7 +25673,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>CodePaster::FileShareProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>无法打开%1 : %2</translation>
@@ -25782,16 +25698,10 @@ with a password, which you can enter below.</source>
         <source>Pasted: %1</source>
         <translation>粘贴了 &quot;%1&quot;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>文件共享</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - 配置错误</translation>
@@ -27839,7 +27749,7 @@ Server list was %2.</source>
     </message>
 </context>
 <context>
-    <name>CodePaster::NetworkProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>Checking connection</source>
         <translation>正在检查连接</translation>
@@ -38744,7 +38654,7 @@ stderr was: %1</source>
     </message>
 </context>
 <context>
-    <name>CodePaster::PasteBinDotComProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>&lt;Unknown&gt;</source>
         <extracomment>Unknown user of paste.</extracomment>
@@ -41705,7 +41615,7 @@ This option is useful when you want to try your application on devices which don
     </message>
 </context>
 <context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>Form</source>
         <translation>界面</translation>
@@ -41726,13 +41636,6 @@ This option is useful when you want to try your application on devices which don
         <source>entries</source>
         <translation>项</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>界面</translation>
-    </message>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; 允许发送主题到自定义子域名，(比如. creator.pastebin.com)，请输入您希望的前缀。</translation>
@@ -41745,9 +41648,6 @@ This option is useful when you want to try your application on devices which don
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;注意: 插件将会使用它来获取和发布。&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>协议:</translation>
@@ -41756,16 +41656,9 @@ This option is useful when you want to try your application on devices which don
         <source>Paste:</source>
         <translation>粘贴:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>发送到CodePaster</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>协议:</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -41807,9 +41700,6 @@ p, li { white-space: pre-wrap; }
         <source>Patch 2</source>
         <translation>Patch 2</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Display Output pane after sending a post</source>
         <translation>发送后显示输出对话框</translation>

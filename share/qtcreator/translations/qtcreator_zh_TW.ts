@@ -346,7 +346,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster::CodepasterPlugin</name>
+    <name>CodePaster</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>貼上代碼(&amp;C)</translation>
@@ -395,9 +395,6 @@
         <source>Empty snippet received for &quot;%1&quot;.</source>
         <translation>接收到 &quot;%1&quot; 的空片段。</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Refresh</source>
         <translation>刷新</translation>
@@ -410,9 +407,6 @@
         <source>This protocol does not support listing</source>
         <translation>此協定不支援列表</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>一般</translation>
@@ -10709,7 +10703,7 @@ Will not be applied to whitespace in comments and strings.</source>
     </message>
 </context>
 <context>
-    <name>CodePaster::CodePasterProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
         <translation>在 CodePaster 喜好設定中沒有定義伺服器。</translation>
@@ -10722,9 +10716,6 @@ Will not be applied to whitespace in comments and strings.</source>
         <source>No such paste</source>
         <translation>沒有相關貼上內容</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterSettingsPage</name>
     <message>
         <source>CodePaster</source>
         <translation>CodePaster</translation>
@@ -13034,7 +13025,7 @@ For qmlproject projects, use the importPaths property to add import paths.</sour
     </message>
 </context>
 <context>
-    <name>CodePaster::PasteView</name>
+    <name>CodePaster</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;註解&gt;</translation>
@@ -14698,7 +14689,7 @@ with a password, which you can enter below.</source>
     </message>
 </context>
 <context>
-    <name>CodePaster::FileShareProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>無法開啟 %1：%2</translation>
@@ -14719,16 +14710,10 @@ with a password, which you can enter below.</source>
         <source>Pasted: %1</source>
         <translation>已貼上：%1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>檔案共享</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - 設置錯誤</translation>
@@ -16062,7 +16047,7 @@ Server list was %2.</source>
     </message>
 </context>
 <context>
-    <name>CodePaster::NetworkProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>Checking connection</source>
         <translation>正在檢查連線</translation>
@@ -26305,7 +26290,7 @@ Filter: %2
     </message>
 </context>
 <context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>Form</source>
         <translation>表單</translation>
@@ -26327,13 +26312,6 @@ Filter: %2
         <source>entries</source>
         <translation>條目</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
-    <message>
-        <source>Form</source>
-        <translation>表單</translation>
-    </message>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation type="unfinished">&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; 允許傳送主題到自定義子域名，(比如. creator.pastebin.com). 輸入你希望的前綴.</translation>
@@ -26346,9 +26324,6 @@ Filter: %2
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;注意：外掛程式將會使用此項來發佈與抓取。&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>協定：</translation>
@@ -26357,16 +26332,9 @@ Filter: %2
         <source>Paste:</source>
         <translation>貼上：</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>傳送至 CodePaster</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>協定：</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -26408,9 +26376,6 @@ p, li { white-space: pre-wrap; }
         <source>Patch 2</source>
         <translation>Patch 2</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Display Output pane after sending a post</source>
         <translation>發送後顯示輸出窗格</translation>

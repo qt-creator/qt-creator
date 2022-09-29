@@ -9,7 +9,6 @@ namespace CodePaster {
 
 class UrlOpenProtocol : public NetworkProtocol
 {
-    Q_OBJECT
 public:
     QString name() const override;
     unsigned capabilities() const override;
@@ -22,4 +21,4 @@ private:
     QNetworkReply *m_fetchReply = nullptr;
 };
 
-} // namespace CodePaster
+} // CodePaster

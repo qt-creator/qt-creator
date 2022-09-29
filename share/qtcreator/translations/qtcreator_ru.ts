@@ -8351,9 +8351,6 @@ Set a valid executable first.</source>
         <source>Code Pasting</source>
         <translation>Вставка кода</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodepasterPlugin</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>Вставка &amp;Кода</translation>
@@ -8398,16 +8395,10 @@ Set a valid executable first.</source>
         <source>Empty snippet received for &quot;%1&quot;.</source>
         <translation>Для «%1» получен пустой фрагмент.</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::DPasteDotComProtocol</name>
     <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocol</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Не удалось открыть %1: %2</translation>
@@ -8428,16 +8419,10 @@ Set a valid executable first.</source>
         <source>Pasted: %1</source>
         <translation>Вставлен: %1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Общие файлы</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
     <message>
         <source>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</source>
         <translation>Протокол на базе общих файлов позволяет публиковать фрагменты кода используя обычные файлы на общем сетевом диске. Файлы никогда не удаляются.</translation>
@@ -8454,9 +8439,6 @@ Set a valid executable first.</source>
         <source>entries</source>
         <translation> записей</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; позволяет отправлять данные на пользовательские субдомены (например, creator.pastebin.com). Поэтому укажите желаемый префикс.</translation>
@@ -8469,9 +8451,6 @@ Set a valid executable first.</source>
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Модуль будет использовать префикс, как для отправки, так и для получения.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>Протокол:</translation>
@@ -8480,9 +8459,6 @@ Set a valid executable first.</source>
         <source>Paste:</source>
         <translation>Вставить:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Display Output pane after sending a post</source>
         <translation>Отправив данные, показать окно вывода</translation>
@@ -8511,16 +8487,9 @@ Set a valid executable first.</source>
         <source>Make pasted content public by default</source>
         <translation>По умолчанию публиковать вставляемую информацию</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>Отправить в Codepaster</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>Протокол:</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -8561,20 +8530,9 @@ p, li { white-space: pre-wrap; }
         <translation></translation>
     </message>
     <message>
-        <source>&amp;Expires after:</source>
-        <translation>&amp;Истекает через:</translation>
-    </message>
-    <message>
-        <source> Days</source>
-        <translation> дней</translation>
-    </message>
-    <message>
         <source>Make public:</source>
         <translation>Публиковать:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::NetworkProtocol</name>
     <message>
         <source>Checking connection</source>
         <translation>Проверка соединения</translation>
@@ -8583,9 +8541,6 @@ p, li { white-space: pre-wrap; }
         <source>Connecting to %1...</source>
         <translation>Подключение к %1...</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Refresh</source>
         <translation>Обновить</translation>
@@ -8598,9 +8553,6 @@ p, li { white-space: pre-wrap; }
         <source>This protocol does not support listing</source>
         <translation>Данный протокол не поддерживает получение списка</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>Paste</source>
         <translation>Вставить</translation>
@@ -8609,16 +8561,10 @@ p, li { white-space: pre-wrap; }
         <source>&lt;Comment&gt;</source>
         <translation>&lt;Комментарий&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 - ошибка конфигурации</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>Основное</translation>

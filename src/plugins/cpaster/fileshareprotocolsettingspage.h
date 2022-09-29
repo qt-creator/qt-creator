@@ -11,8 +11,6 @@ namespace CodePaster {
 
 class FileShareProtocolSettings : public Utils::AspectContainer
 {
-    Q_DECLARE_TR_FUNCTIONS(CodePaster::FileShareProtocolSettings)
-
 public:
     FileShareProtocolSettings();
 
@@ -26,4 +24,4 @@ public:
     explicit FileShareProtocolSettingsPage(FileShareProtocolSettings *settings);
 };
 
-} // namespace CodePaster
+} // CodePaster

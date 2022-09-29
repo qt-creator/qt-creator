@@ -3,6 +3,8 @@
 
 #include "dpastedotcomprotocol.h"
 
+#include "cpastertr.h"
+
 #include <coreplugin/messagemanager.h>
 
 #include <QNetworkReply>
@@ -124,8 +126,8 @@ bool DPasteDotComProtocol::checkConfiguration(QString * /*errorMessage*/)
 
 void DPasteDotComProtocol::reportError(const QString &message)
 {
-    const QString fullMessage = tr("%1: %2").arg(protocolName(), message);
+    const QString fullMessage = Tr::tr("%1: %2").arg(protocolName(), message);
     Core::MessageManager::writeDisrupting(fullMessage);
 }
 
-} // namespace CodePaster
+} // CodePaster

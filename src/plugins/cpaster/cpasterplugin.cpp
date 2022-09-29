@@ -3,6 +3,7 @@
 
 #include "cpasterplugin.h"
 
+#include "cpastertr.h"
 #include "dpastedotcomprotocol.h"
 #include "fileshareprotocol.h"
 #include "pastebindotcomprotocol.h"
@@ -44,8 +45,6 @@ namespace CodePaster {
 
 class CodePasterPluginPrivate : public QObject
 {
-    Q_DECLARE_TR_FUNCTIONS(CodePaster::CodepasterPlugin)
-
 public:
     CodePasterPluginPrivate();
 
@@ -149,24 +148,24 @@ CodePasterPluginPrivate::CodePasterPluginPrivate()
     ActionContainer *toolsContainer = ActionManager::actionContainer(Core::Constants::M_TOOLS);
 
     ActionContainer *cpContainer = ActionManager::createMenu("CodePaster");
-    cpContainer->menu()->setTitle(tr("&Code Pasting"));
+    cpContainer->menu()->setTitle(Tr::tr("&Code Pasting"));
     toolsContainer->addMenu(cpContainer);
 
     Command *command;
 
-    m_postEditorAction = new QAction(tr("Paste Snippet..."), this);
+    m_postEditorAction = new QAction(Tr::tr("Paste Snippet..."), this);
     command = ActionManager::registerAction(m_postEditorAction, "CodePaster.Post");
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+C,Meta+P") : tr("Alt+C,Alt+P")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+C,Meta+P") : Tr::tr("Alt+C,Alt+P")));
     connect(m_postEditorAction, &QAction::triggered, this, &CodePasterPluginPrivate::pasteSnippet);
     cpContainer->addAction(command);
 
-    m_fetchAction = new QAction(tr("Fetch Snippet..."), this);
+    m_fetchAction = new QAction(Tr::tr("Fetch Snippet..."), this);
     command = ActionManager::registerAction(m_fetchAction, "CodePaster.Fetch");
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? tr("Meta+C,Meta+F") : tr("Alt+C,Alt+F")));
+    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+C,Meta+F") : Tr::tr("Alt+C,Alt+F")));
     connect(m_fetchAction, &QAction::triggered, this, &CodePasterPluginPrivate::fetch);
     cpContainer->addAction(command);
 
-    m_fetchUrlAction = new QAction(tr("Fetch from URL..."), this);
+    m_fetchUrlAction = new QAction(Tr::tr("Fetch from URL..."), this);
     command = ActionManager::registerAction(m_fetchUrlAction, "CodePaster.FetchUrl");
     connect(m_fetchUrlAction, &QAction::triggered, this, &CodePasterPluginPrivate::fetchUrl);
     cpContainer->addAction(command);
@@ -268,7 +267,7 @@ void CodePasterPluginPrivate::fetchUrl()
     QUrl url;
     do {
         bool ok = true;
-        url = QUrl(QInputDialog::getText(ICore::dialogParent(), tr("Fetch from URL"), tr("Enter URL:"), QLineEdit::Normal, QString(), &ok));
+        url = QUrl(QInputDialog::getText(ICore::dialogParent(), Tr::tr("Fetch from URL"), Tr::tr("Enter URL:"), QLineEdit::Normal, QString(), &ok));
         if (!ok)
             return;
     } while (!url.isValid());
@@ -357,7 +356,7 @@ void CodePasterPluginPrivate::finishFetch(const QString &titleDescription,
     }
     if (content.isEmpty()) {
         MessageManager::writeDisrupting(
-            tr("Empty snippet received for \"%1\".").arg(titleDescription));
+            Tr::tr("Empty snippet received for \"%1\".").arg(titleDescription));
         return;
     }
     // If the mime type has a preferred suffix (cpp/h/patch...), use that for

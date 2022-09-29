@@ -19,7 +19,6 @@ class Protocol;
 
 class PasteSelectDialog : public QDialog
 {
-    Q_OBJECT
 public:
     explicit PasteSelectDialog(const QList<Protocol*> &protocols,
                                QWidget *parent = nullptr);

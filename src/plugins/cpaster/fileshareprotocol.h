@@ -15,8 +15,6 @@ class FileShareProtocolSettingsPage;
 
 class FileShareProtocol : public Protocol
 {
-    Q_OBJECT
-
 public:
     FileShareProtocol();
     ~FileShareProtocol() override;
@@ -40,4 +38,4 @@ private:
     FileShareProtocolSettingsPage *m_settingsPage;
 };
 
-} // namespace CodePaster
+} // CodePaster

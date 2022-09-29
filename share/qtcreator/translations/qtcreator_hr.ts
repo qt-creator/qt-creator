@@ -2939,7 +2939,7 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
     </message>
 </context>
 <context>
-    <name>CodePaster::Internal::FileShareProtocolSettingsWidget</name>
+    <name>CodePaster</name>
     <message>
         <source>The fileshare-based paster protocol allows for sharing code snippets using simple files on a shared network drive. Files are never deleted.</source>
         <translation>Protokol lijepljenja temeljen na programu za zajedničko korištenje datoteka, omogućuje dijeljenje isječaka kȏda pomoću jednostavnih datoteka na zajedničkom mrežnom pogonu. Datoteke se nikad ne brišu.</translation>
@@ -2956,9 +2956,6 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
         <source>entries</source>
         <translation>unosa</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteBinComSettingsWidget</name>
     <message>
         <source>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; allows for sending posts to custom subdomains (eg. creator.pastebin.com). Fill in the desired prefix.</source>
         <translation>&lt;a href=&quot;http://pastebin.com&quot;&gt;pastebin.com&lt;/a&gt; omogućuje slanje članaka na prilagođene poddomene (npr. creator.pastebin.com). Unesi željeni prefiks.</translation>
@@ -2971,9 +2968,6 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
         <source>&lt;i&gt;Note: The plugin will use this for posting as well as fetching.&lt;/i&gt;</source>
         <translation>&lt;i&gt;Napomena: Dodatak će koristiti prefiks za slanje i za dohvaćanje.&lt;/i&gt;</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>Protokol:</translation>
@@ -2982,16 +2976,9 @@ Za to upiši ovaj prečac i jedan razmak u polje za unos mjesta, a zatim riječ 
         <source>Paste:</source>
         <translation>Zalijepi:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::ViewDialog</name>
     <message>
         <source>Send to Codepaster</source>
         <translation>Pošalji na Codepaster</translation>
-    </message>
-    <message>
-        <source>Protocol:</source>
-        <translation>Protokol:</translation>
     </message>
     <message>
         <source>&amp;Username:</source>
@@ -3041,9 +3028,6 @@ p, li { white-space: pre-wrap; }
         <source>Patch 2</source>
         <translation>Zakrpa 2</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Internal::SettingsPage</name>
     <message>
         <source>Copy-paste URL to clipboard</source>
         <translation>Kopiraj-zalijepi URL u međuspremnik</translation>
@@ -3053,20 +3037,12 @@ p, li { white-space: pre-wrap; }
         <translation>Zadani protokol:</translation>
     </message>
     <message>
-        <source>&amp;Expires after:</source>
-        <translation>&amp;Isteći će nakon:</translation>
-    </message>
-    <message>
         <source>Display Output pane after sending a post</source>
         <translation>Pirkaži ploču izrade nakon slanja članka</translation>
     </message>
     <message>
         <source>Username:</source>
         <translation>Korisničko ime:</translation>
-    </message>
-    <message>
-        <source> Days</source>
-        <translation> dana</translation>
     </message>
 </context>
 <context>
@@ -20454,18 +20430,11 @@ u kontrolu verzija (%2)
     </message>
 </context>
 <context>
-    <name>CodePaster::AuthenticationDialog</name>
-    <message>
-        <source>Username:</source>
-        <translation>Korisničko ime:</translation>
-    </message>
+    <name>CodePaster</name>
     <message>
         <source>Password:</source>
         <translation>Lozinka:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodepasterPlugin</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Lijepljenje kȏda</translation>
@@ -20510,9 +20479,6 @@ u kontrolu verzija (%2)
         <source>Empty snippet received for &quot;%1&quot;.</source>
         <translation>Dobiven je prazan isječak za &quot;%1&quot;.</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocol</name>
     <message>
         <source>Cannot open %1: %2</source>
         <translation>Nije moguće otvoriti %1: %2</translation>
@@ -20533,16 +20499,10 @@ u kontrolu verzija (%2)
         <source>Pasted: %1</source>
         <translation>Zalijepljeno: %1</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::FileShareProtocolSettingsPage</name>
     <message>
         <source>Fileshare</source>
         <translation>Dijeljenje datoteka</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::KdePasteProtocol</name>
     <message>
         <source>Pasting to KDE paster needs authentication.&lt;br/&gt;Enter your KDE Identity credentials to continue.</source>
         <translation>Za lijepljenje u KDE paster je potrebna autenticikacija.&lt;br/&gt;Upiši tvoje podatke za KDE identifikaciju za nastavljanje.</translation>
@@ -20551,16 +20511,10 @@ u kontrolu verzija (%2)
         <source>Login failed</source>
         <translation>Neuspjela prijava</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteCodeDotXyzProtocol</name>
     <message>
         <source>%1: %2</source>
         <translation>%1: %2</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Refresh</source>
         <translation>Aktualiziraj</translation>
@@ -20573,9 +20527,6 @@ u kontrolu verzija (%2)
         <source>This protocol does not support listing</source>
         <translation>Ovaj protokol ne podržava popis</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteView</name>
     <message>
         <source>&lt;Comment&gt;</source>
         <translation>&lt;Komentar&gt;</translation>
@@ -20584,16 +20535,10 @@ u kontrolu verzija (%2)
         <source>Paste</source>
         <translation>Zalijepi</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::Protocol</name>
     <message>
         <source>%1 - Configuration Error</source>
         <translation>%1 – Greška u konfiguraciji</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::NetworkProtocol</name>
     <message>
         <source>Pasting needs authentication.&lt;br/&gt;Enter your identity credentials to continue.</source>
         <translation>Za lijepljenje je potrebna autenticikacija.&lt;br/&gt;Upiši tvoje podatke za identifikaciju za nastavljanje.</translation>
@@ -20610,16 +20555,10 @@ u kontrolu verzija (%2)
         <source>Connecting to %1...</source>
         <translation>Povezivanje na %1 …</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>Opće</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster</name>
     <message>
         <source>Code Pasting</source>
         <translation>Lijepljenje kȏda</translation>

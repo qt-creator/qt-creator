@@ -531,7 +531,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster::CodepasterPlugin</name>
+    <name>CodePaster</name>
     <message>
         <source>&amp;CodePaster</source>
         <translation>&amp;CodePaster</translation>
@@ -560,9 +560,6 @@
         <source>Waiting for items</source>
         <translation>Sto aspettando gli elementi</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CustomFetcher</name>
     <message>
         <source>CodePaster Error</source>
         <translation type="obsolete">Errore CodePaster</translation>
@@ -571,20 +568,10 @@
         <source>Could not fetch code</source>
         <translation type="obsolete">Non riesco a caricare il codice</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CustomPoster</name>
-    <message>
-        <source>CodePaster Error</source>
-        <translation type="obsolete">Errore CodePaster</translation>
-    </message>
     <message>
         <source>Some error occured while posting</source>
         <translation type="obsolete">C&apos;è stato un errore nella spedizione</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Paste:</source>
         <translation>Incolla:</translation>
@@ -594,9 +581,6 @@
         <source>Protocol:</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>CodePaster Server:</source>
         <translation type="obsolete">Server CodePaster:</translation>
@@ -11981,14 +11965,11 @@ p, li { white-space: pre-wrap; }
     </message>
 </context>
 <context>
-    <name>CodePaster::CodePasterProtocol</name>
+    <name>CodePaster</name>
     <message>
         <source>No such paste</source>
         <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterSettingsPage</name>
     <message>
         <source>CodePaster</source>
         <translation type="unfinished">CodePaster</translation>

@@ -853,7 +853,7 @@
     </message>
 </context>
 <context>
-    <name>CodePaster::0</name>
+    <name>CodePaster</name>
     <message>
         <source>&amp;CodePaster</source>
         <translation type="obsolete">&amp;KódBeillesztő</translation>
@@ -918,9 +918,6 @@
         <source>CodePaster</source>
         <translation type="obsolete">KódBeillesztés</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterProtocol</name>
     <message>
         <source>No Server defined in the CodePaster preferences.</source>
         <translation>Nincsen szerver definiálva a KódBeillesztő beállításokban.</translation>
@@ -933,9 +930,6 @@
         <source>No such paste</source>
         <translation>Nincs ilyen beillesztés</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodePasterSettingsPage</name>
     <message>
         <source>CodePaster</source>
         <translation>KódBeillesztés</translation>
@@ -952,9 +946,6 @@
         <source>Note: Specify the host name for the CodePaster service without any protocol prepended (e.g. codepaster.mycompany.com).</source>
         <translation>Megjegyzés: Határozza meg a hosz nevet a KódBeillesztő szolgáltatás számára. (például codepaster.mycompany.com).</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::CodepasterPlugin</name>
     <message>
         <source>&amp;Code Pasting</source>
         <translation>&amp;Kód beillesztés</translation>
@@ -983,9 +974,6 @@
         <source>Waiting for items</source>
         <translation>Elemekre várakozás</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::PasteSelectDialog</name>
     <message>
         <source>Protocol:</source>
         <translation>Protokoll:</translation>
@@ -994,9 +982,6 @@
         <source>Paste:</source>
         <translation>Beillesztés:</translation>
     </message>
-</context>
-<context>
-    <name>CodePaster::SettingsPage</name>
     <message>
         <source>General</source>
         <translation>Általános</translation>
@@ -1004,10 +989,6 @@
     <message>
         <source>Default Protocol:</source>
         <translation>Alapértelmezett protokoll:</translation>
-    </message>
-    <message>
-        <source>CodePaster</source>
-        <translation>KódBeillesztés</translation>
     </message>
     <message>
         <source>Pastebin.ca</source>
@@ -1028,10 +1009,6 @@
     <message>
         <source>Display Output Pane after sending a post</source>
         <translation>Kimeneti panel kijelzése egy küldés után</translation>
-    </message>
-    <message>
-        <source>Code Pasting</source>
-        <translation>Kód beillesztés</translation>
     </message>
 </context>
 <context>
