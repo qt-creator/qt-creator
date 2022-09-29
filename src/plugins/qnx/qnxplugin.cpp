@@ -160,11 +160,12 @@ void QnxPlugin::extensionsInitialized()
 
 void QnxPluginPrivate::updateDebuggerActions()
 {
-    const bool hasValidQnxKit = KitManager::kit([](const Kit *kit) {
-        return kit->isValid()
-                && DeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
-                && !DeviceKitAspect::device(kit).isNull();
-    }) != nullptr;
+    auto isQnxKit = [](const Kit *kit) {
+        return DeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
+               && !DeviceKitAspect::device(kit).isNull() && kit->isValid();
+    };
+
+    const bool hasValidQnxKit = KitManager::kit(isQnxKit) != nullptr;
 
     m_attachToQnxApplication.setVisible(hasValidQnxKit);
     m_debugSeparator->setVisible(hasValidQnxKit);
