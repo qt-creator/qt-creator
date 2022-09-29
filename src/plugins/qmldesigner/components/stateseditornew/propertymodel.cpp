@@ -114,6 +114,7 @@ void PropertyModel::setModelNodeBackend(const QVariant &modelNodeBackend)
 
     setupModel();
     emit modelNodeBackendChanged();
+    emit expandedChanged();
 }
 
 void PropertyModel::setExplicit(bool value)
@@ -144,6 +145,25 @@ void PropertyModel::removeProperty(const QString &name)
         return;
 
     m_modelNode.removeProperty(name.toUtf8());
+}
+
+void PropertyModel::setExpanded(bool value)
+{
+    if (!m_modelNode.isValid() || !m_modelNode.view()->isAttached())
+        return;
+
+    if (value)
+        m_modelNode.setAuxiliaryData("expanded@Internal", value);
+    else
+        m_modelNode.removeAuxiliaryData("expanded@Internal");
+}
+
+bool PropertyModel::expanded() const
+{
+    if (!m_modelNode.isValid() || !m_modelNode.view()->isAttached())
+        return false;
+
+    return m_modelNode.hasAuxiliaryData("expanded@Internal");
 }
 
 void PropertyModel::registerDeclarativeType()

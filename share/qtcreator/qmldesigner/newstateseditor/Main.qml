@@ -659,7 +659,7 @@ Rectangle {
                                 required property var extendString
 
                                 function setPropertyChangesVisible(value) {
-                                    stateThumbnail.propertyChangesVisible = value
+                                    stateThumbnail.setPropertyChangesVisible(value)
                                 }
 
                                 width: Constants.thumbnailSize

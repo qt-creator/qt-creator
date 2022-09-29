@@ -123,6 +123,7 @@ void PropertyChangesModel::setModelNodeBackend(const QVariant &modelNodeBackend)
         m_view->registerPropertyChangesModel(this);
 
     emit modelNodeBackendChanged();
+    emit propertyChangesVisibleChanged();
 }
 
 void PropertyChangesModel::reset()
@@ -136,6 +137,25 @@ void PropertyChangesModel::reset()
 int PropertyChangesModel::count() const
 {
     return rowCount();
+}
+
+void PropertyChangesModel::setPropertyChangesVisible(bool value)
+{
+    if (!m_modelNode.isValid() || !m_modelNode.view()->isAttached())
+        return;
+
+    if (value)
+        m_modelNode.setAuxiliaryData("propertyChangesVisible@Internal", value);
+    else
+        m_modelNode.removeAuxiliaryData("propertyChangesVisible@Internal");
+}
+
+bool PropertyChangesModel::propertyChangesVisible() const
+{
+    if (!m_modelNode.isValid() || !m_modelNode.view()->isAttached())
+        return false;
+
+    return m_modelNode.hasAuxiliaryData("propertyChangesVisible@Internal");
 }
 
 void PropertyChangesModel::registerDeclarativeType()
