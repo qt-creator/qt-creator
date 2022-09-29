@@ -5,7 +5,7 @@
 #include "customwidgetwidgetswizardpage.h"
 #include "customwidgetpluginwizardpage.h"
 #include "pluginoptions.h"
-#include "qmakeprojectmanagertr.h"
+#include "../qmakeprojectmanagertr.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
