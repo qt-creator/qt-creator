@@ -2491,6 +2491,9 @@ bool NodeMetaInfo::isQmlComponent() const
         using namespace Storage::Info;
         return isBasedOnCommonType<QML, Component>(m_projectStorage, m_typeId);
     } else {
+        if (!isValid())
+            return false;
+
         auto type = m_privateData->qualfiedTypeName();
 
         return type == "Component" || type == "Qt.Component" || type == "QtQuick.Component"
