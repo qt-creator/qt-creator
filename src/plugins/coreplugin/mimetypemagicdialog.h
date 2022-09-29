@@ -3,12 +3,24 @@
 
 #pragma once
 
-#include "ui_mimetypemagicdialog.h"
-
 #include <utils/mimeutils.h>
 
-namespace Core {
-namespace Internal {
+#include <QtCore/QVariant>
+#include <QtWidgets/QAbstractButton>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QComboBox>
+#include <QtWidgets/QDialog>
+#include <QtWidgets/QDialogButtonBox>
+#include <QtWidgets/QGridLayout>
+#include <QtWidgets/QGroupBox>
+#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
+#include <QtWidgets/QSpacerItem>
+#include <QtWidgets/QSpinBox>
+#include <QtWidgets/QVBoxLayout>
+
+namespace Core::Internal {
 
 class MagicData
 {
@@ -48,13 +60,24 @@ private:
     void validateAccept();
     Utils::MimeMagicRule createRule(QString *errorMessage = nullptr) const;
 
-    Ui::MimeTypeMagicDialog ui;
     int m_customRangeStart = 0;
     int m_customRangeEnd = 0;
     int m_customPriority = 50;
+
+    QLineEdit *m_valueLineEdit;
+    QComboBox *m_typeSelector;
+    QLineEdit *m_maskLineEdit;
+    QGroupBox *m_useRecommendedGroupBox;
+    QLabel *m_noteLabel;
+    QLabel *m_startRangeLabel;
+    QLabel *m_endRangeLabel;
+    QLabel *m_priorityLabel;
+    QSpinBox *m_prioritySpinBox;
+    QSpinBox *m_startRangeSpinBox;
+    QSpinBox *m_endRangeSpinBox;
+    QSpacerItem *verticalSpacer;
 };
 
-} // Internal
-} // Core
+} // Core::Internal
 
 Q_DECLARE_METATYPE(Core::Internal::MagicData)

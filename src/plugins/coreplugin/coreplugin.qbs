@@ -123,7 +123,6 @@ Project {
                 "messageoutputwindow.h",
                 "mimetypemagicdialog.cpp",
                 "mimetypemagicdialog.h",
-                "mimetypemagicdialog.ui",
                 "mimetypesettings.cpp",
                 "mimetypesettings.h",
                 "minisplitter.cpp",

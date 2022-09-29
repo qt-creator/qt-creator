@@ -127,7 +127,7 @@ add_qtc_plugin(Core
     messagebox.cpp messagebox.h
     messagemanager.cpp messagemanager.h
     messageoutputwindow.cpp messageoutputwindow.h
-    mimetypemagicdialog.cpp mimetypemagicdialog.h mimetypemagicdialog.ui
+    mimetypemagicdialog.cpp mimetypemagicdialog.h
     mimetypesettings.cpp mimetypesettings.h
     minisplitter.cpp minisplitter.h
     modemanager.cpp modemanager.h

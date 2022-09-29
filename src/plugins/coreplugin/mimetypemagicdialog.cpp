@@ -6,74 +6,152 @@
 #include "icore.h"
 
 #include <utils/headerviewstretcher.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 #include <QDesktopServices>
 #include <QMessageBox>
 #include <QUrl>
 
-using namespace Core;
-using namespace Internal;
+using namespace Utils;
 
-static Utils::MimeMagicRule::Type typeValue(int i)
+namespace Core::Internal {
+
+static MimeMagicRule::Type typeValue(int i)
 {
-    QTC_ASSERT(i < Utils::MimeMagicRule::Byte,
-               return Utils::MimeMagicRule::Invalid);
-    return Utils::MimeMagicRule::Type(i + 1/*0==invalid*/);
+    QTC_ASSERT(i < MimeMagicRule::Byte, return MimeMagicRule::Invalid);
+    return MimeMagicRule::Type(i + 1/*0==invalid*/);
 }
 
 MimeTypeMagicDialog::MimeTypeMagicDialog(QWidget *parent) :
     QDialog(parent)
 {
-    ui.setupUi(this);
+    resize(582, 419);
     setWindowTitle(tr("Add Magic Header"));
-    connect(ui.useRecommendedGroupBox, &QGroupBox::toggled,
+
+    auto informationLabel = new QLabel;
+    informationLabel->setText(tr("<html><head/><body><p>MIME magic data is interpreted as defined "
+         "by the Shared MIME-info Database specification from "
+         "<a href=\"http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html\">"
+         "freedesktop.org</a>.<hr/></p></body></html>"));  // FIXME: Simplify for translators
+    informationLabel->setWordWrap(true);
+
+    m_valueLineEdit = new QLineEdit;
+
+    m_typeSelector = new QComboBox;
+    m_typeSelector->addItem(tr("String"));
+    m_typeSelector->addItem(tr("RegExp"));
+    m_typeSelector->addItem(tr("Host16"));
+    m_typeSelector->addItem(tr("Host32"));
+    m_typeSelector->addItem(tr("Big16"));
+    m_typeSelector->addItem(tr("Big32"));
+    m_typeSelector->addItem(tr("Little16"));
+    m_typeSelector->addItem(tr("Little32"));
+    m_typeSelector->addItem(tr("Byte"));
+
+    m_maskLineEdit = new QLineEdit;
+
+    m_useRecommendedGroupBox = new QGroupBox(tr("Use Recommended"));
+    m_useRecommendedGroupBox->setCheckable(true);
+
+    m_noteLabel = new QLabel(tr("<html><head/><body><p><span style=\" font-style:italic;\">"
+                            "Note: Wide range values might impact performance when opening "
+                            "files.</span></p></body></html>"));
+    m_noteLabel->setTextFormat(Qt::RichText);
+
+    m_startRangeLabel = new QLabel(tr("Range start:"));
+
+    m_endRangeLabel = new QLabel(tr("Range end:"));
+
+    m_priorityLabel = new QLabel(tr("Priority:"));
+
+    m_prioritySpinBox = new QSpinBox(m_useRecommendedGroupBox);
+    m_prioritySpinBox->setMinimum(1);
+    m_prioritySpinBox->setValue(50);
+
+    m_startRangeSpinBox = new QSpinBox(m_useRecommendedGroupBox);
+    m_startRangeSpinBox->setMaximum(9999);
+
+    m_endRangeSpinBox = new QSpinBox(m_useRecommendedGroupBox);
+    m_endRangeSpinBox->setMaximum(9999);
+
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+
+    using namespace Utils::Layouting;
+
+    Column {
+        Form {
+            m_startRangeLabel, m_startRangeSpinBox, br,
+            m_endRangeLabel, m_endRangeSpinBox, br,
+            m_priorityLabel,  m_prioritySpinBox, br,
+        },
+        m_noteLabel
+    }.attachTo(m_useRecommendedGroupBox);
+
+    Column {
+        informationLabel,
+        Form {
+            tr("Value:"), m_valueLineEdit, br,
+            tr("Type:"), m_typeSelector, st, br,
+            tr("Mask:"), m_maskLineEdit, br
+        },
+        m_useRecommendedGroupBox,
+        st,
+        buttonBox
+    }.attachTo(this);
+
+    connect(m_useRecommendedGroupBox, &QGroupBox::toggled,
             this, &MimeTypeMagicDialog::applyRecommended);
-    connect(ui.buttonBox, &QDialogButtonBox::accepted, this, &MimeTypeMagicDialog::validateAccept);
-    connect(ui.informationLabel, &QLabel::linkActivated, this, [](const QString &link) {
+    connect(buttonBox, &QDialogButtonBox::accepted,
+            this, &MimeTypeMagicDialog::validateAccept);
+    connect(buttonBox, &QDialogButtonBox::rejected,
+            this, &QDialog::reject);
+
+    connect(informationLabel, &QLabel::linkActivated, this, [](const QString &link) {
         QDesktopServices::openUrl(QUrl(link));
     });
-    connect(ui.typeSelector, &QComboBox::activated, this, [this] {
-        if (ui.useRecommendedGroupBox->isChecked())
+    connect(m_typeSelector, &QComboBox::activated, this, [this] {
+        if (m_useRecommendedGroupBox->isChecked())
             setToRecommendedValues();
     });
-    ui.valueLineEdit->setFocus();
+    applyRecommended(m_useRecommendedGroupBox->isChecked());
+    m_valueLineEdit->setFocus();
 }
 
 void MimeTypeMagicDialog::setToRecommendedValues()
 {
-    ui.startRangeSpinBox->setValue(0);
-    ui.endRangeSpinBox->setValue(ui.typeSelector->currentIndex() == 1/*regexp*/ ? 200 : 0);
-    ui.prioritySpinBox->setValue(50);
+    m_startRangeSpinBox->setValue(0);
+    m_endRangeSpinBox->setValue(m_typeSelector->currentIndex() == 1/*regexp*/ ? 200 : 0);
+    m_prioritySpinBox->setValue(50);
 }
 
 void MimeTypeMagicDialog::applyRecommended(bool checked)
 {
     if (checked) {
         // save previous custom values
-        m_customRangeStart = ui.startRangeSpinBox->value();
-        m_customRangeEnd = ui.endRangeSpinBox->value();
-        m_customPriority = ui.prioritySpinBox->value();
+        m_customRangeStart = m_startRangeSpinBox->value();
+        m_customRangeEnd = m_endRangeSpinBox->value();
+        m_customPriority = m_prioritySpinBox->value();
         setToRecommendedValues();
     } else {
         // restore previous custom values
-        ui.startRangeSpinBox->setValue(m_customRangeStart);
-        ui.endRangeSpinBox->setValue(m_customRangeEnd);
-        ui.prioritySpinBox->setValue(m_customPriority);
+        m_startRangeSpinBox->setValue(m_customRangeStart);
+        m_endRangeSpinBox->setValue(m_customRangeEnd);
+        m_prioritySpinBox->setValue(m_customPriority);
     }
-    ui.startRangeLabel->setEnabled(!checked);
-    ui.startRangeSpinBox->setEnabled(!checked);
-    ui.endRangeLabel->setEnabled(!checked);
-    ui.endRangeSpinBox->setEnabled(!checked);
-    ui.priorityLabel->setEnabled(!checked);
-    ui.prioritySpinBox->setEnabled(!checked);
-    ui.noteLabel->setEnabled(!checked);
+    m_startRangeLabel->setEnabled(!checked);
+    m_startRangeSpinBox->setEnabled(!checked);
+    m_endRangeLabel->setEnabled(!checked);
+    m_endRangeSpinBox->setEnabled(!checked);
+    m_priorityLabel->setEnabled(!checked);
+    m_prioritySpinBox->setEnabled(!checked);
+    m_noteLabel->setEnabled(!checked);
 }
 
 void MimeTypeMagicDialog::validateAccept()
 {
     QString errorMessage;
-    Utils::MimeMagicRule rule = createRule(&errorMessage);
+    MimeMagicRule rule = createRule(&errorMessage);
     if (rule.isValid())
         accept();
     else
@@ -82,21 +160,20 @@ void MimeTypeMagicDialog::validateAccept()
 
 void MimeTypeMagicDialog::setMagicData(const MagicData &data)
 {
-    ui.valueLineEdit->setText(QString::fromUtf8(data.m_rule.value()));
-    ui.typeSelector->setCurrentIndex(data.m_rule.type() - 1/*0 == invalid*/);
-    ui.maskLineEdit->setText(QString::fromLatin1(MagicData::normalizedMask(data.m_rule)));
-    ui.useRecommendedGroupBox->setChecked(false); // resets values
-    ui.startRangeSpinBox->setValue(data.m_rule.startPos());
-    ui.endRangeSpinBox->setValue(data.m_rule.endPos());
-    ui.prioritySpinBox->setValue(data.m_priority);
+    m_valueLineEdit->setText(QString::fromUtf8(data.m_rule.value()));
+    m_typeSelector->setCurrentIndex(data.m_rule.type() - 1/*0 == invalid*/);
+    m_maskLineEdit->setText(QString::fromLatin1(MagicData::normalizedMask(data.m_rule)));
+    m_useRecommendedGroupBox->setChecked(false); // resets values
+    m_startRangeSpinBox->setValue(data.m_rule.startPos());
+    m_endRangeSpinBox->setValue(data.m_rule.endPos());
+    m_prioritySpinBox->setValue(data.m_priority);
 }
 
 MagicData MimeTypeMagicDialog::magicData() const
 {
-    MagicData data(createRule(), ui.prioritySpinBox->value());
+    MagicData data(createRule(), m_prioritySpinBox->value());
     return data;
 }
-
 
 bool MagicData::operator==(const MagicData &other) const
 {
@@ -107,12 +184,12 @@ bool MagicData::operator==(const MagicData &other) const
     Returns the mask, or an empty string if the mask is the default mask which is set by
     MimeMagicRule when setting an empty mask for string patterns.
  */
-QByteArray MagicData::normalizedMask(const Utils::MimeMagicRule &rule)
+QByteArray MagicData::normalizedMask(const MimeMagicRule &rule)
 {
     // convert mask and see if it is the "default" one (which corresponds to "empty" mask)
     // see MimeMagicRule constructor
     QByteArray mask = rule.mask();
-    if (rule.type() == Utils::MimeMagicRule::String) {
+    if (rule.type() == MimeMagicRule::String) {
         QByteArray actualMask = QByteArray::fromHex(QByteArray::fromRawData(mask.constData() + 2,
                                                         mask.size() - 2));
         if (actualMask.count(char(-1)) == actualMask.size()) {
@@ -123,18 +200,20 @@ QByteArray MagicData::normalizedMask(const Utils::MimeMagicRule &rule)
     return mask;
 }
 
-Utils::MimeMagicRule MimeTypeMagicDialog::createRule(QString *errorMessage) const
+MimeMagicRule MimeTypeMagicDialog::createRule(QString *errorMessage) const
 {
-    Utils::MimeMagicRule::Type type = typeValue(ui.typeSelector->currentIndex());
-    Utils::MimeMagicRule rule(type,
-                                        ui.valueLineEdit->text().toUtf8(),
-                                        ui.startRangeSpinBox->value(),
-                                        ui.endRangeSpinBox->value(),
-                                        ui.maskLineEdit->text().toLatin1(),
-                                        errorMessage);
-    if (type == Utils::MimeMagicRule::Invalid) {
+    MimeMagicRule::Type type = typeValue(m_typeSelector->currentIndex());
+    MimeMagicRule rule(type,
+                       m_valueLineEdit->text().toUtf8(),
+                       m_startRangeSpinBox->value(),
+                       m_endRangeSpinBox->value(),
+                       m_maskLineEdit->text().toLatin1(),
+                       errorMessage);
+    if (type == MimeMagicRule::Invalid) {
         if (errorMessage)
             *errorMessage = tr("Internal error: Type is invalid");
     }
     return rule;
 }
+
+} // Core::Internal
