@@ -594,10 +594,10 @@ void GenericBuildSystem::updateDeploymentData()
     if (bc)
         deploymentFilePath = bc->buildDirectory().pathAppended(fileName);
 
-    bool hasDeploymentData = QFileInfo::exists(deploymentFilePath.toString());
+    bool hasDeploymentData = deploymentFilePath.exists();
     if (!hasDeploymentData) {
         deploymentFilePath = projectDirectory().pathAppended(fileName);
-        hasDeploymentData = QFileInfo::exists(deploymentFilePath.toString());
+        hasDeploymentData = deploymentFilePath.exists();
     }
     if (hasDeploymentData) {
         DeploymentData deploymentData;
