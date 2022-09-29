@@ -43,6 +43,8 @@ public:
     void addExtraActions(QMenu *menu, int fileIndex, int chunkIndex, const ChunkSelection &selection);
     void updateCannotDecodeInfo();
     void setBusyShowing(bool busy);
+    void setCurrentDiffFileIndex(int index) { m_currentDiffFileIndex = index; }
+    int currentDiffFileIndex() const { return m_currentDiffFileIndex; }
 
     ChunkData chunkData(int fileIndex, int chunkIndex) const;
 
@@ -74,6 +76,7 @@ private:
     DiffEditorDocument *m_document = nullptr;
 
     bool m_isBusyShowing = false;
+    int m_currentDiffFileIndex = -1;
     Utils::ProgressIndicator *m_progressIndicator = nullptr;
     QTimer m_timer;
 };

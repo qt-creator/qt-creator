@@ -132,6 +132,7 @@ void UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor()
         return;
 
     const GuardLocker locker(m_controller.m_ignoreChanges);
+    m_controller.setCurrentDiffFileIndex(fileIndex);
     emit currentDiffFileIndexChanged(fileIndex);
 }
 
@@ -499,6 +500,7 @@ void UnifiedDiffEditorWidget::showDiff()
                 setReadOnly(true);
             }
             setSelections(result.selections);
+            setCurrentDiffFileIndex(m_controller.currentDiffFileIndex());
         }
         m_watcher.release()->deleteLater();
         m_controller.setBusyShowing(false);
@@ -647,6 +649,7 @@ void UnifiedDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
         return;
 
     const GuardLocker locker(m_controller.m_ignoreChanges);
+    m_controller.setCurrentDiffFileIndex(diffFileIndex);
     const int blockNumber = blockNumberForFileIndex(diffFileIndex);
 
     QTextBlock block = document()->findBlockByNumber(blockNumber);

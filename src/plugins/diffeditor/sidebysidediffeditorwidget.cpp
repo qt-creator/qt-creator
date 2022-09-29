@@ -950,6 +950,8 @@ void SideBySideDiffEditorWidget::setCurrentDiffFileIndex(int diffFileIndex)
     const int blockNumber = m_leftEditor->diffData().blockNumberForFileIndex(diffFileIndex);
 
     const GuardLocker locker(m_controller.m_ignoreChanges);
+    m_controller.setCurrentDiffFileIndex(diffFileIndex);
+
     QTextBlock leftBlock = m_leftEditor->document()->findBlockByNumber(blockNumber);
     QTextCursor leftCursor = m_leftEditor->textCursor();
     leftCursor.setPosition(leftBlock.position());
@@ -1009,6 +1011,7 @@ void SideBySideDiffEditorWidget::showDiff()
             }
             m_leftEditor->setSelections(results[LeftSide].selections);
             m_rightEditor->setSelections(results[RightSide].selections);
+            setCurrentDiffFileIndex(m_controller.currentDiffFileIndex());
         }
         m_watcher.release()->deleteLater();
         m_controller.setBusyShowing(false);
@@ -1241,6 +1244,7 @@ void SideBySideDiffEditorWidget::handlePositionChange(SideDiffEditorWidget *sour
 
     const GuardLocker locker(m_controller.m_ignoreChanges);
     syncCursor(source, dest);
+    m_controller.setCurrentDiffFileIndex(fileIndex);
     emit currentDiffFileIndexChanged(fileIndex);
 }
 
