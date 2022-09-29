@@ -123,7 +123,7 @@ static std::unique_ptr<QbsProductNode> buildProductNodeTree(const QJsonObject &p
     // Add "Generated Files" Node:
     auto genFiles = std::make_unique<VirtualFolderNode>(
                 FilePath::fromString(prd.value("build-directory").toString()));
-    genFiles->setDisplayName(Tr::tr("Generated files"));
+    genFiles->setDisplayName(::QbsProjectManager::Tr::tr("Generated files"));
     setupGeneratedArtifacts(genFiles.get(), prd);
     result->addNode(std::move(genFiles));
     return result;
