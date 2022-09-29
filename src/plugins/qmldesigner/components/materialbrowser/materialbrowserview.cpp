@@ -96,29 +96,43 @@ WidgetInfo MaterialBrowserView::widgetInfo()
         });
 
         connect(matBrowserModel, &MaterialBrowserModel::pasteMaterialPropertiesTriggered, this,
-                [&] (const ModelNode &material, const QList<AbstractProperty> &props, bool all) {
+                [&] (const ModelNode &material,
+                     const QList<QmlDesigner::MaterialBrowserModel::PropertyCopyData> &propDatas,
+                     bool all) {
             QmlObjectNode mat(material);
             executeInTransaction(__FUNCTION__, [&] {
                 if (all) { // all material properties copied
                     // remove current properties
-                    const PropertyNameList propNames = material.propertyNames();
-                    for (const PropertyName &propName : propNames) {
+                    PropertyNameList propNames;
+                    if (mat.isInBaseState()) {
+                        propNames = material.propertyNames();
+                    } else {
+                        QmlPropertyChanges changes = mat.propertyChangeForCurrentState();
+                        if (changes.isValid()) {
+                            const QList<AbstractProperty> changedProps = changes.targetProperties();
+                            for (const auto &changedProp : changedProps)
+                                propNames.append(changedProp.name());
+                        }
+                    }
+                    for (const PropertyName &propName : qAsConst(propNames)) {
                         if (propName != "objectName")
                             mat.removeProperty(propName);
                     }
                 }
 
                 // apply pasted properties
-                for (const AbstractProperty &prop : props) {
-                    if (prop.name() == "objectName" || !prop.isValid())
+                for (const QmlDesigner::MaterialBrowserModel::PropertyCopyData &propData : propDatas) {
+                    if (propData.name == "objectName")
                         continue;
 
-                    if (prop.isVariantProperty())
-                        mat.setVariantProperty(prop.name(), prop.toVariantProperty().value());
-                    else if (prop.isBindingProperty())
-                        mat.setBindingProperty(prop.name(), prop.toBindingProperty().expression());
-                    else if (!all)
-                        mat.removeProperty(prop.name());
+                    if (propData.isValid) {
+                        if (propData.isBinding)
+                            mat.setBindingProperty(propData.name, propData.value.toString());
+                        else
+                            mat.setVariantProperty(propData.name, propData.value);
+                    } else {
+                        mat.removeProperty(propData.name);
+                    }
                 }
             });
         });

@@ -94,6 +94,14 @@ public:
     Q_INVOKABLE void openMaterialEditor();
     Q_INVOKABLE bool isCopiedMaterialValid() const;
 
+    struct PropertyCopyData
+    {
+        PropertyName name;
+        QVariant value;
+        bool isBinding = false;
+        bool isValid = false;
+    };
+
 signals:
     void isEmptyChanged();
     void hasQuick3DImportChanged();
@@ -106,9 +114,10 @@ signals:
     void applyToSelectedTriggered(const QmlDesigner::ModelNode &material, bool add = false);
     void addNewMaterialTriggered();
     void duplicateMaterialTriggered(const QmlDesigner::ModelNode &material);
-    void pasteMaterialPropertiesTriggered(const QmlDesigner::ModelNode &material,
-                                          const QList<QmlDesigner::AbstractProperty> &props,
-                                          bool all);
+    void pasteMaterialPropertiesTriggered(
+            const QmlDesigner::ModelNode &material,
+            const QList<QmlDesigner::MaterialBrowserModel::PropertyCopyData> &props,
+            bool all);
 
 private:
     bool isMaterialVisible(int idx) const;
@@ -120,7 +129,7 @@ private:
     QStringList m_principledMaterialSections;
     QStringList m_customMaterialSections;
     ModelNode m_copiedMaterial;
-    QList<AbstractProperty> m_copiedMaterialProps;
+    QList<PropertyCopyData> m_copiedMaterialProps;
     QHash<qint32, int> m_materialIndexHash; // internalId -> index
     QJsonObject m_propertyGroupsObj;
 

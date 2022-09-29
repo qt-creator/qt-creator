@@ -29,7 +29,8 @@
 #include <designmodewidget.h>
 #include <qmldesignerplugin.h>
 #include <qmlobjectnode.h>
-#include "variantproperty.h"
+#include <variantproperty.h>
+#include <qmltimelinekeyframegroup.h>
 #include "utils/qtcassert.h"
 
 namespace QmlDesigner {
@@ -349,6 +350,9 @@ void MaterialBrowserModel::duplicateMaterial(int idx)
 void MaterialBrowserModel::copyMaterialProperties(int idx, const QString &section)
 {
     m_copiedMaterial = m_materialList.at(idx);
+
+    QTC_ASSERT(m_copiedMaterial.isValid(), return);
+
     QString matType = QString::fromLatin1(m_copiedMaterial.type());
 
     if (matType.startsWith("QtQuick3D."))
@@ -356,26 +360,65 @@ void MaterialBrowserModel::copyMaterialProperties(int idx, const QString &sectio
 
     setCopiedMaterialType(matType);
     m_allPropsCopied = section == "All";
+    QmlObjectNode mat(m_copiedMaterial);
+
+    QSet<PropertyName> validProps;
+    PropertyNameList copiedProps;
+
+    // Base state properties are always valid
+    const auto baseProps = m_copiedMaterial.propertyNames();
+    for (const auto &baseProp : baseProps)
+        validProps.insert(baseProp);
+
+    if (!mat.isInBaseState()) {
+        QmlPropertyChanges changes = mat.propertyChangeForCurrentState();
+        if (changes.isValid()) {
+            const QList<AbstractProperty> changedProps = changes.targetProperties();
+            for (const auto &changedProp : changedProps)
+                validProps.insert(changedProp.name());
+        }
+    }
+
+    if (mat.timelineIsActive()) {
+        const QList<QmlTimelineKeyframeGroup> keyframeGroups
+                = mat.currentTimeline().keyframeGroupsForTarget(m_copiedMaterial);
+        for (const auto &kfg : keyframeGroups)
+            validProps.insert(kfg.propertyName());
+    }
 
     if (m_allPropsCopied || m_propertyGroupsObj.empty()) {
-        m_copiedMaterialProps = m_copiedMaterial.properties();
+        copiedProps = validProps.values();
     } else {
         QJsonObject propsSpecObj = m_propertyGroupsObj.value(m_copiedMaterialType).toObject();
         if (propsSpecObj.contains(section)) { // should always be true
-           m_copiedMaterialProps.clear();
            const QJsonArray propNames = propsSpecObj.value(section).toArray();
            // auto == QJsonValueConstRef after 04dc959d49e5e3 / Qt 6.4, QJsonValueRef before
            for (const auto &propName : propNames)
-               m_copiedMaterialProps.append(m_copiedMaterial.property(propName.toString().toLatin1()));
+               copiedProps.append(propName.toString().toLatin1());
 
            if (section == "Base") { // add QtQuick3D.Material base props as well
                QJsonObject propsMatObj = m_propertyGroupsObj.value("Material").toObject();
                const QJsonArray propNames = propsMatObj.value("Base").toArray();
                // auto == QJsonValueConstRef after 04dc959d49e5e3 / Qt 6.4, QJsonValueRef before
                for (const auto &propName : propNames)
-                   m_copiedMaterialProps.append(m_copiedMaterial.property(propName.toString().toLatin1()));
+                   copiedProps.append(propName.toString().toLatin1());
            }
         }
+    }
+
+    m_copiedMaterialProps.clear();
+    for (const auto &propName : copiedProps) {
+        PropertyCopyData data;
+        data.name = propName;
+        data.isValid = m_allPropsCopied || validProps.contains(propName);
+        data.isBinding = mat.hasBindingProperty(propName);
+        if (data.isValid) {
+            if (data.isBinding)
+                data.value = mat.expression(propName);
+            else
+                data.value = mat.modelValue(propName);
+        }
+        m_copiedMaterialProps.append(data);
     }
 }
 
