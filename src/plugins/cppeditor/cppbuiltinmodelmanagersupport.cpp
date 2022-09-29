@@ -6,14 +6,15 @@
 #include "builtineditordocumentprocessor.h"
 #include "cppcanonicalsymbol.h"
 #include "cppcompletionassist.h"
+#include "cppeditortr.h"
 #include "cppeditorwidget.h"
 #include "cppelementevaluator.h"
 #include "cppfollowsymbolundercursor.h"
-#include "cppoutlinemodel.h"
 #include "cpptoolsreuse.h"
 #include "symbolfinder.h"
 
 #include <app/app_version.h>
+#include <coreplugin/messagemanager.h>
 #include <texteditor/basehoverhandler.h>
 #include <utils/executeondestruction.h>
 #include <utils/qtcassert.h>
@@ -103,6 +104,17 @@ void BuiltinModelManagerSupport::followSymbol(const CursorInEditor &data,
     m_followSymbol->findLink(data, processLinkCallback,
             resolveTarget, CppModelManager::instance()->snapshot(),
             data.editorWidget()->semanticInfo().doc, &finder, inNextSplit);
+}
+
+void BuiltinModelManagerSupport::followSymbolToType(const CursorInEditor &data,
+                                                    const Utils::LinkHandler &processLinkCallback,
+                                                    bool inNextSplit)
+{
+    Q_UNUSED(data)
+    Q_UNUSED(processLinkCallback)
+    Q_UNUSED(inNextSplit)
+    MessageManager::writeDisrupting(
+                Tr::tr("Follow Symbol to Type is only available when using clangd"));
 }
 
 void BuiltinModelManagerSupport::switchDeclDef(const CursorInEditor &data,

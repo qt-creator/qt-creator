@@ -304,6 +304,8 @@ Core::GeneratedFiles SquishFileGenerator::fileList(Utils::MacroExpander *expande
                                                    const Utils::FilePath &projectDir,
                                                    QString *errorMessage)
 {
+    Q_UNUSED(wizardDir)
+
     errorMessage->clear();
     // later on differentiate based on m_mode
     QString aut = expander->expand(QString{"%{AUT}"});
@@ -335,6 +337,9 @@ bool SquishFileGenerator::writeFile(const ProjectExplorer::JsonWizard *,
 bool SquishFileGenerator::allDone(const ProjectExplorer::JsonWizard *wizard, Core::GeneratedFile *file,
              QString *errorMessage)
 {
+    Q_UNUSED(wizard)
+    Q_UNUSED(errorMessage)
+
     if (m_mode == "TestSuite") {
         if (file->filePath().fileName() == "suite.conf")
             QTimer::singleShot(0, [filePath = file->filePath()] {

@@ -422,24 +422,18 @@ class DumperBase():
         return None if nativeType is None else self.fromNativeType(nativeType)
 
     def registerKnownTypes(self):
-        typeId = 'unsigned short'
-        tdata = self.TypeData(self)
-        tdata.name = typeId
-        tdata.typeId = typeId
+        tdata = self.TypeData(self, 'unsigned short')
         tdata.lbitsize = 16
+        tdata.lalignment = 2
         tdata.code = TypeCode.Integral
-        self.registerType(typeId, tdata)
 
-        typeId = 'QChar'
-        tdata = self.TypeData(self)
-        tdata.name = typeId
-        tdata.typeId = typeId
+        tdata = self.TypeData(self, 'QChar')
         tdata.lbitsize = 16
+        tdata.lalignment = 2
         tdata.code = TypeCode.Struct
         tdata.lfields = [self.Field(dumper=self, name='ucs',
                                     type='unsigned short', bitsize=16, bitpos=0)]
-        tdata.lalignment = 2
-        self.registerType(typeId, tdata)
+        tdata.templateArguments = lambda: []
 
     def nativeDynamicType(self, address, baseType):
         return baseType  # Override in backends.
@@ -3462,19 +3456,12 @@ class DumperBase():
         item_count = type_name[pos1 + 1:pos2]
         return (type_name[0:pos1].strip(), type_name[pos2 + 1:].strip(), int(item_count))
 
-    def registerType(self, typeId, tdata):
-        #DumperBase.warn('REGISTER TYPE: %s' % typeId)
-        self.typeData[typeId] = tdata
-        #typeId = typeId.replace(' ', '')
-        #self.typeData[typeId] = tdata
-        #DumperBase.warn('REGISTERED: %s' % self.typeData)
-
     def registerTypeAlias(self, existingTypeId, aliasId):
         #DumperBase.warn('REGISTER ALIAS %s FOR %s' % (aliasId, existingTypeId))
         self.typeData[aliasId] = self.typeData[existingTypeId]
 
     class TypeData():
-        def __init__(self, dumper):
+        def __init__(self, dumper, type_id):
             self.dumper = dumper
             self.lfields = None  # None or Value -> list of member Values
             self.lalignment = None  # Function returning alignment of this struct
@@ -3482,13 +3469,15 @@ class DumperBase():
             self.ltarget = None  # Inner type for arrays
             self.templateArguments = None
             self.code = None
-            self.name = None
-            self.typeId = None
+            self.name = type_id
+            self.typeId = type_id
             self.enumDisplay = None
             self.moduleName = None
+            #DumperBase.warn('REGISTER TYPE: %s' % type_id)
+            dumper.typeData[type_id] = self
 
         def copy(self):
-            tdata = self.dumper.TypeData(self.dumper)
+            tdata = self.dumper.TypeData(self.dumper, self.typeId)
             tdata.dumper = self.dumper
             tdata.lfields = self.lfields
             tdata.lalignment = self.lalignment
@@ -3791,13 +3780,11 @@ class DumperBase():
             raise RuntimeError('Expected type in createPointerType(), got %s'
                                % type(targetType))
         typeId = targetType.typeId + ' *'
-        tdata = self.TypeData(self)
+        tdata = self.TypeData(self, typeId)
         tdata.name = targetType.name + '*'
-        tdata.typeId = typeId
         tdata.lbitsize = 8 * self.ptrSize()
         tdata.code = TypeCode.Pointer
         tdata.ltarget = targetType
-        self.registerType(typeId, tdata)
         return self.Type(self, typeId)
 
     def createReferenceType(self, targetType):
@@ -3805,14 +3792,12 @@ class DumperBase():
             raise RuntimeError('Expected type in createReferenceType(), got %s'
                                % type(targetType))
         typeId = targetType.typeId + ' &'
-        tdata = self.TypeData(self)
+        tdata = self.TypeData(self, typeId)
         tdata.name = targetType.name + ' &'
-        tdata.typeId = typeId
         tdata.code = TypeCode.Reference
         tdata.ltarget = targetType
         tdata.lbitsize = 8 * self.ptrSize()  # Needed for Gdb13393 test.
         #tdata.lbitsize = None
-        self.registerType(typeId, tdata)
         return self.Type(self, typeId)
 
     def createRValueReferenceType(self, targetType):
@@ -3820,13 +3805,11 @@ class DumperBase():
             raise RuntimeError('Expected type in createRValueReferenceType(), got %s'
                                % type(targetType))
         typeId = targetType.typeId + ' &&'
-        tdata = self.TypeData(self)
+        tdata = self.TypeData(self, typeId)
         tdata.name = targetType.name + ' &&'
-        tdata.typeId = typeId
         tdata.code = TypeCode.RValueReference
         tdata.ltarget = targetType
         tdata.lbitsize = None
-        self.registerType(typeId, tdata)
         return self.Type(self, typeId)
 
     def createArrayType(self, targetType, count):
@@ -3843,13 +3826,11 @@ class DumperBase():
             type_id = '%s[%d]' % (targetTypeId, count)
             type_name = '%s[%d]' % (targetType.name, count)
 
-        tdata = self.TypeData(self)
+        tdata = self.TypeData(self, type_id)
         tdata.name = type_name
-        tdata.typeId = type_id
         tdata.code = TypeCode.Array
         tdata.ltarget = targetType
         tdata.lbitsize = targetType.lbitsize * count
-        self.registerType(type_id, tdata)
         return self.Type(self, type_id)
 
     def createBitfieldType(self, targetType, bitsize):
@@ -3857,13 +3838,11 @@ class DumperBase():
             raise RuntimeError('Expected type in createBitfieldType(), got %s'
                                % type(targetType))
         typeId = '%s:%d' % (targetType.typeId, bitsize)
-        tdata = self.TypeData(self)
+        tdata = self.TypeData(self, typeId)
         tdata.name = '%s : %d' % (targetType.typeId, bitsize)
-        tdata.typeId = typeId
         tdata.code = TypeCode.Bitfield
         tdata.ltarget = targetType
         tdata.lbitsize = bitsize
-        self.registerType(typeId, tdata)
         return self.Type(self, typeId)
 
     def createTypedefedType(self, targetType, typeName, typeId=None):
@@ -3875,15 +3854,13 @@ class DumperBase():
         # Happens for C-style struct in GDB: typedef { int x; } struct S1;
         if targetType.typeId == typeId:
             return targetType
-        tdata = self.TypeData(self)
+        tdata = self.TypeData(self, typeId)
         tdata.name = typeName
-        tdata.typeId = typeId
         tdata.code = TypeCode.Typedef
         tdata.ltarget = targetType
         tdata.lbitsize = targetType.lbitsize
         #tdata.lfields = targetType.lfields
         tdata.lbitsize = targetType.lbitsize
-        self.registerType(typeId, tdata)
         return self.Type(self, typeId)
 
     def knownArrayTypeSize(self):
@@ -3939,9 +3916,7 @@ class DumperBase():
                 return knownType
 
             #DumperBase.warn('FAKING: %s SIZE: %s' % (typish, size))
-            tdata = self.TypeData(self)
-            tdata.name = typish
-            tdata.typeId = typish
+            tdata = self.TypeData(self, typish)
             tdata.templateArguments = lambda: self.listTemplateParameters(typish)
             if size is not None:
                 tdata.lbitsize = 8 * size
@@ -3950,8 +3925,7 @@ class DumperBase():
                 tdata.lbitsize = 8 * self.ptrSize()
                 tdata.ltarget = self.createType(typish[:-1].strip())
 
-            self.registerType(typish, tdata)
-            typeobj = self.Type(self, typish)
+            typeobj = self.Type(self, tdata.typeId)
             #DumperBase.warn('CREATE TYPE: %s' % typeobj.stringify())
             typeobj.check()
             return typeobj
@@ -3979,11 +3953,8 @@ class DumperBase():
         raise RuntimeError('EXPECTING ADDRESS OR BYTES, GOT %s' % type(datish))
 
     def createProxyValue(self, proxy_data, type_name):
-        tdata = self.TypeData(self)
-        tdata.name = type_name
-        tdata.typeId = type_name
+        tdata = self.TypeData(self, type_name)
         tdata.code = TypeCode.Struct
-        self.registerType(type_name, tdata)
         val = self.Value(self)
         val._type = self.Type(self, type_name)
         val.ldata = proxy_data

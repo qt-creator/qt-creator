@@ -122,6 +122,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     auto searchDirsComboBox = new QComboBox;
     searchDirsComboBox->addItem(Tr::tr("Search in PATH"));
     searchDirsComboBox->addItem(Tr::tr("Search in Selected Directories"));
+    searchDirsComboBox->addItem(Tr::tr("Search in PATH and Additional Directories"));
 
     auto searchDirsLineEdit = new FancyLineEdit;
 
@@ -132,9 +133,10 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
     auto searchPaths = [searchDirsComboBox, searchDirsLineEdit, dockerDevice] {
         FilePaths paths;
-        if (searchDirsComboBox->currentIndex() == 0) {
-            paths = dockerDevice->systemEnvironment().path();
-        } else {
+        const int idx = searchDirsComboBox->currentIndex();
+        if (idx == 0 || idx == 2)
+            paths += dockerDevice->systemEnvironment().path();
+        if (idx == 1 || idx == 2) {
             for (const QString &path : searchDirsLineEdit->text().split(';'))
                 paths.append(FilePath::fromString(path.trimmed()));
         }
@@ -184,6 +186,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         Column {
             Space(20),
             Row {
+                Tr::tr("Search Locations:"),
                 searchDirsComboBox,
                 searchDirsLineEdit
             },
@@ -200,8 +203,8 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
 
     searchDirsLineEdit->setVisible(false);
     auto updateDirectoriesLineEdit = [searchDirsLineEdit](int index) {
-        searchDirsLineEdit->setVisible(index == 1);
-        if (index == 1)
+        searchDirsLineEdit->setVisible(index == 1 || index == 2);
+        if (index == 1 || index == 2)
             searchDirsLineEdit->setFocus();
     };
     QObject::connect(searchDirsComboBox, &QComboBox::activated, this, updateDirectoriesLineEdit);

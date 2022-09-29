@@ -167,6 +167,9 @@ public:
     static void followSymbol(const CursorInEditor &data,
                              const Utils::LinkHandler &processLinkCallback,
                              bool resolveTarget, bool inNextSplit, Backend backend = Backend::Best);
+    static void followSymbolToType(const CursorInEditor &data,
+                                   const Utils::LinkHandler &processLinkCallback, bool inNextSplit,
+                                   Backend backend = Backend::Best);
     static void switchDeclDef(const CursorInEditor &data,
                               const Utils::LinkHandler &processLinkCallback,
                               Backend backend = Backend::Best);

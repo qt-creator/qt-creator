@@ -1301,8 +1301,8 @@ static void addCMakeConfigurePresetToInitialArguments(QStringList &initialArgume
     }
 }
 
-static Utils::EnvironmentItems getEnvironmentItemsFromCMakePreset(const CMakeProject *project,
-                                                                  const Kit *k)
+static Utils::EnvironmentItems getEnvironmentItemsFromCMakeConfigurePreset(
+    const CMakeProject *project, const Kit *k)
 
 {
     Utils::EnvironmentItems envItems;
@@ -1320,6 +1320,27 @@ static Utils::EnvironmentItems getEnvironmentItemsFromCMakePreset(const CMakePro
                                });
 
     CMakePresets::Macros::expand(configurePreset, envItems, project->projectDirectory());
+
+    return envItems;
+}
+
+static Utils::EnvironmentItems getEnvironmentItemsFromCMakeBuildPreset(
+    const CMakeProject *project, const Kit *k, const QString &buildPresetName)
+
+{
+    Utils::EnvironmentItems envItems;
+
+    const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(k);
+    if (presetItem.isNull())
+        return envItems;
+
+    PresetsDetails::BuildPreset buildPreset
+        = Utils::findOrDefault(project->presetsData().buildPresets,
+                               [buildPresetName](const PresetsDetails::BuildPreset &preset) {
+                                   return preset.name == buildPresetName;
+                               });
+
+    CMakePresets::Macros::expand(buildPreset, envItems, project->projectDirectory());
 
     return envItems;
 }
@@ -1423,8 +1444,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
     addAspect<BuildTypeAspect>();
     addAspect<QtSupport::QmlDebuggingAspect>(this);
 
-    appendInitialBuildStep(Constants::CMAKE_BUILD_STEP_ID);
-    appendInitialCleanStep(Constants::CMAKE_BUILD_STEP_ID);
+    setInitialBuildAndCleanSteps(target);
 
     setInitializer([this, target](const BuildInfo &info) {
         const Kit *k = target->kit();
@@ -1527,7 +1547,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             cmd.addArg("-DCMAKE_CXX_FLAGS_INIT:STRING=%{" + QLatin1String(QT_QML_DEBUG_FLAG) + "}");
 
         CMakeProject *cmakeProject = static_cast<CMakeProject *>(target->project());
-        setUserConfigureEnvironmentChanges(getEnvironmentItemsFromCMakePreset(cmakeProject, k));
+        setUserConfigureEnvironmentChanges(getEnvironmentItemsFromCMakeConfigurePreset(cmakeProject, k));
 
         QStringList initialCMakeArguments = cmd.splitArguments();
         addCMakeConfigurePresetToInitialArguments(initialCMakeArguments,
@@ -1537,6 +1557,8 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         m_buildSystem->setInitialCMakeArguments(initialCMakeArguments);
         m_buildSystem->setCMakeBuildType(buildType);
         updateAndEmitConfigureEnvironmentChanged();
+
+        setBuildPresetToBuildSteps(target);
     });
 }
 
@@ -1797,6 +1819,104 @@ NamedWidget *CMakeBuildConfiguration::createConfigWidget()
 CMakeConfig CMakeBuildConfiguration::signingFlags() const
 {
     return {};
+}
+
+void CMakeBuildConfiguration::setInitialBuildAndCleanSteps(const ProjectExplorer::Target *target)
+{
+    const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(
+        target->kit());
+
+    if (!presetItem.isNull()) {
+        const QString presetName = presetItem.expandedValue(target->kit());
+        const CMakeProject *project = static_cast<const CMakeProject *>(target->project());
+
+        const auto buildPresets = project->presetsData().buildPresets;
+        const int count = std::count_if(buildPresets.begin(),
+                                        buildPresets.end(),
+                                        [presetName](const PresetsDetails::BuildPreset &preset) {
+                                            return preset.configurePreset == presetName
+                                                   && !preset.hidden.value();
+                                        });
+
+        for (int i = 0; i < count; ++i)
+            appendInitialBuildStep(Constants::CMAKE_BUILD_STEP_ID);
+
+    } else {
+        appendInitialBuildStep(Constants::CMAKE_BUILD_STEP_ID);
+    }
+    appendInitialCleanStep(Constants::CMAKE_BUILD_STEP_ID);
+}
+
+void CMakeBuildConfiguration::setBuildPresetToBuildSteps(const ProjectExplorer::Target *target)
+{
+    const CMakeConfigItem presetItem = CMakeConfigurationKitAspect::cmakePresetConfigItem(
+        target->kit());
+
+    if (presetItem.isNull())
+        return;
+
+    const QString presetName = presetItem.expandedValue(target->kit());
+    const CMakeProject *project = static_cast<const CMakeProject *>(target->project());
+
+    const auto allBuildPresets = project->presetsData().buildPresets;
+    const auto buildPresets
+        = Utils::filtered(allBuildPresets, [presetName](const PresetsDetails::BuildPreset &preset) {
+              return preset.configurePreset == presetName && !preset.hidden.value();
+          });
+
+    const QList<BuildStep *> buildStepList
+        = Utils::filtered(buildSteps()->steps(), [](const BuildStep *bs) {
+              return bs->id() == Constants::CMAKE_BUILD_STEP_ID;
+          });
+
+    if (buildPresets.size() != buildStepList.size())
+        return;
+
+    for (qsizetype i = 0; i < buildStepList.size(); ++i) {
+        CMakeBuildStep *cbs = qobject_cast<CMakeBuildStep *>(buildStepList[i]);
+        cbs->setBuildPreset(buildPresets[i].name);
+        cbs->setUserEnvironmentChanges(
+            getEnvironmentItemsFromCMakeBuildPreset(project, target->kit(), buildPresets[i].name));
+
+        if (buildPresets[i].targets) {
+            QString targets = buildPresets[i].targets.value().join(" ");
+
+            CMakePresets::Macros::expand(buildPresets[i],
+                                         cbs->environment(),
+                                         project->projectDirectory(),
+                                         targets);
+
+            cbs->setBuildTargets(targets.split(" "));
+        }
+
+        QStringList cmakeArguments;
+        if (buildPresets[i].jobs)
+            cmakeArguments.append(QString("-j %1").arg(buildPresets[i].jobs.value()));
+        if (buildPresets[i].verbose && buildPresets[i].verbose.value())
+            cmakeArguments.append("--verbose");
+        if (buildPresets[i].cleanFirst && buildPresets[i].cleanFirst.value())
+            cmakeArguments.append("--clean-first");
+        if (!cmakeArguments.isEmpty())
+            cbs->setCMakeArguments(cmakeArguments);
+
+        if (buildPresets[i].nativeToolOptions) {
+            QString nativeToolOptions = buildPresets[i].nativeToolOptions.value().join(" ");
+
+            CMakePresets::Macros::expand(buildPresets[i],
+                                         cbs->environment(),
+                                         project->projectDirectory(),
+                                         nativeToolOptions);
+
+            cbs->setToolArguments(nativeToolOptions.split(" "));
+        }
+
+        if (buildPresets[i].configuration)
+            cbs->setConfiguration(buildPresets[i].configuration.value());
+
+        // Leave only the first build step enabled
+        if (i > 0)
+            cbs->setEnabled(false);
+    }
 }
 
 /*!

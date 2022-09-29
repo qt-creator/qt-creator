@@ -8,13 +8,16 @@
 #include <QWizardPage>
 #include <QSharedPointer>
 
+QT_BEGIN_NAMESPACE
+class QLineEdit;
+class QLabel;
+QT_END_NAMESPACE
+
 namespace QmakeProjectManager {
 namespace Internal {
 
 struct PluginOptions;
 class CustomWidgetWidgetsWizardPage;
-
-namespace Ui { class CustomWidgetPluginWizardPage; }
 
 class CustomWidgetPluginWizardPage : public QWizardPage
 {
@@ -22,7 +25,6 @@ class CustomWidgetPluginWizardPage : public QWizardPage
 
 public:
     explicit CustomWidgetPluginWizardPage(QWidget *parent = nullptr);
-    ~CustomWidgetPluginWizardPage() override;
 
     void init(const CustomWidgetWidgetsWizardPage *widgetsPage);
 
@@ -40,10 +42,18 @@ private:
     inline QString pluginName() const;
     void setCollectionEnabled(bool enColl);
 
-    Ui::CustomWidgetPluginWizardPage *m_ui;
     FileNamingParameters m_fileNamingParameters;
     int m_classCount;
     bool m_complete;
+
+    QLabel *m_collectionClassLabel;
+    QLineEdit *m_collectionClassEdit;
+    QLabel *m_collectionHeaderLabel;
+    QLineEdit *m_collectionHeaderEdit;
+    QLabel *m_collectionSourceLabel;
+    QLineEdit *m_collectionSourceEdit;
+    QLineEdit *m_pluginNameEdit;
+    QLineEdit *m_resourceFileEdit;
 };
 
 } // namespace Internal

@@ -76,8 +76,7 @@ TransitionEditorSettingsDialog::TransitionEditorSettingsDialog(QWidget *parent,
     });
 
     connect(transitionRemoveAction, &QAction::triggered, this, [this]() {
-        ModelNode transition = getTransitionFromTabWidget(ui->timelineTab);
-        if (transition.isValid()) {
+        if (ModelNode transition = getTransitionFromTabWidget(ui->timelineTab)) {
             transition.destroy();
             setupTransitions({});
         }

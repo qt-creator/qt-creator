@@ -67,6 +67,27 @@ public:
     std::optional<Debug> debug;
 };
 
+class BuildPreset {
+public:
+    void inheritFrom(const BuildPreset &other);
+
+    QString name;
+    std::optional<bool> hidden = false;
+    std::optional<QStringList> inherits;
+    std::optional<QHash<QString, QString>> vendor;
+    std::optional<QString> displayName;
+    std::optional<QString> description;
+    std::optional<QHash<QString, QString>> environment;
+    std::optional<QString> configurePreset;
+    std::optional<bool> inheritConfigureEnvironment = true;
+    std::optional<int> jobs;
+    std::optional<QStringList> targets;
+    std::optional<QString> configuration;
+    std::optional<bool> verbose;
+    std::optional<bool> cleanFirst;
+    std::optional<QStringList> nativeToolOptions;
+};
+
 } // namespace PresetsDetails
 
 class PresetsData
@@ -76,6 +97,7 @@ public:
     QVersionNumber cmakeMinimimRequired;
     QHash<QString, QString> vendor;
     std::vector<PresetsDetails::ConfigurePreset> configurePresets;
+    std::vector<PresetsDetails::BuildPreset> buildPresets;
 };
 
 class PresetsParser

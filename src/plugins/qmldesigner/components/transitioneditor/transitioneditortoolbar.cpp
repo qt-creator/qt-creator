@@ -105,11 +105,9 @@ QString TransitionEditorToolBar::currentTransitionId() const
 
 void TransitionEditorToolBar::updateComboBox(const ModelNode &root)
 {
-    if (root.isValid() && root.hasProperty("transitions")) {
-        NodeAbstractProperty transitions = root.nodeAbstractProperty("transitions");
-        if (transitions.isValid())
-            for (const ModelNode &transition : transitions.directSubNodes())
-                m_transitionComboBox->addItem(transition.id());
+    if (NodeAbstractProperty transitions = root.nodeAbstractProperty("transitions")) {
+        for (const ModelNode &transition : transitions.directSubNodes())
+            m_transitionComboBox->addItem(transition.id());
     }
 }
 

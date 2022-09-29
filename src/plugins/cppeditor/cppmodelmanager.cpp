@@ -1764,6 +1764,14 @@ void CppModelManager::followSymbol(const CursorInEditor &data,
                                                            resolveTarget, inNextSplit);
 }
 
+void CppModelManager::followSymbolToType(const CursorInEditor &data,
+                                         const Utils::LinkHandler &processLinkCallback,
+                                         bool inNextSplit, Backend backend)
+{
+    instance()->modelManagerSupport(backend)->followSymbolToType(data, processLinkCallback,
+                                                                 inNextSplit);
+}
+
 void CppModelManager::switchDeclDef(const CursorInEditor &data,
                                     const Utils::LinkHandler &processLinkCallback,
                                     Backend backend)

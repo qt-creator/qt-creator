@@ -187,7 +187,7 @@ AbstractView *TimelineSectionItem::view() const
 
 bool TimelineSectionItem::isSelected() const
 {
-    return m_targetNode.isValid() && m_targetNode.isSelected();
+    return m_targetNode.isSelected();
 }
 
 ModelNode TimelineSectionItem::targetNode() const
@@ -967,7 +967,7 @@ void TimelineBarItem::commitPosition(const QPointF & /*point*/)
 
 bool TimelineBarItem::isLocked() const
 {
-    return sectionItem()->targetNode().isValid() && sectionItem()->targetNode().locked();
+    return sectionItem()->targetNode().locked();
 }
 
 TimelineBarItem *TimelineBarItem::asTimelineBarItem()
@@ -994,13 +994,10 @@ void TimelineBarItem::paint(QPainter *painter,
     const QColor indicatorColor = Theme::getColor(Theme::PanelTextColorLight);
 
     ModelNode target = sectionItem()->targetNode();
-    if (target.isValid()) {
-        QColor overrideColor = target.auxiliaryDataWithDefault(timelineOverrideColorProperty)
-                                   .value<QColor>();
-        if (overrideColor.isValid()) {
-            brushColorSelected = overrideColor;
-            brushColor = brushColorSelected.darker(120);
-        }
+    QColor overrideColor = target.auxiliaryDataWithDefault(timelineOverrideColorProperty).value<QColor>();
+    if (overrideColor.isValid()) {
+        brushColorSelected = overrideColor;
+        brushColor = brushColorSelected.darker(120);
     }
 
     const QRectF itemRect = rect();
@@ -1079,8 +1076,7 @@ void TimelineBarItem::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
     QAction* resetColor = menu.addAction(tr("Reset Color"));
     auto reset = [this]() {
         ModelNode target = sectionItem()->targetNode();
-        if (target.isValid())
-            target.removeAuxiliaryData(timelineOverrideColorProperty);
+        target.removeAuxiliaryData(timelineOverrideColorProperty);
     };
     QObject::connect(resetColor, &QAction::triggered, reset);
 

@@ -367,9 +367,8 @@ class Dumper(DumperBase):
         typeId = self.nativeTypeId(nativeType)
         res = self.typeData.get(typeId, None)
         if res is None:
-            tdata = self.TypeData(self)
+            tdata = self.TypeData(self, typeId)
             tdata.name = str(nativeType)
-            tdata.typeId = typeId
             tdata.lbitsize = nativeType.sizeof * 8
             tdata.code = {
                 #gdb.TYPE_CODE_TYPEDEF : TypeCode.Typedef, # Handled above.
@@ -401,7 +400,6 @@ class Dumper(DumperBase):
                     self.listMembers(value, nativeType)
             tdata.templateArguments = lambda: \
                     self.listTemplateParameters(nativeType)
-            self.registerType(typeId, tdata)  # Fix up fields and template args
         #    warn('CREATE TYPE: %s' % typeId)
         #else:
         #    warn('REUSE TYPE: %s' % typeId)

@@ -1,8 +1,8 @@
 {
-  "version": 1,
+  "version": 2,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 19,
+    "minor": 20,
     "patch": 0
   },
   "configurePresets": [
@@ -13,10 +13,10 @@
       "binaryDir": "${sourceDir}/build-${presetName}-release",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_PREFIX_PATH": "c:/Qt/6.3.1/mingw_64"
+        "CMAKE_PREFIX_PATH": "c:/Qt/6.3.2/mingw_64"
       },
       "environment": {
-        "PATH": "c:/mingw64/bin;$penv{PATH}"
+        "PATH": "c:/Qt/Tools/mingw1120_64/bin;$penv{PATH}"
       },
       "debug" : {
         "find" : true
@@ -37,8 +37,38 @@
         "value": "x64"
       },
       "cacheVariables": {
-        "CMAKE_PREFIX_PATH": "c:/Qt/6.3.1/msvc2019_64"
+        "CMAKE_PREFIX_PATH": "c:/Qt/6.3.2/msvc2019_64"
       }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "mingw",
+      "displayName": "MinGW default",
+      "configurePreset": "mingw",
+      "targets": "${sourceDirName}"
+    },
+    {
+      "name": "mingw-verbose",
+      "inherits": "mingw",
+      "displayName": "MinGW verbose",
+      "verbose": true
+    },
+    {
+      "name": "mingw-make",
+      "displayName": "MinGW make 4 CPUs",
+      "configurePreset": "mingw-make",
+      "jobs": 4
+    },
+    {
+      "name": "visualc-debug",
+      "configurePreset": "visualc",
+      "configuration": "Debug"
+    },
+    {
+      "name": "visualc-relwithdebinfo",
+      "inherits": "visualc-debug",
+      "configuration": "RelWithDebInfo"
     }
   ]
 }

@@ -323,13 +323,10 @@ void TransitionEditorWidget::init(int zoom)
     ModelNode root = transitionEditorView()->rootModelNode();
     ModelNode transition;
 
-    if (root.isValid() && root.hasProperty("transitions")) {
-        NodeAbstractProperty transitions = root.nodeAbstractProperty("transitions");
-        if (transitions.isValid()) {
-            const QList<ModelNode> directSubNodes = transitions.directSubNodes();
-            if (!directSubNodes.isEmpty())
-                transition = directSubNodes.constFirst();
-        }
+    if (NodeAbstractProperty transitions = root.nodeAbstractProperty("transitions")) {
+        const QList<ModelNode> directSubNodes = transitions.directSubNodes();
+        if (!directSubNodes.isEmpty())
+            transition = directSubNodes.constFirst();
     }
 
     m_graphicsScene->setTransition(transition);
@@ -342,10 +339,9 @@ void TransitionEditorWidget::init(int zoom)
     m_toolbar->setCurrentTransition(transition);
 
     qreal duration = 2000;
-    if (transition.isValid()) {
-        if (auto data = transition.auxiliaryData(transitionDurationProperty))
-            duration = data->toDouble();
-    }
+    if (auto data = transition.auxiliaryData(transitionDurationProperty))
+        duration = data->toDouble();
+
     m_toolbar->setDuration(duration);
 
     m_graphicsScene->setZoom(zoom);
@@ -358,8 +354,7 @@ void TransitionEditorWidget::updateData(const ModelNode &transition)
         return;
     }
 
-    if (transition.metaInfo().isValid()
-        && transition.metaInfo().isQtQuickTransition()) {
+    if (transition.metaInfo().isQtQuickTransition()) {
         if (transition.id() == m_toolbar->currentTransitionId()) {
             m_graphicsScene->setTransition(transition);
         } else {

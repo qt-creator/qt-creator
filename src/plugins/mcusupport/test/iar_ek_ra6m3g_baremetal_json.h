@@ -8,25 +8,30 @@ constexpr auto iar_ek_ra6m3g_baremetal_json = R"(
     "qulVersion": "2.3.0",
     "compatVersion": "1",
     "platform": {
-        "id": "TVIIC2D6M-BAREMETAL",
-        "vendor": "CYPRESS",
+        "id": "EK-RA6M3G-BAREMETAL",
+        "vendor": "RENESAS",
         "colorDepths": [
-            32
+            16
         ],
         "cmakeEntries": [
             {
-                "id": "INFINEON_AUTO_FLASH_UTILITY_DIR",
-                "label": "Cypress Auto Flash Utility",
+                "cmakeVar": "JLINK_PATH",
+                "setting": "JLinkPath",
+                "envVar": "JLINK_PATH",
+                "label": "Path to SEGGER J-Link",
                 "type": "path",
-                "cmakeVar": "INFINEON_AUTO_FLASH_UTILITY_DIR",
-                "optional": false
+                "defaultValue": {
+                    "windows": "%{Env:PROGRAMSANDFILES}/SEGGER/JLink",
+                    "unix": "/opt/SEGGER/JLink"
+                },
+                "optional": true
             }
         ]
     },
     "toolchain": {
         "id": "iar",
         "versions": [
-            "8.22.3"
+            "9.20.4"
         ],
         "compiler": {
             "id": "IARToolchain",
@@ -51,15 +56,15 @@ constexpr auto iar_ek_ra6m3g_baremetal_json = R"(
         }
     },
     "boardSdk": {
-        "envVar": "TVII_GRAPHICS_DRIVER_DIR",
-        "versions": [
-            "V1e.1.0"
-        ],
-        "id": "TVII_GRAPHICS_DRIVER_DIR",
-        "label": "Graphics Driver for Traveo II Cluster Series",
         "cmakeVar": "QUL_BOARD_SDK_DIR",
+        "envVar": "EK_RA6M3G_FSP_PATH",
+        "id": "EK_RA6M3G_FSP_PATH",
+        "label": "Flexible Software Package for Renesas RA MCU Family",
+        "optional": false,
         "type": "path",
-        "optional": false
+        "versions": [
+            "3.8.0"
+        ]
     }
 }
 )";

@@ -161,8 +161,8 @@ void PropertyEditorView::changeValue(const QString &name)
 
     QVariant castedValue;
 
-    if (metaInfo.isValid() && metaInfo.hasProperty(propertyName)) {
-        castedValue = metaInfo.property(propertyName).castedValue(value->value());
+    if (auto property = metaInfo.property(propertyName)) {
+        castedValue = property.castedValue(value->value());
     } else if (propertyIsAttachedLayoutProperty(propertyName)) {
         castedValue = value->value();
     } else {
@@ -177,8 +177,7 @@ void PropertyEditorView::changeValue(const QString &name)
 
     bool propertyTypeUrl = false;
 
-    if (metaInfo.isValid() && metaInfo.hasProperty(propertyName)
-        && metaInfo.property(propertyName).propertyType().isUrl()) {
+    if (metaInfo.property(propertyName).propertyType().isUrl()) {
         // turn absolute local file paths into relative paths
         propertyTypeUrl = true;
         QString filePath = castedValue.toUrl().toString();
@@ -247,9 +246,8 @@ void PropertyEditorView::changeExpression(const QString &propertyName)
             return;
         }
 
-        if (auto metaInfo = qmlObjectNode->modelNode().metaInfo();
-            metaInfo.isValid() && metaInfo.hasProperty(name)) {
-            const auto &propertType = metaInfo.property(name).propertyType();
+        if (auto property = qmlObjectNode->modelNode().metaInfo().property(name)) {
+            const auto &propertType = property.propertyType();
             if (propertType.isColor()) {
                 if (QColor(value->expression().remove('"')).isValid()) {
                     qmlObjectNode->setVariantProperty(name, QColor(value->expression().remove('"')));
@@ -642,7 +640,7 @@ void PropertyEditorView::propertiesRemoved(const QList<AbstractProperty>& proper
 
             if ("width" == property.name() || "height" == property.name()) {
                 const QmlItemNode qmlItemNode = m_selectedNode;
-                if (qmlItemNode.isValid() && qmlItemNode.isInLayout())
+                if (qmlItemNode.isInLayout())
                     resetPuppet();
             }
 

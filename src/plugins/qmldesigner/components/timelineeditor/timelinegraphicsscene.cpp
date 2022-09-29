@@ -769,7 +769,7 @@ void TimelineGraphicsScene::deleteKeyframes(const QList<ModelNode> &frames)
                 ModelNode frame = keyframe;
                 ModelNode parent = frame.parentProperty().parentModelNode();
                 keyframe.destroy();
-                if (parent.isValid() && parent.defaultNodeListProperty().isEmpty())
+                if (parent.defaultNodeListProperty().isEmpty())
                     parent.destroy();
             }
         }

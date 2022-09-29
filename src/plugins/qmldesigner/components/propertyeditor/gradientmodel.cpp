@@ -34,7 +34,7 @@ int GradientModel::rowCount(const QModelIndex & /*parent*/) const
             QmlDesigner::ModelNode gradientNode =
                     m_itemNode.modelNode().nodeProperty(gradientPropertyName().toUtf8()).modelNode();
 
-            if (gradientNode.isValid() && gradientNode.hasNodeListProperty("stops"))
+            if (gradientNode.hasNodeListProperty("stops"))
                 return gradientNode.nodeListProperty("stops").toModelNodeList().count();
         }
     }

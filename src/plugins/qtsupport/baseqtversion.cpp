@@ -2004,32 +2004,52 @@ FilePaths QtVersionPrivate::qtCorePaths()
     const QString versionString = m_data.qtVersionString;
 
     const QDir::Filters filters = QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot;
+    static const QStringList nameFilters{"QtCore*.framework",
+                                         "libQtCore*",
+                                         "libQt5Core*",
+                                         "libQt6Core*",
+                                         "QtCore*",
+                                         "Qt5Core*",
+                                         "Qt6Core*"};
 
-    const FilePaths entries = m_data.libraryPath.dirEntries(filters)
-                            + m_data.binPath.dirEntries(filters);
+    const FilePaths entries = m_data.libraryPath.dirEntries({nameFilters, filters})
+                              + m_data.binPath.dirEntries(filters);
 
     FilePaths staticLibs;
     FilePaths dynamicLibs;
+
+    auto isDynamicLib = [&versionString](const QString &file) {
+        return file.endsWith(".dll") || file.endsWith(QString::fromLatin1(".so.") + versionString)
+               || file.endsWith(".so")
+#if defined(Q_OS_OPENBSD)
+               || file.contains(QRegularExpression("\\.so\\.[0-9]+\\.[0-9]+$")) // QTCREATORBUG-23818
+#endif
+               || file.endsWith(QLatin1Char('.') + versionString + ".dylib");
+    };
+
+    auto isStaticLib = [](const QString &file) {
+        return file.endsWith(".a") || file.endsWith(".lib");
+    };
+
+    auto isFramework = [](const QString &file) {
+        return file.startsWith("QtCore") && file.endsWith(".framework");
+    };
+
+    auto isQtCore = [](const QString &file) {
+        return file.startsWith("libQtCore") || file.startsWith("QtCore")
+               || file.startsWith("libQt5Core") || file.startsWith("Qt5Core")
+               || file.startsWith("libQt6Core") || file.startsWith("Qt6Core");
+    };
+
     for (const FilePath &entry : entries) {
         const QString file = entry.fileName();
-        if (file.startsWith("QtCore") && file.endsWith(".framework") && entry.isReadableDir()) {
-            // handle Framework
+        if (isFramework(file) && entry.isReadableDir()) {
             dynamicLibs.append(entry.pathAppended(file.left(file.lastIndexOf('.'))));
-        } else if (file.startsWith("libQtCore") || file.startsWith("QtCore")
-                || file.startsWith("libQt5Core") || file.startsWith("Qt5Core")
-                || file.startsWith("libQt6Core") || file.startsWith("Qt6Core")) {
-            if (entry.isReadableFile()) {
-                if (file.endsWith(".a") || file.endsWith(".lib"))
-                    staticLibs.append(entry);
-                else if (file.endsWith(".dll")
-                         || file.endsWith(QString::fromLatin1(".so.") + versionString)
-                         || file.endsWith(".so")
-#if defined(Q_OS_OPENBSD)
-                         || file.contains(QRegularExpression("\\.so\\.[0-9]+\\.[0-9]+$")) // QTCREATORBUG-23818
-#endif
-                         || file.endsWith(QLatin1Char('.') + versionString + ".dylib"))
-                    dynamicLibs.append(entry);
-            }
+        } else if (isQtCore(file)) {
+            if (isDynamicLib(file) && entry.isReadableFile())
+                dynamicLibs.append(entry);
+            else if (isStaticLib(file) && entry.isReadableFile())
+                staticLibs.append(entry);
         }
     }
     // Only handle static libs if we cannot find dynamic ones:

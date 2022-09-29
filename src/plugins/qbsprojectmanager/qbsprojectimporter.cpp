@@ -69,42 +69,40 @@ static FilePath buildDir(const FilePath &projectFilePath, const Kit *k)
                 projectFilePath, projectName, k, QString(), BuildConfiguration::Unknown, "qbs");
 }
 
-static bool hasBuildGraph(const QString &dir)
+static bool hasBuildGraph(const FilePath &dir)
 {
-    const QString &dirName = QFileInfo(dir).fileName();
-    return QFileInfo::exists(dir + QLatin1Char('/') + dirName + QLatin1String(".bg"));
+    return dir.pathAppended(dir.fileName() + ".bg").exists();
 }
 
-static QStringList candidatesForDirectory(const QString &dir)
+static FilePaths candidatesForDirectory(const FilePath &dir)
 {
-    QStringList candidates;
-    const QStringList &subDirs = QDir(dir).entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-    for (const QString &subDir : subDirs) {
-        const QString absSubDir = dir + QLatin1Char('/') + subDir;
-        if (hasBuildGraph(absSubDir))
-            candidates << absSubDir;
+    FilePaths candidates;
+    const FilePaths subDirs = dir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+    for (const FilePath &subDir : subDirs) {
+        if (hasBuildGraph(subDir))
+            candidates << subDir;
     }
     return candidates;
 }
 
 FilePaths QbsProjectImporter::importCandidates()
 {
-    const QString projectDir = projectFilePath().toFileInfo().absolutePath();
-    QStringList candidates = candidatesForDirectory(projectDir);
+    const FilePath projectDir = projectFilePath().absolutePath();
+    FilePaths candidates = candidatesForDirectory(projectDir);
 
-    QSet<QString> seenCandidates;
+    QSet<FilePath> seenCandidates;
     seenCandidates.insert(projectDir);
     const auto &kits = KitManager::kits();
     for (Kit * const k : kits) {
-        QFileInfo fi = buildDir(projectFilePath(), k).toFileInfo();
-        const QString candidate = fi.absolutePath();
+        FilePath bdir = buildDir(projectFilePath(), k);
+        const FilePath candidate = bdir.absolutePath();
         if (!seenCandidates.contains(candidate)) {
             seenCandidates.insert(candidate);
             candidates << candidatesForDirectory(candidate);
         }
     }
     qCDebug(qbsPmLog) << "build directory candidates:" << candidates;
-    return Utils::transform(candidates, &FilePath::fromString);
+    return candidates;
 }
 
 QList<void *> QbsProjectImporter::examineDirectory(const FilePath &importPath,

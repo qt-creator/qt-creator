@@ -30,6 +30,9 @@ public:
 private:
     void followSymbol(const CursorInEditor &data, const Utils::LinkHandler &processLinkCallback,
                       bool resolveTarget, bool inNextSplit) override;
+    void followSymbolToType(const CursorInEditor &data,
+                            const Utils::LinkHandler &processLinkCallback,
+                            bool inNextSplit) override;
     void switchDeclDef(const CursorInEditor &data,
                        const Utils::LinkHandler &processLinkCallback) override;
     void startLocalRenaming(const CursorInEditor &data,

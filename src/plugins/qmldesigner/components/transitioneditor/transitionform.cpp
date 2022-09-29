@@ -159,29 +159,27 @@ void TransitionForm::setupStatesLists()
         toList = m_transition.variantProperty("to").value().toString().split(",");
     }
 
-    if (m_transition.isValid()) {
-        const QmlItemNode root(m_transition.view()->rootModelNode());
-        if (root.isValid()) {
-            const QmlModelStateGroup states = root.states();
-            for (const QString &stateName : states.names()) {
-                auto itemTo = new QListWidgetItem(stateName, ui->listWidgetTo);
-                ui->listWidgetTo->addItem(itemTo);
-                itemTo->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-                if (starTo || toList.contains(stateName))
-                    itemTo->setCheckState(Qt::Checked);
-                else
-                    itemTo->setCheckState(Qt::Unchecked);
+    if (const QmlItemNode root = m_transition.view()->rootModelNode()) {
+        const QmlModelStateGroup states = root.states();
+        for (const QString &stateName : states.names()) {
+            auto itemTo = new QListWidgetItem(stateName, ui->listWidgetTo);
+            ui->listWidgetTo->addItem(itemTo);
+            itemTo->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+            if (starTo || toList.contains(stateName))
+                itemTo->setCheckState(Qt::Checked);
+            else
+                itemTo->setCheckState(Qt::Unchecked);
 
-                auto itemFrom = new QListWidgetItem(stateName, ui->listWidgetFrom);
-                ui->listWidgetFrom->addItem(itemFrom);
-                itemFrom->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
-                if (starFrom || fromList.contains(stateName))
-                    itemFrom->setCheckState(Qt::Checked);
-                else
-                    itemFrom->setCheckState(Qt::Unchecked);
-            }
+            auto itemFrom = new QListWidgetItem(stateName, ui->listWidgetFrom);
+            ui->listWidgetFrom->addItem(itemFrom);
+            itemFrom->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled);
+            if (starFrom || fromList.contains(stateName))
+                itemFrom->setCheckState(Qt::Checked);
+            else
+                itemFrom->setCheckState(Qt::Unchecked);
         }
     }
+
     ui->listWidgetTo->blockSignals(bTo);
     ui->listWidgetFrom->blockSignals(bFrom);
 }

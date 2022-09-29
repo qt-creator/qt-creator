@@ -244,7 +244,7 @@ AbstractView *TransitionEditorSectionItem::view() const
 
 bool TransitionEditorSectionItem::isSelected() const
 {
-    return m_targetNode.isValid() && m_targetNode.isSelected();
+    return m_targetNode.isSelected();
 }
 
 ModelNode TransitionEditorSectionItem::targetNode() const

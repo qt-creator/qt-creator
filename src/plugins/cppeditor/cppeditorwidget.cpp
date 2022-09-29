@@ -834,6 +834,20 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
     CppModelManager::switchDeclDef(cursor, std::move(callback));
 }
 
+void CppEditorWidget::followSymbolToType(bool inNextSplit)
+{
+    if (!d->m_modelManager)
+        return;
+
+    const CursorInEditor cursor(textCursor(), textDocument()->filePath(), this, textDocument());
+    const auto callback = [self = QPointer(this),
+            split = inNextSplit != alwaysOpenLinksInNextSplit()](const Link &link) {
+        if (self && link.hasValidTarget())
+            self->openLink(link, split);
+    };
+    CppModelManager::followSymbolToType(cursor, callback, inNextSplit);
+}
+
 bool CppEditorWidget::followQrcUrl(const QTextCursor &cursor,
                                    const Utils::LinkHandler &processLinkCallback)
 {

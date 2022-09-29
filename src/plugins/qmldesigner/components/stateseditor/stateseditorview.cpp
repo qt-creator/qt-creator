@@ -346,9 +346,7 @@ void StatesEditorView::resetWhenCondition(int internalNodeId)
     if (hasModelNodeForInternalId(internalNodeId)) {
         QmlModelState state(modelNodeForInternalId(internalNodeId));
         try {
-            if (state.isValid() && state.modelNode().hasProperty("when"))
-                state.modelNode().removeProperty("when");
-
+            state.modelNode().removeProperty("when");
         } catch (const RewritingException &e) {
             e.showException();
         }
@@ -409,9 +407,7 @@ void StatesEditorView::setAnnotation(int internalNodeId)
         QmlModelState state(modelNodeForInternalId(internalNodeId));
         try {
             if (state.isValid()) {
-                ModelNode modelNode = state.modelNode();
-
-                if (modelNode.isValid()) {
+                if (ModelNode modelNode = state.modelNode()) {
                     if (!m_editor)
                         m_editor = new AnnotationEditor(this);
 

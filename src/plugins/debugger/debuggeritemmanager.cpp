@@ -37,6 +37,7 @@
 #include <QObject>
 #include <QPointer>
 #include <QPushButton>
+#include <QTimer>
 #include <QTreeView>
 #include <QWidget>
 
@@ -61,6 +62,8 @@ class DebuggerItemManagerPrivate
 public:
     DebuggerItemManagerPrivate();
     ~DebuggerItemManagerPrivate();
+
+    void extensionsInitialized();
 
     void restoreDebuggers();
     void saveDebuggers();
@@ -815,6 +818,10 @@ DebuggerItemManagerPrivate::DebuggerItemManagerPrivate()
     m_model = new DebuggerItemModel;
     m_optionsPage = new DebuggerOptionsPage;
     ExtensionSystem::PluginManager::addObject(m_optionsPage);
+}
+
+void DebuggerItemManagerPrivate::extensionsInitialized()
+{
     restoreDebuggers();
 }
 
@@ -952,6 +959,11 @@ DebuggerItemManager::DebuggerItemManager()
 DebuggerItemManager::~DebuggerItemManager()
 {
     delete d;
+}
+
+void DebuggerItemManager::extensionsInitialized()
+{
+    d->extensionsInitialized();
 }
 
 const QList<DebuggerItem> DebuggerItemManager::debuggers()

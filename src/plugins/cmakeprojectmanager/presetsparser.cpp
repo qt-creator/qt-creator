@@ -13,7 +13,7 @@ namespace Internal {
 
 bool parseVersion(const QJsonValue &jsonValue, int &version)
 {
-    if (jsonValue.isNull())
+    if (jsonValue.isUndefined())
         return false;
 
     const int invalidVersion = -1;
@@ -23,7 +23,7 @@ bool parseVersion(const QJsonValue &jsonValue, int &version)
 
 bool parseCMakeMinimumRequired(const QJsonValue &jsonValue, QVersionNumber &versionNumber)
 {
-    if (jsonValue.isNull() || !jsonValue.isObject())
+    if (jsonValue.isUndefined() || !jsonValue.isObject())
         return false;
 
     QJsonObject object = jsonValue.toObject();
@@ -38,7 +38,7 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
                            std::vector<PresetsDetails::ConfigurePreset> &configurePresets)
 {
     // The whole section is optional
-    if (jsonValue.isNull())
+    if (jsonValue.isUndefined())
         return true;
 
     if (!jsonValue.isArray())
@@ -56,7 +56,7 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
         preset.hidden = object.value("hidden").toBool();
 
         QJsonValue inherits = object.value("inherits");
-        if (!inherits.isNull()) {
+        if (!inherits.isUndefined()) {
             preset.inherits = QStringList();
             if (inherits.isArray()) {
                 const QJsonArray inheritsArray = inherits.toArray();
@@ -184,6 +184,97 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
     return true;
 }
 
+bool parseBuildPresets(const QJsonValue &jsonValue,
+                       std::vector<PresetsDetails::BuildPreset> &buildPresets)
+{
+    // The whole section is optional
+    if (jsonValue.isUndefined())
+        return true;
+
+    if (!jsonValue.isArray())
+        return false;
+
+    const QJsonArray buildPresetsArray = jsonValue.toArray();
+    for (const QJsonValue &presetJson : buildPresetsArray) {
+        if (!presetJson.isObject())
+            continue;
+
+        QJsonObject object = presetJson.toObject();
+        PresetsDetails::BuildPreset preset;
+
+        preset.name = object.value("name").toString();
+        preset.hidden = object.value("hidden").toBool();
+
+        QJsonValue inherits = object.value("inherits");
+        if (!inherits.isUndefined()) {
+            preset.inherits = QStringList();
+            if (inherits.isArray()) {
+                const QJsonArray inheritsArray = inherits.toArray();
+                for (const QJsonValue &inheritsValue : inheritsArray)
+                    preset.inherits.value() << inheritsValue.toString();
+            } else {
+                QString inheritsValue = inherits.toString();
+                if (!inheritsValue.isEmpty())
+                    preset.inherits.value() << inheritsValue;
+            }
+        }
+        if (object.contains("displayName"))
+            preset.displayName = object.value("displayName").toString();
+        if (object.contains("description"))
+            preset.description = object.value("description").toString();
+
+        const QJsonObject environmentObj = object.value("environment").toObject();
+        for (const QString &envKey : environmentObj.keys()) {
+            if (!preset.environment)
+                preset.environment = QHash<QString, QString>();
+
+            QJsonValue envValue = environmentObj.value(envKey);
+            preset.environment.value().insert(envKey, envValue.toString());
+        }
+
+        if (object.contains("configurePreset"))
+            preset.configurePreset = object.value("configurePreset").toString();
+        if (object.contains("inheritConfigureEnvironment"))
+            preset.inheritConfigureEnvironment = object.value("inheritConfigureEnvironment").toBool();
+        if (object.contains("jobs"))
+            preset.jobs = object.value("jobs").toInt();
+
+        QJsonValue targets = object.value("targets");
+        if (!targets.isUndefined()) {
+            preset.targets = QStringList();
+            if (targets.isArray()) {
+                const QJsonArray targetsArray = targets.toArray();
+                for (const QJsonValue &targetsValue : targetsArray)
+                    preset.targets.value() << targetsValue.toString();
+            } else {
+                QString targetsValue = targets.toString();
+                if (!targetsValue.isEmpty())
+                    preset.targets.value() << targetsValue;
+            }
+        }
+        if (object.contains("configuration"))
+            preset.configuration = object.value("configuration").toString();
+        if (object.contains("verbose"))
+            preset.verbose = object.value("verbose").toBool();
+        if (object.contains("cleanFirst"))
+            preset.cleanFirst = object.value("cleanFirst").toBool();
+
+        QJsonValue nativeToolOptions = object.value("nativeToolOptions");
+        if (!nativeToolOptions.isUndefined()) {
+            if (nativeToolOptions.isArray()) {
+                preset.nativeToolOptions = QStringList();
+                const QJsonArray toolOptionsArray = nativeToolOptions.toArray();
+                for (const QJsonValue &toolOptionsValue : toolOptionsArray)
+                    preset.nativeToolOptions.value() << toolOptionsValue.toString();
+            }
+        }
+
+        buildPresets.emplace_back(preset);
+    }
+
+    return true;
+}
+
 const PresetsData &PresetsParser::presetsData() const
 {
     return m_presetsData;
@@ -232,9 +323,19 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
 
     // optional
     if (!parseConfigurePresets(root.value("configurePresets"), m_presetsData.configurePresets)) {
-        errorMessage = QCoreApplication::translate(
-            "CMakeProjectManager::Internal",
-            "Invalid \"configurePresets\" section in %1 file").arg(jsonFile.fileName());
+        errorMessage
+            = QCoreApplication::translate("CMakeProjectManager::Internal",
+                                          "Invalid \"configurePresets\" section in %1 file")
+                  .arg(jsonFile.fileName());
+        return false;
+    }
+
+    // optional
+    if (!parseBuildPresets(root.value("buildPresets"), m_presetsData.buildPresets)) {
+        errorMessage
+            = QCoreApplication::translate("CMakeProjectManager::Internal",
+                                          "Invalid \"buildPresets\" section in %1 file")
+                  .arg(jsonFile.fileName());
         return false;
     }
 
@@ -275,6 +376,39 @@ void PresetsDetails::ConfigurePreset::inheritFrom(const ConfigurePreset &other)
 
     if (!debug && other.debug)
         debug = other.debug;
+}
+
+void PresetsDetails::BuildPreset::inheritFrom(const BuildPreset &other)
+{
+    if (!vendor && other.vendor)
+        vendor = other.vendor;
+
+    if (!environment && other.environment)
+        environment = other.environment;
+
+    if (!configurePreset && other.configurePreset)
+        configurePreset = other.configurePreset;
+
+    if (!inheritConfigureEnvironment && other.inheritConfigureEnvironment)
+        inheritConfigureEnvironment = other.inheritConfigureEnvironment;
+
+    if (!jobs && other.jobs)
+        jobs = other.jobs;
+
+    if (!targets && other.targets)
+        targets = other.targets;
+
+    if (!configuration && other.configuration)
+        configuration = other.configuration;
+
+    if (!verbose && other.verbose)
+        verbose = other.verbose;
+
+    if (!cleanFirst && other.cleanFirst)
+        cleanFirst = other.cleanFirst;
+
+    if (!nativeToolOptions && other.nativeToolOptions)
+        nativeToolOptions = other.nativeToolOptions;
 }
 
 } // namespace Internal

@@ -14,6 +14,7 @@
 #include <utils/listmodel.h>
 
 #include <QAction>
+#include <QApplication>
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QElapsedTimer>
@@ -335,11 +336,18 @@ private:
     QListWidget *m_clients = nullptr;
 };
 
-QWidget *LspInspector::createWidget(const QString &defaultClient)
+void LspInspector::show(const QString &defaultClient)
 {
-    auto *inspector = new LspInspectorWidget(this);
-    inspector->selectClient(defaultClient);
-    return inspector;
+    if (!m_currentWidget) {
+        m_currentWidget = new LspInspectorWidget(this);
+        m_currentWidget->setAttribute(Qt::WA_DeleteOnClose);
+        Core::ICore::registerWindow(m_currentWidget, Core::Context("LanguageClient.Inspector"));
+    } else {
+        QApplication::setActiveWindow(m_currentWidget);
+    }
+    if (!defaultClient.isEmpty())
+        static_cast<LspInspectorWidget *>(m_currentWidget.data())->selectClient(defaultClient);
+    m_currentWidget->show();
 }
 
 void LspInspector::log(const LspLogMessage::MessageSender sender,

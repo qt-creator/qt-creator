@@ -19,6 +19,8 @@
 #include <QtConcurrent>
 #include <QTextDocument>
 
+#include <new>
+
 using namespace LanguageClient;
 using namespace LanguageServerProtocol;
 using namespace TextEditor;
@@ -345,7 +347,15 @@ void doSemanticHighlighting(
         return HighlightingResult(token.line, token.column, token.length, styles);
     };
 
-    auto results = QtConcurrent::blockingMapped<HighlightingResults>(tokens, toResult);
+    const auto safeToResult = [&toResult](const ExpandedSemanticToken &token) {
+        try {
+            return toResult(token);
+        } catch (const std::exception &e) {
+            qWarning() << "caught" << e.what() << "in toResult()";
+            return HighlightingResult();
+        }
+    };
+    auto results = QtConcurrent::blockingMapped<HighlightingResults>(tokens, safeToResult);
     const QList<BlockRange> ifdefedOutBlocks = cleanupDisabledCode(results, &doc, docContents);
     ExtraHighlightingResultsCollector(future, results, filePath, ast, &doc, docContents,
                                       clangdVersion).collect();

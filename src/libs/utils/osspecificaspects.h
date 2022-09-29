@@ -24,22 +24,22 @@ inline QString withExecutableSuffix(OsType osType, const QString &executable)
     return finalName;
 }
 
-inline Qt::CaseSensitivity fileNameCaseSensitivity(OsType osType)
+constexpr Qt::CaseSensitivity fileNameCaseSensitivity(OsType osType)
 {
     return osType == OsTypeWindows || osType == OsTypeMac ? Qt::CaseInsensitive : Qt::CaseSensitive;
 }
 
-inline Qt::CaseSensitivity envVarCaseSensitivity(OsType osType)
+constexpr Qt::CaseSensitivity envVarCaseSensitivity(OsType osType)
 {
     return fileNameCaseSensitivity(osType);
 }
 
-inline QChar pathListSeparator(OsType osType)
+constexpr QChar pathListSeparator(OsType osType)
 {
     return QLatin1Char(osType == OsTypeWindows ? ';' : ':');
 }
 
-inline Qt::KeyboardModifier controlModifier(OsType osType)
+constexpr Qt::KeyboardModifier controlModifier(OsType osType)
 {
     return osType == OsTypeMac ? Qt::MetaModifier : Qt::ControlModifier;
 }

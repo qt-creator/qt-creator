@@ -12,16 +12,13 @@ class FilePath;
 
 namespace CMakeProjectManager::Internal {
 
-namespace PresetsDetails {
-class ConfigurePreset;
-}
-
 namespace CMakePresets::Macros {
 /**
  * Expands the CMakePresets Macros using Utils::Environment as target and source for parent environment values.
  * $penv{PATH} is taken from Utils::Environment
  */
-void expand(const PresetsDetails::ConfigurePreset &configurePreset,
+template<class PresetType>
+void expand(const PresetType &preset,
             Utils::Environment &env,
             const Utils::FilePath &sourceDirectory);
 
@@ -29,14 +26,16 @@ void expand(const PresetsDetails::ConfigurePreset &configurePreset,
  * Expands the CMakePresets Macros using Utils::Environment as target
  * $penv{PATH} is replaced with Qt Creator macros ${PATH}
  */
-void expand(const PresetsDetails::ConfigurePreset &configurePreset,
+template<class PresetType>
+void expand(const PresetType &preset,
             Utils::EnvironmentItems &envItems,
             const Utils::FilePath &sourceDirectory);
 
 /**
  * Expands the CMakePresets macros inside the @value QString parameter.
  */
-void expand(const PresetsDetails::ConfigurePreset &configurePreset,
+template<class PresetType>
+void expand(const PresetType &preset,
             const Utils::Environment &env,
             const Utils::FilePath &sourceDirectory,
             QString &value);

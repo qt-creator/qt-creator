@@ -5,6 +5,7 @@
 
 #include "dynamiccapabilities.h"
 
+#include <QPointer>
 #include <QTime>
 #include <QWidget>
 
@@ -47,8 +48,7 @@ class LspInspector : public QObject
 public:
     LspInspector() {}
 
-    QWidget *createWidget(const QString &defaultClient = {});
-
+    void show(const QString &defaultClient = {});
 
     void log(const LspLogMessage::MessageSender sender,
              const QString &clientName,
@@ -70,6 +70,7 @@ signals:
 private:
     QMap<QString, std::list<LspLogMessage>> m_logs;
     QMap<QString, Capabilities> m_capabilities;
+    QPointer<QWidget> m_currentWidget;
     int m_logSize = 100; // default log size if no widget is currently visible
 };
 

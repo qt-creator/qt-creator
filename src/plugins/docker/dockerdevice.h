@@ -122,6 +122,8 @@ public:
     void updateContainerAccess() const;
     void setMounts(const QStringList &mounts) const;
 
+    bool prepareForBuild(const ProjectExplorer::Target *target) override;
+
 protected:
     void fromMap(const QVariantMap &map) final;
     QVariantMap toMap() const final;

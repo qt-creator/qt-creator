@@ -69,6 +69,9 @@ private:
 
     virtual CMakeConfig signingFlags() const;
 
+    void setInitialBuildAndCleanSteps(const ProjectExplorer::Target *target);
+    void setBuildPresetToBuildSteps(const ProjectExplorer::Target *target);
+
     Internal::CMakeBuildSystem *m_buildSystem = nullptr;
 
     friend class Internal::CMakeBuildSettingsWidget;
