@@ -17,12 +17,11 @@ class QTabWidget;
 QT_END_NAMESPACE
 
 namespace CppEditor {
-class ClangDiagnosticConfig;
 
-namespace Ui {
-class ClangDiagnosticConfigsWidget;
-class ClangBaseChecks;
-}
+class ClangDiagnosticConfig;
+class ClangBaseChecksWidget;
+
+namespace Ui { class ClangDiagnosticConfigsWidget; }
 
 class ConfigsModel;
 
@@ -64,8 +63,7 @@ private:
     ConfigsModel *m_configsModel = nullptr;
     QHash<Utils::Id, QString> m_notAcceptedOptions;
 
-    std::unique_ptr<Ui::ClangBaseChecks> m_clangBaseChecks;
-    QWidget *m_clangBaseChecksWidget = nullptr;
+    ClangBaseChecksWidget *m_clangBaseChecks = nullptr;
 };
 
 } // CppEditor namespace

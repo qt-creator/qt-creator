@@ -11,7 +11,6 @@ add_qtc_plugin(CppEditor
     builtineditordocumentparser.cpp builtineditordocumentparser.h
     builtineditordocumentprocessor.cpp builtineditordocumentprocessor.h
     builtinindexingsupport.cpp builtinindexingsupport.h
-    clangbasechecks.ui
     clangdiagnosticconfig.cpp clangdiagnosticconfig.h
     clangdiagnosticconfigsmodel.cpp clangdiagnosticconfigsmodel.h
     clangdiagnosticconfigsselectionwidget.cpp clangdiagnosticconfigsselectionwidget.h

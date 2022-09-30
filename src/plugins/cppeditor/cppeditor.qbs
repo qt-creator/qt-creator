@@ -41,7 +41,6 @@ QtcPlugin {
         "builtineditordocumentprocessor.h",
         "builtinindexingsupport.cpp",
         "builtinindexingsupport.h",
-        "clangbasechecks.ui", // FIXME: Is this used at all?
         "clangdiagnosticconfig.cpp",
         "clangdiagnosticconfig.h",
         "clangdiagnosticconfigsmodel.cpp",
