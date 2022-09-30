@@ -150,7 +150,6 @@ QtcPlugin {
         "cppprojectpartchooser.h",
         "cpppreprocessordialog.cpp",
         "cpppreprocessordialog.h",
-        "cpppreprocessordialog.ui",
         "cppprojectfile.cpp",
         "cppprojectfile.h",
         "cppprojectfilecategorizer.cpp",

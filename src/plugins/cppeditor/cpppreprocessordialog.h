@@ -6,9 +6,9 @@
 #include <QDialog>
 #include <QString>
 
-namespace CppEditor {
-namespace Internal {
-namespace Ui { class CppPreProcessorDialog; }
+namespace TextEditor { class SnippetEditorWidget; }
+
+namespace CppEditor::Internal {
 
 class CppPreProcessorDialog : public QDialog
 {
@@ -23,10 +23,10 @@ public:
     QString extraPreprocessorDirectives() const;
 
 private:
-    Ui::CppPreProcessorDialog *m_ui;
     const QString m_filePath;
     const QString m_projectPartId;
+
+    TextEditor::SnippetEditorWidget *m_editWidget;
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // CppEditor::Internal

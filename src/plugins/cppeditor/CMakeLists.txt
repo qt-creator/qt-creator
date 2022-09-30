@@ -65,7 +65,7 @@ add_qtc_plugin(CppEditor
     cppoutlinemodel.cpp cppoutlinemodel.h
     cppparsecontext.cpp cppparsecontext.h
     cpppointerdeclarationformatter.cpp cpppointerdeclarationformatter.h
-    cpppreprocessordialog.cpp cpppreprocessordialog.h cpppreprocessordialog.ui
+    cpppreprocessordialog.cpp cpppreprocessordialog.h
     cppprojectfile.cpp cppprojectfile.h
     cppprojectfilecategorizer.cpp cppprojectfilecategorizer.h
     cppprojectinfogenerator.cpp cppprojectinfogenerator.h
