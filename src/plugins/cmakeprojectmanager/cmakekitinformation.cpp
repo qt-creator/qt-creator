@@ -1145,11 +1145,14 @@ Tasks CMakeConfigurationKitAspect::validate(const Kit *k) const
 {
     QTC_ASSERT(k, return Tasks());
 
+    const CMakeTool *const cmake = CMakeKitAspect::cmakeTool(k);
+    if (!cmake)
+        return Tasks();
+
     const QtSupport::QtVersion *const version = QtSupport::QtKitAspect::qtVersion(k);
     const ToolChain *const tcC = ToolChainKitAspect::cToolChain(k);
     const ToolChain *const tcCxx = ToolChainKitAspect::cxxToolChain(k);
     const CMakeConfig config = configuration(k);
-    const CMakeTool *const cmake = CMakeKitAspect::cmakeTool(k);
 
     const bool isQt4 = version && version->qtVersion() < QVersionNumber(5, 0, 0);
     FilePath qmakePath; // This is relative to the cmake used for building.
