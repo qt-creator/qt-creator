@@ -129,7 +129,7 @@ StatusList parseStatusOutput(const QString &output)
     StatusList changeSet;
     const QString newLine = QString(QLatin1Char('\n'));
     const QStringList list = output.split(newLine, Qt::SkipEmptyParts);
-    foreach (const QString &l, list) {
+    for (const QString &l : list) {
         const QString line =l.trimmed();
         if (line.size() > 8) {
             const QByteArray state = line.left(1).toLatin1();
@@ -1039,7 +1039,7 @@ QString SubversionPluginPrivate::monitorFile(const FilePath &repository) const
 {
     QTC_ASSERT(!repository.isEmpty(), return QString());
     QDir repoDir(repository.toString());
-    foreach (const QString &svnDir, m_svnDirectories) {
+    for (const QString &svnDir : qAsConst(m_svnDirectories)) {
         if (repoDir.exists(svnDir)) {
             QFileInfo fi(repoDir.absoluteFilePath(svnDir + QLatin1String("/wc.db")));
             if (fi.exists() && fi.isFile())

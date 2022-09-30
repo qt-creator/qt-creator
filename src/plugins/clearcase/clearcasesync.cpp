@@ -126,7 +126,7 @@ void ClearCaseSync::updateTotalFilesCount(const QString &view, ClearCaseSettings
 
 void ClearCaseSync::updateStatusForNotManagedFiles(const QStringList &files)
 {
-    foreach (const QString &file, files) {
+    for (const QString &file : files) {
        QString absFile = QFileInfo(file).absoluteFilePath();
        if (!m_statusMap->contains(absFile))
            ClearCasePlugin::setStatus(absFile, FileStatus::NotManaged, false);

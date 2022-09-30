@@ -160,7 +160,7 @@ StateList parseStatusOutput(const QString &directory, const QString &output)
     QString path = directory;
     if (!path.isEmpty())
         path += slash;
-    foreach (const QString &l, list) {
+    for (const QString &l : list) {
         // Status line containing file
         if (l.startsWith(fileKeyword)) {
             // Parse state
