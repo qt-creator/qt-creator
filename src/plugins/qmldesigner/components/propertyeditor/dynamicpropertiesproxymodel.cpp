@@ -335,7 +335,8 @@ void DynamicPropertyRow::commitValue(const QVariant &value)
         QByteArrayLiteral("DynamicPropertiesModel::commitValue"));
     try {
         QmlObjectNode objectNode = variantProperty.parentQmlObjectNode();
-        if (view->currentState().isBaseState() && !objectNode.timelineIsActive()) {
+        if (view->currentState().isBaseState()
+                && !(objectNode.timelineIsActive() && objectNode.currentTimeline().isRecording())) {
             if (variantProperty.value() != value)
                 variantProperty.setDynamicTypeNameAndValue(variantProperty.dynamicTypeName(), value);
         } else {
