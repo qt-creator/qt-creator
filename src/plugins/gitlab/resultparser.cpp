@@ -60,7 +60,7 @@ static std::pair<QByteArray, QByteArray> splitHeaderAndBody(const QByteArray &in
     } else {
         json = input;
     }
-    return std::make_pair(header, json);
+    return {header, json};
 }
 
 static std::pair<Error, QJsonObject> preHandleSingle(const QByteArray &json)
@@ -87,7 +87,7 @@ static std::pair<Error, QJsonObject> preHandleSingle(const QByteArray &json)
         }
     }
 
-    return std::make_pair(result, object);
+    return {result, object};
 }
 
 static std::pair<Error, QJsonDocument> preHandleHeaderAndBody(const QByteArray &header,
@@ -96,33 +96,33 @@ static std::pair<Error, QJsonDocument> preHandleHeaderAndBody(const QByteArray &
     Error result;
     if (header.isEmpty()) {
         result.message = "Missing Expected Header";
-        return std::make_pair(result, QJsonDocument());
+        return {result, {}};
     }
 
     QJsonParseError error;
     const QJsonDocument doc = QJsonDocument::fromJson(json, &error);
     if (error.error != QJsonParseError::NoError) {
         result.message = error.errorString();
-        return std::make_pair(result, doc);
+        return {result, doc};
     }
 
     if (doc.isObject()) {
         const QJsonObject obj = doc.object();
         if (obj.contains("message")) {
             result = parseErrorMessage(obj.value("message").toString());
-            return std::make_pair(result, doc);
+            return {result, doc};
         } else if (obj.contains("error")) {
             if (obj.value("error").toString() == "insufficient_scope")
                 result.code = 1;
             result.message = obj.value("error_description").toString();
-            return std::make_pair(result, doc);
+            return {result, doc};
         }
     }
 
     if (!doc.isArray())
         result.message = "Not an Array";
 
-    return std::make_pair(result, doc);
+    return {result, doc};
 }
 
 static User userFromJson(const QJsonObject &jsonObj)
