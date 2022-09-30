@@ -87,10 +87,10 @@ QList<void *> QmakeProjectImporter::examineDirectory(const FilePath &importPath,
     QList<void *> result;
     const QLoggingCategory &logs = MakeFileParse::logging();
 
-    QStringList makefiles = QDir(importPath.toString()).entryList(QStringList(QLatin1String("Makefile*")));
+    const QStringList makefiles = QDir(importPath.toString()).entryList(QStringList(("Makefile*")));
     qCDebug(logs) << "  Makefiles:" << makefiles;
 
-    foreach (const QString &file, makefiles) {
+    for (const QString &file : makefiles) {
         std::unique_ptr<DirectoryData> data(new DirectoryData);
         data->makefile = file;
         data->buildDirectory = importPath;

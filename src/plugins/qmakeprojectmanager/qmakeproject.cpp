@@ -175,8 +175,8 @@ Project::RestoreResult QmakeProject::fromMap(const QVariantMap &map, QString *er
 
     // Prune targets without buildconfigurations:
     // This can happen esp. when updating from a old version of Qt Creator
-    QList<Target *>ts = targets();
-    foreach (Target *t, ts) {
+    const QList<Target *> ts = targets();
+    for (Target *t : ts) {
         if (t->buildConfigurations().isEmpty()) {
             qWarning() << "Removing" << t->id().name() << "since it has no buildconfigurations!";
             removeTarget(t);
@@ -366,7 +366,8 @@ void QmakeBuildSystem::updateCppCodeModel()
 
         // Header paths
         ProjectExplorer::HeaderPaths headerPaths;
-        foreach (const QString &inc, pro->variableValue(Variable::IncludePath)) {
+        const QStringList includes = pro->variableValue(Variable::IncludePath);
+        for (const QString &inc : includes) {
             const auto headerPath = HeaderPath::makeUser(inc);
             if (!headerPaths.contains(headerPath))
                 headerPaths += headerPath;
@@ -379,8 +380,8 @@ void QmakeBuildSystem::updateCppCodeModel()
         // Files and generators
         const QStringList cumulativeSourceFiles = pro->variableValue(Variable::CumulativeSource);
         QStringList fileList = pro->variableValue(Variable::ExactSource) + cumulativeSourceFiles;
-        QList<ProjectExplorer::ExtraCompiler *> proGenerators = pro->extraCompilers();
-        foreach (ProjectExplorer::ExtraCompiler *ec, proGenerators) {
+        const QList<ProjectExplorer::ExtraCompiler *> proGenerators = pro->extraCompilers();
+        for (ProjectExplorer::ExtraCompiler *ec : proGenerators) {
             ec->forEachTarget([&](const FilePath &generatedFile) {
                 fileList += generatedFile.toString();
             });
@@ -717,7 +718,7 @@ void QmakeBuildSystem::asyncUpdate()
         project()->updateExtraProjectFiles(docUpdater);
         rootProFile()->asyncUpdate();
     } else {
-        foreach (QmakeProFile *file, m_partialEvaluate)
+        for (QmakeProFile *file : qAsConst(m_partialEvaluate))
             file->asyncUpdate();
     }
 
@@ -763,13 +764,17 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
 // Find the folder that contains a file with a certain name (recurse down)
 static FolderNode *folderOf(FolderNode *in, const FilePath &fileName)
 {
-    foreach (FileNode *fn, in->fileNodes())
+    const QList<FileNode*> fileNodeList = in->fileNodes();
+    for (FileNode *fn : fileNodeList) {
         if (fn->filePath() == fileName)
             return in;
-    foreach (FolderNode *folder, in->folderNodes())
+    }
+    const QList<FolderNode *> folderNodeList = in->folderNodes();
+    for (FolderNode *folder : folderNodeList) {
         if (FolderNode *pn = folderOf(folder, fileName))
             return pn;
-    return nullptr;
+    }
+    return {};
 }
 
 // Find the QmakeProFileNode that contains a certain file.
@@ -778,7 +783,8 @@ static FileNode *fileNodeOf(FolderNode *in, const FilePath &fileName)
 {
     for (FolderNode *folder = folderOf(in, fileName); folder; folder = folder->parentFolderNode()) {
         if (auto *proFile = dynamic_cast<QmakeProFileNode *>(folder)) {
-            foreach (FileNode *fileNode, proFile->fileNodes()) {
+            const QList<FileNode*> fileNodeList = proFile->fileNodes();
+            for (FileNode *fileNode : fileNodeList) {
                 if (fileNode->filePath() == fileName)
                     return fileNode;
             }
@@ -972,8 +978,8 @@ QSet<QString> CentralizedFolderWatcher::recursiveDirs(const QString &folder)
 {
     QSet<QString> result;
     QDir dir(folder);
-    QStringList list = dir.entryList(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
-    foreach (const QString &f, list) {
+    const QStringList list = dir.entryList(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    for (const QString &f : list) {
         const QString a = folder + f + QLatin1Char('/');
         result.insert(a);
         result += recursiveDirs(a);
@@ -986,7 +992,7 @@ void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, Qmake
     m_watcher.addPaths(folders);
 
     const QChar slash = QLatin1Char('/');
-    foreach (const QString &f, folders) {
+    for (const QString &f : folders) {
         QString folder = f;
         if (!folder.endsWith(slash))
             folder.append(slash);
@@ -1004,7 +1010,7 @@ void CentralizedFolderWatcher::watchFolders(const QList<QString> &folders, Qmake
 void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, QmakePriFile *file)
 {
     const QChar slash = QLatin1Char('/');
-    foreach (const QString &f, folders) {
+    for (const QString &f : folders) {
         QString folder = f;
         if (!folder.endsWith(slash))
             folder.append(slash);
@@ -1018,7 +1024,7 @@ void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, Qma
         // where a given directory watcher actual comes from...
 
         QStringList toRemove;
-        foreach (const QString &rwf, m_recursiveWatchedFolders) {
+        for (const QString &rwf : qAsConst(m_recursiveWatchedFolders)) {
             if (rwf.startsWith(folder)) {
                 // So the rwf is a subdirectory of a folder we aren't watching
                 // but maybe someone else wants us to watch
@@ -1037,7 +1043,7 @@ void CentralizedFolderWatcher::unwatchFolders(const QList<QString> &folders, Qma
             }
         }
 
-        foreach (const QString &tr, toRemove)
+        for (const QString &tr : qAsConst(toRemove))
             m_recursiveWatchedFolders.remove(tr);
     }
 }
@@ -1050,7 +1056,7 @@ void CentralizedFolderWatcher::folderChanged(const QString &folder)
 
 void CentralizedFolderWatcher::onTimer()
 {
-    foreach (const QString &folder, m_changedFolders)
+    for (const QString &folder : qAsConst(m_changedFolders))
         delayedFolderChanged(folder);
     m_changedFolders.clear();
 }
@@ -1064,12 +1070,12 @@ void CentralizedFolderWatcher::delayedFolderChanged(const QString &folder)
     while (true) {
         if (!dir.endsWith(slash))
             dir.append(slash);
-        QList<QmakePriFile *> files = m_map.values(dir);
+        const QList<QmakePriFile *> files = m_map.values(dir);
         if (!files.isEmpty()) {
             // Collect all the files
             QSet<FilePath> newFiles;
             newFiles += QmakePriFile::recursiveEnumerate(folder);
-            foreach (QmakePriFile *file, files)
+            for (QmakePriFile *file : files)
                 newOrRemovedFiles = newOrRemovedFiles || file->folderChanged(folder, newFiles);
         }
 

@@ -557,7 +557,7 @@ const QList<Node *> FolderNode::nodes() const
     return Utils::toRawPointer<QList>(m_nodes);
 }
 
-QList<FileNode*> FolderNode::fileNodes() const
+QList<FileNode *> FolderNode::fileNodes() const
 {
     QList<FileNode *> result;
     for (const std::unique_ptr<Node> &n : m_nodes) {

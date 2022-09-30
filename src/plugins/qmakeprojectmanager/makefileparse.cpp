@@ -97,9 +97,8 @@ void MakeFileParse::parseArgs(const QString &args, const QString &project,
 
 void dumpQMakeAssignments(const QList<QMakeAssignment> &list)
 {
-    foreach (const QMakeAssignment &qa, list) {
+    for (const QMakeAssignment &qa : list)
         qCDebug(MakeFileParse::logging()) << "    " << qa.variable << qa.op << qa.value;
-    }
 }
 
 QList<QMakeAssignment> MakeFileParse::parseAssignments(const QList<QMakeAssignment> &assignments)
@@ -107,11 +106,11 @@ QList<QMakeAssignment> MakeFileParse::parseAssignments(const QList<QMakeAssignme
     bool foundSeparateDebugInfo = false;
     bool foundForceDebugInfo = false;
     QList<QMakeAssignment> filteredAssignments;
-    foreach (const QMakeAssignment &qa, assignments) {
+    for (const QMakeAssignment &qa : assignments) {
         if (qa.variable == QLatin1String("CONFIG")) {
-            QStringList values = qa.value.split(QLatin1Char(' '));
+            const QStringList values = qa.value.split(QLatin1Char(' '));
             QStringList newValues;
-            foreach (const QString &value, values) {
+            for (const QString &value : values) {
                 if (value == QLatin1String("debug")) {
                     if (qa.op == QLatin1String("+=")) {
                         m_qmakeBuildConfig.explicitDebug = true;
@@ -345,11 +344,11 @@ void MakeFileParse::parseCommandLine(const QString &command, const QString &proj
     // Create command line of all unfiltered arguments
     const QList<QMakeAssignment> &assignmentsToUse = m_mode == Mode::FilterKnownConfigValues
             ? filteredAssignments : assignments;
-    foreach (const QMakeAssignment &qa, assignmentsToUse)
+    for (const QMakeAssignment &qa : assignmentsToUse)
         ProcessArgs::addArg(&m_unparsedArguments, qa.variable + qa.op + qa.value);
     if (!afterAssignments.isEmpty()) {
         ProcessArgs::addArg(&m_unparsedArguments, QLatin1String("-after"));
-        foreach (const QMakeAssignment &qa, afterAssignments)
+        for (const QMakeAssignment &qa : qAsConst(afterAssignments))
             ProcessArgs::addArg(&m_unparsedArguments, qa.variable + qa.op + qa.value);
     }
 }
