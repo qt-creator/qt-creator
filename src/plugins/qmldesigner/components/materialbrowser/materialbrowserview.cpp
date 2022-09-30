@@ -202,7 +202,8 @@ void MaterialBrowserView::applyBundleMaterialToDropTarget(const ModelNode &bundl
             newMatNode = bundleMat;
         }
 
-        if (m_bundleMaterialDropTarget.isValid()) {
+        if (m_bundleMaterialDropTarget.isValid()
+                && m_bundleMaterialDropTarget.isSubclassOf("QtQuick3D.Model")) {
             QmlObjectNode qmlObjNode(m_bundleMaterialDropTarget);
             if (m_bundleMaterialAddToSelected) {
                 // TODO: unify this logic as it exist elsewhere also
