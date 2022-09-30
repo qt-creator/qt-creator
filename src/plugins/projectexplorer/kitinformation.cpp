@@ -13,8 +13,6 @@
 #include "toolchain.h"
 #include "toolchainmanager.h"
 
-#include <docker/dockerconstants.h>
-
 #include <utils/algorithm.h>
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
@@ -1183,8 +1181,7 @@ private:
         const DeviceManager *dm = DeviceManager::instance();
         for (int i = 0; i < dm->deviceCount(); ++i) {
             IDevice::ConstPtr device = dm->deviceAt(i);
-            if (!(device->type() == Constants::DESKTOP_DEVICE_TYPE
-                    || device->type() == Docker::Constants::DOCKER_DEVICE_TYPE))
+            if (!device->usableAsBuildDevice())
                 blackList.append(device->id());
         }
 

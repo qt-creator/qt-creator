@@ -667,6 +667,11 @@ DeviceEnvironmentFetcher::Ptr DockerDevice::environmentFetcher() const
     return DeviceEnvironmentFetcher::Ptr();
 }
 
+bool DockerDevice::usableAsBuildDevice() const
+{
+    return true;
+}
+
 FilePath DockerDevice::mapToGlobalPath(const FilePath &pathOnDevice) const
 {
     if (pathOnDevice.needsDevice()) {

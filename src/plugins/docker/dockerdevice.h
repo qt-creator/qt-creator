@@ -76,6 +76,7 @@ public:
     ProjectExplorer::DeviceTester *createDeviceTester() const override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     ProjectExplorer::DeviceEnvironmentFetcher::Ptr environmentFetcher() const override;
+    bool usableAsBuildDevice() const override;
 
     Utils::FilePath mapToGlobalPath(const Utils::FilePath &pathOnDevice) const override;
     QString mapToDevicePath(const Utils::FilePath &globalPath) const override;
