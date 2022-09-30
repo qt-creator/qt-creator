@@ -312,7 +312,7 @@ QVersionNumber ClangdSettings::clangdVersion(const FilePath &clangdFilePath)
     const auto it = versionCache.find(clangdFilePath);
     if (it == versionCache.end()) {
         const QVersionNumber version = getClangdVersion(clangdFilePath);
-        versionCache.insert(clangdFilePath, qMakePair(timeStamp, version));
+        versionCache.insert(clangdFilePath, {timeStamp, version});
         return version;
     }
     if (it->first != timeStamp) {

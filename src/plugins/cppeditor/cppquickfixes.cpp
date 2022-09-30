@@ -5037,7 +5037,7 @@ QPair<QString, QString> assembleDeclarationData(const QString &specifiers, Decla
                 completeDecl.append(QLatin1Char(' ') + decltrText);
             else
                 completeDecl.append(decltrText);
-            return qMakePair(name, completeDecl);
+            return {name, completeDecl};
         }
     }
     return QPair<QString, QString>();
@@ -5329,7 +5329,7 @@ void ExtractFunction::match(const CppQuickFixInterface &interface, QuickFixOpera
         if ((usedBeforeExtraction && usedInsideExtraction)
                 || (usedInsideExtraction && refFuncParams.contains(name))) {
             QTC_ASSERT(analyser.m_knownDecls.contains(name), return);
-            relevantDecls.append(qMakePair(name, analyser.m_knownDecls.value(name)));
+            relevantDecls.push_back({name, analyser.m_knownDecls.value(name)});
         }
 
         // We assume that the first use of a local corresponds to its declaration.
@@ -5337,7 +5337,7 @@ void ExtractFunction::match(const CppQuickFixInterface &interface, QuickFixOpera
             if (!funcReturn) {
                 QTC_ASSERT(analyser.m_knownDecls.contains(name), return);
                 // The return, if any, is stored as the first item in the list.
-                relevantDecls.prepend(qMakePair(name, analyser.m_knownDecls.value(name)));
+                relevantDecls.push_front({name, analyser.m_knownDecls.value(name)});
                 funcReturn = it.key();
             } else {
                 // Would require multiple returns. (Unless we do fancy things, as pointed below.)

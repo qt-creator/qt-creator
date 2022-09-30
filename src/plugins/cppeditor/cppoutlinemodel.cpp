@@ -234,7 +234,7 @@ Utils::LineColumn OutlineModel::lineColumnFromIndex(const QModelIndex &sourceInd
 OutlineModel::Range OutlineModel::rangeFromIndex(const QModelIndex &sourceIndex) const
 {
     Utils::LineColumn lineColumn = lineColumnFromIndex(sourceIndex);
-    return std::make_pair(lineColumn, lineColumn);
+    return {lineColumn, lineColumn};
 }
 
 void OutlineModel::buildTree(SymbolItem *root, bool isRoot)
