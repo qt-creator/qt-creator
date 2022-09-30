@@ -21,7 +21,7 @@ namespace Utils { class Diff; }
 
 namespace DiffEditor {
 
-class DiffFileInfo {
+class DIFFEDITOR_EXPORT DiffFileInfo {
 public:
     enum PatchBehaviour {
         PatchFile,
