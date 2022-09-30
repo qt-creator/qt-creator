@@ -1125,7 +1125,7 @@ void MainWindow::addContextObject(IContext *context)
     if (m_contextWidgets.find(widget) != m_contextWidgets.end())
         return;
 
-    m_contextWidgets.insert(std::make_pair(widget, context));
+    m_contextWidgets.insert({widget, context});
     connect(context, &QObject::destroyed, this, [this, context] { removeContextObject(context); });
 }
 

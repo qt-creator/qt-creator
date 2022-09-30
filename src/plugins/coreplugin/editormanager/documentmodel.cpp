@@ -55,8 +55,8 @@ std::pair<int, int> positionEntry(const QList<DocumentModel::Entry *> &list,
     const auto to_insert
             = static_cast<int>(std::distance(begin, std::lower_bound(begin, end, entry, &compare)));
     if (to_remove == to_insert)
-        return std::make_pair(-1, -1);
-    return std::make_pair(to_remove, to_insert);
+        return {-1, -1};
+    return {to_remove, to_insert};
 }
 } // namespace
 

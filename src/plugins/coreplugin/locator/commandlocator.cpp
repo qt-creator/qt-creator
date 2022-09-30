@@ -61,7 +61,7 @@ void CommandLocator::prepareSearch(const QString &entry)
             continue;
         QAction *action = command->action();
         if (action && action->isEnabled())
-            d->commandsData.append(qMakePair(i, action->text()));
+            d->commandsData.append({i, action->text()});
     }
 }
 
