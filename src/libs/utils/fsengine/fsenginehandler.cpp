@@ -52,10 +52,10 @@ QAbstractFileEngine *FSEngineHandler::create(const QString &fileName) const
         FilePath filePath = FilePath::fromString(fixedFileName);
         if (filePath.needsDevice())
             return new FSEngineImpl(filePath);
-
-        if (fixedFileName.compare(QDir::rootPath(), Qt::CaseInsensitive) == 0)
-            return new RootInjectFSEngine(fixedFileName);
     }
+
+    if (fixedFileName.compare(QDir::rootPath(), Qt::CaseInsensitive) == 0)
+        return new RootInjectFSEngine(fixedFileName);
 
     return nullptr;
 }
