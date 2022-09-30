@@ -133,17 +133,18 @@ QString Theme::imageFile(Theme::ImageFile imageFile, const QString &fallBack) co
 
 QPair<QColor, QString> Theme::readNamedColor(const QString &color) const
 {
-    if (d->palette.contains(color))
-        return qMakePair(d->palette[color], color);
+    const auto it = d->palette.constFind(color);
+    if (it != d->palette.constEnd())
+        return {it.value(), color};
     if (color == QLatin1String("style"))
-        return qMakePair(QColor(), QString());
+        return {};
 
     const QColor col('#' + color);
     if (!col.isValid()) {
         qWarning("Color \"%s\" is neither a named color nor a valid color", qPrintable(color));
-        return qMakePair(Qt::black, QString());
+        return {Qt::black, {}};
     }
-    return qMakePair(col, QString());
+    return {col, {}};
 }
 
 QString Theme::filePath() const
