@@ -151,6 +151,8 @@
     Press and hold \key Alt and double-click strings to select several strings
     simultaneously.
 
+    Press \key {Alt+Shift+I} to create cursors at the ends of selected lines.
+
     Press \key Esc to remove all the cursors and selections.
 
     \section1 Splitting the Editor View
