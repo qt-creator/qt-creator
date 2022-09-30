@@ -34,15 +34,14 @@ static WebBrowserEntries parseEmrunOutput(const QByteArray &output)
     while (ts.readLineInto(&line)) {
         const QRegularExpressionMatch match = regExp.match(line);
         if (match.hasMatch())
-            result << qMakePair(match.captured(1), match.captured(2).trimmed());
+            result.push_back({match.captured(1), match.captured(2).trimmed()});
     }
     return result;
 }
 
 static WebBrowserEntries emrunBrowsers(ProjectExplorer::Target *target)
 {
-    WebBrowserEntries result;
-    result.append(qMakePair(QString(), WebBrowserSelectionAspect::tr("Default Browser")));
+    WebBrowserEntries result{{{}, WebBrowserSelectionAspect::tr("Default Browser")}};
     if (auto bc = target->activeBuildConfiguration()) {
         const Utils::Environment environment = bc->environment();
         const Utils::FilePath emrunPath = environment.searchInPath("emrun");
@@ -134,8 +133,8 @@ Even if your browser was not detected, you can use --browser /path/to/browser/ex
 
 )")
             << WebBrowserEntries({
-                qMakePair(QLatin1String("firefox"), QLatin1String("Mozilla Firefox")),
-                qMakePair(QLatin1String("chrome"), QLatin1String("Google Chrome"))});
+                {QLatin1String("firefox"), QLatin1String("Mozilla Firefox")},
+                {QLatin1String("chrome"), QLatin1String("Google Chrome")}});
 
     QTest::newRow("emsdk 2.0.14")
             << QByteArray(
@@ -149,8 +148,8 @@ Even if your browser was not detected, you can use --browser /path/to/browser/ex
 
 )")
             << WebBrowserEntries({
-                qMakePair(QLatin1String("firefox"), QLatin1String("Mozilla Firefox 96.0.0.8041")),
-                qMakePair(QLatin1String("chrome"), QLatin1String("Google Chrome 97.0.4692.71"))});
+                {QLatin1String("firefox"), QLatin1String("Mozilla Firefox 96.0.0.8041")},
+                {QLatin1String("chrome"), QLatin1String("Google Chrome 97.0.4692.71")}});
 }
 
 #endif // WITH_TESTS
