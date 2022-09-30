@@ -1735,7 +1735,7 @@ bool QtVersionPrivate::queryQMakeVariables(const FilePath &binary, const Environ
         error = &tmp;
 
     if (!binary.isExecutableFile()) {
-        *error = Tr::tr("qmake \"%1\" is not an executable.").arg(binary.displayName());
+        *error = ::QtSupport::Tr::tr("qmake \"%1\" is not an executable.").arg(binary.displayName());
         return false;
     }
 
