@@ -28,6 +28,8 @@
 #include <QTimer>
 #include <QTreeView>
 
+using namespace Utils;
+
 namespace VcsBase {
 namespace Internal {
 
@@ -65,7 +67,7 @@ static void removeFileRecursion(QFutureInterface<void> &futureInterface,
 
 // Cleaning files in the background
 static void runCleanFiles(QFutureInterface<void> &futureInterface,
-                          const QString &repository, const QStringList &files,
+                          const FilePath &repository, const QStringList &files,
                           const std::function<void(const QString&)> &errorHandler)
 {
     QString errorMessage;
@@ -80,7 +82,7 @@ static void runCleanFiles(QFutureInterface<void> &futureInterface,
     if (!errorMessage.isEmpty()) {
         // Format and emit error.
         const QString msg = CleanDialog::tr("There were errors when cleaning the repository %1:").
-                            arg(QDir::toNativeSeparators(repository));
+                            arg(repository.toUserOutput());
         errorMessage.insert(0, QLatin1Char('\n'));
         errorMessage.insert(0, msg);
         errorHandler(errorMessage);
@@ -108,7 +110,7 @@ public:
     QTreeView *m_filesTreeView;
 
     QStandardItemModel *m_filesModel;
-    QString m_workingDirectory;
+    FilePath m_workingDirectory;
 };
 
 
@@ -150,7 +152,7 @@ CleanDialog::CleanDialog(QWidget *parent) :
     d->m_filesTreeView->setAllColumnsShowFocus(true);
     d->m_filesTreeView->setRootIsDecorated(false);
 
-    using namespace Utils::Layouting;
+    using namespace Layouting;
 
     Column {
         d->m_selectAllCheckBox,
@@ -178,12 +180,11 @@ CleanDialog::~CleanDialog()
     delete d;
 }
 
-void CleanDialog::setFileList(const QString &workingDirectory, const QStringList &files,
+void CleanDialog::setFileList(const FilePath &workingDirectory, const QStringList &files,
                               const QStringList &ignoredFiles)
 {
     d->m_workingDirectory = workingDirectory;
-    d->m_groupBox->setTitle(tr("Repository: %1").
-                             arg(QDir::toNativeSeparators(workingDirectory)));
+    d->m_groupBox->setTitle(tr("Repository: %1").arg(workingDirectory.toUserOutput()));
     if (const int oldRowCount = d->m_filesModel->rowCount())
         d->m_filesModel->removeRows(0, oldRowCount);
 
@@ -199,32 +200,27 @@ void CleanDialog::setFileList(const QString &workingDirectory, const QStringList
         d->m_selectAllCheckBox->setChecked(true);
 }
 
-void CleanDialog::addFile(const QString &workingDirectory, QString fileName, bool checked)
+void CleanDialog::addFile(const FilePath &workingDirectory, const QString &fileName, bool checked)
 {
     QStyle *style = QApplication::style();
     const QIcon folderIcon = style->standardIcon(QStyle::SP_DirIcon);
     const QIcon fileIcon = style->standardIcon(QStyle::SP_FileIcon);
-    const QChar slash = QLatin1Char('/');
-    // Clean the trailing slash of directories
-    if (fileName.endsWith(slash))
-        fileName.chop(1);
-    QFileInfo fi(workingDirectory + slash + fileName);
-    bool isDir = fi.isDir();
-    if (isDir)
-        checked = false;
+    const FilePath fullPath = workingDirectory.pathAppended(fileName);
+    const bool isDir = fullPath.isDir();
+    const bool isChecked = checked && !isDir;
     auto nameItem = new QStandardItem(QDir::toNativeSeparators(fileName));
     nameItem->setFlags(Qt::ItemIsUserCheckable|Qt::ItemIsEnabled);
     nameItem->setIcon(isDir ? folderIcon : fileIcon);
     nameItem->setCheckable(true);
-    nameItem->setCheckState(checked ? Qt::Checked : Qt::Unchecked);
-    nameItem->setData(QVariant(fi.absoluteFilePath()), Internal::fileNameRole);
+    nameItem->setCheckState(isChecked ? Qt::Checked : Qt::Unchecked);
+    nameItem->setData(fullPath.absoluteFilePath().toVariant(), Internal::fileNameRole);
     nameItem->setData(QVariant(isDir), Internal::isDirectoryRole);
     // Tooltip with size information
-    if (fi.isFile()) {
-        const QString lastModified =
-                QLocale::system().toString(fi.lastModified(), QLocale::ShortFormat);
+    if (fullPath.isFile()) {
+        const QString lastModified = QLocale::system().toString(fullPath.lastModified(),
+                                                                QLocale::ShortFormat);
         nameItem->setToolTip(tr("%n bytes, last modified %1.", nullptr,
-                                fi.size()).arg(lastModified));
+                                fullPath.fileSize()).arg(lastModified));
     }
     d->m_filesModel->appendRow(nameItem);
 }
@@ -261,11 +257,10 @@ bool CleanDialog::promptToDelete()
         return false;
 
     // Remove in background
-    QFuture<void> task = Utils::runAsync(Internal::runCleanFiles, d->m_workingDirectory,
-                                         selectedFiles, Internal::handleError);
+    QFuture<void> task = runAsync(Internal::runCleanFiles, d->m_workingDirectory,
+                                  selectedFiles, Internal::handleError);
 
-    const QString taskName = tr("Cleaning \"%1\"").
-                             arg(QDir::toNativeSeparators(d->m_workingDirectory));
+    const QString taskName = tr("Cleaning \"%1\"").arg(d->m_workingDirectory.toUserOutput());
     Core::ProgressManager::addTask(task, taskName, "VcsBase.cleanRepository");
     return true;
 }
@@ -275,7 +270,7 @@ void CleanDialog::slotDoubleClicked(const QModelIndex &index)
     // Open file on doubleclick
     if (const QStandardItem *item = d->m_filesModel->itemFromIndex(index))
         if (!item->data(Internal::isDirectoryRole).toBool()) {
-            const auto fname = Utils::FilePath::fromVariant(item->data(Internal::fileNameRole));
+            const auto fname = FilePath::fromVariant(item->data(Internal::fileNameRole));
             Core::EditorManager::openEditor(fname);
     }
 }

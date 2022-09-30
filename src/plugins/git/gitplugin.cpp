@@ -350,7 +350,7 @@ public:
     IEditor *openSubmitEditor(const QString &fileName, const CommitData &cd);
     void cleanCommitMessageFile();
     void cleanRepository(const FilePath &directory);
-    void applyPatch(const FilePath &workingDirectory, QString file = QString());
+    void applyPatch(const FilePath &workingDirectory, QString file = {});
     void updateVersionWarning();
 
 
@@ -1055,9 +1055,8 @@ void GitPluginPrivate::blameFile()
             }
         }
     }
-    VcsBaseEditorWidget *editor = m_gitClient.annotate(
-                state.currentFileTopLevel(), state.relativeCurrentFile(), QString(),
-                lineNumber, extraOptions);
+    VcsBaseEditorWidget *editor = m_gitClient.annotate(state.currentFileTopLevel(),
+                                  state.relativeCurrentFile(), {}, lineNumber, extraOptions);
     if (firstLine > 0)
         editor->setFirstLineNumber(firstLine);
 }
@@ -1133,7 +1132,7 @@ void GitPluginPrivate::resetRepository()
     LogChangeDialog dialog(true, ICore::dialogParent());
     ResetItemDelegate delegate(dialog.widget());
     dialog.setWindowTitle(tr("Undo Changes to %1").arg(topLevel.toUserOutput()));
-    if (dialog.runDialog(topLevel, QString(), LogChangeWidget::IncludeRemotes))
+    if (dialog.runDialog(topLevel, {}, LogChangeWidget::IncludeRemotes))
         m_gitClient.reset(topLevel, dialog.resetFlag(), dialog.commit());
 }
 
@@ -1152,7 +1151,7 @@ void GitPluginPrivate::startRebase()
     QTC_ASSERT(state.hasTopLevel(), return);
     const FilePath topLevel = state.topLevel();
 
-    startRebaseFromCommit(topLevel, QString());
+    startRebaseFromCommit(topLevel, {});
 }
 
 void GitPluginPrivate::startRebaseFromCommit(const FilePath &workingDirectory, QString commit)
@@ -1453,7 +1452,7 @@ bool GitPluginPrivate::submitEditorAboutToClose()
 
 void GitPluginPrivate::fetch()
 {
-    m_gitClient.fetch(currentState().topLevel(), QString());
+    m_gitClient.fetch(currentState().topLevel(), {});
 }
 
 void GitPluginPrivate::pull()
@@ -1514,7 +1513,8 @@ void GitPluginPrivate::cleanRepository(const FilePath &directory)
     QStringList files;
     QStringList ignoredFiles;
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    const bool gotFiles = m_gitClient.synchronousCleanList(directory, QString(), &files, &ignoredFiles, &errorMessage);
+    const bool gotFiles = m_gitClient.synchronousCleanList(directory, {}, &files, &ignoredFiles,
+                                                           &errorMessage);
     QApplication::restoreOverrideCursor();
 
     if (!gotFiles) {
@@ -1529,7 +1529,7 @@ void GitPluginPrivate::cleanRepository(const FilePath &directory)
 
     // Show in dialog
     CleanDialog dialog(ICore::dialogParent());
-    dialog.setFileList(directory.toString(), files, ignoredFiles);
+    dialog.setFileList(directory, files, ignoredFiles);
     dialog.exec();
 }
 
@@ -1561,7 +1561,7 @@ void GitPluginPrivate::promptApplyPatch()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    applyPatch(state.topLevel(), QString());
+    applyPatch(state.topLevel(), {});
 }
 
 void GitPluginPrivate::applyPatch(const FilePath &workingDirectory, QString file)
@@ -1572,7 +1572,7 @@ void GitPluginPrivate::applyPatch(const FilePath &workingDirectory, QString file
     // Prompt for file
     if (file.isEmpty()) {
         const QString filter = tr("Patches (*.patch *.diff)");
-        file = QFileDialog::getOpenFileName(ICore::dialogParent(), tr("Choose Patch"), QString(), filter);
+        file = QFileDialog::getOpenFileName(ICore::dialogParent(), tr("Choose Patch"), {}, filter);
         if (file.isEmpty()) {
             m_gitClient.endStashScope(workingDirectory);
             return;
@@ -1601,7 +1601,7 @@ void GitPluginPrivate::stash(bool unstagedOnly)
     QTC_ASSERT(state.hasTopLevel(), return);
 
     const FilePath topLevel = state.topLevel();
-    m_gitClient.executeSynchronousStash(topLevel, QString(), unstagedOnly);
+    m_gitClient.executeSynchronousStash(topLevel, {}, unstagedOnly);
     if (m_stashDialog)
         m_stashDialog->refresh(topLevel, true);
 }
@@ -1616,7 +1616,7 @@ void GitPluginPrivate::stashSnapshot()
     // Prompt for description, restore immediately and keep on working.
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    const QString id = m_gitClient.synchronousStash(state.topLevel(), QString(),
+    const QString id = m_gitClient.synchronousStash(state.topLevel(), {},
                 GitClient::StashImmediateRestore | GitClient::StashPromptDescription);
     if (!id.isEmpty() && m_stashDialog)
         m_stashDialog->refresh(state.topLevel(), true);
@@ -1906,7 +1906,7 @@ FilePaths GitPluginPrivate::unmanagedFiles(const FilePaths &filePaths) const
 
 void GitPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    m_gitClient.annotate(filePath.absolutePath(), filePath.fileName(), QString(), line);
+    m_gitClient.annotate(filePath.absolutePath(), filePath.fileName(), {}, line);
 }
 
 void GitPlugin::emitFilesChanged(const QStringList &l)
