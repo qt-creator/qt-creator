@@ -586,28 +586,26 @@ void UnifiedDiffEditorWidget::jumpToOriginalFile(const QTextCursor &cursor)
     }
 
     const int leftLineNumber = m_data.m_lineNumbers[LeftSide].value(blockNumber, qMakePair(-1, 0)).first;
-    if (leftLineNumber >= 0) {
-        if (leftFileName == rightFileName) {
-            for (const ChunkData &chunkData : fileData.chunks) {
-
-                int newLeftLineNumber = chunkData.startingLineNumber[LeftSide];
-                int newRightLineNumber = chunkData.startingLineNumber[RightSide];
-
-                for (const RowData &rowData : chunkData.rows) {
-                    if (rowData.line[LeftSide].textLineType == TextLineData::TextLine)
-                        newLeftLineNumber++;
-                    if (rowData.line[RightSide].textLineType == TextLineData::TextLine)
-                        newRightLineNumber++;
-                    if (newLeftLineNumber == leftLineNumber) {
-                        m_controller.jumpToOriginalFile(leftFileName, newRightLineNumber, 0);
-                        return;
-                    }
-                }
-            }
-        } else {
-            m_controller.jumpToOriginalFile(leftFileName, leftLineNumber, columnNumber);
-        }
+    if (leftLineNumber < 0)
         return;
+    if (leftFileName != rightFileName) {
+        m_controller.jumpToOriginalFile(leftFileName, leftLineNumber, columnNumber);
+        return;
+    }
+
+    for (const ChunkData &chunkData : fileData.chunks) {
+        int newLeftLineNumber = chunkData.startingLineNumber[LeftSide];
+        int newRightLineNumber = chunkData.startingLineNumber[RightSide];
+        for (const RowData &rowData : chunkData.rows) {
+            if (rowData.line[LeftSide].textLineType == TextLineData::TextLine)
+                newLeftLineNumber++;
+            if (rowData.line[RightSide].textLineType == TextLineData::TextLine)
+                newRightLineNumber++;
+            if (newLeftLineNumber == leftLineNumber) {
+                m_controller.jumpToOriginalFile(leftFileName, newRightLineNumber, 0);
+                return;
+            }
+        }
     }
 }
 
