@@ -496,7 +496,7 @@ static QString encodeExpandedWhitespace(const QString &leftEquality,
         *ok = false;
 
     if (!leftCodeMap || !rightCodeMap)
-        return QString();
+        return {};
 
     leftCodeMap->clear();
     rightCodeMap->clear();
@@ -520,17 +520,17 @@ static QString encodeExpandedWhitespace(const QString &leftEquality,
 
         if (leftIndex < leftCount && rightIndex < rightCount) {
             if (leftEquality.at(leftIndex) != rightEquality.at(rightIndex))
-                return QString(); // equalities broken
+                return {}; // equalities broken
 
         } else if (leftIndex == leftCount && rightIndex == rightCount) {
             ; // do nothing, the last iteration
         } else {
-            return QString(); // equalities broken
+            return {}; // equalities broken
         }
 
-        if (leftWhitespaces.isEmpty() ^ rightWhitespaces.isEmpty()) {
+        if (leftWhitespaces.isEmpty() != rightWhitespaces.isEmpty()) {
             // there must be at least 1 corresponding whitespace, equalities broken
-            return QString();
+            return {};
         }
 
         if (!leftWhitespaces.isEmpty() && !rightWhitespaces.isEmpty()) {
@@ -1233,8 +1233,7 @@ QStringList Differ::encode(const QString &text1,
                                   QString *encodedText1,
                                   QString *encodedText2)
 {
-    QStringList lines;
-    lines.append(QString()); // don't use code: 0
+    QStringList lines{{}}; // don't use code: 0
     QMap<QString, int> lineToCode;
 
     *encodedText1 = encode(text1, &lines, &lineToCode);
