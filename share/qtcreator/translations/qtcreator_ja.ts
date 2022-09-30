@@ -45433,7 +45433,7 @@ Output:
     </message>
 </context>
 <context>
-    <name>CppQuickFixSettingsWidget</name>
+    <name>CppEditor::Internal::CppQuickFixSettingsWidget</name>
     <message>
         <source>Form</source>
         <translation type="vanished">フォーム</translation>

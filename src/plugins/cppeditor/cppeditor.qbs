@@ -175,7 +175,6 @@ QtcPlugin {
         "cppquickfixsettingspage.h",
         "cppquickfixsettingswidget.cpp",
         "cppquickfixsettingswidget.h",
-        "cppquickfixsettingswidget.ui",
         "cppqtstyleindenter.cpp",
         "cppqtstyleindenter.h",
         "cpprefactoringchanges.cpp",
