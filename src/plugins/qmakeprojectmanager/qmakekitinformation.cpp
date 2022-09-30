@@ -96,7 +96,7 @@ KitAspectWidget *QmakeKitAspect::createConfigWidget(Kit *k) const
 
 KitAspect::ItemList QmakeKitAspect::toUserOutput(const Kit *k) const
 {
-    return {qMakePair(Tr::tr("mkspec"), QDir::toNativeSeparators(mkspec(k)))};
+    return {{Tr::tr("mkspec"), QDir::toNativeSeparators(mkspec(k))}};
 }
 
 void QmakeKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
@@ -107,7 +107,7 @@ void QmakeKitAspect::addToMacroExpander(Kit *kit, MacroExpander *expander) const
                 });
 }
 
-Utils::Id QmakeKitAspect::id()
+Id QmakeKitAspect::id()
 {
     return Constants::KIT_INFORMATION_ID;
 }

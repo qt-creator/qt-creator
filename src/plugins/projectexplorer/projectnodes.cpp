@@ -576,7 +576,7 @@ FileNode *FolderNode::fileNode(const Utils::FilePath &file) const
     }));
 }
 
-QList<FolderNode*> FolderNode::folderNodes() const
+QList<FolderNode *> FolderNode::folderNodes() const
 {
     QList<FolderNode *> result;
     for (const std::unique_ptr<Node> &n : m_nodes) {

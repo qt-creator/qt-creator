@@ -19,7 +19,7 @@ QMakeParser::QMakeParser() : m_error(QLatin1String("^(.+?):(\\d+?):\\s(.+?)$"))
 
 OutputLineParser::Result QMakeParser::handleLine(const QString &line, OutputFormat type)
 {
-    if (type != Utils::StdErrFormat)
+    if (type != StdErrFormat)
         return Status::NotHandled;
     QString lne = rightTrimmed(line);
     QRegularExpressionMatch match = m_error.match(lne);

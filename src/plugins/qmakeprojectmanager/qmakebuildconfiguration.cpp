@@ -89,7 +89,7 @@ FilePath QmakeBuildConfiguration::shadowBuildDirectory(const FilePath &proFilePa
 
 const char BUILD_CONFIGURATION_KEY[] = "Qt4ProjectManager.Qt4BuildConfiguration.BuildConfiguration";
 
-QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Utils::Id id)
+QmakeBuildConfiguration::QmakeBuildConfiguration(Target *target, Id id)
     : BuildConfiguration(target, id)
 {
     setConfigWidgetDisplayName(Tr::tr("General"));

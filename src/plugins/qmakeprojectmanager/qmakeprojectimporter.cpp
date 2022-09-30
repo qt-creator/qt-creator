@@ -39,14 +39,14 @@ using namespace Utils;
 
 namespace QmakeProjectManager::Internal {
 
-const Utils::Id QT_IS_TEMPORARY("Qmake.TempQt");
+const Id QT_IS_TEMPORARY("Qmake.TempQt");
 const char IOSQT[] = "Qt4ProjectManager.QtVersion.Ios"; // ugly
 
 struct DirectoryData
 {
     QString makefile;
-    Utils::FilePath buildDirectory;
-    Utils::FilePath canonicalQmakeBinary;
+    FilePath buildDirectory;
+    FilePath canonicalQmakeBinary;
     QtProjectImporter::QtVersionData qtVersionData;
     QString parsedSpec;
     QtVersion::QmakeBuildConfigs buildConfig;

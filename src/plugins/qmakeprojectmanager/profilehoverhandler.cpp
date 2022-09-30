@@ -14,6 +14,7 @@
 #include <QUrl>
 
 using namespace Core;
+using namespace Utils;
 
 namespace QmakeProjectManager {
 namespace Internal {
@@ -27,7 +28,7 @@ void ProFileHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidg
                                         int pos,
                                         ReportPriority report)
 {
-    Utils::ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
+    ExecuteOnDestruction reportPriority([this, report](){ report(priority()); });
 
     m_docFragment.clear();
     m_manualKind = UnknownManual;
@@ -114,8 +115,8 @@ void ProFileHoverHandler::identifyDocFragment(ProFileHoverHandler::ManualKind ma
         QUrl url(QString::fromLatin1("qthelp://org.qt-project.qmake/qmake/qmake-%1-reference.html").arg(manualName()));
         const QByteArray html = Core::HelpManager::fileData(url);
 
-        Utils::HtmlDocExtractor htmlExtractor;
-        htmlExtractor.setMode(Utils::HtmlDocExtractor::FirstParagraph);
+        HtmlDocExtractor htmlExtractor;
+        htmlExtractor.setMode(HtmlDocExtractor::FirstParagraph);
 
         // Document fragment of qmake function is retrieved from docs.
         // E.g. in case of the keyword "find" the document fragment
