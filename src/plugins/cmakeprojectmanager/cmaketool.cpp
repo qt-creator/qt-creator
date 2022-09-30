@@ -173,13 +173,14 @@ bool CMakeTool::isValid() const
 
 void CMakeTool::runCMake(QtcProcess &cmake, const QStringList &args, int timeoutS) const
 {
+    const FilePath executable = cmakeExecutable();
     cmake.setTimeoutS(timeoutS);
     cmake.setDisableUnixTerminal();
-    Environment env = Environment::systemEnvironment();
+    Environment env = executable.deviceEnvironment();
     env.setupEnglishOutput();
     cmake.setEnvironment(env);
     cmake.setTimeOutMessageBoxEnabled(false);
-    cmake.setCommand({cmakeExecutable(), args});
+    cmake.setCommand({executable, args});
     cmake.runBlocking();
 }
 
