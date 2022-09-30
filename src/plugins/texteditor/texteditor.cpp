@@ -889,6 +889,10 @@ void TextEditorWidgetFind::cancelCurrentSelectAll()
 
 TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     : q(parent)
+    , m_overlay(new TextEditorOverlay(q))
+    , m_snippetOverlay(new SnippetOverlay(q))
+    , m_searchResultOverlay(new TextEditorOverlay(q))
+    , m_refactorOverlay(new RefactorOverlay(q))
     , m_marksVisible(false)
     , m_codeFoldingVisible(false)
     , m_codeFoldingSupported(false)
@@ -901,10 +905,6 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     , m_hoverHandlerRunner(parent, m_hoverHandlers)
     , m_clipboardAssistProvider(new ClipboardAssistProvider)
     , m_autoCompleter(new AutoCompleter)
-    , m_overlay(new TextEditorOverlay(q))
-    , m_snippetOverlay(new SnippetOverlay(q))
-    , m_searchResultOverlay(new TextEditorOverlay(q))
-    , m_refactorOverlay(new RefactorOverlay(q))
 {
     auto aggregate = new Aggregation::Aggregate;
     m_find = new TextEditorWidgetFind(q);
