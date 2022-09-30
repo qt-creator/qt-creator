@@ -284,20 +284,22 @@ bool SymbolSupport::supportsRename(TextEditor::TextDocument *document)
 
 void SymbolSupport::renameSymbol(TextEditor::TextDocument *document, const QTextCursor &cursor)
 {
-    bool prepareSupported;
-    if (!LanguageClient::supportsRename(m_client, document, prepareSupported))
-        return;
-
+    const TextDocumentPositionParams params = generateDocPosParams(document, cursor);
     QTextCursor tc = cursor;
     tc.select(QTextCursor::WordUnderCursor);
     const QString oldSymbolName = tc.selectedText();
-    const QString placeHolder = m_defaultSymbolMapper ? m_defaultSymbolMapper(oldSymbolName)
+    const QString placeholder = m_defaultSymbolMapper ? m_defaultSymbolMapper(oldSymbolName)
                                                       : oldSymbolName;
 
-    if (prepareSupported)
-        requestPrepareRename(generateDocPosParams(document, cursor), placeHolder);
-    else
-        startRenameSymbol(generateDocPosParams(document, cursor), placeHolder);
+    bool prepareSupported;
+    if (!LanguageClient::supportsRename(m_client, document, prepareSupported)) {
+        const QString error = tr("Renaming is not supported with %1").arg(m_client->name());
+        createSearch(params, placeholder)->finishSearch(true, error);
+    } else  if (prepareSupported) {
+        requestPrepareRename(generateDocPosParams(document, cursor), placeholder);
+    } else {
+        startRenameSymbol(generateDocPosParams(document, cursor), placeholder);
+    }
 }
 
 void SymbolSupport::requestPrepareRename(const TextDocumentPositionParams &params,
@@ -307,8 +309,10 @@ void SymbolSupport::requestPrepareRename(const TextDocumentPositionParams &param
     request.setResponseCallback([this, params, placeholder](
                                     const PrepareRenameRequest::Response &response) {
         const std::optional<PrepareRenameRequest::Response::Error> &error = response.error();
-        if (error.has_value())
+        if (error.has_value()) {
             m_client->log(*error);
+            createSearch(params, placeholder)->finishSearch(true, error->toString());
+        }
 
         const std::optional<PrepareRenameResult> &result = response.result();
         if (result.has_value()) {
@@ -361,8 +365,8 @@ QList<Core::SearchResultItem> generateReplaceItems(const WorkspaceEdit &edits)
     return generateSearchResultItems(rangesInDocument);
 }
 
-void SymbolSupport::startRenameSymbol(const TextDocumentPositionParams &positionParams,
-                                      const QString &placeholder)
+Core::SearchResult *SymbolSupport::createSearch(const TextDocumentPositionParams &positionParams,
+                                                const QString &placeholder)
 {
     Core::SearchResult *search = Core::SearchResultWindow::instance()->startNewSearch(
         tr("Find References with %1 for:").arg(m_client->name()),
@@ -394,7 +398,13 @@ void SymbolSupport::startRenameSymbol(const TextDocumentPositionParams &position
                          applyRename(checkedItems);
                      });
 
-    requestRename(positionParams, placeholder, search);
+    return search;
+}
+
+void SymbolSupport::startRenameSymbol(const TextDocumentPositionParams &positionParams,
+                                      const QString &placeholder)
+{
+    requestRename(positionParams, placeholder, createSearch(positionParams, placeholder));
 }
 
 void SymbolSupport::handleRenameResponse(Core::SearchResult *search,

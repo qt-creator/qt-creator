@@ -60,6 +60,9 @@ private:
                               const QString &placeholder);
     void requestRename(const LanguageServerProtocol::TextDocumentPositionParams &positionParams,
                        const QString &newName, Core::SearchResult *search);
+    Core::SearchResult *createSearch(
+        const LanguageServerProtocol::TextDocumentPositionParams &positionParams,
+        const QString &placeholder);
     void startRenameSymbol(const LanguageServerProtocol::TextDocumentPositionParams &params,
                            const QString &placeholder);
     void handleRenameResponse(Core::SearchResult *search,
