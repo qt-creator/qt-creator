@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "webassemblyrunconfigurationaspects.h"
+#include "webassemblytr.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/runcontrol.h>
@@ -41,7 +42,8 @@ static WebBrowserEntries parseEmrunOutput(const QByteArray &output)
 
 static WebBrowserEntries emrunBrowsers(ProjectExplorer::Target *target)
 {
-    WebBrowserEntries result{{{}, WebBrowserSelectionAspect::tr("Default Browser")}};
+    WebBrowserEntries result;
+    result.append(qMakePair(QString(), Tr::tr("Default Browser")));
     if (auto bc = target->activeBuildConfiguration()) {
         const Utils::Environment environment = bc->environment();
         const Utils::FilePath emrunPath = environment.searchInPath("emrun");
@@ -64,7 +66,7 @@ WebBrowserSelectionAspect::WebBrowserSelectionAspect(ProjectExplorer::Target *ta
         const int defaultIndex = qBound(0, m_availableBrowsers.count() - 1, 1);
         m_currentBrowser = m_availableBrowsers.at(defaultIndex).first;
     }
-    setDisplayName(tr("Web Browser"));
+    setDisplayName(Tr::tr("Web Browser"));
     setId("WebBrowserAspect");
     setSettingsKey("RunConfiguration.WebBrowser");
 
@@ -82,7 +84,7 @@ void WebBrowserSelectionAspect::addToLayout(LayoutBuilder &builder)
         m_currentBrowser = m_webBrowserComboBox->currentData().toString();
         emit changed();
     });
-    builder.addItems({tr("Web browser:"), m_webBrowserComboBox});
+    builder.addItems({Tr::tr("Web browser:"), m_webBrowserComboBox});
 }
 
 void WebBrowserSelectionAspect::fromMap(const QVariantMap &map)

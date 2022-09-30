@@ -52186,7 +52186,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>WebAssembly::Internal::EmrunRunConfigurationFactory</name>
+    <name>WebAssembly</name>
     <message>
         <source>Effective emrun call:</source>
         <translation>Команда запуска emrun:</translation>
@@ -52195,9 +52195,6 @@ What do you want to do?</source>
         <source>Launch with emrun</source>
         <translation>Запустить через emrun</translation>
     </message>
-</context>
-<context>
-    <name>WebAssembly::Internal::WebAssemblyDevice</name>
     <message>
         <source>Web Browser</source>
         <translation>Браузер</translation>
@@ -52206,9 +52203,6 @@ What do you want to do?</source>
         <source>WebAssembly Runtime</source>
         <translation>Среда WebAssembly</translation>
     </message>
-</context>
-<context>
-    <name>WebAssembly::Internal::WebAssemblyToolChain</name>
     <message>
         <source>Emscripten Compiler</source>
         <translation>Компилятор Emscripten</translation>
@@ -52217,9 +52211,6 @@ What do you want to do?</source>
         <source>WebAssembly</source>
         <translation>WebAssembly</translation>
     </message>
-</context>
-<context>
-    <name>WebAssembly::Internal::WebBrowserSelectionAspect</name>
     <message>
         <source>Web browser</source>
         <translation>Браузер</translation>
@@ -52228,9 +52219,6 @@ What do you want to do?</source>
         <source>Web browser:</source>
         <translation>Браузер:</translation>
     </message>
-</context>
-<context>
-    <name>WebAssemblyPlugin</name>
     <message>
         <source>WebAssembly</source>
         <comment>Qt Version is meant for WebAssembly</comment>

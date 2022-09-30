@@ -11,8 +11,6 @@ namespace Internal {
 
 class WebAssemblyQtVersion : public QtSupport::QtVersion
 {
-    Q_DECLARE_TR_FUNCTIONS(WebAssembly::Internal::WebAssemblyQtVersion)
-
 public:
     WebAssemblyQtVersion();
 

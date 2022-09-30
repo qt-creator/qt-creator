@@ -1,9 +1,10 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "webassemblyrunconfigurationaspects.h"
-#include "webassemblyrunconfiguration.h"
 #include "webassemblyconstants.h"
+#include "webassemblyrunconfiguration.h"
+#include "webassemblyrunconfigurationaspects.h"
+#include "webassemblytr.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
@@ -73,7 +74,7 @@ public:
         auto webBrowserAspect = addAspect<WebBrowserSelectionAspect>(target);
 
         auto effectiveEmrunCall = addAspect<StringAspect>();
-        effectiveEmrunCall->setLabelText(EmrunRunConfigurationFactory::tr("Effective emrun call:"));
+        effectiveEmrunCall->setLabelText(Tr::tr("Effective emrun call:"));
         effectiveEmrunCall->setDisplayStyle(StringAspect::TextEditDisplay);
         effectiveEmrunCall->setReadOnly(true);
 

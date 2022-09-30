@@ -1,13 +1,14 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#include "webassemblyplugin.h"
 #include "webassemblyconstants.h"
 #include "webassemblydevice.h"
 #include "webassemblyoptionspage.h"
+#include "webassemblyplugin.h"
 #include "webassemblyqtversion.h"
 #include "webassemblyrunconfiguration.h"
 #include "webassemblytoolchain.h"
+#include "webassemblytr.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
@@ -83,10 +84,10 @@ void WebAssemblyPlugin::askUserAboutEmSdkSetup()
         return;
 
     InfoBarEntry info(setupWebAssemblyEmSdk,
-                      tr("Setup Emscripten SDK for WebAssembly? "
+                      Tr::tr("Setup Emscripten SDK for WebAssembly? "
                          "To do it later, select Edit > Preferences > Devices > WebAssembly."),
                       InfoBarEntry::GlobalSuppression::Enabled);
-    info.addCustomButton(tr("Setup Emscripten SDK"), [setupWebAssemblyEmSdk] {
+    info.addCustomButton(Tr::tr("Setup Emscripten SDK"), [setupWebAssemblyEmSdk] {
         ICore::infoBar()->removeInfo(setupWebAssemblyEmSdk);
         QTimer::singleShot(0, []() { ICore::showOptionsDialog(Constants::SETTINGS_ID); });
     });

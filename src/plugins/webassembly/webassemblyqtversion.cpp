@@ -3,6 +3,7 @@
 
 #include "webassemblyconstants.h"
 #include "webassemblyqtversion.h"
+#include "webassemblytr.h"
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -29,8 +30,7 @@ WebAssemblyQtVersion::WebAssemblyQtVersion() = default;
 
 QString WebAssemblyQtVersion::description() const
 {
-    return QCoreApplication::translate("WebAssemblyPlugin", "WebAssembly",
-                                       "Qt Version is meant for WebAssembly");
+    return Tr::tr("WebAssembly", "Qt Version is meant for WebAssembly");
 }
 
 QSet<Id> WebAssemblyQtVersion::targetDeviceTypes() const
@@ -59,7 +59,7 @@ QString WebAssemblyQtVersion::invalidReason() const
     if (!baseReason.isEmpty())
         return baseReason;
 
-    return tr("%1 does not support Qt for WebAssembly below version %2.")
+    return Tr::tr("%1 does not support Qt for WebAssembly below version %2.")
             .arg(Core::ICore::versionString())
             .arg(minimumSupportedQtVersion().toString());
 }
