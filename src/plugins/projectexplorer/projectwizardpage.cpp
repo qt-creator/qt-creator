@@ -272,9 +272,11 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent)
     m_additionalInfo = new QLabel;
     m_addToVersionControlLabel = new QLabel(tr("Add to &version control:"));
     m_addToVersionControlComboBox = new QComboBox;
+    m_addToVersionControlComboBox->setObjectName("addToVersionControlComboBox");
     m_vcsManageButton = new QPushButton(ICore::msgShowOptionsDialog());
     m_vcsManageButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
     m_filesLabel = new QLabel;
+    m_filesLabel->setObjectName("filesLabel");
     m_filesLabel->setAlignment(Qt::AlignBottom);
     m_filesLabel->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::TextSelectableByKeyboard);
     auto scrollArea = new QScrollArea;

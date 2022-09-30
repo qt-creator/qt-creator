@@ -177,6 +177,7 @@ NewDialogWidget::NewDialogWidget(QWidget *parent)
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok,
                                           Qt::Horizontal);
 
+    m_templateCategoryView->setObjectName("templateCategoryView");
     m_templateCategoryView->setStyleSheet(QString::fromUtf8(" QTreeView::branch {\n"
                                                             "         background: transparent;\n"
                                                             " }"));
@@ -186,10 +187,12 @@ NewDialogWidget::NewDialogWidget(QWidget *parent)
     m_templateCategoryView->setHeaderHidden(true);
     m_templateCategoryView->header()->setVisible(false);
 
+    m_templatesView->setObjectName("templatesView");
     m_templatesView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_templatesView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_templatesView->setUniformItemSizes(false);
 
+    m_templateDescription->setObjectName("templateDescription");
     m_templateDescription->setFocusPolicy(Qt::NoFocus);
     m_templateDescription->setFrameShape(QFrame::NoFrame);
 

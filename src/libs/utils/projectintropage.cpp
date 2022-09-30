@@ -82,17 +82,20 @@ ProjectIntroPage::ProjectIntroPage(QWidget *parent) :
     d->m_pathChooser->setDisabled(d->m_forceSubProject);
 
     d->m_projectsDirectoryCheckBox = new QCheckBox(tr("Use as default project location"));
+    d->m_projectsDirectoryCheckBox->setObjectName("projectsDirectoryCheckBox");
     d->m_projectsDirectoryCheckBox->setDisabled(d->m_forceSubProject);
 
     d->m_projectComboBox = new QComboBox;
     d->m_projectComboBox->setVisible(d->m_forceSubProject);
 
     d->m_stateLabel = new Utils::InfoLabel(this);
+    d->m_stateLabel->setObjectName("stateLabel");
     d->m_stateLabel->setWordWrap(true);
     d->m_stateLabel->setFilled(true);
     hideStatusLabel();
 
     d->m_nameLineEdit->setPlaceholderText(tr("Enter project name"));
+    d->m_nameLineEdit->setObjectName("nameLineEdit");
     d->m_nameLineEdit->setFocus();
     d->m_nameLineEdit->setValidationFunction([this](FancyLineEdit *edit, QString *errorString) {
         return validateProjectName(edit->text(), errorString);
