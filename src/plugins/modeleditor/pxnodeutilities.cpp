@@ -15,7 +15,7 @@
 #include <utils/qtcassert.h>
 
 #include <QFileInfo>
-#include <QQueue>
+#include <QList>
 #include <QPair>
 
 #include <typeinfo>
@@ -76,8 +76,8 @@ qmt::MPackage *PxNodeUtilities::createBestMatchingPackagePath(
         suggestedParent = dynamic_cast<qmt::MPackage *>(suggestedParent->owner());
     }
 
-    QQueue<QPair<qmt::MPackage *, int> > roots;
-    roots.append(qMakePair(d->diagramSceneController->modelController()->rootPackage(), 0));
+    QList<QPair<qmt::MPackage *, int>>
+            roots{{d->diagramSceneController->modelController()->rootPackage(), 0}};
 
     int maxChainLength = -1;
     int minChainDepth = -1;
@@ -94,7 +94,7 @@ qmt::MPackage *PxNodeUtilities::createBestMatchingPackagePath(
                 if (auto childPackage = dynamic_cast<qmt::MPackage *>(handle.target())) {
                     // only accept root packages in the same path as the suggested parent package
                     if (suggestedParents.contains(childPackage)) {
-                        roots.append(qMakePair(childPackage, depth + 1));
+                        roots.push_back({childPackage, depth + 1});
                         break;
                     }
                 }
@@ -160,8 +160,7 @@ qmt::MPackage *PxNodeUtilities::createBestMatchingPackagePath(
 qmt::MObject *PxNodeUtilities::findSameObject(const QStringList &relativeElements,
                                               const qmt::MObject *object)
 {
-    QQueue<qmt::MPackage *> roots;
-    roots.append(d->diagramSceneController->modelController()->rootPackage());
+    QList<qmt::MPackage *> roots{d->diagramSceneController->modelController()->rootPackage()};
 
     while (!roots.isEmpty()) {
         qmt::MPackage *package = roots.takeFirst();
