@@ -157,7 +157,7 @@ public:
             autoRoot->appendChild(autoNode);
             manualRoot->appendChild(manualNode);
 
-            m_languageMap.insert(l, qMakePair(autoNode, manualNode));
+            m_languageMap.insert(l, {autoNode, manualNode});
         }
 
         m_model.rootItem()->appendChild(autoRoot);

@@ -1532,8 +1532,7 @@ KitAspectWidget *EnvironmentKitAspect::createConfigWidget(Kit *k) const
 
 KitAspect::ItemList EnvironmentKitAspect::toUserOutput(const Kit *k) const
 {
-    return { qMakePair(tr("Environment"),
-             EnvironmentItem::toStringList(environmentChanges(k)).join("<br>")) };
+    return {{tr("Environment"), EnvironmentItem::toStringList(environmentChanges(k)).join("<br>")}};
 }
 
 Id EnvironmentKitAspect::id()

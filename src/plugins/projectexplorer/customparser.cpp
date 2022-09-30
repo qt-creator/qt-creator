@@ -306,9 +306,8 @@ private:
         parserCheckBoxes.clear();
         for (const CustomParserSettings &s : ProjectExplorerPlugin::customParsers()) {
             const auto checkBox = new QCheckBox(s.displayName, this);
-            connect(checkBox, &QCheckBox::stateChanged,
-                    this, &SelectionWidget::selectionChanged);
-            parserCheckBoxes << qMakePair(checkBox, s.id);
+            connect(checkBox, &QCheckBox::stateChanged, this, &SelectionWidget::selectionChanged);
+            parserCheckBoxes.push_back({checkBox, s.id});
             layout->addWidget(checkBox);
         }
         setSelectedParsers(parsers);
