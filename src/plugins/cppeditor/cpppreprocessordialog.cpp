@@ -3,7 +3,6 @@
 
 #include "cpppreprocessordialog.h"
 
-#include "cppeditorwidget.h"
 #include "cppeditorconstants.h"
 #include "cpptoolsreuse.h"
 
@@ -19,14 +18,14 @@ using namespace Utils;
 
 namespace CppEditor::Internal {
 
-CppPreProcessorDialog::CppPreProcessorDialog(const QString &filePath, QWidget *parent)
+CppPreProcessorDialog::CppPreProcessorDialog(const FilePath &filePath, QWidget *parent)
     : QDialog(parent)
     , m_filePath(filePath)
 {
     resize(400, 300);
     setWindowTitle(tr("Additional C++ Preprocessor Directives"));
 
-    const QString key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + m_filePath;
+    const QString key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + m_filePath.toString();
     const QString directives = ProjectExplorer::SessionManager::value(key).toString();
 
     m_editWidget = new TextEditor::SnippetEditorWidget;
@@ -39,8 +38,7 @@ CppPreProcessorDialog::CppPreProcessorDialog(const QString &filePath, QWidget *p
     using namespace Layouting;
 
     Column {
-        tr("Additional C++ Preprocessor Directives for %1:")
-            .arg(Utils::FilePath::fromString(m_filePath).fileName()),
+        tr("Additional C++ Preprocessor Directives for %1:").arg(m_filePath.fileName()),
         m_editWidget,
         buttonBox,
     }.attachTo(this);
@@ -56,7 +54,7 @@ int CppPreProcessorDialog::exec()
     if (QDialog::exec() == Rejected)
         return Rejected;
 
-    const QString key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + m_filePath;
+    const QString key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + m_filePath.toString();
     ProjectExplorer::SessionManager::setValue(key, extraPreprocessorDirectives());
 
     return Accepted;

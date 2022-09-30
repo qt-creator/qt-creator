@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+
 #include <QDialog>
 #include <QString>
 
@@ -15,7 +17,7 @@ class CppPreProcessorDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit CppPreProcessorDialog(const QString &filePath, QWidget *parent);
+    CppPreProcessorDialog(const Utils::FilePath &filePath, QWidget *parent);
     ~CppPreProcessorDialog() override;
 
     int exec() override;
@@ -23,7 +25,7 @@ public:
     QString extraPreprocessorDirectives() const;
 
 private:
-    const QString m_filePath;
+    const Utils::FilePath m_filePath;
     const QString m_projectPartId;
 
     TextEditor::SnippetEditorWidget *m_editWidget;
