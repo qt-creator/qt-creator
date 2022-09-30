@@ -91,6 +91,8 @@ EasingCurveDialog::EasingCurveDialog(const QList<ModelNode> &frames, QWidget *pa
     presetBar->setDrawBase(false);
     presetBar->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
+    m_presets->initialize(presetBar);
+
     auto *durationLabel = new QLabel("Duration (ms)");
     auto *durationEdit = new QSpinBox;
     durationEdit->setMaximum(std::numeric_limits<int>::max());
@@ -106,6 +108,8 @@ EasingCurveDialog::EasingCurveDialog(const QList<ModelNode> &frames, QWidget *pa
     m_durationLayout->insertSpacing(2, hSpacing);
     m_durationLayout->insertSpacing(4, hSpacing);
     m_durationLayout->addStretch(hSpacing);
+
+    m_splineEditor->setDuration(durationEdit->value());
 
     m_buttons->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     auto callButtonsClicked = [this](QAbstractButton *button) {
@@ -152,9 +156,6 @@ EasingCurveDialog::EasingCurveDialog(const QList<ModelNode> &frames, QWidget *pa
 
     connect(animateButton, &QPushButton::clicked, m_splineEditor, &SplineEditor::animate);
 
-    m_presets->initialize(presetBar);
-
-    m_splineEditor->setDuration(durationEdit->value());
 
     resize(QSize(1421, 918));
 }

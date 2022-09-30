@@ -38,6 +38,8 @@ namespace QmlDesigner {
 class EasingCurve;
 class NamedEasingCurve;
 
+QString makeNameUnique(const QString& name, const QStringList& currentNames);
+
 class PresetItemDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
@@ -87,6 +89,8 @@ public:
 
     QColor curveColor() const;
 
+    QStringList allNames() const;
+
     void initialize(int index);
 
     void readPresets();
@@ -111,11 +115,7 @@ protected:
                      const QVector<int> &roles = QVector<int>()) override;
 
 private:
-    QStringList allNames() const;
-
     QList<NamedEasingCurve> storedCurves() const;
-
-    QString createUniqueName() const;
 
     void removeSelectedItem();
 
