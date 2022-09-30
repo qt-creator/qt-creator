@@ -61,7 +61,7 @@ void Environment::appendOrSet(const QString &key, const QString &value, const QS
     QTC_ASSERT(!key.contains('='), return );
     const auto it = m_dict.findKey(key);
     if (it == m_dict.m_values.end()) {
-        m_dict.m_values.insert(DictKey(key, m_dict.nameCaseSensitivity()), qMakePair(value, true));
+        m_dict.m_values.insert(DictKey(key, m_dict.nameCaseSensitivity()), {value, true});
     } else {
         // Append unless it is already there
         const QString toAppend = sep + value;
@@ -75,7 +75,7 @@ void Environment::prependOrSet(const QString &key, const QString &value, const Q
     QTC_ASSERT(!key.contains('='), return );
     const auto it = m_dict.findKey(key);
     if (it == m_dict.m_values.end()) {
-        m_dict.m_values.insert(DictKey(key, m_dict.nameCaseSensitivity()), qMakePair(value, true));
+        m_dict.m_values.insert(DictKey(key, m_dict.nameCaseSensitivity()), {value, true});
     } else {
         // Prepend unless it is already there
         const QString toPrepend = value + sep;

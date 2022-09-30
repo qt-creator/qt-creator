@@ -208,8 +208,8 @@ void LinearProgressWidget::recreateLayout()
 {
     disableUpdates();
 
-    QMap<WizardProgressItem *, ProgressItemWidget *>::ConstIterator it = m_itemToItemWidget.constBegin();
-    QMap<WizardProgressItem *, ProgressItemWidget *>::ConstIterator itEnd = m_itemToItemWidget.constEnd();
+    auto it = m_itemToItemWidget.constBegin();
+    const auto itEnd = m_itemToItemWidget.constEnd();
     while (it != itEnd) {
         it.value()->setVisible(false);
         ++it;
@@ -243,8 +243,8 @@ void LinearProgressWidget::updateProgress()
 
     QList<WizardProgressItem *> visitedItems = m_wizardProgress->visitedItems();
 
-    QMap<WizardProgressItem *, ProgressItemWidget *>::ConstIterator it = m_itemToItemWidget.constBegin();
-    QMap<WizardProgressItem *, ProgressItemWidget *>::ConstIterator itEnd = m_itemToItemWidget.constEnd();
+    auto it = m_itemToItemWidget.constBegin();
+    const auto itEnd = m_itemToItemWidget.constEnd();
     while (it != itEnd) {
         WizardProgressItem *item = it.key();
         ProgressItemWidget *itemWidget = it.value();
@@ -636,12 +636,12 @@ QList<WizardProgressItem *> WizardProgressPrivate::singlePathBetween(WizardProgr
     if (item->nextItems().contains(toItem))
         return {toItem};
 
-    QHash<WizardProgressItem *, QHash<WizardProgressItem *, bool> > visitedItemsToParents;
-    QList<QPair<WizardProgressItem *, WizardProgressItem *> > workingItems; // next to prev item
+    QHash<WizardProgressItem *, QHash<WizardProgressItem *, bool>> visitedItemsToParents;
+    QList<QPair<WizardProgressItem *, WizardProgressItem *>> workingItems; // next to prev item
 
-    QList<WizardProgressItem *> items = item->nextItems();
-    for (int i = 0; i < items.count(); i++)
-        workingItems.append(qMakePair(items.at(i), item));
+    const QList<WizardProgressItem *> items = item->nextItems();
+    for (WizardProgressItem *i : items)
+        workingItems.push_back({i, item});
 
     while (!workingItems.isEmpty()) {
         QPair<WizardProgressItem *, WizardProgressItem *> workingItem = workingItems.takeFirst();
@@ -651,16 +651,16 @@ QList<WizardProgressItem *> WizardProgressPrivate::singlePathBetween(WizardProgr
         if (parents.count() > 1)
             continue;
 
-        QList<WizardProgressItem *> items = workingItem.first->nextItems();
-        for (int i = 0; i < items.count(); i++)
-            workingItems.append(qMakePair(items.at(i), workingItem.first));
+        const QList<WizardProgressItem *> items = workingItem.first->nextItems();
+        for (WizardProgressItem *i : items)
+            workingItems.push_back({i, workingItem.first});
     }
 
     QList<WizardProgressItem *> path;
 
     WizardProgressItem *it = toItem;
-    QHash<WizardProgressItem *, QHash<WizardProgressItem *, bool> >::ConstIterator itItem = visitedItemsToParents.constFind(it);
-    QHash<WizardProgressItem *, QHash<WizardProgressItem *, bool> >::ConstIterator itEnd = visitedItemsToParents.constEnd();
+    auto itItem = visitedItemsToParents.constFind(it);
+    const auto itEnd = visitedItemsToParents.constEnd();
     while (itItem != itEnd) {
         path.prepend(itItem.key());
         if (itItem.value().count() != 1)
@@ -702,8 +702,8 @@ WizardProgress::~WizardProgress()
 {
     Q_D(WizardProgress);
 
-    QMap<WizardProgressItem *, WizardProgressItem *>::ConstIterator it = d->m_itemToItem.constBegin();
-    QMap<WizardProgressItem *, WizardProgressItem *>::ConstIterator itEnd = d->m_itemToItem.constEnd();
+    auto it = d->m_itemToItem.constBegin();
+    const auto itEnd = d->m_itemToItem.constEnd();
     while (it != itEnd) {
         delete it.key();
         ++it;
