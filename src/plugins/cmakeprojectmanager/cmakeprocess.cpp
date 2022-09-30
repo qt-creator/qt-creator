@@ -97,7 +97,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     }
 
     const auto parser = new CMakeParser;
-    parser->setSourceDirectory(parameters.sourceDirectory.path());
+    parser->setSourceDirectory(parameters.sourceDirectory);
     m_parser.addLineParser(parser);
 
     // Always use the sourceDir: If we are triggered because the build directory is getting deleted

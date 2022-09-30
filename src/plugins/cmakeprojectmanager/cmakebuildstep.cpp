@@ -300,7 +300,7 @@ void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
         emit progress(percent, {});
     });
     formatter->addLineParser(progressParser);
-    cmakeParser->setSourceDirectory(project()->projectDirectory().toString());
+    cmakeParser->setSourceDirectory(project()->projectDirectory());
     formatter->addLineParsers({cmakeParser, new GnuMakeParser});
     ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit());
     OutputTaskParser *xcodeBuildParser = nullptr;
