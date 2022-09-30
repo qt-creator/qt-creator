@@ -1097,36 +1097,12 @@ QString TextEditorWidget::plainTextFromSelection(const QTextCursor &cursor) cons
 {
     // Copy the selected text as plain text
     QString text = cursor.selectedText();
-    return convertToPlainText(text);
+    return TextDocument::convertToPlainText(text);
 }
 
 QString TextEditorWidget::plainTextFromSelection(const Utils::MultiTextCursor &cursor) const
 {
-    return convertToPlainText(cursor.selectedText());
-}
-
-QString TextEditorWidget::convertToPlainText(const QString &txt)
-{
-    QString ret = txt;
-    QChar *uc = ret.data();
-    QChar *e = uc + ret.size();
-
-    for (; uc != e; ++uc) {
-        switch (uc->unicode()) {
-        case 0xfdd0: // QTextBeginningOfFrame
-        case 0xfdd1: // QTextEndOfFrame
-        case QChar::ParagraphSeparator:
-        case QChar::LineSeparator:
-            *uc = QLatin1Char('\n');
-            break;
-        case QChar::Nbsp:
-            *uc = QLatin1Char(' ');
-            break;
-        default:
-            ;
-        }
-    }
-    return ret;
+    return TextDocument::convertToPlainText(cursor.selectedText());
 }
 
 static const char kTextBlockMimeType[] = "application/vnd.qtcreator.blocktext";

@@ -522,7 +522,6 @@ protected:
 
     virtual QString plainTextFromSelection(const QTextCursor &cursor) const;
     virtual QString plainTextFromSelection(const Utils::MultiTextCursor &cursor) const;
-    static QString convertToPlainText(const QString &txt);
 
     virtual QString lineNumber(int blockNumber) const;
     virtual int lineNumberDigits() const;
